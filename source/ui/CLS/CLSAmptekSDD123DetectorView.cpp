@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSAmptekSDD123BriefDetectorView::CLSAmptekSDD123BriefDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
@@ -58,7 +58,7 @@ bool CLSAmptekSDD123BriefDetectorView::setDetector(AMOldDetector *detector, bool
 }
 
 CLSAmptekSDD123DetailedDetectorView::CLSAmptekSDD123DetailedDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;

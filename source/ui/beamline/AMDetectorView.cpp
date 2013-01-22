@@ -20,43 +20,43 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorView.h"
 
-AMDetectorView::AMDetectorView(bool configureOnly, QWidget *parent) :
+AMOldDetectorView::AMOldDetectorView(bool configureOnly, QWidget *parent) :
 	QWidget(parent)
 {
 	configureOnly_ = configureOnly;
 }
 
-AMOldDetector* AMDetectorView::detector(){
+AMOldDetector* AMOldDetectorView::detector(){
 	return 0;
 }
 
-AMOldDetectorInfo* AMDetectorView::configurationSettings() const{
+AMOldDetectorInfo* AMOldDetectorView::configurationSettings() const{
 	return 0;
 }
 
-bool AMDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
+bool AMOldDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;
 }
 
-AMBriefDetectorView::AMBriefDetectorView(bool configureOnly, QWidget *parent) :
-		AMDetectorView(configureOnly, parent)
+AMBriefOldDetectorView::AMBriefOldDetectorView(bool configureOnly, QWidget *parent) :
+		AMOldDetectorView(configureOnly, parent)
 {
 }
 
-bool AMBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
+bool AMBriefOldDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;
 }
 
-AMDetailedDetectorView::AMDetailedDetectorView(bool configureOnly, QWidget *parent) :
-		AMDetectorView(configureOnly, parent)
+AMDetailedOldDetectorView::AMDetailedOldDetectorView(bool configureOnly, QWidget *parent) :
+		AMOldDetectorView(configureOnly, parent)
 {
 }
 
-bool AMDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
+bool AMDetailedOldDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;

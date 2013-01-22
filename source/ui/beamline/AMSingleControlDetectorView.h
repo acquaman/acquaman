@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMDetectorView.h"
 #include "beamline/AMSingleControlDetector.h"
 
-class AMSingleControlBriefDetectorView : public AMBriefDetectorView
+class AMSingleControlBriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:
@@ -48,7 +48,7 @@ protected:
 	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
-class AMSingleReadOnlyControlBriefDetectorView : public AMBriefDetectorView
+class AMSingleReadOnlyControlBriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:

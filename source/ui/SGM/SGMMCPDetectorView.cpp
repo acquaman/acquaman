@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 
 SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
 	readingCE_ = 0;
@@ -80,7 +80,7 @@ bool SGMMCPBriefDetectorView::setDetector(AMOldDetector *detector, bool configur
 
 
 SGMMCPDetailedDetectorView::SGMMCPDetailedDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	gl_ = 0;
 	readingCE_ = 0;

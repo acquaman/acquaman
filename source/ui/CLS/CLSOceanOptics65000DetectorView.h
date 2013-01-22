@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotPoint.h"
 
-class CLSOceanOptics65000BriefDetectorView : public AMBriefDetectorView
+class CLSOceanOptics65000BriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:
@@ -87,7 +87,7 @@ protected:
 //};
 
 /// This class builds a detailed view for the OceanOptics Optical Spectrometer detector.
-class CLSOceanOptics65000DetailedDetectorView : public AMDetailedDetectorView
+class CLSOceanOptics65000DetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:

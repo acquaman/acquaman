@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QToolButton;
 
-class CLSPGTBriefDetectorView : public AMBriefDetectorView
+class CLSPGTBriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:
@@ -88,7 +88,7 @@ protected:
 //};
 
 /// This class builds a detailed view for the PGT Sahara SDD detector.
-class CLSPGTDetailedDetectorView : public AMDetailedDetectorView
+class CLSPGTDetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:

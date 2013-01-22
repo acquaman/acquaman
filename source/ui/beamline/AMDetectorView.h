@@ -26,12 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "QMessageBox"
 #include "QMetaMethod"
 
-class AMDetectorView : public QWidget
+class AMOldDetectorView : public QWidget
 {
 Q_OBJECT
 
 public:
-	Q_INVOKABLE explicit AMDetectorView(bool configureOnly = false, QWidget *parent = 0);
+	Q_INVOKABLE explicit AMOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 	virtual AMOldDetector* detector();
 
@@ -46,30 +46,30 @@ signals:
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	virtual bool setDetector(AMOldDetector *detector, bool configureOnly = false);
-	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMOldDetector *detector, bool configureOnly);
-	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMOldDetector *detector, bool configureOnly);
-	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMOldDetector *detector, bool configureOnly);
+	friend AMOldDetectorView* AMOldDetectorViewSupport::createDetectorView(AMOldDetector *detector, bool configureOnly);
+	friend AMOldDetectorView* AMOldDetectorViewSupport::createBriefDetectorView(AMOldDetector *detector, bool configureOnly);
+	friend AMOldDetectorView* AMOldDetectorViewSupport::createDetailedDetectorView(AMOldDetector *detector, bool configureOnly);
 
 protected:
 	bool configureOnly_;
 };
 
-class AMBriefDetectorView : public AMDetectorView
+class AMBriefOldDetectorView : public AMOldDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMBriefDetectorView(bool configureOnly = false, QWidget *parent = 0);
+	Q_INVOKABLE explicit AMBriefOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	virtual bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
-class AMDetailedDetectorView : public AMDetectorView
+class AMDetailedOldDetectorView : public AMOldDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMDetailedDetectorView(bool configureOnly = false, QWidget *parent = 0);
+	Q_INVOKABLE explicit AMDetailedOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type

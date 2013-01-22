@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSingleControlDetectorView.h"
 
 AMSingleControlBriefDetectorView::AMSingleControlBriefDetectorView(AMSingleControlDetector *detector, QWidget *parent) :
-		AMBriefDetectorView(false, parent)
+		AMBriefOldDetectorView(false, parent)
 {
 	hl_ = 0;
 	fbk_ = 0;
@@ -65,7 +65,7 @@ bool AMSingleControlBriefDetectorView::setDetector(AMOldDetector *detector, bool
 //////////////////////////////////////////////
 
 AMSingleReadOnlyControlBriefDetectorView::AMSingleReadOnlyControlBriefDetectorView(AMSingleReadOnlyControlDetector *detector, QWidget *parent) :
-		AMBriefDetectorView(false, parent)
+		AMBriefOldDetectorView(false, parent)
 {
 	hl_ = 0;
 	fbk_ = 0;

@@ -193,14 +193,14 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 	// Register the detectors to their views
-	success &= AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
-	success &= AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
-	success &= AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
-	success &= AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
-	success &= AMDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
+	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
+	success &= AMOldDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
+	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
 	// Register the configuration file and file loader plugin supports
 	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
@@ -346,7 +346,7 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 void SGMAppController::onSGMPGTSDDConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->pgtDetector()->isConnected() && !pgtSDDView_){
-		pgtSDDView_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->pgtDetector());
+		pgtSDDView_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->pgtDetector());
 		mw_->addPane(pgtSDDView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
 	}
 }
@@ -354,7 +354,7 @@ void SGMAppController::onSGMPGTSDDConnected(bool connected){
 void SGMAppController::onSGMOceanOpticsSpectrometerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->oos65000Detector() && SGMBeamline::sgm()->oos65000Detector()->isConnected() && !oceanOpticsSpectrometerView_){
-		oceanOpticsSpectrometerView_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->oos65000Detector());
+		oceanOpticsSpectrometerView_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->oos65000Detector());
 		mw_->addPane(oceanOpticsSpectrometerView_, "Beamline Detectors", "SGM QE65000", ":/system-software-update.png");
 	}
 }
@@ -362,7 +362,7 @@ void SGMAppController::onSGMOceanOpticsSpectrometerConnected(bool connected){
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected() && ! amptekSDD1View_){
-		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		amptekSDD1View_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
 		mw_->addPane(amptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
 	}
 }
@@ -370,7 +370,7 @@ void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
-		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
+		amptekSDD2View_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
 		mw_->addPane(amptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
 	}
 }

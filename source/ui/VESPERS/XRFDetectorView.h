@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QPushButton>
 
-class XRFBriefDetectorView : public AMBriefDetectorView
+class XRFBriefDetectorView : public AMBriefOldDetectorView
 {
 	/// This class builds a very brief view for the XRF detector.  Its primary function is to show that the detector is working and if you want to use it, enables you to build a more detailed view.
 
@@ -73,7 +73,7 @@ protected:
 
 };
 
-class XRFDetailedDetectorView : public AMDetailedDetectorView
+class XRFDetailedDetectorView : public AMDetailedOldDetectorView
 {
 	/// This class builds the detailed view for viewing XRF detector data.  It should be able to read in an XRFDetector object and build a view based on the data contained within it.
 

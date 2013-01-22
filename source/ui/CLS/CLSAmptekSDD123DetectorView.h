@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 
 /// This class builds a very brief view for the Amptek SDD 123 detector. Its primary function is to show that the detector is working.
-class CLSAmptekSDD123BriefDetectorView : public AMBriefDetectorView
+class CLSAmptekSDD123BriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 
@@ -56,7 +56,7 @@ protected:
 
 
 /// This class builds a detailed view for the Amptek SDD 123 detector.
-class CLSAmptekSDD123DetailedDetectorView : public AMDetailedDetectorView
+class CLSAmptekSDD123DetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:

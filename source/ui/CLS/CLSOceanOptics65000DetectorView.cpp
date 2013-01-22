@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSOceanOptics65000BriefDetectorView::CLSOceanOptics65000BriefDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
-		AMBriefDetectorView(configureOnly, parent)
+		AMBriefOldDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
 	readingCE_ = 0;
@@ -119,7 +119,7 @@ bool CLSOceanOptics65000BriefDetectorView::setDetector(AMOldDetector *detector, 
 //}
 
 CLSOceanOptics65000DetailedDetectorView::CLSOceanOptics65000DetailedDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;

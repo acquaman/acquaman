@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QToolButton;
 
-class SGMMCPBriefDetectorView : public AMBriefDetectorView
+class SGMMCPBriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:
@@ -48,7 +48,7 @@ protected:
 	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
-class SGMMCPDetailedDetectorView : public AMDetailedDetectorView
+class SGMMCPDetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:

@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 
 VESPERSRoperCCDDetectorView::VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector *detector, bool configureOnly, QWidget *parent)
-	: AMDetailedDetectorView(configureOnly, parent)
+	: AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);

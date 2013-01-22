@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-class VESPERSRoperCCDDetectorView : public AMDetailedDetectorView
+class VESPERSRoperCCDDetectorView : public AMDetailedOldDetectorView
 {
 	Q_OBJECT
 

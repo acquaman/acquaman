@@ -42,19 +42,19 @@ AMOldDetectorSet* AMDetectorSetView::detectorSet(){
 	return internalView_->detectorSet();
 }
 
-AMDetectorView* AMDetectorSetView::boxByName(const QString &name){
+AMOldDetectorView* AMDetectorSetView::boxByName(const QString &name){
 	return internalView_->boxByName(name);
 }
 
-const AMDetectorView* AMDetectorSetView::boxAt(int row) const{
+const AMOldDetectorView* AMDetectorSetView::boxAt(int row) const{
 	return internalView_->boxAt(row);
 }
 
-AMDetectorView* AMDetectorSetView::detailByName(const QString &name){
+AMOldDetectorView* AMDetectorSetView::detailByName(const QString &name){
 	return internalView_->detailByName(name);
 }
 
-const AMDetectorView* AMDetectorSetView::detailAt(int row) const{
+const AMOldDetectorView* AMDetectorSetView::detailAt(int row) const{
 	return internalView_->detailAt(row);
 }
 
@@ -104,24 +104,24 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, 
 	viewSet_ = viewSet;
 	configureOnly_ = configureOnly;
 	gl_ = new QGridLayout();
-	AMDetectorView *tmpDV;
+	AMOldDetectorView *tmpDV;
 	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
-	AMDetectorView *tmpDetails;
+	AMOldDetectorView *tmpDetails;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpD = viewSet_->detectorAt(x);
-		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+		tmpDV = AMOldDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		tmpLabel = new QLabel(tmpD->description());
 		tmpButton = new QPushButton("Details");
-		if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
+		if(AMOldDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
 			tmpButton->setEnabled(false);
 			detectorDetails_.append(0);
 		}
 		else{
-			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
+			tmpDetails = AMOldDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 			detectorDetails_.append(tmpDetails);
 			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
@@ -159,24 +159,24 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, 
 	viewSet_ = viewSet;
 	configureOnly_ = true;
 	gl_ = new QGridLayout();
-	AMDetectorView *tmpDV;
+	AMOldDetectorView *tmpDV;
 	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
-	AMDetectorView *tmpDetails;
+	AMOldDetectorView *tmpDetails;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpD = viewSet_->detectorAt(x);
-		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+		tmpDV = AMOldDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		tmpLabel = new QLabel(tmpD->description());
 		tmpButton = new QPushButton("Details");
-		if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
+		if(AMOldDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
 			tmpButton->setEnabled(false);
 			detectorDetails_.append(0);
 		}
 		else{
-			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
+			tmpDetails = AMOldDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 			detectorDetails_.append(tmpDetails);
 			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
@@ -215,19 +215,19 @@ AMOldDetectorSet* AMDetectorSetViewInternal::detectorSet(){
 	return viewSet_;
 }
 
-AMDetectorView* AMDetectorSetViewInternal::boxByName(const QString &name){
+AMOldDetectorView* AMDetectorSetViewInternal::boxByName(const QString &name){
 	return detectorBoxes_.at(viewSet_->indexOfKey(name));
 }
 
-const AMDetectorView *AMDetectorSetViewInternal::boxAt(int row) const{
+const AMOldDetectorView *AMDetectorSetViewInternal::boxAt(int row) const{
 	return detectorBoxes_.at(row);
 }
 
-AMDetectorView* AMDetectorSetViewInternal::detailByName(const QString &name){
+AMOldDetectorView* AMDetectorSetViewInternal::detailByName(const QString &name){
 	return detectorDetails_.at(viewSet_->indexOf(name));
 }
 
-const AMDetectorView *AMDetectorSetViewInternal::detailAt(int row) const{
+const AMOldDetectorView *AMDetectorSetViewInternal::detailAt(int row) const{
 	return detectorDetails_.at(row);
 }
 
@@ -277,23 +277,23 @@ void AMDetectorSetViewInternal::setDisabled(bool disabled){
 }
 
 void AMDetectorSetViewInternal::onDetectorAddedToSet(int index){
-	AMDetectorView *tmpDV;
+	AMOldDetectorView *tmpDV;
 	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
-	AMDetectorView *tmpDetails;
+	AMOldDetectorView *tmpDetails;
 	tmpD = viewSet_->detectorAt(index);
-	tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+	tmpDV = AMOldDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 	connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 	tmpLabel = new QLabel(tmpD->description());
 	tmpButton = new QPushButton("Details");
-	if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
+	if(AMOldDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
 		tmpButton->setEnabled(false);
 		detectorDetails_.insert(index, 0);
 	}
 	else{
-		tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
+		tmpDetails = AMOldDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 		detectorDetails_.insert(index, tmpDetails);
 		connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 		connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
@@ -338,24 +338,24 @@ void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
 	detectorDetails_.clear();
 	checkBoxes_.clear();
 	gl_ = new QGridLayout();
-	AMDetectorView *tmpDV;
+	AMOldDetectorView *tmpDV;
 	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
-	AMDetectorView *tmpDetails;
+	AMOldDetectorView *tmpDetails;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpD = viewSet_->detectorAt(x);
-		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+		tmpDV = AMOldDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		tmpLabel = new QLabel(tmpD->description());
 		tmpButton = new QPushButton("Details");
-		if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
+		if(AMOldDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
 			tmpButton->setEnabled(false);
 			detectorDetails_.append(0);
 		}
 		else{
-			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
+			tmpDetails = AMOldDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 			detectorDetails_.append(tmpDetails);
 			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));

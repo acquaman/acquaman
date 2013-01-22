@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 
 /// Provides a simple view to some of the parameters in the Mar CCD detector.
-class VESPERSMarCCDDetectorView : public AMDetailedDetectorView
+class VESPERSMarCCDDetectorView : public AMDetailedOldDetectorView
 {
 	Q_OBJECT
 

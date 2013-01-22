@@ -37,12 +37,12 @@ public:
 
 	int count() const;
 	AMOldDetectorSet* detectorSet();
-	AMDetectorView* boxByName(const QString &name);
+	AMOldDetectorView* boxByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
-	const AMDetectorView *boxAt(int row) const;
-	AMDetectorView* detailByName(const QString &name);
+	const AMOldDetectorView *boxAt(int row) const;
+	AMOldDetectorView* detailByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
-	const AMDetectorView *detailAt(int row) const;
+	const AMOldDetectorView *detailAt(int row) const;
 	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
@@ -84,12 +84,12 @@ public:
 
 	int count() const;
 	AMOldDetectorSet* detectorSet();
-	AMDetectorView* boxByName(const QString &name);
+	AMOldDetectorView* boxByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
-	const AMDetectorView *boxAt(int row) const;
-	AMDetectorView* detailByName(const QString &name);
+	const AMOldDetectorView *boxAt(int row) const;
+	AMOldDetectorView* detailByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
-	const AMDetectorView *detailAt(int row) const;
+	const AMOldDetectorView *detailAt(int row) const;
 	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
@@ -118,8 +118,8 @@ protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
 	AMOldDetectorSet *viewSet_;
 	bool configureOnly_;
-	QList<AMDetectorView*> detectorBoxes_;
-	QList<AMDetectorView*> detectorDetails_;
+	QList<AMOldDetectorView*> detectorBoxes_;
+	QList<AMOldDetectorView*> detectorDetails_;
 	QList<QCheckBox*> checkBoxes_;
 	QGridLayout *gl_;
 };

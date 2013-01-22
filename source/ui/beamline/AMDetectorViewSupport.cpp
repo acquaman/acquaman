@@ -22,79 +22,79 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMDetectorView.h"
 
-AMDetectorViewObjectInfo::AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMOldDetector *prototypeDetector){
+AMOldDetectorViewObjectInfo::AMOldDetectorViewObjectInfo(AMOldDetectorView *prototypeView, AMOldDetector *prototypeDetector){
 	initWithMetaObject(prototypeView->metaObject(), prototypeDetector->getMetaObject());
 }
 
-AMDetectorViewObjectInfo::AMDetectorViewObjectInfo(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject){
-	if(inheritsDetectorView(classMetaObject) && inheritsDetectorInfo(supportsMetaObject) )
+AMOldDetectorViewObjectInfo::AMOldDetectorViewObjectInfo(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject){
+	if(inheritsOldDetectorView(classMetaObject) && inheritsOldDetectorInfo(supportsMetaObject) )
 		initWithMetaObject(classMetaObject, supportsMetaObject);
 	else
 		viewMetaObject = 0;
 }
 
-void AMDetectorViewObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject) {
+void AMOldDetectorViewObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject) {
 	viewMetaObject = classMetaObject;
 	detectorMetaObject = supportsMetaObject;
 	viewClassName = viewMetaObject->className();
 	detectorClassName = detectorMetaObject->className();
 }
 
-bool AMDetectorViewObjectInfo::inheritsDetectorView(const QMetaObject *metaObject) const{
-	// is this a subclass of AMDetectorView? (Or an AMDetectorView itself?)
+bool AMOldDetectorViewObjectInfo::inheritsOldDetectorView(const QMetaObject *metaObject) const{
+	// is this a subclass of AMOldDetectorView? (Or an AMOldDetectorView itself?)
 	const QMetaObject* superClass = metaObject;
-	bool inheritsDetectorView;
+	bool inheritsOldDetectorView;
 	do {
-		inheritsDetectorView = (superClass->className() == QString("AMDetectorView"));
+		inheritsOldDetectorView = (superClass->className() == QString("AMOldDetectorView"));
 	}
-	while( (superClass=superClass->superClass()) && inheritsDetectorView == false );
-	return inheritsDetectorView;
+	while( (superClass=superClass->superClass()) && inheritsOldDetectorView == false );
+	return inheritsOldDetectorView;
 }
 
-bool AMDetectorViewObjectInfo::inheritsBriefView(const QMetaObject *metaObject) const{
-	// is this a subclass of AMBriefDetectorView? (Or an AMBriefDetectorView itself?)
+bool AMOldDetectorViewObjectInfo::inheritsOldBriefView(const QMetaObject *metaObject) const{
+	// is this a subclass of AMBriefOldDetectorView? (Or an AMBriefOldDetectorView itself?)
 	const QMetaObject* superClass = metaObject;
-	bool inheritsBriefView;
+	bool inheritsOldBriefView;
 	do {
-		inheritsBriefView = (superClass->className() == QString("AMBriefDetectorView"));
+		inheritsOldBriefView = (superClass->className() == QString("AMBriefOldDetectorView"));
 	}
-	while( (superClass=superClass->superClass()) && inheritsBriefView == false );
-	return inheritsBriefView;
+	while( (superClass=superClass->superClass()) && inheritsOldBriefView == false );
+	return inheritsOldBriefView;
 }
 
-bool AMDetectorViewObjectInfo::inheritsDetailedView(const QMetaObject *metaObject) const{
-	// is this a subclass of AMBriefDetectorView? (Or an AMBriefDetectorView itself?)
+bool AMOldDetectorViewObjectInfo::inheritsOldDetailedView(const QMetaObject *metaObject) const{
+	// is this a subclass of AMDetailedOldDetectorView? (Or an AMDetailedOldDetectorView itself?)
 	const QMetaObject* superClass = metaObject;
-	bool inheritsDetailedView;
+	bool inheritsOldDetailedView;
 	do {
-		inheritsDetailedView = (superClass->className() == QString("AMDetailedDetectorView"));
+		inheritsOldDetailedView = (superClass->className() == QString("AMDetailedOldDetectorView"));
 	}
-	while( (superClass=superClass->superClass()) && inheritsDetailedView == false );
-	return inheritsDetailedView;
+	while( (superClass=superClass->superClass()) && inheritsOldDetailedView == false );
+	return inheritsOldDetailedView;
 }
 
 
-bool AMDetectorViewObjectInfo::inheritsDetectorInfo(const QMetaObject *metaObject) const{
+bool AMOldDetectorViewObjectInfo::inheritsOldDetectorInfo(const QMetaObject *metaObject) const{
 	// is this a subclass of AMOldDetectorInfo? (Or an AMOldDetectorInfo itself?)
 	const QMetaObject* superClass = metaObject;
-	bool inheritsDetectorInfo;
+	bool inheritsOldDetectorInfo;
 	do {
-		inheritsDetectorInfo = (superClass->className() == QString("AMOldDetectorInfo"));
+		inheritsOldDetectorInfo = (superClass->className() == QString("AMOldDetectorInfo"));
 	}
-	while( (superClass=superClass->superClass()) && inheritsDetectorInfo == false );
-	return inheritsDetectorInfo;
+	while( (superClass=superClass->superClass()) && inheritsOldDetectorInfo == false );
+	return inheritsOldDetectorInfo;
 }
 
-namespace AMDetectorViewSupport{
-	QHash<QString, AMDetectorViewObjectInfo> registeredClasses_;
+namespace AMOldDetectorViewSupport{
+	QHash<QString, AMOldDetectorViewObjectInfo> registeredClasses_;
 
-	const QHash<QString, AMDetectorViewObjectInfo>* registeredClasses() {
+	const QHash<QString, AMOldDetectorViewObjectInfo>* registeredClasses() {
 		return &registeredClasses_;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedClasses(AMOldDetector *detector){
-		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
-		QList<AMDetectorViewObjectInfo> rv;
+	const QList<AMOldDetectorViewObjectInfo> supportedClasses(AMOldDetector *detector){
+		QHash<QString, AMOldDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
+		QList<AMOldDetectorViewObjectInfo> rv;
 		if(detector){
 			while (i != registeredClasses_.constEnd()) {
 				if(i.value().detectorClassName == detector->getMetaObject()->className())
@@ -105,9 +105,9 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMOldDetector *detector){
-		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
-		QList<AMDetectorViewObjectInfo> rv;
+	const QList<AMOldDetectorViewObjectInfo> supportedBriefViews(AMOldDetector *detector){
+		QHash<QString, AMOldDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
+		QList<AMOldDetectorViewObjectInfo> rv;
 		if(detector){
 			while (i != registeredClasses_.constEnd()) {
 				if( (i.value().detectorClassName == detector->getMetaObject()->className()) && ( i.value().isBriefView() ) )
@@ -118,9 +118,9 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMOldDetector *detector){
-		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
-		QList<AMDetectorViewObjectInfo> rv;
+	const QList<AMOldDetectorViewObjectInfo> supportedDetailedViews(AMOldDetector *detector){
+		QHash<QString, AMOldDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
+		QList<AMOldDetectorViewObjectInfo> rv;
 		if(detector){
 			while (i != registeredClasses_.constEnd()) {
 				if( (i.value().detectorClassName == detector->getMetaObject()->className()) && ( i.value().isDetailedView() ) )
@@ -131,39 +131,39 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	AMDetectorView* createDetectorView(AMOldDetector *detector, bool configureOnly){
+	AMOldDetectorView* createDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
-		QList<AMDetectorViewObjectInfo> supported = supportedClasses(detector);
+		QList<AMOldDetectorViewObjectInfo> supported = supportedClasses(detector);
 		if(supported.count() > 0){
-			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
+			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());
 			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}
 		return 0;
 	}
 
-	AMDetectorView* createBriefDetectorView(AMOldDetector *detector, bool configureOnly){
+	AMOldDetectorView* createBriefDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
-		QList<AMDetectorViewObjectInfo> supported = supportedBriefViews(detector);
+		QList<AMOldDetectorViewObjectInfo> supported = supportedBriefViews(detector);
 		if(supported.count() > 0){
-			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
+			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());
 			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}
 		return 0;
 	}
 
-	AMDetectorView* createDetailedDetectorView(AMOldDetector *detector, bool configureOnly){
+	AMOldDetectorView* createDetailedDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
-		QList<AMDetectorViewObjectInfo> supported = supportedDetailedViews(detector);
+		QList<AMOldDetectorViewObjectInfo> supported = supportedDetailedViews(detector);
 		if(supported.count() > 0){
-			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
+			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());
 			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}

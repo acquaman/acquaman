@@ -27,7 +27,7 @@ class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
-class AMDetectorView;
+class AMOldDetectorView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -132,13 +132,13 @@ protected:
 	/// View for controlling the synchronized dwell time application
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 	/// View for controlling the PGT Sahara SDD
-	AMDetectorView *pgtSDDView_;
+	AMOldDetectorView *pgtSDDView_;
 	/// View for controlling the Ocean Optics Optical Spectrometer
-	AMDetectorView *oceanOpticsSpectrometerView_;
+	AMOldDetectorView *oceanOpticsSpectrometerView_;
 	/// View for controlling the first SGM amptek SDD
-	AMDetectorView *amptekSDD1View_;
+	AMOldDetectorView *amptekSDD1View_;
 	/// View for controlling the second SGM amptek SDD
-	AMDetectorView *amptekSDD2View_;
+	AMOldDetectorView *amptekSDD2View_;
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// View for the SGM's Fast scan configurations
