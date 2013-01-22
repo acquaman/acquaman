@@ -18,11 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORVIEW_H
-#define AMDETECTORVIEW_H
+#ifndef AMOLDDETECTORVIEW_H
+#define AMOLDDETECTORVIEW_H
 
 #include "AMControlSetView.h"
-#include "AMDetectorViewSupport.h"
+#include "AMOldDetectorViewSupport.h"
 #include "QMessageBox"
 #include "QMetaMethod"
 

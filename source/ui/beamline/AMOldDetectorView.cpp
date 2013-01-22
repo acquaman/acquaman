@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorView.h"
+#include "AMOldDetectorView.h"
 
 AMOldDetectorView::AMOldDetectorView(bool configureOnly, QWidget *parent) :
 	QWidget(parent)

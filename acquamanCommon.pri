@@ -300,7 +300,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
-	source/ui/beamline/AMDetectorView.h \
 	source/ui/AMWorkflowManagerView.h \
 	source/actions/AMBeamlineScanAction.h \
 	source/dataman/AMAbstractFileLoader.h \
@@ -371,7 +370,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMSpectralOutputDetector.h \
 	source/beamline/CLS/CLSPGTDetector.h \
 	source/beamline/SGM/SGMMCPDetector.h \
-	source/ui/beamline/AMDetectorViewSupport.h \
 	source/ui/beamline/AMSingleControlDetectorView.h \
 	source/ui/SGM/SGMMCPDetectorView.h \
 	source/ui/CLS/CLSPGTDetectorView.h \
@@ -605,7 +603,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/dataman/AMDbUpgrade1Pt1.h \
     source/dataman/AMDbUpgrade1Pt2.h \
     source/dataman/info/AMDetectorInfo.h \
-    source/beamline/CLS/CLSAmptekSDD123DetectorNew.h
+    source/beamline/CLS/CLSAmptekSDD123DetectorNew.h \
+    source/ui/beamline/AMOldDetectorView.h \
+    source/ui/beamline/AMOldDetectorViewSupport.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -723,7 +723,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
-	source/ui/beamline/AMDetectorView.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
 	source/actions/AMBeamlineScanAction.cpp \
@@ -792,7 +791,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMSpectralOutputDetector.cpp \
 	source/beamline/CLS/CLSPGTDetector.cpp \
 	source/beamline/SGM/SGMMCPDetector.cpp \
-	source/ui/beamline/AMDetectorViewSupport.cpp \
 	source/ui/beamline/AMSingleControlDetectorView.cpp \
 	source/ui/SGM/SGMMCPDetectorView.cpp \
 	source/ui/CLS/CLSPGTDetectorView.cpp \
@@ -1014,7 +1012,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/dataman/AMDbUpgrade1Pt1.cpp \
     source/dataman/AMDbUpgrade1Pt2.cpp \
     source/dataman/info/AMDetectorInfo.cpp \
-    source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp
+    source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp \
+    source/ui/beamline/AMOldDetectorViewSupport.cpp \
+    source/ui/beamline/AMOldDetectorView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1038,6 +1038,14 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
 
 
 

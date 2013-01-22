@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORVIEWSUPPORT_H
-#define AMDETECTORVIEWSUPPORT_H
+#ifndef AMOLDDETECTORVIEWSUPPORT_H
+#define AMOLDDETECTORVIEWSUPPORT_H
 
 #include "beamline/AMOldDetector.h"
 
