@@ -99,6 +99,9 @@ bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
 
+		// Defaults the auto-open for generic scan editors to true.  All new running scans will have their scan editor brought to the front.
+		setAutomaticBringScanEditorToFront(true);
+
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();
 		mw_->insertHeading("Experiment Tools", 1);
@@ -107,6 +110,9 @@ bool AMAppController::startupCreateUserInterface() {
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
 		scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans", QModelIndex(), mw_->windowPaneModel()->rowCount()-1);
+
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanActionStarted(AMScanAction*)));
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanActionFinished(AMScanAction*)));
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
@@ -139,21 +145,76 @@ void AMAppController::goToWorkflow()
 }
 
 #include "dataman/AMScan.h"
+#include "actions3/actions/AMScanAction.h"
+#include "acquaman/AMScanController.h"
+#include "dataman/AMScanEditorModelItem.h"
+
+void AMAppController::updateScanEditorModelItem()
+{
+	AMScanAction *action = qobject_cast<AMScanAction *>(AMActionRunner3::workflow()->currentAction());
+
+	if (action && (action->state() == AMAction3::Running || action->inFinalState())){
+
+		AMGenericScanEditor *editor = editorFromScan(action->controller()->scan());
+
+		if (!editor)
+			return;
+
+		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->aliasTarget(mw_->windowPaneModel()->indexForPane(editor)));
+		QString stateString;
+
+		switch(action->state()){
+
+		case AMAction3::Running:
+			stateString = "running";
+			break;
+
+		case AMAction3::Succeeded:
+			stateString = "succeeded";
+			break;
+
+		case AMAction3::Failed:
+			stateString = "failed";
+			break;
+
+		case AMAction3::Cancelled:
+			stateString = "cancelled";
+			break;
+
+		default:
+			stateString = "default";
+			break;
+		}
+
+		item->scanActionStateChanged(stateString, editor == mw_->currentPane());
+	}
+}
+
+void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
+{
+	AMScan *scan = action->controller()->scan();
+	openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
+
+	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
+	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+
+	onCurrentScanActionStartedImplementation(action);
+}
+
+void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
+{
+	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	onCurrentScanActionFinishedImplementation(action);
+}
 
 void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
 
-	if(openInExistingEditor && scanEditorCount()) {
+	if(openInExistingEditor && scanEditorCount())
 		editor = scanEditorAt(scanEditorCount()-1);
-	}
-	else {
-
-		if (scan->scanRank() == 2)
-			editor = createNewScanEditor(true);
-		else
-			editor = createNewScanEditor();
-	}
+	else
+		editor = createNewScanEditor(scan->scanRank() == 2);
 
 	editor->addScan(scan);
 

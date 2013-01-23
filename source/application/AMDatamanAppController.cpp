@@ -724,8 +724,14 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
+#include "dataman/AMScanEditorModelItem.h"
+
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 {
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (pane == scanEditorScanMapping_.at(i).second)
+			((AMScanEditorModelItem *)(mw_->windowPaneModel()->aliasTarget(mw_->windowPaneModel()->indexForPane(pane))))->editorWasClicked();
+
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
 }
@@ -763,8 +769,6 @@ void AMDatamanAppController::onAddButtonClicked() {
 		e.storeToDb(AMDatabase::database("user"));
 	}
 }
-
-#include "dataman/AMScanEditorModelItem.h"
 
 void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
@@ -832,6 +836,24 @@ void AMDatamanAppController::fixCDF(const QUrl &url)
 	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
+AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (editor == scanEditorScanMapping_.at(i).second)
+			return scanEditorScanMapping_.at(i).first;
+
+	return 0;
+}
+
+AMGenericScanEditor *AMDatamanAppController::editorFromScan(AMScan *scan) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (scan == scanEditorScanMapping_.at(i).first)
+			return scanEditorScanMapping_.at(i).second;
+
+	return 0;
+}
+
 #include "dataman/AMRunExperimentItems.h"
 
 void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
@@ -839,7 +861,22 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	// is this a scan editor to be deleted?
 	/////////////////////////////////
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+
 		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
+
+		if (editor){
+
+			int index = -1;
+
+			for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+				if (editor == scanEditorScanMapping_.at(i).second)
+					index = i;
+
+			// This must be valid if it isn't -1, no need to check against the size.
+			if (index >= 0)
+				scanEditorScanMapping_.removeAt(index);
+		}
+
 		closeScanEditor(editor);
 	}
 
@@ -926,18 +963,10 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 	}
 }
 
-AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
-{
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
-	emit scanEditorCreated(editor);
-	return editor;
-}
-
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
 	emit scanEditorCreated(editor);
 	return editor;
 }
@@ -1034,6 +1063,7 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 			if(scan){
 
 				editor = createNewScanEditor(scan->scanRank() == 2);
+				editor->addScan(scan);
 				accepted = true;
 			}
 		}

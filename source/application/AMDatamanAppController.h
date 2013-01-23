@@ -165,10 +165,8 @@ public:
 	bool closeScanEditor(int index);
 	/// Close a scan editor. Returns false if can't be closed.
 	bool closeScanEditor(AMGenericScanEditor* editor);
-	/// Create and add a new scan editor. Returns the new scan editor
-	AMGenericScanEditor* createNewScanEditor();
-	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
-	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
+	/// Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView = false);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
@@ -300,6 +298,11 @@ protected:
 	virtual void addBottomPanel();
 
 protected:
+	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
+	AMGenericScanEditor *editorFromScan(AMScan *scan) const;
+	/// Helper method that returns the scan associated with an editor for the scanEditorsScanMapping list.  Returns 0 if not found.
+	AMScan *scanFromEditor(AMGenericScanEditor *editor) const;
+
 	/// UI structure components
 	AMMainWindow* mw_;
 
@@ -344,6 +347,9 @@ protected:
 
 	/// Holds a boolean that may be set to warn about poor choices for database directory
 	bool isBadDatabaseDirectory_;
+
+	/// List that organizes active scans with editors for updating the ScanEditorModelItem's.  Although the list currently will only be populated AMAppController, the clean up is very general and is done in the onWindowPaneCloseClicked() method.
+	QList<QPair<AMScan *, AMGenericScanEditor *> > scanEditorScanMapping_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

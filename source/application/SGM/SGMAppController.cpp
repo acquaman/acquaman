@@ -116,6 +116,9 @@ bool SGMAppController::startup() {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
+	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
+	setAutomaticBringScanEditorToFront(false);
+
 	// Retrieve the current run or create one if there is none
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
@@ -377,10 +380,9 @@ void SGMAppController::onCurrentScanControllerCreated(){
 void SGMAppController::onCurrentScanControllerDestroyed(){
 }
 
-void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
+void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 
 	AMScan *scan = action->controller()->scan();
-	openScanInEditor(scan);
 
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
 	if(xasConfig){
@@ -400,7 +402,7 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	}
 }
 
-void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
 }
 
@@ -1156,9 +1158,6 @@ bool SGMAppController::setupSGMViews(){
 
 	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));

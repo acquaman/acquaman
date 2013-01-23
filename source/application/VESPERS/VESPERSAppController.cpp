@@ -141,6 +141,9 @@ bool VESPERSAppController::startup() {
 
 		registerClasses();
 
+		// We don't want to automatically switch to new scans.
+		setAutomaticBringScanEditorToFront(false);
+
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
 
@@ -303,9 +306,6 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
-
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 	// copy ROIs from one detector to another.
@@ -327,7 +327,7 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(marCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
+void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	QString fileFormat(action->controller()->scan()->fileFormat());
 
@@ -335,12 +335,9 @@ void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 		return;
 
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
-
-	AMScan *scan = action->controller()->scan();
-	openScanInEditor(scan);
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
+void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	QString fileFormat(action->controller()->scan()->fileFormat());
 
