@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotPoint.h"
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/CLS/CLSPGTDetector.h"
 
 class QToolButton;

@@ -657,6 +657,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
 	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
+	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
+
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
 

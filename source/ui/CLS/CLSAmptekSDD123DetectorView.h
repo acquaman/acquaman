@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSAMPTEKSDD123DETECTORVIEW_H
 #define CLSAMPTEKSDD123DETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
 
 #include "MPlot/MPlot.h"

@@ -28,6 +28,7 @@ class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
 class AMOldDetectorView;
+class AMDetectorView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -89,6 +90,8 @@ protected slots:
 	void onSGMAmptekSDD1Connected(bool connected);
 	/// When the SGM's second amptek SDD connects the view is created and added as a pane to the main window.
 	void onSGMAmptekSDD2Connected(bool connected);
+	/// When the SGM's first (new) amptek SDD connects the view is created adn added as a pane to the main window.
+	void onSGMNewAmptekSDD1Connected(bool connected);
 
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerCreated();
@@ -139,6 +142,10 @@ protected:
 	AMOldDetectorView *amptekSDD1View_;
 	/// View for controlling the second SGM amptek SDD
 	AMOldDetectorView *amptekSDD2View_;
+
+	/// View for controlling the new SGM amptek SDD (first)
+	AMDetectorView *newAmptekSDD1View_;
+
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// View for the SGM's Fast scan configurations

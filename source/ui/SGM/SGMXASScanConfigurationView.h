@@ -38,7 +38,7 @@ class QSpacerItem;
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 
 class SGMFluxResolutionPickerView;
 

@@ -9,6 +9,7 @@
 
 class CLSAmptekSDD123DetectorNew : public AMDetector
 {
+Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
 	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
@@ -26,7 +27,7 @@ public:
 	virtual bool requiresPower() const { return false; }
 
 	/// Returns true if the detector is currently acquiring by checking the status control.
-	virtual bool isAcquiring() const = 0;
+	virtual bool isAcquiring() const;
 	/// Cancelling is not implemented for the Amptek detectors
 	virtual bool canCancel() const { return false; }
 	/// Clearing is not currently supported for the Amptek detectors

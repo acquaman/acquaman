@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDETECTORSETVIEW_H
 #define AMDETECTORSETVIEW_H
 
-#include "AMDetectorView.h"
+#include "AMOldDetectorView.h"
 #include "beamline/AMOldDetectorSet.h"
 #include <QScrollArea>
 

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSOCEANOPTICS65000DETECTORVIEW_H
 #define CLSOCEANOPTICS65000DETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
 
 #include "MPlot/MPlot.h"

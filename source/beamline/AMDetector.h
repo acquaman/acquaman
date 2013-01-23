@@ -8,6 +8,61 @@
 #include "actions3/AMAction3.h"
 #include "dataman/datasource/AMDataSource.h"
 
+/// An AMDetector is an abstract representation of all scientific tools designed to report data
+/*!
+  As a programmer, you may wish to implement your own AMDetector subclass. Check around first! You may find that someone has already done the work.
+
+  You will need to look into three types of calls: functions you MUST implement, functions you MAY wish to reimplement, and functions you MUST call.
+
+  \b MUST Implement:
+  - size(int) Must be implemented to ensure that you return sensible information.
+
+  - requiresPower() Must be implemented to say whether or not the detector needs additional powering.
+
+  - readMethod() Must be implemented to say how this detector reads (request/trigger, immedite, wait). While it's unlikely that your detector can change this on the fly, it is not impossible.
+  - readMode() Must be implemented to say how this detector is currently reading data (single acquisition, continuous). Some detectors can switch on the fly.
+  - setReadMode() Must be implemented to deal with switching on the fly. If your detector does not support this, simply return false and do nothing.
+
+  - isAcquiring() Must be implemented to say when the detector is acquiring. Triggered detectors are acquiring between the time acquire() is called and when the acquisition is finished. Immediate detectors are never acquiring, as they immediately return their data.
+  - acquire(AMDetectorDefinitions::ReadMode) Must be implemented to start the internal acquisition process. Immediate detectors can return false.
+  - canContinuousAcquire() Must be implemented to say whether or not the detector can support continuous acquisitions.
+
+  - canCancel() Must be implemented to say if the detector's acquisition can be cancelled.
+  - cancelAcquisition() Must be implemented to internally cancel the acquisition if possible. Simply return false otherwise.
+  - canClear() Must be implemented to say if the detector's capable of clearing its current data.
+  - clear() Must be implemented to internally clear the current data if possible. Simply return false otherwise.
+
+  - supportsSynchronizedDwell() Must be implemented to say if the detector can be controlled by a synchronzed dwell time tool. FLESH THIS OUT.
+  - currentlySynchronizedDwell() Must be implemented to say if the detector is currently being controlled by a synchronized dwell time tool. FLESH THIS OUT.
+
+  - reading() Must be implemented to pull out single-valued readings from your detector.
+  - lastContinuousReading() Must be implemented to return continuous buffers. Return false if continuous dwells are not supported.
+  - data() Must be implemented to return a raw data pointer for fast access.
+
+  - acquisitionTime() Must be implemented to return the detector's current dwell time. A value of -1 is sensible for Immediate detectors.
+  - setAcquisitionTime() Must be implemented to change the detector's current dwell time. Returning false is sensible for Immediate detectors.
+  - createSetAcquisitionTimeAction() Must be implemented to return an action that can set the acquisition time for triggered detectors.
+
+  - initialized() Must be implemented to say whether or not the detector has been initialized (returning false suggests that initialized needs to be called).
+  - initialize() Must be implemented to internally initialize the detector. Depending on the detector, this may require absolutely no work or a great deal of work.
+  - createInitializationActions() Must be implemented to return an action that can be called to do the initialization and notify once it is completed.
+
+  - cleanedUp() Must be implemented to say whether or not the detector has been cleaned up (returning false suggests that cleanup needs to be called).
+  - cleanup() Must be implemented to internally cleanup the detector after acquisition/scans. Depending on the detector, this may require absolutely no work or a great deal of work.
+  - createCleanupActions() Must be implemented to return an action that can be called to do the cleanup and notify once it si completed.
+
+  - dataSource() Must be implemented to return an appropriate data source for viewing the detector output.
+
+  \b MAY Reimplement:
+  - rank(), size(), axes() There are default implementations, but these are only valid for 0D detectors
+  - reading0D, reading1D, reading2D There are default implementations, but they are inefficient because they will call reading() repeatedly
+
+  \b MUST Call:
+  - setConnected() You must call this function when your detector has connected, this way the signals are always emitted correctly.
+  - setReadyForAcquisition() You must call this function when your detector is ready for acquisition, this way signals are always emitted correctly.
+  - setPowered() You must call this function if you detector requires some additional form of power (likely high voltage), this way signals are always emitted correctly.
+  !*/
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -59,6 +114,10 @@ public:
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
 	virtual double acquisitionTime() const = 0;
+	/// Returns whether or not this detector has been initialized
+	virtual bool initialized() const = 0;
+	/// Returns whether or not this detector has been cleaned up after use (probably a scan)
+	virtual bool cleanedUp() const = 0;
 
 	/// Returns whether or not this detector can be coordinated with a synchronized dwell system
 	virtual bool supportsSynchronizedDwell() const = 0;
@@ -139,8 +198,15 @@ signals:
 	/// Indicates that the detector is currently powered (has it's high voltage on). Also see requiresPower().
 	void powered(bool isPowered);
 
+	/// Indicates that the detector's acquisition read mode has changed
+	void readModeChanged(AMDetectorDefinitions::ReadMode readMode);
+	/// Indicates that the detector's acquisition time has changed
+	void acquisitionTimeChanged(double seconds);
+
+	/// Emit this when the acquisition process starts and pass whether it was successful or not
+	void acquisitionStarted(bool successfullyStarted);
 	/// Emit this when the acquisition process finishes and pass whether it was successful or not
-	void acquisitionFinished(bool succeeded);
+	void acquisitionFinished(bool successfullyFinished);
 
 protected:
 	/// Internal class trigger for setting the connected state. All AMDetector subclasses should call this to make sure that signals are emitted properly.

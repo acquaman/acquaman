@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRFDETECTORVIEW_H
 #define XRFDETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/VESPERS/XRFElement.h"
 #include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"

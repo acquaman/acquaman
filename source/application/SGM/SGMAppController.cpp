@@ -34,12 +34,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSidebar.h"
 #include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
 #include "ui/SGM/SGMMCPDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorView.h"
 #include "ui/CLS/CLSOceanOptics65000DetectorView.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -372,6 +373,14 @@ void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
 		amptekSDD2View_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
 		mw_->addPane(amptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
+		newAmptekSDD1View_ = new AMDetectorView(SGMBeamline::sgm()->newAmptekSDD1());
+		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
 	}
 }
 
@@ -1152,6 +1161,10 @@ bool SGMAppController::setupSGMViews(){
 	amptekSDD2View_ = 0;
 	connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
 	onSGMAmptekSDD2Connected(false);
+
+	newAmptekSDD1View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
+	onSGMNewAmptekSDD1Connected(false);
 
 	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 

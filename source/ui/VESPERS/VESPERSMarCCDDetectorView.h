@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSMARCCDDETECTORVIEW_H
 #define VESPERSMARCCDDETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 
 #include <QLabel>
