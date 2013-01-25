@@ -36,13 +36,14 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
+	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
 }
 
 int CLSAmptekSDD123DetectorNew::size(int axisNumber) const{
-	if(axisNumber = 0)
+	if(axisNumber == 0)
 		return 1024;
 	return -1;
 }
@@ -56,11 +57,13 @@ QList<AMAxisInfo> CLSAmptekSDD123DetectorNew::axes() const{
 	return axisInfo;
 }
 
+/*
 bool CLSAmptekSDD123DetectorNew::isAcquiring() const{
 	if(isConnected())
 		return statusControl_->withinTolerance(1);
 	return false;
 }
+*/
 
 double CLSAmptekSDD123DetectorNew::acquisitionTime() const{
 	if(isConnected())
@@ -85,6 +88,12 @@ AMNumber CLSAmptekSDD123DetectorNew::reading(const AMnDIndex &indexes) const{
 	return tmpControl->readPV()->lastIntegerValues().at(indexes.i());
 }
 
+bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
+	Q_UNUSED(outputValues)
+
+	return false;
+}
+
 bool CLSAmptekSDD123DetectorNew::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
@@ -94,16 +103,37 @@ bool CLSAmptekSDD123DetectorNew::setAcquisitionTime(double seconds){
 	return true;
 }
 
-bool CLSAmptekSDD123DetectorNew::acquire(AMDetectorDefinitions::ReadMode readMode){
+bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
+	Q_UNUSED(readMode)
+
+	return false;
+}
+
+bool CLSAmptekSDD123DetectorNew::initializeImplementation(){
+	return true;
+}
+
+bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
-	startAcquisitionControl_->move(1);
+	qDebug() << "New Amptek told to acquire";
+	AMControl::FailureExplanation failureExplanation = startAcquisitionControl_->move(1);
+	if(failureExplanation != AMControl::NoFailure)
+		return true;
+	return false;
+}
+
+bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
 	return true;
 }
 
 void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
 	setConnected(connected);
+	if(connected)
+		setReadyForAcquisition();
+	else
+		setNotReadyForAcquisition();
 }
 
 void CLSAmptekSDD123DetectorNew::onControlsTimedOut(){
@@ -111,9 +141,25 @@ void CLSAmptekSDD123DetectorNew::onControlsTimedOut(){
 }
 
 void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(double newValue){
+	Q_UNUSED(newValue)
+
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 
 	QVector<int> values = tmpControl->readPV()->lastIntegerValues();
 	for(int x = 0; x < values.count(); x++)
 		data_[x] = values.at(x);
+}
+
+void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
+	Q_UNUSED(value)
+
+	if(statusControl_->withinTolerance(1))
+		setAcquiring();
+	else if(statusControl_->withinTolerance(0)){
+		setAcquisitionSucceeded();
+		if(isConnected())
+			setReadyForAcquisition();
+		else
+			setNotReadyForAcquisition();
+	}
 }

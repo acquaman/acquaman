@@ -27,7 +27,7 @@ public:
 	virtual bool requiresPower() const { return false; }
 
 	/// Returns true if the detector is currently acquiring by checking the status control.
-	virtual bool isAcquiring() const;
+	//virtual bool isAcquiring() const;
 	/// Cancelling is not implemented for the Amptek detectors
 	virtual bool canCancel() const { return false; }
 	/// Clearing is not currently supported for the Amptek detectors
@@ -53,47 +53,26 @@ public:
 	virtual AMNumber reading(const AMnDIndex& indexes) const;
 
 	/// Returns false, because the Amptek detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const { return false; }
+	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual const double* data() const;
 
-	// FULLY IMPLEMENT THESE ACTIONS LATER
-	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
-	virtual AMAction3* createInitializationActions() { return 0; }
-
 	/// Returns a newly created action to set the acquisition time on this detector
-	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { return 0; }
-
-	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
-	virtual AMAction3* createCleanupActions() { return 0; }
+	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
 
 public slots:
-	// FULLY IMPLEMENT THE INITIALIZE FUNCTION
-	/// Initializes the detector (prepares it for acquisition)
-	virtual bool initialize() { return false; }
-
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
 
 	/// The read mode cannot be changed for Amptek detectors
-	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode) { return false; }
-
-	/// Triggers the Amptek detector, only accepts SingleRead
-	virtual bool acquire(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
-
-	/// Amptek detectors do not support cancelling
-	virtual bool cancelAcquisition() { return false; }
+	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Amptek detectors do not support clearing
 	virtual bool clear() { return false; }
-
-	// FULLY IMPLEMENT THE CLEANUP FUNCTION
-	/// Cleans up the detector after its use is complete
-	virtual bool cleanup() { return false; }
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -103,6 +82,14 @@ protected slots:
 
 	/// Handles changes in the spectrum control
 	void onSpectrumControlChanged(double newValue);
+
+	/// Handles changes in the status control
+	void onStatusControlChanged(double value);
+
+protected:
+	bool initializeImplementation();
+	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+	bool cleanupImplementation();
 
 protected:
 	/// Bool handling whether the detector was connected.
