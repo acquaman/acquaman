@@ -51,7 +51,10 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, pu
 	Q_PROPERTY(double end READ end WRITE setEnd)
 	Q_PROPERTY(double step READ step WRITE setStep)
 	Q_PROPERTY(double time READ time WRITE setTime)
+	Q_PROPERTY(double otherPosition READ otherPosition WRITE setOtherPosition)
 	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
+
+	Q_CLASSINFO("otherPosition", "upgradeDefault=-123456789.0123456789")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS Spatial Line Scan Configuration")
 
@@ -93,6 +96,10 @@ public:
 	double step() const { return regions_->delta(0); }
 	/// Returns the time for the region.
 	double time() const { return regions_->time(0); }
+	/// Returns the other position.
+	double otherPosition() const { return otherPosition_; }
+	/// Returns whether the other position is valid or not.
+	bool hasOtherPosition() const { return otherPosition_ != -123456789.0123456789; }
 	/// Returns whether the region is valid.
 	bool validAxis() const { return regions_->isValid(0); }
 
@@ -107,6 +114,8 @@ signals:
 	void stepChanged(double);
 	/// Notifier that the time has changed.
 	void timeChanged(double);
+	/// Notifier that the other time has changed.
+	void otherPositionChanged(double);
 
 public slots:
 	// Convience setters.
@@ -118,6 +127,8 @@ public slots:
 	void setStep(double position);
 	/// Sets the time.
 	void setTime(double position);
+	/// Sets the other position.
+	void setOtherPosition(double position);
 
 	/// Sets whether we export the scan with the spectra included or not.
 	void setExportSpectraSources(bool exportSpectra);
@@ -129,9 +140,15 @@ protected slots:
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
 	virtual void computeTotalTimeImplementation();
+	/// Returns the other motor that corresponds to the provided motor.  Ie: if \param motor is H the this returns V.
+	VESPERS::Motor otherMotor(VESPERS::Motor motor) const;
+	/// Returns a string of the other motor.
+	QString otherMotorString(VESPERS::Motor motor) const;
 
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
+	/// Variable that holds the position of the 'other' coordinate.  An example would be: if scanning the H motor, the other motor would be V.  Without this information the line scan can not be used in the workflow.
+	double otherPosition_;
 };
 
 #endif // VESPERSSPATIALLINESCANCONFIGURATION_H
