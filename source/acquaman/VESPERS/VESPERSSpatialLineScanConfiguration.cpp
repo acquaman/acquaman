@@ -41,7 +41,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setCCDFileName("");
 	setRoiInfoList(AMROIInfoList());
 	setExportSpectraSources(true);
-	setOtherPosition(-123456789.0123456789);
+	setOtherPosition(-123456789.0);
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));

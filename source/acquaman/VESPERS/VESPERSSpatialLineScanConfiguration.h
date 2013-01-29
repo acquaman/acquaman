@@ -54,7 +54,7 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, pu
 	Q_PROPERTY(double otherPosition READ otherPosition WRITE setOtherPosition)
 	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
-	Q_CLASSINFO("otherPosition", "upgradeDefault=-123456789.0123456789")
+	Q_CLASSINFO("otherPosition", "upgradeDefault=-123456789.0")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS Spatial Line Scan Configuration")
 
@@ -99,7 +99,11 @@ public:
 	/// Returns the other position.
 	double otherPosition() const { return otherPosition_; }
 	/// Returns whether the other position is valid or not.
-	bool hasOtherPosition() const { return otherPosition_ != -123456789.0123456789; }
+	bool hasOtherPosition() const { return otherPosition_ != -123456789.0; }
+	/// Returns the other motor that corresponds to the provided motor.  Ie: if \param motor is H the this returns V.
+	VESPERS::Motor otherMotor(VESPERS::Motor motor) const;
+	/// Returns a string of the other motor.
+	QString otherMotorString(VESPERS::Motor motor) const;
 	/// Returns whether the region is valid.
 	bool validAxis() const { return regions_->isValid(0); }
 
@@ -140,10 +144,6 @@ protected slots:
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
 	virtual void computeTotalTimeImplementation();
-	/// Returns the other motor that corresponds to the provided motor.  Ie: if \param motor is H the this returns V.
-	VESPERS::Motor otherMotor(VESPERS::Motor motor) const;
-	/// Returns a string of the other motor.
-	QString otherMotorString(VESPERS::Motor motor) const;
 
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
