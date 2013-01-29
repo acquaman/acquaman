@@ -37,6 +37,21 @@ AMDetectorInfoSet& AMDetectorInfoSet::operator =(const AMDetectorInfoSet &other)
 	return *this;
 }
 
+bool AMDetectorInfoSet::operator ==(const AMDetectorInfoSet &other){
+	if(count() != other.count())
+		return false;
+
+	for(int x = 0; x < count(); x++)
+		if(other.indexOf(at(x)) < 0)
+			return false;
+
+	return true;
+}
+
+bool AMDetectorInfoSet::operator !=(const AMDetectorInfoSet &other){
+	return !(this->operator ==(other));
+}
+
 QString AMDetectorInfoSet::description() const{
 	return description_;
 }

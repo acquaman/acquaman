@@ -21,6 +21,11 @@ public:
 	/// Assignment operator
 	AMDetectorInfoSet& operator=(const AMDetectorInfoSet &other);
 
+	/// Comparisson operator. Defined to return true if the two sets contain the same number of infos, with the same names. We ARE NOT checking the values right now, just comparing the lists for the same items.
+	bool operator==(const AMDetectorInfoSet &other);
+	/// Inequality operator. Returns the opposite of the comparisson operator.
+	bool operator!=(const AMDetectorInfoSet &other);
+
 	/// Returns the user readable description
 	QString description() const;
 

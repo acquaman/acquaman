@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMSynchronizedDwellTime.h"
+#include "beamline/AMDetectorSet.h"
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -86,6 +87,18 @@ public:
 	/// Adds a control to the exposed set.
 	void addExposedControl(AMControl *control) { exposedControls_->addControl(control); }
 
+	/// Returns the detector set that contains all of the public detectors. These are used with scan actions and configurations for automatic lookup.
+	AMDetectorSet* exposedDetectors() const { return exposedDetectors_; }
+	/// Returns a detector based on the name of the detector. Returns 0 if no detector is found.
+	AMDetector* exposedDetectorByName(const QString &detectorName) { return exposedDetectors_->detectorNamed(detectorName); }
+	/// Returns a detector based on the detector info. Returns 0 if no control is found.
+	AMDetector* exposedDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedDetectors_->detectorNamed(detectorInfo.name()); }
+	/// Returns a new detector set which includes a subset of detectors for a particular keyed purpose (passing the type of a scan should return the detectors that can be used for that type of scan). The detector set is a new object, so the caller is responsible for the memory. The default implementation returns a NULL pointer.
+	virtual AMDetectorSet* detectorsFor(const QString &key) { Q_UNUSED(key); return 0; }
+
+	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
+	bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
+
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return 0; }
 
@@ -101,6 +114,9 @@ protected:
 
 	/// A control set that contains all of the publicly (throughout the program) available controls for a beamline.  This is primarily used for AMControlMoveAction.
 	AMControlSet *exposedControls_;
+
+	/// A detector set that contains all of the publicly (throughout the program) available detectors for a beamline. This is primarily used for settings up scans.
+	AMDetectorSet *exposedDetectors_;
 };
 
 #endif /*BEAMLINE_H_*/
