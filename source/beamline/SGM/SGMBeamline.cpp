@@ -745,6 +745,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action42Image2.jpg"), "2");
 
 	setupExposedControls();
+	setupExposedDetectors();
 }
 
 SGMBeamline::~SGMBeamline()
@@ -1584,6 +1585,10 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
+}
+
+void SGMBeamline::setupExposedDetectors(){
+	addExposedDetector(newAmptekSDD1_);
 }
 
 SGMBeamline* SGMBeamline::sgm() {

@@ -210,7 +210,6 @@ public:
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
-
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
@@ -331,8 +330,11 @@ protected slots:
 	void computeBeamlineInitialized();
 
 protected:
-	/// Sets up the exposed controls for the SGM beamine (accessible through AMControlMoveAction)
+	/// Sets up the exposed controls for the SGM beamline (accessible through AMControlMoveAction)
 	void setupExposedControls();
+
+	/// Sets up the exposed detectors for the SGM beamline (accessible through the AMScanConfiguration/Controller interface)
+	void setupExposedDetectors();
 
 protected:
 	// Singleton implementation:
