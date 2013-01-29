@@ -1,5 +1,6 @@
 #include "AMDetector.h"
 
+#include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
@@ -78,6 +79,15 @@ QString AMDetector::cleanupStateDescription(AMDetector::CleanupState state){
 	default:
 		return "Invalid Cleanup State";
 	}
+}
+
+bool AMDetector::currentlySynchronizedDwell() const{
+	if(AMBeamline::bl()->synchronizedDwellTime()){
+		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
+		if(index >= 0)
+			return true;
+	}
+	return false;
 }
 
 bool AMDetector::reading0D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const{

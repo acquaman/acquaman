@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSetSampleManipulator.h"
 #include "beamline/AMOldDetectorSet.h"
 #include "beamline/AMControlOptimization.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
 
@@ -55,7 +56,6 @@ class AMSamplePlate;
 class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
-class CLSSynchronizedDwellTime;
 
 class SGMBeamline : public AMBeamline
 {
@@ -206,7 +206,8 @@ public:
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
-	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+	//CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
 

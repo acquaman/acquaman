@@ -168,8 +168,10 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 
+	CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
 	for(int x = 0; x < SGMBeamline::sgm()->synchronizedDwellTime()->elementCount(); x++){
-		tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(x)->createEnableAction(SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(x));
+		tmpBAction = clsDwellTime->elementAt(x)->createEnableAction(SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(x));
+		//tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(x)->createEnableAction(SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(x));
 		tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 	}
 
@@ -221,8 +223,10 @@ bool SGMXASScanController::beamlineInitialize(){
 		else
 			enableSync = false;
 		int syncIndex = SGMBeamline::sgm()->synchronizedDwellTimeDetectorIndex(config_->allDetectors()->detectorAt(x));
+		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
 		if( (syncIndex > 1) && (SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(syncIndex) != enableSync) ){
-			tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);
+			tmpBAction = clsDwellTime->elementAt(syncIndex)->createEnableAction(enableSync);
+			//tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);
 			tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 		}
 	}

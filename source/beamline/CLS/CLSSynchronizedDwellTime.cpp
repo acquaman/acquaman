@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSynchronizedDwellTime.h"
 
 CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *parent)
-	: QObject(parent)
+	: AMSynchronizedDwellTime(parent)
 {
 	baseName_ = baseName;
 
@@ -36,6 +36,18 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
+}
+
+QString CLSSynchronizedDwellTime::keyAt(int index) const{
+	return elementAt(index)->key();
+}
+
+QStringList CLSSynchronizedDwellTime::keys() const{
+	QStringList retVal;
+	for(int x = 0; x < elementCount(); x++)
+		retVal.append(elementAt(x)->key());
+
+	return retVal;
 }
 
 void CLSSynchronizedDwellTime::addElement(int index)
@@ -86,16 +98,21 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 	enable_ = new AMSinglePVControl(QString("Dwell Element Enable %1").arg(index), baseName+":enable"+QChar(65+index), this, 0.1);
 	time_ = new AMSinglePVControl(QString("Dwell Element Time %1").arg(index), baseName+":set"+QChar(65+index), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
+	trigger_ = new AMProcessVariable(baseName+":start"+QChar(65+index)+".LNK2", true, this);
 
 	connect(name_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(time_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(enable_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(status_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
+	connect(trigger_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
+
 	connect(name_, SIGNAL(valueChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(time_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(enable_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 	connect(status_, SIGNAL(valueChanged(int)), this, SLOT(onStatusChanged(int)));
+
+	connect(trigger_, SIGNAL(valueChanged(QString)), this, SIGNAL(triggerChanged(QString)));
 }
 
 AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double time)
@@ -118,4 +135,11 @@ AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool e
 	action->setSetpoint(enable == true ? 1.0 : 0.0);
 
 	return action;
+}
+
+QString CLSSynchronizedDwellTimeElement::key() const{
+	if (!trigger_->isConnected())
+		return "";
+
+	return trigger_->getString();
 }

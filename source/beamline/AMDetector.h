@@ -192,8 +192,10 @@ public:
 
 	/// Returns whether or not this detector can be coordinated with a synchronized dwell system
 	virtual bool supportsSynchronizedDwell() const = 0;
-	/// Returns whether or not this detector is currently interfaced with a synchronized dwell system
-	virtual bool currentlySynchronizedDwell() const = 0;
+	/// Returns whether or not this detector is currently interfaced with a synchronized dwell system by querying the AMBeamline class. You may reimplement if you wish.
+	virtual bool currentlySynchronizedDwell() const;
+	/// Returns the key for this detector (for matching with synchronized dwell application)
+	virtual QString syncrhonizedDwellKey() const = 0;
 
 	/// Returns the read method for this detector
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const = 0;

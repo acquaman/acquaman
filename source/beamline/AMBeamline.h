@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMSynchronizedDwellTime.h"
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -84,6 +85,9 @@ public:
 
 	/// Adds a control to the exposed set.
 	void addExposedControl(AMControl *control) { exposedControls_->addControl(control); }
+
+	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return 0; }
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

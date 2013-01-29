@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
 
@@ -56,6 +57,9 @@ public:
 	/// Returns whether all the controls are connected.
 	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
 
+	/// Returns the trigger string, which acts as the key for identifying elements
+	virtual QString key() const;
+
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createTimeAction(double time);
 	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
@@ -78,6 +82,8 @@ signals:
 	void statusChanged(bool);
 	/// Notifier that the element is fully connected or not.
 	void connected(bool);
+	/// Notifier that the trigger string has changed
+	void triggerChanged(QString);
 
 protected slots:
 	/// Transforms the int value for the enable status into a bool.
@@ -96,6 +102,8 @@ protected:
 	AMProcessVariable *status_;
 	/// The process variable that holds the time.
 	AMControl *time_;
+	/// The process variable that holds the trigger string (for key identification)
+	AMProcessVariable *trigger_;
 };
 
 /*!
@@ -107,7 +115,7 @@ protected:
   you need to go into the EDM screen and change it from there.
   */
 
-class CLSSynchronizedDwellTime : public QObject
+class CLSSynchronizedDwellTime : public AMSynchronizedDwellTime
 {
 	Q_OBJECT
 public:
@@ -154,6 +162,11 @@ public:
 	bool enabledAt(int index) const { return elements_.at(index)->isEnabled(); }
 	/// Convenience getter.  Returns the name of an individual element.  \param index must be between 0 and elementCount()-1.
 	QString nameAt(int index) const { return elements_.at(index)->name(); }
+
+	/// Returns the key for a given element
+	virtual QString keyAt(int index) const;
+	/// Returns all of the keys in element order
+	virtual QStringList keys() const;
 
 	/// Returns the number of elements in the dwell time list.
 	int elementCount() const { return elements_.size(); }
