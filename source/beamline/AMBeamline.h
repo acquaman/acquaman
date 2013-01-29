@@ -95,6 +95,8 @@ public:
 	AMDetector* exposedDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedDetectors_->detectorNamed(detectorInfo.name()); }
 	/// Returns a new detector set which includes a subset of detectors for a particular keyed purpose (passing the type of a scan should return the detectors that can be used for that type of scan). The detector set is a new object, so the caller is responsible for the memory. The default implementation returns a NULL pointer.
 	virtual AMDetectorSet* detectorsFor(const QString &key) { Q_UNUSED(key); return 0; }
+	/// Returns true if the detector referred to by this detector info is available (connected)
+	bool detectorAvailable(const AMDetectorInfo &detectorInfo);
 
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }

@@ -29,6 +29,7 @@ AMBeamline::AMBeamline(const QString& controlName)
 	: AMControl(controlName, "")
 {
 	exposedControls_ = new AMControlSet(this);
+	exposedDetectors_ = new AMDetectorSet(this);
 }
 
 AMBeamline::~AMBeamline()
@@ -55,4 +56,9 @@ AMBeamline * AMBeamline::bl()
 	return instance_;
 }
 
+bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){
+	if(exposedDetectors()->detectorNamed(detectorInfo.name()))
+		return true;
+	return false;
+}
 

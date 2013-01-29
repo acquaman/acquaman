@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include "dataman/info/AMDetectorInfoSet.h"
+#include "util/AMErrorMonitor.h"
 
 AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
@@ -120,5 +121,85 @@ void AMDetectorSet::onTimedOut(){
 	if(!wasConnected_){
 		emit connected(false);
 		emit detectorSetTimedOut();
+	}
+}
+
+
+AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
+	: QObject(parent)
+{
+	name_ = name;
+	connectedSet_ = new AMDetectorSet(this);
+	unconnectedSet_ = new AMDetectorSet(this);
+
+	connect(connectedSet_, SIGNAL(connected(bool)), this, SLOT(onConnectedSetConnectedChanged(bool)));
+	connect(unconnectedSet_, SIGNAL(connected(bool)), this, SLOT(onUnconnectedSetConnectedChanged(bool)));
+}
+
+QString AMDetectorGroup::name() const{
+	return name_;
+}
+
+bool AMDetectorGroup::allAreConnected() const{
+	return (connectedSet_->isConnnected() && (connectedSet_->count() > 0) && (unconnectedSet_ == 0));
+}
+
+AMDetectorSet* AMDetectorGroup::connectedDetectors(){
+	return connectedSet_;
+}
+
+AMDetectorSet* AMDetectorGroup::unconnectedDetectors(){
+	return unconnectedSet_;
+}
+
+bool AMDetectorGroup::addDetector(AMDetector *detector){
+	if(!detector)
+		return false;
+
+	if(detector->isConnected())
+		return connectedSet_->addDetector(detector);
+	else
+		return unconnectedSet_->addDetector(detector);
+}
+
+bool AMDetectorGroup::removeDetector(AMDetector *detector){
+	if(!detector)
+		return false;
+
+	if(detector->isConnected())
+		return connectedSet_->removeDetector(detector);
+	else
+		return unconnectedSet_->removeDetector(detector);
+}
+
+void AMDetectorGroup::setName(const QString &name){
+	name_ = name;
+}
+
+void AMDetectorGroup::onConnectedSetConnectedChanged(bool detectorConnected){
+	if(detectorConnected)
+		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_CONNECTED_CHANGED, QString("That's unexpected, the connected set should never signal connected=true. Detector Group Name: %1.").arg(name()) );
+
+	AMDetector *switchDetector;
+	for(int x = connectedSet_->count()-1; x >= 0; x--){
+		if(!connectedSet_->at(x)->isConnected()){
+			switchDetector = connectedSet_->at(x);
+			connectedSet_->removeDetector(switchDetector);
+			unconnectedSet_->addDetector(switchDetector);
+		}
+	}
+}
+
+void AMDetectorGroup::onUnconnectedSetConnectedChanged(bool detectorConnected){
+	if(!detectorConnected)
+		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_UNCONNECTED_CHANGED, QString("That's unexpected, the unconnected set should never signal connected=false. Detector Group Name: %1.").arg(name()) );
+
+	AMDetector *switchDetector;
+	for(int x = unconnectedSet_->count()-1; x >= 0; x--){
+		if(!unconnectedSet_->at(x)->isConnected()){
+			switchDetector = unconnectedSet_->at(x);
+			unconnectedSet_->removeDetector(switchDetector);
+			connectedSet_->addDetector(switchDetector);
+		}
 	}
 }
