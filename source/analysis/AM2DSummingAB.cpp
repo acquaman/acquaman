@@ -259,12 +259,6 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-//	AMnDIndex nDImageSize = AMnDIndex(indexEnd.i(), sumRangeMax_);
-//	int imageSize = AMnDIndex(indexStart.i(), sumRangeMin_).totalPointsTo(nDImageSize);
-
-//	QVector<double> data = QVector<double>(imageSize);
-//	inputSource_->values(AMnDIndex(indexStart.i(), 0), AMnDIndex(indexEnd.i(), inputSource_->size(1)-1), data.data());
-
 	int offset = indexStart.i();
 
 	if (sumAxis_ == 0){
@@ -272,9 +266,8 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		double sum = 0;
 		AMnDIndex start = AMnDIndex(sumRangeMin_, indexStart.i());
 		AMnDIndex end = AMnDIndex(sumRangeMax_, indexEnd.i());
-		int axisLength = start.totalPointsTo(end);
-
-		QVector<double> data = QVector<double>(axisLength);
+		int axisLength = sumRangeMax_-sumRangeMin_+1;
+		QVector<double> data = QVector<double>(start.totalPointsTo(end));
 		inputSource_->values(start, end, data.data());
 
 		for (int i = 0; i < totalSize; i++){
@@ -282,7 +275,7 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 			sum = 0;
 
 			for (int j = 0; j < axisLength; j++)
-				sum += data[i*axisLength+j];
+				sum += data[i+totalSize*j];
 
 			outputValues[i] = sum;
 		}
@@ -293,9 +286,9 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		double sum = 0;
 		AMnDIndex start = AMnDIndex(indexStart.i(), sumRangeMin_);
 		AMnDIndex end = AMnDIndex(indexEnd.i(), sumRangeMax_);
+		int axisLength = sumRangeMax_-sumRangeMin_+1;
 		QVector<double> data = QVector<double>(start.totalPointsTo(end));
 		inputSource_->values(start, end, data.data());
-		int axisLength = sumRangeMax_-sumRangeMin_+1;
 
 		for (int i = 0; i < totalSize; i++){
 

@@ -420,9 +420,6 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 		break;
 	}
 
-	if (index >= axes_.at(actualAxis).size)
-		return AMNumber(AMNumber::DimensionError);
-
 	return inputSource_->axisValue(actualAxis, index);
 }
 
