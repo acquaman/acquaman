@@ -18,22 +18,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORSETVIEW_H
-#define AMDETECTORSETVIEW_H
+#ifndef AMOLDDETECTORSETVIEW_H
+#define AMOLDDETECTORSETVIEW_H
 
 #include "AMOldDetectorView.h"
 #include "beamline/AMOldDetectorSet.h"
 #include <QScrollArea>
 
-class AMDetectorSetViewInternal;
+class AMOldDetectorSetViewInternal;
 
-class AMDetectorSetView : public QGroupBox
+class AMOldDetectorSetView : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMOldDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 	// Assumes configureOnly is true and uses infoSet as the starting point
-	explicit AMDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
+	explicit AMOldDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
 	AMOldDetectorSet* detectorSet();
@@ -50,7 +50,7 @@ public:
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
 	AMOldDetectorInfoSet configValues();
 
-	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
+	friend QDebug operator<<(QDebug d, const AMOldDetectorSetView& dsv);
 
 	//virtual QSize sizeHint() const;
 
@@ -65,11 +65,11 @@ protected:
 	void initializeWidget(AMOldDetectorSet *viewSet);
 
 protected:
-	AMDetectorSetViewInternal *internalView_;
+	AMOldDetectorSetViewInternal *internalView_;
 	QScrollArea *scrollArea_;
 };
 
-class AMDetectorSetViewInternal : public QWidget
+class AMOldDetectorSetViewInternal : public QWidget
 //class AMDetectorSetView : public QGroupBox
 {
 Q_OBJECT
@@ -78,9 +78,9 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMOldDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 	// Assumes configureOnly is true and uses infoSet as the starting point
-	explicit AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
+	explicit AMOldDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
 	AMOldDetectorSet* detectorSet();
@@ -97,7 +97,7 @@ public:
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
 	AMOldDetectorInfoSet configValues();
 
-	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
+	friend QDebug operator<<(QDebug d, const AMOldDetectorSetView& dsv);
 
 signals:
 	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
@@ -125,4 +125,4 @@ protected:
 };
 
 
-#endif // AMDETECTORSETVIEW_H
+#endif // AMOLDDETECTORSETVIEW_H

@@ -373,7 +373,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/AMSingleControlDetectorView.h \
 	source/ui/SGM/SGMMCPDetectorView.h \
 	source/ui/CLS/CLSPGTDetectorView.h \
-	source/ui/beamline/AMDetectorSetView.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
@@ -609,7 +608,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/beamline/AMDetectorView.h \
     source/beamline/AMSynchronizedDwellTime.h \
     source/beamline/AMDetectorSet.h \
-    source/dataman/info/AMDetectorInfoSet.h
+    source/dataman/info/AMDetectorInfoSet.h \
+    source/ui/beamline/AMOldDetectorSetView.h \
+    source/ui/beamline/AMDetectorSelectorView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -798,7 +799,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/AMSingleControlDetectorView.cpp \
 	source/ui/SGM/SGMMCPDetectorView.cpp \
 	source/ui/CLS/CLSPGTDetectorView.cpp \
-	source/ui/beamline/AMDetectorSetView.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
@@ -1022,7 +1022,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/beamline/AMDetectorView.cpp \
     source/beamline/AMSynchronizedDwellTime.cpp \
     source/beamline/AMDetectorSet.cpp \
-    source/dataman/info/AMDetectorInfoSet.cpp
+    source/dataman/info/AMDetectorInfoSet.cpp \
+    source/ui/beamline/AMOldDetectorSetView.cpp \
+    source/ui/beamline/AMDetectorSelectorView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1046,6 +1048,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

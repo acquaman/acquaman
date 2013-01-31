@@ -29,7 +29,7 @@ class QGridLayout;
 class QSpacerItem;
 
 #include "ui/beamline/AMControlSetView.h"
-#include "ui/beamline/AMDetectorSetView.h"
+#include "ui/beamline/AMOldDetectorSetView.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -67,7 +67,7 @@ protected:
 	AMRegionsLineView *regionsLineView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
-	AMDetectorSetView *xasDetectorsView_;
+	AMOldDetectorSetView *xasDetectorsView_;
 
 	QLabel *warningsLabel_;
 

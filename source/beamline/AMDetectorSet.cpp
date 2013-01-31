@@ -4,6 +4,8 @@
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "util/AMErrorMonitor.h"
 
+#include <QDebug>
+
 AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
 {
@@ -82,6 +84,16 @@ bool AMDetectorSet::removeDetector(AMDetector *detector){
 
 	disconnect(detector, 0, this, 0);
 	remove(index);
+
+	if(wasConnected_ == true && !isConnnected()){
+		wasConnected_ = false;
+		emit connected(false);
+	}
+	if(!wasConnected_ && isConnnected()){
+		wasConnected_ = true;
+		emit connected(true);
+	}
+
 	return true;
 }
 
@@ -129,11 +141,15 @@ AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
 	: QObject(parent)
 {
 	name_ = name;
-	connectedSet_ = new AMDetectorSet(this);
-	unconnectedSet_ = new AMDetectorSet(this);
+	lastAllAreConnected_ = false;
 
-	connect(connectedSet_, SIGNAL(connected(bool)), this, SLOT(onConnectedSetConnectedChanged(bool)));
-	connect(unconnectedSet_, SIGNAL(connected(bool)), this, SLOT(onUnconnectedSetConnectedChanged(bool)));
+	connectedSet_ = new AMDetectorSet(this);
+	connectedSet_->setName("ConnectedFor"+name);
+	unconnectedSet_ = new AMDetectorSet(this);
+	unconnectedSet_->setName("UnconnectedFor"+name);
+
+	connect(connectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onConnectedSetDetectorConnectedChanged(bool,AMDetector*)));
+	connect(unconnectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onUnconnectedSetDetectorConnectedChanged(bool,AMDetector*)));
 }
 
 QString AMDetectorGroup::name() const{
@@ -142,6 +158,27 @@ QString AMDetectorGroup::name() const{
 
 bool AMDetectorGroup::allAreConnected() const{
 	return (connectedSet_->isConnnected() && (connectedSet_->count() > 0) && (unconnectedSet_ == 0));
+}
+
+bool AMDetectorGroup::contains(AMDetector *detector) const{
+	int connectedIndex = connectedSet_->indexOfValue(detector);
+	int unconnectedIndex = unconnectedSet_->indexOfValue(detector);
+	if(connectedIndex < 0 && unconnectedIndex < 0)
+		return false;
+	return true;
+}
+
+int AMDetectorGroup::count() const{
+	return connectedSet_->count() + unconnectedSet_->count();
+}
+
+AMDetector* AMDetectorGroup::detectorByName(const QString &name){
+	if(!connectedSet_->contains(name) || !unconnectedSet_->contains(name))
+		return 0; //NULL
+
+	if(connectedSet_->contains(name))
+		return connectedSet_->detectorNamed(name);
+	return unconnectedSet_->detectorNamed(name);
 }
 
 AMDetectorSet* AMDetectorGroup::connectedDetectors(){
@@ -156,50 +193,184 @@ bool AMDetectorGroup::addDetector(AMDetector *detector){
 	if(!detector)
 		return false;
 
+	bool retVal;
 	if(detector->isConnected())
-		return connectedSet_->addDetector(detector);
+		retVal = connectedSet_->addDetector(detector);
 	else
-		return unconnectedSet_->addDetector(detector);
+		retVal = unconnectedSet_->addDetector(detector);
+
+	checkAllAreConnected();
+	return retVal;
 }
 
 bool AMDetectorGroup::removeDetector(AMDetector *detector){
 	if(!detector)
 		return false;
 
+	bool retVal;
 	if(detector->isConnected())
-		return connectedSet_->removeDetector(detector);
+		retVal = connectedSet_->removeDetector(detector);
 	else
-		return unconnectedSet_->removeDetector(detector);
+		retVal = unconnectedSet_->removeDetector(detector);
+
+	checkAllAreConnected();
+	return retVal;
 }
 
 void AMDetectorGroup::setName(const QString &name){
 	name_ = name;
 }
 
-void AMDetectorGroup::onConnectedSetConnectedChanged(bool detectorConnected){
-	if(detectorConnected)
-		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_CONNECTED_CHANGED, QString("That's unexpected, the connected set should never signal connected=true. Detector Group Name: %1.").arg(name()) );
+void AMDetectorGroup::onConnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector){
+	if(detectorConnected){
+		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_CONNECTED_CHANGED, QString("That's unexpected, the connected set should never signal connected=true. Detector Group Name: %1. Detector name: %2").arg(name()).arg(detector->name()) );
+		return;
+	}
 
-	AMDetector *switchDetector;
-	for(int x = connectedSet_->count()-1; x >= 0; x--){
-		if(!connectedSet_->at(x)->isConnected()){
-			switchDetector = connectedSet_->at(x);
-			connectedSet_->removeDetector(switchDetector);
-			unconnectedSet_->addDetector(switchDetector);
+	connectedSet_->removeDetector(detector);
+	unconnectedSet_->addDetector(detector);
+	emit detectorBecameUnconnected(detector);
+	if(lastAllAreConnected_ != allAreConnected()){
+		checkAllAreConnected();
+		emit allAreConnectedChanged(allAreConnected());
+	}
+
+	qDebug() << "CONNECTED SET TRIGGER";
+	QString connectedStuff = "Connected: ";
+	for(int x = 0; x < connectedSet_->count(); x++)
+		connectedStuff.append(connectedSet_->at(x)->name()+" ");
+	qDebug() << connectedStuff;
+	QString unconnectedStuff = "Unconnected: ";
+	for(int x = 0; x < unconnectedSet_->count(); x++)
+		unconnectedStuff.append(unconnectedSet_->at(x)->name()+" ");
+	qDebug() << unconnectedStuff;
+}
+
+void AMDetectorGroup::onUnconnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector){
+	if(!detectorConnected){
+		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_UNCONNECTED_CHANGED, QString("That's unexpected, the unconnected set should never signal connected=false. Detector Group Name: %1. Detector name: %2").arg(name()).arg(detector->name()) );
+		return;
+	}
+
+	unconnectedSet_->removeDetector(detector);
+	connectedSet_->addDetector(detector);
+	emit detectorBecameConnected(detector);
+	if(lastAllAreConnected_ != allAreConnected()){
+		checkAllAreConnected();
+		emit allAreConnectedChanged(allAreConnected());
+	}
+
+	qDebug() << "UNCONNECTED SET TRIGGER";
+	QString connectedStuff = "Connected: ";
+	for(int x = 0; x < connectedSet_->count(); x++)
+		connectedStuff.append(connectedSet_->at(x)->name()+" ");
+	qDebug() << connectedStuff;
+	QString unconnectedStuff = "Unconnected: ";
+	for(int x = 0; x < unconnectedSet_->count(); x++)
+		unconnectedStuff.append(unconnectedSet_->at(x)->name()+" ");
+	qDebug() << unconnectedStuff;
+}
+
+void AMDetectorGroup::checkAllAreConnected(){
+	lastAllAreConnected_ = allAreConnected();
+}
+
+AMDetectorSelector::AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent) :
+	QObject(parent)
+{
+	detectorGroup_ = detectorGroup;
+
+	if(detectorGroup_){
+		AMDetectorSet *connectedSet = detectorGroup_->connectedDetectors();
+		for(int x = 0; x < connectedSet->count(); x++){
+			selectedDetectors_.insert(connectedSet->at(x)->name(), false);
+			defaultDetectors_.insert(connectedSet->at(x)->name(), false);
 		}
+
+		AMDetectorSet *unconnectedSet = detectorGroup_->unconnectedDetectors();
+		for(int x = 0; x < unconnectedSet->count(); x++){
+			selectedDetectors_.insert(unconnectedSet->at(x)->name(), false);
+			defaultDetectors_.insert(unconnectedSet->at(x)->name(), false);
+		}
+
+		connect(detectorGroup_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SIGNAL(detectorBecameConnected(AMDetector*)));
+		connect(detectorGroup_, SIGNAL(detectorBecameUnconnected(AMDetector*)), this, SIGNAL(detectorBecameUnconnected(AMDetector*)));
+		connect(detectorGroup_, SIGNAL(allAreConnectedChanged(bool)), this, SIGNAL(allAreConnectedChanged(bool)));
 	}
 }
 
-void AMDetectorGroup::onUnconnectedSetConnectedChanged(bool detectorConnected){
-	if(!detectorConnected)
-		AMErrorMon::debug(this, AMDETECTORGROUP_UNEXPECTED_UNCONNECTED_CHANGED, QString("That's unexpected, the unconnected set should never signal connected=false. Detector Group Name: %1.").arg(name()) );
+bool AMDetectorSelector::detectorIsSelectedByName(const QString &name) const{
+	if(!detectorGroup_ || !selectedDetectors_.contains(name))
+		return false;
+	return selectedDetectors_.value(name);
+}
 
-	AMDetector *switchDetector;
-	for(int x = unconnectedSet_->count()-1; x >= 0; x--){
-		if(!unconnectedSet_->at(x)->isConnected()){
-			switchDetector = unconnectedSet_->at(x);
-			unconnectedSet_->removeDetector(switchDetector);
-			connectedSet_->addDetector(switchDetector);
-		}
+bool AMDetectorSelector::detectorIsSelected(AMDetector *detector) const{
+	if(!detectorGroup_ || !detectorGroup_->contains(detector))
+		return false;
+
+	return detectorIsSelectedByName(detector->name());
+}
+
+bool AMDetectorSelector::detectorIsDefaultByName(const QString &name) const{
+	if(!detectorGroup_ || !defaultDetectors_.contains(name))
+		return false;
+	return defaultDetectors_.value(name);
+}
+
+bool AMDetectorSelector::detectorIsDefault(AMDetector *detector) const{
+	if(!detectorGroup_ || !detectorGroup_->contains(detector))
+		return false;
+
+	return detectorIsDefaultByName(detector->name());
+}
+
+AMDetectorGroup* AMDetectorSelector::detectorGroup(){
+	return detectorGroup_;
+}
+
+int AMDetectorSelector::count() const{
+	return detectorGroup_->count();
+}
+
+void AMDetectorSelector::setDetectorSelectedByName(const QString &name, bool isSelected){
+	if(!detectorGroup_ || !selectedDetectors_.contains(name))
+		return;
+
+	if(selectedDetectors_.value(name) != isSelected){
+		selectedDetectors_[name] = isSelected;
+		AMDetector *detector = detectorGroup_->detectorByName(name);
+		emit selectedChanged(detector);
+	}
+}
+
+void AMDetectorSelector::setDetectorSelected(AMDetector *detector, bool isSelected){
+	if(!detectorGroup_ || !detectorGroup_->contains(detector))
+		return;
+
+	if(selectedDetectors_.value(detector->name()) != isSelected){
+		selectedDetectors_[detector->name()] = isSelected;
+		emit selectedChanged(detector);
+	}
+}
+
+void AMDetectorSelector::setDetectorDefaultByName(const QString &name, bool isDefault){
+	if(!detectorGroup_ || !defaultDetectors_.contains(name))
+		return;
+
+	if(defaultDetectors_.value(name) != isDefault){
+		defaultDetectors_[name] = isDefault;
+		AMDetector *detector = detectorGroup_->detectorByName(name);
+		emit defaultChanged(detector);
+	}
+}
+
+void AMDetectorSelector::setDetectorDefault(AMDetector *detector, bool isDefault){
+	if(!detectorGroup_ || !detectorGroup_->contains(detector))
+		return;
+
+	if(defaultDetectors_.value(detector->name()) != isDefault){
+		defaultDetectors_[detector->name()] = isDefault;
+		emit defaultChanged(detector);
 	}
 }

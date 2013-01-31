@@ -658,6 +658,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
 	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
+	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
+	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
+	newDetectorSet_->addDetector(newAmptekSDD1_);
+	newDetectorSet_->addDetector(newAmptekSDD2_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -1589,6 +1593,7 @@ void SGMBeamline::setupExposedControls(){
 
 void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD1_);
+	addExposedDetector(newAmptekSDD2_);
 }
 
 SGMBeamline* SGMBeamline::sgm() {

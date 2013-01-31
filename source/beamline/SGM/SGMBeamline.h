@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSPGTDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
+#include "beamline/AMDetectorSet.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
@@ -165,6 +166,8 @@ public:
 	bool isSDD2Enabled() const;
 	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
 	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
+	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
+	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -423,6 +426,8 @@ protected:
 	AMOldDetector* amptekSDD1_;
 	AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
+	AMDetectorGroup *newDetectorSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMOldDetectorSet *criticalDetectorsSet_;

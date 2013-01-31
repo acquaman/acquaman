@@ -92,6 +92,15 @@ public:
 	/// Returns true if all of the detectors are connected (the unconnectedSet is empty)
 	bool allAreConnected() const;
 
+	/// Returns true if this detector is in the group (either connected or unconnected)
+	bool contains(AMDetector *detector) const;
+
+	/// Returns the total number of detectors (both connected and unconnected)
+	int count() const;
+
+	/// Returns the detector pointer given the name. Convenience call to dig into the connectedDetectors() and unconnectedDetectors(). If no detector is found given the name, a NULL pointer is returned.
+	AMDetector* detectorByName(const QString &name);
+
 	/// Returns a pointer to the set of connected detectors. Since this is a pointer, detectors may migrate back and forth between the two sets, you can monitor this using the signals in AMDetectorSet.
 	AMDetectorSet* connectedDetectors();
 	/// Returns a pointer to the set of unconnected detectors. Since this is a pointer, detectors may migrate back and forth between the two sets, you can monitor this using the signals in AMDetectorSet.
@@ -106,11 +115,23 @@ public slots:
 	/// Set the name of the group
 	void setName(const QString &name);
 
+signals:
+	/// Emitted when a detector moves from the connected set to the unconnected set
+	void detectorBecameUnconnected(AMDetector *detector);
+	/// Emitted when a detector moves from the unconnected set to the connected set
+	void detectorBecameConnected(AMDetector *detector);
+
+	/// Emitted when the detector group has a status change from allConnected to not all connected (and vice versa)
+	void allAreConnectedChanged(bool allAreConnected);
+
 protected slots:
 	/// Handles moving detectors from the connected set to the unconnected set
-	void onConnectedSetConnectedChanged(bool detectorConnected);
+	void onConnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector);
 	/// Handles moving detectors from the unconnected set to the connected set
-	void onUnconnectedSetConnectedChanged(bool detectorConnected);
+	void onUnconnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector);
+
+	/// Handles checking the internal connected state and setting the cached lastAllAreConnected value
+	void checkAllAreConnected();
 
 protected:
 	/// Holds the programmer name of the group
@@ -119,6 +140,65 @@ protected:
 	AMDetectorSet *connectedSet_;
 	/// Holds the unconnected detectors. Detectors may migrate between the two lists depending on their connected state.
 	AMDetectorSet *unconnectedSet_;
+
+	/// Holds a cached state of whether all detectors were connected before the last connection change
+	bool lastAllAreConnected_;
+};
+
+class AMDetectorSelector : public QObject
+{
+Q_OBJECT
+public:
+	/// Constructor
+	AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent = 0);
+
+	/// Returns whether or not a detector is selected (enabled) by checking against the name
+	bool detectorIsSelectedByName(const QString &name) const;
+	/// Convenience version of above
+	bool detectorIsSelected(AMDetector *detector) const;
+
+	/// Returns whether or not a detector is set to default by checking against the name
+	bool detectorIsDefaultByName(const QString &name) const;
+	/// Convenience version of above
+	bool detectorIsDefault(AMDetector *detector) const;
+
+	/// Returns the detector group
+	AMDetectorGroup* detectorGroup();
+
+	/// Returns the number of detectors in the detector group. Convenience call.
+	int count() const;
+
+public slots:
+	/// Sets the detector as selected (or not selected) by passing the detector name
+	void setDetectorSelectedByName(const QString &name, bool isSelected);
+	/// Convenience version of above
+	void setDetectorSelected(AMDetector *detector, bool isSelected);
+
+	/// Sets the detector as default (or not default) by passing the detector name
+	void setDetectorDefaultByName(const QString &name, bool isDefault);
+	/// Convenience version of above
+	void setDetectorDefault(AMDetector *detector, bool isDefault);
+
+signals:
+	/// Emitted when the selected state for a detector changes
+	void selectedChanged(AMDetector *detector);
+	/// Emitted when the default state for a detector changes
+	void defaultChanged(AMDetector *detector);
+
+	/// Forwards signal from the detector group
+	void detectorBecameUnconnected(AMDetector *detector);
+	/// Forwards signal from the detector group
+	void detectorBecameConnected(AMDetector *detector);
+	/// Forwards signal from the detector group
+	void allAreConnectedChanged(bool allAreConnected);
+
+protected:
+	/// The detector group holding the detectors of interest, whether connected or unconnected
+	AMDetectorGroup *detectorGroup_;
+	/// A mapping of selected (enabled) detectors by detector name
+	QMap<QString, bool> selectedDetectors_;
+	/// A mapping of default detectors by detector name
+	QMap<QString, bool> defaultDetectors_;
 };
 
 #endif // AMDETECTORSET_H

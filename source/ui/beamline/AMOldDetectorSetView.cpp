@@ -18,64 +18,64 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorSetView.h"
+#include "AMOldDetectorSetView.h"
 
-AMDetectorSetView::AMDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
+AMOldDetectorSetView::AMOldDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
-	internalView_ = new AMDetectorSetViewInternal(viewSet, configureOnly);
+	internalView_ = new AMOldDetectorSetViewInternal(viewSet, configureOnly);
 	initializeWidget(viewSet);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
+AMOldDetectorSetView::AMOldDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QGroupBox(parent)
 {
-	internalView_ = new AMDetectorSetViewInternal(viewSet, infoSet);
+	internalView_ = new AMOldDetectorSetViewInternal(viewSet, infoSet);
 	initializeWidget(viewSet);
 }
 
-int AMDetectorSetView::count() const{
+int AMOldDetectorSetView::count() const{
 	return internalView_->count();
 }
 
-AMOldDetectorSet* AMDetectorSetView::detectorSet(){
+AMOldDetectorSet* AMOldDetectorSetView::detectorSet(){
 	return internalView_->detectorSet();
 }
 
-AMOldDetectorView* AMDetectorSetView::boxByName(const QString &name){
+AMOldDetectorView* AMOldDetectorSetView::boxByName(const QString &name){
 	return internalView_->boxByName(name);
 }
 
-const AMOldDetectorView* AMDetectorSetView::boxAt(int row) const{
+const AMOldDetectorView* AMOldDetectorSetView::boxAt(int row) const{
 	return internalView_->boxAt(row);
 }
 
-AMOldDetectorView* AMDetectorSetView::detailByName(const QString &name){
+AMOldDetectorView* AMOldDetectorSetView::detailByName(const QString &name){
 	return internalView_->detailByName(name);
 }
 
-const AMOldDetectorView* AMDetectorSetView::detailAt(int row) const{
+const AMOldDetectorView* AMOldDetectorSetView::detailAt(int row) const{
 	return internalView_->detailAt(row);
 }
 
-bool AMDetectorSetView::checkedAt(int row) const{
+bool AMOldDetectorSetView::checkedAt(int row) const{
 	return internalView_->checkedAt(row);
 }
 
-AMOldDetectorInfoSet AMDetectorSetView::currentValues(){
+AMOldDetectorInfoSet AMOldDetectorSetView::currentValues(){
 	return internalView_->currentValues();
 }
 
-AMOldDetectorInfoSet AMDetectorSetView::configValues(){
+AMOldDetectorInfoSet AMOldDetectorSetView::configValues(){
 	return internalView_->configValues();
 }
 
-QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
+QDebug operator<<(QDebug d, const AMOldDetectorSetView& dsv){
 	d << dsv.internalView_;
 	return d;
 }
 
-void AMDetectorSetView::initializeWidget(AMOldDetectorSet *viewSet){
+void AMOldDetectorSetView::initializeWidget(AMOldDetectorSet *viewSet){
 	setTitle(viewSet->name());
 	scrollArea_ = new QScrollArea();
 	scrollArea_->setWidget(internalView_);
@@ -97,7 +97,7 @@ QSize AMDetectorSetView::sizeHint() const{
 	return internalSize;
 }*/
 
-AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
+AMOldDetectorSetViewInternal::AMOldDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
 	QWidget(parent)
 	//QGroupBox(parent)
 {
@@ -152,7 +152,7 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, 
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
-AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
+AMOldDetectorSetViewInternal::AMOldDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QWidget(parent)
 //	QGroupBox(parent)
 {
@@ -207,31 +207,31 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, 
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
-int AMDetectorSetViewInternal::count() const{
+int AMOldDetectorSetViewInternal::count() const{
 	return viewSet_->count();
 }
 
-AMOldDetectorSet* AMDetectorSetViewInternal::detectorSet(){
+AMOldDetectorSet* AMOldDetectorSetViewInternal::detectorSet(){
 	return viewSet_;
 }
 
-AMOldDetectorView* AMDetectorSetViewInternal::boxByName(const QString &name){
+AMOldDetectorView* AMOldDetectorSetViewInternal::boxByName(const QString &name){
 	return detectorBoxes_.at(viewSet_->indexOfKey(name));
 }
 
-const AMOldDetectorView *AMDetectorSetViewInternal::boxAt(int row) const{
+const AMOldDetectorView *AMOldDetectorSetViewInternal::boxAt(int row) const{
 	return detectorBoxes_.at(row);
 }
 
-AMOldDetectorView* AMDetectorSetViewInternal::detailByName(const QString &name){
+AMOldDetectorView* AMOldDetectorSetViewInternal::detailByName(const QString &name){
 	return detectorDetails_.at(viewSet_->indexOf(name));
 }
 
-const AMOldDetectorView *AMDetectorSetViewInternal::detailAt(int row) const{
+const AMOldDetectorView *AMOldDetectorSetViewInternal::detailAt(int row) const{
 	return detectorDetails_.at(row);
 }
 
-bool AMDetectorSetViewInternal::checkedAt(int row) const{
+bool AMOldDetectorSetViewInternal::checkedAt(int row) const{
 	if(!configureOnly_)
 		return false;
 	if(checkBoxes_.at(row))
@@ -239,11 +239,11 @@ bool AMDetectorSetViewInternal::checkedAt(int row) const{
 	return false;
 }
 
-AMOldDetectorInfoSet AMDetectorSetViewInternal::currentValues(){
+AMOldDetectorInfoSet AMOldDetectorSetViewInternal::currentValues(){
 	return viewSet_->toInfoSet();
 }
 
-AMOldDetectorInfoSet AMDetectorSetViewInternal::configValues(){
+AMOldDetectorInfoSet AMOldDetectorSetViewInternal::configValues(){
 	AMOldDetectorInfoSet rv;
 
 	if(!configureOnly_)
@@ -258,7 +258,7 @@ AMOldDetectorInfoSet AMDetectorSetViewInternal::configValues(){
 	return rv;
 }
 
-QDebug operator<<(QDebug d, const AMDetectorSetViewInternal& dsv){
+QDebug operator<<(QDebug d, const AMOldDetectorSetViewInternal& dsv){
 	for(int x = 0; x < dsv.count(); x++){
 		if(dsv.boxAt(x) && dsv.boxAt(x)->configurationSettings())
 			d << *(dsv.boxAt(x)->configurationSettings());
@@ -268,7 +268,7 @@ QDebug operator<<(QDebug d, const AMDetectorSetViewInternal& dsv){
 	return d;
 }
 
-void AMDetectorSetViewInternal::setDisabled(bool disabled){
+void AMOldDetectorSetViewInternal::setDisabled(bool disabled){
 	for(int x = checkBoxes_.count()-1; x >= 0; x--){
 		checkBoxes_[x]->setDisabled(disabled);
 		if(detectorDetails_[x])
@@ -276,7 +276,7 @@ void AMDetectorSetViewInternal::setDisabled(bool disabled){
 	}
 }
 
-void AMDetectorSetViewInternal::onDetectorAddedToSet(int index){
+void AMOldDetectorSetViewInternal::onDetectorAddedToSet(int index){
 	AMOldDetectorView *tmpDV;
 	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
@@ -321,7 +321,7 @@ void AMDetectorSetViewInternal::onDetectorAddedToSet(int index){
 /* NTBA - August 25th, 2011 (David Chevrier)
   Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
 */
-void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
+void AMOldDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
 	Q_UNUSED(index)
 	for(int x = gl_->rowCount()-1; x >= 0; x--){
 		if(gl_->itemAtPosition(x, 0))
@@ -412,10 +412,10 @@ void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
  */
 }
 
-void AMDetectorSetViewInternal::onDetectorSetSettingsChanged(){
+void AMOldDetectorSetViewInternal::onDetectorSetSettingsChanged(){
 
 }
 
-void AMDetectorSetViewInternal::onDetectorSetConfigurationRequested(){
+void AMOldDetectorSetViewInternal::onDetectorSetConfigurationRequested(){
 	emit configValuesChanged();
 }

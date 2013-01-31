@@ -70,6 +70,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/SGM/SGMPeriodicTableView.h"
 
+#include "beamline/AMDetectorSet.h"
+#include "ui/beamline/AMDetectorSelectorView.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -275,6 +278,9 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 		connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+
+		newDetectorsSelectorView_ = new AMDetectorSelectorView(newDetectorsSelector_);
+		mw_->addPane(newDetectorsSelectorView_, "Beamline Control", "SGM New Detectors", ":/system-software-update.png", true);
 	}
 	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		//do nothing
@@ -1171,6 +1177,9 @@ bool SGMAppController::setupSGMViews(){
 	newAmptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
+
+	newDetectorsSelectorView_ = 0;
+	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);
 
 	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 

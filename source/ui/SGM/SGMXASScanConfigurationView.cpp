@@ -52,7 +52,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
 
-		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), sxsc->detectorChoiceConfigurations());
+		xasDetectorsView_ = new AMOldDetectorSetView(sxsc->detectorChoices(), sxsc->detectorChoiceConfigurations());
 		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
 
 		warningsLabel_ = new QLabel("");

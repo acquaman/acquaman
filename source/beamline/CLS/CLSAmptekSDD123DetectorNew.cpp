@@ -36,6 +36,7 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeControlChanged(double)));
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
@@ -128,7 +129,13 @@ bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
 }
 
 void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
-	setConnected(connected);
+	//setConnected(connected);
+
+	if(connected && !integrationTimeControl_->withinTolerance(2.00))
+		setConnected(connected);
+	else
+		setConnected(false);
+
 	if(connected)
 		setReadyForAcquisition();
 	else
@@ -161,4 +168,11 @@ void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
 		else
 			setNotReadyForAcquisition();
 	}
+}
+
+void CLSAmptekSDD123DetectorNew::onIntegrationTimeControlChanged(double value){
+	if(integrationTimeControl_->withinTolerance(2.00))
+		setConnected(false);
+	else
+		setConnected(true);
 }

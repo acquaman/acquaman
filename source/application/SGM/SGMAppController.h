@@ -41,6 +41,9 @@ class CLSProcServManager;
 class CLSProcServManagerView;
 class SGMAdvancedControlsView;
 
+class AMDetectorSelector;
+class AMDetectorSelectorView;
+
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
 class SGMAppController : public AMAppController {
@@ -145,6 +148,9 @@ protected:
 
 	/// View for controlling the new SGM amptek SDD (first)
 	AMDetectorView *newAmptekSDD1View_;
+
+	AMDetectorSelector *newDetectorsSelector_;
+	AMDetectorSelectorView *newDetectorsSelectorView_;
 
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;

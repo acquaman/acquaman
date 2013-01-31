@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWizardPage>
 #include "ui/beamline/AMControlSetView.h"
 #include "ui/beamline/AMControlOptimizationView.h"
-#include "ui/beamline/AMDetectorSetView.h"
+#include "ui/beamline/AMOldDetectorSetView.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -144,7 +144,7 @@ protected:
 	AMOldDetectorSet *detectorSet_;
 	AMOldDetectorInfoSet *configurationSettings_;
 
-	AMDetectorSetView *detectorView_;
+	AMOldDetectorSetView *detectorView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;
 };
