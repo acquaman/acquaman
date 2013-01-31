@@ -4,8 +4,6 @@
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
-
 AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
 {
@@ -234,16 +232,6 @@ void AMDetectorGroup::onConnectedSetDetectorConnectedChanged(bool detectorConnec
 		checkAllAreConnected();
 		emit allAreConnectedChanged(allAreConnected());
 	}
-
-	qDebug() << "CONNECTED SET TRIGGER";
-	QString connectedStuff = "Connected: ";
-	for(int x = 0; x < connectedSet_->count(); x++)
-		connectedStuff.append(connectedSet_->at(x)->name()+" ");
-	qDebug() << connectedStuff;
-	QString unconnectedStuff = "Unconnected: ";
-	for(int x = 0; x < unconnectedSet_->count(); x++)
-		unconnectedStuff.append(unconnectedSet_->at(x)->name()+" ");
-	qDebug() << unconnectedStuff;
 }
 
 void AMDetectorGroup::onUnconnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector){
@@ -259,16 +247,6 @@ void AMDetectorGroup::onUnconnectedSetDetectorConnectedChanged(bool detectorConn
 		checkAllAreConnected();
 		emit allAreConnectedChanged(allAreConnected());
 	}
-
-	qDebug() << "UNCONNECTED SET TRIGGER";
-	QString connectedStuff = "Connected: ";
-	for(int x = 0; x < connectedSet_->count(); x++)
-		connectedStuff.append(connectedSet_->at(x)->name()+" ");
-	qDebug() << connectedStuff;
-	QString unconnectedStuff = "Unconnected: ";
-	for(int x = 0; x < unconnectedSet_->count(); x++)
-		unconnectedStuff.append(unconnectedSet_->at(x)->name()+" ");
-	qDebug() << unconnectedStuff;
 }
 
 void AMDetectorGroup::checkAllAreConnected(){
