@@ -391,7 +391,7 @@ void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
-		newAmptekSDD1View_ = new AMDetectorView(SGMBeamline::sgm()->newAmptekSDD1());
+		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
 		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
 	}
 }

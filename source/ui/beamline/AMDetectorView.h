@@ -16,12 +16,38 @@
 
 class AMDetectorViewStatusView;
 
-class AMDetectorView : public QWidget
+class AMDetectorGeneralBriefView : public QWidget
+{
+Q_OBJECT
+public:
+	/// Default Constructor
+	AMDetectorGeneralBriefView(AMDetector *detector, QWidget *parent = 0);
+
+	/// Returns a pointer to the detector in use
+	AMDetector* detector() { return detector_; }
+
+protected slots:
+	/// Handles changes in the status
+	void onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState);
+	/// Handles changes for the single reading by watching the AcquisitionSucceeded signal
+	void onAcquisitionSucceeded();
+
+protected:
+	/// Holds the pointer to the detector we're viewing
+	AMDetector *detector_;
+
+	/// The status indicator
+	QLabel *statusLabel_;
+	/// The reading indicator
+	QLabel *singleReadingLabel_;
+};
+
+class AMDetectorGeneralDetailedView : public QWidget
 {
 Q_OBJECT
 public:
 	/// Default constructor
-	AMDetectorView(AMDetector *detector, QWidget *parent = 0);
+	AMDetectorGeneralDetailedView(AMDetector *detector, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector in use
 	AMDetector* detector() { return detector_; }

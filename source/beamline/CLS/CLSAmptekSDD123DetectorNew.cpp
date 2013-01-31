@@ -88,6 +88,15 @@ AMNumber CLSAmptekSDD123DetectorNew::reading(const AMnDIndex &indexes) const{
 	return tmpControl->readPV()->lastIntegerValues().at(indexes.i());
 }
 
+AMNumber CLSAmptekSDD123DetectorNew::singleReading() const{
+	if(!isConnected())
+		return AMNumber(AMNumber::Null);
+
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(binnedSpectrumControl_);
+	return tmpControl->value();
+
+}
+
 bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
 	Q_UNUSED(outputValues)
 

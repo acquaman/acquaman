@@ -2,11 +2,51 @@
 
 #include <QBoxLayout>
 
+#include <QDebug>
+
 #include "MPlot/MPlotAxisScale.h"
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
-AMDetectorView::AMDetectorView(AMDetector *detector, QWidget *parent) :
+AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWidget *parent) :
+	QWidget(parent)
+{
+	detector_ = detector;
+
+	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+	connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
+
+	statusLabel_ = new QLabel();
+	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	singleReadingLabel_ = new QLabel();
+
+	if(detector_->isConnected())
+		onAcquisitionSucceeded();
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(new QLabel(detector_->name()));
+	hl->addWidget(singleReadingLabel_);
+	hl->addWidget(statusLabel_);
+	setLayout(hl);
+}
+
+void AMDetectorGeneralBriefView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
+	if(acquisitionState == AMDetector::ReadyForAcquisition)
+		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	else if(acquisitionState == AMDetector::Acquiring)
+		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+}
+
+void AMDetectorGeneralBriefView::onAcquisitionSucceeded(){
+	qDebug() << "Heard detector succeeded in brief view";
+	AMNumber singleReading = detector_->singleReading();
+	if(singleReading.state() == AMNumber::Null)
+		singleReadingLabel_->setText("N/A");
+	else
+		singleReadingLabel_->setText(singleReading.toString());
+}
+
+AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detector, QWidget *parent) :
 	QWidget(parent)
 {
 	detector_ = detector;
@@ -96,7 +136,7 @@ AMDetectorView::AMDetectorView(AMDetector *detector, QWidget *parent) :
 	setLayout(mainVL);
 }
 
-void AMDetectorView::onConnectedChanged(bool connected){
+void AMDetectorGeneralDetailedView::onConnectedChanged(bool connected){
 	setEnabled(connected);
 	if(connected){
 		acquisitionTimeDSB_->setValue(detector_->acquisitionTime());
@@ -104,9 +144,7 @@ void AMDetectorView::onConnectedChanged(bool connected){
 	}
 }
 
-#include <QDebug>
-
-void AMDetectorView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
+void AMDetectorGeneralDetailedView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
 	if(acquisitionState == AMDetector::ReadyForAcquisition)
 		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
@@ -115,15 +153,15 @@ void AMDetectorView::onAcquisitionStateChanged(AMDetector::AcqusitionState acqui
 	qDebug() << "State is now " << detector_->acquisitionStateDescription(acquisitionState);
 }
 
-void AMDetectorView::onAcquisitionTimeChanged(double integrationTime){
+void AMDetectorGeneralDetailedView::onAcquisitionTimeChanged(double integrationTime){
 	acquisitionTimeDSB_->setValue(integrationTime);
 }
 
-void AMDetectorView::onStartAcquisitionButtonClicked(){
+void AMDetectorGeneralDetailedView::onStartAcquisitionButtonClicked(){
 	detector_->acquire();
 }
 
-void AMDetectorView::onAcquisitionTimeDSBEditingFinished(){
+void AMDetectorGeneralDetailedView::onAcquisitionTimeDSBEditingFinished(){
 	detector_->setAcquisitionTime(acquisitionTimeDSB_->value());
 }
 

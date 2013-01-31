@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <QCheckBox>
 
+#include "ui/beamline/AMDetectorView.h"
+
 AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -34,14 +36,14 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 
 		AMDetectorSet *connectedDetectors = detectorSelector_->detectorGroup()->connectedDetectors();
 		for(int x = 0; x < connectedDetectors->count(); x++){
-			tmpDetectorView = new AMDetectorSelectorViewInternalLineView(connectedDetectors->at(x)->name(), detectorSelector_->detectorIsSelected(connectedDetectors->at(x)));
+			tmpDetectorView = new AMDetectorSelectorViewInternalLineView(connectedDetectors->at(x), detectorSelector_->detectorIsSelected(connectedDetectors->at(x)));
 			allDetectorViews_.insert(connectedDetectors->at(x)->name(), tmpDetectorView);
 			connectedVL_->addWidget(tmpDetectorView);
 		}
 
 		AMDetectorSet *unconnectedDetectors = detectorSelector_->detectorGroup()->unconnectedDetectors();
 		for(int x = 0; x < unconnectedDetectors->count(); x++){
-			tmpDetectorView = new AMDetectorSelectorViewInternalLineView(unconnectedDetectors->at(x)->name(), detectorSelector_->detectorIsSelected(unconnectedDetectors->at(x)));
+			tmpDetectorView = new AMDetectorSelectorViewInternalLineView(unconnectedDetectors->at(x), detectorSelector_->detectorIsSelected(unconnectedDetectors->at(x)));
 			tmpDetectorView->setDetectorConnected(false);
 			allDetectorViews_.insert(unconnectedDetectors->at(x)->name(), tmpDetectorView);
 			unconnectedVL_->addWidget(tmpDetectorView);
@@ -79,16 +81,20 @@ void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *det
 	unconnectedVL_->addWidget(tmpDetectorView);
 }
 
-AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(const QString &detectorName, bool isSelected, QWidget *parent) :
+AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected, QWidget *parent) :
 	QWidget(parent)
 {
-	detectorNameLabel_ = new QLabel(detectorName);
+	detector_ = detector;
+
+	//detectorNameLabel_ = new QLabel(detectorName);
 	detectorSelectedCheckBox_ = new QCheckBox();
 	detectorSelectedCheckBox_->setChecked(isSelected);
+	briefView_ = new AMDetectorGeneralBriefView(detector);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(detectorSelectedCheckBox_);
-	hl->addWidget(detectorNameLabel_);
+	//hl->addWidget(detectorNameLabel_);
+	hl->addWidget(briefView_);
 
 	connect(detectorSelectedCheckBox_, SIGNAL(toggled(bool)), this, SIGNAL(detectorCheckedChanged(bool)));
 
@@ -96,7 +102,8 @@ AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(c
 }
 
 QString AMDetectorSelectorViewInternalLineView::detectorName() const{
-	return detectorNameLabel_->text();
+	//return detectorNameLabel_->text();
+	return detector_->name();
 }
 
 bool AMDetectorSelectorViewInternalLineView::detectorChecked(){
@@ -108,5 +115,6 @@ void AMDetectorSelectorViewInternalLineView::setDetectorSelected(bool selected){
 }
 
 void AMDetectorSelectorViewInternalLineView::setDetectorConnected(bool connected){
-	detectorNameLabel_->setEnabled(connected);
+	//detectorNameLabel_->setEnabled(connected);
+	briefView_->setEnabled(connected);
 }

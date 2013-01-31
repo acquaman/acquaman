@@ -8,6 +8,7 @@
 class QScrollArea;
 class QVBoxLayout;
 class AMDetectorSelectorViewInternal;
+class AMDetectorGeneralBriefView;
 
 class AMDetectorSelectorView : public QGroupBox
 {
@@ -59,7 +60,7 @@ class AMDetectorSelectorViewInternalLineView : public QWidget
 Q_OBJECT
 public:
 	/// Constructor. Creates a "single line" to view a single detector
-	AMDetectorSelectorViewInternalLineView(const QString &detectorName, bool isSelected = false, QWidget *parent = 0);
+	AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected = false, QWidget *parent = 0);
 
 	/// Returns the detector name as a string
 	QString detectorName() const;
@@ -77,10 +78,13 @@ signals:
 	void detectorCheckedChanged(bool selected);
 
 protected:
-	/// A label to hold the name of the detector
-	QLabel *detectorNameLabel_;
+	///// A label to hold the name of the detector
+	//QLabel *detectorNameLabel_;
 	/// A check box to show the (de)selected state of this detector
 	QCheckBox *detectorSelectedCheckBox_;
+
+	AMDetector *detector_;
+	AMDetectorGeneralBriefView *briefView_;
 };
 
 #endif // AMDETECTORSELECTORVIEW_H

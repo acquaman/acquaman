@@ -28,7 +28,7 @@ class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
 class AMOldDetectorView;
-class AMDetectorView;
+class AMDetectorGeneralDetailedView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -147,7 +147,7 @@ protected:
 	AMOldDetectorView *amptekSDD2View_;
 
 	/// View for controlling the new SGM amptek SDD (first)
-	AMDetectorView *newAmptekSDD1View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
 
 	AMDetectorSelector *newDetectorsSelector_;
 	AMDetectorSelectorView *newDetectorsSelectorView_;
