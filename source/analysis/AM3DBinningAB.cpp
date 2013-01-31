@@ -313,8 +313,8 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-	QVector<double> tempOutput;
 	int totalPoints = indexStart.totalPointsTo(indexEnd);
+	QVector<double> tempOutput;
 
 	switch (sumAxis_){
 
@@ -385,7 +385,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	}
 	}
 
-	memcpy(outputValues, tempOutput.constData(), tempOutput.size()*sizeof(double));
+	memcpy(outputValues, tempOutput.constData(), totalPoints*sizeof(double));
 
 	for (int i = 0, offset = indexStart.product(); i < totalPoints; i++)
 		cachedValues_[i+offset] = outputValues[i];

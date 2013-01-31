@@ -615,7 +615,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 	// create our main plot:
 	plot_ = createDefaultPlot();
 
-	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
 	plot_->plot()->addTool(positionTool);
 	positionTool->setDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 
