@@ -391,9 +391,18 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
 	sourceButtonsLayout_->addStretch();
 
+	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
+	exportButton_->setEnabled(false);
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+
+	QVBoxLayout *rightLayout = new QVBoxLayout;
+	rightLayout->addLayout(sourceButtonsLayout_);
+	rightLayout->addStretch();
+	rightLayout->addWidget(exportButton_);
+
 	QHBoxLayout *fullLayout = new QHBoxLayout;
 	fullLayout->addLayout(layout);
-	fullLayout->addLayout(sourceButtonsLayout_);
+	fullLayout->addLayout(rightLayout);
 
 	setLayout(fullLayout);
 }
@@ -501,6 +510,8 @@ void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 
 	else
 		plot_->plot()->removeItem(series_.at(id));
+
+	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
@@ -625,4 +636,60 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 	}
+}
+
+#include <QFileDialog>
+#include <QMessageBox>
+
+void AMScanViewSingleSpectrumView::onExportClicked()
+{
+	QString filename = QFileDialog::getSaveFileName(this, "Choose file name for data.", QString(), "Data files (*.dat);;All files (*)");
+
+	if (!filename.isEmpty() && !filename.endsWith(".dat"))
+		filename.append(".dat");
+
+	if (!filename.isEmpty() && !exportToFile(filename))
+		QMessageBox::warning(this, "Unable to save!", "The file was unable to save correctly.  Maybe the file path does not exist?", QMessageBox::Ok);
+}
+
+#include <QFile>
+#include <QTextStream>
+
+bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::WriteOnly))
+		return false;
+
+	// Get the checked sources.
+	QList<int> sources;
+
+	for (int i = 0, size = sourceButtons_->buttons().size(); i < size; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			sources << i;
+
+	QTextStream out(&file);
+
+	out << "Spectra from the show spectra view\n";
+	out << "Energy";
+
+	for (int i = 0, size = sources.size(); i < size; i++)
+		out << QString("\t%1").arg(sourceButtons_->button(sources.at(i))->text());
+
+	out << "\n";
+
+	for (int i = 0, size = x_.size(); i < size; i++){
+
+		out << QString::number(x_.at(i));
+
+		for (int j = 0, modelSize = sources.size(); j < modelSize; j++)
+			out << QString("\t%1").arg(models_.at(sources.at(j))->y(i));
+
+		out << "\n";
+	}
+
+	file.close();
+
+	return true;
 }

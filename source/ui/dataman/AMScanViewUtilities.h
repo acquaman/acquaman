@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QButtonGroup>
+#include <QPushButton>
 
 #include "dataman/AMScanSetModel.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
@@ -233,10 +234,14 @@ protected slots:
 	void onElementDeselected(int atomicNumber);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
+	/// Slot that handles getting the file name and then exporting the data sources to a file.
+	void onExportClicked();
 
 protected:
 	/// Sets up the plot.
 	void setupPlot();
+	/// Exports the currently selected data sources to the file given by \param filename.
+	bool exportToFile(const QString &filename) const;
 
 	/// The MPlot series that are visualized in the plot.
 	QList<MPlotSeriesBasic *> series_;
@@ -256,6 +261,8 @@ protected:
 	QButtonGroup *sourceButtons_;
 	/// The layout that holds the buttons associated with sourceButtons_.
 	QVBoxLayout *sourceButtonsLayout_;
+	/// The export button.
+	QPushButton *exportButton_;
 
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;
