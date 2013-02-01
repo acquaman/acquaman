@@ -41,6 +41,10 @@ protected slots:
 	void onDetectorBecameUnconnected(AMDetector *detector);
 
 protected:
+	/// Helper to locate insertion index for preferential ordering
+	int preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout);
+
+protected:
 	/// The model object
 	AMDetectorSelector *detectorSelector_;
 

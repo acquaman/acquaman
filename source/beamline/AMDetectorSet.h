@@ -124,6 +124,11 @@ signals:
 	/// Emitted when the detector group has a status change from allConnected to not all connected (and vice versa)
 	void allAreConnectedChanged(bool allAreConnected);
 
+	/// Emitted when a detector is added to the group
+	void detectorAddedToGroup(AMDetector *detector);
+	/// Emitted when a detector is removed from the group
+	void detectorRemovedFromGroup(AMDetector *detector);
+
 protected slots:
 	/// Handles moving detectors from the connected set to the unconnected set
 	void onConnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector);
@@ -168,6 +173,9 @@ public:
 	/// Returns the number of detectors in the detector group. Convenience call.
 	int count() const;
 
+	/// Returns the preferential ordering list (an ordered list of detector names)
+	QStringList preferentialOrdering() const;
+
 public slots:
 	/// Sets the detector as selected (or not selected) by passing the detector name
 	void setDetectorSelectedByName(const QString &name, bool isSelected);
@@ -178,6 +186,9 @@ public slots:
 	void setDetectorDefaultByName(const QString &name, bool isDefault);
 	/// Convenience version of above
 	void setDetectorDefault(AMDetector *detector, bool isDefault);
+
+	/// Sets the preferential ordering list
+	void setPreferentialOrdering(const QStringList &preferentialOrdering);
 
 signals:
 	/// Emitted when the selected state for a detector changes
@@ -192,6 +203,12 @@ signals:
 	/// Forwards signal from the detector group
 	void allAreConnectedChanged(bool allAreConnected);
 
+protected slots:
+	/// Handles removing detectors from the mappings
+	void onDetectorRemovedFromGroup(AMDetector *detector);
+	/// Handles adding detectors to the mappings
+	void onDetectorAddedToGroup(AMDetector *detector);
+
 protected:
 	/// The detector group holding the detectors of interest, whether connected or unconnected
 	AMDetectorGroup *detectorGroup_;
@@ -199,6 +216,8 @@ protected:
 	QMap<QString, bool> selectedDetectors_;
 	/// A mapping of default detectors by detector name
 	QMap<QString, bool> defaultDetectors_;
+	/// A preferential ordering of the detectors
+	QStringList preferentialOrdering_;
 };
 
 #endif // AMDETECTORSET_H

@@ -1183,6 +1183,14 @@ bool SGMAppController::setupSGMViews(){
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+	QStringList preferentialOrdering;
+	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+	newDetectorsSelector_->setPreferentialOrdering(preferentialOrdering);
 
 	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 

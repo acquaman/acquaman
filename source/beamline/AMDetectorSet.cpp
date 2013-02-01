@@ -171,7 +171,7 @@ int AMDetectorGroup::count() const{
 }
 
 AMDetector* AMDetectorGroup::detectorByName(const QString &name){
-	if(!connectedSet_->contains(name) || !unconnectedSet_->contains(name))
+	if(!connectedSet_->contains(name) && !unconnectedSet_->contains(name))
 		return 0; //NULL
 
 	if(connectedSet_->contains(name))
@@ -198,6 +198,7 @@ bool AMDetectorGroup::addDetector(AMDetector *detector){
 		retVal = unconnectedSet_->addDetector(detector);
 
 	checkAllAreConnected();
+	emit detectorAddedToGroup(detector);
 	return retVal;
 }
 
@@ -212,6 +213,7 @@ bool AMDetectorGroup::removeDetector(AMDetector *detector){
 		retVal = unconnectedSet_->removeDetector(detector);
 
 	checkAllAreConnected();
+	emit detectorRemovedFromGroup(detector);
 	return retVal;
 }
 
@@ -274,6 +276,9 @@ AMDetectorSelector::AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *
 		connect(detectorGroup_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SIGNAL(detectorBecameConnected(AMDetector*)));
 		connect(detectorGroup_, SIGNAL(detectorBecameUnconnected(AMDetector*)), this, SIGNAL(detectorBecameUnconnected(AMDetector*)));
 		connect(detectorGroup_, SIGNAL(allAreConnectedChanged(bool)), this, SIGNAL(allAreConnectedChanged(bool)));
+
+		connect(detectorGroup_, SIGNAL(detectorRemovedFromGroup(AMDetector*)), this, SLOT(onDetectorRemovedFromGroup(AMDetector*)));
+		connect(detectorGroup_, SIGNAL(detectorAddedToGroup(AMDetector*)), this, SLOT(onDetectorAddedToGroup(AMDetector*)));
 	}
 }
 
@@ -309,6 +314,10 @@ AMDetectorGroup* AMDetectorSelector::detectorGroup(){
 
 int AMDetectorSelector::count() const{
 	return detectorGroup_->count();
+}
+
+QStringList AMDetectorSelector::preferentialOrdering() const{
+	return preferentialOrdering_;
 }
 
 void AMDetectorSelector::setDetectorSelectedByName(const QString &name, bool isSelected){
@@ -351,4 +360,20 @@ void AMDetectorSelector::setDetectorDefault(AMDetector *detector, bool isDefault
 		defaultDetectors_[detector->name()] = isDefault;
 		emit defaultChanged(detector);
 	}
+}
+
+void AMDetectorSelector::setPreferentialOrdering(const QStringList &preferentialOrdering){
+	preferentialOrdering_ = preferentialOrdering;
+}
+
+void AMDetectorSelector::onDetectorRemovedFromGroup(AMDetector *detector){
+	selectedDetectors_.remove(detector->name());
+	defaultDetectors_.remove(detector->name());
+	preferentialOrdering_.removeAll(detector->name());
+}
+
+void AMDetectorSelector::onDetectorAddedToGroup(AMDetector *detector){
+	selectedDetectors_.insert(detector->name(), false);
+	defaultDetectors_.insert(detector->name(), false);
+	preferentialOrdering_.append(detector->name());
 }
