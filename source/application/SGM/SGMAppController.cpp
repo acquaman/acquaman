@@ -70,8 +70,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/SGM/SGMPeriodicTableView.h"
 
-#include "beamline/AMDetectorSet.h"
 #include "ui/beamline/AMDetectorSelectorView.h"
+#include "beamline/AMDetectorSelector.h"
+#include "beamline/AMDetectorSet.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)

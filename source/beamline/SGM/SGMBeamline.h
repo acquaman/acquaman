@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSPGTDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
+#include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"

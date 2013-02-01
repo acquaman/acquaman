@@ -2,14 +2,15 @@
 #define AMDETECTORSELECTORVIEW_H
 
 #include <QGroupBox>
-
-#include "beamline/AMDetectorSet.h"
+#include <QMap>
 
 class QScrollArea;
 class QVBoxLayout;
 class QLabel;
 class AMDetectorSelectorViewInternal;
 class AMDetectorGeneralBriefView;
+class AMDetector;
+class AMDetectorSelector;
 
 class AMDetectorSelectorView : public QGroupBox
 {

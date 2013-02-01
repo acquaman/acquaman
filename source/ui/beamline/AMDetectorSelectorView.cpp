@@ -6,8 +6,9 @@
 #include <QCheckBox>
 
 #include "ui/beamline/AMDetectorView.h"
-
-#include <QDebug>
+#include "beamline/AMDetectorSelector.h"
+#include "beamline/AMDetectorGroup.h"
+#include "beamline/AMDetectorSet.h"
 
 AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QGroupBox(parent)
@@ -45,10 +46,8 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 		AMDetector *detector = 0;
 		QStringList preferentialOrdering = detectorSelector_->preferentialOrdering();
 		for(int x = 0; x < preferentialOrdering.count(); x++){
-			qDebug() << "Searching preferentially on startup for " << preferentialOrdering.at(x);
 			detector = detectorSelector_->detectorGroup()->detectorByName(preferentialOrdering.at(x));
 			if(detector){
-				qDebug() << "Found detector " << detector->name();
 				tmpDetectorView = new AMDetectorSelectorViewInternalLineView(detector, detectorSelector_->detectorIsSelected(detector));
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(detector));
 				allDetectorViews_.insert(detector->name(), tmpDetectorView);
@@ -114,12 +113,9 @@ void AMDetectorSelectorViewInternal::onDetectorBecameConnected(AMDetector *detec
 		if(preferentialOrdering.at(x) == detector->name())
 			preferentialIndex = x;
 
-	qDebug() << "My index in the preferential list " << preferentialIndex;
 
-	if(preferentialIndex >= 0){
+	if(preferentialIndex >= 0)
 		insertionIndex = preferentialInsertionIndex(preferentialIndex, connectedVL_);
-		qDebug() << "Insertion index into connected will be " << insertionIndex;
-	}
 
 	if(preferentialIndex == -1)
 		connectedVL_->addWidget(tmpDetectorView);
@@ -141,7 +137,6 @@ void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *det
 	AMDetectorSelectorViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
 	tmpDetectorView->setDetectorConnected(false);
 	connectedVL_->removeWidget(tmpDetectorView);
-	//unconnectedVL_->addWidget(tmpDetectorView);
 
 	int insertionIndex = -1;
 	int preferentialIndex = -1;
@@ -150,12 +145,8 @@ void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *det
 		if(preferentialOrdering.at(x) == detector->name())
 			preferentialIndex = x;
 
-	qDebug() << "My index in the preferential list " << preferentialIndex;
-
-	if(preferentialIndex >= 0){
+	if(preferentialIndex >= 0)
 		insertionIndex = preferentialInsertionIndex(preferentialIndex, unconnectedVL_);
-		qDebug() << "Insertion index into unconnected will be " << insertionIndex;
-	}
 
 	if(preferentialIndex == -1)
 		unconnectedVL_->addWidget(tmpDetectorView);
@@ -175,7 +166,6 @@ int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialL
 		return -1;
 
 	QString priorDetectorName = detectorSelector_->preferentialOrdering().at(preferentialListIndex-1);
-	qDebug() << "Now looking for prior detector " << priorDetectorName;
 
 	AMDetectorSelectorViewInternalLineView *tmpLineView;
 	for(int x = 0; x < layout->count(); x++){
