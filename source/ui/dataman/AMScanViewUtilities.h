@@ -222,12 +222,16 @@ public:
 public slots:
 	/// Gives a new coordinate to grab a new spectrum.
 	void onDataPositionChanged(AMnDIndex index);
+	/// Gives two new coordinates to grab a whole set of spectra and add them together.
+	void onSelectedRectChanged(AMnDIndex start, AMnDIndex end);
 
 protected slots:
 	/// Slot that updates the plot at index \param index.  Updates the plot with every checked spectrum.  If no parameter is given then it uses the current index.
 	void updatePlot(const AMnDIndex &index = AMnDIndex());
+	/// Slot that updates the plot by adding all spectra from \param start to \param end.  Updates the plot with every checked spectrum.  If start is null then (0, 0) is assumed, and if end is null, (xSize-1, ySize-1) is assumed.
+	void updatePlot(const AMnDIndex &start, const AMnDIndex &end);
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
-	void updatePlot(int id);
+	void updatePlot(int id, bool addMultipleSpectra);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
 	void onElementSelected(int atomicNumber);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
