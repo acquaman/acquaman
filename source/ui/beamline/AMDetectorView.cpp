@@ -27,6 +27,7 @@ AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWi
 	hl->addWidget(new QLabel(detector_->name()));
 	hl->addWidget(singleReadingLabel_);
 	hl->addWidget(statusLabel_);
+	hl->setContentsMargins(0,0,0,0);
 	setLayout(hl);
 }
 
@@ -38,7 +39,6 @@ void AMDetectorGeneralBriefView::onAcquisitionStateChanged(AMDetector::Acqusitio
 }
 
 void AMDetectorGeneralBriefView::onAcquisitionSucceeded(){
-	qDebug() << "Heard detector succeeded in brief view";
 	AMNumber singleReading = detector_->singleReading();
 	if(singleReading.state() == AMNumber::Null)
 		singleReadingLabel_->setText("N/A");

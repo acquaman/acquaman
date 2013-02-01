@@ -610,7 +610,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/beamline/AMDetectorSet.h \
     source/dataman/info/AMDetectorInfoSet.h \
     source/ui/beamline/AMOldDetectorSetView.h \
-    source/ui/beamline/AMDetectorSelectorView.h
+    source/ui/beamline/AMDetectorSelectorView.h \
+    source/beamline/CLS/CLSBasicScalerChannelDetector.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1024,7 +1025,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/beamline/AMDetectorSet.cpp \
     source/dataman/info/AMDetectorInfoSet.cpp \
     source/ui/beamline/AMOldDetectorSetView.cpp \
-    source/ui/beamline/AMDetectorSelectorView.cpp
+    source/ui/beamline/AMDetectorSelectorView.cpp \
+    source/beamline/CLS/CLSBasicScalerChannelDetector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1048,6 +1050,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

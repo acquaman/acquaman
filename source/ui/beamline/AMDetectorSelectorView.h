@@ -78,12 +78,12 @@ signals:
 	void detectorCheckedChanged(bool selected);
 
 protected:
-	///// A label to hold the name of the detector
-	//QLabel *detectorNameLabel_;
 	/// A check box to show the (de)selected state of this detector
 	QCheckBox *detectorSelectedCheckBox_;
 
+	/// Holds a pointer to the detector being visualized
 	AMDetector *detector_;
+	/// The general brief-style view for this detector
 	AMDetectorGeneralBriefView *briefView_;
 };
 

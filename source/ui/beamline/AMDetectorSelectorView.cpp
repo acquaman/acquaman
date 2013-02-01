@@ -86,15 +86,14 @@ AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(A
 {
 	detector_ = detector;
 
-	//detectorNameLabel_ = new QLabel(detectorName);
 	detectorSelectedCheckBox_ = new QCheckBox();
 	detectorSelectedCheckBox_->setChecked(isSelected);
 	briefView_ = new AMDetectorGeneralBriefView(detector);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(detectorSelectedCheckBox_);
-	//hl->addWidget(detectorNameLabel_);
 	hl->addWidget(briefView_);
+	hl->setContentsMargins(0,0,0,0);
 
 	connect(detectorSelectedCheckBox_, SIGNAL(toggled(bool)), this, SIGNAL(detectorCheckedChanged(bool)));
 
@@ -102,7 +101,6 @@ AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(A
 }
 
 QString AMDetectorSelectorViewInternalLineView::detectorName() const{
-	//return detectorNameLabel_->text();
 	return detector_->name();
 }
 
@@ -115,6 +113,5 @@ void AMDetectorSelectorViewInternalLineView::setDetectorSelected(bool selected){
 }
 
 void AMDetectorSelectorViewInternalLineView::setDetectorConnected(bool connected){
-	//detectorNameLabel_->setEnabled(connected);
 	briefView_->setEnabled(connected);
 }

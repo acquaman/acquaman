@@ -659,9 +659,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
+	newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
+	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
+	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
+	newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
 	newDetectorSet_->addDetector(newAmptekSDD2_);
+	newDetectorSet_->addDetector(newTEYDetector_);
+	newDetectorSet_->addDetector(newTFYDetector_);
+	newDetectorSet_->addDetector(newI0Detector_);
+	newDetectorSet_->addDetector(newPDDetector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));

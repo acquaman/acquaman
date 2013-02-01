@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
 #include "beamline/AMDetectorSet.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -167,6 +168,10 @@ public:
 	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
 	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
 	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
+	AMDetector* newTEYDetector() const { return newTEYDetector_;}
+	AMDetector* newTFYDetector() const { return newTFYDetector_;}
+	AMDetector* newI0Detector() const { return newI0Detector_;}
+	AMDetector* newPDDetector() const { return newPDDetector_;}
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
@@ -427,6 +432,10 @@ protected:
 	AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
+	CLSBasicScalerChannelDetector *newTEYDetector_;
+	CLSBasicScalerChannelDetector *newTFYDetector_;
+	CLSBasicScalerChannelDetector *newI0Detector_;
+	CLSBasicScalerChannelDetector *newPDDetector_;
 	AMDetectorGroup *newDetectorSet_;
 
 	AMControlSet *criticalControlsSet_;

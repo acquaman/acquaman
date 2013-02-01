@@ -26,7 +26,7 @@ public:
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	/// Returns true if the detector is currently acquiring by checking the status control.
+	///// Returns true if the detector is currently acquiring by checking the status control.
 	//virtual bool isAcquiring() const;
 	/// Cancelling is not implemented for the Amptek detectors
 	virtual bool canCancel() const { return false; }
