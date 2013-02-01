@@ -19,11 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSSynchronizedDwellTime.h"
+#include "beamline/AMDetectorTriggerSource.h"
 
 CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *parent)
 	: AMSynchronizedDwellTime(parent)
 {
 	baseName_ = baseName;
+
+	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
+	connect(triggerSource_, SIGNAL(triggered()), this, SLOT(onTriggerSourceTriggered()));
 
 	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
 	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
@@ -48,6 +52,10 @@ QStringList CLSSynchronizedDwellTime::keys() const{
 		retVal.append(elementAt(x)->key());
 
 	return retVal;
+}
+
+AMDetectorTriggerSource* CLSSynchronizedDwellTime::triggerSource(){
+	return triggerSource_;
 }
 
 void CLSSynchronizedDwellTime::addElement(int index)
@@ -88,6 +96,13 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronized
 	action->setSetpoint(mode == Continuous ? 0.0 : 1.0);
 
 	return action;
+}
+
+void CLSSynchronizedDwellTime::onTriggerSourceTriggered(){
+	if(!isConnected() || isScanning())
+		return;
+
+	start();
 }
 
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)

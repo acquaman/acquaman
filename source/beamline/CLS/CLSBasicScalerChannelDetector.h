@@ -13,7 +13,7 @@ public:
 	CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector
-	virtual int size(int axisNumber) const { return 0; }
+	virtual int size(int axisNumber) const;
 
 	/// The basic scaler channels don't require additional power
 	virtual bool requiresPower() const { return false; }
@@ -32,7 +32,12 @@ public:
 	/// The scaler channels can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
-	virtual QString syncrhonizedDwellKey() const;
+	virtual QString synchronizedDwellKey() const;
+
+	/// The scaler channels always share a triggering source (with eachother through the main scaler trigger) and sometimes uses the synchronized dwell time object
+	virtual bool sharesDetectorTriggerSource() { return true; }
+	/// Returns the current shared detector trigger source (either the main scaler trigger source or the synchronized dwell time trigger source)
+	virtual AMDetectorTriggerSource* detectorTriggerSource();
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }

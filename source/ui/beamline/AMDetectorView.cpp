@@ -24,7 +24,10 @@ AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWi
 		onAcquisitionSucceeded();
 
 	QHBoxLayout *hl = new QHBoxLayout();
-	hl->addWidget(new QLabel(detector_->name()));
+	QLabel *nameLabel = new QLabel(detector_->name());
+	nameLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+	hl->addWidget(nameLabel);
+	hl->addStretch(10);
 	hl->addWidget(singleReadingLabel_);
 	hl->addWidget(statusLabel_);
 	hl->setContentsMargins(0,0,0,0);

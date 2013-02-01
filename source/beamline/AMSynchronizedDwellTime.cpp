@@ -10,7 +10,7 @@ AMSynchronizedDwellTime::AMSynchronizedDwellTime(QObject *parent) :
 int AMSynchronizedDwellTime::indexOfDetector(const AMDetector *detector) const{
 	QStringList currentKeys = keys();
 	for(int x = 0; x < currentKeys.count(); x++)
-		if(currentKeys.at(x) == detector->syncrhonizedDwellKey())
+		if(currentKeys.at(x) == detector->synchronizedDwellKey())
 			return x;
 
 	return -1;

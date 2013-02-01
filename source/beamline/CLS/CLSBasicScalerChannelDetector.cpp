@@ -1,6 +1,7 @@
 #include "CLSBasicScalerChannelDetector.h"
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMDetectorTriggerSource.h"
 
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
@@ -15,14 +16,24 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
 }
 
+int CLSBasicScalerChannelDetector::size(int axisNumber) const{
+	Q_UNUSED(axisNumber)
+
+	return 0;
+}
+
 double CLSBasicScalerChannelDetector::acquisitionTime() const{
 	if(isConnected())
 		return scaler_->dwellTime();
 	return -1;
 }
 
-QString CLSBasicScalerChannelDetector::syncrhonizedDwellKey() const{
+QString CLSBasicScalerChannelDetector::synchronizedDwellKey() const{
 	return "";
+}
+
+AMDetectorTriggerSource* CLSBasicScalerChannelDetector::detectorTriggerSource(){
+	return scaler_->triggerSource();
 }
 
 const double* CLSBasicScalerChannelDetector::data() const{

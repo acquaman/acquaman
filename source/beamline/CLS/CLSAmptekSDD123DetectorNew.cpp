@@ -72,7 +72,7 @@ double CLSAmptekSDD123DetectorNew::acquisitionTime() const{
 	return -1;
 }
 
-QString CLSAmptekSDD123DetectorNew::syncrhonizedDwellKey() const{
+QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
 	return "amptek:sdd:all:spectrum:startAcquisitio";
 }
 

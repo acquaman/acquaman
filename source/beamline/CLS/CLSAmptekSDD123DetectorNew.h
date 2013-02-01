@@ -42,7 +42,7 @@ public:
 	/// The ampteks can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
-	virtual QString syncrhonizedDwellKey() const;
+	virtual QString synchronizedDwellKey() const;
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }

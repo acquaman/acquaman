@@ -6,6 +6,7 @@
 //class AMAction3;
 class AMBeamlineActionItem;
 class AMDetector;
+class AMDetectorTriggerSource;
 
 class AMSynchronizedDwellTime : public QObject
 {
@@ -39,6 +40,9 @@ public:
 
 	/// Returns the number of elements in the dwell time list.
 	virtual int elementCount() const = 0;
+
+	/// Returns the trigger source for this synchronized dwell time
+	virtual AMDetectorTriggerSource* triggerSource() = 0;
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
 	//virtual AMAction3* createMasterTimeAction(double time) = 0;

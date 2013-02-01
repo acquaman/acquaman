@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
 class AMControl;
+class AMDetectorTriggerSource;
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -59,6 +60,9 @@ public:
 	CLSSIS3820ScalerChannel* channelAt(int index);
 	/// Returns the list of all the channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> channels();
+
+	/// Returns the trigger source for the scaler.
+	AMDetectorTriggerSource* triggerSource();
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMBeamlineActionItem* createStartAction(bool setScanning);
@@ -113,6 +117,9 @@ protected slots:
 	/// Helper slot that handles emitting the connectivity of the scaler.
 	void onConnectedChanged();
 
+	/// Handles requests for triggering from the AMDetectorTriggerSource
+	void onTriggerSourceTriggered();
+
 protected:
 	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> scalerChannels_;
@@ -135,6 +142,9 @@ protected:
 
 	/// Flag that holds whether the scaler has ever been connected to the beamline.
 	bool connectedOnce_;
+
+	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMDetectorTriggerSource *triggerSource_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.

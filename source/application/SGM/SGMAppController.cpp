@@ -1180,6 +1180,9 @@ bool SGMAppController::setupSGMViews(){
 
 	newDetectorsSelectorView_ = 0;
 	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);
+	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 
 	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 

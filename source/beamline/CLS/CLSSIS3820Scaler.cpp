@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSIS3820Scaler.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
+#include "beamline/AMDetectorTriggerSource.h"
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
@@ -28,6 +29,10 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
+
+	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
+	connect(triggerSource_, SIGNAL(triggered()), this, SLOT(onTriggerSourceTriggered()));
+
 	CLSSIS3820ScalerChannel *tmpChannel;
 	for(int x = 0; x < 32; x++){
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
@@ -124,6 +129,10 @@ CLSSIS3820ScalerChannel* CLSSIS3820Scaler::channelAt(int index){
 
 AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 	return scalerChannels_;
+}
+
+AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
+	return triggerSource_;
 }
 
 AMBeamlineActionItem* CLSSIS3820Scaler::createStartAction(bool setScanning) {
@@ -306,6 +315,13 @@ void CLSSIS3820Scaler::onConnectedChanged(){
 
 	if(connectedOnce_)
 		emit connectedChanged(isConnected());
+}
+
+void CLSSIS3820Scaler::onTriggerSourceTriggered(){
+	if(!isConnected() && !isScanning())
+		return;
+
+	setScanning(true);
 }
 
 // CLSSIS3820ScalarChannel

@@ -7,6 +7,7 @@
 
 class QScrollArea;
 class QVBoxLayout;
+class QLabel;
 class AMDetectorSelectorViewInternal;
 class AMDetectorGeneralBriefView;
 
@@ -46,13 +47,20 @@ protected:
 	/// The map of detector names to individual view widgets
 	QMap<QString, AMDetectorSelectorViewInternalLineView*> allDetectorViews_;
 
+	/// The groupbox for the connected detectors
+	QGroupBox *connectedGroupBox_;
 	/// The layout for the connected detectors
 	QVBoxLayout *connectedVL_;
+	/// Label for the case where there are no connected detectors
+	QLabel *noneConnectedLabel_;
+	/// The groupbox for the unconnected detectors
+	QGroupBox *unconnectedGroupBox_;
 	/// The layout for the unconnected detectors
 	QVBoxLayout *unconnectedVL_;
+	/// Label for the case where there are no unconnected detectors
+	QLabel *noneUnconnectedLabel_;
 };
 
-class QLabel;
 class QCheckBox;
 
 class AMDetectorSelectorViewInternalLineView : public QWidget

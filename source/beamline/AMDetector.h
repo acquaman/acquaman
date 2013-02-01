@@ -8,6 +8,8 @@
 #include "actions3/AMAction3.h"
 #include "dataman/datasource/AMDataSource.h"
 
+class AMDetectorTriggerSource;
+
 /// An AMDetector is an abstract representation of all scientific tools designed to report data
 /*!
   As a programmer, you may wish to implement your own AMDetector subclass. Check around first! You may find that someone has already done the work.
@@ -195,10 +197,12 @@ public:
 	/// Returns whether or not this detector is currently interfaced with a synchronized dwell system by querying the AMBeamline class. You may reimplement if you wish.
 	virtual bool currentlySynchronizedDwell() const;
 	/// Returns the key for this detector (for matching with synchronized dwell application)
-	virtual QString syncrhonizedDwellKey() const = 0;
+	virtual QString synchronizedDwellKey() const = 0;
 
-	// FIGURE THIS OUT
+	/// Returns whether to not this detector shares a triggering source, such as synchronized dwell time or the main scaler trigger. Default implementation returns false.
 	virtual bool sharesDetectorTriggerSource() { return false; }
+	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
+	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
 
 	/// Returns the read method for this detector
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const = 0;

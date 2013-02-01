@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
 
+class AMDetectorTriggerSource;
+
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
   process variables for you.  It requires the base name (ex: BL1607-B2-1:dwell) and the index that the detector of interest occupies (0 being the first element by standard C/C++ array
@@ -175,6 +177,9 @@ public:
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
 
+	/// Returns the trigger source for the whole synchronized dwell time object
+	virtual AMDetectorTriggerSource* triggerSource();
+
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createMasterTimeAction(double time);
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
@@ -217,6 +222,9 @@ protected slots:
 	/// Determines whether or not the synchronized dwell time is connected.
 	void onConnectedChanged() { emit connected(isConnected()); }
 
+	/// Handles forwarding the trigger source triggered() signal to starting the synchronized dwell time object
+	void onTriggerSourceTriggered();
+
 protected:
 	/// List holding the individual elements.
 	QList<CLSSynchronizedDwellTimeElement *> elements_;
@@ -229,6 +237,9 @@ protected:
 
 	/// Holds the base name.  Used to build extra elements.
 	QString baseName_;
+
+	/// The trigger source for the whole synchronized dwell time object
+	AMDetectorTriggerSource *triggerSource_;
 };
 
 #endif // CLSSYNCHRONIZEDDWELLTIME_H
