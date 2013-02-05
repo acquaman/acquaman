@@ -1,5 +1,7 @@
 #include "CLSAmptekSDD123DetectorNew.h"
 
+#include "acquaman/AMAgnosticDataAPI.h"
+
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {
@@ -41,6 +43,45 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
+
+
+
+	AMAgnosticDataAPIStartAxisMessage startAxisMessage("Cool Axis Name");
+	AMAgnosticDataAPIFinishAxisMessage finishAxisMessage("Cooler Axis Name");
+	AMAgnosticDataAPILoopIncrementMessage loopIncrementMessage("Theta Loop", 12);
+
+	QList<double> detectorDataList;
+	detectorDataList << 27 << 1227 << 2712 << 1212;
+	QList<int> detectorSizesList;
+	detectorSizesList << 10 << 4 << 4;
+	QStringList detectorNamesList;
+	detectorNamesList << "X" << "Y" << "Z";
+	QStringList detectorUnitsList;
+	detectorUnitsList << "counts" << "pulses" << "volts";
+	AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage("Sweet-Ass Detector", detectorDataList, detectorSizesList, detectorNamesList, detectorUnitsList);
+
+	AMAgnosticDataAPIControlMovedMessage controlMovedMessage("Kickin' Control", "Relative", 42.42);
+
+	qDebug() << startAxisMessage.toJSON() << "\n";
+	qDebug() << finishAxisMessage.toJSON() << "\n";
+	qDebug() << loopIncrementMessage.toJSON() << "\n";
+	qDebug() << dataAvailableMessage.toJSON() << "\n";
+	qDebug() << controlMovedMessage.toJSON() << "\n";
+
+	loopIncrementMessage.setNextLoopIncrement(88);
+	detectorDataList.clear();
+	detectorDataList << 1 << 2 << 3 << 6 << 10;
+	dataAvailableMessage.setDetectorData(detectorDataList);
+	detectorUnitsList.clear();
+	detectorUnitsList << "mV" << "mV" << "mV";
+	dataAvailableMessage.setDetectorDimensionalityUnits(detectorUnitsList);
+	controlMovedMessage.setControlMovementValue(8008);
+
+	qDebug() << startAxisMessage.toJSON() << "\n";
+	qDebug() << finishAxisMessage.toJSON() << "\n";
+	qDebug() << loopIncrementMessage.toJSON() << "\n";
+	qDebug() << dataAvailableMessage.toJSON() << "\n";
+	qDebug() << controlMovedMessage.toJSON() << "\n";
 }
 
 int CLSAmptekSDD123DetectorNew::size(int axisNumber) const{
