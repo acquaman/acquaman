@@ -76,7 +76,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.h \
     source/ui/VESPERS/VESPERSScanConfigurationView.h \
     source/acquaman/VESPERS/VESPERSScanController.h \
-    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h
+    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h \
+    source/ui/VESPERS/VESPERSChooseDataFolderDialog.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -150,10 +151,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.cpp \
     source/ui/VESPERS/VESPERSScanConfigurationView.cpp \
     source/acquaman/VESPERS/VESPERSScanController.cpp \
-    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.cpp
+    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.cpp \
+    source/ui/VESPERS/VESPERSChooseDataFolderDialog.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

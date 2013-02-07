@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
+#include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -130,6 +131,9 @@ bool VESPERSAppController::startup() {
 			AMUserSettings::save();
 		}
 	}
+
+//	VESPERSChooseDataFolderDialog::getDataFolder();
+//	return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
