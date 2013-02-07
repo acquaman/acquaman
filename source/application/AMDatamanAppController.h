@@ -79,6 +79,9 @@ class AMScan;
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_USER_INTERFACE 270222
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING 270223
 
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRST_TIME_UPGRADES_FAILED 270224
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED 270225
+
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should subclass this class for your specific version of Acquaman.
@@ -296,6 +299,11 @@ protected:
 
 	/// Method that allows the app controller and all subclasses to have their own specific bottom panel.  This method MUST ensure that the bottomPanel_ member is valid.
 	virtual void addBottomPanel();
+
+	/// Method that handles the database upgrades the first when a database has been created.  \param upgrades is the list of upgrades that need to be done.
+	bool onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
+	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
+	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.

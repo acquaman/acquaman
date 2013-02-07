@@ -21,10 +21,10 @@ public:
 	/// Constructor.  Need to provide the name of the database to upgrade.
 	VESPERSDbUpgrade1Pt2(const QString &databaseNameToUpgrade, QObject *parent = 0);
 
-	/// Indicates the dependencies of this upgrade.  The dependency is VESPERSUpgrade1.1 because it uses the name "fluorescenceDetectorChoice" explicitly.
+	/// Indicates the dependencies of this upgrade.
 	virtual QStringList upgradeFromTags() const;
 
-	/// Returns true if the database contains any 2D scan configurations, line scan configurations, or EXAFS scan configurations.
+	/// Returns true.  ALL modifications to the structure of the database need to be performed.
 	virtual bool upgradeNecessary() const;
 
 	/// Renames the current table, creates a new one with the old name with the modified column name.  Then all of the data is transferred to the new table.  Lastly, the old table is deleted.

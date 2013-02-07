@@ -51,7 +51,7 @@ public:
 	/// Indicates the dependicies of this upgrade.  This requires all of the previous upgrades to have been performed already (1.1-1.4).
 	virtual QStringList upgradeFromTags() const;
 
-	/// Returns true if the database contains all the scan configuration tables.
+	/// Returns true.  ALL modifications to the structure of the database need to be performed.
 	virtual bool upgradeNecessary() const;
 
 	/// Makes all the chagnes outlined in the class description.

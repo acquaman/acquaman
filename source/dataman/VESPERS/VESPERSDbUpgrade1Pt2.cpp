@@ -9,48 +9,36 @@ VESPERSDbUpgrade1Pt2::VESPERSDbUpgrade1Pt2(const QString &databaseNameToUpgrade,
 
 QStringList VESPERSDbUpgrade1Pt2::upgradeFromTags() const
 {
-	return QStringList() << "VESPERSDbUpgrade1.1";
+	return QStringList();
 }
 
 bool VESPERSDbUpgrade1Pt2::upgradeNecessary() const
 {
-	// This uses select instread of any of the convience methods in AMDatabase because the if the lists are empty, but the table still exists then we still want to upgrade the database.  Therefore, I've used select and check to make sure everything went okay with the transaction.
-	bool upgrade = true;
-
-	// First: 2D scans.
-	QSqlQuery query = databaseToUpgrade_->select("VESPERS2DScanConfiguration_table", "fluorescenceDetectorChoice");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	// Second: Line scans.
-	query = databaseToUpgrade_->select("VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetectorChoice");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	// Third:  EXAFS scans.
-	query = databaseToUpgrade_->select("VESPERSEXAFSScanConfiguration_table", "fluorescenceDetectorChoice");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	return upgrade;
+	return true;
 }
 
 bool VESPERSDbUpgrade1Pt2::upgradeImplementation()
 {
 	// Since all three of the tables MUST exist, we'll just go ahead and do the upgrade without any further existence checks.
-	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
+	if (databaseToUpgrade_->tableExists("VESPERS2DScanConfiguration_table")
+			&& databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "fluorescenceDetectorChoice")
+			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
 
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT2_COULD_NOT_UPDATE_2DCONFIGURATION, "Could not upgrade the 2D scan configuration table.");
 		return false;
 	}
 
-	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
+	if (databaseToUpgrade_->tableExists("VESPERSSpatialLineScanConfiguration_table")
+			&& databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetectorChoice")
+			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
 
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT2_COULD_NOT_UPDATE_LINECONFIGURATION, "Could not upgrade the spatial line scan configuration table.");
 		return false;
 	}
 
-	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
+	if (databaseToUpgrade_->tableExists("VESPERSEXAFSScanConfiguration_table")
+			&& databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "fluorescenceDetectorChoice")
+			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "fluorescenceDetectorChoice", "fluorescenceDetector")){
 
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT2_COULD_NOT_UPDATE_EXAFSCONFIGURATION, "Could not upgrade the EXAFS scan configuration table.");
 		return false;

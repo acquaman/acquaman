@@ -127,6 +127,7 @@ bool VESPERSDbUpgrade1Pt1::upgradeImplementation()
 	}
 
 	databaseToUpgrade_->commitTransaction();
+
 	return true;
 }
 

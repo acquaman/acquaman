@@ -266,11 +266,76 @@ bool AMDatamanAppController::startupOnFirstTime()
 	if(!startupCreateDatabases())
 		return false;
 
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades())
+		return false;
+
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
+	qApp->processEvents();
+	return true;
+}
+
+bool AMDatamanAppController::startupOnEveryTime()
+{
+	if(!startupCreateDatabases())
+		return false;
+
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades())
+		return false;
+
+	qApp->processEvents();
+
+	return true;
+}
+
+bool AMDatamanAppController::startupCreateDatabases()
+{
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	return true;
+}
+
+bool AMDatamanAppController::startupDatabaseUpgrades()
+{
+	QList<AMDbUpgrade *> firstTimeDbUpgrades;
+	QList<AMDbUpgrade *> everyTimeDbUpgrades;
+
+	for (int i = 0, size = databaseUpgradeCount(); i < size; i++){
+
+		if (AMDatabase::database(databaseUpgradeAt(i)->databaseNameToUpgrade())->isEmpty())
+			firstTimeDbUpgrades.append(databaseUpgradeAt(i));
+
+		else
+			everyTimeDbUpgrades.append(databaseUpgradeAt(i));
+	}
+
+	if (!onFirstTimeDatabaseUpgrade(firstTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRST_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to new databases failed.");
+		return false;
+	}
+
+	if (!onEveryTimeDatabaseUpgrade(everyTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to existing databases failed.");
+		return false;
+	}
+
+	return true;
+}
+
+bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
+{
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
-	for(int x = 0; x < databaseUpgradeCount(); x++){
-		upgrade = databaseUpgradeAt(x);
+
+	for(int x = 0; x < upgrades.size(); x++){
+		upgrade = upgrades.at(x);
 		if(!upgrade->loadDatabaseFromName()){
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
@@ -296,34 +361,10 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 	}
 
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
-	qApp->processEvents();
 	return true;
 }
 
-bool AMDatamanAppController::startupOnEveryTime()
-{
-	if(!startupCreateDatabases())
-		return false;
-
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades()) return false;
-	qApp->processEvents();
-
-	return true;
-}
-
-bool AMDatamanAppController::startupCreateDatabases()
-{
-	// create the "user" database connection.
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
-	if(!db)
-		return false;
-
-	return true;
-}
-
-bool AMDatamanAppController::startupDatabaseUpgrades()
+bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
 	bool success = true;
 	bool atLeastOneDatabaseAccessible = false;
@@ -337,10 +378,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	int lastErrorCode;
 
 	// Loop over the database upgrades and apply them if necessary
-	for(int x = 0; x < databaseUpgradeCount(); x++){
+	for(int x = 0; x < upgrades.size(); x++){
 		upgradeIsNecessary = false;
 		databaseIsEmpty = false;
-		upgrade = databaseUpgradeAt(x);
+		upgrade = upgrades.at(x);
 		QString pathToDatabase;
 		QString databaseName;
 
@@ -435,6 +476,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
 	else
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
+
 	return true;
 }
 
