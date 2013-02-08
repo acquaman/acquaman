@@ -58,6 +58,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(fourElFbkChanged(double)), this, SLOT(fourElUpdate(double)));
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
+	connect(endstation_, SIGNAL(singleElFbkChanged(double)), this, SLOT(singleElUpdate(double)));
 	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	normalFocusButton_ = new QToolButton;
 	connect(normalFocusButton_, SIGNAL(clicked()), this, SLOT(normalFocusClicked()));
