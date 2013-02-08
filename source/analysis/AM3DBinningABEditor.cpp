@@ -272,8 +272,12 @@ void AM3DBinningABEditor::onSumAxisControlChanged(int newSumAxis)
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
 
 		int newRangeMax = inputSource->size(newSumAxis)-1;
-		rangeMinControl_->setMaximum(newRangeMax);
+		rangeMinControl_->setMinimum(newRangeMax);
 		rangeMaxControl_->setMaximum(newRangeMax);
+		analysisBlock_->setSumRangeMin(0);
+		analysisBlock_->setSumRangeMax(newRangeMax);
+		rangeMinControl_->setValue(0);
+		rangeMaxControl_->setValue(newRangeMax);
 	}
 
 	analysisBlock_->setSumAxis(newSumAxis);

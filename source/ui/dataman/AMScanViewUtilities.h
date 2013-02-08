@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QButtonGroup>
+#include <QPushButton>
 
 #include "dataman/AMScanSetModel.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
@@ -221,22 +222,30 @@ public:
 public slots:
 	/// Gives a new coordinate to grab a new spectrum.
 	void onDataPositionChanged(AMnDIndex index);
+	/// Gives two new coordinates to grab a whole set of spectra and add them together.
+	void onSelectedRectChanged(AMnDIndex start, AMnDIndex end);
 
 protected slots:
 	/// Slot that updates the plot at index \param index.  Updates the plot with every checked spectrum.  If no parameter is given then it uses the current index.
 	void updatePlot(const AMnDIndex &index = AMnDIndex());
+	/// Slot that updates the plot by adding all spectra from \param start to \param end.  Updates the plot with every checked spectrum.  If start is null then (0, 0) is assumed, and if end is null, (xSize-1, ySize-1) is assumed.
+	void updatePlot(const AMnDIndex &start, const AMnDIndex &end);
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
-	void updatePlot(int id);
+	void updatePlot(int id, bool addMultipleSpectra);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
 	void onElementSelected(int atomicNumber);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
 	void onElementDeselected(int atomicNumber);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
+	/// Slot that handles getting the file name and then exporting the data sources to a file.
+	void onExportClicked();
 
 protected:
 	/// Sets up the plot.
 	void setupPlot();
+	/// Exports the currently selected data sources to the file given by \param filename.
+	bool exportToFile(const QString &filename) const;
 
 	/// The MPlot series that are visualized in the plot.
 	QList<MPlotSeriesBasic *> series_;
@@ -256,6 +265,8 @@ protected:
 	QButtonGroup *sourceButtons_;
 	/// The layout that holds the buttons associated with sourceButtons_.
 	QVBoxLayout *sourceButtonsLayout_;
+	/// The export button.
+	QPushButton *exportButton_;
 
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;

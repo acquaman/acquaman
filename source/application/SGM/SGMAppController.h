@@ -94,10 +94,6 @@ protected slots:
 	void onCurrentScanControllerCreated();
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerDestroyed();
-	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
-	void onCurrentScanControllerStarted(AMScanAction *action);
-	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
-	void onCurrentScanControllerFinished(AMScanAction *action);
 
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
@@ -108,6 +104,10 @@ protected slots:
 	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 protected:
+	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
 	/// Grabs the dacq configuration file locations

@@ -14,25 +14,7 @@ QStringList VESPERSDbUpgrade1Pt3::upgradeFromTags() const
 
 bool VESPERSDbUpgrade1Pt3::upgradeNecessary() const
 {
-	// This uses select instread of any of the convience methods in AMDatabase because the if the lists are empty, but the table still exists then we still want to upgrade the database.  Therefore, I've used select and check to make sure everything went okay with the transaction.
-	bool upgrade = true;
-
-	// First: 2D scans.
-	QSqlQuery query = databaseToUpgrade_->select("VESPERS2DScanConfiguration_table", "usingCCD");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	// Second: Line scans.
-	query = databaseToUpgrade_->select("VESPERSSpatialLineScanConfiguration_table", "usingCCD");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	// Third:  Energy scans.
-	query = databaseToUpgrade_->select("VESPERSEnergyScanConfiguration_table", "ccdDetector");
-	databaseToUpgrade_->execQuery(query);
-	upgrade &= (query.lastError().type() == QSqlError::NoError);
-
-	return upgrade;
+	return true;
 }
 
 bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
@@ -42,10 +24,17 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 	databaseToUpgrade_->startTransaction();
 
 	// Update the 2D and line scan tables.
-	success &= databaseToUpgrade_->update("VESPERS2DScanConfiguration_table", "usingCCD='false'", "usingCCD", 0);
-	success &= databaseToUpgrade_->update("VESPERS2DScanConfiguration_table", "usingCCD='true'", "usingCCD", 1);
-	success &= databaseToUpgrade_->update("VESPERSSpatialLineScanConfiguration_table", "usingCCD='false'", "usingCCD", 0);
-	success &= databaseToUpgrade_->update("VESPERSSpatialLineScanConfiguration_table", "usingCCD='true'", "usingCCD", 1);
+	if (databaseToUpgrade_->tableExists("VESPERS2DScanConfiguration_table") && databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "usingCCD")){
+
+		success &= databaseToUpgrade_->update("VESPERS2DScanConfiguration_table", "usingCCD='false'", "usingCCD", 0);
+		success &= databaseToUpgrade_->update("VESPERS2DScanConfiguration_table", "usingCCD='true'", "usingCCD", 1);
+	}
+
+	if (databaseToUpgrade_->tableExists("VESPERSSpatialLineScanConfiguration_table") && databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "usingCCD")){
+
+		success &= databaseToUpgrade_->update("VESPERSSpatialLineScanConfiguration_table", "usingCCD='false'", "usingCCD", 0);
+		success &= databaseToUpgrade_->update("VESPERSSpatialLineScanConfiguration_table", "usingCCD='true'", "usingCCD", 1);
+	}
 
 	if (!success){
 
@@ -57,13 +46,17 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 	databaseToUpgrade_->commitTransaction();
 
 	// Change the name of the usingCDD column to ccdDetector.
-	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
+	if (databaseToUpgrade_->tableExists("VESPERS2DScanConfiguration_table")
+			&& databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "usingCCD")
+			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_2DCONFIGURATION_COLUMN_NAME, "Could not change the VESPERS2DScanConfiguration table column name.");
 		return false;
 	}
 
-	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
+	if (databaseToUpgrade_->tableExists("VESPERSSpatialLineScanConfiguration_table")
+			&& databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "usingCCD")
+			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_LINECONFIGURATION_COLUMN_NAME, "Could not change the VESPERSSpatialLineScanConfiguration table column name.");
 		return false;
@@ -72,8 +65,11 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 	databaseToUpgrade_->startTransaction();
 
 	// Update the energy scan ccdDetector column.
-	success &= databaseToUpgrade_->update("VESPERSEnergyScanConfiguration_table", "ccdDetector=1", "ccdDetector", 2);
-	success &= databaseToUpgrade_->update("VESPERSEnergyScanConfiguration_table", "ccdDetector=0", "ccdDetector", 1);
+	if (databaseToUpgrade_->tableExists("VESPERSEnergyScanConfiguration_table")){
+
+		success &= databaseToUpgrade_->update("VESPERSEnergyScanConfiguration_table", "ccdDetector=1", "ccdDetector", 2);
+		success &= databaseToUpgrade_->update("VESPERSEnergyScanConfiguration_table", "ccdDetector=0", "ccdDetector", 1);
+	}
 
 	if (!success){
 

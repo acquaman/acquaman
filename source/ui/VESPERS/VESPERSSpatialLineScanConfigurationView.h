@@ -61,6 +61,8 @@ protected slots:
 	void onStepChanged();
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
+	/// Helper slot that sets the other position.
+	void onOtherPositionChanged();
 
 	/// Helper slot that sets the CCD detector setting in the configuration.
 	void onCCDButtonClicked(bool useCCD) { config_->setCCDDetector(useCCD ? 1 : 0); }
@@ -108,6 +110,10 @@ protected:
 	QDoubleSpinBox *end_;
 	/// Pointer to the step size spin box.
 	QDoubleSpinBox *step_;
+	/// Pointer to the other position label.
+	QLabel *otherPositionLabel_;
+	/// Pointer to the spin box holding the other position.
+	QDoubleSpinBox *otherPosition_;
 
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;

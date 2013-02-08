@@ -33,6 +33,7 @@ class AMScan;
 class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
+class AMScanAction;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
 class AMAppController : public AMDatamanAppControllerForActions3
@@ -76,19 +77,37 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 
 	///////////////////////////////////
 
+protected slots:
+	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
+	void onCurrentScanActionStarted(AMScanAction *action);
+	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
+	void onCurrentScanActionFinished(AMScanAction *action);
+	/// Slot that changes the state of the scanEditorModelItem state when the scan action state changes.
+	void updateScanEditorModelItem();
+
 protected:
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action) { Q_UNUSED(action); }
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action) { Q_UNUSED(action); }
+
 	/// Re-implementing the build bottom bar method to use the bottom bar built for the app controller that includes a mini workflow view.
 	virtual void addBottomPanel();
-
-	/// Top-level panes in the main window
-	AMWorkflowManagerView* workflowManagerView_;
-	AMWorkflowView3* workflowView_;
-
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);
 
 	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
 	bool canCloseActionRunner();
+
+	/// Sets the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
+	void setAutomaticBringScanEditorToFront(bool flag) { automaticBringScanEditorToFrontWithRunningScans_ = flag; }
+	/// Returns the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
+	bool automaticBringScanEditorToFrontWithRunningScans() const { return automaticBringScanEditorToFrontWithRunningScans_; }
+
+	/// Top-level panes in the main window
+	AMWorkflowView3* workflowView_;
+	/// Flag holding whether the AMGenericScanEditor's automatically are switched to when they have a running scan.  The default is true.
+	bool automaticBringScanEditorToFrontWithRunningScans_;
 };
 
 #endif // AMAPPCONTROLLER_H

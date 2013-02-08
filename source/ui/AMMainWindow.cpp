@@ -227,7 +227,6 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldR
 }
 
 
-
 void AMMainWindow::setCurrentPane(QWidget* pane){
 
 	// widget doesn't exist

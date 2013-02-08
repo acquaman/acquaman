@@ -62,11 +62,6 @@ public:
 	virtual void shutdown();
 
 protected slots:
-	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
-	void onCurrentScanControllerStarted(AMScanAction *action);
-	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
-	void onCurrentScanControllerFinished(AMScanAction *action);
-
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
 	/// Helper slot that pauses scans using the bottom bar.
@@ -95,6 +90,11 @@ protected slots:
 	virtual void fixCDF(const QUrl &url);
 
 protected:
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
 	/// Sets up a default energy scan.  It will setup the scan based on the information provided by AMGenericScanEditor.

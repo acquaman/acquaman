@@ -75,6 +75,16 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	stepSizeLayout->addWidget(step_);
 	stepSizeLayout->addStretch();
 
+	otherPositionLabel_ = new QLabel(config_->otherMotorString(config_->motor()));
+	otherPosition_ = buildPositionDoubleSpinBox("", " mm", config_->hasOtherPosition() ? config_->otherPosition() : 0, 3);
+	connect(step_, SIGNAL(editingFinished()), this, SLOT(onOtherPositionChanged()));
+	connect(config_, SIGNAL(otherPositionChanged(double)), otherPosition_, SLOT(setValue(double)));
+
+	QHBoxLayout *otherPositionLayout = new QHBoxLayout;
+	otherPositionLayout->addWidget(otherPositionLabel_);
+	otherPositionLayout->addWidget(otherPosition_);
+	otherPositionLayout->addStretch();
+
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
@@ -82,6 +92,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	positionsLayout->addLayout(startPointLayout);
 	positionsLayout->addLayout(endPointLayout);
 	positionsLayout->addLayout(stepSizeLayout);
+	positionsLayout->addLayout(otherPositionLayout);
 	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
@@ -234,6 +245,30 @@ void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int 
 void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 {
 	config_->setMotor(id);
+
+	otherPositionLabel_->setText(config_->otherMotorString(config_->motor()));
+
+	switch(config_->otherMotor(config_->motor())){
+
+	case VESPERS::H:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value());
+		break;
+
+	case VESPERS::V:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value());
+		break;
+
+	case VESPERS::X:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horiz()->value());
+		break;
+
+	case VESPERS::Z:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->vert()->value());
+		break;
+
+	default:
+		break;
+	}
 }
 
 void VESPERSSpatialLineScanConfigurationView::onConfigureRoperDetectorClicked()
@@ -320,28 +355,35 @@ void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()
 void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 {
 	double position = 0;
+	double otherPosition = 0;
 
 	switch(int(config_->motor())){
 
 	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 		break;
 
 	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
+		otherPosition = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		break;
 
 	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		break;
 
 	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
 		break;
 	}
 
 	config_->setStart(position);
 	start_->setValue(position);
+	config_->setOtherPosition(otherPosition);
+	otherPosition_->setValue(otherPosition);
 	updateMapInfo();
 	axesAcceptable();
 }
@@ -349,28 +391,35 @@ void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 {
 	double position = 0;
+	double otherPosition = 0;
 
 	switch(int(config_->motor())){
 
 	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 		break;
 
 	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
+		otherPosition = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		break;
 
 	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		break;
 
 	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
 		break;
 	}
 
 	config_->setEnd(position);
 	end_->setValue(position);
+	config_->setOtherPosition(otherPosition);
+	otherPosition_->setValue(otherPosition);
 	updateMapInfo();
 	axesAcceptable();
 }
@@ -399,6 +448,11 @@ void VESPERSSpatialLineScanConfigurationView::onStepChanged()
 void VESPERSSpatialLineScanConfigurationView::onDwellTimeChanged()
 {
 	config_->setTime(dwellTime_->value());
+}
+
+void VESPERSSpatialLineScanConfigurationView::onOtherPositionChanged()
+{
+	config_->setOtherPosition(otherPosition_->value());
 }
 
 void VESPERSSpatialLineScanConfigurationView::updateMapInfo()

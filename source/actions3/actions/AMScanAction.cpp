@@ -151,11 +151,12 @@ void AMScanAction::skipImplementation(const QString &command)
 
 bool AMScanAction::canSkip() const
 {
-	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
-	if (qobject_cast<AMDacqScanController *>(controller_))
-		return true;
+//	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
+//	if (qobject_cast<AMDacqScanController *>(controller_))
+//		return true;
 
-	return false;
+//	return false;
+	return true;
 }
 
 void AMScanAction::onControllerInitialized()

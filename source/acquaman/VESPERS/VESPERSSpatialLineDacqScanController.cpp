@@ -380,6 +380,35 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 {
 	buildBaseInitializationAction(config_->time());
+
+	if (config_->hasOtherPosition()){
+
+		AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+
+		switch(config_->otherMotor(config_->motor())){
+
+		case VESPERS::H:
+			setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::V:
+			setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::X:
+			setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::Z:
+			setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
+		default:
+			break;
+		}
+	}
+
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
