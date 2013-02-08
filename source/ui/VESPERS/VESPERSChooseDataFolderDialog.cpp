@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QFileInfo>
 #include <QPushButton>
+#include <QStringBuilder>
 
 VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent)
 	: QDialog(parent)
@@ -33,8 +34,13 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	connect(path_, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
 	connect(advancedCheck_, SIGNAL(toggled(bool)), folderButton, SLOT(setEnabled(bool)));
 
+	advancedCheck_->setChecked(path.isEmpty());
+	folderButton->setEnabled(path.isEmpty());
+
+	if (path.isEmpty())
+		path = folder_;
+
 	path_->setText(path);
-	advancedCheck_->setChecked(getProposalNumber(folder_).isEmpty());
 	okButton_->setEnabled(pathOk(advancedCheck_->isChecked() ? folder_ : getProposalNumber(folder_)));
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
@@ -50,6 +56,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(explanation);
 	layout->addLayout(lineEditLayout);
+	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
 }
@@ -62,7 +69,48 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 	AMUserSettings::load();
 	VESPERSChooseDataFolderDialog dialog(AMUserSettings::userDataFolder, parent);
 
-	return dialog.exec() == QDialog::Accepted;
+	dialog.exec();
+
+	if (dialog.result() == QDialog::Accepted){
+
+		QString dir = dialog.filePath();
+
+		if (dir.contains(QRegExp("^\\d{2,2}-\\d{4,4}$"))){
+
+			QFileInfo info("/home/vespers/users/" % dir);
+
+			if (!info.exists()){
+
+				QDir newPath("/home/vespers/users");
+				newPath.mkdir(dir);
+				newPath.cd(dir);
+			}
+
+			dir = "/home/vespers/users/" % dir;
+		}
+
+		if (!dir.endsWith("/"))
+			dir += "/";
+
+		if (!dir.contains("userData")){
+
+			QDir makeNewDir(dir);
+			makeNewDir.mkdir("userData");
+			makeNewDir.cd("userData");
+			dir = makeNewDir.absolutePath() + "/";
+		}
+
+		if (dir.compare(AMUserSettings::userDataFolder) != 0){
+
+			AMUserSettings::userDataFolder = dir;
+			AMUserSettings::save();
+		}
+
+		return true;
+	}
+
+	else
+		return false;
 }
 
 //////////////////////////////////////
@@ -81,6 +129,7 @@ void VESPERSChooseDataFolderDialog::onTextChanged(const QString &text)
 		okButton_->setEnabled(true);
 
 	path_->setPalette(palette);
+	folder_ = text;
 }
 
 QString VESPERSChooseDataFolderDialog::getProposalNumber(const QString &dir) const
@@ -106,27 +155,11 @@ bool VESPERSChooseDataFolderDialog::pathOk(const QString &path) const
 
 void VESPERSChooseDataFolderDialog::getFilePath()
 {
-	QString path = AMUserSettings::userDataFolder;
+	QString path = folder_;
 	path.chop(1);
 	path = path.remove("/userData");
 	QString dir = QFileDialog::getExistingDirectory(this, "Choose a destination folder for your data.", path, QFileDialog::ShowDirsOnly);
 
-	if (!dir.isEmpty()){
-
-		dir += "/";
-
-		if (!dir.contains("userData")){
-
-			QDir makeNewDir(dir);
-			makeNewDir.mkdir("userData");
-			makeNewDir.cd("userData");
-			dir = makeNewDir.absolutePath() + "/";
-		}
-
-		if (dir.compare(AMUserSettings::userDataFolder) != 0){
-
-			AMUserSettings::userDataFolder = dir;
-			AMUserSettings::save();
-		}
-	}
+	if (!dir.isEmpty())
+		path_->setText(dir);
 }

@@ -160,7 +160,7 @@ void AMAppController::updateScanEditorModelItem()
 		if (!editor)
 			return;
 
-		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->aliasTarget(mw_->windowPaneModel()->indexForPane(editor)));
+		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(editor)));
 		QString stateString;
 
 		switch(action->state()){
@@ -197,6 +197,7 @@ void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 
 	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
 
 	onCurrentScanActionStartedImplementation(action);
 }
@@ -204,6 +205,7 @@ void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
 {
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
 	onCurrentScanActionFinishedImplementation(action);
 }
 

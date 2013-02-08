@@ -33,13 +33,13 @@ AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, 
 	appController_ = controller;
 
 	icons_.insert("default", QIcon(":/applications-science.png"));
-	icons_.insert("success", QIcon(":/22x22/greenCheck.png"));
+	icons_.insert("succeeded", QIcon(":/22x22/greenCheck.png"));
 	icons_.insert("cancelled", QIcon(":/22x22/orangeX.png"));
 	icons_.insert("failed", QIcon(":/22x22/redCrash.png"));
 	icons_.insert("running", QIcon(":/22x22/dialog-question.png"));
 
 	backgrounds_.insert("default", this->background());
-	backgrounds_.insert("success", QBrush(QColor(126, 255, 106)));
+	backgrounds_.insert("succeeded", QBrush(QColor(126, 255, 106)));
 	backgrounds_.insert("cancelled", QBrush(QColor(255, 176, 106)));
 	backgrounds_.insert("failed", QBrush(QColor(255, 104, 106)));
 	backgrounds_.insert("running", QBrush(QColor(100, 149, 237)));
@@ -72,7 +72,7 @@ bool AMScanEditorModelItem::dropMimeData(const QMimeData *mimeData, Qt::DropActi
 
 }
 
-AMGenericScanEditor * AMScanEditorModelItem::editorWidget() const
+AMGenericScanEditor *AMScanEditorModelItem::editorWidget() const
 {
 	return qobject_cast<AMGenericScanEditor*>(data(AM::WidgetRole).value<QWidget*>());
 }

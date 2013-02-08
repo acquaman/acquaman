@@ -23,6 +23,8 @@ public:
 
 	/// Static method that makes and pops up the dialog.  Returns whether it was successful at updating the user settings or not.
 	static bool getDataFolder(QWidget *parent = 0);
+	/// Returns the current path.
+	QString filePath() const { return folder_; }
 
 protected slots:
 	/// Slot that does the work of opening a file dialog and getting the new file path.

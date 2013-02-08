@@ -772,7 +772,7 @@ void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 {
 	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
 		if (pane == scanEditorScanMapping_.at(i).second)
-			((AMScanEditorModelItem *)(mw_->windowPaneModel()->aliasTarget(mw_->windowPaneModel()->indexForPane(pane))))->editorWasClicked();
+			((AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(pane))))->editorWasClicked();
 
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);

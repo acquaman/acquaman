@@ -109,31 +109,31 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 bool VESPERSAppController::startup() {
 
 	// Get a destination folder.
-	AMUserSettings::load();
-	QString start = AMUserSettings::userDataFolder;
-	start.chop(1);
-	start = start.remove("/userData");
-	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
-	if (!dir.isEmpty()){
+//	AMUserSettings::load();
+//	QString start = AMUserSettings::userDataFolder;
+//	start.chop(1);
+//	start = start.remove("/userData");
+//	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
+//	if (!dir.isEmpty()){
 
-		dir += "/";
-		if (!dir.contains("userData")){
+//		dir += "/";
+//		if (!dir.contains("userData")){
 
-			QDir makeNewDir(dir);
-			makeNewDir.mkdir("userData");
-			makeNewDir.cd("userData");
-			dir = makeNewDir.absolutePath() + "/";
-		}
+//			QDir makeNewDir(dir);
+//			makeNewDir.mkdir("userData");
+//			makeNewDir.cd("userData");
+//			dir = makeNewDir.absolutePath() + "/";
+//		}
 
-		if (dir.compare(AMUserSettings::userDataFolder) != 0){
+//		if (dir.compare(AMUserSettings::userDataFolder) != 0){
 
-			AMUserSettings::userDataFolder = dir;
-			AMUserSettings::save();
-		}
-	}
+//			AMUserSettings::userDataFolder = dir;
+//			AMUserSettings::save();
+//		}
+//	}
 
-//	VESPERSChooseDataFolderDialog::getDataFolder();
-//	return false;
+	if (!VESPERSChooseDataFolderDialog::getDataFolder())
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
