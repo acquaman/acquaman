@@ -625,6 +625,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 {
 	// create our main plot:
 	plot_ = createDefaultPlot();
+	plot_->plot()->colorLegend()->setVisible(true);
 
 	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
 	plot_->plot()->addTool(positionTool);
