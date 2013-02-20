@@ -499,7 +499,7 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 
 void AM2DScanView::mousePressEvent(QMouseEvent *e)
 {
-	if (e->button() == Qt::RightButton)
+	if (e->button() == Qt::RightButton && exclusiveView_->boundingRect().contains(e->pos()))
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
@@ -625,6 +625,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 {
 	// create our main plot:
 	plot_ = createDefaultPlot();
+	plot_->plot()->colorLegend()->setVisible(true);
 
 	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
 	plot_->plot()->addTool(positionTool);

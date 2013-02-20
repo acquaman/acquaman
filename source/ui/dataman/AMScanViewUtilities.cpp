@@ -368,6 +368,8 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
+	addMultipleSpectra_ = false;
+
 	x_.resize(0);
 	sourceButtons_ = new QButtonGroup;
 	sourceButtons_->setExclusive(false);
@@ -479,14 +481,20 @@ void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
 {
-	if (isVisible())
+	if (isVisible()){
+
+		addMultipleSpectra_ = false;
 		updatePlot(index);
+	}
 }
 
 void AMScanViewSingleSpectrumView::onSelectedRectChanged(AMnDIndex start, AMnDIndex end)
 {
-	if (isVisible())
+	if (isVisible()){
+
+		addMultipleSpectra_ = true;
 		updatePlot(start, end);
+	}
 }
 
 void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
@@ -553,7 +561,7 @@ void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
 
 	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
 		if (sourceButtons_->button(i)->isChecked())
-			updatePlot(i, false);
+			updatePlot(i);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnDIndex &end)
@@ -586,14 +594,14 @@ void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnD
 
 	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
 		if (sourceButtons_->button(i)->isChecked())
-			updatePlot(i, true);
+			updatePlot(i);
 }
 
-void AMScanViewSingleSpectrumView::updatePlot(int id, bool addMultipleSpectra)
+void AMScanViewSingleSpectrumView::updatePlot(int id)
 {
 	AMDataSource *source = sources_.at(id);
 
-	if (!addMultipleSpectra){
+	if (!addMultipleSpectra_){
 
 		QVector<double> data(source->size(source->rank()-1));
 		source->values(startIndex_, endIndex_, data.data());

@@ -231,7 +231,7 @@ protected slots:
 	/// Slot that updates the plot by adding all spectra from \param start to \param end.  Updates the plot with every checked spectrum.  If start is null then (0, 0) is assumed, and if end is null, (xSize-1, ySize-1) is assumed.
 	void updatePlot(const AMnDIndex &start, const AMnDIndex &end);
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
-	void updatePlot(int id, bool addMultipleSpectra);
+	void updatePlot(int id);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
 	void onElementSelected(int atomicNumber);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
@@ -259,6 +259,8 @@ protected:
 	AMnDIndex startIndex_;
 	/// Holds the end AMnDIndex of where we will grab the spectrum.
 	AMnDIndex endIndex_;
+	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
+	bool addMultipleSpectra_;
 	/// Holds the list of data sources that can be visualized.
 	QList<AMDataSource *> sources_;
 	/// Holds the button group that is associated with the current list of data sources.

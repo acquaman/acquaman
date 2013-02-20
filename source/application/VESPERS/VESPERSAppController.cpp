@@ -145,8 +145,8 @@ bool VESPERSAppController::startup() {
 
 		registerClasses();
 
-		// We don't want to automatically switch to new scans.
-		setAutomaticBringScanEditorToFront(false);
+		// Ensuring we automatically switch scan editors for new scans.
+		setAutomaticBringScanEditorToFront(true);
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
