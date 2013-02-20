@@ -499,7 +499,7 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 
 void AM2DScanView::mousePressEvent(QMouseEvent *e)
 {
-	if (e->button() == Qt::RightButton)
+	if (e->button() == Qt::RightButton && exclusiveView_->boundingRect().contains(e->pos()))
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
