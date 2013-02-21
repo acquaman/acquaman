@@ -151,8 +151,22 @@ void AMAppController::goToWorkflow()
 
 void AMAppController::updateScanEditorModelItem()
 {
-	AMScanAction *action = qobject_cast<AMScanAction *>(AMActionRunner3::workflow()->currentAction());
+	// Get the action, or if it's in a list, the current running action.
+	AMAction3 *currentAction = AMActionRunner3::workflow()->currentAction();
+	AMScanAction *action = 0;
 
+	if (currentAction && !currentAction->hasChildren())
+		action = qobject_cast<AMScanAction *>(currentAction);
+
+	else if (currentAction && currentAction->hasChildren()){
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
+
+		if (listAction)
+			action = qobject_cast<AMScanAction *>(listAction->currentSubAction());
+	}
+
+	// Do something with it if the action is valid.
 	if (action && (action->state() == AMAction3::Running || action->inFinalState())){
 
 		AMGenericScanEditor *editor = editorFromScan(action->controller()->scan());
