@@ -93,7 +93,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 		elementChoice_->setText("Cu");
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
-		onLinesComboBoxIndexChanged(0);
+		lineChoice_->setCurrentIndex(0);
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
 	else
@@ -278,7 +278,7 @@ void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 
 		elementChoice_->setText(el->symbol());
 		fillLinesComboBox(el);
-		onLinesComboBoxIndexChanged(0);
+		lineChoice_->setCurrentIndex(0);
 	}
 }
 
@@ -297,6 +297,8 @@ void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
 		if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
 			lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
 	}
+
+	lineChoice_->setCurrentIndex(-1);
 }
 
 void VESPERSEXAFSScanConfigurationView::onLinesComboBoxIndexChanged(int index)

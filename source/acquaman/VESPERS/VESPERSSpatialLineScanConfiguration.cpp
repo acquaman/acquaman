@@ -178,7 +178,7 @@ void VESPERSSpatialLineScanConfiguration::setTime(double newTime)
 
 void VESPERSSpatialLineScanConfiguration::setOtherPosition(double position)
 {
-	if (otherPosition_ != position){
+	if (otherPosition() != position){
 
 		otherPosition_ = position;
 		emit otherPositionChanged(position);
