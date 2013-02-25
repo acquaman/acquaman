@@ -77,7 +77,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	otherPositionLabel_ = new QLabel(config_->otherMotorString(config_->motor()));
 	otherPosition_ = buildPositionDoubleSpinBox("", " mm", config_->hasOtherPosition() ? config_->otherPosition() : 0, 3);
-	connect(step_, SIGNAL(editingFinished()), this, SLOT(onOtherPositionChanged()));
+	connect(otherPosition_, SIGNAL(editingFinished()), this, SLOT(onOtherPositionChanged()));
 	connect(config_, SIGNAL(otherPositionChanged(double)), otherPosition_, SLOT(setValue(double)));
 
 	QHBoxLayout *otherPositionLayout = new QHBoxLayout;
@@ -170,8 +170,8 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H" << "X" << "V" << "Z", QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z);
-	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 	motorButtonGroup_->button(int(config_->motor()))->click();
+	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
