@@ -101,6 +101,8 @@ protected:
 	void setupEnergyScan(const AMGenericScanEditor *editor);
 	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
 	void setup2DXRFScan(const AMGenericScanEditor *editor);
+	/// Sets up and moves the motors based on the "Go to immediately" action from a 2D map.
+	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
 

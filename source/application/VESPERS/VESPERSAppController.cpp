@@ -434,9 +434,27 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 		else if (temp->text() == "Energy scan")
 			setupEnergyScan(editor);
 
-		else if (temp->text() == "Go to immediately"){
+		else if (temp->text() == "Go to immediately")
+			moveImmediately(editor);
 
-			cleanMoveImmediatelyAction();	// Clean up the action just in case.
+		else if (temp->text() == "2D XRF Scan")
+			setup2DXRFScan(editor);
+	}
+}
+
+void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
+{
+	cleanMoveImmediatelyAction();	// Clean up the action just in case.
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (config){
+
+		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+
+		if (config->motor() == (VESPERS::H | VESPERS::V)){
 
 			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
 			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
@@ -450,11 +468,21 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 			moveImmediatelyAction_->start();
 		}
 
-		else if (temp->text() == "2D XRF Scan")
-			setup2DXRFScan(editor);
+		else if (config->motor() == (VESPERS::X | VESPERS::Z)){
+
+			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
+
+			connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+			moveImmediatelyAction_->start();
+		}
 	}
 }
-
 
 void VESPERSAppController::onMoveImmediatelySuccess()
 {
