@@ -122,10 +122,29 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 	VESPERSSpatialLineScanConfiguration *config = qobject_cast<VESPERSSpatialLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 	VESPERSEnergyScanConfiguration *energyConfig = qobject_cast<VESPERSEnergyScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 
-	if (config)
+	QString ccdString;
+
+	if (config){
+
 		ccdFileName = config->ccdFileName();
-	else if (energyConfig)
+
+		if (config->ccdDetector() == VESPERS::Roper)
+			ccdString = ccdFileName % "_%1.spe";
+
+		else if (config->ccdDetector() == VESPERS::Mar)
+			ccdString = ccdFileName % "_%1.tif";
+	}
+	else if (energyConfig){
+
 		ccdFileName = energyConfig->ccdFileName();
+
+		if (config->ccdDetector() == VESPERS::Roper)
+			ccdString = ccdFileName % "_%1.spe";
+
+		else if (config->ccdDetector() == VESPERS::Mar)
+			ccdString = ccdFileName % "_%1.tif";
+	}
+
 	else
 		return;
 
@@ -151,7 +170,7 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 			}
 
 			if(doPrint && c == indexOfCCDName)
-				ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+				ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 			else if (doPrint)
 				ts << ds->value(AMnDIndex(x)).toString();
 
