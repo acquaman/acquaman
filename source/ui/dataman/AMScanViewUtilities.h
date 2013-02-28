@@ -201,6 +201,8 @@ protected:
 #include "dataman/AMnDIndex.h"
 #include "dataman/AMAxisInfo.h"
 
+#include <QDoubleSpinBox>
+
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.  It assumes that the spectrum is accessed by the last rank (eg: if the data source is rank 3, it assumes that the scan rank is 2).
 class AMScanViewSingleSpectrumView : public QWidget
 {
@@ -240,6 +242,12 @@ protected slots:
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
 	void onExportClicked();
+	/// Slot that updates the view based on a change in the minimum range from the minimum spin box.
+	void onMinimumChanged();
+	/// Slot that updates the view vased on a change in the maximum range from the maximum spin box.
+	void onMaximumChanged();
+	/// Slot that handles when the log enabled button is toggled.
+	void onLogScaleEnabled(bool enable);
 
 protected:
 	/// Sets up the plot.
@@ -276,6 +284,12 @@ protected:
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
 	QPair<double, double> range_;
+	/// Double spin box that holds the minimum energy of the range.
+	QDoubleSpinBox *minimum_;
+	/// Double spin box that holds the maximum energy of the range.
+	QDoubleSpinBox *maximum_;
+	/// The push button that toggles whether the left axis is scaled logarithmically or not.
+	QPushButton *logEnableButton_;
 };
 
 #endif // AMSCANVIEWUTILITIES_H

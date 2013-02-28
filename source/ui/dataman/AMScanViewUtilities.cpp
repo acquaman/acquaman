@@ -364,6 +364,7 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 #include "MPlot/MPlotTools.h"
 
 #include <QCheckBox>
+#include <QPushButton>
 
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
@@ -393,6 +394,22 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
 	sourceButtonsLayout_->addStretch();
 
+	logEnableButton_ = new QPushButton("Logarithmic");
+	logEnableButton_->setCheckable(true);
+	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+
+	minimum_ = new QDoubleSpinBox;
+	minimum_->setSuffix(" eV");
+	minimum_->setDecimals(0);
+	minimum_->setRange(0, 1000000);
+	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumChanged()));
+
+	maximum_ = new QDoubleSpinBox;
+	maximum_->setSuffix(" eV");
+	maximum_->setDecimals(0);
+	maximum_->setRange(0, 1000000);
+	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumChanged()));
+
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
@@ -400,6 +417,12 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	QVBoxLayout *rightLayout = new QVBoxLayout;
 	rightLayout->addLayout(sourceButtonsLayout_);
 	rightLayout->addStretch();
+	rightLayout->addWidget(new QLabel("Left Axis Scale"));
+	rightLayout->addWidget(logEnableButton_);
+	rightLayout->addWidget(new QLabel("Min. Energy"));
+	rightLayout->addWidget(minimum_);
+	rightLayout->addWidget(new QLabel("Max. Energy"));
+	rightLayout->addWidget(maximum_);
 	rightLayout->addWidget(exportButton_);
 
 	QHBoxLayout *fullLayout = new QHBoxLayout;
@@ -467,16 +490,57 @@ void AMScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
 	}
 }
 
+void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
+{
+	if (enable){
+
+		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+		logEnableButton_->setText("Linear");
+	}
+
+	else {
+
+		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+		logEnableButton_->setText("Logarithmic");
+	}
+
+	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+}
+
 void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 {
 	range_ = qMakePair(low, high);
 	tableView_->setRange(low, high);
+
+	if (low != minimum_->value()){
+
+		minimum_->blockSignals(true);
+		minimum_->setValue(low);
+		minimum_->blockSignals(false);
+	}
+
+	if (high != maximum_->value()){
+
+		maximum_->blockSignals(true);
+		maximum_->setValue(high);
+		maximum_->blockSignals(false);
+	}
 
 	foreach(int atomicNumber, table_->selectedElements())
 		onElementDeselected(atomicNumber);
 
 	foreach(int atomicNumber, table_->selectedElements())
 		onElementSelected(atomicNumber);
+}
+
+void AMScanViewSingleSpectrumView::onMinimumChanged()
+{
+	setPlotRange(minimum_->value(), range_.second);
+}
+
+void AMScanViewSingleSpectrumView::onMaximumChanged()
+{
+	setPlotRange(range_.first, maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
