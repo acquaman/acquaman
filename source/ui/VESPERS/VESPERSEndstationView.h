@@ -141,7 +141,7 @@ protected slots:
 	/// Handles the 4-el vortex being clicked.
 	void fourElClicked() { endstation_->setCurrent("4-Element Vortex motor"); }
 	/// Handles the normal focus being clicked.
-	void normalFocusClicked() { endstation_->setCurrent("Normal Sample Stage"); }
+	void normalFocusClicked();
 	/// Handles the y normal focus being clicked.
 	void yFocusClicked() { endstation_->setCurrent("Y (normal) motor"); }
 
