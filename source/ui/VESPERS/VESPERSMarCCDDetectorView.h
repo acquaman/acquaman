@@ -64,8 +64,8 @@ protected slots:
 	/// Used to set the CCD Path when it changes from the program.
 	void ccdPathEdited()
 	{
-		if (filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
-			filePathEdit_->setText(filePathEdit_->text()+"\\");
+		if (filePathEdit_->text().at(filePathEdit_->text().size()-1) != '/')
+			filePathEdit_->setText(filePathEdit_->text()+"/");
 
 		detector_->setCCDPath(filePathEdit_->text());
 	}

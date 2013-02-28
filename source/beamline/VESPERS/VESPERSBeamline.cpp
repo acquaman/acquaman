@@ -171,9 +171,9 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.01);
-	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.01);
-	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.01);
+	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
