@@ -134,14 +134,15 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 		else if (config->ccdDetector() == VESPERS::Mar)
 			ccdString = ccdFileName % "_%1.tif";
 	}
+
 	else if (energyConfig){
 
 		ccdFileName = energyConfig->ccdFileName();
 
-		if (config->ccdDetector() == VESPERS::Roper)
+		if (energyConfig->ccdDetector() == VESPERS::Roper)
 			ccdString = ccdFileName % "_%1.spe";
 
-		else if (config->ccdDetector() == VESPERS::Mar)
+		else if (energyConfig->ccdDetector() == VESPERS::Mar)
 			ccdString = ccdFileName % "_%1.tif";
 	}
 
