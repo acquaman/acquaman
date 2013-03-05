@@ -112,6 +112,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
@@ -119,6 +120,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 

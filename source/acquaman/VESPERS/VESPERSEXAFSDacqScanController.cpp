@@ -441,7 +441,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 
 		int regionCount = config_->regionCount();
 		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
-		setupActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
 																													  time,
 																													  config_->regionStart(regionCount - 1),
 																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
@@ -452,22 +452,27 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 
 	// Third stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+
 	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	// Fourth stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(3, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
+	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
