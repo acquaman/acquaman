@@ -615,6 +615,7 @@ void VESPERSAppController::onSampleStageChoiceChanged(bool change)
 	persistentView_->setSampleStage(change);
 	endstationView_->setUsingNormalMotor(change);
 	exafsConfigView_->setSampleStage(change);
+	energyScanConfigurationView_->setSampleStage(change);
 }
 
 void VESPERSAppController::fixCDF(const QUrl &url)
