@@ -149,15 +149,15 @@ QString VESPERSScanController::buildNotes()
 		break;
 
 	case VESPERS::TenPercent:
-		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::OnePointSixPercent:
-		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::Si:
-		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
 		break;
 	}
 

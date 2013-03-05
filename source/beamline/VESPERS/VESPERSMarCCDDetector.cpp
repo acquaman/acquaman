@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSMarCCDDetector.h"
 
 #include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/VESPERS/VESPERSBeamlineSetStringAction.h"
 
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSMarCCDDetectorInfo(name, description, parent), AMDetector(name)
@@ -35,7 +36,7 @@ VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString 
 	// Various CCD file path PVs.
 	ccdPath_ = new AMProcessVariable("ccd1607-002:cam1:FilePath", true, this);
 	ccdFile_ = new AMProcessVariable("ccd1607-002:cam1:FileName", true, this);
-	ccdNumber_ = new AMProcessVariable("ccd1607-002:cam1:FileNumber", true, this);
+	ccdNumber_ = new AMSinglePVControl("File Number", "ccd1607-002:cam1:FileNumber", this);
 
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
@@ -48,7 +49,7 @@ VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString 
 
 	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
-	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
+	connect(ccdNumber_, SIGNAL(valueChanged(double)), this, SLOT(onCCDNumberChanged()));
 }
 
 VESPERSMarCCDDetector::ImageMode VESPERSMarCCDDetector::imageMode() const
@@ -265,6 +266,33 @@ AMBeamlineActionItem *VESPERSMarCCDDetector::createSaveFileAction()
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(saveFileControl_);
 	action->setSetpoint(1);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSMarCCDDetector::createFilePathAction(const QString &path)
+{
+	if (!ccdPath_->isConnected())
+		return 0;
+
+	return new VESPERSBeamlineSetStringAction(ccdPath_, path);
+}
+
+AMBeamlineActionItem *VESPERSMarCCDDetector::createFileNameAction(const QString &name)
+{
+	if (!ccdFile_->isConnected())
+		return 0;
+
+	return new VESPERSBeamlineSetStringAction(ccdFile_, name);
+}
+
+AMBeamlineActionItem *VESPERSMarCCDDetector::createFileNumberAction(int number)
+{
+	if (!ccdNumber_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(ccdNumber_);
+	action->setSetpoint(number);
 
 	return action;
 }

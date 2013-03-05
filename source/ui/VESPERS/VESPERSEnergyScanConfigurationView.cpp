@@ -44,24 +44,10 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	regionsView_->setMaximumHeight(100);
 
 	// The CCD detector setup.
-	ccdButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
-
-	tempButton = new QRadioButton("Roper");
-	ccdButtonGroup_->addButton(tempButton, 1);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Mar");
-	ccdButtonGroup_->addButton(tempButton, 2);
-	ccdDetectorLayout->addWidget(tempButton);
-
+	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
 	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-
 	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
-
-	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
-	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
@@ -87,16 +73,10 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 	connect(setCurrentPositionButton_, SIGNAL(clicked()), this, SLOT(setScanPosition()));
 
-	currentCCDFileName_ = new QLabel;
-	onCCDFileNameChanged(config_->ccdFileName());
-	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(currentCCDFileName_);
 	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	// The estimated scan time.
@@ -156,33 +136,6 @@ void VESPERSEnergyScanConfigurationView::onConfigureCCDDetectorClicked()
 		emit configureDetector("Roper CCD");
 	else if (config_->ccdDetector() == VESPERS::Mar)
 		emit configureDetector("Mar CCD");
-}
-
-void VESPERSEnergyScanConfigurationView::updateCCDDetectorButtons(int detector)
-{
-	ccdButtonGroup_->button(detector)->setChecked(true);
-
-	// Roper
-	if (detector == 1){
-
-		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
-		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
-	}
-
-	// Mar
-	else if (detector == 2){
-
-		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		onCCDFileNameChanged(VESPERSBeamline::vespers()->marCCD()->ccdFileName());
-		config_->setCCDFileName(VESPERSBeamline::vespers()->marCCD()->ccdFileName());
-	}
 }
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()

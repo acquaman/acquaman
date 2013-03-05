@@ -44,6 +44,8 @@ protected slots:
 	void updateI0Buttons(int I0);
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetector(int detector);
+	/// Slot that updates the ccd detector buttons.
+	void updateCCDDetectorButtons(int detector);
 	/// Slot that updates the motor choice buttons.
 	void updateMotor(int choice);
 
@@ -58,6 +60,8 @@ protected:
 
 	/// Add the fluorescenceDetector view.  Returns a pointer to the widget.
 	QGroupBox *addFluorescenceDetectorSelectionView();
+	/// Add the ccdDetector view.  Returns a pointer to the widget.
+	QGroupBox *addCCDDetectorSelectionView();
 	/// Add the I0 selection view.  Returns a pointer to the widget.
 	QGroupBox *addI0SelectionView();
 	/// Add the It selection view.  Returns a pointer to the widget.
@@ -81,6 +85,8 @@ protected:
 
 	/// Button group for the fluorescence detector selection.
 	QButtonGroup *fluorescenceButtonGroup_;
+	/// Button group for the ccd detector selection.
+	QButtonGroup *ccdButtonGroup_;
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;
 	/// Button group for the I0 ion chamber selection.

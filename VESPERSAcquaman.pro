@@ -77,7 +77,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/VESPERSScanConfigurationView.h \
     source/acquaman/VESPERS/VESPERSScanController.h \
     source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h \
-    source/ui/VESPERS/VESPERSChooseDataFolderDialog.h
+    source/ui/VESPERS/VESPERSChooseDataFolderDialog.h \
+    source/actions/VESPERS/VESPERSBeamlineSetStringAction.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -152,10 +153,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/VESPERSScanConfigurationView.cpp \
     source/acquaman/VESPERS/VESPERSScanController.cpp \
     source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.cpp \
-    source/ui/VESPERS/VESPERSChooseDataFolderDialog.cpp
+    source/ui/VESPERS/VESPERSChooseDataFolderDialog.cpp \
+    source/actions/VESPERS/VESPERSBeamlineSetStringAction.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

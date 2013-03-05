@@ -34,6 +34,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 {
 	config_ = cfg;
 	config_->setUserScanName(config_->name());
+	config_->setCCDFileName(config_->name());
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = config_->totalTime();
@@ -48,7 +49,6 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-//	scan_->setFileFormat("vespers2012Energy");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -90,19 +90,36 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	buildBaseInitializationAction(config_->regionTime(0));
 	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	// Third stage.
+	// Third stage.  Changing the name and number of the CCD.
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNameAction(config_->ccdFileName()));
+
+//		if (!VESPERS::fileNameExists(VESPERSBeamline::vespers()->roperCCD()->ccdFilePath(), config_->ccdFileName()))
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNumberAction(1));
+	}
+
+	else if (config_->ccdDetector() == VESPERS::Mar){
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNameAction(config_->ccdFileName()));
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNumberAction(1));
+	}
+
+	// Fourth stage.
 	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));

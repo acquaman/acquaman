@@ -73,6 +73,11 @@ void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
 	fluorescenceButtonGroup_->button(detector)->setChecked(true);
 }
 
+void VESPERSScanConfigurationView::updateCCDDetectorButtons(int detector)
+{
+	ccdButtonGroup_->button(detector)->setChecked(true);
+}
+
 void VESPERSScanConfigurationView::updateMotor(int choice)
 {
 	motorButtonGroup_->button(choice)->setChecked(true);
@@ -204,6 +209,28 @@ QGroupBox *VESPERSScanConfigurationView::addFluorescenceDetectorSelectionView()
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
 
 	return fluorescenceDetectorGroupBox;
+}
+
+QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
+{
+	ccdButtonGroup_ = new QButtonGroup;
+	QRadioButton *tempButton;
+	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
+
+	tempButton = new QRadioButton("None");
+	ccdButtonGroup_->addButton(tempButton, 0);
+	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Roper");
+	ccdButtonGroup_->addButton(tempButton, 1);
+	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Mar");
+	ccdButtonGroup_->addButton(tempButton, 2);
+	ccdDetectorLayout->addWidget(tempButton);
+
+	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
+	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
+
+	return ccdDetectorGroupBox;
 }
 
 QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()

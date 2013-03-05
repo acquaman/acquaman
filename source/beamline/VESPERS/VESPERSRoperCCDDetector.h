@@ -87,7 +87,7 @@ public:
 	/// Returns the current file name for the detector.
 	QString ccdFileName() const { return AMPVtoString(ccdFile_); }
 	/// Returns the current number that is used for auto indexing of the file names.
-	int ccdFileNumber() const { return ccdNumber_->getInt(); }
+	int ccdFileNumber() const { return int(ccdNumber_->value()); }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
@@ -109,6 +109,12 @@ public:
 	AMBeamlineActionItem *createAutoSaveAction(bool autoSave);
 	/// Creates a newly created action that saves a file.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createSaveFileAction();
+	/// Creates a newly created action that sets the file path for the detector.  Returns 0 if not connected.
+	AMBeamlineActionItem *createFilePathAction(const QString &path);
+	/// Creates a newly created action that sets the file name for the detector.  Returns 0 if not connected.
+	AMBeamlineActionItem *createFileNameAction(const QString &name);
+	/// Creates a newly created action that sets the number for auto-increment.  Returns 0 if not connected.
+	AMBeamlineActionItem *createFileNumberAction(int number);
 
 signals:
 	/// Notifier that the detector is connected.
@@ -171,7 +177,7 @@ public slots:
 	/// Sets the CCD file name.
 	void setCCDName(QString name) { StringtoAMPV(ccdFile_, name); }
 	/// Sets the CCD file number.
-	void setCCDNumber(int number) { ccdNumber_->setValue(number); }
+	void setCCDNumber(int number) { ccdNumber_->move(double(number)); }
 
 protected slots:
 	/// Helper slot that emits the image mode.
@@ -195,6 +201,8 @@ protected slots:
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
 	/// Handles the CCD name update.
 	void onCCDNameChanged() { emit ccdNameChanged(AMPVtoString(ccdFile_)); }
+	/// Handles propogating the file number signal.
+	void onCCDNumberChanged() { emit ccdNumberChanged(int(ccdNumber_->value())); }
 
 protected:
 	/// Converts the bizarre string output of the pv to a real QString.
@@ -225,7 +233,7 @@ protected:
 	/// PV holding the name of the file.
 	AMProcessVariable *ccdFile_;
 	/// PV holding the number of the file.
-	AMProcessVariable *ccdNumber_;
+	AMControl *ccdNumber_;
 };
 
 #endif // VESPERSROPERCCDDETECTOR_H
