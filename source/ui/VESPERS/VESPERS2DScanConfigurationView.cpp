@@ -151,6 +151,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// The fluorescence detector setup
 	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
+	fluorescenceButtonGroup_->button(int(VESPERS::NoXRF))->setDisabled(true);
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);

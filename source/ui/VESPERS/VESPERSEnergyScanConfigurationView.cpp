@@ -45,6 +45,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	// The CCD detector setup.
 	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
+	ccdButtonGroup_->button(int(VESPERS::NoCCD))->setDisabled(true);
 	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
 	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
