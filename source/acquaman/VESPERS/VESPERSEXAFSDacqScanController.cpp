@@ -450,7 +450,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 																													  config_->regionTime(regionCount - 1)));
 	}
 
-	// Third stage.
+	// Move the mono, and if necessary, move the sample stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
@@ -470,7 +470,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
-	// Fourth stage.
+	// Change the edge energy.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 
