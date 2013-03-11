@@ -131,12 +131,45 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	setLayout(configViewLayout);
 }
 
+void VESPERSEnergyScanConfigurationView::onScanNameEdited()
+{
+	config_->setName(scanName_->text());
+	config_->setUserScanName(scanName_->text());
+
+	if (config_->ccdDetector() != VESPERS::NoCCD)
+		config_->setCCDFileName(scanName_->text());
+}
+
 void VESPERSEnergyScanConfigurationView::onConfigureCCDDetectorClicked()
 {
 	if (config_->ccdDetector() == VESPERS::Roper)
 		emit configureDetector("Roper CCD");
 	else if (config_->ccdDetector() == VESPERS::Mar)
 		emit configureDetector("Mar CCD");
+}
+
+void VESPERSEnergyScanConfigurationView::setScanPosition()
+{
+	config_->setPosition(xPosition_->value(), yPosition_->value());
+	savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
+	savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
+	positionsSaved_->setText("Saved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+	positionsSaved_->setPalette(palette);
+	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+}
+
+void VESPERSEnergyScanConfigurationView::onXorYPositionChanged()
+{
+	disconnect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+	disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+	positionsSaved_->setText("Unsaved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
+	positionsSaved_->setPalette(palette);
 }
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()

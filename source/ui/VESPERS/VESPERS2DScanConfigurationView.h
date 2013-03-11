@@ -68,14 +68,10 @@ protected slots:
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
-	/// Helper slot that sets the CCD detector setting in the configuration.
-	void onCCDButtonClicked(bool useCCD) { config_->setCCDDetector(useCCD ? 1 : 0); }
 	/// Handles passing the name of the CCD file name to the scan configuration when the CCD check box is enabled.
-	void onCCDDetectorChanged(int useCCD);
-	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
-	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
+	void onCCDDetectorChanged(int id);
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text());}
+	void onScanNameEdited();
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
@@ -126,10 +122,8 @@ protected:
 
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
-	/// Pointer to the check box for doing XRD maps as well.
-	QCheckBox *ccdCheckBox_;
-	/// Pointer to the label holding the current file name.
-	QLabel *currentCCDFileName_;
+	/// Pointer to the button that gets the CCD detector screen to switch.
+	QPushButton *configureCCDButton_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 };

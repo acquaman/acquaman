@@ -43,10 +43,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	: AM2DDacqScanController(cfg, parent), VESPERSScanController(cfg)
 {
 	config_ = cfg;
-	config_->setUserScanName(config_->name());
-
-	// Need to add the unique name method.
-	config_->setCCDFileName(config_->name());
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = config_->totalTime(true);

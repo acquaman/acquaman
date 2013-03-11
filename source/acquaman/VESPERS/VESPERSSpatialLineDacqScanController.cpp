@@ -44,10 +44,6 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	: AMDacqScanController(cfg, parent), VESPERSScanController(cfg)
 {
 	config_ = cfg;
-	config_->setUserScanName(config_->name());
-
-	// Need to add the unique name method.
-	config_->setCCDFileName(config_->name());
 
 	scan_ = new AMLineScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
