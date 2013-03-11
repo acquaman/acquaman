@@ -34,6 +34,8 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 {
 	config_ = cfg;
 	config_->setUserScanName(config_->name());
+
+	// Need to add the unique name method.
 	config_->setCCDFileName(config_->name());
 
 	secondsElapsed_ = 0;
@@ -95,16 +97,14 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNameAction(config_->ccdFileName()));
-
-//		if (!VESPERS::fileNameExists(VESPERSBeamline::vespers()->roperCCD()->ccdFilePath(), config_->ccdFileName()))
-//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNumberAction(1));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNumberAction(1));
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNameAction(config_->ccdFileName()));
-//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNumberAction(1));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNumberAction(1));
 	}
 
 	// Fourth stage.
