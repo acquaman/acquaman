@@ -374,16 +374,28 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
+		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
+		QString ccdName = getUniqueCCDName(ccd->ccdFilePath(), config_->ccdFileName());
+
+		if (ccdName != config_->ccdFileName())
+			config_->setCCDFileName(ccdName);
+
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->roperCCD()->createFileNumberAction(1));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar){
 
+		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
+		QString ccdName = getUniqueCCDName(ccd->ccdFilePath(), config_->ccdFileName());
+
+		if (ccdName != config_->ccdFileName())
+			config_->setCCDFileName(ccdName);
+
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->marCCD()->createFileNumberAction(1));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
 	}
 
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));

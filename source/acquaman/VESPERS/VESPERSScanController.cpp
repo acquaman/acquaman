@@ -432,3 +432,18 @@ void VESPERSScanController::onCleanupActionFinished()
 	cleanupAction_->deleteLater();
 	cleanupAction_ = 0;
 }
+
+QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
+{
+	if (VESPERS::fileNameExists(path, name))
+		return name;
+
+	QString newName = name;
+
+	while (!VESPERS::fileNameExists(path, newName)){
+
+		newName = VESPERS::appendUniqueIdentifier(name);
+	}
+
+	return newName;
+}
