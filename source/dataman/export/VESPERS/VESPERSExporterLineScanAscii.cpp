@@ -175,18 +175,16 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 			setCurrentDataSource(mainTableDataSources_.at(c));
 			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-			bool doPrint = (ds->size(0) > x);
-
 			// print x column?
 			if(mainTableIncludeX_.at(c)) {
-				if(doPrint)
-					ts << ds->axisValue(0,x).toString();
+
+				ts << ds->axisValue(0,x).toString();
 				ts << option_->columnDelimiter();
 			}
 
-			if(doPrint && c == indexOfCCDName)
+			if(c == indexOfCCDName)
 				ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x))) + shiftOffset);
-			else if (doPrint)
+			else
 				ts << ds->value(AMnDIndex(x)).toString();
 
 			ts << option_->columnDelimiter();

@@ -82,6 +82,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	moveImmediatelyAction_ = 0;
+
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);

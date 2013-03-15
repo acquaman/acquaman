@@ -187,22 +187,18 @@ void VESPERSExporter2DAscii::writeMainTable()
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-				bool doPrint = (ds->size(0) > y);
-
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
-					if(doPrint)
-						ts << ds->axisValue(0, x).toString();
-					ts << option_->columnDelimiter();
 
-					if (doPrint)
-						ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(0, x).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, y).toString();
 					ts << option_->columnDelimiter();
 				}
 
-				if(doPrint && c == indexOfCCDName)
+				if(c == indexOfCCDName)
 					ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
-				else if (doPrint)
+				else
 					ts << ds->value(AMnDIndex(x, y)).toString();
 
 				ts << option_->columnDelimiter();
