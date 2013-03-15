@@ -120,8 +120,10 @@ protected:
 	QDoubleSpinBox *timeOffset_;
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
-	/// The label that holds the help message when CCD file names conflict.
+	/// The label that holds useful information about the CCD - such as path and name.
 	QLabel *ccdText_;
+	/// The label that holds the help message when CCD file names conflict.
+	QLabel *ccdHelpText_;
 	/// Pointer to the dwell time per point.
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.

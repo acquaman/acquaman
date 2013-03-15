@@ -52,11 +52,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	// CCD label.
 	ccdText_ = new QLabel;
-	ccdTextBox_ = new QGroupBox("CCD file name help");
+	ccdHelpText_ = new QLabel;
+	ccdTextBox_ = new QGroupBox("CCD Detector Info");
 	QVBoxLayout *ccdTextLayout = new QVBoxLayout;
 	ccdTextLayout->addWidget(ccdText_);
+	ccdTextLayout->addWidget(ccdHelpText_);
 	ccdTextBox_->setLayout(ccdTextLayout);
-	ccdTextBox_->hide();
+	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
@@ -148,6 +150,15 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 
 	if (config_->ccdDetector() != VESPERS::NoCCD){
 
+		QString path;
+
+		if (config_->ccdDetector() == VESPERS::Roper)
+			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+
+		else if (config_->ccdDetector() == VESPERS::Mar)
+			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
@@ -166,23 +177,29 @@ void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) 
 	else if (config_->ccdDetector() == VESPERS::Mar)
 		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
 
-	if (VESPERS::fileNameExists(path, name)){
+	if (VESPERS::fileNameExists(path, name))
+		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
 
-		ccdText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
-		ccdTextBox_->show();
-	}
-
-	else{
-
-		ccdText_->setText("");
-		ccdTextBox_->hide();
-	}
+	else
+		ccdHelpText_->setText("");
 }
 
 void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 {
 	config_->setCCDDetector(id);
-	checkCCDFileNames(config_->name());
+
+	QString path;
+	QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
+
+	if (config_->ccdDetector() == VESPERS::Roper)
+		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+	config_->setCCDFileName(name);
+	ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
+	checkCCDFileNames(name);
 }
 
 void VESPERSEnergyScanConfigurationView::setScanPosition()
