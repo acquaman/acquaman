@@ -86,7 +86,7 @@ protected slots:
 	/// Helper slot that passes the signal on to the base method.
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureRoperDetectorClicked();
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 
@@ -103,6 +103,8 @@ protected:
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
+	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
+	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERS2DScanConfiguration *config_;
@@ -120,6 +122,8 @@ protected:
 	/// Pointer to the vertical step size.
 	QDoubleSpinBox *vStep_;
 
+	/// Pointer to the CCD help group box.
+	QGroupBox *ccdTextBox_;
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
 	/// Pointer to the button that gets the CCD detector screen to switch.

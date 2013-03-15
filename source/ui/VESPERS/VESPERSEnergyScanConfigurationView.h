@@ -54,9 +54,8 @@ public slots:
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
-
 	/// Handles changes to the ccd detector choice.
-	void onCCDDetectorChanged(int id) { config_->setCCDDetector(id); }
+	void onCCDDetectorChanged(int id);
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
 	void setScanPosition();
 	/// Helper slot.  If the value is changed from either of the x or y position spin boxes then the positions saved label should change to unsaved.
@@ -67,14 +66,19 @@ protected slots:
 	void onEstimatedTimeChanged();
 
 	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked();
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 
 protected:
+	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
+	void checkCCDFileNames(const QString &name) const;
+
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEnergyScanConfiguration *config_;
 
 	/// This lets you setup regions.
 	AMRegionsView *regionsView_;
+	/// Pointer to the CCD help group box.
+	QGroupBox *ccdTextBox_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 };

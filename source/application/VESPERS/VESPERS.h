@@ -11,6 +11,7 @@
 #include <QPair>
 #include <QDir>
 #include <QList>
+#include <QStringBuilder>
 
 #include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -204,6 +205,24 @@ namespace VESPERS {
 		}
 
 		return false;
+	}
+
+	/// Returns \param name with three random numbers appended to the end.  Output will be "string-xyz".  Output is not guarenteed to be unique.
+	inline QString appendUniqueIdentifier(const QString &name)
+	{
+		int value = qrand() % 999;
+		QString suffix;
+
+		if (value < 10)
+			suffix = QString("00%1").arg(value);
+
+		else if (value < 100)
+			suffix = QString("0%1").arg(value);
+
+		else if (value < 1000) // always
+			suffix = QString("%1").arg(value);
+
+		return name % "-" % suffix;
 	}
 }
 

@@ -84,7 +84,7 @@ protected slots:
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureRoperDetectorClicked();
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 
@@ -96,6 +96,8 @@ protected:
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
+	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
+	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSSpatialLineScanConfiguration *config_;
@@ -113,6 +115,8 @@ protected:
 	/// Button holding the pointer to the CCD detector button.  It takes you to either Roper or Mar CCD detector screens.
 	QPushButton *configureCCDButton_;
 
+	/// Pointer to the CCD help group box.
+	QGroupBox *ccdTextBox_;
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.

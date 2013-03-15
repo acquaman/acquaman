@@ -126,7 +126,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD Detector");
 	configureCCDButton_->setEnabled(config_->ccdDetector());
-	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
+	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	// The fluorescence detector setup
 	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
@@ -154,6 +154,14 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H" << "X" << "V" << "Z", QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
+
+	// CCD label.
+	ccdText_ = new QLabel;
+	ccdTextBox_ = new QGroupBox("CCD file name help");
+	QVBoxLayout *ccdTextLayout = new QVBoxLayout;
+	ccdTextLayout->addWidget(ccdText_);
+	ccdTextBox_->setLayout(ccdTextLayout);
+	ccdTextBox_->hide();
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
@@ -200,6 +208,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
 	contentsLayout->addLayout(ionChambersLayout, 3, 3, 2, 1);
+	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
 	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 1, 3);
 
@@ -227,11 +236,41 @@ void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int 
 
 void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
 {
-	config_->setName(scanName_->text());
-	config_->setUserScanName(scanName_->text());
+	QString name = scanName_->text();
+	config_->setName(name);
+	config_->setUserScanName(name);
 
-	if (config_->ccdDetector() != VESPERS::NoCCD)
-		config_->setCCDFileName(scanName_->text());
+	if (config_->ccdDetector() != VESPERS::NoCCD){
+
+		config_->setCCDFileName(name);
+		checkCCDFileNames(name);
+	}
+}
+
+void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &name) const
+{
+	QString path;
+
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path.replace('\\', '/');
+	}
+
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+	if (VESPERS::fileNameExists(path, name)){
+
+		ccdText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
+		ccdTextBox_->show();
+	}
+
+	else{
+
+		ccdText_->setText("");
+		ccdTextBox_->hide();
+	}
 }
 
 void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
@@ -263,14 +302,6 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 	}
 }
 
-void VESPERSSpatialLineScanConfigurationView::onConfigureRoperDetectorClicked()
-{
-	if (config_->ccdDetector() == VESPERS::Roper)
-		emit configureDetector("Roper CCD");
-	else if (config_->ccdDetector() == VESPERS::Mar)
-		emit configureDetector("Mar CCD");
-}
-
 void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)
 {
 	// If the new It is at or upstream of I0, move I0.  Using id-1 is safe because Isplit can't be chosen for It.
@@ -289,6 +320,7 @@ void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)
 void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 {
 	config_->setCCDDetector(id);
+	checkCCDFileNames(config_->name());
 	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
 }
 

@@ -58,6 +58,28 @@ QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 
 	return string;
 }
+
+QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
+{
+	QString string = QString();
+
+	switch(id){
+
+	case VESPERS::NoCCD:
+		break;
+
+	case VESPERS::Roper:
+		string = "Roper CCD";
+		break;
+
+	case VESPERS::Mar:
+		string = "Mar CCD";
+		break;
+	}
+
+	return string;
+}
+
 void VESPERSScanConfigurationView::updateItButtons(int It)
 {
 	ItGroup_->button(It)->setChecked(true);

@@ -53,6 +53,8 @@ protected slots:
 	void onCustomContextMenuRequested(QPoint pos);
 	/// Emits the configureDetector signal based on the current fluorescence detector choice given by \param id.
 	QString fluorescenceDetectorIdToString(int id);
+	/// Emits the configureDetector signal based on the current ccd detector choice given by \param id.
+	QString ccdDetectorIdToString(int id);
 
 protected:
 	/// Figure out the current configuration of the regions of interest and write it out in a readable way.
@@ -118,6 +120,8 @@ protected:
 	QDoubleSpinBox *timeOffset_;
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
+	/// The label that holds the help message when CCD file names conflict.
+	QLabel *ccdText_;
 	/// Pointer to the dwell time per point.
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
