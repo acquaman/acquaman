@@ -420,6 +420,10 @@ void VESPERSBeamline::setupExposedControls()
 {
 	addExposedControl(pseudoSampleStage()->horiz());
 	addExposedControl(pseudoSampleStage()->vert());
+	addExposedControl(pseudoSampleStage()->norm());
+	addExposedControl(realSampleStage()->horiz());
+	addExposedControl(realSampleStage()->vert());
+	addExposedControl(realSampleStage()->norm());
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
