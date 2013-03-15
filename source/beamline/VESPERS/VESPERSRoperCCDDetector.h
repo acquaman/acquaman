@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
+#include "application/VESPERS/VESPERS.h"
 
 /*!
   This class encapsulates the Roper CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
@@ -83,9 +84,9 @@ public:
 	/// Returns whether the file is being saved.
 	bool fileBeingSaved() const { return saveFileControl_->isMoving(); }
 	/// Returns the current file path set for the detector.
-	QString ccdFilePath() const { return AMPVtoString(ccdPath_); }
+	QString ccdFilePath() const { return VESPERS::pvToString(ccdPath_); }
 	/// Returns the current file name for the detector.
-	QString ccdFileName() const { return AMPVtoString(ccdFile_); }
+	QString ccdFileName() const { return VESPERS::pvToString(ccdFile_); }
 	/// Returns the current number that is used for auto indexing of the file names.
 	int ccdFileNumber() const { return int(ccdNumber_->value()); }
 
@@ -173,9 +174,9 @@ public slots:
 	void saveFile() { saveFileControl_->move(1); }
 
 	/// Sets the CCD file path.
-	void setCCDPath(QString path) { StringtoAMPV(ccdPath_, path); }
+	void setCCDPath(QString path) { VESPERS::stringToPV(ccdPath_, path); }
 	/// Sets the CCD file name.
-	void setCCDName(QString name) { StringtoAMPV(ccdFile_, name); }
+	void setCCDName(QString name) { VESPERS::stringToPV(ccdFile_, name); }
 	/// Sets the CCD file number.
 	void setCCDNumber(int number) { ccdNumber_->move(double(number)); }
 
@@ -198,18 +199,13 @@ protected slots:
 	void onTemperatureSetpointChanged(double temperature) { VESPERSRoperCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
 
 	/// Handles the CCD path update.
-	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
+	void onCCDPathChanged() { emit ccdPathChanged(VESPERS::pvToString(ccdPath_)); }
 	/// Handles the CCD name update.
-	void onCCDNameChanged() { emit ccdNameChanged(AMPVtoString(ccdFile_)); }
+	void onCCDNameChanged() { emit ccdNameChanged(VESPERS::pvToString(ccdFile_)); }
 	/// Handles propogating the file number signal.
 	void onCCDNumberChanged() { emit ccdNumberChanged(int(ccdNumber_->value())); }
 
 protected:
-	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv) const;
-	/// Converts the string to the array of integers it needs to be.
-	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
-
 	/// Control for the temperature.
 	AMControl *temperatureControl_;
 	/// Control for the image mode.

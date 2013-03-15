@@ -165,39 +165,6 @@ void VESPERSRoperCCDDetector::setFromRoperInfo(const VESPERSRoperCCDDetectorInfo
 	setAcquireTime(info.acquireTime());
 }
 
-QString VESPERSRoperCCDDetector::AMPVtoString(AMProcessVariable *pv) const
-{
-	int current;
-	QString name;
-
-	for (unsigned i = 0; i < pv->count(); i++){
-
-		current = pv->getInt(i);
-		if (current == 0)
-			break;
-
-		name += QString::fromAscii((const char *) &current);
-	}
-
-	return name;
-}
-
-void VESPERSRoperCCDDetector::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
-{
-	int converted[256];
-
-	QByteArray toConvertBA = toConvert.toAscii();
-	for (int i = 0; i < 256; i++){
-
-		if (i < toConvertBA.size())
-			converted[i] = toConvertBA.at(i);
-		else
-			converted[i] = 0;
-	}
-
-	pv->setValues(converted, 256);
-}
-
 AMBeamlineActionItem *VESPERSRoperCCDDetector::createAcquireTimeAction(double time)
 {
 	if (!acquireTimeControl_->isConnected())

@@ -30,11 +30,6 @@ protected slots:
 	void onValueChanged();
 
 protected:
-	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv) const;
-	/// Converts the string to the array of integers it needs to be.
-	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
-
 	/// Pointer to the process variable.
 	AMProcessVariable *pv_;
 	/// Holds the string we want to set.

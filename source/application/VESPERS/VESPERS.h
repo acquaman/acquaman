@@ -16,6 +16,7 @@
 #include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "beamline/AMProcessVariable.h"
 
 namespace VESPERS {
 
@@ -223,6 +224,43 @@ namespace VESPERS {
 			suffix = QString("%1").arg(value);
 
 		return name % "-" % suffix;
+	}
+
+	/// Converts the bizarre string output of the pv to a real QString.
+	inline QString pvToString(AMProcessVariable *pv)
+	{
+		int current;
+		QString name;
+
+		for (unsigned i = 0; i < pv->count(); i++){
+
+			current = pv->getInt(i);
+
+			if (current == 0)
+				break;
+
+			name += QString::fromAscii((const char *) &current);
+		}
+
+		return name;
+	}
+
+	/// Converts the string to the array of integers it needs to be.
+	inline void stringToPV(AMProcessVariable *pv, QString toConvert)
+	{
+		int converted[256];
+
+		QByteArray toConvertBA = toConvert.toAscii();
+
+		for (int i = 0; i < 256; i++){
+
+			if (i < toConvertBA.size())
+				converted[i] = toConvertBA.at(i);
+			else
+				converted[i] = 0;
+		}
+
+		pv->setValues(converted, 256);
 	}
 }
 
