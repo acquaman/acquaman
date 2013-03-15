@@ -98,10 +98,6 @@ protected:
 	/// Button group for the motor choice selection.
 	QButtonGroup *motorButtonGroup_;
 
-	/// The spin box that holds the x coordinate for the scan position.
-	QDoubleSpinBox *xPosition_;
-	/// The spin box htat holds the y coordinate for the scan position.
-	QDoubleSpinBox *yPosition_;
 	/// Label holding what the currently saved x position is in the scan configuration.
 	QLabel *savedXPosition_;
 	/// Label holding what the currently saved y position is in the scan configuration.

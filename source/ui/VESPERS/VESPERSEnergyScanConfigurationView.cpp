@@ -77,8 +77,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPositionCheckBox_, SLOT(setChecked(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), setCurrentPositionButton_, SLOT(setEnabled(bool)));
-	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
-	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
@@ -204,25 +202,29 @@ void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSEnergyScanConfigurationView::setScanPosition()
 {
-	config_->setPosition(xPosition_->value(), yPosition_->value());
-	savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
-	savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
+	double x = 0;
+	double y = 0;
+
+	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+
+		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
+	}
+
+	else {
+
+		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+	}
+
+	config_->setPosition(x, y);
 	positionsSaved_->setText("Saved");
 	QPalette palette(this->palette());
 	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
-	positionsSaved_->setPalette(palette);
-	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-}
-
-void VESPERSEnergyScanConfigurationView::onXorYPositionChanged()
-{
-	disconnect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-
-	positionsSaved_->setText("Unsaved");
-	QPalette palette(this->palette());
-	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
 	positionsSaved_->setPalette(palette);
 }
 
@@ -235,20 +237,18 @@ void VESPERSEnergyScanConfigurationView::setSampleStage(bool sampleStage)
 {
 	if (sampleStage){
 
-		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		xPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horizontalPosition());
-		yPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->verticalPosition());
+		savedXPosition_->setText(QString("H: %1 mm").arg(0.0, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(0.0, 0, 'g', 3));
 	}
-	else{
 
-		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		xPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horizontalPosition());
-		yPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->verticalPosition());
+	else {
+
+		savedXPosition_->setText(QString("X: %1 mm").arg(0.0, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(0.0, 0, 'g', 3));
 	}
+
+	positionsSaved_->setText("Unsaved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
+	positionsSaved_->setPalette(palette);
 }

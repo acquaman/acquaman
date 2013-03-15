@@ -74,29 +74,7 @@ protected slots:
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
-	void setScanPosition()
-	{
-		config_->setPosition(xPosition_->value(), yPosition_->value());
-		savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
-		savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
-		positionsSaved_->setText("Saved");
-		QPalette palette(this->palette());
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
-		positionsSaved_->setPalette(palette);
-		connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-		connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	}
-	/// Helper slot.  If the value is changed from either of the x or y position spin boxes then the positions saved label should change to unsaved.
-	void onXorYPositionChanged()
-	{
-		disconnect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-		disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-
-		positionsSaved_->setText("Unsaved");
-		QPalette palette(this->palette());
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
-		positionsSaved_->setPalette(palette);
-	}
+	void setScanPosition();
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets the time offset for the scan.

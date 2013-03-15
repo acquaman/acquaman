@@ -58,8 +58,6 @@ protected slots:
 	void onCCDDetectorChanged(int id);
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
 	void setScanPosition();
-	/// Helper slot.  If the value is changed from either of the x or y position spin boxes then the positions saved label should change to unsaved.
-	void onXorYPositionChanged();
 	/// Helper slot that sets the time offset for the scan.
 	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.

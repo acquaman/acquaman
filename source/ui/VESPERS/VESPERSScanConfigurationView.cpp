@@ -376,33 +376,11 @@ QGroupBox *VESPERSScanConfigurationView::addGoToPositionView(bool goToPosition, 
 	saveLayout->addWidget(setCurrentPositionButton_);
 	saveLayout->addWidget(positionsSaved_);
 
-	xPosition_ = new QDoubleSpinBox;
-	xPosition_->setEnabled(goToPositionCheckBox_->isChecked());
-	xPosition_->setDecimals(3);
-	xPosition_->setRange(-100, 100);
-	xPosition_->setValue(goToPosition ? x : 0);
-	xPosition_->setSuffix(" mm");
-
-	QHBoxLayout *xLayout = new QHBoxLayout;
-	xLayout->addWidget(xPosition_);
-	xLayout->addWidget(savedXPosition_);
-
-	yPosition_ = new QDoubleSpinBox;
-	yPosition_->setEnabled(goToPositionCheckBox_->isChecked());
-	yPosition_->setDecimals(3);
-	yPosition_->setRange(-100, 100);
-	yPosition_->setValue(goToPosition ? y : 0);
-	yPosition_->setSuffix(" mm");
-
-	QHBoxLayout *yLayout = new QHBoxLayout;
-	yLayout->addWidget(yPosition_);
-	yLayout->addWidget(savedYPosition_);
-
-	QFormLayout *positionLayout = new QFormLayout;
-	positionLayout->addRow(goToPositionCheckBox_);
-	positionLayout->addRow(saveLayout);
-	positionLayout->addRow("x:", xLayout);
-	positionLayout->addRow("y:", yLayout);
+	QVBoxLayout *positionLayout = new QVBoxLayout;
+	positionLayout->addWidget(goToPositionCheckBox_, 0, Qt::AlignLeft);
+	positionLayout->addLayout(saveLayout);
+	positionLayout->addWidget(savedXPosition_);
+	positionLayout->addWidget(savedYPosition_);
 
 	QGroupBox *positionGroupBox = new QGroupBox("Go To Position");
 	positionGroupBox->setLayout(positionLayout);
