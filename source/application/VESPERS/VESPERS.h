@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QList>
 #include <QStringBuilder>
+#include <QDebug>
 
 #include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -199,7 +200,7 @@ namespace VESPERS {
 		if (dir.exists()){
 
 			QStringList files = dir.entryList();
-
+			qDebug() << files << name;
 			foreach (QString file, files)
 				if (file.startsWith(name))
 					return true;
