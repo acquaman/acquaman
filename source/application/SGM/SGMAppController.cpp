@@ -435,7 +435,25 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
+#include "acquaman/AMScanActionControllerScanAssembler.h"
 void SGMAppController::onActionSGMSettings(){
+
+	AMScanAxisRegion firstRegion(280, 0.5, 295, 1.0, this);
+	AMScanAxisRegion secondRegion(295, 0.05, 305, 1.0, this);
+	AMScanAxisRegion thirdRegion(305, 0.25, 320, 1.0, this);
+	AMScanAxis *firstAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion, this);
+	firstAxis->appendRegion(secondRegion);
+	firstAxis->appendRegion(thirdRegion);
+
+	AMScanAxisRegion firstRegionSecondAxis(-1.5, 0.25, 1.5);
+	AMScanAxis *secondAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionSecondAxis, this);
+
+	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
+
+	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
+
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();

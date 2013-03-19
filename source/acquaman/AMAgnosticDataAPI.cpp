@@ -68,10 +68,6 @@ namespace AMAgnosticDataAPIDefinitions{
 	}
 }
 
-AMAgnosticDataAPI::AMAgnosticDataAPI()
-{
-}
-
 AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::MessageType messageType, const QString &uniqueID)
 {
 	jsonData_["message"] = AMAgnosticDataAPIDefinitions::nameFromMessageType(messageType);
@@ -108,8 +104,23 @@ AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions:
 	}
 }
 
+AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(const AMAgnosticDataAPIMessage &original)
+{
+	messageType_ = original.messageType();
+	jsonData_ = original.jsonData_;
+}
+
 AMAgnosticDataAPIDefinitions::MessageType AMAgnosticDataAPIMessage::messageType() const{
 	return messageType_;
+}
+
+AMAgnosticDataAPIMessage& AMAgnosticDataAPIMessage::operator =(const AMAgnosticDataAPIMessage &other){
+	if(this != &other){
+		messageType_ = other.messageType();
+		jsonData_ = other.JSONData();
+	}
+
+	return *this;
 }
 
 QString AMAgnosticDataAPIMessage::uniqueID() const{
@@ -120,6 +131,10 @@ QVariant AMAgnosticDataAPIMessage::value(const QString &key) const{
 	if(jsonData_.contains(key))
 		return jsonData_.value(key);
 	return "INVALIDKEY";
+}
+
+QVariantMap AMAgnosticDataAPIMessage::JSONData() const{
+	return jsonData_;
 }
 
 QString AMAgnosticDataAPIMessage::toJSON() const{
@@ -314,4 +329,57 @@ void AMAgnosticDataAPIControlMovedMessage::setControlMovementType(const QString 
 
 void AMAgnosticDataAPIControlMovedMessage::setControlMovementValue(double movementValue){
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementValue)] = movementValue;
+}
+
+AMAgnosticDataMessageQEventHandler::AMAgnosticDataMessageQEventHandler() :
+	AMAgnosticDataMessageHandler()
+{
+
+}
+
+bool AMAgnosticDataMessageQEventHandler::addReceiver(QObject *receiver){
+	if(!receiver || receivers_.contains(receiver))
+		return false;
+	receivers_.append(receiver);
+	return true;
+}
+
+bool AMAgnosticDataMessageQEventHandler::removeReceiver(QObject *receiver){
+	if(!receiver || !receivers_.contains(receiver))
+		return false;
+	receivers_.removeAll(receiver);
+	return true;
+}
+
+#include <QCoreApplication>
+void AMAgnosticDataMessageQEventHandler::postMessage(const AMAgnosticDataAPIMessage &message){
+	AMAgnositicDataEvent *dataEvent;
+
+	for(int x = 0; x < receivers_.count(); x++){
+		dataEvent = new AMAgnositicDataEvent();
+		dataEvent->message_ = message;
+		QCoreApplication::postEvent(receivers_.at(x), dataEvent);
+	}
+}
+
+namespace AMAgnosticDataAPISupport{
+	QHash<QString, AMAgnosticDataMessageHandler*> registeredHandlers_;
+
+	bool registerHandler(const QString &lookupKey, AMAgnosticDataMessageHandler *messageHandler){
+		if(registeredHandlers_.contains(lookupKey))
+			return false;
+
+		registeredHandlers_.insert(lookupKey, messageHandler);
+		return true;
+	}
+
+	const QHash<QString, AMAgnosticDataMessageHandler*> registeredHandlers(){
+		return registeredHandlers_;
+	}
+
+	AMAgnosticDataMessageHandler* handlerFromLookupKey(const QString &lookupKey){
+		if(registeredHandlers_.contains(lookupKey))
+			return registeredHandlers_.value(lookupKey);
+		return 0;
+	}
 }
