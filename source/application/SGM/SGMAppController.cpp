@@ -448,9 +448,13 @@ void SGMAppController::onActionSGMSettings(){
 	AMScanAxisRegion firstRegionSecondAxis(-1.5, 0.25, 1.5);
 	AMScanAxis *secondAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionSecondAxis, this);
 
+	AMScanAxisRegion firstRegionThirdAxis(0, 1.0, 10.0);
+	AMScanAxis *thirdAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionThirdAxis, this);
+
 	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
-	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
 	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
+	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
 
 	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
 

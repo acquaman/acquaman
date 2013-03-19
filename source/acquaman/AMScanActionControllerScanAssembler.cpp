@@ -275,13 +275,19 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTree(){
 	for(int x = 1; x < axes_.count(); x++){
 		QList<AMAction3*> newInsertionPoints;
 		newInsertionPoints.clear();
+		qDebug() << "On axis " << x << " have " << insertionPoints.count() << " insertion points";
+		for(int y = 0; y < insertionPoints.count(); y++)
+			qDebug() << "Insertion Point " << y << (intptr_t*)insertionPoints.at(y);
+
 		for(int y = 0; y < insertionPoints.count(); y++){
 			AMListAction3 *castParentToListAction = qobject_cast<AMListAction3*>(insertionPoints.at(y)->parentAction());
 			if(castParentToListAction){
+				qDebug() << "Working with parent " << (intptr_t*)castParentToListAction;
 				int indexOfAction = castParentToListAction->indexOfSubAction(insertionPoints.at(y));
 				castParentToListAction->insertSubAction(generateActionTreeForAxis(controls_->at(x), axes_.at(x)), indexOfAction);
 				castParentToListAction->deleteSubAction(indexOfAction+1);
-				newInsertionPoints.append(castParentToListAction->subActionAt(indexOfAction));
+				newInsertionPoints.append(findInsertionPoints(castParentToListAction->subActionAt(indexOfAction)));
+				qDebug() << "Inserted " << castParentToListAction->subActionAt(indexOfAction)->info()->shortDescription();
 			}
 		}
 		insertionPoints.clear();
