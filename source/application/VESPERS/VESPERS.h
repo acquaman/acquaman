@@ -192,7 +192,7 @@ namespace VESPERS {
 		return vespersDefault;
 	}
 
-	/// Returns whether any files with \param name exist in \param path.  It doesn't check for the whole name since most file names will have extensions like '_1.dat'.
+	/// Returns whether any files with \param name exist in \param path.  It removes endings like '_1.dat' if they exist.
 	inline bool fileNameExists(const QString &path, const QString &name)
 	{
 		QDir dir(path);
@@ -200,9 +200,9 @@ namespace VESPERS {
 		if (dir.exists()){
 
 			QStringList files = dir.entryList();
-			qDebug() << files << name;
+
 			foreach (QString file, files)
-				if (file.startsWith(name))
+				if (file.mid(0, file.lastIndexOf("_")) == name)
 					return true;
 		}
 

@@ -435,6 +435,15 @@ void VESPERSScanController::onCleanupActionFinished()
 
 QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
 {
+	// Because the paths that go into the PV's are not the paths we use to check, we need to create the right path.  So far, that is /mnt/aurora
+	QString newPath = path;
+
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		newPath.replace("Y:\\", "/mnt/aurora/");
+		newPath.replace('\\', '/');
+	}
+
 	if (!VESPERS::fileNameExists(path, name))
 		return name;
 

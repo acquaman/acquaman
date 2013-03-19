@@ -169,17 +169,24 @@ void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
 		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path.replace("Y:\\", "/mnt/aurora/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
 		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
 
-	if (VESPERS::fileNameExists(path, name))
-		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
+	if (VESPERS::fileNameExists(path, name)){
 
-	else
+		ccdHelpText_->show();
+		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
+	}
+
+	else{
+
 		ccdHelpText_->setText("");
+		ccdHelpText_->hide();
+	}
 }
 
 void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
