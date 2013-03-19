@@ -453,8 +453,11 @@ void SGMAppController::onActionSGMSettings(){
 
 	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
 	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
-	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
 	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
+	//newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+
+	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
+	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());
 
 	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
 

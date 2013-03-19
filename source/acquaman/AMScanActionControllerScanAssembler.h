@@ -131,6 +131,14 @@ protected:
 	AMAction3* generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis);
 	AMAction3* generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis);
 
+	AMAction3* generateActionListForDetectorAcquisition();
+	AMAction3* generateActionListForStepDetectorAcquisition();
+	AMAction3* generateActionListForContinuousMoveDetectorAcquisition();
+	AMAction3* generateActionListForContinuousDwellDetectorAcquisition();
+
+	AMAction3* generateActionListForDetectorInitialization();
+	AMAction3* generateActionListForDetectorCleanup();
+
 	QList<AMAction3*> findInsertionPoints(AMAction3 *action);
 
 protected:

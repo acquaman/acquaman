@@ -142,6 +142,10 @@ AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }
 
+AMAction3* AMDetector::createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode){
+	return new AMDetectorAcquisitionAction(new AMDetectorAcquisitionActionInfo(toInfo(), readMode, this));
+}
+
 AMAction3* AMDetector::createCleanupActions(){
 	return new AMDetectorCleanupAction(new AMDetectorCleanupActionInfo(toInfo()), this);
 }
@@ -566,6 +570,119 @@ void AMDetectorInitializeAction::cancelImplementation(){
 ///////////////////////////////
 // (END) INITIALIZE ACTION ///
 /////////////////////////////
+
+///////////////////////////
+// ACQUISITION ACTION ///
+///////////////////////
+
+AMDetectorAcquisitionActionInfo::AMDetectorAcquisitionActionInfo(const AMDetectorInfo &detectorInfo, AMDetectorDefinitions::ReadMode readMode, QObject *parent) :
+	AMActionInfo3("Detector Acquisition", "Detector Acquisition", ":/system-run.png", parent)
+{
+	detectorInfo_.setValuesFrom(detectorInfo);
+	readMode_ = readMode;
+
+	QString description = QString("Acquire %1").arg(detectorInfo_.description());
+	setShortDescription(description);
+	setLongDescription(description);
+}
+
+AMDetectorAcquisitionActionInfo::AMDetectorAcquisitionActionInfo(const AMDetectorAcquisitionActionInfo &other) :
+	AMActionInfo3(other)
+{
+	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
+	readMode_ = other.readMode();
+}
+
+AMDetectorAcquisitionAction::AMDetectorAcquisitionAction(AMDetectorAcquisitionActionInfo *info, AMDetector *detector, QObject *parent) :
+	AMAction3(info, parent)
+{
+	if(detector)
+		detector_ = detector;
+	else{
+		// GRAB IT FROM BEAMLINE INTERFACE
+		// detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	}
+}
+
+AMDetectorAcquisitionAction::AMDetectorAcquisitionAction(const AMDetectorAcquisitionAction &other) :
+	AMAction3(other)
+{
+	const AMDetectorAcquisitionActionInfo *info = qobject_cast<const AMDetectorAcquisitionActionInfo*>(other.info());
+
+	if(info){
+		// GRAB IT FROM BEAMLINE INTERFACE
+		// detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	}
+	else
+		detector_ = 0;
+}
+
+void AMDetectorAcquisitionAction::startImplementation(){
+	// If you still don't have a detector, check the exposed detectors one last time.
+	if(!detector_){
+		// GRAB IT FROM BEAMLINE INTERFACE
+		// detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	}
+
+	if(!detector_) {
+		AMErrorMon::alert(this,
+						  AMDETECTORACQUISITIONACTION_NO_VALID_DETECTOR,
+						  QString("There was an error acquiring with the detector '%1', because the detector was not found. Please report this problem to the Acquaman developers.").arg(detectorAcquisitionInfo()->name()));
+		setFailed();
+		return;
+	}
+
+	if( (detectorAcquisitionInfo()->readMode() != AMDetectorDefinitions::SingleRead) && !detector_->canContinuousAcquire()){
+		AMErrorMon::alert(this,
+						  AMDETECTORACQUISITIONACTION_NOT_VALID_READMODE,
+						  QString("There was an error acquiring with the detector '%1', because continuous reads are not supported for this detector. Please report this problem to the Acquaman developers.").arg(detectorAcquisitionInfo()->name()));
+		setFailed();
+		return;
+	}
+
+	// connect to detector initialization signals
+	connect(detector_, SIGNAL(acquisitionStarted(bool)), this, SLOT(onAcquisitionStarted(bool)));
+	connect(detector_, SIGNAL(acquisitionFinished(bool)), this, SLOT(onAcquisitionFinished(bool)));
+
+	detector_->acquire(detectorAcquisitionInfo()->readMode());
+}
+
+void AMDetectorAcquisitionAction::onAcquisitionStarted(bool acquisitionStartSuccessful){
+	disconnect(detector_, SIGNAL(acquisitionStarted(bool)), this, SLOT(onAcquisitionStarted(bool)));
+
+	if(acquisitionStartSuccessful)
+		setStarted();
+	else{
+		AMErrorMon::alert(this,
+						  AMDETECTORACQUISITIONACTION_ACQUISITION_START_FAILED,
+						  QString("There was an error acquiring with the detector '%1', because the acquisition failed to start. Please report this problem to the Acquaman developers.").arg(detectorAcquisitionInfo()->name()));
+		setFailed();
+		return;
+	}
+}
+
+void AMDetectorAcquisitionAction::onAcquisitionFinished(bool acquisitionSucceeded){
+	disconnect(detector_, 0, this, 0);
+
+	if(acquisitionSucceeded)
+		setSucceeded();
+	else
+		setFailed();
+}
+
+void AMDetectorAcquisitionAction::cancelImplementation(){
+	if(!detector_){
+		setCancelled();
+		return;
+	}
+
+	// FIGURE OUT WHAT TO DO HERE
+	setCancelled();
+}
+
+/////////////////////////////////
+// (END) ACQUISITION ACTION ///
+//////////////////////////////
 
 //////////////////////
 // CLEANUP ACTION ///

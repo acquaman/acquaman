@@ -245,6 +245,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action to set the acquisition time on this detector
 	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) = 0;
 
+	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
@@ -534,6 +536,103 @@ protected:
 	const AMDetectorInitializeActionInfo* detectorInitializeInfo() const { return qobject_cast<const AMDetectorInitializeActionInfo*>(info()); }
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
 	AMDetectorInitializeActionInfo* detectorInitializeInfo() { return qobject_cast<AMDetectorInitializeActionInfo*>(info()); }
+
+	// Internal variables:
+
+	/// A pointer to the AMDetector we use to implement the action
+	AMDetector* detector_;
+};
+
+class AMDetectorAcquisitionActionInfo : public AMActionInfo3
+{
+Q_OBJECT
+public:
+	/// Constructor
+	Q_INVOKABLE AMDetectorAcquisitionActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead,  QObject *parent = 0);
+
+	/// Copy Constructor
+	AMDetectorAcquisitionActionInfo(const AMDetectorAcquisitionActionInfo &other);
+
+	/// This function is used as a virtual copy constructor
+	virtual AMDetectorAcquisitionActionInfo* createCopy() const { return new AMDetectorAcquisitionActionInfo(*this); }
+
+	/// This should describe the type of the action
+	virtual QString typeDescription() const { return "Detector Acquisition"; }
+
+	/// Returns a pointer to our detectorInfo
+	const AMDetectorInfo* detectorInfo() const { return &detectorInfo_; }
+
+	/// Returns the read mode for this acquisition
+	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
+
+	/// For database storing only
+	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
+	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
+	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { delete newLoadedObject; }
+
+protected:
+	/// The AMDetectorInfo that specifies which detector to acquire
+	AMDetectorInfo detectorInfo_;
+
+	/// The read mode we want to acquire with
+	AMDetectorDefinitions::ReadMode readMode_;
+};
+
+#define AMDETECTORACQUISITIONACTION_NO_VALID_DETECTOR 490003
+#define AMDETECTORACQUISITIONACTION_NOT_VALID_READMODE 490004
+#define AMDETECTORACQUISITIONACTION_ACQUISITION_START_FAILED 490005
+
+class AMDetectorAcquisitionAction : public AMAction3
+{
+Q_OBJECT
+public:
+	/// Constructor. Requires and takes ownership of an existing AMDetectorInitializeActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedControls will be used instead.
+	Q_INVOKABLE AMDetectorAcquisitionAction(AMDetectorAcquisitionActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
+	/// Copy Constructor
+	AMDetectorAcquisitionAction(const AMDetectorAcquisitionAction &other);
+	/// Virtual copy constructor
+	virtual AMAction3* createCopy() const { return new AMDetectorAcquisitionAction(*this); }
+
+	/// Returns the detector that will be initialized
+	AMDetector* detector() const { return detector_; }
+
+	/// Specify that we cannot pause
+	virtual bool canPause() const { return false; }
+	/// Specify that we cannot skip
+	virtual bool canSkip() const { return false; }
+
+	/// Virtual function that denotes that this action has children underneath it or not.
+	virtual bool hasChildren() const { return false; }
+	/// Virtual function that returns the number of children for this action.
+	virtual int numberOfChildren() const { return 0; }
+
+protected:
+	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
+	virtual void startImplementation();
+
+	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+	virtual void pauseImplementation() { setPaused(); }
+
+	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+	virtual void resumeImplementation() { setResumed(); }
+
+	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
+	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
+	virtual void cancelImplementation();
+
+	/// Since this action does not support skipping, the method is empty.
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
+
+protected slots:
+	/// Handle signals from our detector
+	void onAcquisitionStarted(bool acquisitionStartSuccessful);
+	void onAcquisitionFinished(bool acquisitionSucceeded);
+
+protected:
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
+	const AMDetectorAcquisitionActionInfo* detectorAcquisitionInfo() const { return qobject_cast<const AMDetectorAcquisitionActionInfo*>(info()); }
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
+	AMDetectorAcquisitionActionInfo* detectorAcquisitionInfo() { return qobject_cast<AMDetectorAcquisitionActionInfo*>(info()); }
 
 	// Internal variables:
 
