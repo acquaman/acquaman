@@ -79,6 +79,9 @@ protected slots:
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
 
+	/// TEST METHOD
+	void loadCCDFileTest();
+
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
@@ -103,6 +106,8 @@ protected:
 	QLabel *temperatureFeedback_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
+	/// The image being viewed - can be any image.
+	QLabel *image_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

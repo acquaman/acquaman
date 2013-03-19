@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMDetector(name)
 {
+	imageData_ = QVector<int>(size().product());
+
 	temperatureControl_ = new AMPVControl("Temperature", "IOC1607-003:det1:Temperature_RBV", "IOC1607-003:det1:Temperature", QString(), this, 1);
 	imageModeControl_ = new AMPVControl("Image Mode", "IOC1607-003:det1:ImageMode_RBV", "IOC1607-003:det1:ImageMode", QString(), this, 0.1);
 	triggerModeControl_ = new AMPVControl("Trigger Mode", "IOC1607-003:det1:TriggerMode_RBV", "IOC1607-003:det1:TriggerMode", QString(), this, 0.1);
@@ -278,4 +280,44 @@ AMBeamlineActionItem *VESPERSRoperCCDDetector::createFileNumberAction(int number
 	action->setSetpoint(number);
 
 	return action;
+}
+
+bool VESPERSRoperCCDDetector::loadImageFromFile(const QString &filename)
+{
+	Q_UNUSED(filename);
+
+//	QFile file(fileName);
+	QFile file("/mnt/aurora/ccd-calib/mar2013/si50.SPE");
+
+	if (!file.open(QFile::ReadOnly))
+		return false;
+
+	quint16 value;
+	QDataStream in(&file);
+	in.setByteOrder(QDataStream::LittleEndian);
+	in.skipRawData(4100);
+
+	QVector<int> data = QVector<int>(imageData_.size());
+
+	for (int i = 0, iSize = imageData_.size(); i < iSize; i++){
+
+		in >> (quint16 &)value;
+		data[i] = int(value);
+	}
+
+	int xSize = size().i();
+	int ySize = size().j();
+
+	for (int i = 0; i < xSize; i++){
+
+		int offset = i*ySize;
+		int negOffset = (xSize-i-1)*ySize;
+
+		for (int j = 0; j < ySize; j++)
+			imageData_[j+negOffset] = data.at(j + offset);
+	}
+
+	file.close();
+
+	return true;
 }

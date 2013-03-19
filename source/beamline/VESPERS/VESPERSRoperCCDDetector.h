@@ -90,6 +90,9 @@ public:
 	/// Returns the current number that is used for auto indexing of the file names.
 	int ccdFileNumber() const { return int(ccdNumber_->value()); }
 
+	/// Returns the CCD image data.
+	QVector<int> imageData() const { return imageData_; }
+
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
 
@@ -180,6 +183,9 @@ public slots:
 	/// Sets the CCD file number.
 	void setCCDNumber(int number) { ccdNumber_->move(double(number)); }
 
+	/// Loads the file found at \param file.  Needs to be a full path to the file.  If left empty, the function will attempt to use the current path, file name, and number.  Array is filled with 0's if it fails and return false.
+	bool loadImageFromFile(const QString &filename = QString(""));
+
 protected slots:
 	/// Helper slot that emits the image mode.
 	void onImageModeChanged() { emit imageModeChanged(imageMode()); }
@@ -206,6 +212,9 @@ protected slots:
 	void onCCDNumberChanged() { emit ccdNumberChanged(int(ccdNumber_->value())); }
 
 protected:
+	/// The vector that holds the image data.  For the time being, will only hold one image per detector at a time.
+	QVector<int> imageData_;
+
 	/// Control for the temperature.
 	AMControl *temperatureControl_;
 	/// Control for the image mode.

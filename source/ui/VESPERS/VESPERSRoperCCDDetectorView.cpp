@@ -49,6 +49,14 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	detector_ = static_cast<VESPERSRoperCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
+	QPushButton *loadCCDButton = new QPushButton("Load test");
+	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(loadCCDFileTest()));
+
+	image_ = new QLabel;
+	QPixmap pixmap = QPixmap(600, 600);
+	pixmap.fill(Qt::blue);
+	image_->setPixmap(pixmap);
+
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 	connect(detector_, SIGNAL(isAcquiringChanged(bool)), this, SLOT(onIsAcquiringChanged(bool)));
@@ -174,6 +182,8 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
+	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
+	masterLayout->addWidget(loadCCDButton);
 	masterLayout->addLayout(horizontalSquishLayout);
 	masterLayout->addStretch();
 
@@ -291,5 +301,50 @@ void VESPERSRoperCCDDetectorView::setAutoSave(int autoSave)
 			detector_->setAutoSaveEnabled(true);
 
 		break;
+	}
+}
+
+#include "MPlot/MPlotColorMap.h"
+
+void VESPERSRoperCCDDetectorView::loadCCDFileTest()
+{
+	if (detector_->loadImageFromFile()){
+
+		QVector<int> data = detector_->imageData();
+		QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+
+		int maximum = data.at(0);
+		int minimum = data.at(0);
+
+		for (int i = 0, size = data.size(); i < size; i++){
+
+			if (data.at(i) < minimum)
+				minimum = data.at(i);
+
+			if (data.at(i) > maximum)
+				maximum = data.at(i);
+		}
+
+		MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
+		MPlotInterval range = MPlotInterval(minimum, int(maximum*0.30));
+
+		int xSize = detector_->size().i();
+		int ySize = detector_->size().j();
+
+		for (int i = 0; i < xSize; i++){
+
+			int offset = i*ySize;
+
+			for (int j = 0; j < ySize; j++)
+				image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+		}
+
+		QPixmap newImage;
+		newImage.convertFromImage(image);
+		newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
+		QTransform transform = QTransform();
+		transform.rotate(-90);
+		newImage = newImage.transformed(transform);
+		image_->setPixmap(newImage);
 	}
 }
