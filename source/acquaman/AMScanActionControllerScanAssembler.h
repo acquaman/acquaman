@@ -133,8 +133,7 @@ protected:
 
 	AMAction3* generateActionListForDetectorAcquisition();
 	AMAction3* generateActionListForStepDetectorAcquisition();
-	AMAction3* generateActionListForContinuousMoveDetectorAcquisition();
-	AMAction3* generateActionListForContinuousDwellDetectorAcquisition();
+	AMAction3* generateActionListForContinuousDetectorAcquisition();
 
 	AMAction3* generateActionListForDetectorInitialization();
 	AMAction3* generateActionListForDetectorCleanup();

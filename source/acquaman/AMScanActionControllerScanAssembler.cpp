@@ -385,10 +385,8 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForContinuousD
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForDetectorAcquisition(){
 	if(axes_.at(axes_.count()-1)->axisType() == AMScanAxis::StepAxis)
 		return generateActionListForStepDetectorAcquisition();
-	else if(axes_.at(axes_.count()-1)->axisType() == AMScanAxis::ContinuousMoveAxis)
-		return generateActionListForContinuousMoveDetectorAcquisition();
-	else if(axes_.at(axes_.count()-1)->axisType() == AMScanAxis::ContinuousDwellAxis)
-		return generateActionListForContinuousDwellDetectorAcquisition();
+	else if( (axes_.at(axes_.count()-1)->axisType() == AMScanAxis::ContinuousMoveAxis) || (axes_.at(axes_.count()-1)->axisType() == AMScanAxis::ContinuousDwellAxis) )
+		return generateActionListForContinuousDetectorAcquisition();
 	else
 		return 0; //NULL
 }
@@ -402,12 +400,13 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetecto
 	return retVal;
 }
 
-AMAction3* AMScanActionControllerScanAssembler::generateActionListForContinuousMoveDetectorAcquisition(){
-	return 0; //NULL
-}
+AMAction3* AMScanActionControllerScanAssembler::generateActionListForContinuousDetectorAcquisition(){
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
 
-AMAction3* AMScanActionControllerScanAssembler::generateActionListForContinuousDwellDetectorAcquisition(){
-	return 0; //NULL
+	for(int x = 0; x < detectors_->count(); x++)
+		retVal->addSubAction(detectors_->at(x)->createAcquisitionAction(AMDetectorDefinitions::ContinuousRead));
+
+	return retVal;
 }
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForDetectorInitialization(){
