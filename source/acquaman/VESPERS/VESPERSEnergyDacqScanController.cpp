@@ -288,8 +288,6 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 
 	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
-//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/EnergyScan-Roper.cfg"));
-
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
 				VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
@@ -307,7 +305,7 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 
 	addStandardExtraPVs(advAcq_, true, false);
 
-	advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
 	return loadSuccess;
 }
@@ -339,7 +337,7 @@ bool VESPERSEnergyDacqScanController::setupMarScan()
 
 	addStandardExtraPVs(advAcq_, true, false);
 
-	advAcq_->appendRecord("ccd1607-002:cam1:FileNumber", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
 
 	return loadSuccess;
 }

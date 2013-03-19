@@ -443,8 +443,8 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 	double hSize = fabs(config_->xEnd()-config_->xStart());
 	double vSize = fabs(config_->yEnd()-config_->yStart());
 
-	int hPoints = int((hSize)/config_->yStep());
-	if ((hSize - (hPoints + 0.01)*config_->yStep()) < 0)
+	int hPoints = int((hSize)/config_->xStep());
+	if ((hSize - (hPoints + 0.01)*config_->xStep()) < 0)
 		hPoints += 1;
 	else
 		hPoints += 2;
