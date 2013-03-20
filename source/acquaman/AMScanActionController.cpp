@@ -5,10 +5,6 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 {
 }
 
-bool AMScanActionController::initializeImplementation(){
-	return false;
-}
-
 bool AMScanActionController::startImplementation(){
 	return false;
 }
@@ -24,4 +20,18 @@ void AMScanActionController::resumeImplementation(){
 }
 
 void AMScanActionController::cancelImplementation(){
+}
+
+#include "acquaman/AMAgnosticDataAPI.h"
+bool AMScanActionController::event(QEvent *e){
+	if(e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
+		AMAgnosticDataAPIMessage message = ((AMAgnositicDataEvent*)e)->message_;
+
+		qDebug() << "Just heard a message " << message.toJSON();
+
+		e->accept();
+		return true;
+	}
+	else
+		return AMScanController::event(e);
 }

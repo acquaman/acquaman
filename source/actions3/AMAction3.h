@@ -202,6 +202,8 @@ public slots:
 	/// For actions that support skipping, uses \param command to successfully end the action perscribed by the command.  Returns true if it was successful.
 	bool skip(const QString &command);
 
+	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
+
 public:
 	// Progress API
 	////////////////////////
@@ -223,6 +225,8 @@ public:
 	void setFailureResponseInActionRunner(FailureResponse fr) { failureResponseInActionRunner_ = fr; }
 	/// Set the failure response that we would recommend when this action is run as a sub-action of another action.
 	void setFailureResponseAsSubAction(FailureResponse fr) { failureResponseAsSubAction_ = fr; }
+
+	bool generateScanActionMessages() const { return generateScanActionMessages_; }
 
 signals:
 
@@ -304,8 +308,11 @@ protected:
 	/// Call this after receiving skipImplementation() to inform the base class that the action has is now being skipped and we should go from Skipping to Succeeded.
 	void setSkipped();
 
+protected:
 	/// The list of skip options that the scan can perform.
 	QStringList skipOptions_;
+
+	bool generateScanActionMessages_;
 
 private:
 	/// Changes states (if possible).

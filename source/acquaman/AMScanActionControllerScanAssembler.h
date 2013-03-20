@@ -127,7 +127,7 @@ public:
 protected:
 	AMAction3* generateActionTreeForAxis(AMControl *axisControl, AMScanAxis *scanAxis);
 	AMAction3* generateActionTreeForStepAxis(AMControl *axisControl, AMScanAxis *stepScanAxis);
-	AMAction3* generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion);
+	AMAction3* generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion, bool isFinalRegion);
 	AMAction3* generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis);
 	AMAction3* generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis);
 

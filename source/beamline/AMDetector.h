@@ -330,23 +330,6 @@ signals:
 	/// Indicates that the detector's acquisition time has changed
 	void acquisitionTimeChanged(double seconds);
 
-	/*
-	/// Emit this when the acquisition process starts and pass whether it was successful or not
-	void acquisitionStarted(bool successfullyStarted);
-	/// Emit this when the acquisition process finishes and pass whether it was successful or not
-	void acquisitionFinished(bool successfullyFinished);
-
-	/// Emit this signal when initialization starts
-	void initializeStarted();
-	/// Emit this signal when the initialization finishes and pass the success/failure
-	void initializeFinished(bool initializationSucceeded);
-
-	/// Emit this signal when cleanup starts
-	void cleanupStarted();
-	/// Emit this signal when the cleanup finishes and pass the success/failure
-	void cleanupFinished(bool cleanupSucceeded);
-	*/
-
 protected slots:
 	///
 	void setInitializing();

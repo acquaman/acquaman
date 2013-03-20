@@ -63,7 +63,8 @@ HEADERS += \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
-    source/ui/util/SGM/SGMFastScanParametersView.h
+    source/ui/util/SGM/SGMFastScanParametersView.h \
+    source/acquaman/SGM/SGMXASScanActionController.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -98,7 +99,10 @@ SOURCES += \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
-    source/ui/util/SGM/SGMFastScanParametersView.cpp
+    source/ui/util/SGM/SGMFastScanParametersView.cpp \
+    source/acquaman/SGM/SGMXASScanActionController.cpp
+
+
 
 
 

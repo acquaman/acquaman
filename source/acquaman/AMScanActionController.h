@@ -10,12 +10,13 @@ public:
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
 
 protected:
-	virtual bool initializeImplementation();
 	virtual bool startImplementation();
 	virtual bool canPause();
 	virtual void pauseImplementation();
 	virtual void resumeImplementation();
 	virtual void cancelImplementation();
+
+	bool event(QEvent *e);
 };
 
 #endif // AMSCANACTIONCONTROLLER_H

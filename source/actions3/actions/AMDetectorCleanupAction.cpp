@@ -44,7 +44,7 @@ void AMDetectorCleanupAction::startImplementation(){
 }
 
 void AMDetectorCleanupAction::onCleanupStarted(){
-	disconnect(detector_, SIGNAL(cleanupStarted()), this, SLOT(onCleanupStarted()));
+	disconnect(detector_, SIGNAL(cleaningUp()), this, SLOT(onCleanupStarted()));
 
 	setStarted();
 }

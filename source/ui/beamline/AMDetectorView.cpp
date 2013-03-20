@@ -2,8 +2,6 @@
 
 #include <QBoxLayout>
 
-#include <QDebug>
-
 #include "MPlot/MPlotAxisScale.h"
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
@@ -152,8 +150,6 @@ void AMDetectorGeneralDetailedView::onAcquisitionStateChanged(AMDetector::Acqusi
 		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
 		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
-
-	qDebug() << "State is now " << detector_->acquisitionStateDescription(acquisitionState);
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeChanged(double integrationTime){

@@ -136,7 +136,7 @@ bool SGMXASDacqScanController::startImplementation(){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE,
-				"Error, SGM XAS DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
+				"Error, SGM XAS DACQ Scan Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
 		return false;
 	}
 

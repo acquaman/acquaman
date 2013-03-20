@@ -171,7 +171,7 @@ public:
 	virtual void postMessage(const AMAgnosticDataAPIMessage &message) = 0;
 };
 
-class AMAgnosticDataMessageQEventHandler : AMAgnosticDataMessageHandler
+class AMAgnosticDataMessageQEventHandler : public AMAgnosticDataMessageHandler
 {
 public:
 	AMAgnosticDataMessageQEventHandler();

@@ -335,11 +335,12 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 	AMControlInfo initializeControlPositionSetpoint = axisControl->toInfo();
 	initializeControlPositionSetpoint.setValue(stepScanAxis->axisStart());
 	AMControlMoveAction3 *initializeControlPosition = new AMControlMoveAction3(new AMControlMoveActionInfo3(initializeControlPositionSetpoint), axisControl);
+	initializeControlPosition->setGenerateScanActionMessage(true);
 	initializationActions->addSubAction(initializeControlPosition);
 
 	AMListAction3 *allRegionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(axisControl->name()), QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(axisControl->name())), AMListAction3::Sequential);
 	for(int x = 0; x < stepScanAxis->regionCount(); x++)
-		allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x)));
+		allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
 
 	// generate axis cleanup list
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()), QString("Cleaning Up Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
@@ -350,26 +351,33 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 	return axisActions;
 }
 
-AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion){
+AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion, bool isFinalRegion){
 	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(axisControl->name()), QString("Region from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())), AMListAction3::Sequential);
 	AMControlInfo regionStartSetpoint = axisControl->toInfo();
 	regionStartSetpoint.setValue(stepScanAxisRegion.regionStart());
 	AMControlMoveAction3 *regionStart = new AMControlMoveAction3(new AMControlMoveActionInfo3(regionStartSetpoint), axisControl);
+	regionStart->setGenerateScanActionMessage(true);
 
 	// generate axis loop for region
 	int loopIterations = ceil(( ((double)stepScanAxisRegion.regionEnd()) - ((double)stepScanAxisRegion.regionStart()) )/ ((double)stepScanAxisRegion.regionStep()) );
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(axisControl->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())));
+	axisLoop->setGenerateScanActionMessage(true);
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
 	controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion.regionStep());
 	AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 	controlLoopMoveInfo->setIsRelativeMove(true);
 	AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
+	controlLoopMove->setGenerateScanActionMessage(true);
 	axisLoop->addSubAction(nextLevelHolderAction);
 	axisLoop->addSubAction(controlLoopMove);
 
 	regionList->addSubAction(regionStart);
 	regionList->addSubAction(axisLoop);
+	if(isFinalRegion){
+		AMListAction3 *nextLevelFinalHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
+		regionList->addSubAction(nextLevelFinalHolderAction);
+	}
 
 	return regionList;
 }

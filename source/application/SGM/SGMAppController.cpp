@@ -437,9 +437,25 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 }
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/SGM/SGMXASScanActionController.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 void SGMAppController::onActionSGMSettings(){
 
-//	AMScanAxisRegion firstRegion(280, 5, 320, 1.0, this);
+	/**/
+	SGMXASScanConfiguration *quickConfiguration = new SGMXASScanConfiguration(this);
+	quickConfiguration->addRegion(0, 280, 10, 320);
+	quickConfiguration->setRegionTime(0, 1);
+
+	SGMXASScanActionController *scanActionController = new SGMXASScanActionController(quickConfiguration, this);
+	AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
+	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+	scanActionMessager->addReceiver(scanActionController);
+
+	AMActionRunner3::workflow()->addActionToQueue(scanActionController->actionsTree());
+	/**/
+
+	/*
+//	AMScanAxisRegion firstRegion(280, 10, 320, 1.0, this);
 	AMScanAxisRegion firstRegion(280, 5, 295, 1.0, this);
 	AMScanAxisRegion secondRegion(295, 1, 300, 1.0, this);
 	AMScanAxisRegion thirdRegion(300, 10, 320, 1.0, this);
@@ -454,8 +470,8 @@ void SGMAppController::onActionSGMSettings(){
 //	AMScanAxis *thirdAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionThirdAxis, this);
 
 	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
-	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
 	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
 //	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
 
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
@@ -463,6 +479,7 @@ void SGMAppController::onActionSGMSettings(){
 
 	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
 	//AMActionRunner3::workflow()->addActionToQueue(SGMBeamline::sgm()->newAmptekSDD1()->createAcquisitionAction());
+	*/
 
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();

@@ -22,13 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 
 AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {
 	if (control)
 		control_ = control;
-
 	else
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
 }
@@ -40,7 +40,6 @@ AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
 
 	if (info)
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
-
 	else
 		control_ = 0;
 }
@@ -147,6 +146,16 @@ void AMControlMoveAction3::onMoveSucceeded()
 	disconnect(&progressTick_, 0, this, 0);
 
 	setProgress(100,100);
+
+	if(generateScanActionMessages_){
+		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value());
+		if(controlMoveInfo()->isRelativeMove())
+			controlMovedMessage.setControlMovementType("Relative");
+		else
+			controlMovedMessage.setControlMovementType("Absolute");
+		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(controlMovedMessage);
+	}
+
 	setSucceeded();
 }
 

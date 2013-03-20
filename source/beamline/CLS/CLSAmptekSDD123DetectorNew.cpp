@@ -36,7 +36,6 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
-	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeControlChanged(double)));
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
@@ -57,14 +56,6 @@ QList<AMAxisInfo> CLSAmptekSDD123DetectorNew::axes() const{
 	axisInfo << ai;
 	return axisInfo;
 }
-
-/*
-bool CLSAmptekSDD123DetectorNew::isAcquiring() const{
-	if(isConnected())
-		return statusControl_->withinTolerance(1);
-	return false;
-}
-*/
 
 double CLSAmptekSDD123DetectorNew::acquisitionTime() const{
 	if(isConnected())
@@ -128,7 +119,6 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
-	qDebug() << "New Amptek told to acquire";
 	AMControl::FailureExplanation failureExplanation = startAcquisitionControl_->move(1);
 	if(failureExplanation != AMControl::NoFailure)
 		return true;
@@ -136,14 +126,11 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 }
 
 bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
-	setCleaningUp();
 	setCleanedUp();
 	return true;
 }
 
 void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
-	//setConnected(connected);
-
 	if(connected && !integrationTimeControl_->withinTolerance(2.00))
 		setConnected(connected);
 	else
@@ -172,23 +159,13 @@ void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(double newValue){
 void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
 	Q_UNUSED(value)
 
-	if(statusControl_->withinTolerance(1)){
-		qDebug() << "Heard new amptek is acquiring";
+	if(statusControl_->withinTolerance(1))
 		setAcquiring();
-	}
 	else if(statusControl_->withinTolerance(0)){
-		qDebug() << "Heard new amptek successfully acquired";
 		setAcquisitionSucceeded();
 		if(isConnected())
 			setReadyForAcquisition();
 		else
 			setNotReadyForAcquisition();
 	}
-}
-
-void CLSAmptekSDD123DetectorNew::onIntegrationTimeControlChanged(double value){
-	if(integrationTimeControl_->withinTolerance(2.00))
-		setConnected(false);
-	else
-		setConnected(true);
 }

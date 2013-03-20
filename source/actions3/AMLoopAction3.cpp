@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLoopAction3.h"
 #include "actions3/AMActionLog3.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 
 #include <QStringBuilder>
 
@@ -147,6 +148,11 @@ void AMLoopAction3::internalDoNextAction()
 	else {
 		// done this loop.
 		emit currentIterationChanged(++currentIteration_);
+
+		if(generateScanActionMessages_){
+			AMAgnosticDataAPILoopIncrementMessage loopIncrementedMessage(info()->shortDescription(), currentIteration_);
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(loopIncrementedMessage);
+		}
 
 		// Are we stopping now that we are at the end of this iteration?
 		if (skipAfterCurrentIteration_)

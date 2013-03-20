@@ -89,9 +89,6 @@ protected slots:
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
 
-	// TEMPORARY TO TEST CHANGES TO INTEGRATION TIME
-	void onIntegrationTimeControlChanged(double value);
-
 protected:
 	bool initializeImplementation();
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);

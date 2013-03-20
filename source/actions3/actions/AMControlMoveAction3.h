@@ -113,7 +113,6 @@ protected:
 	AMControl* control_;
 	/// Stores the start position, which we use for calculating progress
 	AMControlInfo startPosition_;
-
 };
 
 #endif // AMCONTROLMOVEACTION3_H

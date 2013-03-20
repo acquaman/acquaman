@@ -2,6 +2,7 @@
 
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 
 AMDetectorAcquisitionAction::AMDetectorAcquisitionAction(AMDetectorAcquisitionActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
@@ -71,6 +72,29 @@ void AMDetectorAcquisitionAction::onAcquisitionStarted(){
 
 void AMDetectorAcquisitionAction::onAcquisitionSucceeded(){
 	disconnect(detector_, 0, this, 0);
+
+	if(generateScanActionMessages_){
+		QList<int> dimensionSizes;
+		QStringList dimensionNames;
+		QStringList dimensionUnits;
+		QList<AMAxisInfo> axes = detector_->axes();
+		for(int x = 0; x < axes.count(); x++){
+			dimensionSizes.append(axes.at(x).size);
+			dimensionNames.append(axes.at(x).name);
+			dimensionUnits.append(axes.at(x).units);
+		}
+
+		QList<double> detectorData;
+		const double *detectorDataPointer = detector_->data();
+		int totalPoints = AMnDIndex(detector_->rank(), AMnDIndex::DoInit, 0).totalPointsTo(detector_->size())-1;
+		for(int x = 0; x < totalPoints; x++)
+			detectorData.append(detectorDataPointer[x]);
+
+
+		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
+		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
+	}
+
 	setSucceeded();
 }
 
