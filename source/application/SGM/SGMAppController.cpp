@@ -162,6 +162,7 @@ bool SGMAppController::startupCreateDatabases(){
 		return false;
 
 	// Create the SGM beamline database
+	qDebug() << "Creating the SGM database at " << SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename();
 	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
 	if(!dbSGM) {
 		AMErrorMon::alert(this, -701, "Error creating the SGM Database. Please report this problem to the Acquaman developers.");
@@ -438,28 +439,30 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 void SGMAppController::onActionSGMSettings(){
 
-	AMScanAxisRegion firstRegion(280, 0.5, 295, 1.0, this);
-	AMScanAxisRegion secondRegion(295, 0.05, 305, 1.0, this);
-	AMScanAxisRegion thirdRegion(305, 0.25, 320, 1.0, this);
+//	AMScanAxisRegion firstRegion(280, 5, 320, 1.0, this);
+	AMScanAxisRegion firstRegion(280, 5, 295, 1.0, this);
+	AMScanAxisRegion secondRegion(295, 1, 300, 1.0, this);
+	AMScanAxisRegion thirdRegion(300, 10, 320, 1.0, this);
 	AMScanAxis *firstAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion, this);
 	firstAxis->appendRegion(secondRegion);
 	firstAxis->appendRegion(thirdRegion);
 
-	AMScanAxisRegion firstRegionSecondAxis(-1.5, 0.25, 1.5);
+	AMScanAxisRegion firstRegionSecondAxis(-1.0, 0.5, 1.0);
 	AMScanAxis *secondAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionSecondAxis, this);
 
-	AMScanAxisRegion firstRegionThirdAxis(0, 1.0, 10.0);
-	AMScanAxis *thirdAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionThirdAxis, this);
+//	AMScanAxisRegion firstRegionThirdAxis(0, 1.0, 10.0);
+//	AMScanAxis *thirdAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionThirdAxis, this);
 
 	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
 	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
-	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
-	//newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
+//	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
 
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());
 
 	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
+	//AMActionRunner3::workflow()->addActionToQueue(SGMBeamline::sgm()->newAmptekSDD1()->createAcquisitionAction());
 
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();

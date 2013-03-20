@@ -1597,6 +1597,7 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
+	addExposedControl(energy_);
 }
 
 void SGMBeamline::setupExposedDetectors(){

@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
+#include <QDebug>
 // This constructor is protected; only access is through AMDatabase::createDatabase().
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
@@ -46,6 +47,9 @@ AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessStr
 	QFileInfo accessInfo(dbAccessString_);
 	if(accessInfo.exists())
 		isReadOnly_ = !accessInfo.isWritable();
+	else
+		isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 

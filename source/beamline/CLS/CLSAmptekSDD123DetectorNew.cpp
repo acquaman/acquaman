@@ -119,6 +119,8 @@ bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode rea
 }
 
 bool CLSAmptekSDD123DetectorNew::initializeImplementation(){
+	setInitializing();
+	setInitialized();
 	return true;
 }
 
@@ -134,6 +136,8 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 }
 
 bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
+	setCleaningUp();
+	setCleanedUp();
 	return true;
 }
 
@@ -168,9 +172,12 @@ void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(double newValue){
 void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
 	Q_UNUSED(value)
 
-	if(statusControl_->withinTolerance(1))
+	if(statusControl_->withinTolerance(1)){
+		qDebug() << "Heard new amptek is acquiring";
 		setAcquiring();
+	}
 	else if(statusControl_->withinTolerance(0)){
+		qDebug() << "Heard new amptek successfully acquired";
 		setAcquisitionSucceeded();
 		if(isConnected())
 			setReadyForAcquisition();
