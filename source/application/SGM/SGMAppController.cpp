@@ -442,7 +442,7 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 void SGMAppController::onActionSGMSettings(){
 
 	/**/
-	SGMXASScanConfiguration *quickConfiguration = new SGMXASScanConfiguration(this);
+	SGMXASScanConfiguration *quickConfiguration = new SGMXASScanConfiguration();
 	quickConfiguration->addRegion(0, 280, 10, 320);
 	quickConfiguration->setRegionTime(0, 1);
 

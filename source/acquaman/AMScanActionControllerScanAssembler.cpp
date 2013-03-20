@@ -302,11 +302,11 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTree(){
 
 	AMListAction3 *castRetValToListAction = qobject_cast<AMListAction3*>(retVal);
 	if(castRetValToListAction){
-		AMListAction3 *castFirstToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(0));
+		AMListAction3 *castFirstToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(1));
 		if(castFirstToListAction)
 			castFirstToListAction->addSubAction(generateActionListForDetectorInitialization());
 
-		AMListAction3 *castLastToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(castRetValToListAction->subActionCount()-1));
+		AMListAction3 *castLastToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(castRetValToListAction->subActionCount()-2));
 		if(castLastToListAction)
 			castLastToListAction->addSubAction(generateActionListForDetectorCleanup());
 	}
@@ -327,6 +327,8 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForAxis(AMCont
 
 #include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMAxisStartedAction.h"
+#include "actions3/actions/AMAxisFinishedAction.h"
 AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AMControl *axisControl, AMScanAxis *stepScanAxis){
 	AMListAction3 *axisActions = new AMListAction3(new AMListActionInfo3(QString("Axis %1").arg(axisControl->name()), QString("Axis %1").arg(axisControl->name())), AMListAction3::Sequential);
 
@@ -345,9 +347,14 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 	// generate axis cleanup list
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()), QString("Cleaning Up Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
 
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("%1 Axis").arg(axisControl->name())));
+	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(axisControl->name())));
+
+	axisActions->addSubAction(axisStartAction);
 	axisActions->addSubAction(initializationActions);
 	axisActions->addSubAction(allRegionsList);
 	axisActions->addSubAction(cleanupActions);
+	axisActions->addSubAction(axisFinishAction);
 	return axisActions;
 }
 
@@ -402,8 +409,12 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForDetectorAcq
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetectorAcquisition(){
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
 
-	for(int x = 0; x < detectors_->count(); x++)
-		retVal->addSubAction(detectors_->at(x)->createAcquisitionAction(AMDetectorDefinitions::SingleRead));
+	AMAction3 *detectorAction;
+	for(int x = 0; x < detectors_->count(); x++){
+		detectorAction = detectors_->at(x)->createAcquisitionAction(AMDetectorDefinitions::SingleRead);
+		detectorAction->setGenerateScanActionMessage(true);
+		retVal->addSubAction(detectorAction);
+	}
 
 	return retVal;
 }
