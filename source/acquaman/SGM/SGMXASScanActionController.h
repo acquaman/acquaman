@@ -3,10 +3,11 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "SGMXASScanController.h"
+#include "dataman/AMUser.h"
 
 #define SGMXASSCANACTIONCONTROLLER_CANT_INTIALIZE 272001
 
-class SGMXASScanActionController : public AMScanActionController, public SGMXASScanController
+class SGMXASScanActionController : public AMScanActionController
 {
 Q_OBJECT
 public:
@@ -14,13 +15,22 @@ public:
 
 	AMAction3* actionsTree();
 
+	void setPointer(QObject *pointer);
+
 protected:
 	virtual bool initializeImplementation();
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
 
+	bool event(QEvent *e);
+
 protected:
 	AMAction3 *actionTree_;
+
+	AMnDIndex insertionIndex_;
+	double currentAxisValue_;
+
+	QObject *pointer_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H

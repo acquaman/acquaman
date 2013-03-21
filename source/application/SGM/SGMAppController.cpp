@@ -443,10 +443,11 @@ void SGMAppController::onActionSGMSettings(){
 
 	/**/
 	SGMXASScanConfiguration *quickConfiguration = new SGMXASScanConfiguration();
-	quickConfiguration->addRegion(0, 280, 10, 320);
+	quickConfiguration->addRegion(0, 280, 1, 285);
 	quickConfiguration->setRegionTime(0, 1);
 
 	SGMXASScanActionController *scanActionController = new SGMXASScanActionController(quickConfiguration, this);
+	scanActionController->setPointer(this);
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
 	scanActionMessager->addReceiver(scanActionController);

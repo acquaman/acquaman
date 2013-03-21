@@ -73,6 +73,7 @@ AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions:
 	jsonData_["message"] = AMAgnosticDataAPIDefinitions::nameFromMessageType(messageType);
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::UniqueID)] = uniqueID;
 
+	messageType_ = messageType;
 	switch(messageType){
 	case AMAgnosticDataAPIDefinitions::InvalidMessage:
 		break;

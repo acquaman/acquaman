@@ -26,12 +26,14 @@ AMDetectorInfo AMDetector::toInfo() const{
 }
 
 AMDetector::operator AMMeasurementInfo() {
+	return AMMeasurementInfo(name(), description(), units(), axes());
 	// This is code included from the previous AMDetector(Info) system. This may be important for the transition. [DKC January 14th, 2013]
-	//return AMMeasurementInfo(name(), description(), units(), axes());
+	/*
 	if(!description().isEmpty())
 		return AMMeasurementInfo(description().remove(" "), description(), units(), axes());
 	else
 		return AMMeasurementInfo(name(), name(), units(), axes());
+	*/
 }
 
 QString AMDetector::acquisitionStateDescription(AMDetector::AcqusitionState state){
