@@ -452,7 +452,6 @@ void SGMAppController::onActionSGMSettings(){
 	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
 	scanActionMessager->addReceiver(scanActionController);
 
-	//AMActionRunner3::workflow()->addActionToQueue(scanActionController->actionsTree());
 	AMActionRunner3::scanActionRunner()->addActionToQueue(scanActionController->actionsTree());
 	/**/
 

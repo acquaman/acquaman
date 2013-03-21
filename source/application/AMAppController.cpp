@@ -55,25 +55,8 @@ AMAppController::AMAppController(QObject *parent)
 
 bool AMAppController::startup(){
 
-	/* Commented out, put it back in to play with the change number action
-	AMNumberChangeActionSupport::appendNumber(12);
-	AMNumberChangeActionSupport::appendNumber(27);
-	AMNumberChangeActionSupport::appendNumber(100);
-	AMNumberChangeActionSupport::appendNumber(1000);
-	AMNumberChangeActionSupport::appendNumber(0);
-	AMNumberChangeActionSupport::appendNumber(15);
-	AMNumberChangeActionSupport::appendNumber(8888);
-	AMNumberChangeActionSupport::appendNumber(42);
-	AMNumberChangeActionSupport::appendNumber(99);
-	AMNumberChangeActionSupport::appendNumber(1);
-	*/
-
 	if(AMDatamanAppControllerForActions3::startup()){
 		bool success = true;
-		/* Commented out, put it back in to play with the change number action
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
-		*/
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 
@@ -124,12 +107,6 @@ bool AMAppController::startupCreateUserInterface() {
 		chooseRunDialog->show();
 		chooseRunDialog->activateWindow();
 		chooseRunDialog->raise();
-
-		/* Commented out, put it back in to play with the change number action
-		QListView *listView = new QListView();
-		listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
-		listView->show();
-		*/
 
 		return true;
 	}

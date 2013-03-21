@@ -49,9 +49,6 @@ AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	addActionButton_ = new QPushButton("Add Action...");
 	hl->addWidget(addActionButton_);
 
-	//currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::workflow());
-	//queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::workflow());
-	//historyView_ = new AMActionHistoryView3(AMActionRunner3::workflow());
 	currentView_ = new AMActionRunnerCurrentView3(actionRunner);
 	queueView_ = new AMActionRunnerQueueView3(actionRunner);
 	historyView_ = new AMActionHistoryView3(actionRunner, actionRunner->loggingDatabase());
