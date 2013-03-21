@@ -104,9 +104,14 @@ bool AMAppController::startupCreateUserInterface() {
 //		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
 
 		// add the workflow control UI
-		workflowView_ = new AMWorkflowView3();
+		//workflowView_ = new AMWorkflowView3();
+		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+
+		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
+		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
+
 		// remove the old one:
 //		mw_->removePane(workflowManagerView_);
 //		workflowManagerView_->hide();

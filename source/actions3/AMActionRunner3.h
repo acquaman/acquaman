@@ -56,7 +56,10 @@ public:
 	/// This is a singleton class. You access the only instance of it using AMActionRunner::workflow().
 	static AMActionRunner3* workflow();
 	/// Release and delete the singleton instance
-	static void releaseActionRunner();
+	static void releaseWorkflow();
+
+	static AMActionRunner3* scanActionRunner();
+	static void releaseScanActionRunner();
 
 	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
@@ -93,6 +96,8 @@ public:
 
 	/// This QAbstractItemModel is a useful model for standard Qt views of the AMActionRunner's queue (like AMActionRunnerQueueView). It simply wraps ourself (AMActionRunner) in the interface required of Qt models.
 	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
+
+	AMDatabase* loggingDatabase() const { return loggingDatabase_; }
 
 
 	// The Current Action that we (might be)/are executing
@@ -188,6 +193,7 @@ protected:
 	QList<AMAction3*> queuedActions_;
 
 	AMActionRunnerQueueModel3* queueModel_;
+	AMDatabase *loggingDatabase_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();
@@ -198,12 +204,15 @@ protected:
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
-	explicit AMActionRunner3(QObject *parent = 0);
+	explicit AMActionRunner3(AMDatabase *loggingDatabase, QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
 	~AMActionRunner3();
 
-	/// The singleton instance
-	static AMActionRunner3* instance_;
+	/// The singleton instance for the workflow
+	static AMActionRunner3 *workflowInstance_;
+
+	/// The singleton instance for the scan action runner
+	static AMActionRunner3 *scanActionRunnerInstance_;
 
 };
 

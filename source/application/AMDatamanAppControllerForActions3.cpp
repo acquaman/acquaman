@@ -61,6 +61,11 @@ bool AMDatamanAppControllerForActions3::startupCreateDatabases()
 	if(!dbActions)
 		return false;
 
+	// Create the ScanActions database
+	AMDatabase *dbScanActions = AMDatabase::createDatabase("scanActions", AMUserSettings::userDataFolder%"/scanActionsData.db" );
+	if(!dbScanActions)
+		return false;
+
 	return true;
 }
 
@@ -74,8 +79,18 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	if(!dbActions)
 		return false;
 
+	// Grab the Scan Action database
+	AMDatabase *dbScanActions = AMDatabase::database("scanActions");
+	if(!dbScanActions)
+		return false;
+
 	// Register the Actions database
 	if(!AMDbObjectSupport::s()->registerDatabase(dbActions)) {
+		return false;
+	}
+
+	// Register the Scan Actions database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbScanActions)) {
 		return false;
 	}
 

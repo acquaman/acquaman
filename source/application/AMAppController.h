@@ -81,8 +81,9 @@ protected:
 	virtual void addBottomPanel();
 
 	/// Top-level panes in the main window
-	AMWorkflowManagerView* workflowManagerView_;
-	AMWorkflowView3* workflowView_;
+	AMWorkflowManagerView *workflowManagerView_;
+	AMWorkflowView3 *workflowView_;
+	AMWorkflowView3 *scanActionRunnerView_;
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);

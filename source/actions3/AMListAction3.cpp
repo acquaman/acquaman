@@ -33,6 +33,7 @@ AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMod
 	logSubActionsSeparately_ = true;
 	logActionId_ = -1;
 	skipAfterCurrentAction_ = false;
+	loggingDatabase_ = 0; //NULL
 
 	if (subActionMode_ == Sequential)
 		skipOptions_.append("After current action");
@@ -47,6 +48,7 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
 	logActionId_ = other.logActionId();
 	skipAfterCurrentAction_ = false;
+	loggingDatabase_ = other.loggingDatabase();
 
 	if (subActionMode_ == Sequential)
 		skipOptions_.append("After current action");
@@ -135,8 +137,16 @@ AMAction3 * AMListAction3::takeSubActionAt(int index)
 	return action;
 }
 
+AMDatabase* AMListAction3::loggingDatabase() const{
+	return loggingDatabase_;
+}
+
 void AMListAction3::setLogActionId(int logActionId){
 	logActionId_ = logActionId;
+}
+
+void AMListAction3::setLoggingDatabase(AMDatabase *loggingDatabase){
+	loggingDatabase_ = loggingDatabase;
 }
 
 bool AMListAction3::deleteSubAction(int index)
@@ -299,7 +309,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
 			int parentLogId = logActionId();
-			if(!AMActionLog3::logUncompletedAction(listAction, parentLogId)) {
+			if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 				//NEM April 5th, 2012
 			}
 		}
@@ -308,14 +318,14 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
-			if(!AMActionLog3::updateCompletedAction(listAction)) {
+			if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
 				//NEM April 5th, 2012
 			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction)){
 				int parentLogId = logActionId();
-				AMActionLog3::logCompletedAction(generalAction, parentLogId);
+				AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
 			}
 		}
 	}
@@ -602,6 +612,7 @@ void AMListAction3::internalConnectAction(AMAction3 *action)
 
 	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
 	if (listAction){
+		listAction->setLoggingDatabase(loggingDatabase_);
 
 		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
 		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
