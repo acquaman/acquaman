@@ -68,6 +68,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
 #include <dataman/info/AMOldDetectorInfoSet.h>
+#include <dataman/info/AMDetectorInfoSet.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
@@ -491,10 +492,12 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
 	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
@@ -786,7 +789,9 @@ void AMDatamanAppController::onAddButtonClicked() {
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
+	/*
 	bottomBar_->updateScanProgress(elapsed, total);
+	*/
 }
 
 #include "dataman/AMScanEditorModelItem.h"
