@@ -62,3 +62,19 @@ bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){
 	return false;
 }
 
+AMDetectorGroup* AMBeamline::exposedDetectorGroupByName(const QString &name) const{
+	for(int x = 0; x < exposedDetectorGroups_.count(); x++)
+		if(exposedDetectorGroups_.at(x)->name() == name)
+			return exposedDetectorGroups_.at(x);
+
+	return 0; //NULL
+}
+
+bool AMBeamline::addExposedDetectorGroup(AMDetectorGroup *detectorGroup){
+	for(int x = 0; x < exposedDetectorGroups_.count(); x++)
+		if(exposedDetectorGroups_.at(x)->name() == detectorGroup->name())
+			return false;
+
+	exposedDetectorGroups_.append(detectorGroup);
+	return true;
+}

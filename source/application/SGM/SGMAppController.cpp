@@ -27,10 +27,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
+
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
+#include "ui/SGM/SGMXASScanConfiguration2013View.h"
+#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/SGM/SGMXASScanActionController.h"
+#include "acquaman/SGM/SGMXASScanConfiguration2013.h"
+#include "acquaman/AMAgnosticDataAPI.h"
+
 #include "ui/SGM/SGMSidebar.h"
 #include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
@@ -266,7 +273,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
+	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_ && !xasScanConfiguration2013View_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
@@ -280,6 +287,32 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 		connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+
+		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
+		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
+		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
+		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
+		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
+
+		xasDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
+		QStringList preferentialOrdering;
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		xasDetectorSelector_->setDefaultsSelected();
+
+		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
+		connect(xasScanConfiguration2013View_, SIGNAL(scanControllerCreated(AMScanController*)), this, SLOT(onScanControllerCreated(AMScanController*)));
+		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
+		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
 
 		newDetectorsSelectorView_ = new AMDetectorSelectorView(newDetectorsSelector_);
 		mw_->addPane(newDetectorsSelectorView_, "Beamline Control", "SGM New Detectors", ":/system-software-update.png", true);
@@ -332,6 +365,20 @@ void SGMAppController::onSGMBeamlineConnected(){
 				SGMBeamline::sgm()->exitSlitTracking()->move(1);
 			}
 		}
+	}
+}
+
+void SGMAppController::onScanControllerCreated(AMScanController *scanController){
+	qDebug() << "AppController heard that the scanController was created";
+
+	SGMXASScanActionController *scanActionController = qobject_cast<SGMXASScanActionController*>(scanController);
+	if(scanActionController){
+		scanActionController->setPointer(this);
+		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
+		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+		scanActionMessager->addReceiver(scanActionController);
+
+		AMActionRunner3::scanActionRunner()->addActionToQueue(scanActionController->actionsTree());
 	}
 }
 
@@ -436,10 +483,6 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
-#include "acquaman/AMScanActionControllerScanAssembler.h"
-#include "acquaman/SGM/SGMXASScanActionController.h"
-#include "acquaman/SGM/SGMXASScanConfiguration2013.h"
-#include "acquaman/AMAgnosticDataAPI.h"
 void SGMAppController::onActionSGMSettings(){
 
 	/**/
@@ -1229,14 +1272,15 @@ bool SGMAppController::setupSGMViews(){
 	newDetectorsSelectorView_ = 0;
 	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
 	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 	QStringList preferentialOrdering;
 	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
 	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
 	preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+	preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
 	preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
 	newDetectorsSelector_->setPreferentialOrdering(preferentialOrdering);
 
@@ -1250,6 +1294,10 @@ bool SGMAppController::setupSGMViews(){
 	fastScanConfigurationView_ = 0; //NULL
 	fastScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(fastScanConfigurationHolder3_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
+
+	xasScanConfiguration2013View_ = 0; //NULL
+	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
+	mw_->addPane(xasScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));

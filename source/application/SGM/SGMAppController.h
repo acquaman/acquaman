@@ -32,6 +32,8 @@ class AMDetectorGeneralDetailedView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
+class SGMXASScanConfiguration2013View;
+class AMScanController;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
@@ -81,6 +83,8 @@ protected slots:
 
 	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
+	void onScanControllerCreated(AMScanController *scanController);
+
 	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);
 	/// When the SGM's synchronized dwell time app connects the view is created and added as a pane to the main window
@@ -156,10 +160,13 @@ protected:
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
+	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	AMDetectorSelector *xasDetectorSelector_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	/// View holder for Fast scans
 	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *xasScanConfiguration2013Holder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls

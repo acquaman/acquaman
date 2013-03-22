@@ -134,6 +134,7 @@ public:
 	AMDetector* newI0Detector() const { return newI0Detector_;}
 	AMDetector* newPDDetector() const { return newPDDetector_;}
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
+	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -398,6 +399,7 @@ protected:
 	CLSBasicScalerChannelDetector *newI0Detector_;
 	CLSBasicScalerChannelDetector *newPDDetector_;
 	AMDetectorGroup *newDetectorSet_;
+	AMDetectorGroup *XASDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
 	AMOldDetectorSet *criticalDetectorsSet_;

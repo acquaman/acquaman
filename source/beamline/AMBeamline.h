@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 #include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMDetectorSet.h"
+#include "beamline/AMDetectorGroup.h"
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -101,6 +102,11 @@ public:
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
 
+	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }
+	AMDetectorGroup* exposedDetectorGroupByName(const QString &name) const;
+
+	bool addExposedDetectorGroup(AMDetectorGroup *detectorGroup);
+
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return 0; }
 
@@ -119,6 +125,8 @@ protected:
 
 	/// A detector set that contains all of the publicly (throughout the program) available detectors for a beamline. This is primarily used for settings up scans.
 	AMDetectorSet *exposedDetectors_;
+
+	QList<AMDetectorGroup*> exposedDetectorGroups_;
 };
 
 #endif /*BEAMLINE_H_*/

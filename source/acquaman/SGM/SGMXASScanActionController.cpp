@@ -29,9 +29,15 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), energyAxis);
 
-	for(int x = 0; x < cfg->detectorConfigurations().count(); x++)
+	for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
 		qDebug() << "This configuration has a detector named " << cfg->detectorConfigurations().at(x).name();
 
+		newScanAssembler->addDetector(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x)));
+		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+	}
+
+	/*
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());
 
@@ -39,6 +45,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
 	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newAmptekSDD2()))))
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+	*/
 
 	actionTree_ = newScanAssembler->generateActionTree();
 }

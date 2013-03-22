@@ -14,7 +14,7 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 
-	detectorConfigurations_ = AMBeamline::bl()->exposedDetectors()->toInfoSet();
+	//detectorConfigurations_ = AMBeamline::bl()->exposedDetectors()->toInfoSet();
 }
 
 SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original) :

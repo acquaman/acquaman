@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QStringList>
 
+#include "dataman/info/AMDetectorInfoSet.h"
+
 class AMDetectorGroup;
 class AMDetector;
 
@@ -19,6 +21,7 @@ public:
 	bool detectorIsSelectedByName(const QString &name) const;
 	/// Convenience version of above
 	bool detectorIsSelected(AMDetector *detector) const;
+	AMDetectorInfoSet selectedDetectorInfos() const;
 
 	/// Returns whether or not a detector is set to default by checking against the name
 	bool detectorIsDefaultByName(const QString &name) const;
@@ -39,6 +42,7 @@ public slots:
 	void setDetectorSelectedByName(const QString &name, bool isSelected);
 	/// Convenience version of above
 	void setDetectorSelected(AMDetector *detector, bool isSelected);
+	void setDefaultsSelected();
 
 	/// Sets the detector as default (or not default) by passing the detector name
 	void setDetectorDefaultByName(const QString &name, bool isDefault);

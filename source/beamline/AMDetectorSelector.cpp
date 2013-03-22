@@ -43,6 +43,17 @@ bool AMDetectorSelector::detectorIsSelected(AMDetector *detector) const{
 	return detectorIsSelectedByName(detector->name());
 }
 
+AMDetectorInfoSet AMDetectorSelector::selectedDetectorInfos() const{
+	AMDetectorInfoSet retVal;
+	QMap<QString, bool>::const_iterator i = selectedDetectors_.constBegin();
+	while (i != selectedDetectors_.constEnd()) {
+		if(i.value())
+			retVal.addDetectorInfo(detectorGroup_->detectorByName(i.key())->toInfo());
+		++i;
+	}
+	return retVal;
+}
+
 bool AMDetectorSelector::detectorIsDefaultByName(const QString &name) const{
 	if(!detectorGroup_ || !defaultDetectors_.contains(name))
 		return false;
@@ -86,6 +97,18 @@ void AMDetectorSelector::setDetectorSelected(AMDetector *detector, bool isSelect
 	if(selectedDetectors_.value(detector->name()) != isSelected){
 		selectedDetectors_[detector->name()] = isSelected;
 		emit selectedChanged(detector);
+	}
+}
+
+void AMDetectorSelector::setDefaultsSelected(){
+	if(!detectorGroup_)
+		return;
+
+	QMap<QString, bool>::const_iterator i = defaultDetectors_.constBegin();
+	while (i != defaultDetectors_.constEnd()) {
+		if(i.value())
+			setDetectorSelectedByName(i.key(), true);
+		++i;
 	}
 }
 

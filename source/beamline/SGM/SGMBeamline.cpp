@@ -664,6 +664,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
 	newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
+
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
 	newDetectorSet_->addDetector(newAmptekSDD2_);
@@ -671,6 +672,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newDetectorSet_->addDetector(newTFYDetector_);
 	newDetectorSet_->addDetector(newI0Detector_);
 	newDetectorSet_->addDetector(newPDDetector_);
+
+	XASDetectorGroup_ = new AMDetectorGroup("XAS Detectors", this);
+	XASDetectorGroup_->addDetector(newAmptekSDD1_);
+	XASDetectorGroup_->addDetector(newAmptekSDD2_);
+	XASDetectorGroup_->addDetector(newTEYDetector_);
+	XASDetectorGroup_->addDetector(newTFYDetector_);
+	XASDetectorGroup_->addDetector(newI0Detector_);
+	XASDetectorGroup_->addDetector(newPDDetector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -1534,6 +1543,12 @@ void SGMBeamline::setupExposedControls(){
 void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD1_);
 	addExposedDetector(newAmptekSDD2_);
+	addExposedDetector(newTEYDetector_);
+	addExposedDetector(newI0Detector_);
+	addExposedDetector(newTFYDetector_);
+	addExposedDetector(newPDDetector_);
+
+	addExposedDetectorGroup(XASDetectorGroup_);
 }
 
 SGMBeamline* SGMBeamline::sgm() {
