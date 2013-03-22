@@ -35,7 +35,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	setParametersFromPreset(0);
 
-	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
+	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 

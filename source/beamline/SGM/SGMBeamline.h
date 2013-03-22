@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
-#include "beamline/SGM/SGMBeamlineInfo.h"
+#include "dataman/SGM/SGMBeamlineInfo.h"
 
 #include "beamline/AMOldDetector.h"
 #include "beamline/AMSingleControlDetector.h"
@@ -65,47 +65,7 @@ class SGMBeamline : public AMBeamline
 	Q_OBJECT
 
 public:
-	enum sgmGrating{
-		lowGrating = 0,
-		mediumGrating = 1,
-		highGrating = 2
-	};
-	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
-	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
-	SGMEnergyParameters* energyParametersForGrating(SGMBeamline::sgmGrating grating) const;
-	SGMBeamline::sgmGrating currentGrating() const;
-
-	enum sgmHarmonic{
-		firstHarmonic = 0,
-		thirdHarmonic = 1
-	};
-	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
-	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
-
-	enum sgmDetectorSignalSource{
-		sourcePicoammeters = 0,
-		sourceScaler = 1
-	};
-	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
-
-	enum sgmEndstation{
-		scienta = 0,
-		ssa = 1
-	};
-	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
-
-	enum sgmMirrorStripe{
-		carbonStripe = 0,
-		siliconStripe = 1
-	};
-	QString sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const;
-
-	enum sgmTransferType{
-		loadlockOut = 1,
-		loadlockIn,
-		ChamberOut,
-		ChamberIn
-	};
+	SGMBeamlineInfo::sgmGrating currentGrating() const;
 
 	static SGMBeamline* sgm();		// singleton-class accessor
 
@@ -251,7 +211,7 @@ public:
 	AMBeamlineListAction* createGoToTransferPositionActions();
 	AMBeamlineListAction* createGoToMeasurementPositionActions();
 
-	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
+	AMBeamlineListAction* createTransferActions(SGMBeamlineInfo::sgmTransferType transferType);
 	AMBeamlineListAction* createTransferLoadLockOutActions();
 	AMBeamlineListAction* createTransferLoadLockInActions();
 	AMBeamlineListAction* createTransferChamberOutActions();
@@ -276,14 +236,14 @@ public:
 
 	bool isVisibleLightOn() const;
 
-	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
-	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
+	bool energyValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double energy);
+	bool energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy);
 
-	QList< QPair<sgmGrating, sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
-	QPair<double, double> energyRangeForGratingHarmonic(sgmGrating grating, sgmHarmonic harmonic);
+	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
+	QPair<double, double> energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic);
 
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
 
 	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
 	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
@@ -296,8 +256,8 @@ public slots:
 
 	void closeVacuum();
 
-	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
-	void setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe);
+	void setCurrentEndstation(SGMBeamlineInfo::sgmEndstation endstation);
+	void setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirrorStripe);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -312,8 +272,8 @@ signals:
 
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void currentEndstationChanged(SGMBeamline::sgmEndstation);
-	void currentMirrorStripeChanged(SGMBeamline::sgmMirrorStripe);
+	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
+	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
 	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);

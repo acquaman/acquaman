@@ -104,11 +104,11 @@ public slots:
 	/// Sets the exit slit gap value for this configuration
 	bool setExitSlitGap(double exitSlitGap);
 	/// Sets the grating value for this configuration (as the SGMBeamline enum)
-	bool setGrating(SGMBeamline::sgmGrating grating);
+	bool setGrating(SGMBeamlineInfo::sgmGrating grating);
 	/// Sets the grating value for this configuration (as an int)
 	bool setGrating(int grating);
 	/// Sets the harmonvic value for this configuration (as the SGMBeamline enum)
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	bool setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic);
 	/// Sets the harmonvic value for this configuration (as an int)
 	bool setHarmonic(int harmonic);
 

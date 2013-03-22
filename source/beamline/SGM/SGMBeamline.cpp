@@ -409,7 +409,8 @@ void SGMBeamline::usingSGMBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
-	infoObject_ = new SGMBeamlineInfo(this);
+	//infoObject_ = new SGMBeamlineInfo(this);
+	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
 	beamlineIsInitialized_ = false;
 	usingSGMBeamline();
@@ -775,79 +776,8 @@ bool SGMBeamline::isReady() const{
 	return false;
 }
 
-QString SGMBeamline::sgmGratingName(SGMBeamline::sgmGrating grating) const {
-	if(grating == SGMBeamline::lowGrating)
-		return "lowGrating";
-	else if(grating == SGMBeamline::mediumGrating)
-		return "mediumGrating";
-	else if(grating == SGMBeamline::highGrating)
-		return "highGrating";
-	else
-		return "ERROR";
-}
-
-QString SGMBeamline::sgmGratingDescription(SGMBeamline::sgmGrating grating) const{
-	if(grating == SGMBeamline::lowGrating)
-		return "Low Energy";
-	else if(grating == SGMBeamline::mediumGrating)
-		return "Medium Energy";
-	else if(grating == SGMBeamline::highGrating)
-		return "High Energy";
-	else
-		return "ERROR";
-}
-
-SGMEnergyParameters* SGMBeamline::energyParametersForGrating(SGMBeamline::sgmGrating grating) const{
-	return infoObject_->standardEnergyParametersByName(sgmGratingName(grating));
-}
-
-SGMBeamline::sgmGrating SGMBeamline::currentGrating() const{
-	return (SGMBeamline::sgmGrating)grating()->value();
-}
-
-QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
-	if(harmonic == SGMBeamline::firstHarmonic)
-		return "firstHarmonic";
-	else if(harmonic == SGMBeamline::thirdHarmonic)
-		return "thirdHarmonic";
-	else
-		return "ERROR";
-}
-
-QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const{
-	if(harmonic == SGMBeamline::firstHarmonic)
-		return "First";
-	else if(harmonic == SGMBeamline::thirdHarmonic)
-		return "Third";
-	else
-		return "ERROR";
-}
-
-QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const{
-	if(dss == SGMBeamline::sourcePicoammeters)
-		return "Picoammeters";
-	else if(dss == SGMBeamline::sourceScaler)
-		return "Scaler";
-	else
-		return "ERROR";
-}
-
-QString SGMBeamline::sgmEndstationName(SGMBeamline::sgmEndstation endstation) const{
-	if(endstation == SGMBeamline::scienta)
-		return "Scienta";
-	else if(endstation == SGMBeamline::ssa)
-		return "SSA";
-	else
-		return "ERROR";
-}
-
-QString SGMBeamline::sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const{
-	if(mirrorStripe == SGMBeamline::carbonStripe)
-		return "Carbon Stripe";
-	else if(mirrorStripe == SGMBeamline::siliconStripe)
-		return "Silicon Stripe";
-	else
-		return "ERROR";
+SGMBeamlineInfo::sgmGrating SGMBeamline::currentGrating() const{
+	return (SGMBeamlineInfo::sgmGrating)grating()->value();
 }
 
 QStringList SGMBeamline::unconnectedCriticals() const{
@@ -871,11 +801,11 @@ QString SGMBeamline::beamlineWarnings(){
 
 QString SGMBeamline::currentEndstation() const{
 	if(activeEndstation_->value() == 0)
-		return sgmEndstationName(SGMBeamline::scienta);
+		return infoObject_->sgmEndstationName(SGMBeamlineInfo::scienta);
 	else if(activeEndstation_->value() == 1)
-		return sgmEndstationName(SGMBeamline::ssa);
+		return infoObject_->sgmEndstationName(SGMBeamlineInfo::ssa);
 	else
-		return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
+		return infoObject_->sgmEndstationName((SGMBeamlineInfo::sgmEndstation)272727);
 }
 
 bool SGMBeamline::isSDD1Enabled() const{
@@ -1020,15 +950,15 @@ AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
 	return gotoMeasurementPositionAction;
 }
 
-AMBeamlineListAction* SGMBeamline::createTransferActions(SGMBeamline::sgmTransferType transferType){
+AMBeamlineListAction* SGMBeamline::createTransferActions(SGMBeamlineInfo::sgmTransferType transferType){
 	switch(transferType){
-	case SGMBeamline::loadlockOut :
+	case SGMBeamlineInfo::loadlockOut :
 		return createTransferLoadLockOutActions();
-	case SGMBeamline::loadlockIn :
+	case SGMBeamlineInfo::loadlockIn :
 		return createTransferLoadLockInActions();
-	case SGMBeamline::ChamberOut :
+	case SGMBeamlineInfo::ChamberOut :
 		return createTransferChamberOutActions();
-	case SGMBeamline::ChamberIn :
+	case SGMBeamlineInfo::ChamberIn :
 		return createTransferChamberInActions();
 	default:
 		return 0; //NULL
@@ -1270,59 +1200,59 @@ bool SGMBeamline::isVisibleLightOn() const{
 	return false;
 }
 
-bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){
-	if( (grating == 0) && (harmonic == SGMBeamline::firstHarmonic) && (energy > 240) && (energy < 750) )
+bool SGMBeamline::energyValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double energy){
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 240) && (energy < 750) )
 		return true;
-	else if( (grating == 1) && (harmonic == SGMBeamline::firstHarmonic) && (energy > 440) && (energy < 1200) )
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 440) && (energy < 1200) )
 		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamline::firstHarmonic) && (energy > 800) && (energy < 1150) )
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 800) && (energy < 1150) )
 		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamline::thirdHarmonic) && (energy > 1050) && (energy < 2000) )
-		return true;
-	else
-		return false;
-}
-
-bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy){
-	if( (grating == 0) && (harmonic == SGMBeamline::firstHarmonic) && (minEnergy > 240) && (maxEnergy > 240) && (minEnergy < 750) && (maxEnergy < 750) )
-		return true;
-	else if( (grating == 1) && (harmonic == SGMBeamline::firstHarmonic) && (minEnergy > 440) && (maxEnergy > 440) && (minEnergy < 1200) && (maxEnergy < 1200) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamline::firstHarmonic) && (minEnergy > 800) && (maxEnergy > 800) && (minEnergy < 1150) && (maxEnergy < 1150) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamline::thirdHarmonic) && (minEnergy > 1050) && (maxEnergy > 1050) && (minEnergy < 2000) && (maxEnergy < 2000) )
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (energy > 1050) && (energy < 2000) )
 		return true;
 	else
 		return false;
 }
 
-QList< QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> > SGMBeamline::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
-	QList< QPair<sgmGrating, sgmHarmonic> > rVal;
+bool SGMBeamline::energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy){
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 240) && (maxEnergy > 240) && (minEnergy < 750) && (maxEnergy < 750) )
+		return true;
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 440) && (maxEnergy > 440) && (minEnergy < 1200) && (maxEnergy < 1200) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 800) && (maxEnergy > 800) && (minEnergy < 1150) && (maxEnergy < 1150) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (minEnergy > 1050) && (maxEnergy > 1050) && (minEnergy < 2000) && (maxEnergy < 2000) )
+		return true;
+	else
+		return false;
+}
+
+QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > SGMBeamline::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
+	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > rVal;
 	if( (maxEnergy > 240) && (maxEnergy < 750) && (minEnergy > 240) && (minEnergy < 750) )
-		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)0, SGMBeamline::firstHarmonic ));
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)0, SGMBeamlineInfo::firstHarmonic ));
 	if((maxEnergy > 440) && (maxEnergy < 1200) && (minEnergy > 440) && (minEnergy < 1200) )
-		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)1, SGMBeamline::firstHarmonic ));
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)1, SGMBeamlineInfo::firstHarmonic ));
 	if( (maxEnergy > 800) && (maxEnergy < 1100) && (minEnergy > 800) && (minEnergy < 1100) )
-		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, SGMBeamline::firstHarmonic ));
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::firstHarmonic ));
 	if( (maxEnergy > 1100) && (maxEnergy < 2000) && (minEnergy > 1100) && (minEnergy < 2000) )
-		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, SGMBeamline::thirdHarmonic ));
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::thirdHarmonic ));
 	return rVal;
 }
 
-QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sgmGrating grating, SGMBeamline::sgmHarmonic harmonic){
+QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic){
 	QPair<double, double> rVal;
-	if( (grating == 0) && (harmonic == SGMBeamline::firstHarmonic) )
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
 		rVal = QPair<double, double>(240, 750);
-	else if( (grating == 1) && (harmonic == SGMBeamline::firstHarmonic) )
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
 		rVal = QPair<double, double>(440, 1200);
-	else if( (grating == 2) && (harmonic == SGMBeamline::firstHarmonic) )
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
 		rVal = QPair<double, double>(800, 1100);
-	else if( (grating == 2) && (harmonic == SGMBeamline::thirdHarmonic) )
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) )
 		rVal = QPair<double, double>(1100, 2000);
 	return rVal;
 }
 
-QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestFlux(double minEnergy, double maxEnergy) const{
+QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamline::forBestFlux(double minEnergy, double maxEnergy) const{
 	bool straddlesTransition = false;
 	double testEnergy = 0;
 	QList<double> transitionPoints;
@@ -1341,14 +1271,14 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestFlu
 		testEnergy = minEnergy;
 
 	if(testEnergy < 625)
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::lowGrating, SGMBeamline::firstHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
 	else if(testEnergy < 1200)
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::mediumGrating, SGMBeamline::firstHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
 	else
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
 }
 
-QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestResolution(double minEnergy, double maxEnergy) const{
+QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamline::forBestResolution(double minEnergy, double maxEnergy) const{
 	bool straddlesTransition = false;
 	double testEnergy = 0;
 	QList<double> transitionPoints;
@@ -1367,13 +1297,13 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestRes
 		testEnergy = minEnergy;
 
 	if(testEnergy < 400)
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::lowGrating, SGMBeamline::firstHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
 	else if(testEnergy < 800)
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::mediumGrating, SGMBeamline::firstHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
 	else if(testEnergy < 1100)
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::firstHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::firstHarmonic);
 	else
-		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
 }
 
 QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set){
@@ -1413,18 +1343,18 @@ void SGMBeamline::closeVacuum(){
 		ea2CloseVacuum_->move(1);
 }
 
-void SGMBeamline::setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
-	if(endstation == SGMBeamline::scienta)
+void SGMBeamline::setCurrentEndstation(SGMBeamlineInfo::sgmEndstation endstation){
+	if(endstation == SGMBeamlineInfo::scienta)
 		activeEndstation_->move(0);
-	else if(endstation == SGMBeamline::ssa)
+	else if(endstation == SGMBeamlineInfo::ssa)
 		activeEndstation_->move(1);
 	return;
 }
 
-void SGMBeamline::setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe){
-	if(mirrorStripe == SGMBeamline::carbonStripe)
+void SGMBeamline::setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirrorStripe){
+	if(mirrorStripe == SGMBeamlineInfo::carbonStripe)
 		mirrorStripeSelectCarbon_->move(1);
-	else if(mirrorStripe == SGMBeamline::siliconStripe)
+	else if(mirrorStripe == SGMBeamlineInfo::siliconStripe)
 		mirrorStripeSelectSilicon_->move(1);
 	return;
 }
@@ -1513,11 +1443,11 @@ void SGMBeamline::onEnergyValueChanged(){
 }
 
 void SGMBeamline::onActiveEndstationChanged(double value){
-	emit currentEndstationChanged((SGMBeamline::sgmEndstation)value);
+	emit currentEndstationChanged((SGMBeamlineInfo::sgmEndstation)value);
 }
 
 void SGMBeamline::onMirrorStripeChanged(double value){
-	emit currentMirrorStripeChanged((SGMBeamline::sgmMirrorStripe)value);
+	emit currentMirrorStripeChanged((SGMBeamlineInfo::sgmMirrorStripe)value);
 }
 
 void SGMBeamline::recomputeWarnings(){
@@ -1598,6 +1528,7 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(energy_);
+	addExposedControl(masterDwell_);
 }
 
 void SGMBeamline::setupExposedDetectors(){

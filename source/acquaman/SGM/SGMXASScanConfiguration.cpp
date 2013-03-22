@@ -157,7 +157,7 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
 			harmonic = fluxResolutionGroup_.at(x).value();
 	}
-	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
+	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic)));
 }
 
 QString SGMXASScanConfiguration::dbLoadWarnings() const{
@@ -186,8 +186,8 @@ bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 
 bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionList){
 	double oldExitSlit = exitSlitGap_;
-	SGMBeamline::sgmGrating oldGrating = grating_;
-	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
+	SGMBeamlineInfo::sgmGrating oldGrating = grating_;
+	SGMBeamlineInfo::sgmHarmonic oldHarmonic = harmonic_;
 
 	bool rVal = SGMScanConfiguration::setFluxResolutionGroup(fluxResolutionList);
 	if(rVal){
@@ -252,8 +252,8 @@ bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	return rVal;
 }
 
-bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
-	SGMBeamline::sgmGrating oldGrating = grating_;
+bool SGMXASScanConfiguration::setGrating(SGMBeamlineInfo::sgmGrating grating) {
+	SGMBeamlineInfo::sgmGrating oldGrating = grating_;
 	bool rVal = SGMScanConfiguration::setGrating(grating);
 	if(rVal && oldGrating != grating_){
 		emit gratingChanged(grating);
@@ -265,11 +265,11 @@ bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
 }
 
 bool SGMXASScanConfiguration::setGrating(int grating) {
-	return setGrating( (SGMBeamline::sgmGrating)grating );
+	return setGrating( (SGMBeamlineInfo::sgmGrating)grating );
 }
 
-bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
-	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
+bool SGMXASScanConfiguration::setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic) {
+	SGMBeamlineInfo::sgmHarmonic oldHarmonic = harmonic_;
 	bool rVal = SGMScanConfiguration::setHarmonic(harmonic);
 	if(rVal && oldHarmonic != harmonic_){
 		emit harmonicChanged(harmonic);
@@ -281,7 +281,7 @@ bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
 }
 
 bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
-	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
+	return setHarmonic( (SGMBeamlineInfo::sgmHarmonic)harmonic );
 }
 
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMOldDetectorInfoSet &xasDetectorsCfg){

@@ -209,7 +209,7 @@ void SGMFluxResolutionPickerView::onRegionsChanged(){
 	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
 		minEnergy_ = regions_->start(0);
 		maxEnergy_ = regions_->end(regions_->count()-1);
-		if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamline::sgmGrating)gratingCE_->setpoint(), (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
+		if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamlineInfo::sgmGrating)gratingCE_->setpoint(), (SGMBeamlineInfo::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
 			warningsLabel_->setText("Grating and/or harmonic are \ninvalid for current energy range");
 		else
 			warningsLabel_->setText("");
@@ -217,7 +217,7 @@ void SGMFluxResolutionPickerView::onRegionsChanged(){
 }
 
 void SGMFluxResolutionPickerView::onSetpointsChanged(){
-	if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamline::sgmGrating)gratingCE_->setpoint(), (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
+	if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamlineInfo::sgmGrating)gratingCE_->setpoint(), (SGMBeamlineInfo::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
 		warningsLabel_->setText("Grating and/or harmonic are \ninvalid for current energy range");
 	else
 		warningsLabel_->setText("");
@@ -234,7 +234,7 @@ void SGMFluxResolutionPickerView::onSetpointsChanged(){
 }
 
 void SGMFluxResolutionPickerView::onBestFluxButtonClicked(){
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> bestFlux = SGMBeamline::sgm()->forBestFlux(minEnergy_, maxEnergy_);
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> bestFlux = SGMBeamline::sgm()->forBestFlux(minEnergy_, maxEnergy_);
 	if( SGMBeamline::sgm()->energyRangeValidForSettings(bestFlux.first, bestFlux.second, minEnergy_, maxEnergy_)){
 		exitSlitGapCE_->setSetpoint(150);
 		gratingCE_->setSetpoint(bestFlux.first);
@@ -243,7 +243,7 @@ void SGMFluxResolutionPickerView::onBestFluxButtonClicked(){
 }
 
 void SGMFluxResolutionPickerView::onBestResolutionButtonClicked(){
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> bestResolution = SGMBeamline::sgm()->forBestResolution(minEnergy_, maxEnergy_);
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> bestResolution = SGMBeamline::sgm()->forBestResolution(minEnergy_, maxEnergy_);
 	if( SGMBeamline::sgm()->energyRangeValidForSettings(bestResolution.first, bestResolution.second, minEnergy_, maxEnergy_)){
 		exitSlitGapCE_->setSetpoint(10);
 		gratingCE_->setSetpoint(bestResolution.first);

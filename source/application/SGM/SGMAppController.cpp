@@ -438,11 +438,12 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 #include "acquaman/SGM/SGMXASScanActionController.h"
+#include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 void SGMAppController::onActionSGMSettings(){
 
 	/**/
-	SGMXASScanConfiguration *quickConfiguration = new SGMXASScanConfiguration();
+	SGMXASScanConfiguration2013 *quickConfiguration = new SGMXASScanConfiguration2013();
 	quickConfiguration->addRegion(0, 280, 1, 285);
 	quickConfiguration->setRegionTime(0, 1);
 

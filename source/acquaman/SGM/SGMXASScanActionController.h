@@ -2,8 +2,9 @@
 #define SGMXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMScanActionController.h"
-#include "SGMXASScanController.h"
+#include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 #include "dataman/AMUser.h"
+#include "actions3/AMAction3.h"
 
 #define SGMXASSCANACTIONCONTROLLER_CANT_INTIALIZE 272001
 
@@ -11,7 +12,7 @@ class SGMXASScanActionController : public AMScanActionController
 {
 Q_OBJECT
 public:
-	SGMXASScanActionController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
+	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
 
 	AMAction3* actionsTree();
 

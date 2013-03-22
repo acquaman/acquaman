@@ -33,8 +33,8 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 	double _maximum = 0;
 	double _minimum = 1;
 	double _slit = stateParameters.at(0).toDouble();
-	SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
-	SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
+	SGMBeamlineInfo::sgmGrating _grating = (SGMBeamlineInfo::sgmGrating)stateParameters.at(1).toInt();
+	SGMBeamlineInfo::sgmHarmonic _harmonic = (SGMBeamlineInfo::sgmHarmonic)stateParameters.at(2).toInt();
 	if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
 	{
 	}
@@ -157,8 +157,8 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	double _slit = stateParameters.at(0).toDouble();
 	double _y1, _y2, _y3, _x1, _x2, _x3;
 	double _maxRes = 0;
-	SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
-	SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
+	SGMBeamlineInfo::sgmGrating _grating = (SGMBeamlineInfo::sgmGrating)stateParameters.at(1).toInt();
+	SGMBeamlineInfo::sgmHarmonic _harmonic = (SGMBeamlineInfo::sgmHarmonic)stateParameters.at(2).toInt();
 	if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
 	{
 	}

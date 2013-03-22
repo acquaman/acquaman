@@ -1,9 +1,11 @@
 #include "SGMXASScanActionController.h"
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "dataman/AMXASScan.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include <QDebug>
 
-SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration *cfg, QObject *parent) :
+SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
 {
 	scan_ = new AMXASScan();
@@ -26,6 +28,9 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration *
 	}
 
 	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), energyAxis);
+
+	for(int x = 0; x < cfg->detectorConfigurations().count(); x++)
+		qDebug() << "This configuration has a detector named " << cfg->detectorConfigurations().at(x).name();
 
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
 	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());

@@ -36,10 +36,10 @@ public:
 	SGMAdvancedControlsView(QWidget *parent = 0);
 
 protected slots:
-	void onCurrentMirrorStripeChanged(SGMBeamline::sgmMirrorStripe newMirrorStripe);
+	void onCurrentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe newMirrorStripe);
 	void onMirrorStripeButtonsClicked(int buttonIndex);
 
-	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
+	void onCurrentEndstationChanged(SGMBeamlineInfo::sgmEndstation newEndstation);
 	void onEndstationButtonsClicked(int buttonIndex);
 
 protected:

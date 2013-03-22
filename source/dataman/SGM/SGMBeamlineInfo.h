@@ -33,9 +33,54 @@ class SGMBeamlineInfo : public QObject
 {
 Q_OBJECT
 public:
-	SGMBeamlineInfo(QObject *parent = 0);
+	enum sgmGrating{
+		lowGrating = 0,
+		mediumGrating = 1,
+		highGrating = 2
+	};
+	QString sgmGratingName(SGMBeamlineInfo::sgmGrating grating) const;
+	QString sgmGratingDescription(SGMBeamlineInfo::sgmGrating grating) const;
+	SGMEnergyParameters* energyParametersForGrating(SGMBeamlineInfo::sgmGrating grating) const;
 
-	SGMEnergyParameters* standardEnergyParametersByName(QString gratingName);
+	enum sgmHarmonic{
+		firstHarmonic = 0,
+		thirdHarmonic = 1
+	};
+	QString sgmHarmonicName(SGMBeamlineInfo::sgmHarmonic harmonic) const;
+	QString sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic harmonic) const;
+
+	enum sgmDetectorSignalSource{
+		sourcePicoammeters = 0,
+		sourceScaler = 1
+	};
+	QString sgmDetectorSignalSourceName(SGMBeamlineInfo::sgmDetectorSignalSource dss) const;
+
+	enum sgmEndstation{
+		scienta = 0,
+		ssa = 1
+	};
+	QString sgmEndstationName(SGMBeamlineInfo::sgmEndstation endstation) const;
+
+	enum sgmMirrorStripe{
+		carbonStripe = 0,
+		siliconStripe = 1
+	};
+	QString sgmMirrorStripeName(SGMBeamlineInfo::sgmMirrorStripe mirrorStripe) const;
+
+	enum sgmTransferType{
+		loadlockOut = 1,
+		loadlockIn,
+		ChamberOut,
+		ChamberIn
+	};
+
+	static SGMBeamlineInfo* sgmInfo();
+
+	SGMEnergyParameters* standardEnergyParametersByName(QString gratingName) const;
+
+protected:
+	SGMBeamlineInfo(QObject *parent = 0);
+	static SGMBeamlineInfo *instance_;
 
 protected:
 	AMOrderedSet<QString, SGMEnergyParameters*> standardEnergyParameters_;

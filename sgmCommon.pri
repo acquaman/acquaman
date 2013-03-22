@@ -47,7 +47,7 @@ HEADERS += \
 	source/ui/SGM/SGMSidebar.h \
 	source/ui/SGM/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
-	source/beamline/SGM/SGMBeamlineInfo.h \
+	source/dataman/SGM/SGMBeamlineInfo.h \
 	source/util/SGM/SGMElementInfo.h \
 	source/util/SGM/SGMPeriodicTable.h \
 	source/ui/util/SGM/SGMEnergyPositionView.h \
@@ -64,7 +64,11 @@ HEADERS += \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
     source/ui/util/SGM/SGMFastScanParametersView.h \
-    source/acquaman/SGM/SGMXASScanActionController.h
+    source/acquaman/SGM/SGMXASScanActionController.h \
+    source/acquaman/SGM/SGMScanConfiguration2013.h \
+    source/acquaman/SGM/SGMSScanConfigurationDbObject.h \
+    source/acquaman/SGM/SGMXASScanConfiguration2013.h \
+    source/ui/SGM/SGMXASScanConfiguration2013View.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -83,7 +87,7 @@ SOURCES += \
 	source/ui/SGM/SGMSidebar.cpp \
 	source/ui/SGM/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
-	source/beamline/SGM/SGMBeamlineInfo.cpp \
+	source/dataman/SGM/SGMBeamlineInfo.cpp \
 	source/util/SGM/SGMElementInfo.cpp \
 	source/util/SGM/SGMPeriodicTable.cpp \
 	source/ui/util/SGM/SGMEnergyPositionView.cpp \
@@ -100,7 +104,19 @@ SOURCES += \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
     source/ui/util/SGM/SGMFastScanParametersView.cpp \
-    source/acquaman/SGM/SGMXASScanActionController.cpp
+    source/acquaman/SGM/SGMXASScanActionController.cpp \
+    source/acquaman/SGM/SGMScanConfiguration2013.cpp \
+    source/acquaman/SGM/SGMSScanConfigurationDbObject.cpp \
+    source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
+    source/ui/SGM/SGMXASScanConfiguration2013View.cpp
+
+
+
+
+
+
+
+
 
 
 

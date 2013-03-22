@@ -64,13 +64,13 @@ void SGMSampleTransferView::drawWidget(){
 	transferButtons_ = new QButtonGroup(this);
 	QPushButton* tmpButton;
 	tmpButton = new QPushButton("Transfer sample out of loadlock");
-	transferButtons_->addButton(tmpButton, SGMBeamline::loadlockOut);
+	transferButtons_->addButton(tmpButton, SGMBeamlineInfo::loadlockOut);
 	tmpButton = new QPushButton("Transfer sample into loadlock");
-	transferButtons_->addButton(tmpButton, SGMBeamline::loadlockIn);
+	transferButtons_->addButton(tmpButton, SGMBeamlineInfo::loadlockIn);
 	tmpButton = new QPushButton("Transfer sample out of chamber");
-	transferButtons_->addButton(tmpButton, SGMBeamline::ChamberOut);
+	transferButtons_->addButton(tmpButton, SGMBeamlineInfo::ChamberOut);
 	tmpButton = new QPushButton("Transfer sample into chamber");
-	transferButtons_->addButton(tmpButton, SGMBeamline::ChamberIn);
+	transferButtons_->addButton(tmpButton, SGMBeamlineInfo::ChamberIn);
 
 	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", transferButtons_);
 
@@ -100,7 +100,7 @@ void SGMSampleTransferView::drawWidget(){
 void SGMSampleTransferView::drawPane(int index){
 	mainLayout_->setCurrentIndex(index);
 	if(index != 0)
-		transferPanes_.at(index-1)->startPane(SGMBeamline::sgm()->createTransferActions((SGMBeamline::sgmTransferType)index));
+		transferPanes_.at(index-1)->startPane(SGMBeamline::sgm()->createTransferActions((SGMBeamlineInfo::sgmTransferType)index));
 }
 
 void SGMSampleTransferView::drawMain(){
