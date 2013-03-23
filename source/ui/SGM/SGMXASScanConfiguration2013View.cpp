@@ -14,33 +14,29 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	xasDetectorSelector_ = 0; //NULL
 	xasDetectorSelectorView_ = 0; //NULL
 
+	trackingSet_ = 0; //NULL
+	trackingSetView_ = 0; //NULL
+
+	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->xasRegions(), this);
+	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
+	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+	connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setFluxResolutionGroup(AMControlInfoList)));
+	connect(configuration_->dbObject(), SIGNAL(fluxResolutionGroupChanged()), this, SLOT(onFluxResolutionGroupChanged()));
+
 	createNewScanActionButton_ = new QPushButton("Create New Scan Controller");
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
 	mainVL_->addWidget(regionsLineView_);
-	topHL_ = new QHBoxLayout();
-	topHL_->addWidget(regionsView_);
-	topHL_->addStretch(10);
-	topHL_->setContentsMargins(0, 0, 0, 0);
-	bottomHL_ = new QHBoxLayout();
-	bottomHL_->addStretch(10);
-	bottomHL_->setContentsMargins(0, 0, 0, 0);
-	mainVL_->addLayout(topHL_);
-	mainVL_->addLayout(bottomHL_);
-	mainVL_->addWidget(createNewScanActionButton_);
-	/*
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
 	bottomGL_->addWidget(regionsView_,		0, 0);
-	//bottomGL_->addWidget(fluxResolutionView_,	1, 0);
-	//bottomGL_->addWidget(trackingView_,		0, 2);
-	//bottomGL_->addWidget(xasDetectorSelectorView_,	1, 2);
+	bottomGL_->addWidget(fluxResolutionView_,	1, 0);
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
-	bottomGL_->setContentsMargins(10, 0, 0, 0);
+	bottomGL_->setContentsMargins(10, 0, 0, 10);
+	mainVL_->addWidget(createNewScanActionButton_);
 	mainVL_->addStretch(8);
-	*/
 	/*
 	QHBoxLayout *nameHL = new QHBoxLayout();
 	nameHL->addWidget(scanNameLabel_);
@@ -57,6 +53,7 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
 	//cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
+	configuration_->setDetectorConfigurations(xasDetectorSelector_->selectedDetectorInfos());
 	return configuration_;
 }
 
@@ -64,8 +61,18 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	xasDetectorSelector_ = xasDetectorSelector;
 	if(!xasDetectorSelectorView_){
 		xasDetectorSelectorView_ = new AMDetectorSelectorView(xasDetectorSelector_);
-		//bottomGL_->addWidget(xasDetectorSelectorView_,	1, 2);
-		bottomHL_->addWidget(xasDetectorSelectorView_);
+		bottomGL_->addWidget(xasDetectorSelectorView_,	1, 2);
+	}
+}
+
+void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
+	trackingSet_ = trackingSet;
+	if(!trackingSetView_){
+		trackingSetView_ = new AMControlSetView(trackingSet_, true);
+		bottomGL_->addWidget(trackingSetView_, 0, 2);
+
+		connect(trackingSetView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setTrackingGroup(AMControlInfoList)));
+		connect(configuration_->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(onTrackingGroupChanged()));
 	}
 }
 
@@ -74,4 +81,12 @@ void SGMXASScanConfiguration2013View::onCreateNewScanActionButtonClicked(){
 
 	AMScanController *scanController = configuration_->createController();
 	emit scanControllerCreated(scanController);
+}
+
+void SGMXASScanConfiguration2013View::onTrackingGroupChanged(){
+	trackingSetView_->setFromInfoList(configuration_->trackingGroup());
+}
+
+void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
+	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 }

@@ -10,6 +10,9 @@
 #include "beamline/AMDetectorSelector.h"
 #include "ui/beamline/AMDetectorSelectorView.h"
 
+#include "ui/beamline/AMControlSetView.h"
+#include "ui/SGM/SGMFluxResolutionPickerView.h"
+
 class SGMXASScanConfiguration2013View : public AMScanConfigurationView
 {
 Q_OBJECT
@@ -20,6 +23,7 @@ public:
 	virtual const AMScanConfiguration* configuration() const;
 
 	void setDetectorSelector(AMDetectorSelector *xasDetectorSelector);
+	void setTrackingSet(AMControlSet *trackingSet);
 
 signals:
 	void scanControllerCreated(AMScanController *scanController);
@@ -27,9 +31,19 @@ signals:
 protected slots:
 	void onCreateNewScanActionButtonClicked();
 
+	void onTrackingGroupChanged();
+	void onFluxResolutionGroupChanged();
+
 protected:
 	SGMXASScanConfiguration2013 *configuration_;
+
+	////////////////////////////////////////
+	// THINGS I SHOULDN'T HAVE ACCESS TO //
+	//////////////////////////////////////
 	AMDetectorSelector *xasDetectorSelector_;
+	AMControlSet *trackingSet_;
+	AMControlSetView *trackingSetView_;
+	SGMFluxResolutionPickerView *fluxResolutionView_;
 
 	AMTopFrame *topFrame_;
 	AMRegionsView *regionsView_;
@@ -37,9 +51,7 @@ protected:
 	AMDetectorSelectorView *xasDetectorSelectorView_;
 
 	QVBoxLayout *mainVL_;
-	//QGridLayout *bottomGL_;
-	QHBoxLayout *topHL_;
-	QHBoxLayout *bottomHL_;
+	QGridLayout *bottomGL_;
 
 	QPushButton *createNewScanActionButton_;
 };

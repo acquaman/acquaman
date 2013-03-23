@@ -4,12 +4,14 @@
 #include "dataman/AMXASScan.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include <QDebug>
+#include <QFile>
+#include <QFileInfo>
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
 {
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("sgm2011XAS");
+	scan_->setFileFormat("sgm2013XAS");
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
@@ -18,7 +20,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 	insertionIndex_ = AMnDIndex(0);
 
-	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
 
 	AMScanAxisRegion firstRegion(cfg->regionStart(0), cfg->regionDelta(0), cfg->regionEnd(0), cfg->regionTime(0), this);
 	AMScanAxis *energyAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion, this);
@@ -27,27 +29,42 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		energyAxis->appendRegion(anotherRegion);
 	}
 
-	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), energyAxis);
+	newScanAssembler_->appendAxis(SGMBeamline::sgm()->energy(), energyAxis);
 
+	bool has1DDetectors = false;
+	AMDetector *oneDetector;
 	for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
 		qDebug() << "This configuration has a detector named " << cfg->detectorConfigurations().at(x).name();
 
-		newScanAssembler->addDetector(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x)));
+		oneDetector = SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x));
+		newScanAssembler_->addDetector(oneDetector);
+		if(oneDetector->rank() == 1)
+			has1DDetectors = true;
 		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
 	}
 
-	/*
-	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
-	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());
+	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onActionTreeGenerated(AMAction3*)));
+	newScanAssembler_->generateActionTree();
 
-	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newAmptekSDD1()))))
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
-	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newAmptekSDD2()))))
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
-	*/
+	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
-	actionTree_ = newScanAssembler->generateActionTree();
+	QString path = fullPath.path();// just the path, not the file name. Still relative.
+	QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+	scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+
+	rank1File_ = new QFile(AMUserSettings::userDataFolder+path+"/"+file);
+	rank1File_->open(QIODevice::WriteOnly | QIODevice::Text);
+	rank1Stream_.setDevice(rank1File_);
+
+	rank2File_ = 0; //NULL
+	if(has1DDetectors){
+		scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+		rank2File_ = new QFile(AMUserSettings::userDataFolder+fullPath.filePath()+"_spectra.dat");
+		rank2File_->open(QIODevice::WriteOnly | QIODevice::Text);
+		rank2Stream_.setDevice(rank2File_);
+	}
 }
 
 AMAction3* SGMXASScanActionController::actionsTree(){
@@ -58,7 +75,16 @@ void SGMXASScanActionController::setPointer(QObject *pointer){
 	pointer_ = pointer;
 }
 
+#include "actions3/AMActionRunner3.h"
+void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
+	actionTree_ = actionTree;
+	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
+}
+
 bool SGMXASScanActionController::initializeImplementation(){
+	//qDebug() << "Intentionally failing at initialization";
+	//return false;
+	QTimer::singleShot(0, this, SLOT(setInitialized()));
 	return true;
 }
 
@@ -83,27 +109,22 @@ bool SGMXASScanActionController::event(QEvent *e){
 	if(e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
 		AMAgnosticDataAPIMessage message = ((AMAgnositicDataEvent*)e)->message_;
 
-		qDebug() << "Just heard a message with type " << message.value("message").toString() << " and message type " << message.messageType();
-
 		switch(message.messageType()){
 		case AMAgnosticDataAPIDefinitions::AxisStarted:
 			break;
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
-
-			qDebug() << "Try to launch to editor";
-			AMAppController *toAppController = qobject_cast<AMAppController*>(pointer_);
-			toAppController->openScanInEditor(scan_);
-
+			scan_->rawData()->endInsertRows();
+			writeToFiles();
+			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();
+			writeToFiles();
 			insertionIndex_[0] = insertionIndex_.i()+1;
-			qDebug() << "Now the insertionIndex is " << insertionIndex_.toString();
+
 			break;
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-			qDebug() << "Have some data from detector named " << message.uniqueID() << " which is " << scan_->rawData()->idOfMeasurement(message.uniqueID());
 			if(insertionIndex_.i() >= scan_->rawData()->scanSize(0)){
-				qDebug() << "First detector to report back, need to beginInsertRows and setAxisValue";
 				scan_->rawData()->beginInsertRows(insertionIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
 				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), currentAxisValue_);
 			}
@@ -120,7 +141,6 @@ bool SGMXASScanActionController::event(QEvent *e){
 				currentAxisValue_ = message.value("ControlMovementValue").toDouble();
 			else if(message.value("ControlMovementType") == "Relative")
 				currentAxisValue_ += message.value("ControlMovementValue").toDouble();
-			qDebug() << "Now the axisValue is " << currentAxisValue_;
 
 			break;
 		case AMAgnosticDataAPIDefinitions::InvalidMessage:
@@ -134,4 +154,27 @@ bool SGMXASScanActionController::event(QEvent *e){
 	}
 	else
 		return AMScanActionController::event(e);
+}
+
+void SGMXASScanActionController::writeToFiles(){
+	rank1Stream_ << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << " ";
+	rank2Stream_ << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << "\n";
+	AMRawDataSource *oneRawDataSource;
+	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
+		oneRawDataSource = scan_->rawDataSources()->at(x);
+		if(oneRawDataSource->rank() == 1)
+			rank1Stream_ << x << " " << (double)oneRawDataSource->value(insertionIndex_) << " ";
+		if(oneRawDataSource->rank() == 2){
+			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
+			double outputValues[dataSourceSize];
+			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
+			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
+			oneRawDataSource->values(startIndex, endIndex, outputValues);
+			rank2Stream_ << x << " " << dataSourceSize << " ";
+			for(int y = 0; y < dataSourceSize; y++)
+				rank2Stream_ << outputValues[y] << " ";
+			rank2Stream_ << "\n";
+		}
+	}
+	rank1Stream_ << "\n";
 }

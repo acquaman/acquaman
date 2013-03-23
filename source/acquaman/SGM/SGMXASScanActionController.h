@@ -6,6 +6,9 @@
 #include "dataman/AMUser.h"
 #include "actions3/AMAction3.h"
 
+class AMScanActionControllerScanAssembler;
+class QFile;
+
 #define SGMXASSCANACTIONCONTROLLER_CANT_INTIALIZE 272001
 
 class SGMXASScanActionController : public AMScanActionController
@@ -18,6 +21,9 @@ public:
 
 	void setPointer(QObject *pointer);
 
+protected slots:
+	void onActionTreeGenerated(AMAction3 *actionTree);
+
 protected:
 	virtual bool initializeImplementation();
 	virtual bool startImplementation();
@@ -25,13 +31,21 @@ protected:
 
 	bool event(QEvent *e);
 
+	void writeToFiles();
+
 protected:
 	AMAction3 *actionTree_;
+	AMScanActionControllerScanAssembler *newScanAssembler_;
 
 	AMnDIndex insertionIndex_;
 	double currentAxisValue_;
 
 	QObject *pointer_;
+
+	QFile *rank1File_;
+	QFile *rank2File_;
+	QTextStream rank1Stream_;
+	QTextStream rank2Stream_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H

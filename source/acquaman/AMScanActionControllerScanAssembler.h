@@ -122,7 +122,10 @@ public:
 	bool appendAxis(AMControl *axisControl, AMScanAxis *scanAxis);
 	bool addDetector(AMDetector *detector);
 
-	AMAction3* generateActionTree();
+	void generateActionTree();
+
+signals:
+	void actionTreeGenerated(AMAction3 *actionTree);
 
 protected:
 	AMAction3* generateActionTreeForAxis(AMControl *axisControl, AMScanAxis *scanAxis);
@@ -144,6 +147,8 @@ protected:
 	AMDetectorSet *detectors_;
 	AMControlSet *controls_;
 	QList<AMScanAxis*> axes_;
+
+	AMAction3 *actionTree_;
 };
 
 #endif // AMSCANACTIONCONTROLLERSCANASSEMBLER_H

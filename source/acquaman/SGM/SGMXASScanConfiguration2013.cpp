@@ -30,7 +30,12 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfigu
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 
+	for(int x = 0; x < original.regionCount(); x++)
+		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
+
 	detectorConfigurations_ = original.detectorConfigurations();
+	setTrackingGroup(original.trackingGroup());
+	setFluxResolutionGroup(original.fluxResolutionGroup());
 }
 
 AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const{

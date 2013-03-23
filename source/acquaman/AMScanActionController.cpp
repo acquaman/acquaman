@@ -5,8 +5,18 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 {
 }
 
+#include "actions3/AMActionRunner3.h"
+
+#include "acquaman/AMAgnosticDataAPI.h"
 bool AMScanActionController::startImplementation(){
-	return false;
+	qDebug() << "Trying to call startImplementation in AMScanActionController";
+	AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
+	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+	scanActionMessager->addReceiver(this);
+
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+	setStarted();
+	return true;
 }
 
 bool AMScanActionController::canPause(){

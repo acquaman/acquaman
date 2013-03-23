@@ -86,9 +86,13 @@ void AMDetectorAcquisitionAction::onAcquisitionSucceeded(){
 
 		QList<double> detectorData;
 		const double *detectorDataPointer = detector_->data();
-		int totalPoints = AMnDIndex(detector_->rank(), AMnDIndex::DoInit, 0).totalPointsTo(detector_->size())-1;
-		for(int x = 0; x < totalPoints; x++)
-			detectorData.append(detectorDataPointer[x]);
+		if(detector_->rank() == 0)
+			detectorData.append(detectorDataPointer[0]);
+		else{
+			int totalPoints = AMnDIndex(detector_->rank(), AMnDIndex::DoInit, 0).totalPointsTo(detector_->size())-1;
+			for(int x = 0; x < totalPoints; x++)
+				detectorData.append(detectorDataPointer[x]);
+		}
 
 
 		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);

@@ -32,7 +32,7 @@ bool SGMSScanConfigurationDbObject::exitSlitTracking() const{
 }
 
 double SGMSScanConfigurationDbObject::exitSlitGap() const{
-	return fluxResolutionGroup_.controlNamed("exitSlit").value();
+	return fluxResolutionGroup_.controlNamed("exitSlitGap").value();
 }
 
 SGMBeamlineInfo::sgmGrating SGMSScanConfigurationDbObject::grating() const{

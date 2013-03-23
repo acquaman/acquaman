@@ -204,6 +204,8 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
 
 	// Register the detectors to their views
 	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
@@ -292,7 +294,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
 		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
+		qDebug() << "First region is " << xasScanConfiguration2013->regionStart(0) << xasScanConfiguration2013->regionDelta(0) << xasScanConfiguration2013->regionEnd(0);
 		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
+		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
+		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
 
 		xasDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
 		QStringList preferentialOrdering;
@@ -312,6 +317,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
 		connect(xasScanConfiguration2013View_, SIGNAL(scanControllerCreated(AMScanController*)), this, SLOT(onScanControllerCreated(AMScanController*)));
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
+		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
 
 		newDetectorsSelectorView_ = new AMDetectorSelectorView(newDetectorsSelector_);
@@ -484,48 +490,6 @@ void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 }
 
 void SGMAppController::onActionSGMSettings(){
-
-	/**/
-	SGMXASScanConfiguration2013 *quickConfiguration = new SGMXASScanConfiguration2013();
-	quickConfiguration->addRegion(0, 280, 1, 285);
-	quickConfiguration->setRegionTime(0, 1);
-
-	SGMXASScanActionController *scanActionController = new SGMXASScanActionController(quickConfiguration, this);
-	scanActionController->setPointer(this);
-	AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
-	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
-	scanActionMessager->addReceiver(scanActionController);
-
-	AMActionRunner3::scanActionRunner()->addActionToQueue(scanActionController->actionsTree());
-	/**/
-
-	/*
-//	AMScanAxisRegion firstRegion(280, 10, 320, 1.0, this);
-	AMScanAxisRegion firstRegion(280, 5, 295, 1.0, this);
-	AMScanAxisRegion secondRegion(295, 1, 300, 1.0, this);
-	AMScanAxisRegion thirdRegion(300, 10, 320, 1.0, this);
-	AMScanAxis *firstAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion, this);
-	firstAxis->appendRegion(secondRegion);
-	firstAxis->appendRegion(thirdRegion);
-
-	AMScanAxisRegion firstRegionSecondAxis(-1.0, 0.5, 1.0);
-	AMScanAxis *secondAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionSecondAxis, this);
-
-//	AMScanAxisRegion firstRegionThirdAxis(0, 1.0, 10.0);
-//	AMScanAxis *thirdAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegionThirdAxis, this);
-
-	AMScanActionControllerScanAssembler *newScanAssembler = new AMScanActionControllerScanAssembler(this);
-	newScanAssembler->appendAxis(SGMBeamline::sgm()->energy(), firstAxis);
-	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorX(), secondAxis);
-//	newScanAssembler->appendAxis((AMControl*)SGMBeamline::sgm()->ssaManipulatorZ(), thirdAxis);
-
-	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD1());
-	newScanAssembler->addDetector(SGMBeamline::sgm()->newAmptekSDD2());
-
-	AMActionRunner3::workflow()->addActionToQueue(newScanAssembler->generateActionTree());
-	//AMActionRunner3::workflow()->addActionToQueue(SGMBeamline::sgm()->newAmptekSDD1()->createAcquisitionAction());
-	*/
-
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();
