@@ -57,6 +57,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 					tmpDetectorView->setDetectorConnected(false);
 					unconnectedVL_->addWidget(tmpDetectorView);
 				}
+				connect(tmpDetectorView, SIGNAL(detectorCheckedChanged(bool)), this, SLOT(onDetectorCheckedChanged(bool)));
 			}
 		}
 
@@ -67,6 +68,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(connectedDetectors->at(x)));
 				allDetectorViews_.insert(connectedDetectors->at(x)->name(), tmpDetectorView);
 				connectedVL_->addWidget(tmpDetectorView);
+				connect(tmpDetectorView, SIGNAL(detectorCheckedChanged(bool)), this, SLOT(onDetectorCheckedChanged(bool)));
 			}
 		}
 
@@ -78,6 +80,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(unconnectedDetectors->at(x)));
 				allDetectorViews_.insert(unconnectedDetectors->at(x)->name(), tmpDetectorView);
 				unconnectedVL_->addWidget(tmpDetectorView);
+				connect(tmpDetectorView, SIGNAL(detectorCheckedChanged(bool)), this, SLOT(onDetectorCheckedChanged(bool)));
 			}
 		}
 
@@ -159,6 +162,12 @@ void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *det
 		noneConnectedLabel_->show();
 	if(noneUnconnectedLabel_->isVisible())
 		noneUnconnectedLabel_->hide();
+}
+
+void AMDetectorSelectorViewInternal::onDetectorCheckedChanged(bool selected){
+	AMDetectorSelectorViewInternalLineView *castToLineView = qobject_cast<AMDetectorSelectorViewInternalLineView*>(QObject::sender());
+	if(castToLineView)
+		detectorSelector_->setDetectorSelectedByName(castToLineView->detectorName(), selected);
 }
 
 int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout){

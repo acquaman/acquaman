@@ -82,8 +82,6 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 }
 
 bool SGMXASScanActionController::initializeImplementation(){
-	//qDebug() << "Intentionally failing at initialization";
-	//return false;
 	QTimer::singleShot(0, this, SLOT(setInitialized()));
 	return true;
 }
@@ -183,7 +181,7 @@ void SGMXASScanActionController::writeToFiles(){
 			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
 			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
-			rank2Stream_ << x << " ";// << dataSourceSize << " ";
+			rank2Stream_ << x << " ";
 			for(int y = 0; y < dataSourceSize; y++)
 				rank2Stream_ << outputValues[y] << " ";
 			rank2Stream_ << "\n";

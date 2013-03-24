@@ -41,6 +41,8 @@ protected slots:
 	/// Handles changes in the detector selector where detectors become unconnected
 	void onDetectorBecameUnconnected(AMDetector *detector);
 
+	void onDetectorCheckedChanged(bool selected);
+
 protected:
 	/// Helper to locate insertion index for preferential ordering
 	int preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout);
