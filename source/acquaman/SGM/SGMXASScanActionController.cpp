@@ -110,8 +110,21 @@ bool SGMXASScanActionController::event(QEvent *e){
 		AMAgnosticDataAPIMessage message = ((AMAgnositicDataEvent*)e)->message_;
 
 		switch(message.messageType()){
-		case AMAgnosticDataAPIDefinitions::AxisStarted:
-			break;
+		case AMAgnosticDataAPIDefinitions::AxisStarted:{
+			AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
+			QString separator = "|%|%|";
+			rank1Stream_ << "Start Info\n";
+			rank1Stream_ << "-1" << separator << "eV" << "\n";
+
+			for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
+				oneMeasurementInfo = scan_->rawData()->measurementAt(x);
+				rank1Stream_ << x << separator << oneMeasurementInfo.rank() << separator << oneMeasurementInfo.name << separator << oneMeasurementInfo.description << separator << oneMeasurementInfo.units;
+				if(oneMeasurementInfo.rank() == 1)
+					rank1Stream_ << separator << oneMeasurementInfo.axes.at(0).name << separator << oneMeasurementInfo.axes.at(0).size << separator << oneMeasurementInfo.axes.at(0).description << separator << oneMeasurementInfo.axes.at(0).units;
+				rank1Stream_ << "\n";
+			}
+			rank1Stream_ << "End Info\n";
+			break;}
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
 			writeToFiles();
@@ -157,8 +170,8 @@ bool SGMXASScanActionController::event(QEvent *e){
 }
 
 void SGMXASScanActionController::writeToFiles(){
-	rank1Stream_ << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << " ";
-	rank2Stream_ << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << "\n";
+	rank1Stream_ << "-1 " << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << " ";
+	rank2Stream_ << "-1 " << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << "\n";
 	AMRawDataSource *oneRawDataSource;
 	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
 		oneRawDataSource = scan_->rawDataSources()->at(x);
@@ -170,11 +183,11 @@ void SGMXASScanActionController::writeToFiles(){
 			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
 			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
-			rank2Stream_ << x << " " << dataSourceSize << " ";
+			rank2Stream_ << x << " ";// << dataSourceSize << " ";
 			for(int y = 0; y < dataSourceSize; y++)
 				rank2Stream_ << outputValues[y] << " ";
 			rank2Stream_ << "\n";
 		}
 	}
-	rank1Stream_ << "\n";
+	rank1Stream_ << "-27\n";
 }
