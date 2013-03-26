@@ -664,6 +664,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
 	newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
+	AMControl *energyFeedbackControl = new AMReadOnlyPVControl("EnergyFeedback", "BL1611-ID-1:Energy:fbk", this, "Energy Feedback");
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	AMControl *fakeWaitReadControl = new AMReadOnlyPVControl("FakeWaitRead", "david:loop:value", this, "Fake Wait Read");
+	fakeWaitReadDetector_ = new AMBasicControlDetectorEmulator("FakeWaitRead", "Fake Wait Read", fakeWaitReadControl, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
 
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
@@ -680,6 +684,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newTFYDetector_);
 	XASDetectorGroup_->addDetector(newI0Detector_);
 	XASDetectorGroup_->addDetector(newPDDetector_);
+	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
+	XASDetectorGroup_->addDetector(fakeWaitReadDetector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -1547,6 +1553,8 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newI0Detector_);
 	addExposedDetector(newTFYDetector_);
 	addExposedDetector(newPDDetector_);
+	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(fakeWaitReadDetector_);
 
 	addExposedDetectorGroup(XASDetectorGroup_);
 }

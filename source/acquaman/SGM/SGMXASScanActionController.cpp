@@ -37,11 +37,13 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		qDebug() << "This configuration has a detector named " << cfg->detectorConfigurations().at(x).name();
 
 		oneDetector = SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x));
-		newScanAssembler_->addDetector(oneDetector);
-		if(oneDetector->rank() == 1)
-			has1DDetectors = true;
-		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+		if(oneDetector){
+			newScanAssembler_->addDetector(oneDetector);
+			if(oneDetector->rank() == 1)
+				has1DDetectors = true;
+			if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
+				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+		}
 	}
 
 	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onActionTreeGenerated(AMAction3*)));

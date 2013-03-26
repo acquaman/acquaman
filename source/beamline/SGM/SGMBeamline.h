@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSet.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -133,6 +134,8 @@ public:
 	AMDetector* newTFYDetector() const { return newTFYDetector_;}
 	AMDetector* newI0Detector() const { return newI0Detector_;}
 	AMDetector* newPDDetector() const { return newPDDetector_;}
+	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMDetector* fakeWaitReadDetector() const { return fakeWaitReadDetector_; }
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
 
@@ -398,6 +401,8 @@ protected:
 	CLSBasicScalerChannelDetector *newTFYDetector_;
 	CLSBasicScalerChannelDetector *newI0Detector_;
 	CLSBasicScalerChannelDetector *newPDDetector_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
 	AMDetectorGroup *newDetectorSet_;
 	AMDetectorGroup *XASDetectorGroup_;
 

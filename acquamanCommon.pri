@@ -627,7 +627,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMAxisStartedActionInfo.h \
     source/actions3/actions/AMAxisFinishedActionInfo.h \
     source/actions3/actions/AMAxisStartedAction.h \
-    source/actions3/actions/AMAxisFinishedAction.h
+    source/actions3/actions/AMAxisFinishedAction.h \
+    source/beamline/AMBasicControlDetectorEmulator.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1058,7 +1059,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMAxisStartedActionInfo.cpp \
     source/actions3/actions/AMAxisFinishedActionInfo.cpp \
     source/actions3/actions/AMAxisStartedAction.cpp \
-    source/actions3/actions/AMAxisFinishedAction.cpp
+    source/actions3/actions/AMAxisFinishedAction.cpp \
+    source/beamline/AMBasicControlDetectorEmulator.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1082,6 +1084,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
