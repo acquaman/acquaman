@@ -82,7 +82,6 @@ void AMBasicControlDetectorEmulator::onStatusControlValueChanged(double value){
 }
 
 bool AMBasicControlDetectorEmulator::initializeImplementation(){
-	setInitializing();
 	setInitialized();
 	return true;
 }
@@ -91,6 +90,7 @@ bool AMBasicControlDetectorEmulator::acquireImplementation(AMDetectorDefinitions
 	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
+	setAcquiring();
 	if(readMethod() == AMDetectorDefinitions::ImmediateRead){
 		setAcquisitionSucceeded();
 		checkReadyForAcquisition();

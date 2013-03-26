@@ -110,7 +110,7 @@ bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode rea
 }
 
 bool CLSAmptekSDD123DetectorNew::initializeImplementation(){
-	setInitializing();
+	//setInitializing();
 	setInitialized();
 	return true;
 }

@@ -103,7 +103,7 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 }
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){
-	setInitializing();
+	//setInitializing();
 	setInitialized();
 	return true;
 }
