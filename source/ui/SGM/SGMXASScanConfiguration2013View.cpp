@@ -52,7 +52,6 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
-	//cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
 	configuration_->setDetectorConfigurations(xasDetectorSelector_->selectedDetectorInfos());
 	return configuration_;
 }
