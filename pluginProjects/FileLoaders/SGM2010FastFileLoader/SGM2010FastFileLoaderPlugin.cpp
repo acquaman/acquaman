@@ -18,7 +18,7 @@ bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
 	return false;
 }
 
-bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 	qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
 	qDebug() << "Saying ANOTHER THING";
 
@@ -72,7 +72,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	// open the file:
 	QFile f(sourceFileInfo.filePath());
 	if(!f.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2010FastFileLoader parse error while loading scan data from file. Missing file."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_CANNOT_OPEN_FILE, "SGM2010FastFileLoader parse error while loading scan data from file. Missing file."));
 		return false;
 	}
 	QTextStream fs(&f);
@@ -83,7 +83,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	while(!fs.atEnd() && !line.startsWith("#(1) "))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(1) event line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(1) event line."));
 		return false;	// bad format; missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
@@ -98,7 +98,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	while(!fs.atEnd() && !line.startsWith("#(2) "))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(2) event line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT2_HEADER, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(2) event line."));
 		return false;	// bad format; missing the #2 event header
 	}
 	colNames2 = line.split(QChar(' '));
@@ -110,7 +110,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	// ensure that we have the basic "eV" column
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
 		return false;	// bad format; no primary column
 
 	}
@@ -163,7 +163,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 			//QFile sf(scalerFile);
 			QFile sf(scalerFileInfo.filePath());
 			if(!sf.open(QIODevice::ReadOnly)) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2010FastFileLoader parse error while loading scan data from file. Could not open spectra.dat file."));
+				errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2010FastFileLoader parse error while loading scan data from file. Could not open spectra.dat file."));
 				return false; //spectra.dat file couldn't be opened
 			}
 			QTextStream sfs(&sf);
@@ -362,12 +362,12 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 			}
 		}
 		else{
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectra.dat file."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_MISSING_SPECTRA_FILE, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectra.dat file."));
 			return false;	// bad format; no spectra.dat file
 		}
 	}
 	else{
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectrum offset column."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_BAD_FORMAT_NO_OFFSET_COLUMN, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectrum offset column."));
 		return false;	// bad format; no spectrum offset column
 	}
 
@@ -375,7 +375,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-			AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("SGM2010FastFileLoader: The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, SGM2010FASTFILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("SGM2010FastFileLoader: The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
 			scan->deleteRawDataSource(i);
 		}
 	}

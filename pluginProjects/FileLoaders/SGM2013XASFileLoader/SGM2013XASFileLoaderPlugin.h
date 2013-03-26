@@ -5,6 +5,11 @@
 #include <QStringList>
 #include "dataman/AMFileLoaderInterface.h"
 
+#define SGM2013XASFILELOADERPLUGIN_CANNOT_OPEN_FILE 627001
+#define SGM2013XASFILELOADERPLUGIN_NO_SPECTRA_FILE 627002
+#define SGM2013XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE 627003
+#define SGM2013XASFILELOADERPLUGIN_DATA_COLUMN_MISMATCH 627004
+
 class SGM2013XASFileLoaderPlugin : public AMFileLoaderInterface
 {
 
@@ -14,7 +19,7 @@ public:
 
 	virtual bool accepts(AMScan *scan);
 
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 
 protected:
 };

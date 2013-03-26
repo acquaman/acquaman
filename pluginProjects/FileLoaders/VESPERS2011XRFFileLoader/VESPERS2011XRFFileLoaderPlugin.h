@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#define VESPERS2011XRFFILELOADERPLUGIN_CANNOT_OPEN_FILE 627301
+#define VESPERS2011XRFFILELOADERPLUGIN_UNRECOGNIZED_FILE_TYPE 627302
+
 #include "dataman/AMFileLoaderInterface.h"
 
 /*! This class implements loading and saving of XRF data in a custom way.  This is because this data is typically not saved currently.
@@ -38,7 +41,7 @@ public:
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 };
 
 class VESPERS2011XRFFileLoaderFactory : public QObject, public AMFileLoaderFactory

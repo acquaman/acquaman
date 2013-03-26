@@ -598,7 +598,7 @@ bool AMScan::loadData()
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
-			success = fileLoader->load(this, AMUserSettings::userDataFolder);
+			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());
 			break;
 		}
 
