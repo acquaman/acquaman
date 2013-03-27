@@ -158,7 +158,7 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	ccdGBTopLayout->addWidget(new QLabel("Save Current Image:"));
 	ccdGBTopLayout->addWidget(saveButton);
 
-	QGroupBox *ccdGB = new QGroupBox(tr("Image Options"));
+	QGroupBox *ccdGB = new QGroupBox(tr("Image File Options"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
 	ccdGBLayout->addRow(ccdGBTopLayout);
 	ccdGBLayout->addRow("Path:", filePathEdit_);
@@ -167,10 +167,14 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
 
-	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	QVBoxLayout *acquisitionAndTemperatureLayout = new QVBoxLayout;
+	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
+	acquisitionAndTemperatureLayout->addWidget(temperatureGroupBox);
+	acquisitionAndTemperatureLayout->addStretch();
+
+	QHBoxLayout *detectorLayout = new QHBoxLayout;
 	detectorLayout->addStretch();
-	detectorLayout->addWidget(acquisitionBox);
-	detectorLayout->addWidget(temperatureGroupBox);
+	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 
@@ -305,11 +309,18 @@ void VESPERSRoperCCDDetectorView::setAutoSave(int autoSave)
 }
 
 #include "MPlot/MPlotColorMap.h"
+#include <QTime>
+#include <QRgb>
 
 void VESPERSRoperCCDDetectorView::loadCCDFileTest()
 {
+	QTime time1;
+	time1.start();
+	QTime time;
+	time.start();
 	if (detector_->loadImageFromFile()){
 
+		qDebug() << "Time for loading the image from the file" << time.restart() << "ms";
 		QVector<int> data = detector_->imageData();
 		QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
 
@@ -324,27 +335,38 @@ void VESPERSRoperCCDDetectorView::loadCCDFileTest()
 			if (data.at(i) > maximum)
 				maximum = data.at(i);
 		}
-
+		qDebug() << "Finding min and max:" << time.restart() << "ms";
 		MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
-		MPlotInterval range = MPlotInterval(minimum, int(maximum*0.30));
+		MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
 
 		int xSize = detector_->size().i();
 		int ySize = detector_->size().j();
+
+//		uchar *rgbData = new uchar[4*xSize*ySize];
 
 		for (int i = 0; i < xSize; i++){
 
 			int offset = i*ySize;
 
-			for (int j = 0; j < ySize; j++)
+			for (int j = 0; j < ySize; j++){
 				image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+//				QRgb rgb = map.rgbAt(data.at(j + offset), range);
+//				rgbData[4*(offset+j)] = qRed(rgb);
+//				rgbData[4*(offset+j)+1] = qGreen(rgb);
+//				rgbData[4*(offset+j)+2] = qBlue(rgb);
+			}
 		}
+//		QImage image = QImage(rgbData, 2084, 2084, QImage::Format_RGB32);
+		qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
 
 		QPixmap newImage;
 		newImage.convertFromImage(image);
+		qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
 		newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
-		QTransform transform = QTransform();
-		transform.rotate(-90);
-		newImage = newImage.transformed(transform);
+		qDebug() << "Scaling QPixmap" << time.restart() << "ms";
 		image_->setPixmap(newImage);
+//		delete rgbData;
+		qDebug() << "Time to put image in pixmap" << time.restart() << "ms";
 	}
+	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
 }

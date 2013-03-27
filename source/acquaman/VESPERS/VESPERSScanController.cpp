@@ -444,12 +444,12 @@ QString VESPERSScanController::getUniqueCCDName(const QString &path, const QStri
 		newPath.replace('\\', '/');
 	}
 
-	if (!VESPERS::fileNameExists(path, name))
+	if (!VESPERS::fileNameExists(newPath, name))
 		return name;
 
 	QString newName = name;
 
-	while (VESPERS::fileNameExists(path, newName)){
+	while (VESPERS::fileNameExists(newPath, newName)){
 
 		newName = VESPERS::appendUniqueIdentifier(name);
 	}

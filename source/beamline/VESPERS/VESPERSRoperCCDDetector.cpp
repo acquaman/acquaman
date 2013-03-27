@@ -281,7 +281,7 @@ AMBeamlineActionItem *VESPERSRoperCCDDetector::createFileNumberAction(int number
 
 	return action;
 }
-
+#include <QTime>
 bool VESPERSRoperCCDDetector::loadImageFromFile(const QString &filename)
 {
 	Q_UNUSED(filename);
@@ -297,26 +297,20 @@ bool VESPERSRoperCCDDetector::loadImageFromFile(const QString &filename)
 	in.setByteOrder(QDataStream::LittleEndian);
 	in.skipRawData(4100);
 
-	QVector<int> data = QVector<int>(imageData_.size());
-
-	for (int i = 0, iSize = imageData_.size(); i < iSize; i++){
-
-		in >> (quint16 &)value;
-		data[i] = int(value);
-	}
-
 	int xSize = size().i();
 	int ySize = size().j();
 
-	for (int i = 0; i < xSize; i++){
+	// Loads the vector such that the image would appear correct using simple indexing.
+	// If simple indexing provided a pixel at (x, y) then the correct image would be at
+	// (y, x).
+	QTime time;
+	time.start();
+	for (int i = 0, iSize = imageData_.size(); i < iSize; i++){
 
-		int offset = i*ySize;
-		int negOffset = (xSize-i-1)*ySize;
-
-		for (int j = 0; j < ySize; j++)
-			imageData_[j+negOffset] = data.at(j + offset);
+		in >> (quint16 &)value;
+		imageData_[i/xSize + (i%xSize)*ySize] = int(value);
 	}
-
+	qDebug() << "Time to load is" << time.elapsed() << "ms";
 	file.close();
 
 	return true;
