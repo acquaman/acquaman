@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
@@ -133,8 +132,6 @@ protected:
 	bool setupSGMViews();
 
 protected:
-	/// View to manage transfer of samples (NOT IN USE CURRENTLY)
-	SGMSampleTransferView *sampleTransferView_;
 	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementWidget *samplePositionView_;
 	/// View for controlling the SGM scaler

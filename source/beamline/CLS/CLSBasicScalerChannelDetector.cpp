@@ -55,6 +55,7 @@ AMNumber CLSBasicScalerChannelDetector::singleReading() const{
 }
 
 bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) const{
+	Q_UNUSED(outputValues);
 	return false;
 }
 

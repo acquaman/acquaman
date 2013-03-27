@@ -12,7 +12,7 @@ public:
 	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector
-	virtual int size(int axisNumber) const { return 0; }
+	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber); return 0; }
 
 	/// The basic controls don't require additional power
 	virtual bool requiresPower() const { return false; }
@@ -50,7 +50,7 @@ public:
 	virtual AMNumber singleReading() const;
 
 	/// Returns false, because the controls do not support continuous reading
-	virtual bool lastContinuousReading(double *outputValues) const { return false; }
+	virtual bool lastContinuousReading(double *outputValues) const { Q_UNUSED(outputValues); return false; }
 
 	/// Returns a (hopefully) valid pointer to a single double with our current value
 	virtual const double* data() const;
@@ -68,7 +68,7 @@ public slots:
 	virtual bool setAcquisitionTime(double seconds) { Q_UNUSED(seconds); return false; }
 
 	/// The read mode cannot be changed for basic controls
-	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode) { return false; }
+	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode) { Q_UNUSED(readMode); return false; }
 
 	/// Controls do not support clearing
 	virtual bool clear() { return false; }

@@ -41,7 +41,6 @@ HEADERS += \
 	source/acquaman/SGM/SGMFastDacqScanController.h \
 	source/acquaman/SGM/SGMFastScanController.h \
 	source/beamline/SGM/SGMBeamline.h \
-	source/ui/SGM/SGMSampleTransferView.h \
 	source/ui/SGM/SGMXASScanConfigurationView.h \
 	source/ui/SGM/SGMXASScanConfigurationWizard.h \
 	source/ui/SGM/SGMSidebar.h \
@@ -82,7 +81,6 @@ SOURCES += \
 	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/acquaman/SGM/SGMFastDacqScanController.cpp \
 	source/beamline/SGM/SGMBeamline.cpp \
-	source/ui/SGM/SGMSampleTransferView.cpp \
 	source/ui/SGM/SGMXASScanConfigurationView.cpp \
 	source/ui/SGM/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGM/SGMSidebar.cpp \

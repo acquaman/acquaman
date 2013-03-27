@@ -31,389 +31,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "SGMOptimizationSupport.h"
 
-void SGMBeamline::usingSGMBeamline(){
-	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
-	amNames2pvNames_.set("energySpacingParam", "SG16114I1001:selI");
-	amNames2pvNames_.set("energyC1Param", "SG16114I1001:selG");
-	amNames2pvNames_.set("energyC2Param", "SG16114I1001:selH");
-	amNames2pvNames_.set("energySParam", "SG16114I1001:selE");
-	amNames2pvNames_.set("energyThetaParam", "SG16114I1001:selF");
-	amNames2pvNames_.set("eV_Fbk", "BL1611-ID-1:Energy:fbk");
-	amNames2pvNames_.set("eVFbk", "BL1611-ID-1:Energy:fbk");
-	amNames2pvNames_.set("mono", "SMTR16114I1002");
-	amNames2pvNames_.set("undulator", "UND1411-01");
-	amNames2pvNames_.set("exitSlit", "PSL16114I1003");
-	amNames2pvNames_.set("exitSlitGap", "PSL16114I1004");
-	amNames2pvNames_.set("entranceSlitGap", "PSL16114I1001");
-	amNames2pvNames_.set("M4", "BL1611-ID-1:Energy");
-	amNames2pvNames_.set("M4Inboard", "BL1611-ID-1:Energy");
-	amNames2pvNames_.set("M4Outboard", "BL1611-ID-1:Energy");
-	amNames2pvNames_.set("M4Downstream", "BL1611-ID-1:Energy");
-	// Old grating PV is in reverse order plus "automatic" field, AddOn is increasing order and 0-indexed
-	//amNames2pvNames_.set("grating", "SG16114I1001:choice");
-	amNames2pvNames_.set("grating", "BL1611-ID-1:AddOns:grating");
-	// Old harmonic PV is DBR_DOUBLE for some reason, AddOn is enum
-	//amNames2pvNames_.set("harmonic", "BL1611-ID-1:harmonic");
-	amNames2pvNames_.set("harmonic", "BL1611-ID-1:AddOns:harmonic");
-	amNames2pvNames_.set("undulatorMotor", "SMTR1411-01");
-	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
-	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
-	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
-	amNames2pvNames_.set("tfyScaler", "BL1611-ID-1:mcs02:fbk");
-	amNames2pvNames_.set("tfyHV", "PS1611401:109");
-	amNames2pvNames_.set("pgtBase", "MCA1611-01");
-	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
-	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
-	amNames2pvNames_.set("amptekSDD2", "amptek:sdd2");
-	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
-	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
-
-	amNames2pvNames_.set("ssaManipulatorX", "SMTR16114I1022");
-	amNames2pvNames_.set("ssaManipulatorY", "SMTR16114I1023");
-	amNames2pvNames_.set("ssaManipulatorZ", "SMTR16114I1024");
-	amNames2pvNames_.set("ssaManipulatorRot", "SMTR16114I1025");
-
-	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
-	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
-	amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:AddOns:trigger:dwellTime");
-	amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:AddOns:confirmed:dwellTime");
-	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
-	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
-	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
-	amNames2pvNames_.set("scaler", "BL1611-ID-1:mcs:scan");
-	amNames2pvNames_.set("scalerIntegrationTime", "BL1611-ID-1:mcs:delay");
-	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
-	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
-	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
-	amNames2pvNames_.set("ea1CloseVacuum1", "VVR1611-4-I10-05:opr:close");
-	amNames2pvNames_.set("ea1CloseVacuum2", "VVR1611-4-I10-06:opr:close");
-	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
-	amNames2pvNames_.set("beamOn", "BL1611-ID-1:AddOns:beamon:trigger");
-	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
-	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
-	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
-	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
-	amNames2pvNames_.set("mirrorStripeSelection", "BL1611-ID-1:stripe");
-	amNames2pvNames_.set("masterDwell", "BL1611-ID-1:dwell:setTime");
-
-	bool pvNameLookUpFail = false;
-
-	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-		energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
-	energy_->setDescription("Energy");
-	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energySpacingParam_ = new AMReadOnlyPVControl("energySpacingParam", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("energyC1Param");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energyC1Param_ = new AMReadOnlyPVControl("energyC1Param", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("energyC2Param");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energyC2Param_ = new AMReadOnlyPVControl("energyC2Param", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("energySParam");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energySParam_ = new AMReadOnlyPVControl("energySParam", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("energyThetaParam");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energyThetaParam_ = new AMReadOnlyPVControl("energyThetaParam", sgmPVName, this);
-
-	sgmPVName = amNames2pvNames_.valueF("mono");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
-	mono->setDescription("Monochromator");
-	sgmPVName = amNames2pvNames_.valueF("undulator");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
-	undulator->setDescription("Undulator");
-	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", energy_, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
-	exitSlit->setDescription("Exit Slit Position");
-	energy_->addChildControl(mono);
-	energy_->addChildControl(undulator);
-	energy_->addChildControl(exitSlit);
-
-	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
-	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
-	//((AMPVwStatusControl*)exitSlitGap_)->setMoveStartTolerance(0.02);
-	exitSlitGap_->setDescription("Exit Slit Gap");
-	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
-	entranceSlitGap_->setDescription("Entrance Slit Gap");
-	sgmPVName = amNames2pvNames_.valueF("M4");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
-	m4_->setDescription("M4 Mirror");
-	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
-	m4inboard->setDescription("M4 Inboard");
-	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
-	m4outboard->setDescription("M4 Outboard");
-	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
-	m4downstream->setDescription("M4 Downstream");
-	m4_->addChildControl(m4inboard);
-	m4_->addChildControl(m4outboard);
-	m4_->addChildControl(m4downstream);
-
-	sgmPVName = amNames2pvNames_.valueF("grating");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	((AMPVwStatusControl*)(grating_))->setMoveStartTolerance(0.1);
-	grating_->setDescription("Grating Selection");
-	sgmPVName = amNames2pvNames_.valueF("harmonic");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
-	((AMPVwStatusControl*)(harmonic_))->setMoveStartTolerance(0.1);
-	harmonic_->setDescription("Harmonic");
-
-	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20, 20 );
-	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
-	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
-	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
-
-	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
-	undulatorTracking_->setDescription("Undulator Tracking");
-	undulatorTracking_->setContextKnownDescription("Undulator");
-	sgmPVName = amNames2pvNames_.valueF("monoTracking");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
-	monoTracking_->setDescription("Mono Tracking");
-	monoTracking_->setContextKnownDescription("Mono");
-	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
-	exitSlitTracking_->setDescription("Exit Slit Tracking");
-	exitSlitTracking_->setContextKnownDescription("Exit Slit");
-
-	sgmPVName = amNames2pvNames_.valueF("tfyHV");
-	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 5.0);
-	tfyHV_->setDescription("TFY High Voltage");
-	tfyHV_->setContextKnownDescription("Voltage");
-
-	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
-	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
-	tfyHVToggle_->setContextKnownDescription("Toggle");
-
-	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
-	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
-	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
-	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-1:dwell", this);
-	synchronizedDwellTime_->addElement(0);
-	synchronizedDwellTime_->addElement(1);
-	synchronizedDwellTime_->addElement(2);
-	synchronizedDwellTime_->addElement(3);
-	synchronizedDwellTime_->addElement(4);
-
-	sgmPVName = amNames2pvNames_.valueF("pgtHV");
-	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
-	pgtHV_->setDescription("SDD High Voltage");
-	pgtHV_->setContextKnownDescription("Voltage");
-
-	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
-	loadlockCCG_->setDescription("SSA Loadlock CCG Pressure");
-	loadlockCCG_->setContextKnownDescription("Loadlock CCG");
-	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
-	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
-	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
-
-	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
-	ssaManipulatorX_->setContextKnownDescription("X");
-
-	ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
-	ssaManipulatorY_->setContextKnownDescription("Y");
-
-	ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
-	ssaManipulatorZ_->setContextKnownDescription("Z");
-
-	ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
-	ssaManipulatorRot_->setContextKnownDescription("R");
-
-
-	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
-	beamlineScanning_->setDescription("Beamline Scanning");
-	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
-	beamlineReady_->setDescription("Beamline Status");
-	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeTrigger");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	nextDwellTimeTrigger_ = new AMPVControl("nextDwellTimeTrigger", sgmPVName, sgmPVName, "", this, 0.1 );
-	nextDwellTimeTrigger_->setDescription("Next Dwell Time Trigger");
-	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeConfirmed");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	nextDwellTimeConfirmed_ = new AMPVControl("nextDwellTimeConfirmed", sgmPVName, sgmPVName, "", this, 0.1 );
-	nextDwellTimeConfirmed_->setDescription("Next Dwell Time Confirmed");
-	sgmPVName = amNames2pvNames_.valueF("picoammeterDwellTime");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	picoammeterDwellTime_ = new AMPVControl("picoammeterDwellTime", sgmPVName, sgmPVName, "", this, 0.1 );
-	picoammeterDwellTime_->setDescription("Picoammeter Dwell Time");
-
-	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
-	energyMovingStatus_->setDescription("Energy Status");
-	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this, 0.1);
-	fastShutterVoltage_->setDescription("Fast Shutter Voltage");
-	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
-	gratingVelocity_->setDescription("Grating Motor Velocity");
-	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
-	gratingBaseVelocity_->setDescription("Grating Motor Base Velocity");
-	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
-	gratingAcceleration_->setDescription("Grating Motor Acceleration");
-	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
-	ea1CloseVacuum1_->setDescription("XPS Upstream Close Vacuum Valve");
-	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
-	ea1CloseVacuum2_->setDescription("XPS Downstream Close Vacuum Valve");
-	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
-	ea2CloseVacuum_->setDescription("SSA Close Vacuum Valve");
-	sgmPVName = amNames2pvNames_.valueF("beamOn");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this, 0.5);
-	beamOn_->setDescription("Beam On");
-	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
-	visibleLightToggle_->setDescription("Visible Light On/Off");
-	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
-	visibleLightStatus_->setDescription("Visible Light Status");
-	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
-	activeEndstation_->setDescription("Endstation Selection");
-
-	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
-	scalerIntegrationTime_->setDescription("Scaler Integration Time");
-	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
-
-	sgmPVName = amNames2pvNames_.valueF("ssaIllumination");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
-	ssaIllumination_->setDescription("SSA Illumination");
-
-	sgmPVName = amNames2pvNames_.valueF("mirrorStripeSelection");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	mirrorStripeSelection_ = new AMReadOnlyPVControl("mirrorStripeSelection", sgmPVName%":fbk", this);
-	mirrorStripeSelection_->setDescription("Mirror Stripe");
-
-	mirrorStripeSelectCarbon_ = new AMPVControl("mirrorStripeSelectCarbon", sgmPVName%":c_fanout.PROC", sgmPVName%":c_fanout.PROC", QString(), this, 0.5);
-	mirrorStripeSelectCarbon_->setDescription("Select Carbon Stripe");
-	mirrorStripeSelectSilicon_ = new AMPVControl("mirrorStripeSelectSilicon", sgmPVName%":si_fanout.PROC", sgmPVName%":si_fanout.PROC", QString(), this, 0.5);
-	mirrorStripeSelectSilicon_->setDescription("Select Silicon Stripe");
-
-	sgmPVName = amNames2pvNames_.valueF("undulator");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	undulatorOffset_ = new AMPVControl("undulatorOffset", sgmPVName%":corr_A", sgmPVName%":corr_A", QString(), this, 0.01);
-	undulatorOffset_->setDescription("Undulator Offset");
-
-	sgmPVName = amNames2pvNames_.valueF("masterDwell");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	masterDwell_ = new AMPVControl("masterDwell", sgmPVName, sgmPVName, QString(), this, 0.01);
-	masterDwell_->setDescription("Master Dwell Time");
-
-	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
-	scaler_->channelAt(0)->setCustomChannelName("TEY");
-	scaler_->channelAt(1)->setCustomChannelName("I0");
-	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
-	scaler_->channelAt(3)->setCustomChannelName("PD");
-	scaler_->channelAt(4)->setCustomChannelName("UP");
-	scaler_->channelAt(5)->setCustomChannelName("DOWN");
-	scaler_->channelAt(6)->setCustomChannelName("FPD1");
-	scaler_->channelAt(7)->setCustomChannelName("FPD2");
-	scaler_->channelAt(8)->setCustomChannelName("FPD3");
-	scaler_->channelAt(9)->setCustomChannelName("FPD4");
-
-	if(pvNameLookUpFail)
-		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
-}
-
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
-	//infoObject_ = new SGMBeamlineInfo(this);
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
 	beamlineIsInitialized_ = false;
-	usingSGMBeamline();
+	setupNameToPVLookup();
+	setupControls();
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalConnectionsChanged()), this, SLOT(recomputeWarnings()));
@@ -445,7 +68,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(beamlineReady_);
 	addChildControl(nextDwellTimeTrigger_);
 	addChildControl(nextDwellTimeConfirmed_);
-	addChildControl(picoammeterDwellTime_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
 	addChildControl(gratingVelocity_);
@@ -492,15 +114,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	transferLoadLockOutControlSet_ = new AMControlSet(this);
-	transferLoadLockOutControlSet_->setName("Transfer Load Lock Out Controls");
-	transferLoadLockOutControlSet_->addControl(loadlockCCG_);
-	transferLoadLockOutControlSet_->addControl(loadlockTCG_);
-
-	transferLoadLockInControlSet_ = new AMControlSet(this);
-	transferLoadLockInControlSet_->setName("Transfer Load Lock In Controls");
-	transferLoadLockInControlSet_->addControl(loadlockCCG_);
-	transferLoadLockInControlSet_->addControl(loadlockTCG_);
+	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+	scaler_->channelAt(0)->setCustomChannelName("TEY");
+	scaler_->channelAt(1)->setCustomChannelName("I0");
+	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+	scaler_->channelAt(3)->setCustomChannelName("PD");
+	scaler_->channelAt(4)->setCustomChannelName("UP");
+	scaler_->channelAt(5)->setCustomChannelName("DOWN");
+	scaler_->channelAt(6)->setCustomChannelName("FPD1");
+	scaler_->channelAt(7)->setCustomChannelName("FPD2");
+	scaler_->channelAt(8)->setCustomChannelName("FPD3");
+	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 
 	detectorMap_ = new QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> >();
 
@@ -690,6 +314,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
 
+	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-1:dwell", this);
+	synchronizedDwellTime_->addElement(0);
+	synchronizedDwellTime_->addElement(1);
+	synchronizedDwellTime_->addElement(2);
+	synchronizedDwellTime_->addElement(3);
+	synchronizedDwellTime_->addElement(4);
+
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
@@ -727,50 +358,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
 
 	currentSamplePlate_ = 0;//NULL
-
-	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image1.jpg"), "1");
-	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image2.jpg"), "2");
-	transferLoadLockOutAction2Help_.append(QPixmap(":/LoadLockOut/action2Image1.jpg"), "1");
-	transferLoadLockOutAction2Help_.append(QPixmap(":/LoadLockOut/action2Image2.jpg"), "2");
-	transferLoadLockOutAction3Help_.append(QPixmap(":/LoadLockOut/action3Image1.jpg"), "1");
-	transferLoadLockOutAction3Help_.append(QPixmap(":/LoadLockOut/action3Image2.jpg"), "2");
-	transferLoadLockOutAction4Help_.append(QPixmap(":/LoadLockOut/action4Image1.jpg"), "1");
-	transferLoadLockOutAction4Help_.append(QPixmap(":/LoadLockOut/action4Image2.jpg"), "2");
-	transferLoadLockOutAction5Help_.append(QPixmap(":/LoadLockOut/action5Image1.jpg"), "1");
-	transferLoadLockOutAction5Help_.append(QPixmap(":/LoadLockOut/action5Image2.jpg"), "2");
-
-	transferLoadLockInAction2Help_.append(QPixmap(":/LoadLockIn/action2Image1.jpg"), "1");
-	transferLoadLockInAction2Help_.append(QPixmap(":/LoadLockIn/action2Image2.jpg"), "2");
-	transferLoadLockInAction3Help_.append(QPixmap(":/LoadLockIn/action3Image1.jpg"), "1");
-	transferLoadLockInAction3Help_.append(QPixmap(":/LoadLockIn/action3Image2.jpg"), "2");
-	transferLoadLockInAction4Help_.append(QPixmap(":/LoadLockIn/action4Image1.jpg"), "1");
-	transferLoadLockInAction4Help_.append(QPixmap(":/LoadLockIn/action4Image2.jpg"), "2");
-	transferLoadLockInAction5Help_.append(QPixmap(":/LoadLockIn/action5Image1.jpg"), "1");
-	transferLoadLockInAction5Help_.append(QPixmap(":/LoadLockIn/action5Image2.jpg"), "2");
-	transferLoadLockInAction6Help_.append(QPixmap(":/LoadLockIn/action6Image1.jpg"), "1");
-
-	transferChamberOutAction1Help_.append(QPixmap(":/ChamberOut/action1Image1.jpg"), "1");
-	transferChamberOutAction3Help_.append(QPixmap(":/ChamberOut/action3Image1.jpg"), "1");
-	transferChamberOutAction3Help_.append(QPixmap(":/ChamberOut/action3Image2.jpg"), "2");
-	transferChamberOutAction5Help_.append(QPixmap(":/ChamberOut/action5Image1.jpg"), "1");
-	transferChamberOutAction5Help_.append(QPixmap(":/ChamberOut/action5Image2.jpg"), "2");
-	transferChamberOutAction6Help_.append(QPixmap(":/ChamberOut/action6Image1.jpg"), "1");
-	transferChamberOutAction6Help_.append(QPixmap(":/ChamberOut/action6Image2.jpg"), "2");
-	transferChamberOutAction7Help_.append(QPixmap(":/ChamberOut/action7Image1.jpg"), "1");
-	transferChamberOutAction7Help_.append(QPixmap(":/ChamberOut/action7Image2.jpg"), "2");
-	transferChamberOutAction7Help_.append(QPixmap(":/ChamberOut/action7Image3.jpg"), "3");
-	transferChamberOutAction8Help_.append(QPixmap(":/ChamberOut/action8Image1.jpg"), "1");
-	transferChamberOutAction8Help_.append(QPixmap(":/ChamberOut/action8Image2.jpg"), "2");
-
-	transferChamberInAction1Help_.append(QPixmap(":/ChamberIn/action1Image1.jpg"), "1");
-	transferChamberInAction1Help_.append(QPixmap(":/ChamberIn/action1Image2.jpg"), "2");
-	transferChamberInAction2Help_.append(QPixmap(":/ChamberIn/action2Image1.jpg"), "1");
-	transferChamberInAction2Help_.append(QPixmap(":/ChamberIn/action2Image2.jpg"), "2");
-	transferChamberInAction3Help_.append(QPixmap(":/ChamberIn/action3Image1.jpg"), "1");
-	transferChamberInAction3Help_.append(QPixmap(":/ChamberIn/action3Image2.jpg"), "2");
-	transferChamberInAction3Help_.append(QPixmap(":/ChamberIn/action3Image3.jpg"), "3");
-	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action4Image1.jpg"), "1");
-	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action42Image2.jpg"), "2");
 
 	setupExposedControls();
 	setupExposedDetectors();
@@ -965,198 +552,6 @@ AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
 	return gotoMeasurementPositionAction;
 }
 
-AMBeamlineListAction* SGMBeamline::createTransferActions(SGMBeamlineInfo::sgmTransferType transferType){
-	switch(transferType){
-	case SGMBeamlineInfo::loadlockOut :
-		return createTransferLoadLockOutActions();
-	case SGMBeamlineInfo::loadlockIn :
-		return createTransferLoadLockInActions();
-	case SGMBeamlineInfo::ChamberOut :
-		return createTransferChamberOutActions();
-	case SGMBeamlineInfo::ChamberIn :
-		return createTransferChamberInActions();
-	default:
-		return 0; //NULL
-	}
-}
-
-AMBeamlineListAction* SGMBeamline::createTransferLoadLockOutActions(){
-	if(!transferLoadLockOutControlSet_->isConnected())
-		return 0;// NULL
-	AMBeamlineParallelActionsList *transferLoadLockOutList = new AMBeamlineParallelActionsList(this);
-	AMBeamlineListAction *transferLoadLockOutAction = new AMBeamlineListAction(transferLoadLockOutList, this);
-
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction1 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockOutAction1->setMessage("Close the valve between the endstation and the loadlock");
-	transferLoadLockOutAction1->setHelp(transferLoadLockOutAction1Help_);
-	AMBeamlineControlWaitAction *transferLoadLockOutAction2 = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::GreaterThanTarget, this);
-	transferLoadLockOutAction2->setMessage("Turn off the CCG");
-	transferLoadLockOutAction2->setWaitpoint(9e-5);
-	transferLoadLockOutAction2->setHelp(transferLoadLockOutAction2Help_);
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction3 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockOutAction3->setMessage("Close the roughing pump valve");
-	transferLoadLockOutAction3->setHelp(transferLoadLockOutAction3Help_);
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction4 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockOutAction4->setMessage("Turn off the turbo pump power");
-	transferLoadLockOutAction4->setHelp(transferLoadLockOutAction5Help_);
-	AMBeamlineControlWaitAction *transferLoadLockOutAction5 = new AMBeamlineControlWaitAction(loadlockTCG_, AMBeamlineControlWaitAction::GreaterThanTarget, this);
-	transferLoadLockOutAction5->setMessage("Wait for loadlock to reach air pressure");
-	transferLoadLockOutAction5->setWaitpoint(700);
-	transferLoadLockOutAction5->setHelp(transferLoadLockOutAction5Help_);
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction6 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockOutAction6->setMessage("Open loadlock port");
-
-	/* NTBA April 1, 2011 David Chevrier
-		   Really concerned about this type of new-ing
-		*/
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(0, transferLoadLockOutAction1);
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(1, transferLoadLockOutAction2);
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(2, transferLoadLockOutAction3);
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(3, transferLoadLockOutAction4);
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(4, transferLoadLockOutAction5);
-	transferLoadLockOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockOutList->appendAction(5, transferLoadLockOutAction6);
-
-	return transferLoadLockOutAction;
-}
-
-AMBeamlineListAction* SGMBeamline::createTransferLoadLockInActions(){
-	if(!transferLoadLockInControlSet_->isConnected())
-		return 0;//NULL
-	AMBeamlineParallelActionsList *transferLoadLockInList = new AMBeamlineParallelActionsList(this);
-	AMBeamlineListAction *transferLoadLockInAction = new AMBeamlineListAction(transferLoadLockInList, this);
-
-	AMBeamlineUserConfirmAction *transferLoadLockInAction1 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockInAction1->setMessage("Close loadlock port");
-	AMBeamlineUserConfirmAction *transferLoadLockInAction2 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockInAction2->setMessage("Open the roughing pump valve");
-	transferLoadLockInAction2->setHelp(transferLoadLockInAction2Help_);
-	AMBeamlineControlWaitAction *transferLoadLockInAction3 = new AMBeamlineControlWaitAction(loadlockTCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
-	transferLoadLockInAction3->setMessage("Wait for loadlock to reach rough vacuum");
-	transferLoadLockInAction3->setWaitpoint(100);
-	transferLoadLockInAction3->setHelp(transferLoadLockInAction3Help_);
-	AMBeamlineUserConfirmAction *transferLoadLockInAction4 = new AMBeamlineUserConfirmAction(this);
-	transferLoadLockInAction4->setMessage("Turn on the turbo pump power");
-	transferLoadLockInAction4->setHelp(transferLoadLockInAction4Help_);
-	AMBeamlineControlWaitAction *transferLoadLockInAction5 = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
-	transferLoadLockInAction5->setMessage("Turn on the CCG");
-	transferLoadLockInAction5->setWaitpoint(9e-5);
-	transferLoadLockInAction5->setHelp(transferLoadLockInAction5Help_);
-	AMBeamlineControlWaitAction *transferLoadLockInAction6 = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
-	transferLoadLockInAction6->setMessage("Wait for loadlock to reach high vacuum");
-	transferLoadLockInAction6->setWaitpoint(5e-6);
-	transferLoadLockInAction6->setHelp(transferLoadLockInAction6Help_);
-
-	/* NTBA April 1, 2011 David Chevrier
-		   Really concerned about this type of new-ing
-		*/
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(0, transferLoadLockInAction1);
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(1, transferLoadLockInAction2);
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(2, transferLoadLockInAction3);
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(3, transferLoadLockInAction4);
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(4, transferLoadLockInAction5);
-	transferLoadLockInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferLoadLockInList->appendAction(5, transferLoadLockInAction6);
-
-	return transferLoadLockInAction;
-}
-
-AMBeamlineListAction* SGMBeamline::createTransferChamberOutActions(){
-	AMBeamlineParallelActionsList *transferChamberOutList = new AMBeamlineParallelActionsList(this);
-	AMBeamlineListAction *transferChamberOutAction = new AMBeamlineListAction(transferChamberOutList, this);
-
-	AMBeamlineUserConfirmAction *transferChamberOutAction1 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction1->setMessage("Close Endstation Vacuum Valve");
-	transferChamberOutAction1->setHelp(transferChamberOutAction1Help_);
-	AMBeamlineUserConfirmAction *transferChamberOutAction2 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction2->setMessage("Turn off Detector High Voltage");
-	AMBeamlineUserConfirmAction *transferChamberOutAction3 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction3->setMessage("Retract Detectors");
-	transferChamberOutAction3->setHelp(transferChamberOutAction3Help_);
-	AMBeamlineUserConfirmAction *transferChamberOutAction4 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction4->setMessage("Move to Transfer Position");
-	AMBeamlineUserConfirmAction *transferChamberOutAction5 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction5->setMessage("Confirm Loadlock at High Vacuum");
-	transferChamberOutAction5->setHelp(transferChamberOutAction5Help_);
-	AMBeamlineUserConfirmAction *transferChamberOutAction6 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction6->setMessage("Open Transfer Valve");
-	transferChamberOutAction6->setHelp(transferChamberOutAction6Help_);
-	AMBeamlineUserConfirmAction *transferChamberOutAction7 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction7->setMessage("Transfer Sample Out");
-	transferChamberOutAction7->setHelp(transferChamberOutAction7Help_);
-	AMBeamlineUserConfirmAction *transferChamberOutAction8 = new AMBeamlineUserConfirmAction(this);
-	transferChamberOutAction8->setMessage("Close Transfer Valve");
-	transferChamberOutAction8->setHelp(transferChamberOutAction8Help_);
-
-	/* NTBA April 1, 2011 David Chevrier
-	   Really concerned about this type of new-ing
-	*/
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(0, transferChamberOutAction1);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(1, transferChamberOutAction2);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(2, transferChamberOutAction3);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(3, transferChamberOutAction4);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(4, transferChamberOutAction5);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(5, transferChamberOutAction6);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(6, transferChamberOutAction7);
-	transferChamberOutList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberOutList->appendAction(7, transferChamberOutAction8);
-
-	return transferChamberOutAction;
-}
-
-AMBeamlineListAction* SGMBeamline::createTransferChamberInActions(){
-	AMBeamlineParallelActionsList *transferChamberInList = new AMBeamlineParallelActionsList(this);
-	AMBeamlineListAction *transferChamberInAction = new AMBeamlineListAction(transferChamberInList, this);
-
-	AMBeamlineUserConfirmAction *transferChamberInAction1 = new AMBeamlineUserConfirmAction(this);
-	transferChamberInAction1->setMessage("Confirm Loadlock at High Vacuum");
-	transferChamberInAction1->setHelp(transferChamberInAction1Help_);
-	AMBeamlineUserConfirmAction *transferChamberInAction2 = new AMBeamlineUserConfirmAction(this);
-	transferChamberInAction2->setMessage("Open Transfer Valve");
-	transferChamberInAction2->setHelp(transferChamberInAction2Help_);
-	AMBeamlineUserConfirmAction *transferChamberInAction3 = new AMBeamlineUserConfirmAction(this);
-	transferChamberInAction3->setMessage("Transfer Sample In");
-	transferChamberInAction3->setHelp(transferChamberInAction3Help_);
-	AMBeamlineUserConfirmAction *transferChamberInAction4 = new AMBeamlineUserConfirmAction(this);
-	transferChamberInAction4->setMessage("Close Transfer Valve");
-	transferChamberInAction4->setHelp(transferChamberInAction4Help_);
-	AMBeamlineUserConfirmAction *transferChamberInAction5 = new AMBeamlineUserConfirmAction(this);
-	transferChamberInAction5->setMessage("Turn on Detector High Voltage");
-
-	/* NTBA April 1, 2011 David Chevrier
-		   Really concerned about this type of new-ing
-		*/
-	transferChamberInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberInList->appendAction(0, transferChamberInAction1);
-	transferChamberInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberInList->appendAction(1, transferChamberInAction2);
-	transferChamberInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberInList->appendAction(2, transferChamberInAction3);
-	transferChamberInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberInList->appendAction(3, transferChamberInAction4);
-	transferChamberInList->appendStage(new QList<AMBeamlineActionItem*>());
-	transferChamberInList->appendAction(4, transferChamberInAction5);
-
-	return transferChamberInAction;
-}
-
 AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
 	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
 	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
@@ -1213,112 +608,6 @@ bool SGMBeamline::isVisibleLightOn() const{
 	if(visibleLightToggle_->value() == 1)
 		return true;
 	return false;
-}
-
-bool SGMBeamline::energyValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double energy){
-	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 240) && (energy < 750) )
-		return true;
-	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 440) && (energy < 1200) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 800) && (energy < 1150) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (energy > 1050) && (energy < 2000) )
-		return true;
-	else
-		return false;
-}
-
-bool SGMBeamline::energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy){
-	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 240) && (maxEnergy > 240) && (minEnergy < 750) && (maxEnergy < 750) )
-		return true;
-	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 440) && (maxEnergy > 440) && (minEnergy < 1200) && (maxEnergy < 1200) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 800) && (maxEnergy > 800) && (minEnergy < 1150) && (maxEnergy < 1150) )
-		return true;
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (minEnergy > 1050) && (maxEnergy > 1050) && (minEnergy < 2000) && (maxEnergy < 2000) )
-		return true;
-	else
-		return false;
-}
-
-QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > SGMBeamline::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
-	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > rVal;
-	if( (maxEnergy > 240) && (maxEnergy < 750) && (minEnergy > 240) && (minEnergy < 750) )
-		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)0, SGMBeamlineInfo::firstHarmonic ));
-	if((maxEnergy > 440) && (maxEnergy < 1200) && (minEnergy > 440) && (minEnergy < 1200) )
-		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)1, SGMBeamlineInfo::firstHarmonic ));
-	if( (maxEnergy > 800) && (maxEnergy < 1100) && (minEnergy > 800) && (minEnergy < 1100) )
-		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::firstHarmonic ));
-	if( (maxEnergy > 1100) && (maxEnergy < 2000) && (minEnergy > 1100) && (minEnergy < 2000) )
-		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::thirdHarmonic ));
-	return rVal;
-}
-
-QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic){
-	QPair<double, double> rVal;
-	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(240, 750);
-	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(440, 1200);
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(800, 1100);
-	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) )
-		rVal = QPair<double, double>(1100, 2000);
-	return rVal;
-}
-
-QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamline::forBestFlux(double minEnergy, double maxEnergy) const{
-	bool straddlesTransition = false;
-	double testEnergy = 0;
-	QList<double> transitionPoints;
-	transitionPoints << 625 << 1200;
-	for(int x = 0; x < transitionPoints.count(); x++){
-		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
-			straddlesTransition = true;
-			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
-				testEnergy = minEnergy;
-			else
-				testEnergy = maxEnergy;
-		}
-	}
-
-	if(!straddlesTransition)
-		testEnergy = minEnergy;
-
-	if(testEnergy < 625)
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
-	else if(testEnergy < 1200)
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
-	else
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
-}
-
-QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamline::forBestResolution(double minEnergy, double maxEnergy) const{
-	bool straddlesTransition = false;
-	double testEnergy = 0;
-	QList<double> transitionPoints;
-	transitionPoints << 400 << 800 << 1100;
-	for(int x = 0; x < transitionPoints.count(); x++){
-		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
-			straddlesTransition = true;
-			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
-				testEnergy = minEnergy;
-			else
-				testEnergy = maxEnergy;
-		}
-	}
-
-	if(!straddlesTransition)
-		testEnergy = minEnergy;
-
-	if(testEnergy < 400)
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
-	else if(testEnergy < 800)
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
-	else if(testEnergy < 1100)
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::firstHarmonic);
-	else
-		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
 }
 
 QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set){
@@ -1536,6 +825,258 @@ void SGMBeamline::computeBeamlineInitialized(){
 		beamlineIsInitialized_ = true;
 		emit beamlineInitialized();
 	}
+}
+
+void SGMBeamline::setupNameToPVLookup(){
+	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("energySpacingParam", "SG16114I1001:selI");
+	amNames2pvNames_.set("energyC1Param", "SG16114I1001:selG");
+	amNames2pvNames_.set("energyC2Param", "SG16114I1001:selH");
+	amNames2pvNames_.set("energySParam", "SG16114I1001:selE");
+	amNames2pvNames_.set("energyThetaParam", "SG16114I1001:selF");
+	amNames2pvNames_.set("eV_Fbk", "BL1611-ID-1:Energy:fbk");
+	amNames2pvNames_.set("eVFbk", "BL1611-ID-1:Energy:fbk");
+	amNames2pvNames_.set("mono", "SMTR16114I1002");
+	amNames2pvNames_.set("undulator", "UND1411-01");
+	amNames2pvNames_.set("exitSlit", "PSL16114I1003");
+	amNames2pvNames_.set("exitSlitGap", "PSL16114I1004");
+	amNames2pvNames_.set("entranceSlitGap", "PSL16114I1001");
+	amNames2pvNames_.set("M4", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("M4Inboard", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("M4Outboard", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("M4Downstream", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("grating", "BL1611-ID-1:AddOns:grating");
+	amNames2pvNames_.set("harmonic", "BL1611-ID-1:AddOns:harmonic");
+	amNames2pvNames_.set("undulatorMotor", "SMTR1411-01");
+	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
+	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
+	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
+	amNames2pvNames_.set("tfyScaler", "BL1611-ID-1:mcs02:fbk");
+	amNames2pvNames_.set("tfyHV", "PS1611401:109");
+	amNames2pvNames_.set("pgtBase", "MCA1611-01");
+	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
+	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
+	amNames2pvNames_.set("amptekSDD2", "amptek:sdd2");
+
+	amNames2pvNames_.set("ssaManipulatorX", "SMTR16114I1022");
+	amNames2pvNames_.set("ssaManipulatorY", "SMTR16114I1023");
+	amNames2pvNames_.set("ssaManipulatorZ", "SMTR16114I1024");
+	amNames2pvNames_.set("ssaManipulatorRot", "SMTR16114I1025");
+
+	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
+	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
+	amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:AddOns:trigger:dwellTime");
+	amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:AddOns:confirmed:dwellTime");
+	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
+	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
+	amNames2pvNames_.set("scaler", "BL1611-ID-1:mcs:scan");
+	amNames2pvNames_.set("scalerIntegrationTime", "BL1611-ID-1:mcs:delay");
+	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
+	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
+	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
+	amNames2pvNames_.set("ea1CloseVacuum1", "VVR1611-4-I10-05:opr:close");
+	amNames2pvNames_.set("ea1CloseVacuum2", "VVR1611-4-I10-06:opr:close");
+	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
+	amNames2pvNames_.set("beamOn", "BL1611-ID-1:AddOns:beamon:trigger");
+	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
+	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
+	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
+	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
+	amNames2pvNames_.set("mirrorStripeSelection", "BL1611-ID-1:stripe");
+	amNames2pvNames_.set("masterDwell", "BL1611-ID-1:dwell:setTime");
+}
+
+void SGMBeamline::setupControls(){
+	amNames2pvNames_.resetLookup();
+
+	QString sgmPVName = amNames2pvNames_.valueF("energy");
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+	energy_->setDescription("Energy");
+	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
+	energySpacingParam_ = new AMReadOnlyPVControl("energySpacingParam", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyC1Param");
+	energyC1Param_ = new AMReadOnlyPVControl("energyC1Param", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyC2Param");
+	energyC2Param_ = new AMReadOnlyPVControl("energyC2Param", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energySParam");
+	energySParam_ = new AMReadOnlyPVControl("energySParam", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyThetaParam");
+	energyThetaParam_ = new AMReadOnlyPVControl("energyThetaParam", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("mono");
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	mono->setDescription("Monochromator");
+	sgmPVName = amNames2pvNames_.valueF("undulator");
+	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
+	undulator->setDescription("Undulator");
+	sgmPVName = amNames2pvNames_.valueF("exitSlit");
+	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", energy_, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
+	exitSlit->setDescription("Exit Slit Position");
+	energy_->addChildControl(mono);
+	energy_->addChildControl(undulator);
+	energy_->addChildControl(exitSlit);
+
+	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
+	//exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
+	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
+	//((AMPVwStatusControl*)exitSlitGap_)->setMoveStartTolerance(0.02);
+	exitSlitGap_->setDescription("Exit Slit Gap");
+	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
+	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
+	entranceSlitGap_->setDescription("Entrance Slit Gap");
+	sgmPVName = amNames2pvNames_.valueF("M4");
+	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
+	m4_->setDescription("M4 Mirror");
+	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
+	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4inboard->setDescription("M4 Inboard");
+	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
+	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4outboard->setDescription("M4 Outboard");
+	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
+	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4downstream->setDescription("M4 Downstream");
+	m4_->addChildControl(m4inboard);
+	m4_->addChildControl(m4outboard);
+	m4_->addChildControl(m4downstream);
+
+	sgmPVName = amNames2pvNames_.valueF("grating");
+	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	((AMPVwStatusControl*)(grating_))->setMoveStartTolerance(0.1);
+	grating_->setDescription("Grating Selection");
+	sgmPVName = amNames2pvNames_.valueF("harmonic");
+	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
+	((AMPVwStatusControl*)(harmonic_))->setMoveStartTolerance(0.1);
+	harmonic_->setDescription("Harmonic");
+
+	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
+	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20, 20 );
+	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
+	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
+	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
+
+	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
+	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	undulatorTracking_->setDescription("Undulator Tracking");
+	undulatorTracking_->setContextKnownDescription("Undulator");
+	sgmPVName = amNames2pvNames_.valueF("monoTracking");
+	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
+	monoTracking_->setDescription("Mono Tracking");
+	monoTracking_->setContextKnownDescription("Mono");
+	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
+	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	exitSlitTracking_->setDescription("Exit Slit Tracking");
+	exitSlitTracking_->setContextKnownDescription("Exit Slit");
+
+	sgmPVName = amNames2pvNames_.valueF("tfyHV");
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 5.0);
+	tfyHV_->setDescription("TFY High Voltage");
+	tfyHV_->setContextKnownDescription("Voltage");
+
+	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
+	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
+	tfyHVToggle_->setContextKnownDescription("Toggle");
+
+	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
+	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
+	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
+
+	sgmPVName = amNames2pvNames_.valueF("pgtHV");
+	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
+	pgtHV_->setDescription("SDD High Voltage");
+	pgtHV_->setContextKnownDescription("Voltage");
+
+	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+	ssaManipulatorX_->setContextKnownDescription("X");
+
+	ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+	ssaManipulatorY_->setContextKnownDescription("Y");
+
+	ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
+	ssaManipulatorZ_->setContextKnownDescription("Z");
+
+	ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
+	ssaManipulatorRot_->setContextKnownDescription("R");
+
+
+	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
+	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
+	beamlineScanning_->setDescription("Beamline Scanning");
+	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
+	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
+	beamlineReady_->setDescription("Beamline Status");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeTrigger");
+	nextDwellTimeTrigger_ = new AMPVControl("nextDwellTimeTrigger", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeTrigger_->setDescription("Next Dwell Time Trigger");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeConfirmed");
+	nextDwellTimeConfirmed_ = new AMPVControl("nextDwellTimeConfirmed", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeConfirmed_->setDescription("Next Dwell Time Confirmed");
+
+	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
+	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
+	energyMovingStatus_->setDescription("Energy Status");
+	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
+	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this, 0.1);
+	fastShutterVoltage_->setDescription("Fast Shutter Voltage");
+	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
+	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingVelocity_->setDescription("Grating Motor Velocity");
+	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
+	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingBaseVelocity_->setDescription("Grating Motor Base Velocity");
+	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
+	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
+	gratingAcceleration_->setDescription("Grating Motor Acceleration");
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
+	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum1_->setDescription("XPS Upstream Close Vacuum Valve");
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
+	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum2_->setDescription("XPS Downstream Close Vacuum Valve");
+	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
+	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	ea2CloseVacuum_->setDescription("SSA Close Vacuum Valve");
+	sgmPVName = amNames2pvNames_.valueF("beamOn");
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this, 0.5);
+	beamOn_->setDescription("Beam On");
+	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
+	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	visibleLightToggle_->setDescription("Visible Light On/Off");
+	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
+	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
+	visibleLightStatus_->setDescription("Visible Light Status");
+	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
+	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+	activeEndstation_->setDescription("Endstation Selection");
+
+	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
+	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerIntegrationTime_->setDescription("Scaler Integration Time");
+	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
+
+	sgmPVName = amNames2pvNames_.valueF("ssaIllumination");
+	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
+	ssaIllumination_->setDescription("SSA Illumination");
+
+	sgmPVName = amNames2pvNames_.valueF("mirrorStripeSelection");
+	mirrorStripeSelection_ = new AMReadOnlyPVControl("mirrorStripeSelection", sgmPVName%":fbk", this);
+	mirrorStripeSelection_->setDescription("Mirror Stripe");
+
+	mirrorStripeSelectCarbon_ = new AMPVControl("mirrorStripeSelectCarbon", sgmPVName%":c_fanout.PROC", sgmPVName%":c_fanout.PROC", QString(), this, 0.5);
+	mirrorStripeSelectCarbon_->setDescription("Select Carbon Stripe");
+	mirrorStripeSelectSilicon_ = new AMPVControl("mirrorStripeSelectSilicon", sgmPVName%":si_fanout.PROC", sgmPVName%":si_fanout.PROC", QString(), this, 0.5);
+	mirrorStripeSelectSilicon_->setDescription("Select Silicon Stripe");
+
+	sgmPVName = amNames2pvNames_.valueF("undulator");
+	undulatorOffset_ = new AMPVControl("undulatorOffset", sgmPVName%":corr_A", sgmPVName%":corr_A", QString(), this, 0.01);
+	undulatorOffset_->setDescription("Undulator Offset");
+
+	sgmPVName = amNames2pvNames_.valueF("masterDwell");
+	masterDwell_ = new AMPVControl("masterDwell", sgmPVName, sgmPVName, QString(), this, 0.01);
+	masterDwell_->setDescription("Master Dwell Time");
+
+	if(amNames2pvNames_.lookupFailed())
+		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
 }
 
 void SGMBeamline::setupExposedControls(){

@@ -200,7 +200,6 @@ bool AMDatamanAppController::startupLoadSettings()
 	AMSettings::s()->load();
 	AMUserSettings::load();
 
-	qDebug() << "Comparing directories " << AMUserSettings::userDataFolder << " versus " << QDir::homePath();
 	QString userDatabaseFolder = AMUserSettings::userDataFolder;
 	if(userDatabaseFolder.endsWith('/'))
 		userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
@@ -789,6 +788,8 @@ void AMDatamanAppController::onAddButtonClicked() {
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
+	Q_UNUSED(elapsed);
+	Q_UNUSED(total);
 	/*
 	bottomBar_->updateScanProgress(elapsed, total);
 	*/

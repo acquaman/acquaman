@@ -78,6 +78,16 @@ public:
 
 	SGMEnergyParameters* standardEnergyParametersByName(QString gratingName) const;
 
+	bool energyValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double energy);
+	bool energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy);
+
+	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
+	QPair<double, double> energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic);
+
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
+	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
+
+
 protected:
 	SGMBeamlineInfo(QObject *parent = 0);
 	static SGMBeamlineInfo *instance_;

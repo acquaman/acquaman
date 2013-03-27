@@ -115,6 +115,112 @@ SGMEnergyParameters* SGMBeamlineInfo::standardEnergyParametersByName(QString gra
 		return 0; //NULL
 }
 
+bool SGMBeamlineInfo::energyValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double energy){
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 240) && (energy < 750) )
+		return true;
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 440) && (energy < 1200) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (energy > 800) && (energy < 1150) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (energy > 1050) && (energy < 2000) )
+		return true;
+	else
+		return false;
+}
+
+bool SGMBeamlineInfo::energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy){
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 240) && (maxEnergy > 240) && (minEnergy < 750) && (maxEnergy < 750) )
+		return true;
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 440) && (maxEnergy > 440) && (minEnergy < 1200) && (maxEnergy < 1200) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) && (minEnergy > 800) && (maxEnergy > 800) && (minEnergy < 1150) && (maxEnergy < 1150) )
+		return true;
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) && (minEnergy > 1050) && (maxEnergy > 1050) && (minEnergy < 2000) && (maxEnergy < 2000) )
+		return true;
+	else
+		return false;
+}
+
+QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > SGMBeamlineInfo::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
+	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > rVal;
+	if( (maxEnergy > 240) && (maxEnergy < 750) && (minEnergy > 240) && (minEnergy < 750) )
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)0, SGMBeamlineInfo::firstHarmonic ));
+	if((maxEnergy > 440) && (maxEnergy < 1200) && (minEnergy > 440) && (minEnergy < 1200) )
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)1, SGMBeamlineInfo::firstHarmonic ));
+	if( (maxEnergy > 800) && (maxEnergy < 1100) && (minEnergy > 800) && (minEnergy < 1100) )
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::firstHarmonic ));
+	if( (maxEnergy > 1100) && (maxEnergy < 2000) && (minEnergy > 1100) && (minEnergy < 2000) )
+		rVal.append(QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>((SGMBeamlineInfo::sgmGrating)2, SGMBeamlineInfo::thirdHarmonic ));
+	return rVal;
+}
+
+QPair<double, double> SGMBeamlineInfo::energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic){
+	QPair<double, double> rVal;
+	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
+		rVal = QPair<double, double>(240, 750);
+	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
+		rVal = QPair<double, double>(440, 1200);
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
+		rVal = QPair<double, double>(800, 1100);
+	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) )
+		rVal = QPair<double, double>(1100, 2000);
+	return rVal;
+}
+
+QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamlineInfo::forBestFlux(double minEnergy, double maxEnergy) const{
+	bool straddlesTransition = false;
+	double testEnergy = 0;
+	QList<double> transitionPoints;
+	transitionPoints << 625 << 1200;
+	for(int x = 0; x < transitionPoints.count(); x++){
+		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
+			straddlesTransition = true;
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
+				testEnergy = minEnergy;
+			else
+				testEnergy = maxEnergy;
+		}
+	}
+
+	if(!straddlesTransition)
+		testEnergy = minEnergy;
+
+	if(testEnergy < 625)
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
+	else if(testEnergy < 1200)
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
+	else
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
+}
+
+QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamlineInfo::forBestResolution(double minEnergy, double maxEnergy) const{
+	bool straddlesTransition = false;
+	double testEnergy = 0;
+	QList<double> transitionPoints;
+	transitionPoints << 400 << 800 << 1100;
+	for(int x = 0; x < transitionPoints.count(); x++){
+		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
+			straddlesTransition = true;
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
+				testEnergy = minEnergy;
+			else
+				testEnergy = maxEnergy;
+		}
+	}
+
+	if(!straddlesTransition)
+		testEnergy = minEnergy;
+
+	if(testEnergy < 400)
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::lowGrating, SGMBeamlineInfo::firstHarmonic);
+	else if(testEnergy < 800)
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::mediumGrating, SGMBeamlineInfo::firstHarmonic);
+	else if(testEnergy < 1100)
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::firstHarmonic);
+	else
+		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
+}
+
 SGMEnergyParameters::SGMEnergyParameters(QObject *parent) : QObject(parent)
 {
 }
