@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/VESPERS/VESPERSBeamlineSetStringAction.h"
 
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSMarCCDDetectorInfo(name, description, parent), AMDetector(name)
+	: VESPERSCCDDetectorInfo(name, description, AMnDIndex(2048, 2048), parent), AMDetector(name)
 {
 	imageModeControl_ = new AMPVControl("Image Mode", "ccd1607-002:cam1:ImageMode_RBV", "ccd1607-002:cam1:ImageMode", QString(), this, 0.1);
 	triggerModeControl_ = new AMPVControl("Trigger Mode", "ccd1607-002:cam1:TriggerMode_RBV", "ccd1607-002:cam1:TriggerMode", QString(), this, 0.1);
@@ -144,7 +144,7 @@ VESPERSMarCCDDetector::State VESPERSMarCCDDetector::state() const
 
 bool VESPERSMarCCDDetector::setFromInfo(const AMDetectorInfo *info)
 {
-	const VESPERSMarCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSMarCCDDetectorInfo *>(info);
+	const VESPERSCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSCCDDetectorInfo *>(info);
 
 	// Check to make sure the detector info was valid.  If it isn't, then don't do anything to the detector.
 	if (!detectorInfo)
@@ -155,7 +155,7 @@ bool VESPERSMarCCDDetector::setFromInfo(const AMDetectorInfo *info)
 	return true;
 }
 
-void VESPERSMarCCDDetector::setFromMarInfo(const VESPERSMarCCDDetectorInfo &info)
+void VESPERSMarCCDDetector::setFromMarInfo(const VESPERSCCDDetectorInfo &info)
 {
 	setAcquireTime(info.acquireTime());
 }

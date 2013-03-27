@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/VESPERS/VESPERSBeamlineSetStringAction.h"
 
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMDetector(name)
+	: VESPERSCCDDetectorInfo(name, description, AMnDIndex(2084, 2084), parent), AMDetector(name)
 {
 	imageData_ = QVector<int>(size().product());
 
@@ -149,21 +149,21 @@ VESPERSRoperCCDDetector::State VESPERSRoperCCDDetector::state() const
 
 bool VESPERSRoperCCDDetector::setFromInfo(const AMDetectorInfo *info)
 {
-	const VESPERSRoperCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSRoperCCDDetectorInfo *>(info);
+	const VESPERSCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSCCDDetectorInfo *>(info);
 
 	// Check to make sure the detector info was valid.  If it isn't, then don't do anything to the detector.
 	if (!detectorInfo)
 		return false;
 
-	setTemperature(detectorInfo->temperature());
+//	setTemperature(detectorInfo->temperature());
 	setAcquireTime(detectorInfo->acquireTime());
 
 	return true;
 }
 
-void VESPERSRoperCCDDetector::setFromRoperInfo(const VESPERSRoperCCDDetectorInfo &info)
+void VESPERSRoperCCDDetector::setFromVESPERSInfo(const VESPERSCCDDetectorInfo &info)
 {
-	setTemperature(info.temperature());
+//	setTemperature(info.temperature());
 	setAcquireTime(info.acquireTime());
 }
 

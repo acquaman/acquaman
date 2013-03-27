@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSMARCCDDETECTOR_H
 
 #include "beamline/AMDetector.h"
-#include "dataman/VESPERS/VESPERSMarCCDDetectorInfo.h"
+#include "dataman/VESPERS/VESPERSCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "application/VESPERS/VESPERS.h"
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMDetector
+class VESPERSMarCCDDetector : public VESPERSCCDDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 
@@ -50,19 +50,19 @@ public:
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
 	/// Returns the description of the detector.
-	virtual QString description() const { return VESPERSMarCCDDetectorInfo::description(); }
+	virtual QString description() const { return VESPERSCCDDetectorInfo::description(); }
 	/// Sets the description for the detector.
-	virtual void setDescription(const QString &description) { VESPERSMarCCDDetectorInfo::setDescription(description); }
+	virtual void setDescription(const QString &description) { VESPERSCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSMarCCDDetectorInfo(*this); }
+	virtual AMDetectorInfo *toInfo() const { return new VESPERSCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
-	VESPERSMarCCDDetectorInfo toMarInfo() const { return VESPERSMarCCDDetectorInfo(*this); }
+	VESPERSCCDDetectorInfo toMarInfo() const { return VESPERSCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
 	virtual bool setFromInfo(const AMDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
-	void setFromMarInfo(const VESPERSMarCCDDetectorInfo &info);
+	void setFromMarInfo(const VESPERSCCDDetectorInfo &info);
 
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ public slots:
 	/// Sets the acquire time for the detector.
 	virtual void setAcquireTime(double time)
 	{
-		VESPERSMarCCDDetectorInfo::setAcquireTime(time);
+		VESPERSCCDDetectorInfo::setAcquireTime(time);
 		acquireTimeControl_->move(time);
 	}
 
@@ -179,7 +179,7 @@ protected slots:
 	/// Helper slot that emits the current status of writing a file.
 	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
 	/// Helper slot that emits the acquireTime signal and sets the acquire time in the info.
-	void onAcquireTimeChanged(double time) { VESPERSMarCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
+	void onAcquireTimeChanged(double time) { VESPERSCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(VESPERS::pvToString(ccdPath_)); }

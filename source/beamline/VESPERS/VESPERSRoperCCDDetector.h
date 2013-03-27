@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSROPERCCDDETECTOR_H
 
 #include "beamline/AMDetector.h"
-#include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
+#include "dataman/VESPERS/VESPERSCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "application/VESPERS/VESPERS.h"
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSRoperCCDDetector : public VESPERSRoperCCDDetectorInfo, public AMDetector
+class VESPERSRoperCCDDetector : public VESPERSCCDDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 
@@ -50,19 +50,19 @@ public:
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
 	/// Returns the description for the detector.
-	virtual QString description() const { return VESPERSRoperCCDDetectorInfo::description(); }
+	virtual QString description() const { return VESPERSCCDDetectorInfo::description(); }
 	/// Sets the description for the detector.
-	virtual void setDescription(const QString &description) { VESPERSRoperCCDDetectorInfo::setDescription(description); }
+	virtual void setDescription(const QString &description) { VESPERSCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is reponsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSRoperCCDDetectorInfo(*this); }
+	virtual AMDetectorInfo *toInfo() const { return new VESPERSCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
-	VESPERSRoperCCDDetectorInfo toRoperInfo() const { return VESPERSRoperCCDDetectorInfo(*this); }
+	VESPERSCCDDetectorInfo toRoperInfo() const { return VESPERSCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
 	virtual bool setFromInfo(const AMDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
-	void setFromRoperInfo(const VESPERSRoperCCDDetectorInfo &info);
+	void setFromVESPERSInfo(const VESPERSCCDDetectorInfo &info);
 
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
@@ -153,14 +153,14 @@ public slots:
 	/// Sets the acquire time for the detector.
 	virtual void setAcquireTime(double time)
 	{
-		VESPERSRoperCCDDetectorInfo::setAcquireTime(time);
+		VESPERSCCDDetectorInfo::setAcquireTime(time);
 		acquireTimeControl_->move(time);
 	}
 
 	/// Sets the temperature for the detector.
 	virtual void setTemperature(double temperature)
 	{
-		VESPERSRoperCCDDetectorInfo::setTemperature(temperature);
+//		VESPERSCCDDetectorInfo::setTemperature(temperature);
 		temperatureControl_->move(temperature);
 	}
 	/// Sets the image mode for the detector.
@@ -200,9 +200,9 @@ protected slots:
 	/// Helper slot that emits the current status of writing a file.
 	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
 	/// Helper slot that emits the acquireTime signal and sets the acquire time in the info.
-	void onAcquireTimeChanged(double time) { VESPERSRoperCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
+	void onAcquireTimeChanged(double time) { VESPERSCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
 	/// Helper slot that emits the temperature changed signal and sets the temperature in the info.
-	void onTemperatureSetpointChanged(double temperature) { VESPERSRoperCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
+	void onTemperatureSetpointChanged(double temperature) { /*VESPERSRoperCCDDetectorInfo::setTemperature(temperature);*/ emit temperatureSetpointChanged(temperature); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(VESPERS::pvToString(ccdPath_)); }
