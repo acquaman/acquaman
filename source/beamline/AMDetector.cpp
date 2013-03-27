@@ -150,6 +150,16 @@ AMAction3* AMDetector::createAcquisitionAction(AMDetectorDefinitions::ReadMode r
 	return new AMDetectorAcquisitionAction(new AMDetectorAcquisitionActionInfo(toInfo(), readMode, this));
 }
 
+#include "actions3/actions/AMDetectorTriggerAction.h"
+AMAction3* AMDetector::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){
+	return new AMDetectorTriggerAction(new AMDetectorTriggerActionInfo(toInfo(), readMode, this));
+}
+
+#include "actions3/actions/AMDetectorReadAction.h"
+AMAction3* AMDetector::createReadAction(){
+	return new AMDetectorReadAction(new AMDetectorReadActionInfo(toInfo(), this));
+}
+
 #include "actions3/actions/AMDetectorCleanupAction.h"
 AMAction3* AMDetector::createCleanupActions(){
 	return new AMDetectorCleanupAction(new AMDetectorCleanupActionInfo(toInfo()), this);

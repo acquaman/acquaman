@@ -247,6 +247,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
 
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+	virtual AMAction3* createReadAction();
+
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
@@ -329,6 +332,7 @@ signals:
 	void readModeChanged(AMDetectorDefinitions::ReadMode readMode);
 	/// Indicates that the detector's acquisition time has changed
 	void acquisitionTimeChanged(double seconds);
+	void newValuesAvailable();
 
 protected slots:
 	///

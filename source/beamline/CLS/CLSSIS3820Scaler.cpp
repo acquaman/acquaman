@@ -31,7 +31,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connectedOnce_ = false;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
-	connect(triggerSource_, SIGNAL(triggered()), this, SLOT(onTriggerSourceTriggered()));
+	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
 	CLSSIS3820ScalerChannel *tmpChannel;
 	for(int x = 0; x < 32; x++){
@@ -317,11 +317,26 @@ void CLSSIS3820Scaler::onConnectedChanged(){
 		emit connectedChanged(isConnected());
 }
 
-void CLSSIS3820Scaler::onTriggerSourceTriggered(){
-	if(!isConnected() && !isScanning())
+void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
+	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
 		return;
 
+	//setScanning(true);
+	if(isContinuous()){
+		connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+		setContinuous(false);
+	}
+	else
+		triggerScalerAcquisition(isContinuous());
+}
+
+bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
+	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+	if(isContinuous)
+		return false;
+
 	setScanning(true);
+	return true;
 }
 
 // CLSSIS3820ScalarChannel

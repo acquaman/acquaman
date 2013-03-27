@@ -628,7 +628,15 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMAxisFinishedActionInfo.h \
     source/actions3/actions/AMAxisStartedAction.h \
     source/actions3/actions/AMAxisFinishedAction.h \
-    source/beamline/AMBasicControlDetectorEmulator.h
+    source/beamline/AMBasicControlDetectorEmulator.h \
+    source/actions3/actions/AMDetectorTriggerActionInfo.h \
+    source/actions3/actions/AMDetectorTriggerAction.h \
+    source/actions3/actions/AMDetectorReadActionInfo.h \
+    source/actions3/actions/AMDetectorReadAction.h \
+    source/dataman/AMScanAxisRegion.h \
+    source/dataman/AMScanAxis.h \
+    source/acquaman/AMScanActionControllerScanOptimizer.h \
+    source/acquaman/AMDetectorTriggerSourceScanOptimizer.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1060,7 +1068,15 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMAxisFinishedActionInfo.cpp \
     source/actions3/actions/AMAxisStartedAction.cpp \
     source/actions3/actions/AMAxisFinishedAction.cpp \
-    source/beamline/AMBasicControlDetectorEmulator.cpp
+    source/beamline/AMBasicControlDetectorEmulator.cpp \
+    source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
+    source/actions3/actions/AMDetectorTriggerAction.cpp \
+    source/actions3/actions/AMDetectorReadActionInfo.cpp \
+    source/actions3/actions/AMDetectorReadAction.cpp \
+    source/dataman/AMScanAxisRegion.cpp \
+    source/dataman/AMScanAxis.cpp \
+    source/acquaman/AMScanActionControllerScanOptimizer.cpp \
+    source/acquaman/AMDetectorTriggerSourceScanOptimizer.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1084,6 +1100,22 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

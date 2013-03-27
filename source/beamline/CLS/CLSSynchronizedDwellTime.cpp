@@ -27,7 +27,7 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	baseName_ = baseName;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
-	connect(triggerSource_, SIGNAL(triggered()), this, SLOT(onTriggerSourceTriggered()));
+	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
 	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
 	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
@@ -98,8 +98,22 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronized
 	return action;
 }
 
-void CLSSynchronizedDwellTime::onTriggerSourceTriggered(){
-	if(!isConnected() || isScanning())
+void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
+	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
+		return;
+
+	//start();
+	if(mode() == CLSSynchronizedDwellTime::Continuous){
+		connect(this, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode)));
+		setMode(CLSSynchronizedDwellTime::SingleShot);
+	}
+	else
+		triggerSynchronizedDwellTimeAcquisition(mode());
+}
+
+void CLSSynchronizedDwellTime::triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode newMode){
+	disconnect(this, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode)));
+	if(newMode == CLSSynchronizedDwellTime::Continuous)
 		return;
 
 	start();

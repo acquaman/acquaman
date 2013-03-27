@@ -6,6 +6,6 @@ AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *p
 	name_ = name;
 }
 
-void AMDetectorTriggerSource::trigger(){
-	emit triggered();
+void AMDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode){
+	emit triggered(readMode);
 }

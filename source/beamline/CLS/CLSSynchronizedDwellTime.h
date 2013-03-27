@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
+#include "dataman/info/AMDetectorInfo.h"
 
 class AMDetectorTriggerSource;
 
@@ -223,7 +224,8 @@ protected slots:
 	void onConnectedChanged() { emit connected(isConnected()); }
 
 	/// Handles forwarding the trigger source triggered() signal to starting the synchronized dwell time object
-	void onTriggerSourceTriggered();
+	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	void triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode newMode);
 
 protected:
 	/// List holding the individual elements.

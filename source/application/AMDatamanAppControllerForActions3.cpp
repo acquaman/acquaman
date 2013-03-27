@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlateMoveAction.h"
 #include "actions3/actions/AMDetectorInitializeActionInfo.h"
 #include "actions3/actions/AMDetectorAcquisitionActionInfo.h"
+#include "actions3/actions/AMDetectorTriggerActionInfo.h"
+#include "actions3/actions/AMDetectorReadActionInfo.h"
 #include "actions3/actions/AMDetectorCleanupActionInfo.h"
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
@@ -106,6 +108,8 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInitializeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorAcquisitionActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorTriggerActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorReadActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorCleanupActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();

@@ -50,6 +50,12 @@ const double* AMBasicControlDetectorEmulator::data() const{
 	return data_;
 }
 
+AMAction3* AMBasicControlDetectorEmulator::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){
+	if(readMethod() != AMDetectorDefinitions::RequestRead)
+		return 0;
+	return AMDetector::createTriggerAction(readMode);
+}
+
 void AMBasicControlDetectorEmulator::onControlsConnected(bool connected){
 	if(connected)
 		setConnected(connected);
@@ -66,6 +72,7 @@ void AMBasicControlDetectorEmulator::onControlsTimedOut(){
 void AMBasicControlDetectorEmulator::onControlValueChanged(double value){
 	Q_UNUSED(value)
 	data_[0] = singleReading();
+	emit newValuesAvailable();
 	if(waitingForNewData_){
 		waitingForNewData_ = false;
 		setAcquisitionSucceeded();

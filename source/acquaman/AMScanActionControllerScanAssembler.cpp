@@ -1,234 +1,5 @@
 #include "AMScanActionControllerScanAssembler.h"
 
-AMScanAxisRegion::AMScanAxisRegion(AMNumber start, AMNumber step, AMNumber end, AMNumber time, QObject *parent) :
-	AMDbObject(parent)
-{
-	setRegionStart(start);
-	setRegionStep(step);
-	setRegionEnd(end);
-	setRegionTime(time);
-}
-
-AMNumber AMScanAxisRegion::regionStart() const{
-	return regionStart_;
-}
-
-AMNumber AMScanAxisRegion::regionStep() const{
-	return regionStep_;
-}
-
-AMNumber AMScanAxisRegion::regionEnd() const{
-	return regionEnd_;
-}
-
-AMNumber AMScanAxisRegion::regionTime() const{
-	return regionTime_;
-}
-
-void AMScanAxisRegion::setRegionStart(AMNumber regionStart){
-	regionStart_ = regionStart;
-}
-
-void AMScanAxisRegion::setRegionStep(AMNumber regionStep){
-	regionStep_ = regionStep;
-}
-
-void AMScanAxisRegion::setRegionEnd(AMNumber regionEnd){
-	regionEnd_ = regionEnd;
-}
-
-void AMScanAxisRegion::setRegionTime(AMNumber regionTime){
-	regionTime_ = regionTime;
-}
-
-AMScanAxis::AMScanAxis(AMScanAxis::AxisType axisType, const AMScanAxisRegion &firstRegion, QObject *parent) :
-	AMDbObject(parent)
-{
-	setAxisType(axisType);
-	regions_.append(firstRegion);
-	axisValid_ = AMScanAxis::InvalidAxis;
-	checkAxisValidity();
-}
-
-AMScanAxis::AxisType AMScanAxis::axisType() const{
-	return axisType_;
-}
-
-AMScanAxis::AxisValid AMScanAxis::axisValid() const{
-	return axisValid_;
-}
-
-const AMOrderedList<AMScanAxisRegion> AMScanAxis::regions() const{
-	return regions_;
-}
-
-const AMScanAxisRegion& AMScanAxis::regionAt(int index) const{
-	return regions_.at(index);
-}
-
-int AMScanAxis::regionCount() const{
-	return regions_.count();
-}
-
-AMNumber AMScanAxis::axisStart() const{
-	if(axisType_ == AMScanAxis::ContinuousDwellAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	return regionAt(0).regionStart();
-}
-
-AMNumber AMScanAxis::axisStep() const{
-	if(axisType_ != AMScanAxis::StepAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	if(regionCount() == 1)
-		return regionAt(0).regionStep();
-
-	AMNumber firstStepSize = regionAt(0).regionStep();
-	bool multipleStepSizes = firstStepSize.state() != AMNumber::Valid;
-	for(int x = 1; x < regionCount(); x++)
-		if(firstStepSize != regionAt(x).regionStep() || regionAt(x).regionStep().state() != AMNumber::Valid)
-			multipleStepSizes = true;
-
-	if(multipleStepSizes)
-		return AMNumber(AMNumber::Null);
-	return regionAt(0).regionStep();
-}
-
-AMNumber AMScanAxis::axisEnd() const{
-	if(axisType_ == AMScanAxis::ContinuousDwellAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	return regionAt(regionCount()-1).regionEnd();
-}
-
-AMNumber AMScanAxis::axisTime() const{
-	if(axisType_ == AMScanAxis::ContinuousMoveAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	if(regionCount() == 1)
-		return regionAt(0).regionTime();
-
-	AMNumber firstRegionTime = regionAt(0).regionTime();
-	bool multipleRegionTimes = firstRegionTime.state() != AMNumber::Valid;
-	for(int x = 1; x < regionCount(); x++)
-		if(firstRegionTime != regionAt(x).regionTime() || regionAt(x).regionTime().state() != AMNumber::Valid)
-			multipleRegionTimes = true;
-
-	if(multipleRegionTimes)
-		return AMNumber(AMNumber::Null);
-	return regionAt(0).regionTime();
-}
-
-bool AMScanAxis::insertRegion(int index, const AMScanAxisRegion &region){
-	if(axisType_ != AMScanAxis::StepAxis || index < 0 || index > regions_.count())
-		return false;
-
-	regions_.insert(index, region);
-	if(!sanityCheckRegionsAndAxisType()){
-		regions_.remove(index);
-		return false;
-	}
-	return true;
-}
-
-bool AMScanAxis::appendRegion(const AMScanAxisRegion &region){
-	if(axisType_ != AMScanAxis::StepAxis)
-		return false;
-
-	regions_.append(region);
-	if(!sanityCheckRegionsAndAxisType()){
-		regions_.remove(regions_.count()-1);
-		return false;
-	}
-	return true;
-}
-
-bool AMScanAxis::overwriteRegion(int index, const AMScanAxisRegion &region){
-	if(index < 0 || index > regions_.count())
-		return false;
-
-	AMScanAxisRegion oldRegion = regionAt(index);
-	regions_[index] = region;
-	if(sanityCheckRegionsAndAxisType()){
-		regions_[index] = oldRegion;
-		return false;
-	}
-	return true;
-}
-
-void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType){
-	if(axisType != AMScanAxis::StepAxis)
-		while(regions_.count() > 1)
-			regions_.remove(regions_.count()-1);
-
-	axisType_ = axisType;
-	checkAxisValidity();
-}
-
-bool AMScanAxis::sanityCheckRegionsAndAxisType() const{
-	if(axisType_ != AMScanAxis::StepAxis && regionCount() != 1)
-		return false;
-
-	if(axisType_ == AMScanAxis::ContinuousMoveAxis){
-		// We don't accepts steps
-		if(regionAt(0).regionStep().state() != AMNumber::Null)
-			return false;
-		// We don't accept times
-		if(regionAt(0).regionTime().state() != AMNumber::Null)
-			return false;
-
-		// We need a start
-		if(regionAt(0).regionStart().state() == AMNumber::Null)
-			return false;
-		// We need an end
-		if(regionAt(0).regionEnd().state() == AMNumber::Null)
-			return false;
-	}
-
-	if(axisType_ == AMScanAxis::ContinuousDwellAxis){
-		// We don't accept starts
-		if(regionAt(0).regionStart().state() != AMNumber::Null)
-			return false;
-		// We don't accept steps
-		if(regionAt(0).regionStep().state() != AMNumber::Null)
-			return false;
-		// We don't accept ends
-		if(regionAt(0).regionEnd().state() != AMNumber::Null)
-			return false;
-
-		// We need a time
-		if(regionAt(0).regionTime().state() == AMNumber::Null)
-			return false;
-	}
-
-	if(axisType_ == AMScanAxis::ContinuousDwellAxis){
-		for(int x = 0; x < regions_.count(); x++){
-			// We need a start for each region
-			if(regionAt(0).regionStart().state() == AMNumber::Null)
-				return false;
-			// We need a step for each region
-			if(regionAt(0).regionStep().state() == AMNumber::Null)
-				return false;
-			// We need an end for each region
-			if(regionAt(0).regionEnd().state() == AMNumber::Null)
-				return false;
-			// We need a time for each region
-			if(regionAt(0).regionTime().state() == AMNumber::Null)
-				return false;
-		}
-	}
-
-	return true;
-}
-
-void AMScanAxis::checkAxisValidity(){
-	if(sanityCheckRegionsAndAxisType())
-		axisValid_ = AMScanAxis::ValidAxis;
-	else
-		axisValid_ = AMScanAxis::InvalidAxis;
-}
-
 AMScanActionControllerScanAssembler::AMScanActionControllerScanAssembler(QObject *parent) :
 	QObject(parent)
 {
@@ -410,7 +181,30 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForDetectorAcq
 		return 0; //NULL
 }
 
+#include "beamline/AMDetectorTriggerSource.h"
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetectorAcquisition(){
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire All Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
+
+	AMAction3 *detectorAction;
+	AMListAction3 *detectorAcquisitionListAction;
+	for(int x = 0; x < detectors_->count(); x++){
+		qDebug() << "Adding triggering action for detector " << detectors_->at(x)->name();
+		if(detectors_->at(x)->detectorTriggerSource())
+			qDebug() << "Has triggering source named " << detectors_->at(x)->detectorTriggerSource()->name();
+		detectorAcquisitionListAction = new AMListAction3(new AMListActionInfo3(QString("Acquire One Detector"), QString("Acquire %1 Detector").arg(detectors_->at(x)->name())), AMListAction3::Sequential);
+		detectorAction = detectors_->at(x)->createTriggerAction(AMDetectorDefinitions::SingleRead);
+		if(detectorAction){
+			detectorAction->setGenerateScanActionMessage(true);
+			detectorAcquisitionListAction->addSubAction(detectorAction);
+		}
+		detectorAction = detectors_->at(x)->createReadAction();
+		detectorAction->setGenerateScanActionMessage(true);
+		detectorAcquisitionListAction->addSubAction(detectorAction);
+		retVal->addSubAction(detectorAcquisitionListAction);
+	}
+
+	return retVal;
+	/*
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
 
 	AMAction3 *detectorAction;
@@ -421,6 +215,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetecto
 	}
 
 	return retVal;
+	*/
 }
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForContinuousDetectorAcquisition(){

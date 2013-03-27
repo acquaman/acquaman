@@ -27,6 +27,8 @@ class AMBeamlineActionItem;
 class AMControl;
 class AMDetectorTriggerSource;
 
+#include "dataman/info/AMDetectorInfo.h"
+
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
   and makes the necessary connections.
@@ -118,7 +120,8 @@ protected slots:
 	void onConnectedChanged();
 
 	/// Handles requests for triggering from the AMDetectorTriggerSource
-	void onTriggerSourceTriggered();
+	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	bool triggerScalerAcquisition(bool isContinuous);
 
 protected:
 	/// List that holds all of the individual scaler channels.
