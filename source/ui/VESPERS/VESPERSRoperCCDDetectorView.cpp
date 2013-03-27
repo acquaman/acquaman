@@ -92,17 +92,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	connect(detector_, SIGNAL(imageModeChanged(VESPERSRoperCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSRoperCCDDetector::ImageMode)));
 	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
 
-	temperatureSetpoint_ = new QDoubleSpinBox;
-	temperatureSetpoint_->setRange(-70, 30);
-	temperatureSetpoint_->setValue(20);
-	temperatureSetpoint_->setDecimals(1);
-	temperatureSetpoint_->setSuffix(QString::fromUtf8(" °C"));
-	connect(detector_, SIGNAL(temperatureSetpointChanged(double)), temperatureSetpoint_, SLOT(setValue(double)));
-	connect(temperatureSetpoint_, SIGNAL(editingFinished()), this, SLOT(setTemperature()));
-
-	temperatureFeedback_ = new QLabel("");
-	connect(detector_, SIGNAL(temperatureChanged(double)), this, SLOT(onTemperatureChanged(double)));
-
 	QToolButton *saveButton = new QToolButton;
 	saveButton->setIcon(QIcon(":/save.png"));
 	connect(saveButton, SIGNAL(clicked()), detector_, SLOT(saveFile()));
@@ -139,13 +128,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
-	QGroupBox *temperatureGroupBox = new QGroupBox("Temperature Control");
-	QHBoxLayout *temperatureLayout = new QHBoxLayout;
-	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
-	temperatureGroupBox->setLayout(temperatureLayout);
-
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
@@ -169,7 +151,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 
 	QVBoxLayout *acquisitionAndTemperatureLayout = new QVBoxLayout;
 	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
-	acquisitionAndTemperatureLayout->addWidget(temperatureGroupBox);
 	acquisitionAndTemperatureLayout->addStretch();
 
 	QHBoxLayout *detectorLayout = new QHBoxLayout;
@@ -318,55 +299,56 @@ void VESPERSRoperCCDDetectorView::loadCCDFileTest()
 	time1.start();
 	QTime time;
 	time.start();
-	if (detector_->loadImageFromFile()){
 
-		qDebug() << "Time for loading the image from the file" << time.restart() << "ms";
-		QVector<int> data = detector_->imageData();
-		QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+	detector_->loadImageFromFile();
 
-		int maximum = data.at(0);
-		int minimum = data.at(0);
+	qDebug() << "Time for loading the image from the file" << time.restart() << "ms";
+	QVector<int> data = detector_->imageData();
+	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
 
-		for (int i = 0, size = data.size(); i < size; i++){
+	int maximum = data.at(0);
+	int minimum = data.at(0);
 
-			if (data.at(i) < minimum)
-				minimum = data.at(i);
+	for (int i = 0, size = data.size(); i < size; i++){
 
-			if (data.at(i) > maximum)
-				maximum = data.at(i);
-		}
-		qDebug() << "Finding min and max:" << time.restart() << "ms";
-		MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
-		MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+		if (data.at(i) < minimum)
+			minimum = data.at(i);
 
-		int xSize = detector_->size().i();
-		int ySize = detector_->size().j();
+		if (data.at(i) > maximum)
+			maximum = data.at(i);
+	}
+	qDebug() << "Finding min and max:" << time.restart() << "ms";
+	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
+	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+
+	int xSize = detector_->size().i();
+	int ySize = detector_->size().j();
 
 //		uchar *rgbData = new uchar[4*xSize*ySize];
 
-		for (int i = 0; i < xSize; i++){
+	for (int i = 0; i < xSize; i++){
 
-			int offset = i*ySize;
+		int offset = i*ySize;
 
-			for (int j = 0; j < ySize; j++){
-				image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+		for (int j = 0; j < ySize; j++){
+			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
 //				QRgb rgb = map.rgbAt(data.at(j + offset), range);
 //				rgbData[4*(offset+j)] = qRed(rgb);
 //				rgbData[4*(offset+j)+1] = qGreen(rgb);
 //				rgbData[4*(offset+j)+2] = qBlue(rgb);
-			}
 		}
-//		QImage image = QImage(rgbData, 2084, 2084, QImage::Format_RGB32);
-		qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
-
-		QPixmap newImage;
-		newImage.convertFromImage(image);
-		qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
-		newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
-		qDebug() << "Scaling QPixmap" << time.restart() << "ms";
-		image_->setPixmap(newImage);
-//		delete rgbData;
-		qDebug() << "Time to put image in pixmap" << time.restart() << "ms";
 	}
+//		QImage image = QImage(rgbData, 2084, 2084, QImage::Format_RGB32);
+	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
+
+	QPixmap newImage;
+	newImage.convertFromImage(image);
+	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
+	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
+	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
+	image_->setPixmap(newImage);
+//		delete rgbData;
+	qDebug() << "Time to put image in pixmap" << time.restart() << "ms";
+
 	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
 }
