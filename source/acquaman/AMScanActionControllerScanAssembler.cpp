@@ -137,6 +137,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion.regionStep());
 	AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 	controlLoopMoveInfo->setIsRelativeMove(true);
+	controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
 	AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
 	controlLoopMove->setGenerateScanActionMessage(true);
 	axisLoop->addSubAction(nextLevelHolderAction);

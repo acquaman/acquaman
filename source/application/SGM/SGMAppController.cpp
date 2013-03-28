@@ -370,31 +370,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 	}
 }
 
-/*
-void SGMAppController::onScanControllerCreated(AMScanController *scanController){
-	qDebug() << "AppController heard that the scanController was created";
-
-	SGMXASScanActionController *scanActionController = qobject_cast<SGMXASScanActionController*>(scanController);
-	if(scanActionController){
-		/*
-		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
-		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
-		*/
-/*
-		AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
-		AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
-		if(scanActionMessager){
-			qDebug() << "Have the scan action messager, so add this receiver";
-			scanActionMessager->addReceiver(scanActionController);
-		}
-		else
-			qDebug() << "Couldn't cast to scan action messager";
-
-		AMActionRunner3::scanActionRunner()->addActionToQueue(scanActionController->actionsTree());
-	}
-}
-*/
-
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){

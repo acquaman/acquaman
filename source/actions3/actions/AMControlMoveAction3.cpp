@@ -92,8 +92,10 @@ void AMControlMoveAction3::startImplementation()
 
 	// start the move:
 	int failureExplanation;
-	if(controlMoveInfo()->isRelativeMove())
-		failureExplanation = control_->moveRelative(setpoint.value());
+	if(controlMoveInfo()->isRelativeMove() && controlMoveInfo()->isRelativeFromSetpoint())
+		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromSetpoint);
+	else if(controlMoveInfo()->isRelativeMove())
+		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromValue);
 	else
 		failureExplanation = control_->move(setpoint.value());
 
