@@ -9,6 +9,19 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 #include "actions3/AMActionRunner3.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
+void AMScanActionController::skip(const QString &command){
+	if(command == "Stop Now"){
+		AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+
+		// That's bad
+		if(!currentAction)
+			return;
+
+		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setFinished()));
+		currentAction->cancel();
+	}
+}
+
 void AMScanActionController::onStateChanged(int oldState, int newState){
 	Q_UNUSED(oldState)
 	AMScanController::ScanState castNewState = (AMScanController::ScanState)newState;

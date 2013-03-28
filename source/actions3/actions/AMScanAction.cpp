@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
 #include "acquaman/AMDacqScanController.h"
 #include "acquaman/AM2DDacqScanController.h"
+#include "acquaman/AMScanActionController.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -93,6 +94,9 @@ void AMScanAction::startImplementation()
 			skipOptions_.append("Stop At The End Of Line");
 	}
 
+	if(qobject_cast<AMScanActionController *>(controller_))
+		skipOptions_.append("Stop Now");
+
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
@@ -135,24 +139,39 @@ void AMScanAction::cancelImplementation()
 
 void AMScanAction::skipImplementation(const QString &command)
 {
+	AMScanActionController *scanActionController = qobject_cast<AMScanActionController*>(controller_);
+	if(scanActionController){
+		scanActionController->skip(command);
+		return;
+	}
+
 	if (command == "Stop Now"){
 
-		AMDacqScanController *controller = qobject_cast<AMDacqScanController *>(controller_);
-		controller->stopImmediately();
+		AMDacqScanController *dacqController = qobject_cast<AMDacqScanController *>(controller_);
+		if(dacqController)
+			dacqController->stopImmediately();
+
+
 	}
 
 	else if (command == "Stop At The End Of Line"){
 
-		AM2DDacqScanController *controller = qobject_cast<AM2DDacqScanController *>(controller_);
-		controller->stopAtTheEndOfLine();
+		AM2DDacqScanController *dacq2DController = qobject_cast<AM2DDacqScanController *>(controller_);
+		if(dacq2DController)
+			dacq2DController->stopAtTheEndOfLine();
 	}
 
 }
 
+#include "acquaman/AMXASScanConfiguration.h"
 bool AMScanAction::canSkip() const
 {
 	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
 	if (qobject_cast<AMDacqScanController *>(controller_))
+		return true;
+
+	const AMScanActionInfo *scanActionInfo = qobject_cast<const AMScanActionInfo*>(info());
+	if(qobject_cast<const AMXASScanConfiguration*>(scanActionInfo->config()))
 		return true;
 
 	return false;

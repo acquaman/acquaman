@@ -9,6 +9,9 @@ Q_OBJECT
 public:
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
 
+public slots:
+	void skip(const QString &command);
+
 protected slots:
 	void onStateChanged(int oldState, int newState);
 
