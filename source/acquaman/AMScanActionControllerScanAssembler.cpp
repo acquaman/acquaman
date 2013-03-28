@@ -32,17 +32,7 @@ bool AMScanActionControllerScanAssembler::addDetector(AMDetector *detector){
 }
 
 #include "actions3/AMListAction3.h"
-//AMAction3* AMScanActionControllerScanAssembler::generateActionTree(){
 void AMScanActionControllerScanAssembler::generateActionTree(){
-	qDebug() << "Axes in reverse order";
-	for(int x = axes_.count()-1; x >= 0; x--){
-		qDebug() << controls_->at(x)->name() << "Start: " << axes_.at(x)->axisStart().toString() << "Delta: " << axes_.at(x)->axisStep().toString() << "End: " << axes_.at(x)->axisEnd().toString();
-		if(axes_.at(x)->regionCount() > 1)
-			for(int y = 0; y < axes_.at(x)->regionCount(); y++)
-				qDebug() << "\tStart: " << axes_.at(x)->regionAt(y).regionStart().toString() << "Delta: " << axes_.at(x)->regionAt(y).regionStep().toString() << "End: " << axes_.at(x)->regionAt(y).regionEnd().toString();
-	}
-
-	//AMAction3 *actionTree_ = generateActionTreeForAxis(controls_->at(0), axes_.at(0));
 	actionTree_ = generateActionTreeForAxis(controls_->at(0), axes_.at(0));
 
 	QList<AMAction3*> insertionPoints = findInsertionPoints(actionTree_);
@@ -64,7 +54,6 @@ void AMScanActionControllerScanAssembler::generateActionTree(){
 	}
 
 	QList<AMAction3*> detectorInsertionPoints = findInsertionPoints(actionTree_);
-	qDebug() << "Found " << detectorInsertionPoints.count() << " detector insertion points";
 	for(int x = 0; x < detectorInsertionPoints.count(); x++){
 		AMListAction3 *castParentToListAction = qobject_cast<AMListAction3*>(detectorInsertionPoints.at(x)->parentAction());
 		if(castParentToListAction){
@@ -85,7 +74,6 @@ void AMScanActionControllerScanAssembler::generateActionTree(){
 			castLastToListAction->addSubAction(generateActionListForDetectorCleanup());
 	}
 
-	//return retVal;
 	emit actionTreeGenerated(actionTree_);
 }
 
@@ -165,10 +153,14 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 }
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis){
+	Q_UNUSED(axisControl)
+	Q_UNUSED(continuiousMoveScanAxis)
 	return 0; //NULL
 }
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis){
+	Q_UNUSED(axisControl)
+	Q_UNUSED(continuousDwellScanAxis)
 	return 0; //NULL
 }
 
@@ -188,9 +180,6 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetecto
 	AMAction3 *detectorAction;
 	AMListAction3 *detectorAcquisitionListAction;
 	for(int x = 0; x < detectors_->count(); x++){
-		qDebug() << "Adding triggering action for detector " << detectors_->at(x)->name();
-		if(detectors_->at(x)->detectorTriggerSource())
-			qDebug() << "Has triggering source named " << detectors_->at(x)->detectorTriggerSource()->name();
 		detectorAcquisitionListAction = new AMListAction3(new AMListActionInfo3(QString("Acquire One Detector"), QString("Acquire %1 Detector").arg(detectors_->at(x)->name())), AMListAction3::Sequential);
 		detectorAction = detectors_->at(x)->createTriggerAction(AMDetectorDefinitions::SingleRead);
 		if(detectorAction){
@@ -204,18 +193,6 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionListForStepDetecto
 	}
 
 	return retVal;
-	/*
-	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
-
-	AMAction3 *detectorAction;
-	for(int x = 0; x < detectors_->count(); x++){
-		detectorAction = detectors_->at(x)->createAcquisitionAction(AMDetectorDefinitions::SingleRead);
-		detectorAction->setGenerateScanActionMessage(true);
-		retVal->addSubAction(detectorAction);
-	}
-
-	return retVal;
-	*/
 }
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionListForContinuousDetectorAcquisition(){

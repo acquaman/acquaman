@@ -44,6 +44,11 @@ public:
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;
 
+	/// The Ampteks share a triggering source  sometimes uses the synchronized dwell time object
+	virtual bool sharesDetectorTriggerSource();
+	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
+	virtual AMDetectorTriggerSource* detectorTriggerSource();
+
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 	/// Returns SingleRead as the type

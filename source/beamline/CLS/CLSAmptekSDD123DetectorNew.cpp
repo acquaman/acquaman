@@ -67,6 +67,17 @@ QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
 	return "amptek:sdd:all:spectrum:startAcquisitio";
 }
 
+bool CLSAmptekSDD123DetectorNew::sharesDetectorTriggerSource(){
+	return currentlySynchronizedDwell();
+}
+
+#include "beamline/AMBeamline.h"
+AMDetectorTriggerSource* CLSAmptekSDD123DetectorNew::detectorTriggerSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
+	return 0;
+}
+
 const double* CLSAmptekSDD123DetectorNew::data() const{
 	return data_;
 }
@@ -163,6 +174,7 @@ void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
 		setAcquiring();
 	else if(statusControl_->withinTolerance(0)){
 		setAcquisitionSucceeded();
+
 		if(isConnected())
 			setReadyForAcquisition();
 		else

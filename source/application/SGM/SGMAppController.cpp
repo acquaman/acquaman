@@ -312,7 +312,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasDetectorSelector_->setDefaultsSelected();
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
-		connect(xasScanConfiguration2013View_, SIGNAL(scanControllerCreated(AMScanController*)), this, SLOT(onScanControllerCreated(AMScanController*)));
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
 		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
@@ -371,19 +370,30 @@ void SGMAppController::onSGMBeamlineConnected(){
 	}
 }
 
+/*
 void SGMAppController::onScanControllerCreated(AMScanController *scanController){
 	qDebug() << "AppController heard that the scanController was created";
 
 	SGMXASScanActionController *scanActionController = qobject_cast<SGMXASScanActionController*>(scanController);
 	if(scanActionController){
-		scanActionController->setPointer(this);
+		/*
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
-		scanActionMessager->addReceiver(scanActionController);
+		*/
+/*
+		AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
+		AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
+		if(scanActionMessager){
+			qDebug() << "Have the scan action messager, so add this receiver";
+			scanActionMessager->addReceiver(scanActionController);
+		}
+		else
+			qDebug() << "Couldn't cast to scan action messager";
 
 		AMActionRunner3::scanActionRunner()->addActionToQueue(scanActionController->actionsTree());
 	}
 }
+*/
 
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)

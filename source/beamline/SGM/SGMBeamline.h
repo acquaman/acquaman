@@ -138,7 +138,7 @@ public:
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
-	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return synchronizedDwellTime_;}
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
 	SGMBeamlineInfo::sgmGrating currentGrating() const;

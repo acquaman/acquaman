@@ -6,6 +6,7 @@
 AMDetectorTriggerAction::AMDetectorTriggerAction(AMDetectorTriggerActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {
+	triggerSource_ = 0; //NULL
 	if(detector)
 		detector_ = detector;
 	else
@@ -45,33 +46,46 @@ void AMDetectorTriggerAction::startImplementation(){
 		return;
 	}
 
-	// connect to detector initialization signals
-	connect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
-	connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
-	connect(detector_, SIGNAL(acquisitionFailed()), this, SLOT(onAcquisitionFailed()));
 
 	if(detector_->detectorTriggerSource()){
-		detectorTriggerInfo()->setShortDescription(QString("Trigger %1").arg(detector_->detectorTriggerSource()->name()));
-		detectorTriggerInfo()->setLongDescription(QString("Trigger %1").arg(detector_->detectorTriggerSource()->name()));
-		detector_->detectorTriggerSource()->trigger(detectorTriggerInfo()->readMode());
+		triggerSource_ = detector_->detectorTriggerSource();
+		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onAcquisitionStarted()));
+		connect(triggerSource_, SIGNAL(succeeded()), this, SLOT(onAcquisitionSucceeded()));
+		connect(triggerSource_, SIGNAL(failed()), this, SLOT(onAcquisitionFailed()));
+
+		detectorTriggerInfo()->setShortDescription(QString("Trigger %1").arg(triggerSource_->name()));
+		detectorTriggerInfo()->setLongDescription(QString("Trigger %1").arg(triggerSource_->name()));
+		triggerSource_->trigger(detectorTriggerInfo()->readMode());
 	}
-	else
+	else{
+		// connect to detector initialization signals
+		connect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
+		connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
+		connect(detector_, SIGNAL(acquisitionFailed()), this, SLOT(onAcquisitionFailed()));
 		detector_->acquire(detectorTriggerInfo()->readMode());
+	}
 }
 
 void AMDetectorTriggerAction::onAcquisitionStarted(){
-	disconnect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
+	if(triggerSource_)
+		disconnect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onAcquisitionStarted()));
+	else
+		disconnect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
 
 	setStarted();
 }
 
 void AMDetectorTriggerAction::onAcquisitionSucceeded(){
+	if(triggerSource_)
+		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
 
 	setSucceeded();
 }
 
 void AMDetectorTriggerAction::onAcquisitionFailed(){
+	if(triggerSource_)
+		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
 	setFailed();
 }

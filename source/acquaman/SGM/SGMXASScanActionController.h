@@ -19,8 +19,6 @@ public:
 
 	AMAction3* actionsTree();
 
-	void setPointer(QObject *pointer);
-
 protected slots:
 	void onActionTreeGenerated(AMAction3 *actionTree);
 
@@ -39,8 +37,6 @@ protected:
 
 	AMnDIndex insertionIndex_;
 	double currentAxisValue_;
-
-	QObject *pointer_;
 
 	QFile *rank1File_;
 	QFile *rank2File_;

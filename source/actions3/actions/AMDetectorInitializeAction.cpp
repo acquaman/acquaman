@@ -36,11 +36,17 @@ void AMDetectorInitializeAction::startImplementation(){
 		return;
 	}
 
-	// connect to detector initialization signals
-	connect(detector_, SIGNAL(initializing()), this, SLOT(onInitializeStarted()));
-	connect(detector_, SIGNAL(initialized()), this, SLOT(onInitializeFinished()));
+	if(detector_->initializationState() == AMDetector::InitializationRequired){
+		// connect to detector initialization signals
+		connect(detector_, SIGNAL(initializing()), this, SLOT(onInitializeStarted()));
+		connect(detector_, SIGNAL(initialized()), this, SLOT(onInitializeFinished()));
 
-	detector_->initialize();
+		detector_->initialize();
+	}
+	else{
+		setStarted();
+		setSucceeded();
+	}
 }
 
 void AMDetectorInitializeAction::onInitializeStarted(){

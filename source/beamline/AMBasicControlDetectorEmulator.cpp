@@ -81,6 +81,7 @@ void AMBasicControlDetectorEmulator::onControlValueChanged(double value){
 }
 
 void AMBasicControlDetectorEmulator::onStatusControlValueChanged(double value){
+	Q_UNUSED(value)
 	if(waitingForStatusChange_ && statusControl_ && statusControl_->withinTolerance(statusNotAcquiringValue_)){
 		waitingForStatusChange_ = false;
 		setAcquisitionSucceeded();
@@ -106,6 +107,7 @@ bool AMBasicControlDetectorEmulator::acquireImplementation(AMDetectorDefinitions
 		waitingForNewData_ = true;
 	else if((readMethod() == AMDetectorDefinitions::RequestRead) && statusControl_ )
 		waitingForStatusChange_ = true;
+	return true;
 }
 
 bool AMBasicControlDetectorEmulator::cleanupImplementation(){

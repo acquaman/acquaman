@@ -18,9 +18,15 @@ public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire)
 	void trigger(AMDetectorDefinitions::ReadMode readMode);
 
+	void setSucceeded();
+	void setFailed();
+
 signals:
 	/// This signal is emitted once trigger is called. Detectors and other classes that need to instantiate an AMDetectorTriggerSource should listen for this signal and cause triggering/acquisition once it is received.
 	void triggered(AMDetectorDefinitions::ReadMode readMode);
+
+	void succeeded();
+	void failed();
 
 protected:
 	/// Holds the programmer name

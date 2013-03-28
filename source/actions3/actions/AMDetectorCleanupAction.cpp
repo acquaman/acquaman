@@ -36,11 +36,17 @@ void AMDetectorCleanupAction::startImplementation(){
 		return;
 	}
 
-	// connect to detector cleanup signals
-	connect(detector_, SIGNAL(cleaningUp()), this, SLOT(onCleanupStarted()));
-	connect(detector_, SIGNAL(cleanedUp()), this, SLOT(onCleanupFinished()));
+	if(detector_->cleanupState() == AMDetector::CleanupRequired){
+		// connect to detector cleanup signals
+		connect(detector_, SIGNAL(cleaningUp()), this, SLOT(onCleanupStarted()));
+		connect(detector_, SIGNAL(cleanedUp()), this, SLOT(onCleanupFinished()));
 
-	detector_->cleanup();
+		detector_->cleanup();
+	}
+	else{
+		setStarted();
+		setSucceeded();
+	}
 }
 
 void AMDetectorCleanupAction::onCleanupStarted(){

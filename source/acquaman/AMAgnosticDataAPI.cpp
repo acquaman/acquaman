@@ -332,8 +332,14 @@ void AMAgnosticDataAPIControlMovedMessage::setControlMovementValue(double moveme
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementValue)] = movementValue;
 }
 
-AMAgnosticDataMessageQEventHandler::AMAgnosticDataMessageQEventHandler() :
-	AMAgnosticDataMessageHandler()
+AMAgnosticDataMessageHandler::AMAgnosticDataMessageHandler(QObject *parent) :
+	QObject(parent)
+{
+
+}
+
+AMAgnosticDataMessageQEventHandler::AMAgnosticDataMessageQEventHandler(QObject *parent) :
+	AMAgnosticDataMessageHandler(parent)
 {
 
 }

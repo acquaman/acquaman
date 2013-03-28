@@ -32,6 +32,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
 	CLSSIS3820ScalerChannel *tmpChannel;
 	for(int x = 0; x < 32; x++){
@@ -269,8 +270,10 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	if(startToggle_->withinTolerance(1))
 		emit scanningChanged(true);
 
-	else
+	else{
 		emit scanningChanged(false);
+		triggerSource_->setSucceeded();
+	}
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged(){

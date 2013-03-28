@@ -98,6 +98,12 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronized
 	return action;
 }
 
+void CLSSynchronizedDwellTime::onScanningChanged(double status){
+	emit scanningChanged((int)status == 1 ? true : false);
+	if((int)status == 0)
+		triggerSource_->setSucceeded();
+}
+
 void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
 		return;

@@ -65,6 +65,7 @@ public:
 
 	/// Returns the trigger source for the scaler.
 	AMDetectorTriggerSource* triggerSource();
+	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMBeamlineActionItem* createStartAction(bool setScanning);
@@ -148,6 +149,7 @@ protected:
 
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorTriggerSource *triggerSource_;
+	QString synchronizedDwellKey_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.

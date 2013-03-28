@@ -8,7 +8,7 @@
 #include <QFileInfo>
 
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
-#include "acquaman/AMEmptyListScanOptimizer.h"
+#include "acquaman/AMListActionScanOptimizer.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
@@ -37,8 +37,6 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	bool has1DDetectors = false;
 	AMDetector *oneDetector;
 	for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
-		qDebug() << "This configuration has a detector named " << cfg->detectorConfigurations().at(x).name();
-
 		oneDetector = SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x));
 		if(oneDetector){
 			newScanAssembler_->addDetector(oneDetector);
@@ -74,10 +72,6 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 AMAction3* SGMXASScanActionController::actionsTree(){
 	return actionTree_;
-}
-
-void SGMXASScanActionController::setPointer(QObject *pointer){
-	pointer_ = pointer;
 }
 
 #include "actions3/AMActionRunner3.h"

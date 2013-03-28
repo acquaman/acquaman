@@ -87,7 +87,7 @@ bool AMDetector::currentlySynchronizedDwell() const{
 	if(AMBeamline::bl()->synchronizedDwellTime()){
 		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
 		if(index >= 0)
-			return true;
+			return AMBeamline::bl()->synchronizedDwellTime()->enabledAt(index);
 	}
 	return false;
 }

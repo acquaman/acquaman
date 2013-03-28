@@ -3,16 +3,28 @@
 AMScanActionController::AMScanActionController(AMScanConfiguration *configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {
+	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
 }
 
 #include "actions3/AMActionRunner3.h"
-
 #include "acquaman/AMAgnosticDataAPI.h"
+
+void AMScanActionController::onStateChanged(int oldState, int newState){
+	Q_UNUSED(oldState)
+	AMScanController::ScanState castNewState = (AMScanController::ScanState)newState;
+	if( (castNewState == AMScanController::Finished) || (castNewState == AMScanController::Failed) || (castNewState == AMScanController::Cancelled) ){
+		AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
+		AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
+		if(scanActionMessager)
+			scanActionMessager->removeReceiver(this);
+	}
+}
+
 bool AMScanActionController::startImplementation(){
-	qDebug() << "Trying to call startImplementation in AMScanActionController";
-	AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
-	AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
-	scanActionMessager->addReceiver(this);
+	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
+	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
+	if(scanActionMessager)
+		scanActionMessager->addReceiver(this);
 
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	setStarted();

@@ -163,18 +163,22 @@ public:
 	AMAgnosticDataAPIMessage message_;
 };
 
-class AMAgnosticDataMessageHandler
+#include <QObject>
+
+class AMAgnosticDataMessageHandler : public QObject
 {
+Q_OBJECT
 public:
-	AMAgnosticDataMessageHandler() {}
+	AMAgnosticDataMessageHandler(QObject *parent = 0);
 
 	virtual void postMessage(const AMAgnosticDataAPIMessage &message) = 0;
 };
 
 class AMAgnosticDataMessageQEventHandler : public AMAgnosticDataMessageHandler
 {
+Q_OBJECT
 public:
-	AMAgnosticDataMessageQEventHandler();
+	AMAgnosticDataMessageQEventHandler(QObject *parent = 0);
 
 	bool addReceiver(QObject *receiver);
 	bool removeReceiver(QObject *receiver);

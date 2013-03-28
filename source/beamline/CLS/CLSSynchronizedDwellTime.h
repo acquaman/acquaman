@@ -215,7 +215,7 @@ public slots:
 
 protected slots:
 	/// Handles changes in the startScan PV and turns the int into a bool.  True is scanning, false is idle.
-	void onScanningChanged(double status) { emit scanningChanged((int)status == 1 ? true : false); }
+	void onScanningChanged(double status);
 	/// Handles changes in the status.
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.

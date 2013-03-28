@@ -82,7 +82,7 @@ protected slots:
 
 	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
-	void onScanControllerCreated(AMScanController *scanController);
+	//void onScanControllerCreated(AMScanController *scanController);
 
 	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);

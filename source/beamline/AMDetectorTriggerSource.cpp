@@ -9,3 +9,11 @@ AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *p
 void AMDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode){
 	emit triggered(readMode);
 }
+
+void AMDetectorTriggerSource::setSucceeded(){
+	emit succeeded();
+}
+
+void AMDetectorTriggerSource::setFailed(){
+	emit failed();
+}

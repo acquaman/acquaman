@@ -66,6 +66,8 @@ protected:
 
 	/// A pointer to the AMDetector we use to implement the action
 	AMDetector* detector_;
+
+	AMDetectorTriggerSource *triggerSource_;
 };
 
 #endif // AMDETECTORTRIGGERACTION_H

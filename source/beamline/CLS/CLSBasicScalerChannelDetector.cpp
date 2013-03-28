@@ -29,10 +29,13 @@ double CLSBasicScalerChannelDetector::acquisitionTime() const{
 }
 
 QString CLSBasicScalerChannelDetector::synchronizedDwellKey() const{
-	return "";
+	return scaler_->synchronizedDwellKey();
 }
 
+#include "beamline/AMBeamline.h"
 AMDetectorTriggerSource* CLSBasicScalerChannelDetector::detectorTriggerSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
 	return scaler_->triggerSource();
 }
 
