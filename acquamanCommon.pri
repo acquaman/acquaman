@@ -636,7 +636,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/dataman/AMScanAxisRegion.h \
     source/dataman/AMScanAxis.h \
     source/acquaman/AMScanActionControllerScanOptimizer.h \
-    source/acquaman/AMDetectorTriggerSourceScanOptimizer.h
+    source/acquaman/AMDetectorTriggerSourceScanOptimizer.h \
+    source/acquaman/AMListActionScanOptimizer.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1076,7 +1077,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/dataman/AMScanAxisRegion.cpp \
     source/dataman/AMScanAxis.cpp \
     source/acquaman/AMScanActionControllerScanOptimizer.cpp \
-    source/acquaman/AMDetectorTriggerSourceScanOptimizer.cpp
+    source/acquaman/AMDetectorTriggerSourceScanOptimizer.cpp \
+    source/acquaman/AMListActionScanOptimizer.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1100,6 +1102,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

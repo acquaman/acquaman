@@ -13,7 +13,7 @@ AMDetectorTriggerSourceScanOptimizer::AMDetectorTriggerSourceScanOptimizer(AMAct
 void AMDetectorTriggerSourceScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree){
 	QMap<AMDetectorTriggerSource*, AMListAction3*> triggerSourcesToActionLists;
 
-	QList<AMAction3*> allDetectorAcquistionLists = findActionsNamed(scanActionTree, "Acquire All Detectors");
+	QList<AMAction3*> allDetectorAcquistionLists = AMScanOptimizerSupport::findActionsNamed(scanActionTree, "Acquire All Detectors");
 	for(int x = 0; x < allDetectorAcquistionLists.count(); x++){
 		triggerSourcesToActionLists.clear();
 		qDebug() << "Found a list called " << allDetectorAcquistionLists.at(x)->info()->shortDescription();
@@ -58,18 +58,4 @@ void AMDetectorTriggerSourceScanOptimizer::optimizeImplementation(AMAction3 *sca
 		}
 	}
 
-}
-
-QList<AMAction3*> AMDetectorTriggerSourceScanOptimizer::findActionsNamed(AMAction3 *rootAction, const QString &name){
-	QList<AMAction3*> retVal;
-	AMListAction3 *castToListAction = qobject_cast<AMListAction3*>(rootAction);
-	if(castToListAction){
-		for(int x = 0; x < castToListAction->subActionCount(); x++){
-			AMListAction3 *subActionToListAction = qobject_cast<AMListAction3*>(castToListAction->subActionAt(x));
-			if(subActionToListAction && subActionToListAction->info()->shortDescription() == name)
-				retVal.append(subActionToListAction);
-			retVal.append((findActionsNamed(castToListAction->subActionAt(x), name)));
-		}
-	}
-	return retVal;
 }

@@ -11,8 +11,6 @@ public:
 
 protected:
 	virtual void optimizeImplementation(AMAction3 *scanActionTree);
-
-	QList<AMAction3*> findActionsNamed(AMAction3 *rootAction, const QString &name);
 };
 
 #endif // AMDETECTORTRIGGERSOURCESCANOPTIMIZER_H

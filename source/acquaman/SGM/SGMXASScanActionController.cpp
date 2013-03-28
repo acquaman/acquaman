@@ -8,6 +8,7 @@
 #include <QFileInfo>
 
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMEmptyListScanOptimizer.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
@@ -84,6 +85,10 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 	actionTree_ = actionTree;
 	AMDetectorTriggerSourceScanOptimizer triggerOptimizer(actionTree_);
 	triggerOptimizer.optimize();
+	AMEmptyListScanOptimizer emptyListOptimizer(actionTree_);
+	emptyListOptimizer.optimize();
+	AMSingleElementListOptimizer singleElementListOptimizer(actionTree_);
+	singleElementListOptimizer.optimize();
 	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
 }
 

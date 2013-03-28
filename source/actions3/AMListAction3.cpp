@@ -30,6 +30,8 @@ AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMod
 {
 	currentSubActionIndex_ = -1;	// prior to running any subactions
 	subActionMode_ = subActionMode;
+	if(subActionMode_ == AMListAction3::Parallel)
+		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
 	logSubActionsSeparately_ = true;
 	logActionId_ = -1;
 	skipAfterCurrentAction_ = false;
@@ -45,6 +47,8 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 {
 	currentSubActionIndex_ = -1; // prior to running an subactions
 	subActionMode_ = other.subActionMode_;
+	if(subActionMode_ == AMListAction3::Parallel)
+		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
 	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
 	logActionId_ = other.logActionId();
 	skipAfterCurrentAction_ = false;
