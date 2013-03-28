@@ -167,21 +167,15 @@ bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
 		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
-		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1)){
-			qDebug() << "Can't pause, nothing to pause";
+		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1))
 			return false;
-		}
 		// if we just have one sub-action and it cannot pause, then we can't pause.
-		if(subActionCount() == 1){
-			qDebug() << "One action, ask it if it can pause " << subActionAt(0)->canPause();
+		if(subActionCount() == 1)
 			return subActionAt(0)->canPause();
-		}
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
-		if(currentSubActionIndex() == subActionCount()-1){
-			qDebug() << "Last action, ask it if it can pause " << currentSubAction()->canPause();
+		if(currentSubActionIndex() == subActionCount()-1)
 			return currentSubAction()->canPause();
-		}
-		qDebug() << "We can pause, at the very least after this action";
+
 		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
 	}
@@ -227,7 +221,6 @@ void AMListAction3::startImplementation()
 
 void AMListAction3::pauseImplementation()
 {
-	qDebug() << "Hit pauseImplementation in AMListAction and it's name is " << info()->shortDescription();
 	// if this was called by the base class, we know that we are in the Pausing state, and were in the Running state. We also know that canPause() is true.
 
 	// sequential mode:
@@ -235,7 +228,6 @@ void AMListAction3::pauseImplementation()
 	if(subActionMode() == Sequential) {
 		if(currentSubAction()) {
 			// Can this action pause?  Required to be asked since the list can always pause, but the current action might not be able to.
-			qDebug() << "Sequential list, checking if " << currentSubAction()->info()->shortDescription() << " can pause, " << currentSubAction()->canPause();
 			if(currentSubAction()->canPause())
 				currentSubAction()->pause();
 			// If it can't, we'll pause by stopping at the next action. When the current action transitions to Succeeded, we simply won't start the next one and will notifyPaused(). In this case, we could stay at Pausing for quite some time until the current action finishes.

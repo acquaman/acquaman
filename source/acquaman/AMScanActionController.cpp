@@ -32,12 +32,10 @@ bool AMScanActionController::startImplementation(){
 }
 
 bool AMScanActionController::canPause() const{
-	qDebug() << "Asking AMScanActionController if it can pause, and it says the current actions can " << AMActionRunner3::scanActionRunner()->currentAction()->canPause();
 	return AMActionRunner3::scanActionRunner()->currentAction()->canPause();
 }
 
 void AMScanActionController::pauseImplementation(){
-	qDebug() << "Hit AMScanActionController pauseImplementation";
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
 
 	// That's bad
