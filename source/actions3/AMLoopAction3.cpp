@@ -60,6 +60,12 @@ AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
 AMLoopAction3::~AMLoopAction3() {
 }
 
+bool AMLoopAction3::canPause() const{
+	if(currentIteration_ < loopCount()-1)
+		return true;
+	return AMListAction3::canPause();
+}
+
 bool AMLoopAction3::duplicateSubActions(const QList<int> &indexesToCopy)
 {
 	if(state() != Constructed)
@@ -143,7 +149,11 @@ void AMLoopAction3::internalDoNextAction()
 
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 		internalConnectAction(currentSubAction_);
-		currentSubAction_->start();
+
+		if(state() == AMAction3::Pausing)
+			setPaused();
+		else if(state() == AMAction3::Running)
+			currentSubAction_->start();
 	}
 	else {
 		// done this loop.
@@ -165,7 +175,11 @@ void AMLoopAction3::internalDoNextAction()
 
 			currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 			internalConnectAction(currentSubAction_);
-			currentSubAction_->start();
+
+			if(state() == AMAction3::Pausing)
+				setPaused();
+			else if(state() == AMAction3::Running)
+				currentSubAction_->start();
 		}
 		// Nope, that's the end.
 		else {

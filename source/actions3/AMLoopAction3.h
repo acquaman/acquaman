@@ -56,6 +56,7 @@ public:
 	/// Returns the currently-running sub-action, or 0 if none is running.
 	virtual AMAction3* currentSubAction() { return currentSubAction_; }
 
+	virtual bool canPause() const;
 	/// Returns whether the action can skip.  Loop actions can skip.
 	virtual bool canSkip() const { return true; }
 

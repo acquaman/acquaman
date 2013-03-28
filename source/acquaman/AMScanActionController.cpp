@@ -31,14 +31,39 @@ bool AMScanActionController::startImplementation(){
 	return true;
 }
 
-bool AMScanActionController::canPause(){
-	return false;
+bool AMScanActionController::canPause() const{
+	qDebug() << "Asking AMScanActionController if it can pause, and it says the current actions can " << AMActionRunner3::scanActionRunner()->currentAction()->canPause();
+	return AMActionRunner3::scanActionRunner()->currentAction()->canPause();
 }
 
 void AMScanActionController::pauseImplementation(){
+	qDebug() << "Hit AMScanActionController pauseImplementation";
+	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+
+	// That's bad
+	if(!currentAction)
+		return;
+
+	if(currentAction->state() == AMAction3::Running && currentAction->pause())
+		setPaused();
+	else{
+		// Also bad
+	}
 }
 
 void AMScanActionController::resumeImplementation(){
+	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+
+	// That's bad
+	if(!currentAction)
+		return;
+
+	if(currentAction->state() == AMAction3::Paused && currentAction->resume()) {
+		setResumed();
+	}
+	else{
+		// Also bad
+	}
 }
 
 void AMScanActionController::cancelImplementation(){

@@ -14,7 +14,7 @@ protected slots:
 
 protected:
 	virtual bool startImplementation();
-	virtual bool canPause();
+	virtual bool canPause() const;
 	virtual void pauseImplementation();
 	virtual void resumeImplementation();
 	virtual void cancelImplementation();
