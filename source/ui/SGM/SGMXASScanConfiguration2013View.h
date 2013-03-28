@@ -29,8 +29,6 @@ signals:
 	void scanControllerCreated(AMScanController *scanController);
 
 protected slots:
-	void onCreateNewScanActionButtonClicked();
-
 	void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
 
@@ -52,8 +50,6 @@ protected:
 
 	QVBoxLayout *mainVL_;
 	QGridLayout *bottomGL_;
-
-	QPushButton *createNewScanActionButton_;
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H

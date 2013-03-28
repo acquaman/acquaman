@@ -23,8 +23,6 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setFluxResolutionGroup(AMControlInfoList)));
 	connect(configuration_->dbObject(), SIGNAL(fluxResolutionGroupChanged()), this, SLOT(onFluxResolutionGroupChanged()));
 
-	createNewScanActionButton_ = new QPushButton("Create New Scan Controller");
-
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
 	mainVL_->addWidget(regionsLineView_);
@@ -35,7 +33,6 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
-	mainVL_->addWidget(createNewScanActionButton_);
 	mainVL_->addStretch(8);
 	/*
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -47,8 +44,6 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_->setContentsMargins(0,0,0,0);
 	mainVL_->setSpacing(1);
 	setLayout(mainVL_);
-
-	connect(createNewScanActionButton_, SIGNAL(clicked()), this, SLOT(onCreateNewScanActionButtonClicked()));
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
@@ -73,13 +68,6 @@ void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 		connect(trackingSetView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setTrackingGroup(AMControlInfoList)));
 		connect(configuration_->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(onTrackingGroupChanged()));
 	}
-}
-
-void SGMXASScanConfiguration2013View::onCreateNewScanActionButtonClicked(){
-	configuration_->setDetectorConfigurations(xasDetectorSelector_->selectedDetectorInfos());
-
-	AMScanController *scanController = configuration_->createController();
-	emit scanControllerCreated(scanController);
 }
 
 void SGMXASScanConfiguration2013View::onTrackingGroupChanged(){

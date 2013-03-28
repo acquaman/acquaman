@@ -49,7 +49,6 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 			detector = detectorSelector_->detectorGroup()->detectorByName(preferentialOrdering.at(x));
 			if(detector){
 				tmpDetectorView = new AMDetectorSelectorViewInternalLineView(detector, detectorSelector_->detectorIsSelected(detector));
-				//tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(detector));
 				allDetectorViews_.insert(detector->name(), tmpDetectorView);
 				if(detector->isConnected())
 					connectedVL_->addWidget(tmpDetectorView);

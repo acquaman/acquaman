@@ -45,10 +45,22 @@ bool AMDetectorSelector::detectorIsSelected(AMDetector *detector) const{
 
 AMDetectorInfoSet AMDetectorSelector::selectedDetectorInfos() const{
 	AMDetectorInfoSet retVal;
+
+	AMDetector *detector = 0;
+	QList<AMDetector*> foundInPreferentialOrdering;
+	for(int x = 0; x < preferentialOrdering_.count(); x++){
+		detector = detectorGroup_->detectorByName(preferentialOrdering_.at(x));
+		if(detector && detectorIsSelected(detector)){
+			retVal.addDetectorInfo(detector->toInfo());
+			foundInPreferentialOrdering.append(detector);
+		}
+	}
+
 	QMap<QString, bool>::const_iterator i = selectedDetectors_.constBegin();
 	while (i != selectedDetectors_.constEnd()) {
-		if(i.value())
-			retVal.addDetectorInfo(detectorGroup_->detectorByName(i.key())->toInfo());
+		detector = detectorGroup_->detectorByName(i.key());
+		if(i.value() && !foundInPreferentialOrdering.contains(detector))
+			retVal.addDetectorInfo(detector->toInfo());
 		++i;
 	}
 	return retVal;
