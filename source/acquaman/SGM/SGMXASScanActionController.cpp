@@ -7,9 +7,10 @@
 #include <QFile>
 #include <QFileInfo>
 
-#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
-#include "acquaman/AMListActionScanOptimizer.h"
-#include "acquaman/AMNestedAxisTypeValidator.h"
+//#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+//#include "acquaman/AMListActionScanOptimizer.h"
+//#include "acquaman/AMNestedAxisTypeValidator.h"
+#include "acquaman/AMXASScanConfigurationConverter.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
@@ -25,46 +26,37 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	insertionIndex_ = AMnDIndex(0);
 
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	AMXASScanConfigurationConverter xasScanConfigurationConverter(newScanAssembler_, cfg, this);
 
-	AMScanAxisRegion firstRegion(cfg->regionStart(0), cfg->regionDelta(0), cfg->regionEnd(0), cfg->regionTime(0), this);
-	AMScanAxis *energyAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion, this);
-	for(int x = 1; x < cfg->regionCount(); x++){
-		AMScanAxisRegion anotherRegion(cfg->regionStart(x), cfg->regionDelta(x), cfg->regionEnd(x), cfg->regionTime(x), this);
-		energyAxis->appendRegion(anotherRegion);
-	}
-
-	newScanAssembler_->appendAxis(SGMBeamline::sgm()->energy(), energyAxis);
-
-	bool has1DDetectors = false;
-	AMDetector *oneDetector;
-	for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
-		oneDetector = SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x));
-		if(oneDetector){
-			newScanAssembler_->addDetector(oneDetector);
-			if(oneDetector->rank() == 1)
-				has1DDetectors = true;
-			if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
-				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+	if(xasScanConfigurationConverter.convert()){
+		bool has1DDetectors = false;
+		AMDetector *oneDetector;
+		for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
+			oneDetector = SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x));
+			if(oneDetector){
+				if(oneDetector->rank() == 1)
+					has1DDetectors = true;
+				if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(cfg->detectorConfigurations().at(x))))))
+					scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+			}
 		}
+
+		connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onActionTreeGenerated(AMAction3*)));
+		newScanAssembler_->generateActionTree();
+
+		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+		if(has1DDetectors)
+			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+
+		fileWriterThread_ = new QThread();
+		SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
+		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+		fileWriter->moveToThread(fileWriterThread_);
+		fileWriterThread_->start();
 	}
-
-	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onActionTreeGenerated(AMAction3*)));
-	newScanAssembler_->generateActionTree();
-
-	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
-
-	QString path = fullPath.path();// just the path, not the file name. Still relative.
-	QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
-
-	scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-	if(has1DDetectors)
-		scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-
-	fileWriterThread_ = new QThread();
-	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
-	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-	fileWriter->moveToThread(fileWriterThread_);
-	fileWriterThread_->start();
+	else
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION, "Error, SGM XAS Scan Action Controller failed to convert the configuration into a scan action tree. This is a serious problem, please contact the SGM Acquaman developers.");
 }
 
 AMAction3* SGMXASScanActionController::actionsTree(){
@@ -92,7 +84,7 @@ bool SGMXASScanActionController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
-				SGMXASSCANACTIONCONTROLLER_CANT_INTIALIZE,
+				SGMXASSCANACTIONCONTROLLER_CANNOT_INTIALIZE,
 				"Error, SGM XAS Scan Action Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
 		return false;
 	}

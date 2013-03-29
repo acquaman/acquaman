@@ -640,7 +640,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/acquaman/AMListActionScanOptimizer.h \
     source/acquaman/AMScanActionControllerScanValidator.h \
     source/acquaman/AMScanActionTreeSupport.h \
-    source/acquaman/AMNestedAxisTypeValidator.h
+    source/acquaman/AMNestedAxisTypeValidator.h \
+    source/acquaman/AMScanActionControllerScanConfigurationConverter.h \
+    source/acquaman/AMXASScanConfigurationConverter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1084,7 +1086,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/acquaman/AMListActionScanOptimizer.cpp \
     source/acquaman/AMScanActionControllerScanValidator.cpp \
     source/acquaman/AMScanActionTreeSupport.cpp \
-    source/acquaman/AMNestedAxisTypeValidator.cpp
+    source/acquaman/AMNestedAxisTypeValidator.cpp \
+    source/acquaman/AMScanActionControllerScanConfigurationConverter.cpp \
+    source/acquaman/AMXASScanConfigurationConverter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1108,6 +1112,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 
