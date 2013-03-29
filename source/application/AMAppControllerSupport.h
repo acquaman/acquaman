@@ -32,6 +32,10 @@ class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
 
+class AMScanActionControllerScanOptimizer;
+class AMScanActionControllerScanValidator;
+class AMAction3;
+
 class AMScanConfigurationObjectInfo{
 public:
 	/// The default constructor creates an invalid object
@@ -155,6 +159,33 @@ namespace AMAppControllerSupport{
 	/// Useful for auto export, this creates the available AMExporterOption class for the AMScanConfiguration. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
 	AMExporterOption* createExporterOption(AMScanConfiguration *scanConfiguration);
+
+	extern QList<AMScanActionControllerScanOptimizer*> principleOptimizers_;
+	extern QList<AMScanActionControllerScanValidator*> principleValidators_;
+
+	int principleOptimizerCount();
+	int principleValidatorCount();
+
+	AMScanActionControllerScanOptimizer* principleOptimizerAt(int index);
+	AMScanActionControllerScanValidator* principleValidatorAt(int index);
+
+	void addPrincipleOptimizer(int index, AMScanActionControllerScanOptimizer *optimizer);
+	void addPrincipleValidator(int index, AMScanActionControllerScanValidator *validator);
+
+	void appendPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer);
+	void appendPrincipleValidator(AMScanActionControllerScanValidator *validator);
+
+	void prependPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer);
+	void prependPrincipleValidator(AMScanActionControllerScanValidator *validator);
+
+	AMScanActionControllerScanOptimizer* removePrincipleOptimizer(int index);
+	AMScanActionControllerScanValidator* removePrincipleValidator(int index);
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy();
+	QList<AMScanActionControllerScanValidator*> principleValidatorsCopy();
+
+	void optimize(QList<AMScanActionControllerScanOptimizer*> optimizers, AMAction3 *scanActionTree);
+	bool validate(QList<AMScanActionControllerScanValidator*> validators, AMAction3 *scanActionTree);
 }
 
 #endif // AMAPPCONTROLLERSUPPORT_H

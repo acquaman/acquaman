@@ -7,5 +7,11 @@ AMScanActionControllerScanValidator::AMScanActionControllerScanValidator(AMActio
 }
 
 bool AMScanActionControllerScanValidator::validate(){
+	if(!scanActionTree_)
+		return false;
 	return validateImplementation(scanActionTree_);
+}
+
+void AMScanActionControllerScanValidator::setScanActionTree(AMAction3 *scanActionTree){
+	scanActionTree_ = scanActionTree;
 }

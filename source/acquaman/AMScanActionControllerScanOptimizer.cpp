@@ -8,10 +8,12 @@ AMScanActionControllerScanOptimizer::AMScanActionControllerScanOptimizer(AMActio
 	scanActionTree_ = scanActionTree;
 }
 
-AMAction3* AMScanActionControllerScanOptimizer::scanActionTree(){
-	return scanActionTree_;
+void AMScanActionControllerScanOptimizer::optimize(){
+	if(!scanActionTree_)
+		return;
+	optimizeImplementation(scanActionTree_);
 }
 
-void AMScanActionControllerScanOptimizer::optimize(){
-	optimizeImplementation(scanActionTree_);
+void AMScanActionControllerScanOptimizer::setScanActionTree(AMAction3 *scanActionTree){
+	scanActionTree_ = scanActionTree;
 }

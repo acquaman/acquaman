@@ -72,20 +72,13 @@ AMAction3* SGMXASScanActionController::actionsTree(){
 }
 
 #include "actions3/AMActionRunner3.h"
+#include "application/AMAppControllerSupport.h"
 void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 	actionTree_ = actionTree;
-	AMDetectorTriggerSourceScanOptimizer triggerOptimizer(actionTree_);
-	triggerOptimizer.optimize();
-	AMEmptyListScanOptimizer emptyListOptimizer(actionTree_);
-	emptyListOptimizer.optimize();
-	AMSingleElementListOptimizer singleElementListOptimizer(actionTree_);
-	singleElementListOptimizer.optimize();
 
-	AMNestedAxisTypeValidator nestedAxisValidator(actionTree_);
-	if(!nestedAxisValidator.validate()){
-		qDebug() << "Holy crap, we have an invalid scan action tree";
+	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), actionTree_);
+	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), actionTree_))
 		return;
-	}
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
 }

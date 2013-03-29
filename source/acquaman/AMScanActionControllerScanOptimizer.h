@@ -11,12 +11,12 @@ class AMScanActionControllerScanOptimizer : public QObject
 {
 Q_OBJECT
 public:
-	AMScanActionControllerScanOptimizer(AMAction3 *scanActionTree, QObject *parent = 0);
-
-	AMAction3* scanActionTree();
+	AMScanActionControllerScanOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 public slots:
 	void optimize();
+
+	void setScanActionTree(AMAction3 *scanActionTree);
 
 protected:
 	virtual void optimizeImplementation(AMAction3 *scanActionTree) = 0;

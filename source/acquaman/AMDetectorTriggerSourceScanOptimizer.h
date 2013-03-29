@@ -7,7 +7,7 @@ class AMDetectorTriggerSourceScanOptimizer : public AMScanActionControllerScanOp
 {
 Q_OBJECT
 public:
-	AMDetectorTriggerSourceScanOptimizer(AMAction3 *scanActionTree, QObject *parent = 0);
+	AMDetectorTriggerSourceScanOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 protected:
 	virtual void optimizeImplementation(AMAction3 *scanActionTree);

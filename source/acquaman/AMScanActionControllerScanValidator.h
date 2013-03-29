@@ -11,10 +11,12 @@ class AMScanActionControllerScanValidator : public QObject
 {
 Q_OBJECT
 public:
-	AMScanActionControllerScanValidator(AMAction3 *scanActionTree, QObject *parent = 0);
+	AMScanActionControllerScanValidator(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 public slots:
 	bool validate();
+
+	void setScanActionTree(AMAction3 *scanActionTree);
 
 protected:
 	virtual bool validateImplementation(AMAction3 *scanActionTree) = 0;

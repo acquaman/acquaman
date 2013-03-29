@@ -48,6 +48,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlateMoveActionInfo.h"
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMListActionScanOptimizer.h"
+#include "acquaman/AMNestedAxisTypeValidator.h"
+
 #include "acquaman/AMAgnosticDataAPI.h"
 
 AMAppController::AMAppController(QObject *parent)
@@ -76,6 +81,16 @@ bool AMAppController::startup(){
 
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+
+		AMDetectorTriggerSourceScanOptimizer *triggerOptimizer = new AMDetectorTriggerSourceScanOptimizer();
+		AMEmptyListScanOptimizer *emptyListOptimizer = new AMEmptyListScanOptimizer();
+		AMSingleElementListOptimizer *singleElementListOptimizer = new AMSingleElementListOptimizer();
+		AMAppControllerSupport::appendPrincipleOptimizer(triggerOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(emptyListOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(singleElementListOptimizer);
+
+		AMNestedAxisTypeValidator *nestedAxisValidator = new AMNestedAxisTypeValidator();
+		AMAppControllerSupport::appendPrincipleValidator(nestedAxisValidator);
 
 		return success;
 	}
