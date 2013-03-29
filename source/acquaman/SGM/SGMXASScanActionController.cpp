@@ -56,21 +56,11 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
 
 	scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-
-	rank1File_ = new QFile(AMUserSettings::userDataFolder+path+"/"+file);
-	rank1File_->open(QIODevice::WriteOnly | QIODevice::Text);
-	rank1Stream_.setDevice(rank1File_);
-
-	rank2File_ = 0; //NULL
-	if(has1DDetectors){
+	if(has1DDetectors)
 		scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-		rank2File_ = new QFile(AMUserSettings::userDataFolder+fullPath.filePath()+"_spectra.dat");
-		rank2File_->open(QIODevice::WriteOnly | QIODevice::Text);
-		rank2Stream_.setDevice(rank2File_);
-	}
 
 	fileWriterThread_ = new QThread();
-	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath()+"_2_", has1DDetectors);
+	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
 	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
@@ -123,23 +113,16 @@ bool SGMXASScanActionController::event(QEvent *e){
 			AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
 			QString separator = "|%|%|";
 			QString rank1String;
-			rank1Stream_ << "Start Info\n";
 			rank1String.append("Start Info\n");
-			rank1Stream_ << "-1" << separator << "eV" << "\n";
 			rank1String.append(QString("-1%1eV\n").arg(separator));
 
 			for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
 				oneMeasurementInfo = scan_->rawData()->measurementAt(x);
-				rank1Stream_ << x << separator << oneMeasurementInfo.rank() << separator << oneMeasurementInfo.name << separator << oneMeasurementInfo.description << separator << oneMeasurementInfo.units;
 				rank1String.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
-				if(oneMeasurementInfo.rank() == 1){
-					rank1Stream_ << separator << oneMeasurementInfo.axes.at(0).name << separator << oneMeasurementInfo.axes.at(0).size << separator << oneMeasurementInfo.axes.at(0).description << separator << oneMeasurementInfo.axes.at(0).units;
+				if(oneMeasurementInfo.rank() == 1)
 					rank1String.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
-				}
-				rank1Stream_ << "\n";
 				rank1String.append("\n");
 			}
-			rank1Stream_ << "End Info\n";
 			rank1String.append("End Info\n");
 			emit requestWriteToFile(1, rank1String);
 			break;}
@@ -191,34 +174,25 @@ void SGMXASScanActionController::writeToFiles(){
 	QString rank1String;
 	QString rank2String;
 
-	rank1Stream_ << "-1 " << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << " ";
 	rank1String.append(QString("-1 %1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
-	rank2Stream_ << "-1 " << (double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i()) << "\n";
 	rank2String.append(QString("-1 %1\n").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
 	AMRawDataSource *oneRawDataSource;
 	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
 		oneRawDataSource = scan_->rawDataSources()->at(x);
-		if(oneRawDataSource->rank() == 1){
-			rank1Stream_ << x << " " << (double)oneRawDataSource->value(insertionIndex_) << " ";
+		if(oneRawDataSource->rank() == 1)
 			rank1String.append(QString("%1 %2 ").arg(x).arg((double)oneRawDataSource->value(insertionIndex_)));
-		}
 		if(oneRawDataSource->rank() == 2){
 			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
 			double outputValues[dataSourceSize];
 			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
 			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
-			rank2Stream_ << x << " ";
 			rank2String.append(QString("%1 ").arg(x));
-			for(int y = 0; y < dataSourceSize; y++){
-				rank2Stream_ << outputValues[y] << " ";
+			for(int y = 0; y < dataSourceSize; y++)
 				rank2String.append(QString("%1 ").arg(outputValues[y]));
-			}
-			rank2Stream_ << "\n";
 			rank2String.append("\n");
 		}
 	}
-	rank1Stream_ << "-27\n";
 	rank1String.append("-27\n");
 
 	emit requestWriteToFile(1, rank1String);
@@ -233,14 +207,11 @@ SGMXASScanActionControllerFileWriter::SGMXASScanActionControllerFileWriter(const
 
 	rank1File_ = new QFile(filePath+".dat");
 	rank1File_->open(QIODevice::WriteOnly | QIODevice::Text);
-	//rank1Stream_.setDevice(rank1File_);
 
 	rank2File_ = 0; //NULL
 	if(hasRank2Data_){
 		rank2File_ = new QFile(filePath+"_spectra.dat");
 		rank2File_->open(QIODevice::WriteOnly | QIODevice::Text);
-		//rank2Stream_.setDevice(rank2File_);
-
 	}
 }
 
@@ -250,12 +221,12 @@ void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QStri
 		QTextStream rank1Stream(rank1File_);
 		rank1Stream << textToWrite;
 		break;}
-	case 2:
+	case 2:{
 		if(hasRank2Data_){
 			QTextStream rank2Stream(rank2File_);
 			rank2Stream << textToWrite;
 		}
-		break;
+		break;}
 	default:
 		break;
 	}

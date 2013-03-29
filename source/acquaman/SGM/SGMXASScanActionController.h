@@ -44,11 +44,6 @@ protected:
 	double currentAxisValue_;
 
 	QThread *fileWriterThread_;
-
-	QFile *rank1File_;
-	QFile *rank2File_;
-	QTextStream rank1Stream_;
-	QTextStream rank2Stream_;
 };
 
 
@@ -67,8 +62,6 @@ protected:
 
 	QFile *rank1File_;
 	QFile *rank2File_;
-//	QTextStream rank1Stream_;
-//	QTextStream rank2Stream_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H
