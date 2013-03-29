@@ -7,6 +7,9 @@
 class AMAxisStartedActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+Q_PROPERTY(QString axisName READ axisName WRITE setAxisName)
+Q_PROPERTY(int axisType READ dbAxisType WRITE setDbAxisType)
+
 public:
 	/// Constructor
 	Q_INVOKABLE AMAxisStartedActionInfo(const QString &axisName, AMScanAxis::AxisType axisType, QObject *parent = 0);
@@ -23,6 +26,13 @@ public:
 	QString axisName() const { return axisName_; }
 
 	AMScanAxis::AxisType axisType() const { return axisType_; }
+
+protected:
+	int dbAxisType() const { return (int)axisType_; }
+
+	void setAxisName(const QString &axisName) { axisName_ = axisName; }
+	void setAxisType(AMScanAxis::AxisType axisType) { axisType_ = axisType; }
+	void setDbAxisType(int axisType) { axisType_ = (AMScanAxis::AxisType)axisType; }
 
 protected:
 	QString axisName_;

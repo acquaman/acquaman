@@ -7,6 +7,7 @@
 class AMScanAxis : public AMDbObject
 {
 Q_OBJECT
+
 public:
 	/// Enum for the possible axis types
 	enum AxisType{
