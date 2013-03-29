@@ -3,13 +3,9 @@
 
 #include <QObject>
 
+#include "acquaman/AMScanActionTreeSupport.h"
+
 class AMAction3;
-
-namespace AMScanOptimizerSupport{
-	QList<AMAction3*> findActionsNamed(AMAction3 *rootAction, const QString &name);
-
-	QList<AMAction3*> findActionsOfType(AMAction3 *rootAction, AMAction3 *typeAction);
-}
 
 class AMScanActionControllerScanOptimizer : public QObject
 {

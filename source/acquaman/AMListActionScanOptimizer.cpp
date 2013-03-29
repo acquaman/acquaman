@@ -9,7 +9,7 @@ AMEmptyListScanOptimizer::AMEmptyListScanOptimizer(AMAction3 *scanActionTree, QO
 
 void AMEmptyListScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree){
 	AMListAction3 *templateListAction = new AMListAction3(new AMListActionInfo3("Fake List", "Fake List"));
-	QList<AMAction3*> allListsAsActions = AMScanOptimizerSupport::findActionsOfType(scanActionTree, templateListAction);
+	QList<AMAction3*> allListsAsActions = AMScanActionTreeSupport::findActionsOfType(scanActionTree, templateListAction);
 
 	QList<AMListAction3*> allLists;
 	AMListAction3 *tempListAction;
@@ -26,6 +26,8 @@ void AMEmptyListScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree)
 				castParentToList->deleteSubAction(castParentToList->indexOfSubAction(allLists.at(x)));
 		}
 	}
+
+	delete templateListAction;
 }
 
 AMSingleElementListOptimizer::AMSingleElementListOptimizer(AMAction3 *scanActionTree, QObject *parent) :
@@ -35,7 +37,7 @@ AMSingleElementListOptimizer::AMSingleElementListOptimizer(AMAction3 *scanAction
 
 void AMSingleElementListOptimizer::optimizeImplementation(AMAction3 *scanActionTree){
 	AMListAction3 *templateListAction = new AMListAction3(new AMListActionInfo3("Fake List", "Fake List"));
-	QList<AMAction3*> allListsAsActions = AMScanOptimizerSupport::findActionsOfType(scanActionTree, templateListAction);
+	QList<AMAction3*> allListsAsActions = AMScanActionTreeSupport::findActionsOfType(scanActionTree, templateListAction);
 
 	QList<AMListAction3*> allLists;
 	AMListAction3 *tempListAction;

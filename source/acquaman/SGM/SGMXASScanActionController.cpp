@@ -9,6 +9,7 @@
 
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
 #include "acquaman/AMListActionScanOptimizer.h"
+#include "acquaman/AMNestedAxisTypeValidator.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
@@ -79,6 +80,13 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 	emptyListOptimizer.optimize();
 	AMSingleElementListOptimizer singleElementListOptimizer(actionTree_);
 	singleElementListOptimizer.optimize();
+
+	AMNestedAxisTypeValidator nestedAxisValidator(actionTree_);
+	if(!nestedAxisValidator.validate()){
+		qDebug() << "Holy crap, we have an invalid scan action tree";
+		return;
+	}
+
 	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
 }
 

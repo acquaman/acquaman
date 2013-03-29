@@ -110,7 +110,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 	// generate axis cleanup list
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()), QString("Cleaning Up Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
 
-	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("%1 Axis").arg(axisControl->name())));
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("%1 Axis").arg(axisControl->name()), AMScanAxis::StepAxis));
 	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(axisControl->name())));
 
 	axisActions->addSubAction(axisStartAction);

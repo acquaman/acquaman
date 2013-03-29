@@ -12,7 +12,7 @@ AMDetectorTriggerSourceScanOptimizer::AMDetectorTriggerSourceScanOptimizer(AMAct
 void AMDetectorTriggerSourceScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree){
 	QMap<AMDetectorTriggerSource*, AMListAction3*> triggerSourcesToActionLists;
 
-	QList<AMAction3*> allDetectorAcquistionLists = AMScanOptimizerSupport::findActionsNamed(scanActionTree, "Acquire All Detectors");
+	QList<AMAction3*> allDetectorAcquistionLists = AMScanActionTreeSupport::findActionsNamed(scanActionTree, "Acquire All Detectors");
 	for(int x = 0; x < allDetectorAcquistionLists.count(); x++){
 		triggerSourcesToActionLists.clear();
 
