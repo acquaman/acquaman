@@ -24,6 +24,10 @@ class AMDetectorInfo : public AMDbObject
 {
 Q_OBJECT
 
+Q_PROPERTY(QString description READ description WRITE setDescription)
+Q_PROPERTY(QString units READ units WRITE setUnits)
+Q_PROPERTY(double acquisitionTime READ acquisitionTime WRITE setAcquisitionTime)
+Q_PROPERTY(int readMode READ dbReadMode WRITE dbSetReadMode)
 
 public:
 	/// Default constructor, places invalid or empty parameters
@@ -50,6 +54,10 @@ public slots:
 	void setAcquisitionTime(double acquisitionTime);
 	/// Sets the read mode
 	void setReadMode(AMDetectorDefinitions::ReadMode readMode);
+
+protected:
+	int dbReadMode() const { return (int)readMode_; }
+	void dbSetReadMode(int readMode) { readMode_ = (AMDetectorDefinitions::ReadMode)readMode; }
 
 protected:
 	/// User readable description
