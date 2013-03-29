@@ -158,6 +158,10 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 }
 
+// This is a non-GUI class, and we're popping up a QMessageBox. Not ideal; hope you'll let us get away with that.
+
+#include <QMessageBox>
+#include <QPushButton>
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 {
 	if(!action)
@@ -165,6 +169,24 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 
 	if(index < 0 || index > queuedActions_.count())
 		index = queuedActions_.count();
+
+	if(!action->isValid()){
+		QMessageBox box;
+		box.setWindowTitle("The Action You've Added May Not Be Valid");
+		box.setText("The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning());
+		box.setInformativeText("\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.");
+
+		QPushButton* ignoreAndAddButton = new QPushButton("Ignore this warning and add");
+		QPushButton* cancelAddingButton = new QPushButton("Cancel adding this action");
+
+		box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
+		box.addButton(cancelAddingButton, QMessageBox::AcceptRole);
+		box.setDefaultButton(cancelAddingButton);
+
+		box.exec();
+		if(box.clickedButton() == cancelAddingButton)
+			return;
+	}
 
 	emit queuedActionAboutToBeAdded(index);
 	queuedActions_.insert(index, action);
@@ -289,6 +311,26 @@ void AMActionRunner3::internalDoNextAction()
 			oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 
+		if(!currentAction_->isValid()){
+			QMessageBox box;
+			box.setWindowTitle("The Action You're About To Run Is Not Be Valid");
+			box.setText("The '" % currentAction_->info()->typeDescription() % "' action you're about to run reports:\n" % currentAction_->notValidWarning());
+			box.setInformativeText("\n\nYou can ignore this warning if you wish but you should likely cancel running the action.");
+
+			QPushButton* ignoreAndRunButton = new QPushButton("Ignore this warning and run");
+			QPushButton* cancelRunningButton = new QPushButton("Cancel running this action");
+
+			box.addButton(ignoreAndRunButton, QMessageBox::RejectRole);
+			box.addButton(cancelRunningButton, QMessageBox::AcceptRole);
+			box.setDefaultButton(cancelRunningButton);
+
+			box.exec();
+			if(box.clickedButton() == cancelRunningButton){
+				setQueuePaused(true);
+				return;
+			}
+		}
+
 		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
@@ -308,10 +350,7 @@ void AMActionRunner3::internalDoNextAction()
 	}
 }
 
-// This is a non-GUI class, and we're popping up a QMessageBox. Not ideal; hope you'll let us get away with that.
-
-#include <QMessageBox>
-#include <QPushButton>
+// Again, this is a non-GUI class, and we're popping up a QMessageBox. Not ideal; hope you'll let us get away with that.
 int AMActionRunner3::internalAskUserWhatToDoAboutFailedAction(AMAction3* action)
 {
 	QMessageBox box;

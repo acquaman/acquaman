@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AM2DDacqScanController.h"
 #include "acquaman/AMScanActionController.h"
 
+#include "beamline/AMBeamline.h"
+
 #include <QDir>
 #include <QStringBuilder>
 
@@ -60,6 +62,39 @@ AMScanAction::~AMScanAction()
 		controller_->disconnect();
 		delete controller_;
 	}
+}
+
+bool AMScanAction::isValid(){
+	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
+
+	if (!scanInfo){
+		AMErrorMon::alert(this, AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO, "This scan action is not valid because it does not have a valid info.");
+		return false;
+	}
+
+	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
+	for(int x = 0; x < requestedDetectors.count(); x++)
+		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
+			return false;
+
+	return true;
+}
+
+QString AMScanAction::notValidWarning(){
+	QString retVal;
+
+	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
+
+	if (!scanInfo)
+		return "Scan Action is not valid because it does not have a valid configuration\n";
+
+	retVal = "Scan Action is not valid because the following detectors are not available at the moment:\n";
+	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
+	for(int x = 0; x < requestedDetectors.count(); x++)
+		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
+			retVal.append(QString("%1").arg(requestedDetectors.at(x).name()));
+
+	return retVal;
 }
 
 void AMScanAction::startImplementation()

@@ -143,6 +143,10 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	QString statusText() const { return statusText_; }
 
 
+	virtual bool isValid() { return true; }
+	virtual QString notValidWarning() { return ""; }
+
+
 	// States
 	///////////////////
 

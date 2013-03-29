@@ -57,7 +57,7 @@ AMBeamline * AMBeamline::bl()
 }
 
 bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){
-	if(exposedDetectors()->detectorNamed(detectorInfo.name()))
+	if(exposedDetectors()->detectorNamed(detectorInfo.name()) && exposedDetectors()->detectorNamed(detectorInfo.name())->isConnected())
 		return true;
 	return false;
 }
