@@ -49,13 +49,15 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
-	QPushButton *loadCCDButton = new QPushButton("Load test");
+	QPushButton *loadCCDButton = new QPushButton("Load Image");
+//	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
 	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
 
 	image_ = new QLabel;
 	QPixmap pixmap = QPixmap(600, 600);
 	pixmap.fill(Qt::blue);
 	image_->setPixmap(pixmap);
+//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFile()));
 	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
 
 	isAcquiring_ = new QLabel;
@@ -298,12 +300,12 @@ void VESPERSCCDDetectorView::displayCCDFileTest()
 {
 	QTime time1;
 	time1.start();
-	QTime time;
-	time.start();
 
-	qDebug() << "Time for loading the image from the file" << time.restart() << "ms";
 	QVector<int> data = detector_->imageData();
 	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+
+	QTime time;
+	time.start();
 
 	int maximum = data.at(0);
 	int minimum = data.at(0);
@@ -323,21 +325,22 @@ void VESPERSCCDDetectorView::displayCCDFileTest()
 	int xSize = detector_->size().i();
 	int ySize = detector_->size().j();
 
-//		uchar *rgbData = new uchar[4*xSize*ySize];
+//	for (int i = 0; i < xSize; i++){
 
-	for (int i = 0; i < xSize; i++){
+//		int offset = i*ySize;
 
-		int offset = i*ySize;
+//		for (int j = 0; j < ySize; j++)
+//			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+//	}
+	for (int y = 0; y < ySize; y++){
 
-		for (int j = 0; j < ySize; j++){
-			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
-//				QRgb rgb = map.rgbAt(data.at(j + offset), range);
-//				rgbData[4*(offset+j)] = qRed(rgb);
-//				rgbData[4*(offset+j)+1] = qGreen(rgb);
-//				rgbData[4*(offset+j)+2] = qBlue(rgb);
-		}
+		int offset = y*xSize;
+		QRgb *line = (QRgb *)image.scanLine(y);
+
+		for (int x = 0; x < xSize; x++)
+			line[x] = map.rgbAt(data.at(x + offset), range);
 	}
-//		QImage image = QImage(rgbData, 2084, 2084, QImage::Format_RGB32);
+
 	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
 
 	QPixmap newImage;
@@ -346,8 +349,16 @@ void VESPERSCCDDetectorView::displayCCDFileTest()
 	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
 	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
 	image_->setPixmap(newImage);
-//		delete rgbData;
-	qDebug() << "Time to put image in pixmap" << time.restart() << "ms";
 
 	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
+}
+
+void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
+{
+
+}
+
+void VESPERSCCDDetectorView::displayCCDFile()
+{
+
 }

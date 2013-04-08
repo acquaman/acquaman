@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/VESPERS/VESPERSCCDDetector.h"
 
+class VESPERSRoperQRunnableImageLoader;
+
 /*!
   This class encapsulates the Roper CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
@@ -35,9 +37,41 @@ public:
 	/// Constructor.
 	VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
+protected slots:
+	/// Sets the new image data after receiving the signal from the QRunnable.
+	void onImageDataChanged(const QVector<int> &data);
+
 protected:
 	/// The implementation method used for loading images.  Implementations must emit the imageReady() signal after loading data.
 	virtual void loadImageFromFileImplementation(const QString &filename);
+};
+
+#include <QRunnable>
+#include <QMutex>
+
+/// This is a speicific QRunnable class that reads in the file of the CCD images.  This allows the task to be run in its own thread using QThreadPool.
+class VESPERSRoperQRunnableImageLoader : public QObject, public QRunnable
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Takes in the file path of the image to be loaded as well as the necessary size for the data.
+	VESPERSRoperQRunnableImageLoader(const QString &fileName, int size, QObject *parent = 0);
+
+	/// The method that does the work.  Needs to use proper thread safety.
+	virtual void run();
+
+signals:
+	/// Signal that passes the data that was loaded.
+	void imageData(const QVector<int> &data);
+
+protected:
+	/// The file name with the full path.
+	QString fileName_;
+	/// The size of the data that should be expected.
+	int size_;
+	/// The mutex used for locking the run method.
+	QMutex locker_;
 };
 
 #endif // VESPERSROPERCCDDETECTOR_H
