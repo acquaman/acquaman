@@ -98,22 +98,21 @@ bool AMAppController::startup(){
 bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
-		// a heading for the workflow manager...
-//		workflowManagerView_ = new AMWorkflowManagerView();
-//		mw_->insertHeading("Experiment Tools", 1);
-//		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
+
+		// Defaults the auto-open for generic scan editors to true.  All new running scans will have their scan editor brought to the front.
+		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
-		// remove the old one:
-//		mw_->removePane(workflowManagerView_);
-//		workflowManagerView_->hide();
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
 		scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans", QModelIndex(), mw_->windowPaneModel()->rowCount()-1);
+
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanActionStarted(AMScanAction*)));
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanActionFinished(AMScanAction*)));
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
@@ -140,30 +139,98 @@ void AMAppController::addBottomPanel()
 	bottomPanel_ = panel;
 }
 
-void AMAppController::goToWorkflow() {
-	// This check can be removed when all the old workflow stuff is finally removed
-	if(mw_->windowPaneModel()->allPanes().contains(workflowManagerView_))
-		mw_->setCurrentPane(workflowManagerView_);
-	else
-		mw_->setCurrentPane(workflowView_);
+void AMAppController::goToWorkflow()
+{
+	mw_->setCurrentPane(workflowView_);
 }
 
 #include "dataman/AMScan.h"
+#include "actions3/actions/AMScanAction.h"
+#include "acquaman/AMScanController.h"
+#include "dataman/AMScanEditorModelItem.h"
+
+void AMAppController::updateScanEditorModelItem()
+{
+	// Get the action, or if it's in a list, the current running action.
+	AMAction3 *currentAction = AMActionRunner3::workflow()->currentAction();
+	AMScanAction *action = 0;
+
+	if (currentAction && !currentAction->hasChildren())
+		action = qobject_cast<AMScanAction *>(currentAction);
+
+	else if (currentAction && currentAction->hasChildren()){
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
+
+		if (listAction)
+			action = qobject_cast<AMScanAction *>(listAction->currentSubAction());
+	}
+
+	// Do something with it if the action is valid.
+	if (action && (action->state() == AMAction3::Running || action->inFinalState())){
+
+		AMGenericScanEditor *editor = editorFromScan(action->controller()->scan());
+
+		if (!editor)
+			return;
+
+		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(editor)));
+		QString stateString;
+
+		switch(action->state()){
+
+		case AMAction3::Running:
+			stateString = "running";
+			break;
+
+		case AMAction3::Succeeded:
+			stateString = "succeeded";
+			break;
+
+		case AMAction3::Failed:
+			stateString = "failed";
+			break;
+
+		case AMAction3::Cancelled:
+			stateString = "cancelled";
+			break;
+
+		default:
+			stateString = "default";
+			break;
+		}
+
+		item->scanActionStateChanged(stateString, editor == mw_->currentPane());
+	}
+}
+
+void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
+{
+	AMScan *scan = action->controller()->scan();
+	openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
+
+	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
+	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
+
+	onCurrentScanActionStartedImplementation(action);
+}
+
+void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
+{
+	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
+	onCurrentScanActionFinishedImplementation(action);
+}
 
 void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
 
-	if(openInExistingEditor && scanEditorCount()) {
+	if(openInExistingEditor && scanEditorCount())
 		editor = scanEditorAt(scanEditorCount()-1);
-	}
-	else {
-
-		if (scan->scanRank() == 2)
-			editor = createNewScanEditor(true);
-		else
-			editor = createNewScanEditor();
-	}
+	else
+		editor = createNewScanEditor(scan->scanRank() == 2);
 
 	editor->addScan(scan);
 
@@ -206,12 +273,6 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	scan->release();
 	if(!config)
 		return;
-
-	// Check if this is a regular scan configuration or a 2D one.
-	bool is2D_ = false;
-
-	if (qobject_cast<AM2DScanConfiguration *>(config))
-		is2D_ = true;
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {

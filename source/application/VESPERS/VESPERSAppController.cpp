@@ -40,13 +40,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
-#include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
-#include "ui/VESPERS/VESPERSMarCCDDetectorView.h"
+#include "ui/VESPERS/VESPERSCCDDetectorView.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
+#include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -81,6 +81,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	moveImmediatelyAction_ = 0;
+
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
@@ -108,28 +110,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 bool VESPERSAppController::startup() {
 
 	// Get a destination folder.
-	AMUserSettings::load();
-	QString start = AMUserSettings::userDataFolder;
-	start.chop(1);
-	start = start.remove("/userData");
-	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
-	if (!dir.isEmpty()){
-
-		dir += "/";
-		if (!dir.contains("userData")){
-
-			QDir makeNewDir(dir);
-			makeNewDir.mkdir("userData");
-			makeNewDir.cd("userData");
-			dir = makeNewDir.absolutePath() + "/";
-		}
-
-		if (dir.compare(AMUserSettings::userDataFolder) != 0){
-
-			AMUserSettings::userDataFolder = dir;
-			AMUserSettings::save();
-		}
-	}
+	if (!VESPERSChooseDataFolderDialog::getDataFolder())
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
@@ -140,6 +122,9 @@ bool VESPERSAppController::startup() {
 		AMPeriodicTable::table();
 
 		registerClasses();
+
+		// Ensuring we automatically switch scan editors for new scans.
+		setAutomaticBringScanEditorToFront(true);
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -191,8 +176,8 @@ void VESPERSAppController::registerClasses()
 
 	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
-	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
-	AMDetectorViewSupport::registerClass<VESPERSMarCCDDetectorView, VESPERSMarCCDDetector>();
+	AMDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
+	AMDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
@@ -241,12 +226,12 @@ void VESPERSAppController::setupUserInterface()
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
 	xrf1ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E());
-	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_, workflowManagerView_);
+	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_);
 	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
-	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_, workflowManagerView_);
+	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_);
 
-	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
-	marCCDView_ = new VESPERSMarCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
@@ -303,9 +288,6 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
-
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 	// copy ROIs from one detector to another.
@@ -327,7 +309,7 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(marCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
+void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	QString fileFormat(action->controller()->scan()->fileFormat());
 
@@ -335,12 +317,9 @@ void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 		return;
 
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
-
-	AMScan *scan = action->controller()->scan();
-	openScanInEditor(scan);
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
+void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	QString fileFormat(action->controller()->scan()->fileFormat());
 
@@ -456,37 +435,59 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 		else if (temp->text() == "Energy scan")
 			setupEnergyScan(editor);
 
-		else if (temp->text() == "Go to immediately"){
-
-			cleanMoveImmediatelyAction();	// Clean up the action just in case.
-
-			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
-			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
-			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
-			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
-
-			connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
-			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
-			moveImmediatelyAction_->start();
-		}
+		else if (temp->text() == "Go to immediately")
+			moveImmediately(editor);
 
 		else if (temp->text() == "2D XRF Scan")
 			setup2DXRFScan(editor);
 	}
 }
 
+void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
+{
+	cleanMoveImmediatelyAction();	// Clean up the action just in case.
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	if (config->motor() == (VESPERS::H | VESPERS::V)){
+
+		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		moveImmediatelyAction_->start();
+	}
+
+	else if (config->motor() == (VESPERS::X | VESPERS::Z)){
+
+		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		moveImmediatelyAction_->start();
+	}
+}
 
 void VESPERSAppController::onMoveImmediatelySuccess()
 {
-	cleanMoveImmediatelyAction();
 }
 
 void VESPERSAppController::onMoveImmediatelyFailure()
 {
-	cleanMoveImmediatelyAction();
-
 	QMessageBox::warning(mw_, "Sample Stage Error", "The sample stage was unable to complete the desired movement.");
 }
 
@@ -609,6 +610,7 @@ void VESPERSAppController::onSampleStageChoiceChanged(bool change)
 	persistentView_->setSampleStage(change);
 	endstationView_->setUsingNormalMotor(change);
 	exafsConfigView_->setSampleStage(change);
+	energyScanConfigurationView_->setSampleStage(change);
 }
 
 void VESPERSAppController::fixCDF(const QUrl &url)

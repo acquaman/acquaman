@@ -266,11 +266,76 @@ bool AMDatamanAppController::startupOnFirstTime()
 	if(!startupCreateDatabases())
 		return false;
 
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades())
+		return false;
+
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
+	qApp->processEvents();
+	return true;
+}
+
+bool AMDatamanAppController::startupOnEveryTime()
+{
+	if(!startupCreateDatabases())
+		return false;
+
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades())
+		return false;
+
+	qApp->processEvents();
+
+	return true;
+}
+
+bool AMDatamanAppController::startupCreateDatabases()
+{
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	return true;
+}
+
+bool AMDatamanAppController::startupDatabaseUpgrades()
+{
+	QList<AMDbUpgrade *> firstTimeDbUpgrades;
+	QList<AMDbUpgrade *> everyTimeDbUpgrades;
+
+	for (int i = 0, size = databaseUpgradeCount(); i < size; i++){
+
+		if (AMDatabase::database(databaseUpgradeAt(i)->databaseNameToUpgrade())->isEmpty())
+			firstTimeDbUpgrades.append(databaseUpgradeAt(i));
+
+		else
+			everyTimeDbUpgrades.append(databaseUpgradeAt(i));
+	}
+
+	if (!onFirstTimeDatabaseUpgrade(firstTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRST_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to new databases failed.");
+		return false;
+	}
+
+	if (!onEveryTimeDatabaseUpgrade(everyTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to existing databases failed.");
+		return false;
+	}
+
+	return true;
+}
+
+bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
+{
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
-	for(int x = 0; x < databaseUpgradeCount(); x++){
-		upgrade = databaseUpgradeAt(x);
+
+	for(int x = 0; x < upgrades.size(); x++){
+		upgrade = upgrades.at(x);
 		if(!upgrade->loadDatabaseFromName()){
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
@@ -296,34 +361,10 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 	}
 
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
-	qApp->processEvents();
 	return true;
 }
 
-bool AMDatamanAppController::startupOnEveryTime()
-{
-	if(!startupCreateDatabases())
-		return false;
-
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades()) return false;
-	qApp->processEvents();
-
-	return true;
-}
-
-bool AMDatamanAppController::startupCreateDatabases()
-{
-	// create the "user" database connection.
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
-	if(!db)
-		return false;
-
-	return true;
-}
-
-bool AMDatamanAppController::startupDatabaseUpgrades()
+bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
 	bool success = true;
 	bool atLeastOneDatabaseAccessible = false;
@@ -337,10 +378,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	int lastErrorCode;
 
 	// Loop over the database upgrades and apply them if necessary
-	for(int x = 0; x < databaseUpgradeCount(); x++){
+	for(int x = 0; x < upgrades.size(); x++){
 		upgradeIsNecessary = false;
 		databaseIsEmpty = false;
-		upgrade = databaseUpgradeAt(x);
+		upgrade = upgrades.at(x);
 		QString pathToDatabase;
 		QString databaseName;
 
@@ -435,6 +476,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
 	else
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
+
 	return true;
 }
 
@@ -559,16 +601,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	mw_->installEventFilter(this);
 
-//	bottomBar_ = new AMBottomBar();
-//	// These buttons are never used.  Hiding them.
-//	bottomBar_->fullScreenButton->hide();
-//	bottomBar_->adjustScanFinishButton->hide();
-//	bottomBar_->restartScanButton->hide();
-//	mw_->addBottomWidget(bottomBar_);
-//	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-//	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
-//	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
-//	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
 	addBottomPanel();
 	mw_->addBottomWidget(bottomPanel_);
 
@@ -734,8 +766,14 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
+#include "dataman/AMScanEditorModelItem.h"
+
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 {
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (pane == scanEditorScanMapping_.at(i).second)
+			((AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(pane))))->editorWasClicked();
+
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
 }
@@ -773,12 +811,6 @@ void AMDatamanAppController::onAddButtonClicked() {
 		e.storeToDb(AMDatabase::database("user"));
 	}
 }
-
-void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
-	bottomBar_->updateScanProgress(elapsed, total);
-}
-
-#include "dataman/AMScanEditorModelItem.h"
 
 void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
@@ -846,6 +878,24 @@ void AMDatamanAppController::fixCDF(const QUrl &url)
 	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
+AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (editor == scanEditorScanMapping_.at(i).second)
+			return scanEditorScanMapping_.at(i).first;
+
+	return 0;
+}
+
+AMGenericScanEditor *AMDatamanAppController::editorFromScan(AMScan *scan) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (scan == scanEditorScanMapping_.at(i).first)
+			return scanEditorScanMapping_.at(i).second;
+
+	return 0;
+}
+
 #include "dataman/AMRunExperimentItems.h"
 
 void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
@@ -853,7 +903,22 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	// is this a scan editor to be deleted?
 	/////////////////////////////////
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+
 		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
+
+		if (editor){
+
+			int index = -1;
+
+			for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+				if (editor == scanEditorScanMapping_.at(i).second)
+					index = i;
+
+			// This must be valid if it isn't -1, no need to check against the size.
+			if (index >= 0)
+				scanEditorScanMapping_.removeAt(index);
+		}
+
 		closeScanEditor(editor);
 	}
 
@@ -940,18 +1005,10 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 	}
 }
 
-AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
-{
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
-	emit scanEditorCreated(editor);
-	return editor;
-}
-
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
 	emit scanEditorCreated(editor);
 	return editor;
 }
@@ -1033,33 +1090,61 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 		return false;
 
 	bool accepted = false;
-	bool madeNewEditor = false;
 
-	// where are they going?
-	if(openInIndividualEditors) {
-		editor = 0;	// create new one for each
+	AMScan *scan = 0;
+	AMGenericScanEditor *temp2D = 0;
+
+	// Just make a new scan editor as you need it, in the way you need it.
+	if (openInIndividualEditors){
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				editor = createNewScanEditor(scan->scanRank() == 2);
+				editor->addScan(scan);
+				accepted = true;
+			}
+		}
 	}
+
+	// If the editor wasn't passed in, make one when you need it.  Either way, always make a new one if the editor needs to use the 2D scan view.
 	else {
-		if(!editor) {
-			editor = createNewScanEditor();
-			madeNewEditor = true;
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				if (scan->scanRank() == 2){
+
+					temp2D = createNewScanEditor(true);
+					temp2D->addScan(scan);
+				}
+
+				else{
+
+					if (!editor)
+						editor = createNewScanEditor();
+
+					editor->addScan(scan);
+				}
+
+				accepted = true;
+			}
 		}
 	}
 
-	// loop through all URLs
-	foreach(QUrl url, urls) {
-		if(dropScanURL(url, editor))
-			accepted = true;
-	}
+	if (editor)
+		mw_->setCurrentPane(editor);
 
-	if(madeNewEditor) {	// if we made a single new editor for these...
-		if(accepted) {
-			mw_->setCurrentPane(editor);
-		}
-		else {
-			mw_->deletePane(editor);	// no need for this guy; he's empty.
-		}
-	}
+	else if (temp2D)
+		mw_->setCurrentPane(temp2D);
 
 	return accepted;
 }
@@ -1069,32 +1154,32 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 #include "actions3/AMListAction3.h"
 #include <QListView>
 #include <QStringListModel>
-bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
+AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 {
 	// scheme correct?
 	if(url.scheme() != "amd") {
-		return false;
+		return 0;
 	}
 
 	// Can we connect to the database?
 	AMDatabase* db = AMDatabase::database(url.host());
 	if(!db)
-		return false;
+		return 0;
 	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)
-		return false;
+		return 0;
 
 	QString tableName = path.at(0);
 	bool idOkay;
 	int id = path.at(1).toInt(&idOkay);
 	if(!idOkay || id < 1)
-		return false;
+		return 0;
 
 	// Only open scans for now (ie: things in the scans table)
 	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return false;
+		return 0;
 
 	// Flag used to determine if the scan needs to overwrite the currently scanning status.
 	bool overwriteNecessary = false;
@@ -1102,7 +1187,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
 	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
 	if(!isScanning.isValid())
-		return false;
+		return 0;
 	if(isScanning.toBool()) {
 		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
 		QMessageBox stillScanningEnquiry;
@@ -1121,7 +1206,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			if(otherEditor)
 				mw_->setCurrentPane(otherEditor);
 
-			return false;
+			return 0;
 		}
 		// If this option is chosen, it will set currently scanning to false, and then allow regular opening of the scan.
 		else if (stillScanningEnquiry.clickedButton() == overwriteCurrentlyScanningButton){
@@ -1129,7 +1214,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			overwriteNecessary = true;
 		}
 		else
-			return false;
+			return 0;
 	}
 
 	// Check if this scan is already open
@@ -1153,24 +1238,24 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 		}
 		else if(alreadyOpenEnquiry.clickedButton() == showMeNowButton) {
 			mw_->setCurrentPane(otherEditor);
-			return false;
+			return 0;
 		}
 		else {
 			// user chose to cancel.
-			return false;
+			return 0;
 		}
 	}
 
 	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
 	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 	if(!dbo)
-		return false;
+		return 0;
 
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
 		delete dbo;
-		return false;
+		return 0;
 	}
 
 	// Change the scan in the database if necessary and then reload it.
@@ -1184,32 +1269,17 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
-			return false;
+			return 0;
 
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
 			delete dbo;
-			return false;
+			return 0;
 		}
 	}
 
-	// success!
-	if (scan->scanRank() == 2){
-
-		if (editor)
-			closeScanEditor(editor);
-
-		editor = createNewScanEditor(true);
-	}
-
-	else if(!editor) {
-		editor = createNewScanEditor();
-	}
-
-	editor->addScan(scan);
-
-	return true;
+	return scan;
 }
 
 #include "dataman/import/AMScanDatabaseImportController.h"

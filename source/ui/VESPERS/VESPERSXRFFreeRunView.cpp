@@ -33,11 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
-VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
+VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	: QWidget(parent)
 {
 	xrfFreeRun_ = xrfFreeRun;
-	workflow_ = workflow;
 	detector_ = xrfFreeRun_->detector();
 	xrfTable_ = xrfFreeRun_->table();
 

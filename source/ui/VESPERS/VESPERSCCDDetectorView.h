@@ -17,25 +17,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef VESPERSMARCCDDETECTORVIEW_H
-#define VESPERSMARCCDDETECTORVIEW_H
+#ifndef VESPERSCCDDETECTORVIEW_H
+#define VESPERSCCDDETECTORVIEW_H
 
 #include "ui/beamline/AMDetectorView.h"
-#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
+#include "beamline/VESPERS/VESPERSCCDDetector.h"
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-/// Provides a simple view to some of the parameters in the Mar CCD detector.
-class VESPERSMarCCDDetectorView : public AMDetailedDetectorView
+class VESPERSCCDDetectorView : public AMDetailedDetectorView
 {
 	Q_OBJECT
 
 public:
-	/// Default constructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
-	Q_INVOKABLE explicit VESPERSMarCCDDetectorView(VESPERSMarCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
 	AMDetector *detector() { return detector_; }
@@ -44,17 +43,17 @@ protected slots:
 	/// Slot used to switch the icon on the currently acquiring indicator.
 	void onIsAcquiringChanged(bool isAcquiring) { isAcquiring_->setPixmap(QIcon(isAcquiring == true ? ":/ON.png" : ":/OFF.png").pixmap(25)); }
 	/// Slot used to update the state label.
-	void onStateChanged(VESPERSMarCCDDetector::State newState);
+	void onStateChanged(VESPERSCCDDetector::State newState);
 	/// Slot used to set the acquire time on the detector.
 	void setAcquireTime(double time) { if (time != detector_->acquireTime()) detector_->setAcquireTime(time); }
 	/// Overloaded.  Slot used to set the acquire time on the detector.
 	void setAcquireTime() { if (acquireTime_->value() != detector_->acquireTime()) detector_->setAcquireTime(acquireTime_->value()); }
 	/// Slot used to update the trigger mode combo box.
-	void onTriggerModeChanged(VESPERSMarCCDDetector::TriggerMode mode);
+	void onTriggerModeChanged(VESPERSCCDDetector::TriggerMode mode);
 	/// Slot used to set the trigger mode on the detector.
 	void setTriggerMode(int newMode);
 	/// Slot used to update the image mode combo box.
-	void onImageModeChanged(VESPERSMarCCDDetector::ImageMode mode);
+	void onImageModeChanged(VESPERSCCDDetector::ImageMode mode);
 	/// Slot used to set the image mode on the detector.
 	void setImageMode(int newMode);
 	/// Slot used to set the autosave setting on the detector.
@@ -76,13 +75,20 @@ protected slots:
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
 
+	/// Gets a filename for the CCD image to be read.
+	void getCCDFileNameAndLoad();
+	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
+	void displayCCDFile();
+	/// TEST METHOD
+	void displayCCDFileTest();
+
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
 	bool setDetector(AMDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector.
-	VESPERSMarCCDDetector *detector_;
+	VESPERSCCDDetector *detector_;
 
 	/// Label holding the isAcquiring state.
 	QLabel *isAcquiring_;
@@ -96,6 +102,8 @@ protected:
 	QLabel *state_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
+	/// The image being viewed - can be any image.
+	QLabel *image_;
 
 	// CCD setup things.
 	/// CCD file path line edit.
@@ -106,4 +114,4 @@ protected:
 	QLineEdit *fileNumberEdit_;
 };
 
-#endif // VESPERSMARCCDDETECTORVIEW_H
+#endif // VESPERSCCDDETECTORVIEW_H

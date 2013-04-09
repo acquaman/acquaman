@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "util/AMSelectablePeriodicTable.h"
+#include "ui/util/AMSelectablePeriodicTableView.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -53,6 +55,16 @@ protected slots:
 	void onSpectraGroupClicked(int id);
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val) { plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0))); }
+	/// Helper slot that adds lines to the plot based on elements being selected from the table.
+	void onElementSelected(int atomicNumber);
+	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
+	void onElementDeselected(int atomicNumber);
+	/// Sets the plot range used for placing markers inside the plot.
+	void setPlotRange(double low, double high);
+	/// Sets the minimim for the plot range used for placing markers inside the plot.
+	void setMinimum(double min);
+	/// Sets the maximum for the plot range used for placing markers inside the plot.
+	void setMaximum(double max);
 
 protected:
 	/// Enum for the different file types.  None is if it can't determine it.
@@ -108,6 +120,17 @@ protected:
 	QList<MPlotSeriesBasic *> corrDataSeries_;
 	/// This holds the corrected sum.
 	MPlotSeriesBasic *corrSum_;
+
+	/// The periodic table model that holds all of the selected elements.
+	AMSelectablePeriodicTable *table_;
+	/// The view that looks at the selectable periodic table model.
+	AMSelectablePeriodicTableView *tableView_;
+	/// Pair that holds the plot range that should be considered.
+	QPair<double, double> range_;
+	/// Spin box holding the minimum value for the range.
+	QDoubleSpinBox *minimum_;
+	/// Spin box holding the maximum value for the range.
+	QDoubleSpinBox *maximum_;
 };
 
 #include <QString>

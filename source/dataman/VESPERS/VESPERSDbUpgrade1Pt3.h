@@ -32,7 +32,7 @@ public:
 	/// Indicates the dependencies of this upgrade.  There are no dependencies on this upgrade because it is entirely based on a single column which has been static since creation.
 	virtual QStringList upgradeFromTags() const;
 
-	/// Returns true if the database contains the three tables (2D, line, and energy scan).
+	/// Returns true.  ALL modifications to the structure of the database need to be performed.
 	virtual bool upgradeNecessary() const;
 
 	/// Makes all the changes outlined in the class description.

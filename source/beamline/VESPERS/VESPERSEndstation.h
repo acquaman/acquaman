@@ -64,6 +64,8 @@ public:
 	double distanceToRoperCCD() const { return ccdControl_->value(); }
 	/// Returns the current thickness of the filters in um.
 	int filterThickness() const { return filterThickness_; }
+	/// Returns the current value of the laser sensor.
+	double laserPosition() const { return laserPositionControl_->value(); }
 
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
@@ -88,6 +90,8 @@ signals:
 	void singleElFbkChanged(double);
 	/// The four element motor position changed notification.
 	void fourElFbkChanged(double);
+	/// Notifier that the laser position has changed.
+	void laserPositionChanged(double);
 
 public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
@@ -142,6 +146,7 @@ protected:
 	AMControl *singleElControl_;
 	AMControl *focusNormalControl_;
 	AMControl *focusYControl_;
+	AMControl *laserPositionControl_;
 
 	// Microscope light PV.
 	AMProcessVariable *micLightPV_;

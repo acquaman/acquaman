@@ -17,7 +17,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "VESPERSRoperCCDDetectorView.h"
+#include "VESPERSCCDDetectorView.h"
 
 #include "ui/AMTopFrame.h"
 
@@ -27,14 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-VESPERSRoperCCDDetectorView::VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector *detector, bool configureOnly, QWidget *parent)
+VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)
@@ -46,15 +46,26 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - Roper CCD"));
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-	detector_ = static_cast<VESPERSRoperCCDDetector *>(detector);
+	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+
+	QPushButton *loadCCDButton = new QPushButton("Load Image");
+//	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
+	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
+
+	image_ = new QLabel;
+	QPixmap pixmap = QPixmap(600, 600);
+	pixmap.fill(Qt::blue);
+	image_->setPixmap(pixmap);
+//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFile()));
+	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 	connect(detector_, SIGNAL(isAcquiringChanged(bool)), this, SLOT(onIsAcquiringChanged(bool)));
 
 	state_ = new QLabel;
-	connect(detector_, SIGNAL(stateChanged(VESPERSRoperCCDDetector::State)), this, SLOT(onStateChanged(VESPERSRoperCCDDetector::State)));
+	connect(detector_, SIGNAL(stateChanged(VESPERSCCDDetector::State)), this, SLOT(onStateChanged(VESPERSCCDDetector::State)));
 
 	acquireTime_ = new QDoubleSpinBox;
 	acquireTime_->setSuffix(" s");
@@ -75,25 +86,14 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	triggerMode_ = new QComboBox;
 	triggerMode_->addItem("Free Run");
 	triggerMode_->addItem("External Sync");
-	connect(detector_, SIGNAL(triggerModeChanged(VESPERSRoperCCDDetector::TriggerMode)), this, SLOT(onTriggerModeChanged(VESPERSRoperCCDDetector::TriggerMode)));
+	connect(detector_, SIGNAL(triggerModeChanged(VESPERSCCDDetector::TriggerMode)), this, SLOT(onTriggerModeChanged(VESPERSCCDDetector::TriggerMode)));
 	connect(triggerMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setTriggerMode(int)));
 
 	imageMode_ = new QComboBox;
 	imageMode_->addItem("Normal");
 	imageMode_->addItem("Focus");
-	connect(detector_, SIGNAL(imageModeChanged(VESPERSRoperCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSRoperCCDDetector::ImageMode)));
+	connect(detector_, SIGNAL(imageModeChanged(VESPERSCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSCCDDetector::ImageMode)));
 	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
-
-	temperatureSetpoint_ = new QDoubleSpinBox;
-	temperatureSetpoint_->setRange(-70, 30);
-	temperatureSetpoint_->setValue(20);
-	temperatureSetpoint_->setDecimals(1);
-	temperatureSetpoint_->setSuffix(QString::fromUtf8(" °C"));
-	connect(detector_, SIGNAL(temperatureSetpointChanged(double)), temperatureSetpoint_, SLOT(setValue(double)));
-	connect(temperatureSetpoint_, SIGNAL(editingFinished()), this, SLOT(setTemperature()));
-
-	temperatureFeedback_ = new QLabel("");
-	connect(detector_, SIGNAL(temperatureChanged(double)), this, SLOT(onTemperatureChanged(double)));
 
 	QToolButton *saveButton = new QToolButton;
 	saveButton->setIcon(QIcon(":/save.png"));
@@ -131,13 +131,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
-	QGroupBox *temperatureGroupBox = new QGroupBox("Temperature Control");
-	QHBoxLayout *temperatureLayout = new QHBoxLayout;
-	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
-	temperatureGroupBox->setLayout(temperatureLayout);
-
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
@@ -150,7 +143,7 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	ccdGBTopLayout->addWidget(new QLabel("Save Current Image:"));
 	ccdGBTopLayout->addWidget(saveButton);
 
-	QGroupBox *ccdGB = new QGroupBox(tr("Image Options"));
+	QGroupBox *ccdGB = new QGroupBox(tr("Image File Options"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
 	ccdGBLayout->addRow(ccdGBTopLayout);
 	ccdGBLayout->addRow("Path:", filePathEdit_);
@@ -159,10 +152,13 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
 
-	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	QVBoxLayout *acquisitionAndTemperatureLayout = new QVBoxLayout;
+	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
+	acquisitionAndTemperatureLayout->addStretch();
+
+	QHBoxLayout *detectorLayout = new QHBoxLayout;
 	detectorLayout->addStretch();
-	detectorLayout->addWidget(acquisitionBox);
-	detectorLayout->addWidget(temperatureGroupBox);
+	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 
@@ -174,6 +170,8 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
+	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
+	masterLayout->addWidget(loadCCDButton);
 	masterLayout->addLayout(horizontalSquishLayout);
 	masterLayout->addStretch();
 
@@ -182,12 +180,12 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	return true;
 }
 
-void VESPERSRoperCCDDetectorView::onTriggerModeChanged(VESPERSRoperCCDDetector::TriggerMode mode)
+void VESPERSCCDDetectorView::onTriggerModeChanged(VESPERSCCDDetector::TriggerMode mode)
 {
 	triggerMode_->setCurrentIndex((int)mode);
 }
 
-void VESPERSRoperCCDDetectorView::setTriggerMode(int newMode)
+void VESPERSCCDDetectorView::setTriggerMode(int newMode)
 {
 	if (newMode == (int)detector_->triggerMode())
 		return;
@@ -195,80 +193,80 @@ void VESPERSRoperCCDDetectorView::setTriggerMode(int newMode)
 	switch(newMode){
 
 	case 0:
-		detector_->setTriggerMode(VESPERSRoperCCDDetector::FreeRun);
+		detector_->setTriggerMode(VESPERSCCDDetector::FreeRun);
 		break;
 
 	case 1:
-		detector_->setTriggerMode(VESPERSRoperCCDDetector::ExtSync);
+		detector_->setTriggerMode(VESPERSCCDDetector::ExtSync);
 		break;
 	}
 }
 
-void VESPERSRoperCCDDetectorView::onImageModeChanged(VESPERSRoperCCDDetector::ImageMode mode)
+void VESPERSCCDDetectorView::onImageModeChanged(VESPERSCCDDetector::ImageMode mode)
 {
-	if (mode == VESPERSRoperCCDDetector::Focus)
+	if (mode == VESPERSCCDDetector::Focus)
 		imageMode_->setCurrentIndex(1);
 	else
 		imageMode_->setCurrentIndex(0);
 }
 
-void VESPERSRoperCCDDetectorView::setImageMode(int newMode)
+void VESPERSCCDDetectorView::setImageMode(int newMode)
 {
 	switch(newMode){
 
 	case 0:
-		if (detector_->imageMode() != VESPERSRoperCCDDetector::Normal)
-			detector_->setImageMode(VESPERSRoperCCDDetector::Normal);
+		if (detector_->imageMode() != VESPERSCCDDetector::Normal)
+			detector_->setImageMode(VESPERSCCDDetector::Normal);
 
 		break;
 
 	case 1:
-		if (detector_->imageMode() != VESPERSRoperCCDDetector::Focus )
-			detector_->setImageMode(VESPERSRoperCCDDetector::Focus);
+		if (detector_->imageMode() != VESPERSCCDDetector::Focus )
+			detector_->setImageMode(VESPERSCCDDetector::Focus);
 
 		break;
 	}
 }
 
-void VESPERSRoperCCDDetectorView::onStateChanged(VESPERSRoperCCDDetector::State newState)
+void VESPERSCCDDetectorView::onStateChanged(VESPERSCCDDetector::State newState)
 {
 	switch(newState){
 
-	case VESPERSRoperCCDDetector::Idle:
+	case VESPERSCCDDetector::Idle:
 		state_->setText("Idle");
 		break;
 
-	case VESPERSRoperCCDDetector::Acquire:
+	case VESPERSCCDDetector::Acquire:
 		state_->setText("Acquire");
 		break;
 
-	case VESPERSRoperCCDDetector::Readout:
+	case VESPERSCCDDetector::Readout:
 		state_->setText("Readout");
 		break;
 
-	case VESPERSRoperCCDDetector::Correct:
+	case VESPERSCCDDetector::Correct:
 		state_->setText("Correct");
 		break;
 
-	case VESPERSRoperCCDDetector::Saving:
+	case VESPERSCCDDetector::Saving:
 		state_->setText("Saving");
 		break;
 
-	case VESPERSRoperCCDDetector::Aborting:
+	case VESPERSCCDDetector::Aborting:
 		state_->setText("Aborting");
 		break;
 
-	case VESPERSRoperCCDDetector::Error:
+	case VESPERSCCDDetector::Error:
 		state_->setText("Error");
 		break;
 
-	case VESPERSRoperCCDDetector::Waiting:
+	case VESPERSCCDDetector::Waiting:
 		state_->setText("Waiting");
 		break;
 	}
 }
 
-void VESPERSRoperCCDDetectorView::onAutoSaveChanged(bool autoSave)
+void VESPERSCCDDetectorView::onAutoSaveChanged(bool autoSave)
 {
 	if (autoSave)
 		autoSaveComboBox_->setCurrentIndex(1);
@@ -276,7 +274,7 @@ void VESPERSRoperCCDDetectorView::onAutoSaveChanged(bool autoSave)
 		autoSaveComboBox_->setCurrentIndex(0);
 }
 
-void VESPERSRoperCCDDetectorView::setAutoSave(int autoSave)
+void VESPERSCCDDetectorView::setAutoSave(int autoSave)
 {
 	switch(autoSave){
 
@@ -292,4 +290,75 @@ void VESPERSRoperCCDDetectorView::setAutoSave(int autoSave)
 
 		break;
 	}
+}
+
+#include "MPlot/MPlotColorMap.h"
+#include <QTime>
+#include <QRgb>
+
+void VESPERSCCDDetectorView::displayCCDFileTest()
+{
+	QTime time1;
+	time1.start();
+
+	QVector<int> data = detector_->imageData();
+	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+
+	QTime time;
+	time.start();
+
+	int maximum = data.at(0);
+	int minimum = data.at(0);
+
+	for (int i = 0, size = data.size(); i < size; i++){
+
+		if (data.at(i) < minimum)
+			minimum = data.at(i);
+
+		if (data.at(i) > maximum)
+			maximum = data.at(i);
+	}
+	qDebug() << "Finding min and max:" << time.restart() << "ms";
+	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
+	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+
+	int xSize = detector_->size().i();
+	int ySize = detector_->size().j();
+
+//	for (int i = 0; i < xSize; i++){
+
+//		int offset = i*ySize;
+
+//		for (int j = 0; j < ySize; j++)
+//			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+//	}
+	for (int y = 0; y < ySize; y++){
+
+		int offset = y*xSize;
+		QRgb *line = (QRgb *)image.scanLine(y);
+
+		for (int x = 0; x < xSize; x++)
+			line[x] = map.rgbAt(data.at(x + offset), range);
+	}
+
+	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
+
+	QPixmap newImage;
+	newImage.convertFromImage(image);
+	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
+	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
+	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
+	image_->setPixmap(newImage);
+
+	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
+}
+
+void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
+{
+
+}
+
+void VESPERSCCDDetectorView::displayCCDFile()
+{
+
 }

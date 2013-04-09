@@ -44,24 +44,21 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	regionsView_->setMaximumHeight(100);
 
 	// The CCD detector setup.
-	ccdButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
-
-	tempButton = new QRadioButton("Roper");
-	ccdButtonGroup_->addButton(tempButton, 1);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Mar");
-	ccdButtonGroup_->addButton(tempButton, 2);
-	ccdDetectorLayout->addWidget(tempButton);
-
+	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
+	ccdButtonGroup_->button(int(VESPERS::NoCCD))->setDisabled(true);
 	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-
 	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
 
-	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
-	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
+	// CCD label.
+	ccdText_ = new QLabel;
+	ccdHelpText_ = new QLabel;
+	ccdTextBox_ = new QGroupBox("CCD Detector Info");
+	QVBoxLayout *ccdTextLayout = new QVBoxLayout;
+	ccdTextLayout->addWidget(ccdText_);
+	ccdTextLayout->addWidget(ccdHelpText_);
+	ccdTextBox_->setLayout(ccdTextLayout);
+	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
@@ -80,23 +77,15 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPositionCheckBox_, SLOT(setChecked(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), setCurrentPositionButton_, SLOT(setEnabled(bool)));
-	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
-	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 	connect(setCurrentPositionButton_, SIGNAL(clicked()), this, SLOT(setScanPosition()));
 
-	currentCCDFileName_ = new QLabel;
-	onCCDFileNameChanged(config_->ccdFileName());
-	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(currentCCDFileName_);
 	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	// The estimated scan time.
@@ -138,6 +127,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	contentsLayout->addLayout(topRowLayout);
 	contentsLayout->addLayout(secondRowLayout);
 	contentsLayout->addLayout(thirdRowLayout);
+	contentsLayout->addWidget(ccdTextBox_);
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
@@ -150,39 +140,99 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	setLayout(configViewLayout);
 }
 
-void VESPERSEnergyScanConfigurationView::onConfigureCCDDetectorClicked()
+void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 {
-	if (config_->ccdDetector() == VESPERS::Roper)
-		emit configureDetector("Roper CCD");
-	else if (config_->ccdDetector() == VESPERS::Mar)
-		emit configureDetector("Mar CCD");
+	QString name = scanName_->text();
+	config_->setName(name);
+	config_->setUserScanName(name);
+
+	if (config_->ccdDetector() != VESPERS::NoCCD){
+
+		QString path;
+
+		if (config_->ccdDetector() == VESPERS::Roper)
+			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+
+		else if (config_->ccdDetector() == VESPERS::Mar)
+			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
+		config_->setCCDFileName(name);
+		checkCCDFileNames(name);
+	}
 }
 
-void VESPERSEnergyScanConfigurationView::updateCCDDetectorButtons(int detector)
+void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) const
 {
-	ccdButtonGroup_->button(detector)->setChecked(true);
+	QString path;
 
-	// Roper
-	if (detector == 1){
+	if (config_->ccdDetector() == VESPERS::Roper){
 
-		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
-		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
+		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path.replace("Y:\\", "/mnt/aurora/");
+		path.replace('\\', '/');
 	}
 
-	// Mar
-	else if (detector == 2){
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
 
-		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
-		connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
-		onCCDFileNameChanged(VESPERSBeamline::vespers()->marCCD()->ccdFileName());
-		config_->setCCDFileName(VESPERSBeamline::vespers()->marCCD()->ccdFileName());
+	if (VESPERS::fileNameExists(path, name)){
+
+		ccdHelpText_->show();
+		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
 	}
+
+	else{
+
+		ccdHelpText_->setText("");
+		ccdHelpText_->hide();
+	}
+}
+
+void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
+{
+	config_->setCCDDetector(id);
+
+	QString path;
+	QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
+
+	if (config_->ccdDetector() == VESPERS::Roper)
+		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+	config_->setCCDFileName(name);
+	ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
+	checkCCDFileNames(name);
+}
+
+void VESPERSEnergyScanConfigurationView::setScanPosition()
+{
+	double x = 0;
+	double y = 0;
+
+	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+
+		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
+	}
+
+	else {
+
+		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+	}
+
+	config_->setPosition(x, y);
+	positionsSaved_->setText("Saved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+	positionsSaved_->setPalette(palette);
 }
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
@@ -194,20 +244,18 @@ void VESPERSEnergyScanConfigurationView::setSampleStage(bool sampleStage)
 {
 	if (sampleStage){
 
-		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		xPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horizontalPosition());
-		yPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->verticalPosition());
+		savedXPosition_->setText(QString("H: %1 mm").arg(0.0, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(0.0, 0, 'g', 3));
 	}
-	else{
 
-		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
-		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
-		xPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horizontalPosition());
-		yPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->verticalPosition());
+	else {
+
+		savedXPosition_->setText(QString("X: %1 mm").arg(0.0, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(0.0, 0, 'g', 3));
 	}
+
+	positionsSaved_->setText("Unsaved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
+	positionsSaved_->setPalette(palette);
 }

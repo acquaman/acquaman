@@ -11,10 +11,13 @@
 #include <QPair>
 #include <QDir>
 #include <QList>
+#include <QStringBuilder>
+#include <QDebug>
 
 #include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "beamline/AMProcessVariable.h"
 
 namespace VESPERS {
 
@@ -187,6 +190,78 @@ namespace VESPERS {
 		vespersDefault->storeToDb(AMDatabase::database("user"));
 
 		return vespersDefault;
+	}
+
+	/// Returns whether any files with \param name exist in \param path.  It removes endings like '_1.dat' if they exist.
+	inline bool fileNameExists(const QString &path, const QString &name)
+	{
+		QDir dir(path);
+
+		if (dir.exists()){
+
+			QStringList files = dir.entryList();
+
+			foreach (QString file, files)
+				if (file.mid(0, file.lastIndexOf("_")) == name)
+					return true;
+		}
+
+		return false;
+	}
+
+	/// Returns \param name with three random numbers appended to the end.  Output will be "string-xyz".  Output is not guarenteed to be unique.
+	inline QString appendUniqueIdentifier(const QString &name)
+	{
+		int value = qrand() % 999;
+		QString suffix;
+
+		if (value < 10)
+			suffix = QString("00%1").arg(value);
+
+		else if (value < 100)
+			suffix = QString("0%1").arg(value);
+
+		else if (value < 1000) // always
+			suffix = QString("%1").arg(value);
+
+		return name % "-" % suffix;
+	}
+
+	/// Converts the bizarre string output of the pv to a real QString.
+	inline QString pvToString(AMProcessVariable *pv)
+	{
+		int current;
+		QString name;
+
+		for (unsigned i = 0; i < pv->count(); i++){
+
+			current = pv->getInt(i);
+
+			if (current == 0)
+				break;
+
+			name += QString::fromAscii((const char *) &current);
+		}
+
+		return name;
+	}
+
+	/// Converts the string to the array of integers it needs to be.
+	inline void stringToPV(AMProcessVariable *pv, QString toConvert)
+	{
+		int converted[256];
+
+		QByteArray toConvertBA = toConvert.toAscii();
+
+		for (int i = 0; i < 256; i++){
+
+			if (i < toConvertBA.size())
+				converted[i] = toConvertBA.at(i);
+			else
+				converted[i] = 0;
+		}
+
+		pv->setValues(converted, 256);
 	}
 }
 

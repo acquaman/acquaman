@@ -149,15 +149,15 @@ QString VESPERSScanController::buildNotes()
 		break;
 
 	case VESPERS::TenPercent:
-		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::OnePointSixPercent:
-		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::Si:
-		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
 		break;
 	}
 
@@ -431,4 +431,28 @@ void VESPERSScanController::onCleanupActionFinished()
 
 	cleanupAction_->deleteLater();
 	cleanupAction_ = 0;
+}
+
+QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
+{
+	// Because the paths that go into the PV's are not the paths we use to check, we need to create the right path.  So far, that is /mnt/aurora
+	QString newPath = path;
+
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		newPath.replace("Y:\\", "/mnt/aurora/");
+		newPath.replace('\\', '/');
+	}
+
+	if (!VESPERS::fileNameExists(newPath, name))
+		return name;
+
+	QString newName = name;
+
+	while (VESPERS::fileNameExists(newPath, newName)){
+
+		newName = VESPERS::appendUniqueIdentifier(name);
+	}
+
+	return newName;
 }

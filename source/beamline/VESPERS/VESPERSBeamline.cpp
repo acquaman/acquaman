@@ -159,6 +159,10 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
 //	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
 //	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
 //	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
@@ -166,6 +170,10 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
+
+	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
@@ -412,6 +420,10 @@ void VESPERSBeamline::setupExposedControls()
 {
 	addExposedControl(pseudoSampleStage()->horiz());
 	addExposedControl(pseudoSampleStage()->vert());
+	addExposedControl(pseudoSampleStage()->norm());
+	addExposedControl(realSampleStage()->horiz());
+	addExposedControl(realSampleStage()->vert());
+	addExposedControl(realSampleStage()->norm());
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
