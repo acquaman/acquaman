@@ -178,8 +178,8 @@ CONFIG(mobility) {
 }
 
 DESTDIR = build
-DEPENDPATH += . source
-INCLUDEPATH += . source
+DEPENDPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+INCLUDEPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
@@ -681,7 +681,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
-    source/ui/AMTopFrame2.ui
+	source/ui/AMTopFrame2.ui
 
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \

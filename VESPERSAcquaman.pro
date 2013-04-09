@@ -78,9 +78,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/actions/VESPERS/VESPERSBeamlineSetStringAction.h \
 	source/dataman/VESPERS/VESPERSCCDDetectorInfo.h \
 	source/beamline/VESPERS/VESPERSCCDDetector.h \
-    source/acquaman/VESPERS/VESPERS3DScanConfiguration.h \
-    source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
-    source/acquaman/VESPERS/VESPERS3DDacqScanController.h
+	source/acquaman/VESPERS/VESPERS3DScanConfiguration.h \
+	source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
+	source/acquaman/VESPERS/VESPERS3DDacqScanController.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -156,54 +156,10 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/actions/VESPERS/VESPERSBeamlineSetStringAction.cpp \
 	source/dataman/VESPERS/VESPERSCCDDetectorInfo.cpp \
 	source/beamline/VESPERS/VESPERSCCDDetector.cpp \
-    source/acquaman/VESPERS/VESPERS3DScanConfiguration.cpp \
-    source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
-    source/acquaman/VESPERS/VESPERS3DDacqScanController.cpp
+	source/acquaman/VESPERS/VESPERS3DScanConfiguration.cpp \
+	source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
+	source/acquaman/VESPERS/VESPERS3DDacqScanController.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
