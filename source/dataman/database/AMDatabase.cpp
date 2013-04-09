@@ -581,6 +581,48 @@ QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString
 	return rl;
 }
 
+bool AMDatabase::tableExists(const QString &tableName)
+{
+	QSqlQuery q = query();
+	q.prepare(QString("SELECT tbl_name FROM sqlite_master WHERE tbl_name='%1'").arg(tableName));
+	execQuery(q);
+
+	bool returnVal = false;
+
+	if (q.first()){
+
+		do {
+			if (q.value(0).toString() == tableName)
+				returnVal = true;
+		}while(q.next());
+	}
+
+	q.finish();
+
+	return returnVal;
+}
+
+bool AMDatabase::columnExists(const QString &tableName, const QString &columnName)
+{
+	QSqlQuery q = query();
+	q.prepare(QString("PRAGMA table_info(%1);").arg(tableName));
+	execQuery(q);
+
+	QStringList columnNames;
+
+	if (q.first()){
+
+		do {
+
+			columnNames << q.value(1).toString();
+		}while(q.next());
+	}
+
+	q.finish();
+
+	return columnNames.contains(columnName);
+}
+
 bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds) {
 
 	if(columnNames.count() != columnTypes.count()) {

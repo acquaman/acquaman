@@ -18,10 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSRoperCCDDetector.h"
-
-#include "actions/AMBeamlineControlMoveAction.h"
+#include <QThreadPool>
+#include <QMutexLocker>
 
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
+/*
+<<<<<<< HEAD
 	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMOldDetector(name)
 {
 	temperatureControl_ = new AMPVControl("Temperature", "IOC1607-003:det1:Temperature_RBV", "IOC1607-003:det1:Temperature", QString(), this, 1);
@@ -55,95 +57,31 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 }
 
 VESPERSRoperCCDDetector::ImageMode VESPERSRoperCCDDetector::imageMode() const
+=======
+*/
+	: VESPERSCCDDetector(name, description, "IOC1607-003:det1", AMnDIndex(2084, 2084), parent)
+//>>>>>>> master
 {
-	ImageMode mode = Normal;
-
-	switch((int)imageModeControl_->value()){
-
-	case 0:
-		mode = Normal;
-		break;
-
-	case 1:
-		mode = Continuous;
-		break;
-
-	case 2:
-		mode = Focus;
-		break;
-	}
-
-	return mode;
+	qRegisterMetaType<QVector<int> >("QVector<int>");
 }
 
-VESPERSRoperCCDDetector::TriggerMode VESPERSRoperCCDDetector::triggerMode() const
+void VESPERSRoperCCDDetector::loadImageFromFileImplementation(const QString &filename)
 {
-	TriggerMode mode = FreeRun;
-
-	switch((int)triggerModeControl_->value()){
-
-	case 0:
-		mode = FreeRun;
-		break;
-
-	case 1:
-		mode = ExtSync;
-		break;
-
-	case 2:
-		mode = BulbTrigger;
-		break;
-
-	case 3:
-		mode = SingleTrigger;
-		break;
-	}
-
-	return mode;
+	VESPERSRoperQRunnableImageLoader *runner = new VESPERSRoperQRunnableImageLoader(filename, imageData_.size());
+	runner->setAutoDelete(true);
+	QThreadPool *threads = QThreadPool::globalInstance();
+	connect(runner, SIGNAL(imageData(QVector<int>)), this, SLOT(onImageDataChanged(QVector<int>)));
+	threads->start(runner);
 }
 
-VESPERSRoperCCDDetector::State VESPERSRoperCCDDetector::state() const
+void VESPERSRoperCCDDetector::onImageDataChanged(const QVector<int> &data)
 {
-	State detectorState = Idle;
-
-	switch((int)stateControl_->value()){
-
-	case 0:
-		detectorState = Idle;
-		break;
-
-	case 1:
-		detectorState = Acquire;
-		break;
-
-	case 2:
-		detectorState = Readout;
-		break;
-
-	case 3:
-		detectorState = Correct;
-		break;
-
-	case 4:
-		detectorState = Saving;
-		break;
-
-	case 5:
-		detectorState = Aborting;
-		break;
-
-	case 6:
-		detectorState = Error;
-		break;
-
-	case 7:
-		detectorState = Waiting;
-		break;
-	}
-
-	return detectorState;
+	imageData_ = data;
+	emit imageReady();
 }
 
+/*
+<<<<<<< HEAD
 bool VESPERSRoperCCDDetector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const VESPERSRoperCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSRoperCCDDetectorInfo *>(info);
@@ -157,130 +95,45 @@ bool VESPERSRoperCCDDetector::setFromInfo(const AMOldDetectorInfo *info)
 
 	return true;
 }
+=======
+*/
+// VESPERSRoperQRunnableImageLoader
+///////////////////////////////////////////////////////
+//>>>>>>> master
 
-void VESPERSRoperCCDDetector::setFromRoperInfo(const VESPERSRoperCCDDetectorInfo &info)
+VESPERSRoperQRunnableImageLoader::VESPERSRoperQRunnableImageLoader(const QString &fileName, int size, QObject *parent)
+	: QObject(parent), QRunnable()
 {
-	setTemperature(info.temperature());
-	setAcquireTime(info.acquireTime());
+	fileName_ = fileName;
+	size_ = size;
 }
 
-QString VESPERSRoperCCDDetector::AMPVtoString(AMProcessVariable *pv) const
+void VESPERSRoperQRunnableImageLoader::run()
 {
-	int current;
-	QString name;
+	QMutexLocker lock(&locker_);
 
-	for (unsigned i = 0; i < pv->count(); i++){
+	int size = size_;
+//	QString fileName = fileName_;
+//	QFile file(fileName);
+	QFile file("/mnt/aurora/ccd-calib/mar2013/si50.SPE");
 
-		current = pv->getInt(i);
-		if (current == 0)
-			break;
+	if (!file.open(QFile::ReadOnly))
+		return;
 
-		name += QString::fromAscii((const char *) &current);
+	quint16 value;
+	QDataStream in(&file);
+	in.setByteOrder(QDataStream::LittleEndian);
+	in.skipRawData(4100);
+
+	QVector<int> data = QVector<int>(size);
+	// Load the image.
+	for (int i = 0, iSize = data.size(); i < iSize; i++){
+
+		in >> (quint16 &)value;
+		data[i] = int(value);
 	}
 
-	return name;
-}
+	file.close();
 
-void VESPERSRoperCCDDetector::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
-{
-	int converted[256];
-
-	QByteArray toConvertBA = toConvert.toAscii();
-	for (int i = 0; i < 256; i++){
-
-		if (i < toConvertBA.size())
-			converted[i] = toConvertBA.at(i);
-		else
-			converted[i] = 0;
-	}
-
-	pv->setValues(converted, 256);
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createAcquireTimeAction(double time)
-{
-	if (!acquireTimeControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(acquireTimeControl_);
-	action->setSetpoint(time);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createImageModeAction(VESPERSRoperCCDDetector::ImageMode mode)
-{
-	if (!imageModeControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(imageModeControl_);
-	action->setSetpoint(int(mode));
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createTriggerModeAction(VESPERSRoperCCDDetector::TriggerMode mode)
-{
-	if (!triggerModeControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(triggerModeControl_);
-	action->setSetpoint(int(mode));
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createTemperatureAction(double temperature)
-{
-	if (!temperatureControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(temperatureControl_);
-	action->setSetpoint(temperature);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createStartAction()
-{
-	if (!operationControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
-	action->setSetpoint(1);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createStopAction()
-{
-	if (!operationControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
-	action->setSetpoint(0);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createAutoSaveAction(bool autoSave)
-{
-	if (!autoSaveControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(autoSaveControl_);
-	action->setSetpoint(autoSave ? 1 : 0);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSRoperCCDDetector::createSaveFileAction()
-{
-	if (!saveFileControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(saveFileControl_);
-	action->setSetpoint(1);
-
-	return action;
+	emit imageData(data);
 }

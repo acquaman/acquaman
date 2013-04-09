@@ -167,6 +167,10 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
 	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
+	/// Checks whether \param tableName exists within the database.
+	bool tableExists(const QString &tableName);
+	/// Checks whether \param columnName exists inside of \param tableName.  Assumes that table name exists.
+	bool columnExists(const QString &tableName, const QString &columnName);
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).

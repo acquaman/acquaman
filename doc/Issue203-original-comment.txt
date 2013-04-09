@@ -1,0 +1,572 @@
+When Darren and I were testing the auto export stuff, if the export failed (nominally because the file already existed), then the error monitor would cause a crash. Seems to be somewhere near that throw and catch block (line 306 AMExportController.cpp). I've included the crash report below. You need to go up the stack to level 44 before you see the error monitor stuff.
+
+Process: VESPERSAcquaman [21254]
+Path: /Users/fawkes/dev/acquaman_suite-build-desktop/build/VESPERSAcquaman.app/Contents/MacOS/VESPERSAcquaman
+Identifier: com.yourcompany.VESPERSAcquaman
+Version: ??? (???)
+Code Type: X86-64 (Native)
+Parent Process: Qt Creator [2758]
+
+Date/Time: 2011-11-23 02:21:17.855 -0600
+OS Version: Mac OS X 10.6.8 (10K549)
+Report Version: 6
+
+Interval Since Last Report: 488731 sec
+Crashes Since Last Report: 3
+Per-App Interval Since Last Report: 3552 sec
+Per-App Crashes Since Last Report: 3
+Anonymous UUID: 93034641-F55D-4BF7-B4EF-05C9B0729BF3
+
+Exception Type: EXC_BAD_ACCESS (SIGSEGV)
+Exception Codes: KERN_INVALID_ADDRESS at 0x000000000000000c
+Crashed Thread: 0 Dispatch queue: com.apple.main-thread
+
+Thread 0 Crashed: Dispatch queue: com.apple.main-thread
+0 ...yourcompany.VESPERSAcquaman 0x00000001000be607 QListData::size() const + 15 (qlist.h:94)
+1 ...yourcompany.VESPERSAcquaman 0x00000001000b84b9 QList::count() const + 21 (qlist.h:267)
+2 ...yourcompany.VESPERSAcquaman 0x00000001000b84d1 AMOrderedSet::count() const + 21 (AMOrderedSet.h:89)
+3 ...yourcompany.VESPERSAcquaman 0x00000001000beb35 AMScan::dataSourceCount() const + 29 (AMScan.h:160)
+4 ...yourcompany.VESPERSAcquaman 0x00000001000bd4cb AMScanSetModel::data(QModelIndex const&, int) const + 673 (AMScanSetModel.cpp:113)
+5 QtGui 0x00000001014ae047 QStyledItemDelegate::initStyleOption(QStyleOptionViewItem*, QModelIndex const&) const + 535
+6 QtGui 0x00000001014af625 QStyledItemDelegate::sizeHint(QStyleOptionViewItem const&, QModelIndex const&) const + 229
+7 ...yourcompany.VESPERSAcquaman 0x000000010018274d AMCloseItemDelegate::sizeHint(QStyleOptionViewItem const&, QModelIndex const&) const + 37 (AMCloseItemDelegate.cpp:56)
+8 ...yourcompany.VESPERSAcquaman 0x000000010036e167 AMDetailedItemDelegate::sizeHint(QStyleOptionViewItem const&, QModelIndex const&) const + 37 (AMDetailedItemDelegate.h:40)
+9 QtGui 0x00000001014203d8 QListViewPrivate::itemSize(QStyleOptionViewItem const&, QModelIndex const&) const + 568
+10 QtGui 0x0000000101426ec9 QListModeViewBase::doStaticLayout(QListViewLayoutInfo const&) + 1321
+11 QtGui 0x00000001014271fa QListModeViewBase::doBatchedItemLayout(QListViewLayoutInfo const&, int) + 26
+12 QtGui 0x000000010141a8fe QListViewPrivate::doItemsLayout(int) + 254
+13 QtGui 0x000000010141adae QListView::doItemsLayout() + 286
+14 QtGui 0x00000001013fce0f QAbstractItemView::timerEvent(QTimerEvent*) + 479
+15 QtCore 0x0000000101c619c0 QObject::event(QEvent*) + 432
+16 QtGui 0x0000000100f738ee QWidget::event(QEvent*) + 78
+17 QtGui 0x00000001012e964c QFrame::event(QEvent*) + 44
+18 QtGui 0x0000000101376afb QAbstractScrollArea::event(QEvent*) + 123
+19 QtGui 0x00000001013ff92b QAbstractItemView::event(QEvent*) + 139
+20 QtGui 0x000000010141aa99 QListView::event(QEvent*) + 9
+21 QtGui 0x0000000100f1be9d QApplicationPrivate::notify_helper(QObject*, QEvent*) + 189
+22 QtGui 0x0000000100f21ecd QApplication::notify(QObject*, QEvent*) + 349
+23 QtCore 0x0000000101b6740c QCoreApplication::notifyInternal(QObject*, QEvent*) + 124
+24 QtGui 0x0000000100f1bf3c qt_sendSpontaneousEvent(QObject*, QEvent*) + 44
+25 QtGui 0x0000000100ed730c QEventDispatcherMacPrivate::activateTimer(__CFRunLoopTimer*, void*) + 188
+26 com.apple.CoreFoundation 0x00007fff866ccbb8 __CFRunLoopRun + 6488
+27 com.apple.CoreFoundation 0x00007fff866cad8f CFRunLoopRunSpecific + 575
+28 com.apple.HIToolbox 0x00007fff8814f7ee RunCurrentEventLoopInMode + 333
+29 com.apple.HIToolbox 0x00007fff8827c03f GetNextEventMatchingMask + 426
+30 com.apple.HIToolbox 0x00007fff8827c23d WNEInternal + 124
+31 com.apple.HIToolbox 0x00007fff8827c347 WaitNextEvent + 74
+32 com.apple.applescript 0x000000011b907259 AEDefaultActiveProc(void*) + 244
+33 com.apple.applescript 0x000000011b90ab1a InternalComponentActive(unsigned int) + 103
+34 com.apple.applescript 0x000000011b936762 UASRemoteSend(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char, unsigned char*) + 447
+35 com.apple.applescript 0x000000011b91e9b2 UASExecute1() + 2546
+36 com.apple.applescript 0x000000011b91efab UASExecute(unsigned char) + 229
+37 com.apple.applescript 0x000000011b8f4cc7 ASExecute(unsigned int, unsigned int, int, unsigned int*) + 472
+38 ...ple.CoreServices.CarbonCore 0x00007fff88b13db0 CallComponentFunction + 28
+39 com.apple.applescript 0x000000011b8edc95 AppleScriptComponent + 1728
+40 com.apple.openscripting 0x00007fff8a2e3c4e OSAExecute + 65
+41 QtGui 0x0000000100eaf948 qt_mac_execute_apple_script(char const*, long, AEDesc*) + 280
+42 QtGui 0x0000000100eb0e5f qt_mac_execute_apple_script(QString const&, AEDesc*) + 47
+43 QtGui 0x0000000100f14ada QSystemTrayIconPrivate::showMessage_sys(QString const&, QString const&, QSystemTrayIcon::MessageIcon, int) + 3242
+44 ...yourcompany.VESPERSAcquaman 0x0000000100076d6b AMErrorMon::reportI(AMErrorReport) + 1093 (AMErrorMonitor.cpp:158)
+45 ...yourcompany.VESPERSAcquaman 0x000000010034eddd AMErrorMon::qt_metacall(QMetaObject::Call, int, void**) + 405 (moc_AMErrorMonitor.cpp:90)
+46 QtCore 0x0000000101b6dd56 QMetaObject::activate(QObject*, QMetaObject const*, int, void**) + 710
+47 ...yourcompany.VESPERSAcquaman 0x000000010034eaf1 AMErrorMon::reportFF(AMErrorReport) + 65 (moc_AMErrorMonitor.cpp:138)
+48 ...yourcompany.VESPERSAcquaman 0x0000000100077667 AMErrorMon::reportF(AMErrorReport) + 411 (AMErrorMonitor.cpp:117)
+49 ...yourcompany.VESPERSAcquaman 0x000000010003c011 AMErrorMon::report(AMErrorReport const&) + 43 (AMErrorMonitor.h:144)
+50 ...yourcompany.VESPERSAcquaman 0x000000010020fad2 AMExportController::continueScanExport() + 5458 (AMExportController.cpp:308)
+51 ...yourcompany.VESPERSAcquaman 0x000000010038a3b4 AMExportController::qt_metacall(QMetaObject::Call, int, void**) + 604 (moc_AMExportController.cpp:116)
+52 QtCore 0x0000000101c61c49 QObject::event(QEvent*) + 1081
+53 QtGui 0x0000000100f1be9d QApplicationPrivate::notify_helper(QObject*, QEvent*) + 189
+54 QtGui 0x0000000100f2259e QApplication::notify(QObject*, QEvent*) + 2094
+55 QtCore 0x0000000101b6740c QCoreApplication::notifyInternal(QObject*, QEvent*) + 124
+56 QtCore 0x0000000101c54f4b QCoreApplicationPrivate::sendPostedEvents(QObject*, int, QThreadData*) + 731
+57 com.apple.CoreFoundation 0x00007fff866cd3d1 __CFRunLoopDoSources0 + 1361
+58 com.apple.CoreFoundation 0x00007fff866cb5c9 __CFRunLoopRun + 873
+59 com.apple.CoreFoundation 0x00007fff866cad8f CFRunLoopRunSpecific + 575
+60 com.apple.HIToolbox 0x00007fff8814f7ee RunCurrentEventLoopInMode + 333
+61 com.apple.HIToolbox 0x00007fff8814f5f3 ReceiveNextEventCommon + 310
+62 com.apple.HIToolbox 0x00007fff8814f4ac BlockUntilNextEventMatchingListInMode + 59
+63 com.apple.AppKit 0x00007fff85bfeeb2 _DPSNextEvent + 708
+64 com.apple.AppKit 0x00007fff85bfe801 -[NSApplication nextEventMatchingMask:untilDate:inMode:dequeue:] + 155
+65 com.apple.AppKit 0x00007fff85bc468f -[NSApplication run] + 395
+66 QtGui 0x0000000100ed8d14 QEventDispatcherMac::processEvents(QFlagsQEventLoop::ProcessEventsFlag) + 1588
+67 QtCore 0x0000000101c538b4 QEventLoop::processEvents(QFlagsQEventLoop::ProcessEventsFlag) + 68
+68 QtCore 0x0000000101c53bd4 QEventLoop::exec(QFlagsQEventLoop::ProcessEventsFlag) + 180
+69 QtCore 0x0000000101c551fc QCoreApplication::exec() + 188
+70 ...yourcompany.VESPERSAcquaman 0x000000010029dd23 main + 220 (VESPERSMain.cpp:44)
+71 ...yourcompany.VESPERSAcquaman 0x000000010000a740 start + 52
+
+Thread 1: Dispatch queue: com.apple.libdispatch-manager
+0 libSystem.B.dylib 0x00007fff83d72c0a kevent + 10
+1 libSystem.B.dylib 0x00007fff83d74add _dispatch_mgr_invoke + 154
+2 libSystem.B.dylib 0x00007fff83d747b4 _dispatch_queue_invoke + 185
+3 libSystem.B.dylib 0x00007fff83d742de _dispatch_worker_thread2 + 252
+4 libSystem.B.dylib 0x00007fff83d73c08 _pthread_wqthread + 353
+5 libSystem.B.dylib 0x00007fff83d73aa5 start_wqthread + 13
+
+Thread 2: com.apple.CFSocket.private
+0 libSystem.B.dylib 0x00007fff83d9d932 select$DARWIN_EXTSN + 10
+1 com.apple.CoreFoundation 0x00007fff866ed468 __CFSocketManager + 824
+2 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+3 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 3:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libCom.3.14.12.dylib 0x0000000100cc7c65 ipAddrToAsciiEnginePrivate::run() + 133 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 4:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cd279c epicsEventWaitWithTimeout + 284 (osdEvent.c:65)
+3 libCom.3.14.12.dylib 0x0000000100ccabdc epicsEvent::wait(double) + 12 (epicsEvent.cpp:73)
+4 libCom.3.14.12.dylib 0x0000000100cd92fb timerQueueActive::run() + 75 (timerQueueActive.cpp:89)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 5:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c2bb8d udpRecvThread::run() + 205 (udpiiu.cpp:366)
+2 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+3 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+4 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+5 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 6:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 7:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 8:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 9:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 10:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 11:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 12:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 13:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 14:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 15:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 16:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 17:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 18:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 19:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 20:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 21:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 22:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 23:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 24:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 25:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 26:
+0 libSystem.B.dylib 0x00007fff83d9d956 recvfrom + 10
+1 libca.3.14.12.dylib 0x0000000100c31df8 tcpiiu::recvBytes(void*, unsigned int, statusWireIO&) + 248 (tcpiiu.cpp:307)
+2 libca.3.14.12.dylib 0x0000000100c320db tcpRecvThread::run() + 315 (comBuf.h:184)
+3 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+4 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 27:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 libCom.3.14.12.dylib 0x0000000100cb44f9 epicsEventWait + 105 (osdEvent.c:76)
+3 libCom.3.14.12.dylib 0x0000000100ccacbc epicsEvent::wait() + 12 (epicsEvent.cpp:64)
+4 libca.3.14.12.dylib 0x0000000100c33858 tcpSendThread::run() + 1624 (epicsGuard.h:106)
+5 libCom.3.14.12.dylib 0x0000000100cc9d3a epicsThreadCallEntryPoint + 122 (epicsThread.cpp:85)
+6 libCom.3.14.12.dylib 0x0000000100cd1642 start_routine + 226 (osdThread.c:284)
+7 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+8 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 28:
+0 libSystem.B.dylib 0x00007fff83d94a6a __semwait_signal + 10
+1 libSystem.B.dylib 0x00007fff83d98881 _pthread_cond_wait + 1286
+2 QtCore 0x0000000101b1ecd0 QWaitCondition::wait(QMutex*, unsigned long) + 272
+3 QtCore 0x0000000101b974b2 QThreadPoolThread::run() + 370
+4 QtCore 0x0000000101b9b435 QThreadPrivate::start(void*) + 149
+5 libSystem.B.dylib 0x00007fff83d92fd6 _pthread_start + 331
+6 libSystem.B.dylib 0x00007fff83d92e89 thread_start + 13
+
+Thread 29:
+0 libSystem.B.dylib 0x00007fff83d73a2a __workq_kernreturn + 10
+1 libSystem.B.dylib 0x00007fff83d73e3c _pthread_wqthread + 917
+2 libSystem.B.dylib 0x00007fff83d73aa5 start_wqthread + 13
+
+Thread 30:
+0 libSystem.B.dylib 0x00007fff83d73a2a __workq_kernreturn + 10
+1 libSystem.B.dylib 0x00007fff83d73e3c _pthread_wqthread + 917
+2 libSystem.B.dylib 0x00007fff83d73aa5 start_wqthread + 13
+
+Thread 0 crashed with X86 Thread State (64-bit):
+rax: 0x0000000000000000 rbx: 0x0000000000000000 rcx: 0x000000011d65e508 rdx: 0x0000000000000183
+rdi: 0x000000011ca1a540 rsi: 0x0000000000000000 rbp: 0x00007fff5fbfaa50 rsp: 0x00007fff5fbfaa50
+r8: 0x0000000000000000 r9: 0x0000000000000000 r10: 0xffffffffffffffff r11: 0x0000000000000000
+r12: 0x00007fff5fbfb450 r13: 0x00007fff5fbfaff0 r14: 0x00007fff5fbfaff0 r15: 0x00007fff5fbfaf10
+rip: 0x00000001000be607 rfl: 0x0000000000010206 cr2: 0x000000000000000c
+
+Binary Images:
+0x100000000 - 0x100723fff +com.yourcompany.VESPERSAcquaman ??? (???) /Users/fawkes/dev/acquaman_suite-build-desktop/build/VESPERSAcquaman.app/Contents/MacOS/VESPERSAcquaman
+0x100c17000 - 0x100c5cfef +libca.3.14.12.dylib 3.14.12 (compatibility 3.14.0) /Users/fawkes/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86/libca.3.14.12.dylib
+0x100cb0000 - 0x100cf2ff7 +libCom.3.14.12.dylib 3.14.12 (compatibility 3.14.0) /Users/fawkes/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86/libCom.3.14.12.dylib
+0x100d36000 - 0x100d6dfff +QtSql 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtSql.framework/Versions/4/QtSql
+0x100d84000 - 0x100e54fef +QtOpenGL 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtOpenGL.framework/Versions/4/QtOpenGL
+0x100e9a000 - 0x10186ffe7 +QtGui 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtGui.framework/Versions/4/QtGui
+0x101b14000 - 0x101d9cfef +QtCore 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtCore.framework/Versions/4/QtCore
+0x101e30000 - 0x101e36ff7 com.apple.agl 3.0.12 (AGL-3.0.12) /System/Library/Frameworks/AGL.framework/Versions/A/AGL
+0x101e3d000 - 0x101e59fe7 libedit.2.dylib 2.11.0 (compatibility 2.0.0) /usr/lib/libedit.2.dylib
+0x102c77000 - 0x102c78fff ATSHI.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/ATSHI.dylib
+0x11455b000 - 0x114561ff7 +libqgif.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqgif.dylib
+0x114566000 - 0x11456cff7 +libqico.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqico.dylib
+0x114572000 - 0x1145adff7 +libqjpeg.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqjpeg.dylib
+0x1145b6000 - 0x1145bbff7 +libqsvg.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqsvg.dylib
+0x1145d5000 - 0x1145d5fff com.apple.applescript.component 2.1.2 (2.1.2) /System/Library/Components/AppleScript.component/Contents/MacOS/AppleScript
+0x114700000 - 0x114754fef +libqmng.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqmng.dylib
+0x115c15000 - 0x115c19ff7 libFontRegistryUI.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Resources/libFontRegistryUI.dylib
+0x117973000 - 0x1179c2fef +QtSvg 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtSvg.framework/Versions/4/QtSvg
+0x117a37000 - 0x117a74fff +QtXml 4.7.3 (compatibility 4.7.0) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/lib/QtXml.framework/Versions/4/QtXml
+0x117a8e000 - 0x117ae3fe7 +libqtiff.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/imageformats/libqtiff.dylib
+0x117af0000 - 0x117bcaff7 +libALSBL8XASFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libALSBL8XASFileLoaderPlugin_debug.dylib
+0x117cae000 - 0x117d87fff +libREIXSXESRawFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libREIXSXESRawFileLoaderPlugin_debug.dylib
+0x117e6a000 - 0x117f48fff +libSGM2004XASFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libSGM2004XASFileLoaderPlugin_debug.dylib
+0x11802d000 - 0x11810afe7 +libSGM2010FastFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libSGM2010FastFileLoaderPlugin_debug.dylib
+0x1181ef000 - 0x1182d0fef +libSGM2011XASFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libSGM2011XASFileLoaderPlugin_debug.dylib
+0x1183ba000 - 0x118493ff7 +libVESPERS2011XASFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libVESPERS2011XASFileLoaderPlugin_debug.dylib
+0x118576000 - 0x11864efef +libVESPERS2011XRFFileLoaderPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/FileLoaders/libVESPERS2011XRFFileLoaderPlugin_debug.dylib
+0x11b6fd000 - 0x11b7a0ff7 +libAM2DSummingABPlugin_debug.dylib ??? (???) /Users/fawkes/dev/acquaman/plugins/AnalysisBlocks/libAM2DSummingABPlugin_debug.dylib
+0x11b85a000 - 0x11b8d1fef +libqsqlite.dylib ??? (???) /Users/fawkes/QtSDK/Desktop/Qt/473/gcc/plugins/sqldrivers/libqsqlite.dylib
+0x11b8e8000 - 0x11b97cfe7 com.apple.applescript 2.1.2 (2.1.2) /System/Library/PrivateFrameworks/AppleScript.framework/Versions/A/AppleScript
+0x7fff5fc00000 - 0x7fff5fc3bdef dyld 132.1 (???) /usr/lib/dyld
+0x7fff80003000 - 0x7fff800fbff7 libiconv.2.dylib 7.0.0 (compatibility 7.0.0) /usr/lib/libiconv.2.dylib
+0x7fff80108000 - 0x7fff8060eff7 com.apple.VideoToolbox 0.484.60 (484.60) /System/Library/PrivateFrameworks/VideoToolbox.framework/Versions/A/VideoToolbox
+0x7fff8063e000 - 0x7fff807fcfff libicucore.A.dylib 40.0.0 (compatibility 1.0.0) /usr/lib/libicucore.A.dylib
+0x7fff807fd000 - 0x7fff80852ff7 com.apple.framework.familycontrols 2.0.2 (2020) /System/Library/PrivateFrameworks/FamilyControls.framework/Versions/A/FamilyControls
+0x7fff8085d000 - 0x7fff808ceff7 com.apple.AppleVAFramework 4.10.27 (4.10.27) /System/Library/PrivateFrameworks/AppleVA.framework/Versions/A/AppleVA
+0x7fff808cf000 - 0x7fff808dcfe7 libCSync.A.dylib 545.0.0 (compatibility 64.0.0) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCSync.A.dylib
+0x7fff808dd000 - 0x7fff808e3ff7 com.apple.DiskArbitration 2.3 (2.3) /System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration
+0x7fff81112000 - 0x7fff811c2fff edu.mit.Kerberos 6.5.11 (6.5.11) /System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos
+0x7fff811c3000 - 0x7fff811d1ff7 libkxld.dylib ??? (???) /usr/lib/system/libkxld.dylib
+0x7fff811d2000 - 0x7fff81293fef com.apple.ColorSync 4.6.6 (4.6.6) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSync.framework/Versions/A/ColorSync
+0x7fff81294000 - 0x7fff8132efff com.apple.ApplicationServices.ATS 275.19 (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS
+0x7fff8132f000 - 0x7fff81446fef libxml2.2.dylib 10.3.0 (compatibility 10.0.0) /usr/lib/libxml2.2.dylib
+0x7fff81491000 - 0x7fff81495ff7 libmathCommon.A.dylib 315.0.0 (compatibility 1.0.0) /usr/lib/system/libmathCommon.A.dylib
+0x7fff816d9000 - 0x7fff81745fe7 com.apple.CorePDF 1.4 (1.4) /System/Library/PrivateFrameworks/CorePDF.framework/Versions/A/CorePDF
+0x7fff81746000 - 0x7fff81758fe7 libsasl2.2.dylib 3.15.0 (compatibility 3.0.0) /usr/lib/libsasl2.2.dylib
+0x7fff81759000 - 0x7fff8177eff7 com.apple.CoreVideo 1.6.2 (45.6) /System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo
+0x7fff81788000 - 0x7fff81788ff7 com.apple.CoreServices 44 (44) /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+0x7fff81789000 - 0x7fff817a0fff com.apple.ImageCapture 6.1 (6.1) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/ImageCapture.framework/Versions/A/ImageCapture
+0x7fff817a1000 - 0x7fff8185afff libsqlite3.dylib 9.6.0 (compatibility 9.0.0) /usr/lib/libsqlite3.dylib
+0x7fff818d5000 - 0x7fff81965fff com.apple.SearchKit 1.3.0 (1.3.0) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit
+0x7fff819a4000 - 0x7fff81aaeff7 com.apple.MeshKitIO 1.1 (49.2) /System/Library/PrivateFrameworks/MeshKit.framework/Versions/A/Frameworks/MeshKitIO.framework/Versions/A/MeshKitIO
+0x7fff81acb000 - 0x7fff81acbff7 com.apple.Cocoa 6.6 (???) /System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa
+0x7fff81afc000 - 0x7fff81afefff com.apple.print.framework.Print 6.1 (237.1) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Print.framework/Versions/A/Print
+0x7fff81aff000 - 0x7fff81b4eff7 com.apple.DirectoryService.PasswordServerFramework 6.1 (6.1) /System/Library/PrivateFrameworks/PasswordServer.framework/Versions/A/PasswordServer
+0x7fff81b4f000 - 0x7fff81bdefff com.apple.PDFKit 2.5.1 (2.5.1) /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks/PDFKit.framework/Versions/A/PDFKit
+0x7fff81bdf000 - 0x7fff81e69fff com.apple.JavaScriptCore 6534.51 (6534.51.21) /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/JavaScriptCore
+0x7fff81e6a000 - 0x7fff81eb9fef libTIFF.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib
+0x7fff81eba000 - 0x7fff826c4fe7 libBLAS.dylib 219.0.0 (compatibility 1.0.0) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+0x7fff826d7000 - 0x7fff8278dff7 libobjc.A.dylib 227.0.0 (compatibility 1.0.0) /usr/lib/libobjc.A.dylib
+0x7fff8278e000 - 0x7fff82862fe7 com.apple.CFNetwork 454.12.4 (454.12.4) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CFNetwork.framework/Versions/A/CFNetwork
+0x7fff83895000 - 0x7fff83cd9fef libLAPACK.dylib 219.0.0 (compatibility 1.0.0) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
+0x7fff83cda000 - 0x7fff83d58ff7 com.apple.CoreText 151.10 (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreText.framework/Versions/A/CoreText
+0x7fff83d59000 - 0x7fff83f1afef libSystem.B.dylib 125.2.11 (compatibility 1.0.0) /usr/lib/libSystem.B.dylib
+0x7fff83f1b000 - 0x7fff83f38ff7 libPng.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib
+0x7fff83f39000 - 0x7fff83fa3fe7 libvMisc.dylib 268.0.1 (compatibility 1.0.0) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib
+0x7fff83fa4000 - 0x7fff83fd7ff7 libTrueTypeScaler.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libTrueTypeScaler.dylib
+0x7fff840d9000 - 0x7fff840f2fff com.apple.CFOpenDirectory 10.6 (10.6) /System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory
+0x7fff840f3000 - 0x7fff84136ff7 libRIP.A.dylib 545.0.0 (compatibility 64.0.0) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libRIP.A.dylib
+0x7fff84137000 - 0x7fff84197fe7 com.apple.framework.IOKit 2.0 (???) /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit
+0x7fff841d0000 - 0x7fff84252fff com.apple.QuickLookUIFramework 2.3 (327.6) /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks/QuickLookUI.framework/Versions/A/QuickLookUI
+0x7fff84253000 - 0x7fff8428efff com.apple.AE 496.5 (496.5) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE
+0x7fff8428f000 - 0x7fff842a3ff7 com.apple.speech.synthesis.framework 3.10.35 (3.10.35) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis
+0x7fff845e8000 - 0x7fff84629fef com.apple.QD 3.36 (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD
+0x7fff8462a000 - 0x7fff84630fff libCGXCoreImage.A.dylib 545.0.0 (compatibility 64.0.0) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCGXCoreImage.A.dylib
+0x7fff84631000 - 0x7fff8465cff7 libxslt.1.dylib 3.24.0 (compatibility 3.0.0) /usr/lib/libxslt.1.dylib
+0x7fff8465d000 - 0x7fff846a7ff7 com.apple.Metadata 10.6.3 (507.15) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata
+0x7fff846a8000 - 0x7fff847e6fff com.apple.CoreData 102.1 (251) /System/Library/Frameworks/CoreData.framework/Versions/A/CoreData
+0x7fff847e7000 - 0x7fff84b84fe7 com.apple.QuartzCore 1.6.3 (227.37) /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore
+0x7fff84be5000 - 0x7fff84c72fff com.apple.iLifeMediaBrowser 2.5.5 (468.2.2) /System/Library/PrivateFrameworks/iLifeMediaBrowser.framework/Versions/A/iLifeMediaBrowser
+0x7fff84c73000 - 0x7fff84c73ff7 com.apple.Carbon 150 (152) /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon
+0x7fff84c74000 - 0x7fff84cf9ff7 com.apple.print.framework.PrintCore 6.3 (312.7) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore
+0x7fff84cfa000 - 0x7fff85141fef com.apple.RawCamera.bundle 3.7.1 (570) /System/Library/CoreServices/RawCamera.bundle/Contents/MacOS/RawCamera
+0x7fff85142000 - 0x7fff85165fff com.apple.opencl 12.3.6 (12.3.6) /System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL
+0x7fff85322000 - 0x7fff85407fef com.apple.DesktopServices 1.5.11 (1.5.11) /System/Library/PrivateFrameworks/DesktopServicesPriv.framework/Versions/A/DesktopServicesPriv
+0x7fff854be000 - 0x7fff854fffef com.apple.CoreMedia 0.484.60 (484.60) /System/Library/PrivateFrameworks/CoreMedia.framework/Versions/A/CoreMedia
+0x7fff85500000 - 0x7fff85769fff com.apple.QuartzComposer 4.2 ({156.30}) /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks/QuartzComposer.framework/Versions/A/QuartzComposer
+0x7fff8577e000 - 0x7fff85781ff7 libCoreVMClient.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib
+0x7fff85920000 - 0x7fff85931fff com.apple.DSObjCWrappers.Framework 10.6 (134) /System/Library/PrivateFrameworks/DSObjCWrappers.framework/Versions/A/DSObjCWrappers
+0x7fff85932000 - 0x7fff85aa2fff com.apple.QTKit 7.7 (1787) /System/Library/Frameworks/QTKit.framework/Versions/A/QTKit
+0x7fff85aa3000 - 0x7fff85aa8fff libGFXShared.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib
+0x7fff85aa9000 - 0x7fff85abffe7 com.apple.MultitouchSupport.framework 207.11 (207.11) /System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport
+0x7fff85b44000 - 0x7fff85bacfff com.apple.MeshKitRuntime 1.1 (49.2) /System/Library/PrivateFrameworks/MeshKit.framework/Versions/A/Frameworks/MeshKitRuntime.framework/Versions/A/MeshKitRuntime
+0x7fff85bb9000 - 0x7fff85bbaff7 libScreenReader.dylib ??? (???) /usr/lib/libScreenReader.dylib
+0x7fff85bbb000 - 0x7fff865b5ff7 com.apple.AppKit 6.6.8 (1038.36) /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit
+0x7fff865b6000 - 0x7fff865e5ff7 com.apple.quartzfilters 1.6.0 (1.6.0) /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks/QuartzFilters.framework/Versions/A/QuartzFilters
+0x7fff865e6000 - 0x7fff865edfff com.apple.OpenDirectory 10.6 (10.6) /System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory
+0x7fff865fc000 - 0x7fff86643fff com.apple.QuickLookFramework 2.3 (327.6) /System/Library/Frameworks/QuickLook.framework/Versions/A/QuickLook
+0x7fff86644000 - 0x7fff8667efff libcups.2.dylib 2.8.0 (compatibility 2.0.0) /usr/lib/libcups.2.dylib
+0x7fff8667f000 - 0x7fff867f6fe7 com.apple.CoreFoundation 6.6.6 (550.44) /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+0x7fff868a0000 - 0x7fff86b22fff com.apple.Foundation 6.6.8 (751.63) /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
+0x7fff86b23000 - 0x7fff86b32fff com.apple.NetFS 3.2.2 (3.2.2) /System/Library/Frameworks/NetFS.framework/Versions/A/NetFS
+0x7fff86b33000 - 0x7fff86b36ff7 com.apple.securityhi 4.0 (36638) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SecurityHI.framework/Versions/A/SecurityHI
+0x7fff872cc000 - 0x7fff872dbfef com.apple.opengl 1.6.13 (1.6.13) /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL
+0x7fff872dc000 - 0x7fff87411fff com.apple.audio.toolbox.AudioToolbox 1.6.7 (1.6.7) /System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox
+0x7fff87488000 - 0x7fff87492fff com.apple.DisplayServicesFW 2.3.3 (289) /System/Library/PrivateFrameworks/DisplayServices.framework/Versions/A/DisplayServices
+0x7fff87493000 - 0x7fff874defef com.apple.ImageCaptureCore 1.1 (1.1) /System/Library/Frameworks/ImageCaptureCore.framework/Versions/A/ImageCaptureCore
+0x7fff874fa000 - 0x7fff874faff7 com.apple.Accelerate.vecLib 3.6 (vecLib 3.6) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib
+0x7fff876b0000 - 0x7fff8772ffe7 com.apple.audio.CoreAudio 3.2.6 (3.2.6) /System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio
+0x7fff87730000 - 0x7fff87751fff libresolv.9.dylib 41.0.0 (compatibility 1.0.0) /usr/lib/libresolv.9.dylib
+0x7fff87752000 - 0x7fff877f2fff com.apple.LaunchServices 362.3 (362.3) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices
+0x7fff877f3000 - 0x7fff8790dfef libGLProgrammability.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLProgrammability.dylib
+0x7fff8790e000 - 0x7fff87912ff7 libCGXType.A.dylib 545.0.0 (compatibility 64.0.0) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/Resources/libCGXType.A.dylib
+0x7fff87913000 - 0x7fff87933ff7 com.apple.DirectoryService.Framework 3.6 (621.11) /System/Library/Frameworks/DirectoryService.framework/Versions/A/DirectoryService
+0x7fff8794a000 - 0x7fff87b84fef com.apple.imageKit 2.0.3 (1.0) /System/Library/Frameworks/Quartz.framework/Versions/A/Frameworks/ImageKit.framework/Versions/A/ImageKit
+0x7fff87bbc000 - 0x7fff87c7dfff libFontParser.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontParser.dylib
+0x7fff87c81000 - 0x7fff87cbeff7 libFontRegistry.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib
+0x7fff87e20000 - 0x7fff87e21fff com.apple.MonitorPanelFramework 1.3.0 (1.3.0) /System/Library/PrivateFrameworks/MonitorPanel.framework/Versions/A/MonitorPanel
+0x7fff87e22000 - 0x7fff87eedfff ColorSyncDeprecated.dylib 4.6.0 (compatibility 1.0.0) /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ColorSync.framework/Versions/A/Resources/ColorSyncDeprecated.dylib
+0x7fff87eee000 - 0x7fff87ef1fff com.apple.help 1.3.2 (41.1) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Help.framework/Versions/A/Help
+0x7fff87ef2000 - 0x7fff87f39ff7 com.apple.coreui 2 (114) /System/Library/PrivateFrameworks/CoreUI.framework/Versions/A/CoreUI
+0x7fff87f3a000 - 0x7fff87ff7fff com.apple.CoreServices.OSServices 359.2 (359.2) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices
+0x7fff87ff8000 - 0x7fff88120ff7 com.apple.MediaToolbox 0.484.60 (484.60) /System/Library/PrivateFrameworks/MediaToolbox.framework/Versions/A/MediaToolbox
+0x7fff88121000 - 0x7fff8841ffff com.apple.HIToolbox 1.6.5 (???) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox
+0x7fff88484000 - 0x7fff884c9fff com.apple.CoreMediaIOServices 140.0 (1496) /System/Library/PrivateFrameworks/CoreMediaIOServices.framework/Versions/A/CoreMediaIOServices
+0x7fff884ca000 - 0x7fff884d0ff7 com.apple.CommerceCore 1.0 (9.1) /System/Library/PrivateFrameworks/CommerceKit.framework/Versions/A/Frameworks/CommerceCore.framework/Versions/A/CommerceCore
+0x7fff885e7000 - 0x7fff8862fff7 libvDSP.dylib 268.0.1 (compatibility 1.0.0) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib
+0x7fff88630000 - 0x7fff8863bff7 com.apple.speech.recognition.framework 3.11.1 (3.11.1) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition
+0x7fff88823000 - 0x7fff8884aff7 libJPEG.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib
+0x7fff8899d000 - 0x7fff889dcfef libncurses.5.4.dylib 5.4.0 (compatibility 5.4.0) /usr/lib/libncurses.5.4.dylib
+0x7fff889dd000 - 0x7fff889e2ff7 com.apple.CommonPanels 1.2.4 (91) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/CommonPanels.framework/Versions/A/CommonPanels
+0x7fff889e3000 - 0x7fff889e5fff libRadiance.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib
+0x7fff889e6000 - 0x7fff88a2ffef libGLU.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib
+0x7fff88a30000 - 0x7fff88d64fef com.apple.CoreServices.CarbonCore 861.39 (861.39) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore
+0x7fff88d65000 - 0x7fff88d65ff7 com.apple.quartzframework 1.5 (1.5) /System/Library/Frameworks/Quartz.framework/Versions/A/Quartz
+0x7fff88e05000 - 0x7fff88e46fff com.apple.SystemConfiguration 1.10.8 (1.10.2) /System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration
+0x7fff88e53000 - 0x7fff88e53ff7 com.apple.vecLib 3.6 (vecLib 3.6) /System/Library/Frameworks/vecLib.framework/Versions/A/vecLib
+0x7fff88e54000 - 0x7fff88e68fff libGL.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+0x7fff88e69000 - 0x7fff88ebcff7 com.apple.HIServices 1.8.3 (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices
+0x7fff88ebd000 - 0x7fff88f3afef libstdc++.6.dylib 7.9.0 (compatibility 7.0.0) /usr/lib/libstdc++.6.dylib
+0x7fff88f3b000 - 0x7fff88ff0fe7 com.apple.ink.framework 1.3.3 (107) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/Ink.framework/Versions/A/Ink
+0x7fff891fc000 - 0x7fff89235ff7 com.apple.MeshKit 1.1 (49.2) /System/Library/PrivateFrameworks/MeshKit.framework/Versions/A/MeshKit
+0x7fff89236000 - 0x7fff8925efff com.apple.DictionaryServices 1.1.2 (1.1.2) /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices
+0x7fff8925f000 - 0x7fff892ebfef SecurityFoundation ??? (???) /System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation
+0x7fff89321000 - 0x7fff893fefff com.apple.vImage 4.1 (4.1) /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage
+0x7fff893ff000 - 0x7fff8951efe7 libcrypto.0.9.8.dylib 0.9.8 (compatibility 0.9.8) /usr/lib/libcrypto.0.9.8.dylib
+0x7fff8951f000 - 0x7fff89534ff7 com.apple.LangAnalysis 1.6.6 (1.6.6) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LangAnalysis.framework/Versions/A/LangAnalysis
+0x7fff89535000 - 0x7fff8953bff7 IOSurface ??? (???) /System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface
+0x7fff8953c000 - 0x7fff8953dff7 com.apple.TrustEvaluationAgent 1.1 (1) /System/Library/PrivateFrameworks/TrustEvaluationAgent.framework/Versions/A/TrustEvaluationAgent
+0x7fff8953e000 - 0x7fff897c6fef com.apple.security 6.1.2 (55002) /System/Library/Frameworks/Security.framework/Versions/A/Security
+0x7fff897f8000 - 0x7fff89ef4ff7 com.apple.CoreGraphics 1.545.0 (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics
+0x7fff89f40000 - 0x7fff89f8cfff libauto.dylib ??? (???) /usr/lib/libauto.dylib
+0x7fff89f8d000 - 0x7fff89f9eff7 libz.1.dylib 1.2.3 (compatibility 1.0.0) /usr/lib/libz.1.dylib
+0x7fff8a2d4000 - 0x7fff8a2efff7 com.apple.openscripting 1.3.1 (???) /System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/OpenScripting.framework/Versions/A/OpenScripting
+0x7fff8a2f0000 - 0x7fff8a2f0ff7 com.apple.ApplicationServices 38 (38) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices
+0x7fff8a366000 - 0x7fff8a367fff liblangid.dylib ??? (???) /usr/lib/liblangid.dylib
+0x7fff8a3ab000 - 0x7fff8a3acff7 com.apple.audio.units.AudioUnit 1.6.7 (1.6.7) /System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit
+0x7fff8a3ad000 - 0x7fff8a3b2fff libGIF.dylib ??? (???) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib
+0x7fff8a3c1000 - 0x7fff8a3f2fff libGLImage.dylib ??? (???) /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib
+0x7fff8a3f3000 - 0x7fff8a5b1ff7 com.apple.ImageIO.framework 3.0.4 (3.0.4) /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/ImageIO
+0x7fff8a5ba000 - 0x7fff8a61cfe7 com.apple.datadetectorscore 2.0 (80.7) /System/Library/PrivateFrameworks/DataDetectorsCore.framework/Versions/A/DataDetectorsCore
+0x7fff8a61d000 - 0x7fff8a61dff7 com.apple.Accelerate 1.6 (Accelerate 1.6) /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate
+0x7fff8a67f000 - 0x7fff8a695fef libbsm.0.dylib ??? (???) /usr/lib/libbsm.0.dylib
+0x7fffffe00000 - 0x7fffffe01fff libSystem.B.dylib ??? (???) /usr/lib/libSystem.B.dylib
+
+Model: MacBookPro6,2, BootROM MBP61.0057.B0C, 2 processors, Intel Core i5, 2.4 GHz, 8 GB, SMC 1.58f16
+Graphics: NVIDIA GeForce GT 330M, NVIDIA GeForce GT 330M, PCIe, 256 MB
+Graphics: Intel HD Graphics, Intel HD Graphics, Built-In, 288 MB
+Memory Module: global_name
+AirPort: spairport_wireless_card_type_airport_extreme (0x14E4, 0x93), Broadcom BCM43xx 1.0 (5.10.131.42.4)
+Bluetooth: Version 2.4.5f3, 2 service, 12 devices, 1 incoming serial ports
+Network Service: Ethernet, Ethernet, en0
+Serial ATA Device: TOSHIBA MK3255GSXF, 298.09 GB
+Serial ATA Device: MATSHITADVD-R UJ-898
+USB Device: Hub, 0x0424 (SMSC), 0x2514, 0xfa100000 / 2
+USB Device: BRCM2070 Hub, 0x0a5c (Broadcom Corp.), 0x4500, 0xfa110000 / 5
+USB Device: Bluetooth USB Host Controller, 0x05ac (Apple Inc.), 0x8218, 0xfa113000 / 7
+USB Device: Internal Memory Card Reader, 0x05ac (Apple Inc.), 0x8403, 0xfa130000 / 4
+USB Device: Apple Internal Keyboard / Trackpad, 0x05ac (Apple Inc.), 0x0236, 0xfa120000 / 3
+USB Device: Hub, 0x0424 (SMSC), 0x2514, 0xfd100000 / 2
+USB Device: IR Receiver, 0x05ac (Apple Inc.), 0x8242, 0xfd120000 / 4
+USB Device: Built-in iSight, 0x05ac (Apple Inc.), 0x8507, 0xfd110000 / 3
+
+

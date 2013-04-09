@@ -43,7 +43,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	: AM2DDacqScanController(cfg, parent), VESPERSScanController(cfg)
 {
 	config_ = cfg;
-	config_->setUserScanName(config_->name());
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = config_->totalTime(true);
@@ -371,6 +370,34 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 bool VESPERS2DDacqScanController::initializeImplementation()
 {
 	buildBaseInitializationAction(config_->timeStep());
+	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
+		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+
+		if (name != config_->ccdFileName())
+			config_->setCCDFileName(name);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	else if (config_->ccdDetector() == VESPERS::Mar){
+
+		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
+		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+
+		if (name != config_->ccdFileName())
+			config_->setCCDFileName(name);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
@@ -485,7 +512,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->ccdDetector() == VESPERS::Roper)
-		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
 	addSingleElementSpectraPVs(advAcq_);
 
@@ -530,7 +557,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->ccdDetector() == VESPERS::Roper)
-		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
 	addFourElementSpectraPVs(advAcq_);
 
@@ -581,7 +608,7 @@ bool VESPERS2DDacqScanController::setupSingleAndFourElementMap()
 
 	// Using the CCD?
 	if (config_->ccdDetector() == VESPERS::Roper)
-		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
 	addSingleElementSpectraPVs(advAcq_);
 	addFourElementSpectraPVs(advAcq_);

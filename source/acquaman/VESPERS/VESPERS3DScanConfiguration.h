@@ -1,0 +1,10 @@
+#ifndef VESPERS3DSCANCONFIGURATION_H
+#define VESPERS3DSCANCONFIGURATION_H
+
+class VESPERS3DScanConfiguration
+{
+public:
+    VESPERS3DScanConfiguration();
+};
+
+#endif // VESPERS3DSCANCONFIGURATION_H

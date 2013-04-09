@@ -96,6 +96,7 @@ bool AMControlSet::removeControl(AMControl* control) {
 		wasConnected_ = true;
 		emit connected(true);
 	}
+
 	return true;
 }
 

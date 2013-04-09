@@ -41,6 +41,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setCCDFileName("");
 	setRoiInfoList(AMROIInfoList());
 	setExportSpectraSources(true);
+	setOtherPosition(-123456789.0);
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
@@ -80,6 +81,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	regions_->setSensibleRange(original.regions()->sensibleStart(), original.regions()->sensibleEnd());
 	regions_->setUnits(0, original.regions()->units(0));
 	regions_->setTimeUnits(0, original.regions()->timeUnits(0));
+	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
@@ -128,6 +130,9 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(start()).arg(end()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(step()));
 
+	if (hasOtherPosition())
+		header.append(QString("%1 position: %2 mm\n").arg(otherMotorString(motor())).arg(otherPosition()));
+
 	return header;
 }
 
@@ -171,6 +176,16 @@ void VESPERSSpatialLineScanConfiguration::setTime(double newTime)
 	}
 }
 
+void VESPERSSpatialLineScanConfiguration::setOtherPosition(double position)
+{
+	if (otherPosition() != position){
+
+		otherPosition_ = position;
+		emit otherPositionChanged(position);
+		setModified(true);
+	}
+}
+
 void VESPERSSpatialLineScanConfiguration::computeTotalTimeImplementation()
 {
 	double totalTime = 0;
@@ -197,4 +212,64 @@ void VESPERSSpatialLineScanConfiguration::setExportSpectraSources(bool exportSpe
 		return;
 
 	exportSpectraSources_ = exportSpectra;
+}
+
+VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor motor) const
+{
+	VESPERS::Motor other = VESPERS::NoMotor;
+
+	switch(motor){
+
+	case VESPERS::H:
+		other = VESPERS::V;
+		break;
+
+	case VESPERS::V:
+		other = VESPERS::H;
+		break;
+
+	case VESPERS::X:
+		other = VESPERS::Z;
+		break;
+
+	case VESPERS::Z:
+		other = VESPERS::X;
+		break;
+
+	default:
+		other = VESPERS::NoMotor;
+		break;
+	}
+
+	return other;
+}
+
+QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor motor) const
+{
+	QString string;
+
+	switch(motor){
+
+	case VESPERS::H:
+		string = "Vertical motor, V";
+		break;
+
+	case VESPERS::V:
+		string = "Horizontal motor, H";
+		break;
+
+	case VESPERS::X:
+		string = "Vertical motor, Z";
+		break;
+
+	case VESPERS::Z:
+		string = "Horizontal motor, X";
+		break;
+
+	default:
+		string = "";
+		break;
+	}
+
+	return string;
 }

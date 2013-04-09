@@ -258,7 +258,7 @@ void AM2DScanView::makeConnections()
 
 	connect(scansModel_, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 	connect(scansModel_, SIGNAL(scanAdded(AMScan*)), this, SLOT(onScanAdded(AMScan*)));
-	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
+	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), this, SLOT(onSelectedRectChanged(QRectF)));
 	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 }
@@ -278,6 +278,17 @@ void AM2DScanView::onDataPositionChanged(const QPointF &point)
 
 	if (exclusive2DScanBar_->showSpectraEnabled())
 		spectrumView_->onDataPositionChanged(index);
+}
+
+void AM2DScanView::onSelectedRectChanged(const QRectF &rect)
+{
+	AMnDIndex bottomLeft = getIndex(rect.bottomLeft());
+	AMnDIndex topRight = getIndex(rect.topRight());
+
+	exclusive2DScanBar_->setSelectedRect(rect);
+
+	if (exclusive2DScanBar_->showSpectraEnabled() && !rect.isNull())
+		spectrumView_->onSelectedRectChanged(bottomLeft, topRight);
 }
 
 void AM2DScanView::onExclusiveDataSourceChanged(const QString &name)
@@ -488,7 +499,7 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 
 void AM2DScanView::mousePressEvent(QMouseEvent *e)
 {
-	if (e->button() == Qt::RightButton)
+	if (e->button() == Qt::RightButton && exclusiveView_->boundingRect().contains(e->pos()))
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
@@ -614,8 +625,9 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 {
 	// create our main plot:
 	plot_ = createDefaultPlot();
+	plot_->plot()->colorLegend()->setVisible(true);
 
-	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
 	plot_->plot()->addTool(positionTool);
 	positionTool->setDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 

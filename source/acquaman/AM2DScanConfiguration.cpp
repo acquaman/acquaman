@@ -32,7 +32,7 @@ AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 }
 
 AM2DScanConfiguration::AM2DScanConfiguration(const AM2DScanConfiguration &original)
-	: AMScanConfiguration(original.parent())
+	: AMScanConfiguration(original)
 {
 	setUserScanName(original.userScanName());
 	xRange_ = original.xRange();

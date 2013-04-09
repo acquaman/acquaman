@@ -56,7 +56,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	realMotors_->setTitle("X & Z");
 	realMotors_->setHorizontalTitle("X");
 	realMotors_->setVerticalTitle("Z");
-	realMotors_->setInvertVerticalDirection(true);
 	realMotors_->hide();
 
 	// PID control view widget.

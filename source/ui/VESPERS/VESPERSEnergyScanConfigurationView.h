@@ -53,59 +53,32 @@ public slots:
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text()); }
-
+	void onScanNameEdited();
 	/// Handles changes to the ccd detector choice.
-	void onCCDDetectorChanged(int id) { config_->setCCDDetector(id); }
-	/// Handles propgating changes in the config to the detector buttons.
-	void updateCCDDetectorButtons(int detector);
+	void onCCDDetectorChanged(int id);
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
-	void setScanPosition()
-	{
-		config_->setPosition(xPosition_->value(), yPosition_->value());
-		savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
-		savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
-		positionsSaved_->setText("Saved");
-		QPalette palette(this->palette());
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
-		positionsSaved_->setPalette(palette);
-		connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-		connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	}
-	/// Helper slot.  If the value is changed from either of the x or y position spin boxes then the positions saved label should change to unsaved.
-	void onXorYPositionChanged()
-	{
-		disconnect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-		disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-
-		positionsSaved_->setText("Unsaved");
-		QPalette palette(this->palette());
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
-		positionsSaved_->setPalette(palette);
-	}
+	void setScanPosition();
 	/// Helper slot that sets the time offset for the scan.
 	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
-	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
-	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
 	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked();
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 
 protected:
+	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
+	void checkCCDFileNames(const QString &name) const;
+
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEnergyScanConfiguration *config_;
 
 	/// This lets you setup regions.
 	AMRegionsView *regionsView_;
-
-	/// Pointer to the label holding the current file name.
-	QLabel *currentCCDFileName_;
+	/// Pointer to the CCD help group box.
+	QGroupBox *ccdTextBox_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Button group for the ccd detector selection.
-	QButtonGroup *ccdButtonGroup_;
 };
 
 #endif // VESPERSENERGYSCANCONFIGURATIONVIEW_H

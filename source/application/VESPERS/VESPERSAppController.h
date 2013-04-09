@@ -27,8 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
-class VESPERSRoperCCDDetectorView;
-class VESPERSMarCCDDetectorView;
+class VESPERSCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
@@ -53,7 +52,7 @@ public:
 	explicit VESPERSAppController(QObject* parent = 0);
 
 	/// Destructor
-	virtual ~VESPERSAppController() {}
+	virtual ~VESPERSAppController() { cleanMoveImmediatelyAction(); }
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -62,11 +61,6 @@ public:
 	virtual void shutdown();
 
 protected slots:
-	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
-	void onCurrentScanControllerStarted(AMScanAction *action);
-	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
-	void onCurrentScanControllerFinished(AMScanAction *action);
-
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
 	/// Helper slot that pauses scans using the bottom bar.
@@ -95,12 +89,19 @@ protected slots:
 	virtual void fixCDF(const QUrl &url);
 
 protected:
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
 	/// Sets up a default energy scan.  It will setup the scan based on the information provided by AMGenericScanEditor.
 	void setupEnergyScan(const AMGenericScanEditor *editor);
 	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
 	void setup2DXRFScan(const AMGenericScanEditor *editor);
+	/// Sets up and moves the motors based on the "Go to immediately" action from a 2D map.
+	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
 
@@ -123,9 +124,9 @@ protected:
 	/// XRF free run view for the four element detector.
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
 	/// Roper CCD detector view.
-	VESPERSRoperCCDDetectorView *roperCCDView_;
+	VESPERSCCDDetectorView *roperCCDView_;
 	/// Mar CCD detector view.
-	VESPERSMarCCDDetectorView *marCCDView_;
+	VESPERSCCDDetectorView *marCCDView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;

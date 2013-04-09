@@ -19,9 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSMarCCDDetector.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
+/*
+<<<<<<< HEAD
 	: VESPERSMarCCDDetectorInfo(name, description, parent), AMOldDetector(name)
 {
 	imageModeControl_ = new AMPVControl("Image Mode", "ccd1607-002:cam1:ImageMode_RBV", "ccd1607-002:cam1:ImageMode", QString(), this, 0.1);
@@ -237,34 +237,15 @@ AMBeamlineActionItem *VESPERSMarCCDDetector::createStartAction()
 }
 
 AMBeamlineActionItem *VESPERSMarCCDDetector::createStopAction()
+=======
+*/
+	: VESPERSCCDDetector(name, description, "ccd1607-002:cam1", AMnDIndex(2048, 2048), parent)
+//>>>>>>> master
 {
-	if (!operationControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
-	action->setSetpoint(0);
-
-	return action;
 }
 
-AMBeamlineActionItem *VESPERSMarCCDDetector::createAutoSaveAction(bool autoSave)
+void VESPERSMarCCDDetector::loadImageFromFileImplementation(const QString &filename)
 {
-	if (!autoSaveControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(autoSaveControl_);
-	action->setSetpoint(autoSave ? 1 : 0);
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSMarCCDDetector::createSaveFileAction()
-{
-	if (!saveFileControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(saveFileControl_);
-	action->setSetpoint(1);
-
-	return action;
+	Q_UNUSED(filename)
+	// Needs to be implemented.
 }

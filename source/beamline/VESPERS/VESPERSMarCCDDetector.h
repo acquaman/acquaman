@@ -20,31 +20,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSMARCCDDETECTOR_H
 #define VESPERSMARCCDDETECTOR_H
 
-#include "beamline/AMOldDetector.h"
-#include "dataman/VESPERS/VESPERSMarCCDDetectorInfo.h"
-#include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+//<<<<<<< HEAD
+//#include "beamline/AMOldDetector.h"
+//#include "dataman/VESPERS/VESPERSMarCCDDetectorInfo.h"
+//#include "beamline/AMPVControl.h"
+//#include "actions/AMBeamlineActionItem.h"
+//=======
+#include "beamline/VESPERS/VESPERSCCDDetector.h"
+//>>>>>>> master
 
 /*!
   This class encapsulates the Mar CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMOldDetector
+//<<<<<<< HEAD
+//class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMOldDetector
+//=======
+class VESPERSMarCCDDetector : public VESPERSCCDDetector
+//>>>>>>> master
 {
 	Q_OBJECT
 
 public:
-	/// Enum that handles the image mode.  Either normal, continuous, or focus.
-	enum ImageMode { Normal = 0, Continuous, Focus };
-	/// Enum that handles the trigger mode. Possibilities are Free run, External sync, Bulb trigger, single trigger.
-	enum TriggerMode { FreeRun = 0, ExtSync, BulbTrigger, SingleTrigger };
-	/// Enum that handles the detector state.
-	enum State { Idle = 0, Acquire, Readout, Correct, Saving, Aborting, Error, Waiting };
-
 	/// Constructor.
 	VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
-
+/*
+<<<<<<< HEAD
 	/// Return the meta object.
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
@@ -179,34 +181,12 @@ protected slots:
 	/// Handles the CCD name update.
 	void onCCDNameChanged() { emit ccdNameChanged(AMPVtoString(ccdFile_)); }
 
+=======
+>>>>>>> master
+	*/
 protected:
-	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv) const;
-	/// Converts the string to the array of integers it needs to be.
-	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
-
-	/// Control for the image mode.
-	AMControl *imageModeControl_;
-	/// Control for the trigger mode control.
-	AMControl *triggerModeControl_;
-	/// Control for operation of the detector.  Status of acquiring, starting, stopping.
-	AMControl *operationControl_;
-	/// Control for the detector state.
-	AMControl *stateControl_;
-	/// Control for the exposure time.
-	AMControl *acquireTimeControl_;
-	/// Control for setting whether or not the files should be autosaved.
-	AMControl *autoSaveControl_;
-	/// Control for saving the current file.
-	AMControl *saveFileControl_;
-
-	// Various CCD file path PVs.
-	/// PV holding the path to the files.
-	AMProcessVariable *ccdPath_;
-	/// PV holding the name of the file.
-	AMProcessVariable *ccdFile_;
-	/// PV holding the number of the file.
-	AMProcessVariable *ccdNumber_;
+	/// Pure virtual fucntion.  The implementation method used for loading images.  Implementations must emit the imageReady() signal after loading data.
+	virtual void loadImageFromFileImplementation(const QString &filename);
 };
 
 #endif // VESPERSMARCCDDETECTOR_H

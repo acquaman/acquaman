@@ -99,6 +99,7 @@ bool AMDbUpgrade::upgradeRequired() const{
 
 	// Check to make sure that the specified upgrade tag is present. If not, return true (database upgrade is required).
 	QList<int> thisTagID = databaseToUpgrade_->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag='%1'").arg(upgradeToTag()));
+
 	if(thisTagID.count() == 0)
 		return true;
 	return false;

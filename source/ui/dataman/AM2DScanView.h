@@ -172,8 +172,10 @@ protected slots:
 	void resizeMultiViews();
 	/// Slots that handles the visibility of the spectrum view based on the information from the scan bar.
 	void setSpectrumViewVisibility(bool visible);
-	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
+	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup for a single point.
 	void onDataPositionChanged(const QPointF &point);
+	/// Helper slot that makes sure all the information that the spectrum fetcher needs when using the rect instead of a point.
+	void onSelectedRectChanged(const QRectF &rect);
 	/// Helper slot that computes the min and max value of the currently viewed data source.
 	void onExclusiveDataSourceChanged(const QString &name);
 	/// Helper slot that updates the range if the values change for the current exclusive data source.

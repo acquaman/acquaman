@@ -201,15 +201,16 @@ void AMScanAction::skipImplementation(const QString &command)
 #include "acquaman/AMXASScanConfiguration.h"
 bool AMScanAction::canSkip() const
 {
-	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
-	if (qobject_cast<AMDacqScanController *>(controller_))
-		return true;
+//	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
+//	if (qobject_cast<AMDacqScanController *>(controller_))
+//		return true;
 
 	const AMScanActionInfo *scanActionInfo = qobject_cast<const AMScanActionInfo*>(info());
 	if(qobject_cast<const AMXASScanConfiguration*>(scanActionInfo->config()))
 		return true;
 
-	return false;
+//	return false;
+	return true;
 }
 
 void AMScanAction::onControllerInitialized()
