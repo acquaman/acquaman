@@ -32,7 +32,6 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	fastAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
 	stopAtEndOfLine_ = false;
-	duplicateColumnsDetected_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()
@@ -146,9 +145,6 @@ bool AM2DDacqScanController::startImplementation()
 		return false;
 	}
 }
-
-/// Hackish for now.
-#include <QMessageBox>
 
 bool AM2DDacqScanController::event(QEvent *e)
 {
