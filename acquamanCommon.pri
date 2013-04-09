@@ -178,8 +178,8 @@ CONFIG(mobility) {
 }
 
 DESTDIR = build
-DEPENDPATH += . source
-INCLUDEPATH += . source
+DEPENDPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+INCLUDEPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
@@ -586,24 +586,24 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMSADetector.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
-    source/ui/dataman/AMSampleSelector.h \
-    source/ui/AMTopFrame2.h \
-    source/application/AMDatamanAppControllerForActions2.h \
-    source/application/AMDatamanAppControllerForActions3.h \
-    source/analysis/AM2DAdditionAB.h \
-    source/analysis/AM3DAdditionAB.h \
-    source/analysis/AM3DBinningAB.h \
-    source/analysis/AM3DBinningABEditor.h \
-    source/analysis/AM2DDeadTimeAB.h \
-    source/analysis/AM3DDeadTimeAB.h \
-    source/actions3/editors/AMLiveLoopActionEditor3.h \
-    source/ui/AMBottomPanel.h \
-    source/ui/AMDatamanAppBottomPanel.h \
-    source/ui/AMAppBottomPanel.h \
-    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h \
-    source/acquaman/AM3DDacqScanController.h \
-    source/acquaman/AM3DScanConfiguration.h \
-    source/dataman/AM3DScan.h
+	source/ui/dataman/AMSampleSelector.h \
+	source/ui/AMTopFrame2.h \
+	source/application/AMDatamanAppControllerForActions2.h \
+	source/application/AMDatamanAppControllerForActions3.h \
+	source/analysis/AM2DAdditionAB.h \
+	source/analysis/AM3DAdditionAB.h \
+	source/analysis/AM3DBinningAB.h \
+	source/analysis/AM3DBinningABEditor.h \
+	source/analysis/AM2DDeadTimeAB.h \
+	source/analysis/AM3DDeadTimeAB.h \
+	source/actions3/editors/AMLiveLoopActionEditor3.h \
+	source/ui/AMBottomPanel.h \
+	source/ui/AMDatamanAppBottomPanel.h \
+	source/ui/AMAppBottomPanel.h \
+	source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h \
+	source/acquaman/AM3DDacqScanController.h \
+	source/acquaman/AM3DScanConfiguration.h \
+	source/dataman/AM3DScan.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -639,7 +639,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
-    source/ui/AMTopFrame2.ui
+	source/ui/AMTopFrame2.ui
 
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
@@ -993,24 +993,24 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMSADetector.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
-    source/ui/dataman/AMSampleSelector.cpp \
-    source/ui/AMTopFrame2.cpp \
-    source/application/AMDatamanAppControllerForActions2.cpp \
-    source/application/AMDatamanAppControllerForActions3.cpp \
-    source/analysis/AM2DAdditionAB.cpp \
-    source/analysis/AM3DAdditionAB.cpp \
-    source/analysis/AM3DBinningAB.cpp \
-    source/analysis/AM3DBinningABEditor.cpp \
-    source/analysis/AM2DDeadTimeAB.cpp \
-    source/analysis/AM3DDeadTimeAB.cpp \
-    source/actions3/editors/AMLiveLoopActionEditor3.cpp \
-    source/ui/AMBottomPanel.cpp \
-    source/ui/AMDatamanAppBottomPanel.cpp \
-    source/ui/AMAppBottomPanel.cpp \
-    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp \
-    source/acquaman/AM3DDacqScanController.cpp \
-    source/acquaman/AM3DScanConfiguration.cpp \
-    source/dataman/AM3DScan.cpp
+	source/ui/dataman/AMSampleSelector.cpp \
+	source/ui/AMTopFrame2.cpp \
+	source/application/AMDatamanAppControllerForActions2.cpp \
+	source/application/AMDatamanAppControllerForActions3.cpp \
+	source/analysis/AM2DAdditionAB.cpp \
+	source/analysis/AM3DAdditionAB.cpp \
+	source/analysis/AM3DBinningAB.cpp \
+	source/analysis/AM3DBinningABEditor.cpp \
+	source/analysis/AM2DDeadTimeAB.cpp \
+	source/analysis/AM3DDeadTimeAB.cpp \
+	source/actions3/editors/AMLiveLoopActionEditor3.cpp \
+	source/ui/AMBottomPanel.cpp \
+	source/ui/AMDatamanAppBottomPanel.cpp \
+	source/ui/AMAppBottomPanel.cpp \
+	source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp \
+	source/acquaman/AM3DDacqScanController.cpp \
+	source/acquaman/AM3DScanConfiguration.cpp \
+	source/dataman/AM3DScan.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
