@@ -458,60 +458,60 @@ bool AMDatamanAppController::startupRegisterDatabases()
 		return false;
 	}
 
-	AMDbObjectSupport::s()->registerDatabase(db);
+	bool success = true;
+
+	success &= AMDbObjectSupport::s()->registerDatabase(db);
 
 
-	AMDbObjectSupport::s()->registerClass<AMDbObject>();
-	AMDbObjectSupport::s()->registerClass<AMScan>();
-	AMDbObjectSupport::s()->registerClass<AMXASScan>();
-	AMDbObjectSupport::s()->registerClass<AMFastScan>();
-	AMDbObjectSupport::s()->registerClass<AMXESScan>();
-	AMDbObjectSupport::s()->registerClass<AM2DScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXASScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMFastScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 
-	AMDbObjectSupport::s()->registerClass<AMRun>();
-	AMDbObjectSupport::s()->registerClass<AMExperiment>();
-	AMDbObjectSupport::s()->registerClass<AMSample>();
-	AMDbObjectSupport::s()->registerClass<AMFacility>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMFacility>();
 
-	AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
-	AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
-	AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
-	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
-	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
-	AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
-	AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
-	AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
+	success &= AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
 
-	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 
-	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
-	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 
-	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
-	AMDbObjectSupport::s()->registerClass<AMUser>();
+	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
+	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
+	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
-
-	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
-
-	return true;
+	return success;
 }
 
 bool AMDatamanAppController::startupPopulateNewDatabase()

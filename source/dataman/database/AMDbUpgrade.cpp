@@ -139,7 +139,6 @@ void AMDbUpgrade::setIsResponsibleForUpgrade(bool isResponsibleForUpgrade){
 }
 
 bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
-	//AMDatabase *userDb = AMDatabase::database("user");
 	AMDatabase *userDb = databaseToEdit;
 
 	QString originalTableName = originalClassName%"_table";
@@ -208,19 +207,74 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 			}
 
 			// If we're editing the left side (column 1) we need to update the name of the index table as well
+			//  (and possibly alter any indices associated with the table)
 			if(i.value() == 1 && i.key().contains(originalTableName)){
 				// Finally, rename the table from the original index table name to the new index table name
-				QSqlQuery q = userDb->query();
 				QString originalIndexTableName = i.key();
 				QString newIndexTableName = i.key();
 				newIndexTableName.remove(originalTableName);
 				newIndexTableName.prepend(newTableName);
-				q.prepare("ALTER table "%originalIndexTableName%" RENAME to "%newIndexTableName);
-				if(!AMDatabase::execQuery(q)) {
-					q.finish();
+
+				// Query if this table has an index (or indices) defined for it
+				QSqlQuery q1 = userDb->query();
+				q1.prepare("PRAGMA index_list("%originalIndexTableName%")");
+				if(!AMDatabase::execQuery(q1)) {
+					q1.finish();
+					userDb->rollbackTransaction();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -291, QString("Database support: There was an error trying to find the index list for %1.").arg(originalIndexTableName)));
+					return false;
+				}
+				// Fill a stringList with the responses
+				QStringList indexListResponses;
+				while(q1.next()){
+					indexListResponses << q1.value(1).toString();
+				}
+				q1.finish();
+
+				// If there were any indices found, then loop over them and drop them from the database
+				for(int x = 0; x < indexListResponses.count(); x++){
+					QSqlQuery q1A = userDb->query();
+					q1A.prepare(QString("DROP INDEX %1;").arg(indexListResponses.at(x)));
+
+					if(AMDatabase::execQuery(q1A)){
+						q1A.finish();
+					}
+					else{
+						q1A.finish();
+						userDb->rollbackTransaction();
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -292, QString("Database support: There was an error trying to drop the index %1 for %2.").arg(indexListResponses.at(x)).arg(originalIndexTableName)));
+						return false;
+					}
+				}
+
+				// Actually rename the table (we need to do this every time)
+				QSqlQuery q2 = userDb->query();
+				q2.prepare("ALTER table "%originalIndexTableName%" RENAME to "%newIndexTableName);
+				if(!AMDatabase::execQuery(q2)) {
+					q2.finish();
 					userDb->rollbackTransaction();
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -283, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalIndexTableName).arg(newIndexTableName)));
 					return false;
+				}
+
+				// If there were any indices found, then we need to re-add them using the new table name
+				for(int x = 0; x < indexListResponses.count(); x++){
+					QSqlQuery q2A = userDb->query();
+					QString tempIndexListResponse = indexListResponses.at(x);
+					QString columnName = tempIndexListResponse.split('_').last();
+					QString indexName = QString("idx_%1_%2").arg(newIndexTableName, columnName);
+					indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
+					q2A.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, newIndexTableName, columnName));
+
+					if(AMDatabase::execQuery(q2A)){
+						q2A.finish();
+					}
+					else{
+						q2A.finish();
+						userDb->rollbackTransaction();
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -293, QString("Database support: There was an error trying to recreate index %1 for new table %2.").arg(indexName).arg(newIndexTableName)));
+						return false;
+					}
 				}
 			}
 

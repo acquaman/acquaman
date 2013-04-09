@@ -65,4 +65,18 @@ protected:
 	QFile *rank2File_;
 };
 
+#include <QTextStream>
+class AMTextStream : public QTextStream
+{
+public:
+	AMTextStream();
+	explicit AMTextStream(QIODevice *device);
+	explicit AMTextStream(FILE *fileHandle, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+	explicit AMTextStream(QString *string, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+	explicit AMTextStream(QByteArray *array, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+	explicit AMTextStream(const QByteArray &array, QIODevice::OpenMode openMode = QIODevice::ReadOnly);
+
+	//AMTextStream &operator<<(const AMAxisInfo &axisInfo);
+};
+
 #endif // SGMXASSCANACTIONCONTROLLER_H

@@ -7,9 +7,6 @@
 #include <QFile>
 #include <QFileInfo>
 
-//#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
-//#include "acquaman/AMListActionScanOptimizer.h"
-//#include "acquaman/AMNestedAxisTypeValidator.h"
 #include "acquaman/AMXASScanConfigurationConverter.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
@@ -211,16 +208,54 @@ SGMXASScanActionControllerFileWriter::SGMXASScanActionControllerFileWriter(const
 void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QString &textToWrite){
 	switch(fileRank){
 	case 1:{
-		QTextStream rank1Stream(rank1File_);
+		//QTextStream rank1Stream(rank1File_);
+		AMTextStream rank1Stream(rank1File_);
 		rank1Stream << textToWrite;
 		break;}
 	case 2:{
 		if(hasRank2Data_){
-			QTextStream rank2Stream(rank2File_);
+			//QTextStream rank2Stream(rank2File_);
+			AMTextStream rank2Stream(rank2File_);
 			rank2Stream << textToWrite;
 		}
 		break;}
 	default:
 		break;
 	}
+}
+
+AMTextStream::AMTextStream() :
+	QTextStream()
+{
+
+}
+
+AMTextStream::AMTextStream(QIODevice *device) :
+	QTextStream(device)
+{
+
+}
+
+AMTextStream::AMTextStream(FILE *fileHandle, QIODevice::OpenMode openMode) :
+	QTextStream(fileHandle, openMode)
+{
+
+}
+
+AMTextStream::AMTextStream(QString *string, QIODevice::OpenMode openMode) :
+	QTextStream(string, openMode)
+{
+
+}
+
+AMTextStream::AMTextStream(QByteArray *array, QIODevice::OpenMode openMode) :
+	QTextStream(array, openMode)
+{
+
+}
+
+AMTextStream::AMTextStream(const QByteArray &array, QIODevice::OpenMode openMode) :
+	QTextStream(array, openMode)
+{
+
 }
