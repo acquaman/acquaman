@@ -259,3 +259,24 @@ AMTextStream::AMTextStream(const QByteArray &array, QIODevice::OpenMode openMode
 {
 
 }
+
+/**/
+//AMTextStream& AMTextStream::operator <<(const AMAxisInfo &axisInfo){
+void AMTextStream::write(const AMAxisInfo &axisInfo){
+	QString separator = "|%|%|";
+	QTextStream::operator <<(axisInfo.name);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<(axisInfo.size);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<(axisInfo.description);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<(axisInfo.units);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<(axisInfo.isUniform);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<((double)axisInfo.start);
+	QTextStream::operator <<(separator);
+	QTextStream::operator <<((double)axisInfo.increment);
+	QTextStream::operator <<(separator);
+}
+/**/

@@ -158,9 +158,7 @@ CONFIG(jenkins_build) {
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
-		HOME_FOLDER = /var/lib/jenkins
-		DEV_PATH = beamline/programming
-
+		HOME_FOLDER = .
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \

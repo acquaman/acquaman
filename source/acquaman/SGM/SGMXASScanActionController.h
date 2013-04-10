@@ -76,7 +76,8 @@ public:
 	explicit AMTextStream(QByteArray *array, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
 	explicit AMTextStream(const QByteArray &array, QIODevice::OpenMode openMode = QIODevice::ReadOnly);
 
-	//AMTextStream &operator<<(const AMAxisInfo &axisInfo);
+	//AMTextStream& operator<<(const AMAxisInfo &axisInfo);
+	void write(const AMAxisInfo &axisInfo);
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H
