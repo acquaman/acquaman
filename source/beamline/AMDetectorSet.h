@@ -42,8 +42,10 @@ public:
 
 	/// Checks to see if this detector set can be set from the given AMDetectorInfoSet (they refer to the same detectors)
 	bool validInfoSet(const AMDetectorInfoSet &infoSet);
+	/*
 	/// Sets the detector values in this set from the appropriate detector infos.
 	void setFromInfoSet(const AMDetectorInfoSet &infoSet);
+	*/
 
 signals:
 	/// Emitted when a detector is added with the new index

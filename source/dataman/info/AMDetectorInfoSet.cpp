@@ -85,20 +85,13 @@ int AMDetectorInfoSet::indexOf(const QString& detectorName) const{
 
 AMDetectorInfo& AMDetectorInfoSet::detectorInfoNamed(const QString& detectorName){
 	int index = indexOfKey(detectorName);
-	if(index < 0){
-		AMDetectorInfo emptyInfo = AMDetectorInfo();
-		return emptyInfo;
-	}
+	Q_ASSERT(index >= 0);
 	return (*this)[index];
 }
 
 AMDetectorInfo& AMDetectorInfoSet::detectorInfoAt(int index){
-	if(index < 0 || index >= count()){
-		AMDetectorInfo emptyInfo = AMDetectorInfo();
-		return emptyInfo;
-	}
+	Q_ASSERT(index >= 0 && index < count());
 	return (*this)[index];
-
 }
 
 bool AMDetectorInfoSet::addDetectorInfo(const AMDetectorInfo &newDetectorInfo){

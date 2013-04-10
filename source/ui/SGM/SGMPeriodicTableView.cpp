@@ -722,7 +722,7 @@ SGMFastScanParametersModificationWizardCopyEditScanInfoPage::SGMFastScanParamete
 }
 
 bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::validatePage(){
-
+	return false;
 }
 
 bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::isComplete(){

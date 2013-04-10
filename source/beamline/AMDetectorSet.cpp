@@ -105,9 +105,13 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &infoSet){
 	return true;
 }
 
+/*
 void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet &infoSet){
-
+	for(int x = 0; x < infoSet.count(); x++)
+		if(detectorNamed(infoSet.at(x).name()))
+			detectorNamed(infoSet.at(x).name());
 }
+*/
 
 void AMDetectorSet::setName(const QString &name){
 	name_ = name;
