@@ -101,54 +101,16 @@ bool SGMXASScanActionController::event(QEvent *e){
 
 		switch(message.messageType()){
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
-			AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
-			QString separator = "|!|!|";
-			QString rank1String;
-			rank1String.append("Start Info\n");
-			rank1String.append(QString("-1%1eV\n").arg(separator));
-
-			for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
-				oneMeasurementInfo = scan_->rawData()->measurementAt(x);
-
-				/*
-				rank1String.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
-				if(oneMeasurementInfo.rank() == 1){
-					rank1String.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
-				}
-				rank1String.append("\n");
-				*/
-
-				rank1String.append(QString("%1%2").arg(x).arg(separator));
-				QString measurementInfoString;
-				AMTextStream measurementInfoStream(&measurementInfoString);
-				measurementInfoStream.write(oneMeasurementInfo);
-				//qDebug() << "Written as " << measurementInfoTest;
-				rank1String.append(measurementInfoString);
-				rank1String.append("\n");
-
-				//QString measurementInfoTestCopy = measurementInfoTest;
-				//AMTextStream measurementInfoTestStreamOut(&measurementInfoTestCopy, QIODevice::ReadOnly);
-				//AMMeasurementInfo writingToInfo = AMMeasurementInfo(QString(), QString());
-				//measurementInfoTestStreamOut.read(writingToInfo);
-
-				//qDebug() << "Testing the measurementInfoStream " << measurementInfoTest;
-				//measurementInfoTest.prepend(QString("%1|%|%|").arg(x));
-				//qDebug() << measurementInfoTest;
-				//qDebug() << oneString;
-				//qDebug() << "The same? " << (measurementInfoTest == oneString);
-
-			}
-			rank1String.append("End Info\n");
-			emit requestWriteToFile(1, rank1String);
+			writeHeaderToFile();
 			break;}
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
-			writeToFiles();
+			writeDataToFiles();
 			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();
-			writeToFiles();
+			writeDataToFiles();
 			insertionIndex_[0] = insertionIndex_.i()+1;
 
 			break;
@@ -185,30 +147,49 @@ bool SGMXASScanActionController::event(QEvent *e){
 		return AMScanActionController::event(e);
 }
 
-void SGMXASScanActionController::writeToFiles(){
+void SGMXASScanActionController::writeHeaderToFile(){
+	AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
+	QString separator = "|!|!|";
+	QString rank1String;
+	rank1String.append("Start Info\n");
+	rank1String.append(QString("-1%1eV\n").arg(separator));
+
+	for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
+		oneMeasurementInfo = scan_->rawData()->measurementAt(x);
+
+		rank1String.append(QString("%1%2").arg(x).arg(separator));
+		QString measurementInfoString;
+		AMTextStream measurementInfoStream(&measurementInfoString);
+		measurementInfoStream.write(oneMeasurementInfo);
+		rank1String.append(measurementInfoString);
+		rank1String.append("\n");
+	}
+	rank1String.append("End Info\n");
+	emit requestWriteToFile(1, rank1String);
+}
+
+void SGMXASScanActionController::writeDataToFiles(){
 	QString rank1String;
 	QString rank2String;
 
-	rank1String.append(QString("-1 %1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
-	rank2String.append(QString("-1 %1\n").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
 	AMRawDataSource *oneRawDataSource;
 	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
 		oneRawDataSource = scan_->rawDataSources()->at(x);
 		if(oneRawDataSource->rank() == 1)
-			rank1String.append(QString("%1 %2 ").arg(x).arg((double)oneRawDataSource->value(insertionIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(insertionIndex_)));
 		if(oneRawDataSource->rank() == 2){
 			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
 			double outputValues[dataSourceSize];
 			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
 			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
-			rank2String.append(QString("%1 ").arg(x));
 			for(int y = 0; y < dataSourceSize; y++)
 				rank2String.append(QString("%1 ").arg(outputValues[y]));
 			rank2String.append("\n");
 		}
 	}
-	rank1String.append("-27\n");
+	rank1String.append("\n");
 
 	emit requestWriteToFile(1, rank1String);
 	emit requestWriteToFile(2, rank2String);

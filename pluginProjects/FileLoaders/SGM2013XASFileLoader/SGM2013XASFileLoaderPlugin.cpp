@@ -44,7 +44,6 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	QString line;
 	QStringList lp;
 	int index;
-	int dataIndex;
 	double dataValue;
 	int insertionIndex = 0;
 	bool informationSection = false;
@@ -83,41 +82,18 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			}
 		}
 		else{
-			fs >> dataIndex;
 			if(!fs.atEnd()){
 				fs >> dataValue;
 				scan->rawData()->beginInsertRows(1, -1);
 				scan->rawData()->setAxisValue(0, insertionIndex, dataValue); // insert eV
 				QList<int> rank0Measurements = measurementOrderByRank.value(0);
 				for(int x = 0; x < rank0Measurements.count(); x++){
-					fs >> dataIndex;
-					qDebug() << "I bet index is " << rank0Measurements.at(x) << " see " << dataIndex;
 					fs >> dataValue;
 					scan->rawData()->setValue(AMnDIndex(insertionIndex), rank0Measurements.at(x), AMnDIndex(), dataValue);
 				}
-				fs >> dataIndex;
-				qDebug() << "Bet this one is 27 " << dataIndex;
 				scan->rawData()->endInsertRows();
 				insertionIndex++;
 			}
-
-			/*
-			fs >> dataIndex;
-			if(dataIndex != -27)
-				fs >> dataValue;
-
-			if(dataIndex == -1){
-				scan->rawData()->beginInsertRows(1, -1);
-				scan->rawData()->setAxisValue(0, insertionIndex, dataValue); // insert eV
-			}
-			else if(dataIndex == -27){
-				scan->rawData()->endInsertRows();
-				insertionIndex++;
-			}
-			else{
-				scan->rawData()->setValue(AMnDIndex(insertionIndex), dataIndex, AMnDIndex(), dataValue);
-			}
-			*/
 		}
 	}
 
@@ -139,23 +115,15 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 	}
 
-	int measurementIndex;
 	int rank1InsertionIndex = 0;
 	int measurementSize;
-	double axisValue;
 	double oneDataValue;
 	QVector<double> dataValues;
-	int fiveIndex = 0;
 	QTextStream sfs(&sf);
 
 	QList<int> rank1Measurements = measurementOrderByRank.value(1);
 	while(!sfs.atEnd()){
-		sfs >> measurementIndex;
-		sfs >> dataValue;
-
 		for(int x = 0; x < rank1Measurements.count(); x++){
-			sfs >> measurementIndex;
-			qDebug() << "I bet it's " << rank1Measurements.at(x) << " see " << measurementIndex;
 			measurementSize = scan->rawData()->measurementAt(rank1Measurements.at(x)).axes.at(0).size;
 			dataValues.clear();
 			for(int y = 0; y < measurementSize; y++){
@@ -166,28 +134,6 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		}
 		rank1InsertionIndex++;
 	}
-
-	/*
-	sfs >> measurementIndex;
-	while(!sfs.atEnd()){
-		if(measurementIndex == -1){
-			rank1InsertionIndex++;
-			sfs >> axisValue;
-		}
-		else{
-			measurementSize = scan->rawData()->measurementAt(measurementIndex).axes.at(0).size;
-			dataValues.clear();
-			for(int x = 0; x < measurementSize; x++){
-				sfs >> oneDataValue;
-				dataValues.append(oneDataValue);
-			}
-			scan->rawData()->setValue(AMnDIndex(rank1InsertionIndex), measurementIndex, dataValues.constData());
-			if(rank1InsertionIndex == 5)
-				fiveIndex++;
-		}
-		sfs >> measurementIndex;
-	}
-	*/
 
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {

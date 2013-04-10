@@ -35,7 +35,8 @@ protected:
 
 	bool event(QEvent *e);
 
-	void writeToFiles();
+	void writeHeaderToFile();
+	void writeDataToFiles();
 
 protected:
 	AMAction3 *actionTree_;
