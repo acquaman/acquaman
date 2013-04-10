@@ -156,12 +156,12 @@ CONFIG(jenkins_build) {
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 		message($$HOME_FOLDER)
 		message($$_PRO_FILE_PWD_)
-		message($$system("find / -name acquaman"))
+	#	message($$system("find / -name acquaman"))
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
 		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
-
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
 				/home/mark/dev/epics/base/include/os/Linux
@@ -182,8 +182,10 @@ CONFIG(mobility) {
 }
 
 DESTDIR = build
-DEPENDPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
-INCLUDEPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+#DEPENDPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+#INCLUDEPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+DEPENDPATH += $$PATH_TO_AM $$PATH_TO_AM/source
+INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
