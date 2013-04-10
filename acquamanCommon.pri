@@ -78,7 +78,7 @@ linux-g++-32 {
 
 		# Disable Qt Mobility Video until Darren's laptop is ready for that.
 		CONFIG -= mobility
-
+#message($$system(find / -name acquaman))
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
@@ -156,11 +156,11 @@ CONFIG(jenkins_build) {
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 		message($$HOME_FOLDER)
 		message($$_PRO_FILE_PWD_)
-		#message($$system("find / -name acquaman")
+		message($$system("find / -name acquaman"))
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
-		DEV_PATH = /job/AcquamanOnLinux_MasterBranch/ws
+		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
