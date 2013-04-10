@@ -3,6 +3,11 @@
 
 #include <QObject>
 #include <QStringList>
+
+#define AMCDFV1FILELOADERPLUGIN_CANNOT_OPEN_FILE 627801
+#define AMCDFV1FILELOADERPLUGIN_CANNOT_USE_FILE 627802
+
+
 #include "dataman/AMFileLoaderInterface.h"
 
 /// This class implements loading of CDF data files in the "amCDFv1" file format, as created natively by AMCDFDataStore. For documentation of the CDF file structure/layout, see AMCDFDataStore.
@@ -15,7 +20,7 @@ public:
 	/// A more detailed way of determining whether we work for a given scan...
 	virtual bool accepts(AMScan *scan);
 	/// Load the data under AMScan::filePath() into the \c scan
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 
 
 protected:

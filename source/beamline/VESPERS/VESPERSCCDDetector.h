@@ -1,13 +1,13 @@
 #ifndef VESPERSCCDDETECTOR_H
 #define VESPERSCCDDETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/VESPERS/VESPERSCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "application/VESPERS/VESPERS.h"
 
-class VESPERSCCDDetector : public VESPERSCCDDetectorInfo, public AMDetector
+class VESPERSCCDDetector : public VESPERSCCDDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 
@@ -31,12 +31,12 @@ public:
 	virtual void setDescription(const QString &description) { VESPERSCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSCCDDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toInfo() const { return new VESPERSCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
 	VESPERSCCDDetectorInfo toMarInfo() const { return VESPERSCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void setFromVESPERSInfo(const VESPERSCCDDetectorInfo &info);
 

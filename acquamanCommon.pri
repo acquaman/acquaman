@@ -257,13 +257,11 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
-	source/beamline/AMDetector.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/database/AMDatabase.h \
 	source/dataman/database/AMDbObject.h \
-	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
@@ -304,7 +302,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
-	source/ui/beamline/AMDetectorView.h \
 	source/ui/AMWorkflowManagerView.h \
 	source/actions/AMBeamlineScanAction.h \
 	source/dataman/AMAbstractFileLoader.h \
@@ -360,7 +357,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -376,12 +372,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMSpectralOutputDetector.h \
 	source/beamline/CLS/CLSPGTDetector.h \
 	source/beamline/SGM/SGMMCPDetector.h \
-	source/ui/beamline/AMDetectorViewSupport.h \
 	source/ui/beamline/AMSingleControlDetectorView.h \
 	source/ui/SGM/SGMMCPDetectorView.h \
 	source/ui/CLS/CLSPGTDetectorView.h \
-	source/ui/beamline/AMDetectorSetView.h \
-	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
@@ -603,9 +596,59 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMDatamanAppBottomPanel.h \
 	source/ui/AMAppBottomPanel.h \
 	source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h \
+	source/dataman/info/AMOldDetectorInfo.h \
+	source/beamline/AMOldDetector.h \
+	source/dataman/info/AMOldDetectorInfoSet.h \
+	source/beamline/AMOldDetectorSet.h \
+	source/beamline/AMDetector.h \
+	source/dataman/AMDbUpgrade1Pt1.h \
+	source/dataman/AMDbUpgrade1Pt2.h \
+	source/dataman/info/AMDetectorInfo.h \
+	source/beamline/CLS/CLSAmptekSDD123DetectorNew.h \
+	source/ui/beamline/AMOldDetectorView.h \
+	source/ui/beamline/AMOldDetectorViewSupport.h \
+	source/ui/beamline/AMDetectorView.h \
+	source/beamline/AMSynchronizedDwellTime.h \
+	source/beamline/AMDetectorSet.h \
+	source/dataman/info/AMDetectorInfoSet.h \
+	source/ui/beamline/AMOldDetectorSetView.h \
+	source/ui/beamline/AMDetectorSelectorView.h \
+	source/beamline/CLS/CLSBasicScalerChannelDetector.h \
+	source/beamline/AMDetectorTriggerSource.h \
+	source/beamline/AMDetectorGroup.h \
+	source/beamline/AMDetectorSelector.h \
+	source/acquaman/AMAgnosticDataAPI.h \
+	source/acquaman/AMScanActionController.h \
+	source/acquaman/AMScanActionControllerScanAssembler.h \
+	source/actions3/actions/AMDetectorInitializeActionInfo.h \
+	source/actions3/actions/AMDetectorInitializeAction.h \
+	source/actions3/actions/AMDetectorAcquisitionActionInfo.h \
+	source/actions3/actions/AMDetectorAcquisitionAction.h \
+	source/actions3/actions/AMDetectorCleanupActionInfo.h \
+	source/actions3/actions/AMDetectorCleanupAction.h \
+	source/actions3/actions/AMAxisStartedActionInfo.h \
+	source/actions3/actions/AMAxisFinishedActionInfo.h \
+	source/actions3/actions/AMAxisStartedAction.h \
+	source/actions3/actions/AMAxisFinishedAction.h \
+	source/beamline/AMBasicControlDetectorEmulator.h \
+	source/actions3/actions/AMDetectorTriggerActionInfo.h \
+	source/actions3/actions/AMDetectorTriggerAction.h \
+	source/actions3/actions/AMDetectorReadActionInfo.h \
+	source/actions3/actions/AMDetectorReadAction.h \
+	source/dataman/AMScanAxisRegion.h \
+	source/dataman/AMScanAxis.h \
+	source/acquaman/AMScanActionControllerScanOptimizer.h \
+	source/acquaman/AMDetectorTriggerSourceScanOptimizer.h \
+	source/acquaman/AMListActionScanOptimizer.h \
+	source/acquaman/AMScanActionControllerScanValidator.h \
+	source/acquaman/AMScanActionTreeSupport.h \
+	source/acquaman/AMNestedAxisTypeValidator.h \
+	source/acquaman/AMScanActionControllerScanConfigurationConverter.h \
+	source/acquaman/AMXASScanConfigurationConverter.h \
 	source/acquaman/AM3DDacqScanController.h \
 	source/acquaman/AM3DScanConfiguration.h \
-	source/dataman/AM3DScan.h
+	source/dataman/AM3DScan.h \
+	source/dataman/AMTextStream.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -681,7 +724,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
-	source/beamline/AMDetector.cpp \
 	source/actions/AMBeamlineActionItem.cpp \
 	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
@@ -693,7 +735,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/dataman/database/AMDatabase.cpp \
 	source/dataman/database/AMDbObject.cpp \
-	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
@@ -725,7 +766,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
-	source/ui/beamline/AMDetectorView.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
 	source/actions/AMBeamlineScanAction.cpp \
@@ -779,7 +819,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
@@ -795,12 +834,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMSpectralOutputDetector.cpp \
 	source/beamline/CLS/CLSPGTDetector.cpp \
 	source/beamline/SGM/SGMMCPDetector.cpp \
-	source/ui/beamline/AMDetectorViewSupport.cpp \
 	source/ui/beamline/AMSingleControlDetectorView.cpp \
 	source/ui/SGM/SGMMCPDetectorView.cpp \
 	source/ui/CLS/CLSPGTDetectorView.cpp \
-	source/ui/beamline/AMDetectorSetView.cpp \
-	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
@@ -1010,9 +1046,59 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMDatamanAppBottomPanel.cpp \
 	source/ui/AMAppBottomPanel.cpp \
 	source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp \
+	source/dataman/info/AMOldDetectorInfo.cpp \
+	source/beamline/AMOldDetector.cpp \
+	source/dataman/info/AMOldDetectorInfoSet.cpp \
+	source/beamline/AMOldDetectorSet.cpp \
+	source/beamline/AMDetector.cpp \
+	source/dataman/AMDbUpgrade1Pt1.cpp \
+	source/dataman/AMDbUpgrade1Pt2.cpp \
+	source/dataman/info/AMDetectorInfo.cpp \
+	source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp \
+	source/ui/beamline/AMOldDetectorViewSupport.cpp \
+	source/ui/beamline/AMOldDetectorView.cpp \
+	source/ui/beamline/AMDetectorView.cpp \
+	source/beamline/AMSynchronizedDwellTime.cpp \
+	source/beamline/AMDetectorSet.cpp \
+	source/dataman/info/AMDetectorInfoSet.cpp \
+	source/ui/beamline/AMOldDetectorSetView.cpp \
+	source/ui/beamline/AMDetectorSelectorView.cpp \
+	source/beamline/CLS/CLSBasicScalerChannelDetector.cpp \
+	source/beamline/AMDetectorTriggerSource.cpp \
+	source/beamline/AMDetectorGroup.cpp \
+	source/beamline/AMDetectorSelector.cpp \
+	source/acquaman/AMAgnosticDataAPI.cpp \
+	source/acquaman/AMScanActionController.cpp \
+	source/acquaman/AMScanActionControllerScanAssembler.cpp \
+	source/actions3/actions/AMDetectorInitializeActionInfo.cpp \
+	source/actions3/actions/AMDetectorInitializeAction.cpp \
+	source/actions3/actions/AMDetectorAcquisitionActionInfo.cpp \
+	source/actions3/actions/AMDetectorAcquisitionAction.cpp \
+	source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
+	source/actions3/actions/AMDetectorCleanupAction.cpp \
+	source/actions3/actions/AMAxisStartedActionInfo.cpp \
+	source/actions3/actions/AMAxisFinishedActionInfo.cpp \
+	source/actions3/actions/AMAxisStartedAction.cpp \
+	source/actions3/actions/AMAxisFinishedAction.cpp \
+	source/beamline/AMBasicControlDetectorEmulator.cpp \
+	source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
+	source/actions3/actions/AMDetectorTriggerAction.cpp \
+	source/actions3/actions/AMDetectorReadActionInfo.cpp \
+	source/actions3/actions/AMDetectorReadAction.cpp \
+	source/dataman/AMScanAxisRegion.cpp \
+	source/dataman/AMScanAxis.cpp \
+	source/acquaman/AMScanActionControllerScanOptimizer.cpp \
+	source/acquaman/AMDetectorTriggerSourceScanOptimizer.cpp \
+	source/acquaman/AMListActionScanOptimizer.cpp \
+	source/acquaman/AMScanActionControllerScanValidator.cpp \
+	source/acquaman/AMScanActionTreeSupport.cpp \
+	source/acquaman/AMNestedAxisTypeValidator.cpp \
+	source/acquaman/AMScanActionControllerScanConfigurationConverter.cpp \
+	source/acquaman/AMXASScanConfigurationConverter.cpp \
 	source/acquaman/AM3DDacqScanController.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
-	source/dataman/AM3DScan.cpp
+	source/dataman/AM3DScan.cpp \
+	source/dataman/AMTextStream.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1036,75 +1122,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

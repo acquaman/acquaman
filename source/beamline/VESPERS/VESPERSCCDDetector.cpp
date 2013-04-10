@@ -6,7 +6,7 @@
 #include <QStringBuilder>
 
 VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &description, const QString &pvBase, const AMnDIndex &detectorSize, QObject *parent)
-	: VESPERSCCDDetectorInfo(name, description, detectorSize, parent), AMDetector(name)
+	: VESPERSCCDDetectorInfo(name, description, detectorSize, parent), AMOldDetector(name)
 {
 	imageData_ = QVector<int>(size().product());
 
@@ -127,7 +127,7 @@ VESPERSCCDDetector::State VESPERSCCDDetector::state() const
 	return detectorState;
 }
 
-bool VESPERSCCDDetector::setFromInfo(const AMDetectorInfo *info)
+bool VESPERSCCDDetector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const VESPERSCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSCCDDetectorInfo *>(info);
 

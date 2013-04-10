@@ -49,3 +49,4 @@ Get libxml with Synaptic Package Manager
 Get qt4-opengl with Synaptic Package Manager
 	libqt4-opengl
 Get Qt SDK from qt.nokia.com
+	*** NOTE: Make sure you configure Qt with support for OpenSSL, other github features won't work***

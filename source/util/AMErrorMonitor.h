@@ -137,6 +137,10 @@ public:
 	}
 
 
+	void exteriorReport(const AMErrorReport &e){
+		reportF(e);
+	}
+
 	/// Report an error. This function is thread-safe.
 	static void report(const AMErrorReport& e) {
 		mon()->reportF(e);

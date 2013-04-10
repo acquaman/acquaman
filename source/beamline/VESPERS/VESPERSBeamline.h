@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSSampleStageControl.h"
@@ -72,41 +72,41 @@ public:
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMDetector *vortexAM1E() const { return vortex1E_; }
+	AMOldDetector *vortexAM1E() const { return vortex1E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
 	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMDetector *vortexAM4E() const { return vortex4E_; }
+	AMOldDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMDetector *roperCCDDetector() const { return roperCCD_; }
+	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
 	/// Returns a general AMDetector pointer of the Mar CCD.
-	AMDetector *marCCDDetector() const { return marCCD_; }
+	AMOldDetector *marCCDDetector() const { return marCCD_; }
 	/// Returns the specific pointer to the Mar CCD.
 	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplitDetector() const { return iSplit_; }
+	AMOldDetector *iSplitDetector() const { return iSplit_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMiniDetector() const { return iMini_; }
+	AMOldDetector *iMiniDetector() const { return iMini_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPostDetector() const { return iPost_; }
+	AMOldDetector *iPostDetector() const { return iPost_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
-	AMDetectorSet *ionChambers() const { return ionChambers_; }
+	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
 
@@ -554,19 +554,19 @@ protected:
 	VESPERSBeamline();
 
 	// Detectors.
-	AMDetector *vortex1E_;
-	AMDetector *vortex4E_;
-	AMDetector *roperCCD_;
-	AMDetector *marCCD_;
-	AMDetector *iSplit_;
-	AMDetector *iPreKB_;
-	AMDetector *iMini_;
-	AMDetector *iPost_;
+	AMOldDetector *vortex1E_;
+	AMOldDetector *vortex4E_;
+	AMOldDetector *roperCCD_;
+	AMOldDetector *marCCD_;
+	AMOldDetector *iSplit_;
+	AMOldDetector *iPreKB_;
+	AMOldDetector *iMini_;
+	AMOldDetector *iPost_;
 
 	// End detectors.
 
 	// Detector sets.
-	AMDetectorSet *ionChambers_;
+	AMOldDetectorSet *ionChambers_;
 
 	// End detector sets.
 

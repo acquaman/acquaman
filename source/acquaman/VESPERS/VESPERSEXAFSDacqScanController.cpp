@@ -72,7 +72,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 	scan_->setNotes(buildNotes());
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	// Add all the raw datasources.
 	AMMeasurementInfo temp(*(ionChambers->detectorAt((int)config_->incomingChoice())->toInfo()));
@@ -676,7 +676,7 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
@@ -714,7 +714,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
@@ -755,7 +755,7 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
@@ -797,7 +797,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleAndFourElementXAS()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));

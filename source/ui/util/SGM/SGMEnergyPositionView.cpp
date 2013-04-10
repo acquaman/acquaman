@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QDialogButtonBox>
 #include <QStringBuilder>
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -238,19 +241,94 @@ void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
 	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
 }
 
+SGMEnergyPositionDisassociateFromDbDialog::SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent) :
+	QDialog(parent)
+{
+	energyPosition_ = energyPosition;
+
+	QLabel *instructionsLabel = new QLabel("You are about to break any existing associations this Energy Position has.\nEnter a unique name for the newly disassociated Energy Position.\n\n");
+
+	QLabel *newNameLabel = new QLabel("Name: ");
+	newNameLineEdit_ = new QLineEdit();
+
+	buttonBox_ = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(newNameLabel);
+	hl->addWidget(newNameLineEdit_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(instructionsLabel);
+	vl->addLayout(hl);
+	vl->addWidget(buttonBox_);
+
+	setLayout(vl);
+
+	QVariantList takenNamesAsVariants = energyPosition_->database()->retrieve(AMDbObjectSupport::s()->tableNameForClass<SGMEnergyPosition>(), "name");
+	for(int x = 0; x < takenNamesAsVariants.count(); x++)
+		takenNames_.append(takenNamesAsVariants.at(x).toString());
+
+	QString newNameGuess = energyPosition_->name()%"Copy0";
+	bool foundValidCopyIndex = false;
+	for(int x = 1; !foundValidCopyIndex; x++){
+		newNameGuess.remove(newNameGuess.count()-1, 1);
+		newNameGuess.append(QString("%1").arg(x));
+		if(!takenNames_.contains(newNameGuess)){
+			foundValidCopyIndex = true;
+			newNameLineEdit_->setText(newNameGuess);
+		}
+	}
+	onNewNameLineEditTextEdited(newNameLineEdit_->text());
+
+	connect(newNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onNewNameLineEditTextEdited(QString)));
+	connect(buttonBox_, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(buttonBox_, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+void SGMEnergyPositionDisassociateFromDbDialog::accept(){
+	energyPosition_->setName(newNameLineEdit_->text());
+}
+
+void SGMEnergyPositionDisassociateFromDbDialog::onNewNameLineEditTextEdited(const QString &text){
+	QPalette editPalette = newNameLineEdit_->palette();
+
+	if(takenNames_.contains(text)){
+		buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(false);
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::red));
+	}
+	else{
+		buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(true);
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::green));
+	}
+
+	newNameLineEdit_->setPalette(editPalette);
+}
+
 SGMEnergyPositionWBeamlineAndDatabaseView::SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	SGMEnergyPositionWBeamlineView(energyPosition, alternateViewMode, parent)
 {
 	databaseUsedByLabel_ = new QLabel();
 	setUsedByLabelHelper();
 	disassociateButton_ = new QPushButton("Disassociate");
+	disassociateButton_->setEnabled(false);
+	unlockDisassociateCheckBox_ = new QCheckBox();
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(disassociateButton_);
+	hl->addWidget(unlockDisassociateCheckBox_);
 
 	QVBoxLayout *databaseVL = new QVBoxLayout();
 	databaseVL->addWidget(databaseUsedByLabel_);
-	databaseVL->addWidget(disassociateButton_);
+	databaseVL->addLayout(hl);
 	hl_->addLayout(databaseVL);
 
 	connect(disassociateButton_, SIGNAL(clicked()), this, SLOT(onDisassociateButtonClicked()));
+	connect(unlockDisassociateCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onUnlockDisassociateCheckBoxToggled(bool)));
 }
 
 QStringList SGMEnergyPositionWBeamlineAndDatabaseView::alsoUsedByList() const{
@@ -258,8 +336,16 @@ QStringList SGMEnergyPositionWBeamlineAndDatabaseView::alsoUsedByList() const{
 }
 
 void SGMEnergyPositionWBeamlineAndDatabaseView::onDisassociateButtonClicked(){
-	energyPosition_->dissociateFromDb();
-	setUsedByLabelHelper();
+
+	SGMEnergyPositionDisassociateFromDbDialog disassociateDialog(energyPosition_, this);
+	if(disassociateDialog.exec() == QDialog::Accepted){
+		energyPosition_->dissociateFromDb();
+		setUsedByLabelHelper();
+	}
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::onUnlockDisassociateCheckBoxToggled(bool toggled){
+	disassociateButton_->setEnabled(toggled);
 }
 
 void SGMEnergyPositionWBeamlineAndDatabaseView::setUsedByLabelHelper(){

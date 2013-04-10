@@ -25,7 +25,7 @@ bool VESPERS20122DFileLoaderPlugin::accepts(AMScan *scan)
 	return false;
 }
 
-bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder)
+bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor)
 {
 	// Check for null scan reference.
 	if (!scan)
@@ -37,7 +37,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	QFile file(sourceFileInfo.filePath());
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::error(0, -1, "2D Map FileLoader parse error while loading scan data from file.");
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_FILE, "2D Map FileLoader parse error while loading scan data from file."));
 		return false;
 	}
 
@@ -254,7 +254,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		if (spectraFileInfo.isRelative())
 			spectra.setFileName(userDataFolder + "/" + spectra.fileName());
 		if(!spectra.open(QIODevice::ReadOnly)) {
-			AMErrorMon::error(0, -1, QString("2DFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, QString("2DFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName())));
 			return false;
 		}
 

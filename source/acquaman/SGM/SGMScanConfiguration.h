@@ -44,9 +44,9 @@ public:
 	/// Returns the exit slit gap setting for this configuration
 	double exitSlitGap() const;
 	/// Returns the grating chosen for this configuration
-	SGMBeamline::sgmGrating grating() const;
+	SGMBeamlineInfo::sgmGrating grating() const;
 	/// Returns the harmonic chosen for this configuration
-	SGMBeamline::sgmHarmonic harmonic() const;
+	SGMBeamlineInfo::sgmHarmonic harmonic() const;
 
 	/// Sets the tracking group from an existing control info list
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
@@ -63,9 +63,9 @@ public:
 	/// Sets the exit slit gap setting for this configuration
 	bool setExitSlitGap(double exitSlitGap);
 	/// Sets which grating to use for this configuration
-	bool setGrating(SGMBeamline::sgmGrating grating);
+	bool setGrating(SGMBeamlineInfo::sgmGrating grating);
 	/// Sets which harmonic to use for this configuration
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	bool setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something like setTrackingGroup for the detectorSet
@@ -87,9 +87,9 @@ protected:
 	/// Value for the exit slit for this configuration
 	double exitSlitGap_;
 	/// Which grating will be used for this configuration
-	SGMBeamline::sgmGrating grating_;
+	SGMBeamlineInfo::sgmGrating grating_;
 	/// Which harmonic will be used for this configuration
-	SGMBeamline::sgmHarmonic harmonic_;
+	SGMBeamlineInfo::sgmHarmonic harmonic_;
 };
 
 #endif // ACQMAN_SGMSCANCONFIG_H

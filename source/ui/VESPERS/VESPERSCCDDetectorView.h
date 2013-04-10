@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSCCDDETECTORVIEW_H
 #define VESPERSCCDDETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/VESPERS/VESPERSCCDDetector.h"
 
 #include <QLabel>
@@ -28,7 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-class VESPERSCCDDetectorView : public AMDetailedDetectorView
+
+class VESPERSCCDDetectorView : public AMDetailedOldDetectorView
 {
 	Q_OBJECT
 
@@ -37,7 +38,7 @@ public:
 	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
-	AMDetector *detector() { return detector_; }
+	AMOldDetector *detector() { return detector_; }
 
 protected slots:
 	/// Slot used to switch the icon on the currently acquiring indicator.
@@ -85,7 +86,7 @@ protected slots:
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector.
 	VESPERSCCDDetector *detector_;

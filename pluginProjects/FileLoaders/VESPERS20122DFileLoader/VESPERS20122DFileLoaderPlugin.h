@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#define VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_FILE 627201
+#define VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE 627202
+
 #include "dataman/AMFileLoaderInterface.h"
 
 /*!
@@ -39,7 +42,7 @@ public:
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 };
 
 class VESPERS20122DFileLoaderFactory : public QObject, AMFileLoaderFactory

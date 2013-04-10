@@ -118,9 +118,12 @@ public slots:
 	void setEdge(const QString &edge);
 	void setEnergy(double energy);
 
-	void setStart(const SGMEnergyPosition &start);
-	void setMiddle(const SGMEnergyPosition &middle);
-	void setEnd(const SGMEnergyPosition &end);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setStart(const SGMEnergyPosition &start, bool ignoreDatabaseId = true);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setMiddle(const SGMEnergyPosition &middle, bool ignoreDatabaseId = true);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId = true);
 
 signals:
 	void hasEdgeChanged(bool hasEdge);
@@ -297,7 +300,8 @@ public slots:
 	void setExitSlitDistance(double exitSlitDistance);
 	void setSGMGrating(int sgmGrating);
 
-	void setScanInfo(const SGMScanInfo &scanInfo);
+	// When ignoreDatabaseId is false, then checks for equality in the SGMEnergyPosition values also compare the database ids
+	void setScanInfo(const SGMScanInfo &scanInfo, bool ignoreDatabaseId = true);
 	void setStartPosition(const SGMEnergyPosition &start);
 	void setMiddlePosition(const SGMEnergyPosition &middle);
 	void setEndPosition(const SGMEnergyPosition &end);

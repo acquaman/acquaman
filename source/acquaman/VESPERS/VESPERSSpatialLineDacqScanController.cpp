@@ -328,7 +328,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 
 	// Adding in the extra ion chambers but not Ipost.
 	AMMeasurementInfo temp("", "");
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++){
 
@@ -548,7 +548,7 @@ bool VESPERSSpatialLineDacqScanController::setupIonChamberMap()
 	advAcq_->appendRecord(motor->writePVName()+":fbk", true, false, 0);
 	addStandardExtraPVs(advAcq_, false, false);
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
@@ -592,7 +592,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	addStandardExtraPVs(advAcq_, false, false);
 	addSingleElementDeadTimePVs(advAcq_);
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
@@ -638,7 +638,7 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	addStandardExtraPVs(advAcq_, false, false);
 	addFourElementDeadTimePVs(advAcq_);
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
@@ -689,7 +689,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleAndFourElementMap()
 	addFourElementDeadTimePVs(advAcq_);
 
 	// Ion chambers.
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));

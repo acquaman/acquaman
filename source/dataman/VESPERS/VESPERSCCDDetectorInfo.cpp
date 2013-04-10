@@ -1,7 +1,7 @@
 #include "VESPERSCCDDetectorInfo.h"
 
 VESPERSCCDDetectorInfo::VESPERSCCDDetectorInfo(const QString &name, const QString &description, const AMnDIndex &size, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMOldDetectorInfo(name, description, parent)
 {
 	acquireTime_ = -1;
 	size_ = size;
@@ -10,7 +10,7 @@ VESPERSCCDDetectorInfo::VESPERSCCDDetectorInfo(const QString &name, const QStrin
 }
 
 VESPERSCCDDetectorInfo::VESPERSCCDDetectorInfo(const VESPERSCCDDetectorInfo &original)
-	: AMDetectorInfo(original)
+	: AMOldDetectorInfo(original)
 {
 	this->operator =(original);
 }
@@ -19,7 +19,7 @@ VESPERSCCDDetectorInfo &VESPERSCCDDetectorInfo::operator =(const VESPERSCCDDetec
 {
 	if (this != &other){
 
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		axes_ = other.axes();
 		setSize(other.size());
 		setAcquireTime(other.acquireTime());

@@ -214,7 +214,7 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_ = new AMOldDetectorSet(this);
 
 	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
 	tempSplit->setVoltagRange(1.0, 4.5);

@@ -22,14 +22,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
-#include "beamline/SGM/SGMBeamlineInfo.h"
+#include "dataman/SGM/SGMBeamlineInfo.h"
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/SGM/SGMMCPDetector.h"
 #include "beamline/CLS/CLSPGTDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
+#include "beamline/AMDetectorGroup.h"
+#include "beamline/AMDetectorSet.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -44,75 +49,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMControlSetSampleManipulator.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/AMControlOptimization.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
 
-class SGMGratingAction;
 class AMSamplePlate;
 class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
-class CLSSynchronizedDwellTime;
 
 class SGMBeamline : public AMBeamline
 {
-	Q_OBJECT
-
+Q_OBJECT
 public:
-	enum sgmGrating{
-		lowGrating = 0,
-		mediumGrating = 1,
-		highGrating = 2
-	};
-	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
-	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
-	SGMEnergyParameters* energyParametersForGrating(SGMBeamline::sgmGrating grating) const;
-	SGMBeamline::sgmGrating currentGrating() const;
-
-	enum sgmHarmonic{
-		firstHarmonic = 0,
-		thirdHarmonic = 1
-	};
-	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
-	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
-
-	enum sgmDetectorSignalSource{
-		sourcePicoammeters = 0,
-		sourceScaler = 1
-	};
-	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
-
-	enum sgmEndstation{
-		scienta = 0,
-		ssa = 1
-	};
-	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
-
-	enum sgmMirrorStripe{
-		carbonStripe = 0,
-		siliconStripe = 1
-	};
-	QString sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const;
-
-	enum sgmTransferType{
-		loadlockOut = 1,
-		loadlockIn,
-		ChamberOut,
-		ChamberIn
-	};
 
 	static SGMBeamline* sgm();		// singleton-class accessor
-
 	virtual ~SGMBeamline();
 
 	bool isConnected() const;
 	bool isReady() const;
+	bool isBeamlineScanning();
+	bool isVisibleLightOn() const;
 
 	QStringList unconnectedCriticals() const;
-
-	bool detectorConnectedByName(QString name);
 
 	QString beamlineWarnings();
 
@@ -140,32 +101,6 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
-
-	QString currentEndstation() const;
-
-	AMDetector* teyDetector() const { return teyScalerDetector_;}
-	AMDetector* tfyDetector() const { return tfyScalerDetector_;}
-	AMDetector* pgtDetector() const { return pgtDetector_;}
-	AMDetector* oos65000Detector() const { return oos65000Detector_;}
-	AMDetector* i0Detector() const { return i0ScalerDetector_;}
-	AMDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMDetector* photodiodeDetector() const { return photodiodeScalerDetector_;}
-	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
-	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
-	AMDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
-	AMDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
-	AMDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
-	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
-	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
-	AMDetector* amptekSDD1() const { return amptekSDD1_;}
-	bool isSDD1Enabled() const;
-	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
-	AMDetector* amptekSDD2() const { return amptekSDD2_;}
-	bool isSDD2Enabled() const;
-	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
-
-	AMControl* loadlockCCG() const { return loadlockCCG_;}
-	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	SGMMAXvMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
 	SGMMAXvMotor* ssaManipulatorY() const { return ssaManipulatorY_;}
 	SGMMAXvMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
@@ -174,7 +109,6 @@ public:
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* nextDwellTimeTrigger() const { return nextDwellTimeTrigger_;}
 	AMControl* nextDwellTimeConfirmed() const { return nextDwellTimeConfirmed_;}
-	AMControl* picoammeterDwellTime() const { return picoammeterDwellTime_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
 	AMControl* fastShutterVoltage() const { return fastShutterVoltage_;}
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
@@ -204,35 +138,82 @@ public:
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
-	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
-	int synchronizedDwellTimeDetectorIndex(AMDetector *detector) const;
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return synchronizedDwellTime_;}
+	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
+	SGMBeamlineInfo::sgmGrating currentGrating() const;
+	QString currentEndstation() const;
+
+	/// Returns a pointer to the scaler IF the scaler IS connected
+	CLSSIS3820Scaler* scaler();
+	/// Returns a pointer to the scaler EVEN IF the scaler ISN'T yet connected
+	CLSSIS3820Scaler* rawScaler();
+
+	AMControlSetSampleManipulator* sampleManipulator() const { return sampleManipulator_; }
+	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
+	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
+
+	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	virtual int currentSamplePlateId() const;
+	int currentSampleId();
+	QString currentSampleDescription();
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
-	AMControlSetSampleManipulator* sampleManipulator() const { return sampleManipulator_; }
+	AMOldDetector* teyDetector() const { return teyScalerDetector_;}
+	AMOldDetector* tfyDetector() const { return tfyScalerDetector_;}
+	AMOldDetector* pgtDetector() const { return pgtDetector_;}
+	AMOldDetector* oos65000Detector() const { return oos65000Detector_;}
+	AMOldDetector* i0Detector() const { return i0ScalerDetector_;}
+	AMOldDetector* eVFbkDetector() const { return eVFbkDetector_;}
+	AMOldDetector* photodiodeDetector() const { return photodiodeScalerDetector_;}
+	AMOldDetector* encoderUpDetector() const { return encoderUpDetector_;}
+	AMOldDetector* encoderDownDetector() const { return encoderDownDetector_;}
+	AMOldDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
+	AMOldDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
+	AMOldDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
+	AMOldDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
+	AMOldDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
+	AMOldDetector* amptekSDD1() const { return amptekSDD1_;}
+	AMOldDetector* amptekSDD2() const { return amptekSDD2_;}
+	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
+	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
+	AMDetector* newTEYDetector() const { return newTEYDetector_;}
+	AMDetector* newTFYDetector() const { return newTFYDetector_;}
+	AMDetector* newI0Detector() const { return newI0Detector_;}
+	AMDetector* newPDDetector() const { return newPDDetector_;}
+	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMDetector* fakeWaitReadDetector() const { return fakeWaitReadDetector_; }
+
+	bool isSDD1Enabled() const;
+	bool isSDD2Enabled() const;
+	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
+	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
+
+	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
+	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
+
+	bool detectorConnectedByName(QString name);
 
 	/// Critical detectors that must be there for the beamline to be considered "connected". Can be altered in the beamline settings view
-	AMDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
+	AMOldDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
 	/// All of the detectors on the beamline, regardless of whether they're connnected or not
-	AMDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
+	AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
 
 	/// All of the detectors currently connected on the beamline
-	AMDetectorSet* allDetectors() const { return allDetectors_;}
+	AMOldDetectorSet* allDetectors() const { return allDetectors_;}
 	/// List of connected feedback detectors
-	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
+	AMOldDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
 	/// List of connected detectors availabe for XAS scans
-	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
+	AMOldDetectorSet* XASDetectors() const { return XASDetectors_;}
 	/// List of connected detectors available for Fast scans
-	AMDetectorSet* FastDetectors() const { return FastDetectors_;}
+	AMOldDetectorSet* FastDetectors() const { return FastDetectors_;}
 
-	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
-	virtual int currentSamplePlateId() const;
-	int currentSampleId();
-	QString currentSampleDescription();
+	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
+	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
 
 	AMBeamlineListAction* createBeamOnActions();
 	AMBeamlineListAction* createStopMotorsAction();
@@ -240,42 +221,12 @@ public:
 	AMBeamlineListAction* createGoToTransferPositionActions();
 	AMBeamlineListAction* createGoToMeasurementPositionActions();
 
-	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
-	AMBeamlineListAction* createTransferLoadLockOutActions();
-	AMBeamlineListAction* createTransferLoadLockInActions();
-	AMBeamlineListAction* createTransferChamberOutActions();
-	AMBeamlineListAction* createTransferChamberInActions();
-
 	AMBeamlineHighVoltageChannelToggleAction* createHV106OnActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHV106OffActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHV109OnActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHV109OffActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
-
-	/// Returns a pointer to the scaler IF the scaler IS connected
-	CLSSIS3820Scaler* scaler();
-	/// Returns a pointer to the scaler EVEN IF the scaler ISN'T yet connected
-	CLSSIS3820Scaler* rawScaler();
-
-	bool isBeamlineScanning();
-
-	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
-	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
-
-	bool isVisibleLightOn() const;
-
-	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
-	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
-
-	QList< QPair<sgmGrating, sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
-	QPair<double, double> energyRangeForGratingHarmonic(sgmGrating grating, sgmHarmonic harmonic);
-
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
-	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
-
-	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
-	QList<AMDetector*> possibleDetectorsForSet(AMDetectorSet *set);
 
 public slots:
 	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
@@ -285,8 +236,8 @@ public slots:
 
 	void closeVacuum();
 
-	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
-	void setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe);
+	void setCurrentEndstation(SGMBeamlineInfo::sgmEndstation endstation);
+	void setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirrorStripe);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -296,16 +247,14 @@ signals:
 	void beamlineReadyChanged();
 
 	void visibleLightStatusChanged(const QString& status);
-
 	void beamlineWarningsChanged(const QString& warnings);
-
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void currentEndstationChanged(SGMBeamline::sgmEndstation);
-	void currentMirrorStripeChanged(SGMBeamline::sgmMirrorStripe);
+	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
+	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
 	void detectorHVChanged();
-	void detectorAvailabilityChanged(AMDetector *detector, bool available);
+	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);
 
 	void beamlineInitialized();
 
@@ -322,14 +271,20 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
-	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 	void ensureDetectorTimeout();
 
 	void computeBeamlineInitialized();
 
 protected:
-	/// Sets up the exposed controls for the SGM beamine (accessible through AMControlMoveAction)
+	void setupControls();
+	void setupNameToPVLookup();
+
+	/// Sets up the exposed controls for the SGM beamline (accessible through AMControlMoveAction)
 	void setupExposedControls();
+
+	/// Sets up the exposed detectors for the SGM beamline (accessible through the AMScanConfiguration/Controller interface)
+	void setupExposedDetectors();
 
 protected:
 	// Singleton implementation:
@@ -365,8 +320,6 @@ protected:
 	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgtHV_;
-	AMControl *loadlockCCG_;
-	AMControl *loadlockTCG_;
 	SGMMAXvMotor *ssaManipulatorX_;
 	SGMMAXvMotor *ssaManipulatorY_;
 	SGMMAXvMotor *ssaManipulatorZ_;
@@ -375,7 +328,6 @@ protected:
 	AMControl *beamlineReady_;
 	AMControl *nextDwellTimeTrigger_;
 	AMControl *nextDwellTimeConfirmed_;
-	AMControl *picoammeterDwellTime_;
 	AMControl *energyMovingStatus_;
 	AMControl *fastShutterVoltage_;
 	AMControl *gratingVelocity_;
@@ -401,30 +353,38 @@ protected:
 	/// Control for the synchronized dwell time master dwell value
 	AMControl *masterDwell_;
 
-	AMDetector *teyScalerDetector_;
-	AMDetector *tfyScalerDetector_;
-	AMDetector *pgtDetector_;
-	AMDetector *oos65000Detector_;
-	AMDetector *i0ScalerDetector_;
-	AMDetector *eVFbkDetector_;
-	AMDetector *photodiodeScalerDetector_;
-	AMDetector *encoderUpDetector_;
-	AMDetector *encoderDownDetector_;
-	AMDetector *ringCurrentDetector_;
-	AMDetector *filterPD1ScalarDetector_;
-	AMDetector *filterPD2ScalarDetector_;
-	AMDetector *filterPD3ScalarDetector_;
-	AMDetector *filterPD4ScalarDetector_;
-	AMDetector* amptekSDD1_;
-	AMDetector* amptekSDD2_;
+	AMOldDetector *teyScalerDetector_;
+	AMOldDetector *tfyScalerDetector_;
+	AMOldDetector *pgtDetector_;
+	AMOldDetector *oos65000Detector_;
+	AMOldDetector *i0ScalerDetector_;
+	AMOldDetector *eVFbkDetector_;
+	AMOldDetector *photodiodeScalerDetector_;
+	AMOldDetector *encoderUpDetector_;
+	AMOldDetector *encoderDownDetector_;
+	AMOldDetector *ringCurrentDetector_;
+	AMOldDetector *filterPD1ScalarDetector_;
+	AMOldDetector *filterPD2ScalarDetector_;
+	AMOldDetector *filterPD3ScalarDetector_;
+	AMOldDetector *filterPD4ScalarDetector_;
+	AMOldDetector* amptekSDD1_;
+	AMOldDetector* amptekSDD2_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
+	CLSBasicScalerChannelDetector *newTEYDetector_;
+	CLSBasicScalerChannelDetector *newTFYDetector_;
+	CLSBasicScalerChannelDetector *newI0Detector_;
+	CLSBasicScalerChannelDetector *newPDDetector_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
+	AMDetectorGroup *newDetectorSet_;
+	AMDetectorGroup *XASDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
-	AMDetectorSet *criticalDetectorsSet_;
-	AMDetectorSet *rawDetectorsSet_;
+	AMOldDetectorSet *criticalDetectorsSet_;
+	AMOldDetectorSet *rawDetectorsSet_;
 
 	AMControlSet *beamOnControlSet_;
-	AMControlSet *transferLoadLockOutControlSet_;
-	AMControlSet *transferLoadLockInControlSet_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
@@ -436,17 +396,17 @@ protected:
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
 
-	AMDetectorSet *allDetectors_;
-	AMDetectorSet *feedbackDetectors_;
-	AMDetectorSet *XASDetectors_;
-	AMDetectorSet *FastDetectors_;
+	AMOldDetectorSet *allDetectors_;
+	AMOldDetectorSet *feedbackDetectors_;
+	AMOldDetectorSet *XASDetectors_;
+	AMOldDetectorSet *FastDetectors_;
 
 	/// Mapping detectors to their sets and whether they are default or not
-	QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> > *detectorMap_;
+	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> > *detectorMap_;
 	/// Generally listing all detectors this beamline can have
-	QList<AMDetector*> detectorRegistry_;
+	QList<AMOldDetector*> detectorRegistry_;
 	/// Listing the detectors that haven't responded (either as connected or timed out)
-	QList<AMDetector*> unrespondedDetectors_;
+	QList<AMOldDetector*> unrespondedDetectors_;
 
 	/// Holds a boolean for whether everything the beamline cares about has reported back as either connected or timed out ... then we've initialized
 	bool beamlineIsInitialized_;
@@ -458,40 +418,11 @@ protected:
 
 	CLSSIS3820Scaler *scaler_;
 
-	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction3Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction4Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction5Help_;
-
-	AMOrderedSet<QString, QPixmap> transferLoadLockInAction2Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockInAction3Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockInAction4Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockInAction5Help_;
-	AMOrderedSet<QString, QPixmap> transferLoadLockInAction6Help_;
-
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction1Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction3Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction5Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction6Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction7Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberOutAction8Help_;
-
-	AMOrderedSet<QString, QPixmap> transferChamberInAction1Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberInAction2Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberInAction3Help_;
-	AMOrderedSet<QString, QPixmap> transferChamberInAction4Help_;
-
 	QString beamlineWarnings_;
 
-	AMBiHash<QString, QString> amNames2pvNames_;
+	AMBiHashWChecking<QString, QString> amNames2pvNames_;
 
 	double lastEnergyValue_;
-
-	friend class SGMGratingAction;
-
-private:
-	void usingSGMBeamline();
 };
 
 

@@ -250,6 +250,15 @@ public:
 	/// An english-language version of FailureExplanation
 	static QString failureExplanation(int f) { return failureExplanation(FailureExplanation(f)); }
 
+	/// This enum type is used to describe the different types of relative moves that can be done
+	/*! Possible relative move types are:
+	*/
+	enum RelativeMoveType {
+		RelativeMoveFromValue = 0,	///< Relative move from the current value (if the control is has a setpoint of 100.00 and a feedback of 99.99, this type of relative move will set the setpoint to 100.99 on a relative move of +1.00)
+		RelativeMoveFromSetpoint = 1,	///< Relative move from the current setpoint (if the control is has a setpoint of 100.00 and a feedback of 99.99, this type of relative move will set the setpoint to 101.00 on a relative move of +1.00)
+		RelativeMoveInvalid = 2		///< Invalid enum holder
+	};
+
 	/// This enum type is used to describe problematic states the control can be in
 	/*! Possible explanation codes are:
    */
@@ -465,9 +474,16 @@ public slots:
 		Q_UNUSED(setpoint);
 		return NotConnectedFailure;
 	}
-	/// This is used to move a control a relative distance from its current position. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
-	virtual FailureExplanation moveRelative(double distance) {
-		return move(value() + distance);
+	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	virtual FailureExplanation moveRelative(double distance, AMControl::RelativeMoveType relativeMoveType = AMControl::RelativeMoveFromValue) {
+		switch(relativeMoveType){
+		case AMControl::RelativeMoveFromValue:
+			return move(value() + distance);
+		case AMControl::RelativeMoveFromSetpoint:
+			return move(setpoint() + distance);
+		default:
+			return move(value() + distance);
+		}
 	}
 
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.

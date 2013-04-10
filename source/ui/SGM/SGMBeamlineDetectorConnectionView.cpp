@@ -29,7 +29,7 @@ SGMBeamlineDetectorConnectionView::SGMBeamlineDetectorConnectionView(QWidget *pa
 	QWidget(parent)
 {
 	fl_ = new QFormLayout();
-	QList<AMDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
+	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
 	for(int x = 0; x < possibleDetectors.count(); x++){
 		QCheckBox *tempCheckBox = new QCheckBox();
 		tempCheckBox->setEnabled(false);
@@ -39,10 +39,10 @@ SGMBeamlineDetectorConnectionView::SGMBeamlineDetectorConnectionView(QWidget *pa
 	}
 	setLayout(fl_);
 
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
 }
 
-void SGMBeamlineDetectorConnectionView::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+void SGMBeamlineDetectorConnectionView::onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	for(int x = 0; x < fl_->rowCount(); x++){
 		QLabel *tempLabel;
 		tempLabel = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::LabelRole)->widget());

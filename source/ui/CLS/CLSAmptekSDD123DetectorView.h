@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSAMPTEKSDD123DETECTORVIEW_H
 #define CLSAMPTEKSDD123DETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/CLS/CLSAmptekSDD123Detector.h"
 
 #include "MPlot/MPlot.h"
@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 
 /// This class builds a very brief view for the Amptek SDD 123 detector. Its primary function is to show that the detector is working.
-class CLSAmptekSDD123BriefDetectorView : public AMBriefDetectorView
+class CLSAmptekSDD123BriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 
@@ -43,12 +43,12 @@ public:
 	Q_INVOKABLE explicit CLSAmptekSDD123BriefDetectorView(CLSAmptekSDD123Detector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed
-	AMDetector* detector();
+	AMOldDetector* detector();
 
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector
 	CLSAmptekSDD123Detector *detector_;
@@ -56,7 +56,7 @@ protected:
 
 
 /// This class builds a detailed view for the Amptek SDD 123 detector.
-class CLSAmptekSDD123DetailedDetectorView : public AMDetailedDetectorView
+class CLSAmptekSDD123DetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:
@@ -64,9 +64,9 @@ public:
 	Q_INVOKABLE explicit CLSAmptekSDD123DetailedDetectorView(CLSAmptekSDD123Detector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being view
-	AMDetector* detector();
+	AMOldDetector* detector();
 	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
-	AMDetectorInfo* configurationSettings() const;
+	AMOldDetectorInfo* configurationSettings() const;
 	/// Returns a pointer to the plot
 	MPlot* plot() const;
 
@@ -92,7 +92,7 @@ protected slots:
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 protected:
 	/// The pointer to the detector

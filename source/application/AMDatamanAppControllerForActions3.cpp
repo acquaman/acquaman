@@ -28,12 +28,29 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMSamplePlateMoveAction.h"
+#include "actions3/actions/AMDetectorInitializeActionInfo.h"
+#include "actions3/actions/AMDetectorAcquisitionActionInfo.h"
+#include "actions3/actions/AMDetectorTriggerActionInfo.h"
+#include "actions3/actions/AMDetectorReadActionInfo.h"
+#include "actions3/actions/AMDetectorCleanupActionInfo.h"
+#include "actions3/actions/AMAxisStartedActionInfo.h"
+#include "actions3/actions/AMAxisFinishedActionInfo.h"
+
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
 
 #include <QStringBuilder>
 
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
     AMDatamanAppController(parent)
 {
+	// Prepend the AM upgrade 1.1 to the list for the actions database
+	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("actions", this);
+	prependDatabaseUpgrade(am1Pt1UserDb);
+
+	// Append the AM upgrade 1.2 to the list for the actions database
+	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(am1Pt2UserDb);
 }
 
 bool AMDatamanAppControllerForActions3::startupCreateDatabases()
@@ -44,6 +61,11 @@ bool AMDatamanAppControllerForActions3::startupCreateDatabases()
 	// Create the Actions database
 	AMDatabase *dbActions = AMDatabase::createDatabase("actions", AMUserSettings::userDataFolder%"/actionsData.db" );
 	if(!dbActions)
+		return false;
+
+	// Create the ScanActions database
+	AMDatabase *dbScanActions = AMDatabase::createDatabase("scanActions", AMUserSettings::userDataFolder%"/scanActionsData.db" );
+	if(!dbScanActions)
 		return false;
 
 	return true;
@@ -59,8 +81,18 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	if(!dbActions)
 		return false;
 
+	// Grab the Scan Action database
+	AMDatabase *dbScanActions = AMDatabase::database("scanActions");
+	if(!dbScanActions)
+		return false;
+
 	// Register the Actions database
 	if(!AMDbObjectSupport::s()->registerDatabase(dbActions)) {
+		return false;
+	}
+
+	// Register the Scan Actions database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbScanActions)) {
 		return false;
 	}
 
@@ -74,6 +106,13 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMScanActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInitializeActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorAcquisitionActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorTriggerActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorReadActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorCleanupActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
 
 	return true;
 }

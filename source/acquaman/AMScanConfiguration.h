@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/info/AMDetectorInfoSet.h"
 
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
@@ -60,7 +61,9 @@ class AMScanConfiguration : public AMDbObject
 {
 Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
+Q_PROPERTY(AMDbObject* detectorConfigurations READ dbReadDetectorConfigurations WRITE dbLoadDetectorConfigurations)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
 	/// Default Constructor
@@ -113,6 +116,9 @@ public:
 		return 0;
 	}
 
+	/// Returns the set of detector infos that we wish to use in this scan
+	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_; }
+
 	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
 	virtual QString dbLoadWarnings() const { return QString(); }
 
@@ -129,6 +135,9 @@ public slots:
 	/// Sets the expected duration of the scan.  Input is expected in seconds.
 	void setExpectedDuration(double duration);
 
+	/// Sets the full list of detector infos
+	void setDetectorConfigurations(const AMDetectorInfoSet detectorConfigurations);
+
 signals:
 	/// General signal that something about the configuration has changed
 	void configurationChanged();
@@ -140,6 +149,14 @@ signals:
 	void autoExportEnabledChanged(bool autoExportEnabled);
 	/// Notifier that the expected duration has changed.
 	void expectedDurationChanged(double);
+	/// Notifier that the detector configuration list has changed (the list has changed, not the internal states of the items)
+	void detectorConfigurationsChanged();
+
+protected:
+	/// Used to write the detector configurations to the database
+	AMDbObject* dbReadDetectorConfigurations() { return &detectorConfigurations_;}
+	/// For database loading (never called)
+	void dbLoadDetectorConfigurations(AMDbObject*) {} //Never called, detectorConfigurations_ is always valid
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
@@ -151,6 +168,9 @@ protected:
 	bool autoExportEnabled_;
 	/// The expected duration.
 	double expectedDuration_;
+
+	/// A set of detector infos for this scan configuration (acts as both the detectors we wish to use and their configurations)
+	AMDetectorInfoSet detectorConfigurations_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

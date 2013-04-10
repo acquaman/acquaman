@@ -1,10 +1,10 @@
 #ifndef VESPERSCCDDETECTORINFO_H
 #define VESPERSCCDDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
 /// This class holds the basic information needed for CCD detectors on VESPERS.
-class VESPERSCCDDetectorInfo : public AMDetectorInfo
+class VESPERSCCDDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
 	VESPERSCCDDetectorInfo(const VESPERSCCDDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory.
-	virtual AMDetectorInfo *toNewInfo() const { return new AMDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toNewInfo() const { return new AMOldDetectorInfo(*this); }
 
 	/// = implementation.
 	VESPERSCCDDetectorInfo &operator =(const VESPERSCCDDetectorInfo &other);

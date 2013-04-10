@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/SGM/SGMSidebar.h"
@@ -75,9 +74,6 @@ bool SGMSSAAppController::startup() {
 		*/
 		sampleManipulatorView_ = new SGMSampleManipulatorView(true);
 		mw_->addPane(sampleManipulatorView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-
-		sampleTransferView_ = new SGMSampleTransferView();
-		mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
 
 
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));

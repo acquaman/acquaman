@@ -38,6 +38,8 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 
 	failureResponseInActionRunner_ = MoveOnResponse;
 	failureResponseAsSubAction_ = MoveOnResponse;
+
+	generateScanActionMessages_ = false;
 }
 
 // Copy constructor. Takes care of making copies of the info and prerequisites.
@@ -54,6 +56,7 @@ AMAction3::AMAction3(const AMAction3& other)
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
 
 	info_ = other.info()->createCopy();
+	generateScanActionMessages_ = other.generateScanActionMessages();
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
 }
 

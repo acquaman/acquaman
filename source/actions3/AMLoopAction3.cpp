@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLoopAction3.h"
 #include "actions3/AMActionLog3.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 
 #include <QStringBuilder>
 
@@ -57,6 +58,12 @@ AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
 }
 
 AMLoopAction3::~AMLoopAction3() {
+}
+
+bool AMLoopAction3::canPause() const{
+	if(currentIteration_ < loopCount()-1)
+		return true;
+	return AMListAction3::canPause();
 }
 
 bool AMLoopAction3::duplicateSubActions(const QList<int> &indexesToCopy)
@@ -142,11 +149,20 @@ void AMLoopAction3::internalDoNextAction()
 
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 		internalConnectAction(currentSubAction_);
-		currentSubAction_->start();
+
+		if(state() == AMAction3::Pausing)
+			setPaused();
+		else if(state() == AMAction3::Running)
+			currentSubAction_->start();
 	}
 	else {
 		// done this loop.
 		emit currentIterationChanged(++currentIteration_);
+
+		if(generateScanActionMessages_){
+			AMAgnosticDataAPILoopIncrementMessage loopIncrementedMessage(info()->shortDescription(), currentIteration_);
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(loopIncrementedMessage);
+		}
 
 		// Are we stopping now that we are at the end of this iteration?
 		if (skipAfterCurrentIteration_)
@@ -159,7 +175,11 @@ void AMLoopAction3::internalDoNextAction()
 
 			currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 			internalConnectAction(currentSubAction_);
-			currentSubAction_->start();
+
+			if(state() == AMAction3::Pausing)
+				setPaused();
+			else if(state() == AMAction3::Running)
+				currentSubAction_->start();
 		}
 		// Nope, that's the end.
 		else {

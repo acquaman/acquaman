@@ -174,10 +174,10 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<AMLineScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
 
-	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
-	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
-	AMDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
-	AMDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
+	AMOldDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
+	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
+	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
+	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();

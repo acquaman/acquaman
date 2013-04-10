@@ -35,6 +35,7 @@ class AMScanController;
 #define AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION 103109
 #define AMSCANACTION_DATABASE_NOT_FOUND 103110
 #define AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT 103111
+#define AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO 103112
 
 class AMScanAction : public AMAction3
 {
@@ -53,6 +54,9 @@ public:
 
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
+
+	virtual bool isValid();
+	virtual QString notValidWarning();
 
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////

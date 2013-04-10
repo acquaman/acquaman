@@ -25,7 +25,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::accepts(AMScan *scan)
 	return false;
 }
 
-bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder)
+bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor)
 {
 	// Check for null scan reference.
 	if (!scan)
@@ -37,7 +37,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 
 	QFile file(sourceFileInfo.filePath());
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::error(0, -1, "Line Scan File Loader parse error while loading scan data from file.");
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, VESPERS201SPATIALLINESCANFILELOADERPLUGIN_CANNOT_OPEN_FILE, "Line Scan File Loader parse error while loading scan data from file."));
 		return false;
 	}
 
@@ -206,7 +206,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 			if (spectraFileInfo.isRelative())
 				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
 			if(!spectra.open(QIODevice::ReadOnly)) {
-				AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, VESPERS201SPATIALLINESCANFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName())));
 				return false;
 			}
 		}
