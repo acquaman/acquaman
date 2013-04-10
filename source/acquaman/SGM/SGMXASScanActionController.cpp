@@ -107,11 +107,44 @@ bool SGMXASScanActionController::event(QEvent *e){
 			rank1String.append(QString("-1%1eV\n").arg(separator));
 
 			for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
+				QString oneString;
 				oneMeasurementInfo = scan_->rawData()->measurementAt(x);
 				rank1String.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
-				if(oneMeasurementInfo.rank() == 1)
+				oneString.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
+				if(oneMeasurementInfo.rank() == 1){
 					rank1String.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
+					oneString.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
+
+					/*
+					QString axisInfoTest;
+					AMTextStream axisInfoTestStream(&axisInfoTest);
+					axisInfoTestStream.write(oneMeasurementInfo.axes.at(0));
+					qDebug() << "Written as " << axisInfoTest;
+
+					QString axisInfoTestCopy = axisInfoTest;
+					AMTextStream axisInfoTestStreamOut(&axisInfoTestCopy, QIODevice::ReadOnly);
+					AMAxisInfo writingToInfo(QString(), 0);
+					axisInfoTestStreamOut.read(writingToInfo);
+					*/
+				}
 				rank1String.append("\n");
+
+				QString measurementInfoTest;
+				AMTextStream measurementInfoTestStream(&measurementInfoTest);
+				measurementInfoTestStream.write(oneMeasurementInfo);
+				qDebug() << "Written as " << measurementInfoTest;
+
+				QString measurementInfoTestCopy = measurementInfoTest;
+				AMTextStream measurementInfoTestStreamOut(&measurementInfoTestCopy, QIODevice::ReadOnly);
+				AMMeasurementInfo writingToInfo = AMMeasurementInfo(QString(), QString());
+				measurementInfoTestStreamOut.read(writingToInfo);
+
+				//qDebug() << "Testing the measurementInfoStream " << measurementInfoTest;
+				//measurementInfoTest.prepend(QString("%1|%|%|").arg(x));
+				//qDebug() << measurementInfoTest;
+				//qDebug() << oneString;
+				//qDebug() << "The same? " << (measurementInfoTest == oneString);
+
 			}
 			rank1String.append("End Info\n");
 			emit requestWriteToFile(1, rank1String);
@@ -227,56 +260,140 @@ void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QStri
 AMTextStream::AMTextStream() :
 	QTextStream()
 {
-
+	initializeTextStream();
 }
 
 AMTextStream::AMTextStream(QIODevice *device) :
 	QTextStream(device)
 {
-
+	initializeTextStream();
 }
 
 AMTextStream::AMTextStream(FILE *fileHandle, QIODevice::OpenMode openMode) :
 	QTextStream(fileHandle, openMode)
 {
-
+	initializeTextStream();
 }
 
 AMTextStream::AMTextStream(QString *string, QIODevice::OpenMode openMode) :
 	QTextStream(string, openMode)
 {
-
+	initializeTextStream();
 }
 
 AMTextStream::AMTextStream(QByteArray *array, QIODevice::OpenMode openMode) :
 	QTextStream(array, openMode)
 {
-
+	initializeTextStream();
 }
 
 AMTextStream::AMTextStream(const QByteArray &array, QIODevice::OpenMode openMode) :
 	QTextStream(array, openMode)
 {
-
+	initializeTextStream();
 }
 
-/**/
-//AMTextStream& AMTextStream::operator <<(const AMAxisInfo &axisInfo){
 void AMTextStream::write(const AMAxisInfo &axisInfo){
-	QString separator = "|%|%|";
 	QTextStream::operator <<(axisInfo.name);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<(axisInfo.size);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<(axisInfo.description);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<(axisInfo.units);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<(axisInfo.isUniform);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<((double)axisInfo.start);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(separator_);
 	QTextStream::operator <<((double)axisInfo.increment);
-	QTextStream::operator <<(separator);
+	QTextStream::operator <<(terminator_);
 }
-/**/
+
+void AMTextStream::write(const AMMeasurementInfo &measurementInfo){
+	QTextStream::operator <<(measurementInfo.rank());
+	QTextStream::operator <<(separator_);
+	QTextStream::operator <<(measurementInfo.name);
+	QTextStream::operator <<(separator_);
+	QTextStream::operator <<(measurementInfo.description);
+	QTextStream::operator <<(separator_);
+	QTextStream::operator <<(measurementInfo.units);
+	QTextStream::operator <<(objectMarker_);
+
+	if(measurementInfo.rank() > 0){
+		QTextStream::operator <<(separator_);
+		for(int x = 0; x < measurementInfo.rank(); x++){
+			AMAxisInfo oneAxisInfo = measurementInfo.axes.at(x);
+			write(oneAxisInfo);
+		}
+	}
+	QTextStream::operator <<(terminator_);
+}
+
+void AMTextStream::read(AMAxisInfo &axisInfo){
+	QString fullString;
+	QStringList allStrings;
+	QChar oneChar;
+
+	while(!fullString.endsWith(terminator_)){
+		QTextStream::operator >>(oneChar);
+		fullString.append(oneChar);
+	}
+
+	fullString.remove(terminator_);
+	allStrings = fullString.split(separator_);
+
+	axisInfo.name = allStrings.at(0);
+	axisInfo.size = allStrings.at(1).toLong();
+	axisInfo.description = allStrings.at(2);
+	axisInfo.units = allStrings.at(3);
+	if(allStrings.at(4).toInt() == 1)
+		axisInfo.isUniform = true;
+	else
+		axisInfo.isUniform = false;
+	axisInfo.start = allStrings.at(5).toDouble();
+	axisInfo.increment = allStrings.at(6).toDouble();
+}
+
+void AMTextStream::read(AMMeasurementInfo &measurementInfo){
+	QString partialString;
+	QStringList measurementInfoStrings;
+	QChar oneChar;
+
+	while(!partialString.endsWith(objectMarker_)){
+		QTextStream::operator >>(oneChar);
+		partialString.append(oneChar);
+	}
+
+	partialString.remove(objectMarker_);
+	measurementInfoStrings = partialString.split(separator_);
+
+	int rank = measurementInfoStrings.at(0).toInt();
+	measurementInfo.name = measurementInfoStrings.at(1);
+	measurementInfo.description = measurementInfoStrings.at(2);
+	measurementInfo.units = measurementInfoStrings.at(3);
+
+	QList<AMAxisInfo> axes;
+	for(int x = 0; x < rank; x++){
+		AMAxisInfo tempAxisInfo(QString(), 0);
+		read(tempAxisInfo);
+		axes << tempAxisInfo;
+	}
+	measurementInfo.axes = axes;
+
+	qDebug() << measurementInfo.name << measurementInfo.description << measurementInfo.units;
+	for(int x = 0; x < measurementInfo.axes.count(); x++)
+		qDebug() << measurementInfo.axes.at(x).name << measurementInfo.axes.at(x).size << measurementInfo.axes.at(x).description << measurementInfo.axes.at(x).units << measurementInfo.axes.at(x).isUniform << (double)measurementInfo.axes.at(x).start << (double)measurementInfo.axes.at(x).increment;
+
+	partialString.clear();
+	while(!partialString.endsWith(terminator_)){
+		QTextStream::operator >>(oneChar);
+		partialString.append(oneChar);
+	}
+}
+
+void AMTextStream::initializeTextStream(){
+	separator_ = "|%|%|";
+	terminator_ = "|@|@|";
+	objectMarker_ = "|#|#|";
+}
