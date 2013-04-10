@@ -20,29 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSCCDDETECTORVIEW_H
 #define VESPERSCCDDETECTORVIEW_H
 
-//<<<<<<< HEAD:source/ui/VESPERS/VESPERSMarCCDDetectorView.h
-//#include "ui/beamline/AMOldDetectorView.h"
-//#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
-//=======
-//#include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/VESPERS/VESPERSCCDDetector.h"
-//>>>>>>> master:source/ui/VESPERS/VESPERSCCDDetectorView.h
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-/*
-<<<<<<< HEAD:source/ui/VESPERS/VESPERSMarCCDDetectorView.h
-/// Provides a simple view to some of the parameters in the Mar CCD detector.
-class VESPERSMarCCDDetectorView : public AMDetailedOldDetectorView
-=======
-*/
-//class VESPERSCCDDetectorView : public AMDetailedDetectorView
+
 class VESPERSCCDDetectorView : public AMDetailedOldDetectorView
-//>>>>>>> master:source/ui/VESPERS/VESPERSCCDDetectorView.h
 {
 	Q_OBJECT
 

@@ -1,14 +1,12 @@
 #ifndef VESPERSCCDDETECTOR_H
 #define VESPERSCCDDETECTOR_H
 
-//#include "beamline/AMDetector.h"
 #include "beamline/AMOldDetector.h"
 #include "dataman/VESPERS/VESPERSCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "application/VESPERS/VESPERS.h"
 
-//class VESPERSCCDDetector : public VESPERSCCDDetectorInfo, public AMDetector
 class VESPERSCCDDetector : public VESPERSCCDDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT

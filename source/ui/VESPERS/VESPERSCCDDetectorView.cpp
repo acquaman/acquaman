@@ -27,26 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-/*
-<<<<<<< HEAD:source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp
-VESPERSRoperCCDDetectorView::VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector *detector, bool configureOnly, QWidget *parent)
-	: AMDetailedOldDetectorView(configureOnly, parent)
-=======
-*/
+
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
-//	: AMDetailedDetectorView(configureOnly, parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
-//>>>>>>> master:source/ui/VESPERS/VESPERSCCDDetectorView.cpp
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-//<<<<<<< HEAD:source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp
 bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
-//=======
-//bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
-//>>>>>>> master:source/ui/VESPERS/VESPERSCCDDetectorView.cpp
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)

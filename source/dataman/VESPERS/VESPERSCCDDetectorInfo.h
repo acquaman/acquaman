@@ -1,11 +1,9 @@
 #ifndef VESPERSCCDDETECTORINFO_H
 #define VESPERSCCDDETECTORINFO_H
 
-//#include "dataman/info/AMDetectorInfo.h"
 #include "dataman/info/AMOldDetectorInfo.h"
 
 /// This class holds the basic information needed for CCD detectors on VESPERS.
-//class VESPERSCCDDetectorInfo : public AMDetectorInfo
 class VESPERSCCDDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
