@@ -160,7 +160,7 @@ CONFIG(jenkins_build) {
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
-		DEV_PATH = /jobs/AcquamanOnLinux/ws
+		DEV_PATH = /job/AcquamanOnLinux/ws
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
