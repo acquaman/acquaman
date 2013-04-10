@@ -154,7 +154,7 @@ linux-g++-64 {
 CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-
+		message($$HOME_FOLDER)
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
