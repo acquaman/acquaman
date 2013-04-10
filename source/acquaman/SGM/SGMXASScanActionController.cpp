@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
+#include "dataman/AMTextStream.h"
 
 #include "acquaman/AMXASScanConfigurationConverter.h"
 
@@ -101,43 +102,34 @@ bool SGMXASScanActionController::event(QEvent *e){
 		switch(message.messageType()){
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 			AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
-			QString separator = "|%|%|";
+			QString separator = "|!|!|";
 			QString rank1String;
 			rank1String.append("Start Info\n");
 			rank1String.append(QString("-1%1eV\n").arg(separator));
 
 			for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
-				QString oneString;
 				oneMeasurementInfo = scan_->rawData()->measurementAt(x);
+
+				/*
 				rank1String.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
-				oneString.append(QString("%1%2%3%2%4%2%5%2%6").arg(x).arg(separator).arg(oneMeasurementInfo.rank()).arg(oneMeasurementInfo.name).arg(oneMeasurementInfo.description).arg(oneMeasurementInfo.units));
 				if(oneMeasurementInfo.rank() == 1){
 					rank1String.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
-					oneString.append(QString("%1%2%1%3%1%4%1%5").arg(separator).arg(oneMeasurementInfo.axes.at(0).name).arg(oneMeasurementInfo.axes.at(0).size).arg(oneMeasurementInfo.axes.at(0).description).arg(oneMeasurementInfo.axes.at(0).units));
-
-					/*
-					QString axisInfoTest;
-					AMTextStream axisInfoTestStream(&axisInfoTest);
-					axisInfoTestStream.write(oneMeasurementInfo.axes.at(0));
-					qDebug() << "Written as " << axisInfoTest;
-
-					QString axisInfoTestCopy = axisInfoTest;
-					AMTextStream axisInfoTestStreamOut(&axisInfoTestCopy, QIODevice::ReadOnly);
-					AMAxisInfo writingToInfo(QString(), 0);
-					axisInfoTestStreamOut.read(writingToInfo);
-					*/
 				}
 				rank1String.append("\n");
+				*/
 
-				QString measurementInfoTest;
-				AMTextStream measurementInfoTestStream(&measurementInfoTest);
-				measurementInfoTestStream.write(oneMeasurementInfo);
-				qDebug() << "Written as " << measurementInfoTest;
+				rank1String.append(QString("%1%2").arg(x).arg(separator));
+				QString measurementInfoString;
+				AMTextStream measurementInfoStream(&measurementInfoString);
+				measurementInfoStream.write(oneMeasurementInfo);
+				//qDebug() << "Written as " << measurementInfoTest;
+				rank1String.append(measurementInfoString);
+				rank1String.append("\n");
 
-				QString measurementInfoTestCopy = measurementInfoTest;
-				AMTextStream measurementInfoTestStreamOut(&measurementInfoTestCopy, QIODevice::ReadOnly);
-				AMMeasurementInfo writingToInfo = AMMeasurementInfo(QString(), QString());
-				measurementInfoTestStreamOut.read(writingToInfo);
+				//QString measurementInfoTestCopy = measurementInfoTest;
+				//AMTextStream measurementInfoTestStreamOut(&measurementInfoTestCopy, QIODevice::ReadOnly);
+				//AMMeasurementInfo writingToInfo = AMMeasurementInfo(QString(), QString());
+				//measurementInfoTestStreamOut.read(writingToInfo);
 
 				//qDebug() << "Testing the measurementInfoStream " << measurementInfoTest;
 				//measurementInfoTest.prepend(QString("%1|%|%|").arg(x));
@@ -257,6 +249,7 @@ void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QStri
 	}
 }
 
+/*
 AMTextStream::AMTextStream() :
 	QTextStream()
 {
@@ -397,3 +390,4 @@ void AMTextStream::initializeTextStream(){
 	terminator_ = "|@|@|";
 	objectMarker_ = "|#|#|";
 }
+*/

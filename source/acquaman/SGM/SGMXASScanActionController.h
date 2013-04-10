@@ -65,6 +65,7 @@ protected:
 	QFile *rank2File_;
 };
 
+/*
 #include <QTextStream>
 class AMTextStream : public QTextStream
 {
@@ -90,5 +91,6 @@ protected:
 	QString terminator_;
 	QString objectMarker_;
 };
+*/
 
 #endif // SGMXASSCANACTIONCONTROLLER_H

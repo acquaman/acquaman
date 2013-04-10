@@ -647,7 +647,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMXASScanConfigurationConverter.h \
 	source/acquaman/AM3DDacqScanController.h \
 	source/acquaman/AM3DScanConfiguration.h \
-	source/dataman/AM3DScan.h
+	source/dataman/AM3DScan.h \
+    source/dataman/AMTextStream.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1096,7 +1097,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMXASScanConfigurationConverter.cpp \
 	source/acquaman/AM3DDacqScanController.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
-	source/dataman/AM3DScan.cpp
+	source/dataman/AM3DScan.cpp \
+    source/dataman/AMTextStream.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1120,3 +1122,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
