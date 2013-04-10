@@ -155,7 +155,7 @@ CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 		message($$HOME_FOLDER)
-		message($$PWD)
+		message($$system(find / -name acquaman)
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
