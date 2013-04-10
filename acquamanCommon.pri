@@ -21,6 +21,9 @@ macx {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = dev
 
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
 				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
@@ -53,6 +56,9 @@ linux-g++ {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
 				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
@@ -78,9 +84,12 @@ linux-g++-32 {
 
 		# Disable Qt Mobility Video until Darren's laptop is ready for that.
 		CONFIG -= mobility
-#message($$system(find / -name acquaman))
+
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
+
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
@@ -118,6 +127,9 @@ linux-g++-64 {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
 				/home/epics/src/R3.14.12/base/include/os/Linux
@@ -154,14 +166,16 @@ linux-g++-64 {
 CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-		message($$HOME_FOLDER)
-		message($$_PRO_FILE_PWD_)
-	#	message($$system("find / -name acquaman"))
+
 		# Disable Qt Mobility Video until the Jenkins-machine supports that
 		CONFIG -= mobility
 
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
+
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
 		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
 				/home/mark/dev/epics/base/include/os/Linux
@@ -182,8 +196,7 @@ CONFIG(mobility) {
 }
 
 DESTDIR = build
-#DEPENDPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
-#INCLUDEPATH += $$HOME_FOLDER/$$DEV_PATH/acquaman/ $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+
 DEPENDPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 
