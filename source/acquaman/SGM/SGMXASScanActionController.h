@@ -11,6 +11,40 @@
 class AMScanActionControllerScanAssembler;
 class QFile;
 
+class SGMXASScanActionControllerFileWriter : public QObject
+{
+Q_OBJECT
+public:
+	enum FileWriterError{
+		AlreadyExistsError = 0,		///< The file passed in already exists
+		CouldNotOpenError = 1,		///< The file could not be opened
+		InvalidError = 2
+	};
+
+	SGMXASScanActionControllerFileWriter(const QString &filePath, bool hasRank2Data = false, QObject *parent = 0);
+
+public slots:
+	void writeToFile(int fileRank, const QString &textToWrite);
+
+signals:
+	void fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+
+protected slots:
+	void emitError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void emitErrors();
+
+protected:
+	QString filePath_;
+	bool hasRank2Data_;
+
+	QFile *rank1File_;
+	QFile *rank2File_;
+
+	QList<SGMXASScanActionControllerFileWriter::FileWriterError> errorsList_;
+};
+
+Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
+
 #define SGMXASSCANACTIONCONTROLLER_CANNOT_INTIALIZE 272001
 #define SGMXASSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 272002
 
@@ -27,6 +61,7 @@ signals:
 
 protected slots:
 	void onActionTreeGenerated(AMAction3 *actionTree);
+	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
 
 protected:
 	virtual bool initializeImplementation();
@@ -46,24 +81,6 @@ protected:
 	double currentAxisValue_;
 
 	QThread *fileWriterThread_;
-};
-
-
-class SGMXASScanActionControllerFileWriter : public QObject
-{
-Q_OBJECT
-public:
-	SGMXASScanActionControllerFileWriter(const QString &filePath, bool hasRank2Data = false, QObject *parent = 0);
-
-public slots:
-	void writeToFile(int fileRank, const QString &textToWrite);
-
-protected:
-	QString filePath_;
-	bool hasRank2Data_;
-
-	QFile *rank1File_;
-	QFile *rank2File_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H
