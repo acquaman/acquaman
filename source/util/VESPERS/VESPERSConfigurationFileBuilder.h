@@ -58,6 +58,8 @@ public:
 	void setPvNameAxis1(const QString &name) { pvNameAxis1_ = name; }
 	/// Sets the second scan axis PV name.
 	void setPvNameAxis2(const QString &name) { pvNameAxis2_ = name; }
+	/// Sets the third scan axis PV name.
+	void setPvNameAxis3(const QString &name) { pvNameAxis3_ = name; }
 
 	/// Returns the number of dimensions.
 	int dimensions() const { return dimensions_; }
@@ -73,6 +75,8 @@ public:
 	QString pvNameAxis1() const { return pvNameAxis1_; }
 	/// Returns the second scan axis PV name.
 	QString pvNameAxis2() const { return pvNameAxis2_; }
+	/// Returns the third scan axis PV name.
+	QString pvNameAxis3() const { return pvNameAxis3_; }
 
 signals:
 
@@ -94,6 +98,8 @@ protected:
 	QString pvNameAxis1_;
 	/// String holding the second (if applicable) scan axis PV name.
 	QString pvNameAxis2_;
+	/// String holding the third (if applicable) scan axis PV name.
+	QString pvNameAxis3_;
 };
 
 #endif // VESPERSCONFIGURATIONFILEBUILDER_H
