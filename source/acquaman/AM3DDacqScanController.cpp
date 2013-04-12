@@ -9,13 +9,11 @@ AM3DDacqScanController::AM3DDacqScanController(AM3DScanConfiguration *config, QO
 	: AMDacqScanController(config, parent)
 {
 	internal3DConfig_ = config;
-	xPosition_ = 0;
-	yPosition_ = 0;
-	zPosition_ = 0;
+	positions_ << 0 << 0 << 0;
 	firstPriorityAxisStartPosition_ = 0;
 	secondPriorityAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
-	stopAtEndOfLine_ = false;
+	stopAtEndOfAxis_ = -1;
 
 	axisPriorities_ << internal3DConfig_->xPriority();
 
@@ -50,11 +48,13 @@ bool AM3DDacqScanController::startImplementation()
 		ev = first_acqEvent(advAcq_->getMaster());
 
 		if(!ev || !ev->numPvList ){
+
 			AMErrorMon::alert(0, AM3DDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED, "AM3DDacqScanController: dacq initialization was unsuccessful.");
 			return false;
 		}
 
 		if(ev->numPvList < 1){
+
 			AMErrorMon::alert(0, AM3DDACQSCANCONTROLLER_NO_X_COLUMN, "AM3DDacqScanController: no implied x-column set.");
 			return false;
 		}
@@ -66,7 +66,6 @@ bool AM3DDacqScanController::startImplementation()
 		}
 
 		if (ev->numPvList < 3){
-
 
 			AMErrorMon::alert(0, AM3DDACQSCANCONTROLLER_NO_Z_COLUMN, "AM3DDacqScanController: no implied z-column set.");
 			return false;
@@ -85,13 +84,6 @@ bool AM3DDacqScanController::startImplementation()
 
 		if(useDwellTimes_)
 			connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
-
-		// FIX THIS WITH NEW PLAN FOR FAST AXIS
-		// Setting the fast axis position to -1 for counting purposes.
-//		if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X)
-//			xPosition_ = -1;
-//		else
-//			yPosition_ = -1;
 
 		prefillScanPoints();
 
@@ -208,7 +200,7 @@ bool AM3DDacqScanController::event(QEvent *e)
 				advAcq_->Stop();
 			}
 
-			else if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+			else if (stopAtEndOfAxis_ != -1 && atEndOfAxis(stopAtEndOfAxis_, aeData)){
 
 				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
 				dacqCancelled_ = false;
@@ -237,314 +229,244 @@ bool AM3DDacqScanController::event(QEvent *e)
 
 AMnDIndex AM3DDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
-	// Increment the axis with the highest priority.  If that axis is at the end of the line, set it to 0 and increment the next lower priority axis.
-	if (internal3DConfig_->xPriority() == 3){
+	// Convenience members that hold the axes in priority order for code readability.
+	int first = axisPriorities_.at(0);
+	int second = axisPriorities_.at(1);
+	int third = axisPriorities_.at(2);
 
-		if (xPosition_ == -1 && yPosition_ == 0 && zPosition_ == 0){
+	// First point.  Sets the start positions for the fastest and second fastest axes.
+	if (positions_.at(first) == -1
+			&& positions_.at(second) == 0
+			&& positions_.at(third) == 0){
 
-			firstPriorityAxisStartPosition_ = aeData.value(0);
-			secondPriorityAxisStartPosition_ = aeData.value(1);
-			xPosition_++;
+		firstPriorityAxisStartPosition_ = aeData.value(first);
+		secondPriorityAxisStartPosition_ = aeData.value(second);
+		positions_[first]++;
+	}
+
+	// After reaching the end of the fastest axis, we need to reset it's position to zero and increment the second fastest axis.
+	else if (firstPriorityAxisStartPosition_ == aeData.value(first)){
+
+		positions_[first] = 0;
+
+		// If we are also at the end of the second fastest axis, then set its position to zero and increment the slowest axis.
+		if (secondPriorityAxisStartPosition_ == aeData.value(second)){
+
+			positions_[second] = 0;
+			positions_[third]++;
 		}
 
-//		else if (firstPriorityAxisStartPosition_ == aeData.value(0)){
-
-//			if ()
-//		}
+		else
+			positions_[second]++;
 	}
 
-	else if (internal3DConfig_->yPriority() == 3){
+	// Regular point.  Increment the fastest axis.
+	else
+		positions_[first]++;
 
-
-	}
-
-	else if (internal3DConfig_->zPriority() == 3){
-
-
-	}
-
-	return AMnDIndex(xPosition_, yPosition_, zPosition_);
-//	switch(internal3DConfig_){
-
-//		case AM2DScanConfiguration::X: {
-
-//			if (xPosition_ == -1 && yPosition_ == 0){
-
-//				firstPriorityAxisStartPosition_ = aeData.value(0);
-//				xPosition_++;
-//			}
-
-//			else if (firstPriorityAxisStartPosition_ == aeData.value(0)){
-
-//				xPosition_ = 0;
-//				yPosition_++;
-//			}
-
-//			else
-//				xPosition_++;
-
-//			break;
-//		}
-
-//		case AM2DScanConfiguration::Y: {
-
-//		if (yPosition_ == -1 && xPosition_ == 0){
-
-//			firstPriorityAxisStartPosition_ = aeData.value(1);
-//			yPosition_++;
-//		}
-
-//		else if (firstPriorityAxisStartPosition_ == aeData.value(1)){
-
-//			yPosition_ = 0;
-//			xPosition_++;
-//		}
-
-//		else
-//			yPosition_++;
-
-//			break;
-//		}
-//	}
-
-//	return AMnDIndex(xPosition_, yPosition_);
+	return AMnDIndex(positions_.at(0), positions_.at(1), positions_.at(2));
 }
 
-bool AM3DDacqScanController::atEndOfLine(QMap<int, double> aeData) const
+bool AM3DDacqScanController::atEndOfAxis(int axis, const QMap<int, double> &aeData) const
 {
-//	if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X && (internal2DConfig_->xEnd() - aeData.value(0) < internal2DConfig_->xStep()/2))
-//		return true;
+	bool retVal = false;
 
-//	else if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::Y && (internal2DConfig_->yEnd() - aeData.value(1) < internal2DConfig_->yStep()/2))
-//		return true;
+	// Switch from priority to a real axis.
+	switch (axisPriorities_.at(axis)){
 
-	return false;
+	case 0:	// X
+		retVal = internal3DConfig_->xEnd() - aeData.value(0) < internal3DConfig_->xStep()/2;
+		break;
+
+	case 1:	// Y
+		retVal = internal3DConfig_->yEnd() - aeData.value(1) < internal3DConfig_->yStep()/2;
+		break;
+
+	case 2:	// Z
+		retVal = internal3DConfig_->zEnd() - aeData.value(2) < internal3DConfig_->zStep()/2;
+		break;
+	}
+
+	return retVal;
 }
 
 void AM3DDacqScanController::prefillScanPoints()
 {
-//	switch(internal2DConfig_->fastAxis()){
+	AMnDIndex insertIndex;
+	double xStart = internal3DConfig_->xStart();
+	double xStep = internal3DConfig_->xStep();
+	double xEnd = internal3DConfig_->xEnd();
+	double yStart = internal3DConfig_->yStart();
+	double yStep = internal3DConfig_->yStep();
+	double yEnd = internal3DConfig_->yEnd();
+	double zStart = internal3DConfig_->yStart();
+	double zStep = internal3DConfig_->yStep();
+	double zEnd = internal3DConfig_->yEnd();
+	int xCount = int((xEnd-xStart)/xStep);
+	int yCount = int((yEnd-yStart)/yStep);
+	int zCount = int((zEnd-zStart)/zStep);
 
-//		case AM2DScanConfiguration::X: {
+	if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
+		xCount += 1;
+	else
+		xCount += 2;
 
-//			AMnDIndex insertIndex;
-//			double xStart = internal2DConfig_->xStart();
-//			double xStep = internal2DConfig_->xStep();
-//			double xEnd = internal2DConfig_->xEnd();
-//			double yStart = internal2DConfig_->yStart();
-//			double yStep = internal2DConfig_->yStep();
-//			double yEnd = internal2DConfig_->yEnd();
-//			int xCount = int((xEnd-xStart)/xStep);
-//			int yCount = int((yEnd-yStart)/yStep);
+	if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
+		yCount += 1;
+	else
+		yCount += 2;
 
-//			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
-//				xCount += 1;
-//			else
-//				xCount += 2;
+	if ((zEnd-zStart-(zCount+0.01)*zStep) < 0)
+		zCount += 1;
+	else
+		zCount += 2;
 
-//			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
-//				yCount += 1;
-//			else
-//				yCount += 2;
+	scan_->rawData()->beginInsertRows(xCount, -1);
 
-//			if (scan_->rawData()->scanSize(0) == 0)
-//				scan_->rawData()->beginInsertRows(xCount, -1);
+	for (int z = 0; z < zCount; z++){
 
-//			for (int j = 0; j < yCount; j++){
+		for (int y = 0; y < yCount; y++){
 
-//				for (int i = 0; i < xCount; i++){
+			for (int x = 0; x < xCount; x++){
 
-//					insertIndex = AMnDIndex(i, j);
-//					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
-////					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-////					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
-////						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
-//					////////////////
-//					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
-//					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
+				insertIndex = AMnDIndex(x, y, z);
 
-//					for (int di = 0; di < scan_->rawDataSourceCount(); di++){
+				scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + x*xStep);
+				scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + y*yStep);
+				scan_->rawData()->setAxisValue(2, insertIndex.k(), zStart + z*zStep);
 
-//						if (scan_->rawDataSources()->at(di)->rank() == 0)
-//							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+				for (int di = 0; di < scan_->rawDataSourceCount(); di++){
 
-//						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+					if (scan_->rawDataSources()->at(di)->rank() == 0)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
 
-//							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
-//							scan_->rawData()->setValue(insertIndex, di, data.constData());
-//						}
-//					}
-//				}
-//			}
+					else if (scan_->rawDataSources()->at(di)->rank() == 1){
 
-//			scan_->rawData()->endInsertRows();
+						QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+						scan_->rawData()->setValue(insertIndex, di, data.constData());
+					}
+				}
+			}
+		}
+	}
 
-//			break;
-//		}
-
-//		case AM2DScanConfiguration::Y: {
-
-//			AMnDIndex insertIndex;
-//			double xStart = internal2DConfig_->xStart();
-//			double xStep = internal2DConfig_->xStep();
-//			double xEnd = internal2DConfig_->xEnd();
-//			double yStart = internal2DConfig_->yStart();
-//			double yStep = internal2DConfig_->yStep();
-//			double yEnd = internal2DConfig_->yEnd();
-//			int xCount = int((xEnd-xStart)/xStep);
-//			int yCount = int((yEnd-yStart)/yStep);
-
-//			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
-//				xCount += 1;
-//			else
-//				xCount += 2;
-
-//			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
-//				yCount += 1;
-//			else
-//				yCount += 2;
-
-//			if (scan_->rawData()->scanSize(0) == 0)
-//				scan_->rawData()->beginInsertRows(xCount, -1);
-
-//			for (int i = 0; i < yCount; i++){
-
-//				for (int j = 0; j < xCount; j++){
-
-//					insertIndex = AMnDIndex(i, j);
-//					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
-////					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-////					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
-////						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
-//					////////////////
-//					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
-//					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
-
-//					for (int di = 0; di < scan_->dataSourceCount(); di++){
-
-//						if (scan_->rawDataSources()->at(di)->rank() == 0)
-//							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
-
-//						else if (scan_->rawDataSources()->at(di)->rank() == 1){
-
-//							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
-//							scan_->rawData()->setValue(insertIndex, di, data.constData());
-//						}
-//					}
-//				}
-//			}
-
-//			scan_->rawData()->endInsertRows();
-
-//			break;
-//		}
-//	}
+	scan_->rawData()->endInsertRows();
 }
 
 bool AM3DDacqScanController::setConfigFile(const QString &filename)
 {
-//	filename_ = filename;
-//	return advAcq_->setConfigFile(filename);
+	filename_ = filename;
+	return advAcq_->setConfigFile(filename);
 }
 
 bool AM3DDacqScanController::setScanAxesControl()
 {
-	if (xAxisPVName().isEmpty() || yAxisPVName().isEmpty())
+	if (xAxisPVName().isEmpty() || yAxisPVName().isEmpty() || zAxisPVName().isEmpty())
 		return false;
 
-//	// Stage 1:  Save the current state of the config file.
-//	QString filename = filename_;
-//	filename = filename.left(filename.lastIndexOf("/"));
-//	filename.append("/interim.cfg");
-//	advAcq_->saveConfigFile(filename);
+	// Stage 1:  Save the current state of the config file.
+	QString filename = filename_;
+	filename = filename.left(filename.lastIndexOf("/"));
+	filename.append("/interim.cfg");
+	advAcq_->saveConfigFile(filename);
 
-//	// Stage 2:  Setup the slow axis and fast axis strings.
-//	QString fastAxis = "";
-//	QString slowAxis = "";
+	// Stage 2:  Setup the slow axis and fast axis strings.
+	QString firstPriorityAxis = getControlStringFromAxis(axisPriorities_.at(0));
+	QString secondPriorityAxis = getControlStringFromAxis(axisPriorities_.at(1));
+	QString thirdPriorityAxis = getControlStringFromAxis(axisPriorities_.at(2));
 
-//	// First is the slow axis.
-//	switch(internal2DConfig_->fastAxis()){
+	// Stage 3:  Load up the file through a text stream and change the controls for all three scan axes.
+	QFile inputFile(filename);
+	if(!inputFile.open(QIODevice::ReadOnly)) {
+		AMErrorMon::error(0, -1, "AM3DDacqScanController:  could not open the config file.");
+		return false;
+	}
 
-//	case AM2DScanConfiguration::X:
+	QTextStream in(&inputFile);
+	QString current;
+	QStringList completeFile;
 
-//		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-//				.arg(xAxisPVName())
-//				.arg(internal2DConfig_->xStart())
-//				.arg(internal2DConfig_->xStep())
-//				.arg(internal2DConfig_->xEnd());
+	while (!(current = in.readLine()).startsWith("# Control")){
 
-//		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-//				.arg(yAxisPVName())
-//				.arg(internal2DConfig_->yStart())
-//				.arg(internal2DConfig_->yStep())
-//				.arg(internal2DConfig_->yEnd());
+		completeFile << current;
+	}
 
-//		break;
+	completeFile << thirdPriorityAxis;
 
-//	case AM2DScanConfiguration::Y:
+	while (!(current = in.readLine()).startsWith("# Control")){
 
-//		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-//				.arg(xAxisPVName())
-//				.arg(internal2DConfig_->xStart())
-//				.arg(internal2DConfig_->xStep())
-//				.arg(internal2DConfig_->xEnd());
+		completeFile << current;
+	}
 
-//		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-//				.arg(yAxisPVName())
-//				.arg(internal2DConfig_->yStart())
-//				.arg(internal2DConfig_->yStep())
-//				.arg(internal2DConfig_->yEnd());
+	completeFile << secondPriorityAxis;
 
-//		break;
-//	}
+	while (!(current = in.readLine()).startsWith("# Control")){
 
-//	// Stage 3:  Load up the file through a text stream and change the controls for Both scan axes.
-//	QFile inputFile(filename);
-//	if(!inputFile.open(QIODevice::ReadOnly)) {
-//		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
-//		return false;
-//	}
+		completeFile << current;
+	}
 
-//	QTextStream in(&inputFile);
-//	QString current;
-//	QStringList completeFile;
+	completeFile << firstPriorityAxis;
 
-//	while (!(current = in.readLine()).startsWith("# Control")){
+	while (!(current = in.readLine()).isNull()){
 
-//		completeFile << current;
-//	}
+		completeFile << current;
+	}
 
-//	completeFile << slowAxis;
+	inputFile.close();
 
-//	while (!(current = in.readLine()).startsWith("# Control")){
+	// Stage 4:  Save the file back as interim.cfg.
+	QFile outputFile(filename);
+	if(!outputFile.open(QIODevice::WriteOnly)) {
+		AMErrorMon::error(0, -1, "AM3DDacqScanController:  could not open the config file.");
+		return false;
+	}
 
-//		completeFile << current;
-//	}
+	QTextStream out(&outputFile);
 
-//	completeFile << fastAxis;
+	for (int i = 0; i < completeFile.size(); i++)
+		out << completeFile.at(i) << "\n";
 
-//	while (!(current = in.readLine()).isNull()){
+	outputFile.close();
+	completeFile.clear();
 
-//		completeFile << current;
-//	}
+	// Stage 5:  Reload the config file.
+	return advAcq_->setConfigFile(filename);
+}
 
-//	inputFile.close();
+QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
+{
+	QString controlString = "";
 
-//	// Stage 4:  Save the file back as interim.cfg.
-//	QFile outputFile(filename);
-//	if(!outputFile.open(QIODevice::WriteOnly)) {
-//		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
-//		return false;
-//	}
+	// Generate the control string.
+	switch(axisPriorities_.at(axis)){
 
-//	QTextStream out(&outputFile);
+	case 0:	// X
 
-//	for (int i = 0; i < completeFile.size(); i++)
-//		out << completeFile.at(i) << "\n";
+		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(xAxisPVName())
+				.arg(internal3DConfig_->xStart())
+				.arg(internal3DConfig_->xStep())
+				.arg(internal3DConfig_->xEnd());
+		break;
 
-//	outputFile.close();
-//	completeFile.clear();
+	case 1:	// Y
 
-//	// Stage 5:  Reload the config file.
-//	return advAcq_->setConfigFile(filename);
+		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(yAxisPVName())
+				.arg(internal3DConfig_->yStart())
+				.arg(internal3DConfig_->yStep())
+				.arg(internal3DConfig_->yEnd());
+		break;
+
+	case 2:	// Z
+
+		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(yAxisPVName())
+				.arg(internal3DConfig_->zStart())
+				.arg(internal3DConfig_->zStep())
+				.arg(internal3DConfig_->zEnd());
+		break;
+	}
+
+	return controlString;
 }

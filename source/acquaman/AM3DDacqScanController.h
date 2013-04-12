@@ -49,14 +49,12 @@ public:
 	/// Pure virtual function.  Returns the PV name that will be used for the z-axis.
 	virtual QString zAxisPVName() const = 0;
 
-	// THIS SHOULD BE MODIFIED TO BE AN AXIS OF SOME KIND
-	/// Returns whether this controller will be stopping at the end of the line or not.
-	bool stoppingAtTheEndOfLine() { return stopAtEndOfLine_; }
+	/// Returns the axis on which this controller will be stopping once reaching the end.  Note that if -1 is returned, then it is not stopping before the end of the scan.
+	int stoppingAtTheEndOfAxis() { return stopAtEndOfAxis_; }
 
 public slots:
-	// THIS SHOULD BE MODIFIED TO BE AN AXIS OF SOME KIND
-	/// Tells the scan controller that it should stop at the end of the line.  Ie: stop when it reaches the end of the fast axis.
-	void stopAtTheEndOfLine() { stopAtEndOfLine_ = true; }
+	/// Tells the scan controller that it should stop at the end of the given axis (priority order).
+	void stopAtTheEndOfAxis(int axis) { stopAtEndOfAxis_ = axis; }
 
 protected:
 	/// Sets the config file and returns whether it was successful or not at loading the file.  \note This should be called instead of advAcq_->setConfigFile() so that AM3DDacqScanController knows where the configuration files are.
@@ -76,17 +74,11 @@ protected:
 	/// Method that fleshes out the scan's raw data store with all of the points it will need.
 	void prefillScanPoints();
 
-	// THIS SHOULD BE MODIFIED TO BE AN AXIS OF SOME KIND
-	/// Returns whether the controller is at the end of the fast axis.  Requires aeData for up-to-date information.
-	bool atEndOfLine(QMap<int, double> aeData) const;
+	/// Returns whether the controller is at the end of the given axis.  The axis is based on the priority (ie: if you give 1 for the axis, that will check second fastest axis).  Requires aeData for up-to-date information.
+	bool atEndOfAxis(int axis, const QMap<int, double> &aeData) const;
 
-	/// Holds the current position in the x axis.
-	int xPosition_;
-	/// Holds the current position in the y axis.
-	int yPosition_;
-	/// Holds the current position in the z axis.
-	int zPosition_;
-
+	/// List that holds the current position (index) of each axis.  Order is x, y, z.
+	QList<int> positions_;
 	/// List that holds the index of the priority axes.  Highest = 0, next = 1, Lowest = 2.
 	QList<int> axisPriorities_;
 	/// Holds the initial position of the highest priority axis.  Used for determining when to increment the slow axis.
@@ -100,13 +92,14 @@ protected:
 	/// String that holds the file name (including path).
 	QString filename_;
 
-	// THIS SHOULD BE MODIFIED TO BE AN AXIS OF SOME KIND
-	/// Flag that holds whether the controller should stop once the end of the current fast axis is finshed.
-	bool stopAtEndOfLine_;
+	/// Flag that holds whether the controller should stop once the end of the given axis is finshed.  Is -1 when no axis is selected.  Axis is in priority order.  Note that setting axis = slowest axis is equivalent to the scan finishing on it's own.
+	int stopAtEndOfAxis_;
 
 private:
 	/// Private method that takes the current start's, delta's, and end's for each axis and sets them inside of the config file.  It then loads the configuration file again to ensure that the dacq has the correct values.
 	bool setScanAxesControl();
+	/// Private method that helps setScanAxesControl by returning a string with the appropriate start, step, and end positions for the given axis.  Assuming priority axis order.
+	QString getControlStringFromAxis(int axis) const;
 };
 
 #endif // AM3DDACQSCANCONTROLLER_H
