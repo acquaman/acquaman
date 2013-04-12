@@ -13,6 +13,8 @@
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
 {
+	fileWriterIsBusy_ = false;
+
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("sgm2013XAS");
 	scan_->setRunId(AMUser::user()->currentRunId());
@@ -51,8 +53,10 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 		qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
 		SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
-		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
 		connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
+		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 		fileWriter->moveToThread(fileWriterThread_);
 		fileWriterThread_->start();
 	}
@@ -62,6 +66,10 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 AMAction3* SGMXASScanActionController::actionsTree(){
 	return actionTree_;
+}
+
+bool SGMXASScanActionController::isReadyForDeletion() const{
+	return !fileWriterIsBusy_;
 }
 
 #include "actions3/AMActionRunner3.h"
@@ -110,6 +118,11 @@ void SGMXASScanActionController::onFileWriterError(SGMXASScanActionControllerFil
 	box.execWTimeout();
 }
 
+void SGMXASScanActionController::onFileWriterIsBusy(bool isBusy){
+	fileWriterIsBusy_ = isBusy;
+	emit readyForDeletion(!fileWriterIsBusy_);
+}
+
 bool SGMXASScanActionController::initializeImplementation(){
 	QTimer::singleShot(0, this, SLOT(setInitialized()));
 	return true;
@@ -143,6 +156,7 @@ bool SGMXASScanActionController::event(QEvent *e){
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
+			emit finishWritingToFile();
 			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
@@ -255,6 +269,8 @@ SGMXASScanActionControllerFileWriter::SGMXASScanActionControllerFileWriter(const
 	rank1File_ = new QFile(rank1FileInfo.filePath());
 	if(!rank1File_->open(QIODevice::WriteOnly | QIODevice::Text))
 		emitError(SGMXASScanActionControllerFileWriter::CouldNotOpenError);
+	else
+		QTimer::singleShot(0, this, SLOT(emitFileWriterIsBusy()));
 
 	rank2File_ = 0; //NULL
 	if(hasRank2Data_){
@@ -303,6 +319,13 @@ void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QStri
 	}
 }
 
+void SGMXASScanActionControllerFileWriter::finishWriting(){
+	rank1File_->close();
+	if(hasRank2Data_)
+		rank2File_->close();
+	emit fileWriterIsBusy(false);
+}
+
 void SGMXASScanActionControllerFileWriter::emitError(SGMXASScanActionControllerFileWriter::FileWriterError error){
 	errorsList_.append(error);
 	QTimer::singleShot(0, this, SLOT(emitErrors()));
@@ -311,4 +334,8 @@ void SGMXASScanActionControllerFileWriter::emitError(SGMXASScanActionControllerF
 void SGMXASScanActionControllerFileWriter::emitErrors(){
 	while(errorsList_.count() > 0)
 		emit fileWriterError(errorsList_.takeFirst());
+}
+
+void SGMXASScanActionControllerFileWriter::emitFileWriterIsBusy(){
+	emit fileWriterIsBusy(true);
 }

@@ -208,6 +208,8 @@ public slots:
 
 	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
 
+	virtual void scheduleForDeletion();
+
 public:
 	// Progress API
 	////////////////////////

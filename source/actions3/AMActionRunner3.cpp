@@ -288,7 +288,8 @@ void AMActionRunner3::internalDoNextAction()
 		if(currentAction_) {
 			AMAction3* oldAction = currentAction_;
 			emit currentActionChanged(currentAction_ = 0);
-			oldAction->deleteLater(); // the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
+			oldAction->scheduleForDeletion();
+			//oldAction->deleteLater(); // the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 
 			// If we are done with all the actions inside the queue then we should pause the queue so the next action doesn't start right away.
 			if (queuedActionCount() == 0)
@@ -308,7 +309,8 @@ void AMActionRunner3::internalDoNextAction()
 
 		if(oldAction) {
 			disconnect(oldAction, 0, this, 0);
-			oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
+			oldAction->scheduleForDeletion();
+			//oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 
 		if(!currentAction_->isValid()){
@@ -421,7 +423,8 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 
 		// disconnect and delete it
 		disconnect(action, 0, this, 0);
-		action->deleteLater();
+		action->scheduleForDeletion();
+		//action->deleteLater();
 	}
 }
 

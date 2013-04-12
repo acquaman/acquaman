@@ -53,12 +53,11 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 	scanInfo_ = other.scanInfo_;
 }
 
-#include <QDebug>
 AMScanAction::~AMScanAction()
 {
-	qDebug() << "Going to delete AMScanAction " << (intptr_t)this;
+	//qdebug() << "Going to delete AMScanAction " << (intptr_t)this;
 	if (controller_ && hasValidScanController_){
-		qDebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
+		//qdebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;
@@ -212,6 +211,13 @@ bool AMScanAction::canSkip() const
 
 //	return false;
 	return true;
+}
+
+void AMScanAction::scheduleForDeletion(){
+	if(!controller_ || controller_->isReadyForDeletion())
+		deleteLater();
+	else
+		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
 }
 
 void AMScanAction::onControllerInitialized()
@@ -394,4 +400,9 @@ void AMScanAction::onControllerStateChanged()
 {
 	//qdebug() << "Calling for controllerStateString, need a valid controller";
 	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
+}
+
+void AMScanAction::onReadyForDeletionChanged(bool isReady){
+	if(isReady)
+		deleteLater();
 }

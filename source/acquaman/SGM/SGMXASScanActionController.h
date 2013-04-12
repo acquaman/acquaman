@@ -25,13 +25,16 @@ public:
 
 public slots:
 	void writeToFile(int fileRank, const QString &textToWrite);
+	void finishWriting();
 
 signals:
 	void fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void fileWriterIsBusy(bool isBusy);
 
 protected slots:
 	void emitError(SGMXASScanActionControllerFileWriter::FileWriterError error);
 	void emitErrors();
+	void emitFileWriterIsBusy();
 
 protected:
 	QString filePath_;
@@ -59,12 +62,16 @@ public:
 
 	AMAction3* actionsTree();
 
+	virtual bool isReadyForDeletion() const;
+
 signals:
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
+	void finishWritingToFile();
 
 protected slots:
 	void onActionTreeGenerated(AMAction3 *actionTree);
 	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void onFileWriterIsBusy(bool isBusy);
 
 protected:
 	virtual bool initializeImplementation();
@@ -84,6 +91,7 @@ protected:
 	double currentAxisValue_;
 
 	QThread *fileWriterThread_;
+	bool fileWriterIsBusy_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H

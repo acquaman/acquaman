@@ -148,6 +148,10 @@ bool AMAction3::skip(const QString &command)
 	return false;
 }
 
+void AMAction3::scheduleForDeletion(){
+	deleteLater();
+}
+
 void AMAction3::setStarted()
 {
 	if (canChangeState(Running)){
