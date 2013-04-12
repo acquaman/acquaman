@@ -43,6 +43,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// used in parsing the data file
 	QString line;
 	QStringList lp;
+	QString versionString;
 	int index;
 	double dataValue;
 	int insertionIndex = 0;
@@ -53,32 +54,36 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			line = fs.readLine();
 		if(line == "Start Info")
 			informationSection = true;
+		else if(line.contains("Version: "))
+			versionString = line.remove("Version: ");
 		else if(line == "End Info"){
 			informationSection = false;
 			finishedHeader = true;
 			line = "";
 		}
 		else if(informationSection){
-			lp = line.split("|!|!|");
-			index = lp.at(0).toInt();
-			if(index >= 0){
-				QString oneString = lp.at(1);
-				AMTextStream measurementInfoStreamOut(&oneString);
-				AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo(QString(), QString());
-				measurementInfoStreamOut.read(oneMeasurementInfo);
+			if(versionString == "SGM Generic 0.1"){
+				lp = line.split("|!|!|");
+				index = lp.at(0).toInt();
+				if(index >= 0){
+					QString oneString = lp.at(1);
+					AMTextStream measurementInfoStreamOut(&oneString);
+					AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo(QString(), QString());
+					measurementInfoStreamOut.read(oneMeasurementInfo);
 
-				if(measurementOrderByRank.contains(oneMeasurementInfo.rank())){
-					QList<int> thisRankList = measurementOrderByRank.value(oneMeasurementInfo.rank());
-					thisRankList.append(index);
-					measurementOrderByRank.insert(oneMeasurementInfo.rank(), thisRankList);
-				}
-				else{
-					QList<int> newRankList;
-					newRankList.append(index);
-					measurementOrderByRank.insert(oneMeasurementInfo.rank(), newRankList);
-				}
+					if(measurementOrderByRank.contains(oneMeasurementInfo.rank())){
+						QList<int> thisRankList = measurementOrderByRank.value(oneMeasurementInfo.rank());
+						thisRankList.append(index);
+						measurementOrderByRank.insert(oneMeasurementInfo.rank(), thisRankList);
+					}
+					else{
+						QList<int> newRankList;
+						newRankList.append(index);
+						measurementOrderByRank.insert(oneMeasurementInfo.rank(), newRankList);
+					}
 
-				scan->rawData()->addMeasurement(oneMeasurementInfo);
+					scan->rawData()->addMeasurement(oneMeasurementInfo);
+				}
 			}
 		}
 		else{

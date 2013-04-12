@@ -13,6 +13,8 @@
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
 {
+	fileWriterIsBusy_ = false;
+
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("sgm2013XAS");
 	scan_->setRunId(AMUser::user()->currentRunId());
@@ -48,8 +50,13 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 
 		fileWriterThread_ = new QThread();
+
+		qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
 		SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
+		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+		connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
 		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 		fileWriter->moveToThread(fileWriterThread_);
 		fileWriterThread_->start();
 	}
@@ -59,6 +66,10 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 AMAction3* SGMXASScanActionController::actionsTree(){
 	return actionTree_;
+}
+
+bool SGMXASScanActionController::isReadyForDeletion() const{
+	return !fileWriterIsBusy_;
 }
 
 #include "actions3/AMActionRunner3.h"
@@ -71,6 +82,45 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 		return;
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
+}
+
+#include "ui/util/AMMessageBoxWTimeout.h"
+void SGMXASScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+	qDebug() << "Got a file writer error " << error;
+	QString userErrorString;
+	switch(error){
+	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM XAS Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM XAS Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	default:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, "Error, SGM XAS Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	}
+
+	setFailed();
+
+	AMMessageBoxWTimeout box(30000);
+	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
+	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
+	box.setInformativeText(userErrorString);
+
+	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+	box.setDefaultButton(acknowledgeButton_);
+
+	box.execWTimeout();
+}
+
+void SGMXASScanActionController::onFileWriterIsBusy(bool isBusy){
+	fileWriterIsBusy_ = isBusy;
+	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
 bool SGMXASScanActionController::initializeImplementation(){
@@ -106,6 +156,7 @@ bool SGMXASScanActionController::event(QEvent *e){
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
+			emit finishWritingToFile();
 			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
@@ -152,6 +203,7 @@ void SGMXASScanActionController::writeHeaderToFile(){
 	QString separator = "|!|!|";
 	QString rank1String;
 	rank1String.append("Start Info\n");
+	rank1String.append("Version: SGM Generic 0.1\n");
 	rank1String.append(QString("-1%1eV\n").arg(separator));
 
 	for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
@@ -172,6 +224,10 @@ void SGMXASScanActionController::writeDataToFiles(){
 	QString rank1String;
 	QString rank2String;
 
+	/* Stress testing
+	QTime startTime  = QTime::currentTime();
+	*/
+
 	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
 	AMRawDataSource *oneRawDataSource;
 	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
@@ -191,6 +247,11 @@ void SGMXASScanActionController::writeDataToFiles(){
 	}
 	rank1String.append("\n");
 
+	/* Stress testing
+	QTime endTime = QTime::currentTime();
+	qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
+	*/
+
 	emit requestWriteToFile(1, rank1String);
 	emit requestWriteToFile(2, rank2String);
 }
@@ -201,26 +262,54 @@ SGMXASScanActionControllerFileWriter::SGMXASScanActionControllerFileWriter(const
 	filePath_ = filePath;
 	hasRank2Data_ = hasRank2Data;
 
-	rank1File_ = new QFile(filePath+".dat");
-	rank1File_->open(QIODevice::WriteOnly | QIODevice::Text);
+	QFileInfo rank1FileInfo(filePath+".dat");
+	if(rank1FileInfo.exists())
+		emitError(SGMXASScanActionControllerFileWriter::AlreadyExistsError);
+
+	rank1File_ = new QFile(rank1FileInfo.filePath());
+	if(!rank1File_->open(QIODevice::WriteOnly | QIODevice::Text))
+		emitError(SGMXASScanActionControllerFileWriter::CouldNotOpenError);
+	else
+		QTimer::singleShot(0, this, SLOT(emitFileWriterIsBusy()));
 
 	rank2File_ = 0; //NULL
 	if(hasRank2Data_){
-		rank2File_ = new QFile(filePath+"_spectra.dat");
-		rank2File_->open(QIODevice::WriteOnly | QIODevice::Text);
+		QFileInfo rank2FileInfo(filePath+"_spectra.dat");
+		if(rank2FileInfo.exists())
+			emitError(SGMXASScanActionControllerFileWriter::AlreadyExistsError);
+
+		rank2File_ = new QFile(rank2FileInfo.filePath());
+		if(!rank2File_->open(QIODevice::WriteOnly | QIODevice::Text))
+			emitError(SGMXASScanActionControllerFileWriter::CouldNotOpenError);
 	}
 }
 
 void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QString &textToWrite){
 	switch(fileRank){
 	case 1:{
-		//QTextStream rank1Stream(rank1File_);
+		/* Stress testing
+		QTime startTime = QTime::currentTime();
+		AMTextStream rank1Stream(rank1File_);
+		rank1Stream << textToWrite;
+		sleep(2);
+		QTime endTime = QTime::currentTime();
+		qDebug() << "Stream (1) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
+		*/
+
 		AMTextStream rank1Stream(rank1File_);
 		rank1Stream << textToWrite;
 		break;}
 	case 2:{
 		if(hasRank2Data_){
-			//QTextStream rank2Stream(rank2File_);
+			/* Stress testing
+			QTime startTime = QTime::currentTime();
+			AMTextStream rank2Stream(rank2File_);
+			rank2Stream << textToWrite;
+			sleep(2);
+			QTime endTime = QTime::currentTime();
+			qDebug() << "Stream (2) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
+			*/
+
 			AMTextStream rank2Stream(rank2File_);
 			rank2Stream << textToWrite;
 		}
@@ -228,4 +317,25 @@ void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QStri
 	default:
 		break;
 	}
+}
+
+void SGMXASScanActionControllerFileWriter::finishWriting(){
+	rank1File_->close();
+	if(hasRank2Data_)
+		rank2File_->close();
+	emit fileWriterIsBusy(false);
+}
+
+void SGMXASScanActionControllerFileWriter::emitError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+	errorsList_.append(error);
+	QTimer::singleShot(0, this, SLOT(emitErrors()));
+}
+
+void SGMXASScanActionControllerFileWriter::emitErrors(){
+	while(errorsList_.count() > 0)
+		emit fileWriterError(errorsList_.takeFirst());
+}
+
+void SGMXASScanActionControllerFileWriter::emitFileWriterIsBusy(){
+	emit fileWriterIsBusy(true);
 }

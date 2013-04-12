@@ -213,6 +213,13 @@ bool AMScanAction::canSkip() const
 	return true;
 }
 
+void AMScanAction::scheduleForDeletion(){
+	if(!controller_ || controller_->isReadyForDeletion())
+		deleteLater();
+	else
+		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
+}
+
 void AMScanAction::onControllerInitialized()
 {
 	if (!controller_->start()){
@@ -393,4 +400,9 @@ void AMScanAction::onControllerStateChanged()
 {
 	//qdebug() << "Calling for controllerStateString, need a valid controller";
 	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
+}
+
+void AMScanAction::onReadyForDeletionChanged(bool isReady){
+	if(isReady)
+		deleteLater();
 }

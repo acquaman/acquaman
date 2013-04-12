@@ -72,6 +72,9 @@ public:
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
 
+public slots:
+	virtual void scheduleForDeletion();
+
 protected slots:
 
 	// Slots that handle the state transitions of the scan controller.
@@ -91,6 +94,8 @@ protected slots:
 	void onControllerProgressChanged(double elapsed, double total);
 	/// Helper slot that updates the status text when the controller changes state.
 	void onControllerStateChanged();
+
+	void onReadyForDeletionChanged(bool isReady);
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
