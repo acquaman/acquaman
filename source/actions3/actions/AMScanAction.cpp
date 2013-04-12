@@ -53,11 +53,12 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 	scanInfo_ = other.scanInfo_;
 }
 
+#include <QDebug>
 AMScanAction::~AMScanAction()
 {
-	//qdebug() << "Going to delete AMScanAction " << (intptr_t)this;
+	qDebug() << "Going to delete AMScanAction " << (intptr_t)this;
 	if (controller_ && hasValidScanController_){
-		//qdebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
+		qDebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;

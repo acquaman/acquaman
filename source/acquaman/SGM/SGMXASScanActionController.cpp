@@ -76,8 +76,38 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
 }
 
+#include "ui/util/AMMessageBoxWTimeout.h"
 void SGMXASScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
 	qDebug() << "Got a file writer error " << error;
+	QString userErrorString;
+	switch(error){
+	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM XAS Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM XAS Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	default:
+		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, "Error, SGM XAS Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	}
+
+	setFailed();
+
+	AMMessageBoxWTimeout box(30000);
+	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
+	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
+	box.setInformativeText(userErrorString);
+
+	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+	box.setDefaultButton(acknowledgeButton_);
+
+	box.execWTimeout();
 }
 
 bool SGMXASScanActionController::initializeImplementation(){
@@ -159,6 +189,7 @@ void SGMXASScanActionController::writeHeaderToFile(){
 	QString separator = "|!|!|";
 	QString rank1String;
 	rank1String.append("Start Info\n");
+	rank1String.append("Version: SGM Generic 0.1\n");
 	rank1String.append(QString("-1%1eV\n").arg(separator));
 
 	for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
