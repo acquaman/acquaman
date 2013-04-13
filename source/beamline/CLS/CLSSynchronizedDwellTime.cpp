@@ -29,6 +29,9 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
+	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
+	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+
 	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
 	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
 	mode_ = new AMSinglePVControl("Dwell Mode", baseName+":setMode", this, 0.1);
@@ -37,7 +40,8 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	connect(startScan_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(mode_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
-	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
+	//connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
+	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
 }
@@ -56,6 +60,10 @@ QStringList CLSSynchronizedDwellTime::keys() const{
 
 AMDetectorTriggerSource* CLSSynchronizedDwellTime::triggerSource(){
 	return triggerSource_;
+}
+
+AMDetectorDwellTimeSource* CLSSynchronizedDwellTime::dwellTimeSource(){
+	return dwellTimeSource_;
 }
 
 void CLSSynchronizedDwellTime::addElement(int index)
@@ -104,6 +112,11 @@ void CLSSynchronizedDwellTime::onScanningChanged(double status){
 		triggerSource_->setSucceeded();
 }
 
+void CLSSynchronizedDwellTime::onDwellTimeChanged(double dwellTime){
+	emit timeChanged(dwellTime);
+	dwellTimeSource_->setSucceeded();
+}
+
 void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
 		return;
@@ -123,6 +136,17 @@ void CLSSynchronizedDwellTime::triggerSynchronizedDwellTimeAcquisition(CLSSynchr
 		return;
 
 	start();
+}
+
+#include <QDebug>
+void CLSSynchronizedDwellTime::onDwellTimeSourceSetDwellTime(double dwellSeconds){
+	if(!isConnected() || isScanning())
+		return;
+
+	if(dwellSeconds != time())
+		setTime(dwellSeconds);
+	else
+		dwellTimeSource_->setSucceeded();
 }
 
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)

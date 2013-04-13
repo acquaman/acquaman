@@ -128,6 +128,14 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	AMControlMoveAction3 *regionStart = new AMControlMoveAction3(new AMControlMoveActionInfo3(regionStartSetpoint), axisControl);
 	regionStart->setGenerateScanActionMessage(true);
 
+	AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
+	AMAction3 *detectorSetDwellAction;
+	for(int x = 0; x < detectors_->count(); x++){
+		detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(stepScanAxisRegion.regionTime());
+		if(detectorSetDwellAction)
+			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+	}
+
 	// generate axis loop for region
 	int loopIterations = ceil(( ((double)stepScanAxisRegion.regionEnd()) - ((double)stepScanAxisRegion.regionStart()) )/ ((double)stepScanAxisRegion.regionStep()) );
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(axisControl->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())));
@@ -144,6 +152,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	axisLoop->addSubAction(controlLoopMove);
 
 	regionList->addSubAction(regionStart);
+	regionList->addSubAction(detectorSetDwellList);
 	regionList->addSubAction(axisLoop);
 	if(isFinalRegion){
 		AMListAction3 *nextLevelFinalHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));

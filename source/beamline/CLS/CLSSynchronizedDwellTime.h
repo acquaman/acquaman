@@ -180,6 +180,8 @@ public:
 
 	/// Returns the trigger source for the whole synchronized dwell time object
 	virtual AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the whole synchronzied dwell time object
+	virtual AMDetectorDwellTimeSource* dwellTimeSource();
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createMasterTimeAction(double time);
@@ -216,6 +218,8 @@ public slots:
 protected slots:
 	/// Handles changes in the startScan PV and turns the int into a bool.  True is scanning, false is idle.
 	void onScanningChanged(double status);
+	/// Handles changes in the time PV and passes along the signal as well as interacts with the dwell time source
+	void onDwellTimeChanged(double dwellTime);
 	/// Handles changes in the status.
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.
@@ -226,6 +230,9 @@ protected slots:
 	/// Handles forwarding the trigger source triggered() signal to starting the synchronized dwell time object
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	void triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode newMode);
+
+	/// Handles forwarding the dwell time source setDwellTime() signal to the synchronized dwell time object
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
 protected:
 	/// List holding the individual elements.
@@ -242,6 +249,8 @@ protected:
 
 	/// The trigger source for the whole synchronized dwell time object
 	AMDetectorTriggerSource *triggerSource_;
+	/// The dwell time source for the whole synchronized dwell time object
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 };
 
 #endif // CLSSYNCHRONIZEDDWELLTIME_H

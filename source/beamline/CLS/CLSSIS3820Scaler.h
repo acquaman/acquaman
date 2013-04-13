@@ -26,6 +26,7 @@ class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
 class AMControl;
 class AMDetectorTriggerSource;
+class AMDetectorDwellTimeSource;
 
 #include "dataman/info/AMDetectorInfo.h"
 
@@ -65,6 +66,8 @@ public:
 
 	/// Returns the trigger source for the scaler.
 	AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the scaler
+	AMDetectorDwellTimeSource* dwellTimeSource();
 	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
@@ -124,6 +127,8 @@ protected slots:
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	bool triggerScalerAcquisition(bool isContinuous);
 
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+
 protected:
 	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> scalerChannels_;
@@ -149,6 +154,8 @@ protected:
 
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorTriggerSource *triggerSource_;
+	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;
 };
 

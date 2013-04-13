@@ -46,6 +46,8 @@ public:
 	virtual bool sharesDetectorTriggerSource();
 	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
+	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer
+	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
@@ -63,9 +65,6 @@ public:
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual const double* data() const;
-
-	/// Returns a newly created action to set the acquisition time on this detector
-	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }

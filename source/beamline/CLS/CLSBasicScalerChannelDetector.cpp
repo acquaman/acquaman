@@ -39,6 +39,12 @@ AMDetectorTriggerSource* CLSBasicScalerChannelDetector::detectorTriggerSource(){
 	return scaler_->triggerSource();
 }
 
+AMDetectorDwellTimeSource* CLSBasicScalerChannelDetector::detectorDwellTimeSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+	return scaler_->dwellTimeSource();
+}
+
 const double* CLSBasicScalerChannelDetector::data() const{
 	return data_;
 }

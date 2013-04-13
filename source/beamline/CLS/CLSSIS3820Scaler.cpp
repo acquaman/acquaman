@@ -32,6 +32,9 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
+	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
 	CLSSIS3820ScalerChannel *tmpChannel;
@@ -134,6 +137,10 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 
 AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
 	return triggerSource_;
+}
+
+AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
+	return dwellTimeSource_;
 }
 
 AMBeamlineActionItem* CLSSIS3820Scaler::createStartAction(bool setScanning) {
@@ -294,6 +301,7 @@ void CLSSIS3820Scaler::onDwellTimeChanged(double time)
 		return;
 
 	emit dwellTimeChanged(time/1000);
+	dwellTimeSource_->setSucceeded();
 }
 
 void CLSSIS3820Scaler::onScanPerBufferChanged(double scansPerBuffer){
@@ -340,6 +348,13 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 
 	setScanning(true);
 	return true;
+}
+
+void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
+	if(!isConnected() || isScanning())
+		return;
+
+	setDwellTime(dwellSeconds);
 }
 
 // CLSSIS3820ScalarChannel

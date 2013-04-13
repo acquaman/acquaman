@@ -83,6 +83,12 @@ AMDetectorTriggerSource* CLSQE65000Detector::detectorTriggerSource(){
 	return 0;
 }
 
+AMDetectorDwellTimeSource* CLSQE65000Detector::detectorDwellTimeSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+	return 0;
+}
+
 AMNumber CLSQE65000Detector::reading(const AMnDIndex &indexes) const{
 	if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 1024) )
 		return AMNumber(AMNumber::DimensionError);

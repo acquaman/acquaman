@@ -57,9 +57,6 @@ public:
 
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
-	/// Returns a null pointer, as we can't set acquisition time
-	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
-
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 

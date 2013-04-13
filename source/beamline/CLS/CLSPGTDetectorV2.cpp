@@ -91,6 +91,12 @@ AMDetectorTriggerSource* CLSPGTDetectorV2::detectorTriggerSource(){
 	return 0;
 }
 
+AMDetectorDwellTimeSource* CLSPGTDetectorV2::detectorDwellTimeSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+	return 0;
+}
+
 AMNumber CLSPGTDetectorV2::reading(const AMnDIndex &indexes) const{
 	if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 1024) )
 		return AMNumber(AMNumber::DimensionError);

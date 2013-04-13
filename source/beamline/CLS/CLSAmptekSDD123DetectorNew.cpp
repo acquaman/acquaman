@@ -78,6 +78,12 @@ AMDetectorTriggerSource* CLSAmptekSDD123DetectorNew::detectorTriggerSource(){
 	return 0;
 }
 
+AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+	return 0;
+}
+
 const double* CLSAmptekSDD123DetectorNew::data() const{
 	return data_;
 }

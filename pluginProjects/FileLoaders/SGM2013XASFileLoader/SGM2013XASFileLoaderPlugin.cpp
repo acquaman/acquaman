@@ -89,15 +89,17 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		else{
 			if(!fs.atEnd()){
 				fs >> dataValue;
-				scan->rawData()->beginInsertRows(1, -1);
-				scan->rawData()->setAxisValue(0, insertionIndex, dataValue); // insert eV
-				QList<int> rank0Measurements = measurementOrderByRank.value(0);
-				for(int x = 0; x < rank0Measurements.count(); x++){
-					fs >> dataValue;
-					scan->rawData()->setValue(AMnDIndex(insertionIndex), rank0Measurements.at(x), AMnDIndex(), dataValue);
+				if(!fs.atEnd()){
+					scan->rawData()->beginInsertRows(1, -1);
+					scan->rawData()->setAxisValue(0, insertionIndex, dataValue); // insert eV
+					QList<int> rank0Measurements = measurementOrderByRank.value(0);
+					for(int x = 0; x < rank0Measurements.count(); x++){
+						fs >> dataValue;
+						scan->rawData()->setValue(AMnDIndex(insertionIndex), rank0Measurements.at(x), AMnDIndex(), dataValue);
+					}
+					scan->rawData()->endInsertRows();
+					insertionIndex++;
 				}
-				scan->rawData()->endInsertRows();
-				insertionIndex++;
 			}
 		}
 	}

@@ -145,6 +145,11 @@ AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }
 
+#include "actions3/actions/AMDetectorDwellTimeAction.h"
+AMAction3* AMDetector::createSetAcquisitionTimeAction(double seconds){
+	return new AMDetectorDwellTimeAction(new AMDetectorDwellTimeActionInfo(toInfo(), seconds), this);
+}
+
 #include "actions3/actions/AMDetectorAcquisitionAction.h"
 AMAction3* AMDetector::createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode){
 	return new AMDetectorAcquisitionAction(new AMDetectorAcquisitionActionInfo(toInfo(), readMode, this));
