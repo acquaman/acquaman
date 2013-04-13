@@ -22,6 +22,8 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
 		detector_ = 0;
+
+	triggerSource_ = other.triggerSource_;
 }
 
 #include "beamline/AMDetectorTriggerSource.h"

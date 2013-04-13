@@ -666,7 +666,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AM3DScanConfiguration.h \
 	source/dataman/AM3DScan.h \
 	source/dataman/AMTextStream.h \
-    source/ui/util/AMMessageBoxWTimeout.h
+    source/ui/util/AMMessageBoxWTimeout.h \
+    source/beamline/CLS/CLSPGTDetectorV2.h \
+    source/beamline/CLS/CLSQE65000Detector.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1117,7 +1119,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
 	source/dataman/AM3DScan.cpp \
 	source/dataman/AMTextStream.cpp \
-    source/ui/util/AMMessageBoxWTimeout.cpp
+    source/ui/util/AMMessageBoxWTimeout.cpp \
+    source/beamline/CLS/CLSPGTDetectorV2.cpp \
+    source/beamline/CLS/CLSQE65000Detector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1141,6 +1145,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

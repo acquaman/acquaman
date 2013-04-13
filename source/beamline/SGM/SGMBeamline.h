@@ -33,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "beamline/CLS/CLSQE65000Detector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
@@ -181,6 +183,8 @@ public:
 	AMOldDetector* amptekSDD2() const { return amptekSDD2_;}
 	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
 	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
+	AMDetector* newPGTDetector() const { return newPGTDetector_;}
+	AMDetector* newQE65000Detector() const { return newQE65000Detector_;}
 	AMDetector* newTEYDetector() const { return newTEYDetector_;}
 	AMDetector* newTFYDetector() const { return newTFYDetector_;}
 	AMDetector* newI0Detector() const { return newI0Detector_;}
@@ -371,6 +375,8 @@ protected:
 	AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
+	CLSPGTDetectorV2 *newPGTDetector_;
+	CLSQE65000Detector *newQE65000Detector_;
 	CLSBasicScalerChannelDetector *newTEYDetector_;
 	CLSBasicScalerChannelDetector *newTFYDetector_;
 	CLSBasicScalerChannelDetector *newI0Detector_;

@@ -1,10 +1,11 @@
-#include "CLSAmptekSDD123DetectorNew.h"
+#include "CLSQE65000Detector.h"
 
-CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
+#include <QStringBuilder>
+
+CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {
 	baseName_ = baseName;
-
 	units_ = "Counts";
 
 	data_ = new double[1024];
@@ -12,24 +13,28 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 		data_[x] = 0;
 
 	allControls_ = new AMControlSet(this);
-	startAcquisitionControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:startAcquisition", baseName+":spectrum:startAcquisition", QString(), this, 0.5);
-	startAcquisitionControl_->setAllowsMovesWhileMoving(true);
-	statusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:state", this);
-	mcaChannelsControl_ = new AMReadOnlyPVControl(name+"MCAChannels", baseName+":parameters:MCAChannels", this);
-	integrationTimeControl_ = new AMPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", baseName+":parameters:PresetTime", QString() , this, 0.05);
-	detectorTemperatureControl_ = new AMReadOnlyPVControl(name+"DetectorTemperature", baseName+":parameters:DetectorTemperature", this);
-	spectrumControl_ = new AMReadOnlyPVControl(name+"Spectrum", baseName+":spectrum", this);
-	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
-	isRequestedControl_ = new AMPVControl(name+"IsRequested", baseName+":isRequested", baseName+":isRequested", QString(), this, 0.5);
 
-	allControls_->addControl(startAcquisitionControl_);
-	allControls_->addControl(statusControl_);
-	allControls_->addControl(mcaChannelsControl_);
-	allControls_->addControl(integrationTimeControl_);
-	allControls_->addControl(detectorTemperatureControl_);
+	spectrumControl_ = new AMReadOnlyPVControl(name%"Spectrum", baseName%":DarkCorrectedSpectra", this);
+	spectrumControl_->setDescription("QE 65000 Spectrum");
+	spectrumControl_->setContextKnownDescription("Spectrum");
+	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 1024, this);
+	((AMReadOnlyWaveformBinningPVControl*)binnedSpectrumControl_)->setAttemptDouble(true);
+	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.1);
+	integrationTimeControl_->setDescription("QE 65000 Integration Time");
+	integrationTimeControl_->setContextKnownDescription("Integration Time");
+
+	startAcquisitionControl_ = new AMPVControl(name%"StartAcquisition", baseName%":Acquire", baseName%":Acquire", "", this, 0.1);
+	startAcquisitionControl_->setDescription("QE 65000 Start Acquisition");
+	startAcquisitionControl_->setContextKnownDescription("Start Acquisition");
+	statusControl_ = new AMReadOnlyPVControl(name+"DwellStatus", baseName+":Acquiring", this);
+	statusControl_->setDescription("QE 65000 Status");
+	statusControl_->setContextKnownDescription("Status");
+
 	allControls_->addControl(spectrumControl_);
 	allControls_->addControl(binnedSpectrumControl_);
-	allControls_->addControl(isRequestedControl_);
+	allControls_->addControl(integrationTimeControl_);
+	allControls_->addControl(startAcquisitionControl_);
+	allControls_->addControl(statusControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
@@ -42,47 +47,43 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
 }
 
-int CLSAmptekSDD123DetectorNew::size(int axisNumber) const{
+int CLSQE65000Detector::size(int axisNumber) const{
 	if(axisNumber == 0)
 		return 1024;
 	return -1;
 }
 
-QList<AMAxisInfo> CLSAmptekSDD123DetectorNew::axes() const{
+QList<AMAxisInfo> CLSQE65000Detector::axes() const{
 	QList<AMAxisInfo> axisInfo;
-	AMAxisInfo ai("Energy", 1024, "Energy", "eV");
+	AMAxisInfo ai("Wavelength", 1024, "Wavelength", "nm");
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
 	axisInfo << ai;
 	return axisInfo;
 }
 
-double CLSAmptekSDD123DetectorNew::acquisitionTime() const{
+double CLSQE65000Detector::acquisitionTime() const{
 	if(isConnected())
 		return integrationTimeControl_->value();
 	return -1;
 }
 
-QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
-	return "amptek:sdd:all:spectrum:startAcquisitio";
+QString CLSQE65000Detector::synchronizedDwellKey() const{
+	return QString("%1:Acquire NPP NMS").arg(baseName_);
 }
 
-bool CLSAmptekSDD123DetectorNew::sharesDetectorTriggerSource(){
+bool CLSQE65000Detector::sharesDetectorTriggerSource(){
 	return currentlySynchronizedDwell();
 }
 
 #include "beamline/AMBeamline.h"
-AMDetectorTriggerSource* CLSAmptekSDD123DetectorNew::detectorTriggerSource(){
+AMDetectorTriggerSource* CLSQE65000Detector::detectorTriggerSource(){
 	if(currentlySynchronizedDwell())
 		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
 	return 0;
 }
 
-const double* CLSAmptekSDD123DetectorNew::data() const{
-	return data_;
-}
-
-AMNumber CLSAmptekSDD123DetectorNew::reading(const AMnDIndex &indexes) const{
+AMNumber CLSQE65000Detector::reading(const AMnDIndex &indexes) const{
 	if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 1024) )
 		return AMNumber(AMNumber::DimensionError);
 
@@ -90,7 +91,7 @@ AMNumber CLSAmptekSDD123DetectorNew::reading(const AMnDIndex &indexes) const{
 	return tmpControl->readPV()->lastIntegerValues().at(indexes.i());
 }
 
-AMNumber CLSAmptekSDD123DetectorNew::singleReading() const{
+AMNumber CLSQE65000Detector::singleReading() const{
 	if(!isConnected())
 		return AMNumber(AMNumber::Null);
 
@@ -99,13 +100,17 @@ AMNumber CLSAmptekSDD123DetectorNew::singleReading() const{
 
 }
 
-bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
+bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
 	Q_UNUSED(outputValues)
 
 	return false;
 }
 
-bool CLSAmptekSDD123DetectorNew::setAcquisitionTime(double seconds){
+const double* CLSQE65000Detector::data() const{
+	return data_;
+}
+
+bool CLSQE65000Detector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
 
@@ -114,19 +119,19 @@ bool CLSAmptekSDD123DetectorNew::setAcquisitionTime(double seconds){
 	return true;
 }
 
-bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
+bool CLSQE65000Detector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)
 
 	return false;
 }
 
-bool CLSAmptekSDD123DetectorNew::initializeImplementation(){
+bool CLSQE65000Detector::initializeImplementation(){
 	//setInitializing();
 	setInitialized();
 	return true;
 }
 
-bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
+bool CLSQE65000Detector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
@@ -136,12 +141,12 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 	return false;
 }
 
-bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
+bool CLSQE65000Detector::cleanupImplementation(){
 	setCleanedUp();
 	return true;
 }
 
-void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
+void CLSQE65000Detector::onControlsConnected(bool connected){
 	if(connected)
 		setConnected(connected);
 	else
@@ -153,11 +158,11 @@ void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
 		setNotReadyForAcquisition();
 }
 
-void CLSAmptekSDD123DetectorNew::onControlsTimedOut(){
+void CLSQE65000Detector::onControlsTimedOut(){
 	setConnected(false);
 }
 
-void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(double newValue){
+void CLSQE65000Detector::onSpectrumControlChanged(double newValue){
 	Q_UNUSED(newValue)
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
@@ -167,7 +172,7 @@ void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(double newValue){
 		data_[x] = values.at(x);
 }
 
-void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
+void CLSQE65000Detector::onStatusControlChanged(double value){
 	Q_UNUSED(value)
 
 	if(statusControl_->withinTolerance(1))
