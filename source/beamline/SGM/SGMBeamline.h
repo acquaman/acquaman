@@ -220,6 +220,7 @@ public:
 	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
 
 	AMBeamlineListAction* createBeamOnActions();
+	AMAction3 *createBeamOnActions3();
 	AMBeamlineListAction* createStopMotorsAction();
 
 	AMBeamlineListAction* createGoToTransferPositionActions();

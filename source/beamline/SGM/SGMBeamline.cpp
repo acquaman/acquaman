@@ -498,6 +498,27 @@ AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	return beamOnAction;
 }
 
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+AMAction3* SGMBeamline::createBeamOnActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SGM Beam On", "SGM Beam On"), AMListAction3::Parallel);
+
+	AMControlInfo beamOnSetpoint = beamOn_->toInfo();
+	beamOnSetpoint.setValue(1);
+	AMControlMoveAction3 *beamOnAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(beamOnSetpoint), beamOn_);
+	beamOnActionsList->addSubAction(beamOnAction);
+
+	AMControlInfo fastShutterSetpoint = fastShutterVoltage_->toInfo();
+	fastShutterSetpoint.setValue(0);
+	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
+	beamOnActionsList->addSubAction(fastShutterAction);
+
+	return beamOnActionsList;
+}
+
 AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
 	AMBeamlineParallelActionsList *stopMotorsActionsList = new AMBeamlineParallelActionsList();
 	AMBeamlineListAction *stopMotorsAction = new AMBeamlineListAction(stopMotorsActionsList);

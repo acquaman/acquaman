@@ -71,6 +71,10 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
 
+	/// Creates an action to enable or disable this amptek for in the array.
+	AMAction3* createEnableAction3(bool setEnabled);
+	bool isEnabled() const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
