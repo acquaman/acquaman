@@ -200,6 +200,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
+	pseudoWireStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
+	pseudoWireStage_->setXRange(-700000, 700000);
+	pseudoWireStage_->setYRange(-200000, 200000);
+	pseudoWireStage_->setZRange(-200000, 200000);
 }
 
 void VESPERSBeamline::setupEndstation()

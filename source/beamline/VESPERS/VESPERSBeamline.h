@@ -403,6 +403,12 @@ public:
 	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
 	/// Returns the normal motor control.
 	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
+	/// Returns the horizontal wire stage control.
+	AMControl *wireStageHorizontal() const { return wireStageHorizontal_; }
+	/// Returns the vertical wire stage control.
+	AMControl *wireStageVertical() const { return wireStageVertical_; }
+	/// Returns the normal wire motor control.
+	AMControl *wireStageNormal() const { return wireStageNormal_; }
 
 	// Real motors.
 	/// Returns the sample stage motor in the x-direction.
@@ -417,6 +423,8 @@ public:
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
 	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
+	/// Returns the wire stage control built with the pseudo-motors.
+	VESPERSSampleStageControl *pseudoWireStage() const { return pseudoWireStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -738,6 +746,10 @@ protected:
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
 
+	AMControl *wireStageHorizontal_;
+	AMControl *wireStageVertical_;
+	AMControl *wireStageNormal_;
+
 	// Physical motors.
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
@@ -746,6 +758,7 @@ protected:
 	// The sample stage encapsulation.
 	VESPERSSampleStageControl *pseudoSampleStage_;
 	VESPERSSampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoWireStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

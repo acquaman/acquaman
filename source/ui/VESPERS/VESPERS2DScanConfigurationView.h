@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DSCANCONFIGURATIONVIEW_H
 
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 
 #include <QLineEdit>
