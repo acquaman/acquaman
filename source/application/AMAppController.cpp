@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMDetectorDwellTimeSourceScanOptimizer.h"
 #include "acquaman/AMListActionScanOptimizer.h"
 #include "acquaman/AMNestedAxisTypeValidator.h"
 
@@ -83,9 +84,11 @@ bool AMAppController::startup(){
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
 
 		AMDetectorTriggerSourceScanOptimizer *triggerOptimizer = new AMDetectorTriggerSourceScanOptimizer();
+		AMDetectorDwellTimeSourceScanOptimizer *dwellTimeOptimizer = new AMDetectorDwellTimeSourceScanOptimizer();
 		AMEmptyListScanOptimizer *emptyListOptimizer = new AMEmptyListScanOptimizer();
 		AMSingleElementListOptimizer *singleElementListOptimizer = new AMSingleElementListOptimizer();
 		AMAppControllerSupport::appendPrincipleOptimizer(triggerOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(dwellTimeOptimizer);
 		AMAppControllerSupport::appendPrincipleOptimizer(emptyListOptimizer);
 		AMAppControllerSupport::appendPrincipleOptimizer(singleElementListOptimizer);
 

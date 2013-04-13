@@ -61,9 +61,15 @@ void AMDetectorDwellTimeAction::startImplementation(){
 	}
 	else{
 		// connect to detector initialization signals
-		connect(detector_, SIGNAL(acquisitionTimeChanged(double)), this, SLOT(onDwellTimeChanged(double)));
-		detector_->setAcquisitionTime(detectorDwellTimeInfo()->dwellSeconds());
-		setStarted();
+		if(detector_->acquisitionTime() != detectorDwellTimeInfo()->dwellSeconds()){
+			connect(detector_, SIGNAL(acquisitionTimeChanged(double)), this, SLOT(onDwellTimeChanged(double)));
+			detector_->setAcquisitionTime(detectorDwellTimeInfo()->dwellSeconds());
+			setStarted();
+		}
+		else{
+			setStarted();
+			setSucceeded();
+		}
 	}
 }
 

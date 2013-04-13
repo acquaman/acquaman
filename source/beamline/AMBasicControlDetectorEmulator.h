@@ -55,6 +55,7 @@ public:
 	/// Returns a (hopefully) valid pointer to a single double with our current value
 	virtual const double* data() const;
 
+	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
