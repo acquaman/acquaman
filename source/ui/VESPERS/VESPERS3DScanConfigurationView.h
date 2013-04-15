@@ -33,6 +33,10 @@ protected slots:
 	void onSetStartPosition();
 	/// Handles setting the end position when the "Use Current" button is pushed.
 	void onSetEndPosition();
+	/// Handles setting the start position of the wire when the "Use Current" button is pushed.
+	void onSetWireStartPosition();
+	/// Handles setting the end position of the wire when the "Use Current" button is pushed.
+	void onSetWireEndPosition();
 	/// Helper slot that manages setting the x axis start position.
 	void onXStartChanged();
 	/// Helper slot that manages setting the x axis end position.
