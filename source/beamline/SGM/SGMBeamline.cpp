@@ -284,6 +284,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
+	newPGTDetector_ = new CLSPGTDetectorV2("NEWPGT", "PGT", "MCA1611-01", this);
+	newQE65000Detector_ = new CLSQE65000Detector("NEWQE65000", "QE 65000", "SA0000-03", this);
 	newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
 	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
@@ -296,6 +298,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
 	newDetectorSet_->addDetector(newAmptekSDD2_);
+	newDetectorSet_->addDetector(newPGTDetector_);
+	newDetectorSet_->addDetector(newQE65000Detector_);
 	newDetectorSet_->addDetector(newTEYDetector_);
 	newDetectorSet_->addDetector(newTFYDetector_);
 	newDetectorSet_->addDetector(newI0Detector_);
@@ -304,6 +308,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_ = new AMDetectorGroup("XAS Detectors", this);
 	XASDetectorGroup_->addDetector(newAmptekSDD1_);
 	XASDetectorGroup_->addDetector(newAmptekSDD2_);
+	XASDetectorGroup_->addDetector(newPGTDetector_);
+	XASDetectorGroup_->addDetector(newQE65000Detector_);
 	XASDetectorGroup_->addDetector(newTEYDetector_);
 	XASDetectorGroup_->addDetector(newTFYDetector_);
 	XASDetectorGroup_->addDetector(newI0Detector_);
@@ -490,6 +496,27 @@ AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	beamOnActionsList->appendAction(0, beamOnAction1);
 	beamOnActionsList->appendAction(0, beamOnAction2);
 	return beamOnAction;
+}
+
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+AMAction3* SGMBeamline::createBeamOnActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SGM Beam On", "SGM Beam On"), AMListAction3::Parallel);
+
+	AMControlInfo beamOnSetpoint = beamOn_->toInfo();
+	beamOnSetpoint.setValue(1);
+	AMControlMoveAction3 *beamOnAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(beamOnSetpoint), beamOn_);
+	beamOnActionsList->addSubAction(beamOnAction);
+
+	AMControlInfo fastShutterSetpoint = fastShutterVoltage_->toInfo();
+	fastShutterSetpoint.setValue(0);
+	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
+	beamOnActionsList->addSubAction(fastShutterAction);
+
+	return beamOnActionsList;
 }
 
 AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
@@ -1090,6 +1117,8 @@ void SGMBeamline::setupExposedControls(){
 void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD1_);
 	addExposedDetector(newAmptekSDD2_);
+	addExposedDetector(newPGTDetector_);
+	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);
 	addExposedDetector(newI0Detector_);
 	addExposedDetector(newTFYDetector_);

@@ -72,6 +72,7 @@ protected slots:
 	void onActionTreeGenerated(AMAction3 *actionTree);
 	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
 	void onFileWriterIsBusy(bool isBusy);
+	void onScanFinished();
 
 protected:
 	virtual bool initializeImplementation();
@@ -83,9 +84,13 @@ protected:
 	void writeHeaderToFile();
 	void writeDataToFiles();
 
+	AMAction3* createInitializationActions();
+	AMAction3* createCleanupActions();
+
 protected:
 	AMAction3 *actionTree_;
 	AMScanActionControllerScanAssembler *newScanAssembler_;
+	SGMXASScanConfiguration2013 *configuration_;
 
 	AMnDIndex insertionIndex_;
 	double currentAxisValue_;

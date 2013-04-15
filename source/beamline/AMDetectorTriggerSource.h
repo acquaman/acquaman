@@ -33,4 +33,28 @@ protected:
 	QString name_;
 };
 
+class AMDetectorDwellTimeSource : public QObject
+{
+Q_OBJECT
+public:
+	AMDetectorDwellTimeSource(const QString &name, QObject *parent = 0);
+
+	QString name() const { return name_; }
+
+public slots:
+	void requestSetDwellTime(double dwellSeconds);
+
+	void setSucceeded();
+	void setFailed();
+
+signals:
+	void setDwellTime(double dwellSeconds);
+
+	void succeeded();
+	void failed();
+
+protected:
+	QString name_;
+};
+
 #endif // AMDETECTORTRIGGERSOURCE_H

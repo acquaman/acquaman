@@ -1,5 +1,5 @@
-#ifndef CLSAMPTEKSDD123DETECTORNEW_H
-#define CLSAMPTEKSDD123DETECTORNEW_H
+#ifndef CLSQE65000DETECTOR_H
+#define CLSQE65000DETECTOR_H
 
 #include "beamline/AMDetector.h"
 
@@ -7,12 +7,12 @@
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
-class CLSAmptekSDD123DetectorNew : public AMDetector
+class CLSQE65000Detector : public AMDetector
 {
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
-	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
@@ -23,28 +23,26 @@ public:
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
 	virtual QList<AMAxisInfo> axes() const;
 
-	/// The Ampteks don't explicitly require powering on
+	/// The QE65000 does not explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	///// Returns true if the detector is currently acquiring by checking the status control.
-	//virtual bool isAcquiring() const;
-	/// Cancelling is not implemented for the Amptek detectors
+	/// Cancelling is not implemented for the QE65000 detector
 	virtual bool canCancel() const { return false; }
-	/// Clearing is not currently supported for the Amptek detectors
-	virtual bool canClear() const { return false; }
+	/// Clearing is not currently supported for the QE65000 detector
+	virtual bool canClear() const { return true; }
 
-	/// Ampteks are not currently capable of continuous acquisition
+	/// QE65000 is not currently capable of continuous acquisition
 	virtual bool canContinuousAcquire() const { return false; }
 
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
 
-	/// The ampteks can be configured to work with synchronized dwell time systems
+	/// The QE65000 can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;
 
-	/// The Ampteks share a triggering source  sometimes uses the synchronized dwell time object
+	/// The QE65000 shares a triggering source sometimes uses the synchronized dwell time object
 	virtual bool sharesDetectorTriggerSource();
 	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
@@ -62,7 +60,7 @@ public:
 	/// Returns the total count (sum of all bins) as the single reading
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the Amptek detectors do not support continuous reads
+	/// Returns false, because the QE65000 detector does not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
@@ -71,10 +69,6 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
 
-	/// Creates an action to enable or disable this amptek for in the array.
-	AMAction3* createEnableAction3(bool setEnabled);
-	bool isEnabled() const;
-
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
@@ -82,8 +76,11 @@ public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 
-	/// Amptek detectors do not support clearing
+	/// QE65000 detector does not support clearing
 	virtual bool clear() { return false; }
+
+signals:
+	void acquisitionModeChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -108,20 +105,14 @@ protected:
 
 	/// The status control
 	AMControl *statusControl_;
-	/// The number of channels control
-	AMControl *mcaChannelsControl_;
 	/// The integration time control
 	AMControl *integrationTimeControl_;
-	/// The detector temperature control
-	AMControl *detectorTemperatureControl_;
 	/// The detector start control
 	AMControl *startAcquisitionControl_;
 	/// The detector spectrum control
 	AMControl *spectrumControl_;
 	/// A binned version of the detector spectrum control
 	AMControl *binnedSpectrumControl_;
-	/// The enable/disable state for this amptek in the array
-	AMControl *isRequestedControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;
@@ -136,4 +127,4 @@ protected:
 	double *data_;
 };
 
-#endif // CLSAMPTEKSDD123DETECTORNEW_H
+#endif // CLSQE65000DETECTOR_H

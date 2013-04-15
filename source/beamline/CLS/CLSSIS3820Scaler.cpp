@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+#include "actions3/actions/AMControlMoveAction3.h"
+
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
@@ -32,6 +34,9 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
+	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
 	CLSSIS3820ScalerChannel *tmpChannel;
@@ -136,6 +141,10 @@ AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
 	return triggerSource_;
 }
 
+AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
+	return dwellTimeSource_;
+}
+
 AMBeamlineActionItem* CLSSIS3820Scaler::createStartAction(bool setScanning) {
 
 	if(!isConnected())
@@ -147,6 +156,22 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createStartAction(bool setScanning) {
 		return 0; //NULL
 
 	action->setSetpoint(setScanning == true ? 1 : 0);
+
+	return action;
+}
+
+AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = startToggle_->toInfo();
+	setpoint.setValue(setScanning == true ? 1 : 0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, startToggle_);
+
+	if(!action)
+		return 0; //NULL
 
 	return action;
 }
@@ -166,6 +191,22 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createContinuousEnableAction(bool enable
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = continuousToggle_->toInfo();
+	setpoint.setValue(enableContinuous == true ? 1 : 0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, continuousToggle_);
+
+	if(!action)
+		return 0; //NULL
+
+	return action;
+}
+
 AMBeamlineActionItem* CLSSIS3820Scaler::createDwellTimeAction(double dwellTime) {
 
 	if(!isConnected())
@@ -177,6 +218,22 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createDwellTimeAction(double dwellTime) 
 		return 0; //NULL
 
 	action->setSetpoint(dwellTime*1000);
+
+	return action;
+}
+
+AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = dwellTime_->toInfo();
+	setpoint.setValue(dwellTime*1000);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, dwellTime_);
+
+	if(!action)
+		return 0; //NULL
 
 	return action;
 }
@@ -196,6 +253,22 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createScansPerBufferAction(int scansPerB
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createScansPerBufferAction3(int scansPerBuffer) {
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = scanPerBuffer_->toInfo();
+	setpoint.setValue(scansPerBuffer);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, scanPerBuffer_);
+
+	if(!action)
+		return 0; //NULL
+
+	return action;
+}
+
 AMBeamlineActionItem* CLSSIS3820Scaler::createTotalScansAction(int totalScans) {
 
 	if(!isConnected())
@@ -207,6 +280,22 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createTotalScansAction(int totalScans) {
 		return 0; //NULL
 
 	action->setSetpoint(totalScans);
+
+	return action;
+}
+
+AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = totalScans_->toInfo();
+	setpoint.setValue(totalScans);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, totalScans_);
+
+	if(!action)
+		return 0; //NULL
 
 	return action;
 }
@@ -294,6 +383,7 @@ void CLSSIS3820Scaler::onDwellTimeChanged(double time)
 		return;
 
 	emit dwellTimeChanged(time/1000);
+	dwellTimeSource_->setSucceeded();
 }
 
 void CLSSIS3820Scaler::onScanPerBufferChanged(double scansPerBuffer){
@@ -340,6 +430,13 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 
 	setScanning(true);
 	return true;
+}
+
+void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
+	if(!isConnected() || isScanning())
+		return;
+
+	setDwellTime(dwellSeconds);
 }
 
 // CLSSIS3820ScalarChannel

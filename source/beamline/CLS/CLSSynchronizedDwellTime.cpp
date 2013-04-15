@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSynchronizedDwellTime.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *parent)
 	: AMSynchronizedDwellTime(parent)
@@ -29,6 +30,9 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
+	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
+	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+
 	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
 	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
 	mode_ = new AMSinglePVControl("Dwell Mode", baseName+":setMode", this, 0.1);
@@ -37,7 +41,8 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	connect(startScan_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(mode_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
-	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
+	//connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
+	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
 }
@@ -58,6 +63,10 @@ AMDetectorTriggerSource* CLSSynchronizedDwellTime::triggerSource(){
 	return triggerSource_;
 }
 
+AMDetectorDwellTimeSource* CLSSynchronizedDwellTime::dwellTimeSource(){
+	return dwellTimeSource_;
+}
+
 void CLSSynchronizedDwellTime::addElement(int index)
 {
 	elements_ << new CLSSynchronizedDwellTimeElement(baseName_, index, this);
@@ -76,6 +85,18 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double ti
 	return action;
 }
 
+AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time){
+	if (!dwellTime_->isConnected())
+		return 0;
+
+	AMControlInfo setpoint = dwellTime_->toInfo();
+	setpoint.setValue(time);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, dwellTime_);
+
+	return action;
+}
+
 AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
 {
 	if (!startScan_->isConnected())
@@ -83,6 +104,18 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
 	action->setSetpoint(scan == true ? 1.0 : 0.0);
+
+	return action;
+}
+
+AMAction3 *CLSSynchronizedDwellTime::createScanningAction3(bool scan){
+	if (!startScan_->isConnected())
+		return 0;
+
+	AMControlInfo setpoint = startScan_->toInfo();
+	setpoint.setValue(scan == true ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, startScan_);
 
 	return action;
 }
@@ -98,10 +131,27 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronized
 	return action;
 }
 
+AMAction3 *CLSSynchronizedDwellTime::createModeAction3(CLSSynchronizedDwellTime::Mode mode){
+	if (!mode_->isConnected())
+		return 0;
+
+	AMControlInfo setpoint = mode_->toInfo();
+	setpoint.setValue(mode == Continuous ? 0.0 : 1.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, mode_);
+
+	return action;
+}
+
 void CLSSynchronizedDwellTime::onScanningChanged(double status){
 	emit scanningChanged((int)status == 1 ? true : false);
 	if((int)status == 0)
 		triggerSource_->setSucceeded();
+}
+
+void CLSSynchronizedDwellTime::onDwellTimeChanged(double dwellTime){
+	emit timeChanged(dwellTime);
+	dwellTimeSource_->setSucceeded();
 }
 
 void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
@@ -123,6 +173,17 @@ void CLSSynchronizedDwellTime::triggerSynchronizedDwellTimeAcquisition(CLSSynchr
 		return;
 
 	start();
+}
+
+#include <QDebug>
+void CLSSynchronizedDwellTime::onDwellTimeSourceSetDwellTime(double dwellSeconds){
+	if(!isConnected() || isScanning())
+		return;
+
+	if(dwellSeconds != time())
+		setTime(dwellSeconds);
+	else
+		dwellTimeSource_->setSucceeded();
 }
 
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
@@ -161,6 +222,19 @@ AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double t
 	return action;
 }
 
+AMAction3 *CLSSynchronizedDwellTimeElement::createTimeAction3(double time)
+{
+	if (!time_->isConnected())
+		return 0;
+
+	AMControlInfo setpoint = time_->toInfo();
+	setpoint.setValue(time);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, time_);
+
+	return action;
+}
+
 AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool enable)
 {
 	if (!enable_->isConnected())
@@ -168,6 +242,19 @@ AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool e
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(enable_);
 	action->setSetpoint(enable == true ? 1.0 : 0.0);
+
+	return action;
+}
+
+AMAction3 *CLSSynchronizedDwellTimeElement::createEnableAction3(bool enable)
+{
+	if (!enable_->isConnected())
+		return 0;
+
+	AMControlInfo setpoint = enable_->toInfo();
+	setpoint.setValue(enable == true ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, enable_);
 
 	return action;
 }

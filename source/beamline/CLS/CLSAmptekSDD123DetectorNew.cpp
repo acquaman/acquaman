@@ -78,6 +78,12 @@ AMDetectorTriggerSource* CLSAmptekSDD123DetectorNew::detectorTriggerSource(){
 	return 0;
 }
 
+AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource(){
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+	return 0;
+}
+
 const double* CLSAmptekSDD123DetectorNew::data() const{
 	return data_;
 }
@@ -102,6 +108,31 @@ AMNumber CLSAmptekSDD123DetectorNew::singleReading() const{
 bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
 	Q_UNUSED(outputValues)
 
+	return false;
+}
+
+#include "actions3/actions/AMControlMoveAction3.h"
+AMAction3* CLSAmptekSDD123DetectorNew::createEnableAction3(bool setEnabled){
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = isRequestedControl_->toInfo();
+	setpoint.setValue(setEnabled == true ? 1 : 0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, isRequestedControl_);
+
+	if(!action)
+		return 0; //NULL
+
+	return action;
+}
+
+bool CLSAmptekSDD123DetectorNew::isEnabled() const{
+	if(!isConnected())
+		return false;
+
+	if(isRequestedControl_->withinTolerance(1))
+		return true;
 	return false;
 }
 
@@ -142,7 +173,7 @@ bool CLSAmptekSDD123DetectorNew::cleanupImplementation(){
 }
 
 void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
-	if(connected && !integrationTimeControl_->withinTolerance(2.00))
+	if(connected)
 		setConnected(connected);
 	else
 		setConnected(false);

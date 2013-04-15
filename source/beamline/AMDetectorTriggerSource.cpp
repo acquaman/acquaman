@@ -17,3 +17,21 @@ void AMDetectorTriggerSource::setSucceeded(){
 void AMDetectorTriggerSource::setFailed(){
 	emit failed();
 }
+
+AMDetectorDwellTimeSource::AMDetectorDwellTimeSource(const QString &name, QObject *parent) :
+	QObject(parent)
+{
+	name_ = name;
+}
+
+void AMDetectorDwellTimeSource::requestSetDwellTime(double dwellSeconds){
+	emit setDwellTime(dwellSeconds);
+}
+
+void AMDetectorDwellTimeSource::setSucceeded(){
+	emit succeeded();
+}
+
+void AMDetectorDwellTimeSource::setFailed(){
+	emit failed();
+}

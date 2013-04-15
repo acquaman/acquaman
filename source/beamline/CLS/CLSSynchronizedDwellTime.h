@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/AMDetectorInfo.h"
 
 class AMDetectorTriggerSource;
+class AMAction3;
 
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
@@ -65,8 +66,11 @@ public:
 
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createTimeAction(double time);
+	AMAction3 *createTimeAction3(double time);
+
 	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
 	AMBeamlineActionItem *createEnableAction(bool enable);
+	AMAction3 *createEnableAction3(bool enable);
 
 public slots:
 	/// Set the time (in seconds).  This will automatically be converted to match whatever the units of the element are.
@@ -180,13 +184,20 @@ public:
 
 	/// Returns the trigger source for the whole synchronized dwell time object
 	virtual AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the whole synchronzied dwell time object
+	virtual AMDetectorDwellTimeSource* dwellTimeSource();
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createMasterTimeAction(double time);
+	AMAction3 *createMasterTimeAction3(double time);
+
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
 	AMBeamlineActionItem *createScanningAction(bool scan);
+	AMAction3 *createScanningAction3(bool scan);
+
 	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
 	AMBeamlineActionItem *createModeAction(CLSSynchronizedDwellTime::Mode mode);
+	AMAction3 *createModeAction3(CLSSynchronizedDwellTime::Mode mode);
 
 signals:
 	/// Notifier that the Mode has changed.
@@ -216,6 +227,8 @@ public slots:
 protected slots:
 	/// Handles changes in the startScan PV and turns the int into a bool.  True is scanning, false is idle.
 	void onScanningChanged(double status);
+	/// Handles changes in the time PV and passes along the signal as well as interacts with the dwell time source
+	void onDwellTimeChanged(double dwellTime);
 	/// Handles changes in the status.
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.
@@ -226,6 +239,9 @@ protected slots:
 	/// Handles forwarding the trigger source triggered() signal to starting the synchronized dwell time object
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	void triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode newMode);
+
+	/// Handles forwarding the dwell time source setDwellTime() signal to the synchronized dwell time object
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
 protected:
 	/// List holding the individual elements.
@@ -242,6 +258,8 @@ protected:
 
 	/// The trigger source for the whole synchronized dwell time object
 	AMDetectorTriggerSource *triggerSource_;
+	/// The dwell time source for the whole synchronized dwell time object
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 };
 
 #endif // CLSSYNCHRONIZEDDWELLTIME_H

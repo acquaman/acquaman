@@ -1,24 +1,24 @@
-#ifndef AMDETECTORTRIGGERACTION_H
-#define AMDETECTORTRIGGERACTION_H
+#ifndef AMDETECTORDWELLTIMEACTION_H
+#define AMDETECTORDWELLTIMEACTION_H
 
 #include "actions3/AMAction3.h"
 #include "beamline/AMDetector.h"
-#include "actions3/actions/AMDetectorTriggerActionInfo.h"
+#include "actions3/actions/AMDetectorDwellTimeActionInfo.h"
 
-#define AMDETECTORTRIGGERACTION_NO_VALID_DETECTOR 500003
-#define AMDETECTORTRIGGERACTION_NOT_VALID_READMODE 500004
+#define AMDETECTORDWELLTIMEACTION_NO_VALID_DETECTOR 520003
+#define AMDETECTORDWELLTIMEACTION_NOT_VALID_DWELL 520004
 
-class AMDetectorTriggerAction : public AMAction3
+class AMDetectorDwellTimeAction : public AMAction3
 {
 Q_OBJECT
 public:
-	/// Constructor. Requires and takes ownership of an existing AMDetectorTriggerActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedDetectors will be used instead.
-	AMDetectorTriggerAction(AMDetectorTriggerActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
+	/// Constructor. Requires and takes ownership of an existing AMDetectorDwellTimeActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedDetectors will be used instead.
+	AMDetectorDwellTimeAction(AMDetectorDwellTimeActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
 
 	/// Copy Constructor
-	AMDetectorTriggerAction(const AMDetectorTriggerAction &other);
+	AMDetectorDwellTimeAction(const AMDetectorDwellTimeAction &other);
 	/// Virtual copy constructor
-	virtual AMAction3* createCopy() const { return new AMDetectorTriggerAction(*this); }
+	virtual AMAction3* createCopy() const { return new AMDetectorDwellTimeAction(*this); }
 
 	/// Returns the detector that will be initialized
 	AMDetector* detector() const { return detector_; }
@@ -51,23 +51,24 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 protected slots:
-	/// Handle signals from our detector
-	void onAcquisitionStarted();
-	void onAcquisitionSucceeded();
-	void onAcquisitionFailed();
+	/// Handle signals from our dwell time source
+	void onDwellSetStarted(double dwellSeconds);
+	void onDwellSetSucceeded();
+	void onDwellSetFailed();
+	void onDwellTimeChanged(double dwellSeconds);
 
 protected:
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
-	const AMDetectorTriggerActionInfo* detectorTriggerInfo() const { return qobject_cast<const AMDetectorTriggerActionInfo*>(info()); }
+	const AMDetectorDwellTimeActionInfo* detectorDwellTimeInfo() const { return qobject_cast<const AMDetectorDwellTimeActionInfo*>(info()); }
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
-	AMDetectorTriggerActionInfo* detectorTriggerInfo() { return qobject_cast<AMDetectorTriggerActionInfo*>(info()); }
+	AMDetectorDwellTimeActionInfo* detectorDwellTimeInfo() { return qobject_cast<AMDetectorDwellTimeActionInfo*>(info()); }
 
 	// Internal variables:
 
 	/// A pointer to the AMDetector we use to implement the action
 	AMDetector* detector_;
 
-	AMDetectorTriggerSource *triggerSource_;
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 };
 
-#endif // AMDETECTORTRIGGERACTION_H
+#endif // AMDETECTORDWELLTIMEACTION_H

@@ -436,6 +436,22 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	}
 }
 
+void SGMAppController::onSGMNewPGTDetectorConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newPGTDetector() && SGMBeamline::sgm()->newPGTDetector()->isConnected() && !newPGTDetectorView_){
+		newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
+		mw_->addPane(newPGTDetectorView_, "Beamline Detectors", "NEW SGM PGT", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewQE65000DetectorConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newQE65000Detector() && SGMBeamline::sgm()->newQE65000Detector()->isConnected() && !newQE65000DetectorView_){
+		newQE65000DetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newQE65000Detector());
+		mw_->addPane(newQE65000DetectorView_, "Beamline Detectors", "NEW SGM QE 65000", ":/system-software-update.png");
+	}
+}
+
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
@@ -1211,6 +1227,14 @@ bool SGMAppController::setupSGMViews(){
 	newAmptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
+
+	newPGTDetectorView_ = 0;
+	connect(SGMBeamline::sgm()->newPGTDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewPGTDetectorConnected(bool)));
+	onSGMNewPGTDetectorConnected(false);
+
+	newQE65000DetectorView_ = 0;
+	connect(SGMBeamline::sgm()->newQE65000Detector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewQE65000DetectorConnected(bool)));
+	onSGMNewQE65000DetectorConnected(false);
 
 	newDetectorsSelectorView_ = 0;
 	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);

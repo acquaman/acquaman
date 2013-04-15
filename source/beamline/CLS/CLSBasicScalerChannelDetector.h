@@ -38,6 +38,8 @@ public:
 	virtual bool sharesDetectorTriggerSource() { return true; }
 	/// Returns the current shared detector trigger source (either the main scaler trigger source or the synchronized dwell time trigger source)
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
+	/// Returns the current shared detector dwell time source (either the main scaler dwell time source or the synchronized dwell time dwell time source)
+	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
@@ -55,9 +57,6 @@ public:
 
 	/// Returns a (hopefully) valid pointer to a single double with our current value
 	virtual const double* data() const;
-
-	/// Returns a newly created action to set the acquisition time on this detector
-	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }

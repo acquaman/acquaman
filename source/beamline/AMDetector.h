@@ -9,6 +9,7 @@
 #include "dataman/datasource/AMDataSource.h"
 
 class AMDetectorTriggerSource;
+class AMDetectorDwellTimeSource;
 
 /// An AMDetector is an abstract representation of all scientific tools designed to report data
 /*!
@@ -203,6 +204,8 @@ public:
 	virtual bool sharesDetectorTriggerSource() { return false; }
 	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
 	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
+	/// Returns the dwell time source for this detector. Default implementation returns a NULL pointer
+	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource() { return 0; }
 
 	/// Returns the read method for this detector
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const = 0;
@@ -243,7 +246,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	virtual AMAction3* createInitializationActions();
 
 	/// Returns a newly created action to set the acquisition time on this detector
-	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) = 0;
+	virtual AMAction3* createSetAcquisitionTimeAction(double seconds);
 
 	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
 

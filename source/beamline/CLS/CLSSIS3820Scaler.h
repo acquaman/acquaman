@@ -24,8 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
+class AMAction3;
 class AMControl;
 class AMDetectorTriggerSource;
+class AMDetectorDwellTimeSource;
 
 #include "dataman/info/AMDetectorInfo.h"
 
@@ -65,18 +67,30 @@ public:
 
 	/// Returns the trigger source for the scaler.
 	AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the scaler
+	AMDetectorDwellTimeSource* dwellTimeSource();
 	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMBeamlineActionItem* createStartAction(bool setScanning);
+	AMAction3* createStartAction3(bool setScanning);
+
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
+	AMAction3* createContinuousEnableAction3(bool enableContinuous);
+
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
 	AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
+	AMAction3* createDwellTimeAction3(double dwellTime);
+
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
 	AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
+	AMAction3* createScansPerBufferAction3(int scansPerBuffer);
+
 	/// Creates an action that sets the total number of scans to \param totalScans.
 	AMBeamlineActionItem* createTotalScansAction(int totalScans);
+	AMAction3* createTotalScansAction3(int totalScans);
+
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -124,6 +138,8 @@ protected slots:
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	bool triggerScalerAcquisition(bool isContinuous);
 
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+
 protected:
 	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> scalerChannels_;
@@ -149,6 +165,8 @@ protected:
 
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorTriggerSource *triggerSource_;
+	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;
 };
 
