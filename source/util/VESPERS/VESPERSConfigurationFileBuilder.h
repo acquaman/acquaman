@@ -54,6 +54,8 @@ public:
 	void setRoperCCD(bool use) { roperCCD_ = use; }
 	/// Sets whether the Mar CCD should be included.
 	void setMarCCD(bool use) { marCCD_ = use; }
+	/// Sets whether the Pilatus CCD should be included.
+	void setPilatusCCD(bool use) { pilatusCCD_ = use; }
 	/// Sets the first scan axis PV name.
 	void setPvNameAxis1(const QString &name) { pvNameAxis1_ = name; }
 	/// Sets the second scan axis PV name.
@@ -69,8 +71,10 @@ public:
 	bool fourElement() const { return fourElement_; }
 	/// Returns whether the Roper CCD is included.
 	bool roperCCD() const { return roperCCD_; }
-	/// Returns whetehr the Mar CCD is included.
+	/// Returns whether the Mar CCD is included.
 	bool marCCD() const { return marCCD_; }
+	/// Returns whether the Pilatus CCD is included.
+	bool pilatusCCD() const { return pilatusCCD_; }
 	/// Returns the first scan axis PV name.
 	QString pvNameAxis1() const { return pvNameAxis1_; }
 	/// Returns the second scan axis PV name.
@@ -94,6 +98,8 @@ protected:
 	bool roperCCD_;
 	/// Flag whether or not the Mar CCD is being used.
 	bool marCCD_;
+	/// Flag whether or not the Pilatus CCD is being used.
+	bool pilatusCCD_;
 	/// String holding the first (or only) scan axis PV name.
 	QString pvNameAxis1_;
 	/// String holding the second (if applicable) scan axis PV name.
