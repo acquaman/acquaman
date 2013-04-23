@@ -452,6 +452,14 @@ void SGMAppController::onSGMNewQE65000DetectorConnected(bool connected){
 	}
 }
 
+void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newTEYDetector() && SGMBeamline::sgm()->newTEYDetector()->isConnected() && !newTEYDetectorView_){
+		newTEYDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newTEYDetector());
+		mw_->addPane(newTEYDetectorView_, "Beamline Detectors", "NEW SGM TEY", ":/system-software-update.png");
+	}
+}
+
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
@@ -1235,6 +1243,10 @@ bool SGMAppController::setupSGMViews(){
 	newQE65000DetectorView_ = 0;
 	connect(SGMBeamline::sgm()->newQE65000Detector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewQE65000DetectorConnected(bool)));
 	onSGMNewQE65000DetectorConnected(false);
+
+	newTEYDetectorView_ = 0;
+	connect(SGMBeamline::sgm()->newTEYDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewTEYDetectorConnected(bool)));
+	onSGMNewTEYDetectorConnected(false);
 
 	newDetectorsSelectorView_ = 0;
 	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);

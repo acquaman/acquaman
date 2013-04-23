@@ -99,6 +99,7 @@ protected slots:
 	void onSGMNewAmptekSDD1Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
+	void onSGMNewTEYDetectorConnected(bool connected);
 
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerCreated();
@@ -152,6 +153,7 @@ protected:
 	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
+	AMDetectorGeneralDetailedView *newTEYDetectorView_;
 
 	AMDetectorSelector *newDetectorsSelector_;
 	AMDetectorSelectorView *newDetectorsSelectorView_;

@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "SGMOptimizationSupport.h"
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
@@ -286,12 +287,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
 	newPGTDetector_ = new CLSPGTDetectorV2("NEWPGT", "PGT", "MCA1611-01", this);
 	newQE65000Detector_ = new CLSQE65000Detector("NEWQE65000", "QE 65000", "SA0000-03", this);
-	newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
+	//newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
+	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
 	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
 	newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
+	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderUp", "Encoder Up", scaler_, 4, this);
+	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderDown", "Encoder Down", scaler_, 5, this);
 	AMControl *energyFeedbackControl = new AMReadOnlyPVControl("EnergyFeedback", "BL1611-ID-1:Energy:fbk", this, "Energy Feedback");
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
+	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", gratingEncoderFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *fakeWaitReadControl = new AMReadOnlyPVControl("FakeWaitRead", "david:loop:value", this, "Fake Wait Read");
 	fakeWaitReadDetector_ = new AMBasicControlDetectorEmulator("FakeWaitRead", "Fake Wait Read", fakeWaitReadControl, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
 
@@ -981,6 +987,7 @@ void SGMBeamline::setupControls(){
 	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
 	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
 	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
+	undulatorFastTrackingTrigger_ = new AMPVControl("undulatorFastTrackingTrigger", "BL1611-ID-1:AddOns:UndulatorTriggerPropogate", "BL1611-ID-1:AddOns:UndulatorTriggerPropogate", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
@@ -1123,7 +1130,10 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newI0Detector_);
 	addExposedDetector(newTFYDetector_);
 	addExposedDetector(newPDDetector_);
+	addExposedDetector(newEncoderUpDetector_);
+	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(gratingEncoderDetector_);
 	addExposedDetector(fakeWaitReadDetector_);
 
 	addExposedDetectorGroup(XASDetectorGroup_);

@@ -126,23 +126,27 @@ void SGMXASScanActionController::onFileWriterIsBusy(bool isBusy){
 
 void SGMXASScanActionController::onScanFinished(){
 	// Will this wait for the actions in the scanActionRunner to finish?
+	/*
 	AMAction3 *cleanupActions = createCleanupActions();
 	connect(cleanupActions, SIGNAL(succeeded()), this, SLOT(setFinished()));
 	connect(cleanupActions, SIGNAL(failed()), this, SLOT(setFailed()));
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+	*/
 }
 
 bool SGMXASScanActionController::initializeImplementation(){
-	//QTimer::singleShot(0, this, SLOT(setInitialized()));
+	QTimer::singleShot(0, this, SLOT(setInitialized()));
 
+	/*
 	AMAction3 *initializationActions = createInitializationActions();
 	connect(initializationActions, SIGNAL(succeeded()), this, SLOT(setInitialized()));
 	connect(initializationActions, SIGNAL(failed()), this, SLOT(setFailed()));
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(initializationActions);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+	*/
 
 	return true;
 }
@@ -176,9 +180,9 @@ bool SGMXASScanActionController::event(QEvent *e){
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			emit finishWritingToFile();
-			//setFinished();
+			setFinished();
 			//onScanFinished();
-			connect(AMActionRunner3::scanActionRunner(), SIGNAL(queuePausedChanged(bool)), this, SLOT(onScanFinished()));
+			//connect(AMActionRunner3::scanActionRunner(), SIGNAL(queuePausedChanged(bool)), this, SLOT(onScanFinished()));
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();
@@ -377,7 +381,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 }
 
 AMAction3* SGMXASScanActionController::createCleanupActions(){
-	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Actions", "SGM XAS Initialization Actions"), AMListAction3::Parallel);
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SGM XAS Cleanup Actions", "SGM XAS Cleanup Actions"), AMListAction3::Parallel);
 
 	CLSSIS3820Scaler *scaler = SGMBeamline::sgm()->scaler();
 	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));

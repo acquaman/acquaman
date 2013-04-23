@@ -59,6 +59,8 @@ public:
 	int totalScans() const;
 	/// Returns a vector of all of the readings for the scaler.
 	QVector<int> reading() const;
+	/// Returns the number of channels that are currently enabled
+	int enabledChannelCount() const;
 
 	/// Returns the individual scaler channel provided by \param index.
 	CLSSIS3820ScalerChannel* channelAt(int index);
@@ -136,9 +138,15 @@ protected slots:
 
 	/// Handles requests for triggering from the AMDetectorTriggerSource
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	void ensureCorrectReadModeForTriggerSource();
+	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
+	void onReadingChanged(double value);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+
+protected:
+	AMDetectorDefinitions::ReadMode readModeFromSettings();
 
 protected:
 	/// List that holds all of the individual scaler channels.
@@ -165,6 +173,9 @@ protected:
 
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorTriggerSource *triggerSource_;
+	AMDetectorDefinitions::ReadMode readModeForTriggerSource_;
+	bool switchingReadModes_;
+
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;

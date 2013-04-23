@@ -75,8 +75,16 @@ void AMDetectorReadAction::internalSetSucceeded(){
 
 		QList<double> detectorData;
 		const double *detectorDataPointer = detector_->data();
-		if(detector_->rank() == 0)
+		if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::SingleRead)
 			detectorData.append(detectorDataPointer[0]);
+		else if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
+			qDebug() << "In detector read action and, unbelievably, I realized it's supposed to be a continuous read";
+			int totalPoints = detector_->lastContinuousSize();
+			if(totalPoints < 0)
+				totalPoints = 0;
+			for(int x = 0; x < totalPoints; x++)
+				detectorData.append(detectorDataPointer[x]);
+		}
 		else{
 			int totalPoints = AMnDIndex(detector_->rank(), AMnDIndex::DoInit, 0).totalPointsTo(detector_->size())-1;
 			for(int x = 0; x < totalPoints; x++)

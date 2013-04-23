@@ -671,7 +671,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/beamline/CLS/CLSQE65000Detector.h \
     source/actions3/actions/AMDetectorDwellTimeActionInfo.h \
     source/actions3/actions/AMDetectorDwellTimeAction.h \
-    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h
+    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
+    source/beamline/CLS/CLSAdvancedScalerChannelDetector.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1127,7 +1128,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/beamline/CLS/CLSQE65000Detector.cpp \
     source/actions3/actions/AMDetectorDwellTimeActionInfo.cpp \
     source/actions3/actions/AMDetectorDwellTimeAction.cpp \
-    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp
+    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \
+    source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1151,6 +1153,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
