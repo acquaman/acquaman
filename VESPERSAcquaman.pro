@@ -80,7 +80,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSCCDDetector.h \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.h \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
-	source/acquaman/VESPERS/VESPERS3DDacqScanController.h
+	source/acquaman/VESPERS/VESPERS3DDacqScanController.h \
+    source/beamline/VESPERS/VESPERSPilatusCCDDetector.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -158,8 +159,11 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSCCDDetector.cpp \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.cpp \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
-	source/acquaman/VESPERS/VESPERS3DDacqScanController.cpp
+	source/acquaman/VESPERS/VESPERS3DDacqScanController.cpp \
+    source/beamline/VESPERS/VESPERSPilatusCCDDetector.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 

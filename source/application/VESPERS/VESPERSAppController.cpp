@@ -180,6 +180,7 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
+	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSPilatusCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
