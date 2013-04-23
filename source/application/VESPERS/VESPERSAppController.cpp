@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 #include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
+#include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -173,6 +174,7 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSEnergyScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<AMLineScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<VESPERS3DScanConfiguration>();
 
 	AMOldDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -254,6 +256,14 @@ void VESPERSAppController::setupUserInterface()
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
+	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
+	map3DScanConfiguration_ = new VESPERS3DScanConfiguration();
+	map3DScanConfiguration_->setStepSize(0.005, 0.005, 0.005);
+	map3DScanConfiguration_->setTimeStep(1);
+	map3DScanConfigurationView_ = new VESPERS3DScanConfigurationView(map3DScanConfiguration_);
+	map3DScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(map3DScanConfigurationView_);
+	connect(map3DScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
 	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
 	lineScanConfiguration_->addRegion(0, 0, 0.005, 1, 1);
@@ -277,6 +287,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;

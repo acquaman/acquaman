@@ -42,6 +42,8 @@ class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
 class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
+class VESPERS3DScanConfiguration;
+class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 
 class VESPERSAppController : public AMAppController {
@@ -141,6 +143,13 @@ protected:
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
 	/// The (new) holder for the 2D scan configuration.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
+
+	/// Pointer to the 3D scan configuration.
+	VESPERS3DScanConfiguration *map3DScanConfiguration_;
+	/// The 3D scan configuration view.
+	VESPERS3DScanConfigurationView *map3DScanConfigurationView_;
+	/// The (new) holder for the 3D scan configuration.
+	AMScanConfigurationViewHolder3 *map3DScanConfigurationViewHolder3_;
 
 	/// The line scan configuration.
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
