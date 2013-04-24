@@ -321,6 +321,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 	else if (detector == "Mar CCD")
 		mw_->setCurrentPane(marCCDView_);
+	else if (detector == "Pilatus CCD")
+		mw_->setCurrentPane(pilatusCCDView_);
 }
 
 void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

@@ -144,7 +144,7 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
 	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
 
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
+	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
 	configureCCDButton_->setEnabled(config_->ccdDetector());
 	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 

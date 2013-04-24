@@ -75,6 +75,10 @@ QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
 	case VESPERS::Mar:
 		string = "Mar CCD";
 		break;
+
+	case VESPERS::Pilatus:
+		string = "Pilatus CCD";
+		break;
 	}
 
 	return string;
