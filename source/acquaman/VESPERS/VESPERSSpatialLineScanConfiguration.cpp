@@ -109,7 +109,7 @@ AMScanConfigurationView *VESPERSSpatialLineScanConfiguration::createView()
 
 QString VESPERSSpatialLineScanConfiguration::detailedDescription() const
 {
-	if (ccdDetector() == VESPERS::Roper || ccdDetector() == VESPERS::Mar)
+	if (ccdDetector() != VESPERS::NoCCD)
 		return "Spatial x-ray fluorescence line scan using a CCD for x-ray diffraction.";
 
 	return "Spatial x-ray fluorescence line scan";
@@ -193,7 +193,7 @@ void VESPERSSpatialLineScanConfiguration::computeTotalTimeImplementation()
 	// Get the number of points.  Using 0 for the index because this will only have one region per scan.
 	totalTime = fabs((end()-start())/step()) + 1;
 
-	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
+	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)
 		totalTime *= time() + timeOffset_ + 6.0;
 	else if (ccdDetector() == VESPERS::Mar)
