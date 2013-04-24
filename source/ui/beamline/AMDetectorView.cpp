@@ -57,6 +57,7 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), this, SLOT(onAcquisitionTimeChanged(double)));
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+	connect(detector_, SIGNAL(readModeChanged(AMDetectorDefinitions::ReadMode)), this, SLOT(onReadModeChanged(AMDetectorDefinitions::ReadMode)));
 
 	statusLabel_ = new QLabel();
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
@@ -65,59 +66,77 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	acquisitionTimeDSB_->setMaximum(10);
 	startAcquisitionButton_ = new QPushButton("Start");
 	startAcquisitionButton_->setEnabled(false);
+	singleReadingDSB_ = new QDoubleSpinBox();
+	singleReadingDSB_->setMinimum(0);
+	singleReadingDSB_->setMaximum(10000000);
+	singleReadingDSB_->setEnabled(false);
+	readModeLabel_ = new QLabel();
+	readModeSelector_ = new QComboBox();
+	readModeSelector_->addItem("Single Read", QVariant(QString("Single Read")));
+	readModeSelector_->addItem("Continuous Read", QVariant(QString("Continuous Read")));
+	if(!detector_->canContinuousAcquire())
+		readModeSelector_->setEnabled(false);
+
 
 	if(detector_->isConnected()){
 		acquisitionTimeDSB_->setValue(detector_->acquisitionTime());
 		startAcquisitionButton_->setEnabled(true);
+		onReadModeChanged(detector_->readMode());
 	}
 
 	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
 	connect(acquisitionTimeDSB_, SIGNAL(editingFinished()), this, SLOT(onAcquisitionTimeDSBEditingFinished()));
+	connect(readModeSelector_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onReadModeSelectedCurrentIndexChanged(QString)));
 
-	// Create the plot window.
-	view_ = new MPlotWidget;
-	view_->enableAntiAliasing(true);
+	if(detector_->dataSource()){
+		// Create the plot window.
+		view_ = new MPlotWidget;
+		view_->enableAntiAliasing(true);
 
-	// Create the plot and setup all the axes.
-	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setAxisName("Counts");
+		// Create the plot and setup all the axes.
+		plot_ = new MPlot;
+		plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+		plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+		plot_->axisBottom()->setAxisName("Energy, eV");
+		plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+		plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
+		plot_->axisLeft()->setAxisName("Counts");
 
-	// Set the margins for the plot.
-	plot_->setMarginLeft(10);
-	plot_->setMarginBottom(15);
-	plot_->setMarginRight(2);
-	plot_->setMarginTop(2);
+		// Set the margins for the plot.
+		plot_->setMarginLeft(10);
+		plot_->setMarginBottom(15);
+		plot_->setMarginRight(2);
+		plot_->setMarginTop(2);
 
-	MPlotSeriesBasic *spectrumData_ = new MPlotSeriesBasic;
-	spectrumData_->setModel(new AMDataSourceSeriesData(detector_->dataSource()), true);
-	spectrumData_->setMarker(MPlotMarkerShape::None);
-	spectrumData_->setDescription(detector_->dataSource()->name());
-	spectrumData_->setLinePen(QPen(Qt::blue));
-	plot_->addItem(spectrumData_);
+		MPlotSeriesBasic *spectrumData_ = new MPlotSeriesBasic;
+		spectrumData_->setModel(new AMDataSourceSeriesData(detector_->dataSource()), true);
+		spectrumData_->setMarker(MPlotMarkerShape::None);
+		spectrumData_->setDescription(detector_->dataSource()->name());
+		spectrumData_->setLinePen(QPen(Qt::blue));
+		plot_->addItem(spectrumData_);
 
-	// Enable autoscaling of both axes.
-	plot_->axisScaleLeft()->setAutoScaleEnabled();
-	plot_->axisScaleBottom()->setAutoScaleEnabled();
+		// Enable autoscaling of both axes.
+		plot_->axisScaleLeft()->setAutoScaleEnabled();
+		plot_->axisScaleBottom()->setAutoScaleEnabled();
 
-	// Enable some convenient zoom tools.
-	plot_->addTool(new MPlotDragZoomerTool());
-	plot_->addTool(new MPlotWheelZoomerTool());
-	view_->setPlot(plot_);
-	view_->setMinimumHeight(450);
+		// Enable some convenient zoom tools.
+		plot_->addTool(new MPlotDragZoomerTool());
+		plot_->addTool(new MPlotWheelZoomerTool());
+		view_->setPlot(plot_);
+		view_->setMinimumHeight(450);
 
-	// Set the number of ticks.  A balance between readability and being practical.
-	plot_->axisBottom()->setTicks(3);
-	plot_->axisTop()->setTicks(0);
-	plot_->axisLeft()->setTicks(4);
-	plot_->axisRight()->setTicks(0);
+		// Set the number of ticks.  A balance between readability and being practical.
+		plot_->axisBottom()->setTicks(3);
+		plot_->axisTop()->setTicks(0);
+		plot_->axisLeft()->setTicks(4);
+		plot_->axisRight()->setTicks(0);
 
-	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+		// Set the autoscale constraints.
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+	}
+	else{
+		view_ = 0;
+	}
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	QHBoxLayout *mainHL = new QHBoxLayout();
@@ -129,10 +148,21 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	tmpVL->addWidget(new QLabel("Dwell"));
 	tmpVL->addWidget(acquisitionTimeDSB_);
 	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Reading"));
+	tmpVL->addWidget(singleReadingDSB_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(readModeLabel_);
+	tmpVL->addWidget(readModeSelector_);
+	mainHL->addLayout(tmpVL);
 
 	mainHL->addWidget(statusLabel_);
 	mainVL->addLayout(mainHL);
-	mainVL->addWidget(view_);
+	if(view_)
+		mainVL->addWidget(view_);
+	else
+		mainVL->addStretch(10);
 
 	setLayout(mainVL);
 }
@@ -150,18 +180,53 @@ void AMDetectorGeneralDetailedView::onAcquisitionStateChanged(AMDetector::Acqusi
 		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
 		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+
+	if(acquisitionState != AMDetector::Acquiring)
+		singleReadingDSB_->setValue(detector_->singleReading());
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeChanged(double integrationTime){
 	acquisitionTimeDSB_->setValue(integrationTime);
 }
 
+void AMDetectorGeneralDetailedView::onReadModeChanged(AMDetectorDefinitions::ReadMode readMode){
+	if(readMode == AMDetectorDefinitions::SingleRead){
+		readModeLabel_->setText("Single Read");
+		readModeSelector_->setCurrentIndex(0);
+	}
+	else if(readMode == AMDetectorDefinitions::ContinuousRead){
+		readModeLabel_->setText("Continuous Read");
+		readModeSelector_->setCurrentIndex(1);
+	}
+	else
+		readModeLabel_->setText("Invalid");
+}
+
+#include <QDebug>
+#include "beamline/AMDetectorTriggerSource.h"
 void AMDetectorGeneralDetailedView::onStartAcquisitionButtonClicked(){
-	detector_->acquire();
+	//detector_->acquire(detector_->readMode());
+
+	if(detector_->detectorTriggerSource()){
+		qDebug() << "Trigger detector using trigger source";
+		detector_->detectorTriggerSource()->trigger(detector_->readMode());
+	}
+	else{
+		qDebug() << "Trigger detector old school directly";
+		detector_->acquire(detector_->readMode());
+	}
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeDSBEditingFinished(){
 	detector_->setAcquisitionTime(acquisitionTimeDSB_->value());
+}
+
+void AMDetectorGeneralDetailedView::onReadModeSelectedCurrentIndexChanged(const QString &indexString){
+	qDebug() << "Want to change read mode to " << indexString;
+	if(indexString == "Single Read" && detector_->readMode() != AMDetectorDefinitions::SingleRead)
+		detector_->setReadMode(AMDetectorDefinitions::SingleRead);
+	else if(indexString == "Continuous Read" && detector_->readMode() != AMDetectorDefinitions::ContinuousRead)
+		detector_->setReadMode(AMDetectorDefinitions::ContinuousRead);
 }
 
 AMDetectorViewStatusView::AMDetectorViewStatusView(AMDetector *detector, QWidget *parent) :

@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSPGTDetectorV2.h"
 #include "beamline/CLS/CLSQE65000Detector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
@@ -100,6 +101,7 @@ public:
 	AMControl* undulatorRelativeStepStorage() const { return undulatorRelativeStepStorage_;}
 	AMControl* undulatorVelocity() const { return undulatorVelocity_;}
 	AMControl* undulatorFastTracking() const { return undulatorFastTracking_;}
+	AMControl* undulatorFastTrackingTrigger() const { return undulatorFastTrackingTrigger_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
@@ -189,7 +191,11 @@ public:
 	AMDetector* newTFYDetector() const { return newTFYDetector_;}
 	AMDetector* newI0Detector() const { return newI0Detector_;}
 	AMDetector* newPDDetector() const { return newPDDetector_;}
+	AMDetector* newEncoderUpDetector() const { return newEncoderUpDetector_; }
+	AMDetector* newEncoderDownDetector() const { return newEncoderDownDetector_; }
 	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMDetector* gratingEncoderDetector() const { return gratingEncoderDetector_; }
+
 	AMDetector* fakeWaitReadDetector() const { return fakeWaitReadDetector_; }
 
 	bool isSDD1Enabled() const;
@@ -315,6 +321,7 @@ protected:
 	AMControl *undulatorRelativeStepStorage_;
 	AMControl *undulatorVelocity_;
 	AMControl *undulatorFastTracking_;
+	AMControl *undulatorFastTrackingTrigger_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
@@ -378,11 +385,14 @@ protected:
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
-	CLSBasicScalerChannelDetector *newTEYDetector_;
+	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSBasicScalerChannelDetector *newTFYDetector_;
 	CLSBasicScalerChannelDetector *newI0Detector_;
 	CLSBasicScalerChannelDetector *newPDDetector_;
+	CLSAdvancedScalerChannelDetector *newEncoderUpDetector_;
+	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
 	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
 	AMDetectorGroup *newDetectorSet_;
 	AMDetectorGroup *XASDetectorGroup_;

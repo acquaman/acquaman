@@ -31,6 +31,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
+	switchingReadModes_ = false;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
@@ -67,7 +68,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(scanPerBuffer_, SIGNAL(valueChanged(double)), this, SLOT(onScanPerBufferChanged(double)));
 	connect(totalScans_, SIGNAL(valueChanged(double)), this, SLOT(onTotalScansChanged(double)));
-	connect(reading_, SIGNAL(valueChanged(double)), this, SIGNAL(readingChanged()));
+	//connect(reading_, SIGNAL(valueChanged(double)), this, SIGNAL(readingChanged()));
+	connect(reading_, SIGNAL(valueChanged(double)), this, SLOT(onReadingChanged(double)));
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
@@ -127,6 +129,15 @@ QVector<int> CLSSIS3820Scaler::reading() const{
 		return qobject_cast<AMReadOnlyPVControl*>(reading_)->readPV()->lastIntegerValues();
 
 	return QVector<int>();
+}
+
+int CLSSIS3820Scaler::enabledChannelCount() const{
+	int retVal = 0;
+	for(int x = 0; x < scalerChannels_.count(); x++)
+		if(scalerChannels_.at(x)->isEnabled())
+			retVal++;
+
+	return retVal;
 }
 
 CLSSIS3820ScalerChannel* CLSSIS3820Scaler::channelAt(int index){
@@ -361,7 +372,7 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	else{
 		emit scanningChanged(false);
-		triggerSource_->setSucceeded();
+		//triggerSource_->setSucceeded();
 	}
 }
 
@@ -411,19 +422,71 @@ void CLSSIS3820Scaler::onConnectedChanged(){
 }
 
 void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
-	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
+	qDebug() << "Before the first sanity check";
+	if(!isConnected() || isScanning())
 		return;
 
+	qDebug() << "Starting scaler trigger source triggering tree";
+	readModeForTriggerSource_ = readMode;
 	//setScanning(true);
 	if(isContinuous()){
-		connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+		qDebug() << "Scaler trigger source needs to fix continuous";
+		if(readModeForTriggerSource_ == readModeFromSettings())
+			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+		else
+			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(ensureCorrectReadModeForTriggerSource()));
 		setContinuous(false);
 	}
+	else if(readModeForTriggerSource_ != readModeFromSettings())
+		ensureCorrectReadModeForTriggerSource();
 	else
 		triggerScalerAcquisition(isContinuous());
 }
 
+void CLSSIS3820Scaler::ensureCorrectReadModeForTriggerSource(){
+	qDebug() << "Scaler trigger source needs to fix mode settings";
+	if(readModeForTriggerSource_ == AMDetectorDefinitions::SingleRead){
+		connect(this, SIGNAL(dwellTimeChanged(double)), this, SLOT(onModeSwitchSignal()));
+		connect(this, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onModeSwitchSignal()));
+		connect(this, SIGNAL(totalScansChanged(int)), this, SLOT(onModeSwitchSignal()));
+
+		switchingReadModes_ = true;
+		setScansPerBuffer(1);
+		setTotalScans(1);
+		setDwellTime(1.0);
+	}
+	else{
+		connect(this, SIGNAL(dwellTimeChanged(double)), this, SLOT(onModeSwitchSignal()));
+		connect(this, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onModeSwitchSignal()));
+		connect(this, SIGNAL(totalScansChanged(int)), this, SLOT(onModeSwitchSignal()));
+
+		switchingReadModes_ = true;
+		setScansPerBuffer(1000);
+		setTotalScans(1000);
+		setDwellTime(0.005);
+	}
+}
+
+void CLSSIS3820Scaler::onModeSwitchSignal(){
+	if(switchingReadModes_){
+		if(readModeForTriggerSource_ == AMDetectorDefinitions::SingleRead && scansPerBuffer() == 1 && totalScans() == 1)
+			switchingReadModes_ = false;
+		else if(readModeForTriggerSource_ == AMDetectorDefinitions::ContinuousRead && scansPerBuffer() == 1000 && totalScans() == 1000)
+			switchingReadModes_ = false;
+
+		if(!switchingReadModes_){
+			disconnect(this, SIGNAL(dwellTimeChanged(double)), this, SLOT(onModeSwitchSignal()));
+			disconnect(this, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onModeSwitchSignal()));
+			disconnect(this, SIGNAL(totalScansChanged(int)), this, SLOT(onModeSwitchSignal()));
+
+			qDebug() << "Done switching read modes for scaler trigger source";
+			triggerScalerAcquisition(isContinuous());
+		}
+	}
+}
+
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
+	qDebug() << "Scaler trigger source actually starting dwell";
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 	if(isContinuous)
 		return false;
@@ -432,11 +495,28 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 	return true;
 }
 
+void CLSSIS3820Scaler::onReadingChanged(double value){
+	emit readingChanged();
+	triggerSource_->setSucceeded();
+}
+
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected() || isScanning())
 		return;
 
-	setDwellTime(dwellSeconds);
+	if(dwellSeconds != dwellTime())
+		setDwellTime(dwellSeconds);
+	else
+		dwellTimeSource_->setSucceeded();
+}
+
+AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
+	if(scansPerBuffer() == 1 && totalScans() == 1)
+		return AMDetectorDefinitions::SingleRead;
+	else if(scansPerBuffer() == 1000 && totalScans() == 1000)
+		return AMDetectorDefinitions::ContinuousRead;
+	else
+		return AMDetectorDefinitions::InvalidReadMode;
 }
 
 // CLSSIS3820ScalarChannel

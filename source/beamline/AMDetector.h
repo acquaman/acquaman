@@ -237,7 +237,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	// FLESH THIS ONE OUT
 	/// Returns the data from the last continuous reading in the outputValues
-	bool lastContinuousReading(double *outputValues) const;
+	virtual bool lastContinuousReading(double *outputValues) const;
+	virtual int lastContinuousSize() const;
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual const double* data() const = 0;

@@ -6,6 +6,7 @@
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QComboBox>
 
 #include "beamline/AMDetector.h"
 
@@ -64,11 +65,15 @@ protected slots:
 	void onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState);
 	/// Handles changes in the integration time
 	void onAcquisitionTimeChanged(double integrationTime);
+	/// Handles changes in the read mode
+	void onReadModeChanged(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Handles button clicks from the start acqusition button
 	void onStartAcquisitionButtonClicked();
 	/// Handles changes to the integration time spin box
 	void onAcquisitionTimeDSBEditingFinished();
+	/// Handles changes to the read mode selector
+	void onReadModeSelectedCurrentIndexChanged(const QString &indexString);
 
 protected:
 	/// Holds the pointer to the detector we're viewing
@@ -82,6 +87,12 @@ protected:
 	QDoubleSpinBox *acquisitionTimeDSB_;
 	/// The start acquisition button
 	QPushButton *startAcquisitionButton_;
+	/// The singleReading indicator
+	QDoubleSpinBox *singleReadingDSB_;
+	/// The readMode indicator
+	QLabel *readModeLabel_;
+	/// The readMode selector
+	QComboBox *readModeSelector_;
 
 	/// This is the plot widget that holds the plot used for viewing the spectra.
 	MPlotWidget *view_;

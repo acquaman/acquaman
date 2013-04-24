@@ -61,6 +61,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		time_->setAlignment(Qt::AlignCenter);
 		connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 		connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onTimeChanged(double)));
+		if(scaler_->isConnected())
+			onTimeChanged(scaler_->dwellTime());
 
 		QHBoxLayout *timeLayout = new QHBoxLayout;
 		timeLayout->addWidget(new QLabel("Dwell Time:"), 0, Qt::AlignRight);
@@ -73,6 +75,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		scansPerBuffer_->setAlignment(Qt::AlignCenter);
 		connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
 		connect(scaler_, SIGNAL(scansPerBufferChanged(int)), scansPerBuffer_, SLOT(setValue(int)));
+		if(scaler_->isConnected())
+			scansPerBuffer_->setValue(scaler_->scansPerBuffer());
 
 		QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
 		scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
@@ -85,6 +89,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		totalScans_->setAlignment(Qt::AlignCenter);
 		connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalNumberOfScans()));
 		connect(scaler_, SIGNAL(totalScansChanged(int)), totalScans_, SLOT(setValue(int)));
+		if(scaler_->isConnected())
+			totalScans_->setValue(scaler_->totalScans());
 
 		QHBoxLayout *totalScansLayout = new QHBoxLayout;
 		totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);

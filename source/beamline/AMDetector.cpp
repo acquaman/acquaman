@@ -140,6 +140,12 @@ bool AMDetector::lastContinuousReading(double *outputValues) const{
 	return lastContinuousReadingImplementation(outputValues);
 }
 
+int AMDetector::lastContinuousSize() const{
+	if(!canContinuousAcquire())
+		return -1;
+	return 0;
+}
+
 #include "actions3/actions/AMDetectorInitializeAction.h"
 AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
