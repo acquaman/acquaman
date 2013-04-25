@@ -129,15 +129,17 @@ public:
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 	/// Returns the mirror selection feedback control (C or Si stripe)
-	AMControl *mirrorStripeSelection() const { return mirrorStripeSelection_;}
+	AMControl* mirrorStripeSelection() const { return mirrorStripeSelection_;}
 	/// Returns the mirror selection control for Carbon
-	AMControl *mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
+	AMControl* mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
 	/// Returns the mirror selection control for Silicon
-	AMControl *mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
+	AMControl* mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
 	/// Returns the undulator offset control (for detuning)
-	AMControl *undulatorOffset() const { return undulatorOffset_;}
+	AMControl* undulatorOffset() const { return undulatorOffset_;}
 	/// Returns the master dwell time for the synchronized dwell time application
-	AMControl *masterDwell() const { return masterDwell_;}
+	AMControl* masterDwell() const { return masterDwell_;}
+	/// Returns the relative step for the undulator
+	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -364,6 +366,8 @@ protected:
 	AMControl *undulatorOffset_;
 	/// Control for the synchronized dwell time master dwell value
 	AMControl *masterDwell_;
+	/// Control for the relative step setpoint on the undulator gap motor
+	AMControl *undulatorRelativeStep_;
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;

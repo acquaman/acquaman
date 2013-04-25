@@ -290,10 +290,11 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	//newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
 	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
 	newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
-	newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
+	//newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
+	newI0Detector_ = new CLSAdvancedScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
 	newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
-	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderUp", "Encoder Up", scaler_, 4, this);
-	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderDown", "Encoder Down", scaler_, 5, this);
+	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderUp", "Encoder Up", scaler_, 5, this);
+	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderDown", "Encoder Down", scaler_, 4, this);
 	AMControl *energyFeedbackControl = new AMReadOnlyPVControl("EnergyFeedback", "BL1611-ID-1:Energy:fbk", this, "Energy Feedback");
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
@@ -1108,6 +1109,9 @@ void SGMBeamline::setupControls(){
 	sgmPVName = amNames2pvNames_.valueF("masterDwell");
 	masterDwell_ = new AMPVControl("masterDwell", sgmPVName, sgmPVName, QString(), this, 0.01);
 	masterDwell_->setDescription("Master Dwell Time");
+
+	undulatorRelativeStep_ = new AMPVControl("undulatorRelativeStep", "SMTR1411-01:step:rel", "SMTR1411-01:step:rel", QString(), this, 5);
+	undulatorRelativeStep_->setDescription("Undulator Relative Step");
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
