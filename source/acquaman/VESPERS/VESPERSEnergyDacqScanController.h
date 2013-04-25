@@ -85,6 +85,8 @@ protected:
 	bool setupRoperScan();
 	/// Sets up the scan to use the Mar CCD.
 	bool setupMarScan();
+	/// Sets up the scan to use the Pilatus CCD.
+	bool setupPilatusScan();
 
 	/// Pointer to the configuration used by this controller.
 	VESPERSEnergyScanConfiguration *config_;

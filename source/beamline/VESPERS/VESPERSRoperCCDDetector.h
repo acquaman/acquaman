@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class VESPERSRoperQRunnableImageLoader;
 
 /*!
-  This class encapsulates the Roper CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
-  What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
+  This class encapsulates the Roper CCD used on VESPERS.  It is now possible to view an image.
+  What it will offer at the moment is the ability to control the important aspects of the detector, (eg. accumulationn time),
   starting, stopping, etc.
   */
 class VESPERSRoperCCDDetector : public VESPERSCCDDetector

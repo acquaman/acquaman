@@ -12,7 +12,6 @@
 #include <QDir>
 #include <QList>
 #include <QStringBuilder>
-#include <QDebug>
 
 #include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -34,7 +33,7 @@ namespace VESPERS {
 	enum FluorescenceDetector { NoXRF = 0, SingleElement = 1, FourElement = 2 };
 
 	/// Enum for making the decision on what CCD detector the user wants to use.
-	enum CCDDetector { NoCCD = 0, Roper = 1, Mar = 2 };
+	enum CCDDetector { NoCCD = 0, Roper = 1, Mar = 2, Pilatus = 4 };
 
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };

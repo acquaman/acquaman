@@ -248,6 +248,9 @@ QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
 	tempButton = new QRadioButton("Mar");
 	ccdButtonGroup_->addButton(tempButton, 2);
 	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Pilatus");
+	ccdButtonGroup_->addButton(tempButton, 4);
+	ccdDetectorLayout->addWidget(tempButton);
 
 	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
 	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);

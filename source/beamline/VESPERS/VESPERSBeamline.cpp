@@ -256,7 +256,8 @@ void VESPERSBeamline::setupDetectors()
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Camera", this);
-	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera.", this);
+	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
+	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()

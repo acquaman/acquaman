@@ -180,6 +180,7 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
+	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSPilatusCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
@@ -234,12 +235,14 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+	pilatusCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
 	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
 	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
+	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
