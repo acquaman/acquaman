@@ -56,6 +56,7 @@ bool SGMFastScanActionController::startImplementation(){
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
 
+	SGMFastScanParameters *settings = configuration_->currentParameters();
 
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
@@ -83,16 +84,17 @@ bool SGMFastScanActionController::startImplementation(){
 	// End Tracking Off
 
 	// Initialization:
-	// Energy to 270
+	// Energy to start energy
 	// Undulator Trigger to 0
 	// Undulator Relative Step Storage to 12 (non value)
 	// Undulator Relative Step to 12 (non value)
-	// Undulator Velocity to 6000
-	// Grating Velocity, Velocity Base, Acceleration to 40000
+	// Undulator Velocity to undulator velocity
+	// Grating Velocity, Velocity Base, Acceleration to motor settings
 	AMListAction3 *hackedFastActionsEnergyStartAndInit = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Energy Start and Init", "SGM Hacked Fast Actions Energy Start and Init"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
-	energyStartSetpoint.setValue(270);
+	//energyStartSetpoint.setValue(270);
+	energyStartSetpoint.setValue(settings->energyStart());
 	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyStartAndInit->addSubAction(moveAction);
@@ -120,26 +122,30 @@ bool SGMFastScanActionController::startImplementation(){
 
 	tmpControl = SGMBeamline::sgm()->undulatorVelocity();
 	AMControlInfo undulatorVelocityInitSetpoint = tmpControl->toInfo();
-	undulatorVelocityInitSetpoint.setValue(6000);
+	//undulatorVelocityInitSetpoint.setValue(6000);
+	undulatorVelocityInitSetpoint.setValue(settings->undulatorVelocity());
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyStartAndInit->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->gratingVelocity();
 	AMControlInfo gratingVelocityInitSetpoint = tmpControl->toInfo();
-	gratingVelocityInitSetpoint.setValue(40000);
+	//gratingVelocityInitSetpoint.setValue(40000);
+	gratingVelocityInitSetpoint.setValue(settings->velocity());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyStartAndInit->addSubAction(moveAction);
 	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
 	AMControlInfo gratingBaseVelocityInitSetpoint = tmpControl->toInfo();
-	gratingBaseVelocityInitSetpoint.setValue(40000);
+	//gratingBaseVelocityInitSetpoint.setValue(40000);
+	gratingBaseVelocityInitSetpoint.setValue(settings->velocityBase());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyStartAndInit->addSubAction(moveAction);
 	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
 	AMControlInfo gratingAccelerationInitSetpoint = tmpControl->toInfo();
-	gratingAccelerationInitSetpoint.setValue(40000);
+	//gratingAccelerationInitSetpoint.setValue(40000);
+	gratingAccelerationInitSetpoint.setValue(settings->acceleration());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyStartAndInit->addSubAction(moveAction);
@@ -148,19 +154,21 @@ bool SGMFastScanActionController::startImplementation(){
 	// End Initialization
 
 	// Initial Positions:
-	// Undulator Step to -149991
-	// Exit Slit to 200.46
+	// Undulator Step to undulator start step
+	// Exit Slit to median position
 	// Continuous Scaler to Off
 	AMListAction3 *hackedFastActionsInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Initial Positions", "SGM Hacked Fast Actions Initial Positions"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->undulatorStep();
 	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
-	undulatorStepSetpoint.setValue(-149991);
+	//undulatorStepSetpoint.setValue(-149991);
+	undulatorStepSetpoint.setValue(settings->undulatorStartStep());
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsInitialPositions->addSubAction(moveAction);
 	tmpControl = SGMBeamline::sgm()->exitSlit();
 	AMControlInfo exitSlitSetpoint = tmpControl->toInfo();
-	exitSlitSetpoint.setValue(200.46);
+	//exitSlitSetpoint.setValue(200.46);
+	exitSlitSetpoint.setValue(settings->exitSlitDistance());
 	moveActionInfo = new AMControlMoveActionInfo3(exitSlitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsInitialPositions->addSubAction(moveAction);
@@ -169,11 +177,12 @@ bool SGMFastScanActionController::startImplementation(){
 	// End Initial Positions
 
 	// Scaler Settings:
-	// Dwell time to 0.005 (5.0 ms)
+	// Dwell time to milliseconds (seconds/1000)
 	// Scans per Buffer to 1000
 	// Total Scans to 1000
 	AMListAction3 *hackedFastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Scaler Settings", "SGM Hacked Fast Actions Scaler Settings"), AMListAction3::Parallel);
-	hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(0.005));
+	//hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(0.005));
+	hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
 	hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
 	hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(1000));
 	hackedFastActions->addSubAction(hackedFastActionsScalerSettings);
@@ -187,10 +196,11 @@ bool SGMFastScanActionController::startImplementation(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActions->addSubAction(moveAction);
 
-	// Undulator Relative Step Storage to 16930
+	// Undulator Relative Step Storage to relative step
 	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
 	AMControlInfo undulatorRelativeStepStorageSetpoint = tmpControl->toInfo();
-	undulatorRelativeStepStorageSetpoint.setValue(16930);
+	//undulatorRelativeStepStorageSetpoint.setValue(16930);
+	undulatorRelativeStepStorageSetpoint.setValue(settings->undulatorRelativeStep());
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActions->addSubAction(moveAction);
@@ -217,12 +227,13 @@ bool SGMFastScanActionController::startImplementation(){
 	hackedFastActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
 
 	// Energy and Scaler:
-	// Energy to 320
+	// Energy to end energy
 	// Trigger Action for Scaler
 	AMListAction3 *hackedFastActionsEnergyAndScaler = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Energy and Scaler", "SGM Hacked Fast Actions Energy and Scaler"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energySetpoint = tmpControl->toInfo();
-	energySetpoint.setValue(320);
+	//energySetpoint.setValue(320);
+	energySetpoint.setValue(settings->energyEnd());
 	moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	hackedFastActionsEnergyAndScaler->addSubAction(moveAction);
@@ -232,8 +243,7 @@ bool SGMFastScanActionController::startImplementation(){
 	// End Energy and Scaler
 
 	// Read Detectors:
-	// Read TEY
-	// Read I0
+	// Loop over configured detectors
 	// Read EncUp
 	// Read EncDown
 	AMListAction3 *hackedFastActionsReadDetectors = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Read Detectors", "SGM Hacked Fast Actions Read Detectors"), AMListAction3::Parallel);
