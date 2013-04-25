@@ -202,6 +202,8 @@ public:
 
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
 	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+	/// Creates an action that will enable/disable the channel based on \param setEnabled.
+	AMAction3* createEnableAction3(bool setEnabled);
 
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }

@@ -7,6 +7,7 @@
 #include "actions3/AMAction3.h"
 
 class AMScanActionControllerScanAssembler;
+class AMListAction3;
 
 class SGMFastScanActionController : public AMScanActionController
 {
@@ -15,7 +16,10 @@ public:
 	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 
 protected slots:
-	void onHackedActionsSucceeded();
+	void onMasterActionsListSucceeded();
+	void onMasterActionsListFailed();
+	void onCleanupActionsListSucceeded();
+	void onCleanupActionsListFailed();
 
 protected:
 	virtual bool initializeImplementation();
@@ -36,6 +40,10 @@ protected:
 
 	QMap< QString, QVector<double> > allDataMap_;
 	AMnDIndex insertionIndex_;
+
+	AMListAction3 *fastActionsMasterList_;
+	bool masterListSucceeded_;
+	AMListAction3 *fastActionsCleanupList_;
 };
 
 #endif // SGMFASTSCANACTIONCONTROLLER_H

@@ -575,6 +575,22 @@ AMBeamlineActionItem* CLSSIS3820ScalerChannel::createEnableAction(bool setEnable
 	return action;
 }
 
+AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = channelEnable_->toInfo();
+	setpoint.setValue(setEnabled == true ? 1 : 0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, channelEnable_);
+
+	if(!action)
+		return 0; //NULL
+
+	return action;
+}
+
 void CLSSIS3820ScalerChannel::setEnabled(bool isEnabled){
 
 	if(isEnabled && channelEnable_->withinTolerance(0))
