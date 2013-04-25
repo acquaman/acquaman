@@ -2,7 +2,7 @@
 #define SGMFASTSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMScanActionController.h"
-#include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "dataman/AMUser.h"
 #include "actions3/AMAction3.h"
 
@@ -12,7 +12,7 @@ class SGMFastScanActionController : public AMScanActionController
 {
 Q_OBJECT
 public:
-	SGMFastScanActionController(SGMFastScanConfiguration *configuration, QObject *parent = 0);
+	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 
 protected slots:
 	void onHackedActionsSucceeded();
@@ -25,7 +25,7 @@ protected:
 	bool event(QEvent *e);
 
 protected:
-	SGMFastScanConfiguration *configuration_;
+	SGMFastScanConfiguration2013 *configuration_;
 
 	int encoderStartValue_;
 	double spacingParam_;

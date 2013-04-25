@@ -207,6 +207,7 @@ public:
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
+	AMDetectorGroup *FastDetectorGroup() const { return FastDetectorGroup_;}
 
 	bool detectorConnectedByName(QString name);
 
@@ -400,6 +401,7 @@ protected:
 	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
 	AMDetectorGroup *newDetectorSet_;
 	AMDetectorGroup *XASDetectorGroup_;
+	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
 	AMOldDetectorSet *criticalDetectorsSet_;

@@ -32,6 +32,7 @@ class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMXASScanConfiguration2013View;
+class SGMFastScanConfiguration2013View;
 class AMScanController;
 class SGMSidebar;
 class SGMSettingsMasterView;
@@ -163,12 +164,15 @@ protected:
 	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
 	AMDetectorSelector *xasDetectorSelector_;
+	AMDetectorSelector *fastDetectorSelector_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	/// View holder for Fast scans
 	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	AMScanConfigurationViewHolder3 *xasScanConfiguration2013Holder3_;
+	AMScanConfigurationViewHolder3 *fastScanConfiguration2013Holder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls

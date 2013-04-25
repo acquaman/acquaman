@@ -1,7 +1,7 @@
 #include "SGMFastScanActionController.h"
 #include "dataman/AMFastScan.h"
 
-SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration *configuration, QObject *parent) :
+SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
@@ -18,11 +18,19 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 	insertionIndex_ = AMnDIndex(0);
 
+	/*
 	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newTEYDetector()))))
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
 
 	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newI0Detector()))))
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+	*/
+
+	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++){
+		qDebug() << "New Fast Scan told to use " << configuration_->detectorConfigurations().detectorInfoAt(x).name();
+		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))))))
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+	}
 }
 
 void SGMFastScanActionController::onHackedActionsSucceeded(){
@@ -229,12 +237,19 @@ bool SGMFastScanActionController::startImplementation(){
 	// Read EncUp
 	// Read EncDown
 	AMListAction3 *hackedFastActionsReadDetectors = new AMListAction3(new AMListActionInfo3("SGM Hacked Fast Actions Read Detectors", "SGM Hacked Fast Actions Read Detectors"), AMListAction3::Parallel);
+	/*
 	readAction = SGMBeamline::sgm()->newTEYDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	hackedFastActionsReadDetectors->addSubAction(readAction);
 	readAction = SGMBeamline::sgm()->newI0Detector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	hackedFastActionsReadDetectors->addSubAction(readAction);
+	*/
+	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++){
+		readAction = SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))->createReadAction();
+		readAction->setGenerateScanActionMessage(true);
+		hackedFastActionsReadDetectors->addSubAction(readAction);
+	}
 	readAction = SGMBeamline::sgm()->newEncoderUpDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	hackedFastActionsReadDetectors->addSubAction(readAction);
@@ -292,8 +307,12 @@ bool SGMFastScanActionController::event(QEvent *e){
 
 				scan_->rawData()->beginInsertRows(1, -1);
 				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);
+				for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+				/*
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("NEWTEY"), AMnDIndex(), allDataMap_.value("NEWTEY").at(x));
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("NEWI0"), AMnDIndex(), allDataMap_.value("NEWI0").at(x));
+				*/
 				scan_->rawData()->endInsertRows();
 				insertionIndex_[0] = insertionIndex_.i()+1;
 			}

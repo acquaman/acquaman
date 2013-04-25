@@ -138,8 +138,11 @@ bool CLSBasicScalerChannelDetector::cleanupImplementation(){
 }
 
 void CLSBasicScalerChannelDetector::checkReadyForAcquisition(){
-	if(isConnected() && !scaler_->isContinuous())
+	if(isConnected()){
 		setReadyForAcquisition();
+		if(scaler_->isContinuous())
+			setAcquiring();
+	}
 	else
 		setNotReadyForAcquisition();
 }
