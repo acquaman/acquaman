@@ -287,14 +287,15 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
 	newPGTDetector_ = new CLSPGTDetectorV2("NEWPGT", "PGT", "MCA1611-01", this);
 	newQE65000Detector_ = new CLSQE65000Detector("NEWQE65000", "QE 65000", "SA0000-03", this);
-	//newTEYDetector_ = new CLSBasicScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
 	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
-	//newTFYDetector_ = new CLSBasicScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
 	newTFYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
-	//newI0Detector_ = new CLSBasicScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
 	newI0Detector_ = new CLSAdvancedScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
-	//newPDDetector_ = new CLSBasicScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
 	newPDDetector_ = new CLSAdvancedScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
+	newFilteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD1", "FilteredPD1", scaler_, 6, this);
+	newFilteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD2", "FilteredPD2", scaler_, 7, this);
+	newFilteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD3", "FilteredPD3", scaler_, 8, this);
+	newFilteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD4", "FilteredPD4", scaler_, 9, this);
+
 	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderUp", "Encoder Up", scaler_, 5, this);
 	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderDown", "Encoder Down", scaler_, 4, this);
 	AMControl *energyFeedbackControl = new AMReadOnlyPVControl("EnergyFeedback", "BL1611-ID-1:Energy:fbk", this, "Energy Feedback");
@@ -323,6 +324,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newTFYDetector_);
 	XASDetectorGroup_->addDetector(newI0Detector_);
 	XASDetectorGroup_->addDetector(newPDDetector_);
+	XASDetectorGroup_->addDetector(newFilteredPD1Detector_);
+	XASDetectorGroup_->addDetector(newFilteredPD2Detector_);
+	XASDetectorGroup_->addDetector(newFilteredPD3Detector_);
+	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
 	XASDetectorGroup_->addDetector(fakeWaitReadDetector_);
 
@@ -331,6 +336,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	FastDetectorGroup_->addDetector(newI0Detector_);
 	FastDetectorGroup_->addDetector(newTFYDetector_);
 	FastDetectorGroup_->addDetector(newPDDetector_);
+	FastDetectorGroup_->addDetector(newFilteredPD1Detector_);
+	FastDetectorGroup_->addDetector(newFilteredPD2Detector_);
+	FastDetectorGroup_->addDetector(newFilteredPD3Detector_);
+	FastDetectorGroup_->addDetector(newFilteredPD4Detector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -1142,6 +1151,10 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newI0Detector_);
 	addExposedDetector(newTFYDetector_);
 	addExposedDetector(newPDDetector_);
+	addExposedDetector(newFilteredPD1Detector_);
+	addExposedDetector(newFilteredPD2Detector_);
+	addExposedDetector(newFilteredPD3Detector_);
+	addExposedDetector(newFilteredPD4Detector_);
 	addExposedDetector(newEncoderUpDetector_);
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);

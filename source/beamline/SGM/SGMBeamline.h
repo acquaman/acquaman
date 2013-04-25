@@ -193,6 +193,10 @@ public:
 	AMDetector* newTFYDetector() const { return newTFYDetector_;}
 	AMDetector* newI0Detector() const { return newI0Detector_;}
 	AMDetector* newPDDetector() const { return newPDDetector_;}
+	AMDetector* newFilteredPD1Detector() const { return newFilteredPD1Detector_;}
+	AMDetector* newFilteredPD2Detector() const { return newFilteredPD2Detector_;}
+	AMDetector* newFilteredPD3Detector() const { return newFilteredPD3Detector_;}
+	AMDetector* newFilteredPD4Detector() const { return newFilteredPD4Detector_;}
 	AMDetector* newEncoderUpDetector() const { return newEncoderUpDetector_; }
 	AMDetector* newEncoderDownDetector() const { return newEncoderDownDetector_; }
 	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
@@ -391,9 +395,13 @@ protected:
 	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
-	CLSBasicScalerChannelDetector *newTFYDetector_;
-	CLSBasicScalerChannelDetector *newI0Detector_;
-	CLSBasicScalerChannelDetector *newPDDetector_;
+	CLSAdvancedScalerChannelDetector *newTFYDetector_;
+	CLSAdvancedScalerChannelDetector *newI0Detector_;
+	CLSAdvancedScalerChannelDetector *newPDDetector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD1Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD2Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD3Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD4Detector_;
 	CLSAdvancedScalerChannelDetector *newEncoderUpDetector_;
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
