@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
+	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -394,7 +395,7 @@ void VESPERSBeamline::setupMono()
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
 }
 
-void VESPERSBeamline::setupComponents()
+void VESPERSBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1607-B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
@@ -408,6 +409,173 @@ void VESPERSBeamline::setupComponents()
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
 	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
+	// Setting up all of the configurations for the synchronized dwell time.
+	// The scaler.
+	CLSSynchronizedDwellTimeConfigurationInfo *temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Scaler");
+	temp->setDwellTimePV("BL1607-B2-1:mcs:delay PP NMS");
+	temp->setScale("1000");
+	temp->setOffset("0");
+	temp->setUnits("ms");
+	temp->setModePV("BL1607-B2-1:mcs:continuous PP NMS");
+	temp->setSingleShot("0");
+	temp->setContinuous("1");
+	temp->setTriggerPV("BL1607-B2-1:mcs:startScan NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("BL1607-B2-1:mcs:startScan CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The single element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("1-El Vortex");
+	temp->setDwellTimePV("IOC1607-004:mca1.PRTM PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("IOC1607-004:mca1Read.SCAN PP NMS");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("IOC1607-004:mca1EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("IOC1607-004:mca1.ACQG CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Roper CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Roper CCD");
+	temp->setDwellTimePV("IOC1607-003:det1.AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("DIO1607-01:CCD:ExtSync NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("CCD1607-001:extTrig:status CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The picoammeters.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Picoammeters");
+	temp->setDwellTimePV("A2607:integ_interval PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("A2607:configure");
+	temp->setSingleShot("1");
+	temp->setContinuous("2");
+	temp->setTriggerPV("A2607:start_read NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("A2607:start_read CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The four element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("4-El Vortex");
+	temp->setDwellTimePV("dxp1607-B21-04:PresetReal PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("dxp1607-B21-04:EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("dxp1607-B21-04:Acquiring CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Mar CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Mar CCD");
+	temp->setDwellTimePV("ccd1607-002:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("ccd1607-002:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("ccd1607-002:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Pilatus pixel array detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Pilatus CCD");
+	temp->setDwellTimePV("DET1607-B21-05:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("DET1607-B21-05:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("DET1607-B21-05:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+}
+
+CLSSynchronizedDwellTimeConfigurationInfo *VESPERSBeamline::synchronizedDwellTimeConfigurationByName(const QString &name) const
+{
+	for (int i = 0, size = synchronizedDwellTimeConfigurations_.size(); i < size; i++)
+		if (synchronizedDwellTimeConfigurations_.at(i)->name() == name)
+			return synchronizedDwellTimeConfigurations_.at(i);
+
+	return 0;
+}
+
+void VESPERSBeamline::setupComponents()
+{
 	beamPositions_.insert(VESPERS::Pink, 0);
 	beamPositions_.insert(VESPERS::TenPercent, -12.5);
 	beamPositions_.insert(VESPERS::Si, -17.5);

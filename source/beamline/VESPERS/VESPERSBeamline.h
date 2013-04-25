@@ -130,6 +130,12 @@ public:
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	/// Returns the synchronized dwell time configuration info's list.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
+	/// Returns a synchronized dwell time configuration info from the index provided.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationAt(int index) const { return synchronizedDwellTimeConfigurations_.at(index); }
+	/// Returns the synchronized dwell time configuration info based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationByName(const QString &name) const;
 
 	// End of synchronized dwell time.
 
@@ -544,6 +550,8 @@ protected slots:
 	void closeAllValvesHelper();
 
 protected:
+	/// Sets up the synchronized dwell time.
+	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -592,6 +600,8 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+	// List of all the various synchronized dwell time configurations.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations_;
 
 	// Variable integration time.
 	CLSVariableIntegrationTime *variableIntegrationTime_;

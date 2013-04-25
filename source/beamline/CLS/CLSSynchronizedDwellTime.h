@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h"
 
 class AMDetectorTriggerSource;
 class AMAction3;
@@ -53,11 +54,11 @@ public:
 	/// Returns the units.
 	QString units() const { return time_->units(); }
 	/// Returns the scan status.  True means scanning, false means idle.
-	bool status() const { return status_->getInt() == 1 ? true : false; }
+	bool status() const { return status_->getInt() == 1; }
 	/// Returns the time in the units given by units().
 	double time() const { return time_->value(); }
 	/// Returns whether the dwell element is enabled.
-	bool isEnabled() const { return ((int)enable_->value()) == 1 ? true : false; }
+	bool isEnabled() const { return ((int)enable_->value()) == 1; }
 	/// Returns whether all the controls are connected.
 	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
 
@@ -94,9 +95,9 @@ signals:
 
 protected slots:
 	/// Transforms the int value for the enable status into a bool.
-	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1 ? true : false); }
+	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1); }
 	/// Transforms the int value for the scan status into a bool.
-	void onStatusChanged(int status) { emit statusChanged(status == 1 ? true : false); }
+	void onStatusChanged(int status) { emit statusChanged(status == 1); }
 	/// Handles changes to the connectivity of the element.
 	void onConnectedChanged() { emit connected(isConnected()); }
 
@@ -149,7 +150,7 @@ public:
 	/// Returns the current mode.
 	Mode mode() const { return ((int)mode_->value()) == 0 ? Continuous : SingleShot; }
 	/// Returns whether the dwell time is scanning.
-	bool isScanning() const { return ((int)startScan_->value()) == 1 ? true : false; }
+	bool isScanning() const { return ((int)startScan_->value()) == 1; }
 	/// Returns whether all the controls are connected.
 	bool isConnected() const
 	{
