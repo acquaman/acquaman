@@ -395,6 +395,14 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initialization", "SGM Fast Actions Initialization"));
 
+	// Grating to required value
+	tmpControl = SGMBeamline::sgm()->grating();
+	AMControlInfo gratingSetpoint = tmpControl->toInfo();
+	gratingSetpoint.setValue(settings->scanInfo().start().sgmGrating());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
 	// Tracking off:
 	// Undulator Tracking to 0
 	// Exit Slit Tracking to 0
@@ -531,6 +539,9 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	retVal->addSubAction(moveAction);
 
+	// Beam on actions
+	retVal->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+
 	///////////////////////////
 	// END INITIALIZATION ///
 	////////////////////////
@@ -547,6 +558,14 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	// CLEAN UP ///
 	//////////////
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Cleanup", "SGM Fast Actions Cleanup"));
+
+	// Always close the fast shutter when the fast scan is done
+	tmpControl = SGMBeamline::sgm()->fastShutterVoltage();
+	AMControlInfo fastShutterSetpoint = tmpControl->toInfo();
+	fastShutterSetpoint.setValue(5);
+	moveActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
 
 	// Tracking restore:
 	// Undulator Tracking to current
@@ -607,6 +626,16 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 
 	retVal->addSubAction(fastActionsScalerSettingsRestore);
 	// End Scaler Settings
+
+	// Synchronized Dwell Restore:
+	// Loop elements and enable prior settings
+	AMListAction3 *fastActionsSyncDwellEnablesRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Synchronized Dwell Time Enable Settings Restore", "SGM Fast Actions Synchronized Dwell Time Enable Settings Restore"), AMListAction3::Parallel);
+
+	CLSSynchronizedDwellTime *syncDwell = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
+	for(int x = 0; x < syncDwell->elementCount(); x++)
+		fastActionsSyncDwellEnablesRestore->addSubAction(syncDwell->elementAt(x)->createEnableAction3(syncDwell->enabledAt(x)));
+	retVal->addSubAction(fastActionsSyncDwellEnablesRestore);
+	// End Sync Dwell
 
 	////////////////////
 	// END CLEAN UP ///

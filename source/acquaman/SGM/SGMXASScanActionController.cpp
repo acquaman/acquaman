@@ -409,15 +409,13 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	/* Can't open shutter right now
 	AMListAction3 *initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Parallel);
 	initializationStage4->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
-	*/
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-	//initializationActions->addSubAction(initializationStage4);
+	initializationActions->addSubAction(initializationStage4);
 
 	return initializationActions;
 }
