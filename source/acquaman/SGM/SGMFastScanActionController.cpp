@@ -53,6 +53,24 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	fileWriterThread_->start();
 }
 
+void SGMFastScanActionController::onInitializationActionsListSucceeded(){
+	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+
+	qDebug() << "Successfully initialized";
+	setInitialized();
+}
+
+void SGMFastScanActionController::onInitializationActionsListFailed(){
+	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+
+	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+}
+
 void SGMFastScanActionController::onMasterActionsListSucceeded(){
 	//setFinished();
 	masterListSucceeded_ = true;
@@ -131,7 +149,21 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 }
 
 bool SGMFastScanActionController::initializeImplementation(){
-	QTimer::singleShot(0, this, SLOT(setInitialized()));
+	AMAction3 *cleanupActions = createCleanupActions();
+	if(qobject_cast<AMListAction3*>(cleanupActions))
+		fastActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
+
+	AMAction3 *initializationActions = createInitializationActions();
+	if(qobject_cast<AMListAction3*>(initializationActions))
+		fastActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
+
+
+	connect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	connect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsInitializationList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+
+	//QTimer::singleShot(0, this, SLOT(setInitialized()));
 	return true;
 }
 
@@ -147,6 +179,13 @@ bool SGMFastScanActionController::startImplementation(){
 	AMControlMoveAction3 *moveAction;
 	AMControl *tmpControl;
 
+	/*
+	AMAction3 *cleanupActions = createCleanupActions();
+	if(qobject_cast<AMListAction3*>(cleanupActions))
+		fastActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
+	*/
+
+	/*
 	////////////////
 	// CLEAN UP ///
 	//////////////
@@ -215,6 +254,13 @@ bool SGMFastScanActionController::startImplementation(){
 	////////////////////
 	// END CLEAN UP ///
 	//////////////////
+	*/
+
+	/*
+	AMAction3 *initializationActions = createInitializationActions();
+	if(qobject_cast<AMListAction3*>(initializationActions))
+		fastActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
+	*/
 
 	///////////////////
 	// MASTER LIST ///
@@ -222,6 +268,7 @@ bool SGMFastScanActionController::startImplementation(){
 
 	fastActionsMasterList_ = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
 
+	/*
 	// Tracking off:
 	// Undulator Tracking to 0
 	// Exit Slit Tracking to 0
@@ -365,6 +412,7 @@ bool SGMFastScanActionController::startImplementation(){
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsMasterList_->addSubAction(moveAction);
+	*/
 
 	// Undulator Trigger Propogate to 1
 	tmpControl = SGMBeamline::sgm()->undulatorFastTrackingTrigger();
@@ -409,14 +457,6 @@ bool SGMFastScanActionController::startImplementation(){
 	// Read EncUp
 	// Read EncDown
 	AMListAction3 *fastActionsReadDetectors = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Read Detectors", "SGM Fast Actions Read Detectors"), AMListAction3::Parallel);
-	/*
-	readAction = SGMBeamline::sgm()->newTEYDetector()->createReadAction();
-	readAction->setGenerateScanActionMessage(true);
-	hackedFastActionsReadDetectors->addSubAction(readAction);
-	readAction = SGMBeamline::sgm()->newI0Detector()->createReadAction();
-	readAction->setGenerateScanActionMessage(true);
-	hackedFastActionsReadDetectors->addSubAction(readAction);
-	*/
 	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++){
 		readAction = SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))->createReadAction();
 		readAction->setGenerateScanActionMessage(true);
@@ -611,4 +651,244 @@ void SGMFastScanActionController::writeDataToFiles(){
 		emit requestWriteToFile(1, rank1String);
 		requestIndex[0] = requestIndex.i()+1;
 	}
+}
+
+AMAction3* SGMFastScanActionController::createInitializationActions(){
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+	SGMFastScanParameters *settings = configuration_->currentParameters();
+
+	//////////////////////
+	// INITIALIZATION ///
+	////////////////////
+
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initialization", "SGM Fast Actions Initialization"));
+
+	// Tracking off:
+	// Undulator Tracking to 0
+	// Exit Slit Tracking to 0
+	AMListAction3 *fastActionsTrackingOff = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Tracking Off", "SGM Fast Actions Tracking Off"), AMListAction3::Parallel);
+	tmpControl = SGMBeamline::sgm()->undulatorTracking();
+	AMControlInfo undulatorTrackingSetpoint = tmpControl->toInfo();
+	undulatorTrackingSetpoint.setValue(0);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorTrackingSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsTrackingOff->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
+	AMControlInfo exitSlitTrackingSetpoint = tmpControl->toInfo();
+	exitSlitTrackingSetpoint.setValue(0);
+	moveActionInfo = new AMControlMoveActionInfo3(exitSlitTrackingSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsTrackingOff->addSubAction(moveAction);
+	retVal->addSubAction(fastActionsTrackingOff);
+	// End Tracking Off
+
+	// Initialization:
+	// Energy to start energy
+	// Undulator Trigger to 0
+	// Undulator Relative Step Storage to 12 (non value)
+	// Undulator Relative Step to 12 (non value)
+	// Undulator Velocity to undulator velocity
+	// Grating Velocity, Velocity Base, Acceleration to motor settings
+	AMListAction3 *fastActionsEnergyStartAndInit = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Energy Start and Init", "SGM Fast Actions Energy Start and Init"), AMListAction3::Parallel);
+	tmpControl = SGMBeamline::sgm()->energy();
+	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
+	//energyStartSetpoint.setValue(270);
+	energyStartSetpoint.setValue(settings->energyStart());
+	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->undulatorFastTracking();
+	AMControlInfo undulatorFastTrackingInitSetpoint = tmpControl->toInfo();
+	undulatorFastTrackingInitSetpoint.setValue(0);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorFastTrackingInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
+	AMControlInfo undulatorRelativeStepStorageInitSetpoint = tmpControl->toInfo();
+	undulatorRelativeStepStorageInitSetpoint.setValue(12);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->undulatorRelativeStep();
+	AMControlInfo undulatorRelativeStepInitSetpoint = tmpControl->toInfo();
+	undulatorRelativeStepInitSetpoint.setValue(12);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->undulatorVelocity();
+	AMControlInfo undulatorVelocityInitSetpoint = tmpControl->toInfo();
+	//undulatorVelocityInitSetpoint.setValue(6000);
+	undulatorVelocityInitSetpoint.setValue(settings->undulatorVelocity());
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorVelocityInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityInitSetpoint = tmpControl->toInfo();
+	//gratingVelocityInitSetpoint.setValue(40000);
+	gratingVelocityInitSetpoint.setValue(settings->velocity());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
+	AMControlInfo gratingBaseVelocityInitSetpoint = tmpControl->toInfo();
+	//gratingBaseVelocityInitSetpoint.setValue(40000);
+	gratingBaseVelocityInitSetpoint.setValue(settings->velocityBase());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
+	AMControlInfo gratingAccelerationInitSetpoint = tmpControl->toInfo();
+	//gratingAccelerationInitSetpoint.setValue(40000);
+	gratingAccelerationInitSetpoint.setValue(settings->acceleration());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+
+	retVal->addSubAction(fastActionsEnergyStartAndInit);
+	// End Initialization
+
+	// Initial Positions:
+	// Undulator Step to undulator start step
+	// Exit Slit to median position
+	// Continuous Scaler to Off
+	AMListAction3 *fastActionsInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initial Positions", "SGM Fast Actions Initial Positions"), AMListAction3::Parallel);
+	tmpControl = SGMBeamline::sgm()->undulatorStep();
+	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
+	//undulatorStepSetpoint.setValue(-149991);
+	undulatorStepSetpoint.setValue(settings->undulatorStartStep());
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitialPositions->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->exitSlit();
+	AMControlInfo exitSlitSetpoint = tmpControl->toInfo();
+	//exitSlitSetpoint.setValue(200.46);
+	exitSlitSetpoint.setValue(settings->exitSlitDistance());
+	moveActionInfo = new AMControlMoveActionInfo3(exitSlitSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitialPositions->addSubAction(moveAction);
+	fastActionsInitialPositions->addSubAction(SGMBeamline::sgm()->scaler()->createContinuousEnableAction3(false));
+	retVal->addSubAction(fastActionsInitialPositions);
+	// End Initial Positions
+
+	// Scaler Settings:
+	// Dwell time to milliseconds (seconds/1000)
+	// Scans per Buffer to 1000
+	// Total Scans to 1000
+	AMListAction3 *fastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings", "SGM Fast Actions Scaler Settings"), AMListAction3::Parallel);
+	//hackedFastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(0.005));
+	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
+	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
+	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(1000));
+	for(int x = 0; x < 32; x++)
+		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(true));
+
+	retVal->addSubAction(fastActionsScalerSettings);
+	// End Scaler Settings
+
+	// Undulator Trigger to 1
+	tmpControl = SGMBeamline::sgm()->undulatorFastTracking();
+	AMControlInfo undulatorFastTrackingSetpoint = tmpControl->toInfo();
+	undulatorFastTrackingSetpoint.setValue(1);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorFastTrackingSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	// Undulator Relative Step Storage to relative step
+	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
+	AMControlInfo undulatorRelativeStepStorageSetpoint = tmpControl->toInfo();
+	//undulatorRelativeStepStorageSetpoint.setValue(16930);
+	undulatorRelativeStepStorageSetpoint.setValue(settings->undulatorRelativeStep());
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	///////////////////////////
+	// END INITIALIZATION ///
+	////////////////////////
+
+	return retVal;
+}
+
+AMAction3* SGMFastScanActionController::createCleanupActions(){
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+	////////////////
+	// CLEAN UP ///
+	//////////////
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Cleanup", "SGM Fast Actions Cleanup"));
+
+	// Tracking restore:
+	// Undulator Tracking to current
+	// Exit Slit Tracking to current
+	AMListAction3 *fastActionsTrackingRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Tracking Restore", "SGM Fast Actions Tracking Restore"), AMListAction3::Parallel);
+	tmpControl = SGMBeamline::sgm()->undulatorTracking();
+	AMControlInfo undulatorTrackingRestoreSetpoint = tmpControl->toInfo();
+	undulatorTrackingRestoreSetpoint.setValue(SGMBeamline::sgm()->undulatorTracking()->value());
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorTrackingRestoreSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsTrackingRestore->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
+	AMControlInfo exitSlitTrackingRestoreSetpoint = tmpControl->toInfo();
+	exitSlitTrackingRestoreSetpoint.setValue(SGMBeamline::sgm()->exitSlitTracking()->value());
+	moveActionInfo = new AMControlMoveActionInfo3(exitSlitTrackingRestoreSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsTrackingRestore->addSubAction(moveAction);
+	retVal->addSubAction(fastActionsTrackingRestore);
+	// End Tracking Off
+
+	// Grating Restore:
+	// Grating Velocity, Velocity Base, Acceleration to current settings
+	AMListAction3 *fastActionsGratingRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Grating Restore", "SGM Fast Actions Grating Restore"), AMListAction3::Parallel);
+
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityRestoreSetpoint = tmpControl->toInfo();
+	gratingVelocityRestoreSetpoint.setValue(SGMBeamline::sgm()->gratingVelocity()->value());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityRestoreSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsGratingRestore->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
+	AMControlInfo gratingBaseVelocityRestoreSetpoint = tmpControl->toInfo();
+	gratingBaseVelocityRestoreSetpoint.setValue(SGMBeamline::sgm()->gratingBaseVelocity()->value());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityRestoreSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsGratingRestore->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
+	AMControlInfo gratingAccelerationRestoreSetpoint = tmpControl->toInfo();
+	gratingAccelerationRestoreSetpoint.setValue(SGMBeamline::sgm()->gratingAcceleration()->value());
+	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationRestoreSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsGratingRestore->addSubAction(moveAction);
+
+	retVal->addSubAction(fastActionsGratingRestore);
+	// End Grating Restore
+
+	// Scaler Settings Restore:
+	// Dwell time to current
+	// Scans per Buffer to current
+	// Total Scans to current
+	AMListAction3 *fastActionsScalerSettingsRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings Restore", "SGM Fast Actions Scaler Settings Restore"), AMListAction3::Parallel);
+	fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(SGMBeamline::sgm()->scaler()->dwellTime()));
+	fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->createContinuousEnableAction3(SGMBeamline::sgm()->scaler()->isContinuous()));
+	fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->scansPerBuffer()));
+	fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans()));
+	for(int x = 0; x < 32; x++)
+		fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(SGMBeamline::sgm()->scaler()->channelAt(x)->isEnabled()));
+
+	retVal->addSubAction(fastActionsScalerSettingsRestore);
+	// End Scaler Settings
+
+	////////////////////
+	// END CLEAN UP ///
+	//////////////////
+	return retVal;
 }

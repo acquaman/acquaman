@@ -28,6 +28,8 @@ signals:
 	void finishWritingToFile();
 
 protected slots:
+	void onInitializationActionsListSucceeded();
+	void onInitializationActionsListFailed();
 	void onMasterActionsListSucceeded();
 	void onMasterActionsListFailed();
 	void onCleanupActionsListSucceeded();
@@ -46,6 +48,9 @@ protected:
 	void writeHeaderToFile();
 	void writeDataToFiles();
 
+	AMAction3* createInitializationActions();
+	AMAction3* createCleanupActions();
+
 protected:
 	SGMFastScanConfiguration2013 *configuration_;
 
@@ -59,6 +64,7 @@ protected:
 	QMap< QString, QVector<double> > allDataMap_;
 	AMnDIndex insertionIndex_;
 
+	AMListAction3 *fastActionsInitializationList_;
 	AMListAction3 *fastActionsMasterList_;
 	bool masterListSucceeded_;
 	AMListAction3 *fastActionsCleanupList_;
