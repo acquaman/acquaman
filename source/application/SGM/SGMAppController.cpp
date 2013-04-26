@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMAppController.h"
 
+#include <QHostInfo>
+
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
@@ -154,8 +156,11 @@ bool SGMAppController::startup() {
 	if(!setupSGMViews())
 		return false;
 
-	// Center the completed GUI on the screen
-	mw_->move(0, 0);
+	// Center the completed GUI on the screen (which is normally 0,0 but has to be 0 1081 on OPI1611-408)
+	if(QHostInfo::localHostName() == "OPI1611-408")
+		mw_->move(0, 1081);
+	else
+		mw_->move(0, 0);
 
 	return true;
 }
