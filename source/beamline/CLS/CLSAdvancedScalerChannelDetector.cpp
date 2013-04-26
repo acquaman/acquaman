@@ -152,14 +152,10 @@ bool CLSAdvancedScalerChannelDetector::triggerChannelAcquisition(){
 
 void CLSAdvancedScalerChannelDetector::onScalerConnectedConfirmReadMode(bool connected){
 	if(connected){
-		if(scaler_->scansPerBuffer() == 1000 && scaler_->totalScans() == 1000){
-			qDebug() << "Figured out this scaler channel is now in continuous mode";
+		if(scaler_->scansPerBuffer() == 1000 && scaler_->totalScans() == 1000)
 			readMode_ = AMDetectorDefinitions::ContinuousRead;
-		}
-		else{
-			qDebug() << "This scaler channel must still be in single read mode";
+		else
 			readMode_ = AMDetectorDefinitions::SingleRead;
-		}
 	}
 }
 

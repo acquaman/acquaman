@@ -1,6 +1,8 @@
 #include "SGMFastScanActionController.h"
-#include "dataman/AMFastScan.h"
 
+#include <QFileInfo>
+
+#include "dataman/AMFastScan.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
@@ -9,17 +11,19 @@
 #include "actions3/actions/AMTimedWaitAction3.h"
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
+#include "dataman/AMTextStream.h"
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
+	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
 	masterListSucceeded_ = false;
 
 	scan_ = new AMFastScan();
 	scan_->rawData()->addScanAxis(AMAxisInfo("ev", 0, "Incident Energy", "eV"));
 	scan_->setName("SGM Fast Scan");
-	scan_->setFileFormat("sgm2010Fast");
+	scan_->setFileFormat("sgm2013Fast");
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(configuration_);
 	configuration_->setEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
@@ -28,19 +32,25 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 	insertionIndex_ = AMnDIndex(0);
 
-	/*
-	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newTEYDetector()))))
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
-
-	if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->newI0Detector()))))
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
-	*/
-
 	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++){
 		qDebug() << "New Fast Scan told to use " << configuration_->detectorConfigurations().detectorInfoAt(x).name();
 		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))))))
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
 	}
+
+	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+	scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+
+	fileWriterThread_ = new QThread();
+
+	qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
+	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
+	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+	fileWriter->moveToThread(fileWriterThread_);
+	fileWriterThread_->start();
 }
 
 void SGMFastScanActionController::onMasterActionsListSucceeded(){
@@ -79,6 +89,45 @@ void SGMFastScanActionController::onCleanupActionsListFailed(){
 	disconnect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 	disconnect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 	setFailed();
+}
+
+#include "ui/util/AMMessageBoxWTimeout.h"
+void SGMFastScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+	qDebug() << "Got a file writer error in Fast Scan" << error;
+	QString userErrorString;
+	switch(error){
+	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM Fast Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM Fast Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	default:
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, "Error, SGM Fast Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the SGM Acquaman developers.");
+		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
+		break;
+	}
+
+	setFailed();
+
+	AMMessageBoxWTimeout box(30000);
+	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
+	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
+	box.setInformativeText(userErrorString);
+
+	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+	box.setDefaultButton(acknowledgeButton_);
+
+	box.execWTimeout();
+}
+
+void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
+	fileWriterIsBusy_ = isBusy;
+	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
 bool SGMFastScanActionController::initializeImplementation(){
@@ -325,15 +374,16 @@ bool SGMFastScanActionController::startImplementation(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsMasterList_->addSubAction(moveAction);
 
-	// Start Axis
-	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("SGM Fast Axis"), AMScanAxis::ContinuousMoveAxis));
-	fastActionsMasterList_->addSubAction(axisStartAction);
-
 	// Read grating encoder start point
 	AMAction3 *readAction;
 	readAction = SGMBeamline::sgm()->gratingEncoderDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	fastActionsMasterList_->addSubAction(readAction);
+
+	// Start Axis
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("SGM Fast Axis"), AMScanAxis::ContinuousMoveAxis));
+	fastActionsMasterList_->addSubAction(axisStartAction);
+
 
 	// Wait 1.0 seconds
 	fastActionsMasterList_->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
@@ -410,7 +460,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 		switch(message.messageType()){
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
-			//writeHeaderToFile();
+			writeHeaderToFile();
 
 			break;}
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
@@ -443,6 +493,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 				scan_->rawData()->endInsertRows();
 				insertionIndex_[0] = insertionIndex_.i()+1;
 			}
+			writeDataToFiles();
 			setFinished();
 
 			//scan_->rawData()->endInsertRows();
@@ -501,4 +552,63 @@ bool SGMFastScanActionController::event(QEvent *e){
 	}
 	else
 		return AMScanActionController::event(e);
+}
+
+void SGMFastScanActionController::writeHeaderToFile(){
+	AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
+	QString separator = "|!|!|";
+	QString rank1String;
+	rank1String.append("Start Info\n");
+	rank1String.append("Version: SGM Generic Fast 0.1\n");
+	rank1String.append(QString("-1%1eV\n").arg(separator));
+
+	for(int x = 0; x < scan_->rawData()->measurementCount(); x++){
+		oneMeasurementInfo = scan_->rawData()->measurementAt(x);
+
+		rank1String.append(QString("%1%2").arg(x).arg(separator));
+		QString measurementInfoString;
+		AMTextStream measurementInfoStream(&measurementInfoString);
+		measurementInfoStream.write(oneMeasurementInfo);
+		rank1String.append(measurementInfoString);
+		rank1String.append("\n");
+	}
+	rank1String.append(QString("Encoder Start Value: %1\n").arg(allDataMap_.value("GratingEncoderFeedback").at(0)));
+	rank1String.append(QString("SpacingParam: %1\n").arg(SGMBeamline::sgm()->energySpacingParam()->value()));
+	rank1String.append(QString("C1Param: %1\n").arg(SGMBeamline::sgm()->energyC1Param()->value()));
+	rank1String.append(QString("C2Param: %1\n").arg(SGMBeamline::sgm()->energyC2Param()->value()));
+	rank1String.append(QString("SParam: %1\n").arg(SGMBeamline::sgm()->energySParam()->value()));
+	rank1String.append(QString("ThetaParam: %1\n").arg(SGMBeamline::sgm()->energyThetaParam()->value()));
+	rank1String.append("End Info\n");
+	emit requestWriteToFile(1, rank1String);
+}
+
+void SGMFastScanActionController::writeDataToFiles(){
+	QString rank1String;
+
+	/* Stress testing
+	QTime startTime  = QTime::currentTime();
+	*/
+
+	AMnDIndex requestIndex = AMnDIndex(0);
+
+	for(int x = 0; x < insertionIndex_.i()-1; x++){
+
+		rank1String.clear();
+		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, requestIndex.i())));
+		AMRawDataSource *oneRawDataSource;
+		for(int y = 0; y < scan_->rawDataSourceCount(); y++){
+			oneRawDataSource = scan_->rawDataSources()->at(y);
+			if(oneRawDataSource->rank() == 1)
+				rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(requestIndex)));
+		}
+		rank1String.append("\n");
+
+		/* Stress testing
+		QTime endTime = QTime::currentTime();
+		qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
+		*/
+
+		emit requestWriteToFile(1, rank1String);
+		requestIndex[0] = requestIndex.i()+1;
+	}
 }

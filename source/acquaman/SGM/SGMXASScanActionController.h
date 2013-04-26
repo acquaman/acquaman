@@ -9,6 +9,9 @@
 #include <QThread>
 
 class AMScanActionControllerScanAssembler;
+
+#include "acquaman/SGM/SGMXASScanActionControllerFileWriter.h"
+/*
 class QFile;
 
 class SGMXASScanActionControllerFileWriter : public QObject
@@ -46,6 +49,7 @@ protected:
 	QList<SGMXASScanActionControllerFileWriter::FileWriterError> errorsList_;
 };
 
+*/
 Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
 
 #define SGMXASSCANACTIONCONTROLLER_CANNOT_INTIALIZE 272001

@@ -6,8 +6,16 @@
 #include "dataman/AMUser.h"
 #include "actions3/AMAction3.h"
 
+#include <QThread>
+#include "acquaman/SGM/SGMXASScanActionControllerFileWriter.h"
+Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
+
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
+
+#define SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 288003
+#define SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 288004
+#define SGMFASTSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 288005
 
 class SGMFastScanActionController : public AMScanActionController
 {
@@ -15,11 +23,18 @@ Q_OBJECT
 public:
 	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 
+signals:
+	void requestWriteToFile(int fileRank, const QString &textToWrite);
+	void finishWritingToFile();
+
 protected slots:
 	void onMasterActionsListSucceeded();
 	void onMasterActionsListFailed();
 	void onCleanupActionsListSucceeded();
 	void onCleanupActionsListFailed();
+
+	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void onFileWriterIsBusy(bool isBusy);
 
 protected:
 	virtual bool initializeImplementation();
@@ -27,6 +42,9 @@ protected:
 	virtual void cancelImplementation();
 
 	bool event(QEvent *e);
+
+	void writeHeaderToFile();
+	void writeDataToFiles();
 
 protected:
 	SGMFastScanConfiguration2013 *configuration_;
@@ -44,6 +62,9 @@ protected:
 	AMListAction3 *fastActionsMasterList_;
 	bool masterListSucceeded_;
 	AMListAction3 *fastActionsCleanupList_;
+
+	QThread *fileWriterThread_;
+	bool fileWriterIsBusy_;
 };
 
 #endif // SGMFASTSCANACTIONCONTROLLER_H

@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 #include "acquaman/SGM/SGMXASScanActionController.h"
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
+#include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "ui/SGM/SGMSidebar.h"
@@ -207,6 +208,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
 
 	// Register the detectors to their views
