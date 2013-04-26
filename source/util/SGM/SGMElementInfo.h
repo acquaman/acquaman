@@ -118,9 +118,12 @@ public slots:
 	void setEdge(const QString &edge);
 	void setEnergy(double energy);
 
-	void setStart(const SGMEnergyPosition &start);
-	void setMiddle(const SGMEnergyPosition &middle);
-	void setEnd(const SGMEnergyPosition &end);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setStart(const SGMEnergyPosition &start, bool ignoreDatabaseId = true);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setMiddle(const SGMEnergyPosition &middle, bool ignoreDatabaseId = true);
+	// The pre-emptive check for equality ignores the database id and only checks the actual values under normal circumstances
+	void setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId = true);
 
 signals:
 	void hasEdgeChanged(bool hasEdge);
@@ -171,6 +174,8 @@ public:
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos() const;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters() const;
 
+	bool loadFromDb(AMDatabase *db, int id);
+
 public slots:
 	bool addEdgeInfo(const SGMScanInfo &edgeInfo);
 	bool addFastScanParameters(SGMFastScanParameters *parameters);
@@ -210,6 +215,9 @@ public:
 
 	SGMFastScanSettings& operator =(const SGMFastScanSettings &other);
 
+	bool operator ==(const SGMFastScanSettings &other) const;
+	bool operator !=(const SGMFastScanSettings &other) const;
+
 public slots:
 	void setRunSeconds(double runSeconds);
 	void setMotorSettings(int motorSettings);
@@ -246,6 +254,8 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 
 public:
 	Q_INVOKABLE SGMFastScanParameters(const QString &name = QString(), const QString &element = QString(), const SGMScanInfo &scanInfo = SGMScanInfo(), const SGMFastScanSettings &fastScanSettings = SGMFastScanSettings(), QObject *parent = 0);
+
+	SGMFastScanParameters& operator =(const SGMFastScanParameters &other);
 
 	bool operator==(const SGMFastScanParameters &other);
 	friend QDebug operator<<(QDebug d, const SGMFastScanParameters &fastScanParameters);
@@ -290,7 +300,8 @@ public slots:
 	void setExitSlitDistance(double exitSlitDistance);
 	void setSGMGrating(int sgmGrating);
 
-	void setScanInfo(const SGMScanInfo &scanInfo);
+	// When ignoreDatabaseId is false, then checks for equality in the SGMEnergyPosition values also compare the database ids
+	void setScanInfo(const SGMScanInfo &scanInfo, bool ignoreDatabaseId = true);
 	void setStartPosition(const SGMEnergyPosition &start);
 	void setMiddlePosition(const SGMEnergyPosition &middle);
 	void setEndPosition(const SGMEnergyPosition &end);

@@ -3,6 +3,12 @@
 
 #include <QObject>
 #include <QStringList>
+
+#define ALSBL8XASFileLoaderPLUGIN_CANNOT_OPEN_FILE 627901
+#define ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER 627902
+#define ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN 627903
+#define ALSBL8XASFileLoaderPLUGIN_DATA_COLUMN_MISMATCH 627904
+
 #include "dataman/AMFileLoaderInterface.h"
 #include "util/AMBiHash.h"
 
@@ -15,7 +21,7 @@ public:
 
 	virtual bool accepts(AMScan *scan);
 
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 
 protected:
 

@@ -112,6 +112,44 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 	return val;
 }
 
+bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	for (int i = 0; i < sources_.size(); i++)
+		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
+			return false;
+
+	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	sources_.at(0)->values(indexStart, indexEnd, data.data());
+
+	// Do the first data source separately to initialize the values.
+	for (int i = 0; i < totalSize; i++)
+		outputValues[i] = data.at(i);
+
+	// Iterate through the rest of the sources.
+	for (int i = 1, count = sources_.size(); i < count; i++){
+
+		sources_.at(i)->values(indexStart, indexEnd, data.data());
+
+		for (int j = 0; j < totalSize; j++)
+			outputValues[j] += data.at(j);
+	}
+
+	return true;
+}
+
 AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
@@ -145,10 +183,9 @@ void AM1DSummingAB::onInputSourceSizeChanged()
 // Connected to be called when the state() flags of any input source change
 void AM1DSummingAB::onInputSourceStateChanged()
 {
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM1DSummingAB::reviewState()
@@ -165,7 +202,7 @@ void AM1DSummingAB::reviewState()
 
 	for (int i = 1; i < axes_.count(); i++){
 
-		if (axes_[0].size != axes_.at(i).size){
+		if (axes_[0].size != sources_.at(i)->axisInfoAt(0).size){
 
 			setState(AMDataSource::InvalidFlag);
 			return;

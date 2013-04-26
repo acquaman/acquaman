@@ -25,21 +25,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "actions3/actions/AMScanAction.h"
 
+#include <QDebug>
+
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
 	currentSubActionIndex_ = -1;	// prior to running any subactions
 	subActionMode_ = subActionMode;
+	if(subActionMode_ == AMListAction3::Parallel)
+		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
 	logSubActionsSeparately_ = true;
 	logActionId_ = -1;
+	skipAfterCurrentAction_ = false;
+	loggingDatabase_ = 0; //NULL
+
+	if (subActionMode_ == Sequential)
+		skipOptions_.append("After current action");
 }
 
 // Copy constructor. Takes care of making copies of the sub-actions
-AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
+AMListAction3::AMListAction3(const AMListAction3& other)
+	: AMAction3(other)
+{
 	currentSubActionIndex_ = -1; // prior to running an subactions
 	subActionMode_ = other.subActionMode_;
+	if(subActionMode_ == AMListAction3::Parallel)
+		AMAction3::info()->setIconFileName(":/32x32/format-line-spacing-triple.png");
 	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
 	logActionId_ = other.logActionId();
+	skipAfterCurrentAction_ = false;
+	loggingDatabase_ = other.loggingDatabase();
+
+	if (subActionMode_ == Sequential)
+		skipOptions_.append("After current action");
 
 	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
@@ -125,8 +143,16 @@ AMAction3 * AMListAction3::takeSubActionAt(int index)
 	return action;
 }
 
+AMDatabase* AMListAction3::loggingDatabase() const{
+	return loggingDatabase_;
+}
+
 void AMListAction3::setLogActionId(int logActionId){
 	logActionId_ = logActionId;
+}
+
+void AMListAction3::setLoggingDatabase(AMDatabase *loggingDatabase){
+	loggingDatabase_ = loggingDatabase;
 }
 
 bool AMListAction3::deleteSubAction(int index)
@@ -141,7 +167,7 @@ bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
 		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
-		if(subActionCount() == 0 || subActionAt(0) || currentSubAction())
+		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1))
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
@@ -149,6 +175,7 @@ bool AMListAction3::canPause() const
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
 		if(currentSubActionIndex() == subActionCount()-1)
 			return currentSubAction()->canPause();
+
 		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
 	}
@@ -191,6 +218,7 @@ void AMListAction3::startImplementation()
 		}
 	}
 }
+
 void AMListAction3::pauseImplementation()
 {
 	// if this was called by the base class, we know that we are in the Pausing state, and were in the Running state. We also know that canPause() is true.
@@ -274,6 +302,12 @@ void AMListAction3::cancelImplementation()
 	}
 }
 
+void AMListAction3::skipImplementation(const QString &command)
+{
+	// Stop after current action.  We should only get here if we are a sequential list, but check to be safe.
+	if (subActionMode_ == Sequential && command == skipOptions_.first())
+		skipAfterCurrentAction_ = true;
+}
 
 void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 {
@@ -283,7 +317,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
 			int parentLogId = logActionId();
-			if(!AMActionLog3::logUncompletedAction(listAction, parentLogId)) {
+			if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 				//NEM April 5th, 2012
 			}
 		}
@@ -292,14 +326,14 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
-			if(!AMActionLog3::updateCompletedAction(listAction)) {
+			if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
 				//NEM April 5th, 2012
 			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction)){
 				int parentLogId = logActionId();
-				AMActionLog3::logCompletedAction(generalAction, parentLogId);
+				AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
 			}
 		}
 	}
@@ -368,6 +402,9 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			internalCleanupAction();
 			setFailed();
 			return;
+
+		case Skipping:
+			return;
 		}
 	}
 
@@ -419,6 +456,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 					setSucceeded();
 			}
 			return;
+		case Skipping:
+			return;
 		}
 	}
 }
@@ -434,8 +473,12 @@ void AMListAction3::internalDoNextAction()
 	if (currentSubActionIndex_ >= 0)
 		internalCleanupAction();
 
+	// Are we being skipped?
+	if (skipAfterCurrentAction_)
+		setSkipped();
+
 	// Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
-	if(currentSubActionIndex_ < subActionCount()-1) {
+	else if(currentSubActionIndex_ < subActionCount()-1) {
 
 		emit currentSubActionChanged(++currentSubActionIndex_);
 		internalConnectAction(currentSubAction());
@@ -577,6 +620,7 @@ void AMListAction3::internalConnectAction(AMAction3 *action)
 
 	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
 	if (listAction){
+		listAction->setLoggingDatabase(loggingDatabase_);
 
 		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
 		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));

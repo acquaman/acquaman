@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMFASTSCAN_H
 
 #include "dataman/AMScan.h"
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 
 class AMFastScan : public AMScan
 {

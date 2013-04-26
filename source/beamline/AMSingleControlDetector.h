@@ -21,14 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSINGLECONTROLDETECTOR_H
 #define AMSINGLECONTROLDETECTOR_H
 
-#include "AMDetector.h"
+#include "AMOldDetector.h"
 #include "AMPVControl.h"
 
-class AMSingleControlDetector : public AMDetectorInfo, public AMDetector
+class AMSingleControlDetector : public AMOldDetectorInfo, public AMOldDetector
 {
 Q_OBJECT
 public:
-	AMSingleControlDetector(const QString& name, AMControl *control, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	AMSingleControlDetector(const QString& name, AMControl *control, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 	~AMSingleControlDetector();
 
 	const QMetaObject* getMetaObject();
@@ -37,20 +37,20 @@ public:
 
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	AMDetectorInfo* toInfo() const;
+	AMOldDetectorInfo* toInfo() const;
 
 	AMControl* control();
 
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
 	*/
-	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const AMOldDetectorInfo *info);
 
 	QString description() const;
 
 public slots:
 	void setDescription(const QString &description);
-	virtual bool setControls(AMDetectorInfo *detectorSettings);
+	virtual bool setControls(AMOldDetectorInfo *detectorSettings);
 
 protected slots:
 	void onControlConnected(bool connected);
@@ -59,11 +59,11 @@ protected:
 	AMControl *control_;
 };
 
-class AMSingleReadOnlyControlDetector : public AMDetectorInfo, public AMDetector
+class AMSingleReadOnlyControlDetector : public AMOldDetectorInfo, public AMOldDetector
 {
 Q_OBJECT
 public:
-	AMSingleReadOnlyControlDetector(const QString& name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	AMSingleReadOnlyControlDetector(const QString& name, const QString &baseName, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 	~AMSingleReadOnlyControlDetector();
 
 	const QMetaObject* getMetaObject();
@@ -73,17 +73,17 @@ public:
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	AMDetectorInfo* toInfo() const;
+	AMOldDetectorInfo* toInfo() const;
 
 	AMControl* control();
 
-	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const AMOldDetectorInfo *info);
 
 	QString description() const;
 
 public slots:
 	void setDescription(const QString &description);
-	virtual bool setControls(AMDetectorInfo *detectorSettings);
+	virtual bool setControls(AMOldDetectorInfo *detectorSettings);
 
 protected slots:
 	void onControlConnected(bool connected);

@@ -21,18 +21,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSOCEANOPTICS65000DETECTOR_H
 #define CLSOCEANOPTICS65000DETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
-class CLSOceanOptics65000Detector : public CLSOceanOptics65000DetectorInfo, public AMDetector
+class CLSOceanOptics65000Detector : public CLSOceanOptics65000DetectorInfo, public AMOldDetector
 {
 Q_OBJECT
 public:
 	/// Default constructor takes a base name for generation
-	CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 	/// Destructor
 	~CLSOceanOptics65000Detector();
 
@@ -50,12 +50,12 @@ public:
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	/// Converts to a new instance of general detector info (snapshot of current state)
-	AMDetectorInfo* toInfo() const;
+	AMOldDetectorInfo* toInfo() const;
 	/// Converts to a by value copy of specific detector info type (snapshot of current state)
 	CLSOceanOptics65000DetectorInfo toOceanOptics65000Info() const;
 
 	/// Sets current state from a pointer to specific detector info type
-	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Sets current state from a reference to specific detector info type
 	bool setFromInfo(const CLSOceanOptics65000DetectorInfo &info);
 

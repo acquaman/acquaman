@@ -33,22 +33,20 @@ VESPERSEndstation::VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNor
 	wasConnected_ = false;
 
 	// The controls used for the control window.
-	ccdControl_ = new CLSMAXvMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	ccdControl_ = new CLSMAXvMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", true, 1.0, 2.0, this);
 	microscopeControl_ = new CLSMAXvMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
-	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
-	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
+	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", true, 1.0, 2.0, this);
+	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", true, 1.0, 2.0, this);
 
 	focusNormalControl_ = pseudoNormal;
 	focusYControl_ = realNormal;
+	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
 
 	// Laser on/off control.
 	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
-
-	// Pseudo-motor reset button.
-	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 
 	// The beam attenuation filters.
 	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
@@ -82,6 +80,7 @@ VESPERSEndstation::VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNor
 	connect(focusYControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusYFbkChanged(double)));
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
+	connect(laserPositionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPositionChanged(double)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)

@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMStartScreen.h"
 
 #include "ui/actions3/AMWorkflowView3.h"
+#include "ui/AMAppBottomPanel.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMLoopAction3.h"
@@ -47,6 +48,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlateMoveActionInfo.h"
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMDetectorDwellTimeSourceScanOptimizer.h"
+#include "acquaman/AMListActionScanOptimizer.h"
+#include "acquaman/AMNestedAxisTypeValidator.h"
+
+#include "acquaman/AMAgnosticDataAPI.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
@@ -54,30 +63,13 @@ AMAppController::AMAppController(QObject *parent)
 
 bool AMAppController::startup(){
 
-	/* Commented out, put it back in to play with the change number action
-	AMNumberChangeActionSupport::appendNumber(12);
-	AMNumberChangeActionSupport::appendNumber(27);
-	AMNumberChangeActionSupport::appendNumber(100);
-	AMNumberChangeActionSupport::appendNumber(1000);
-	AMNumberChangeActionSupport::appendNumber(0);
-	AMNumberChangeActionSupport::appendNumber(15);
-	AMNumberChangeActionSupport::appendNumber(8888);
-	AMNumberChangeActionSupport::appendNumber(42);
-	AMNumberChangeActionSupport::appendNumber(99);
-	AMNumberChangeActionSupport::appendNumber(1);
-	*/
-
 	if(AMDatamanAppControllerForActions3::startup()){
 		bool success = true;
-		/* Commented out, put it back in to play with the change number action
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
-		*/
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSequentialListActionInfo3, AMSequentialListAction3>("Sequential\nList", "This action runs a sequential list of other actions", ":/32x32/media-playlist-repeat.png");
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMParallelListActionInfo3, AMParallelListAction3>("Parallel\nList", "This action runs a parallel list of other actions.", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSequentialListActionInfo3, AMSequentialListAction3>("Sequential\nList", "This action runs a sequential list of other actions", ":/22x22/viewListInv-22x22.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMParallelListActionInfo3, AMParallelListAction3>("Parallel\nList", "This action runs a parallel list of other actions.", ":/22x22/viewDetaillInv-22x22.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMListActionInfo3, AMListActionEditor3>();
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlMoveActionInfo3, AMControlMoveAction3>("Control Move", "Moves a control to an absolute position or a relative position from its current state.", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
@@ -85,8 +77,23 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
+
+		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
+		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+
+		AMDetectorTriggerSourceScanOptimizer *triggerOptimizer = new AMDetectorTriggerSourceScanOptimizer();
+		AMDetectorDwellTimeSourceScanOptimizer *dwellTimeOptimizer = new AMDetectorDwellTimeSourceScanOptimizer();
+		AMEmptyListScanOptimizer *emptyListOptimizer = new AMEmptyListScanOptimizer();
+		AMSingleElementListOptimizer *singleElementListOptimizer = new AMSingleElementListOptimizer();
+		AMAppControllerSupport::appendPrincipleOptimizer(triggerOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(dwellTimeOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(emptyListOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(singleElementListOptimizer);
+
+		AMNestedAxisTypeValidator *nestedAxisValidator = new AMNestedAxisTypeValidator();
+		AMAppControllerSupport::appendPrincipleValidator(nestedAxisValidator);
 
 		return success;
 	}
@@ -97,32 +104,30 @@ bool AMAppController::startup(){
 bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
-		// a heading for the workflow manager...
-		workflowManagerView_ = new AMWorkflowManagerView();
-		mw_->insertHeading("Experiment Tools", 1);
-		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
+
+		// Defaults the auto-open for generic scan editors to true.  All new running scans will have their scan editor brought to the front.
+		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
-		workflowView_ = new AMWorkflowView3();
+		//workflowView_ = new AMWorkflowView3();
+		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
+		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
-		// remove the old one:
-		mw_->removePane(workflowManagerView_);
-		workflowManagerView_->hide();
+
+		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
+		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
 		scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans", QModelIndex(), mw_->windowPaneModel()->rowCount()-1);
 
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanActionStarted(AMScanAction*)));
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanActionFinished(AMScanAction*)));
+
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
 		chooseRunDialog->activateWindow();
 		chooseRunDialog->raise();
-
-		/* Commented out, put it back in to play with the change number action
-		QListView *listView = new QListView();
-		listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
-		listView->show();
-		*/
 
 		return true;
 	}
@@ -130,33 +135,106 @@ bool AMAppController::startupCreateUserInterface() {
 	return false;
 }
 
+void AMAppController::addBottomPanel()
+{
+	AMAppBottomPanel *panel = new AMAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
+}
 
-
-
-void AMAppController::goToWorkflow() {
-	// This check can be removed when all the old workflow stuff is finally removed
-	if(mw_->windowPaneModel()->allPanes().contains(workflowManagerView_))
-		mw_->setCurrentPane(workflowManagerView_);
-	else
-		mw_->setCurrentPane(workflowView_);
+void AMAppController::goToWorkflow()
+{
+	mw_->setCurrentPane(workflowView_);
 }
 
 #include "dataman/AMScan.h"
+#include "actions3/actions/AMScanAction.h"
+#include "acquaman/AMScanController.h"
+#include "dataman/AMScanEditorModelItem.h"
+
+void AMAppController::updateScanEditorModelItem()
+{
+	// Get the action, or if it's in a list, the current running action.
+	AMAction3 *currentAction = AMActionRunner3::workflow()->currentAction();
+	AMScanAction *action = 0;
+
+	if (currentAction && !currentAction->hasChildren())
+		action = qobject_cast<AMScanAction *>(currentAction);
+
+	else if (currentAction && currentAction->hasChildren()){
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
+
+		if (listAction)
+			action = qobject_cast<AMScanAction *>(listAction->currentSubAction());
+	}
+
+	// Do something with it if the action is valid.
+	if (action && (action->state() == AMAction3::Running || action->inFinalState())){
+
+		AMGenericScanEditor *editor = editorFromScan(action->controller()->scan());
+
+		if (!editor)
+			return;
+
+		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(editor)));
+		QString stateString;
+
+		switch(action->state()){
+
+		case AMAction3::Running:
+			stateString = "running";
+			break;
+
+		case AMAction3::Succeeded:
+			stateString = "succeeded";
+			break;
+
+		case AMAction3::Failed:
+			stateString = "failed";
+			break;
+
+		case AMAction3::Cancelled:
+			stateString = "cancelled";
+			break;
+
+		default:
+			stateString = "default";
+			break;
+		}
+
+		item->scanActionStateChanged(stateString, editor == mw_->currentPane());
+	}
+}
+
+void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
+{
+	AMScan *scan = action->controller()->scan();
+	openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
+
+	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
+	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
+
+	onCurrentScanActionStartedImplementation(action);
+}
+
+void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
+{
+	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+	updateScanEditorModelItem();
+	onCurrentScanActionFinishedImplementation(action);
+}
 
 void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
 
-	if(openInExistingEditor && scanEditorCount()) {
+	if(openInExistingEditor && scanEditorCount())
 		editor = scanEditorAt(scanEditorCount()-1);
-	}
-	else {
-
-		if (scan->scanRank() == 2)
-			editor = createNewScanEditor(true);
-		else
-			editor = createNewScanEditor();
-	}
+	else
+		editor = createNewScanEditor(scan->scanRank() == 2);
 
 	editor->addScan(scan);
 
@@ -200,12 +278,6 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	if(!config)
 		return;
 
-	// Check if this is a regular scan configuration or a 2D one.
-	bool is2D_ = false;
-
-	if (qobject_cast<AM2DScanConfiguration *>(config))
-		is2D_ = true;
-
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
 		delete config;
@@ -213,25 +285,10 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-
 	// This is Actions3 stuff.
-//	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
-//	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-//	viewHolder->show();
-
-	if (!is2D_){
-
-		AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
-	else {
-
-		AM2DScanConfigurationViewHolder *viewHolder = new AM2DScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
+	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
+	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+	viewHolder->show();
 }
 
 

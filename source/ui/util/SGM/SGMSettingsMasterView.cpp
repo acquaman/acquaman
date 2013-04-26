@@ -403,8 +403,8 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QCheckBox *tempCheckBox;
 	QLabel *tempLabel;
 	QHBoxLayout *tempHL;
-	AMDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
-	AMDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
+	AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
+	AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
 	for(int x = 0; x < allDetectors->count(); x++){
 		tempCheckBox = new QCheckBox("(Required)");
 		if(criticalDetectors->indexOf(allDetectors->detectorAt(x)) != -1)
@@ -426,7 +426,7 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 
 		fl_->addRow(allDetectors->detectorAt(x)->description(), tempHL);
 		connect(tempCheckBox, SIGNAL(toggled(bool)), this, SLOT(onCheckBoxesChanged(bool)));
-		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));
+		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
 	}
 
 	setLayout(fl_);
@@ -438,8 +438,8 @@ bool SGMDetectorsMasterView::hasUnsavedChanges() const{
 
 void SGMDetectorsMasterView::applyChanges(){
 	if(unsavedChanges_){
-		AMDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
-		AMDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
+		AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
+		AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
 
 		QList<bool> newRequiredDetectors;
 		for(int x = 0; x < fl_->rowCount(); x++){
@@ -511,7 +511,7 @@ void SGMDetectorsMasterView::onCheckBoxesChanged(bool toggled){
 	}
 }
 
-void SGMDetectorsMasterView::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+void SGMDetectorsMasterView::onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	for(int x = 0; x < fl_->rowCount(); x++){
 		QLabel *label = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::LabelRole)->widget());
 		if(label && (label->text() == detector->description()) ){

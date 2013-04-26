@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 
 
-
 QString AMDateTimeUtils::prettyDate(const QDate &date){
 
 	if(!date.isValid())
@@ -130,4 +129,21 @@ QString AMDateTimeUtils::prettyDuration(const QDateTime& start, const QDateTime&
 		else
 			return shortForm ? QString("1d %1h").arg(remainingHours, 0, 'f', 1) : QString("%1 days, %2 hours").arg(days).arg(remainingHours, 0, 'f', 1);
 	}
+}
+
+QString AMDateTimeUtils::gramaticallyCorrectList(const QStringList &listItems){
+	QString retVal = "";
+	if(listItems.count() == 0){
+		//do nothing
+	}
+	else if(listItems.count() == 1)
+		retVal = listItems.first();
+	else if(listItems.count() == 2)
+		retVal = QString("%1 and %2").arg(listItems.first()).arg(listItems.last());
+	else{
+		for(int x = 0; x < listItems.count()-1; x++)
+			retVal.append(QString("%1, ").arg(listItems.at(x)));
+		retVal.append(QString("and %1").arg(listItems.last()));
+	}
+	return retVal;
 }

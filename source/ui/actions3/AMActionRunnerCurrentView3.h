@@ -71,6 +71,22 @@ protected:
 	AMAction3* currentAction_;
 };
 
+#include <QStyledItemDelegate>
+/// This delegate is used by the tree view in AMActionRunnerCurrentView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
+class AMActionRunnerCurrentItemDelegate3 : public QStyledItemDelegate {
+	Q_OBJECT
+public:
+
+	explicit AMActionRunnerCurrentItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+
+	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	virtual bool eventFilter(QObject *object, QEvent *event);
+
+};
+
 // Previously:
 //
 ///// This subclass of QStandardItem is used inside AMActionRunnerCurrentView's QTreeView to display actions.  You should never need to use this class directly.
@@ -109,6 +125,8 @@ protected slots:
 
 	/// When the pause button is clicked for the current action
 	void onPauseButtonClicked();
+	/// When the skip button is pressed, it handles telling the action to skip.
+	void onSkipButtonClicked();
 
 	// Signals from the current action, forwarded through the Action Runner
 	/// When the action's status text changes
@@ -128,14 +146,15 @@ protected:
 	/// Helper function to format an amount of seconds into an hour-minute-seconds string.
 	QString formatSeconds(double seconds);
 
-	QTreeView* currentActionView_;
+	QTreeView *currentActionView_;
 	//	QStandardItemModel* currentActionModel_;
 
-	QPushButton* cancelButton_, *pauseButton_;
-	QProgressBar* progressBar_;
-	QLabel* timeElapsedLabel_, * timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
+	QPushButton *cancelButton_, *pauseButton_;
+	QPushButton *skipButton_;
+	QProgressBar *progressBar_;
+	QLabel *timeElapsedLabel_, *timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
 
-	AMActionRunner3* actionRunner_;
+	AMActionRunner3 *actionRunner_;
 
 	/// This string holds a small message that states what is currently running.  This is used when someone might be interested on what is "hanging up" the current action, or if they are just curious where they are.
 	QString whatIsRunning_;

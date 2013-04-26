@@ -17,7 +17,7 @@ bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
 	return false;
 }
 
-bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 	// qdebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
@@ -80,7 +80,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// open the file:
 	QFile f(sourceFileInfo.filePath());
 	if(!f.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004XASFileLoader parse error while loading scan data from file. Missing file."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_CANNOT_OPEN_FILE, "SGM2004XASFileLoader parse error while loading scan data from file. Missing file."));
 		return false;
 	}
 	QTextStream fs(&f);
@@ -91,7 +91,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	while(!fs.atEnd() && !line.startsWith("#(1) "))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileLoader parse error while loading scan data from file. Missing #(1) event line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER, "SGM2004FileLoader parse error while loading scan data from file. Missing #(1) event line."));
 		return false;	// bad format; missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
@@ -106,7 +106,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	while(!fs.atEnd() && !line.startsWith("#(2) "))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileLoader parse error while loading scan data from file. Missing #(2) event line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT2_HEADER, "SGM2004FileLoader parse error while loading scan data from file. Missing #(2) event line."));
 		return false;	// bad format; missing the #2 event header
 	}
 	colNames2 = line.split(QChar(' '));
@@ -119,7 +119,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// ensure that we have the basic "eV" column
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2004FileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "SGM2004FileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
 		return false;	// bad format; no primary column
 
 	}
@@ -219,7 +219,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
 			return false;
 		}
 
@@ -233,7 +233,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		int* specValues = new int[sddSize];
 
 		if(scanSize < 2){
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. SDD cannot have fewer than 2 points."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_SPECTRA_FILE_SIZE_TOO_SMALL, "SGM2004FileLoader parse error while loading scan data from file. SDD cannot have fewer than 2 points."));
 			return false;
 		}
 
@@ -285,7 +285,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 			// Check specCounter is the right size... Not too big, not too small.
 			if(specCounter != sddSize) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2004FileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(sddSize).arg(specCounter)));
+				errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Alert, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_CORRUPTED_SPECTRA_FILE, QString("SGM2004FileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(sddSize).arg(specCounter)));
 			}
 
 			specCounter = 0;
@@ -298,7 +298,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-			AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, SGM2004XASFILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
 			scan->deleteRawDataSource(i);
 		}
 	}

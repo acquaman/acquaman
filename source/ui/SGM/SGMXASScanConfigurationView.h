@@ -29,7 +29,7 @@ class QGridLayout;
 class QSpacerItem;
 
 #include "ui/beamline/AMControlSetView.h"
-#include "ui/beamline/AMDetectorSetView.h"
+#include "ui/beamline/AMOldDetectorSetView.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -38,7 +38,7 @@ class QSpacerItem;
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 
 class SGMFluxResolutionPickerView;
 
@@ -67,7 +67,7 @@ protected:
 	AMRegionsLineView *regionsLineView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
-	AMDetectorSetView *xasDetectorsView_;
+	AMOldDetectorSetView *xasDetectorsView_;
 
 	QLabel *warningsLabel_;
 
@@ -76,45 +76,6 @@ protected:
 
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
-};
-
-class SGMFluxResolutionPickerView : public QGroupBox{
-Q_OBJECT
-public:
-	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
-
-public slots:
-	void setFromInfoList(const AMControlInfoList &infoList);
-
-	void setDisabled(bool disabled);
-
-protected slots:
-	void onRegionsChanged();
-	void onSetpointsChanged();
-
-	void onBestFluxButtonClicked();
-	void onBestResolutionButtonClicked();
-
-signals:
-	void configValuesChanged(AMControlInfoList);
-
-protected:
-	AMXASRegionsList *regions_;
-	double minEnergy_;
-	double maxEnergy_;
-
-	QPushButton *bestFluxButton_;
-	QPushButton *bestResolutionButton_;
-	AMExtendedControlEditor *exitSlitGapCE_;
-	AMExtendedControlEditor *gratingCE_;
-	AMExtendedControlEditor *harmonicCE_;
-	QLabel *warningsLabel_;
-
-	QVBoxLayout *buttonsVL_;
-	QVBoxLayout *ceVL_;
-	QHBoxLayout *settingsHL_;
-	QVBoxLayout *mainVL_;
-
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEWER_H

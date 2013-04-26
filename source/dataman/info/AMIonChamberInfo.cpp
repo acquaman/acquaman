@@ -21,12 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMIonChamberInfo.h"
 
 AMIonChamberInfo::AMIonChamberInfo(const QString &name, const QString &description, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMOldDetectorInfo(name, description, parent)
 {
 }
 
 AMIonChamberInfo::AMIonChamberInfo(const AMIonChamberInfo &original)
-	: AMDetectorInfo(original)
+	: AMOldDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
@@ -35,7 +35,7 @@ AMIonChamberInfo::AMIonChamberInfo(const AMIonChamberInfo &original)
 AMIonChamberInfo& AMIonChamberInfo::operator =(const AMIonChamberInfo &other)
 {
 	if(this != &other){
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		setMinimumVoltage(other.minimumVoltage());
 		setMaximumVoltage(other.maximumVoltage());
 	}

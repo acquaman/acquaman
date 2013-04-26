@@ -22,13 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include <QStringList>
 #include <QDir>
-
+#include "dataman/datastore/AMCDFDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
 	useDwellTimes_ = false;
 	dwellTimeTrigger_ = 0; //NULL
 	dwellTimeConfirmed_ = 0; //NULL
+	stopImmediately_ = false;
 
 	dacqCancelled_ = false;
 	QEpicsAcqLocal *lAcq = new QEpicsAcqLocal((QWidget*)parent);
@@ -87,20 +89,46 @@ bool AMDacqScanController::startImplementation(){
 
 			acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
-			QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+			if (qobject_cast<AMInMemoryDataStore *>(scan_->rawData())){
 
-			QString path = fullPath.path();// just the path, not the file name. Still relative.
-			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+				QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
-			abop->setProperty( "File Template", file.toStdString());
-			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+				QString path = fullPath.path();// just the path, not the file name. Still relative.
+				QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
 
-			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-			if(usingSpectraDotDatFile_){
-				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+				abop->setProperty( "File Template", file.toStdString());
+				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+
+				scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+				if(usingSpectraDotDatFile_){
+					scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+					((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+				}
+				else {
+				}
 			}
-			else {
+
+			// Synchronizing the .dat and _spectra.dat to match the cdf name.
+			else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
+
+				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000.cdf   (Relative)
+
+				QString path = fullPath.path();// just the path, not the file name. Still relative.
+				QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
+
+				abop->setProperty( "File Template", file.toStdString());
+				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+				flushToDiskTimer_.setInterval(300000);
+				connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+				connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+				flushToDiskTimer_.start();
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -115,6 +143,13 @@ bool AMDacqScanController::startImplementation(){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AMDacqScanController: could not create output handler."));
 			return false;
 		}
+}
+
+void AMDacqScanController::flushCDFDataStoreToDisk()
+{
+	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
+	if(dataStore && !dataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
 bool AMDacqScanController::canPause() const {
@@ -136,13 +171,13 @@ void AMDacqScanController::cancelImplementation()
 	advAcq_->Stop();
 }
 
-int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod){
+int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMOldDetector::ReadMethod readMethod){
 	switch(readMethod){
-	case AMDetector::ImmediateRead :
+	case AMOldDetector::ImmediateRead :
 		return 0;
-	case AMDetector::RequestRead :
+	case AMOldDetector::RequestRead :
 		return 1;
-	case AMDetector::WaitRead :
+	case AMOldDetector::WaitRead :
 		return 2;
 	default:
 		return 0;
@@ -171,11 +206,19 @@ bool AMDacqScanController::event(QEvent *e){
 				++i;
 			}
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count(); x++)
-					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+
+				QVector<double> data = j.value().toVector();
+				scan_->rawData()->setValue(insertIndex, j.key()-1, data.constData());
 				++j;
 			}
 			scan_->rawData()->endInsertRows();
+
+			if (stopImmediately_){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
 		}
 		e->accept();
 		return true;
@@ -205,6 +248,8 @@ void AMDacqScanController::onDacqStart()
 
 void AMDacqScanController::onDacqStop()
 {
+	flushCDFDataStoreToDisk();
+
 	if(dacqCancelled_)
 		setCancelled();
 	else

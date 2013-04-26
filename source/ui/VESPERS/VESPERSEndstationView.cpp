@@ -46,10 +46,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	// The endstation model.
 	endstation_ = endstation;
 
-	// The button for the pseudo-motor reset.
-	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
-	connect(resetPseudoMotorsButton, SIGNAL(clicked()), endstation_, SLOT(resetPseudoMotors()));
-
 	// Setup the buttons used in the picture.
 	ccdButton_ = new QToolButton;
 	connect(ccdButton_, SIGNAL(clicked()), this, SLOT(ccdClicked()));
@@ -66,12 +62,10 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	normalFocusButton_ = new QToolButton;
 	connect(normalFocusButton_, SIGNAL(clicked()), this, SLOT(normalFocusClicked()));
-	connect(endstation_, SIGNAL(focusNormalFbkChanged(double)), this, SLOT(normalFocusUpdate(double)));
-
 	yFocusButton_ = new QToolButton;
 	yFocusButton_->hide();
 	connect(yFocusButton_, SIGNAL(clicked()), this, SLOT(yFocusClicked()));
-	connect(endstation_, SIGNAL(focusYFbkChanged(double)), this, SLOT(yFocusUpdate(double)));
+	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(normalFocusUpdate(double)));
 
 	// Setup the microscope light.  Tracking needs to be off!  Otherwise, the program might get into an infinite signal slot loop.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -137,23 +131,12 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
-	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
-
-	QVBoxLayout *extrasGroupBoxLayout = new QVBoxLayout;
-	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
-	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
-
-	QGroupBox *extrasGroupBox = new QGroupBox("Extras");
-	extrasGroupBox->setLayout(extrasGroupBoxLayout);
-
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
-	endstationLayout->addWidget(dwellTimeView, 2, 3);
-	endstationLayout->addWidget(extrasGroupBox, 1, 3);
+	endstationLayout->addWidget(dwellTimeView, 1, 3);
 
 	QHBoxLayout *squishLayout = new QHBoxLayout;
 	squishLayout->addStretch();
@@ -173,6 +156,14 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 VESPERSEndstationView::~VESPERSEndstationView()
 {
 	delete config_;
+}
+
+void VESPERSEndstationView::normalFocusClicked()
+{
+	if (!endstation_->laserPowered())
+		QMessageBox::warning(this, "Laser is not on", "Remember to turn the laser on when focusing your sample.", QMessageBox::Ok);
+
+	endstation_->setCurrent("Normal Sample Stage");
 }
 
 void VESPERSEndstationView::setUsingNormalMotor(bool use)

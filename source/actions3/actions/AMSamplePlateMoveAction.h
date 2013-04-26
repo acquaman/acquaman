@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMSAMPLEPLATEMOVEACTION_H
 #define AMSAMPLEPLATEMOVEACTION_H
 
@@ -34,6 +53,8 @@ public:
 
 	/// Specify that we cannot pause (since AMControl cannot pause).  If we wanted to get fancy, we might check if the control could stop, (and stop it for pause, and then start it again to resume). But this is much simpler for now.
 	virtual bool canPause() const { return false; }
+	/// This method does not support the skip ability.
+	virtual bool canSkip() const { return false; }
 
 	/// Virtual function that denotes that this action has children underneath it or not.
 	virtual bool hasChildren() const { return false; }
@@ -64,6 +85,9 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+
+	/// Since the action does not support skipping, this method is empty.
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMSamplePlateMoveActionInfo. This makes it easier to access.
 	const AMSamplePlateMoveActionInfo* samplePlateMoveInfo() const { return qobject_cast<const AMSamplePlateMoveActionInfo*>(info()); }

@@ -170,7 +170,7 @@ protected:
 	bool eventFilter(QObject *source, QEvent *event);
 
 	/// Internal version of pane() that can be used when you know that index is not an alias item.
-	QWidget* pane_(const QModelIndex &index) const;
+	QWidget* internalPane(const QModelIndex &index) const;
 
 
 };

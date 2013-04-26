@@ -25,17 +25,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSAmptekSDD123BriefDetectorView::CLSAmptekSDD123BriefDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123BriefDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123BriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -58,18 +58,18 @@ bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool co
 }
 
 CLSAmptekSDD123DetailedDetectorView::CLSAmptekSDD123DetailedDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -77,7 +77,7 @@ MPlot* CLSAmptekSDD123DetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/

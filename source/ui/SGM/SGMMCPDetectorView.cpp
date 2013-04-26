@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 
 SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
 	readingCE_ = 0;
@@ -34,7 +34,7 @@ SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool 
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* SGMMCPBriefDetectorView::detector(){
+AMOldDetector* SGMMCPBriefDetectorView::detector(){
 	return detector_;
 }
 
@@ -45,7 +45,7 @@ void SGMMCPBriefDetectorView::onPoweredOnChanged(bool poweredOn){
 		powerState_->setIcon(powerOffState_);
 }
 
-bool SGMMCPBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool SGMMCPBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(detector_)
 		disconnect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));
 	if(!detector)
@@ -80,7 +80,7 @@ bool SGMMCPBriefDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 
 SGMMCPDetailedDetectorView::SGMMCPDetailedDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	gl_ = 0;
 	readingCE_ = 0;
@@ -90,11 +90,11 @@ SGMMCPDetailedDetectorView::SGMMCPDetailedDetectorView(SGMMCPDetector *detector,
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* SGMMCPDetailedDetectorView::detector(){
+AMOldDetector* SGMMCPDetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* SGMMCPDetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* SGMMCPDetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -105,7 +105,7 @@ void SGMMCPDetailedDetectorView::onControlSetpointRequested(){
 	}
 }
 
-bool SGMMCPDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool SGMMCPDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	detector_ = static_cast<SGMMCPDetector*>(detector);

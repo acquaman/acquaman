@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractButton>
 #include <QProgressBar>
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "application/VESPERS/VESPERS.h"
 
 /*!
   A view for the VESPERSBeamSelector model.  The view itself is simple with only four buttons and a progress bar that shows up to show the progress to the next beam.
@@ -46,7 +46,7 @@ public slots:
 
 protected slots:
 	/// Handles changing the color of the right button to show which beam your on.
-	void onCurrentBeamChanged(VESPERSBeamline::Beam beam);
+	void onCurrentBeamChanged(VESPERS::Beam beam);
 
 	/// Tells the model to move the given beam.
 	void changeBeam(int id);

@@ -36,6 +36,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(VESPERSSampleStageControl *sample
 	connect(sampleStage_, SIGNAL(verticalMoveError(bool)), this, SLOT(onVerticalMoveError(bool)));
 	connect(sampleStage_, SIGNAL(normalMoveError(bool)), this, SLOT(onNormalMoveError(bool)));
 
+	invertHorizontal_ = false;
+	invertVertical_ = false;
+
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -149,22 +152,34 @@ VESPERSSampleStageView::VESPERSSampleStageView(VESPERSSampleStageControl *sample
 
 void VESPERSSampleStageView::onUpClicked()
 {
-	sampleStage_->moveVertical(sampleStage_->verticalPosition() + jog_->value());
+	if (invertVertical_)
+		sampleStage_->moveVertical(sampleStage_->verticalPosition() - jog_->value());
+	else
+		sampleStage_->moveVertical(sampleStage_->verticalPosition() + jog_->value());
 }
 
 void VESPERSSampleStageView::onDownClicked()
 {
-	sampleStage_->moveVertical(sampleStage_->verticalPosition() - jog_->value());
+	if (invertVertical_)
+		sampleStage_->moveVertical(sampleStage_->verticalPosition() + jog_->value());
+	else
+		sampleStage_->moveVertical(sampleStage_->verticalPosition() - jog_->value());
 }
 
 void VESPERSSampleStageView::onLeftClicked()
 {
-	sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() - jog_->value());
+	if (invertHorizontal_)
+		sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() + jog_->value());
+	else
+		sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() - jog_->value());
 }
 
 void VESPERSSampleStageView::onRightClicked()
 {
-	sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() + jog_->value());
+	if (invertHorizontal_)
+		sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() - jog_->value());
+	else
+		sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() + jog_->value());
 }
 
 void VESPERSSampleStageView::onMovingChanged(bool isMoving)

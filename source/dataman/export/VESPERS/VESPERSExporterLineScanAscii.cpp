@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSExporterLineScanAscii.h"
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -103,10 +122,44 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 	VESPERSSpatialLineScanConfiguration *config = qobject_cast<VESPERSSpatialLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 	VESPERSEnergyScanConfiguration *energyConfig = qobject_cast<VESPERSEnergyScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 
-	if (config)
+	QString ccdString;
+	int shiftOffset = 0;
+
+	if (config){
+
 		ccdFileName = config->ccdFileName();
-	else if (energyConfig)
+
+		if (config->ccdDetector() == VESPERS::Roper){
+
+			ccdString = ccdFileName % "_%1.spe";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+		}
+
+		else if (config->ccdDetector() == VESPERS::Mar){
+
+			ccdString = ccdFileName % "_%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+		}
+	}
+
+	else if (energyConfig){
+
 		ccdFileName = energyConfig->ccdFileName();
+
+		if (energyConfig->ccdDetector() == VESPERS::Roper){
+
+			ccdString = ccdFileName % "_%1.spe";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+
+		}
+
+		else if (energyConfig->ccdDetector() == VESPERS::Mar){
+
+			ccdString = ccdFileName % "_%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+		}
+	}
+
 	else
 		return;
 
@@ -122,18 +175,16 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 			setCurrentDataSource(mainTableDataSources_.at(c));
 			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-			bool doPrint = (ds->size(0) > x);
-
 			// print x column?
 			if(mainTableIncludeX_.at(c)) {
-				if(doPrint)
-					ts << ds->axisValue(0,x).toString();
+
+				ts << ds->axisValue(0,x).toString();
 				ts << option_->columnDelimiter();
 			}
 
-			if(doPrint && c == indexOfCCDName)
-				ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x))));
-			else if (doPrint)
+			if(c == indexOfCCDName)
+				ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x))) + shiftOffset);
+			else
 				ts << ds->value(AMnDIndex(x)).toString();
 
 			ts << option_->columnDelimiter();

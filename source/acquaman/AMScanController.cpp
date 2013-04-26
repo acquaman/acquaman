@@ -87,6 +87,10 @@ bool AMScanController::isFailed() const {
 	return state_ == AMScanController::Failed;
 }
 
+bool AMScanController::isReadyForDeletion() const {
+	return true;
+}
+
 bool AMScanController::initialize(){
 	if(changeState(AMScanController::Initializing)){
 		if(initializeImplementation()) {

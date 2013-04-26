@@ -64,6 +64,10 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 		disconnect(ocr_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(ocr_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(ocr_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		spectra_ = 0;
+		icr_ = 0;
+		ocr_ = 0;
 	}
 
 	if(dataSources.isEmpty()) {
@@ -126,6 +130,45 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes) const
 		return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
+bool AMDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	spectra_->values(indexStart, indexEnd, data.data());
+
+	double icr = double(icr_->value(AMnDIndex()));
+	double ocr = double(ocr_->value(AMnDIndex()));
+
+	// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
+	if (icr <= 0 || ocr <= 0){
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = 0;
+	}
+
+	else {
+
+		double factor = icr/ocr;
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = data.at(i)*factor;
+	}
+
+	return true;
+}
+
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
@@ -158,10 +201,9 @@ void AMDeadTimeAB::onInputSourceSizeChanged()
 // Connected to be called when the state() flags of any input source change
 void AMDeadTimeAB::onInputSourceStateChanged()
 {
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AMDeadTimeAB::reviewState()

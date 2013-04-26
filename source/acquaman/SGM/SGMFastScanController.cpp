@@ -33,7 +33,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	specificScan_->setFileFormat("sgm2010Fast");
 	specificScan_->setRunId(AMUser::user()->currentRunId());
 	specificScan_->setScanConfiguration(config_);
-	config_->setEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
+	config_->setEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	specificScan_->setIndexType("fileSystem");
 	QString scanName;

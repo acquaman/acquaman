@@ -44,7 +44,8 @@ signals:
 	void selectionExported(const QList<QUrl>&);
 	/// Emitted when the user wants to open scan configurations of the selected scans from the database.
 	void launchScanConfigurationsFromDb(const QList<QUrl> &);
-
+	/// Emitted when the user wants to fix a scan that uses CDF files.
+	void fixCDF(const QUrl &);
 
 public slots:
 
@@ -72,6 +73,9 @@ protected slots:
 
 	/// When the user chooses to launch scan configurations from the database.  If more than 0 items are selected, we emit launchScanConfigurationsFromDb().
 	void onLaunchScanConfigurationsFromDb();
+
+	/// When the user chooses to fix a CDF file, this finds the QUrl associated with that scan and then passes it on.
+	void onFixCDF();
 
 protected:
 	Ui::AMDataViewActionsBar* ui_;

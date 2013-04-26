@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define XRFDETECTOR_H
 
 #include "dataman/VESPERS/XRFDetectorInfo.h"
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTimer>
 
-class XRFDetector : public XRFDetectorInfo, public AMDetector
+class XRFDetector : public XRFDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 public:
@@ -56,11 +56,11 @@ public:
 	virtual QString description() const { return XRFDetectorInfo::description(); }
 
 	/// Transforms current settings into a detector into. Returns a new instance-- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
 	/// Transforms current settings into a detector info.
 	XRFDetectorInfo toXRFInfo() const { return XRFDetectorInfo(*this); }
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromXRFInfo(const XRFDetectorInfo &info);
 
@@ -77,7 +77,7 @@ public:
 	/// Returns the status as an bool.  true is acquiring, false is done.
 	bool status() const
 	{
-		if (statusPV_.first()->getInt() == 1)
+		if (statusPV_->getInt() == 1)
 			return true;
 
 		return false;
@@ -273,8 +273,6 @@ public slots:
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
-	/// Takes an AMROIInfoList and copies its contents to this detector.
-	void copyFromROIList(AMROIInfoList *list);
 
 	/// Sets the extra notes for the detector.
 	void setNotes(const QString &notes) { notes_ = notes; }
@@ -388,7 +386,7 @@ protected:
 
 	// The PVs.  They are all lists because the detector could have more than one element.  Start and stop are special because naming conventions didn't allow for the correct behaviour.
 	/// The status of the scan.
-	QList<AMProcessVariable *> statusPV_;
+	AMProcessVariable *statusPV_;
 	/// The spectra refresh rate.
 //	QList<AMProcessVariable *> mcaUpdateRatePV_;
 	/// The status refresh rate.
@@ -399,6 +397,8 @@ protected:
 	QList<AMProcessVariable *> maximumEnergyPV_;
 	/// The integration time.
 	QList<AMProcessVariable *> integrationTimePV_;
+	/// Hack for the preset time for the four element vortex.
+	AMProcessVariable *presetTime4elHack_;
 	/// The live time.
 	QList<AMProcessVariable *> liveTimePV_;
 	/// The elapsed time.

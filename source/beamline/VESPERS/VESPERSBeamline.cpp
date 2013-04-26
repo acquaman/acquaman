@@ -159,6 +159,10 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
 //	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
 //	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
 //	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
@@ -166,6 +170,10 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
+
+	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
@@ -192,6 +200,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
+	pseudoWireStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
+	pseudoWireStage_->setXRange(-700000, 700000);
+	pseudoWireStage_->setYRange(-200000, 200000);
+	pseudoWireStage_->setZRange(-200000, 200000);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -206,7 +227,7 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_ = new AMOldDetectorSet(this);
 
 	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
 	tempSplit->setVoltagRange(1.0, 4.5);
@@ -235,6 +256,8 @@ void VESPERSBeamline::setupDetectors()
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Camera", this);
+	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
+	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -379,15 +402,16 @@ void VESPERSBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+	synchronizedDwellTime_->addElement(5);
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
 	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
-	beamPositions_.insert(Pink, 0);
-	beamPositions_.insert(TenPercent, -12.5);
-	beamPositions_.insert(Si, -17.5);
-	beamPositions_.insert(OnePointSixPercent, -22.5);
+	beamPositions_.insert(VESPERS::Pink, 0);
+	beamPositions_.insert(VESPERS::TenPercent, -12.5);
+	beamPositions_.insert(VESPERS::Si, -17.5);
+	beamPositions_.insert(VESPERS::OnePointSixPercent, -22.5);
 
 	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
@@ -410,9 +434,13 @@ void VESPERSBeamline::setupExposedControls()
 {
 	addExposedControl(pseudoSampleStage()->horiz());
 	addExposedControl(pseudoSampleStage()->vert());
+	addExposedControl(pseudoSampleStage()->norm());
+	addExposedControl(realSampleStage()->horiz());
+	addExposedControl(realSampleStage()->vert());
+	addExposedControl(realSampleStage()->norm());
 }
 
-AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 {
 	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
 	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
@@ -435,7 +463,7 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 	moveBeamAction->setSetpoint(beamPositions_.value(beam));
 	changeBeamActionsList->appendAction(1, moveBeamAction);
 
-	if (beam != Pink){
+	if (beam != VESPERS::Pink){
 
 		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
@@ -446,18 +474,18 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 
 void VESPERSBeamline::determineBeam()
 {
-	Beam temp;
+	VESPERS::Beam temp;
 
-	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
-		temp = Pink;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
-		temp = TenPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
-		temp = OnePointSixPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
-		temp = Si;
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Pink)))
+		temp = VESPERS::Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::TenPercent)))
+		temp = VESPERS::TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::OnePointSixPercent)))
+		temp = VESPERS::OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Si)))
+		temp = VESPERS::Si;
 	else
-		temp = None;
+		temp = VESPERS::NoBeam;
 
 	if (temp != beam_){
 

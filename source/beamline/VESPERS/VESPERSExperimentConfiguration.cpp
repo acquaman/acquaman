@@ -32,6 +32,9 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	fastShutterReady_ = new AMReadOnlyPVControl("Fast Shutter Ready", "DIO1607-01:CCD:NotReady:fbk", this);
 	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:det1:DetectorState_RBV", this);
 
+	// Pseudo-motor reset button.
+	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
+
 	type_ = Custom;
 
 	usePOE_ = false;

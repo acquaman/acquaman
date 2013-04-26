@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/GeneralUtilities.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "MPlot/MPlotTools.h"
+#include "util/AMDataSourcePlotSettings.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -34,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 #include <QMessageBox>
 #include <QGroupBox>
+#include <QStringBuilder>
 
 VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	QWidget(parent)
@@ -118,6 +120,35 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	waterfallSeparation_->setEnabled(false);
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
 
+	minimum_ = new QDoubleSpinBox;
+	minimum_->setRange(0, 30);
+	minimum_->setDecimals(2);
+	minimum_->setValue(3.11);
+	minimum_->setSuffix(" keV");
+
+	maximum_ = new QDoubleSpinBox;
+	maximum_->setRange(0, 30);
+	maximum_->setDecimals(2);
+	maximum_->setValue(20.48);
+	maximum_->setSuffix(" keV");
+
+	connect(minimum_, SIGNAL(valueChanged(double)), this, SLOT(setMinimum(double)));
+	connect(maximum_, SIGNAL(valueChanged(double)), this, SLOT(setMaximum(double)));
+
+	QHBoxLayout *minMaxLayout = new QHBoxLayout;
+	minMaxLayout->addWidget(new QLabel("Minimum:"));
+	minMaxLayout->addWidget(minimum_);
+	minMaxLayout->addWidget(new QLabel("Maximum:"));
+	minMaxLayout->addWidget(maximum_);
+	minMaxLayout->addStretch();
+
+	table_ = new AMSelectablePeriodicTable(this);
+	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
+	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+
+	setPlotRange(3110, 20480);
+
 	QFormLayout *rightSide = new QFormLayout;
 	rightSide->setHorizontalSpacing(60);
 	rightSide->addRow(loadSpectraButton);
@@ -141,12 +172,69 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	QVBoxLayout *plotAndBottom = new QVBoxLayout;
 	plotAndBottom->addWidget(view_);
 	plotAndBottom->addLayout(bottomRow);
+	plotAndBottom->addLayout(minMaxLayout);
+	plotAndBottom->addWidget(tableView_, 0, Qt::AlignCenter);
 
 	QHBoxLayout *fullLayout = new QHBoxLayout;
 	fullLayout->addLayout(plotAndBottom);
 	fullLayout->addWidget(rightSideBox);
 
 	setLayout(fullLayout);
+}
+
+void VESPERSXRFViewer::onElementSelected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QColor color = AMDataSourcePlotSettings::nextColor();
+	MPlotPoint *newLine;
+	QPair<QString, QString> line;
+
+	foreach(line, lines){
+
+		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
+				&& line.first.contains("1") && line.first.compare("-"))	{
+
+			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+			newLine->setDescription(symbol % " " % line.first);
+			plot_->addItem(newLine);
+		}
+	}
+}
+
+void VESPERSXRFViewer::onElementDeselected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+
+	foreach(MPlotItem *item, plot_->plotItems()){
+
+		if (item->description().contains(symbol))
+			if (plot_->removeItem(item))
+				delete item;
+	}
+}
+
+void VESPERSXRFViewer::setPlotRange(double low, double high)
+{
+	range_ = qMakePair(low, high);
+	tableView_->setRange(low, high);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementDeselected(atomicNumber);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementSelected(atomicNumber);
+}
+
+void VESPERSXRFViewer::setMinimum(double min)
+{
+	setPlotRange(min*1000, range_.second);
+}
+
+void VESPERSXRFViewer::setMaximum(double max)
+{
+	setPlotRange(range_.first, max*1000);
 }
 
 void VESPERSXRFViewer::setupPlot()

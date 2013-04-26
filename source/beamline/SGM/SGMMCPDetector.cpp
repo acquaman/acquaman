@@ -20,8 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMCPDetector.h"
 
-SGMMCPDetector::SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-	SGMMCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+SGMMCPDetector::SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+	SGMMCPDetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	toggleOnAction_ = toggleOnAction;
 	toggleOffAction_ = toggleOffAction;
@@ -73,7 +73,7 @@ double SGMMCPDetector::reading() const{
 		return -1;
 }
 
-AMDetectorInfo* SGMMCPDetector::toInfo() const{
+AMOldDetectorInfo* SGMMCPDetector::toInfo() const{
 	return new SGMMCPDetectorInfo(*this);
 }
 
@@ -97,7 +97,7 @@ AMControl* SGMMCPDetector::hvCtrl() const {
 	return 0;
 }
 
-bool SGMMCPDetector::setFromInfo(const AMDetectorInfo *info){
+bool SGMMCPDetector::setFromInfo(const AMOldDetectorInfo *info){
 	const SGMMCPDetectorInfo *di = qobject_cast<const SGMMCPDetectorInfo*>(info);
 	if(!di)
 		return false;
@@ -131,7 +131,7 @@ bool SGMMCPDetector::settingsMatchFbk(SGMMCPDetectorInfo *settings){
 }
 
 QString SGMMCPDetector::description() const{
-	return AMDetectorInfo::description();
+	return AMOldDetectorInfo::description();
 }
 
 bool SGMMCPDetector::setControls(SGMMCPDetectorInfo *mcpSettings){
@@ -145,7 +145,7 @@ void SGMMCPDetector::onDetectorHVToggleChanged(){
 }
 
 void SGMMCPDetector::setDescription(const QString &description){
-	AMDetectorInfo::setDescription(description);
+	AMOldDetectorInfo::setDescription(description);
 }
 
 void SGMMCPDetector::onControlsConnected(bool connected){

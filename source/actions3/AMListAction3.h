@@ -64,6 +64,8 @@ public:
 
 	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly -- there would be no time to pause.
 	virtual bool canPause() const;
+	/// Re-implemented from AMAction to indicate we can skip.  Skipping is supported in sequential mode and NOT supported in parallel mode.
+	virtual bool canSkip() const { return subActionMode_ == Sequential; }
 
 	/// Pure virtual function that denotes that this action has children underneath it or not.
 	bool hasChildren() const { return true; }
@@ -112,6 +114,8 @@ public:
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
 	AMAction3* takeSubActionAt(int index);
 
+	AMDatabase* loggingDatabase() const;
+
 	// Other methods that should be reimplemented.
 	////////////////////////////////////////////
 
@@ -123,6 +127,8 @@ public:
 public slots:
 	/// Sets the database id of the log action associated with this instance
 	void setLogActionId(int logActionId);
+
+	void setLoggingDatabase(AMDatabase *loggingDatabase);
 
 signals:
 
@@ -171,6 +177,8 @@ protected:
 	virtual void resumeImplementation();
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. In SequentialMode, we cancel() the currently running action (unless we're paused between actions.)  In ParallelMode, we cancel all the still-running actions.
 	virtual void cancelImplementation();
+	/// This method does the requisite work to ensure a sequential list can be skipped.  Does nothing if the list is in Parallel mode.
+	virtual void skipImplementation(const QString &command);
 
 	// Helper function to help move through a sequential list of actions.
 	//////////////////////////////////////
@@ -218,6 +226,11 @@ protected:
 
 	/// Holds the id of the log action (these actions are logged first when they start). Will hold -1 until it gets something valid
 	int logActionId_;
+
+	/// Flag used when skipping after the next action.
+	bool skipAfterCurrentAction_;
+
+	AMDatabase *loggingDatabase_;
 };
 
 /// This is a convenience class that builds a sequential list action.  Equivalent to AMListAction(info, SubActionMode::Sequential, parent).

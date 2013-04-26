@@ -39,6 +39,9 @@ AMScanActionInfo::AMScanActionInfo(AMScanConfiguration *config, const QString &i
 	config_ = config;
 	scanID_ = -1;
 
+	connect(config_, SIGNAL(expectedDurationChanged(double)), this, SLOT(setExpectedDuration(double)));
+	setExpectedDuration(config_->expectedDuration());
+
 	if(!config_->detailedDescription().isEmpty()){
 		setShortDescription(config_->userScanName()%"\n"%config_->description());
 		setLongDescription(config_->detailedDescription());
@@ -51,6 +54,9 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 	config_ = other.config_ ? other.config_->createCopy() : 0;
 	//scanID_ = other.scanID_;
 	scanID_ = -1;
+
+	connect(config_, SIGNAL(expectedDurationChanged(double)), this, SLOT(setExpectedDuration(double)));
+	setExpectedDuration(config_->expectedDuration());
 
 	if(!config_->detailedDescription().isEmpty()){
 		setShortDescription(config_->userScanName()%"\n"%config_->description());
@@ -78,6 +84,9 @@ AMScanConfiguration *AMScanActionInfo::config()
 		return config_;
 
 	config_ = getConfigurationFromDb();
+	connect(config_, SIGNAL(expectedDurationChanged(double)), this, SLOT(setExpectedDuration(double)));
+
+	setExpectedDuration(config_->expectedDuration());
 	return config_;
 }
 

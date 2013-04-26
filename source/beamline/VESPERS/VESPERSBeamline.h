@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSSampleStageControl.h"
@@ -38,8 +38,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
+#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -49,15 +52,6 @@ class VESPERSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
-
-	/// Enum for the different beams.
-	/*!
-		- Pink is not monochromatized and contains all the energies from the bending magnet.
-		- TenPercent (10%) is a broad band pass filter.
-		- OnePointSixPercent (1.6%) is a narrow band pass filter.
-		- Si is the monochromator with 0.01% band pass.
-	  */
-	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
 
 	/// Returns the instance of the beamline that has been created.
 	static VESPERSBeamline* vespers() {
@@ -70,7 +64,7 @@ public:
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
-	Beam currentBeam() const { return beam_; }
+	VESPERS::Beam currentBeam() const { return beam_; }
 
 	// Helper functions.
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
@@ -79,37 +73,45 @@ public:
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMDetector *vortexAM1E() const { return vortex1E_; }
+	AMOldDetector *vortexAM1E() const { return vortex1E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
 	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMDetector *vortexAM4E() const { return vortex4E_; }
+	AMOldDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMDetector *roperCCDDetector() const { return roperCCD_; }
+	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	/// Returns a general AMDetector pointer of the Mar CCD.
+	AMOldDetector *marCCDDetector() const { return marCCD_; }
+	/// Returns the specific pointer to the Mar CCD.
+	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+	/// Returns a general AMDetector pointer of the Pilatus CCD.
+	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	/// Returns the specific pointer to the Pilatus CCD.
+	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplitDetector() const { return iSplit_; }
+	AMOldDetector *iSplitDetector() const { return iSplit_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMiniDetector() const { return iMini_; }
+	AMOldDetector *iMiniDetector() const { return iMini_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPostDetector() const { return iPost_; }
+	AMOldDetector *iPostDetector() const { return iPost_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
-	AMDetectorSet *ionChambers() const { return ionChambers_; }
+	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
 
@@ -406,6 +408,12 @@ public:
 	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
 	/// Returns the normal motor control.
 	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
+	/// Returns the horizontal wire stage control.
+	AMControl *wireStageHorizontal() const { return wireStageHorizontal_; }
+	/// Returns the vertical wire stage control.
+	AMControl *wireStageVertical() const { return wireStageVertical_; }
+	/// Returns the normal wire motor control.
+	AMControl *wireStageNormal() const { return wireStageNormal_; }
 
 	// Real motors.
 	/// Returns the sample stage motor in the x-direction.
@@ -420,6 +428,8 @@ public:
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
 	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
+	/// Returns the wire stage control built with the pseudo-motors.
+	VESPERSSampleStageControl *pseudoWireStage() const { return pseudoWireStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -462,14 +472,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
 
 signals:
 	/// Notifier that the beam has been changed.
-	void currentBeamChanged(VESPERSBeamline::Beam);
+	void currentBeamChanged(VESPERS::Beam);
 	/// Notifier that passes on that the beam has gone down.
 	void beamDumped();
 	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
@@ -557,18 +567,20 @@ protected:
 	VESPERSBeamline();
 
 	// Detectors.
-	AMDetector *vortex1E_;
-	AMDetector *vortex4E_;
-	AMDetector *roperCCD_;
-	AMDetector *iSplit_;
-	AMDetector *iPreKB_;
-	AMDetector *iMini_;
-	AMDetector *iPost_;
+	AMOldDetector *vortex1E_;
+	AMOldDetector *vortex4E_;
+	AMOldDetector *roperCCD_;
+	AMOldDetector *marCCD_;
+	AMOldDetector *pilatusCCD_;
+	AMOldDetector *iSplit_;
+	AMOldDetector *iPreKB_;
+	AMOldDetector *iMini_;
+	AMOldDetector *iPost_;
 
 	// End detectors.
 
 	// Detector sets.
-	AMDetectorSet *ionChambers_;
+	AMOldDetectorSet *ionChambers_;
 
 	// End detector sets.
 
@@ -607,11 +619,11 @@ protected:
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
-	Beam beam_;
+	VESPERS::Beam beam_;
 	// Pointer to the motor that controls which beam makes it down the beamline.
 	AMControl *beamSelectionMotor_;
 	// Look up table with the beam and its position.
-	QHash<Beam, double> beamPositions_;
+	QHash<VESPERS::Beam, double> beamPositions_;
 
 	// End of Beam selection members.
 
@@ -740,6 +752,10 @@ protected:
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
 
+	AMControl *wireStageHorizontal_;
+	AMControl *wireStageVertical_;
+	AMControl *wireStageNormal_;
+
 	// Physical motors.
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
@@ -748,6 +764,7 @@ protected:
 	// The sample stage encapsulation.
 	VESPERSSampleStageControl *pseudoSampleStage_;
 	VESPERSSampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoWireStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

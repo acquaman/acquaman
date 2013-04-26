@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#define VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_FILE 627201
+#define VESPERS2012DFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE 627202
+
 #include "dataman/AMFileLoaderInterface.h"
 
 /*!
@@ -34,12 +37,12 @@ class VESPERS20122DFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS and vespers2011EXAFS.
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012XRF1El" << "vespers2012XRF1ElXRD" << "vespers2012XRF4El" << "vespers2012XRF4ElXRD"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012XRF1El" << "vespers2012XRF1ElXRD" << "vespers2012XRF4El" << "vespers2012XRF4ElXRD" << "vespers2012XRF1Eln4El" << "vespers2012XRF1Eln4ElXRD"; }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 };
 
 class VESPERS20122DFileLoaderFactory : public QObject, AMFileLoaderFactory
@@ -49,7 +52,7 @@ class VESPERS20122DFileLoaderFactory : public QObject, AMFileLoaderFactory
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012XRF1El" << "vespers2012XRF1ElXRD" << "vespers2012XRF4El" << "vespers2012XRF4ElXRD"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012XRF1El" << "vespers2012XRF1ElXRD" << "vespers2012XRF4El" << "vespers2012XRF4ElXRD" << "vespers2012XRF1Eln4El" << "vespers2012XRF1Eln4ElXRD"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 

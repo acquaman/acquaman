@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions/AMBeamlineControlMoveAction.h"
 
-CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
-	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+	CLSAmptekSDD123DetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	baseName_ = baseName;
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
@@ -101,7 +101,7 @@ QString CLSAmptekSDD123Detector::description() const{
 	return CLSAmptekSDD123DetectorInfo::description();
 }
 
-AMDetectorInfo* CLSAmptekSDD123Detector::toInfo() const{
+AMOldDetectorInfo* CLSAmptekSDD123Detector::toInfo() const{
 	return new CLSAmptekSDD123DetectorInfo(*this);
 }
 
@@ -109,7 +109,7 @@ CLSAmptekSDD123DetectorInfo CLSAmptekSDD123Detector::toCLSAmptekSDD123Info() con
 	return CLSAmptekSDD123DetectorInfo(*this);
 }
 
-bool CLSAmptekSDD123Detector::setFromInfo(const AMDetectorInfo *info)
+bool CLSAmptekSDD123Detector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const CLSAmptekSDD123DetectorInfo *detectorInfo = qobject_cast<const CLSAmptekSDD123DetectorInfo *>(info);
 

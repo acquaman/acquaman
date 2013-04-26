@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMMainWindow;
 class AMBottomBar;
+class AMBottomPanel;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -45,6 +46,7 @@ class QStandardItem;
 
 class AMDatabase;
 class AMDbUpgrade;
+class AMScan;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -76,6 +78,9 @@ class AMDbUpgrade;
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_USER_INTERFACE 270221
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_USER_INTERFACE 270222
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING 270223
+
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRST_TIME_UPGRADES_FAILED 270224
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED 270225
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
@@ -163,22 +168,27 @@ public:
 	bool closeScanEditor(int index);
 	/// Close a scan editor. Returns false if can't be closed.
 	bool closeScanEditor(AMGenericScanEditor* editor);
-	/// Create and add a new scan editor. Returns the new scan editor
-	AMGenericScanEditor* createNewScanEditor();
-	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
-	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
+	/// Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView = false);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
 
+	// Convenience functions for database upgrades.
+	/// Returns the number of database upgrades.
+	int databaseUpgradeCount() const { return databaseUpgrades_.count(); }
+	/// Returns the database upgrade at \param index.
+	AMDbUpgrade *databaseUpgradeAt(int index) { return databaseUpgrades_.at(index); }
+	/// Insert a database upgrade anywhere within the list.  If databaseUpgradeCount() is provided for an index then the upgrade is appended to the end of the list.
+	void addDatabaseUpgrade(int index, AMDbUpgrade *upgrade) { databaseUpgrades_.insert(index, upgrade); }
+	/// Append a database upgrade to the end of the list.
+	void appendDatabaseUpgrade(AMDbUpgrade *upgrade) { databaseUpgrades_.insert(databaseUpgradeCount(), upgrade); }
+	/// Prepend a database upgrade to the end of the list.
+	void prependDatabaseUpgrade(AMDbUpgrade *upgrade) { databaseUpgrades_.insert(0, upgrade); }
+	/// Removes a database upgrade from the list at index \param index.  Returns the database upgrade.
+	AMDbUpgrade *removeDatabaseUpgrade(int index) { return databaseUpgrades_.takeAt(index); }
 
 signals:
-	/// Passing on the stop scan signal from the bottom bar.
-	void stopScanIssued();
-	/// Passing on the pause scan signal from the bottom bar.
-	void pauseScanIssued();
-	/// Passing on the continue scan signal from the bottom bar.
-	void continueScanIssued();
 	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
 	void scanEditorCreated(AMGenericScanEditor *);
 
@@ -202,13 +212,16 @@ The Drag is accepted when:
 	  - The id of the item can be found in the table
 	  */
 	bool dropScanURLs(const QList<QUrl>& urls, AMGenericScanEditor* editor = 0, bool openInIndividualEditors = false);
-	/// Open a scan specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns true if the scan was opened successfully.
-	bool dropScanURL(const QUrl& url, AMGenericScanEditor* editor = 0);
+	/// Open a scan specified by a database URL and returns the scan. The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns 0 if an error occurred.
+	AMScan *dropScanURL(const QUrl& url);
 
 	/// Opens scan configurations by a database URL, based on the view that is stored inside the scan.
 	void onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls);
 	/// Opens a single scan configuration from a given database URL.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
+
+	/// Fixes a single scan that uses CDF files.  This version doesn't do anything at present. Until a good general solution can be devised, we'll leave it up to individual app controllers to fix CDF files that pertain to them.
+	virtual void fixCDF(const QUrl &url);
 
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();
@@ -226,15 +239,6 @@ The Drag is accepted when:
 
 	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
 	void onActionExportGraphics();
-
-
-
-
-	/// Calling this updates the master progress bar
-	void onProgressUpdated(double elapsed, double total);
-
-
-
 
 protected slots:
 
@@ -293,9 +297,20 @@ protected:
 */
 	void getUserDataFolderFromDialog(bool presentAsParentFolder = false);
 
+	/// Method that allows the app controller and all subclasses to have their own specific bottom panel.  This method MUST ensure that the bottomPanel_ member is valid.
+	virtual void addBottomPanel();
 
+	/// Method that handles the database upgrades the first when a database has been created.  \param upgrades is the list of upgrades that need to be done.
+	bool onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
+	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
+	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 
 protected:
+	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
+	AMGenericScanEditor *editorFromScan(AMScan *scan) const;
+	/// Helper method that returns the scan associated with an editor for the scanEditorsScanMapping list.  Returns 0 if not found.
+	AMScan *scanFromEditor(AMGenericScanEditor *editor) const;
+
 	/// UI structure components
 	AMMainWindow* mw_;
 
@@ -306,7 +321,7 @@ protected:
 	QAction* exportGraphicsAction_;
 
 	/// Top-level panes in the main window
-	AMBottomBar* bottomBar_;
+	AMBottomPanel *bottomPanel_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
@@ -340,6 +355,9 @@ protected:
 
 	/// Holds a boolean that may be set to warn about poor choices for database directory
 	bool isBadDatabaseDirectory_;
+
+	/// List that organizes active scans with editors for updating the ScanEditorModelItem's.  Although the list currently will only be populated AMAppController, the clean up is very general and is done in the onWindowPaneCloseClicked() method.
+	QList<QPair<AMScan *, AMGenericScanEditor *> > scanEditorScanMapping_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

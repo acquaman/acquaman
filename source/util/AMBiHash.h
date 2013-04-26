@@ -89,4 +89,36 @@ protected:
 	QHash<T2, T1> rev_;
 };
 
+template <class T1, class T2>
+class AMBiHashWChecking : public AMBiHash<T1, T2>
+{
+public:
+	/// Default constructor
+	AMBiHashWChecking<T1, T2>() :
+		AMBiHash<T1, T2>()
+	{
+		lookupFailed_ = false;
+	}
+
+	/// return the value for a key (forward lookup)
+	T2 valueF(const T1& key1) const {
+		if(!containsF(key1))
+			lookupFailed_ = true;
+		return AMBiHash<T1, T2>::valueF(key1);
+	}
+
+	/// return a "key" for a "value" (reverse lookup)
+	T1 valueR(const T2& key2) const {
+		if(!containsR(key2))
+			lookupFailed_ = true;
+		return AMBiHash<T1, T2>::valueR(key2);
+	}
+
+	bool lookupFailed() const { return lookupFailed_; }
+	void resetLookup() { lookupFailed_ = false; }
+
+protected:
+	mutable bool lookupFailed_;
+};
+
 #endif // AMBIHASH_H

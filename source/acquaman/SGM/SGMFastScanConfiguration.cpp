@@ -30,16 +30,16 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
-	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets();
+	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
 
 	setParametersFromPreset(0);
 
-	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
+	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
 	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
 	for(int x = 0; x < fastDetectors_->count(); x++)
@@ -59,7 +59,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
-	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets();
+	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){
@@ -74,7 +74,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	setEnergyParameters(original.currentEnergyParameters());
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
 	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
 	for(int x = 0; x < fastDetectors_->count(); x++)
@@ -97,8 +97,8 @@ const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
-	AMDetectorInfoSet allConfigurations;
+AMOldDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
+	AMOldDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
 	for(int x = 0; x < fastDetectorsConfigurations_.count(); x++)
@@ -111,7 +111,6 @@ AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 }
 
 #include "SGMFastDacqScanController.h"
-
 AMScanController* SGMFastScanConfiguration::createController(){
 	return new SGMFastDacqScanController(this);
 }
@@ -209,7 +208,7 @@ int SGMFastScanConfiguration::sgmGrating() const{
 }
 
 QStringList SGMFastScanConfiguration::presets() const{
-	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings();
+	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 }
 
 SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
@@ -436,7 +435,7 @@ bool SGMFastScanConfiguration::setSGMGrating(int sgmGrating){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) {
+bool SGMFastScanConfiguration::setDetectorConfigurations(AMOldDetectorInfoSet detectorConfigurations) {
 	fastDetectorsConfigurations_ = detectorConfigurations;
 	setModified(true);
 	return true;

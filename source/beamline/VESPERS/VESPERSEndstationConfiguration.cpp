@@ -1,9 +1,28 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEndstationConfiguration.h"
 
 VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QObject *parent)
 	: QObject(parent)
 {
-	current_ = Invalid;
+	current_ = VESPERS::Invalid;
 
 	xAndZ_ = qMakePair(false, false);
 	hAndV_ = qMakePair(false, false);
@@ -17,11 +36,11 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QObject *parent)
 	roperCCD_ = qMakePair(false, false);
 }
 
-void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
+void VESPERSEndstationConfiguration::setGeometry(VESPERS::Geometry newGeometry)
 {
 	switch(newGeometry){
 
-	case Invalid:
+	case VESPERS::Invalid:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -34,7 +53,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case StraightOn:
+	case VESPERS::StraightOn:
 		xAndZ_ = qMakePair(true, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -47,7 +66,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case Single45Vertical:
+	case VESPERS::Single45Vertical:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(true, false);
 		bigBeam_ = qMakePair(false, false);
@@ -60,7 +79,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(true, false);
 		break;
 
-	case Single45Horizontal:
+	case VESPERS::Single45Horizontal:
 		xAndZ_ = qMakePair(true, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -73,7 +92,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case Double45:
+	case VESPERS::Double45:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(true, false);
 		bigBeam_ = qMakePair(false, false);
@@ -86,7 +105,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(true, false);
 		break;
 
-	case BigBeam:
+	case VESPERS::BigBeam:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(true, false);
