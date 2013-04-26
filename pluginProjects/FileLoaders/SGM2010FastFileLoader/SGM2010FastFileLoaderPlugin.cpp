@@ -278,7 +278,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 			}
 			else if(numScalerReadings == 10000){
 				qDebug() << "Going for fast scan with energy calib and extra diodes";
-				//int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
 
@@ -309,10 +308,9 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 					encoderStartPoint = encoderEndpoint;
 					for(int x = 0; x < numScalerReadings; x++){
 						sfls >> scalerVal;
-						//if( (x%6 == 4) && (scalerVal < 40) )
+
 						if( x%10 == 4 )
 							encoderStartPoint += scalerVal;
-						//if( (x%6 == 5) && (scalerVal < 40) )
 						if( x%10 == 5 )
 							encoderStartPoint -= scalerVal;
 					}
@@ -326,22 +324,16 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 						readings.clear();
 					sfls >> scalerVal;
 					if( x%10 == 0 || x%10 == 1 || x%10 == 2 || x%10 == 3 || x%10 == 6 || x%10 == 7 || x%10 == 8 || x%10 == 9){
-						//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
 						readings.append(scalerVal);
 					}
-					//if( (x%6 == 4) && (scalerVal < 40) )
 					if( x%10 == 4 )
 						encoderReading -= scalerVal;
-					//if( (x%6 == 5) && (scalerVal < 40) )
 					if ( x%10 == 5 )
 						encoderReading += scalerVal;
 					if( x%10 == 9 ){
-						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
 						scan->rawData()->beginInsertRows(1, -1);
 						scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
-						//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
 						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
 						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
 						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
@@ -353,12 +345,11 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 7, AMnDIndex(), readings.at(7));
 
 						scan->rawData()->endInsertRows();
-						//}
 					}
 				}
 			}
 			else{
-				qDebug() << "Looks like I can't handle " << numScalerReadings << " points in a fast scan";
+				qDebug() << "Cannot handle " << numScalerReadings << " points in a fast scan";
 			}
 		}
 		else{

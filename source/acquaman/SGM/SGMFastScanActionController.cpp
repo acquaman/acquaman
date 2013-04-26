@@ -517,10 +517,13 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(1000));
-	for(int x = 0; x < 32; x++)
-		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(true));
-
 	retVal->addSubAction(fastActionsScalerSettings);
+
+	AMListAction3 *fastActionsScalerEnableSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Enable Settings", "SGM Fast Actions Scaler Enable Settings"), AMListAction3::Parallel);
+	for(int x = 0; x < 32; x++)
+		fastActionsScalerEnableSettings->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(true));
+
+	retVal->addSubAction(fastActionsScalerEnableSettings);
 	// End Scaler Settings
 
 	// Undulator Trigger to 1

@@ -44,6 +44,12 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
 	for(int x = 0; x < fastDetectors_->count(); x++)
 		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
+
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
+
 	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
 }
 
@@ -73,6 +79,11 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
 	for(int x = 0; x < fastDetectors_->count(); x++)
 		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
+
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
 
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
 
