@@ -180,7 +180,7 @@ void CLSAmptekSDD123DetectorNew::onControlsConnected(bool connected){
 
 	if(connected)
 		setReadyForAcquisition();
-	else
+	else if(!isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
 }
 
@@ -204,11 +204,12 @@ void CLSAmptekSDD123DetectorNew::onStatusControlChanged(double value){
 	if(statusControl_->withinTolerance(1))
 		setAcquiring();
 	else if(statusControl_->withinTolerance(0)){
-		setAcquisitionSucceeded();
+		if(isAcquiring())
+			setAcquisitionSucceeded();
 
-		if(isConnected())
-			setReadyForAcquisition();
-		else
+		if(!isConnected() && !isNotReadyForAcquisition())
 			setNotReadyForAcquisition();
+		else if(isConnected() && !isReadyForAcquisition())
+			setReadyForAcquisition();
 	}
 }
