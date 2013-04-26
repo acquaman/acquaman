@@ -85,30 +85,13 @@ void CLSAdvancedScalerChannelDetector::onModeSwitchSignal(){
 			disconnect(scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onModeSwitchSignal()));
 
 			emit readModeChanged(readMode_);
-			qDebug() << "Done switching read modes for scaler";
 		}
 	}
 }
 
 void CLSAdvancedScalerChannelDetector::onScalerScanningChanged(bool isScanning){
-	qDebug() << "Advanced scaler scanning change to " << isScanning << " in mode " << readMode_;
 	if(isScanning)
 		setAcquiring();
-
-	/*
-	else{
-		if(readMode_ == AMDetectorDefinitions::SingleRead)
-			data_[0] = singleReading();
-		else if(readMode_ == AMDetectorDefinitions::ContinuousRead){
-			qDebug() << "Need to figure out the last continuos reading";
-
-			qDebug() << "Scaler says last values were " << scaler_->reading();
-		}
-
-		setAcquisitionSucceeded();
-		checkReadyForAcquisition();
-	}
-	*/
 }
 
 void CLSAdvancedScalerChannelDetector::onReadingChanged(){

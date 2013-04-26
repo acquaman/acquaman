@@ -302,8 +302,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", gratingEncoderFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	AMControl *fakeWaitReadControl = new AMReadOnlyPVControl("FakeWaitRead", "david:loop:value", this, "Fake Wait Read");
-	fakeWaitReadDetector_ = new AMBasicControlDetectorEmulator("FakeWaitRead", "Fake Wait Read", fakeWaitReadControl, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
 
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
@@ -329,7 +327,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
-	XASDetectorGroup_->addDetector(fakeWaitReadDetector_);
 
 	FastDetectorGroup_ = new AMDetectorGroup("Fast Detectors", this);
 	FastDetectorGroup_->addDetector(newTEYDetector_);
@@ -1159,7 +1156,6 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(gratingEncoderDetector_);
-	addExposedDetector(fakeWaitReadDetector_);
 
 	addExposedDetectorGroup(XASDetectorGroup_);
 	addExposedDetectorGroup(FastDetectorGroup_);

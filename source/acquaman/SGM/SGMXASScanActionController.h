@@ -9,6 +9,7 @@
 #include <QThread>
 
 class AMScanActionControllerScanAssembler;
+class AMListAction3;
 
 #include "acquaman/SGM/SGMXASScanActionControllerFileWriter.h"
 Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
@@ -34,10 +35,16 @@ signals:
 	void finishWritingToFile();
 
 protected slots:
+	void onInitializationActionsListSucceeded();
+	void onInitializationActionsListFailed();
+	void onActionsTreeSucceeded();
+	void onActionsTreeFailed();
+	void onCleanupActionsListSucceeded();
+	void onCleanupActionsListFailed();
+
 	void onActionTreeGenerated(AMAction3 *actionTree);
 	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
 	void onFileWriterIsBusy(bool isBusy);
-	void onScanFinished();
 
 protected:
 	virtual bool initializeImplementation();
@@ -54,6 +61,9 @@ protected:
 
 protected:
 	AMAction3 *actionTree_;
+	bool actionTreeSucceeded_;
+	AMListAction3 *xasActionsInitializationList_;
+	AMListAction3 *xasActionsCleanupList_;
 	AMScanActionControllerScanAssembler *newScanAssembler_;
 	SGMXASScanConfiguration2013 *configuration_;
 

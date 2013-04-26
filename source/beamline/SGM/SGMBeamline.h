@@ -202,8 +202,6 @@ public:
 	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	AMDetector* gratingEncoderDetector() const { return gratingEncoderDetector_; }
 
-	AMDetector* fakeWaitReadDetector() const { return fakeWaitReadDetector_; }
-
 	bool isSDD1Enabled() const;
 	bool isSDD2Enabled() const;
 	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
@@ -406,7 +404,6 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
 	AMDetectorGroup *newDetectorSet_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;

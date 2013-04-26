@@ -78,7 +78,6 @@ void AMDetectorReadAction::internalSetSucceeded(){
 		if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::SingleRead)
 			detectorData.append(detectorDataPointer[0]);
 		else if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
-			qDebug() << "In detector read action and, unbelievably, I realized it's supposed to be a continuous read";
 			int totalPoints = detector_->lastContinuousSize();
 			if(totalPoints < 0)
 				totalPoints = 0;
