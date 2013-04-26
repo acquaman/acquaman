@@ -98,7 +98,8 @@ void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 	else{
 		data_[0] = singleReading();
 
-		setAcquisitionSucceeded();
+		if(isAcquiring())
+			setAcquisitionSucceeded();
 		checkReadyForAcquisition();
 	}
 }
@@ -139,10 +140,11 @@ bool CLSBasicScalerChannelDetector::cleanupImplementation(){
 
 void CLSBasicScalerChannelDetector::checkReadyForAcquisition(){
 	if(isConnected()){
-		setReadyForAcquisition();
+		if(!isReadyForAcquisition())
+			setReadyForAcquisition();
 		if(scaler_->isContinuous())
 			setAcquiring();
 	}
-	else
+	else if(!isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
 }
