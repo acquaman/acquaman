@@ -177,14 +177,14 @@ void VESPERSBeamline::setupSampleStage()
 	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
-	pseudoSampleStage_->setXRange(-700000, 700000);
-	pseudoSampleStage_->setYRange(-200000, 200000);
-	pseudoSampleStage_->setZRange(-200000, 200000);
+	pseudoSampleStage_->setXRange(-1700000, 1700000);
+	pseudoSampleStage_->setYRange(-1200000, 1200000);
+	pseudoSampleStage_->setZRange(-1200000, 1200000);
 
 	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageZ_, sampleStageY_, this);
-	realSampleStage_->setXRange(-700000, 700000);
-	realSampleStage_->setYRange(-200000, 200000);
-	realSampleStage_->setZRange(-200000, 200000);
+	realSampleStage_->setXRange(-1700000, 1700000);
+	realSampleStage_->setYRange(-1200000, 1200000);
+	realSampleStage_->setZRange(-1200000, 1200000);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -211,9 +211,9 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
 
 	pseudoWireStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
-	pseudoWireStage_->setXRange(-700000, 700000);
-	pseudoWireStage_->setYRange(-200000, 200000);
-	pseudoWireStage_->setZRange(-200000, 200000);
+	pseudoWireStage_->setXRange(-1700000, 1700000);
+	pseudoWireStage_->setYRange(-1200000, 1200000);
+	pseudoWireStage_->setZRange(-1200000, 1200000);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -545,18 +545,18 @@ void VESPERSBeamline::setupSynchronizedDwellTime()
 	// The Pilatus pixel array detector.
 	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
 	temp->setName("Pilatus CCD");
-	temp->setDwellTimePV("DET1607-B21-05:cam1:AcquireTime PP NMS");
+	temp->setDwellTimePV("PAD1607-B21-05:cam1:AcquireTime PP NMS");
 	temp->setScale("1");
 	temp->setOffset("0");
 	temp->setUnits("s");
 	temp->setModePV("");
 	temp->setSingleShot("1");
 	temp->setContinuous("0");
-	temp->setTriggerPV("DET1607-B21-05:cam1:Acquire NPP NMS");
+	temp->setTriggerPV("PAD1607-B21-05:cam1:Acquire NPP NMS");
 	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
 	temp->setPreTrigger(0.0);
 	temp->setDwellHold(0.0);
-	temp->setStatusPV("DET1607-B21-05:cam1:Acquire CP NMS");
+	temp->setStatusPV("PAD1607-B21-05:cam1:Acquire CP NMS");
 	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
 	temp->setDelay(0);
 	temp->setWaitPV("");

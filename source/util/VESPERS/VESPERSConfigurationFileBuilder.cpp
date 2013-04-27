@@ -113,9 +113,9 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	if (pilatusCCD_){
 
-		contents.append("# Action Begin SetPV \"DET1607-B21-05:cam1:NumImages\" \"1\"\n");
-		contents.append("# Action Begin SetPV \"DET1607-B21-05:cam1:NumAcquisitions\" \"1\"\n");
-		contents.append("# Action Begin SetPV \"DET1607-B21-05:cam1:TriggerMode\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:NumImages\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:NumAcquisitions\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:TriggerMode\" \"1\"\n");
 	}
 
 	if (singleElement_){
