@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMAppController.h"
 
+#include <QHostInfo>
+
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
@@ -32,9 +34,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
 #include "ui/SGM/SGMXASScanConfiguration2013View.h"
+#include "ui/SGM/SGMFastScanConfiguration2013View.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 #include "acquaman/SGM/SGMXASScanActionController.h"
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
+#include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "ui/SGM/SGMSidebar.h"
@@ -152,8 +156,11 @@ bool SGMAppController::startup() {
 	if(!setupSGMViews())
 		return false;
 
-	// Center the completed GUI on the screen
-	mw_->move(0, 0);
+	// Center the completed GUI on the screen (which is normally 0,0 but has to be 0 1081 on OPI1611-408)
+	if(QHostInfo::localHostName() == "OPI1611-408")
+		mw_->move(0, 1081);
+	else
+		mw_->move(0, 0);
 
 	return true;
 }
@@ -206,6 +213,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
 
 	// Register the detectors to their views
@@ -276,7 +284,8 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_ && !xasScanConfiguration2013View_){
+	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_ && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+		// Do old XAS
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
@@ -285,12 +294,16 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 		connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+		// End old XAS
 
+		// Do old Fast
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 		connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+		// End old Fast
 
+		// Do New XAS
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
 		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
@@ -318,6 +331,28 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
 		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
+		//End New XAS
+
+		// Do New Fast
+		SGMFastScanConfiguration2013 *fastScanConfiguration2013 = new SGMFastScanConfiguration2013(this);
+
+		fastDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->FastDetectorGroup());
+		QStringList preferentialFastOrdering;
+		preferentialFastOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		fastDetectorSelector_->setPreferentialOrdering(preferentialFastOrdering);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTFYDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newPDDetector(), true);
+		fastDetectorSelector_->setDefaultsSelected();
+
+		fastScanConfiguration2013View_ = new SGMFastScanConfiguration2013View(fastScanConfiguration2013);
+		fastScanConfiguration2013View_->setDetectorSelector(fastDetectorSelector_);
+		fastScanConfiguration2013Holder3_->setView(fastScanConfiguration2013View_);
+		// End New Fast
 
 		newDetectorsSelectorView_ = new AMDetectorSelectorView(newDetectorsSelector_);
 		mw_->addPane(newDetectorsSelectorView_, "Beamline Control", "SGM New Detectors", ":/system-software-update.png", true);
@@ -1278,6 +1313,10 @@ bool SGMAppController::setupSGMViews(){
 	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM XAS Scan", ":/utilities-system-monitor.png");
 
+	fastScanConfiguration2013View_ = 0; //NULL
+	fastScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
+	mw_->addPane(fastScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM Fast Scan", ":/utilities-system-monitor.png");
+
 	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
@@ -1293,8 +1332,8 @@ bool SGMAppController::setupSGMViews(){
 
 //	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
 //	sgmPeriodicTableView->show();
-	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
-	fastScanWizard->show();
+//	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
+//	fastScanWizard->show();
 
 	return true;
 }

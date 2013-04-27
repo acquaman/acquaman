@@ -69,7 +69,10 @@ HEADERS += \
     source/acquaman/SGM/SGMXASScanConfiguration2013.h \
     source/ui/SGM/SGMXASScanConfiguration2013View.h \
     source/ui/SGM/SGMFluxResolutionPickerView.h \
-    source/acquaman/SGM/SGMFastScanActionController.h
+    source/acquaman/SGM/SGMFastScanActionController.h \
+    source/acquaman/SGM/SGMFastScanConfiguration2013.h \
+    source/ui/SGM/SGMFastScanConfiguration2013View.h \
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -110,7 +113,16 @@ SOURCES += \
     source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
     source/ui/SGM/SGMXASScanConfiguration2013View.cpp \
     source/ui/SGM/SGMFluxResolutionPickerView.cpp \
-    source/acquaman/SGM/SGMFastScanActionController.cpp
+    source/acquaman/SGM/SGMFastScanActionController.cpp \
+    source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
+    source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
+
+
+
+
+
+
 
 
 

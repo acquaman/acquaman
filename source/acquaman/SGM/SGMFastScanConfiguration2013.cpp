@@ -1,31 +1,11 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "SGMFastScanConfiguration.h"
+#include "SGMFastScanConfiguration2013.h"
 
 #include <QFile>
 #include <QDir>
 
 #include "util/SGM/SGMPeriodicTable.h"
 
-SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
+SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
@@ -36,24 +16,9 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	setParametersFromPreset(0);
 
 	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
-
-	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
-
-	allDetectors_ = new AMOldDetectorSet(this);
-	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
-	for(int x = 0; x < fastDetectors_->count(); x++)
-		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
-
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
-
-	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
 }
 
-SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original) :
+SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConfiguration2013 &original) :
 		AMFastScanConfiguration(original), SGMScanConfiguration()
 {
 	currentSettings_ = 0; //NULL
@@ -73,163 +38,140 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 
 	setEnergyParameters(original.currentEnergyParameters());
 
-	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
-	allDetectors_ = new AMOldDetectorSet(this);
-	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
-	for(int x = 0; x < fastDetectors_->count(); x++)
-		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
-
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
-
-	setDetectorConfigurations(original.detectorChoiceConfigurations());
-
 	dbLoadWarnings_ = original.dbLoadWarnings();
 }
 
-SGMFastScanConfiguration::~SGMFastScanConfiguration(){
+SGMFastScanConfiguration2013::~SGMFastScanConfiguration2013(){
 }
 
-const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
+const QMetaObject* SGMFastScanConfiguration2013::getMetaObject(){
 	return metaObject();
 }
 
-AMOldDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
-	AMOldDetectorInfoSet allConfigurations;
-	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
-		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
-	for(int x = 0; x < fastDetectorsConfigurations_.count(); x++)
-		allConfigurations.addDetectorInfo(fastDetectorsConfigurations_.detectorInfoAt(x), fastDetectorsConfigurations_.isActiveAt(x));
-	return allConfigurations;
+AMScanConfiguration* SGMFastScanConfiguration2013::createCopy() const{
+	return new SGMFastScanConfiguration2013(*this);
 }
 
-AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
-	return new SGMFastScanConfiguration(*this);
+#include "acquaman/SGM/SGMFastScanActionController.h"
+AMScanController* SGMFastScanConfiguration2013::createController(){
+	return new SGMFastScanActionController(this);
 }
 
-#include "SGMFastDacqScanController.h"
-AMScanController* SGMFastScanConfiguration::createController(){
-	return new SGMFastDacqScanController(this);
+#include "ui/SGM/SGMFastScanConfiguration2013View.h"
+
+AMScanConfigurationView* SGMFastScanConfiguration2013::createView(){
+	return new SGMFastScanConfiguration2013View(this);
 }
 
-#include "ui/SGM/SGMFastScanConfigurationView.h"
-
-AMScanConfigurationView* SGMFastScanConfiguration::createView(){
-	return new SGMFastScanConfigurationView(this);
-}
-
-QString SGMFastScanConfiguration::detailedDescription() const{
+QString SGMFastScanConfiguration2013::detailedDescription() const{
 	return QString("Fast Scan from %1 to %2\nIntegration Time: %3").arg(startEnergy())
 			.arg(endEnergy())
 			.arg(runTime());
 }
 
-QString SGMFastScanConfiguration::element() const{
+QString SGMFastScanConfiguration2013::element() const{
 	return currentSettings_->element();
 }
 
-double SGMFastScanConfiguration::runTime() const{
+double SGMFastScanConfiguration2013::runTime() const{
 	return currentSettings_->runSeconds();
 }
 
-double SGMFastScanConfiguration::energyStart() const{
+double SGMFastScanConfiguration2013::energyStart() const{
 	return currentSettings_->energyStart();
 }
 
-double SGMFastScanConfiguration::energyMidpoint() const{
+double SGMFastScanConfiguration2013::energyMidpoint() const{
 	return currentSettings_->energyMidpoint();
 }
 
-double SGMFastScanConfiguration::energyEnd() const{
+double SGMFastScanConfiguration2013::energyEnd() const{
 	return currentSettings_->energyEnd();
 }
 
-int SGMFastScanConfiguration::velocity() const{
+int SGMFastScanConfiguration2013::velocity() const{
 	return currentSettings_->velocity();
 }
 
-int SGMFastScanConfiguration::velocityBase() const{
+int SGMFastScanConfiguration2013::velocityBase() const{
 	return currentSettings_->velocityBase();
 }
 
-int SGMFastScanConfiguration::acceleration() const{
+int SGMFastScanConfiguration2013::acceleration() const{
 	return currentSettings_->acceleration();
 }
 
-double SGMFastScanConfiguration::scalerTime() const{
+double SGMFastScanConfiguration2013::scalerTime() const{
 	return currentSettings_->scalerTime();
 }
 
-double SGMFastScanConfiguration::spacingParameter() const{
+double SGMFastScanConfiguration2013::spacingParameter() const{
 	return currentEnergyParameters_->spacingParameter();
 }
 
-double SGMFastScanConfiguration::c1Parameter() const{
+double SGMFastScanConfiguration2013::c1Parameter() const{
 	return currentEnergyParameters_->c1Parameter();
 }
 
-double SGMFastScanConfiguration::c2Parameter() const{
+double SGMFastScanConfiguration2013::c2Parameter() const{
 	return currentEnergyParameters_->c2Parameter();
 }
 
-double SGMFastScanConfiguration::sParameter() const{
+double SGMFastScanConfiguration2013::sParameter() const{
 	return currentEnergyParameters_->sParameter();
 }
 
-double SGMFastScanConfiguration::thetaParameter() const{
+double SGMFastScanConfiguration2013::thetaParameter() const{
 	return currentEnergyParameters_->thetaParameter();
 }
 
-int SGMFastScanConfiguration::baseLine() const{
+int SGMFastScanConfiguration2013::baseLine() const{
 	return currentSettings_->baseLine();
 }
 
-int SGMFastScanConfiguration::undulatorStartStep() const{
+int SGMFastScanConfiguration2013::undulatorStartStep() const{
 	return currentSettings_->undulatorStartStep();
 }
 
-int SGMFastScanConfiguration::undulatorVelocity() const{
+int SGMFastScanConfiguration2013::undulatorVelocity() const{
 	return currentSettings_->undulatorVelocity();
 }
 
-int SGMFastScanConfiguration::undulatorRelativeStep() const{
+int SGMFastScanConfiguration2013::undulatorRelativeStep() const{
 	return currentSettings_->undulatorRelativeStep();
 }
 
-double SGMFastScanConfiguration::exitSlitDistance() const{
+double SGMFastScanConfiguration2013::exitSlitDistance() const{
 	return currentSettings_->exitSlitDistance();
 }
 
-int SGMFastScanConfiguration::sgmGrating() const{
+int SGMFastScanConfiguration2013::sgmGrating() const{
 	return currentSettings_->sgmGrating();
 }
 
-QStringList SGMFastScanConfiguration::presets() const{
+QStringList SGMFastScanConfiguration2013::presets() const{
 	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 }
 
-SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
+SGMFastScanParameters* SGMFastScanConfiguration2013::currentParameters() const{
 	return currentSettings_;
 }
 
-SGMEnergyParameters* SGMFastScanConfiguration::currentEnergyParameters() const{
+SGMEnergyParameters* SGMFastScanConfiguration2013::currentEnergyParameters() const{
 	return currentEnergyParameters_;
 }
 
-QString SGMFastScanConfiguration::dbLoadWarnings() const{
+QString SGMFastScanConfiguration2013::dbLoadWarnings() const{
 	return dbLoadWarnings_;
 }
 
-bool SGMFastScanConfiguration::setParametersFromPreset(int index){
+bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 	if(index < 0 && index >= settings_.count())
 		return false;
 	return setParameters(settings_.at(index));
 }
 
-bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
+bool SGMFastScanConfiguration2013::setParameters(SGMFastScanParameters *settings){
 	if(!settings)
 		return false;
 	disconnect(currentSettings_, 0);
@@ -283,63 +225,63 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setElement(const QString& element){
+bool SGMFastScanConfiguration2013::setElement(const QString& element){
 	currentSettings_->setElement(element);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
+bool SGMFastScanConfiguration2013::setRunSeconds(double runSeconds){
 	currentSettings_->setRunSeconds(runSeconds);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
+bool SGMFastScanConfiguration2013::setEnergyStart(double energyStart){
 	currentSettings_->setEnergyStart(energyStart);
 	setStartEnergy(energyStart);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
+bool SGMFastScanConfiguration2013::setEnergyMidpoint(double energyMidpoint){
 	currentSettings_->setEnergyMidpoint(energyMidpoint);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setEnergyEnd(double energyEnd){
+bool SGMFastScanConfiguration2013::setEnergyEnd(double energyEnd){
 	currentSettings_->setEnergyEnd(energyEnd);
 	setEndEnergy(energyEnd);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setVelocity(int velocity){
+bool SGMFastScanConfiguration2013::setVelocity(int velocity){
 	currentSettings_->setVelocity(velocity);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setVelocityBase(int velocityBase){
+bool SGMFastScanConfiguration2013::setVelocityBase(int velocityBase){
 	currentSettings_->setVelocityBase(velocityBase);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setAcceleration(int acceleration){
+bool SGMFastScanConfiguration2013::setAcceleration(int acceleration){
 	currentSettings_->setAcceleration(acceleration);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
+bool SGMFastScanConfiguration2013::setScalerTime(double scalerTime){
 	currentSettings_->setScalerTime(scalerTime);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *parameters){
+bool SGMFastScanConfiguration2013::setEnergyParameters(SGMEnergyParameters *parameters){
 	if(!parameters)
 		return false;
 	if( !currentEnergyParameters_ || (*currentEnergyParameters_ != *parameters)){
@@ -354,7 +296,7 @@ bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *paramete
 	return true;
 }
 
-bool SGMFastScanConfiguration::setSpacingParameter(double spacingParameter){
+bool SGMFastScanConfiguration2013::setSpacingParameter(double spacingParameter){
 	if(currentEnergyParameters_->spacingParameter() != spacingParameter){
 		currentEnergyParameters_->setSpacingParameter(spacingParameter);
 		emit spacingParameterChanged(spacingParameter);
@@ -363,7 +305,7 @@ bool SGMFastScanConfiguration::setSpacingParameter(double spacingParameter){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setC1Parameter(double c1Parameter){
+bool SGMFastScanConfiguration2013::setC1Parameter(double c1Parameter){
 	if(currentEnergyParameters_->c1Parameter() != c1Parameter){
 		currentEnergyParameters_->setC1Parameter(c1Parameter);
 		emit c1ParameterChanged(c1Parameter);
@@ -372,7 +314,7 @@ bool SGMFastScanConfiguration::setC1Parameter(double c1Parameter){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setC2Parameter(double c2Parameter){
+bool SGMFastScanConfiguration2013::setC2Parameter(double c2Parameter){
 	if(currentEnergyParameters_->c2Parameter() != c2Parameter){
 		currentEnergyParameters_->setC2Parameter(c2Parameter);
 		emit c2ParameterChanged(c2Parameter);
@@ -381,7 +323,7 @@ bool SGMFastScanConfiguration::setC2Parameter(double c2Parameter){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setSParameter(double sParameter){
+bool SGMFastScanConfiguration2013::setSParameter(double sParameter){
 	if(currentEnergyParameters_->sParameter() != sParameter){
 		currentEnergyParameters_->setSParameter(sParameter);
 		emit sParameterChanged(sParameter);
@@ -390,7 +332,7 @@ bool SGMFastScanConfiguration::setSParameter(double sParameter){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
+bool SGMFastScanConfiguration2013::setThetaParameter(double thetaParameter){
 	if(currentEnergyParameters_->thetaParameter() != thetaParameter){
 		currentEnergyParameters_->setThetaParameter(thetaParameter);
 		emit thetaParameterChanged(thetaParameter);
@@ -399,53 +341,47 @@ bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setBaseLine(int baseLine){
+bool SGMFastScanConfiguration2013::setBaseLine(int baseLine){
 	currentSettings_->setBaseLine(baseLine);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setUndulatorStartStep(int undulatorStartStep){
+bool SGMFastScanConfiguration2013::setUndulatorStartStep(int undulatorStartStep){
 	currentSettings_->setUndulatorStartStep(undulatorStartStep);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setUndulatorVelocity(int undulatorVelocity){
+bool SGMFastScanConfiguration2013::setUndulatorVelocity(int undulatorVelocity){
 	currentSettings_->setUndulatorVelocity(undulatorVelocity);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setUndulatorRelativeStep(int undulatorRelativeStep){
+bool SGMFastScanConfiguration2013::setUndulatorRelativeStep(int undulatorRelativeStep){
 	currentSettings_->setUndulatorRelativeStep(undulatorRelativeStep);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setExitSlitDistance(double exitSlitDistance){
+bool SGMFastScanConfiguration2013::setExitSlitDistance(double exitSlitDistance){
 	currentSettings_->setExitSlitDistance(exitSlitDistance);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setSGMGrating(int sgmGrating){
+bool SGMFastScanConfiguration2013::setSGMGrating(int sgmGrating){
 	currentSettings_->setSGMGrating(sgmGrating);
 	setModified(true);
 	return true;
 }
 
-bool SGMFastScanConfiguration::setDetectorConfigurations(AMOldDetectorInfoSet detectorConfigurations) {
-	fastDetectorsConfigurations_ = detectorConfigurations;
-	setModified(true);
-	return true;
-}
-
-AMDbObject* SGMFastScanConfiguration::dbReadFastScanParameters(){
+AMDbObject* SGMFastScanConfiguration2013::dbReadFastScanParameters(){
 	return currentSettings_;
 }
 
-void SGMFastScanConfiguration::dbLoadFastScanParameters(AMDbObject *fastScanParameters){
+void SGMFastScanConfiguration2013::dbLoadFastScanParameters(AMDbObject *fastScanParameters){
 	SGMFastScanParameters *scanParameters = qobject_cast<SGMFastScanParameters*>(fastScanParameters);
 	if(scanParameters)
 		currentSettings_ = scanParameters;

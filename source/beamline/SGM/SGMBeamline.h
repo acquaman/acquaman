@@ -129,15 +129,17 @@ public:
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 	/// Returns the mirror selection feedback control (C or Si stripe)
-	AMControl *mirrorStripeSelection() const { return mirrorStripeSelection_;}
+	AMControl* mirrorStripeSelection() const { return mirrorStripeSelection_;}
 	/// Returns the mirror selection control for Carbon
-	AMControl *mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
+	AMControl* mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
 	/// Returns the mirror selection control for Silicon
-	AMControl *mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
+	AMControl* mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
 	/// Returns the undulator offset control (for detuning)
-	AMControl *undulatorOffset() const { return undulatorOffset_;}
+	AMControl* undulatorOffset() const { return undulatorOffset_;}
 	/// Returns the master dwell time for the synchronized dwell time application
-	AMControl *masterDwell() const { return masterDwell_;}
+	AMControl* masterDwell() const { return masterDwell_;}
+	/// Returns the relative step for the undulator
+	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -191,12 +193,14 @@ public:
 	AMDetector* newTFYDetector() const { return newTFYDetector_;}
 	AMDetector* newI0Detector() const { return newI0Detector_;}
 	AMDetector* newPDDetector() const { return newPDDetector_;}
+	AMDetector* newFilteredPD1Detector() const { return newFilteredPD1Detector_;}
+	AMDetector* newFilteredPD2Detector() const { return newFilteredPD2Detector_;}
+	AMDetector* newFilteredPD3Detector() const { return newFilteredPD3Detector_;}
+	AMDetector* newFilteredPD4Detector() const { return newFilteredPD4Detector_;}
 	AMDetector* newEncoderUpDetector() const { return newEncoderUpDetector_; }
 	AMDetector* newEncoderDownDetector() const { return newEncoderDownDetector_; }
 	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	AMDetector* gratingEncoderDetector() const { return gratingEncoderDetector_; }
-
-	AMDetector* fakeWaitReadDetector() const { return fakeWaitReadDetector_; }
 
 	bool isSDD1Enabled() const;
 	bool isSDD2Enabled() const;
@@ -205,6 +209,7 @@ public:
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
+	AMDetectorGroup *FastDetectorGroup() const { return FastDetectorGroup_;}
 
 	bool detectorConnectedByName(QString name);
 
@@ -364,6 +369,8 @@ protected:
 	AMControl *undulatorOffset_;
 	/// Control for the synchronized dwell time master dwell value
 	AMControl *masterDwell_;
+	/// Control for the relative step setpoint on the undulator gap motor
+	AMControl *undulatorRelativeStep_;
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;
@@ -386,16 +393,20 @@ protected:
 	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
-	CLSBasicScalerChannelDetector *newTFYDetector_;
-	CLSBasicScalerChannelDetector *newI0Detector_;
-	CLSBasicScalerChannelDetector *newPDDetector_;
+	CLSAdvancedScalerChannelDetector *newTFYDetector_;
+	CLSAdvancedScalerChannelDetector *newI0Detector_;
+	CLSAdvancedScalerChannelDetector *newPDDetector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD1Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD2Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD3Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD4Detector_;
 	CLSAdvancedScalerChannelDetector *newEncoderUpDetector_;
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMBasicControlDetectorEmulator *fakeWaitReadDetector_;
 	AMDetectorGroup *newDetectorSet_;
 	AMDetectorGroup *XASDetectorGroup_;
+	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
 	AMOldDetectorSet *criticalDetectorsSet_;

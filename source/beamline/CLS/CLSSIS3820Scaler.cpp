@@ -422,15 +422,12 @@ void CLSSIS3820Scaler::onConnectedChanged(){
 }
 
 void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
-	qDebug() << "Before the first sanity check";
 	if(!isConnected() || isScanning())
 		return;
 
-	qDebug() << "Starting scaler trigger source triggering tree";
 	readModeForTriggerSource_ = readMode;
 	//setScanning(true);
 	if(isContinuous()){
-		qDebug() << "Scaler trigger source needs to fix continuous";
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 		else
@@ -444,7 +441,6 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 }
 
 void CLSSIS3820Scaler::ensureCorrectReadModeForTriggerSource(){
-	qDebug() << "Scaler trigger source needs to fix mode settings";
 	if(readModeForTriggerSource_ == AMDetectorDefinitions::SingleRead){
 		connect(this, SIGNAL(dwellTimeChanged(double)), this, SLOT(onModeSwitchSignal()));
 		connect(this, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onModeSwitchSignal()));
@@ -479,14 +475,12 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 			disconnect(this, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onModeSwitchSignal()));
 			disconnect(this, SIGNAL(totalScansChanged(int)), this, SLOT(onModeSwitchSignal()));
 
-			qDebug() << "Done switching read modes for scaler trigger source";
 			triggerScalerAcquisition(isContinuous());
 		}
 	}
 }
 
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
-	qDebug() << "Scaler trigger source actually starting dwell";
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 	if(isContinuous)
 		return false;
@@ -496,6 +490,7 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 }
 
 void CLSSIS3820Scaler::onReadingChanged(double value){
+	Q_UNUSED(value)
 	emit readingChanged();
 	triggerSource_->setSucceeded();
 }
@@ -571,6 +566,22 @@ AMBeamlineActionItem* CLSSIS3820ScalerChannel::createEnableAction(bool setEnable
 		return 0; //NULL
 
 	action->setSetpoint(setEnabled == true ? 1 : 0);
+
+	return action;
+}
+
+AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = channelEnable_->toInfo();
+	setpoint.setValue(setEnabled == true ? 1 : 0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, channelEnable_);
+
+	if(!action)
+		return 0; //NULL
 
 	return action;
 }

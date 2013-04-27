@@ -35,6 +35,9 @@ protected slots:
 	virtual void onScalerScanningChanged(bool isScanning);
 	virtual void onReadingChanged();
 
+	void onScansPerBufferChanged(int scansPerBuffer);
+	void onTotalScansChanged(int totalScans);
+
 	bool triggerChannelAcquisition();
 
 	void onScalerConnectedConfirmReadMode(bool connected);

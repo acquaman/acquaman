@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorCleanupActionInfo.h"
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
+#include "actions3/actions/AMTimedWaitActionInfo3.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -115,6 +116,7 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMDetectorCleanupActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMTimedWaitActionInfo3>();
 
 	return true;
 }

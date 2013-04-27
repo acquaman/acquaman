@@ -28,7 +28,7 @@ SGMLookupTableCoordinator::SGMLookupTableCoordinator(const QString &inputControl
 	connectedOnce_ = false;
 	linkageActive_ = false;
 
-	lookupTableFullFileName_ = "/Users/fawkes/dev/acquaman/source/application/SGMLookupTableCoordinator/LookupValues.txt";
+	lookupTableFullFileName_ = "/home/sgm/beamline/programming/acquaman/source/application/SGMLookupTableCoordinator/LookupValues.txt";
 
 	inputControl_ = new AMReadOnlyPVControl("LookupInputControl", inputControlName, this);
 	inputControl_->setTolerance(0.01);

@@ -9,6 +9,10 @@
 #include "dataman/AMTextStream.h"
 
 #include "acquaman/AMXASScanConfigurationConverter.h"
+#include "actions3/AMActionRunner3.h"
+#include "application/AMAppControllerSupport.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
@@ -73,16 +77,65 @@ bool SGMXASScanActionController::isReadyForDeletion() const{
 	return !fileWriterIsBusy_;
 }
 
-#include "actions3/AMActionRunner3.h"
-#include "application/AMAppControllerSupport.h"
+void SGMXASScanActionController::onInitializationActionsListSucceeded(){
+	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+
+	setInitialized();
+}
+
+void SGMXASScanActionController::onInitializationActionsListFailed(){
+	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+
+	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+}
+
+void SGMXASScanActionController::onActionsTreeSucceeded(){
+	actionTreeSucceeded_ = true;
+	disconnect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	disconnect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+
+	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+}
+
+void SGMXASScanActionController::onActionsTreeFailed(){
+	disconnect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	disconnect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+
+	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+}
+
+void SGMXASScanActionController::onCleanupActionsListSucceeded(){
+	disconnect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	if(actionTreeSucceeded_)
+		setFinished();
+	else
+		setFailed();
+}
+
+void SGMXASScanActionController::onCleanupActionsListFailed(){
+	disconnect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	setFailed();
+}
+
 void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 	actionTree_ = actionTree;
 
 	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), actionTree_);
 	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), actionTree_))
 		return;
-
-	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
 }
 
 #include "ui/util/AMMessageBoxWTimeout.h"
@@ -124,29 +177,19 @@ void SGMXASScanActionController::onFileWriterIsBusy(bool isBusy){
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
-void SGMXASScanActionController::onScanFinished(){
-	// Will this wait for the actions in the scanActionRunner to finish?
-	/*
-	AMAction3 *cleanupActions = createCleanupActions();
-	connect(cleanupActions, SIGNAL(succeeded()), this, SLOT(setFinished()));
-	connect(cleanupActions, SIGNAL(failed()), this, SLOT(setFailed()));
-
-	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-	*/
-}
-
 bool SGMXASScanActionController::initializeImplementation(){
-	QTimer::singleShot(0, this, SLOT(setInitialized()));
+	AMAction3 *cleanupActions = createCleanupActions();
+	if(qobject_cast<AMListAction3*>(cleanupActions))
+		xasActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
 
-	/*
 	AMAction3 *initializationActions = createInitializationActions();
-	connect(initializationActions, SIGNAL(succeeded()), this, SLOT(setInitialized()));
-	connect(initializationActions, SIGNAL(failed()), this, SLOT(setFailed()));
+	if(qobject_cast<AMListAction3*>(initializationActions))
+		xasActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
 
-	AMActionRunner3::scanActionRunner()->addActionToQueue(initializationActions);
+	connect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	connect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsInitializationList_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-	*/
 
 	return true;
 }
@@ -159,6 +202,9 @@ bool SGMXASScanActionController::startImplementation(){
 				"Error, SGM XAS Scan Action Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
 		return false;
 	}
+	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
+	connect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	connect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
 	return AMScanActionController::startImplementation();
 }
 
@@ -181,8 +227,6 @@ bool SGMXASScanActionController::event(QEvent *e){
 			writeDataToFiles();
 			emit finishWritingToFile();
 			setFinished();
-			//onScanFinished();
-			//connect(AMActionRunner3::scanActionRunner(), SIGNAL(queuePausedChanged(bool)), this, SLOT(onScanFinished()));
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();
@@ -281,8 +325,6 @@ void SGMXASScanActionController::writeDataToFiles(){
 	emit requestWriteToFile(2, rank2String);
 }
 
-#include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMXASScanActionController::createInitializationActions(){
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
@@ -405,88 +447,4 @@ AMAction3* SGMXASScanActionController::createCleanupActions(){
 	cleanupActions->addSubAction(fastShutterAction);
 
 	return cleanupActions;
-}
-
-SGMXASScanActionControllerFileWriter::SGMXASScanActionControllerFileWriter(const QString &filePath, bool hasRank2Data, QObject *parent) :
-	QObject(parent)
-{
-	filePath_ = filePath;
-	hasRank2Data_ = hasRank2Data;
-
-	QFileInfo rank1FileInfo(filePath+".dat");
-	if(rank1FileInfo.exists())
-		emitError(SGMXASScanActionControllerFileWriter::AlreadyExistsError);
-
-	rank1File_ = new QFile(rank1FileInfo.filePath());
-	if(!rank1File_->open(QIODevice::WriteOnly | QIODevice::Text))
-		emitError(SGMXASScanActionControllerFileWriter::CouldNotOpenError);
-	else
-		QTimer::singleShot(0, this, SLOT(emitFileWriterIsBusy()));
-
-	rank2File_ = 0; //NULL
-	if(hasRank2Data_){
-		QFileInfo rank2FileInfo(filePath+"_spectra.dat");
-		if(rank2FileInfo.exists())
-			emitError(SGMXASScanActionControllerFileWriter::AlreadyExistsError);
-
-		rank2File_ = new QFile(rank2FileInfo.filePath());
-		if(!rank2File_->open(QIODevice::WriteOnly | QIODevice::Text))
-			emitError(SGMXASScanActionControllerFileWriter::CouldNotOpenError);
-	}
-}
-
-void SGMXASScanActionControllerFileWriter::writeToFile(int fileRank, const QString &textToWrite){
-	switch(fileRank){
-	case 1:{
-		/* Stress testing
-		QTime startTime = QTime::currentTime();
-		AMTextStream rank1Stream(rank1File_);
-		rank1Stream << textToWrite;
-		sleep(2);
-		QTime endTime = QTime::currentTime();
-		qDebug() << "Stream (1) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
-		*/
-
-		AMTextStream rank1Stream(rank1File_);
-		rank1Stream << textToWrite;
-		break;}
-	case 2:{
-		if(hasRank2Data_){
-			/* Stress testing
-			QTime startTime = QTime::currentTime();
-			AMTextStream rank2Stream(rank2File_);
-			rank2Stream << textToWrite;
-			sleep(2);
-			QTime endTime = QTime::currentTime();
-			qDebug() << "Stream (2) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
-			*/
-
-			AMTextStream rank2Stream(rank2File_);
-			rank2Stream << textToWrite;
-		}
-		break;}
-	default:
-		break;
-	}
-}
-
-void SGMXASScanActionControllerFileWriter::finishWriting(){
-	rank1File_->close();
-	if(hasRank2Data_)
-		rank2File_->close();
-	emit fileWriterIsBusy(false);
-}
-
-void SGMXASScanActionControllerFileWriter::emitError(SGMXASScanActionControllerFileWriter::FileWriterError error){
-	errorsList_.append(error);
-	QTimer::singleShot(0, this, SLOT(emitErrors()));
-}
-
-void SGMXASScanActionControllerFileWriter::emitErrors(){
-	while(errorsList_.count() > 0)
-		emit fileWriterError(errorsList_.takeFirst());
-}
-
-void SGMXASScanActionControllerFileWriter::emitFileWriterIsBusy(){
-	emit fileWriterIsBusy(true);
 }

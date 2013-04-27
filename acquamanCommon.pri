@@ -666,15 +666,17 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AM3DScanConfiguration.h \
 	source/dataman/AM3DScan.h \
 	source/dataman/AMTextStream.h \
-    source/ui/util/AMMessageBoxWTimeout.h \
-    source/beamline/CLS/CLSPGTDetectorV2.h \
-    source/beamline/CLS/CLSQE65000Detector.h \
-    source/actions3/actions/AMDetectorDwellTimeActionInfo.h \
-    source/actions3/actions/AMDetectorDwellTimeAction.h \
-    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
-    source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
-    source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
-    source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h
+	source/ui/util/AMMessageBoxWTimeout.h \
+	source/beamline/CLS/CLSPGTDetectorV2.h \
+	source/beamline/CLS/CLSQE65000Detector.h \
+	source/actions3/actions/AMDetectorDwellTimeActionInfo.h \
+	source/actions3/actions/AMDetectorDwellTimeAction.h \
+	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
+	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
+	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
+	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
+	source/actions3/actions/AMTimedWaitActionInfo3.h \
+	source/actions3/actions/AMTimedWaitAction3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1125,15 +1127,17 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
 	source/dataman/AM3DScan.cpp \
 	source/dataman/AMTextStream.cpp \
-    source/ui/util/AMMessageBoxWTimeout.cpp \
-    source/beamline/CLS/CLSPGTDetectorV2.cpp \
-    source/beamline/CLS/CLSQE65000Detector.cpp \
-    source/actions3/actions/AMDetectorDwellTimeActionInfo.cpp \
-    source/actions3/actions/AMDetectorDwellTimeAction.cpp \
-    source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \
-    source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
-    source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
-    source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp
+	source/ui/util/AMMessageBoxWTimeout.cpp \
+	source/beamline/CLS/CLSPGTDetectorV2.cpp \
+	source/beamline/CLS/CLSQE65000Detector.cpp \
+	source/actions3/actions/AMDetectorDwellTimeActionInfo.cpp \
+	source/actions3/actions/AMDetectorDwellTimeAction.cpp \
+	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \
+	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
+	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
+	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
+	source/actions3/actions/AMTimedWaitAction3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1157,23 +1161,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
