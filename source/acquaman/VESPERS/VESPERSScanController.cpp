@@ -36,14 +36,15 @@ void VESPERSScanController::buildBaseInitializationAction(double timeStep)
 		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(true));
 	else
 		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(false));
-	// CCD
+	// Roper CCD
 	if (config_->ccdDetector() == VESPERS::Roper)
 		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(true));
 	else
 		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(false));
 
+	// Pilatus CCD
 	if (config_->ccdDetector() == VESPERS::Pilatus)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(false));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(true));
 	else
 		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(false));
 
