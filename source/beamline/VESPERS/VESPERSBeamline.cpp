@@ -404,6 +404,7 @@ void VESPERSBeamline::setupSynchronizedDwellTime()
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
 	synchronizedDwellTime_->addElement(5);
+	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(synchronizedDwellTimeConnected(bool)));
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
@@ -563,6 +564,30 @@ void VESPERSBeamline::setupSynchronizedDwellTime()
 	temp->setWaitValue("");
 
 	synchronizedDwellTimeConfigurations_.append(temp);
+}
+
+void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
+{
+	if (connected){
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Scaler")
+			synchronizedDwellTime()->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "1-El Vortex")
+			synchronizedDwellTime()->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Roper CCD")
+			synchronizedDwellTime()->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Pilatus CCD")
+			synchronizedDwellTime()->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "4-El Vortex")
+			synchronizedDwellTime()->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Mar CCD")
+			synchronizedDwellTime()->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
+	}
 }
 
 CLSSynchronizedDwellTimeConfigurationInfo *VESPERSBeamline::synchronizedDwellTimeConfigurationByName(const QString &name) const

@@ -59,6 +59,15 @@ QStringList CLSSynchronizedDwellTime::keys() const{
 	return retVal;
 }
 
+CLSSynchronizedDwellTimeElement *CLSSynchronizedDwellTime::elementByName(const QString &name) const
+{
+	for (int i = 0, size = elements_.size(); i < size; i++)
+		if (elements_.at(i)->name() == name)
+			return elements_.at(i);
+
+	return 0;
+}
+
 AMDetectorTriggerSource* CLSSynchronizedDwellTime::triggerSource(){
 	return triggerSource_;
 }
@@ -175,7 +184,6 @@ void CLSSynchronizedDwellTime::triggerSynchronizedDwellTimeAcquisition(CLSSynchr
 	start();
 }
 
-#include <QDebug>
 void CLSSynchronizedDwellTime::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected() || isScanning())
 		return;
@@ -195,19 +203,19 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 	time_ = new AMSinglePVControl(QString("Dwell Element Time %1").arg(index), baseName+":set"+QChar(65+index), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
 	trigger_ = new AMProcessVariable(baseName+":start"+QChar(65+index)+".LNK2", true, this);
+	configuration_ = new CLSSynchronizedDwellTimeConfiguration(baseName, index, this);
 
 	connect(name_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(time_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(enable_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(status_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
-
 	connect(trigger_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
+	connect(configuration_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
 	connect(name_, SIGNAL(valueChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(time_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(enable_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 	connect(status_, SIGNAL(valueChanged(int)), this, SLOT(onStatusChanged(int)));
-
 	connect(trigger_, SIGNAL(valueChanged(QString)), this, SIGNAL(triggerChanged(QString)));
 }
 
@@ -257,6 +265,11 @@ AMAction3 *CLSSynchronizedDwellTimeElement::createEnableAction3(bool enable)
 	AMAction3 *action = new AMControlMoveAction3(actionInfo, enable_);
 
 	return action;
+}
+
+void CLSSynchronizedDwellTimeElement::configure(const CLSSynchronizedDwellTimeConfigurationInfo &info)
+{
+	configuration_->configure(info);
 }
 
 QString CLSSynchronizedDwellTimeElement::key() const{

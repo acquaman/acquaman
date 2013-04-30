@@ -25,6 +25,9 @@ public:
 	/// Constructor.  Requires the base name and element number.
 	CLSSynchronizedDwellTimeConfiguration(const QString &name, int number, QObject *parent = 0);
 
+	/// Returns whether the configuration is connected.
+	bool isConnected() const;
+
 	/// Returns the name of the element.
 	QString name() const { return name_->getString(); }
 	/// Returns the dwell time PV name.
@@ -61,6 +64,8 @@ public:
 	QString waitValue() const { return waitValue_->getString(); }
 
 signals:
+	/// Notifier that the configuration is fully connected.
+	void connected(bool);
 	/// Notifier that the name has changed.
 	void nameChanged();
 	/// Notifier that the dwell time PV name changed.
@@ -132,7 +137,17 @@ public slots:
 	/// Sets the wait value.
 	void setWaitValue(const QString &value);
 
+	/// Convenience method that sets every aspect of a scan configuration based on the passed in CLSSynchronizedDwellTimeConfigurationInfo.
+	void configure(const CLSSynchronizedDwellTimeConfigurationInfo &info);
+
+protected slots:
+	/// Handles the connectivity of the configuration.
+	void onConnectedChanged();
+
 protected:
+	/// Flag holding the current state of connectivity.
+	bool connected_;
+
 	/// The name of the element.
 	AMProcessVariable *name_;
 	/// The dwell time PV name.

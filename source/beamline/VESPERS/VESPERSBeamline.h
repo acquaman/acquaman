@@ -543,6 +543,8 @@ protected slots:
 	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
+	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
+	void synchronizedDwellTimeConnected(bool connected);
 
 	/// Helper slot that handles opening the next valve.
 	void openAllValvesHelper();

@@ -252,6 +252,9 @@ void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
 		else if (config_->ccdDetector() == VESPERS::Mar)
 			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
 
+		else if (config_->ccdDetector() == VESPERS::Pilatus)
+			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
@@ -265,12 +268,15 @@ void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &n
 	if (config_->ccdDetector() == VESPERS::Roper){
 
 		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
-		path.replace("Y:\\", "/mnt/aurora/");
+		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
 		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
 
@@ -343,6 +349,9 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
 			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+
+		else if (config_->ccdDetector() == VESPERS::Pilatus)
+			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
 
 		config_->setCCDFileName(name);
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));

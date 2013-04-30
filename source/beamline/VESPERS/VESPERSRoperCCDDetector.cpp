@@ -59,7 +59,7 @@ void VESPERSRoperQRunnableImageLoader::run()
 	int size = size_;
 //	QString fileName = fileName_;
 //	QFile file(fileName);
-	QFile file("/mnt/aurora/ccd-calib/mar2013/si50.SPE");
+	QFile file("/nas/vespers/ccd-calib/mar2013/si50.SPE");
 
 	if (!file.open(QFile::ReadOnly))
 		return;

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "dataman/info/AMDetectorInfo.h"
 #include "dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h"
+#include "beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h"
 
 class AMDetectorTriggerSource;
 class AMAction3;
@@ -60,10 +61,13 @@ public:
 	/// Returns whether the dwell element is enabled.
 	bool isEnabled() const { return ((int)enable_->value()) == 1; }
 	/// Returns whether all the controls are connected.
-	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
+	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected() && configuration_->isConnected(); }
 
 	/// Returns the trigger string, which acts as the key for identifying elements
 	virtual QString key() const;
+
+	/// Configures the element based on the provided configuration info.
+	void configure(const CLSSynchronizedDwellTimeConfigurationInfo &info);
 
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createTimeAction(double time);
@@ -112,6 +116,8 @@ protected:
 	AMControl *time_;
 	/// The process variable that holds the trigger string (for key identification)
 	AMProcessVariable *trigger_;
+	/// The configuration of this element.
+	CLSSynchronizedDwellTimeConfiguration *configuration_;
 };
 
 /*!
@@ -182,6 +188,8 @@ public:
 	void addElement(int index);
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
+	/// Returns the element based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeElement *elementByName(const QString &name) const;
 
 	/// Returns the trigger source for the whole synchronized dwell time object
 	virtual AMDetectorTriggerSource* triggerSource();
