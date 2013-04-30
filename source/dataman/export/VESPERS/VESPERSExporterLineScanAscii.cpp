@@ -140,6 +140,12 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 			ccdString = ccdFileName % "_%1.tif";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 		}
+
+		else if (config->ccdDetector() == VESPERS::Pilatus){
+
+			ccdString = ccdFileName % "%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+		}
 	}
 
 	else if (energyConfig){
@@ -156,6 +162,12 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 		else if (energyConfig->ccdDetector() == VESPERS::Mar){
 
 			ccdString = ccdFileName % "_%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+		}
+
+		else if (config->ccdDetector() == VESPERS::Pilatus){
+
+			ccdString = ccdFileName % "%1.tif";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 		}
 	}
