@@ -50,16 +50,16 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
-	QPushButton *loadCCDButton = new QPushButton("Load Image");
+//	QPushButton *loadCCDButton = new QPushButton("Load Image");
 //	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
-	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
+//	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
 
-	image_ = new QLabel;
-	QPixmap pixmap = QPixmap(600, 600);
-	pixmap.fill(Qt::blue);
-	image_->setPixmap(pixmap);
+//	image_ = new QLabel;
+//	QPixmap pixmap = QPixmap(600, 600);
+//	pixmap.fill(Qt::blue);
+//	image_->setPixmap(pixmap);
 //	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFile()));
-	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
+//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -157,7 +157,7 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
 	acquisitionAndTemperatureLayout->addStretch();
 
-	QHBoxLayout *detectorLayout = new QHBoxLayout;
+	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addStretch();
 	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
 	detectorLayout->addWidget(ccdGB);
@@ -171,8 +171,9 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
-	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
-	masterLayout->addWidget(loadCCDButton);
+//	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
+//	masterLayout->addWidget(loadCCDButton);
+//	masterLayout->addLayout(horizontalSquishLayout);
 	masterLayout->addLayout(horizontalSquishLayout);
 	masterLayout->addStretch();
 

@@ -240,8 +240,8 @@ void VESPERSAppController::setupUserInterface()
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
-	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
-	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
+//	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
+//	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
@@ -290,7 +290,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
+//	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
