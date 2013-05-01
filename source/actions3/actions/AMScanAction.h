@@ -35,6 +35,7 @@ class AMScanController;
 #define AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION 103109
 #define AMSCANACTION_DATABASE_NOT_FOUND 103110
 #define AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT 103111
+#define AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO 103112
 
 class AMScanAction : public AMAction3
 {
@@ -54,6 +55,9 @@ public:
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
 
+	virtual bool isValid();
+	virtual QString notValidWarning();
+
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
 	/// Pure virtual function that denotes that this action has children underneath it or not.
@@ -67,6 +71,9 @@ public:
 	virtual bool canSkip() const;
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
+
+public slots:
+	virtual void scheduleForDeletion();
 
 protected slots:
 
@@ -87,6 +94,8 @@ protected slots:
 	void onControllerProgressChanged(double elapsed, double total);
 	/// Helper slot that updates the status text when the controller changes state.
 	void onControllerStateChanged();
+
+	void onReadyForDeletionChanged(bool isReady);
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().

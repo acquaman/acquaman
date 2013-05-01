@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationWizard.h"
 
-SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, const AMDetectorInfoSet& cfgDetectorInfoSet, QWidget *parent) :
+SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, const AMOldDetectorInfoSet& cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
 	Q_UNUSED(cfgDetectorInfoSet)
@@ -43,7 +43,7 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfigura
 												  "Enable or Disable Energy Tracking for Your Scan",
 												  "By unchecking the boxes below, you will disable the energy tracking of each element. "
 												  "Normally, all of these devices track energy; however, certain scan types and certain energy regions can operate without tracking for increased stability.");
-		AMDetectorInfoSet detectorChoiceConfigurations = cfg_->detectorChoiceConfigurations();
+		AMOldDetectorInfoSet detectorChoiceConfigurations = cfg_->detectorChoiceConfigurations();
 		detectorsPage = new AMDetectorSetWizardPage(cfg_->detectorChoices(), &detectorChoiceConfigurations,
 													"Choose which Detectors Your Scan will Collect Data From",
 													"Checking the boxes below will enable each detector for this scan. "
@@ -193,12 +193,12 @@ void AMControlSetWizardPage::resizeEvent(QResizeEvent *e){
 	QWizardPage::resizeEvent(e);
 }
 
-AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
+AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMOldDetectorSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
 		QWizardPage(parent)
 {
 	Q_UNUSED(cfgDetectorInfoSet)
 	detectorSet_ = detectorSet;
-	detectorView_ = new AMDetectorSetView(detectorSet, true);
+	detectorView_ = new AMOldDetectorSetView(detectorSet, true);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);

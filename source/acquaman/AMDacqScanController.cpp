@@ -171,13 +171,13 @@ void AMDacqScanController::cancelImplementation()
 	advAcq_->Stop();
 }
 
-int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod){
+int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMOldDetector::ReadMethod readMethod){
 	switch(readMethod){
-	case AMDetector::ImmediateRead :
+	case AMOldDetector::ImmediateRead :
 		return 0;
-	case AMDetector::RequestRead :
+	case AMOldDetector::RequestRead :
 		return 1;
-	case AMDetector::WaitRead :
+	case AMOldDetector::WaitRead :
 		return 2;
 	default:
 		return 0;

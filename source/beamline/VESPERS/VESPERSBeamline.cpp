@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
+	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -171,19 +172,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.01);
-	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.01);
-	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.01);
+	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
-	pseudoSampleStage_->setXRange(-700000, 700000);
-	pseudoSampleStage_->setYRange(-200000, 200000);
-	pseudoSampleStage_->setZRange(-200000, 200000);
+	pseudoSampleStage_->setXRange(-1700000, 1700000);
+	pseudoSampleStage_->setYRange(-1200000, 1200000);
+	pseudoSampleStage_->setZRange(-1200000, 1200000);
 
 	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageZ_, sampleStageY_, this);
-	realSampleStage_->setXRange(-700000, 700000);
-	realSampleStage_->setYRange(-200000, 200000);
-	realSampleStage_->setZRange(-200000, 200000);
+	realSampleStage_->setXRange(-1700000, 1700000);
+	realSampleStage_->setYRange(-1200000, 1200000);
+	realSampleStage_->setZRange(-1200000, 1200000);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -200,6 +201,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
+	pseudoWireStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
+	pseudoWireStage_->setXRange(-1700000, 1700000);
+	pseudoWireStage_->setYRange(-1200000, 1200000);
+	pseudoWireStage_->setZRange(-1200000, 1200000);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -214,7 +228,7 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_ = new AMOldDetectorSet(this);
 
 	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
 	tempSplit->setVoltagRange(1.0, 4.5);
@@ -243,7 +257,8 @@ void VESPERSBeamline::setupDetectors()
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Camera", this);
-	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera.", this);
+	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
+	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -380,7 +395,7 @@ void VESPERSBeamline::setupMono()
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
 }
 
-void VESPERSBeamline::setupComponents()
+void VESPERSBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1607-B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
@@ -389,11 +404,203 @@ void VESPERSBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
 	synchronizedDwellTime_->addElement(5);
+	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(synchronizedDwellTimeConnected(bool)));
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
 	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
+	// Setting up all of the configurations for the synchronized dwell time.
+	// The scaler.
+	CLSSynchronizedDwellTimeConfigurationInfo *temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Scaler");
+	temp->setDwellTimePV("BL1607-B2-1:mcs:delay PP NMS");
+	temp->setScale("1000");
+	temp->setOffset("0");
+	temp->setUnits("ms");
+	temp->setModePV("BL1607-B2-1:mcs:continuous PP NMS");
+	temp->setSingleShot("0");
+	temp->setContinuous("1");
+	temp->setTriggerPV("BL1607-B2-1:mcs:startScan NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("BL1607-B2-1:mcs:startScan CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The single element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("1-El Vortex");
+	temp->setDwellTimePV("IOC1607-004:mca1.PRTM PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("IOC1607-004:mca1Read.SCAN PP NMS");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("IOC1607-004:mca1EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("IOC1607-004:mca1.ACQG CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Roper CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Roper CCD");
+	temp->setDwellTimePV("IOC1607-003:det1.AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("DIO1607-01:CCD:ExtSync NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("CCD1607-001:extTrig:status CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The picoammeters.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Picoammeters");
+	temp->setDwellTimePV("A2607:integ_interval PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("A2607:configure");
+	temp->setSingleShot("1");
+	temp->setContinuous("2");
+	temp->setTriggerPV("A2607:start_read NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("A2607:start_read CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The four element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("4-El Vortex");
+	temp->setDwellTimePV("dxp1607-B21-04:PresetReal PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("dxp1607-B21-04:EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("dxp1607-B21-04:Acquiring CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Mar CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Mar CCD");
+	temp->setDwellTimePV("ccd1607-002:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("ccd1607-002:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("ccd1607-002:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Pilatus pixel array detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Pilatus CCD");
+	temp->setDwellTimePV("PAD1607-B21-05:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("PAD1607-B21-05:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("PAD1607-B21-05:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+}
+
+void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
+{
+	if (connected){
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Scaler")
+			synchronizedDwellTime()->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "1-El Vortex")
+			synchronizedDwellTime()->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Roper CCD")
+			synchronizedDwellTime()->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Pilatus CCD")
+			synchronizedDwellTime()->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "4-El Vortex")
+			synchronizedDwellTime()->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Mar CCD")
+			synchronizedDwellTime()->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
+	}
+}
+
+CLSSynchronizedDwellTimeConfigurationInfo *VESPERSBeamline::synchronizedDwellTimeConfigurationByName(const QString &name) const
+{
+	for (int i = 0, size = synchronizedDwellTimeConfigurations_.size(); i < size; i++)
+		if (synchronizedDwellTimeConfigurations_.at(i)->name() == name)
+			return synchronizedDwellTimeConfigurations_.at(i);
+
+	return 0;
+}
+
+void VESPERSBeamline::setupComponents()
+{
 	beamPositions_.insert(VESPERS::Pink, 0);
 	beamPositions_.insert(VESPERS::TenPercent, -12.5);
 	beamPositions_.insert(VESPERS::Si, -17.5);
@@ -420,6 +627,10 @@ void VESPERSBeamline::setupExposedControls()
 {
 	addExposedControl(pseudoSampleStage()->horiz());
 	addExposedControl(pseudoSampleStage()->vert());
+	addExposedControl(pseudoSampleStage()->norm());
+	addExposedControl(realSampleStage()->horiz());
+	addExposedControl(realSampleStage()->vert());
+	addExposedControl(realSampleStage()->norm());
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSSampleStageControl.h"
@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
@@ -72,41 +73,45 @@ public:
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMDetector *vortexAM1E() const { return vortex1E_; }
+	AMOldDetector *vortexAM1E() const { return vortex1E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
 	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMDetector *vortexAM4E() const { return vortex4E_; }
+	AMOldDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMDetector *roperCCDDetector() const { return roperCCD_; }
+	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
 	/// Returns a general AMDetector pointer of the Mar CCD.
-	AMDetector *marCCDDetector() const { return marCCD_; }
+	AMOldDetector *marCCDDetector() const { return marCCD_; }
 	/// Returns the specific pointer to the Mar CCD.
 	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+	/// Returns a general AMDetector pointer of the Pilatus CCD.
+	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	/// Returns the specific pointer to the Pilatus CCD.
+	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplitDetector() const { return iSplit_; }
+	AMOldDetector *iSplitDetector() const { return iSplit_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMiniDetector() const { return iMini_; }
+	AMOldDetector *iMiniDetector() const { return iMini_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPostDetector() const { return iPost_; }
+	AMOldDetector *iPostDetector() const { return iPost_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
-	AMDetectorSet *ionChambers() const { return ionChambers_; }
+	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
 
@@ -125,6 +130,12 @@ public:
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	/// Returns the synchronized dwell time configuration info's list.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
+	/// Returns a synchronized dwell time configuration info from the index provided.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationAt(int index) const { return synchronizedDwellTimeConfigurations_.at(index); }
+	/// Returns the synchronized dwell time configuration info based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationByName(const QString &name) const;
 
 	// End of synchronized dwell time.
 
@@ -403,6 +414,12 @@ public:
 	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
 	/// Returns the normal motor control.
 	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
+	/// Returns the horizontal wire stage control.
+	AMControl *wireStageHorizontal() const { return wireStageHorizontal_; }
+	/// Returns the vertical wire stage control.
+	AMControl *wireStageVertical() const { return wireStageVertical_; }
+	/// Returns the normal wire motor control.
+	AMControl *wireStageNormal() const { return wireStageNormal_; }
 
 	// Real motors.
 	/// Returns the sample stage motor in the x-direction.
@@ -417,6 +434,8 @@ public:
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
 	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
+	/// Returns the wire stage control built with the pseudo-motors.
+	VESPERSSampleStageControl *pseudoWireStage() const { return pseudoWireStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -524,6 +543,8 @@ protected slots:
 	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
+	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
+	void synchronizedDwellTimeConnected(bool connected);
 
 	/// Helper slot that handles opening the next valve.
 	void openAllValvesHelper();
@@ -531,6 +552,8 @@ protected slots:
 	void closeAllValvesHelper();
 
 protected:
+	/// Sets up the synchronized dwell time.
+	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -554,19 +577,20 @@ protected:
 	VESPERSBeamline();
 
 	// Detectors.
-	AMDetector *vortex1E_;
-	AMDetector *vortex4E_;
-	AMDetector *roperCCD_;
-	AMDetector *marCCD_;
-	AMDetector *iSplit_;
-	AMDetector *iPreKB_;
-	AMDetector *iMini_;
-	AMDetector *iPost_;
+	AMOldDetector *vortex1E_;
+	AMOldDetector *vortex4E_;
+	AMOldDetector *roperCCD_;
+	AMOldDetector *marCCD_;
+	AMOldDetector *pilatusCCD_;
+	AMOldDetector *iSplit_;
+	AMOldDetector *iPreKB_;
+	AMOldDetector *iMini_;
+	AMOldDetector *iPost_;
 
 	// End detectors.
 
 	// Detector sets.
-	AMDetectorSet *ionChambers_;
+	AMOldDetectorSet *ionChambers_;
 
 	// End detector sets.
 
@@ -578,6 +602,8 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+	// List of all the various synchronized dwell time configurations.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations_;
 
 	// Variable integration time.
 	CLSVariableIntegrationTime *variableIntegrationTime_;
@@ -738,6 +764,10 @@ protected:
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
 
+	AMControl *wireStageHorizontal_;
+	AMControl *wireStageVertical_;
+	AMControl *wireStageNormal_;
+
 	// Physical motors.
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
@@ -746,6 +776,7 @@ protected:
 	// The sample stage encapsulation.
 	VESPERSSampleStageControl *pseudoSampleStage_;
 	VESPERSSampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoWireStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

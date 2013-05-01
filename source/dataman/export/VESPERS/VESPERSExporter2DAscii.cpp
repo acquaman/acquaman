@@ -167,6 +167,19 @@ void VESPERSExporter2DAscii::writeMainTable()
 	int yRange = currentScan_->scanSize(1);
 	int xRange = currentScan_->scanSize(0);
 
+	QString ccdString;
+
+	if (config->ccdDetector() == VESPERS::Roper)
+		ccdString = ccdFileName % "_%1.spe";
+
+	else if (config->ccdDetector() == VESPERS::Mar)
+		ccdString = ccdFileName % "_%1.tif";
+
+	else if (config->ccdDetector() == VESPERS::Pilatus)
+		ccdString = ccdFileName % "%1.tif";
+	else
+		ccdString = "";
+
 	for(int y = 0; y < yRange; y++) {
 
 		for (int x = 0; x < xRange; x++){
@@ -176,22 +189,18 @@ void VESPERSExporter2DAscii::writeMainTable()
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-				bool doPrint = (ds->size(0) > y);
-
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
-					if(doPrint)
-						ts << ds->axisValue(0, x).toString();
-					ts << option_->columnDelimiter();
 
-					if (doPrint)
-						ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(0, x).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, y).toString();
 					ts << option_->columnDelimiter();
 				}
 
-				if(doPrint && c == indexOfCCDName)
-					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
-				else if (doPrint)
+				if(c == indexOfCCDName)
+					ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+				else
 					ts << ds->value(AMnDIndex(x, y)).toString();
 
 				ts << option_->columnDelimiter();

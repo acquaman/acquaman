@@ -136,7 +136,7 @@ bool SGMXASDacqScanController::startImplementation(){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE,
-				"Error, SGM XAS DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
+				"Error, SGM XAS DACQ Scan Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
 		return false;
 	}
 
@@ -164,7 +164,7 @@ bool SGMXASDacqScanController::startImplementation(){
 
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
-			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
+			AMOldDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
 			if(!dtctr->dacqBegin().isEmpty())
 				allBeginStage.append(dtctr->dacqBegin());
 			if(!dtctr->dacqMove().isEmpty())
@@ -287,7 +287,7 @@ bool SGMXASDacqScanController::startImplementation(){
 
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
-			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
+			AMOldDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
 //			qdebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));

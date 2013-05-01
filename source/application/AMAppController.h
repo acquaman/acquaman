@@ -93,6 +93,7 @@ protected:
 
 	/// Re-implementing the build bottom bar method to use the bottom bar built for the app controller that includes a mini workflow view.
 	virtual void addBottomPanel();
+
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);
 
@@ -106,6 +107,7 @@ protected:
 
 	/// Top-level panes in the main window
 	AMWorkflowView3* workflowView_;
+	AMWorkflowView3 *scanActionRunnerView_;
 	/// Flag holding whether the AMGenericScanEditor's automatically are switched to when they have a running scan.  The default is true.
 	bool automaticBringScanEditorToFrontWithRunningScans_;
 };

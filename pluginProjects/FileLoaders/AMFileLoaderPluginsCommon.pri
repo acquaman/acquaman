@@ -150,7 +150,10 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
-		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h
+		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
+		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.h \
+		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.h \
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
@@ -183,6 +186,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
-		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp
-
-
+		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \
+		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.cpp \
+		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp

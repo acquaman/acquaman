@@ -33,7 +33,6 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 	: AMDacqScanController(cfg, parent), VESPERSScanController(cfg)
 {
 	config_ = cfg;
-	config_->setUserScanName(config_->name());
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = config_->totalTime();
@@ -48,7 +47,6 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-//	scan_->setFileFormat("vespers2012Energy");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -59,7 +57,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	scan_->setNotes(buildNotes());
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 	AMMeasurementInfo temp = AMMeasurementInfo("", "");
 
 	for (int i = 0; i < ionChambers->count(); i++){
@@ -78,7 +76,7 @@ void VESPERSEnergyDacqScanController::addExtraDatasources()
 {
 	addStandardMeasurements(scan_, true, false);
 
-	if (config_->ccdDetector() == VESPERS::Roper || config_->ccdDetector() == VESPERS::Mar){
+	if (config_->ccdDetector() != VESPERS::NoCCD){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -90,19 +88,61 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	buildBaseInitializationAction(config_->regionTime(0));
 	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	// Third stage.
+	// Third stage.  Changing the name and number of the CCD.
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
+		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+
+		if (name != config_->ccdFileName())
+			config_->setCCDFileName(name);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	else if (config_->ccdDetector() == VESPERS::Mar){
+
+		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
+		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+
+		if (name != config_->ccdFileName())
+			config_->setCCDFileName(name);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus){
+
+		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
+		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+
+		if (name != config_->ccdFileName())
+			config_->setCCDFileName(name);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	// Fourth stage.
 	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
@@ -149,6 +189,17 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 					"Error, VESPERS Energy DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 			return false;
 		}
+		break;
+
+	case VESPERS::Pilatus:
+		if (!setupPilatusScan()){
+
+			AMErrorMon::alert(this,
+					VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS Energy DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+			return false;
+		}
+
 		break;
 
 	default:
@@ -261,8 +312,6 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 
 	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
-//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/EnergyScan-Roper.cfg"));
-
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
 				VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
@@ -273,14 +322,14 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	addStandardExtraPVs(advAcq_, true, false);
 
-	advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
 	return loadSuccess;
 }
@@ -305,14 +354,46 @@ bool VESPERSEnergyDacqScanController::setupMarScan()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	addStandardExtraPVs(advAcq_, true, false);
 
-	advAcq_->appendRecord("ccd1607-002:cam1:FileNumber", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	return loadSuccess;
+}
+
+bool VESPERSEnergyDacqScanController::setupPilatusScan()
+{
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setPilatusCCD(true);
+	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
+	builder.buildConfigurationFile();
+
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::alert(this,
+				VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+		return false;
+	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	addStandardExtraPVs(advAcq_, true, false);
+
+	advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
 
 	return loadSuccess;
 }

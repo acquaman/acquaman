@@ -21,11 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMIonChamber.h"
 
 AMIonChamber::AMIonChamber(const QString &name, const QString &description, QObject *parent)
-	: AMIonChamberInfo(name, description, parent), AMDetector(name, AMDetector::RequestRead)
+	: AMIonChamberInfo(name, description, parent), AMOldDetector(name, AMOldDetector::RequestRead)
 {
 }
 
-bool AMIonChamber::setFromInfo(const AMDetectorInfo *info)
+bool AMIonChamber::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const AMIonChamberInfo *ionChamberInfo = qobject_cast<const AMIonChamberInfo *>(info);
 

@@ -34,9 +34,9 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
@@ -72,7 +72,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++)
@@ -87,8 +87,8 @@ const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
-	AMDetectorInfoSet allConfigurations;
+AMOldDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
+	AMOldDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
 	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
@@ -157,7 +157,7 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
 			harmonic = fluxResolutionGroup_.at(x).value();
 	}
-	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
+	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic)));
 }
 
 QString SGMXASScanConfiguration::dbLoadWarnings() const{
@@ -186,8 +186,8 @@ bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 
 bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionList){
 	double oldExitSlit = exitSlitGap_;
-	SGMBeamline::sgmGrating oldGrating = grating_;
-	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
+	SGMBeamlineInfo::sgmGrating oldGrating = grating_;
+	SGMBeamlineInfo::sgmHarmonic oldHarmonic = harmonic_;
 
 	bool rVal = SGMScanConfiguration::setFluxResolutionGroup(fluxResolutionList);
 	if(rVal){
@@ -252,8 +252,8 @@ bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	return rVal;
 }
 
-bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
-	SGMBeamline::sgmGrating oldGrating = grating_;
+bool SGMXASScanConfiguration::setGrating(SGMBeamlineInfo::sgmGrating grating) {
+	SGMBeamlineInfo::sgmGrating oldGrating = grating_;
 	bool rVal = SGMScanConfiguration::setGrating(grating);
 	if(rVal && oldGrating != grating_){
 		emit gratingChanged(grating);
@@ -265,11 +265,11 @@ bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
 }
 
 bool SGMXASScanConfiguration::setGrating(int grating) {
-	return setGrating( (SGMBeamline::sgmGrating)grating );
+	return setGrating( (SGMBeamlineInfo::sgmGrating)grating );
 }
 
-bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
-	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
+bool SGMXASScanConfiguration::setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic) {
+	SGMBeamlineInfo::sgmHarmonic oldHarmonic = harmonic_;
 	bool rVal = SGMScanConfiguration::setHarmonic(harmonic);
 	if(rVal && oldHarmonic != harmonic_){
 		emit harmonicChanged(harmonic);
@@ -281,16 +281,16 @@ bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
 }
 
 bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
-	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
+	return setHarmonic( (SGMBeamlineInfo::sgmHarmonic)harmonic );
 }
 
-bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
+bool SGMXASScanConfiguration::setDetectorConfigurations(const AMOldDetectorInfoSet &xasDetectorsCfg){
 	xasDetectorsCfg_ = xasDetectorsCfg;
 	setModified(true);
 	return true;
 }
 
-void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+void SGMXASScanConfiguration::detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
 }

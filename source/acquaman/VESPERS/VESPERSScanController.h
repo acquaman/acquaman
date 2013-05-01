@@ -62,6 +62,9 @@ protected:
 	/// Helper method that adds the measurements and raw data sources for the spectra.
 	void addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
 
+	/// Helper method that checks the \param name provided for the CCD in \param path for uniqueness.  If it is unique it returns the provided string, otherwise it creates a unique "-xxx" to the end until a valid name is found.
+	QString getUniqueCCDName(const QString &path, const QString &name) const;
+
 	/// Helper method that builds the standard set of notes added to every dacq scan.
 	QString buildNotes();
 

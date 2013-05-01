@@ -35,7 +35,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 
-	setCCDDetector(VESPERS::Roper);
+	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("");
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);

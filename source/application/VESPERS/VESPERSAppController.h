@@ -27,8 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
-class VESPERSRoperCCDDetectorView;
-class VESPERSMarCCDDetectorView;
+class VESPERSCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
@@ -43,6 +42,8 @@ class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
 class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
+class VESPERS3DScanConfiguration;
+class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 
 class VESPERSAppController : public AMAppController {
@@ -53,7 +54,7 @@ public:
 	explicit VESPERSAppController(QObject* parent = 0);
 
 	/// Destructor
-	virtual ~VESPERSAppController() {}
+	virtual ~VESPERSAppController() { cleanMoveImmediatelyAction(); }
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -101,6 +102,8 @@ protected:
 	void setupEnergyScan(const AMGenericScanEditor *editor);
 	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
 	void setup2DXRFScan(const AMGenericScanEditor *editor);
+	/// Sets up and moves the motors based on the "Go to immediately" action from a 2D map.
+	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
 
@@ -123,9 +126,11 @@ protected:
 	/// XRF free run view for the four element detector.
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
 	/// Roper CCD detector view.
-	VESPERSRoperCCDDetectorView *roperCCDView_;
+	VESPERSCCDDetectorView *roperCCDView_;
 	/// Mar CCD detector view.
-	VESPERSMarCCDDetectorView *marCCDView_;
+	VESPERSCCDDetectorView *marCCDView_;
+	/// Pilatus CCD detector view.
+	VESPERSCCDDetectorView *pilatusCCDView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
@@ -140,6 +145,13 @@ protected:
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
 	/// The (new) holder for the 2D scan configuration.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
+
+	/// Pointer to the 3D scan configuration.
+	VESPERS3DScanConfiguration *map3DScanConfiguration_;
+	/// The 3D scan configuration view.
+	VESPERS3DScanConfigurationView *map3DScanConfigurationView_;
+	/// The (new) holder for the 3D scan configuration.
+	AMScanConfigurationViewHolder3 *map3DScanConfigurationViewHolder3_;
 
 	/// The line scan configuration.
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;

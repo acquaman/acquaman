@@ -164,7 +164,7 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
-bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
+bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
 		AMActionLog3 actionLog(uncompletedAction);
 		actionLog.setParentId(parentLogId);
@@ -204,7 +204,7 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 	}
 }
 
-bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, int parentLogId, AMDatabase *database){
+bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database, int parentLogId){
 	if(completedAction && completedAction->inFinalState()) {
 		AMActionLog3 actionLog(completedAction);
 		actionLog.setParentId(parentLogId);

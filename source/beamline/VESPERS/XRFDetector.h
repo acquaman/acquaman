@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define XRFDETECTOR_H
 
 #include "dataman/VESPERS/XRFDetectorInfo.h"
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTimer>
 
-class XRFDetector : public XRFDetectorInfo, public AMDetector
+class XRFDetector : public XRFDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 public:
@@ -56,11 +56,11 @@ public:
 	virtual QString description() const { return XRFDetectorInfo::description(); }
 
 	/// Transforms current settings into a detector into. Returns a new instance-- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
 	/// Transforms current settings into a detector info.
 	XRFDetectorInfo toXRFInfo() const { return XRFDetectorInfo(*this); }
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromXRFInfo(const XRFDetectorInfo &info);
 

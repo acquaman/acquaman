@@ -33,9 +33,9 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 	double _maximum = 0;
 	double _minimum = 1;
 	double _slit = stateParameters.at(0).toDouble();
-	SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
-	SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
-	if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
+	SGMBeamlineInfo::sgmGrating _grating = (SGMBeamlineInfo::sgmGrating)stateParameters.at(1).toInt();
+	SGMBeamlineInfo::sgmHarmonic _harmonic = (SGMBeamlineInfo::sgmHarmonic)stateParameters.at(2).toInt();
+	if(!SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
 	{
 	}
 	else if((_harmonic == 3) && (_grating == 2)){
@@ -46,19 +46,19 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 		_minimum = 1100;
 	}
 	else{
-		if( (_grating == 0) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		if( (_grating == 0) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_maxflux = 5.75;
 			_minflux = 0.5;
 			_maximum = 475;
 			_minimum = 200;
 		}
-		else if( (_grating == 1) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		else if( (_grating == 1) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_maxflux = 3.25;
 			_minflux = 0.5;
 			_maximum = 815;
 			_minimum = 450;
 		}
-		else if( (_grating == 2) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		else if( (_grating == 2) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_maxflux = 1.1;
 			_minflux = 0.5;
 			_maximum = 1075;
@@ -73,7 +73,7 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 		tmpEnd = contextParameters->end(x);
 		if( tmpStart >= 250 && tmpStart <= 2000 && tmpEnd >= 250 && tmpEnd <= 2000 ){
 			for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
-				rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
+				rCurve[y] = !SGMBeamlineInfo::sgmInfo()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
 			}
 		}
 		else
@@ -157,9 +157,9 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	double _slit = stateParameters.at(0).toDouble();
 	double _y1, _y2, _y3, _x1, _x2, _x3;
 	double _maxRes = 0;
-	SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
-	SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
-	if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
+	SGMBeamlineInfo::sgmGrating _grating = (SGMBeamlineInfo::sgmGrating)stateParameters.at(1).toInt();
+	SGMBeamlineInfo::sgmHarmonic _harmonic = (SGMBeamlineInfo::sgmHarmonic)stateParameters.at(2).toInt();
+	if(!SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
 	{
 	}
 	else if((_harmonic == 3) && (_grating == 2)){
@@ -172,7 +172,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		_maxRes = 12500;
 	}
 	else{
-		if( (_grating == 0) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		if( (_grating == 0) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.4568*log(_slit)+1.0199;
 			_y2 = 0.4739*log(_slit)+0.605;
 			_y3 = 0.4257*log(_slit)+0.4438;
@@ -181,7 +181,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x3 = 250;
 			_maxRes = 17500;
 		}
-		else if( (_grating == 1) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		else if( (_grating == 1) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.425*log(_slit)+1.4936;
 			_y2 = 0.4484*log(_slit)+1.0287;
 			_y3 = 0.4029*log(_slit)+0.7914;
@@ -190,7 +190,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x3 = 500;
 			_maxRes = 15000;
 		}
-		else if( (_grating == 2) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+		else if( (_grating == 2) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.5229*log(_slit)+1.4221;
 			_y2 = 0.4391*log(_slit)+1.2617;
 			_y3 = 0.421*log(_slit)+0.9037;
@@ -259,7 +259,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		if( tmpStart >= 250 && tmpStart <= 2000 && tmpEnd >= 250 && tmpEnd <= 2000 ){
 			for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 				//rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
-				if(!SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y))
+				if(!SGMBeamlineInfo::sgmInfo()->energyValidForSettings(_grating, _harmonic, y))
 					rCurve[y] = 0.0;
 				else{
 					rCurve[y] = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);

@@ -23,22 +23,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
-class AMDetectorView;
+class AMOldDetectorView;
+class AMDetectorGeneralDetailedView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
+class SGMXASScanConfiguration2013View;
+class SGMFastScanConfiguration2013View;
+class AMScanController;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
-class AMDetector;
+class AMOldDetector;
 class AMScanAction;
 class CLSProcServManager;
 class CLSProcServManagerView;
 class SGMAdvancedControlsView;
+
+class AMDetectorSelector;
+class AMDetectorSelectorView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -77,6 +83,7 @@ protected slots:
 
 	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
+
 	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);
 	/// When the SGM's synchronized dwell time app connects the view is created and added as a pane to the main window
@@ -89,6 +96,11 @@ protected slots:
 	void onSGMAmptekSDD1Connected(bool connected);
 	/// When the SGM's second amptek SDD connects the view is created and added as a pane to the main window.
 	void onSGMAmptekSDD2Connected(bool connected);
+	/// When the SGM's first (new) amptek SDD connects the view is created adn added as a pane to the main window.
+	void onSGMNewAmptekSDD1Connected(bool connected);
+	void onSGMNewPGTDetectorConnected(bool connected);
+	void onSGMNewQE65000DetectorConnected(bool connected);
+	void onSGMNewTEYDetectorConnected(bool connected);
 
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerCreated();
@@ -101,7 +113,7 @@ protected slots:
 	void onActionProcServManager();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
@@ -123,8 +135,6 @@ protected:
 	bool setupSGMViews();
 
 protected:
-	/// View to manage transfer of samples (NOT IN USE CURRENTLY)
-	SGMSampleTransferView *sampleTransferView_;
 	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementWidget *samplePositionView_;
 	/// View for controlling the SGM scaler
@@ -132,21 +142,37 @@ protected:
 	/// View for controlling the synchronized dwell time application
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 	/// View for controlling the PGT Sahara SDD
-	AMDetectorView *pgtSDDView_;
+	AMOldDetectorView *pgtSDDView_;
 	/// View for controlling the Ocean Optics Optical Spectrometer
-	AMDetectorView *oceanOpticsSpectrometerView_;
+	AMOldDetectorView *oceanOpticsSpectrometerView_;
 	/// View for controlling the first SGM amptek SDD
-	AMDetectorView *amptekSDD1View_;
+	AMOldDetectorView *amptekSDD1View_;
 	/// View for controlling the second SGM amptek SDD
-	AMDetectorView *amptekSDD2View_;
+	AMOldDetectorView *amptekSDD2View_;
+
+	/// View for controlling the new SGM amptek SDD (first)
+	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
+	AMDetectorGeneralDetailedView *newPGTDetectorView_;
+	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
+	AMDetectorGeneralDetailedView *newTEYDetectorView_;
+
+	AMDetectorSelector *newDetectorsSelector_;
+	AMDetectorSelectorView *newDetectorsSelectorView_;
+
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
+	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
+	AMDetectorSelector *xasDetectorSelector_;
+	AMDetectorSelector *fastDetectorSelector_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	/// View holder for Fast scans
 	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *xasScanConfiguration2013Holder3_;
+	AMScanConfigurationViewHolder3 *fastScanConfiguration2013Holder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls

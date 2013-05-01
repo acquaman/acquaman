@@ -54,13 +54,13 @@ public:
 	AMControlSet *trackingSet() const { return trackingSet_;}
 
 	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
-	AMDetectorSet* detectorChoices() const { return xasDetectors_; }
+	AMOldDetectorSet* detectorChoices() const { return xasDetectors_; }
 	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
-	AMDetectorSet* allDetectors() const { return allDetectors_; }
+	AMOldDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
-	AMDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
+	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
 	/// Returns the current configuration requested for all of the detectors
-	AMDetectorInfoSet allDetectorConfigurations() const;
+	AMOldDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
 	virtual bool canEnumConvert(const QString &enumName) const;
@@ -104,16 +104,16 @@ public slots:
 	/// Sets the exit slit gap value for this configuration
 	bool setExitSlitGap(double exitSlitGap);
 	/// Sets the grating value for this configuration (as the SGMBeamline enum)
-	bool setGrating(SGMBeamline::sgmGrating grating);
+	bool setGrating(SGMBeamlineInfo::sgmGrating grating);
 	/// Sets the grating value for this configuration (as an int)
 	bool setGrating(int grating);
 	/// Sets the harmonvic value for this configuration (as the SGMBeamline enum)
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	bool setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic);
 	/// Sets the harmonvic value for this configuration (as an int)
 	bool setHarmonic(int harmonic);
 
 	/// Sets the detector configurations based on a detector info set
-	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
+	bool setDetectorConfigurations(const AMOldDetectorInfoSet& xasDetectorsCfg);
 
 signals:
 	/// Emitted when something about the tracking group changes (information in the control info list)
@@ -140,7 +140,7 @@ signals:
 
 protected slots:
 	/// NOT CURRENTLY IN USE
-	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
 	/// Used to write the detector configurations to the database
@@ -155,11 +155,11 @@ protected:
 	AMControlSet *trackingSet_;
 
 	/// The detectors specific to XAS retrieved from the SGM Beamline object
-	AMDetectorSet *xasDetectors_;
+	AMOldDetectorSet *xasDetectors_;
 	/// All the detectors in this configuration
-	AMDetectorSet *allDetectors_;
+	AMOldDetectorSet *allDetectors_;
 	/// The configurations for the detectors
-	AMDetectorInfoSet xasDetectorsCfg_;
+	AMOldDetectorInfoSet xasDetectorsCfg_;
 };
 
 #endif // ACQMAN_SGMXASSCANCONFIGURATION_H

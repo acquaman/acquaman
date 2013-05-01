@@ -114,6 +114,8 @@ public:
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
 	AMAction3* takeSubActionAt(int index);
 
+	AMDatabase* loggingDatabase() const;
+
 	// Other methods that should be reimplemented.
 	////////////////////////////////////////////
 
@@ -125,6 +127,8 @@ public:
 public slots:
 	/// Sets the database id of the log action associated with this instance
 	void setLogActionId(int logActionId);
+
+	void setLoggingDatabase(AMDatabase *loggingDatabase);
 
 signals:
 
@@ -225,6 +229,8 @@ protected:
 
 	/// Flag used when skipping after the next action.
 	bool skipAfterCurrentAction_;
+
+	AMDatabase *loggingDatabase_;
 };
 
 /// This is a convenience class that builds a sequential list action.  Equivalent to AMListAction(info, SubActionMode::Sequential, parent).

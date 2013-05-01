@@ -58,6 +58,32 @@ QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 
 	return string;
 }
+
+QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
+{
+	QString string = QString();
+
+	switch(id){
+
+	case VESPERS::NoCCD:
+		break;
+
+	case VESPERS::Roper:
+		string = "Roper CCD";
+		break;
+
+	case VESPERS::Mar:
+		string = "Mar CCD";
+		break;
+
+	case VESPERS::Pilatus:
+		string = "Pilatus CCD";
+		break;
+	}
+
+	return string;
+}
+
 void VESPERSScanConfigurationView::updateItButtons(int It)
 {
 	ItGroup_->button(It)->setChecked(true);
@@ -71,6 +97,11 @@ void VESPERSScanConfigurationView::updateI0Buttons(int I0)
 void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
 {
 	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+}
+
+void VESPERSScanConfigurationView::updateCCDDetectorButtons(int detector)
+{
+	ccdButtonGroup_->button(detector)->setChecked(true);
 }
 
 void VESPERSScanConfigurationView::updateMotor(int choice)
@@ -206,6 +237,31 @@ QGroupBox *VESPERSScanConfigurationView::addFluorescenceDetectorSelectionView()
 	return fluorescenceDetectorGroupBox;
 }
 
+QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
+{
+	ccdButtonGroup_ = new QButtonGroup;
+	QRadioButton *tempButton;
+	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
+
+	tempButton = new QRadioButton("None");
+	ccdButtonGroup_->addButton(tempButton, 0);
+	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Roper");
+	ccdButtonGroup_->addButton(tempButton, 1);
+	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Mar");
+	ccdButtonGroup_->addButton(tempButton, 2);
+	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Pilatus");
+	ccdButtonGroup_->addButton(tempButton, 4);
+	ccdDetectorLayout->addWidget(tempButton);
+
+	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
+	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
+
+	return ccdDetectorGroupBox;
+}
+
 QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()
 {
 	QRadioButton *tempButton;
@@ -327,33 +383,11 @@ QGroupBox *VESPERSScanConfigurationView::addGoToPositionView(bool goToPosition, 
 	saveLayout->addWidget(setCurrentPositionButton_);
 	saveLayout->addWidget(positionsSaved_);
 
-	xPosition_ = new QDoubleSpinBox;
-	xPosition_->setEnabled(goToPositionCheckBox_->isChecked());
-	xPosition_->setDecimals(3);
-	xPosition_->setRange(-100, 100);
-	xPosition_->setValue(goToPosition ? x : 0);
-	xPosition_->setSuffix(" mm");
-
-	QHBoxLayout *xLayout = new QHBoxLayout;
-	xLayout->addWidget(xPosition_);
-	xLayout->addWidget(savedXPosition_);
-
-	yPosition_ = new QDoubleSpinBox;
-	yPosition_->setEnabled(goToPositionCheckBox_->isChecked());
-	yPosition_->setDecimals(3);
-	yPosition_->setRange(-100, 100);
-	yPosition_->setValue(goToPosition ? y : 0);
-	yPosition_->setSuffix(" mm");
-
-	QHBoxLayout *yLayout = new QHBoxLayout;
-	yLayout->addWidget(yPosition_);
-	yLayout->addWidget(savedYPosition_);
-
-	QFormLayout *positionLayout = new QFormLayout;
-	positionLayout->addRow(goToPositionCheckBox_);
-	positionLayout->addRow(saveLayout);
-	positionLayout->addRow("x:", xLayout);
-	positionLayout->addRow("y:", yLayout);
+	QVBoxLayout *positionLayout = new QVBoxLayout;
+	positionLayout->addWidget(goToPositionCheckBox_, 0, Qt::AlignLeft);
+	positionLayout->addLayout(saveLayout);
+	positionLayout->addWidget(savedXPosition_);
+	positionLayout->addWidget(savedYPosition_);
 
 	QGroupBox *positionGroupBox = new QGroupBox("Go To Position");
 	positionGroupBox->setLayout(positionLayout);

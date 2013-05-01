@@ -38,7 +38,7 @@ public:
 	CLSAmptekSDD123DetectorInfo(const CLSAmptekSDD123DetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	/// Implement assignment operator
 	CLSAmptekSDD123DetectorInfo& operator =(const CLSAmptekSDD123DetectorInfo &other);

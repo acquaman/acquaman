@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMIONCHAMBERINFO_H
 #define AMIONCHAMBERINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
 #include <QPair>
 
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   an ion chamber are the counts used for data analysis, the voltage used for ensuring that the detector is in
   its linear range.  It also contains a range for which the detector can know if it is in that linear range.
   */
-class AMIonChamberInfo : public AMDetectorInfo
+class AMIonChamberInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 

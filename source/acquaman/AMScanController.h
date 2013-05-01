@@ -88,6 +88,8 @@ public:
 	/// Pointer to the scan this instance is controlling.
 	virtual AMScan* scan() { return scan_; }
 
+	virtual bool isReadyForDeletion() const;
+
 signals:
 	/// This signal provides public notification whenever the scan changes it's state() to \c newState.  The \c oldState that it is transitioning out of is also provided.  The state numbers (typed as integers for easy signal handling) correspond to the enum defined in AMScanController::ScanState.
 	void stateChanged(int oldState, int newState);
@@ -114,6 +116,8 @@ signals:
 	void timeRemaining(double seconds);
 	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.
 	void progress(double elapsed, double total);
+
+	void readyForDeletion(bool isReady);
 
 
 public slots:

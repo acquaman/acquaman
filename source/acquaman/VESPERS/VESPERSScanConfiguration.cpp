@@ -140,10 +140,23 @@ QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motor motor) const
 QString VESPERSScanConfiguration::ccdDetectorHeaderString(VESPERS::CCDDetector detector) const
 {
 	QString string = "";
+	if (detector != VESPERS::NoCCD){
 
-	if (detector == VESPERS::Roper || detector == VESPERS::Mar){
+		switch (int(detector)){
 
-		string.append(QString("CCD detector used: %1\n").arg(ccdDetector() == VESPERS::Roper ? "Roper" : "Mar"));
+		case VESPERS::Roper:
+			string.append(QString("CCD detector used: Roper\n").arg("Roper"));
+			break;
+
+		case VESPERS::Mar:
+			string.append("CCD detector used: Mar\n");
+			break;
+
+		case VESPERS::Pilatus:
+			string.append("CCD detector used: Pilatus\n");
+			break;
+		}
+
 		string.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
 	}
 

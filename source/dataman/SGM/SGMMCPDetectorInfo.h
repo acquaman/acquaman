@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTORINFO_H
 #define SGMMCPDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
-class SGMMCPDetectorInfo : public AMDetectorInfo
+class SGMMCPDetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
@@ -38,7 +38,7 @@ public:
 	SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	SGMMCPDetectorInfo& operator=(const SGMMCPDetectorInfo& other);
 

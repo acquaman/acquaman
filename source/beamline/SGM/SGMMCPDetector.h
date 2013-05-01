@@ -21,17 +21,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTOR_H
 #define SGMMCPDETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/SGM/SGMMCPDetectorInfo.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
-class SGMMCPDetector : public SGMMCPDetectorInfo, public AMDetector
+class SGMMCPDetector : public SGMMCPDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 public:
-	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 	~SGMMCPDetector();
 
 	const QMetaObject* getMetaObject();
@@ -41,7 +41,7 @@ public:
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	AMDetectorInfo* toInfo() const;
+	AMOldDetectorInfo* toInfo() const;
 	SGMMCPDetectorInfo toMCPInfo() const;
 
 	bool isPoweredOn();
@@ -52,7 +52,7 @@ public:
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
 	   */
-	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const AMOldDetectorInfo *info);
 	bool setFromInfo(const SGMMCPDetectorInfo &info);
 
 	bool activate();

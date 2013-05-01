@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMCPDetectorInfo.h"
 
-SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
+SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMOldDetectorInfo(name, description, parent)
 {
 	hvSetpoint_ = double(0.0);
 	hvSetpointRangeMin_ = double(0.0);
@@ -29,20 +29,20 @@ SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& descr
 }
 
 SGMMCPDetectorInfo::SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original) :
-		AMDetectorInfo(original)
+		AMOldDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo* SGMMCPDetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* SGMMCPDetectorInfo::toNewInfo() const{
 	return new SGMMCPDetectorInfo(*this);
 }
 
 SGMMCPDetectorInfo& SGMMCPDetectorInfo::operator =(const SGMMCPDetectorInfo& other){
 	if(this != &other){
 //		retreiveAndSetProperties(other);
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		setHVSetpoint(other.hvSetpoint());
 		setHVSetpointRangeMin(other.hvSetpointRangeMin());
 		setHVSetpointRangeMax(other.hvSetpointRangeMax());

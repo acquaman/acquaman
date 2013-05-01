@@ -29,6 +29,7 @@ AMBeamline::AMBeamline(const QString& controlName)
 	: AMControl(controlName, "")
 {
 	exposedControls_ = new AMControlSet(this);
+	exposedDetectors_ = new AMDetectorSet(this);
 }
 
 AMBeamline::~AMBeamline()
@@ -55,4 +56,25 @@ AMBeamline * AMBeamline::bl()
 	return instance_;
 }
 
+bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){
+	if(exposedDetectors()->detectorNamed(detectorInfo.name()) && exposedDetectors()->detectorNamed(detectorInfo.name())->isConnected())
+		return true;
+	return false;
+}
 
+AMDetectorGroup* AMBeamline::exposedDetectorGroupByName(const QString &name) const{
+	for(int x = 0; x < exposedDetectorGroups_.count(); x++)
+		if(exposedDetectorGroups_.at(x)->name() == name)
+			return exposedDetectorGroups_.at(x);
+
+	return 0; //NULL
+}
+
+bool AMBeamline::addExposedDetectorGroup(AMDetectorGroup *detectorGroup){
+	for(int x = 0; x < exposedDetectorGroups_.count(); x++)
+		if(exposedDetectorGroups_.at(x)->name() == detectorGroup->name())
+			return false;
+
+	exposedDetectorGroups_.append(detectorGroup);
+	return true;
+}

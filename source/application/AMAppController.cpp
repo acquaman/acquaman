@@ -48,6 +48,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlateMoveActionInfo.h"
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMDetectorDwellTimeSourceScanOptimizer.h"
+#include "acquaman/AMListActionScanOptimizer.h"
+#include "acquaman/AMNestedAxisTypeValidator.h"
+
+#include "acquaman/AMAgnosticDataAPI.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
@@ -55,25 +63,8 @@ AMAppController::AMAppController(QObject *parent)
 
 bool AMAppController::startup(){
 
-	/* Commented out, put it back in to play with the change number action
-	AMNumberChangeActionSupport::appendNumber(12);
-	AMNumberChangeActionSupport::appendNumber(27);
-	AMNumberChangeActionSupport::appendNumber(100);
-	AMNumberChangeActionSupport::appendNumber(1000);
-	AMNumberChangeActionSupport::appendNumber(0);
-	AMNumberChangeActionSupport::appendNumber(15);
-	AMNumberChangeActionSupport::appendNumber(8888);
-	AMNumberChangeActionSupport::appendNumber(42);
-	AMNumberChangeActionSupport::appendNumber(99);
-	AMNumberChangeActionSupport::appendNumber(1);
-	*/
-
 	if(AMDatamanAppControllerForActions3::startup()){
 		bool success = true;
-		/* Commented out, put it back in to play with the change number action
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
-		*/
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 
@@ -89,6 +80,21 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
 
+		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
+		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
+
+		AMDetectorTriggerSourceScanOptimizer *triggerOptimizer = new AMDetectorTriggerSourceScanOptimizer();
+		AMDetectorDwellTimeSourceScanOptimizer *dwellTimeOptimizer = new AMDetectorDwellTimeSourceScanOptimizer();
+		AMEmptyListScanOptimizer *emptyListOptimizer = new AMEmptyListScanOptimizer();
+		AMSingleElementListOptimizer *singleElementListOptimizer = new AMSingleElementListOptimizer();
+		AMAppControllerSupport::appendPrincipleOptimizer(triggerOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(dwellTimeOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(emptyListOptimizer);
+		AMAppControllerSupport::appendPrincipleOptimizer(singleElementListOptimizer);
+
+		AMNestedAxisTypeValidator *nestedAxisValidator = new AMNestedAxisTypeValidator();
+		AMAppControllerSupport::appendPrincipleValidator(nestedAxisValidator);
+
 		return success;
 	}
 	else
@@ -103,9 +109,13 @@ bool AMAppController::startupCreateUserInterface() {
 		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
-		workflowView_ = new AMWorkflowView3();
+		//workflowView_ = new AMWorkflowView3();
+		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+
+		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
+		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -118,12 +128,6 @@ bool AMAppController::startupCreateUserInterface() {
 		chooseRunDialog->show();
 		chooseRunDialog->activateWindow();
 		chooseRunDialog->raise();
-
-		/* Commented out, put it back in to play with the change number action
-		QListView *listView = new QListView();
-		listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
-		listView->show();
-		*/
 
 		return true;
 	}

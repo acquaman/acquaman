@@ -267,8 +267,8 @@ void SGMScanInfo::setEnergy(double energy) {
 	}
 }
 
-void SGMScanInfo::setStart(const SGMEnergyPosition &start) {
-	if(start_ != start){
+void SGMScanInfo::setStart(const SGMEnergyPosition &start, bool ignoreDatabaseId) {
+	if( (start_ != start) || (!ignoreDatabaseId && ((start_.id() != start.id()) || (start_.name() != start.name())) ) ){
 		start_ = start;
 		setModified(true);
 		emit startChanged();
@@ -276,8 +276,8 @@ void SGMScanInfo::setStart(const SGMEnergyPosition &start) {
 	}
 }
 
-void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle) {
-	if(middle_ != middle){
+void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle, bool ignoreDatabaseId) {
+	if( (middle_ != middle)  || (!ignoreDatabaseId && ((middle_.id() != middle.id()) || (middle_.name() != middle.name())) ) ){
 		middle_ = middle;
 		setModified(true);
 		emit middleChanged();
@@ -285,8 +285,8 @@ void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle) {
 	}
 }
 
-void SGMScanInfo::setEnd(const SGMEnergyPosition &end) {
-	if(end_ != end){
+void SGMScanInfo::setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId) {
+	if( (end_ != end)  || (!ignoreDatabaseId && ((end_.id() != end.id()) || (end_.name() != end.name())) ) ){
 		end_ = end;
 		setModified(true);
 		emit endChanged();
@@ -682,9 +682,17 @@ void SGMFastScanParameters::setSGMGrating(int sgmGrating){
 	scanInfo_.setStart(newEnergyPosition);
 }
 
-void SGMFastScanParameters::setScanInfo(const SGMScanInfo &scanInfo){
+void SGMFastScanParameters::setScanInfo(const SGMScanInfo &scanInfo, bool ignoreDatabaseId){
 	disconnect(&scanInfo_, 0);
+
 	scanInfo_ = scanInfo;
+	if(!ignoreDatabaseId && (scanInfo_.start().id() != scanInfo.start().id()) )
+		scanInfo_.setStart(scanInfo.start(), false);
+	if(!ignoreDatabaseId && (scanInfo_.middle().id() != scanInfo.middle().id()) )
+		scanInfo_.setMiddle(scanInfo.middle(), false);
+	if(!ignoreDatabaseId && (scanInfo_.end().id() != scanInfo.end().id()) )
+		scanInfo_.setEnd(scanInfo.end(), false);
+
 	connect(&scanInfo_, SIGNAL(startChanged()), this, SLOT(onStartChanged()));
 	connect(&scanInfo_, SIGNAL(middleChanged()), this, SLOT(onMiddleChanged()));
 	connect(&scanInfo_, SIGNAL(endChanged()), this, SLOT(onEndChanged()));

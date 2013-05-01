@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DSCANCONFIGURATIONVIEW_H
 
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 
 #include <QLineEdit>
@@ -68,14 +67,10 @@ protected slots:
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
-	/// Helper slot that sets the CCD detector setting in the configuration.
-	void onCCDButtonClicked(bool useCCD) { config_->setCCDDetector(useCCD ? 1 : 0); }
 	/// Handles passing the name of the CCD file name to the scan configuration when the CCD check box is enabled.
-	void onCCDDetectorChanged(int useCCD);
-	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
-	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
+	void onCCDDetectorChanged(int id);
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text());}
+	void onScanNameEdited();
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
@@ -90,7 +85,7 @@ protected slots:
 	/// Helper slot that passes the signal on to the base method.
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureRoperDetectorClicked();
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 
@@ -107,6 +102,8 @@ protected:
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
+	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
+	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERS2DScanConfiguration *config_;
@@ -124,12 +121,12 @@ protected:
 	/// Pointer to the vertical step size.
 	QDoubleSpinBox *vStep_;
 
+	/// Pointer to the CCD help group box.
+	QGroupBox *ccdTextBox_;
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
-	/// Pointer to the check box for doing XRD maps as well.
-	QCheckBox *ccdCheckBox_;
-	/// Pointer to the label holding the current file name.
-	QLabel *currentCCDFileName_;
+	/// Pointer to the button that gets the CCD detector screen to switch.
+	QPushButton *configureCCDButton_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 };

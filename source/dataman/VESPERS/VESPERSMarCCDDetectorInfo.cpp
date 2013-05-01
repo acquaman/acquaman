@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSMarCCDDetectorInfo.h"
 
 VESPERSMarCCDDetectorInfo::VESPERSMarCCDDetectorInfo(const QString &name, const QString &description, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMOldDetectorInfo(name, description, parent)
 {
 	acquireTime_ = 0;
 	axes_ << AMAxisInfo("Width", 2084, "Pixels along x-direction");
@@ -28,7 +28,7 @@ VESPERSMarCCDDetectorInfo::VESPERSMarCCDDetectorInfo(const QString &name, const 
 }
 
 VESPERSMarCCDDetectorInfo::VESPERSMarCCDDetectorInfo(const VESPERSMarCCDDetectorInfo &original)
-	: AMDetectorInfo(original)
+	: AMOldDetectorInfo(original)
 {
 	this->operator =(original);
 }
@@ -37,7 +37,7 @@ VESPERSMarCCDDetectorInfo &VESPERSMarCCDDetectorInfo::operator =(const VESPERSMa
 {
 	if (this != &other){
 
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		axes_ = other.axes();
 		setAcquireTime(other.acquireTime());
 	}

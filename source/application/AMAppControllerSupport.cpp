@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
+#include "acquaman/AMScanActionControllerScanOptimizer.h"
+#include "acquaman/AMScanActionControllerScanValidator.h"
+
 AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId, QString useDatabaseName){
 	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId, useDatabaseName);
 }
@@ -129,6 +132,113 @@ namespace AMAppControllerSupport{
 			i++;
 		}
 		return 0;
+	}
+
+
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizers_;
+	QList<AMScanActionControllerScanValidator*> principleValidators_;
+
+	int principleOptimizerCount(){
+		return principleOptimizers_.count();
+	}
+
+	int principleValidatorCount(){
+		return principleValidators_.count();
+	}
+
+	AMScanActionControllerScanOptimizer* principleOptimizerAt(int index){
+		if(index < 0 || index >= principleOptimizers_.count())
+			return 0;
+		return principleOptimizers_.at(index);
+	}
+
+	AMScanActionControllerScanValidator* principleValidatorAt(int index){
+		if(index < 0 || index >= principleValidators_.count())
+			return 0;
+		return principleValidators_.at(index);
+	}
+
+	void addPrincipleOptimizer(int index, AMScanActionControllerScanOptimizer *optimizer){
+		if(index < -1 || index > principleOptimizers_.count() || !optimizer)
+			return;
+		principleOptimizers_.insert(index, optimizer);
+	}
+
+	void addPrincipleValidator(int index, AMScanActionControllerScanValidator *validator){
+		if(index < -1 || index > principleValidators_.count() || !validator)
+			return;
+		principleValidators_.insert(index, validator);
+	}
+
+	void appendPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer){
+		if(!optimizer)
+			return;
+		principleOptimizers_.append(optimizer);
+	}
+
+	void appendPrincipleValidator(AMScanActionControllerScanValidator *validator){
+		if(!validator)
+			return;
+		principleValidators_.append(validator);
+	}
+
+	void prependPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer){
+		if(!optimizer)
+			return;
+		principleOptimizers_.prepend(optimizer);
+	}
+
+	void prependPrincipleValidator(AMScanActionControllerScanValidator *validator){
+		if(!validator)
+			return;
+		principleValidators_.prepend(validator);
+	}
+
+	AMScanActionControllerScanOptimizer* removePrincipleOptimizer(int index){
+		if(index < 0 || index >= principleOptimizers_.count())
+			return 0;
+		return principleOptimizers_.takeAt(index);
+	}
+
+	AMScanActionControllerScanValidator* removePrincipleValidator(int index){
+		if(index < 0 || index >= principleValidators_.count())
+			return 0;
+		return principleValidators_.takeAt(index);
+	}
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy(){
+		QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy;
+		for(int x = 0; x < principleOptimizers_.count(); x++)
+			principleOptimizersCopy.append(principleOptimizers_.at(x));
+		return principleOptimizersCopy;
+	}
+
+	QList<AMScanActionControllerScanValidator*> principleValidatorsCopy(){
+		QList<AMScanActionControllerScanValidator*> principleValidatorsCopy;
+		for(int x = 0; x < principleValidators_.count(); x++)
+			principleValidatorsCopy.append(principleValidators_.at(x));
+		return principleValidatorsCopy;
+	}
+
+	void optimize(QList<AMScanActionControllerScanOptimizer *> optimizers, AMAction3 *scanActionTree){
+		if(!scanActionTree)
+			return;
+		for(int x = 0; x < optimizers.count(); x++){
+			optimizers.at(x)->setScanActionTree(scanActionTree);
+			optimizers.at(x)->optimize();
+		}
+	}
+
+	bool validate(QList<AMScanActionControllerScanValidator *> validators, AMAction3 *scanActionTree){
+		if(!scanActionTree)
+			return false;
+		for(int x = 0; x < validators.count(); x++){
+			validators.at(x)->setScanActionTree(scanActionTree);
+			if(!validators.at(x)->validate())
+				return false;
+		}
+		return true;
 	}
 }
 

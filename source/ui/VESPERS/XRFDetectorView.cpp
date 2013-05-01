@@ -39,14 +39,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /////////////////////////////////////////////
 
 XRFBriefDetectorView::XRFBriefDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
-	: AMBriefDetectorView(configureOnly, parent)
+	: AMBriefOldDetectorView(configureOnly, parent)
 {
 	// Setting this to zero even if detector is valid.  This is because I'll do a cast to the right detector in setDetector.
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-bool XRFBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool XRFBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)
@@ -88,14 +88,14 @@ void XRFBriefDetectorView::onDeadTimeUpdate()
 // Detailed detector view
 ///////////////////////////////////////////////////
 XRFDetailedDetectorView::XRFDetailedDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
-	: AMDetailedDetectorView(configureOnly, parent)
+	: AMDetailedOldDetectorView(configureOnly, parent)
 {
 	// Setting this to zero even if detector is valid.  This is because I'll do a cast to the right detector in setDetector.
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool XRFDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)

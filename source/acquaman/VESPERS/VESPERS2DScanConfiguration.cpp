@@ -84,7 +84,7 @@ AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
 
 QString VESPERS2DScanConfiguration::detailedDescription() const
 {
-	if (ccdDetector() == VESPERS::Roper || ccdDetector() == VESPERS::Mar)
+	if (ccdDetector() != VESPERS::NoCCD)
 		return "Spatial x-ray fluorescence 2D map using a CCD for x-ray diffraction.";
 
 	return "Spatial x-ray fluorescence 2D map";
@@ -175,7 +175,7 @@ void VESPERS2DScanConfiguration::computeTotalTimeImplementation()
 	// Get the number of points.
 	time = 	fabs((xEnd()-xStart())/xStep()+1)*fabs((yEnd()-yStart())/yStep()+1);
 
-	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
+	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)
 		time *= timeStep() + timeOffset_ + 6.0;
 	else if (ccdDetector() == VESPERS::Mar)

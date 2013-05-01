@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 
 class QFormLayout;
-class AMDetector;
+class AMOldDetector;
 
 class SGMBeamlineDetectorConnectionView : public QWidget
 {
@@ -33,7 +33,7 @@ public:
 	SGMBeamlineDetectorConnectionView(QWidget *parent = 0);
 
 protected slots:
-	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
 	QFormLayout *fl_;

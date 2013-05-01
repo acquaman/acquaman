@@ -19,10 +19,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSConfigurationFileBuilder.h"
 
+#include "application/VESPERS/VESPERS.h"
+
 #include <QFile>
 #include <QTextStream>
 #include <QFileInfo>
 #include <QDir>
+#include <QStringBuilder>
 
 VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent)
 	: QObject(parent)
@@ -39,16 +42,10 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 {
 	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-
-	homeDir.append("/acquaman/devConfigurationFiles/VESPERS");
+	QString fileName = VESPERS::getHomeDirectory() % "/acquaman/devConfigurationFiles/VESPERS/template.cfg";
 
 	QFile file;
-	file.setFileName(homeDir+"/template.cfg");
+	file.setFileName(fileName);
 
 	if (!file.open(QIODevice::WriteOnly))
 		return false;
@@ -112,6 +109,13 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumImages\" \"1\"\n");
 		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumAcquisitions\" \"1\"\n");
 		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:TriggerMode\" \"1\"\n");
+	}
+
+	if (pilatusCCD_){
+
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:NumImages\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:NumAcquisitions\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"PAD1607-B21-05:cam1:TriggerMode\" \"0\"\n");
 	}
 
 	if (singleElement_){

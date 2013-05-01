@@ -30,29 +30,34 @@ void VESPERSScanController::buildBaseInitializationAction(double timeStep)
 	// First stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	// Scalar
-	setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Scaler")->createEnableAction(true));
 	// Single element vortex
 	if ((config_->fluorescenceDetector() == VESPERS::SingleElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-	// CCD
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(false));
+	// Roper CCD
 	if (config_->ccdDetector() == VESPERS::Roper)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
-	// Picoammeters
-	setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(false));
+
+	// Pilatus CCD
+	if (config_->ccdDetector() == VESPERS::Pilatus)
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(true));
+	else
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(false));
+
 	// Four element vortex
 	if ((config_->fluorescenceDetector() == VESPERS::FourElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(false));
 	// Mar CCD
 	if (config_->ccdDetector() == VESPERS::Mar)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(true));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
+		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(false));
 
 	// Second stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -149,15 +154,15 @@ QString VESPERSScanController::buildNotes()
 		break;
 
 	case VESPERS::TenPercent:
-		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::OnePointSixPercent:
-		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
 		break;
 
 	case VESPERS::Si:
-		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
 		break;
 	}
 
@@ -431,4 +436,28 @@ void VESPERSScanController::onCleanupActionFinished()
 
 	cleanupAction_->deleteLater();
 	cleanupAction_ = 0;
+}
+
+QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
+{
+	// Because the paths that go into the PV's are not the paths we use to check, we need to create the right path.  So far, that is /mnt/aurora
+	QString newPath = path;
+
+	if (config_->ccdDetector() == VESPERS::Roper){
+
+		newPath.replace("Y:\\", "/nas/vespers/");
+		newPath.replace('\\', '/');
+	}
+
+	if (!VESPERS::fileNameExists(newPath, name))
+		return name;
+
+	QString newName = name;
+
+	while (VESPERS::fileNameExists(newPath, newName)){
+
+		newName = VESPERS::appendUniqueIdentifier(name);
+	}
+
+	return newName;
 }

@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMENERGYPOSITIONVIEW_H
 
 #include <QGroupBox>
+#include <QDialog>
 #include "util/SGM/SGMElementInfo.h"
 
 class QDoubleSpinBox;
@@ -28,6 +29,9 @@ class QSpinBox;
 class QComboBox;
 class QPushButton;
 class QLabel;
+class QCheckBox;
+class QLineEdit;
+class QDialogButtonBox;
 class QVBoxLayout;
 class QHBoxLayout;
 
@@ -91,6 +95,27 @@ protected:
 	QPushButton *setFromBeamlineButton_;
 };
 
+class SGMEnergyPositionDisassociateFromDbDialog : public QDialog
+{
+Q_OBJECT
+public:
+	SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent);
+
+public slots:
+	virtual void accept();
+
+protected slots:
+	void onNewNameLineEditTextEdited(const QString &text);
+
+protected:
+	SGMEnergyPosition *energyPosition_;
+
+	QLineEdit *newNameLineEdit_;
+	QDialogButtonBox *buttonBox_;
+
+	QStringList takenNames_;
+};
+
 class SGMEnergyPositionWBeamlineAndDatabaseView : public SGMEnergyPositionWBeamlineView
 {
 Q_OBJECT
@@ -101,6 +126,7 @@ public:
 
 protected slots:
 	void onDisassociateButtonClicked();
+	void onUnlockDisassociateCheckBoxToggled(bool toggled);
 
 protected:
 	void setUsedByLabelHelper();
@@ -108,6 +134,7 @@ protected:
 protected:
 	QLabel *databaseUsedByLabel_;
 	QPushButton *disassociateButton_;
+	QCheckBox *unlockDisassociateCheckBox_;
 
 	QStringList alsoUsedByList_;
 };

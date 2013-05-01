@@ -158,6 +158,14 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
+void VESPERSEndstationView::normalFocusClicked()
+{
+	if (!endstation_->laserPowered())
+		QMessageBox::warning(this, "Laser is not on", "Remember to turn the laser on when focusing your sample.", QMessageBox::Ok);
+
+	endstation_->setCurrent("Normal Sample Stage");
+}
+
 void VESPERSEndstationView::setUsingNormalMotor(bool use)
 {
 	usingNormal_ = use;

@@ -36,7 +36,7 @@ class QDir;
 
 #include "dataman/AMnDIndex.h"
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 
 #define AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER 72001
 #define AMDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED 72002
@@ -67,7 +67,7 @@ protected:
 
 protected:
 	/// Convert the AMDetector::ReadMethod to the enum list used by the dacq library
-	int detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod);
+	int detectorReadMethodToDacqReadMethod(AMOldDetector::ReadMethod readMethod);
 
 	bool event(QEvent *e);
 	virtual AMnDIndex toScanIndex(QMap<int, double> aeData);

@@ -41,13 +41,12 @@ HEADERS += \
 	source/acquaman/SGM/SGMFastDacqScanController.h \
 	source/acquaman/SGM/SGMFastScanController.h \
 	source/beamline/SGM/SGMBeamline.h \
-	source/ui/SGM/SGMSampleTransferView.h \
 	source/ui/SGM/SGMXASScanConfigurationView.h \
 	source/ui/SGM/SGMXASScanConfigurationWizard.h \
 	source/ui/SGM/SGMSidebar.h \
 	source/ui/SGM/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
-	source/beamline/SGM/SGMBeamlineInfo.h \
+	source/dataman/SGM/SGMBeamlineInfo.h \
 	source/util/SGM/SGMElementInfo.h \
 	source/util/SGM/SGMPeriodicTable.h \
 	source/ui/util/SGM/SGMEnergyPositionView.h \
@@ -63,7 +62,17 @@ HEADERS += \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
-    source/ui/util/SGM/SGMFastScanParametersView.h
+    source/ui/util/SGM/SGMFastScanParametersView.h \
+    source/acquaman/SGM/SGMXASScanActionController.h \
+    source/acquaman/SGM/SGMScanConfiguration2013.h \
+    source/acquaman/SGM/SGMSScanConfigurationDbObject.h \
+    source/acquaman/SGM/SGMXASScanConfiguration2013.h \
+    source/ui/SGM/SGMXASScanConfiguration2013View.h \
+    source/ui/SGM/SGMFluxResolutionPickerView.h \
+    source/acquaman/SGM/SGMFastScanActionController.h \
+    source/acquaman/SGM/SGMFastScanConfiguration2013.h \
+    source/ui/SGM/SGMFastScanConfiguration2013View.h \
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -76,13 +85,12 @@ SOURCES += \
 	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/acquaman/SGM/SGMFastDacqScanController.cpp \
 	source/beamline/SGM/SGMBeamline.cpp \
-	source/ui/SGM/SGMSampleTransferView.cpp \
 	source/ui/SGM/SGMXASScanConfigurationView.cpp \
 	source/ui/SGM/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGM/SGMSidebar.cpp \
 	source/ui/SGM/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
-	source/beamline/SGM/SGMBeamlineInfo.cpp \
+	source/dataman/SGM/SGMBeamlineInfo.cpp \
 	source/util/SGM/SGMElementInfo.cpp \
 	source/util/SGM/SGMPeriodicTable.cpp \
 	source/ui/util/SGM/SGMEnergyPositionView.cpp \
@@ -98,7 +106,37 @@ SOURCES += \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
-    source/ui/util/SGM/SGMFastScanParametersView.cpp
+    source/ui/util/SGM/SGMFastScanParametersView.cpp \
+    source/acquaman/SGM/SGMXASScanActionController.cpp \
+    source/acquaman/SGM/SGMScanConfiguration2013.cpp \
+    source/acquaman/SGM/SGMSScanConfigurationDbObject.cpp \
+    source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
+    source/ui/SGM/SGMXASScanConfiguration2013View.cpp \
+    source/ui/SGM/SGMFluxResolutionPickerView.cpp \
+    source/acquaman/SGM/SGMFastScanActionController.cpp \
+    source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
+    source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
