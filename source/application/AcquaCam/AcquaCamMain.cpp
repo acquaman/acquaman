@@ -20,13 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include <QSettings>
-#include "ui/AMBeamlineCameraBrowser.h"
+#include "ui/AMBeamlineCameraBrowser2.h"
 
 /// Helper function to load application settings using QSettings, and set the camera browser defaults (Crosshair settings,
-void loadSettings(AMBeamlineCameraBrowser* camBrowser);
+void loadSettings(AMBeamlineCameraBrowser2* camBrowser);
 
 /// Helper function to save application settings using QSettings, based on the camera browser's current state
-void saveSettings(AMBeamlineCameraBrowser* camBrowser);
+void saveSettings(AMBeamlineCameraBrowser2* camBrowser);
 
 
 int main(int argc, char *argv[])
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	QStringList arguments = app.arguments();
 	bool disableOpenGl = arguments.contains("--disable-opengl") || arguments.contains("-g");
 
-	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser(0, !disableOpenGl);
+    AMBeamlineCameraBrowser2* camBrowser = new AMBeamlineCameraBrowser2(0, !disableOpenGl);
 	camBrowser->setWindowTitle("AcquaCam");
 	camBrowser->show();
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 }
 
 
-void loadSettings(AMBeamlineCameraBrowser* camBrowser) {
+void loadSettings(AMBeamlineCameraBrowser2* camBrowser) {
 	QSettings settings(QSettings::UserScope, "Acquaman", "AcquaCam");
 
 	QColor crosshairColor = settings.value("Crosshair/Color", QColor(Qt::red)).value<QColor>();
@@ -80,7 +80,7 @@ void loadSettings(AMBeamlineCameraBrowser* camBrowser) {
 	camBrowser->setPreviousSourceURLs(previousSources);
 }
 
-void saveSettings(AMBeamlineCameraBrowser *camBrowser) {
+void saveSettings(AMBeamlineCameraBrowser2 *camBrowser) {
 	QSettings settings(QSettings::UserScope, "Acquaman", "AcquaCam");
 
 	settings.setValue("Crosshair/Color", camBrowser->crosshairColor());
