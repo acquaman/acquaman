@@ -67,7 +67,7 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
 									   (viewSize.height()-scaledSize.height())/2),
 							   scaledSize);
 
-	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
+    // activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
 
 	qreal xSceneCoord = activeRect.left() + crosshairX_*activeRect.width();
 	qreal ySceneCoord = activeRect.top() + crosshairY_*activeRect.height();
@@ -78,7 +78,9 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
 
-    rectangle_->setRect(shapeModel_->rectangleX(),shapeModel_->rectangleY(),shapeModel_->rectangleWidth(),shapeModel_->rectangleHeight());
+    rectangle_->setRect(shapeModel_->rectangle());
+
+
 
 }
 
@@ -117,7 +119,6 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
 
 	if(e->button() == Qt::LeftButton)
 		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
-//    connect(this,SIGNAL(mouseMoved(QPointF)), this, SLOT(drawRectangle(QPointF)));
     connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
     reviewCrosshairLinePositions();
 }

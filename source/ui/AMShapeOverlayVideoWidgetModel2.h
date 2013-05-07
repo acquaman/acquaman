@@ -23,21 +23,19 @@ public:
     void setViewSize(QSizeF viewSize);
     void setScaledSize(QSizeF scaledSize);
 
-    double rectangleX();
-    double rectangleY();
-    double rectangleWidth();
-    double rectangleHeight();
+
+
+    QRectF rectangle();
 
 
 protected:
-    double cursorX_, cursorY_;
-    double rectangleTopX_, rectangleTopY_;
-    double rectangleBottomX_,rectangleBottomY_;
-    bool drawing_;
     QSizeF viewSize_;
     QSizeF scaledSize_;
 
-    QGraphicsRectItem* rectangle_;
+    QRectF rectangle_;
+
+    QPointF rectangleTopLeft();
+    QPointF rectangleBottomRight();
 
 
 
@@ -46,7 +44,7 @@ protected:
     /// for ease, create a coordinate transform function
     /// takes a double transforms to where you are actually clicking
     /// as a doubles, must also pass wether it's x or y
-    double coordinateTransform(double, Coordinate);
+    QPointF coordinateTransform(QPointF);
 
 public slots:
     /// start position of rectangle

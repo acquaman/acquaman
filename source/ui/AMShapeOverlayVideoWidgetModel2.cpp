@@ -11,48 +11,22 @@
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
     QObject(parent)
 {
-
-
-    cursorX_ = 0.5;
-    cursorY_ = 0.5;
-
-    rectangleTopX_ = 0.5;
-    rectangleTopY_ = 0.5;
-
-    drawing_ = false;
-
-
-
 }
 
 
 
 void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
 {
-    rectangleTopX_ =position.x();
-    rectangleTopY_ =position.y();
-    rectangleBottomX_ = position.x();
-    rectangleBottomY_ = position.y();
-
-
-    //scene()->addLine(cursorX(),cursorY(),QCursor::pos().x(),QCursor::pos().y(),pen);
-   // rectangle_ = scene()->addRect(cursorX(),cursorY(), 10, 10, pen, brush);
-
-
+    rectangle_.setTopLeft(position);
+    rectangle_.setBottomRight(position);
 }
 
 void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
-
-    rectangleBottomX_ = position.x();
-    rectangleBottomY_ = position.y();
-
-
-
-
+    rectangle_.setBottomRight(position);
 }
 
-double AMShapeOverlayVideoWidgetModel2::coordinateTransform(double coordinate, Coordinate typeCoordinate)
+QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 {
 
 
@@ -60,16 +34,14 @@ double AMShapeOverlayVideoWidgetModel2::coordinateTransform(double coordinate, C
                                        (viewSize().height()-scaledSize().height())/2),
                                scaledSize());
 
-    if(typeCoordinate == XCOORDINATE)
-    {
-        return activeRect.left() + coordinate*activeRect.width();
+    QPointF fixedCoordinate;
+    qreal xCoord = activeRect.left() + coordinate.x()*activeRect.width();
+    qreal yCoord = activeRect.top() + coordinate.y()*activeRect.height();
+    fixedCoordinate.setX(xCoord);
+    fixedCoordinate.setY(yCoord);
+    return fixedCoordinate;
 
-    }
-    else if(typeCoordinate == YCOORDINATE)
-    {
-        return activeRect.top() + coordinate*activeRect.height();
-    }
-    return 0;
+
 }
 
 
@@ -84,22 +56,22 @@ void AMShapeOverlayVideoWidgetModel2::setScaledSize(QSizeF scaledSize)
     scaledSize_ = scaledSize;
 }
 
-double AMShapeOverlayVideoWidgetModel2::rectangleX()
+QPointF AMShapeOverlayVideoWidgetModel2::rectangleTopLeft()
 {
-    return coordinateTransform(rectangleTopX_,XCOORDINATE);
+    return coordinateTransform(rectangle_.topLeft());
 }
 
-double AMShapeOverlayVideoWidgetModel2::rectangleY()
+QPointF AMShapeOverlayVideoWidgetModel2::rectangleBottomRight()
 {
-    return coordinateTransform(rectangleTopY_,YCOORDINATE);
+    return coordinateTransform(rectangle_.bottomRight());
 }
 
-double AMShapeOverlayVideoWidgetModel2::rectangleHeight()
-{
-    return coordinateTransform(rectangleBottomY_,YCOORDINATE) - coordinateTransform(rectangleTopY_,YCOORDINATE);
-}
 
-double AMShapeOverlayVideoWidgetModel2::rectangleWidth()
+QRectF AMShapeOverlayVideoWidgetModel2::rectangle()
 {
-    return coordinateTransform(rectangleBottomX_,XCOORDINATE) - coordinateTransform(rectangleTopX_,XCOORDINATE);
+    //QRectF* rectangle = new QRectF();
+    QRectF rectangle;
+    rectangle.setTopLeft(rectangleTopLeft());
+    rectangle.setBottomRight(rectangleBottomRight());
+    return rectangle;
 }
