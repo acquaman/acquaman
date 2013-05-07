@@ -11,6 +11,7 @@
 
 #include "ui/AMCrosshairOverlayVideoWidget2.h"
 #include "ui/AMColorPickerButton2.h"
+#include "ui/AMShapeOverlayVideoWidgetView2.h"
 
 AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)

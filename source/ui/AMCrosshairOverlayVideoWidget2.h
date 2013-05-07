@@ -4,6 +4,7 @@
 #include "ui/AMOverlayVideoWidget2.h"
 
 class QGraphicsLineItem;
+class AMShapeOverlayVideoWidgetModel2;
 
 /// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
@@ -24,6 +25,7 @@ public:
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
+
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
 	void mousePressed(const QPointF& position);
@@ -32,7 +34,7 @@ signals:
 	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).
 	void mouseDoubleClicked(const QPointF& position);
 
-    /// Emitted when the mouse moves
+    /// Emitted when the mouse moves - in shapeoverlay
     void mouseMoved(const QPointF& position);
 
 
@@ -56,26 +58,9 @@ protected:
 	double crosshairX_, crosshairY_;
 	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
-    /// Cursor position for drawing a line
-    double cursorX_, cursorY_;
-    double rectangleTopX_, rectangleTopY_;
-    double rectangleBottomX_,rectangleBottomY_;
-    bool drawing_;
     QGraphicsRectItem* rectangle_;
+    AMShapeOverlayVideoWidgetModel2* shapeModel_;
 
-    /// Line drawing cursor positions
-    double cursorX(){return cursorX_;}
-    double cursorY(){return cursorY_;}
-    void setCursorX(double cursorX);
-    void setCursorY(double cursorY);
-
-
-    ///
-    enum Coordinate { XCOORDINATE,YCOORDINATE};
-    /// for ease, create a coordinate transform function
-    /// takes a double transforms to where you are actually clicking
-    /// as a doubles, must also pass wether it's x or y
-    double coordinateTransform(double, Coordinate);
 
 
 
@@ -102,18 +87,8 @@ protected slots:
 	/// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved
 	void reviewCrosshairLinePositions();
 
-    /// Draw a line
-    void drawLine(QPointF);
 
-    /// start position of rectangle
-    void startRectangle(QPointF);
-
-    /// end position of rectangle
-    void finishRectangle(QPointF);
-
-    /// drawRectangle
-    void drawRectangle(QPointF);
 
 };
 
-#endif // AMCROSSHAIROVERLAYVIDEOWIDGET_H
+#endif // AMCROSSHAIROVERLAYVIDEOWIDGET2_H

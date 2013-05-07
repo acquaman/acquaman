@@ -8,6 +8,7 @@ class QCheckBox;
 class AMCrosshairOverlayVideoWidget2;
 class AMColorPickerButton2;
 class QSlider;
+class AMShapeOverlayVideoWidgetView2;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraBrowser2 : public QWidget
