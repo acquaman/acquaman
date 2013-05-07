@@ -11,20 +11,38 @@
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
     QObject(parent)
 {
+    index_ = -1;
 }
 
 
 
 void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
 {
+    index_++;
     rectangle_.setTopLeft(position);
     rectangle_.setBottomRight(position);
+    rectangleList_.insert(index_,rectangle_);
 }
 
 void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
-    rectangle_.setBottomRight(position);
+    rectangleList_[index_].setBottomRight(position);
 }
+
+void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
+{
+    for(int i = 0; i < index_ + 1; i++)
+    {
+        if(rectangleList_[i].contains(position))
+        {
+           rectangleList_.remove(i);
+           rectangleList_.insert(i,rectangleList_[index_]);
+           rectangleList_.remove(index_);
+           index_--;
+        }
+    }
+}
+
 
 QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 {
@@ -56,22 +74,24 @@ void AMShapeOverlayVideoWidgetModel2::setScaledSize(QSizeF scaledSize)
     scaledSize_ = scaledSize;
 }
 
-QPointF AMShapeOverlayVideoWidgetModel2::rectangleTopLeft()
+QPointF AMShapeOverlayVideoWidgetModel2::rectangleTopLeft(int index)
 {
-    return coordinateTransform(rectangle_.topLeft());
+    return coordinateTransform(rectangleList_[index].topLeft());
 }
 
-QPointF AMShapeOverlayVideoWidgetModel2::rectangleBottomRight()
+QPointF AMShapeOverlayVideoWidgetModel2::rectangleBottomRight(int index)
 {
-    return coordinateTransform(rectangle_.bottomRight());
+    return coordinateTransform(rectangleList_[index].bottomRight());
 }
 
 
-QRectF AMShapeOverlayVideoWidgetModel2::rectangle()
+QRectF AMShapeOverlayVideoWidgetModel2::rectangle(int index)
 {
     //QRectF* rectangle = new QRectF();
     QRectF rectangle;
-    rectangle.setTopLeft(rectangleTopLeft());
-    rectangle.setBottomRight(rectangleBottomRight());
+    rectangle.setTopLeft(rectangleTopLeft(index));
+    rectangle.setBottomRight(rectangleBottomRight(index));
     return rectangle;
 }
+
+

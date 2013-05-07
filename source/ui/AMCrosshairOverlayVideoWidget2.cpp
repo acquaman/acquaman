@@ -2,6 +2,7 @@
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 
+#include <QMap>
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
@@ -13,7 +14,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     shapeModel_ = new AMShapeOverlayVideoWidgetModel2();
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
-
+    index_ = 0;
 
 
 
@@ -24,7 +25,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);
 
-    rectangle_ = scene()->addRect(0.5,0.5,20,20,pen,brush);
+    rectangle_.insert(index_, scene()->addRect(0.5,0.5,20,20,pen,brush));
 
 	reviewCrosshairLinePositions();
 
@@ -40,6 +41,8 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     //mouse press -
     connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
     connect(this, SIGNAL(mouseReleased(QPointF)),shapeModel_, SLOT(finishRectangle(QPointF)));
+    connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
+
 
 
 }
@@ -77,8 +80,23 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
     crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
+    if(index_ < shapeModel_->rectangleListLength())
+    {
+        addNewRectangle();
+    }
+    else if(index_ > shapeModel_->rectangleListLength())
+    {
+        deleteRectangle();
+    }
 
-    rectangle_->setRect(shapeModel_->rectangle());
+    for(int i = 0; i < index_+ 1; i++)
+    {
+        qDebug()<<"index:"<<i<<" ,"<<shapeModel_->rectangleListLength()<<","<<index_;
+        if(rectangle_.contains(i))
+            rectangle_[i]->setRect(shapeModel_->rectangle(i));
+        else
+            qDebug()<<"Missing rectangle"<<i;
+    }
 
 
 
@@ -118,8 +136,13 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
     AMOverlayVideoWidget2::mousePressEvent(e);
 
 	if(e->button() == Qt::LeftButton)
+    {
 		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
-    connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+        connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+    }
+    else if (e->button() == Qt::RightButton)
+        emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
+
     reviewCrosshairLinePositions();
 }
 
@@ -136,7 +159,7 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
 			emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
 		}
 
-//        disconnect(this,SLOT(drawRectangle(QPointF)));
+
         disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
          reviewCrosshairLinePositions();
 
@@ -158,7 +181,7 @@ QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoor
 	// for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
 	QSizeF viewSize = videoItem_->size();
 	QSizeF scaledSize = videoItem_->nativeSize();
-	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+    scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
 
 	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
 									   (viewSize.height()-scaledSize.height())/2),
@@ -184,3 +207,21 @@ void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
 }
 
 
+void AMCrosshairOverlayVideoWidget2::addNewRectangle()
+{
+    index_++;
+    QPen pen(QColor(Qt::red));
+
+    QBrush brush(QColor(Qt::blue));
+
+    rectangle_.insert(index_, scene()->addRect(0.5,0.5,20,20,pen,brush));
+
+
+}
+
+void AMCrosshairOverlayVideoWidget2::deleteRectangle()
+{
+    scene()->removeItem(rectangle_[index_]);
+    rectangle_.remove(index_);
+    index_--;
+}

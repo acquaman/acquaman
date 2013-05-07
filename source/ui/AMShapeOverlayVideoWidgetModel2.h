@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QObject>
 #include <QSizeF>
+#include <QMap>
 
 class QGraphicsRectItem;
 class AMCrosshairOverlayVideoWidget2;
@@ -23,9 +24,9 @@ public:
     void setViewSize(QSizeF viewSize);
     void setScaledSize(QSizeF scaledSize);
 
+    int rectangleListLength(){return index_;}
 
-
-    QRectF rectangle();
+    QRectF rectangle(int index);
 
 
 protected:
@@ -34,8 +35,12 @@ protected:
 
     QRectF rectangle_;
 
-    QPointF rectangleTopLeft();
-    QPointF rectangleBottomRight();
+    QPointF rectangleTopLeft(int index);
+    QPointF rectangleBottomRight(int index);
+
+    int index_;
+
+    QMap<int,QRectF> rectangleList_;
 
 
 
@@ -52,6 +57,9 @@ public slots:
 
     /// end position of rectangle
     void finishRectangle(QPointF);
+
+    /// delete a rectangle
+    void deleteRectangle(QPointF);
 
 
 

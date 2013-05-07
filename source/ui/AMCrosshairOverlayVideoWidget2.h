@@ -36,6 +36,8 @@ signals:
 
     /// Emitted when the mouse moves - in shapeoverlay
     void mouseMoved(const QPointF& position);
+    /// Emitted when the right mouse button is pressed down
+    void mouseRightClicked(const QPointF& position);
 
 
 public slots:
@@ -58,8 +60,12 @@ protected:
 	double crosshairX_, crosshairY_;
 	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
-    QGraphicsRectItem* rectangle_;
+    QMap<int,QGraphicsRectItem*> rectangle_;
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
+    int index_;
+
+    void addNewRectangle();
+    void deleteRectangle();
 
 
 
