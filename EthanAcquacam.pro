@@ -72,7 +72,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
         source/ui/AMOverlayVideoWidget2.h \
         source/ui/AMBeamlineCameraBrowser2.h \
     source/ui/AMShapeOverlayVideoWidgetView2.h \
-    source/ui/AMShapeOverlayVideoWidgetModel2.h
+    source/ui/AMShapeOverlayVideoWidgetModel2.h \
+    source/ui/AMShapeData2.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -80,5 +81,6 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMOverlayVideoWidget2.cpp \
         source/ui/AMBeamlineCameraBrowser2.cpp \
     source/ui/AMShapeOverlayVideoWidgetView2.cpp \
-    source/ui/AMShapeOverlayVideoWidgetModel2.cpp
+    source/ui/AMShapeOverlayVideoWidgetModel2.cpp \
+    source/ui/AMShapeData2.cpp
 

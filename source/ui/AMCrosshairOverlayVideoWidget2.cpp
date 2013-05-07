@@ -42,6 +42,8 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
     connect(this, SIGNAL(mouseReleased(QPointF)),shapeModel_, SLOT(finishRectangle(QPointF)));
     connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
+    connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentRectangle(QPointF)));
+    connect(this, SIGNAL(mouseMovedMoveMode(QPointF)), shapeModel_,SLOT(moveCurrentRectangle(QPointF)));
 
 
 
@@ -109,7 +111,22 @@ QPen AMCrosshairOverlayVideoWidget2::crosshairPen() const
 
 bool AMCrosshairOverlayVideoWidget2::crosshairVisible() const
 {
-	return crosshairXLine_->isVisible();
+    return crosshairXLine_->isVisible();
+}
+
+void AMCrosshairOverlayVideoWidget2::setDrawMode()
+{
+    mode_ = DRAW;
+}
+
+void AMCrosshairOverlayVideoWidget2::setMoveMode()
+{
+    mode_ = MOVE;
+}
+
+void AMCrosshairOverlayVideoWidget2::setEditMode()
+{
+    mode_ = EDIT;
 }
 
 void AMCrosshairOverlayVideoWidget2::setCrosshairPen(const QPen &pen)
@@ -135,10 +152,14 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
 {
     AMOverlayVideoWidget2::mousePressEvent(e);
 
-	if(e->button() == Qt::LeftButton)
+    if(e->button() == Qt::LeftButton && mode_ == DRAW)
     {
 		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+    }
+    else if(e->button() == Qt::LeftButton && mode_ == MOVE)
+    {
+        emit mouseMovePressed(mapSceneToVideo(mapToScene(e->pos())));
     }
     else if (e->button() == Qt::RightButton)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
@@ -202,7 +223,13 @@ void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
     AMOverlayVideoWidget2::mouseMoveEvent(e);
 
     if(e->MouseMove)
+    {
         emit mouseMoved(mapSceneToVideo(mapToScene(e->pos())));
+        if(mode_ == MOVE)
+        {
+            emit mouseMovedMoveMode(mapSceneToVideo(mapToScene(e->pos())));
+        }
+    }
      reviewCrosshairLinePositions();
 }
 

@@ -25,6 +25,11 @@ public:
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
+    enum selectMode{DRAW, MOVE, EDIT};
+    void setDrawMode();
+    void setMoveMode();
+    void setEditMode();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -38,6 +43,9 @@ signals:
     void mouseMoved(const QPointF& position);
     /// Emitted when the right mouse button is pressed down
     void mouseRightClicked(const QPointF& position);
+    /// Emitted when the left mouse is pressed down, in move mode
+    void mouseMovePressed(const QPointF& position);
+    void mouseMovedMoveMode(const QPointF& position);
 
 
 public slots:
@@ -63,6 +71,7 @@ protected:
     QMap<int,QGraphicsRectItem*> rectangle_;
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
     int index_;
+    selectMode mode_;
 
     void addNewRectangle();
     void deleteRectangle();

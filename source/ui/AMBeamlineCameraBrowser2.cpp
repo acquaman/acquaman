@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 #include <QFrame>
 #include <QLabel>
+#include <QPushButton>
 
 #include <QMessageBox>
 #include <QStringBuilder>
@@ -53,8 +54,21 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
 	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	sourceFrame->setLayout(shl);
 
+    QFrame* toolFrame  = new QFrame();
+    QHBoxLayout* tfl = new QHBoxLayout();
+    tfl->setContentsMargins(12,4,12,4);
+    tfl->addWidget(drawButton_ = new QPushButton("Draw"));
+    tfl->addSpacing(20);
+    tfl->addWidget(moveButton_ = new QPushButton("Move"));
+    tfl->addSpacing(20);
+    tfl->addWidget(editButton_ = new QPushButton("Edit"));
+    tfl->addStretch(20);
+    toolFrame->setLayout(tfl);
+
+
 	vl->addWidget(crosshairFrame);
     vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget2(0, useOpenGlViewport));
+    vl->addWidget(toolFrame);
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
 
@@ -79,8 +93,9 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
 	connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
 
-
-
+    connect(drawButton_, SIGNAL(clicked()), this, SLOT(drawMode()));
+    connect(moveButton_, SIGNAL(clicked()), this, SLOT(moveMode()));
+    connect(editButton_, SIGNAL(clicked()), this, SLOT(editMode()));
 }
 
 
@@ -248,3 +263,21 @@ int AMBeamlineCameraBrowser2::crosshairLineThickness() const
 }
 
 
+void AMBeamlineCameraBrowser2::drawMode()
+{
+    drawButton_->setDown(true);
+    videoWidget_->setDrawMode();
+
+}
+
+void AMBeamlineCameraBrowser2::moveMode()
+{
+    moveButton_->setDown(true);
+    videoWidget_->setMoveMode();
+}
+
+void AMBeamlineCameraBrowser2::editMode()
+{
+    editButton_->setDown(true);
+    videoWidget_->setEditMode();
+}

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class QPushButton;
 class QComboBox;
 class QCheckBox;
 class AMCrosshairOverlayVideoWidget2;
@@ -57,6 +58,11 @@ public slots:
 	/// Add a new video source URL and start playing it, or switch to an existing source URL (if this already exists in the history)
 	void setCurrentSourceURL(const QString& sourceURL);
 
+    /// Draw button selected
+    void drawMode();
+    void moveMode();
+    void editMode();
+
 
 protected:
 
@@ -67,6 +73,10 @@ protected:
 	QSlider* crosshairThicknessSlider_;
 
 	bool crosshairLocked_;
+
+    QPushButton* drawButton_;
+    QPushButton* moveButton_;
+    QPushButton* editButton_;
 
 
 protected slots:

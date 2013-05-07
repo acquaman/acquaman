@@ -6,7 +6,9 @@
 #include <QObject>
 #include <QSizeF>
 #include <QMap>
+#include "ui/AMShapeData2.h"
 
+class AMShapeData2;
 class QGraphicsRectItem;
 class AMCrosshairOverlayVideoWidget2;
 
@@ -39,8 +41,10 @@ protected:
     QPointF rectangleBottomRight(int index);
 
     int index_;
+    int current_;
+    QPointF currentVector_;
 
-    QMap<int,QRectF> rectangleList_;
+    QMap<int,AMShapeData2> rectangleList_;
 
 
 
@@ -60,6 +64,10 @@ public slots:
 
     /// delete a rectangle
     void deleteRectangle(QPointF);
+
+    void selectCurrentRectangle(QPointF);
+
+    void moveCurrentRectangle(QPointF);
 
 
 
