@@ -2,40 +2,41 @@
 
 #include <QGraphicsRectItem>
 #include <QResizeEvent>
-#include "ui/AMCrosshairOverlayVideoWidget2.h"
-#include "ui/AMShapeData2.h"
+
 
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
 
+/// Constructor
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
     QObject(parent)
 {
     index_ = -1;
-    // make connections
 }
 
 
-
+/// creates a new rectangle, and initializes its data
 void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
 {
     index_++;
     rectangle_.setTopLeft(position);
     rectangle_.setBottomRight(position);
     AMShapeData2 newRectData(rectangle_);
-   // AMShapeData2* newRectData = new AMShapeData2(rectangle_,"Rectangle" + index_);
     rectangleList_.insert(index_,newRectData);
-    rectangleList_[index_].setName("Rectangle" + QString::number(index_));
+    rectangleList_[index_].setName("Rectangle " + QString::number(index_));
     rectangleList_[index_].setOtherData("Coordinate:");
     rectangleList_[index_].setIdNumber(index_ * 13);
+    current_ = index_;
 }
 
+/// Changes the bottom right corner of the current rectangle
 void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
     rectangleList_[index_].rectangle()->setBottomRight(position);
 }
 
+/// deletes a rectangle from the list
 void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
 {
     for(int i = 0; i < index_ + 1; i++)
@@ -50,6 +51,7 @@ void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
     }
 }
 
+/// selects a rectangle which is under the cursor
 void AMShapeOverlayVideoWidgetModel2::selectCurrentRectangle(QPointF position)
 {
     int i = 0;
@@ -66,6 +68,7 @@ void AMShapeOverlayVideoWidgetModel2::selectCurrentRectangle(QPointF position)
     else current_ = index_ + 1;
 }
 
+/// moves the currently selected rectangle by position + currentVector_
 void AMShapeOverlayVideoWidgetModel2::moveCurrentRectangle(QPointF position)
 {
     if(current_ <= index_)
@@ -74,18 +77,20 @@ void AMShapeOverlayVideoWidgetModel2::moveCurrentRectangle(QPointF position)
     }
 }
 
+/// moves all rectangles by position + rectangleVector_[index]
 void AMShapeOverlayVideoWidgetModel2::moveAllRectangles(QPointF position)
 {
-    qDebug()<<"Moving Rectangles";
+
     for(int i = 0; i <= index_; i++)
     {
         rectangleList_[i].rectangle()->moveTopLeft(position + rectangleVector_[i]);
     }
 }
 
+/// assigns all rectangle vectors, relative to position
 void AMShapeOverlayVideoWidgetModel2::setRectangleVectors(QPointF position)
 {
-    qDebug()<<"Setting Rectangle Vectors";
+
     rectangleVector_  = new QPointF[index_ + 1];
     for(int i = 0; i <= index_; i++)
     {
@@ -93,12 +98,30 @@ void AMShapeOverlayVideoWidgetModel2::setRectangleVectors(QPointF position)
     }
 }
 
+/// makes all rectangles bigger or smaller, keeps the centre constant
+void AMShapeOverlayVideoWidgetModel2::zoomAllRectangles(QPointF position)
+{
+    for(int i = 0; i <= index_; i++)
+    {
+        qDebug()<<QString::number(rectangleList_[i].rectangle()->x()) +" "+ QString::number(rectangleList_[i].rectangle()->y());
+        QSizeF oldSize = rectangleList_[i].rectangle()->size();
+        QSizeF newSize = (zoomPoint_.y()/position.y())*oldSize;
+        QPointF center = rectangleList_[i].rectangle()->center() + (-1*(newSize.height()/oldSize.height() -1))*(zoomCenter_ - rectangleList_[i].rectangle()->center());
+        rectangleList_[i].rectangle()->setSize(newSize);
+        rectangleList_[i].rectangle()->moveCenter(center);
+        rectangleList_[i].setOtherData(QString::number(rectangleList_[i].rectangle()->x()) +" "+ QString::number(rectangleList_[i].rectangle()->y()));
+    }
+    zoomPoint_ = position;
+}
+
+
+/// Changes the size of the current rectangle, keeps its top left constant
 void AMShapeOverlayVideoWidgetModel2::finishCurrentRectangle(QPointF position)
 {
     rectangleList_[current_].rectangle()->setBottomRight(position);
 }
 
-
+/// transforms a coordinate point for display
 QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 {
 
@@ -117,6 +140,12 @@ QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 
 }
 
+QPointF AMShapeOverlayVideoWidgetModel2::center()
+{
+    return QPointF(1,2);
+
+
+}
 
 
 void AMShapeOverlayVideoWidgetModel2::setViewSize(QSizeF viewSize)
@@ -139,11 +168,13 @@ QPointF AMShapeOverlayVideoWidgetModel2::rectangleBottomRight(int index)
     return coordinateTransform(rectangleList_[index].rectangle()->bottomRight());
 }
 
+/// checks if an index is valid
 bool AMShapeOverlayVideoWidgetModel2::isValid(int index)
 {
     if(index <= index_ && index >= 0) return true;
     else return false;
 }
+
 
 void AMShapeOverlayVideoWidgetModel2::deleteRectangleVector()
 {
@@ -192,6 +223,12 @@ void AMShapeOverlayVideoWidgetModel2::setCurrentIndex(int current)
     current_ = current;
 }
 
+
+void AMShapeOverlayVideoWidgetModel2::setZoomPoint(QPointF position)
+{
+    zoomPoint_ = position;
+    zoomCenter_ = position;
+}
 
 
 

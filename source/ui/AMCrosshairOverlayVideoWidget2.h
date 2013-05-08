@@ -25,6 +25,7 @@ public:
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
+    /// Used to set the current mode selected on the toolbar
     enum selectMode{DRAW, MOVE, EDIT, SHIFT};
     void setDrawMode();
     void setMoveMode();
@@ -37,6 +38,7 @@ public:
     QString currentInfo();
     void setCurrentInfo(QString);
 
+    /// Get the index of the currently selected object
     int currentIndex();
 
 
@@ -54,10 +56,16 @@ signals:
     void mouseRightClicked(const QPointF& position);
     /// Emitted when the left mouse is pressed down, in move mode
     void mouseMovePressed(const QPointF& position);
+    /// Emitted when the mouse is moved, while in move mode
     void mouseMovedMoveMode(const QPointF& position);
+    /// Emitted when the currently selected item has changed
     void currentChanged();
+    /// Emitted when the left mouse button is pressed, in edit mode
     void mouseEditPressed(const QPointF& position);
+    /// Emitted when the left mouse button is pressed, in shift mode
     void mouseShiftPressed(const QPointF& position);
+    /// Emitted when the right mouse button is pressed, in shift mode
+    void mouseShiftRightPressed(const QPointF& position);
 
 
 public slots:
@@ -82,15 +90,22 @@ protected:
 	double crosshairX_, crosshairY_;
 	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
+    /// Map of QGraphicsRecItems, corresponds to a map of AMShapeData2
     QMap<int,QGraphicsRectItem*> rectangle_;
+    /// The model for all the shapes displayed (except the crosshair)
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
+    /// the max index in use (number of rectangles - 1)
     int index_;
+    /// current mode selected by toolbar
     selectMode mode_;
+    /// the index of the currently selected item
     int current_;
 
+    /// Add and remove rectangles from the scene
     void addNewRectangle();
     void deleteRectangle();
 
+    /// manages changing the selection
     void currentSelectionChanged();
 
 

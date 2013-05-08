@@ -1,6 +1,7 @@
 #include "AMCrosshairOverlayVideoWidget2.h"
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
+#include <QGraphicsItem>
 
 #include <QMap>
 #include <QMediaObject>
@@ -20,7 +21,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 
 	QPen pen(QColor(Qt::red));
 
-    QBrush brush(QColor(Qt::blue));
+    QBrush brush(QColor(Qt::transparent));
 
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);
@@ -45,7 +46,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentRectangle(QPointF)));
     connect(this, SIGNAL(mouseEditPressed(QPointF)), shapeModel_, SLOT(selectCurrentRectangle(QPointF)));
     connect(this, SIGNAL(mouseShiftPressed(QPointF)), shapeModel_, SLOT(setRectangleVectors(QPointF)));
-
+    connect(this, SIGNAL(mouseShiftRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
 
 }
 
@@ -191,6 +192,7 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
     {
 		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+
     }
     else if(e->button() == Qt::LeftButton && mode_ == MOVE)
     {
@@ -209,15 +211,22 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         emit mouseShiftPressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(moveAllRectangles(QPointF)));
     }
+    else if (e->button() == Qt::RightButton && mode_ == SHIFT)
+    {
+        emit mouseShiftRightPressed(mapSceneToVideo(mapToScene(e->pos())));
+        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomAllRectangles(QPointF)));
+    }
     else if (e->button() == Qt::RightButton)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
+    else
+        AMOverlayVideoWidget2::mousePressEvent(e);
 
     reviewCrosshairLinePositions();
 }
 
 void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
 {
-    AMOverlayVideoWidget2::mouseReleaseEvent(e);
+
 
 	if(e->button() == Qt::LeftButton) {
 		if(doubleClickInProgress_) {
@@ -232,24 +241,53 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
 			emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
 		}
 
-
+        qDebug()<<"disconnecting slots";
         disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
         disconnect(shapeModel_,SLOT(moveCurrentRectangle(QPointF)));
         disconnect(shapeModel_, SLOT(finishCurrentRectangle(QPointF)));
         disconnect(shapeModel_, SLOT(moveAllRectangles(QPointF)));
+
         reviewCrosshairLinePositions();
 
 	}
+    else if(e->button() == Qt::RightButton)
+    {
+        emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
+        disconnect(shapeModel_, SLOT(zoomAllRectangles(QPointF)));
+        reviewCrosshairLinePositions();
+    }
+    else AMOverlayVideoWidget2::mouseReleaseEvent(e);
 }
 
 void AMCrosshairOverlayVideoWidget2::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    AMOverlayVideoWidget2::mouseDoubleClickEvent(e);
+
 
 	if(e->button() == Qt::LeftButton) {
 		doubleClickInProgress_ = true;
 	}
+    else   AMOverlayVideoWidget2::mouseDoubleClickEvent(e);
 
+}
+
+void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
+{
+    AMOverlayVideoWidget2::mouseMoveEvent(e);
+
+    if(e->MouseMove)
+    {
+        emit mouseMoved(mapSceneToVideo(mapToScene(e->pos())));
+        if(mode_ == MOVE)
+        {
+            emit mouseMovedMoveMode(mapSceneToVideo(mapToScene(e->pos())));
+        }
+        else if(mode_ == DRAW)
+        {
+            currentSelectionChanged();
+        }
+
+    }
+     reviewCrosshairLinePositions();
 }
 
 QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoordinate) const
@@ -273,41 +311,30 @@ QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoor
 
 
 
-void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
-{
-    AMOverlayVideoWidget2::mouseMoveEvent(e);
-
-    if(e->MouseMove)
-    {
-        emit mouseMoved(mapSceneToVideo(mapToScene(e->pos())));
-        if(mode_ == MOVE)
-        {
-            emit mouseMovedMoveMode(mapSceneToVideo(mapToScene(e->pos())));
-        }
-    }
-     reviewCrosshairLinePositions();
-}
-
-
+/// append a new rectangle to the current list, add it to the scene
 void AMCrosshairOverlayVideoWidget2::addNewRectangle()
 {
     index_++;
     QPen pen(QColor(Qt::red));
 
-    QBrush brush(QColor(Qt::blue));
+    QBrush brush(QColor(Qt::transparent));
 
     rectangle_.insert(index_, scene()->addRect(0.5,0.5,20,20,pen,brush));
 
 
 }
 
+/// Remove a rectangle from the scene
 void AMCrosshairOverlayVideoWidget2::deleteRectangle()
 {
+    QGraphicsRectItem* rectangle = rectangle_[index_];
     scene()->removeItem(rectangle_[index_]);
     rectangle_.remove(index_);
     index_--;
+    delete rectangle;
 }
 
+/// change the currently selected item, outline it in yellow
 void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
 {
     emit currentChanged();

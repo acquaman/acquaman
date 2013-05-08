@@ -59,12 +59,13 @@ public slots:
 	/// Add a new video source URL and start playing it, or switch to an existing source URL (if this already exists in the history)
 	void setCurrentSourceURL(const QString& sourceURL);
 
-    /// Draw button selected
+    /// Mode Selection
     void drawMode();
     void moveMode();
     void editMode();
     void shiftMode();
 
+    /// Change the shape information
     void nameChanged(QString);
     void infoChanged(QString);
     void currentChanged();
@@ -82,11 +83,13 @@ protected:
 
 	bool crosshairLocked_;
 
+    /// Mode buttons
     QPushButton* drawButton_;
     QPushButton* moveButton_;
     QPushButton* editButton_;
     QPushButton* shiftButton_;
 
+    /// Line Edits
     QLineEdit* nameEdit_;
     QLineEdit* infoEdit_;
 

@@ -242,7 +242,6 @@ QString AMBeamlineCameraBrowser2::currentSourceURL() const
 
 void AMBeamlineCameraBrowser2::setCurrentSourceURL(const QString &sourceURL)
 {
-    qDebug() << "Here in setCurrentSourceURL";
 	if(sourceURL.isEmpty())
 		return;
 
@@ -320,7 +319,6 @@ void AMBeamlineCameraBrowser2::infoChanged(QString info)
 
 void AMBeamlineCameraBrowser2::currentChanged()
 {
-    qDebug()<<"CurrentChanged";
     nameEdit_->setText(videoWidget_->currentName());
     infoEdit_->setText(videoWidget_->currentInfo());
 }
