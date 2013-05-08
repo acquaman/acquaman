@@ -25,10 +25,19 @@ public:
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
-    enum selectMode{DRAW, MOVE, EDIT};
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT};
     void setDrawMode();
     void setMoveMode();
     void setEditMode();
+    void setShiftMode();
+
+    /// Functions for modifying object information
+    QString currentName();
+    void setCurrentName(QString);
+    QString currentInfo();
+    void setCurrentInfo(QString);
+
+    int currentIndex();
 
 
 signals:
@@ -46,6 +55,9 @@ signals:
     /// Emitted when the left mouse is pressed down, in move mode
     void mouseMovePressed(const QPointF& position);
     void mouseMovedMoveMode(const QPointF& position);
+    void currentChanged();
+    void mouseEditPressed(const QPointF& position);
+    void mouseShiftPressed(const QPointF& position);
 
 
 public slots:
@@ -64,6 +76,8 @@ public slots:
 	void setCrosshairVisible(bool crosshairVisible = true);
 
 
+
+
 protected:
 	double crosshairX_, crosshairY_;
 	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
@@ -72,10 +86,12 @@ protected:
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
     int index_;
     selectMode mode_;
+    int current_;
 
     void addNewRectangle();
     void deleteRectangle();
 
+    void currentSelectionChanged();
 
 
 

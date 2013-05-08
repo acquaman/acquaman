@@ -13,6 +13,7 @@
 #include "ui/AMCrosshairOverlayVideoWidget2.h"
 #include "ui/AMColorPickerButton2.h"
 #include "ui/AMShapeOverlayVideoWidgetView2.h"
+#include <QLineEdit>
 
 AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
@@ -62,12 +63,24 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     tfl->addWidget(moveButton_ = new QPushButton("Move"));
     tfl->addSpacing(20);
     tfl->addWidget(editButton_ = new QPushButton("Edit"));
+    tfl->addSpacing(20);
+    tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
     tfl->addStretch(20);
     toolFrame->setLayout(tfl);
+
+    QFrame* infoFrame = new QFrame();
+    QHBoxLayout* ihl = new QHBoxLayout();
+    ihl->setContentsMargins(12,4,12,4);
+    ihl->addWidget(nameEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(infoEdit_ = new QLineEdit());
+    ihl->addStretch();
+    infoFrame->setLayout(ihl);
 
 
 	vl->addWidget(crosshairFrame);
     vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget2(0, useOpenGlViewport));
+    vl->addWidget(infoFrame);
     vl->addWidget(toolFrame);
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
@@ -96,6 +109,11 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(drawButton_, SIGNAL(clicked()), this, SLOT(drawMode()));
     connect(moveButton_, SIGNAL(clicked()), this, SLOT(moveMode()));
     connect(editButton_, SIGNAL(clicked()), this, SLOT(editMode()));
+    connect(shiftButton_, SIGNAL(clicked()), this, SLOT(shiftMode()));
+
+    connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
+    connect(infoEdit_, SIGNAL(textChanged(QString)), this, SLOT(infoChanged(QString)));
+    connect(videoWidget_, SIGNAL(currentChanged()), this, SLOT(currentChanged()));
 }
 
 
@@ -280,4 +298,29 @@ void AMBeamlineCameraBrowser2::editMode()
 {
     editButton_->setDown(true);
     videoWidget_->setEditMode();
+}
+
+void AMBeamlineCameraBrowser2::shiftMode()
+{
+    shiftButton_->setDown(true);
+    videoWidget_->setShiftMode();
+}
+
+void AMBeamlineCameraBrowser2::nameChanged(QString name)
+{
+    videoWidget_->setCurrentName(name);
+    nameEdit_->setText(videoWidget_->currentName());
+}
+
+void AMBeamlineCameraBrowser2::infoChanged(QString info)
+{
+   videoWidget_->setCurrentInfo(info);
+   infoEdit_->setText(videoWidget_->currentInfo());
+}
+
+void AMBeamlineCameraBrowser2::currentChanged()
+{
+    qDebug()<<"CurrentChanged";
+    nameEdit_->setText(videoWidget_->currentName());
+    infoEdit_->setText(videoWidget_->currentInfo());
 }

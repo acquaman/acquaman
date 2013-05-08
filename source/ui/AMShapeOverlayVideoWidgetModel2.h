@@ -30,6 +30,16 @@ public:
 
     QRectF rectangle(int index);
 
+    QString currentName();
+    void setCurrentName(QString name);
+    QString currentInfo();
+    void setCurrentInfo(QString info);
+
+    int currentIndex();
+    void setCurrentIndex(int current);
+    bool isValid(int index);
+    void deleteRectangleVector();
+
 
 protected:
     QSizeF viewSize_;
@@ -43,8 +53,13 @@ protected:
     int index_;
     int current_;
     QPointF currentVector_;
+    QPointF* rectangleVector_;
 
     QMap<int,AMShapeData2> rectangleList_;
+
+
+
+
 
 
 
@@ -68,6 +83,12 @@ public slots:
     void selectCurrentRectangle(QPointF);
 
     void moveCurrentRectangle(QPointF);
+
+    void moveAllRectangles(QPointF);
+
+    void setRectangleVectors(QPointF);
+
+    void finishCurrentRectangle(QPointF);
 
 
 

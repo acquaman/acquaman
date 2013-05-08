@@ -10,6 +10,7 @@ class AMCrosshairOverlayVideoWidget2;
 class AMColorPickerButton2;
 class QSlider;
 class AMShapeOverlayVideoWidgetView2;
+class QLineEdit;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraBrowser2 : public QWidget
@@ -62,6 +63,13 @@ public slots:
     void drawMode();
     void moveMode();
     void editMode();
+    void shiftMode();
+
+    void nameChanged(QString);
+    void infoChanged(QString);
+    void currentChanged();
+
+
 
 
 protected:
@@ -77,6 +85,13 @@ protected:
     QPushButton* drawButton_;
     QPushButton* moveButton_;
     QPushButton* editButton_;
+    QPushButton* shiftButton_;
+
+    QLineEdit* nameEdit_;
+    QLineEdit* infoEdit_;
+
+
+
 
 
 protected slots:
