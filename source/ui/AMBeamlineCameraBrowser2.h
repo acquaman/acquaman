@@ -38,6 +38,7 @@ public:
 	QString currentSourceURL() const;
 
 signals:
+    void coordinateChange(double,double,double);
 
 public slots:
 
@@ -70,6 +71,12 @@ public slots:
     void infoChanged(QString);
     void currentChanged();
 
+    void xChanged(QString);
+    void yChanged(QString);
+    void zChanged(QString);
+    void rotationChanged(QString);
+    void setCoordinate();
+
 
 
 
@@ -92,6 +99,13 @@ protected:
     /// Line Edits
     QLineEdit* nameEdit_;
     QLineEdit* infoEdit_;
+    QLineEdit* xEdit_;
+    QLineEdit* yEdit_;
+    QLineEdit* zEdit_;
+    QLineEdit* rotationEdit_;
+    QPushButton* setCoordinate_;
+
+
 
 
 

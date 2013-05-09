@@ -2,11 +2,12 @@
 
 #include <QGraphicsRectItem>
 #include <QResizeEvent>
-
+#include <QVector3D>
 
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
+#include <math.h>
 
 /// Constructor
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
@@ -34,6 +35,8 @@ void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
 void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
     rectangleList_[index_].rectangle()->setBottomRight(position);
+    rectangleList_[index_].setHeight(rectangleList_[index_].rectangle()->height());
+    rectangleList_[index_].setWidth(rectangleList_[index_].rectangle()->width());
 }
 
 /// deletes a rectangle from the list
@@ -119,6 +122,64 @@ void AMShapeOverlayVideoWidgetModel2::zoomAllRectangles(QPointF position)
 void AMShapeOverlayVideoWidgetModel2::finishCurrentRectangle(QPointF position)
 {
     rectangleList_[current_].rectangle()->setBottomRight(position);
+    rectangleList_[current_].setHeight(rectangleList_[current_].rectangle()->height());
+    rectangleList_[current_].setWidth(rectangleList_[current_].rectangle()->width());
+}
+
+void AMShapeOverlayVideoWidgetModel2::setCoordinates(QVector3D coordinate, int index)
+{
+    rectangleList_[index].setCoordinate(coordinate);
+}
+
+void AMShapeOverlayVideoWidgetModel2::setCoordinates(double x, double y, double z, int index)
+{
+    qDebug()<<"changing coordinates";
+    if(-1 == index) index = current_;
+    QVector3D coordinate;
+    coordinate.setX(x);
+    coordinate.setY(y);
+    coordinate.setZ(z);
+    setCoordinates(coordinate, index);
+}
+
+QVector3D AMShapeOverlayVideoWidgetModel2::coordinate(int index)
+{
+    return rectangleList_[index].coordinate();
+}
+
+QVector3D AMShapeOverlayVideoWidgetModel2::currentCoordinate()
+{
+    return coordinate(current_);
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
+{
+    // bx = ax*bz/az
+    // by = ay*bz/az
+    // define a bz value
+    double bz = 1.0;
+    QPointF position;
+    position.setX(((coordinate.x()-0.5)*bz/coordinate.z())+0.5);
+    position.setY(((coordinate.y()-0.5)*bz/coordinate.z())+0.5);
+    return position;
+}
+
+double AMShapeOverlayVideoWidgetModel2::transformDimension(double dimension, QVector3D coordinate)
+{
+    //redefine bz...
+    double bz = 1.0;
+    double newDimension = dimension*bz/coordinate.z();
+    return newDimension;
+}
+
+void AMShapeOverlayVideoWidgetModel2::changeCoordinate()
+{
+    qDebug()<<"before:"<<QString::number(rectangleList_[current_].rectangle()->x())<<QString::number(rectangleList_[current_].rectangle()->y());
+    rectangleList_[current_].rectangle()->setHeight(transformDimension(rectangleList_[current_].height(),rectangleList_[current_].coordinate()));
+    rectangleList_[current_].rectangle()->setWidth(transformDimension(rectangleList_[current_].width(),rectangleList_[current_].coordinate()));
+    rectangleList_[current_].rectangle()->setWidth(applyRotation(rectangleList_[current_].rectangle()->width()));
+    rectangleList_[current_].rectangle()->moveCenter(transform3Dto2D(rectangleList_[current_].coordinate()));
+    qDebug()<<"after:"<<QString::number(rectangleList_[current_].rectangle()->x())<<QString::number(rectangleList_[current_].rectangle()->y());
 }
 
 /// transforms a coordinate point for display
@@ -140,12 +201,16 @@ QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 
 }
 
-QPointF AMShapeOverlayVideoWidgetModel2::center()
+double AMShapeOverlayVideoWidgetModel2::applyRotation(double width)
 {
-    return QPointF(1,2);
-
+    // apply the rotation
+    // however, for proper rotation, we need a non-rectangle
+    // will implement very basic rotation (just modify the width)
+    double newWidth = width*cos(rectangleList_[current_].rotation());
+    return newWidth;
 
 }
+
 
 
 void AMShapeOverlayVideoWidgetModel2::setViewSize(QSizeF viewSize)
@@ -179,6 +244,24 @@ bool AMShapeOverlayVideoWidgetModel2::isValid(int index)
 void AMShapeOverlayVideoWidgetModel2::deleteRectangleVector()
 {
     delete[]rectangleVector_;
+}
+
+double AMShapeOverlayVideoWidgetModel2::rotation(int index)
+{
+    if(-1 == index)
+    {
+        index = current_;
+    }
+    return rectangleList_[index].rotation();
+}
+
+void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
+{
+    if(-1 == index)
+    {
+        index = current_;
+    }
+   rectangleList_[index].setRotation(rotation);
 }
 
 

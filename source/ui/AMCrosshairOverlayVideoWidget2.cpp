@@ -9,6 +9,11 @@
 #include <QDebug>
 #include "ui/AMShapeOverlayVideoWidgetModel2.h"
 
+
+QColor const AMCrosshairOverlayVideoWidget2::BORDERCOLOUR = QColor(Qt::red);
+QColor const AMCrosshairOverlayVideoWidget2::ACTIVEBORDERCOLOUR = QColor(Qt::yellow);
+
+
 AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, bool useOpenGlViewport) :
     AMOverlayVideoWidget2(parent, useOpenGlViewport)
 {
@@ -19,7 +24,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 
 
 
-	QPen pen(QColor(Qt::red));
+    QPen pen(BORDERCOLOUR);
 
     QBrush brush(QColor(Qt::transparent));
 
@@ -47,7 +52,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     connect(this, SIGNAL(mouseEditPressed(QPointF)), shapeModel_, SLOT(selectCurrentRectangle(QPointF)));
     connect(this, SIGNAL(mouseShiftPressed(QPointF)), shapeModel_, SLOT(setRectangleVectors(QPointF)));
     connect(this, SIGNAL(mouseShiftRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
-
+    connect(this, SIGNAL(setCoordinate(double,double,double)), shapeModel_, SLOT(setCoordinates(double,double,double)));
 }
 
 
@@ -165,6 +170,63 @@ int AMCrosshairOverlayVideoWidget2::currentIndex()
     return shapeModel_->currentIndex();
 }
 
+double AMCrosshairOverlayVideoWidget2::xCoordinate()
+{
+    qDebug()<<"view current"<<QString::number(current_);
+    qDebug()<<"model current"<<QString::number(shapeModel_->currentIndex());
+    return shapeModel_->currentCoordinate().x();
+}
+
+double AMCrosshairOverlayVideoWidget2::yCoordinate()
+{
+    return shapeModel_->currentCoordinate().y();
+}
+
+double AMCrosshairOverlayVideoWidget2::zCoordinate()
+{
+    return shapeModel_->currentCoordinate().z();
+}
+
+double AMCrosshairOverlayVideoWidget2::rotation()
+{
+    return shapeModel_->rotation();
+}
+
+void AMCrosshairOverlayVideoWidget2::setX(double x)
+{
+   QVector3D currentCoordinate = shapeModel_->currentCoordinate();
+   double y = currentCoordinate.y();
+   double z = currentCoordinate.z();
+   shapeModel_->setCoordinates(x,y,z);
+}
+
+void AMCrosshairOverlayVideoWidget2::setY(double y)
+{
+    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
+    double x = currentCoordinate.x();
+    double z = currentCoordinate.z();
+    shapeModel_->setCoordinates(x,y,z);
+}
+
+void AMCrosshairOverlayVideoWidget2::setZ(double z)
+{
+    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
+    double y = currentCoordinate.y();
+    double x = currentCoordinate.x();
+    shapeModel_->setCoordinates(x,y,z);
+}
+
+void AMCrosshairOverlayVideoWidget2::setRotation(double rotation)
+{
+    shapeModel_->setRotation(rotation);
+}
+
+void AMCrosshairOverlayVideoWidget2::moveCurrentToCoordinate()
+{
+    shapeModel_->changeCoordinate();
+    reviewCrosshairLinePositions();
+}
+
 void AMCrosshairOverlayVideoWidget2::setCrosshairPen(const QPen &pen)
 {
 	crosshairXLine_->setPen(pen);
@@ -174,8 +236,9 @@ void AMCrosshairOverlayVideoWidget2::setCrosshairPen(const QPen &pen)
 void AMCrosshairOverlayVideoWidget2::setCrosshairVisible(bool crosshairVisible)
 {
 	crosshairXLine_->setVisible(crosshairVisible);
-	crosshairYLine_->setVisible(crosshairVisible);
+    crosshairYLine_->setVisible(crosshairVisible);
 }
+
 
 void AMCrosshairOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
 {
@@ -243,7 +306,7 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
 
         qDebug()<<"disconnecting slots";
         disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
-        disconnect(shapeModel_,SLOT(moveCurrentRectangle(QPointF)));
+        disconnect(shapeModel_, SLOT(moveCurrentRectangle(QPointF)));
         disconnect(shapeModel_, SLOT(finishCurrentRectangle(QPointF)));
         disconnect(shapeModel_, SLOT(moveAllRectangles(QPointF)));
 
@@ -315,7 +378,7 @@ QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoor
 void AMCrosshairOverlayVideoWidget2::addNewRectangle()
 {
     index_++;
-    QPen pen(QColor(Qt::red));
+    QPen pen(BORDERCOLOUR);
 
     QBrush brush(QColor(Qt::transparent));
 
@@ -339,8 +402,8 @@ void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
 {
     emit currentChanged();
     if(shapeModel_->isValid(current_))
-        rectangle_[current_]->setPen(QColor(Qt::red));
+        rectangle_[current_]->setPen(BORDERCOLOUR);
     current_ = shapeModel_->currentIndex();
     if(shapeModel_->isValid(current_))
-        rectangle_[current_]->setPen(QColor(Qt::yellow));
+        rectangle_[current_]->setPen(ACTIVEBORDERCOLOUR);
 }

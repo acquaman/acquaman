@@ -10,7 +10,7 @@
 
 class AMShapeData2;
 class QGraphicsRectItem;
-
+class QVector3D;
 
 class AMShapeOverlayVideoWidgetModel2: public QObject
 {
@@ -45,6 +45,9 @@ public:
 
     /// deletes the rectangle vectors array (used in movement)
     void deleteRectangleVector();
+
+    double rotation(int index = -1);
+    void setRotation(double rotation, int index = -1);
 
 
 protected:
@@ -82,7 +85,9 @@ protected:
     /// as QPointF
     QPointF coordinateTransform(QPointF);
 
-    QPointF center();
+    double applyRotation(double width);
+
+
 
 public slots:
     /// start position of rectangle
@@ -108,7 +113,19 @@ public slots:
 
     void finishCurrentRectangle(QPointF);
 
+    void setCoordinates(QVector3D, int);
 
+    void setCoordinates(double x, double y, double z, int index = -1);
+
+    QVector3D coordinate(int index);
+
+    QVector3D currentCoordinate();
+
+    QPointF transform3Dto2D(QVector3D coordinate);
+
+    double transformDimension(double dimension, QVector3D coordinate);
+
+    void changeCoordinate();
 
 };
 

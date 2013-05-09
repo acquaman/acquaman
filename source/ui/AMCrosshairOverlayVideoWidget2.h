@@ -41,6 +41,18 @@ public:
     /// Get the index of the currently selected object
     int currentIndex();
 
+    double xCoordinate();
+    double yCoordinate();
+    double zCoordinate();
+    double rotation();
+
+    void setX(double x);
+    void setY(double y);
+    void setZ(double z);
+    void setRotation(double rotation);
+
+    void moveCurrentToCoordinate();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -67,6 +79,8 @@ signals:
     /// Emitted when the right mouse button is pressed, in shift mode
     void mouseShiftRightPressed(const QPointF& position);
 
+    void setCoordinate(double x, double y, double z);
+
 
 public slots:
 
@@ -89,6 +103,9 @@ public slots:
 protected:
 	double crosshairX_, crosshairY_;
 	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
+
+    static const QColor BORDERCOLOUR;
+    static const QColor ACTIVEBORDERCOLOUR;
 
     /// Map of QGraphicsRecItems, corresponds to a map of AMShapeData2
     QMap<int,QGraphicsRectItem*> rectangle_;

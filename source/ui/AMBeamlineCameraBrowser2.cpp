@@ -74,6 +74,16 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     ihl->addWidget(nameEdit_ = new QLineEdit());
     ihl->addSpacing(20);
     ihl->addWidget(infoEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(xEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(yEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(zEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(rotationEdit_ = new QLineEdit());
+    ihl->addSpacing(20);
+    ihl->addWidget(setCoordinate_ = new QPushButton("Set"));
     ihl->addStretch();
     infoFrame->setLayout(ihl);
 
@@ -114,6 +124,13 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
     connect(infoEdit_, SIGNAL(textChanged(QString)), this, SLOT(infoChanged(QString)));
     connect(videoWidget_, SIGNAL(currentChanged()), this, SLOT(currentChanged()));
+
+    connect(xEdit_, SIGNAL(textChanged(QString)), this, SLOT(xChanged(QString)));
+    connect(yEdit_, SIGNAL(textChanged(QString)), this, SLOT(yChanged(QString)));
+    connect(zEdit_, SIGNAL(textChanged(QString)), this, SLOT(zChanged(QString)));
+    connect(rotationEdit_, SIGNAL(textChanged(QString)), this, SLOT(rotationChanged(QString)));
+    connect(setCoordinate_, SIGNAL(clicked()), this, SLOT(setCoordinate()));
+    connect(this, SIGNAL(coordinateChange(double,double,double)), videoWidget_, SIGNAL(setCoordinate(double,double,double)));
 }
 
 
@@ -307,6 +324,7 @@ void AMBeamlineCameraBrowser2::shiftMode()
 
 void AMBeamlineCameraBrowser2::nameChanged(QString name)
 {
+    qDebug()<<"Name changed";
     videoWidget_->setCurrentName(name);
     nameEdit_->setText(videoWidget_->currentName());
 }
@@ -321,4 +339,46 @@ void AMBeamlineCameraBrowser2::currentChanged()
 {
     nameEdit_->setText(videoWidget_->currentName());
     infoEdit_->setText(videoWidget_->currentInfo());
+    xEdit_->setText(QString::number(videoWidget_->xCoordinate()));
+    yEdit_->setText(QString::number(videoWidget_->yCoordinate()));
+    zEdit_->setText(QString::number(videoWidget_->zCoordinate()));
+    rotationEdit_->setText(QString::number(videoWidget_->rotation()));
 }
+
+void AMBeamlineCameraBrowser2::xChanged(QString text)
+{
+    qDebug()<<"X changed";
+    double x = text.toDouble();
+    videoWidget_->setX(x);
+}
+
+void AMBeamlineCameraBrowser2::yChanged(QString text)
+{
+   double y = text.toDouble();
+   videoWidget_->setY(y);
+}
+
+void AMBeamlineCameraBrowser2::zChanged(QString text)
+{
+    double z = text.toDouble();
+    videoWidget_->setZ(z);
+}
+
+void AMBeamlineCameraBrowser2::rotationChanged(QString text)
+{
+    double rotation = text.toDouble();
+    videoWidget_->setRotation(rotation);
+}
+
+void AMBeamlineCameraBrowser2::setCoordinate()
+{
+    videoWidget_->moveCurrentToCoordinate();
+}
+
+//void AMBeamlineCameraBrowser2::changeCoordinate(QString)
+//{
+//    double x = xEdit_->text().toDouble();
+//    double y = yEdit_->text().toDouble();
+//    double z = zEdit_->text().toDouble();
+//    emit coordinateChange(x,y,z);
+//}
