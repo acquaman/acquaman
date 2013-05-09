@@ -90,14 +90,16 @@ public slots:
 	void useFourElementVortex(bool use);
 	/// Sets whether the the sample stage being used is the pseudo motors or the real motors.  True is pseudo motors.
 	void usePseudoMotors(bool use);
-	/// Resets the pseudo-motor positions.
-	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
+	/// Resets the HVN pseudo-motor positions.
+	void resetHVNPseudoMotors() { resetHVNPseudoMotors_->setValue(1); }
+	/// Resets the XYZ pseudo-motor positionsn.
+	void resetXYZPseudoMotors() { resetXYZPseudoMotors_->setValue(1); }
 
 protected slots:
 	/// Determines whether the state of the experiment ready status.
 	void determineExperimentStatus();
 	/// Handles changes from the beamline to the POE status.
-	void onPOEEnableChanged(double val) { usePOEStatus((int)val == 0 ? true : false); }
+	void onPOEEnableChanged(double val) { usePOEStatus((int)val == 0); }
 	/// Handles the synchronized dwell time configuration at startup.
 	void onSynchronizedDwellTimeStartup(bool connected);
 	/// Determines whether the beam has dumped or not.
@@ -124,8 +126,10 @@ protected:
 	AMControl *fastShutterReady_;
 	/// The CCD status control.
 	AMControl *ccdStatus_;
-	/// The pseudo-motor reset PV.
-	AMProcessVariable *resetPseudoMotors_;
+	/// The pseudo-motor reset PV for HVN.
+	AMProcessVariable *resetHVNPseudoMotors_;
+	/// The pseudo-motor reset PV for XYZ.
+	AMProcessVariable *resetXYZPseudoMotors_;
 
 	/// The type of the experiment.  Logical OR combination of the different choices.
 	ExperimentType type_;

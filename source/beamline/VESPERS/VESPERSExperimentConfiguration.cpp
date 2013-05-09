@@ -33,7 +33,8 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:det1:DetectorState_RBV", this);
 
 	// Pseudo-motor reset button.
-	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
+	resetHVNPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
+	resetXYZPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:XYZ:loadOffsets.PROC", false, this);
 
 	type_ = Custom;
 

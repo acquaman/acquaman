@@ -168,13 +168,21 @@ void VESPERSBeamline::setupSampleStage()
 //	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
 //	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
 
-	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
+//	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
+//	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
+//	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
-	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
-	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
+//	((CLSMAXvMotor *)sampleStageX_)->setMoveStartTolerance(0.0001);
+//	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
+//	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
+
+	sampleStageX_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-1700000, 1700000);
