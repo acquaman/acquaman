@@ -11,6 +11,7 @@
 class AMShapeData2;
 class QGraphicsRectItem;
 class QVector3D;
+class QPolygonF;
 
 class AMShapeOverlayVideoWidgetModel2: public QObject
 {
@@ -27,10 +28,10 @@ public:
     void setScaledSize(QSizeF scaledSize);
 
     /// get the current index of the rectangle List (number of rectangles - 1)
-    int rectangleListLength(){return index_;}
+    int shapeListLength(){return index_;}
 
     /// get the rectangle with given index
-    QRectF rectangle(int index);
+    QPolygonF shape(int index);
 
     /// getters and setters for shape information
     QString currentName();
@@ -44,7 +45,7 @@ public:
     bool isValid(int index);
 
     /// deletes the rectangle vectors array (used in movement)
-    void deleteRectangleVector();
+    void deleteShapeVector();
 
     double rotation(int index = -1);
     void setRotation(double rotation, int index = -1);
@@ -57,9 +58,15 @@ protected:
 
     QRectF rectangle_;
 
+    static const int TOPLEFT;
+    static const int TOPRIGHT;
+    static const int BOTTOMRIGHT;
+    static const int BOTTOMLEFT;
+    static const int TOPCLOSE;
+
     /// functions for getting the transformed locations of each rectangle
-    QPointF rectangleTopLeft(int index);
-    QPointF rectangleBottomRight(int index);
+    QPointF shapeTopLeft(int index);
+    QPointF shapeBottomRight(int index);
 
     /// highest current index
     int index_;
@@ -67,12 +74,10 @@ protected:
     int current_;
     /// vector from mouse tip to top left corner of current rectangle
     QPointF currentVector_;
-    /// array of vectors from mouse tip to top left corner of every rectangle
-    QPointF* rectangleVector_;
 
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles
-    QMap<int,AMShapeData2> rectangleList_;
+    QMap<int,AMShapeData2> shapeList_;
 
     /// mouse location at start of a zoom process
     QPointF zoomPoint_;
@@ -87,6 +92,10 @@ protected:
 
     double applyRotation(double width);
 
+    QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
+
+    QSizeF size(QPointF topLeft, QPointF bottomRight);
+
 
 
 public slots:
@@ -99,19 +108,18 @@ public slots:
     /// delete a rectangle
     void deleteRectangle(QPointF);
 
-    void selectCurrentRectangle(QPointF);
+    void selectCurrentShape(QPointF);
 
-    void moveCurrentRectangle(QPointF);
+    void moveCurrentShape(QPointF);
 
-    void moveAllRectangles(QPointF);
+    void moveAllShapes(QPointF);
 
-    void setRectangleVectors(QPointF);
+    void setShapeVectors(QPointF);
 
-    void zoomAllRectangles(QPointF);
+    void zoomAllShapes(QPointF);
 
     void setZoomPoint(QPointF);
 
-    void finishCurrentRectangle(QPointF);
 
     void setCoordinates(QVector3D, int);
 

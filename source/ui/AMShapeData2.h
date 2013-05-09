@@ -8,14 +8,15 @@
 
 class QString;
 class QVector3D;
+class QPolygonF;
 
 class AMShapeData2 //: public QObject
 {
    // Q_OBJECT
 public:
     AMShapeData2();
-    AMShapeData2(QRectF rectangle, QString name = "Name", QString otherData = "",  double idNumber = 0);
-    QRectF* rectangle();
+    AMShapeData2(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
+    QPolygonF* shape();
     QString name();
     QString otherData();
     double idNumber();
@@ -23,7 +24,7 @@ public:
     double height();
     double width();
     double rotation();
-    void setRectangle(QRectF rectangle);
+    void setShape(QPolygonF shape);
     void setName(QString name);
     void setOtherData(QString otherData);
     void setIdNumber(double idNumber);
@@ -33,7 +34,7 @@ public:
     void setRotation(double rotation);
 
 private:
-    QRectF* rectangle_;
+    QPolygonF* shape_;
     QString name_;
     QString otherData_;
     double idNumber_;

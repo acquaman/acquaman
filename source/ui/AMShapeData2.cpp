@@ -4,26 +4,27 @@
 
 #include <QString>
 #include <QVector3D>
+#include <QPolygonF>
 
 AMShapeData2::AMShapeData2()
 {
-    rectangle_ = new QRectF();
+    shape_ = new QPolygonF();
 
 }
 
-AMShapeData2::AMShapeData2(QRectF rectangle, QString name, QString otherData,  double idNumber)
+AMShapeData2::AMShapeData2(QPolygonF shape, QString name, QString otherData,  double idNumber)
 {
-    rectangle_ = new QRectF();
-    *rectangle_ = rectangle;
+    shape_ = new QPolygonF();
+    *shape_ = shape;
     setName(name);
     setOtherData(otherData);
     setIdNumber(idNumber);
 
 }
 
-QRectF* AMShapeData2::rectangle()
+QPolygonF* AMShapeData2::shape()
 {
-    return rectangle_;
+    return shape_;
 }
 
 QString AMShapeData2::name()
@@ -61,9 +62,9 @@ double AMShapeData2::rotation()
     return rotation_;
 }
 
-void AMShapeData2::setRectangle(QRectF rectangle)
+void AMShapeData2::setShape(QPolygonF shape)
 {
-    *rectangle_ = rectangle;
+    *shape_ = shape;
 }
 
 void AMShapeData2::setName(QString name)

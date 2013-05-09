@@ -74,7 +74,7 @@ signals:
     void currentChanged();
     /// Emitted when the left mouse button is pressed, in edit mode
     void mouseEditPressed(const QPointF& position);
-    /// Emitted when the left mouse button is pressed, in shift mode
+    /// Emitted when the left mouse buTOPLEFTtton is pressed, in shift mode
     void mouseShiftPressed(const QPointF& position);
     /// Emitted when the right mouse button is pressed, in shift mode
     void mouseShiftRightPressed(const QPointF& position);
@@ -107,8 +107,11 @@ protected:
     static const QColor BORDERCOLOUR;
     static const QColor ACTIVEBORDERCOLOUR;
 
-    /// Map of QGraphicsRecItems, corresponds to a map of AMShapeData2
-    QMap<int,QGraphicsRectItem*> rectangle_;
+
+
+    /// Map of QGraphicsPolygonItem, corresponds to a map of AMShapeData2
+    QMap<int,QGraphicsPolygonItem*> shapes_;
+
     /// The model for all the shapes displayed (except the crosshair)
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
     /// the max index in use (number of rectangles - 1)
@@ -118,9 +121,9 @@ protected:
     /// the index of the currently selected item
     int current_;
 
-    /// Add and remove rectangles from the scene
-    void addNewRectangle();
-    void deleteRectangle();
+    /// Add and remove shapes from the scene
+    void addNewShape();
+    void deleteShape();
 
     /// manages changing the selection
     void currentSelectionChanged();
