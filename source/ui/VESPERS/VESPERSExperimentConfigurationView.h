@@ -62,6 +62,9 @@ protected:
 	QButtonGroup *components_;
 	/// The button group for the two sample stage choices.
 	QButtonGroup *sampleStage_;
+
+	/// Button used for resetting the pseudo motors.
+	QPushButton *resetPseudoMotorsButton_;
 };
 
 #endif // VESPERSEXPERIMENTCONFIGURATIONVIEW_H
