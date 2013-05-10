@@ -102,6 +102,10 @@ protected:
 
     QSizeF size(QPointF topLeft, QPointF bottomRight);
 
+    bool contains(QPointF position,int index);
+
+    QPolygonF subShape(int index);
+
 
 
 public slots:

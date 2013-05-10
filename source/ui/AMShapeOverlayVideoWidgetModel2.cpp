@@ -31,13 +31,6 @@ void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
 {
     index_++;
     QPolygonF polygon = constructRectangle(position,position);
-//    rectangle_.setTopLeft(QPointF(position));
-//    qDebug()<<"mouse position"<<QString::number(position.x())<<QString::number(position.y());
-//    rectangle_.setBottomRight(position);
-//    QPolygonF polygon(rectangle_);
-//    AMShapeData2 newShapeData(polygon);
-//    shapeList_.insert(index_,newShapeData);
-    if(!polygon.isClosed())qDebug()<<"Polygon is not closed...";
     shapeList_.insert(index_,polygon);
     shapeList_[index_].setName("Shape " + QString::number(index_));
     shapeList_[index_].setOtherData("Coordinate:");
@@ -68,12 +61,10 @@ void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 /// deletes a rectangle from the list
 void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
 {
-    qDebug()<<"Attempting to delete rectangles";
     for(int i = 0; i < index_ + 1; i++)
     {
-        if(shapeList_[i].shape()->containsPoint(position,Qt::OddEvenFill))
+        if(contains(position,i))
         {
-            qDebug()<<"Deleting rectangle"<<QString::number(i);
            shapeList_.remove(i);
            shapeList_.insert(i,shapeList_[index_]);
            shapeList_.remove(index_);
@@ -86,11 +77,11 @@ void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
 void AMShapeOverlayVideoWidgetModel2::selectCurrentShape(QPointF position)
 {
     int i = 0;
-    while(!shapeList_[i].shape()->containsPoint(position,Qt::OddEvenFill) && i <= index_)
+    qDebug()<<"Attempting to selectCurrentShape"<<QString::number(i);
+    while(isValid(i) && !contains(position,i))
     {
        i++;
     }
-    qDebug()<<QString::number(i)<<QString::number(index_);
     if(i <= index_)
     {//    shapeVector_  = new QPointF[index_ + 1];
         //    for(int i = 0; i <= index_; i++)
@@ -137,7 +128,6 @@ void AMShapeOverlayVideoWidgetModel2::zoomAllShapes(QPointF position)
 {
     for(int i = 0; i <= index_; i++)
     {
-        qDebug()<<QString::number(shapeList_[i].shape()->data()[0].x()) +" "+ QString::number(shapeList_[i].shape()->data()[0].y());
         QPointF* data = shapeList_[i].shape()->data();
         QPointF topLeft = data[TOPLEFT];
         QSizeF oldSize;
@@ -164,7 +154,6 @@ void AMShapeOverlayVideoWidgetModel2::setCoordinates(QVector3D coordinate, int i
 
 void AMShapeOverlayVideoWidgetModel2::setCoordinates(double x, double y, double z, int index)
 {
-    qDebug()<<"changing coordinates";
     if(-1 == index) index = current_;
     QVector3D coordinate;
     coordinate.setX(x);
@@ -268,7 +257,6 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
 QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z, double rotation, QPointF center)
 {
 
-    qDebug()<<QString::number(rotation);
     QVector3D coordinate = transform2Dto3D(point,z);
     QVector3D newCenter = transform2Dto3D(center,z);
     QVector3D direction = newCenter - coordinate;
@@ -301,6 +289,14 @@ QSizeF AMShapeOverlayVideoWidgetModel2::size(QPointF topLeft, QPointF bottomRigh
     size.setHeight(difference.y());
     size.setWidth(difference.x());
     return size;
+}
+
+bool AMShapeOverlayVideoWidgetModel2::contains(QPointF position, int index)
+{
+    qDebug()<<"Looking for current Shape";
+    qDebug()<<QString::number(position.x())<<QString::number(position.y());
+    return subShape(index).containsPoint(position,Qt::OddEvenFill);
+    //return shapeList_[index].shape()->containsPoint(position, Qt::OddEvenFill);
 }
 
 
@@ -353,8 +349,8 @@ void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
 
 QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
 {
-    QPolygonF shape(*shapeList_[index].shape());
-    if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
+
+    QPolygonF shape = subShape(index);
     QPointF topLeft = shape.first();
     shape.remove(0);
     QPointF topRight = shape.first();
@@ -369,9 +365,20 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
     QPointF newBottomRight = coordinateTransform(bottomRight);
     QPointF newBottomLeft = coordinateTransform(bottomLeft);
     QPolygonF newShape;
+    qDebug()<<QString::number(newTopLeft.x())<<QString::number(newTopLeft.y());
+    qDebug()<<QString::number(newTopRight.x())<<QString::number(newTopRight.y());
+    qDebug()<<QString::number(newBottomRight.x())<<QString::number(newBottomRight.y());
+    qDebug()<<QString::number(newBottomLeft.x())<<QString::number(newBottomLeft.y());
     newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
     return newShape;
 
+}
+
+QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index)
+{
+    QPolygonF shape(*shapeList_[index].shape());
+    if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
+    return shape;
 }
 
 QString AMShapeOverlayVideoWidgetModel2::currentName()

@@ -110,7 +110,7 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
         if(shapes_.contains(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
-            qDebug()<<"Added shape at"<<QString::number(shapes_[i]->x())<<QString::number(shapes_[i]->y());
+            //qDebug()<<"Added shape at"<<QString::number(shapes_[i]->x())<<QString::number(shapes_[i]->y());
         }
         else
             qDebug()<<"Missing shape"<<i;
@@ -177,8 +177,8 @@ int AMCrosshairOverlayVideoWidget2::currentIndex()
 
 double AMCrosshairOverlayVideoWidget2::xCoordinate()
 {
-    qDebug()<<"view current"<<QString::number(current_);
-    qDebug()<<"model current"<<QString::number(shapeModel_->currentIndex());
+    //qDebug()<<"view current"<<QString::number(current_);
+    //qDebug()<<"model current"<<QString::number(shapeModel_->currentIndex());
     return shapeModel_->currentCoordinate().x();
 }
 
@@ -264,6 +264,7 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
     }
     else if(e->button() == Qt::LeftButton && mode_ == MOVE)
     {
+        qDebug()<<"Mouse left pressed in MOVE mode";
         emit mouseMovePressed(mapSceneToVideo(mapToScene(e->pos())));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMovedMoveMode(QPointF)), shapeModel_,SLOT(moveCurrentShape(QPointF)));
