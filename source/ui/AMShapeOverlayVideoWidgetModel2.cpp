@@ -93,7 +93,7 @@ void AMShapeOverlayVideoWidgetModel2::selectCurrentShape(QPointF position)
         //    }
         current_ = i;
         currentVector_ =position;//shapeList_[current_].shape()->data()[TOPLEFT] - position;
-        qDebug()<<shapeList_[current_].name();
+
     }
     else current_ = index_ + 1;
 }
@@ -230,6 +230,13 @@ QPointF AMShapeOverlayVideoWidgetModel2::transformVector(QPointF vector, QVector
     return newVector;
 }
 
+QPointF AMShapeOverlayVideoWidgetModel2::inverseVectorTransform(QPointF vector, QVector3D coordinate)
+{
+    double bz = FOCALLENGTH;
+    QPointF newVector = vector*coordinate.z()/bz;
+    return newVector;
+}
+
 QPointF AMShapeOverlayVideoWidgetModel2::findCenter(QPolygonF polygon)
 {
     QPointF* data = polygon.data();
@@ -252,6 +259,20 @@ void AMShapeOverlayVideoWidgetModel2::changeCoordinate(int index)
     shapeList_[index].setShape(QPolygonF(rectangle));
 
 }
+
+void AMShapeOverlayVideoWidgetModel2::shiftToPoint(QPointF position, QPointF crosshairPosition)
+{
+    if(isValid(current_))
+    {
+        currentVector_ = inverseVectorTransform(position, shapeList_[current_].coordinate());
+        moveAllShapes(inverseVectorTransform(crosshairPosition, shapeList_[current_].coordinate()));
+    }
+
+
+
+}
+
+
 
 /// transforms a coordinate point for display
 QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
@@ -379,7 +400,28 @@ void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
     {
         index = current_;
     }
-   shapeList_[index].setRotation(rotation);
+    shapeList_[index].setRotation(rotation);
+}
+
+QPolygonF AMShapeOverlayVideoWidgetModel2::groupRectangle()
+{
+    QPolygonF shape = groupRectangle_;
+    QPointF topLeft = shape.first();
+    shape.remove(0);
+    QPointF topRight = shape.first();
+    shape.remove(0);
+    QPointF bottomRight = shape.first();
+    shape.remove(0);
+    QPointF bottomLeft = shape.first();
+    shape.remove(0);
+    shape.clear();
+    QPointF newTopLeft = coordinateTransform(topLeft);
+    QPointF newTopRight = coordinateTransform(topRight);
+    QPointF newBottomRight = coordinateTransform(bottomRight);
+    QPointF newBottomLeft = coordinateTransform(bottomLeft);
+    QPolygonF newShape;
+    newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
+    return newShape;
 }
 
 
@@ -452,5 +494,46 @@ void AMShapeOverlayVideoWidgetModel2::setZoomPoint(QPointF position)
     zoomCenter_ = position;
 }
 
+void AMShapeOverlayVideoWidgetModel2::rotateRectangle(QPointF position)
+{
+    double rotation = shapeList_[current_].rotation()+(position - currentVector_).x();//*(position.x()/currentVector_.x());
+    qDebug()<<QString::number(rotation);
+    shapeList_[current_].setRotation(rotation);
+    qDebug()<<QString::number(shapeList_[current_].rotation());
+    currentVector_ = position;
+}
+
+void AMShapeOverlayVideoWidgetModel2::zoomShape(QPointF position)
+{
+    if(isValid(current_))
+    {
+        QVector3D coordinate = shapeList_[current_].coordinate();
+        coordinate.setZ(coordinate.z()*zoomPoint_.y()/position.y());
+        shapeList_[current_].setCoordinate(coordinate);
+        changeCoordinate(current_);
+    }
+    zoomPoint_ = position;
+
+}
+
+
+void AMShapeOverlayVideoWidgetModel2::startGroupRectangle(QPointF position)
+{
+    qDebug()<<"Creating the group rectangle model";
+    QPolygonF polygon = constructRectangle(position,position);
+    groupRectangle_ = polygon;
+
+}
+
+void AMShapeOverlayVideoWidgetModel2::finishGroupRectangle(QPointF position)
+{
+
+    //QPointF* data = shapeList_[index_].shape()->data();
+     qDebug()<<"Changing the group rectangle model";
+    QPointF topLeft = groupRectangle_.first();
+    QPolygonF newPolygon = constructRectangle(topLeft,position);
+    groupRectangle_ = newPolygon;
+
+}
 
 

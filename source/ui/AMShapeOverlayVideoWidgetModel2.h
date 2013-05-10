@@ -50,6 +50,8 @@ public:
     double rotation(int index = -1);
     void setRotation(double rotation, int index = -1);
 
+    QPolygonF groupRectangle();
+
 
 protected:
     /// used for transforming points to where they actually appear
@@ -86,6 +88,10 @@ protected:
 
     QPointF zoomCenter_;
 
+    QPolygonF groupRectangle_;
+
+    int* groupList_;
+
 
     /// for ease, create a coordinate transform function
     /// takes a double transforms to where you are actually clicking
@@ -112,6 +118,8 @@ protected:
 
     QPointF transformVector(QPointF vector, QVector3D coordinate);
 
+    QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
+
     QPointF findCenter(QPolygonF);
 
 
@@ -137,6 +145,10 @@ public slots:
 
     void setZoomPoint(QPointF);
 
+    void rotateRectangle(QPointF);
+
+    void zoomShape(QPointF);
+
 
     void setCoordinates(QVector3D, int);
 
@@ -151,6 +163,12 @@ public slots:
 
 
     void changeCoordinate(int index = -1);
+
+    void shiftToPoint(QPointF position, QPointF crosshairPosition);
+
+    void finishGroupRectangle(QPointF position);
+
+    void startGroupRectangle(QPointF position);
 
 };
 

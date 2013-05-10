@@ -26,11 +26,13 @@ public:
 	bool crosshairVisible() const;
 
     /// Used to set the current mode selected on the toolbar
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT};
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP};
     void setDrawMode();
     void setMoveMode();
     void setEditMode();
     void setShiftMode();
+    void setOperationMode();
+    void setGroupMode();
 
     /// Functions for modifying object information
     QString currentName();
@@ -68,16 +70,26 @@ signals:
     void mouseRightClicked(const QPointF& position);
     /// Emitted when the left mouse is pressed down, in move mode
     void mouseMovePressed(const QPointF& position);
+    /// Emitted when the right mouse is pressed down, in move mode
+    void mouseMoveRightPressed(const QPointF& position);
     /// Emitted when the mouse is moved, while in move mode
     void mouseMovedMoveMode(const QPointF& position);
     /// Emitted when the currently selected item has changed
     void currentChanged();
     /// Emitted when the left mouse button is pressed, in edit mode
     void mouseEditPressed(const QPointF& position);
+    /// Emitted when the right mouse button is pressed, in edit mode
+    void mouseEditRightPressed(const QPointF& position);
     /// Emitted when the left mouse buTOPLEFTtton is pressed, in shift mode
     void mouseShiftPressed(const QPointF& position);
     /// Emitted when the right mouse button is pressed, in shift mode
     void mouseShiftRightPressed(const QPointF& position);
+    /// Emitted when the left mouse button is pressed, in operation mode
+    void mouseOperationPressed(const QPointF& position, const QPointF& crossHairPosition);
+    void mouseOperationSelect(const QPointF& position);
+    /// Emitted when the left mouse button is pressed, in group mode
+    void mouseGroupPressed(const QPointF& position);
+
 
     void setCoordinate(double x, double y, double z);
 
@@ -114,6 +126,11 @@ protected:
 
     /// The model for all the shapes displayed (except the crosshair)
     AMShapeOverlayVideoWidgetModel2* shapeModel_;
+
+    QGraphicsPolygonItem* groupRectangle_;
+
+    bool groupRectangleActive_;
+
     /// the max index in use (number of rectangles - 1)
     int index_;
     /// current mode selected by toolbar
@@ -127,6 +144,10 @@ protected:
 
     /// manages changing the selection
     void currentSelectionChanged();
+
+    void createGroupRectangle();
+
+    void destroyGroupRectangle();
 
 
 

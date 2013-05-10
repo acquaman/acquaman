@@ -65,6 +65,8 @@ public slots:
     void moveMode();
     void editMode();
     void shiftMode();
+    void operationMode();
+    void groupMode();
 
     /// Change the shape information
     void nameChanged(QString);
@@ -95,6 +97,8 @@ protected:
     QPushButton* moveButton_;
     QPushButton* editButton_;
     QPushButton* shiftButton_;
+    QPushButton* operationButton_;
+    QPushButton* groupButton_;
 
     /// Line Edits
     QLineEdit* nameEdit_;

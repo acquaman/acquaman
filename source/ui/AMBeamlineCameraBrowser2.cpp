@@ -65,6 +65,10 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     tfl->addWidget(editButton_ = new QPushButton("Edit"));
     tfl->addSpacing(20);
     tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
+    tfl->addSpacing(20);
+    tfl->addWidget(operationButton_ = new QPushButton("Operation"));
+    tfl->addSpacing(20);
+    tfl->addWidget(groupButton_ = new QPushButton("Group"));
     tfl->addStretch(20);
     toolFrame->setLayout(tfl);
 
@@ -120,6 +124,8 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(moveButton_, SIGNAL(clicked()), this, SLOT(moveMode()));
     connect(editButton_, SIGNAL(clicked()), this, SLOT(editMode()));
     connect(shiftButton_, SIGNAL(clicked()), this, SLOT(shiftMode()));
+    connect(operationButton_, SIGNAL(clicked()), this, SLOT(operationMode()));
+    connect(groupButton_, SIGNAL(clicked()), this, SLOT(groupMode()));
 
     connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
     connect(infoEdit_, SIGNAL(textChanged(QString)), this, SLOT(infoChanged(QString)));
@@ -322,6 +328,18 @@ void AMBeamlineCameraBrowser2::shiftMode()
     videoWidget_->setShiftMode();
 }
 
+void AMBeamlineCameraBrowser2::operationMode()
+{
+    operationButton_->setDown(true);
+    videoWidget_->setOperationMode();
+}
+
+void AMBeamlineCameraBrowser2::groupMode()
+{
+    groupButton_->setDown(true);
+    videoWidget_->setGroupMode();
+}
+
 void AMBeamlineCameraBrowser2::nameChanged(QString name)
 {
     qDebug()<<"Name changed";
@@ -347,7 +365,6 @@ void AMBeamlineCameraBrowser2::currentChanged()
 
 void AMBeamlineCameraBrowser2::xChanged(QString text)
 {
-    qDebug()<<"X changed";
     double x = text.toDouble();
     videoWidget_->setX(x);
 }

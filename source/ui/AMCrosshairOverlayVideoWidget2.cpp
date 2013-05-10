@@ -21,7 +21,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
     index_ = 0;
-
+    groupRectangleActive_= false;
 
 
     QPen pen(BORDERCOLOUR);
@@ -51,9 +51,15 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     connect(this, SIGNAL(mouseReleased(QPointF)),shapeModel_, SLOT(finishRectangle(QPointF)));
     connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
     connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
+    connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseEditPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
+    connect(this, SIGNAL(mouseEditRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
+    connect(this, SIGNAL(mouseEditRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseShiftPressed(QPointF)), shapeModel_, SLOT(setShapeVectors(QPointF)));
     connect(this, SIGNAL(mouseShiftRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
+    connect(this, SIGNAL(mouseOperationPressed(QPointF,QPointF)), shapeModel_, SLOT(shiftToPoint(QPointF,QPointF)));
+    connect(this, SIGNAL(mouseOperationSelect(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
+    connect(this, SIGNAL(mouseGroupPressed(QPointF)), shapeModel_, SLOT(startGroupRectangle(QPointF)));
     connect(this, SIGNAL(setCoordinate(double,double,double)), shapeModel_, SLOT(setCoordinates(double,double,double)));
 }
 
@@ -65,7 +71,7 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
 	QSizeF videoSize = videoItem_->nativeSize();
 
-	// scale the video size to the view size, obeying the transformation mode
+    // scale the video size to the view size, obeying the transformatiotretchn mode
 	QSizeF scaledSize = videoSize;
 	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
 
@@ -110,11 +116,18 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
         if(shapes_.contains(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
-            //qDebug()<<"Added shape at"<<QString::number(shapes_[i]->x())<<QString::number(shapes_[i]->y());
+            //qDebug()<<"Added shape at"<<QString:mouseEditRightPressed:number(shapes_[i]->x())<<QString::number(shapes_[i]->y());
         }
         else
             qDebug()<<"Missing shape"<<i;
     }
+
+    if(groupRectangleActive_)
+    {
+        qDebug()<<"Changing the group rectangle";
+        groupRectangle_->setPolygon(shapeModel_->groupRectangle());
+    }
+    else qDebug()<<"group Rectangle is inactive";
 
 
 
@@ -148,6 +161,16 @@ void AMCrosshairOverlayVideoWidget2::setEditMode()
 void AMCrosshairOverlayVideoWidget2::setShiftMode()
 {
     mode_ = SHIFT;
+}
+
+void AMCrosshairOverlayVideoWidget2::setOperationMode()
+{
+    mode_ = OPERATION;
+}
+
+void AMCrosshairOverlayVideoWidget2::setGroupMode()
+{
+    mode_ = GROUP;
 }
 
 QString AMCrosshairOverlayVideoWidget2::currentName()
@@ -255,7 +278,6 @@ void AMCrosshairOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
 void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
 {
     AMOverlayVideoWidget2::mousePressEvent(e);
-
     if(e->button() == Qt::LeftButton && mode_ == DRAW)
     {
 		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
@@ -268,7 +290,14 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         emit mouseMovePressed(mapSceneToVideo(mapToScene(e->pos())));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMovedMoveMode(QPointF)), shapeModel_,SLOT(moveCurrentShape(QPointF)));
-         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+    }
+    else if (e->button() == Qt::RightButton && mode_ == MOVE)
+    {
+        emit mouseMoveRightPressed(mapSceneToVideo(mapToScene(e->pos())));
+        currentSelectionChanged();
+        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(rotateRectangle(QPointF)));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
     else if(e->button() == Qt::LeftButton && mode_ == EDIT)
     {
@@ -277,6 +306,14 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
+    else if (e->button() == Qt::RightButton && mode_ == EDIT)
+    {
+        emit mouseEditRightPressed(mapSceneToVideo(mapToScene(e->pos())));
+        currentSelectionChanged();
+        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomShape(QPointF)));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+    }
+
     else if(e->button() == Qt::LeftButton && mode_ == SHIFT)
     {
         emit mouseShiftPressed(mapSceneToVideo(mapToScene(e->pos())));
@@ -288,6 +325,19 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         emit mouseShiftRightPressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomAllShapes(QPointF)));
         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+    }
+    else if (e->button() == Qt::LeftButton && mode_ == OPERATION)
+    {
+        emit mouseOperationSelect(mapSceneToVideo(mapToScene(e->pos())));
+        currentSelectionChanged();
+        emit mouseOperationPressed(mapSceneToVideo(mapToScene(e->pos())),QPointF(crosshairX_,crosshairY_));
+    }
+    else if (e->button() == Qt::LeftButton && mode_ == GROUP)
+    {
+        emit mouseGroupPressed(mapSceneToVideo(mapToScene(e->pos())));
+        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishGroupRectangle(QPointF)));
+        createGroupRectangle();
+
     }
     else if (e->button() == Qt::RightButton)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
@@ -315,6 +365,13 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
         disconnect(shapeModel_, SLOT(moveCurrentShape(QPointF)));
         disconnect(this, SIGNAL(currentChanged()));
         disconnect(shapeModel_, SLOT(moveAllShapes(QPointF)));
+        disconnect(shapeModel_, SLOT(finishGroupRectangle(QPointF)));
+
+        if(groupRectangleActive_)
+        {
+            destroyGroupRectangle();
+        }
+
         reviewCrosshairLinePositions();
 
 
@@ -324,6 +381,8 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
         emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
         disconnect(shapeModel_, SLOT(zoomAllShapes(QPointF)));
         disconnect(this, SIGNAL(currentChanged()));
+        disconnect(shapeModel_, SLOT(rotateRectangle(QPointF)));
+        disconnect(shapeModel_, SLOT(zoomShape(QPointF)));
         reviewCrosshairLinePositions();
     }
     else AMOverlayVideoWidget2::mouseReleaseEvent(e);
@@ -414,4 +473,21 @@ void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
     current_ = shapeModel_->currentIndex();
     if(shapeModel_->isValid(current_))
         shapes_[current_]->setPen(ACTIVEBORDERCOLOUR);
+}
+
+void AMCrosshairOverlayVideoWidget2::createGroupRectangle()
+{
+    qDebug()<<"Creating Group Rectangle";
+    QBrush penBrush(QColor(Qt::magenta));
+    QPen pen(penBrush,1,Qt::DotLine);
+    QBrush brush(Qt::transparent);
+    groupRectangle_ = scene()->addPolygon(QPolygonF(QRectF(5,5,20,20)),pen,brush);
+    groupRectangleActive_ = true;
+
+}
+
+void AMCrosshairOverlayVideoWidget2::destroyGroupRectangle()
+{
+    scene()->removeItem(groupRectangle_);
+    groupRectangleActive_ = false;
 }
