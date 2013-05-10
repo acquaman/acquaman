@@ -64,6 +64,8 @@ protected:
     static const int BOTTOMLEFT;
     static const int TOPCLOSE;
 
+    static const double FOCALLENGTH;
+
     /// functions for getting the transformed locations of each rectangle
     QPointF shapeTopLeft(int index);
     QPointF shapeBottomRight(int index);
@@ -90,7 +92,11 @@ protected:
     /// as QPointF
     QPointF coordinateTransform(QPointF);
 
-    double applyRotation(double width);
+    QPolygonF applyRotation(int index);
+
+    QPointF getRotatedPoint(QPointF point, double z, double rotation, QPointF center);
+
+    QVector3D transform2Dto3D(QPointF point, double z);
 
     QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
 

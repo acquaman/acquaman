@@ -15,6 +15,8 @@ int const AMShapeOverlayVideoWidgetModel2::BOTTOMRIGHT = 2;
 int const AMShapeOverlayVideoWidgetModel2::BOTTOMLEFT = 3;
 int const AMShapeOverlayVideoWidgetModel2::TOPCLOSE = 4;
 
+double const AMShapeOverlayVideoWidgetModel2::FOCALLENGTH =5.0;
+
 
 /// Constructor
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
@@ -40,6 +42,8 @@ void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
     shapeList_[index_].setName("Shape " + QString::number(index_));
     shapeList_[index_].setOtherData("Coordinate:");
     shapeList_[index_].setIdNumber(index_ * 13);
+    shapeList_[index_].setRotation(0);
+    shapeList_[index_].setCoordinate(QVector3D(0,0,FOCALLENGTH));
     current_ = index_;
 }
 
@@ -184,17 +188,26 @@ QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
     // bx = ax*bz/az
     // by = ay*bz/az
     // define a bz value
-    double bz = 1.0;
+    double bz = FOCALLENGTH;
     QPointF position;
     position.setX(((coordinate.x()-0.5)*bz/coordinate.z())+0.5);
     position.setY(((coordinate.y()-0.5)*bz/coordinate.z())+0.5);
     return position;
 }
 
+QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double z)
+{
+    QVector3D coordinate;
+    double bz = FOCALLENGTH;
+    coordinate.setX(((point.x()-0.5)*z/bz)+0.5);
+    coordinate.setY(((point.y()-0.5)*z/bz)+0.5);
+    coordinate.setZ(z);
+    return coordinate;
+}
+
 double AMShapeOverlayVideoWidgetModel2::transformDimension(double dimension, QVector3D coordinate)
 {
-    //redefine bz...
-    double bz = 1.0;
+    double bz = FOCALLENGTH;
     double newDimension = dimension*bz/coordinate.z();
     return newDimension;
 }
@@ -232,13 +245,42 @@ QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 
 }
 
-double AMShapeOverlayVideoWidgetModel2::applyRotation(double width)
+QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
 {
-    // apply the rotation
-    // however, for proper rotation, we need a non-rectangle
-    // will implement very basic rotation (just modify the width)
-    double newWidth = width*cos(shapeList_[current_].rotation());
-    return newWidth;
+    QPolygonF shape(*shapeList_[index].shape());
+    double z = shapeList_[index].coordinate().z();
+    double rotation = shapeList_[index].rotation();
+    double length = (shapeList_[index].shape()->data()[TOPRIGHT].x() - shapeList_[index].shape()->data()[TOPLEFT].x())/2;
+    QPolygonF polygon;
+    polygon<<getRotatedPoint(shape.first(),z,rotation, QPointF(shape.first().x()+length,shape.first().y()));
+    shape.remove(0);
+    polygon<<getRotatedPoint(shape.first(),z,rotation, QPointF(shape.first().x()-length,shape.first().y()));
+    shape.remove(0);
+    polygon<<getRotatedPoint(shape.first(),z,rotation, QPointF(shape.first().x()-length,shape.first().y()));
+    shape.remove(0);
+    polygon<<getRotatedPoint(shape.first(),z,rotation, QPointF(shape.first().x()+length,shape.first().y()));
+    shape.remove(0);
+    polygon<<polygon.first();
+    return polygon;
+
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z, double rotation, QPointF center)
+{
+
+    qDebug()<<QString::number(rotation);
+    QVector3D coordinate = transform2Dto3D(point,z);
+    QVector3D newCenter = transform2Dto3D(center,z);
+    QVector3D direction = newCenter - coordinate;
+    ///should be parallel to the x axis
+    QVector3D newX = ((1 - cos(rotation))*direction);
+    QVector3D zDirection(0,0,-1*direction.x());
+    QVector3D newZ = sin(rotation)*zDirection;
+    coordinate = coordinate + newX + newZ;
+    return transform3Dto2D(coordinate);
+
+
+
 
 }
 
@@ -312,15 +354,24 @@ void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
 QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
 {
     QPolygonF shape(*shapeList_[index].shape());
+    if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
     QPointF topLeft = shape.first();
     shape.remove(0);
+    QPointF topRight = shape.first();
     shape.remove(0);
     QPointF bottomRight = shape.first();
-    QPointF topCorner = coordinateTransform(topLeft);
-    QPointF bottomCorner = coordinateTransform(bottomRight);
-    shape = constructRectangle(topCorner,bottomCorner);
+    shape.remove(0);
+    QPointF bottomLeft = shape.first();
+    shape.remove(0);
+    shape.clear();
+    QPointF newTopLeft = coordinateTransform(topLeft);
+    QPointF newTopRight = coordinateTransform(topRight);
+    QPointF newBottomRight = coordinateTransform(bottomRight);
+    QPointF newBottomLeft = coordinateTransform(bottomLeft);
+    QPolygonF newShape;
+    newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
+    return newShape;
 
-    return shape;
 }
 
 QString AMShapeOverlayVideoWidgetModel2::currentName()
