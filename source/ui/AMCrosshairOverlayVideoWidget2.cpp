@@ -268,22 +268,26 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         emit mouseMovePressed(mapSceneToVideo(mapToScene(e->pos())));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMovedMoveMode(QPointF)), shapeModel_,SLOT(moveCurrentShape(QPointF)));
+         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
     else if(e->button() == Qt::LeftButton && mode_ == EDIT)
     {
         emit mouseEditPressed(mapSceneToVideo(mapToScene(e->pos())));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
     else if(e->button() == Qt::LeftButton && mode_ == SHIFT)
     {
         emit mouseShiftPressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(moveAllShapes(QPointF)));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
     else if (e->button() == Qt::RightButton && mode_ == SHIFT)
     {
         emit mouseShiftRightPressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomAllShapes(QPointF)));
+        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
     else if (e->button() == Qt::RightButton)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
@@ -309,7 +313,7 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
         qDebug()<<"disconnecting slots";
         disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
         disconnect(shapeModel_, SLOT(moveCurrentShape(QPointF)));
-        disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
+        disconnect(this, SIGNAL(currentChanged()));
         disconnect(shapeModel_, SLOT(moveAllShapes(QPointF)));
         reviewCrosshairLinePositions();
 
@@ -319,6 +323,7 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
     {
         emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
         disconnect(shapeModel_, SLOT(zoomAllShapes(QPointF)));
+        disconnect(this, SIGNAL(currentChanged()));
         reviewCrosshairLinePositions();
     }
     else AMOverlayVideoWidget2::mouseReleaseEvent(e);

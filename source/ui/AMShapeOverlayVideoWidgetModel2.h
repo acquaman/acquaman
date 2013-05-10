@@ -106,6 +106,13 @@ protected:
 
     QPolygonF subShape(int index);
 
+    double transformDimension(double dimension, QVector3D coordinate);
+
+    double inverseDimensionTransform(double dimension, QVector3D coordinate);
+
+    QPointF transformVector(QPointF vector, QVector3D coordinate);
+
+    QPointF findCenter(QPolygonF);
 
 
 public slots:
@@ -141,9 +148,9 @@ public slots:
 
     QPointF transform3Dto2D(QVector3D coordinate);
 
-    double transformDimension(double dimension, QVector3D coordinate);
 
-    void changeCoordinate();
+
+    void changeCoordinate(int index = -1);
 
 };
 

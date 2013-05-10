@@ -36,14 +36,15 @@ void AMShapeOverlayVideoWidgetModel2::startRectangle(QPointF position)
     shapeList_[index_].setOtherData("Coordinate:");
     shapeList_[index_].setIdNumber(index_ * 13);
     shapeList_[index_].setRotation(0);
-    shapeList_[index_].setCoordinate(QVector3D(0,0,FOCALLENGTH));
+    QVector3D coordinate = transform2Dto3D(position,FOCALLENGTH);
+    shapeList_[index_].setCoordinate(coordinate);
     current_ = index_;
 }
 
 /// Changes the bottom right corner of the current rectangle
 void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
-
+    // resizing must be relative - don't set the absolute size, set the size at the particular z,theta
      if(!isValid(current_))return;
     //QPointF* data = shapeList_[index_].shape()->data();
     QPointF topLeft = shapeList_[current_].shape()->first();
@@ -51,11 +52,14 @@ void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
     QPolygonF* polygon = shapeList_[current_].shape();
     shapeList_[current_].setShape(newPolygon);
     QSizeF newSize = size(topLeft,position);
+    QPointF newCenter = findCenter(newPolygon);
+    QVector3D coordinate = transform2Dto3D(newCenter,shapeList_[current_].coordinate().z());
     //delete polygon;
   // double height = rectangle.height();
 //    double width = rectangle.width();
-    shapeList_[index_].setHeight(newSize.height());
-    shapeList_[index_].setWidth(newSize.width());
+    shapeList_[current_].setCoordinate(coordinate);
+    shapeList_[current_].setHeight(inverseDimensionTransform(newSize.height(), shapeList_[current_].coordinate()));
+    shapeList_[current_].setWidth(inverseDimensionTransform(newSize.width(), shapeList_[current_].coordinate()));
 }
 
 /// deletes a rectangle from the list
@@ -77,7 +81,6 @@ void AMShapeOverlayVideoWidgetModel2::deleteRectangle(QPointF position)
 void AMShapeOverlayVideoWidgetModel2::selectCurrentShape(QPointF position)
 {
     int i = 0;
-    qDebug()<<"Attempting to selectCurrentShape"<<QString::number(i);
     while(isValid(i) && !contains(position,i))
     {
        i++;
@@ -101,6 +104,10 @@ void AMShapeOverlayVideoWidgetModel2::moveCurrentShape(QPointF position)
     if(current_ <= index_)
     {
         shapeList_[current_].shape()->translate(position - currentVector_);
+        double z = shapeList_[current_].coordinate().z();
+        QPointF newCenter = findCenter(*shapeList_[current_].shape());
+        QVector3D coordinate = transform2Dto3D(newCenter,z);
+        shapeList_[current_].setCoordinate(coordinate);
     }
     currentVector_ = position;
 }
@@ -111,7 +118,11 @@ void AMShapeOverlayVideoWidgetModel2::moveAllShapes(QPointF position)
 
     for(int i = 0; i <= index_; i++)
     {
-        shapeList_[i].shape()->translate(position - currentVector_);
+        shapeList_[i].shape()->translate(transformVector((position - currentVector_),shapeList_[i].coordinate()));
+        double z = shapeList_[i].coordinate().z();
+        QPointF newCenter = findCenter(*shapeList_[i].shape());
+        QVector3D coordinate = transform2Dto3D(newCenter,z);
+        shapeList_[i].setCoordinate(coordinate);
     }
     currentVector_ = position;
 }
@@ -123,23 +134,27 @@ void AMShapeOverlayVideoWidgetModel2::setShapeVectors(QPointF position)
 
 }
 
-/// makes all rectangles bigger or smaller, keeps the centre constant
+/// changes the z-coordinate of all shapes by the same amount
 void AMShapeOverlayVideoWidgetModel2::zoomAllShapes(QPointF position)
 {
     for(int i = 0; i <= index_; i++)
     {
-        QPointF* data = shapeList_[i].shape()->data();
-        QPointF topLeft = data[TOPLEFT];
-        QSizeF oldSize;
-        oldSize.setHeight(data[BOTTOMLEFT].y()-data[TOPLEFT].y());
-        oldSize.setWidth(data[TOPRIGHT].x() - data[TOPLEFT].x());
-        QRectF newRectangle(topLeft,oldSize);
-        QSizeF newSize = (zoomPoint_.y()/position.y())*oldSize;
-        QPointF center = newRectangle.center() + (-1*(newSize.height()/oldSize.height() -1))*(zoomCenter_ - newRectangle.center());
-        newRectangle.setSize(newSize);
-        newRectangle.moveCenter(center);
+//        QPointF* data = shapeList_[i].shape()->data();
+//        QPointF topLeft = data[TOPLEFT];
+//        QSizeF oldSize;
+//        oldSize.setHeight(data[BOTTOMLEFT].y()-data[TOPLEFT].y());
+//        oldSize.setWidth(data[TOPRIGHT].x() - data[TOPLEFT].x());
+//        QRectF newRectangle(topLeft,oldSize);
+//        QSizeF newSize = (zoomPoint_.y()/position.y())*oldSize;
+//        QPointF center = newRectangle.center() + (-1*(newSize.height()/oldSize.height() -1))*(zoomCenter_ - newRectangle.center());
+//        newRectangle.setSize(newSize);
+//        newRectangle.moveCenter(center);
 
-        shapeList_[i].setShape(QPolygonF(newRectangle));
+//        shapeList_[i].setShape(QPolygonF(newRectangle));
+        QVector3D coordinate = shapeList_[i].coordinate();
+        coordinate.setZ(coordinate.z()*zoomPoint_.y()/position.y());
+        shapeList_[i].setCoordinate(coordinate);
+        changeCoordinate(i);
     }
     zoomPoint_ = position;
 }
@@ -201,17 +216,40 @@ double AMShapeOverlayVideoWidgetModel2::transformDimension(double dimension, QVe
     return newDimension;
 }
 
-void AMShapeOverlayVideoWidgetModel2::changeCoordinate()
+double AMShapeOverlayVideoWidgetModel2::inverseDimensionTransform(double dimension, QVector3D coordinate)
 {
+    double bz = FOCALLENGTH;
+    double newDimension = dimension*coordinate.z()/bz;
+    return newDimension;
+}
 
-    double height = transformDimension(shapeList_[current_].height(),shapeList_[current_].coordinate());
-    double width = transformDimension(shapeList_[current_].width(),shapeList_[current_].coordinate());
+QPointF AMShapeOverlayVideoWidgetModel2::transformVector(QPointF vector, QVector3D coordinate)
+{
+    double bz = FOCALLENGTH;
+    QPointF newVector = vector*bz/coordinate.z();
+    return newVector;
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::findCenter(QPolygonF polygon)
+{
+    QPointF* data = polygon.data();
+    double xMid = (data[TOPLEFT].x()+data[TOPRIGHT].x())/2.0;
+    double yMid = (data[TOPLEFT].y()+data[BOTTOMLEFT].y())/2.0;
+    return QPointF(xMid,yMid);
+}
+
+void AMShapeOverlayVideoWidgetModel2::changeCoordinate(int index)
+{
+    if(-1 == index) index = current_;
+
+    double height = transformDimension(shapeList_[index].height(),shapeList_[index].coordinate());
+    double width = transformDimension(shapeList_[index].width(),shapeList_[index].coordinate());
     QSizeF size = QSizeF(width,height);
-    QPointF* data = shapeList_[current_].shape()->data();
+    QPointF* data = shapeList_[index].shape()->data();
     QPointF topLeft = data[TOPLEFT];
     QRectF rectangle = QRectF(topLeft, size);
-    rectangle.moveCenter(transform3Dto2D(shapeList_[current_].coordinate()));
-    shapeList_[current_].setShape(QPolygonF(rectangle));
+    rectangle.moveCenter(transform3Dto2D(shapeList_[index].coordinate()));
+    shapeList_[index].setShape(QPolygonF(rectangle));
 
 }
 
@@ -293,8 +331,6 @@ QSizeF AMShapeOverlayVideoWidgetModel2::size(QPointF topLeft, QPointF bottomRigh
 
 bool AMShapeOverlayVideoWidgetModel2::contains(QPointF position, int index)
 {
-    qDebug()<<"Looking for current Shape";
-    qDebug()<<QString::number(position.x())<<QString::number(position.y());
     return subShape(index).containsPoint(position,Qt::OddEvenFill);
     //return shapeList_[index].shape()->containsPoint(position, Qt::OddEvenFill);
 }
@@ -365,10 +401,6 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
     QPointF newBottomRight = coordinateTransform(bottomRight);
     QPointF newBottomLeft = coordinateTransform(bottomLeft);
     QPolygonF newShape;
-    qDebug()<<QString::number(newTopLeft.x())<<QString::number(newTopLeft.y());
-    qDebug()<<QString::number(newTopRight.x())<<QString::number(newTopRight.y());
-    qDebug()<<QString::number(newBottomRight.x())<<QString::number(newBottomRight.y());
-    qDebug()<<QString::number(newBottomLeft.x())<<QString::number(newBottomLeft.y());
     newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
     return newShape;
 
