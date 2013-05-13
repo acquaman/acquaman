@@ -52,6 +52,13 @@ public:
 
     QPolygonF groupRectangle();
 
+    void setMotorCoordinate(double x, double y, double z, double r);
+
+    double motorRotation();
+    double motorX();
+    double motorY();
+    double motorZ();
+
 
 protected:
     /// used for transforming points to where they actually appear
@@ -92,6 +99,10 @@ protected:
 
     int* groupList_;
 
+    QVector3D motorCoordinate_;
+
+    double motorRotation_;
+
 
     /// for ease, create a coordinate transform function
     /// takes a double transforms to where you are actually clicking
@@ -121,6 +132,8 @@ protected:
     QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
 
     QPointF findCenter(QPolygonF);
+
+    void motorMovement(double x, double y, double z, double r);
 
 
 public slots:

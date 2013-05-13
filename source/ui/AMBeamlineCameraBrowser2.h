@@ -68,6 +68,9 @@ public slots:
     void operationMode();
     void groupMode();
 
+    /// Respond to change in motor coordinates
+    void setMotorCoordinate();
+
     /// Change the shape information
     void nameChanged(QString);
     void infoChanged(QString);
@@ -99,6 +102,13 @@ protected:
     QPushButton* shiftButton_;
     QPushButton* operationButton_;
     QPushButton* groupButton_;
+    /// Motor coordinate control
+    QLineEdit* motorXEdit_;
+    QLineEdit* motorYEdit_;
+    QLineEdit* motorZEdit_;
+    QLineEdit* motorREdit_;
+    /// Motor coordinate set button
+    QPushButton* setMotorCoordinate_;
 
     /// Line Edits
     QLineEdit* nameEdit_;

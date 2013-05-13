@@ -46,7 +46,7 @@ void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
 {
     // resizing must be relative - don't set the absolute size, set the size at the particular z,theta
      if(!isValid(current_))return;
-    //QPointF* data = shapeList_[index_].shape()->data();
+    //QPointF* data = shapeList_[index_qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());].shape()->data();
     QPointF topLeft = shapeList_[current_].shape()->first();
     QPolygonF newPolygon = constructRectangle(topLeft,position);
     QPolygonF* polygon = shapeList_[current_].shape();
@@ -161,12 +161,13 @@ void AMShapeOverlayVideoWidgetModel2::zoomAllShapes(QPointF position)
 
 
 
-
+/// sets the coordinates for index
 void AMShapeOverlayVideoWidgetModel2::setCoordinates(QVector3D coordinate, int index)
 {
     shapeList_[index].setCoordinate(coordinate);
 }
 
+/// Overload of setCoordinates, takes three doubles and an index
 void AMShapeOverlayVideoWidgetModel2::setCoordinates(double x, double y, double z, int index)
 {
     if(-1 == index) index = current_;
@@ -177,16 +178,19 @@ void AMShapeOverlayVideoWidgetModel2::setCoordinates(double x, double y, double 
     setCoordinates(coordinate, index);
 }
 
+/// returns the coordinate of index
 QVector3D AMShapeOverlayVideoWidgetModel2::coordinate(int index)
 {
     return shapeList_[index].coordinate();
 }
 
+/// calls coordinate with index equal to current_
 QVector3D AMShapeOverlayVideoWidgetModel2::currentCoordinate()
 {
     return coordinate(current_);
 }
 
+/// takes a 3D coordinate and changes it to a 2D location on screen
 QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
 {
     // bx = ax*bz/az
@@ -199,6 +203,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
     return position;
 }
 
+/// takes a 2D point on screen, as well as its depth, and transforms it into a 3D coordinate
 QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double z)
 {
     QVector3D coordinate;
@@ -209,6 +214,7 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
     return coordinate;
 }
 
+/// scales a dimension based on distance
 double AMShapeOverlayVideoWidgetModel2::transformDimension(double dimension, QVector3D coordinate)
 {
     double bz = FOCALLENGTH;
@@ -216,6 +222,7 @@ double AMShapeOverlayVideoWidgetModel2::transformDimension(double dimension, QVe
     return newDimension;
 }
 
+/// finds the length of a dimension based on its appearance and distance
 double AMShapeOverlayVideoWidgetModel2::inverseDimensionTransform(double dimension, QVector3D coordinate)
 {
     double bz = FOCALLENGTH;
@@ -223,6 +230,8 @@ double AMShapeOverlayVideoWidgetModel2::inverseDimensionTransform(double dimensi
     return newDimension;
 }
 
+/// takes a vector and finds how it appears, equivalent to 3D to 2D
+// this is redundant
 QPointF AMShapeOverlayVideoWidgetModel2::transformVector(QPointF vector, QVector3D coordinate)
 {
     double bz = FOCALLENGTH;
@@ -230,6 +239,8 @@ QPointF AMShapeOverlayVideoWidgetModel2::transformVector(QPointF vector, QVector
     return newVector;
 }
 
+/// based on the appearance of a vector, finds the actual vector, equivalent to 2d to 3d
+// this is redundant
 QPointF AMShapeOverlayVideoWidgetModel2::inverseVectorTransform(QPointF vector, QVector3D coordinate)
 {
     double bz = FOCALLENGTH;
@@ -237,6 +248,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::inverseVectorTransform(QPointF vector, 
     return newVector;
 }
 
+/// finds the center of the given polygon
 QPointF AMShapeOverlayVideoWidgetModel2::findCenter(QPolygonF polygon)
 {
     QPointF* data = polygon.data();
@@ -245,6 +257,23 @@ QPointF AMShapeOverlayVideoWidgetModel2::findCenter(QPolygonF polygon)
     return QPointF(xMid,yMid);
 }
 
+/// moves all the shapes based on change in motor movement
+void AMShapeOverlayVideoWidgetModel2::motorMovement(double x, double y, double z, double r)
+{
+    for(int i = 0; i <= index_; i++)
+    {
+       // qDebug()<<"Moving shape "<<QString::number(i);
+        double xOffset = (x - motorCoordinate_.x())*(0.015695) + (y - motorCoordinate_.y())*(-0.00003425);//magical constants
+        double yOffset = (y - motorCoordinate_.y())*(-0.0193235) + (x - motorCoordinate_.x())*(-0.001015967);//more magical constant
+        QPointF offset(xOffset,yOffset);
+        shapeList_[i].shape()->translate(offset);
+        QVector3D coordinate = transform2Dto3D(findCenter(*shapeList_[i].shape()),shapeList_[i].coordinate().z());
+        shapeList_[i].setCoordinate(coordinate);
+
+    }
+}
+
+/// changes the coordinate of the shape
 void AMShapeOverlayVideoWidgetModel2::changeCoordinate(int index)
 {
     if(-1 == index) index = current_;
@@ -260,12 +289,21 @@ void AMShapeOverlayVideoWidgetModel2::changeCoordinate(int index)
 
 }
 
+/// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate
 void AMShapeOverlayVideoWidgetModel2::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
     if(isValid(current_))
     {
         currentVector_ = inverseVectorTransform(position, shapeList_[current_].coordinate());
         moveAllShapes(inverseVectorTransform(crosshairPosition, shapeList_[current_].coordinate()));
+        double motorX = motorCoordinate_.x() + ((-0.0193235)*(crosshairPosition.x() - position.x())-(-0.00003425)*(crosshairPosition.y() - position.y()))/((-0.0193235)*(0.015695)-(-0.00003425)*(-0.001015967));// these are from motorMovement, will be changed to actual variables
+        double motorY = motorCoordinate_.y() + ((-0.001015967)*(crosshairPosition.x() - position.x())-(0.015695)*(crosshairPosition.y() - position.y()))/((-0.00003425)*(-0.001015967) - (-0.0193235)*(0.015695));
+        qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());
+        qDebug()<<"Motor Y(Z):"<<QString::number( motorCoordinate_.y());
+        motorCoordinate_.setX(motorX);
+        motorCoordinate_.setY(motorY);
+        qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());
+        qDebug()<<"Motor Y(Z):"<<QString::number( motorCoordinate_.y());
     }
 
 
@@ -293,6 +331,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 
 }
 
+/// applies the rotation to the shape
 QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
 {
     QPolygonF shape(*shapeList_[index].shape());
@@ -313,6 +352,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
 
 }
 
+/// finds the new coordinate of a point, given its coordinate, rotation, and center point
 QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z, double rotation, QPointF center)
 {
 
@@ -331,6 +371,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z
 
 }
 
+/// constructs a rectangle given the desired top and bottom corners
 QPolygonF AMShapeOverlayVideoWidgetModel2::constructRectangle(QPointF topLeft, QPointF bottomRight)
 {
     QPolygonF polygon;
@@ -341,6 +382,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::constructRectangle(QPointF topLeft, Q
 
 }
 
+/// returns the size of a rectangle with the given points
 QSizeF AMShapeOverlayVideoWidgetModel2::size(QPointF topLeft, QPointF bottomRight)
 {
     QSizeF size;
@@ -422,6 +464,36 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::groupRectangle()
     QPolygonF newShape;
     newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
     return newShape;
+}
+
+void AMShapeOverlayVideoWidgetModel2::setMotorCoordinate(double x, double y, double z, double r)
+{
+    motorMovement(x,y,z,r);
+    motorCoordinate_.setX(x);
+    motorCoordinate_.setY(y);
+    motorCoordinate_.setZ(z);
+
+    motorRotation_ = r;
+}
+
+double AMShapeOverlayVideoWidgetModel2::motorRotation()
+{
+    return motorRotation_;
+}
+
+double AMShapeOverlayVideoWidgetModel2::motorX()
+{
+    return motorCoordinate_.x();
+}
+
+double AMShapeOverlayVideoWidgetModel2::motorY()
+{
+    return motorCoordinate_.y();
+}
+
+double AMShapeOverlayVideoWidgetModel2::motorZ()
+{
+    return motorCoordinate_.z();
 }
 
 

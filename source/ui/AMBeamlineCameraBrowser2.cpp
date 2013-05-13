@@ -69,6 +69,16 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     tfl->addWidget(operationButton_ = new QPushButton("Operation"));
     tfl->addSpacing(20);
     tfl->addWidget(groupButton_ = new QPushButton("Group"));
+    tfl->addSpacing(20);
+    tfl->addWidget(motorXEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorYEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorZEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorREdit_ = new QLineEdit());
+    tfl->addSpacing(20);
+    tfl->addWidget(setMotorCoordinate_ = new QPushButton("Set"));
     tfl->addStretch(20);
     toolFrame->setLayout(tfl);
 
@@ -126,6 +136,7 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(shiftButton_, SIGNAL(clicked()), this, SLOT(shiftMode()));
     connect(operationButton_, SIGNAL(clicked()), this, SLOT(operationMode()));
     connect(groupButton_, SIGNAL(clicked()), this, SLOT(groupMode()));
+    connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinate()));
 
     connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
     connect(infoEdit_, SIGNAL(textChanged(QString)), this, SLOT(infoChanged(QString)));
@@ -340,6 +351,15 @@ void AMBeamlineCameraBrowser2::groupMode()
     videoWidget_->setGroupMode();
 }
 
+void AMBeamlineCameraBrowser2::setMotorCoordinate()
+{
+    double x = motorXEdit_->text().toDouble();
+    double y = motorYEdit_->text().toDouble();
+    double z = motorZEdit_->text().toDouble();
+    double r = motorREdit_->text().toDouble();
+    videoWidget_->setMotorCoordinate(x,y,z,r);
+}
+
 void AMBeamlineCameraBrowser2::nameChanged(QString name)
 {
     qDebug()<<"Name changed";
@@ -361,6 +381,10 @@ void AMBeamlineCameraBrowser2::currentChanged()
     yEdit_->setText(QString::number(videoWidget_->yCoordinate()));
     zEdit_->setText(QString::number(videoWidget_->zCoordinate()));
     rotationEdit_->setText(QString::number(videoWidget_->rotation()));
+    motorREdit_->setText(QString::number(videoWidget_->motorRotation()));
+    motorXEdit_->setText(QString::number(videoWidget_->motorX()));
+    motorYEdit_->setText(QString::number(videoWidget_->motorY()));
+    motorZEdit_->setText(QString::number(videoWidget_->motorZ()));
 }
 
 void AMBeamlineCameraBrowser2::xChanged(QString text)

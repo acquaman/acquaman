@@ -34,6 +34,13 @@ public:
     void setOperationMode();
     void setGroupMode();
 
+    /// Set the current motor coordinates
+    void setMotorCoordinate(double x, double y, double z, double r);
+    double motorRotation();
+    double motorX();
+    double motorY();
+    double motorZ();
+
     /// Functions for modifying object information
     QString currentName();
     void setCurrentName(QString);

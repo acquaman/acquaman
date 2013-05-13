@@ -173,6 +173,33 @@ void AMCrosshairOverlayVideoWidget2::setGroupMode()
     mode_ = GROUP;
 }
 
+void AMCrosshairOverlayVideoWidget2::setMotorCoordinate(double x, double y, double z, double r)
+{
+    shapeModel_->setMotorCoordinate(x,y,z,r);
+    emit currentChanged();
+    reviewCrosshairLinePositions();
+}
+
+double AMCrosshairOverlayVideoWidget2::motorRotation()
+{
+    return shapeModel_->motorRotation();
+}
+
+double AMCrosshairOverlayVideoWidget2::motorX()
+{
+    return shapeModel_->motorX();
+}
+
+double AMCrosshairOverlayVideoWidget2::motorY()
+{
+    return shapeModel_->motorY();
+}
+
+double AMCrosshairOverlayVideoWidget2::motorZ()
+{
+    return shapeModel_->motorZ();
+}
+
 QString AMCrosshairOverlayVideoWidget2::currentName()
 {
     return shapeModel_->currentName();
@@ -329,8 +356,10 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
     else if (e->button() == Qt::LeftButton && mode_ == OPERATION)
     {
         emit mouseOperationSelect(mapSceneToVideo(mapToScene(e->pos())));
-        currentSelectionChanged();
         emit mouseOperationPressed(mapSceneToVideo(mapToScene(e->pos())),QPointF(crosshairX_,crosshairY_));
+        currentSelectionChanged();
+
+
     }
     else if (e->button() == Qt::LeftButton && mode_ == GROUP)
     {
