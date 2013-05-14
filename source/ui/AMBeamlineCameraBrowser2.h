@@ -81,6 +81,7 @@ public slots:
     void zChanged(QString);
     void rotationChanged(QString);
     void setCoordinate();
+    void applyDistortion();
 
 
 
@@ -118,6 +119,7 @@ protected:
     QLineEdit* zEdit_;
     QLineEdit* rotationEdit_;
     QPushButton* setCoordinate_;
+    QPushButton* distortionButton_;
 
 
 

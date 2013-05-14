@@ -88,16 +88,18 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     ihl->addWidget(nameEdit_ = new QLineEdit());
     ihl->addSpacing(20);
     ihl->addWidget(infoEdit_ = new QLineEdit());
-    ihl->addSpacing(20);
+    ihl->addSpacing(10);
     ihl->addWidget(xEdit_ = new QLineEdit());
-    ihl->addSpacing(20);
+    ihl->addSpacing(10);
     ihl->addWidget(yEdit_ = new QLineEdit());
-    ihl->addSpacing(20);
+    ihl->addSpacing(10);
     ihl->addWidget(zEdit_ = new QLineEdit());
-    ihl->addSpacing(20);
+    ihl->addSpacing(10);
     ihl->addWidget(rotationEdit_ = new QLineEdit());
     ihl->addSpacing(20);
     ihl->addWidget(setCoordinate_ = new QPushButton("Set"));
+    ihl->addSpacing(20);
+    ihl->addWidget(distortionButton_ = new QPushButton("Distortion"));
     ihl->addStretch();
     infoFrame->setLayout(ihl);
 
@@ -148,6 +150,7 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(rotationEdit_, SIGNAL(textChanged(QString)), this, SLOT(rotationChanged(QString)));
     connect(setCoordinate_, SIGNAL(clicked()), this, SLOT(setCoordinate()));
     connect(this, SIGNAL(coordinateChange(double,double,double)), videoWidget_, SIGNAL(setCoordinate(double,double,double)));
+    connect(distortionButton_, SIGNAL(clicked()), this, SLOT(applyDistortion()));
 }
 
 
@@ -414,6 +417,11 @@ void AMBeamlineCameraBrowser2::rotationChanged(QString text)
 void AMBeamlineCameraBrowser2::setCoordinate()
 {
     videoWidget_->moveCurrentToCoordinate();
+}
+
+void AMBeamlineCameraBrowser2::applyDistortion()
+{
+    videoWidget_->toggleDistortion();
 }
 
 //void AMBeamlineCameraBrowser2::changeCoordinate(QString)

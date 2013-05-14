@@ -59,6 +59,8 @@ public:
     double motorY();
     double motorZ();
 
+    void toggleDistortion();
+
 
 protected:
     /// used for transforming points to where they actually appear
@@ -111,6 +113,8 @@ protected:
 
     double motorRotation_;
 
+    bool distortion_;
+
 
     /// for ease, create a coordinate transform function
     /// takes a double transforms to where you are actually clicking
@@ -130,6 +134,10 @@ protected:
     bool contains(QPointF position,int index);
 
     QPolygonF subShape(int index);
+
+    QPolygonF applyDistortion(QPolygonF shape);
+
+    QPointF distortPoint(QPointF point);
 
     double transformDimension(double dimension, QVector3D coordinate);
 

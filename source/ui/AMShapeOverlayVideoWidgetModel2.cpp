@@ -498,6 +498,11 @@ double AMShapeOverlayVideoWidgetModel2::motorZ()
     return motorCoordinate_.z();
 }
 
+void AMShapeOverlayVideoWidgetModel2::toggleDistortion()
+{
+    distortion_ = !distortion_;
+}
+
 
 QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
 {
@@ -526,7 +531,31 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index)
 {
     QPolygonF shape(*shapeList_[index].shape());
     if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
+    if(distortion_) shape = applyDistortion(shape);
     return shape;
+}
+
+QPolygonF AMShapeOverlayVideoWidgetModel2::applyDistortion(QPolygonF shape)
+{
+    QPolygonF polygon;
+    for(int i = 0; i <= TOPCLOSE; i++)
+    {
+        polygon<<distortPoint(shape.data()[i]);
+    }
+    return polygon;
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::distortPoint(QPointF point)
+{
+    double distortionFactor = motorRotation_;
+    if (distortionFactor == 0) distortionFactor = 2;
+    QPointF newPoint;
+    double x = point.x()-0.5;
+    double y = point.y()-0.5;
+
+    newPoint.setX((x*(1+distortionFactor*(x*x+y*y)))+0.5);
+    newPoint.setY((y*(1+distortionFactor*(x*x+y*y)))+0.5);
+    return newPoint;
 }
 
 QString AMShapeOverlayVideoWidgetModel2::currentName()

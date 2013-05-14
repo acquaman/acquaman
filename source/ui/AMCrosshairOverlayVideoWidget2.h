@@ -62,6 +62,8 @@ public:
 
     void moveCurrentToCoordinate();
 
+    void toggleDistortion();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)

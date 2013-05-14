@@ -282,6 +282,12 @@ void AMCrosshairOverlayVideoWidget2::moveCurrentToCoordinate()
     reviewCrosshairLinePositions();
 }
 
+void AMCrosshairOverlayVideoWidget2::toggleDistortion()
+{
+    shapeModel_->toggleDistortion();
+    reviewCrosshairLinePositions();
+}
+
 void AMCrosshairOverlayVideoWidget2::setCrosshairPen(const QPen &pen)
 {
 	crosshairXLine_->setPen(pen);
