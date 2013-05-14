@@ -50,9 +50,6 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
-	QPushButton *temp = new QPushButton("Test");
-	if (qobject_cast<VESPERSPilatusCCDDetector *>(detector_))
-		connect(temp, SIGNAL(clicked()), (VESPERSPilatusCCDDetector *)detector_, SLOT(updateAuroraSize()));
 //	QPushButton *loadCCDButton = new QPushButton("Load Image");
 //	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
 //	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
@@ -160,28 +157,27 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
 	acquisitionAndTemperatureLayout->addStretch();
 
-	QVBoxLayout *detectorLayout = new QVBoxLayout;
-	detectorLayout->addStretch();
-	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
-	detectorLayout->addWidget(ccdGB);
-	detectorLayout->addStretch();
+	detectorLayout_ = new QVBoxLayout;
+	detectorLayout_->addStretch();
+	detectorLayout_->addLayout(acquisitionAndTemperatureLayout);
+	detectorLayout_->addWidget(ccdGB);
+	detectorLayout_->addStretch();
 
 	QHBoxLayout *horizontalSquishLayout = new QHBoxLayout;
 	horizontalSquishLayout->addStretch();
-	horizontalSquishLayout->addLayout(detectorLayout);
+	horizontalSquishLayout->addLayout(detectorLayout_);
 	horizontalSquishLayout->addStretch();
 
-	QVBoxLayout *masterLayout = new QVBoxLayout;
-	masterLayout->addWidget(topFrame);
-	masterLayout->addStretch();
-	masterLayout->addWidget(temp);
+	masterLayout_ = new QVBoxLayout;
+	masterLayout_->addWidget(topFrame);
+	masterLayout_->addStretch();
 //	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
 //	masterLayout->addWidget(loadCCDButton);
 //	masterLayout->addLayout(horizontalSquishLayout);
-	masterLayout->addLayout(horizontalSquishLayout);
-	masterLayout->addStretch();
+	masterLayout_->addLayout(horizontalSquishLayout);
+	masterLayout_->addStretch();
 
-	setLayout(masterLayout);
+	setLayout(masterLayout_);
 
 	return true;
 }

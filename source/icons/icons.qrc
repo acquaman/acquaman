@@ -189,5 +189,6 @@
         <file>32x32/format-line-spacing-triple.png</file>
         <file>32x32/media-seek-forward-6.png</file>
         <file>32x32/format-list-ordered.png</file>
+        <file>Yellow.png</file>
     </qresource>
 </RCC>
