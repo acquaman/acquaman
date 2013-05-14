@@ -24,6 +24,10 @@ public:
 	/// Returns the total occupied size on aurora.
 	double totalAuroraSize() const { return totalAuroraSize_; }
 
+signals:
+	/// Notifier that the detector recently updated the file system information for the capacity of the aurora drive.
+	void fileSystemInfoUpdated();
+
 protected slots:
 	/// Queries the OS (linux only) for the file size of the aurora drive.  This is necessary because the images from copyImages will go on to aurora.
 	void updateAuroraSize();

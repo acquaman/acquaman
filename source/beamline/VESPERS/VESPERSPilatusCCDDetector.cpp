@@ -5,6 +5,7 @@
 VESPERSPilatusCCDDetector::VESPERSPilatusCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSCCDDetector(name, description, "PAD1607-B21-05:cam1", AMnDIndex(981, 1043), parent)
 {
+	connect(this, SIGNAL(connected(bool)), this, SLOT(updateAuroraSize()));
 }
 
 void VESPERSPilatusCCDDetector::updateAuroraSize()
@@ -15,9 +16,8 @@ void VESPERSPilatusCCDDetector::updateAuroraSize()
 	if (!proc.waitForFinished())
 		return;
 
-	QString test = QString(proc.readAll());
-	QStringList output = test.split(" ", QString::SkipEmptyParts);
-	totalAuroraSize_ = output.at(8).toDouble()/1e9;
-	occupiedAuroraSize_ = output.at(9).toDouble()/1e9;
-	qDebug() << test << output << occupiedAuroraSize_ << totalAuroraSize_;
+	QStringList output = QString(proc.readAll()).split(" ", QString::SkipEmptyParts);
+	totalAuroraSize_ = output.at(7).toDouble()/1e9;
+	occupiedAuroraSize_ = output.at(8).toDouble()/1e9;
+	emit fileSystemInfoUpdated();
 }
