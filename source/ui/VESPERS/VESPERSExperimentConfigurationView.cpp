@@ -149,7 +149,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	// The button for the pseudo-motor reset.
 	resetPseudoMotorsButton_ = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
 	sampleStageLayout->addWidget(resetPseudoMotorsButton_);
-	connect(resetPseudoMotorsButton_, SIGNAL(clicked()), experimentConfiguration_, SLOT(resetPseudoMotors()));
+	connect(resetPseudoMotorsButton_, SIGNAL(clicked()), experimentConfiguration_, SLOT(resetHVNPseudoMotors()));
 
 	QGroupBox *sampleStageBox = new QGroupBox("Sample Stage");
 	sampleStageBox->setLayout(sampleStageLayout);

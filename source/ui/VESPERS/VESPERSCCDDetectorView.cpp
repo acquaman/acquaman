@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
 {
@@ -50,6 +50,9 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
+	QPushButton *temp = new QPushButton("Test");
+	if (qobject_cast<VESPERSPilatusCCDDetector *>(detector_))
+		connect(temp, SIGNAL(clicked()), (VESPERSPilatusCCDDetector *)detector_, SLOT(updateAuroraSize()));
 //	QPushButton *loadCCDButton = new QPushButton("Load Image");
 //	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
 //	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
@@ -171,6 +174,7 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
+	masterLayout->addWidget(temp);
 //	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
 //	masterLayout->addWidget(loadCCDButton);
 //	masterLayout->addLayout(horizontalSquishLayout);
