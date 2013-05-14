@@ -17,6 +17,11 @@ int const AMShapeOverlayVideoWidgetModel2::TOPCLOSE = 4;
 
 double const AMShapeOverlayVideoWidgetModel2::FOCALLENGTH =5.0;
 
+/// These values approximate the distortion of the camera
+double const AMShapeOverlayVideoWidgetModel2::X_XMOVEMENT = 0.015695;
+double const AMShapeOverlayVideoWidgetModel2::X_YMOVEMENT = -0.00003425;
+double const AMShapeOverlayVideoWidgetModel2::Y_YMOVEMENT = -0.0193235;
+double const AMShapeOverlayVideoWidgetModel2::Y_XMOVEMENT = -0.001015967;
 
 /// Constructor
 AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent) :
@@ -263,8 +268,8 @@ void AMShapeOverlayVideoWidgetModel2::motorMovement(double x, double y, double z
     for(int i = 0; i <= index_; i++)
     {
        // qDebug()<<"Moving shape "<<QString::number(i);
-        double xOffset = (x - motorCoordinate_.x())*(0.015695) + (y - motorCoordinate_.y())*(-0.00003425);//magical constants
-        double yOffset = (y - motorCoordinate_.y())*(-0.0193235) + (x - motorCoordinate_.x())*(-0.001015967);//more magical constant
+        double xOffset = (x - motorCoordinate_.x())*(X_XMOVEMENT) + (y - motorCoordinate_.y())*(X_YMOVEMENT);//magical constants
+        double yOffset = (y - motorCoordinate_.y())*(Y_YMOVEMENT) + (x - motorCoordinate_.x())*(Y_XMOVEMENT);//more magical constant
         QPointF offset(xOffset,yOffset);
         shapeList_[i].shape()->translate(offset);
         QVector3D coordinate = transform2Dto3D(findCenter(*shapeList_[i].shape()),shapeList_[i].coordinate().z());
@@ -296,14 +301,11 @@ void AMShapeOverlayVideoWidgetModel2::shiftToPoint(QPointF position, QPointF cro
     {
         currentVector_ = inverseVectorTransform(position, shapeList_[current_].coordinate());
         moveAllShapes(inverseVectorTransform(crosshairPosition, shapeList_[current_].coordinate()));
-        double motorX = motorCoordinate_.x() + ((-0.0193235)*(crosshairPosition.x() - position.x())-(-0.00003425)*(crosshairPosition.y() - position.y()))/((-0.0193235)*(0.015695)-(-0.00003425)*(-0.001015967));// these are from motorMovement, will be changed to actual variables
-        double motorY = motorCoordinate_.y() + ((-0.001015967)*(crosshairPosition.x() - position.x())-(0.015695)*(crosshairPosition.y() - position.y()))/((-0.00003425)*(-0.001015967) - (-0.0193235)*(0.015695));
-        qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());
-        qDebug()<<"Motor Y(Z):"<<QString::number( motorCoordinate_.y());
+        double motorX = motorCoordinate_.x() + ((Y_YMOVEMENT)*(crosshairPosition.x() - position.x())-(X_YMOVEMENT)*(crosshairPosition.y() - position.y()))/((Y_YMOVEMENT)*(X_XMOVEMENT)-(X_YMOVEMENT)*(Y_XMOVEMENT));
+        double motorY = motorCoordinate_.y() + ((Y_XMOVEMENT)*(crosshairPosition.x() - position.x())-(X_XMOVEMENT)*(crosshairPosition.y() - position.y()))/((X_YMOVEMENT)*(Y_XMOVEMENT) - (Y_YMOVEMENT)*(X_XMOVEMENT));
         motorCoordinate_.setX(motorX);
         motorCoordinate_.setY(motorY);
-        qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());
-        qDebug()<<"Motor Y(Z):"<<QString::number( motorCoordinate_.y());
+
     }
 
 

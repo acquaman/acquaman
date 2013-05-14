@@ -67,13 +67,21 @@ protected:
 
     QRectF rectangle_;
 
+    /// defines the array positions of each point in a polygon rectangle
     static const int TOPLEFT;
     static const int TOPRIGHT;
     static const int BOTTOMRIGHT;
     static const int BOTTOMLEFT;
     static const int TOPCLOSE;
 
+    /// the focal length of the camera
     static const double FOCALLENGTH;
+
+    /// constants for movement across the screen- used for approximation to actual distortion
+    static const double X_XMOVEMENT;
+    static const double X_YMOVEMENT;
+    static const double Y_YMOVEMENT;
+    static const double Y_XMOVEMENT;
 
     /// functions for getting the transformed locations of each rectangle
     QPointF shapeTopLeft(int index);
