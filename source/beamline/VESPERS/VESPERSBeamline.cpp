@@ -176,9 +176,9 @@ void VESPERSBeamline::setupSampleStage()
 //	((CLSMAXvMotor *)sampleStageY_)->setMoveStartTolerance(0.0001);
 //	((CLSMAXvMotor *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
-	sampleStageX_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "TS1607-2-B21-01:X:user:mm:sp", "TS1607-2-B21-01:X:user:mm", "TS1607-2-B21-01:X:status", "TS1607-2-B21-01:XYZ:stop.PROC", this, 0.01, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "TS1607-2-B21-01:Y:user:mm:sp", "TS1607-2-B21-01:Y:user:mm", "TS1607-2-B21-01:Y:status", "TS1607-2-B21-01:XYZ:stop.PROC", this, 0.01, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "TS1607-2-B21-01:Z:user:mm:sp", "TS1607-2-B21-01:Z:user:mm", "TS1607-2-B21-01:Z:status", "TS1607-2-B21-01:XYZ:stop.PROC", this, 0.01, 10.0);
 
 	((AMPVwStatusControl *)sampleStageX_)->setMoveStartTolerance(0.0001);
 	((AMPVwStatusControl *)sampleStageY_)->setMoveStartTolerance(0.0001);

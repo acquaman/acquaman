@@ -115,7 +115,7 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
-		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
+//		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());

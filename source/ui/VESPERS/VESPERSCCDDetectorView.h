@@ -113,6 +113,11 @@ protected:
 	QLineEdit *fileNameEdit_;
 	/// CCD file number line edit.
 	QLineEdit *fileNumberEdit_;
+
+	/// The master layout.
+	QVBoxLayout *masterLayout_;
+	/// The layout with the other key elements.
+	QVBoxLayout *detectorLayout_;
 };
 
 #endif // VESPERSCCDDETECTORVIEW_H

@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
 {
@@ -157,27 +157,27 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
 	acquisitionAndTemperatureLayout->addStretch();
 
-	QVBoxLayout *detectorLayout = new QVBoxLayout;
-	detectorLayout->addStretch();
-	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
-	detectorLayout->addWidget(ccdGB);
-	detectorLayout->addStretch();
+	detectorLayout_ = new QVBoxLayout;
+	detectorLayout_->addStretch();
+	detectorLayout_->addLayout(acquisitionAndTemperatureLayout);
+	detectorLayout_->addWidget(ccdGB);
+	detectorLayout_->addStretch();
 
 	QHBoxLayout *horizontalSquishLayout = new QHBoxLayout;
 	horizontalSquishLayout->addStretch();
-	horizontalSquishLayout->addLayout(detectorLayout);
+	horizontalSquishLayout->addLayout(detectorLayout_);
 	horizontalSquishLayout->addStretch();
 
-	QVBoxLayout *masterLayout = new QVBoxLayout;
-	masterLayout->addWidget(topFrame);
-	masterLayout->addStretch();
+	masterLayout_ = new QVBoxLayout;
+	masterLayout_->addWidget(topFrame);
+	masterLayout_->addStretch();
 //	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
 //	masterLayout->addWidget(loadCCDButton);
 //	masterLayout->addLayout(horizontalSquishLayout);
-	masterLayout->addLayout(horizontalSquishLayout);
-	masterLayout->addStretch();
+	masterLayout_->addLayout(horizontalSquishLayout);
+	masterLayout_->addStretch();
 
-	setLayout(masterLayout);
+	setLayout(masterLayout_);
 
 	return true;
 }
