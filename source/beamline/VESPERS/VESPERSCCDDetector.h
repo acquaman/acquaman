@@ -150,6 +150,8 @@ public slots:
 	void loadImageFromFile(const QString &filename = QString(""));
 
 protected slots:
+	/// Helper slot that helps determine if the detector is connected or not.
+	void onConnectedChanged();
 	/// Helper slot that emits the image mode.
 	void onImageModeChanged() { emit imageModeChanged(imageMode()); }
 	/// Helper slot that emits the trigger mode.
