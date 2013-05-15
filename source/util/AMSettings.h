@@ -57,6 +57,8 @@ public:
 	static QString userDataFolder;
 	/// name of user database
 	static QString userDatabaseFilename;
+	/// report startup errors for reading the settings file
+	static bool userSettingsStartupError;
 
 	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can  trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.  \note This version provides an absolute path name, starting at the root of the filesystem.
 	static QString defaultAbsolutePathForScan(const QDateTime&);
