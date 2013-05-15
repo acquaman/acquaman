@@ -11,7 +11,7 @@
 
 
 QColor const AMCrosshairOverlayVideoWidget2::BORDERCOLOUR = QColor(Qt::red);
-QColor const AMCrosshairOverlayVideoWidget2::ACTIVEBORDERCOLOUR = QColor(Qt::yellow);
+QColor const AMCrosshairOverlayVideoWidget2::ACTIVEBORDERCOLOUR = QColor(Qt::blue);
 
 
 AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, bool useOpenGlViewport) :

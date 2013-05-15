@@ -139,6 +139,10 @@ protected:
 
     QPointF distortPoint(QPointF point);
 
+    QPolygonF removeDistortion(QPolygonF shape);
+
+    QPointF undistortPoint(QPointF point);
+
     double transformDimension(double dimension, QVector3D coordinate);
 
     double inverseDimensionTransform(double dimension, QVector3D coordinate);

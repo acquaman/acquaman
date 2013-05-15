@@ -531,7 +531,12 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index)
 {
     QPolygonF shape(*shapeList_[index].shape());
     if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
-    if(distortion_) shape = applyDistortion(shape);
+    if(distortion_)
+    {
+        shape = applyDistortion(shape);
+        if(motorCoordinate_.z() != 0)
+        shape = removeDistortion(shape);
+    }
     return shape;
 }
 
@@ -548,7 +553,6 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyDistortion(QPolygonF shape)
 QPointF AMShapeOverlayVideoWidgetModel2::distortPoint(QPointF point)
 {
     double distortionFactor = motorRotation_;
-    if (distortionFactor == 0) distortionFactor = 2;
     QPointF newPoint;
     double x = point.x()-0.5;
     double y = point.y()-0.5;
@@ -557,6 +561,130 @@ QPointF AMShapeOverlayVideoWidgetModel2::distortPoint(QPointF point)
     newPoint.setY((y*(1+distortionFactor*(x*x+y*y)))+0.5);
     return newPoint;
 }
+
+QPolygonF AMShapeOverlayVideoWidgetModel2::removeDistortion(QPolygonF shape)
+{
+    QPolygonF polygon;
+    for(int i = 0; i <= TOPCLOSE; i++)
+    {
+        polygon<<undistortPoint(shape.data()[i]);
+    }
+    return polygon;
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
+{
+    double distortionFactor = motorCoordinate_.z();
+    QPointF newPoint;
+    double x = point.x()-0.5;
+    double y = point.y()-0.5;
+
+    double distortedRadius = x*x + y*y;
+    distortedRadius = pow(distortedRadius,0.5);
+
+    double wo;
+    double w1;
+    double rootFactor;
+    double theta;
+    double newRadius;
+
+    /// must check to see if there is a valid solution
+    /// take the cubic equation r^3 + r/distortionFactor - distortedRadius/distortionFactor = 0
+    /// using Vieta's Substitution we get
+    /// wo^3 = distortedRadius/(2*distortionFactor) (+,-) sqrt(distortedRadius^2/distortionFactor^2 + 4/(27*distortionFactor^3))/2
+    /// wo^3 = rd/2k (+,-) sqrt((rd/k)^2+(4/(27*k^3)))/2
+    /// if the square root part is negative, take its absolute value, multiply by j, otherwise it's purely real
+    /// will get two results, one for wo^3 + sqrt part, and one for minus.
+    /// if the square root part is negative, determine the angle, and see if there is a real solution
+    /// take the cube root of w0^3, make sure the sign is correct (theta = zero or pi)
+    /// r = wo-1/(3*k*wo)
+
+    /// inside the root is c
+    /// the entire second term is b
+    /// the first term is a
+
+    double c = distortedRadius*distortedRadius/(distortionFactor*distortionFactor) + (4)/(27*pow(distortionFactor,3));
+    double a = distortedRadius/(2*distortionFactor);
+    double b;
+    if(c<0)
+    {
+        /// the root is imaginary, so take the absolute value of c and square root it, theta = atan(b/a)
+        /// b(0,1) = (+-)sqrt(c)/2
+        /// with a real root, b0 and b1 will be the other two roots, so it is redundant to calculate both
+        c = c*(-1);
+        b = sqrt(c)/2.0;
+        /// six locations result in a real root (theta = npi/3)
+        /// check to see if theta is any of these, within some error
+        theta = atan(b/a);
+
+        /// a+b and a-b give the same absolute value
+        /// sqrt(a^2 + b^2)
+        // wo^3
+        wo = sqrt(a*a + b*b);
+        QPointF complexPoint [6];
+        QPointF conjugatePoint [6];
+        double pointAngles[6];
+        pointAngles[0] = theta/3.0;
+        pointAngles[3] = theta/-3.0;
+        pointAngles[1] = pointAngles[0] + 2.0*M_PI/3.0;
+        pointAngles[4] = pointAngles[3] + 2.0*M_PI/3.0;
+        pointAngles[2] = pointAngles[0] - 2.0*M_PI/3.0;
+        pointAngles[5] = pointAngles[3] - 2.0*M_PI/3.0;
+        /// calculate the six possible points for r
+        for(int i = 0; i<6;i++)
+        {
+            qDebug()<<"Point"<<QString::number(i)<<QString::number(pointAngles[i]);
+        }
+        //wo
+        wo = pow(wo,1.0/3.0);
+
+        for(int i = 0; i < 6; i++)
+        {
+            complexPoint[i].setX(wo*cos(pointAngles[i]));
+            complexPoint[i].setY(wo*sin(pointAngles[i]));
+            conjugatePoint[i].setX(complexPoint[i].x());
+            conjugatePoint[i].setY(-1*complexPoint[i].y());
+            conjugatePoint[i] *= 1/(distortionFactor*3*wo*wo);
+            complexPoint[i] = complexPoint[i] - conjugatePoint[i];
+            qDebug()<<"coordinate"<<QString::number(i)<<QString::number(complexPoint[i].x())<<QString::number(complexPoint[i].y());
+
+        }
+        /// new radius is calculated using complexPoint[1], just because it works well...
+        newRadius = sqrt(complexPoint[1].x()*complexPoint[1].x() + complexPoint[1].y()*complexPoint[1].y());
+
+    }
+    /// if c>=0 the number is entirely real, just do a check for theta = 0 or pi (pos or neg)
+    /// this can have two distinct values (a+b, a-b)
+    else
+    {
+        b = sqrt(c)/2.0;
+        wo = a+b;
+        //w1 = a-b;
+        if(wo>=0)
+        {
+            theta = 1.0;
+        }
+        else
+        {
+            theta = -1.0;
+            wo *=-1.0;
+        }
+        rootFactor = pow(wo,1.0/3.0);
+        newRadius = rootFactor - 1.0/(3.0*distortionFactor*rootFactor);
+    }
+
+
+    newPoint.setX(x);
+    newPoint.setY(y);
+    newPoint = newPoint/distortedRadius*newRadius;
+    newPoint.setX(newPoint.x()+0.5);
+    newPoint.setY(newPoint.y()+0.5);
+    return newPoint;
+
+
+}
+
+
 
 QString AMShapeOverlayVideoWidgetModel2::currentName()
 {
