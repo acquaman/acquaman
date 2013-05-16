@@ -47,6 +47,10 @@ class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 
+#define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
+#define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
+#define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
+
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
 
@@ -109,6 +113,8 @@ protected:
 	void cleanMoveImmediatelyAction();
 
 	// Things to do on startup.
+	/// Ensures that all the necessary directories exist before they are used and create errors.
+	bool ensureProgramStructure();
 	/// Registers all of the necessary classes that are VESPERS specific.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.

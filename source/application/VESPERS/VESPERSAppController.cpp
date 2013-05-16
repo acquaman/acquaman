@@ -138,11 +138,12 @@ bool VESPERSAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
+		if (!ensureProgramStructure())
+			return false;
+
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-
-		moveImmediatelyAction_ = 0;
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -157,6 +158,34 @@ bool VESPERSAppController::startup() {
 		return false;
 }
 
+bool VESPERSAppController::ensureProgramStructure()
+{
+	QString homeDir = VESPERS::getHomeDirectory();
+
+	if (!QDir(homeDir % "/acquaman/devConfigFiles/VESPERS").exists()){
+
+		QDir temp = QDir();
+		temp.cd(homeDir % "/acquaman/devConfigFiles");
+
+		if (!temp.mkdir("VESPERS")){
+
+			AMErrorMon::error(this, VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER, "Could not create the VESPERS config folder.  Notify beamline staff.");
+			return false;
+		}
+	}
+
+	if (!QDir("/nas/vespers").exists()){
+
+		AMErrorMon::error(this, VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND, "Path to aurora not found.  Notify beamline staff.");
+		return false;
+	}
+
+	// This one is not critical to the running of the application.
+	if (!QDir("/nas/pilatus").exists())
+		AMErrorMon::alert(this, VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND, "The path to the Pilatus CCD was not found.  Many special features for the Pilatus are now unavailable.");
+
+	return true;
+}
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
