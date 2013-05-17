@@ -768,13 +768,13 @@ void VESPERSBeamline::pressureError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2) %3 %4\n").arg(current->name(), current->readPVName(), QString::number(current->value(), 'e', 3), current->units());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following pressure readings are at a critical level:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_PRESSURE_TOO_HIGH, error);
 	}
 
 	emit pressureStatus(error.isEmpty());
@@ -795,7 +795,7 @@ void VESPERSBeamline::valveError()
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
 			if (first->isMoving()) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(first->name(), first->movingPVName());
+				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
 		else {
@@ -803,14 +803,14 @@ void VESPERSBeamline::valveError()
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
 			if (current->state() == 0) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(current->name(), current->statePVName());
+				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following valves are closed:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_VALVES_CLOSED, error);
 	}
 
 	emit valveStatus(error.isEmpty());
@@ -829,13 +829,13 @@ void VESPERSBeamline::ionPumpError()
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
 		if (!current->value())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_ION_PUMP_TRIP, error);
 	}
 
 	emit ionPumpStatus(error.isEmpty());
@@ -854,13 +854,13 @@ void VESPERSBeamline::temperatureError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following temperature sensors are reading too high:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_TEMPERATURE_TOO_HIGH, error);
 	}
 
 	emit temperatureStatus(error.isEmpty());
@@ -879,13 +879,13 @@ void VESPERSBeamline::flowSwitchError()
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
 		if (!current->value())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow switches have tripped:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_WATER_FLOW_SWITCH_TRIP, error);
 	}
 
 	emit flowSwitchStatus(error.isEmpty());
@@ -904,13 +904,13 @@ void VESPERSBeamline::flowTransducerError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow transducers are measuring too low:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_WATER_FLOW_TOO_LOW, error);
 	}
 
 	emit flowTransducerStatus(error.isEmpty());
@@ -919,19 +919,19 @@ void VESPERSBeamline::flowTransducerError()
 void VESPERSBeamline::singleElVortexError(bool isConnected)
 {
 	if (vortexXRF1E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, 0, "The single element vortex detector is no longer connected.");
+		AMErrorMon::error(this, VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED, "The single element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::fourElVortexError(bool isConnected)
 {
 	if (vortexXRF4E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, 0, "The four element vortex detector is no longer connected.");
+		AMErrorMon::error(this, VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED, "The four element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::sampleStageError()
 {
 	if (!sampleStageMotorSet()->isConnected())
-		AMErrorMon::alert(this, 0, "The sample stage is no longer connected.");
+		AMErrorMon::alert(this, VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED, "The sample stage is no longer connected.");
 }
 
 VESPERSBeamline::~VESPERSBeamline()

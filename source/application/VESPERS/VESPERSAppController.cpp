@@ -162,10 +162,10 @@ bool VESPERSAppController::ensureProgramStructure()
 {
 	QString homeDir = VESPERS::getHomeDirectory();
 
-	if (!QDir(homeDir % "/acquaman/devConfigFiles/VESPERS").exists()){
+	if (!QFileInfo(homeDir % "/acquaman/devConfigurationFiles/VESPERS").exists()){
 
 		QDir temp = QDir();
-		temp.cd(homeDir % "/acquaman/devConfigFiles");
+		temp.cd(homeDir % "/acquaman/devConfigurationFiles");
 
 		if (!temp.mkdir("VESPERS")){
 
@@ -174,14 +174,14 @@ bool VESPERSAppController::ensureProgramStructure()
 		}
 	}
 
-	if (!QDir("/nas/vespers").exists()){
+	if (!QFileInfo("/nas/vespers").exists()){
 
 		AMErrorMon::error(this, VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND, "Path to aurora not found.  Notify beamline staff.");
 		return false;
 	}
 
 	// This one is not critical to the running of the application.
-	if (!QDir("/nas/pilatus").exists())
+	if (!QFileInfo("/nas/pilatus").exists())
 		AMErrorMon::alert(this, VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND, "The path to the Pilatus CCD was not found.  Many special features for the Pilatus are now unavailable.");
 
 	return true;
