@@ -124,6 +124,11 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 			config_->setCCDFileName(name);
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		QString dataFolder = AMUserSettings::userDataFolder;
+
+		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
 	}
