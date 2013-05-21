@@ -15,7 +15,7 @@ int const AMShapeOverlayVideoWidgetModel2::BOTTOMRIGHT = 2;
 int const AMShapeOverlayVideoWidgetModel2::BOTTOMLEFT = 3;
 int const AMShapeOverlayVideoWidgetModel2::TOPCLOSE = 4;
 
-double const AMShapeOverlayVideoWidgetModel2::FOCALLENGTH =5.0;
+double const AMShapeOverlayVideoWidgetModel2::FOCALLENGTH =0.41;//4.1mm
 
 /// These values approximate the distortion of the camera
 double const AMShapeOverlayVideoWidgetModel2::X_XMOVEMENT = 0.015695;
@@ -54,7 +54,7 @@ void AMShapeOverlayVideoWidgetModel2::finishRectangle(QPointF position)
     //QPointF* data = shapeList_[index_qDebug()<<"Motor X:"<<QString::number( motorCoordinate_.x());].shape()->data();
     QPointF topLeft = shapeList_[current_].shape()->first();
     QPolygonF newPolygon = constructRectangle(topLeft,position);
-    QPolygonF* polygon = shapeList_[current_].shape();
+    //QPolygonF* polygon = shapeList_[current_].shape();
     shapeList_[current_].setShape(newPolygon);
     QSizeF newSize = size(topLeft,position);
     QPointF newCenter = findCenter(newPolygon);
@@ -274,6 +274,7 @@ void AMShapeOverlayVideoWidgetModel2::motorMovement(double x, double y, double z
         shapeList_[i].shape()->translate(offset);
         QVector3D coordinate = transform2Dto3D(findCenter(*shapeList_[i].shape()),shapeList_[i].coordinate().z());
         shapeList_[i].setCoordinate(coordinate);
+        shapeList_[i].setIdNumber(z+r);
 
     }
 }
@@ -373,6 +374,40 @@ QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z
 
 }
 
+QPolygonF AMShapeOverlayVideoWidgetModel2::applyTilt(QPolygonF shape, int index)
+{
+    double z = shapeList_[index].coordinate().z();
+    double tilt = shapeList_[index].tilt();
+    //double height = (shape.data()[BOTTOMRIGHT].y() - shape.data()[TOPRIGHT].y())/2.0;
+    QPointF center = findCenter(shape);
+    QPolygonF polygon;
+    polygon<<getTiltedPoint(shape.first(),z,tilt,center);
+    shape.remove(0);
+    polygon<<getTiltedPoint(shape.first(),z,tilt,center);
+    shape.remove(0);
+    polygon<<getTiltedPoint(shape.first(),z,tilt,center);
+    shape.remove(0);
+    polygon<<getTiltedPoint(shape.first(),z,tilt,center);
+    shape.remove(0);
+    polygon<<polygon.first();
+    return polygon;
+}
+
+QPointF AMShapeOverlayVideoWidgetModel2::getTiltedPoint(QPointF point, double z, double tilt, QPointF center)
+{
+    QVector3D coordinate = transform2Dto3D(point,z);
+    QVector3D newCenter = transform2Dto3D(center,z);
+    newCenter.setX(coordinate.x());
+    QVector3D direction = newCenter- coordinate;
+    QVector3D zDirection(0,0,direction.y());
+    QVector3D newZ = sin(tilt)*zDirection;
+    QVector3D newY = ((1-cos(tilt))*direction);
+    coordinate = coordinate + newZ + newY;
+    return transform3Dto2D(coordinate);
+}
+
+
+
 /// constructs a rectangle given the desired top and bottom corners
 QPolygonF AMShapeOverlayVideoWidgetModel2::constructRectangle(QPointF topLeft, QPointF bottomRight)
 {
@@ -425,8 +460,17 @@ QPointF AMShapeOverlayVideoWidgetModel2::shapeBottomRight(int index)
 /// checks if an index is valid
 bool AMShapeOverlayVideoWidgetModel2::isValid(int index)
 {
-    if(index <= index_ && index >= 0) return true;
-    else return false;
+    qDebug()<<"checking for valid index"<<QString::number(index);
+    if(index <= index_ && index >= 0)
+    {
+        qDebug()<<"Valid index";
+        return true;
+    }
+    else
+    {
+        qDebug()<<"Invalid index";
+        return false;
+    }
 }
 
 double AMShapeOverlayVideoWidgetModel2::rotation(int index)
@@ -445,6 +489,24 @@ void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
         index = current_;
     }
     shapeList_[index].setRotation(rotation);
+}
+
+double AMShapeOverlayVideoWidgetModel2::tilt(int index)
+{
+    if(-1 == index)
+    {
+        index = current_;
+    }
+    return shapeList_[index].tilt();
+}
+
+void AMShapeOverlayVideoWidgetModel2::setTilt(double tilt, int index)
+{
+    if(-1 == index)
+    {
+        index = current_;
+    }
+    shapeList_[index].setTilt(tilt);
 }
 
 QPolygonF AMShapeOverlayVideoWidgetModel2::groupRectangle()
@@ -531,6 +593,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index)
 {
     QPolygonF shape(*shapeList_[index].shape());
     if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
+    if(shapeList_[index].tilt() != 0) shape = applyTilt(shape, index);
     if(distortion_)
     {
         shape = applyDistortion(shape);
@@ -574,6 +637,9 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::removeDistortion(QPolygonF shape)
 
 QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
 {
+    /// this does not work at the center, so ignore it (it doesn't move)
+    if(point.x() == 0.5 && point.y() == 0.5)
+        return point;
     double distortionFactor = motorCoordinate_.z();
     QPointF newPoint;
     double x = point.x()-0.5;
@@ -583,7 +649,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
     distortedRadius = pow(distortedRadius,0.5);
 
     double wo;
-    double w1;
+   // double w1;
     double rootFactor;
     double theta;
     double newRadius;
@@ -767,4 +833,38 @@ void AMShapeOverlayVideoWidgetModel2::finishGroupRectangle(QPointF position)
 
 }
 
+void AMShapeOverlayVideoWidgetModel2::placeGrid(QPointF position)
+{
+    for(double i = 0; i<20.0; i++)
+    {
+        for(double j = 0; j<20.0; j++)
+        {
+            qDebug()<<QString::number(i)<<QString::number(j);
+            index_ += 1;
+            QPointF topLeft(i*0.05,j*0.05);
+            QPointF bottomRight((i+1)*0.05,(j+1)*0.05);
+            shapeList_.insert(index_,AMShapeData2(constructRectangle(topLeft,bottomRight)));
+            shapeList_[current_].setIdNumber(position.x());
+            shapeList_[current_].setTilt(0);
+            shapeList_[current_].setRotation(0);
+            current_ = index_;
+        }
+    }
+
+//       index_ += 1;
+//       QPointF topLeft(0,0);
+//       QPointF bottomRight(0.01,0.01);
+//       QPolygonF polygon = constructRectangle(topLeft,bottomRight);
+//       AMShapeData2 shapeData(polygon);
+//       shapeList_.insert(index_,shapeData);
+//       shapeList_[index_].setCoordinate(transform2Dto3D(findCenter(polygon),FOCALLENGTH));
+//       shapeList_[index_].setShape(polygon);
+//       shapeList_[index_].setHeight(size(topLeft,bottomRight).height());
+//       shapeList_[index_].setWidth(size(topLeft,bottomRight).width());
+//       shapeList_[index_].setName("Grid Rectangle");
+//       shapeList_[index_].setRotation(0);
+
+//       current_ = index_;
+
+}
 

@@ -24,6 +24,7 @@ public:
     double height();
     double width();
     double rotation();
+    double tilt();
     void setShape(QPolygonF shape);
     void setName(QString name);
     void setOtherData(QString otherData);
@@ -32,6 +33,7 @@ public:
     void setHeight(double height);
     void setWidth(double width);
     void setRotation(double rotation);
+    void setTilt(double tilt);
 
 private:
     QPolygonF* shape_;
@@ -42,7 +44,7 @@ private:
     double height_;
     double width_;
     double rotation_;
-
+    double tilt_;
 
 };
 

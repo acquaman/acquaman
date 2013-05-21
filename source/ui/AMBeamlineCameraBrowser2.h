@@ -73,13 +73,13 @@ public slots:
 
     /// Change the shape information
     void nameChanged(QString);
-    void infoChanged(QString);
     void currentChanged();
 
     void xChanged(QString);
     void yChanged(QString);
     void zChanged(QString);
     void rotationChanged(QString);
+    void tiltChanged(QString);
     void setCoordinate();
     void applyDistortion();
 
@@ -113,7 +113,7 @@ protected:
 
     /// Line Edits
     QLineEdit* nameEdit_;
-    QLineEdit* infoEdit_;
+    QLineEdit* tiltEdit_;
     QLineEdit* xEdit_;
     QLineEdit* yEdit_;
     QLineEdit* zEdit_;

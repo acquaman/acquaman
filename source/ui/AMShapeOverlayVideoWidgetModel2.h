@@ -50,6 +50,9 @@ public:
     double rotation(int index = -1);
     void setRotation(double rotation, int index = -1);
 
+    double tilt(int index = -1);
+    void setTilt(double tilt, int index = -1);
+
     QPolygonF groupRectangle();
 
     void setMotorCoordinate(double x, double y, double z, double r);
@@ -124,6 +127,10 @@ protected:
     QPolygonF applyRotation(int index);
 
     QPointF getRotatedPoint(QPointF point, double z, double rotation, QPointF center);
+
+    QPolygonF applyTilt(QPolygonF shape, int index);
+
+    QPointF getTiltedPoint(QPointF point, double z, double tilt, QPointF center);
 
     QVector3D transform2Dto3D(QPointF point, double z);
 
@@ -202,6 +209,8 @@ public slots:
     void finishGroupRectangle(QPointF position);
 
     void startGroupRectangle(QPointF position);
+
+    void placeGrid(QPointF position);
 
 };
 

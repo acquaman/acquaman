@@ -87,7 +87,7 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     ihl->setContentsMargins(12,4,12,4);
     ihl->addWidget(nameEdit_ = new QLineEdit());
     ihl->addSpacing(20);
-    ihl->addWidget(infoEdit_ = new QLineEdit());
+    ihl->addWidget(tiltEdit_ = new QLineEdit());
     ihl->addSpacing(10);
     ihl->addWidget(xEdit_ = new QLineEdit());
     ihl->addSpacing(10);
@@ -141,7 +141,7 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinate()));
 
     connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
-    connect(infoEdit_, SIGNAL(textChanged(QString)), this, SLOT(infoChanged(QString)));
+    connect(tiltEdit_, SIGNAL(textChanged(QString)), this, SLOT(tiltChanged(QString)));
     connect(videoWidget_, SIGNAL(currentChanged()), this, SLOT(currentChanged()));
 
     connect(xEdit_, SIGNAL(textChanged(QString)), this, SLOT(xChanged(QString)));
@@ -370,16 +370,16 @@ void AMBeamlineCameraBrowser2::nameChanged(QString name)
     nameEdit_->setText(videoWidget_->currentName());
 }
 
-void AMBeamlineCameraBrowser2::infoChanged(QString info)
+void AMBeamlineCameraBrowser2::tiltChanged(QString tilt)
 {
-   videoWidget_->setCurrentInfo(info);
-   infoEdit_->setText(videoWidget_->currentInfo());
+   videoWidget_->setTilt(tilt.toDouble());
+  // tiltEdit_->setText(videoWidget_->currentTilt());
 }
 
 void AMBeamlineCameraBrowser2::currentChanged()
 {
     nameEdit_->setText(videoWidget_->currentName());
-    infoEdit_->setText(videoWidget_->currentInfo());
+    tiltEdit_->setText(QString::number(videoWidget_->tilt()));
     xEdit_->setText(QString::number(videoWidget_->xCoordinate()));
     yEdit_->setText(QString::number(videoWidget_->yCoordinate()));
     zEdit_->setText(QString::number(videoWidget_->zCoordinate()));

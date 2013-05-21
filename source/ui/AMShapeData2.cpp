@@ -62,6 +62,11 @@ double AMShapeData2::rotation()
     return rotation_;
 }
 
+double AMShapeData2::tilt()
+{
+    return tilt_;
+}
+
 void AMShapeData2::setShape(QPolygonF shape)
 {
     *shape_ = shape;
@@ -100,4 +105,9 @@ void AMShapeData2::setWidth(double width)
 void AMShapeData2::setRotation(double rotation)
 {
     rotation_ = rotation;
+}
+
+void AMShapeData2::setTilt(double tilt)
+{
+    tilt_ = tilt;
 }

@@ -48,7 +48,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 
     //mouse press -
     connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
-    connect(this, SIGNAL(mouseReleased(QPointF)),shapeModel_, SLOT(finishRectangle(QPointF)));
+    //connect(this, SIGNAL(mouseReleased(QPointF)),shapeModel_, SLOT(finishRectangle(QPointF)));
     connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
     connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
@@ -98,7 +98,10 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
 
     if(index_ < shapeModel_->shapeListLength())
     {
-        addNewShape();
+        while(index_<shapeModel_->shapeListLength())
+        {
+            addNewShape();
+        }
     }
     else if(index_ > shapeModel_->shapeListLength())
     {
@@ -247,6 +250,11 @@ double AMCrosshairOverlayVideoWidget2::rotation()
     return shapeModel_->rotation();
 }
 
+double AMCrosshairOverlayVideoWidget2::tilt()
+{
+    return shapeModel_->tilt();
+}
+
 void AMCrosshairOverlayVideoWidget2::setX(double x)
 {
    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
@@ -274,6 +282,11 @@ void AMCrosshairOverlayVideoWidget2::setZ(double z)
 void AMCrosshairOverlayVideoWidget2::setRotation(double rotation)
 {
     shapeModel_->setRotation(rotation);
+}
+
+void AMCrosshairOverlayVideoWidget2::setTilt(double tilt)
+{
+    shapeModel_->setTilt(tilt);
 }
 
 void AMCrosshairOverlayVideoWidget2::moveCurrentToCoordinate()
@@ -364,14 +377,19 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
         emit mouseOperationSelect(mapSceneToVideo(mapToScene(e->pos())));
         emit mouseOperationPressed(mapSceneToVideo(mapToScene(e->pos())),QPointF(crosshairX_,crosshairY_));
         currentSelectionChanged();
-
-
     }
     else if (e->button() == Qt::LeftButton && mode_ == GROUP)
     {
         emit mouseGroupPressed(mapSceneToVideo(mapToScene(e->pos())));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishGroupRectangle(QPointF)));
         createGroupRectangle();
+
+    }
+    else if (e->button() == Qt::RightButton && mode_ == GROUP)
+    {
+        shapeModel_->placeGrid(mapSceneToVideo(mapToScene(e->pos())));
+        reviewCrosshairLinePositions();
+        currentSelectionChanged();
 
     }
     else if (e->button() == Qt::RightButton)
@@ -503,11 +521,19 @@ void AMCrosshairOverlayVideoWidget2::deleteShape()
 void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
 {
     emit currentChanged();
+    qDebug()<<"changing pen";
     if(shapeModel_->isValid(current_))
         shapes_[current_]->setPen(BORDERCOLOUR);
+     qDebug()<<"accessing current Index";
     current_ = shapeModel_->currentIndex();
+     qDebug()<<"changing current pen";
     if(shapeModel_->isValid(current_))
+    {
+        qDebug()<<"Changing current pen colour";
         shapes_[current_]->setPen(ACTIVEBORDERCOLOUR);
+        qDebug()<<"finished changin current pen colour";
+    }
+    qDebug()<<"finished slection change";
 }
 
 void AMCrosshairOverlayVideoWidget2::createGroupRectangle()

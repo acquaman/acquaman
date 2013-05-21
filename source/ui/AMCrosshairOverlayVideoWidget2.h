@@ -54,11 +54,13 @@ public:
     double yCoordinate();
     double zCoordinate();
     double rotation();
+    double tilt();
 
     void setX(double x);
     void setY(double y);
     void setZ(double z);
     void setRotation(double rotation);
+    void setTilt(double tilt);
 
     void moveCurrentToCoordinate();
 
