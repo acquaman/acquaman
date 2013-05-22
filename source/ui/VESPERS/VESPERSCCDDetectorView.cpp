@@ -294,6 +294,17 @@ void VESPERSCCDDetectorView::setAutoSave(int autoSave)
 	}
 }
 
+void VESPERSCCDDetectorView::ccdPathEdited()
+{
+	if (detector_->name() == "Roper CCD" && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
+		filePathEdit_->setText(filePathEdit_->text()+"\\");
+
+	else if ((detector_->name() == "Mar CCD" || detector_->name() == "Pilatus CCD") && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '/')
+		filePathEdit_->setText(filePathEdit_->text()+"/");
+
+	detector_->setCCDPath(filePathEdit_->text());
+}
+
 #include "MPlot/MPlotColorMap.h"
 #include <QTime>
 #include <QRgb>

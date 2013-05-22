@@ -62,13 +62,7 @@ protected slots:
 	/// Slot used to update the autosave combo box.
 	void onAutoSaveChanged(bool autoSave);
 	/// Used to set the CCD Path when it changes from the program.
-	void ccdPathEdited()
-	{
-		if (filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
-			filePathEdit_->setText(filePathEdit_->text()+"\\");
-
-		detector_->setCCDPath(filePathEdit_->text());
-	}
+	void ccdPathEdited();
 	/// Used to set the CCD File name when it changes from the program.
 	void ccdFileEdited() { detector_->setCCDName(fileNameEdit_->text()); }
 	/// Used to set the CCD Number when it changes from the program.
