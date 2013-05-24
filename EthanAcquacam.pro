@@ -73,7 +73,17 @@ HEADERS += source/ui/AMColorPickerButton2.h \
         source/ui/AMBeamlineCameraBrowser2.h \
     source/ui/AMShapeOverlayVideoWidgetView2.h \
     source/ui/AMShapeOverlayVideoWidgetModel2.h \
-    source/ui/AMShapeData2.h
+    source/ui/AMShapeData2.h \
+    source/ui/AMCameraConfiguration.h \
+    source/ui/AMCameraConfigurationModel.h \
+    source/dataman/database/AMDatabase.h \
+    source/util/AMErrorMonitor.h \
+    source/dataman/database/AMDbObject.h \
+    source/dataman/database/AMDbObjectSupport.h \
+    source/dataman/AMnDIndex.h \
+    source/util/AMPeriodicTable.h \
+    source/util/AMElement.h \
+    source/dataman/AMSample.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -82,5 +92,15 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMBeamlineCameraBrowser2.cpp \
     source/ui/AMShapeOverlayVideoWidgetView2.cpp \
     source/ui/AMShapeOverlayVideoWidgetModel2.cpp \
-    source/ui/AMShapeData2.cpp
+    source/ui/AMShapeData2.cpp \
+    source/ui/AMCameraConfiguration.cpp \
+    source/ui/AMCameraConfigurationModel.cpp \
+    source/dataman/database/AMDatabase.cpp \
+    source/util/AMErrorMonitor.cpp \
+    source/dataman/database/AMDbObject.cpp \
+    source/dataman/database/AMDbObjectSupport.cpp \
+    source/dataman/AMnDIndex.cpp \
+    source/util/AMPeriodicTable.cpp \
+    source/util/AMElement.cpp \
+    source/dataman/AMSample.cpp
 

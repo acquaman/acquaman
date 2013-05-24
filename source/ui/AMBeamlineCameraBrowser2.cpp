@@ -13,6 +13,7 @@
 #include "ui/AMCrosshairOverlayVideoWidget2.h"
 #include "ui/AMColorPickerButton2.h"
 #include "ui/AMShapeOverlayVideoWidgetView2.h"
+#include "ui/AMCameraConfiguration.h"
 #include <QLineEdit>
 
 AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpenGlViewport) :
@@ -117,6 +118,9 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
 	sourceComboBox_->setInsertPolicy(QComboBox::InsertAtTop);
 	sourceComboBox_->setMaxCount(20);
 
+    // create the configuration window
+    cameraConfiguration_ = new AMCameraConfiguration();
+
 
 	// Make conections:
 	//////////////////////////
@@ -151,6 +155,10 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
     connect(setCoordinate_, SIGNAL(clicked()), this, SLOT(setCoordinate()));
     connect(this, SIGNAL(coordinateChange(double,double,double)), videoWidget_, SIGNAL(setCoordinate(double,double,double)));
     connect(distortionButton_, SIGNAL(clicked()), this, SLOT(applyDistortion()));
+
+    connect(cameraConfiguration_, SIGNAL(update(AMCameraConfigurationModel*)), videoWidget_, SLOT(setCameraModel(AMCameraConfigurationModel*)));
+
+    cameraConfiguration_->updateAll();
 }
 
 
@@ -346,6 +354,8 @@ void AMBeamlineCameraBrowser2::operationMode()
 {
     operationButton_->setDown(true);
     videoWidget_->setOperationMode();
+    /// Window testing
+   cameraConfiguration_->show();
 }
 
 void AMBeamlineCameraBrowser2::groupMode()
@@ -408,6 +418,7 @@ void AMBeamlineCameraBrowser2::zChanged(QString text)
     videoWidget_->setZ(z);
 }
 
+#include "dataman/AMSample.h"
 void AMBeamlineCameraBrowser2::rotationChanged(QString text)
 {
     double rotation = text.toDouble();

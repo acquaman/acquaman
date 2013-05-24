@@ -12,6 +12,7 @@ class AMShapeData2;
 class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
+class AMCameraConfigurationModel;
 
 class AMShapeOverlayVideoWidgetModel2: public QObject
 {
@@ -64,6 +65,8 @@ public:
 
     void toggleDistortion();
 
+    void setCameraModel(AMCameraConfigurationModel*);
+
 
 protected:
     /// used for transforming points to where they actually appear
@@ -79,8 +82,7 @@ protected:
     static const int BOTTOMLEFT;
     static const int TOPCLOSE;
 
-    /// the focal length of the camera
-    static const double FOCALLENGTH;
+    static const int RECTANGLE_POINTS;
 
     /// constants for movement across the screen- used for approximation to actual distortion
     static const double X_XMOVEMENT;
@@ -118,6 +120,8 @@ protected:
 
     bool distortion_;
 
+    AMCameraConfigurationModel* cameraModel_;
+
 
     /// for ease, create a coordinate transform function
     /// takes a double transforms to where you are actually clicking
@@ -140,7 +144,7 @@ protected:
 
     bool contains(QPointF position,int index);
 
-    QPolygonF subShape(int index);
+    QPolygonF subShape(int index, QPolygonF shape);
 
     QPolygonF applyDistortion(QPolygonF shape);
 
@@ -162,7 +166,8 @@ protected:
 
     void motorMovement(double x, double y, double z, double r);
 
-
+    double depth(QVector3D);
+    QVector3D depthVector(QVector3D);
 public slots:
     /// start position of rectangle
     void startRectangle(QPointF);
@@ -175,7 +180,7 @@ public slots:
 
     void selectCurrentShape(QPointF);
 
-    void moveCurrentShape(QPointF);
+    void moveCurrentShape(QPointF, int index = -1);
 
     void moveAllShapes(QPointF);
 
@@ -211,6 +216,14 @@ public slots:
     void startGroupRectangle(QPointF position);
 
     void placeGrid(QPointF position);
+
+    void updateShape(int index);
+
+    void updateAllShapes();
+
+    QVector3D centerCoordinate(int index);
+
+    void shiftCoordinates(QVector3D shift, int index);
 
 };
 

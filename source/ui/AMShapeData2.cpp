@@ -5,10 +5,12 @@
 #include <QString>
 #include <QVector3D>
 #include <QPolygonF>
+#include <QDebug>
 
 AMShapeData2::AMShapeData2()
 {
     shape_ = new QPolygonF();
+    coordinateIndex_ = -1;
 
 }
 
@@ -19,6 +21,7 @@ AMShapeData2::AMShapeData2(QPolygonF shape, QString name, QString otherData,  do
     setName(name);
     setOtherData(otherData);
     setIdNumber(idNumber);
+    coordinateIndex_ = -1;
 
 }
 
@@ -42,9 +45,12 @@ double AMShapeData2::idNumber()
     return idNumber_;
 }
 
-QVector3D AMShapeData2::coordinate()
+QVector3D AMShapeData2::coordinate(int index)
 {
-    return coordinate_;
+    if(validIndex(index))
+        return coordinate_[index];
+    else
+        return QVector3D(0,0,0);
 }
 
 double AMShapeData2::height()
@@ -87,9 +93,23 @@ void AMShapeData2::setIdNumber(double idNumber)
     idNumber_ = idNumber;
 }
 
-void AMShapeData2::setCoordinate(QVector3D coordinate)
+void AMShapeData2::setCoordinate(QVector3D coordinate, int index)
 {
-    coordinate_ = coordinate;
+    if(validIndex(index))
+        coordinate_[index] = coordinate;
+    else qDebug()<<"Failed to set coordinate; invalid index";
+}
+
+void AMShapeData2::setCoordinateShape(QVector<QVector3D> coordinates, int count)
+{
+    if(coordinates.isEmpty()) return;
+    coordinate_.clear();
+    for(int i = 0; i < count; i++)
+    {
+        qDebug()<<"Assigning coordinate"<<i<<"Which is"<<coordinates[i];
+        if(coordinateIndex_ < i) coordinateIndex_ = i;
+        coordinate_<<coordinates[i];
+    }
 }
 
 void AMShapeData2::setHeight(double height)
@@ -110,4 +130,9 @@ void AMShapeData2::setRotation(double rotation)
 void AMShapeData2::setTilt(double tilt)
 {
     tilt_ = tilt;
+}
+
+bool AMShapeData2::validIndex(int index)
+{
+    return (index >= 0 && index <= coordinateIndex_);
 }

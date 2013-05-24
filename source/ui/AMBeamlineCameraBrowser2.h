@@ -11,6 +11,7 @@ class AMColorPickerButton2;
 class QSlider;
 class AMShapeOverlayVideoWidgetView2;
 class QLineEdit;
+class AMCameraConfiguration;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraBrowser2 : public QWidget
@@ -84,17 +85,15 @@ public slots:
     void applyDistortion();
 
 
-
-
 protected:
 
     AMCrosshairOverlayVideoWidget2* videoWidget_;
-	QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
+    QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
     AMColorPickerButton2* crosshairColorPicker_;
-	QComboBox* sourceComboBox_;
-	QSlider* crosshairThicknessSlider_;
+    QComboBox* sourceComboBox_;
+    QSlider* crosshairThicknessSlider_;
 
-	bool crosshairLocked_;
+    bool crosshairLocked_;
 
     /// Mode buttons
     QPushButton* drawButton_;
@@ -120,6 +119,9 @@ protected:
     QLineEdit* rotationEdit_;
     QPushButton* setCoordinate_;
     QPushButton* distortionButton_;
+
+    /// Configuration Window
+    AMCameraConfiguration* cameraConfiguration_;
 
 
 
