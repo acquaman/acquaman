@@ -294,73 +294,84 @@ void VESPERSCCDDetectorView::setAutoSave(int autoSave)
 	}
 }
 
-#include "MPlot/MPlotColorMap.h"
-#include <QTime>
-#include <QRgb>
-
-void VESPERSCCDDetectorView::displayCCDFileTest()
+void VESPERSCCDDetectorView::ccdPathEdited()
 {
-	QTime time1;
-	time1.start();
+	if (detector_->name() == "Roper CCD" && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
+		filePathEdit_->setText(filePathEdit_->text()+"\\");
 
-	QVector<int> data = detector_->imageData();
-	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+	else if ((detector_->name() == "Mar CCD" || detector_->name() == "Pilatus CCD") && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '/')
+		filePathEdit_->setText(filePathEdit_->text()+"/");
 
-	QTime time;
-	time.start();
+	detector_->setCCDPath(filePathEdit_->text());
+}
 
-	int maximum = data.at(0);
-	int minimum = data.at(0);
+//#include "MPlot/MPlotColorMap.h"
+//#include <QTime>
+//#include <QRgb>
 
-	for (int i = 0, size = data.size(); i < size; i++){
+//void VESPERSCCDDetectorView::displayCCDFileTest()
+//{
+//	QTime time1;
+//	time1.start();
 
-		if (data.at(i) < minimum)
-			minimum = data.at(i);
+//	QVector<int> data = detector_->imageData();
+//	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
 
-		if (data.at(i) > maximum)
-			maximum = data.at(i);
-	}
-	qDebug() << "Finding min and max:" << time.restart() << "ms";
-	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
-	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+//	QTime time;
+//	time.start();
 
-	int xSize = detector_->size().i();
-	int ySize = detector_->size().j();
+//	int maximum = data.at(0);
+//	int minimum = data.at(0);
 
-//	for (int i = 0; i < xSize; i++){
+//	for (int i = 0, size = data.size(); i < size; i++){
 
-//		int offset = i*ySize;
+//		if (data.at(i) < minimum)
+//			minimum = data.at(i);
 
-//		for (int j = 0; j < ySize; j++)
-//			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+//		if (data.at(i) > maximum)
+//			maximum = data.at(i);
 //	}
-	for (int y = 0; y < ySize; y++){
+//	qDebug() << "Finding min and max:" << time.restart() << "ms";
+//	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
+//	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
 
-		int offset = y*xSize;
-		QRgb *line = (QRgb *)image.scanLine(y);
+//	int xSize = detector_->size().i();
+//	int ySize = detector_->size().j();
 
-		for (int x = 0; x < xSize; x++)
-			line[x] = map.rgbAt(data.at(x + offset), range);
-	}
+////	for (int i = 0; i < xSize; i++){
 
-	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
+////		int offset = i*ySize;
 
-	QPixmap newImage;
-	newImage.convertFromImage(image);
-	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
-	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
-	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
-	image_->setPixmap(newImage);
+////		for (int j = 0; j < ySize; j++)
+////			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+////	}
+//	for (int y = 0; y < ySize; y++){
 
-	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
-}
+//		int offset = y*xSize;
+//		QRgb *line = (QRgb *)image.scanLine(y);
 
-void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
-{
+//		for (int x = 0; x < xSize; x++)
+//			line[x] = map.rgbAt(data.at(x + offset), range);
+//	}
 
-}
+//	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
 
-void VESPERSCCDDetectorView::displayCCDFile()
-{
+//	QPixmap newImage;
+//	newImage.convertFromImage(image);
+//	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
+//	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
+//	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
+//	image_->setPixmap(newImage);
 
-}
+//	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
+//}
+
+//void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
+//{
+
+//}
+
+//void VESPERSCCDDetectorView::displayCCDFile()
+//{
+
+//}

@@ -176,7 +176,7 @@ void VESPERSExporter2DAscii::writeMainTable()
 		ccdString = ccdFileName % "_%1.tif";
 
 	else if (config->ccdDetector() == VESPERS::Pilatus)
-		ccdString = ccdFileName % "%1.tif";
+		ccdString = ccdFileName % "-%1.tif";
 	else
 		ccdString = "";
 

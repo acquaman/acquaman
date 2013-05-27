@@ -71,15 +71,25 @@ void VESPERSBeamline::setupDiagnostics()
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
 	vvrFE1_ = new AMReadOnlyPVwStatusControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:state", this, new AMControlStatusCheckerDefault(4));
 	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrFE2_->setAllowsMovesWhileMoving(true);
 	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM1_->setAllowsMovesWhileMoving(true);
 	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM2_->setAllowsMovesWhileMoving(true);
 	vvrBPM1_ = new CLSBiStateControl("Valve Control BPM1", "Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM1_->setAllowsMovesWhileMoving(true);
 	vvrMono_ = new CLSBiStateControl("Valve Control Mono", "Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrMono_->setAllowsMovesWhileMoving(true);
 	vvrExitSlits_ = new CLSBiStateControl("Valve Control Exit Slits", "Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrExitSlits_->setAllowsMovesWhileMoving(true);
 	vvrStraightSection_ = new CLSBiStateControl("Valve Control Straight Section", "Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrStraightSection_->setAllowsMovesWhileMoving(true);
 	vvrBPM3_ = new CLSBiStateControl("Valve Control BPM3", "Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM3_->setAllowsMovesWhileMoving(true);
 	vvrSSH_ = new CLSBiStateControl("Valve Control SSH", "Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrSSH_->setAllowsMovesWhileMoving(true);
 	vvrBeamTransfer_ = new CLSBiStateControl("Valve Control Beam Transfer", "Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBeamTransfer_->setAllowsMovesWhileMoving(true);
 
 	// Index used for opening and closing all the valves.
 	valveIndex_ = -1;
@@ -264,7 +274,7 @@ void VESPERSBeamline::setupDetectors()
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
-	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Camera", this);
+	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
 	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
 	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
 }
@@ -950,14 +960,24 @@ bool VESPERSBeamline::allValvesOpen() const
 
 void VESPERSBeamline::openValve(int index)
 {
-	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 0)
-		valveSet_->at(index)->move(1);
+	if (index >= 0 && index < valveSet_->count()){
+
+		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+
+		if (control && control->isClosed())
+			control->open();
+	}
 }
 
 void VESPERSBeamline::closeValve(int index)
 {
-	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 1)
-		valveSet_->at(index)->move(0);
+	if (index >= 0 && index < valveSet_->count()){
+
+		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+
+		if (control && control->isOpen())
+			control->close();
+	}
 }
 
 void VESPERSBeamline::openAllValves()

@@ -116,6 +116,12 @@ public:
 		}
 	}
 
+	/// Convenience method that returns whether the control is open.  Could be either closed or between if false.
+	bool isOpen() const { return statePV_->getInt() == 1; }
+	/// Convenience method that returns whether the control is closed.  Could be either open or between if false.
+	bool isClosed() const { return statePV_->getInt() == 4; }
+	/// Conevenience method that returns whether the control is between.  Could be either open or closed if false.
+	bool isBetween() const { return statePV_->getInt() != 1 && statePV_->getInt() != 4; }
 	/// Returns the PV name of the state PV.
 	QString statePVName() const { return statePV_->pvName(); }
 	/// Returns the PV name of the open PV.

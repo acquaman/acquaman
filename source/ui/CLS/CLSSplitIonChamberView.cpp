@@ -78,20 +78,22 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 
 void CLSSplitIonChamberView::onValueChanged(int value)
 {
-	setValueComboBox(value_, value);
+	if (isLocked_){
 
-	onValueAChanged(value);
-	if (isLocked_)
+		setValueComboBox(value_, value);
+		onValueAChanged(value);
 		onValueBChanged(value);
+	}
 }
 
 void CLSSplitIonChamberView::onUnitsChanged(QString units)
 {
-	setUnitsComboBox(units_, units);
+	if (isLocked_){
 
-	onUnitsAChanged(units);
-	if (isLocked_)
+		setUnitsComboBox(units_, units);
+		onUnitsAChanged(units);
 		onUnitsBChanged(units);
+	}
 }
 
 void CLSSplitIonChamberView::onModeViewChanged()
