@@ -70,12 +70,13 @@ protected slots:
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
 
-	/// Gets a filename for the CCD image to be read.
-	void getCCDFileNameAndLoad();
-	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
-	void displayCCDFile();
-	/// TEST METHOD
-	void displayCCDFileTest();
+	// This might be removed since the detectors that would use these methods may not be used again.
+//	/// Gets a filename for the CCD image to be read.
+//	void getCCDFileNameAndLoad();
+//	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
+//	void displayCCDFile();
+//	/// TEST METHOD
+//	void displayCCDFileTest();
 
 protected:
 	/*! Sets up the view based with the given detector.
