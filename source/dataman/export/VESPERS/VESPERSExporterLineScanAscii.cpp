@@ -171,8 +171,7 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 		}
 	}
-
-	else
+ else
 		return;
 
 
