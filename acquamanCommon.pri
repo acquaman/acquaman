@@ -676,7 +676,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
 	source/actions3/actions/AMTimedWaitActionInfo3.h \
-	source/actions3/actions/AMTimedWaitAction3.h
+	source/actions3/actions/AMTimedWaitAction3.h \
+    source/beamline/AMSampleStage.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1137,7 +1138,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
 	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
-	source/actions3/actions/AMTimedWaitAction3.cpp
+	source/actions3/actions/AMTimedWaitAction3.cpp \
+    source/beamline/AMSampleStage.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1161,3 +1163,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
