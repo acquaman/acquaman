@@ -27,8 +27,11 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 
 	curveSmoother_ = 0;
 
-	sumRangeMin_ = 5;
-	sumRangeMax_ = 58;
+	sumRangeMinY_ = 5;
+	sumRangeMaxY_ = 58;
+	sumRangeMinX_ = 0;
+	sumRangeMaxX_ = 1023;
+	rangeRound_ = 0.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 	correlationSmoothing_ = -1;
@@ -60,8 +63,11 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 {
 	curveSmoother_ = 0;
 
-	sumRangeMin_ = 5;
-	sumRangeMax_ = 58;
+	sumRangeMinY_ = 5;
+	sumRangeMaxY_ = 58;
+	sumRangeMinX_ = 0;
+	sumRangeMaxX_ = 1023;
+	rangeRound_ = 0.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 	correlationSmoothing_ = -1;
@@ -87,13 +93,13 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 REIXSXESImageAB::~REIXSXESImageAB() {
 }
 
-void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
+void REIXSXESImageAB::setSumRangeMinY(int sumRangeMinY)
 {
 	// no change
-	if(sumRangeMin == sumRangeMin_)
+	if(sumRangeMinY == sumRangeMinY_)
 		return;
 
-	sumRangeMin_ = sumRangeMin;
+	sumRangeMinY_ = sumRangeMinY;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
@@ -104,12 +110,45 @@ void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
 	setModified(true);
 }
 
-void REIXSXESImageAB::setSumRangeMax(int sumRangeMax)
+void REIXSXESImageAB::setSumRangeMaxY(int sumRangeMaxY)
 {
-	if(sumRangeMax == sumRangeMax_)
+	if(sumRangeMaxY == sumRangeMaxY_)
 		return;
 
-	sumRangeMax_ = sumRangeMax;
+	sumRangeMaxY_ = sumRangeMaxY;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
+
+void REIXSXESImageAB::setSumRangeMinX(int sumRangeMinX)
+{
+	// no change
+	if(sumRangeMinX == sumRangeMinX_)
+		return;
+
+	sumRangeMinX_ = sumRangeMinX;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
+
+void REIXSXESImageAB::setSumRangeMaxX(int sumRangeMaxX)
+{
+	if(sumRangeMaxX == sumRangeMaxX_)
+		return;
+
+	sumRangeMaxX_ = sumRangeMaxX;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
@@ -134,7 +173,21 @@ void REIXSXESImageAB::setShiftValues(const AMIntList &shiftValues)
 	setModified(true);
 }
 
+void REIXSXESImageAB::setRangeRound(double rangeRound)
+{
+	if(rangeRound == rangeRound_)
+		return;
 
+	rangeRound_ = rangeRound;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
 
 void REIXSXESImageAB::reviewState()
 {
@@ -146,11 +199,11 @@ void REIXSXESImageAB::reviewState()
 
 	int s = inputSource_->size(1);
 
-	if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+	if(sumRangeMinY_ >= s || sumRangeMaxY_ >= s) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
-	if(sumRangeMin_ > sumRangeMax_) {
+	if(sumRangeMinY_ > sumRangeMaxY_) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
@@ -286,24 +339,46 @@ void REIXSXESImageAB::computeCachedValues() const
 		return;
 	}
 
-
+	//The center point of the sum region
+	double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
+	double originY = (double)sumRangeMinY_ + ((double)sumRangeMaxY_ - (double)sumRangeMinY_)/2.0;
+	//Width and height of the sum region, in pixels
+	double numX = (double)(sumRangeMaxX_ - sumRangeMinX_);
+	double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
+	
+	
 	for(int i=0; i<maxI; ++i) {
 		double newVal = 0.0;
 		int contributingRows = 0;
-		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
-			int sourceI = i + shiftValues_.at(j);
-			if(sourceI < maxI && sourceI >= 0) {
-				newVal += image.at(sourceI*maxJ + j);
-				contributingRows++;
+		if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
+			double xVal = (double)i - originX;
+			for(int j=sumRangeMinY_; j<=sumRangeMaxY_; j++) { // loop through rows
+				if(rangeRound_ == 0.0) { //not ellipse
+					int sourceI = i + shiftValues_.at(j);
+					if(sourceI < maxI && sourceI >= 0) {
+						newVal += image.at(sourceI*maxJ + j);
+						contributingRows++;
+					}
+				}
+				else {
+					
+					double yVal = (double)j - originY;
+					if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+						int sourceI = i + shiftValues_.at(j);
+						if(sourceI < maxI && sourceI >= 0) {
+							newVal += image.at(sourceI*maxJ + j);
+							contributingRows++;
+						}
+					}
+				}
 			}
 		}
-
 		// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
 		// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
 		if(contributingRows == 0)
 			newVal = 0;
 		else
-			newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
+			newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
 		cachedValues_[i] = newVal;
 	}
@@ -334,7 +409,7 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 {
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-	
+
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
@@ -369,8 +444,8 @@ void REIXSXESImageAB::onInputSourceSizeChanged()
 
 void REIXSXESImageAB::onInputSourceStateChanged()
 {
-	reviewState();
 	onInputSourceSizeChanged();	// just in case the size has changed, while it was invalid.
+	reviewState();
 }
 
 
@@ -419,7 +494,7 @@ void REIXSXESImageAB::correlateNow()
 	// variables:
 	int sizeY = inputSource_->size(1);
 	int sizeX = inputSource_->size(0);
-	int midY = (sumRangeMin()+sumRangeMax())/2;
+	int midY = (sumRangeMinY()+sumRangeMaxY())/2;
 
 	if(sizeY < 1 || sizeX < 1) {
 		AMErrorMon::alert(this, -37, "Image correlation routine should not be run with a size of 0. Please report this bug to the REIXS Acquaman developers.");
@@ -467,9 +542,9 @@ void REIXSXESImageAB::correlateNow()
 	if(correlationSmoothing_ != NoSmoothing) {
 		// Apply smoothing to reduce the noise:
 		QVector<double> weights(sizeY, 0.0);
-		weights[sumRangeMin_] = 0.5;
-		weights[sumRangeMax_] = 0.5;
-		for(int j=sumRangeMin_+1; j<sumRangeMax_; ++j)
+		weights[sumRangeMinY_] = 0.5;
+		weights[sumRangeMaxY_] = 0.5;
+		for(int j=sumRangeMinY_+1; j<sumRangeMaxY_; ++j)
 			weights[j] = 1.0;
 
 		shifts = curveSmoother_->smooth(shifts, weights);
@@ -973,4 +1048,3 @@ QVector<int> REIXSQuarticFitter::smooth(const QVector<int> &input, const QVector
 
 	return rv;
 }
-

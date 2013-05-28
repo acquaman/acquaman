@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
+#include <QDebug>
+
 /// Interface to define categories of curve fitting
 class REIXSFunctionFitter {
 public:
@@ -128,8 +130,11 @@ protected:
 class REIXSXESImageAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
-	Q_PROPERTY(int sumRangeMin READ sumRangeMin WRITE setSumRangeMin)
-	Q_PROPERTY(int sumRangeMax READ sumRangeMax WRITE setSumRangeMax)
+	Q_PROPERTY(int sumRangeMinY READ sumRangeMinY WRITE setSumRangeMinY)
+	Q_PROPERTY(int sumRangeMaxY READ sumRangeMaxY WRITE setSumRangeMaxY)
+	Q_PROPERTY(int sumRangeMinX READ sumRangeMinX WRITE setSumRangeMinX)
+	Q_PROPERTY(int sumRangeMaxX READ sumRangeMaxX WRITE setSumRangeMaxX)
+
 	Q_PROPERTY(AMIntList shiftValues READ shiftValues WRITE setShiftValues)
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
@@ -191,9 +196,17 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	// Analysis parameters
 	///////////////////////////
 	/// The minimum row to include in the sum
-	int sumRangeMin() const { return sumRangeMin_; }
+	int sumRangeMinY() const { return sumRangeMinY_; }
 	/// The maximum row to include (inclusive) in the sum
-	int sumRangeMax() const { return sumRangeMax_; }
+	int sumRangeMaxY() const { return sumRangeMaxY_; }
+	/// The minimum column to include in the sum
+	int sumRangeMinX() const { return sumRangeMinX_; }
+	/// The maximum column to include (inclusive) in the sum
+	int sumRangeMaxX() const { return sumRangeMaxX_; }
+	
+	//The "roundness" of the mask (0 for rectangular, 1 for ellipse)
+	double rangeRound() const { return rangeRound_; }
+	
 	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues() const { return shiftValues_; }
 
@@ -220,12 +233,18 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 public slots:
 
 	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
-	void setSumRangeMin(int sumRangeMin);
+	void setSumRangeMinY(int sumRangeMinY);
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
-	void setSumRangeMax(int sumRangeMax);
+	void setSumRangeMaxY(int sumRangeMaxY);
+	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
+	void setSumRangeMinX(int sumRangeMinX);
+	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
+	void setSumRangeMaxX(int sumRangeMaxX);
 	/// Sets the shift values for each row. This should have the same size as the height of the image.
 	void setShiftValues(const AMIntList& shiftValues);
 
+	void setRangeRound(double rangeRound);
+	
 	/// Sets the central pixel value to use when running an auto-correlation routine
 	void setCorrelationCenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -285,8 +304,11 @@ protected:
 	/////////////////////
 
 	/// The upper and lower row limits to include in the sum
-	int sumRangeMin_, sumRangeMax_;
-
+	int sumRangeMinY_, sumRangeMaxY_;
+	int sumRangeMinX_, sumRangeMaxX_; //left and right boundaries, so we can have full control over ellipse
+	double rangeRound_; //0 to 1, 0 for rectangular mask, 1 for elliptical
+	
+	
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlationCenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
