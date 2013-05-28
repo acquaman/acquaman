@@ -11,6 +11,7 @@
 #include <QVector3D>
 #include "dataman/database/AMDbObjectSupport.h"
 #include <QSlider>
+#include "ui/AMBeamConfiguration.h"
 
 AMCameraConfiguration::AMCameraConfiguration(QWidget *parent) :
     QWidget(parent)
@@ -25,8 +26,8 @@ AMCameraConfiguration::AMCameraConfiguration(QWidget *parent) :
         cameraModel_->setCameraDistortion(-0.09);
         cameraModel_->setCameraFocalLength(0.41);
         cameraModel_->setCameraFOV(20);
-        cameraModel_->setCameraCenter(QVector3D(0,0,1));
-        cameraModel_->setCameraPosition(QVector3D(0,0,0));
+        cameraModel_->setCameraCenter(QVector3D(0,0,0));
+        cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
         bool success = cameraModel_->storeToDb(dbSGM);
         if(!success)qDebug()<<"Failed to store item in database";
@@ -118,8 +119,13 @@ AMCameraConfiguration::AMCameraConfiguration(QWidget *parent) :
     shl->addWidget(configurationName_ = new QLineEdit());
     shl->addSpacing(20);
     shl->addWidget(saveConfiguration_ = new QPushButton("Save Configuration"));
+    shl->addSpacing(20);
+    shl->addWidget(overwriteButton_ = new QPushButton("Overwrite configuration"));
     shl->addStretch();
     selectionFrame->setLayout(shl);
+
+    beamConfiguration_ = new AMBeamConfiguration();
+
 
 
     vbl->addWidget(positionFrame);
@@ -127,6 +133,7 @@ AMCameraConfiguration::AMCameraConfiguration(QWidget *parent) :
     vbl->addWidget(fovFrame);
     vbl->addWidget(rotationFrame);
     vbl->addWidget(selectionFrame);
+    vbl->addWidget(beamConfiguration_);
     setLayout(vbl);
 
     populateComboBox(1);
@@ -146,15 +153,22 @@ AMCameraConfiguration::AMCameraConfiguration(QWidget *parent) :
     connect(cameraDistortion_, SIGNAL(textChanged(QString)), this, SLOT(updateDistortion(QString)));
     connect(setButton_, SIGNAL(clicked()), this, SLOT(updateAll()));
 
+
     connect(cameraRotation_, SIGNAL(textChanged(QString)), this, SLOT(updateRotation(QString)));
     connect(cameraRotationSlider_, SIGNAL(valueChanged(int)), this, SLOT(updateRotationSlider(int)));
 
     connect(saveConfiguration_, SIGNAL(clicked()), this, SLOT(saveConfiguration()));
     connect(configurationName_, SIGNAL(textChanged(QString)), this, SLOT(updateName(QString)));
     connect(configurationSelection_, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSelection(int)));
+     connect(overwriteButton_, SIGNAL(clicked()), this, SLOT(overwriteConfiguration()));
 
+     connect(beamConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
+     connect(beamConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
+     connect(this, SIGNAL(beamChanged(QObject*)), beamConfiguration_, SLOT(beamChanged(QObject*)));
+     connect(beamConfiguration_, SIGNAL(intersection()), this, SIGNAL(intersection()));
 
 }
+
 
 double AMCameraConfiguration::positionX()
 {
@@ -325,10 +339,6 @@ void AMCameraConfiguration::updateRotation(QString rotation)
     bool* conversionOK = new bool(false);
     double newValue = rotation.toDouble(conversionOK);
     if(*conversionOK) setCameraRotation(newValue);
-//    disconnect(this,SLOT(updateRotationSlider(int)));
-//    cameraRotationSlider_->setValue(((newValue + 3.14)*80)/6.28);
-//    emit(update(cameraModel_));
-//    connect(cameraRotationSlider_, SIGNAL(valueChanged(int)), this, SLOT(updateRotationSlider(int)));
 }
 
 void AMCameraConfiguration::updateRotationSlider(int rotation)
@@ -354,6 +364,8 @@ void AMCameraConfiguration::updateSelection(int id)
     updateAll();
 }
 
+/// Saves the current configuration as a new database item
+/// must have a unique name
 void AMCameraConfiguration::saveConfiguration()
 {
     AMDatabase *dataBase = AMDatabase::database("user");
@@ -371,6 +383,15 @@ void AMCameraConfiguration::saveConfiguration()
 
 }
 
+/// overwrites the values of the current configuration
+void AMCameraConfiguration::overwriteConfiguration()
+{
+    AMDatabase *dataBase = AMDatabase::database("user");
+    cameraModel_->storeToDb(dataBase);
+    populateComboBox(cameraModel_->id());
+}
+
+/// looks up currently saved configurations, and shows them in the combo box
 void AMCameraConfiguration::populateComboBox(int dbIndex)
 {
     configurationSelection_->clear();
@@ -386,6 +407,7 @@ void AMCameraConfiguration::populateComboBox(int dbIndex)
     configurationSelection_->setCurrentIndex(dbIndex-1);
 }
 
+/// updates all the fields in the window
 void AMCameraConfiguration::updateAll()
 {
     QVector3D position = cameraModel_->cameraPosition();
@@ -405,5 +427,6 @@ void AMCameraConfiguration::updateAll()
     cameraRotation_->setText(QString::number(cameraRotation()));
 
 }
+
 
 

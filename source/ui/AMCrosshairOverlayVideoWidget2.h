@@ -105,6 +105,11 @@ signals:
 
     void setCoordinate(double x, double y, double z);
 
+    // for beam configuring
+    void oneSelect();
+    void twoSelect();
+    void beamChanged(QObject*);
+
 
 public slots:
 
@@ -122,6 +127,8 @@ public slots:
 	void setCrosshairVisible(bool crosshairVisible = true);
 
     void setCameraModel(AMCameraConfigurationModel*);
+
+    void intersection();
 
 
 
@@ -151,6 +158,8 @@ protected:
     selectMode mode_;
     /// the index of the currently selected item
     int current_;
+
+    QVector<QGraphicsPolygonItem*> intersections_;
 
     /// Add and remove shapes from the scene
     void addNewShape();
@@ -183,6 +192,10 @@ protected:
 
 	/// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.
 	QPointF mapSceneToVideo(const QPointF& sceneCoordinate) const;
+
+    void createIntersectionShapes(QVector<QPolygonF>);
+
+    void clearIntersections();
 
 
 

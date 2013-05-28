@@ -83,7 +83,9 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/dataman/AMnDIndex.h \
     source/util/AMPeriodicTable.h \
     source/util/AMElement.h \
-    source/dataman/AMSample.h
+    source/dataman/AMSample.h \
+    source/ui/AMBeamModel.h \
+    source/ui/AMBeamConfiguration.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -102,5 +104,7 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/dataman/AMnDIndex.cpp \
     source/util/AMPeriodicTable.cpp \
     source/util/AMElement.cpp \
-    source/dataman/AMSample.cpp
+    source/dataman/AMSample.cpp \
+    source/ui/AMBeamModel.cpp \
+    source/ui/AMBeamConfiguration.cpp
 

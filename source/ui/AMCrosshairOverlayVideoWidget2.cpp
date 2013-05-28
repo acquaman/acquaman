@@ -61,6 +61,10 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
     connect(this, SIGNAL(mouseOperationSelect(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseGroupPressed(QPointF)), shapeModel_, SLOT(startGroupRectangle(QPointF)));
     connect(this, SIGNAL(setCoordinate(double,double,double)), shapeModel_, SLOT(setCoordinates(double,double,double)));
+
+    connect(this, SIGNAL(oneSelect()), shapeModel_, SLOT(oneSelect()));
+    connect(this, SIGNAL(twoSelect()), shapeModel_, SLOT(twoSelect()));
+    connect(shapeModel_, SIGNAL(beamChanged(QObject*)), this, SIGNAL(beamChanged(QObject*)));
 }
 
 
@@ -128,6 +132,14 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
     {
         qDebug()<<"Changing the group rectangle";
         groupRectangle_->setPolygon(shapeModel_->groupRectangle());
+    }
+
+   /// print the intersection shapes
+    {
+        if(!intersections_.isEmpty())
+        {
+            intersection();
+        }
     }
 
 
@@ -289,7 +301,6 @@ void AMCrosshairOverlayVideoWidget2::setTilt(double tilt)
 
 void AMCrosshairOverlayVideoWidget2::moveCurrentToCoordinate()
 {
-    shapeModel_->changeCoordinate();
     reviewCrosshairLinePositions();
 }
 
@@ -316,6 +327,41 @@ void AMCrosshairOverlayVideoWidget2::setCameraModel(AMCameraConfigurationModel *
     shapeModel_->setCameraModel(model);
     reviewCrosshairLinePositions();
 }
+
+void AMCrosshairOverlayVideoWidget2::intersection()
+{
+    if(shapeModel_->findIntersections())
+    {
+        if(!intersections_.isEmpty()) clearIntersections();
+        createIntersectionShapes(shapeModel_->intersections());
+    }
+}
+
+void AMCrosshairOverlayVideoWidget2::createIntersectionShapes(QVector<QPolygonF> shapes)
+{
+    intersections_.clear();
+    for(int i =0; !shapes.isEmpty(); i++)
+    {
+        qDebug()<<"Attempting to draw intersections";
+        QPen pen(BORDERCOLOUR);
+        QBrush brush(QColor(Qt::yellow));
+        QPolygonF polygon(QRectF(5,5,20,20));
+        intersections_<<scene()->addPolygon(polygon,pen,brush);
+        intersections_[i]->setPolygon(shapes.first());
+        shapes.remove(0);
+    }
+}
+
+void AMCrosshairOverlayVideoWidget2::clearIntersections()
+{
+    while(!intersections_.isEmpty())
+    {
+        scene()->removeItem(intersections_.first());
+        intersections_.remove(0);
+    }
+}
+
+
 
 
 void AMCrosshairOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
@@ -492,8 +538,9 @@ QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoor
 	qreal yScene = (sceneCoordinate.y() - activeRect.top())/activeRect.height();
 	qreal xScene = (sceneCoordinate.x() - activeRect.left())/activeRect.width();
 
-	return QPointF(xScene, yScene);
+    return QPointF(xScene, yScene);
 }
+
 
 
 

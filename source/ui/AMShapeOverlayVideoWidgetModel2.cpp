@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <math.h>
 #include "ui/AMCameraConfigurationModel.h"
+#include "ui/AMBeamModel.h"
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -34,7 +35,9 @@ AMShapeOverlayVideoWidgetModel2::AMShapeOverlayVideoWidgetModel2(QObject *parent
     QObject(parent)
 {
     index_ = -1;
+    beamModel_ = new AMBeamModel();
 
+    // create the database
     AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
     if(!db)
         qDebug() << "Uh oh, no database created";
@@ -201,6 +204,7 @@ void AMShapeOverlayVideoWidgetModel2::setCoordinates(QVector3D coordinate, int i
     // get the current center
     QVector3D center = centerCoordinate(index);
     QVector3D shift = coordinate - center;
+    // shift the coordinates to the new center
     shiftCoordinates(shift,index);
 }
 
@@ -233,52 +237,82 @@ QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
     /// Shifts and rotates the entire scene so that it is looking down the z-axis
     /// then converts that to screen coordinates by taking the proportion of
     /// focal length over the coordinate's distance from the camera.
-    QVector3D newPosition;
+    /// Shift the coordinate by the same amount as the camera would be shifted to center it
+    // coordinate unrotated position = coordinate - cameraPosition
+    /// rotate the scene so that the camera center is looking down the z-axis
+    // angle of rotation: cos(angle) = v1.v2/|v1||v2|
+    /// find the new location of the coordinate, by rotating it
+    // phi = theta + alpha
+    // theta = angle of rotation (above)
+    // alpha = original angle with u axis (perpindicular to z, along plane of rotation)
+    // cos(alpha) = u^.shiftedCoordinate/|shiftedCoordinate|
+    // same as calculation for angle of rotation, but  u^ is normalized
+    /// rather than calculating alpha directly, just calculate sin(alpha) and cos(alpha)
+    // sin(alpha) = z^.shiftedCoordinate/|shiftedCoordinate|
+    /// then calculate each component
+    // uComponent= |shiftedCoordinate|*cos(phi)
+    // cos(phi) = cos(theta)cos(alpha)-sin(theta)sin(alpha)
+    // vComponent = shiftedCoordinate.v^
+    // zComponet = |shiftedCoordinate|*sin(phi)
+    // sin(phi) = cos(theta)sin(alpha)+cos(alpha)sin(theta)
+    /// once each component has been calculated, add them up
+    // vector = uComponet*u^ + vComponent*v^ + zComponent*z^
+
+    // not very consistent in rotation of the coordinate axis...
+
     double rotation = cameraModel_->cameraRotation();
+    double focalLength = cameraModel_->cameraFocalLength();
+    QVector3D cameraPosition = cameraModel_->cameraPosition();
+    QVector3D cameraCenter = cameraModel_->cameraCenter();
+    QVector3D newPosition;
     double oldRotation;
     double newRotation;
     double radius;
     double zLength;
-    double focalLength = cameraModel_->cameraFocalLength();
-    QVector3D cameraPosition = cameraModel_->cameraPosition();
-    QVector3D cameraCenter = cameraModel_->cameraCenter();
     // the center in shifted coordinates
     QVector3D cameraRotation = cameraCenter - cameraPosition;
     QVector3D zHat = QVector3D(0,0,-1);
     QPointF position;
     // shifted position of the desired coordinate
     QVector3D shiftedCoordinate = coordinate - cameraPosition;
+
     // axis of rotation
     QVector3D vHat = QVector3D::normal(zHat,cameraRotation);
     if(vHat.isNull())
     {
         // the camera is not rotated (already looks along the z-axis)
         // simply perform the shift
-        cameraRotation += QVector3D(0,0.01,0);
+        cameraRotation += QVector3D(0,0.001,0);
         vHat = QVector3D::normal(zHat,cameraRotation);
         if(vHat.isNull()) qDebug()<<"Vhat still null, in 3-2";
     }
+
     // rotate the camera
     double cameraCenterLength = cameraRotation.length();
-    QVector3D newCameraCenter = QVector3D(0,0,cameraCenterLength);
+    // the rotated center looks down the positive z axis
+    QVector3D newCameraCenter = -1*cameraCenterLength*zHat;
     // find the angle of rotation
+    // angle of rotation: cos(angle) = v1.v2/|v1||v2|
     double theta = acos((QVector3D::dotProduct(newCameraCenter,cameraRotation))/((newCameraCenter.length())*(cameraCenterLength)));
+
     // find the third orthogonal component (along the plane of rotation)
     QVector3D uHat = QVector3D::normal(zHat,vHat);
     double shiftedLength = shiftedCoordinate.length();
     // find the angle of the coordinate before rotation
     double cosAlpha = QVector3D::dotProduct(uHat,shiftedCoordinate)/shiftedLength;
     double sinAlpha = QVector3D::dotProduct(zHat,shiftedCoordinate)/shiftedLength;
+
     // get the components along the u,v, and z axes
     double uLength = shiftedLength*(cosAlpha*cos(theta)-sinAlpha*sin(theta));
     double vLength = QVector3D::dotProduct(shiftedCoordinate,vHat);
     zLength = shiftedLength*(sinAlpha*cos(theta)+cosAlpha*sin(theta));
+
     // add the three orthogonal components together
     newPosition = uLength*uHat + vLength*vHat + zLength*zHat;
-    // scale and shift to the center of the screen
 
 
 
+    // apply rotation
     if(rotation != 0)
     {
         double z = newPosition.z();
@@ -291,6 +325,8 @@ QPointF AMShapeOverlayVideoWidgetModel2::transform3Dto2D(QVector3D coordinate)
         newPosition.setY(radius*sin(newRotation));
         newPosition.setZ(z);
     }
+
+    // find the scaled point location, and shift to the center of the screen
     position = (focalLength/zLength)*newPosition.toPointF() + QPointF(0.5,0.5);
     return position;
 }
@@ -301,14 +337,18 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
     /// Use the position of the item on screen, with knowledge of the
     /// camera position to determine its xyz coordinate.
     /// first convert to a point in an ideal plane, then shift and rotate to match camera
+    /// see 3D to 2D for more detailed explanation
     QVector3D coordinate;
     double focalLength = cameraModel_->cameraFocalLength();
     double theta;
+
+    // find the coordinate corresponding to the point
     coordinate.setX(-1*((point.x()-0.5)*depth/focalLength));
     coordinate.setY(-1*((point.y()-0.5)*depth/focalLength));
     coordinate.setZ(depth);
     /// coordinate is the point in for camera at (0,0,0) looking down the z-axis
     /// must now shift and rotate
+
     // undo the rotation
     if(cameraModel_->cameraRotation() != 0)
     {
@@ -323,6 +363,7 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
         coordinate.setY(radius*sin(newRotation));
         coordinate.setZ(z);
     }
+
     // build the orthogonal components, z, u, v
     QVector3D zHat = QVector3D(0,0,1);
     QVector3D uHat;
@@ -331,6 +372,7 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
     QVector3D shiftedCameraCenter = actualCameraCenter - shift;
     QVector3D idealCameraCenter = shiftedCameraCenter.length()*zHat;
     QVector3D vHat = QVector3D::normal(idealCameraCenter,shiftedCameraCenter);
+
     if(vHat.isNull())
     {
 //        // no rotation
@@ -348,10 +390,11 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
 ////        return coordinate+shift
 //        vHat = QVector3D(0,-1,0);
 //        uHat = QVector3D(-1,0,0);
-        shiftedCameraCenter += QVector3D(0.01,0,0);
+        shiftedCameraCenter += QVector3D(0,0.001,0);
         vHat = QVector3D::normal(idealCameraCenter,shiftedCameraCenter);
         if(vHat.isNull()) qDebug()<<"still a null vHat...";
     }
+
     // perform the rotation
     uHat = QVector3D::normal(vHat,zHat);
     // find the angle of rotation
@@ -360,13 +403,12 @@ QVector3D AMShapeOverlayVideoWidgetModel2::transform2Dto3D(QPointF point, double
     // find the coordinate's current angle
     double cosAlpha = QVector3D::dotProduct(uHat,coordinate)/coordinateLength;
     double sinAlpha = QVector3D::dotProduct(zHat,coordinate)/coordinateLength;
+
     // find the resultant components
     double uLength = coordinateLength*(cosAlpha*cos(theta)-sinAlpha*sin(theta));
-    qDebug()<<"U length"<<uLength;
     double vLength = QVector3D::dotProduct(coordinate,vHat);
-    qDebug()<<"V length"<<vLength;
     double zLength = coordinateLength*(sinAlpha*cos(theta)+cosAlpha*sin(theta));
-    qDebug()<<"Z length"<<zLength;
+
     // create the new vector
     QVector3D newPosition = uLength*uHat + vLength*vHat + zLength*zHat;
     // shift
@@ -416,7 +458,6 @@ QPointF AMShapeOverlayVideoWidgetModel2::inverseVectorTransform(QPointF vector, 
 /// finds the center of the given polygon
 QPointF AMShapeOverlayVideoWidgetModel2::findCenter(QPolygonF polygon)
 {
-//    QPointF* data = polygon.data();
     double xMid = (polygon[TOPLEFT].x()+polygon[TOPRIGHT].x())/2.0;
     double yMid = (polygon[TOPLEFT].y()+polygon[BOTTOMLEFT].y())/2.0;
     return QPointF(xMid,yMid);
@@ -438,40 +479,6 @@ void AMShapeOverlayVideoWidgetModel2::motorMovement(double x, double y, double z
     }
 }
 
-double AMShapeOverlayVideoWidgetModel2::depth(QVector3D coordinate)
-{
-    QVector3D depth = depthVector(coordinate);
-    return depth.length();
-}
-
-QVector3D AMShapeOverlayVideoWidgetModel2::depthVector(QVector3D coordinate)
-{
-    QVector3D depthDirection = cameraModel_->cameraCenter() - cameraModel_->cameraPosition();
-    QVector3D cameraToCoordinate = coordinate - cameraModel_->cameraPosition();
-    depthDirection.normalize();
-    QVector3D depth = QVector3D::dotProduct(cameraToCoordinate,depthDirection)*depthDirection;
-    return depth;
-}
-
-
-
-/// changes the coordinate of the shape
-void AMShapeOverlayVideoWidgetModel2::changeCoordinate(int index)
-{
-    if(-1 == index) index = current_;
-    qDebug()<<"changeCoordinate was called -  should not have happened";
-//    double height = transformDimension(shapeList_[index].height(),shapeList_[index].coordinate());
-//    double width = transformDimension(shapeList_[index].width(),shapeList_[index].coordinate());
-//    qDebug()<<QString::number(height)<<QString::number(shapeList_[index].height());
-//    qDebug()<<QString::number(width)<<QString::number(shapeList_[index].width());
-//    QSizeF size = QSizeF(width,height);
-//    QPointF* data = shapeList_[index].shape()->data();
-//    QPointF topLeft = data[TOPLEFT];
-//    QRectF rectangle = QRectF(topLeft, size);
-//    rectangle.moveCenter(transform3Dto2D(shapeList_[index].coordinate()));
-//    shapeList_[index].setShape(QPolygonF(rectangle));
-
-}
 
 /// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate
 void AMShapeOverlayVideoWidgetModel2::shiftToPoint(QPointF position, QPointF crosshairPosition)
@@ -490,6 +497,28 @@ void AMShapeOverlayVideoWidgetModel2::shiftToPoint(QPointF position, QPointF cro
 
 
 }
+
+/// finds the depth of the given coordinate, returns the length of depthVector
+double AMShapeOverlayVideoWidgetModel2::depth(QVector3D coordinate)
+{
+    QVector3D depth = depthVector(coordinate);
+    return depth.length();
+}
+
+/// returns the depth vector
+/// the depth vector gives the distance from the center of the camera
+/// to an object the camera is centered on.
+/// depth vector is the same for all coordinates on the plane that is normal to depth
+/// vector, with the same distance
+QVector3D AMShapeOverlayVideoWidgetModel2::depthVector(QVector3D coordinate)
+{
+    QVector3D depthDirection = cameraModel_->cameraCenter() - cameraModel_->cameraPosition();
+    QVector3D cameraToCoordinate = coordinate - cameraModel_->cameraPosition();
+    depthDirection.normalize();
+    QVector3D depth = QVector3D::dotProduct(cameraToCoordinate,depthDirection)*depthDirection;
+    return depth;
+}
+
 
 
 
@@ -512,13 +541,12 @@ QPointF AMShapeOverlayVideoWidgetModel2::coordinateTransform(QPointF coordinate)
 }
 
 /// applies the rotation to the shape
-QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
+QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(QPolygonF shape, int index)
 {
-    QPolygonF shape(*shapeList_[index].shape());
     if(shape.isEmpty()) return shape;
     double distance = depth(shapeList_[index].coordinate(TOPLEFT));
     double rotation = shapeList_[index].rotation();
-    double length = (shapeList_[index].shape()->data()[TOPRIGHT].x() - shapeList_[index].shape()->data()[TOPLEFT].x())/2;
+    double length = (shape.at(TOPRIGHT).x() - shape.at(TOPLEFT).x())/2;
     QPolygonF polygon;
     polygon<<getRotatedPoint(shape.first(),distance,rotation, QPointF(shape.first().x()+length,shape.first().y()));
     shape.remove(0);
@@ -534,11 +562,11 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyRotation(int index)
 }
 
 /// finds the new coordinate of a point, given its coordinate, rotation, and center point
-QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z, double rotation, QPointF center)
+QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double depth, double rotation, QPointF center)
 {
 
-    QVector3D coordinate = transform2Dto3D(point,z);
-    QVector3D newCenter = transform2Dto3D(center,z);
+    QVector3D coordinate = transform2Dto3D(point,depth);
+    QVector3D newCenter = transform2Dto3D(center,depth);
     QVector3D direction = newCenter - coordinate;
     ///should be parallel to the x axis
     QVector3D newX = ((1 - cos(rotation))*direction);
@@ -553,6 +581,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::getRotatedPoint(QPointF point, double z
 
 }
 
+/// Applies tilit to a shape
 QPolygonF AMShapeOverlayVideoWidgetModel2::applyTilt(QPolygonF shape, int index)
 {
     if(shape.isEmpty()) return shape;
@@ -573,6 +602,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyTilt(QPolygonF shape, int index)
     return polygon;
 }
 
+/// Applies tilt to a point
 QPointF AMShapeOverlayVideoWidgetModel2::getTiltedPoint(QPointF point, double z, double tilt, QPointF center)
 {
     QVector3D coordinate = transform2Dto3D(point,z);
@@ -609,31 +639,38 @@ QSizeF AMShapeOverlayVideoWidgetModel2::size(QPointF topLeft, QPointF bottomRigh
     return size;
 }
 
+/// Checks if the shape contains the point (requires an updated shape,
+/// for correction of distortion, rotation)
 bool AMShapeOverlayVideoWidgetModel2::contains(QPointF position, int index)
 {
     return shapeList_[index].shape()->containsPoint(position, Qt::OddEvenFill);
 }
 
 
-
+/// sets the view Size
 void AMShapeOverlayVideoWidgetModel2::setViewSize(QSizeF viewSize)
 {
     viewSize_ = viewSize;
 }
 
+
+/// sets the scaled Size
 void AMShapeOverlayVideoWidgetModel2::setScaledSize(QSizeF scaledSize)
 {
     scaledSize_ = scaledSize;
 }
 
+/// finds the topLeft corner of the shape in screen coordinates
+// is not used
 QPointF AMShapeOverlayVideoWidgetModel2::shapeTopLeft(int index)
 {
-    return coordinateTransform(shapeList_[index].shape()->data()[TOPLEFT]);
+    return coordinateTransform(shapeList_[index].shape()->at(TOPLEFT));
 }
 
+// also not used
 QPointF AMShapeOverlayVideoWidgetModel2::shapeBottomRight(int index)
 {
-    return coordinateTransform(shapeList_[index].shape()->data()[BOTTOMRIGHT]);
+    return coordinateTransform(shapeList_[index].shape()->at(BOTTOMRIGHT));
 }
 
 /// checks if an index is valid
@@ -650,6 +687,7 @@ bool AMShapeOverlayVideoWidgetModel2::isValid(int index)
     }
 }
 
+/// returns the rotation of the given index
 double AMShapeOverlayVideoWidgetModel2::rotation(int index)
 {
     if(-1 == index)
@@ -659,6 +697,7 @@ double AMShapeOverlayVideoWidgetModel2::rotation(int index)
     return shapeList_[index].rotation();
 }
 
+/// sets the rotation for the given index
 void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
 {
     if(-1 == index)
@@ -668,6 +707,7 @@ void AMShapeOverlayVideoWidgetModel2::setRotation(double rotation, int index)
     shapeList_[index].setRotation(rotation);
 }
 
+/// returns the tilt for the given index
 double AMShapeOverlayVideoWidgetModel2::tilt(int index)
 {
     if(-1 == index)
@@ -677,6 +717,7 @@ double AMShapeOverlayVideoWidgetModel2::tilt(int index)
     return shapeList_[index].tilt();
 }
 
+/// sets the tilt for the given index
 void AMShapeOverlayVideoWidgetModel2::setTilt(double tilt, int index)
 {
     if(-1 == index)
@@ -686,6 +727,7 @@ void AMShapeOverlayVideoWidgetModel2::setTilt(double tilt, int index)
     shapeList_[index].setTilt(tilt);
 }
 
+/// returns the group rectangle in screen coordinates
 QPolygonF AMShapeOverlayVideoWidgetModel2::groupRectangle()
 {
     QPolygonF shape = groupRectangle_;
@@ -707,6 +749,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::groupRectangle()
     return newShape;
 }
 
+/// sets the motor coordinates
 void AMShapeOverlayVideoWidgetModel2::setMotorCoordinate(double x, double y, double z, double r)
 {
     motorMovement(x,y,z,r);
@@ -717,39 +760,45 @@ void AMShapeOverlayVideoWidgetModel2::setMotorCoordinate(double x, double y, dou
     motorRotation_ = r;
 }
 
+/// returns the motor rotation
 double AMShapeOverlayVideoWidgetModel2::motorRotation()
 {
     return motorRotation_;
 }
 
+/// returns motor x coordinate
 double AMShapeOverlayVideoWidgetModel2::motorX()
 {
     return motorCoordinate_.x();
 }
 
+/// returns motor y coordinate
 double AMShapeOverlayVideoWidgetModel2::motorY()
 {
     return motorCoordinate_.y();
 }
 
+/// returns motor z coordinate
 double AMShapeOverlayVideoWidgetModel2::motorZ()
 {
     return motorCoordinate_.z();
 }
 
+/// toggles distortion on or off
 void AMShapeOverlayVideoWidgetModel2::toggleDistortion()
 {
     distortion_ = !distortion_;
     updateAllShapes();
 }
 
+/// changes the current camera model
 void AMShapeOverlayVideoWidgetModel2::setCameraModel(AMCameraConfigurationModel *model)
 {
     cameraModel_ = model;
     updateAllShapes();
 }
 
-
+/// returns the shape in screen coordinates
 QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
 {
     QPolygonF shape = *shapeList_[index].shape();
@@ -774,10 +823,11 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::shape(int index)
 
 }
 
+/// applies rotation, tilt, and distortion to the shape
 QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index, QPolygonF shape)
 {
     if(shape.isEmpty()) return shape;
-    if(shapeList_[index].rotation() != 0) shape = applyRotation(index);
+    if(shapeList_[index].rotation() != 0) shape = applyRotation(shape, index);
     if(shapeList_[index].tilt() != 0) shape = applyTilt(shape, index);
 
     if(distortion_)
@@ -789,6 +839,7 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::subShape(int index, QPolygonF shape)
     return shape;
 }
 
+/// applies distortion to the shape
 QPolygonF AMShapeOverlayVideoWidgetModel2::applyDistortion(QPolygonF shape)
 {
     QPolygonF polygon;
@@ -799,8 +850,12 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::applyDistortion(QPolygonF shape)
     return polygon;
 }
 
+/// applies distortion to the point
 QPointF AMShapeOverlayVideoWidgetModel2::distortPoint(QPointF point)
 {
+    /// Distortion is given by:
+    // newRadius = oldRadius*(1+k1*oldRadius^2)
+    /// where k1 is the distortion  factor
     double distortionFactor = cameraModel_->cameraDistortion();
     QPointF newPoint;
     double x = point.x()-0.5;
@@ -811,6 +866,7 @@ QPointF AMShapeOverlayVideoWidgetModel2::distortPoint(QPointF point)
     return newPoint;
 }
 
+/// removes distortion from the shape
 QPolygonF AMShapeOverlayVideoWidgetModel2::removeDistortion(QPolygonF shape)
 {
     QPolygonF polygon;
@@ -821,11 +877,18 @@ QPolygonF AMShapeOverlayVideoWidgetModel2::removeDistortion(QPolygonF shape)
     return polygon;
 }
 
+/// removes distortion from the point
 QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
 {
-    /// this does not work at the center, so ignore it (it doesn't move)
+    /// to remove distortion have to solve the equation for distorting the point
+    /// for the original radius
+    /// ie: distortedRadius = k1*r^3 + r -- solve for r
+    /// description of method below
+
+    ///this does not work at the center, so ignore it (it doesn't move)
     if(point.x() == 0.5 && point.y() == 0.5)
         return point;
+    // set up
     double distortionFactor = cameraModel_->cameraDistortion();
     QPointF newPoint;
     double x = point.x()-0.5;
@@ -855,6 +918,8 @@ QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
     /// the entire second term is b
     /// the first term is a
 
+    /// a (+-) b = a (+-) sqrt(c)/2 = rd/2k (+,-) sqrt((rd/k)^2+(4/(27*k^3)))/2
+
     double c = distortedRadius*distortedRadius/(distortionFactor*distortionFactor) + (4)/(27*pow(distortionFactor,3));
     double a = distortedRadius/(2*distortionFactor);
     double b;
@@ -862,20 +927,28 @@ QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
     {
         /// the root is imaginary, so take the absolute value of c and square root it, theta = atan(b/a)
         /// b(0,1) = (+-)sqrt(c)/2
-        /// with a real root, b0 and b1 will be the other two roots, so it is redundant to calculate both
+        // negate c, sow we can square root it
         c = c*(-1);
         b = sqrt(c)/2.0;
-        /// six locations result in a real root (theta = npi/3)
-        /// check to see if theta is any of these, within some error
+
+        // have a + j*b
+        // put into polar coordinates
+        // tan(theta) = b/a
+
         theta = atan(b/a);
 
         /// a+b and a-b give the same absolute value
         /// sqrt(a^2 + b^2)
-        // wo^3
+        // wo here is actually wo^3
+        // wo^3*e^(j*theta)
+        // wo = cube root of ^
         wo = sqrt(a*a + b*b);
         QPointF complexPoint [6];
         QPointF conjugatePoint [6];
         double pointAngles[6];
+
+        // set all the angles for cube root calculations
+        // six possibilites (two differen wo^3's, three cube roots for each)
         pointAngles[0] = theta/3.0;
         pointAngles[3] = theta/-3.0;
         pointAngles[1] = pointAngles[0] + 2.0*M_PI/3.0;
@@ -887,48 +960,52 @@ QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
 //        {
 //            qDebug()<<"Point"<<QString::number(i)<<QString::number(pointAngles[i]);
 //        }
-        //wo
+        //|wo| = |cubeRoot(|wo^3|)|
         wo = pow(wo,1.0/3.0);
 
         for(int i = 0; i < 6; i++)
         {
+            //calculate the two components (x = real axis, y = j axis)
             complexPoint[i].setX(wo*cos(pointAngles[i]));
             complexPoint[i].setY(wo*sin(pointAngles[i]));
+            // find the conjugate
             conjugatePoint[i].setX(complexPoint[i].x());
             conjugatePoint[i].setY(-1*complexPoint[i].y());
+            // factor to find r from wo (see above)
             conjugatePoint[i] *= 1/(distortionFactor*3*wo*wo);
             complexPoint[i] = complexPoint[i] - conjugatePoint[i];
+            // complex point is now one possible undistorted radius
            // qDebug()<<"coordinate"<<QString::number(i)<<QString::number(complexPoint[i].x())<<QString::number(complexPoint[i].y());
 
         }
-        /// new radius is calculated using complexPoint[1], just because it works well...
+        /// for points within the radius of the screen, and for small distortions, complexPoint[1] gives the correct transform
+        /// if distortion goes too high, the overlap creating a loss of image will not be corrected
         newRadius = sqrt(complexPoint[1].x()*complexPoint[1].x() + complexPoint[1].y()*complexPoint[1].y());
 
     }
-    /// if c>=0 the number is entirely real, just do a check for theta = 0 or pi (pos or neg)
-    /// this can have two distinct values (a+b, a-b)
+    /// if c>=0 the number is entirely real
+    /// use a + b;
     else
     {
         b = sqrt(c)/2.0;
         wo = a+b;
         //w1 = a-b;
-        if(wo>=0)
+        // cannot cube root a negative wo
+        if(wo<0)
         {
-            theta = 1.0;
-        }
-        else
-        {
-            theta = -1.0;
             wo *=-1.0;
         }
         rootFactor = pow(wo,1.0/3.0);
+        // calculate radius from wo (see above)
         newRadius = rootFactor - 1.0/(3.0*distortionFactor*rootFactor);
     }
 
 
     newPoint.setX(x);
     newPoint.setY(y);
+    /// undistort the point
     newPoint = newPoint/distortedRadius*newRadius;
+    /// move to screen coordinates
     newPoint.setX(newPoint.x()+0.5);
     newPoint.setY(newPoint.y()+0.5);
     return newPoint;
@@ -937,53 +1014,61 @@ QPointF AMShapeOverlayVideoWidgetModel2::undistortPoint(QPointF point)
 }
 
 
-
+/// return the current name
 QString AMShapeOverlayVideoWidgetModel2::currentName()
 {
     if(isValid(current_)) return shapeList_[current_].name();
     else return "";
 }
 
+/// set the current name
 void AMShapeOverlayVideoWidgetModel2::setCurrentName(QString name)
 {
     shapeList_[current_].setName(name);
 }
 
+/// return the current info
 QString AMShapeOverlayVideoWidgetModel2::currentInfo()
 {
     if(isValid(current_)) return shapeList_[current_].otherData();
     else return "";
 }
 
+/// set th current info
 void AMShapeOverlayVideoWidgetModel2::setCurrentInfo(QString info)
 {
     shapeList_[current_].setOtherData(info);
 }
 
+/// return the current index
 int AMShapeOverlayVideoWidgetModel2::currentIndex()
 {
     return current_;
 }
 
+
+/// set the current index
 void AMShapeOverlayVideoWidgetModel2::setCurrentIndex(int current)
 {
     current_ = current;
 }
 
-
+/// set the zoom position
 void AMShapeOverlayVideoWidgetModel2::setZoomPoint(QPointF position)
 {
     zoomPoint_ = position;
-    zoomCenter_ = position;
 }
 
+/// change the current rectangles rotation
 void AMShapeOverlayVideoWidgetModel2::rotateRectangle(QPointF position)
 {
     double rotation = shapeList_[current_].rotation()+(position - currentVector_).x();
     shapeList_[current_].setRotation(rotation);
+    updateShape(current_);
     currentVector_ = position;
 }
 
+/// change the current rectangles depth
 void AMShapeOverlayVideoWidgetModel2::zoomShape(QPointF position)
 {
     if(isValid(current_))
@@ -997,6 +1082,7 @@ void AMShapeOverlayVideoWidgetModel2::zoomShape(QPointF position)
 }
 
 
+/// constructs the group rectangle
 void AMShapeOverlayVideoWidgetModel2::startGroupRectangle(QPointF position)
 {
     qDebug()<<"Creating the group rectangle model";
@@ -1005,6 +1091,7 @@ void AMShapeOverlayVideoWidgetModel2::startGroupRectangle(QPointF position)
 
 }
 
+/// finishes the grouping rectangle
 void AMShapeOverlayVideoWidgetModel2::finishGroupRectangle(QPointF position)
 {
 
@@ -1016,8 +1103,10 @@ void AMShapeOverlayVideoWidgetModel2::finishGroupRectangle(QPointF position)
 
 }
 
+/// places a grid
 void AMShapeOverlayVideoWidgetModel2::placeGrid(QPointF position)
 {
+    /// \todo broken - must convert to coordinates
     for(double i = 0; i<20.0; i++)
     {
         for(double j = 0; j<20.0; j++)
@@ -1035,6 +1124,7 @@ void AMShapeOverlayVideoWidgetModel2::placeGrid(QPointF position)
 
 }
 
+/// updates the shape for the given index
 void AMShapeOverlayVideoWidgetModel2::updateShape(int index)
 {
    /// must set shape based on coordinates
@@ -1048,6 +1138,7 @@ void AMShapeOverlayVideoWidgetModel2::updateShape(int index)
 
 }
 
+/// updates all shapes
 void AMShapeOverlayVideoWidgetModel2::updateAllShapes()
 {
     for(int i = 0; i <= index_; i++)
@@ -1056,7 +1147,7 @@ void AMShapeOverlayVideoWidgetModel2::updateAllShapes()
     }
 }
 
-
+/// finds the coordinate of the center of the shape
 QVector3D AMShapeOverlayVideoWidgetModel2::centerCoordinate(int index)
 {
     QVector3D center = QVector3D(0,0,0);
@@ -1067,6 +1158,7 @@ QVector3D AMShapeOverlayVideoWidgetModel2::centerCoordinate(int index)
     return center/4.0;
 }
 
+/// shifts all coordinates by  the specifies shift
 void AMShapeOverlayVideoWidgetModel2::shiftCoordinates(QVector3D shift, int index)
 {
     for(int k = 0; k < RECTANGLE_POINTS; k++)
@@ -1074,4 +1166,176 @@ void AMShapeOverlayVideoWidgetModel2::shiftCoordinates(QVector3D shift, int inde
         shapeList_[index].setCoordinate(shapeList_[index].coordinate(k) + shift,k);
     }
     updateShape(index);
+}
+
+void AMShapeOverlayVideoWidgetModel2::oneSelect()
+{
+    if(isValid(current_))
+    {
+        QVector<QVector3D> newBeamPosition;
+        for(int i = 0; i < TOPCLOSE; i++)
+        {
+            newBeamPosition<<shapeList_[current_].coordinate(i);
+        }
+        beamModel_->setPositionOne(newBeamPosition);
+
+        qDebug()<<"Emitting beamChanged";
+        emit beamChanged(beamModel_);
+    }
+    else
+    {
+        qDebug()<<"Invalid index, cannot add beam shape";
+    }
+}
+
+void AMShapeOverlayVideoWidgetModel2::twoSelect()
+{
+    if(isValid(current_))
+    {
+        QVector<QVector3D> newBeamPosition;
+        for(int i = 0; i < TOPCLOSE; i++)
+        {
+            newBeamPosition<<shapeList_[current_].coordinate(i);
+        }
+        beamModel_->setPositionTwo(newBeamPosition);
+        qDebug()<<"Emitting beamChanged";
+        emit beamChanged(beamModel_);
+    }
+    else
+    {
+        qDebug()<<"Invalid index, cannot add beam shape";
+    }
+}
+
+bool AMShapeOverlayVideoWidgetModel2::findIntersections()
+{
+    qDebug()<<"Finding intersection";
+    if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
+    {
+        qDebug()<<"intersection is empty";
+        return false;
+    }
+    qDebug()<<"Intersection is not empty()";
+    intersections_.clear();
+    for(int i = 0; i <= index_; i++)
+    {
+        QVector<QVector3D> intersectionShape = findIntersectionShape(i);
+        if(!intersectionShape.isEmpty())
+        intersections_<<intersectionScreenShape(intersectionShape);
+
+    }
+     return true;
+}
+
+QVector<QPolygonF> AMShapeOverlayVideoWidgetModel2::intersections()
+{
+    return intersections_;
+}
+
+QVector<QVector3D> AMShapeOverlayVideoWidgetModel2::findIntersectionShape(int index)
+{
+    /// First find the shape on the same plane
+    qDebug()<<"Here in find intersection shape";
+    QVector<QVector3D> shape;
+    QVector3D topLeft = shapeList_[index].coordinate(TOPLEFT);
+    QVector3D heightVector = topLeft - shapeList_[index].coordinate(BOTTOMLEFT);
+    QVector3D widthVector = shapeList_[index].coordinate(TOPRIGHT) - topLeft;
+    QVector3D hHat = heightVector.normalized();
+    QVector3D wHat = widthVector.normalized();
+    QVector3D nHat = QVector3D::normal(wHat,hHat);
+    QVector3D l0 [4];
+    QVector3D lHat [4];
+    double distance[4];
+    double numerator;
+    double denominator;
+    for(int i = 0; i < 4; i++)
+    {
+        l0[i] = beamModel_->ray(i).at(0);
+        lHat[i] = beamModel_->ray(i).at(1) - l0[i];
+        numerator = QVector3D::dotProduct((topLeft - l0[i]),nHat);
+        denominator = QVector3D::dotProduct(lHat[i],nHat);
+        if(0 == denominator)
+        {
+            if(0 == numerator)
+            {
+                qDebug()<<"Line is on plane";
+            }
+            else
+            {
+                qDebug()<<"Line is parallel to plane";
+            }
+        }
+        else
+        {
+            qDebug()<<"Calculating distance";
+            distance[i] = numerator/denominator;
+        }
+        shape<<l0[i]+lHat[i]*distance[i];
+    }
+    shape<<shape.first();
+
+    qDebug()<<"Finding the overlap";
+    /// need to find if the two shapes have any overlap
+    /// transpose to h,w,n coordinates, and throw away the n part, to get two polygons
+    // h component for each shape = h^(dot)coordinate
+    QPolygonF originalShape;
+    QPolygonF beamShape;
+    double beamHComponent [4];
+    double beamWComponent [4];
+//    double beamNComponent [4];
+
+    double shapeHComponent [4];
+    double shapeWComponent [4];
+    double shapeNComponent [4];
+    for(int i = 0; i < 4; i++)
+    {
+        beamHComponent[i] = QVector3D::dotProduct(hHat,shape[i]);
+        beamWComponent[i] = QVector3D::dotProduct(wHat,shape[i]);
+//        beamNComponent[i] = QVector3D::dotProduct(nHat,shape[i]);
+
+        beamShape<<QPointF(beamWComponent[i],beamHComponent[i]);
+
+        shapeHComponent[i] = QVector3D::dotProduct(hHat,shapeList_[index].coordinate(i));
+        shapeWComponent[i] = QVector3D::dotProduct(wHat,shapeList_[index].coordinate(i));
+        shapeNComponent[i] = QVector3D::dotProduct(nHat,shapeList_[index].coordinate(i));
+
+        originalShape<<QPointF(shapeWComponent[i],shapeHComponent[i]);
+    }
+    beamShape<<beamShape.first();
+    originalShape<<originalShape.first();
+
+    QPolygonF intersection = originalShape.intersected(beamShape);
+    qDebug()<<"Intersection shape is:";
+    if(intersection.isEmpty()) return QVector<QVector3D>();
+
+    QVector3D point;
+    QPointF oldPoint;
+    QVector<QVector3D> intersectionShape;
+    for(int i = 0; i < 4; i++)
+    {
+        oldPoint = intersection[i];
+        point = oldPoint.x()*wHat + oldPoint.y()*hHat + shapeNComponent[i]*nHat;
+        intersectionShape<<point;
+    }
+    intersectionShape<<intersectionShape.at(0);
+
+    qDebug()<<"Shape found";
+    qDebug()<<intersectionShape;
+
+    return intersectionShape;
+
+
+}
+
+QPolygonF AMShapeOverlayVideoWidgetModel2::intersectionScreenShape(QVector<QVector3D> shape3D)
+{
+    qDebug()<<"Converting intersection to screen coordinates";
+    QPolygonF shape;
+    for(int i = 0; i < 4; i++)
+    {
+        shape<<coordinateTransform(transform3Dto2D(shape3D[i]));
+    }
+    shape<<shape.first();
+    return shape;
+
 }

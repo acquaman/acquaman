@@ -158,6 +158,14 @@ AMBeamlineCameraBrowser2::AMBeamlineCameraBrowser2(QWidget *parent, bool useOpen
 
     connect(cameraConfiguration_, SIGNAL(update(AMCameraConfigurationModel*)), videoWidget_, SLOT(setCameraModel(AMCameraConfigurationModel*)));
 
+    connect(cameraConfiguration_, SIGNAL(oneSelect()), videoWidget_, SIGNAL(oneSelect()));
+    connect(cameraConfiguration_, SIGNAL(twoSelect()), videoWidget_, SIGNAL(twoSelect()));
+
+    connect(videoWidget_, SIGNAL(beamChanged(QObject*)), cameraConfiguration_, SIGNAL(beamChanged(QObject*)));
+
+    connect(cameraConfiguration_, SIGNAL(intersection()), videoWidget_, SLOT(intersection()));
+
+
     cameraConfiguration_->updateAll();
 }
 

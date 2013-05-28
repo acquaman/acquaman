@@ -54,6 +54,8 @@ public slots:
 
     void setCameraRotation(double rotation);
 
+
+
 protected:
     QVector3D cameraPosition_;
     QVector3D cameraCenter_;

@@ -41,6 +41,8 @@ public:
 signals:
     void coordinateChange(double,double,double);
 
+
+
 public slots:
 
 	/// Set the crosshair color
@@ -83,7 +85,6 @@ public slots:
     void tiltChanged(QString);
     void setCoordinate();
     void applyDistortion();
-
 
 protected:
 

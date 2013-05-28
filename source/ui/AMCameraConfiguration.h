@@ -8,6 +8,7 @@ class QPushButton;
 class AMCameraConfigurationModel;
 class QComboBox;
 class QSlider;
+class AMBeamConfiguration;
 
 /// This class provides a configuration window for model parameters in the Camera Browser
 class AMCameraConfiguration : public QWidget
@@ -44,6 +45,8 @@ public slots:
 
     void updateAll();
 
+
+
 protected:
     QLineEdit* positionX_;
     QLineEdit* positionY_;
@@ -55,6 +58,7 @@ protected:
     QLineEdit* cameraFocalLength_;
     QLineEdit* cameraDistortion_;
     QPushButton* setButton_;
+    QPushButton* overwriteButton_;
 
     QLineEdit* cameraRotation_;
     QSlider* cameraRotationSlider_;
@@ -65,6 +69,8 @@ protected:
     QPushButton* saveConfiguration_;
 
     AMCameraConfigurationModel* cameraModel_;
+
+    AMBeamConfiguration* beamConfiguration_;
 
 
 protected slots:
@@ -87,13 +93,23 @@ protected slots:
     void updateName(QString name);
     void updateSelection(int);
     void saveConfiguration();
+    void overwriteConfiguration();
 
     void populateComboBox(int);
 
 
 
+
 signals:
     void update(AMCameraConfigurationModel*);
+
+    // for beam configuration
+    void oneSelect();
+    void twoSelect();
+
+    void beamChanged(QObject*);
+    void intersection();
+
 
 };
 
