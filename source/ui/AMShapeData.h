@@ -11,12 +11,12 @@ class QString;
 class QVector3D;
 class QPolygonF;
 
-class AMShapeData2 //: public QObject
+class AMShapeData //: public QObject
 {
    // Q_OBJECT
 public:
-    AMShapeData2();
-    AMShapeData2(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
+    AMShapeData();
+    AMShapeData(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
     QPolygonF* shape();
     QString name();
     QString otherData();

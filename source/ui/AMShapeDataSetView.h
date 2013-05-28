@@ -4,20 +4,20 @@
 #include "ui/AMOverlayVideoWidget2.h"
 
 class QGraphicsLineItem;
-class AMShapeOverlayVideoWidgetModel2;
-class AMCameraConfigurationModel;
+class AMShapeDataSet;
+class AMCameraConfiguration;
 
 /// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
 
 For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
 
-class AMCrosshairOverlayVideoWidget2 : public AMOverlayVideoWidget2
+class AMShapeDataSetView : public AMOverlayVideoWidget2
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-    explicit AMCrosshairOverlayVideoWidget2(QWidget *parent = 0, bool usOpenGlViewport = true);
+    explicit AMShapeDataSetView(QWidget *parent = 0, bool usOpenGlViewport = true);
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
@@ -126,7 +126,7 @@ public slots:
 	/// Enable or disable the crosshair
 	void setCrosshairVisible(bool crosshairVisible = true);
 
-    void setCameraModel(AMCameraConfigurationModel*);
+    void setCameraModel(AMCameraConfiguration*);
 
     void intersection();
 
@@ -146,7 +146,7 @@ protected:
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
     /// The model for all the shapes displayed (except the crosshair)
-    AMShapeOverlayVideoWidgetModel2* shapeModel_;
+    AMShapeDataSet* shapeModel_;
 
     QGraphicsPolygonItem* groupRectangle_;
 

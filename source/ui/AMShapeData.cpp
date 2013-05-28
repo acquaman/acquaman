@@ -1,4 +1,4 @@
-#include "AMShapeData2.h"
+#include "AMShapeData.h"
 
 
 
@@ -7,14 +7,14 @@
 #include <QPolygonF>
 #include <QDebug>
 
-AMShapeData2::AMShapeData2()
+AMShapeData::AMShapeData()
 {
     shape_ = new QPolygonF();
     coordinateIndex_ = -1;
 
 }
 
-AMShapeData2::AMShapeData2(QPolygonF shape, QString name, QString otherData,  double idNumber)
+AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  double idNumber)
 {
     shape_ = new QPolygonF();
     *shape_ = shape;
@@ -25,27 +25,27 @@ AMShapeData2::AMShapeData2(QPolygonF shape, QString name, QString otherData,  do
 
 }
 
-QPolygonF* AMShapeData2::shape()
+QPolygonF* AMShapeData::shape()
 {
     return shape_;
 }
 
-QString AMShapeData2::name()
+QString AMShapeData::name()
 {
     return name_;
 }
 
-QString AMShapeData2::otherData()
+QString AMShapeData::otherData()
 {
     return otherData_;
 }
 
-double AMShapeData2::idNumber()
+double AMShapeData::idNumber()
 {
     return idNumber_;
 }
 
-QVector3D AMShapeData2::coordinate(int index)
+QVector3D AMShapeData::coordinate(int index)
 {
     if(validIndex(index))
         return coordinate_[index];
@@ -53,54 +53,54 @@ QVector3D AMShapeData2::coordinate(int index)
         return QVector3D(0,0,0);
 }
 
-double AMShapeData2::height()
+double AMShapeData::height()
 {
     return height_;
 }
 
-double AMShapeData2::width()
+double AMShapeData::width()
 {
     return width_;
 }
 
-double AMShapeData2::rotation()
+double AMShapeData::rotation()
 {
     return rotation_;
 }
 
-double AMShapeData2::tilt()
+double AMShapeData::tilt()
 {
     return tilt_;
 }
 
-void AMShapeData2::setShape(QPolygonF shape)
+void AMShapeData::setShape(QPolygonF shape)
 {
     *shape_ = shape;
 }
 
-void AMShapeData2::setName(QString name)
+void AMShapeData::setName(QString name)
 {
     name_ = name;
 }
 
-void AMShapeData2::setOtherData(QString otherData)
+void AMShapeData::setOtherData(QString otherData)
 {
     otherData_ = otherData;
 }
 
-void AMShapeData2::setIdNumber(double idNumber)
+void AMShapeData::setIdNumber(double idNumber)
 {
     idNumber_ = idNumber;
 }
 
-void AMShapeData2::setCoordinate(QVector3D coordinate, int index)
+void AMShapeData::setCoordinate(QVector3D coordinate, int index)
 {
     if(validIndex(index))
         coordinate_[index] = coordinate;
     else qDebug()<<"Failed to set coordinate; invalid index";
 }
 
-void AMShapeData2::setCoordinateShape(QVector<QVector3D> coordinates, int count)
+void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
 {
     if(coordinates.isEmpty()) return;
     coordinate_.clear();
@@ -112,27 +112,27 @@ void AMShapeData2::setCoordinateShape(QVector<QVector3D> coordinates, int count)
     }
 }
 
-void AMShapeData2::setHeight(double height)
+void AMShapeData::setHeight(double height)
 {
     height_ = height;
 }
 
-void AMShapeData2::setWidth(double width)
+void AMShapeData::setWidth(double width)
 {
     width_ = width;
 }
 
-void AMShapeData2::setRotation(double rotation)
+void AMShapeData::setRotation(double rotation)
 {
     rotation_ = rotation;
 }
 
-void AMShapeData2::setTilt(double tilt)
+void AMShapeData::setTilt(double tilt)
 {
     tilt_ = tilt;
 }
 
-bool AMShapeData2::validIndex(int index)
+bool AMShapeData::validIndex(int index)
 {
     return (index >= 0 && index <= coordinateIndex_);
 }

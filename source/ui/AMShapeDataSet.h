@@ -6,23 +6,23 @@
 #include <QObject>
 #include <QSizeF>
 #include <QMap>
-#include "ui/AMShapeData2.h"
+#include "ui/AMShapeData.h"
 #include <QVector>
 #include <QVector3D>
 
-class AMShapeData2;
+class AMShapeData;
 class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
-class AMCameraConfigurationModel;
-class AMBeamModel;
+class AMCameraConfiguration;
+class AMBeamConfiguration;
 
-class AMShapeOverlayVideoWidgetModel2: public QObject
+class AMShapeDataSet: public QObject
 {
     Q_OBJECT
 public:
     /// Constructor
-    explicit AMShapeOverlayVideoWidgetModel2(QObject *parent = 0);
+    explicit AMShapeDataSet(QObject *parent = 0);
 
 
     /// viewSize and scaled_size used for computing coordinates, get values from AMCrosshairOverlayVideoWidget
@@ -72,7 +72,7 @@ public:
     void toggleDistortion();
 
     /// sets the current camera model
-    void setCameraModel(AMCameraConfigurationModel*);
+    void setCameraModel(AMCameraConfiguration*);
 
 signals:
     void beamChanged(QObject*);
@@ -110,7 +110,7 @@ protected:
 
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles
-    QMap<int,AMShapeData2> shapeList_;
+    QMap<int,AMShapeData> shapeList_;
 
     /// mouse location at start of a zoom process
     QPointF zoomPoint_;
@@ -131,10 +131,10 @@ protected:
     bool distortion_;
 
     /// the camera model
-    AMCameraConfigurationModel* cameraModel_;
+    AMCameraConfiguration* cameraModel_;
 
     /// the beam model
-    AMBeamModel* beamModel_;
+    AMBeamConfiguration* beamModel_;
 
     /// intersections
     QVector<QPolygonF> intersections_;

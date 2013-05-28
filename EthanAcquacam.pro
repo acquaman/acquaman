@@ -68,14 +68,7 @@ TARGET = AcquaCam
 FORMS +=
 
 HEADERS += source/ui/AMColorPickerButton2.h \
-        source/ui/AMCrosshairOverlayVideoWidget2.h \
         source/ui/AMOverlayVideoWidget2.h \
-        source/ui/AMBeamlineCameraBrowser2.h \
-    source/ui/AMShapeOverlayVideoWidgetView2.h \
-    source/ui/AMShapeOverlayVideoWidgetModel2.h \
-    source/ui/AMShapeData2.h \
-    source/ui/AMCameraConfiguration.h \
-    source/ui/AMCameraConfigurationModel.h \
     source/dataman/database/AMDatabase.h \
     source/util/AMErrorMonitor.h \
     source/dataman/database/AMDbObject.h \
@@ -84,19 +77,20 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/util/AMPeriodicTable.h \
     source/util/AMElement.h \
     source/dataman/AMSample.h \
-    source/ui/AMBeamModel.h \
-    source/ui/AMBeamConfiguration.h
+    source/ui/AMCameraBrowserView.h \
+    source/ui/AMShapeData.h \
+    source/ui/AMCameraConfigurationView.h \
+    source/ui/AMCameraConfiguration.h \
+    source/ui/AMBeamConfigurationView.h \
+    source/ui/AMBeamConfiguration.h \
+    source/ui/AMShapeDataSet.h \
+    source/ui/AMShapeDataSetView.h \
+    source/ui/AMShapeDataView.h \
+    source/ui/AMCameraBrowser.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
-        source/ui/AMCrosshairOverlayVideoWidget2.cpp \
         source/ui/AMOverlayVideoWidget2.cpp \
-        source/ui/AMBeamlineCameraBrowser2.cpp \
-    source/ui/AMShapeOverlayVideoWidgetView2.cpp \
-    source/ui/AMShapeOverlayVideoWidgetModel2.cpp \
-    source/ui/AMShapeData2.cpp \
-    source/ui/AMCameraConfiguration.cpp \
-    source/ui/AMCameraConfigurationModel.cpp \
     source/dataman/database/AMDatabase.cpp \
     source/util/AMErrorMonitor.cpp \
     source/dataman/database/AMDbObject.cpp \
@@ -105,6 +99,14 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/util/AMPeriodicTable.cpp \
     source/util/AMElement.cpp \
     source/dataman/AMSample.cpp \
-    source/ui/AMBeamModel.cpp \
-    source/ui/AMBeamConfiguration.cpp
+    source/ui/AMCameraBrowserView.cpp \
+    source/ui/AMShapeData.cpp \
+    source/ui/AMCameraConfigurationView.cpp \
+    source/ui/AMCameraConfiguration.cpp \
+    source/ui/AMBeamConfigurationView.cpp \
+    source/ui/AMBeamConfiguration.cpp \
+    source/ui/AMShapeDataSet.cpp \
+    source/ui/AMShapeDataSetView.cpp \
+    source/ui/AMShapeDataView.cpp \
+    source/ui/AMCameraBrowser.cpp
 

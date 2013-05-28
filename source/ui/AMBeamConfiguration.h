@@ -1,78 +1,39 @@
-#ifndef AMBEAMCONFIGURATION_H
-#define AMBEAMCONFIGURATION_H
+#ifndef AMBEAMMODEL_H
+#define AMBEAMMODEL_H
 
-#include <QWidget>
 #include <QVector3D>
+#include <QVector>
+#include "dataman/database/AMDbObject.h"
 
-class QLabel;
-class QPushButton;
-class AMBeamModel;
-class QVector3D;
 
-class AMBeamConfiguration : public QWidget
+
+
+class AMBeamConfiguration : public AMDbObject
 {
     Q_OBJECT
+    //Q_PROPERTY(type name READ access WRITE mutate)
 public:
-    AMBeamConfiguration(QWidget *parent = 0);
+    explicit AMBeamConfiguration(QObject *parent = 0);
 
-public slots:
-    void beamChanged(QObject*);
+    QVector<QVector3D> positionOne();
+    QVector<QVector3D> positionTwo();
+    QVector<QVector3D> ray(int index);
 
-signals:
-    void oneSelect();
-    void twoSelect();
-    void intersection();
+    void setPositionOne(QVector<QVector3D> positionOne);
+    void setPositionTwo(QVector<QVector3D> positionTwo);
+    void setRay(QVector<QVector3D> ray, int index);
+
 
 protected:
-    QLabel *oneOneX_;
-    QLabel *oneOneY_;
-    QLabel *oneOneZ_;
+    static const int ONE;
+    static const int TWO;
+    static const int THREE;
+    static const int FOUR;
+    static const int CLOSE;
 
-    QLabel *oneTwoX_;
-    QLabel *oneTwoY_;
-    QLabel *oneTwoZ_;
+    QVector<QVector3D> positionOne_;
+    QVector<QVector3D> positionTwo_;
 
-    QLabel *oneThreeX_;
-    QLabel *oneThreeY_;
-    QLabel *oneThreeZ_;
-
-    QLabel *oneFourX_;
-    QLabel *oneFourY_;
-    QLabel *oneFourZ_;
-
-    QLabel *twoOneX_;
-    QLabel *twoOneY_;
-    QLabel *twoOneZ_;
-
-    QLabel *twoTwoX_;
-    QLabel *twoTwoY_;
-    QLabel *twoTwoZ_;
-
-    QLabel *twoThreeX_;
-    QLabel *twoThreeY_;
-    QLabel *twoThreeZ_;
-
-    QLabel *twoFourX_;
-    QLabel *twoFourY_;
-    QLabel *twoFourZ_;
-
-    QPushButton *oneSelect_;
-    QPushButton *twoSelect_;
-
-    QPushButton *intersectionButton_;
-
-    AMBeamModel* beamModel_;
-
-protected slots:
-    void updateData();
-    void updateOneOne(QVector3D);
-    void updateOneTwo(QVector3D);
-    void updateOneThree(QVector3D);
-    void updateOneFour(QVector3D);
-    void updateTwoOne(QVector3D);
-    void updateTwoTwo(QVector3D);
-    void updateTwoThree(QVector3D);
-    void updateTwoFour(QVector3D);
 };
 
-#endif // AMBEAMCONFIGURATION_H
+#endif // AMBEAMMODEL_H

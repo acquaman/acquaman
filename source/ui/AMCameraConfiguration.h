@@ -1,116 +1,68 @@
-#ifndef AMCAMERACONFIGURATION_H
-#define AMCAMERACONFIGURATION_H
+#ifndef AMCAMERACONFIGURATIONMODEL_H
+#define AMCAMERACONFIGURATIONMODEL_H
 
-#include <QWidget>
 #include <QVector3D>
-class QLineEdit;
-class QPushButton;
-class AMCameraConfigurationModel;
-class QComboBox;
-class QSlider;
-class AMBeamConfiguration;
+#include "dataman/database/AMDbObject.h"
 
-/// This class provides a configuration window for model parameters in the Camera Browser
-class AMCameraConfiguration : public QWidget
+class QVector3D;
+
+class AMCameraConfiguration : public AMDbObject
 {
     Q_OBJECT
+    Q_PROPERTY(double cameraFOV READ cameraFOV WRITE setCameraFOV)
+    Q_PROPERTY(double cameraFocalLength READ cameraFocalLength WRITE setCameraFocalLength)
+    Q_PROPERTY(double cameraDistortion READ cameraDistortion WRITE setCameraDistortion)
+    Q_PROPERTY(QVector3D cameraCenter READ cameraCenter WRITE setCameraCenter)
+    Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
+    Q_PROPERTY(double cameraRotation READ cameraRotation WRITE setCameraRotation)
+
 public:
-    AMCameraConfiguration(QWidget *parent = 0);
+    explicit AMCameraConfiguration(QObject *parent = 0);
 
     /// Accessors
-    double positionX();
-    double positionY();
-    double positionZ();
-    double centerX();
-    double centerY();
-    double centerZ();
+    double cameraPositionX();
+    double cameraPositionY();
+    double cameraPositionZ();
+    QVector3D cameraPosition();
+
+    double cameraCenterX();
+    double cameraCenterY();
+    double cameraCenterZ();
+    QVector3D cameraCenter();
+
     double cameraFOV();
     double cameraFocalLength();
     double cameraDistortion();
+
     double cameraRotation();
 
     /// Mutators
-    void setPositionX(double x);
-    void setPositionY(double y);
-    void setPositionZ(double z);
-    void setCenterX(double x);
-    void setCenterY(double y);
-    void setCenterZ(double z);
+public slots:
+    void setCameraPosition(QVector3D position);
+    void setCameraPositionX(double x);
+    void setCameraPositionY(double y);
+    void setCameraPositionZ(double z);
+
+    void setCameraCenter(QVector3D center);
+    void setCameraCenterX(double x);
+    void setCameraCenterY(double y);
+    void setCameraCenterZ(double z);
+
     void setCameraFOV(double fov);
     void setCameraFocalLength(double focalLength);
     void setCameraDistortion(double distortion);
+
     void setCameraRotation(double rotation);
-
-public slots:
-
-    void updateAll();
 
 
 
 protected:
-    QLineEdit* positionX_;
-    QLineEdit* positionY_;
-    QLineEdit* positionZ_;
-    QLineEdit* centerX_;
-    QLineEdit* centerY_;
-    QLineEdit* centerZ_;
-    QLineEdit* cameraFOV_;
-    QLineEdit* cameraFocalLength_;
-    QLineEdit* cameraDistortion_;
-    QPushButton* setButton_;
-    QPushButton* overwriteButton_;
-
-    QLineEdit* cameraRotation_;
-    QSlider* cameraRotationSlider_;
-
-
-    QComboBox* configurationSelection_;
-    QLineEdit* configurationName_;
-    QPushButton* saveConfiguration_;
-
-    AMCameraConfigurationModel* cameraModel_;
-
-    AMBeamConfiguration* beamConfiguration_;
-
-
-protected slots:
-    void updatePositionX(QString x);
-    void updatePositionY(QString y);
-    void updatePositionZ(QString z);
-
-    void updateCenterX(QString x);
-    void updateCenterY(QString y);
-    void updateCenterZ(QString z);
-
-    void updateFOV(QString fov);
-    void updateFocalLength(QString focalLength);
-
-    void updateDistortion(QString distortion);
-
-    void updateRotation(QString rotation);
-    void updateRotationSlider(int);
-
-    void updateName(QString name);
-    void updateSelection(int);
-    void saveConfiguration();
-    void overwriteConfiguration();
-
-    void populateComboBox(int);
-
-
-
-
-signals:
-    void update(AMCameraConfigurationModel*);
-
-    // for beam configuration
-    void oneSelect();
-    void twoSelect();
-
-    void beamChanged(QObject*);
-    void intersection();
-
-
+    QVector3D cameraPosition_;
+    QVector3D cameraCenter_;
+    double cameraFOV_;
+    double cameraFocalLength_;
+    double cameraDistortion_;
+    double cameraRotation_;
 };
 
-#endif // AMCAMERACONFIGURATION_H
+#endif // AMCAMERACONFIGURATIONMODEL_H

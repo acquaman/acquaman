@@ -1,4 +1,4 @@
-#include "AMCrosshairOverlayVideoWidget2.h"
+#include "AMShapeDataSetView.h"
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
@@ -7,18 +7,18 @@
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
-#include "ui/AMShapeOverlayVideoWidgetModel2.h"
-#include "ui/AMCameraConfigurationModel.h"
+#include "ui/AMShapeDataSet.h"
+#include "ui/AMCameraConfiguration.h"
 
 
-QColor const AMCrosshairOverlayVideoWidget2::BORDERCOLOUR = QColor(Qt::red);
-QColor const AMCrosshairOverlayVideoWidget2::ACTIVEBORDERCOLOUR = QColor(Qt::blue);
+QColor const AMShapeDataSetView::BORDERCOLOUR = QColor(Qt::red);
+QColor const AMShapeDataSetView::ACTIVEBORDERCOLOUR = QColor(Qt::blue);
 
 
-AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, bool useOpenGlViewport) :
+AMShapeDataSetView::AMShapeDataSetView(QWidget *parent, bool useOpenGlViewport) :
     AMOverlayVideoWidget2(parent, useOpenGlViewport)
 {
-    shapeModel_ = new AMShapeOverlayVideoWidgetModel2();
+    shapeModel_ = new AMShapeDataSet();
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
     index_ = 0;
@@ -68,7 +68,7 @@ AMCrosshairOverlayVideoWidget2::AMCrosshairOverlayVideoWidget2(QWidget *parent, 
 }
 
 
-void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
+void AMShapeDataSetView::reviewCrosshairLinePositions()
 {
 
 	QSizeF viewSize = videoItem_->size();
@@ -145,126 +145,126 @@ void AMCrosshairOverlayVideoWidget2::reviewCrosshairLinePositions()
 
 }
 
-QPen AMCrosshairOverlayVideoWidget2::crosshairPen() const
+QPen AMShapeDataSetView::crosshairPen() const
 {
 	return crosshairXLine_->pen();
 }
 
-bool AMCrosshairOverlayVideoWidget2::crosshairVisible() const
+bool AMShapeDataSetView::crosshairVisible() const
 {
     return crosshairXLine_->isVisible();
 }
 
-void AMCrosshairOverlayVideoWidget2::setDrawMode()
+void AMShapeDataSetView::setDrawMode()
 {
     mode_ = DRAW;
 }
 
-void AMCrosshairOverlayVideoWidget2::setMoveMode()
+void AMShapeDataSetView::setMoveMode()
 {
     mode_ = MOVE;
 }
 
-void AMCrosshairOverlayVideoWidget2::setEditMode()
+void AMShapeDataSetView::setEditMode()
 {
     mode_ = EDIT;
 }
 
-void AMCrosshairOverlayVideoWidget2::setShiftMode()
+void AMShapeDataSetView::setShiftMode()
 {
     mode_ = SHIFT;
 }
 
-void AMCrosshairOverlayVideoWidget2::setOperationMode()
+void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
 }
 
-void AMCrosshairOverlayVideoWidget2::setGroupMode()
+void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
 }
 
-void AMCrosshairOverlayVideoWidget2::setMotorCoordinate(double x, double y, double z, double r)
+void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double r)
 {
     shapeModel_->setMotorCoordinate(x,y,z,r);
     emit currentChanged();
     reviewCrosshairLinePositions();
 }
 
-double AMCrosshairOverlayVideoWidget2::motorRotation()
+double AMShapeDataSetView::motorRotation()
 {
     return shapeModel_->motorRotation();
 }
 
-double AMCrosshairOverlayVideoWidget2::motorX()
+double AMShapeDataSetView::motorX()
 {
     return shapeModel_->motorX();
 }
 
-double AMCrosshairOverlayVideoWidget2::motorY()
+double AMShapeDataSetView::motorY()
 {
     return shapeModel_->motorY();
 }
 
-double AMCrosshairOverlayVideoWidget2::motorZ()
+double AMShapeDataSetView::motorZ()
 {
     return shapeModel_->motorZ();
 }
 
-QString AMCrosshairOverlayVideoWidget2::currentName()
+QString AMShapeDataSetView::currentName()
 {
     return shapeModel_->currentName();
 }
 
-void AMCrosshairOverlayVideoWidget2::setCurrentName(QString name)
+void AMShapeDataSetView::setCurrentName(QString name)
 {
    shapeModel_->setCurrentName(name);
 }
 
-QString AMCrosshairOverlayVideoWidget2::currentInfo()
+QString AMShapeDataSetView::currentInfo()
 {
     return shapeModel_->currentInfo();
 }
 
-void AMCrosshairOverlayVideoWidget2::setCurrentInfo(QString info)
+void AMShapeDataSetView::setCurrentInfo(QString info)
 {
     shapeModel_->setCurrentInfo(info);
 }
 
-int AMCrosshairOverlayVideoWidget2::currentIndex()
+int AMShapeDataSetView::currentIndex()
 {
     return shapeModel_->currentIndex();
 }
 
-double AMCrosshairOverlayVideoWidget2::xCoordinate()
+double AMShapeDataSetView::xCoordinate()
 {
     double coordinate = shapeModel_->currentCoordinate().x();
     return coordinate;
 }
 
-double AMCrosshairOverlayVideoWidget2::yCoordinate()
+double AMShapeDataSetView::yCoordinate()
 {
     return shapeModel_->currentCoordinate().y();
 }
 
-double AMCrosshairOverlayVideoWidget2::zCoordinate()
+double AMShapeDataSetView::zCoordinate()
 {
 
     return shapeModel_->currentCoordinate().z();
 }
 
-double AMCrosshairOverlayVideoWidget2::rotation()
+double AMShapeDataSetView::rotation()
 {
     return shapeModel_->rotation();
 }
 
-double AMCrosshairOverlayVideoWidget2::tilt()
+double AMShapeDataSetView::tilt()
 {
     return shapeModel_->tilt();
 }
 
-void AMCrosshairOverlayVideoWidget2::setX(double x)
+void AMShapeDataSetView::setX(double x)
 {
 
    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
@@ -273,7 +273,7 @@ void AMCrosshairOverlayVideoWidget2::setX(double x)
    shapeModel_->setCoordinates(x,y,z);
 }
 
-void AMCrosshairOverlayVideoWidget2::setY(double y)
+void AMShapeDataSetView::setY(double y)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double x = currentCoordinate.x();
@@ -281,7 +281,7 @@ void AMCrosshairOverlayVideoWidget2::setY(double y)
     shapeModel_->setCoordinates(x,y,z);
 }
 
-void AMCrosshairOverlayVideoWidget2::setZ(double z)
+void AMShapeDataSetView::setZ(double z)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double y = currentCoordinate.y();
@@ -289,46 +289,46 @@ void AMCrosshairOverlayVideoWidget2::setZ(double z)
     shapeModel_->setCoordinates(x,y,z);
 }
 
-void AMCrosshairOverlayVideoWidget2::setRotation(double rotation)
+void AMShapeDataSetView::setRotation(double rotation)
 {
     shapeModel_->setRotation(rotation);
 }
 
-void AMCrosshairOverlayVideoWidget2::setTilt(double tilt)
+void AMShapeDataSetView::setTilt(double tilt)
 {
     shapeModel_->setTilt(tilt);
 }
 
-void AMCrosshairOverlayVideoWidget2::moveCurrentToCoordinate()
+void AMShapeDataSetView::moveCurrentToCoordinate()
 {
     reviewCrosshairLinePositions();
 }
 
-void AMCrosshairOverlayVideoWidget2::toggleDistortion()
+void AMShapeDataSetView::toggleDistortion()
 {
     shapeModel_->toggleDistortion();
     reviewCrosshairLinePositions();
 }
 
-void AMCrosshairOverlayVideoWidget2::setCrosshairPen(const QPen &pen)
+void AMShapeDataSetView::setCrosshairPen(const QPen &pen)
 {
 	crosshairXLine_->setPen(pen);
 	crosshairYLine_->setPen(pen);
 }
 
-void AMCrosshairOverlayVideoWidget2::setCrosshairVisible(bool crosshairVisible)
+void AMShapeDataSetView::setCrosshairVisible(bool crosshairVisible)
 {
 	crosshairXLine_->setVisible(crosshairVisible);
     crosshairYLine_->setVisible(crosshairVisible);
 }
 
-void AMCrosshairOverlayVideoWidget2::setCameraModel(AMCameraConfigurationModel *model)
+void AMShapeDataSetView::setCameraModel(AMCameraConfiguration *model)
 {
     shapeModel_->setCameraModel(model);
     reviewCrosshairLinePositions();
 }
 
-void AMCrosshairOverlayVideoWidget2::intersection()
+void AMShapeDataSetView::intersection()
 {
     if(shapeModel_->findIntersections())
     {
@@ -337,7 +337,7 @@ void AMCrosshairOverlayVideoWidget2::intersection()
     }
 }
 
-void AMCrosshairOverlayVideoWidget2::createIntersectionShapes(QVector<QPolygonF> shapes)
+void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
 {
     intersections_.clear();
     for(int i =0; !shapes.isEmpty(); i++)
@@ -352,7 +352,7 @@ void AMCrosshairOverlayVideoWidget2::createIntersectionShapes(QVector<QPolygonF>
     }
 }
 
-void AMCrosshairOverlayVideoWidget2::clearIntersections()
+void AMShapeDataSetView::clearIntersections()
 {
     while(!intersections_.isEmpty())
     {
@@ -364,14 +364,14 @@ void AMCrosshairOverlayVideoWidget2::clearIntersections()
 
 
 
-void AMCrosshairOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
+void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
 {
     AMOverlayVideoWidget2::resizeEvent(event);
 
 	reviewCrosshairLinePositions();
 }
 
-void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
+void AMShapeDataSetView::mousePressEvent(QMouseEvent *e)
 {
     AMOverlayVideoWidget2::mousePressEvent(e);
     if(e->button() == Qt::LeftButton && mode_ == DRAW)
@@ -451,7 +451,7 @@ void AMCrosshairOverlayVideoWidget2::mousePressEvent(QMouseEvent *e)
     reviewCrosshairLinePositions();
 }
 
-void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseReleaseEvent(QMouseEvent *e)
 {
 
 
@@ -491,7 +491,7 @@ void AMCrosshairOverlayVideoWidget2::mouseReleaseEvent(QMouseEvent *e)
     else AMOverlayVideoWidget2::mouseReleaseEvent(e);
 }
 
-void AMCrosshairOverlayVideoWidget2::mouseDoubleClickEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseDoubleClickEvent(QMouseEvent *e)
 {
 
 
@@ -502,7 +502,7 @@ void AMCrosshairOverlayVideoWidget2::mouseDoubleClickEvent(QMouseEvent *e)
 
 }
 
-void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseMoveEvent(QMouseEvent *e)
 {
     AMOverlayVideoWidget2::mouseMoveEvent(e);
 
@@ -522,7 +522,7 @@ void AMCrosshairOverlayVideoWidget2::mouseMoveEvent(QMouseEvent *e)
      reviewCrosshairLinePositions();
 }
 
-QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoordinate) const
+QPointF AMShapeDataSetView::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
 	// for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
 	QSizeF viewSize = videoItem_->size();
@@ -545,7 +545,7 @@ QPointF AMCrosshairOverlayVideoWidget2::mapSceneToVideo(const QPointF &sceneCoor
 
 
 /// append a new rectangle to the current list, add it to the scene
-void AMCrosshairOverlayVideoWidget2::addNewShape()
+void AMShapeDataSetView::addNewShape()
 {
     index_++;
     QPen pen(BORDERCOLOUR);
@@ -555,7 +555,7 @@ void AMCrosshairOverlayVideoWidget2::addNewShape()
 }
 
 /// Remove a rectangle from the scene
-void AMCrosshairOverlayVideoWidget2::deleteShape()
+void AMShapeDataSetView::deleteShape()
 {
     QGraphicsPolygonItem* polygon = shapes_[index_];
     scene()->removeItem(shapes_[index_]);
@@ -565,7 +565,7 @@ void AMCrosshairOverlayVideoWidget2::deleteShape()
 }
 
 /// change the currently selected item, outline it in yellow
-void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
+void AMShapeDataSetView::currentSelectionChanged()
 {
     emit currentChanged();
     if(shapeModel_->isValid(current_))
@@ -577,7 +577,7 @@ void AMCrosshairOverlayVideoWidget2::currentSelectionChanged()
     }
 }
 
-void AMCrosshairOverlayVideoWidget2::createGroupRectangle()
+void AMShapeDataSetView::createGroupRectangle()
 {
     QBrush penBrush(QColor(Qt::magenta));
     QPen pen(penBrush,1,Qt::DotLine);
@@ -587,7 +587,7 @@ void AMCrosshairOverlayVideoWidget2::createGroupRectangle()
 
 }
 
-void AMCrosshairOverlayVideoWidget2::destroyGroupRectangle()
+void AMShapeDataSetView::destroyGroupRectangle()
 {
     scene()->removeItem(groupRectangle_);
     groupRectangleActive_ = false;
