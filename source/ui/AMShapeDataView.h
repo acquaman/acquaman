@@ -11,7 +11,7 @@ class AMShapeDataView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AMShapeDataView(QWidget *parent = 0);
+    explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
 
 public slots:
     void setName(QString);
@@ -20,18 +20,26 @@ public slots:
     void setY(QString);
     void setZ(QString);
     void setRotation(QString);
+    void setShapeData(AMShapeData*);
 
-signals:
+
+
     void nameChanged(QString);
     void tiltChanged(QString);
     void xChanged(QString);
     void yChanged(QString);
     void zChanged(QString);
+
     void rotationChanged(QString);
+
+
+signals:
+    void updateShapes();
     void setCoordinate();
     void applyDistortion();
-    //protected slots
-    //protected (fns)
+protected:
+    void update();
+    bool isValid();
 protected:
     AMShapeData *shapeModel_;
     QLineEdit *nameEdit_;

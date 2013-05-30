@@ -106,7 +106,6 @@ void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
     coordinate_.clear();
     for(int i = 0; i < count; i++)
     {
-        qDebug()<<"Assigning coordinate"<<i<<"Which is"<<coordinates[i];
         if(coordinateIndex_ < i) coordinateIndex_ = i;
         coordinate_<<coordinates[i];
     }
@@ -130,6 +129,38 @@ void AMShapeData::setRotation(double rotation)
 void AMShapeData::setTilt(double tilt)
 {
     tilt_ = tilt;
+}
+
+QVector3D AMShapeData::centerCoordinate()
+{
+    QVector3D center = QVector3D(0,0,0);
+    for(int i = 0; i < 4; i++)//only want the first four points
+    {
+        center += coordinate(i);
+    }
+    return center/4.0;
+}
+
+void AMShapeData::shift(QVector3D shift)
+{
+    for(int i = 0; i < 5; i++)
+    {
+        setCoordinate(coordinate_[i] +  shift,i);
+    }
+}
+
+void AMShapeData::shiftTo(QVector3D shift)
+{
+    shift -= centerCoordinate();
+    for(int i = 0; i < 5; i++)
+    {
+        setCoordinate(coordinate_[i] +  shift,i);
+    }
+}
+
+int AMShapeData::count()
+{
+    return coordinateIndex_;
 }
 
 bool AMShapeData::validIndex(int index)

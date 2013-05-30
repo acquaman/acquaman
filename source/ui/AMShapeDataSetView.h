@@ -2,38 +2,41 @@
 #define AMCROSSHAIROVERLAYVIDEOWIDGET2_H
 
 #include "ui/AMOverlayVideoWidget2.h"
+#include <QWidget>
 
 class QGraphicsLineItem;
 class AMShapeDataSet;
 class AMCameraConfiguration;
+class QCheckBox;
+class AMColorPickerButton2;
+class QSlider;
+class AMShapeDataSetGraphicsView;
+class AMShapeDataView;
+class QPushButton;
+class QLineEdit;
+class AMCameraConfigurationView;
+class QColor;
 
 /// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
 
 For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
 
-class AMShapeDataSetView : public AMOverlayVideoWidget2
+class AMShapeDataSetView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-    explicit AMShapeDataSetView(QWidget *parent = 0, bool usOpenGlViewport = true);
+    explicit AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
 	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
-	QPointF crosshairPosition() const { return QPointF(crosshairX_, crosshairY_); }
+    QPointF crosshairPosition() const;
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
-    /// Used to set the current mode selected on the toolbar
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP};
-    void setDrawMode();
-    void setMoveMode();
-    void setEditMode();
-    void setShiftMode();
-    void setOperationMode();
-    void setGroupMode();
+
 
     /// Set the current motor coordinates
     void setMotorCoordinate(double x, double y, double z, double r);
@@ -44,7 +47,7 @@ public:
 
     /// Functions for modifying object information
     QString currentName();
-    void setCurrentName(QString);
+
     QString currentInfo();
     void setCurrentInfo(QString);
 
@@ -57,15 +60,38 @@ public:
     double rotation();
     double tilt();
 
-    void setX(double x);
-    void setY(double y);
-    void setZ(double z);
-    void setRotation(double rotation);
-    void setTilt(double tilt);
+
+
 
     void moveCurrentToCoordinate();
 
-    void toggleDistortion();
+
+
+    void setMedia(QMediaContent url);
+    void play();
+
+    QMediaPlayer* mediaPlayer();
+
+public slots:
+
+        /// Set the crosshair color
+        void setCrosshairColor(const QColor& color);
+
+        /// Set the crosshair line thickness
+        void setCrosshairLineThickness(int thickness);
+
+
+
+        /// Disable the capability to move the cross-hair by double-clicking
+        void setCrosshairLocked(bool doLock = true);
+
+        void setCurrentName(QString);
+         void setTilt(QString tilt);
+
+         void setX(QString x);
+         void setY(QString y);
+         void setZ(QString z);
+         void setRotation(QString rotation);
 
 
 signals:
@@ -92,7 +118,7 @@ signals:
     void mouseEditPressed(const QPointF& position);
     /// Emitted when the right mouse button is pressed, in edit mode
     void mouseEditRightPressed(const QPointF& position);
-    /// Emitted when the left mouse buTOPLEFTtton is pressed, in shift mode
+    /// Emitted when the left mouse button is pressed, in shift mode
     void mouseShiftPressed(const QPointF& position);
     /// Emitted when the right mouse button is pressed, in shift mode
     void mouseShiftRightPressed(const QPointF& position);
@@ -110,15 +136,13 @@ signals:
     void twoSelect();
     void beamChanged(QObject*);
 
+    void updateShapes(int);
+
 
 public slots:
 
 	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
-	void setCrosshairPosition(const QPointF& pos) {
-        crosshairX_ = pos.x();
-		crosshairY_ = pos.y();
-		reviewCrosshairLinePositions();
-	}
+    void setCrosshairPosition(const QPointF& pos);
 
 	/// Set the pen used to draw the crosshair lines
 	void setCrosshairPen(const QPen& pen);
@@ -129,16 +153,91 @@ public slots:
     void setCameraModel(AMCameraConfiguration*);
 
     void intersection();
+protected slots:
+    void updateCurrentShape();
+
+protected slots:
+    /// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved
+    void reviewCrosshairLinePositions();
+
+    /// handles mouse events on the graphics view
+    void mousePressHandler(QPointF position);
+    void mouseRightClickHandler(QPointF position);
+    void mouseLeftReleaseHandler(QPointF position);
+    void mouseRightReleaseHandler(QPointF position);
+    void mouseDoubleClickHandler();
+
+     void toggleDistortion();
+
+     /// manages changing the selection
+     void currentSelectionChanged();
+
+
+
+
+    /// added mouse move event
+    void mouseMoveHandler(QPointF position);
+
+
+    /// Used to set the current mode selected on the toolbar
+
+    void setDrawMode();
+    void setMoveMode();
+    void setEditMode();
+    void setShiftMode();
+    void setOperationMode();
+    void setGroupMode();
+
+    void setMotorCoordinatePressed();
+
+
+protected:
+
+    /// Add and remove shapes from the scene
+    void addNewShape();
+    void deleteShape();
+
+
+
+    void createGroupRectangle();
+
+    void destroyGroupRectangle();
+
+
+
+
+
+
+
+
+	/// We catch resize events and re-position the crosshair lines as required
+	void resizeEvent(QResizeEvent *event);
+
+
+    void createIntersectionShapes(QVector<QPolygonF>);
+
+    void clearIntersections();
+
+
+
 
 
 
 
 protected:
-	double crosshairX_, crosshairY_;
-	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
-    static const QColor BORDERCOLOUR;
-    static const QColor ACTIVEBORDERCOLOUR;
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP};
+
+    QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
+
+    AMShapeDataSetGraphicsView *shapeScene_;
+
+    AMShapeDataView *shapeView_;
+
+    AMCameraConfigurationView *cameraConfiguration_;
+
+    QColor borderColour_;
+    QColor activeBorderColour_;
 
 
 
@@ -159,49 +258,32 @@ protected:
     /// the index of the currently selected item
     int current_;
 
+    /// Indicates that the second press of a double-click has happened
+    bool doubleClickInProgress_;
+
     QVector<QGraphicsPolygonItem*> intersections_;
 
-    /// Add and remove shapes from the scene
-    void addNewShape();
-    void deleteShape();
 
-    /// manages changing the selection
-    void currentSelectionChanged();
+    /// crosshair control bar
 
-    void createGroupRectangle();
+    QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
+    AMColorPickerButton2* crosshairColorPicker_;
+    QSlider* crosshairThicknessSlider_;
 
-    void destroyGroupRectangle();
-
-
-
-	/// Re-implemented to emit signals for mouse events
-	virtual void mousePressEvent(QMouseEvent *e);
-	virtual void mouseReleaseEvent(QMouseEvent *e);
-	virtual void mouseDoubleClickEvent(QMouseEvent *e);
-
-
-    /// added mouse move event
-    virtual void mouseMoveEvent(QMouseEvent *e);
-
-	/// Indicates that the second press of a double-click has happened
-	bool doubleClickInProgress_;
-
-
-	/// We catch resize events and re-position the crosshair lines as required
-	void resizeEvent(QResizeEvent *event);
-
-	/// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.
-	QPointF mapSceneToVideo(const QPointF& sceneCoordinate) const;
-
-    void createIntersectionShapes(QVector<QPolygonF>);
-
-    void clearIntersections();
-
-
-
-protected slots:
-	/// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved
-	void reviewCrosshairLinePositions();
+    /// Mode buttons
+    QPushButton* drawButton_;
+    QPushButton* moveButton_;
+    QPushButton* editButton_;
+    QPushButton* shiftButton_;
+    QPushButton* operationButton_;
+    QPushButton* groupButton_;
+    /// Motor coordinate control
+    QLineEdit* motorXEdit_;
+    QLineEdit* motorYEdit_;
+    QLineEdit* motorZEdit_;
+    QLineEdit* motorREdit_;
+    /// Motor coordinate set button
+    QPushButton* setMotorCoordinate_;
 
 
 

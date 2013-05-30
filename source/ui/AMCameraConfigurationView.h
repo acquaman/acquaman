@@ -15,7 +15,7 @@ class AMCameraConfigurationView : public QWidget
 {
     Q_OBJECT
 public:
-    AMCameraConfigurationView(QWidget *parent = 0);
+    AMCameraConfigurationView(AMCameraConfiguration *cameraConfiguration = 0, QWidget *parent = 0);
 
     /// Accessors
     double positionX();

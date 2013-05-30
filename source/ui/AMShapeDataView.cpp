@@ -5,9 +5,15 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-AMShapeDataView::AMShapeDataView(QWidget *parent) :
+#include <QDebug>
+
+AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     QWidget(parent)
 {
+    if(shapeModel == 0)
+        shapeModel_ = new AMShapeData();
+    else
+        shapeModel_ = shapeModel;
 
     /// Set up GUI
 
@@ -33,14 +39,17 @@ AMShapeDataView::AMShapeDataView(QWidget *parent) :
 
     /// Make Connections
 
-    connect(nameEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(nameChanged(QString)));
-    connect(tiltEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(tiltChanged(QString)));
-    connect(xEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(xChanged(QString)));
-    connect(yEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(yChanged(QString)));
-    connect(zEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(zChanged(QString)));
-    connect(rotationEdit_, SIGNAL(textChanged(QString)), this, SIGNAL(rotationChanged(QString)));
-    connect(setCoordinate_, SIGNAL(clicked()), this, SIGNAL(setCoordinate()));
+    connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
+    connect(tiltEdit_, SIGNAL(textChanged(QString)), this, SLOT(tiltChanged(QString)));
+    connect(rotationEdit_, SIGNAL(textChanged(QString)), this, SLOT(rotationChanged(QString)));
+
+    connect(xEdit_, SIGNAL(textChanged(QString)), this, SLOT(xChanged(QString)));
+    connect(yEdit_, SIGNAL(textChanged(QString)), this, SLOT(yChanged(QString)));
+    connect(zEdit_, SIGNAL(textChanged(QString)), this, SLOT(zChanged(QString)));
+
+    connect(setCoordinate_,SIGNAL(clicked()), this, SIGNAL(setCoordinate()));
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
+
 
 }
 
@@ -73,3 +82,103 @@ void AMShapeDataView::setRotation(QString rotation)
 {
     rotationEdit_->setText(rotation);
 }
+
+void AMShapeDataView::setShapeData(AMShapeData *shapeData)
+{
+    shapeModel_ = shapeData;
+    update();
+}
+
+void AMShapeDataView::nameChanged(QString name)
+{
+    qDebug()<<"Here in nameChanged";
+    if(isValid())
+        shapeModel_->setName(name);
+}
+
+void AMShapeDataView::tiltChanged(QString tilt)
+{
+    if(isValid())
+    {
+        shapeModel_->setTilt(tilt.toDouble());
+        emit updateShapes();
+    }
+}
+
+void AMShapeDataView::xChanged(QString xString)
+{
+    if(isValid())
+    {
+        double x = xString.toDouble();
+        QVector3D coordinate = shapeModel_->centerCoordinate();
+        coordinate.setX(x);
+        shapeModel_->shiftTo(coordinate);
+        emit updateShapes();
+    }
+}
+
+void AMShapeDataView::yChanged(QString yString)
+{
+    if(isValid())
+    {
+        double y = yString.toDouble();
+        QVector3D coordinate = shapeModel_->centerCoordinate();
+        coordinate.setY(y);
+        shapeModel_->shiftTo(coordinate);
+        emit updateShapes();
+    }
+}
+
+void AMShapeDataView::zChanged(QString zString)
+{
+    if(isValid())
+    {
+        double z = zString.toDouble();
+        QVector3D coordinate = shapeModel_->centerCoordinate();
+        coordinate.setZ(z);
+        shapeModel_->shiftTo(coordinate);
+        emit updateShapes();
+    }
+}
+
+
+void AMShapeDataView::rotationChanged(QString rotation)
+{
+    if(isValid())
+    {
+        shapeModel_->setRotation(rotation.toDouble());
+        emit updateShapes();
+    }
+}
+
+
+
+void AMShapeDataView::update()
+{
+    if(isValid())
+    {
+        qDebug()<<"Updating data view";
+        nameEdit_->setText(shapeModel_->name());
+        tiltEdit_->setText(QString::number(shapeModel_->tilt()));
+        QVector3D coordinate = shapeModel_->centerCoordinate();
+        xEdit_->setText(QString::number(coordinate.x()));
+        yEdit_->setText(QString::number(coordinate.y()));
+        zEdit_->setText(QString::number(coordinate.z()));
+        rotationEdit_->setText(QString::number(shapeModel_->rotation()));
+    }
+
+}
+
+bool AMShapeDataView::isValid()
+{
+    if(shapeModel_ == 0)
+        return false;
+    else if(shapeModel_->count() <= 0)
+    {
+        qDebug()<<shapeModel_->count();
+        return false;
+    }
+    return true;
+}
+
+

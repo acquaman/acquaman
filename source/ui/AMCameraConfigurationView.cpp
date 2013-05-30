@@ -13,11 +13,13 @@
 #include <QSlider>
 #include "ui/AMBeamConfigurationView.h"
 
-AMCameraConfigurationView::AMCameraConfigurationView(QWidget *parent) :
+AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *cameraConfiguration, QWidget *parent) :
     QWidget(parent)
 {
-
-    cameraModel_ = new AMCameraConfiguration();
+    if(cameraConfiguration == 0)
+        cameraModel_ = new AMCameraConfiguration();
+    else
+        cameraModel_ = cameraConfiguration;
     AMDatabase *dbSGM = AMDatabase::database("user");
     QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", "defaultConfiguration");
     if(matchIDs.count() == 0)

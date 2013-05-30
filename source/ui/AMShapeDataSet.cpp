@@ -34,6 +34,8 @@ double const AMShapeDataSet::Y_XMOVEMENT = -0.001015967;
 AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     QObject(parent)
 {
+    crosshair_ = QPointF(0.5,0.5);
+    crosshairLocked_ = false;
     index_ = -1;
     beamModel_ = new AMBeamConfiguration();
 
@@ -54,11 +56,56 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     }
 }
 
+double AMShapeDataSet::crosshairX()
+{
+    return crosshair_.x();
+}
+
+double AMShapeDataSet::crosshairY()
+{
+    return crosshair_.y();
+}
+
+QPointF AMShapeDataSet::crosshair()
+{
+    return crosshair_;
+}
+
+bool AMShapeDataSet::crosshairLocked()
+{
+    return crosshairLocked_;
+}
+
+AMCameraConfiguration *AMShapeDataSet::cameraConfiguration()
+{
+    return cameraModel_;
+}
+
+void AMShapeDataSet::setCrosshairX(double x)
+{
+    crosshair_.setX(x);
+}
+
+void AMShapeDataSet::setCrosshairY(double y)
+{
+    crosshair_.setY(y);
+}
+
+void AMShapeDataSet::setCrosshair(QPointF crosshair)
+{
+    crosshair_ = crosshair;
+}
+
+void AMShapeDataSet::setCrosshairLocked(bool locked)
+{
+    crosshairLocked_ = locked;
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMShapeDataSet::startRectangle(QPointF position)
 {
-    qDebug()<<"Here in startRectangle";
+
     index_++;
     QVector<QVector3D> newShape;
     QVector3D coordinate[RECTANGLE_POINTS];
@@ -441,10 +488,7 @@ QPointF AMShapeDataSet::transformVector(QPointF vector, QVector3D coordinate)
 {
     double focalLength = cameraModel_->cameraFocalLength();
     double distance = depth(coordinate);
-    qDebug()<<"Focal Length:"<<focalLength;
-    qDebug()<<"Depth"<<distance;
     double scale = focalLength/distance;
-    qDebug()<<"Scaling factor"<<scale;
     QPointF newVector = vector*scale;
     return newVector;
 }
@@ -542,21 +586,22 @@ QPointF AMShapeDataSet::coordinateTransform(QPointF coordinate)
 
 }
 
+/// \todo fix \todo
 /// applies the rotation to the shape
 QPolygonF AMShapeDataSet::applyRotation(QPolygonF shape, int index)
 {
     if(shape.isEmpty()) return shape;
-    double distance = depth(shapeList_[index].coordinate(TOPLEFT));
     double rotation = shapeList_[index].rotation();
-    double length = (shape.at(TOPRIGHT).x() - shape.at(TOPLEFT).x())/2;
+    QVector3D center = shapeList_[index].centerCoordinate();\
+    double distance = depth(center);
     QPolygonF polygon;
-    polygon<<getRotatedPoint(shape.first(),distance,rotation, QPointF(shape.first().x()+length,shape.first().y()));
+    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
     shape.remove(0);
-    polygon<<getRotatedPoint(shape.first(),distance,rotation, QPointF(shape.first().x()-length,shape.first().y()));
+    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
     shape.remove(0);
-    polygon<<getRotatedPoint(shape.first(),distance,rotation, QPointF(shape.first().x()-length,shape.first().y()));
+    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
     shape.remove(0);
-    polygon<<getRotatedPoint(shape.first(),distance,rotation, QPointF(shape.first().x()+length,shape.first().y()));
+    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
     shape.remove(0);
     polygon<<polygon.first();
     return polygon;
@@ -564,21 +609,108 @@ QPolygonF AMShapeDataSet::applyRotation(QPolygonF shape, int index)
 }
 
 /// finds the new coordinate of a point, given its coordinate, rotation, and center point
-QPointF AMShapeDataSet::getRotatedPoint(QPointF point, double depth, double rotation, QPointF center)
+QPointF AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center)
 {
+    QVector3D direction(0,0,1);
+    point = rotateCoordinate(point,center,direction,rotation);
+//    double distance = depth(center);
+//    qDebug()<<"OldPoint"<<point;
+//    QVector3D radius = point - center;
+//    //qDebug()<<"Original radius"<<radius;
+//    double z = radius.z();
+//    radius.setZ(0);
+//    double r = radius.length();
+//    double alpha = acos(radius.x()/r);
+//    double theta = alpha + rotation;
+//    radius.setX(r*cos(theta));
+//    radius.setY(r*sin(theta));
+//    radius.setZ(z);
+//    point = center + radius;
+//   // qDebug()<<"New Radius"<<radius;
+//    qDebug()<<"NewPoint"<<point;
 
-    QVector3D coordinate = transform2Dto3D(point,depth);
-    QVector3D newCenter = transform2Dto3D(center,depth);
-    QVector3D direction = newCenter - coordinate;
-    ///should be parallel to the x axis
-    QVector3D newX = ((1 - cos(rotation))*direction);
-    QVector3D zDirection(0,0,-1*direction.x());
-    QVector3D newZ = sin(rotation)*zDirection;
-    coordinate = coordinate + newX + newZ;
-    return transform3Dto2D(coordinate);
+    return transform3Dto2D(point);
+
+//    QVector3D coordinate = transform2Dto3D(point,depth);
+//    QVector3D newCenter = transform2Dto3D(center,depth);
+//    QVector3D direction = newCenter - coordinate;
+//    ///should be parallel to the x axis
+//    QVector3D newX = ((1 - cos(rotation))*direction);
+//    QVector3D zDirection(0,0,-1*direction.x());
+//    QVector3D newZ = sin(rotation)*zDirection;
+//    coordinate = coordinate + newX + newZ;
+//    return transform3Dto2D(coordinate);
 
 
 
+
+
+}
+
+QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation)
+{
+    double u = direction.x();
+    double v = direction.y();
+    double w = direction.z();
+
+    double x = coordinate.x();
+    double y = coordinate.y();
+    double z = coordinate.z();
+
+
+    /// Each new coordinate has three terms - a 1-cos, a cos and a sin term
+    /// to simplify the math, they will be computed as 3D vectors
+    /// the xyz components will be the dot product of the terms with the trig terms
+
+    QVector3D trigTerms(1-cos(rotation),cos(rotation),sin(rotation));
+
+    /// as well, all terms contain a -coordinate.direction component
+
+    double directionTerm = QVector3D::dotProduct(coordinate,direction);
+
+    /// all terms also use centerXdirection and directionXcoordinate
+    QVector3D cXd = QVector3D::crossProduct(center,direction);
+    QVector3D dXc = QVector3D::crossProduct(direction,coordinate);
+
+
+    QVector3D terms [3];
+    terms[0] = QVector3D((pow(v,2)+pow(w,2)),(-1*u*v),(-1*u*w));
+    terms[1] = QVector3D((-1*v*u),(pow(u,2)+pow(w,2)),(-1*v*w));
+    terms[2] = QVector3D((-1*u*w),(-1*v*w),(pow(u,2)+pow(v,2)));
+
+    double coord [3];
+    coord[0] = x;
+    coord[1] = y;
+    coord[2] = z;
+
+    double centerXDistance[3];
+    centerXDistance[0] = cXd.x();
+    centerXDistance[1] = cXd.y();
+    centerXDistance[2] = cXd.z();
+
+    double distanceXCoordinate [3];
+    distanceXCoordinate[0] = dXc.x();
+    distanceXCoordinate[1] = dXc.y();
+    distanceXCoordinate[2] = dXc.z();
+
+    double directions [3];
+    directions[0] = direction.x();
+    directions[1] = direction.y();
+    directions[2] = direction.z();
+    ///complete the direction must do u*directionTerm
+
+
+    QVector3D vector [3];
+    double component [3];
+
+    for(int i = 0; i < 3; i++)
+    {
+        vector[i] = QVector3D(QVector3D::dotProduct(center,terms[i]) + directions[i]*directionTerm,coord[i],centerXDistance[i]+distanceXCoordinate[i]);
+        component[i] = QVector3D::dotProduct(vector[i],trigTerms);
+    }
+
+    QVector3D rotatedCoordinate(component[0],component[1],component[2]);
+    return rotatedCoordinate;
 
 
 }
@@ -717,6 +849,15 @@ double AMShapeDataSet::tilt(int index)
         index = current_;
     }
     return shapeList_[index].tilt();
+}
+
+AMShapeData *AMShapeDataSet::currentShape(int index)
+{
+    if(-1 == index)
+    {
+        index = current_;
+    }
+    return &shapeList_[index];
 }
 
 /// sets the tilt for the given index
@@ -1153,7 +1294,7 @@ void AMShapeDataSet::updateAllShapes()
 QVector3D AMShapeDataSet::centerCoordinate(int index)
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < TOPCLOSE; i++)//only want the first four points
+    for(int i = 0; i < 4; i++)//only want the first four points
     {
         center += shapeList_[index].coordinate(i);
     }
@@ -1163,10 +1304,7 @@ QVector3D AMShapeDataSet::centerCoordinate(int index)
 /// shifts all coordinates by  the specifies shift
 void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
 {
-    for(int k = 0; k < RECTANGLE_POINTS; k++)
-    {
-        shapeList_[index].setCoordinate(shapeList_[index].coordinate(k) + shift,k);
-    }
+    shapeList_[index].shift(shift);
     updateShape(index);
 }
 
@@ -1181,7 +1319,6 @@ void AMShapeDataSet::oneSelect()
         }
         beamModel_->setPositionOne(newBeamPosition);
 
-        qDebug()<<"Emitting beamChanged";
         emit beamChanged(beamModel_);
     }
     else
@@ -1200,7 +1337,6 @@ void AMShapeDataSet::twoSelect()
             newBeamPosition<<shapeList_[current_].coordinate(i);
         }
         beamModel_->setPositionTwo(newBeamPosition);
-        qDebug()<<"Emitting beamChanged";
         emit beamChanged(beamModel_);
     }
     else
@@ -1211,19 +1347,17 @@ void AMShapeDataSet::twoSelect()
 
 bool AMShapeDataSet::findIntersections()
 {
-    qDebug()<<"Finding intersection";
     if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
     {
-        qDebug()<<"intersection is empty";
+        qDebug()<<"beam is invalid";
         return false;
     }
-    qDebug()<<"Intersection is not empty()";
     intersections_.clear();
     for(int i = 0; i <= index_; i++)
     {
         QVector<QVector3D> intersectionShape = findIntersectionShape(i);
         if(!intersectionShape.isEmpty())
-        intersections_<<intersectionScreenShape(intersectionShape);
+        intersections_<<intersectionScreenShape(intersectionShape, i);
 
     }
      return true;
@@ -1237,7 +1371,6 @@ QVector<QPolygonF> AMShapeDataSet::intersections()
 QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
 {
     /// First find the shape on the same plane
-    qDebug()<<"Here in find intersection shape";
     QVector<QVector3D> shape;
     QVector3D topLeft = shapeList_[index].coordinate(TOPLEFT);
     QVector3D heightVector = topLeft - shapeList_[index].coordinate(BOTTOMLEFT);
@@ -1269,14 +1402,12 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
         }
         else
         {
-            qDebug()<<"Calculating distance";
             distance[i] = numerator/denominator;
         }
         shape<<l0[i]+lHat[i]*distance[i];
     }
     shape<<shape.first();
 
-    qDebug()<<"Finding the overlap";
     /// need to find if the two shapes have any overlap
     /// transpose to h,w,n coordinates, and throw away the n part, to get two polygons
     // h component for each shape = h^(dot)coordinate
@@ -1307,7 +1438,6 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     originalShape<<originalShape.first();
 
     QPolygonF intersection = originalShape.intersected(beamShape);
-    qDebug()<<"Intersection shape is:";
     if(intersection.isEmpty()) return QVector<QVector3D>();
 
     QVector3D point;
@@ -1321,23 +1451,28 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     }
     intersectionShape<<intersectionShape.at(0);
 
-    qDebug()<<"Shape found";
-    qDebug()<<intersectionShape;
-
     return intersectionShape;
 
 
 }
 
-QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D)
+QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D, int index)
 {
-    qDebug()<<"Converting intersection to screen coordinates";
     QPolygonF shape;
     for(int i = 0; i < 4; i++)
     {
-        shape<<coordinateTransform(transform3Dto2D(shape3D[i]));
+        shape<<(transform3Dto2D(shape3D[i]));
     }
     shape<<shape.first();
-    return shape;
+    shape  = subShape(index, shape);
+    QPolygonF finalShape;
+    for(int i = 0; i < 4; i++)
+    {
+        finalShape<<coordinateTransform(shape.first());
+        shape.remove(0);
+    }
+    finalShape<<finalShape.first();
+    return finalShape;
 
 }
+

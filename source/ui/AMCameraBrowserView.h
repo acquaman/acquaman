@@ -14,6 +14,7 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMCameraBrowser;
+
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMCameraBrowserView : public QWidget
 {
@@ -22,17 +23,16 @@ public:
     explicit AMCameraBrowserView(AMCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
     AMCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
+    /// \todo put into model
     /// Returns a list of the URLs of all the video sources in the history (including the current one)
     QStringList previousSourceURLs() const;
 
+    /// \todo put into model
     /// Returns the current video source URL that is currently playing (or loading, or attempting to play, etc.)
     QString currentSourceURL() const;
 
 
 signals:
-    void coordinateChange(double,double,double);
-
-
 
 public slots:
 
@@ -43,36 +43,14 @@ public slots:
     /// Add a new video source URL and start playing it, or switch to an existing source URL (if this already exists in the history)
     void setCurrentSourceURL(const QString& sourceURL);
 
-    /// Mode Selection
-    void drawMode();
-    void moveMode();
-    void editMode();
-    void shiftMode();
-    void operationMode();
-    void groupMode();
-
-    /// Respond to change in motor coordinates
-    void setMotorCoordinate();
-
-    /// Change the shape information
-    void nameChanged(QString);
-    void currentChanged();
-
-    void xChanged(QString);
-    void yChanged(QString);
-    void zChanged(QString);
-    void rotationChanged(QString);
-    void tiltChanged(QString);
-    void setCoordinate();
-    void applyDistortion();
-
+    /// for loading crosshair settings
     void setCrosshairColor(QColor crosshairColor);
     void setCrosshairLineThickness(int crosshairThickness);
     void setCrosshairVisible(bool crosshairVisible);
     void setCrosshairLocked(bool crosshairLocked);
     void setCrosshairPosition(QPointF crosshairPosition);
 
-
+    /// for saving crosshair settings
     QColor crosshairColor() const;
     int crosshairLineThickness() const;
     bool crosshairVisible() const;
@@ -80,45 +58,16 @@ public slots:
     bool crosshairLocked() const;
 
 protected:
-    void init(AMCameraBrowser *, bool);
+    /// initialization
+    void init(AMCameraBrowser *);
 
 protected:
 
     AMCameraBrowser *cameraBrowser_;
 
     AMShapeDataSetView* videoWidget_;
-    QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
-    AMColorPickerButton2* crosshairColorPicker_;
+
     QComboBox* sourceComboBox_;
-    QSlider* crosshairThicknessSlider_;
-
-
-
-    /// Mode buttons
-    QPushButton* drawButton_;
-    QPushButton* moveButton_;
-    QPushButton* editButton_;
-    QPushButton* shiftButton_;
-    QPushButton* operationButton_;
-    QPushButton* groupButton_;
-    /// Motor coordinate control
-    QLineEdit* motorXEdit_;
-    QLineEdit* motorYEdit_;
-    QLineEdit* motorZEdit_;
-    QLineEdit* motorREdit_;
-    /// Motor coordinate set button
-    QPushButton* setMotorCoordinate_;
-
-
-
-    /// Configuration Window
-    AMCameraConfigurationView* cameraConfiguration_;
-
-    /// AMShapeDataView \todo move to AMShapeDataSetView
-    AMShapeDataView *shapeView_ ;
-
-
-
 
 
 

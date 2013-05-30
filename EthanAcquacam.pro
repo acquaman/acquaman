@@ -86,7 +86,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMShapeDataSet.h \
     source/ui/AMShapeDataSetView.h \
     source/ui/AMShapeDataView.h \
-    source/ui/AMCameraBrowser.h
+    source/ui/AMCameraBrowser.h \
+    source/ui/AMShapeDataSetGraphicsView.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -108,5 +109,6 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMShapeDataSet.cpp \
     source/ui/AMShapeDataSetView.cpp \
     source/ui/AMShapeDataView.cpp \
-    source/ui/AMCameraBrowser.cpp
+    source/ui/AMCameraBrowser.cpp \
+    source/ui/AMShapeDataSetGraphicsView.cpp
 

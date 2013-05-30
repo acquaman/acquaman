@@ -10,42 +10,136 @@
 #include "ui/AMShapeDataSet.h"
 #include "ui/AMCameraConfiguration.h"
 
+#include <QSlider>
+#include <QCheckBox>
+#include "AMColorPickerButton2.h"
 
-QColor const AMShapeDataSetView::BORDERCOLOUR = QColor(Qt::red);
-QColor const AMShapeDataSetView::ACTIVEBORDERCOLOUR = QColor(Qt::blue);
+#include <QBoxLayout>
+#include <QLabel>
+
+#include "AMShapeDataSetGraphicsView.h"
+
+#include "AMShapeDataView.h"
+#include <QPushButton>
+#include <QLineEdit>
+
+#include "AMCameraConfigurationView.h"
+#include <QColor>
 
 
-AMShapeDataSetView::AMShapeDataSetView(QWidget *parent, bool useOpenGlViewport) :
-    AMOverlayVideoWidget2(parent, useOpenGlViewport)
+
+
+
+
+AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent, bool useOpenGlViewport) :
+    QWidget(parent)
 {
-    shapeModel_ = new AMShapeDataSet();
-	crosshairX_ = 0.5;
-	crosshairY_ = 0.5;
+
+    shapeModel_ = shapeModel;
+    shapeView_ = new AMShapeDataView();// pass in shapeData
+    shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
+    cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
+
+    borderColour_ = QColor(Qt::red);
+
+    activeBorderColour_ = QColor(Qt::blue);
+
+
+    ///GUI Setup
+    QFrame* crosshairFrame = new QFrame();
+    QHBoxLayout* chl = new QHBoxLayout();
+    chl->setContentsMargins(12,4,12,4);
+    chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
+    chl->addSpacing(20);
+    chl->addWidget(new QLabel("Color:"));
+    chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton2(Qt::red));
+    chl->addWidget(new QLabel("Line:"));
+    chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
+    crosshairThicknessSlider_->setMaximumWidth(80);
+    crosshairThicknessSlider_->setRange(1,6);
+    crosshairThicknessSlider_->setValue(1);
+    chl->addSpacing(20);
+    chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+    chl->addStretch();
+    crosshairFrame->setLayout(chl);
+    showCrosshairCheckBox_->setChecked(true);
+
+    QFrame* toolFrame  = new QFrame();
+    QHBoxLayout* tfl = new QHBoxLayout();
+    tfl->setContentsMargins(12,4,12,4);
+    tfl->addWidget(drawButton_ = new QPushButton("Draw"));
+    tfl->addSpacing(20);
+    tfl->addWidget(moveButton_ = new QPushButton("Move"));
+    tfl->addSpacing(20);
+    tfl->addWidget(editButton_ = new QPushButton("Edit"));
+    tfl->addSpacing(20);
+    tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
+    tfl->addSpacing(20);
+    tfl->addWidget(operationButton_ = new QPushButton("Operation"));
+    tfl->addSpacing(20);
+    tfl->addWidget(groupButton_ = new QPushButton("Group"));
+    tfl->addSpacing(20);
+    tfl->addWidget(motorXEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorYEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorZEdit_ = new QLineEdit());
+    tfl->addSpacing(10);
+    tfl->addWidget(motorREdit_ = new QLineEdit());
+    tfl->addSpacing(20);
+    tfl->addWidget(setMotorCoordinate_ = new QPushButton("Set"));
+    tfl->addStretch(20);
+    toolFrame->setLayout(tfl);
+
+
+
+    QVBoxLayout *vbl = new QVBoxLayout();
+    vbl->setContentsMargins(0,0,0,0);
+    vbl->addWidget(crosshairFrame);
+    vbl->addWidget(shapeScene_);
+    vbl->addWidget(shapeView_);
+    vbl->addWidget(toolFrame);
+    setLayout(vbl);
+
+
+
+
+
     index_ = 0;
     groupRectangleActive_= false;
 
 
-    QPen pen(BORDERCOLOUR);
+    QPen pen(borderColour_);
 
     QBrush brush(QColor(Qt::transparent));
 
-	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
-	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);
+    crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
+    crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
 
     QPolygonF polygon(QRectF(5, 5, 0, 0));
 
-    shapes_.insert(index_, scene()->addPolygon(polygon,pen,brush));
+    shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
 
 	reviewCrosshairLinePositions();
 
 	doubleClickInProgress_ = false;
 
-	connect(videoItem_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
+    connect(this, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
 
 	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
 	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
 
     //mouse is not held down before signal connected
+
+    // mouse signals to be handled
+    connect(shapeScene_, SIGNAL(mousePressed(QPointF)), this, SLOT(mousePressHandler(QPointF)));
+    connect(shapeScene_, SIGNAL(mouseRightClicked(QPointF)), this, SLOT(mouseRightClickHandler(QPointF)));
+    connect(shapeScene_, SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(mouseLeftReleaseHandler(QPointF)));
+    connect(shapeScene_, SIGNAL(mouseRightReleased(QPointF)), this, SLOT(mouseRightReleaseHandler(QPointF)));
+    connect(shapeScene_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(mouseDoubleClickHandler()));
+    connect(shapeScene_, SIGNAL(mouseMoved(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
+
+    connect(this, SIGNAL(currentChanged()), this, SLOT(currentSelectionChanged()));
 
     //mouse press -
     connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
@@ -65,19 +159,62 @@ AMShapeDataSetView::AMShapeDataSetView(QWidget *parent, bool useOpenGlViewport) 
     connect(this, SIGNAL(oneSelect()), shapeModel_, SLOT(oneSelect()));
     connect(this, SIGNAL(twoSelect()), shapeModel_, SLOT(twoSelect()));
     connect(shapeModel_, SIGNAL(beamChanged(QObject*)), this, SIGNAL(beamChanged(QObject*)));
+
+
+    /// crosshair bar
+    connect(crosshairColorPicker_, SIGNAL(colorChanged(QColor)), this, SLOT(setCrosshairColor(QColor)));
+    connect(showCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairVisible(bool)));
+    connect(lockCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairLocked(bool)));
+    connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
+
+
+    /// operations bar
+    connect(drawButton_, SIGNAL(clicked()), this, SLOT(setDrawMode()));
+    connect(moveButton_, SIGNAL(clicked()), this, SLOT(setMoveMode()));
+    connect(editButton_, SIGNAL(clicked()), this, SLOT(setEditMode()));
+    connect(shiftButton_, SIGNAL(clicked()), this, SLOT(setShiftMode()));
+    connect(operationButton_, SIGNAL(clicked()), this, SLOT(setOperationMode()));
+    connect(groupButton_, SIGNAL(clicked()), this, SLOT(setGroupMode()));
+    connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
+
+    /// shape view
+//    connect(shapeView_, SIGNAL(nameChanged(QString)), this, SLOT(setCurrentName(QString)));
+//    connect(shapeView_, SIGNAL(tiltChanged(QString)), this, SLOT(setTilt(QString)));
+
+    connect(shapeView_, SIGNAL(xChanged(QString)), this, SLOT(setX(QString)));
+    connect(shapeView_, SIGNAL(yChanged(QString)), this, SLOT(setY(QString)));
+    connect(shapeView_, SIGNAL(zChanged(QString)), this, SLOT(setZ(QString)));
+//    connect(shapeView_, SIGNAL(rotationChanged(QString)), this, SLOT(setRotation(QString)));
+    connect(shapeView_, SIGNAL(setCoordinate()), this, SLOT(reviewCrosshairLinePositions()));
+
+    connect(shapeView_, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
+
+    connect(this, SIGNAL(beamChanged(QObject*)), cameraConfiguration_, SIGNAL(beamChanged(QObject*)));
+    connect(cameraConfiguration_, SIGNAL(intersection()), this, SLOT(intersection()));
+
+    connect(cameraConfiguration_, SIGNAL(update(AMCameraConfiguration*)), this, SLOT(setCameraModel(AMCameraConfiguration*)));
+
+    connect(cameraConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
+    connect(cameraConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
+
+    connect(shapeView_, SIGNAL(updateShapes()), this, SLOT(updateCurrentShape()));
+    connect(this, SIGNAL(updateShapes(int)), shapeModel_, SLOT(updateShape(int)));
+
+    cameraConfiguration_->updateAll();
+
 }
 
 
 void AMShapeDataSetView::reviewCrosshairLinePositions()
 {
 
-	QSizeF viewSize = videoItem_->size();
+    QSizeF viewSize = shapeScene_->size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
-	QSizeF videoSize = videoItem_->nativeSize();
+    QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
 
-    // scale the video size to the view size, obeying the transformatiotretchn mode
+    // scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
-	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+    scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
 
     shapeModel_->setViewSize(viewSize);
     shapeModel_->setScaledSize(scaledSize);
@@ -92,15 +229,14 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
     // activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
 
-	qreal xSceneCoord = activeRect.left() + crosshairX_*activeRect.width();
-	qreal ySceneCoord = activeRect.top() + crosshairY_*activeRect.height();
+    qreal xSceneCoord = activeRect.left() + shapeModel_->crosshairX()*activeRect.width();
+    qreal ySceneCoord = activeRect.top() + shapeModel_->crosshairY()*activeRect.height();
 
 
 
     crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
-    qDebug()<<"Looking for new Shapes";
     if(index_ < shapeModel_->shapeListLength())
     {
         while(index_<shapeModel_->shapeListLength())
@@ -135,19 +271,28 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
     }
 
    /// print the intersection shapes
-    {
-        if(!intersections_.isEmpty())
-        {
             intersection();
-        }
-    }
+
+
 
 
 }
 
+void AMShapeDataSetView::setCrosshairPosition(const QPointF &pos)
+{
+    shapeModel_->setCrosshair(pos);
+}
+
+
 QPen AMShapeDataSetView::crosshairPen() const
 {
 	return crosshairXLine_->pen();
+}
+
+
+QPointF AMShapeDataSetView::crosshairPosition() const
+{
+    return shapeModel_->crosshair();
 }
 
 bool AMShapeDataSetView::crosshairVisible() const
@@ -178,11 +323,23 @@ void AMShapeDataSetView::setShiftMode()
 void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
+
+    cameraConfiguration_->show();
+
 }
 
 void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
+}
+
+void AMShapeDataSetView::setMotorCoordinatePressed()
+{
+    double x = motorXEdit_->text().toDouble();
+    double y = motorYEdit_->text().toDouble();
+    double z = motorZEdit_->text().toDouble();
+    double r = motorREdit_->text().toDouble();
+    setMotorCoordinate(x,y,z,r);
 }
 
 void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double r)
@@ -264,39 +421,40 @@ double AMShapeDataSetView::tilt()
     return shapeModel_->tilt();
 }
 
-void AMShapeDataSetView::setX(double x)
+void AMShapeDataSetView::setX(QString x)
 {
 
    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
    double y = currentCoordinate.y();
    double z = currentCoordinate.z();
-   shapeModel_->setCoordinates(x,y,z);
+   shapeModel_->setCoordinates(x.toDouble(),y,z);
 }
 
-void AMShapeDataSetView::setY(double y)
+void AMShapeDataSetView::setY(QString y)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double x = currentCoordinate.x();
     double z = currentCoordinate.z();
-    shapeModel_->setCoordinates(x,y,z);
+    shapeModel_->setCoordinates(x,y.toDouble(),z);
 }
 
-void AMShapeDataSetView::setZ(double z)
+void AMShapeDataSetView::setZ(QString z)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double y = currentCoordinate.y();
     double x = currentCoordinate.x();
-    shapeModel_->setCoordinates(x,y,z);
+    shapeModel_->setCoordinates(x,y,z.toDouble());
 }
 
-void AMShapeDataSetView::setRotation(double rotation)
+void AMShapeDataSetView::setRotation(QString rotation)
 {
-    shapeModel_->setRotation(rotation);
+    shapeModel_->setRotation(rotation.toDouble());
 }
 
-void AMShapeDataSetView::setTilt(double tilt)
+void AMShapeDataSetView::setTilt(QString tilt)
 {
-    shapeModel_->setTilt(tilt);
+    double newTilt = tilt.toDouble();
+    shapeModel_->setTilt(newTilt);
 }
 
 void AMShapeDataSetView::moveCurrentToCoordinate()
@@ -310,6 +468,50 @@ void AMShapeDataSetView::toggleDistortion()
     reviewCrosshairLinePositions();
 }
 
+void AMShapeDataSetView::setMedia(QMediaContent url)
+{
+    shapeScene_->mediaPlayer()->setMedia(url);
+}
+
+void AMShapeDataSetView::play()
+{
+    shapeScene_->mediaPlayer()->play();
+}
+
+QMediaPlayer* AMShapeDataSetView::mediaPlayer()
+{
+    return shapeScene_->mediaPlayer();
+}
+
+void AMShapeDataSetView::setCrosshairColor(const QColor &color)
+{
+    QPen pen = crosshairPen();
+    pen.setColor(color);
+   setCrosshairPen(pen);
+
+    if(crosshairColorPicker_->color() != color)
+    {
+        crosshairColorPicker_->blockSignals(true);
+        crosshairColorPicker_->setColor(color);
+        crosshairColorPicker_->blockSignals(false);
+    }
+}
+
+void AMShapeDataSetView::setCrosshairLineThickness(int thickness)
+{
+        QPen pen = crosshairPen();
+        pen.setWidth(thickness);
+        setCrosshairPen(pen);
+
+        if(crosshairThicknessSlider_->value() != thickness)
+        {
+            crosshairThicknessSlider_->blockSignals(true);
+            crosshairThicknessSlider_->setValue(thickness);
+            crosshairThicknessSlider_->blockSignals(false);
+        }
+
+}
+
 void AMShapeDataSetView::setCrosshairPen(const QPen &pen)
 {
 	crosshairXLine_->setPen(pen);
@@ -320,6 +522,25 @@ void AMShapeDataSetView::setCrosshairVisible(bool crosshairVisible)
 {
 	crosshairXLine_->setVisible(crosshairVisible);
     crosshairYLine_->setVisible(crosshairVisible);
+
+        if(showCrosshairCheckBox_->isChecked() != crosshairVisible)
+        {
+            showCrosshairCheckBox_->blockSignals(true);
+            showCrosshairCheckBox_->setChecked(crosshairVisible);
+            showCrosshairCheckBox_->blockSignals(false);
+        }
+}
+
+void AMShapeDataSetView::setCrosshairLocked(bool doLock)
+{
+        shapeModel_->setCrosshairLocked(doLock);
+
+        if(lockCrosshairCheckBox_->isChecked() != doLock)
+        {
+            lockCrosshairCheckBox_->blockSignals(true);
+            lockCrosshairCheckBox_->setChecked(doLock);
+            lockCrosshairCheckBox_->blockSignals(false);
+        }
 }
 
 void AMShapeDataSetView::setCameraModel(AMCameraConfiguration *model)
@@ -337,16 +558,20 @@ void AMShapeDataSetView::intersection()
     }
 }
 
+void AMShapeDataSetView::updateCurrentShape()
+{
+    emit updateShapes(current_);
+}
+
 void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
 {
     intersections_.clear();
     for(int i =0; !shapes.isEmpty(); i++)
     {
-        qDebug()<<"Attempting to draw intersections";
-        QPen pen(BORDERCOLOUR);
+        QPen pen(QColor(Qt::yellow));
         QBrush brush(QColor(Qt::yellow));
         QPolygonF polygon(QRectF(5,5,20,20));
-        intersections_<<scene()->addPolygon(polygon,pen,brush);
+        intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
         intersections_[i]->setPolygon(shapes.first());
         shapes.remove(0);
     }
@@ -356,7 +581,7 @@ void AMShapeDataSetView::clearIntersections()
 {
     while(!intersections_.isEmpty())
     {
-        scene()->removeItem(intersections_.first());
+        shapeScene_->scene()->removeItem(intersections_.first());
         intersections_.remove(0);
     }
 }
@@ -366,102 +591,112 @@ void AMShapeDataSetView::clearIntersections()
 
 void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
 {
-    AMOverlayVideoWidget2::resizeEvent(event);
+
+    shapeScene_->resizeEvent(event);
 
 	reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::mousePressEvent(QMouseEvent *e)
+void AMShapeDataSetView::mousePressHandler(QPointF position)
 {
-    AMOverlayVideoWidget2::mousePressEvent(e);
-    if(e->button() == Qt::LeftButton && mode_ == DRAW)
+    if(mode_ == DRAW)
     {
-		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
+        emit mousePressed((position));
         connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
 
     }
-    else if(e->button() == Qt::LeftButton && mode_ == MOVE)
+    else if(mode_ == MOVE)
     {
-        emit mouseMovePressed(mapSceneToVideo(mapToScene(e->pos())));
+        emit mouseMovePressed((position));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMovedMoveMode(QPointF)), shapeModel_,SLOT(moveCurrentShape(QPointF)));
         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
-    else if (e->button() == Qt::RightButton && mode_ == MOVE)
+
+    else if(mode_ == EDIT)
     {
-        emit mouseMoveRightPressed(mapSceneToVideo(mapToScene(e->pos())));
-        currentSelectionChanged();
-        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(rotateRectangle(QPointF)));
-        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
-    }
-    else if(e->button() == Qt::LeftButton && mode_ == EDIT)
-    {
-        emit mouseEditPressed(mapSceneToVideo(mapToScene(e->pos())));
+        emit mouseEditPressed((position));
         currentSelectionChanged();
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
-    else if (e->button() == Qt::RightButton && mode_ == EDIT)
-    {
-        emit mouseEditRightPressed(mapSceneToVideo(mapToScene(e->pos())));
-        currentSelectionChanged();
-        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomShape(QPointF)));
-        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
-    }
 
-    else if(e->button() == Qt::LeftButton && mode_ == SHIFT)
+
+    else if(mode_ == SHIFT)
     {
-        emit mouseShiftPressed(mapSceneToVideo(mapToScene(e->pos())));
+        emit mouseShiftPressed((position));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(moveAllShapes(QPointF)));
         connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
     }
-    else if (e->button() == Qt::RightButton && mode_ == SHIFT)
+
+    else if (mode_ == OPERATION)
     {
-        emit mouseShiftRightPressed(mapSceneToVideo(mapToScene(e->pos())));
-        connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomAllShapes(QPointF)));
-        connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
-    }
-    else if (e->button() == Qt::LeftButton && mode_ == OPERATION)
-    {
-        emit mouseOperationSelect(mapSceneToVideo(mapToScene(e->pos())));
-        emit mouseOperationPressed(mapSceneToVideo(mapToScene(e->pos())),QPointF(crosshairX_,crosshairY_));
+        emit mouseOperationSelect((position));
+        emit mouseOperationPressed((position),shapeModel_->crosshair());
         currentSelectionChanged();
     }
-    else if (e->button() == Qt::LeftButton && mode_ == GROUP)
+    else if (mode_ == GROUP)
     {
-        emit mouseGroupPressed(mapSceneToVideo(mapToScene(e->pos())));
+        emit mouseGroupPressed((position));
         connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishGroupRectangle(QPointF)));
         createGroupRectangle();
 
-    }
-    else if (e->button() == Qt::RightButton && mode_ == GROUP)
-    {
-        shapeModel_->placeGrid(mapSceneToVideo(mapToScene(e->pos())));
-        reviewCrosshairLinePositions();
-        currentSelectionChanged();
-
-    }
-    else if (e->button() == Qt::RightButton)
-        emit mouseRightClicked(mapSceneToVideo(mapToScene(e->pos())));
-    else{
-        AMOverlayVideoWidget2::mousePressEvent(e);
-        return;
     }
 
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::mouseReleaseEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
+{
+        if (mode_ == MOVE)
+        {
+            emit mouseMoveRightPressed(position);
+            currentSelectionChanged();
+            connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(rotateRectangle(QPointF)));
+            connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+        }
+
+        else if (mode_ == EDIT)
+        {
+            emit mouseEditRightPressed(position);
+            currentSelectionChanged();
+            connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomShape(QPointF)));
+            connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+        }
+
+        else if (mode_ == SHIFT)
+        {
+            emit mouseShiftRightPressed((position));
+            connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomAllShapes(QPointF)));
+            connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
+        }
+
+        else if ( mode_ == GROUP)
+        {
+            shapeModel_->placeGrid((position));
+            reviewCrosshairLinePositions();
+            currentSelectionChanged();
+
+        }
+        else emit mouseRightClicked((position));
+
+        reviewCrosshairLinePositions();
+
+}
+
+void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
 {
 
 
-	if(e->button() == Qt::LeftButton) {
-		if(doubleClickInProgress_) {
-			emit mouseDoubleClicked(mapSceneToVideo(mapToScene(e->pos())));
+
+        if(doubleClickInProgress_)
+        {
+            emit mouseDoubleClicked((position));
 			doubleClickInProgress_ = false;
 		}
-		else {
-			emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
+        else
+        {
+            emit mouseReleased((position));
 		}
 
         disconnect(shapeModel_, SLOT(finishRectangle(QPointF)));
@@ -478,68 +713,42 @@ void AMShapeDataSetView::mouseReleaseEvent(QMouseEvent *e)
         reviewCrosshairLinePositions();
 
 
-	}
-    else if(e->button() == Qt::RightButton)
-    {
-        emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
-        disconnect(shapeModel_, SLOT(zoomAllShapes(QPointF)));
-        disconnect(this, SIGNAL(currentChanged()));
-        disconnect(shapeModel_, SLOT(rotateRectangle(QPointF)));
-        disconnect(shapeModel_, SLOT(zoomShape(QPointF)));
-        reviewCrosshairLinePositions();
-    }
-    else AMOverlayVideoWidget2::mouseReleaseEvent(e);
 }
 
-void AMShapeDataSetView::mouseDoubleClickEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
 {
+    emit mouseReleased((position));
+    disconnect(shapeModel_, SLOT(zoomAllShapes(QPointF)));
+    disconnect(this, SIGNAL(currentChanged()));
+    disconnect(shapeModel_, SLOT(rotateRectangle(QPointF)));
+    disconnect(shapeModel_, SLOT(zoomShape(QPointF)));
+    reviewCrosshairLinePositions();
+}
 
 
-	if(e->button() == Qt::LeftButton) {
+
+void AMShapeDataSetView::mouseDoubleClickHandler()
+{
 		doubleClickInProgress_ = true;
-	}
-    else   AMOverlayVideoWidget2::mouseDoubleClickEvent(e);
-
 }
 
-void AMShapeDataSetView::mouseMoveEvent(QMouseEvent *e)
+void AMShapeDataSetView::mouseMoveHandler(QPointF position)
 {
-    AMOverlayVideoWidget2::mouseMoveEvent(e);
 
-    if(e->MouseMove)
+    emit mouseMoved((position));
+    if(mode_ == MOVE)
     {
-        emit mouseMoved(mapSceneToVideo(mapToScene(e->pos())));
-        if(mode_ == MOVE)
-        {
-            emit mouseMovedMoveMode(mapSceneToVideo(mapToScene(e->pos())));
-        }
-        else if(mode_ == DRAW)
-        {
-            currentSelectionChanged();
-        }
-
+        emit mouseMovedMoveMode((position));
     }
+    else if(mode_ == DRAW)
+    {
+        currentSelectionChanged();
+    }
+
      reviewCrosshairLinePositions();
 }
 
-QPointF AMShapeDataSetView::mapSceneToVideo(const QPointF &sceneCoordinate) const
-{
-	// for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
-	QSizeF viewSize = videoItem_->size();
-	QSizeF scaledSize = videoItem_->nativeSize();
-    scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
 
-	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
-									   (viewSize.height()-scaledSize.height())/2),
-							   scaledSize);
-
-	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
-
-	qreal yScene = (sceneCoordinate.y() - activeRect.top())/activeRect.height();
-	qreal xScene = (sceneCoordinate.x() - activeRect.left())/activeRect.width();
-
-    return QPointF(xScene, yScene);
-}
 
 
 
@@ -548,32 +757,39 @@ QPointF AMShapeDataSetView::mapSceneToVideo(const QPointF &sceneCoordinate) cons
 void AMShapeDataSetView::addNewShape()
 {
     index_++;
-    QPen pen(BORDERCOLOUR);
+    QPen pen(borderColour_);
     QBrush brush(QColor(Qt::transparent));
     QPolygonF polygon(QRectF(5,5,20,20));
-    shapes_.insert(index_, scene()->addPolygon(polygon,pen,brush));
+    shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
 }
 
 /// Remove a rectangle from the scene
 void AMShapeDataSetView::deleteShape()
 {
     QGraphicsPolygonItem* polygon = shapes_[index_];
-    scene()->removeItem(shapes_[index_]);
+    shapeScene_->scene()->removeItem(shapes_[index_]);
     shapes_.remove(index_);
     index_--;
     delete polygon;
 }
 
-/// change the currently selected item, outline it in yellow
+/// change the currently selected item, outline it in blue?
 void AMShapeDataSetView::currentSelectionChanged()
 {
-    emit currentChanged();
+//    emit currentChanged();
+    shapeView_->setShapeData(shapeModel_->currentShape());
+    motorREdit_->setText(QString::number(motorRotation()));
+    motorXEdit_->setText(QString::number(motorX()));
+    motorYEdit_->setText(QString::number(motorY()));
+    motorZEdit_->setText(QString::number(motorZ()));
+
+
     if(shapeModel_->isValid(current_))
-        shapes_[current_]->setPen(BORDERCOLOUR);
+        shapes_[current_]->setPen(borderColour_);
     current_ = shapeModel_->currentIndex();
     if(shapeModel_->isValid(current_))
     {
-        shapes_[current_]->setPen(ACTIVEBORDERCOLOUR);
+        shapes_[current_]->setPen(activeBorderColour_);
     }
 }
 
@@ -582,13 +798,13 @@ void AMShapeDataSetView::createGroupRectangle()
     QBrush penBrush(QColor(Qt::magenta));
     QPen pen(penBrush,1,Qt::DotLine);
     QBrush brush(Qt::transparent);
-    groupRectangle_ = scene()->addPolygon(QPolygonF(QRectF(5,5,20,20)),pen,brush);
+    groupRectangle_ = shapeScene_->scene()->addPolygon(QPolygonF(QRectF(5,5,20,20)),pen,brush);
     groupRectangleActive_ = true;
 
 }
 
 void AMShapeDataSetView::destroyGroupRectangle()
 {
-    scene()->removeItem(groupRectangle_);
+    shapeScene_->scene()->removeItem(groupRectangle_);
     groupRectangleActive_ = false;
 }

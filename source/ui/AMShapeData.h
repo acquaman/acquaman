@@ -36,6 +36,12 @@ public:
     void setWidth(double width);
     void setRotation(double rotation);
     void setTilt(double tilt);
+    QVector3D centerCoordinate();
+
+    void shift(QVector3D shift);
+    void shiftTo(QVector3D shift);
+
+    int count();
 
 protected:
     QPolygonF* shape_;
