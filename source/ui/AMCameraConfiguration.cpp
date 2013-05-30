@@ -70,6 +70,12 @@ double AMCameraConfiguration::cameraRotation()
     return cameraRotation_;
 }
 
+#include <QDebug>
+bool AMCameraConfiguration::loadFromDb(AMDatabase *db, int id){
+    qDebug() << "Calling loadFromDb in AMCameraConfiguration " << db->connectionName() << id;
+    return AMDbObject::loadFromDb(db, id);
+}
+
 void AMCameraConfiguration::setCameraPosition(QVector3D position)
 {
     cameraPosition_ = position;

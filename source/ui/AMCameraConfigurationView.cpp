@@ -17,7 +17,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     QWidget(parent)
 {
     if(cameraConfiguration == 0)
-        cameraModel_ = new AMCameraConfiguration();
+        qDebug()<<"Null camera configuration";
     else
         cameraModel_ = cameraConfiguration;
     AMDatabase *dbSGM = AMDatabase::database("user");
@@ -38,11 +38,15 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     else
     {
         qDebug()<<"Fetching the default configuration from the database";
+        qDebug()<<cameraModel_->cameraCenter();
+        qDebug()<<dbSGM->connectionName();
+        qDebug()<<matchIDs.first();
+        if(cameraModel_)
+            qDebug() << "Not a null pointer";
+        else
+            qDebug( )<< "A null pointer?";
         cameraModel_->loadFromDb(dbSGM,matchIDs.first());
-//        cameraModel_->setCameraRotation(0);
-//        cameraModel_->storeToDb(dbSGM);
-
-
+        //cameraModel_->loadFromDb(AMDatabase::database("user"),1);
     }
 
     setWindowTitle("Configuration");
@@ -126,7 +130,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     shl->addStretch();
     selectionFrame->setLayout(shl);
 
-    beamConfiguration_ = new AMBeamConfigurationView();
+//    beamConfiguration_ = new AMBeamConfigurationView();
 
 
 
@@ -135,7 +139,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     vbl->addWidget(fovFrame);
     vbl->addWidget(rotationFrame);
     vbl->addWidget(selectionFrame);
-    vbl->addWidget(beamConfiguration_);
+//    vbl->addWidget(beamConfiguration_);
     setLayout(vbl);
 
     populateComboBox(1);
@@ -164,10 +168,10 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     connect(configurationSelection_, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSelection(int)));
      connect(overwriteButton_, SIGNAL(clicked()), this, SLOT(overwriteConfiguration()));
 
-     connect(beamConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
-     connect(beamConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
-     connect(this, SIGNAL(beamChanged(QObject*)), beamConfiguration_, SLOT(beamChanged(QObject*)));
-     connect(beamConfiguration_, SIGNAL(intersection()), this, SIGNAL(intersection()));
+//     connect(beamConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
+//     connect(beamConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
+//     connect(this, SIGNAL(beamChanged(QObject*)), beamConfiguration_, SLOT(beamChanged(QObject*)));
+//     connect(beamConfiguration_, SIGNAL(intersection()), this, SIGNAL(intersection()));
 
 }
 

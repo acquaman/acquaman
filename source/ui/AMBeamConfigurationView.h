@@ -13,7 +13,7 @@ class AMBeamConfigurationView : public QWidget
 {
     Q_OBJECT
 public:
-    AMBeamConfigurationView(QWidget *parent = 0);
+    AMBeamConfigurationView(AMBeamConfiguration *beam, QWidget *parent = 0);
 
 public slots:
     void beamChanged(QObject*);

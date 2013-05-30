@@ -74,6 +74,7 @@ AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QStr
 }
 
 AMDatabase* AMDatabase::database(const QString& connectionName) {
+    qDebug() << "Here in AMDatabase::database";
 	QMutexLocker ml(&databaseLookupMutex_);
 
 	QHash<QString, AMDatabase*>::const_iterator i = connectionName2Instance_.find(connectionName);

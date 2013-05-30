@@ -15,6 +15,7 @@ class AMShapeDataView;
 class QPushButton;
 class QLineEdit;
 class AMCameraConfigurationView;
+class AMBeamConfigurationView;
 class QColor;
 
 /// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
@@ -35,6 +36,9 @@ public:
     QPointF crosshairPosition() const;
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
+
+    /// returns whether the crosshair is locked
+    bool crosshairLocked();
 
 
 
@@ -134,7 +138,6 @@ signals:
     // for beam configuring
     void oneSelect();
     void twoSelect();
-    void beamChanged(QObject*);
 
     void updateShapes(int);
 
@@ -165,7 +168,7 @@ protected slots:
     void mouseRightClickHandler(QPointF position);
     void mouseLeftReleaseHandler(QPointF position);
     void mouseRightReleaseHandler(QPointF position);
-    void mouseDoubleClickHandler();
+    void mouseDoubleClickHandler(QPointF position);
 
      void toggleDistortion();
 
@@ -234,7 +237,11 @@ protected:
 
     AMShapeDataView *shapeView_;
 
+    QFrame *configurationWindow_;
+
     AMCameraConfigurationView *cameraConfiguration_;
+
+    AMBeamConfigurationView *beamConfiguration_;
 
     QColor borderColour_;
     QColor activeBorderColour_;

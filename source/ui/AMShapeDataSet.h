@@ -26,39 +26,59 @@ public:
 
 
     /// Accessors
-    double crosshairX();
-    double crosshairY();
-    QPointF crosshair();
-    bool crosshairLocked();
 
-    AMCameraConfiguration *cameraConfiguration();
-    /// viewSize and scaled_size used for computing coordinates, get values from AMCrosshairOverlayVideoWidget
-    QSizeF viewSize(){return viewSize_;}
-    QSizeF scaledSize(){return scaledSize_;}
+    /// member accessors -----------------------------------------------------------------------------------
 
     /// get the current index of the rectangle List (number of rectangles - 1)
-    int shapeListLength(){return index_;}
+    int shapeListLength();
+
+    int currentIndex();
+
+    AMCameraConfiguration *cameraConfiguration();
+
+    AMBeamConfiguration *beamConfiguration();
+
+    /// returns the current grouping rectangle
+    QPolygonF groupRectangle();
+
+    /// gets each component of the motor coordinate
+    double motorX();
+    double motorY();
+    double motorZ();
+
+    double motorRotation();
+
+
+    QVector<QPolygonF> intersections();
+
+    QPointF crosshair();
+    double crosshairX();
+    double crosshairY();
+
+    bool crosshairLocked();
+
+    /// viewSize and scaled_size used for computing coordinates, get values from AMShapeDataSetGraphicsView
+    QSizeF viewSize();
+
+    QSizeF scaledSize();
+
+    /// ------------------------------------------------------------------------------------------------
+
+
+    /// other accessors
+    //not really used, accessed by shapeDataView from shapeData instead
     QString currentName();
     QString currentInfo();
-    int currentIndex();
+
     double rotation(int index = -1);
     double tilt(int index = -1);
 
     AMShapeData *currentShape(int index = -1);
 
-    /// returns the current grouping rectangle
-    QPolygonF groupRectangle();
-
-
 
     /// get the shape with given index
     QPolygonF shape(int index);
 
-    /// gets each component of the motor coordinate
-    double motorRotation();
-    double motorX();
-    double motorY();
-    double motorZ();
 
     /// returns the coordinate of the given index
     QVector3D coordinate(int index);
@@ -66,50 +86,62 @@ public:
     /// returns the coordinate of the current index
     QVector3D currentCoordinate();
 
-    QVector<QPolygonF> intersections();
+    /// -----------------------------------------------------------------------------------
+
 
 
 
 
 
     /// Mutators
-    void setCrosshairX(double x);
-    void setCrosshairY(double y);
-    void setCrosshair(QPointF crosshair);
-    void setCrosshairLocked(bool locked);
-
-
-    void setViewSize(QSizeF viewSize);
-    void setScaledSize(QSizeF scaledSize);
-
-
-    void setCurrentName(QString name);
-
-    void setCurrentInfo(QString info);
 
     void setCurrentIndex(int current);
 
-    void setRotation(double rotation, int index = -1);
-    void setTilt(double tilt, int index = -1);
-
-    /// sets the motor cooridinates
-    void setMotorCoordinate(double x, double y, double z, double r);
     /// sets the current camera model
     void setCameraModel(AMCameraConfiguration*);
 
+    /// sets the current beam model
+    void setBeamModel(AMBeamConfiguration*);
 
-
-    /// other things
-    bool isValid(int index);
+    /// sets the motor cooridinates
+    void setMotorCoordinate(double x, double y, double z, double r);
 
     /// toggles distortion on or off
     void toggleDistortion();
 
+    /// crosshair
+    void setCrosshair(QPointF crosshair);
+    void setCrosshairX(double x);
+    void setCrosshairY(double y);
 
+    void setCrosshairLocked(bool locked);
+
+    void setViewSize(QSizeF viewSize);
+
+    void setScaledSize(QSizeF scaledSize);
+
+
+
+    // not really used (done through shapedataview/shapedata)
+    void setCurrentName(QString name);
+    void setCurrentInfo(QString info);
+    void setRotation(double rotation, int index = -1);
+    void setTilt(double tilt, int index = -1);
+
+
+
+
+
+
+    /// public functions
+    bool isValid(int index);
 
 
 
 public slots:
+
+    /// Mouse interactions--------------------------------------------------------------------------------
+
     /// start position of rectangle
     void startRectangle(QPointF);
 
@@ -143,14 +175,6 @@ public slots:
     /// apply zoom, by moving mouse up/down
     void zoomShape(QPointF);
 
-    /// sets the shapes coordinate
-    void setCoordinates(QVector3D, int);
-
-    /// set coordinates with doubles rather than a QVector3D
-    void setCoordinates(double x, double y, double z, int index = -1);
-
-
-
     /// shifts all shapes so that position coincides with crosshairPosition
     void shiftToPoint(QPointF position, QPointF crosshairPosition);
 
@@ -160,8 +184,11 @@ public slots:
     /// creates the group rectangle
     void startGroupRectangle(QPointF position);
 
-    /// places a grid (for distortion calibration)
-    void placeGrid(QPointF position);
+
+    /// --------------------------------------------------------------------------------
+
+
+
 
     /// updates the shape of the given index (it will not change or move until this is called)
     void updateShape(int index);
@@ -169,31 +196,37 @@ public slots:
     /// updates all the shapes
     void updateAllShapes();
 
+    /// sets the shapes coordinate
+    void setCoordinates(QVector3D, int);
 
+    /// set coordinates with doubles rather than a QVector3D
+    void setCoordinates(double x, double y, double z, int index = -1);
 
-    /// shifts all coordinates by a given amount
-    void shiftCoordinates(QVector3D shift, int index);
+    /// places a grid (for distortion calibration)
+    void placeGrid(QPointF position);
 
+    /// selects one of the beam shapes
     void oneSelect();
+    /// selects the second beam shape
     void twoSelect();
-
+    /// look for intersections with the current beam
     bool findIntersections();
 
 
 
 
 signals:
+    /// used to change the beam
     void beamChanged(QObject*);
+
 protected:
 
 
-    /// functions for getting the transformed locations of each rectangle
-    QPointF shapeTopLeft(int index);
-    QPointF shapeBottomRight(int index);
+    /// Manipulations
 
 
-    /// transforms point to where you are actually clicking
-    QPointF coordinateTransform(QPointF);
+    /// shifts all coordinates by a given amount
+    void shiftCoordinates(QVector3D shift, int index);
 
     /// applies rotation to the shape at the given index
     QPolygonF applyRotation(QPolygonF shape, int index);
@@ -201,31 +234,16 @@ protected:
     /// rotate a single point
     QPointF getRotatedPoint(QVector3D point, double rotation, QVector3D center);
 
-    /// general rotation of a point about a point along the direction
-    QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation);
-
     /// applies tilt to the shape at the given index
     /// takes QPolygonF to stack with rotation
     QPolygonF applyTilt(QPolygonF shape, int index);
 
     /// gets a tilted point
-    QPointF getTiltedPoint(QPointF point, double z, double tilt, QPointF center);
+    QPointF getTiltedPoint(QVector3D point, double tilt, QVector3D center);
 
-    /// transforms the given point and depth to a 3D coordinate
-    /// based on the current camera model
-    QVector3D transform2Dto3D(QPointF point, double depth);
+    /// general rotation of a point about a point along the direction
+    QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation);
 
-    /// transforms a 3D vector to a 2D point, using current camera configuration
-    QPointF transform3Dto2D(QVector3D coordinate);
-
-    /// builds a rectangle from the specified points
-    QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
-
-    /// returns the size of the rectangle specified by the two points
-    QSizeF size(QPointF topLeft, QPointF bottomRight);
-
-    /// returns whether the shape at the given index contains the given point
-    bool contains(QPointF position,int index);
 
     /// rotates, tilts, and distorts the shape at index
     QPolygonF subShape(int index, QPolygonF shape);
@@ -242,6 +260,22 @@ protected:
     /// remove distortion from a point
     QPointF undistortPoint(QPointF point);
 
+    /// shifts scene to correspond to motor movement
+    void motorMovement(double x, double y, double z, double r);
+
+
+    /// Transformations
+
+    /// transforms point to where you are actually clicking
+    QPointF coordinateTransform(QPointF);
+
+    /// transforms the given point and depth to a 3D coordinate
+    /// based on the current camera model
+    QVector3D transform2Dto3D(QPointF point, double depth);
+
+    /// transforms a 3D vector to a 2D point, using current camera configuration
+    QPointF transform3Dto2D(QVector3D coordinate);
+
     /// scales a length based on distance
     double transformDimension(double dimension, QVector3D coordinate);
 
@@ -254,14 +288,30 @@ protected:
     /// invers scaling of vector
     QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
 
+    /// functions for getting the transformed locations of each rectangle
+    QPointF shapeTopLeft(int index);
+    QPointF shapeBottomRight(int index);
+
+
+
+
+    /// Helper functions
+
+    /// builds a rectangle from the specified points
+    QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
+
+    /// returns the size of the rectangle specified by the two points
+    QSizeF size(QPointF topLeft, QPointF bottomRight);
+
+    /// returns whether the shape at the given index contains the given point
+    bool contains(QPointF position,int index);
+
     /// finds the center of the polygon, assumes a rectangle
     QPointF findCenter(QPolygonF);
 
-    /// shifts scene to correspond to motor movement
-    void motorMovement(double x, double y, double z, double r);
-
     /// returns the depth of a given coordinate, based on camera model
     double depth(QVector3D);
+
     /// returns depth of a coordinate as a 3D vector
     QVector3D depthVector(QVector3D);
 
@@ -276,39 +326,21 @@ protected:
 
     /// Members
 
-    /// used for transforming points to where they actually appear
-    QSizeF viewSize_;
-    QSizeF scaledSize_;
-
-    /// defines the array positions of each point in a polygon rectangle
-    static const int TOPLEFT;
-    static const int TOPRIGHT;
-    static const int BOTTOMRIGHT;
-    static const int BOTTOMLEFT;
-    static const int TOPCLOSE;
-
-    /// the number of points in a rectangle
-    static const int RECTANGLE_POINTS;
-
-    /// constants for movement across the screen- used for approximation to actual distortion
-    static const double X_XMOVEMENT;
-    static const double X_YMOVEMENT;
-    static const double Y_YMOVEMENT;
-    static const double Y_XMOVEMENT;
-
-    /// highest current index
-    int index_;
-    /// index of the currently selected item
-    int current_;
-    /// vector for calculating shape movement
-    QPointF currentVector_;
-
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles
     QMap<int,AMShapeData> shapeList_;
 
-    /// mouse location at start of a zoom process
-    QPointF zoomPoint_;
+    /// highest current index
+    int index_;
+
+    /// index of the currently selected item
+    int current_;
+
+    /// the camera model
+    AMCameraConfiguration* cameraModel_;
+
+    /// the beam model
+    AMBeamConfiguration* beamModel_;
 
     /// Rectangle used for selecting a group of active rectangles
     QPolygonF groupRectangle_;
@@ -325,18 +357,41 @@ protected:
     /// if true show distortion
     bool distortion_;
 
-    /// the camera model
-    AMCameraConfiguration* cameraModel_;
-
-    /// the beam model
-    AMBeamConfiguration* beamModel_;
-
     /// intersections
     QVector<QPolygonF> intersections_;
 
     QPointF crosshair_;
 
     bool crosshairLocked_;
+
+
+    /// used for transforming points to where they actually appear
+    QSizeF viewSize_;
+    QSizeF scaledSize_;
+
+    /// vector for calculating shape movement
+    QPointF currentVector_;
+
+    /// mouse location at start of a zoom process
+    QPointF zoomPoint_;
+
+
+
+    /// defines the array positions of each point in a polygon rectangle
+    static const int TOPLEFT;
+    static const int TOPRIGHT;
+    static const int BOTTOMRIGHT;
+    static const int BOTTOMLEFT;
+    static const int TOPCLOSE;
+
+    /// the number of points in a rectangle
+    static const int RECTANGLE_POINTS;
+
+    /// constants for movement across the screen- used for approximation to actual distortion
+    static const double X_XMOVEMENT;
+    static const double X_YMOVEMENT;
+    static const double Y_YMOVEMENT;
+    static const double Y_XMOVEMENT;
 
 
 };

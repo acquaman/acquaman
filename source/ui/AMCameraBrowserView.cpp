@@ -147,32 +147,32 @@ void AMCameraBrowserView::setCrosshairLocked(bool crosshairLocked)
 
 void AMCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
 {
-    cameraBrowser_->setCrosshairPosition(crosshairPosition);
+    videoWidget_->setCrosshairPosition(crosshairPosition);
 }
 
 QColor AMCameraBrowserView::crosshairColor() const
 {
-    return cameraBrowser_->crosshairColor();
+    return videoWidget_->crosshairPen().color();
 }
 
 int AMCameraBrowserView::crosshairLineThickness() const
 {
-    return cameraBrowser_->crosshairLineThickness();
+    return videoWidget_->crosshairPen().width();
 }
 
 bool AMCameraBrowserView::crosshairVisible() const
 {
-    return cameraBrowser_->crosshairVisible();
+    return videoWidget_->crosshairVisible();
 }
 
 QPointF AMCameraBrowserView::crosshairPosition() const
 {
-    return cameraBrowser_->crosshairPosition();
+    return videoWidget_->crosshairPosition();
 }
 
 bool AMCameraBrowserView::crosshairLocked() const
 {
-    return cameraBrowser_->crosshairLocked();
+    return videoWidget_->crosshairLocked();
 }
 
 void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
@@ -203,8 +203,8 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
         vl->addWidget(sourceFrame, 0);
         setLayout(vl);
 
-        qDebug()<<"setting shaped data view";
-        cameraBrowser_->setShapeDataView(videoWidget_);
+        qDebug()<<"setting shape data view";
+
 
         // configure source combo box
         ///////////////////////////

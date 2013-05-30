@@ -36,6 +36,8 @@ public:
 
     double cameraRotation();
 
+    virtual bool loadFromDb(AMDatabase *db, int id);
+
     /// Mutators
 public slots:
     void setCameraPosition(QVector3D position);

@@ -24,6 +24,7 @@
 #include <QLineEdit>
 
 #include "AMCameraConfigurationView.h"
+#include "AMBeamConfigurationView.h"
 #include <QColor>
 
 
@@ -39,6 +40,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeView_ = new AMShapeDataView();// pass in shapeData
     shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
+    beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
     borderColour_ = QColor(Qt::red);
 
@@ -102,6 +104,17 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     setLayout(vbl);
 
 
+    configurationWindow_ = new QFrame();
+    QVBoxLayout *cvl = new QVBoxLayout();
+    cvl->setContentsMargins(0,0,0,0);
+    cvl->addWidget(cameraConfiguration_);
+    cvl->addWidget(beamConfiguration_);
+    configurationWindow_->setLayout(cvl);
+
+    configurationWindow_->setWindowTitle("Configuration");
+
+   // configurationWindow->show();
+
 
 
 
@@ -136,7 +149,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(shapeScene_, SIGNAL(mouseRightClicked(QPointF)), this, SLOT(mouseRightClickHandler(QPointF)));
     connect(shapeScene_, SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(mouseLeftReleaseHandler(QPointF)));
     connect(shapeScene_, SIGNAL(mouseRightReleased(QPointF)), this, SLOT(mouseRightReleaseHandler(QPointF)));
-    connect(shapeScene_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(mouseDoubleClickHandler()));
+    connect(shapeScene_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(mouseDoubleClickHandler(QPointF)));
     connect(shapeScene_, SIGNAL(mouseMoved(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
 
     connect(this, SIGNAL(currentChanged()), this, SLOT(currentSelectionChanged()));
@@ -158,7 +171,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     connect(this, SIGNAL(oneSelect()), shapeModel_, SLOT(oneSelect()));
     connect(this, SIGNAL(twoSelect()), shapeModel_, SLOT(twoSelect()));
-    connect(shapeModel_, SIGNAL(beamChanged(QObject*)), this, SIGNAL(beamChanged(QObject*)));
 
 
     /// crosshair bar
@@ -178,29 +190,26 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
 
     /// shape view
-//    connect(shapeView_, SIGNAL(nameChanged(QString)), this, SLOT(setCurrentName(QString)));
-//    connect(shapeView_, SIGNAL(tiltChanged(QString)), this, SLOT(setTilt(QString)));
-
     connect(shapeView_, SIGNAL(xChanged(QString)), this, SLOT(setX(QString)));
     connect(shapeView_, SIGNAL(yChanged(QString)), this, SLOT(setY(QString)));
     connect(shapeView_, SIGNAL(zChanged(QString)), this, SLOT(setZ(QString)));
-//    connect(shapeView_, SIGNAL(rotationChanged(QString)), this, SLOT(setRotation(QString)));
     connect(shapeView_, SIGNAL(setCoordinate()), this, SLOT(reviewCrosshairLinePositions()));
-
     connect(shapeView_, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
 
-    connect(this, SIGNAL(beamChanged(QObject*)), cameraConfiguration_, SIGNAL(beamChanged(QObject*)));
-    connect(cameraConfiguration_, SIGNAL(intersection()), this, SLOT(intersection()));
 
     connect(cameraConfiguration_, SIGNAL(update(AMCameraConfiguration*)), this, SLOT(setCameraModel(AMCameraConfiguration*)));
 
-    connect(cameraConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
-    connect(cameraConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
 
     connect(shapeView_, SIGNAL(updateShapes()), this, SLOT(updateCurrentShape()));
     connect(this, SIGNAL(updateShapes(int)), shapeModel_, SLOT(updateShape(int)));
 
     cameraConfiguration_->updateAll();
+
+    /// beam configuration
+    connect(beamConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
+    connect(beamConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
+    connect(beamConfiguration_, SIGNAL(intersection()),this, SLOT(intersection()));
+    connect(shapeModel_ ,SIGNAL(beamChanged(QObject*)), beamConfiguration_, SLOT(beamChanged(QObject*)));
 
 }
 
@@ -300,6 +309,11 @@ bool AMShapeDataSetView::crosshairVisible() const
     return crosshairXLine_->isVisible();
 }
 
+bool AMShapeDataSetView::crosshairLocked()
+{
+    return shapeModel_->crosshairLocked();
+}
+
 void AMShapeDataSetView::setDrawMode()
 {
     mode_ = DRAW;
@@ -324,7 +338,8 @@ void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
 
-    cameraConfiguration_->show();
+//    cameraConfiguration_->show();
+    configurationWindow_->show();
 
 }
 
@@ -727,9 +742,13 @@ void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
 
 
 
-void AMShapeDataSetView::mouseDoubleClickHandler()
+void AMShapeDataSetView::mouseDoubleClickHandler(QPointF position)
 {
 		doubleClickInProgress_ = true;
+        if(!crosshairLocked())
+        {
+            setCrosshairPosition(position);
+        }
 }
 
 void AMShapeDataSetView::mouseMoveHandler(QPointF position)

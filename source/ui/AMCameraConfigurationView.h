@@ -70,7 +70,7 @@ protected:
 
     AMCameraConfiguration* cameraModel_;
 
-    AMBeamConfigurationView* beamConfiguration_;
+//    AMBeamConfigurationView* beamConfiguration_;
 
 
 protected slots:
@@ -104,11 +104,11 @@ signals:
     void update(AMCameraConfiguration*);
 
     // for beam configuration
-    void oneSelect();
-    void twoSelect();
+//    void oneSelect();
+//    void twoSelect();
 
-    void beamChanged(QObject*);
-    void intersection();
+//    void beamChanged(QObject*);
+//    void intersection();
 
 
 };

@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "ui/AMBeamModel.h"
+#include "AMBeamConfiguration.h"
 #include <QVector>
 #include <QVector3D>
 #include "dataman/database/AMDbObjectSupport.h"
@@ -13,9 +13,14 @@
 #include <QDebug>
 
 
-AMBeamConfigurationView::AMBeamConfigurationView(QWidget *parent) :
+AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWidget *parent) :
     QWidget(parent)
 {
+
+    if(beam != 0)
+        beamModel_ = beam;
+    else beamModel_ = new AMBeamConfiguration();
+
     setWindowTitle("Beam configuration");
 
     // GUI SETUP
