@@ -77,20 +77,26 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 
 		if (dir.contains(QRegExp("^\\d{2,2}-\\d{4,4}$"))){
 
-			QFileInfo info("/home/vespers/users/" % dir);
+			QFileInfo info("/nas/vespers/users/" % dir);
 
 			if (!info.exists()){
 
-				QDir newPath("/home/vespers/users");
+				QDir newPath("/nas/vespers/users");
 				newPath.mkdir(dir);
 				newPath.cd(dir);
 			}
 
-			dir = "/home/vespers/users/" % dir;
+			dir = "/nas/vespers/users/" % dir;
 		}
 
 		if (!dir.endsWith("/"))
 			dir += "/";
+
+		if (!dir.contains("CCD Images")){
+
+			QDir makeNewDir(dir);
+			makeNewDir.mkdir("CCD Images");
+		}
 
 		if (!dir.contains("userData")){
 

@@ -147,9 +147,9 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	connect(experimentConfiguration_, SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageUpdated(bool)));
 
 	// The button for the pseudo-motor reset.
-	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
-	sampleStageLayout->addWidget(resetPseudoMotorsButton);
-	connect(resetPseudoMotorsButton, SIGNAL(clicked()), experimentConfiguration_, SLOT(resetPseudoMotors()));
+	resetPseudoMotorsButton_ = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
+	sampleStageLayout->addWidget(resetPseudoMotorsButton_);
+	connect(resetPseudoMotorsButton_, SIGNAL(clicked()), experimentConfiguration_, SLOT(resetHVNPseudoMotors()));
 
 	QGroupBox *sampleStageBox = new QGroupBox("Sample Stage");
 	sampleStageBox->setLayout(sampleStageLayout);
@@ -219,8 +219,19 @@ void VESPERSExperimentConfigurationView::onConfiguraitonChanged(int id)
 
 void VESPERSExperimentConfigurationView::onSampleStageChanged(int id)
 {
-	if (id == 0)
+	if (id == 0){
+
 		experimentConfiguration_->usePseudoMotors(false);
+		QMessageBox message(QMessageBox::Question, "Switching Sample Stages", "If you are actually switching to using the X & Z sample stage after using the H & V sample stage you must reset the pseudo motors.  Would you like to reset them now?");
+		QPushButton *resetLater = message.addButton("Later", QMessageBox::RejectRole);
+		QPushButton *resetNow = message.addButton("Reset now", QMessageBox::AcceptRole);
+		message.setEscapeButton(resetLater);
+		message.setDefaultButton(resetNow);
+		message.exec();
+
+		if (message.result() == QDialog::Accepted)
+			experimentConfiguration_->resetXYZPseudoMotors();
+	}
 	else{
 
 		experimentConfiguration_->usePseudoMotors(true);
@@ -232,11 +243,12 @@ void VESPERSExperimentConfigurationView::onSampleStageChanged(int id)
 		message.exec();
 
 		if (message.result() == QDialog::Accepted)
-			experimentConfiguration_->resetPseudoMotors();
+			experimentConfiguration_->resetHVNPseudoMotors();
 	}
 }
 
 void VESPERSExperimentConfigurationView::onSampleStageUpdated(bool usingPseudoMotors)
 {
 	sampleStage_->button(usingPseudoMotors ? 1 : 0)->setChecked(true);
+	resetPseudoMotorsButton_->setText(QString("Reset %1 Pseudo-Motors").arg(usingPseudoMotors ? "H & V" : "X & Z"));
 }

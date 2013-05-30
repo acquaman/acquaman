@@ -14,7 +14,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setMotor(VESPERS::Motor(VESPERS::H | VESPERS::V));
-	setCCDDetector(VESPERS::Roper);
+	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("3D Map");
 	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);

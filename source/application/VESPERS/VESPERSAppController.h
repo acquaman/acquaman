@@ -28,6 +28,7 @@ class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
 class VESPERSCCDDetectorView;
+class VESPERSPilatusCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
@@ -45,6 +46,10 @@ class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
+
+#define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
+#define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
+#define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -108,6 +113,8 @@ protected:
 	void cleanMoveImmediatelyAction();
 
 	// Things to do on startup.
+	/// Ensures that all the necessary directories exist before they are used and create errors.
+	bool ensureProgramStructure();
 	/// Registers all of the necessary classes that are VESPERS specific.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
@@ -130,7 +137,7 @@ protected:
 	/// Mar CCD detector view.
 	VESPERSCCDDetectorView *marCCDView_;
 	/// Pilatus CCD detector view.
-	VESPERSCCDDetectorView *pilatusCCDView_;
+	VESPERSPilatusCCDDetectorView *pilatusCCDView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;

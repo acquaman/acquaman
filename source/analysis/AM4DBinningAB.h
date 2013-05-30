@@ -1,31 +1,12 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef AM3DBINNINGAB_H
-#define AM3DBINNINGAB_H
+#ifndef AM4DBINNINGAB_H
+#define AM4DBINNINGAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
 #define AM3DMAGICNUMBER -1.493920384020
 
-/// This analysis block accepts a single 3D data source as input, and outputs a 2D data source by summing across a specified axis (within a region of interest).
-class AM3DBinningAB : public AMStandardAnalysisBlock
+/// This analysis block accepts a single 4D data source as input and outputs a 3D data source by summing across a specified axis (within a region of interest).
+class AM4DBinningAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
@@ -34,13 +15,13 @@ class AM3DBinningAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int sumRangeMax READ sumRangeMax WRITE setSumRangeMax)
 	Q_PROPERTY(QString analyzedName READ analyzedName WRITE setAnalyzedName)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=3D Binning Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=4D Binning Block")
 
 public:
-	/// Constructor. \c outputName is the name() for the output data source.
-	AM3DBinningAB(const QString &outputName, QObject *parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE AM3DBinningAB(AMDatabase* db, int id);
+	/// Constructor.  \c outputName is the name() for the output data source.
+	AM4DBinningAB(const QString &outputName, QObject *parent = 0);
+	/// This constructor is used to reload analysis blocks directly out of the database.
+	Q_INVOKABLE AM4DBinningAB(AMDatabase *db, int id);
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 
@@ -112,16 +93,25 @@ public:
 			case 0:
 				axes_[0] = inputSource_->axisInfoAt(1);
 				axes_[1] = inputSource_->axisInfoAt(2);
+				axes_[2] = inputSource_->axisInfoAt(3);
 				break;
 
 			case 1:
 				axes_[0] = inputSource_->axisInfoAt(0);
 				axes_[1] = inputSource_->axisInfoAt(2);
+				axes_[2] = inputSource_->axisInfoAt(3);
 				break;
 
 			case 2:
 				axes_[0] = inputSource_->axisInfoAt(0);
 				axes_[1] = inputSource_->axisInfoAt(1);
+				axes_[2] = inputSource_->axisInfoAt(3);
+				break;
+
+			case 3:
+				axes_[0] = inputSource_->axisInfoAt(0);
+				axes_[1] = inputSource_->axisInfoAt(1);
+				axes_[2] = inputSource_->axisInfoAt(2);
 				break;
 			}
 
@@ -185,8 +175,8 @@ protected:
 	void setInputSource();
 	/// helper function to clear the cachedValues_
 	void invalidateCache() {
-		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size*axes_.at(1).size) {
-			cachedValues_ = QVector<double>(axes_.at(0).size*axes_.at(1).size, AM3DMAGICNUMBER);	// everything in there is now AMNumber::Null.
+		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size*axes_.at(1).size*axes_.at(2).size) {
+			cachedValues_ = QVector<double>(axes_.at(0).size*axes_.at(1).size*axes_.at(2).size, AM3DMAGICNUMBER);	// everything in there is now AMNumber::Null.
 			cacheCompletelyInvalid_ = true;
 		}
 	}
@@ -225,4 +215,4 @@ protected:
 	bool canAnalyze_;
 };
 
-#endif // AM3DBINNINGAB_H
+#endif // AM4DBINNINGAB_H

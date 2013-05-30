@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
 {
@@ -50,16 +50,16 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
-	QPushButton *loadCCDButton = new QPushButton("Load Image");
+//	QPushButton *loadCCDButton = new QPushButton("Load Image");
 //	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
-	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
+//	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
 
-	image_ = new QLabel;
-	QPixmap pixmap = QPixmap(600, 600);
-	pixmap.fill(Qt::blue);
-	image_->setPixmap(pixmap);
+//	image_ = new QLabel;
+//	QPixmap pixmap = QPixmap(600, 600);
+//	pixmap.fill(Qt::blue);
+//	image_->setPixmap(pixmap);
 //	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFile()));
-	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
+//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -157,26 +157,27 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	acquisitionAndTemperatureLayout->addWidget(acquisitionBox);
 	acquisitionAndTemperatureLayout->addStretch();
 
-	QHBoxLayout *detectorLayout = new QHBoxLayout;
-	detectorLayout->addStretch();
-	detectorLayout->addLayout(acquisitionAndTemperatureLayout);
-	detectorLayout->addWidget(ccdGB);
-	detectorLayout->addStretch();
+	detectorLayout_ = new QVBoxLayout;
+	detectorLayout_->addStretch();
+	detectorLayout_->addLayout(acquisitionAndTemperatureLayout);
+	detectorLayout_->addWidget(ccdGB);
+	detectorLayout_->addStretch();
 
 	QHBoxLayout *horizontalSquishLayout = new QHBoxLayout;
 	horizontalSquishLayout->addStretch();
-	horizontalSquishLayout->addLayout(detectorLayout);
+	horizontalSquishLayout->addLayout(detectorLayout_);
 	horizontalSquishLayout->addStretch();
 
-	QVBoxLayout *masterLayout = new QVBoxLayout;
-	masterLayout->addWidget(topFrame);
-	masterLayout->addStretch();
-	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
-	masterLayout->addWidget(loadCCDButton);
-	masterLayout->addLayout(horizontalSquishLayout);
-	masterLayout->addStretch();
+	masterLayout_ = new QVBoxLayout;
+	masterLayout_->addWidget(topFrame);
+	masterLayout_->addStretch();
+//	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
+//	masterLayout->addWidget(loadCCDButton);
+//	masterLayout->addLayout(horizontalSquishLayout);
+	masterLayout_->addLayout(horizontalSquishLayout);
+	masterLayout_->addStretch();
 
-	setLayout(masterLayout);
+	setLayout(masterLayout_);
 
 	return true;
 }
@@ -293,73 +294,84 @@ void VESPERSCCDDetectorView::setAutoSave(int autoSave)
 	}
 }
 
-#include "MPlot/MPlotColorMap.h"
-#include <QTime>
-#include <QRgb>
-
-void VESPERSCCDDetectorView::displayCCDFileTest()
+void VESPERSCCDDetectorView::ccdPathEdited()
 {
-	QTime time1;
-	time1.start();
+	if (detector_->name() == "Roper CCD" && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
+		filePathEdit_->setText(filePathEdit_->text()+"\\");
 
-	QVector<int> data = detector_->imageData();
-	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+	else if ((detector_->name() == "Mar CCD" || detector_->name() == "Pilatus CCD") && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '/')
+		filePathEdit_->setText(filePathEdit_->text()+"/");
 
-	QTime time;
-	time.start();
+	detector_->setCCDPath(filePathEdit_->text());
+}
 
-	int maximum = data.at(0);
-	int minimum = data.at(0);
+//#include "MPlot/MPlotColorMap.h"
+//#include <QTime>
+//#include <QRgb>
 
-	for (int i = 0, size = data.size(); i < size; i++){
+//void VESPERSCCDDetectorView::displayCCDFileTest()
+//{
+//	QTime time1;
+//	time1.start();
 
-		if (data.at(i) < minimum)
-			minimum = data.at(i);
+//	QVector<int> data = detector_->imageData();
+//	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
 
-		if (data.at(i) > maximum)
-			maximum = data.at(i);
-	}
-	qDebug() << "Finding min and max:" << time.restart() << "ms";
-	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
-	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+//	QTime time;
+//	time.start();
 
-	int xSize = detector_->size().i();
-	int ySize = detector_->size().j();
+//	int maximum = data.at(0);
+//	int minimum = data.at(0);
 
-//	for (int i = 0; i < xSize; i++){
+//	for (int i = 0, size = data.size(); i < size; i++){
 
-//		int offset = i*ySize;
+//		if (data.at(i) < minimum)
+//			minimum = data.at(i);
 
-//		for (int j = 0; j < ySize; j++)
-//			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+//		if (data.at(i) > maximum)
+//			maximum = data.at(i);
 //	}
-	for (int y = 0; y < ySize; y++){
+//	qDebug() << "Finding min and max:" << time.restart() << "ms";
+//	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
+//	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
 
-		int offset = y*xSize;
-		QRgb *line = (QRgb *)image.scanLine(y);
+//	int xSize = detector_->size().i();
+//	int ySize = detector_->size().j();
 
-		for (int x = 0; x < xSize; x++)
-			line[x] = map.rgbAt(data.at(x + offset), range);
-	}
+////	for (int i = 0; i < xSize; i++){
 
-	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
+////		int offset = i*ySize;
 
-	QPixmap newImage;
-	newImage.convertFromImage(image);
-	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
-	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
-	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
-	image_->setPixmap(newImage);
+////		for (int j = 0; j < ySize; j++)
+////			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
+////	}
+//	for (int y = 0; y < ySize; y++){
 
-	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
-}
+//		int offset = y*xSize;
+//		QRgb *line = (QRgb *)image.scanLine(y);
 
-void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
-{
+//		for (int x = 0; x < xSize; x++)
+//			line[x] = map.rgbAt(data.at(x + offset), range);
+//	}
 
-}
+//	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
 
-void VESPERSCCDDetectorView::displayCCDFile()
-{
+//	QPixmap newImage;
+//	newImage.convertFromImage(image);
+//	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
+//	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
+//	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
+//	image_->setPixmap(newImage);
 
-}
+//	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
+//}
+
+//void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
+//{
+
+//}
+
+//void VESPERSCCDDetectorView::displayCCDFile()
+//{
+
+//}

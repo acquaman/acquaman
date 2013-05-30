@@ -62,13 +62,7 @@ protected slots:
 	/// Slot used to update the autosave combo box.
 	void onAutoSaveChanged(bool autoSave);
 	/// Used to set the CCD Path when it changes from the program.
-	void ccdPathEdited()
-	{
-		if (filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
-			filePathEdit_->setText(filePathEdit_->text()+"\\");
-
-		detector_->setCCDPath(filePathEdit_->text());
-	}
+	void ccdPathEdited();
 	/// Used to set the CCD File name when it changes from the program.
 	void ccdFileEdited() { detector_->setCCDName(fileNameEdit_->text()); }
 	/// Used to set the CCD Number when it changes from the program.
@@ -76,12 +70,13 @@ protected slots:
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
 
-	/// Gets a filename for the CCD image to be read.
-	void getCCDFileNameAndLoad();
-	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
-	void displayCCDFile();
-	/// TEST METHOD
-	void displayCCDFileTest();
+	// This might be removed since the detectors that would use these methods may not be used again.
+//	/// Gets a filename for the CCD image to be read.
+//	void getCCDFileNameAndLoad();
+//	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
+//	void displayCCDFile();
+//	/// TEST METHOD
+//	void displayCCDFileTest();
 
 protected:
 	/*! Sets up the view based with the given detector.
@@ -113,6 +108,11 @@ protected:
 	QLineEdit *fileNameEdit_;
 	/// CCD file number line edit.
 	QLineEdit *fileNumberEdit_;
+
+	/// The master layout.
+	QVBoxLayout *masterLayout_;
+	/// The layout with the other key elements.
+	QVBoxLayout *detectorLayout_;
 };
 
 #endif // VESPERSCCDDETECTORVIEW_H

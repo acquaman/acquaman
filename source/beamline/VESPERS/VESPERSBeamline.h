@@ -47,6 +47,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
+#define VESPERSBEAMLINE_VALVES_CLOSED 67801
+#define VESPERSBEAMLINE_TEMPERATURE_TOO_HIGH 67802
+#define VESPERSBEAMLINE_WATER_FLOW_SWITCH_TRIP 67803
+#define VESPERSBEAMLINE_WATER_FLOW_TOO_LOW 67804
+#define VESPERSBEAMLINE_ION_PUMP_TRIP 67805
+#define VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED 67806
+#define VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED 67807
+#define VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED 67808
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
@@ -130,6 +140,12 @@ public:
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	/// Returns the synchronized dwell time configuration info's list.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
+	/// Returns a synchronized dwell time configuration info from the index provided.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationAt(int index) const { return synchronizedDwellTimeConfigurations_.at(index); }
+	/// Returns the synchronized dwell time configuration info based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationByName(const QString &name) const;
 
 	// End of synchronized dwell time.
 
@@ -537,6 +553,8 @@ protected slots:
 	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
+	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
+	void synchronizedDwellTimeConnected(bool connected);
 
 	/// Helper slot that handles opening the next valve.
 	void openAllValvesHelper();
@@ -544,6 +562,8 @@ protected slots:
 	void closeAllValvesHelper();
 
 protected:
+	/// Sets up the synchronized dwell time.
+	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -592,6 +612,8 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+	// List of all the various synchronized dwell time configurations.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations_;
 
 	// Variable integration time.
 	CLSVariableIntegrationTime *variableIntegrationTime_;

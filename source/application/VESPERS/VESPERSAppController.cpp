@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 #include "ui/VESPERS/VESPERSCCDDetectorView.h"
+#include "ui/VESPERS/VESPERSPilatusCCDDetectorView.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
@@ -137,11 +138,12 @@ bool VESPERSAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
+		if (!ensureProgramStructure())
+			return false;
+
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-
-		moveImmediatelyAction_ = 0;
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -156,6 +158,34 @@ bool VESPERSAppController::startup() {
 		return false;
 }
 
+bool VESPERSAppController::ensureProgramStructure()
+{
+	QString homeDir = VESPERS::getHomeDirectory();
+
+	if (!QFileInfo(homeDir % "/acquaman/devConfigurationFiles/VESPERS").exists()){
+
+		QDir temp = QDir();
+		temp.cd(homeDir % "/acquaman/devConfigurationFiles");
+
+		if (!temp.mkdir("VESPERS")){
+
+			AMErrorMon::error(this, VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER, "Could not create the VESPERS config folder.  Notify beamline staff.");
+			return false;
+		}
+	}
+
+	if (!QFileInfo("/nas/vespers").exists()){
+
+		AMErrorMon::error(this, VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND, "Path to aurora not found.  Notify beamline staff.");
+		return false;
+	}
+
+	// This one is not critical to the running of the application.
+	if (!QFileInfo("/nas/pilatus").exists())
+		AMErrorMon::alert(this, VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND, "The path to the Pilatus CCD was not found.  Many special features for the Pilatus are now unavailable.");
+
+	return true;
+}
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
@@ -180,7 +210,7 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
-	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSPilatusCCDDetector>();
+	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
@@ -235,13 +265,13 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
-	pilatusCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
+	pilatusCCDView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
-	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
-	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
+//	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
+//	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
@@ -290,7 +320,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
+//	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -321,6 +351,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 	else if (detector == "Mar CCD")
 		mw_->setCurrentPane(marCCDView_);
+	else if (detector == "Pilatus CCD")
+		mw_->setCurrentPane(pilatusCCDView_);
 }
 
 void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
