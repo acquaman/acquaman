@@ -96,10 +96,12 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
 	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
+	/*
 	int rawFPD1Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD1ScalarDetector()->description().remove(' '));
 	int rawFPD2Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD2ScalarDetector()->description().remove(' '));
 	int rawFPD3Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD3ScalarDetector()->description().remove(' '));
 	int rawFPD4Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD4ScalarDetector()->description().remove(' '));
+	*/
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
