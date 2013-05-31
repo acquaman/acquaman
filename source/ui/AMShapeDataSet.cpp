@@ -80,27 +80,10 @@ AMBeamConfiguration *AMShapeDataSet::beamConfiguration()
     return beamModel_;
 }
 
-// fix this
-/// returns the group rectangle in screen coordinates \todo update this(using shape)
+/// returns the group rectangle in screen coordinates
 QPolygonF AMShapeDataSet::groupRectangle()
 {
-    QPolygonF shape = groupRectangle_;
-    QPointF topLeft = shape.first();
-    shape.remove(0);
-    QPointF topRight = shape.first();
-    shape.remove(0);
-    QPointF bottomRight = shape.first();
-    shape.remove(0);
-    QPointF bottomLeft = shape.first();
-    shape.remove(0);
-    shape.clear();
-    QPointF newTopLeft = coordinateTransform(topLeft);
-    QPointF newTopRight = coordinateTransform(topRight);
-    QPointF newBottomRight = coordinateTransform(bottomRight);
-    QPointF newBottomLeft = coordinateTransform(bottomLeft);
-    QPolygonF newShape;
-    newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
-    return newShape;
+    return screenShape(groupRectangle_);
 }
 
 /// returns motor x coordinate
@@ -210,23 +193,7 @@ QPolygonF AMShapeDataSet::shape(int index)
 {
     QPolygonF shape = *shapeList_[index].shape();
 
-    QPointF topLeft = shape.first();
-    shape.remove(0);
-    QPointF topRight = shape.first();
-    shape.remove(0);
-    QPointF bottomRight = shape.first();
-    shape.remove(0);
-    QPointF bottomLeft = shape.first();
-    shape.remove(0);
-    shape.clear();
-
-    QPointF newTopLeft = coordinateTransform(topLeft);
-    QPointF newTopRight = coordinateTransform(topRight);
-    QPointF newBottomRight = coordinateTransform(bottomRight);
-    QPointF newBottomLeft = coordinateTransform(bottomLeft);
-    QPolygonF newShape;
-    newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
-    return newShape;
+    return screenShape(shape);
 
 }
 
@@ -558,13 +525,7 @@ void AMShapeDataSet::startGroupRectangle(QPointF position)
 void AMShapeDataSet::updateShape(int index)
 {
    /// must set shape based on coordinates
-    QPolygonF shape;
-    for(int i = 0; i < RECTANGLE_POINTS; i++)
-    {
-        shape<<transform3Dto2D(shapeList_[index].coordinate(i));
-    }
-    shape = subShape(index, shape);
-    shapeList_[index].setShape(shape);
+    shapeList_[index].setShape(subShape(shapeList_[index]));
 
 }
 
@@ -689,59 +650,43 @@ void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
 }
 
 /// applies the rotation to the shape
-QPolygonF AMShapeDataSet::applyRotation(QPolygonF shape, int index)
+AMShapeData AMShapeDataSet::applyRotation(AMShapeData shape)
 {
-    if(shape.isEmpty()) return shape;
-    double rotation = shapeList_[index].rotation();
-    QVector3D center = shapeList_[index].centerCoordinate();\
-    double distance = depth(center);
-    QPolygonF polygon;
-    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
-    shape.remove(0);
-    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
-    shape.remove(0);
-    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
-    shape.remove(0);
-    polygon<<getRotatedPoint(transform2Dto3D(shape.first(),distance), rotation, center);
-    shape.remove(0);
-    polygon<<polygon.first();
-    return polygon;
+    double rotation = shape.rotation();
+    QVector3D center = shape.centerCoordinate();
+    for(int i = 0; i<4; i++)
+    {
+        shape.setCoordinate(getRotatedPoint(shape.coordinate(i), rotation, center),i);
+    }
+    return shape;
 }
 
 /// finds the new coordinate of a point, given its coordinate, rotation, and center point
-QPointF AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center)
+QVector3D AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center)
 {
     QVector3D direction(0,-1,0);
     point = rotateCoordinate(point,center,direction,rotation);
-    return transform3Dto2D(point);
+    return point;
 }
 
 /// Applies tilit to a shape
-QPolygonF AMShapeDataSet::applyTilt(QPolygonF shape, int index)
+AMShapeData AMShapeDataSet::applyTilt(AMShapeData shape)
 {
-    if(shape.isEmpty()) return shape;
-    double z = depth(shapeList_[index].coordinate(TOPLEFT));
-    double tilt = shapeList_[index].tilt();
-    QVector3D center = centerCoordinate(index);
-    QPolygonF polygon;
-    polygon<<getTiltedPoint(transform2Dto3D(shape.first(),z),tilt,center);
-    shape.remove(0);
-    polygon<<getTiltedPoint(transform2Dto3D(shape.first(),z),tilt,center);
-    shape.remove(0);
-    polygon<<getTiltedPoint(transform2Dto3D(shape.first(),z),tilt,center);
-    shape.remove(0);
-    polygon<<getTiltedPoint(transform2Dto3D(shape.first(),z),tilt,center);
-    shape.remove(0);
-    polygon<<polygon.first();
-    return polygon;
+    double tilt = shape.tilt();
+    QVector3D center = shape.centerCoordinate();
+    for(int i = 0; i<4; i++)
+    {
+        shape.setCoordinate(getTiltedPoint(shape.coordinate(i),tilt,center),i);
+    }
+    return shape;
 }
 
 /// Applies tilt to a point
-QPointF AMShapeDataSet::getTiltedPoint(QVector3D point, double tilt, QVector3D center)
+QVector3D AMShapeDataSet::getTiltedPoint(QVector3D point, double tilt, QVector3D center)
 {
     QVector3D direction(1,0,0);
     QVector3D coordinate = rotateCoordinate(point,center,direction,tilt);
-    return transform3Dto2D(coordinate);
+    return coordinate;
 }
 
 QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation)
@@ -813,19 +758,29 @@ QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D cente
 }
 
 /// applies rotation, tilt, and distortion to the shape
-QPolygonF AMShapeDataSet::subShape(int index, QPolygonF shape)
+QPolygonF AMShapeDataSet::subShape(AMShapeData shape)
 {
-    if(shape.isEmpty()) return shape;
-    if(shapeList_[index].rotation() != 0) shape = applyRotation(shape, index);
-    if(shapeList_[index].tilt() != 0) shape = applyTilt(shape, index);
+    if(shape.rotation() != 0) shape = applyRotation(shape);
+    if(shape.tilt() != 0) shape = applyTilt(shape);
+
+
+    QPolygonF newShape;
+    for(int i = 0; i < 4; i++)
+    {
+        newShape<<transform3Dto2D(shape.coordinate(i));
+    }
+    newShape<<newShape.first();
+
 
     if(distortion_)
     {
-        shape = applyDistortion(shape);
+        newShape = applyDistortion(newShape);
         if(motorCoordinate_.z() != 0)
-        shape = removeDistortion(shape);
+        newShape = removeDistortion(newShape);
     }
-    return shape;
+
+
+    return newShape;
 }
 
 /// applies distortion to the shape
@@ -1039,11 +994,14 @@ QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
     /// see 3D to 2D for more detailed explanation
     QVector3D coordinate;
     double focalLength = cameraModel_->cameraFocalLength();
+    double fieldOfView = cameraModel_->cameraFOV();
+    double aspectRatio = scaledSize().height()/scaledSize().width();
+    double fov = 2*tan(fieldOfView)*focalLength;
     double theta;
 
     // find the coordinate corresponding to the point
-    coordinate.setX(-1*((point.x()-0.5)*depth/focalLength));
-    coordinate.setY(-1*((point.y()-0.5)*depth/focalLength));
+    coordinate.setX(-1*((point.x()-0.5)*fov*depth/focalLength));
+    coordinate.setY(-1*((point.y()-0.5)*fov/aspectRatio*depth/focalLength));
     coordinate.setZ(depth);
     /// coordinate is the point in for camera at (0,0,0) looking down the z-axis
     /// must now shift and rotate
@@ -1196,8 +1154,15 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
         newPosition.setZ(z);
     }
 
+    double fieldOfView = cameraModel_->cameraFOV();
+    double aspectRatio = (scaledSize().height())/(scaledSize().width());
+    double fov = 2*tan(fieldOfView)*focalLength;
+
+
     // find the scaled point location, and shift to the center of the screen
-    position = (focalLength/zLength)*newPosition.toPointF() + QPointF(0.5,0.5);
+    position = (focalLength/zLength)/fov*newPosition.toPointF();
+    position.setY(position.y()*aspectRatio);
+    position += QPointF(0.5,0.5);
     return position;
 }
 
@@ -1235,17 +1200,26 @@ QPointF AMShapeDataSet::inverseVectorTransform(QPointF vector, QVector3D coordin
     return newVector;
 }
 
-/// finds the topLeft corner of the shape in screen coordinates
-// is not used
-QPointF AMShapeDataSet::shapeTopLeft(int index)
-{
-    return coordinateTransform(shapeList_[index].shape()->at(TOPLEFT));
-}
 
-// also not used
-QPointF AMShapeDataSet::shapeBottomRight(int index)
+QPolygonF AMShapeDataSet::screenShape(QPolygonF shape)
 {
-    return coordinateTransform(shapeList_[index].shape()->at(BOTTOMRIGHT));
+    QPointF topLeft = shape.first();
+    shape.remove(0);
+    QPointF topRight = shape.first();
+    shape.remove(0);
+    QPointF bottomRight = shape.first();
+    shape.remove(0);
+    QPointF bottomLeft = shape.first();
+    shape.remove(0);
+    shape.clear();
+
+    QPointF newTopLeft = coordinateTransform(topLeft);
+    QPointF newTopRight = coordinateTransform(topRight);
+    QPointF newBottomRight = coordinateTransform(bottomRight);
+    QPointF newBottomLeft = coordinateTransform(bottomLeft);
+    QPolygonF newShape;
+    newShape<<newTopLeft<<newTopRight<<newBottomRight<<newBottomLeft<<newTopLeft;
+    return newShape;
 }
 
 /// constructs a rectangle given the desired top and bottom corners
@@ -1392,21 +1366,19 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
 
 QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D, int index)
 {
+
+    AMShapeData newShape;
+    newShape.setCoordinateShape(shape3D,4);
+    newShape.setRotation(shapeList_[index].rotation());
+    newShape.setTilt(shapeList_[index].tilt());
+
+
     QPolygonF shape;
-    for(int i = 0; i < 4; i++)
-    {
-        shape<<(transform3Dto2D(shape3D[i]));
-    }
-    shape<<shape.first();
-    shape  = subShape(index, shape);
-    QPolygonF finalShape;
-    for(int i = 0; i < 4; i++)
-    {
-        finalShape<<coordinateTransform(shape.first());
-        shape.remove(0);
-    }
-    finalShape<<finalShape.first();
-    return finalShape;
+    shape = subShape(newShape);
+
+    shape = screenShape(shape);
+
+    return shape;
 
 }
 

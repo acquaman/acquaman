@@ -229,24 +229,24 @@ protected:
     void shiftCoordinates(QVector3D shift, int index);
 
     /// applies rotation to the shape at the given index
-    QPolygonF applyRotation(QPolygonF shape, int index);
+    AMShapeData applyRotation(AMShapeData shape);
 
     /// rotate a single point
-    QPointF getRotatedPoint(QVector3D point, double rotation, QVector3D center);
+    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center);
 
     /// applies tilt to the shape at the given index
     /// takes QPolygonF to stack with rotation
-    QPolygonF applyTilt(QPolygonF shape, int index);
+    AMShapeData applyTilt(AMShapeData shape);
 
     /// gets a tilted point
-    QPointF getTiltedPoint(QVector3D point, double tilt, QVector3D center);
+    QVector3D getTiltedPoint(QVector3D point, double tilt, QVector3D center);
 
     /// general rotation of a point about a point along the direction
     QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation);
 
 
     /// rotates, tilts, and distorts the shape at index
-    QPolygonF subShape(int index, QPolygonF shape);
+    QPolygonF subShape(AMShapeData shape);
 
     /// apply distortion to the current shape
     QPolygonF applyDistortion(QPolygonF shape);
@@ -288,14 +288,13 @@ protected:
     /// invers scaling of vector
     QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
 
-    /// functions for getting the transformed locations of each rectangle
-    QPointF shapeTopLeft(int index);
-    QPointF shapeBottomRight(int index);
-
 
 
 
     /// Helper functions
+
+    /// makes the shape screen sized
+    QPolygonF screenShape(QPolygonF shape);
 
     /// builds a rectangle from the specified points
     QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
