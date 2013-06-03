@@ -603,7 +603,7 @@ void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
 		case 0: // 0D data source.  Not possible.
 			break;
 
-		case 1:	// 1D data source.  Not possible either..
+		case 1:	// 1D data source.  0D scan rank.
 
 			startIndex_ = AMnDIndex(0);
 			endIndex_ = AMnDIndex(size);
@@ -639,7 +639,10 @@ void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnD
 		case 0: // 0D data source.  Not possible.
 			break;
 
-		case 1:	// 1D data source.  Not possible.
+		case 1:	// 1D data source.  0D scan rank.
+
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
 			break;
 
 		case 2:	// 2D data source.  1D scan rank.
@@ -675,6 +678,21 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 	else {
 
 		switch(startIndex_.rank()){
+
+		case 1:{	// 1D data source.  0D scan rank.
+
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+
+			source->values(AMnDIndex(0), AMnDIndex(output.size()-1), data.data());
+
+			for (int i = 0, iSize = output.size(); i < iSize; i++)
+				output[i] = data.at(i);
+
+			models_.at(id)->setValues(x_, output);
+
+			break;
+		}
 
 		case 2:{	// 2D data source.  1D scan rank.
 
