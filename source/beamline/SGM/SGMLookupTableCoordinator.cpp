@@ -26,6 +26,16 @@ SGMLookupTableCoordinator::SGMLookupTableCoordinator(const QString &inputControl
 	QObject(parent)
 {
 	connectedOnce_ = false;
+	inputControl_ = new AMPVControl("inputControl", inputControlName, inputControlName, QString() , this, 0.01);
+	outputControl_ = new AMPVControl("outputControl", outputControlName, outputControlName, QString(), this, 0.01);
+
+	allControls_ = new AMControlSet(this);
+	allControls_->addControl(inputControl_);
+	allControls_->addControl(outputControl_);
+
+	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputControlChanged(double)));
+
+	/*
 	linkageActive_ = false;
 
 	lookupTableFullFileName_ = "/home/sgm/beamline/programming/acquaman/source/application/SGMLookupTableCoordinator/LookupValues.txt";
@@ -45,9 +55,23 @@ SGMLookupTableCoordinator::SGMLookupTableCoordinator(const QString &inputControl
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputControlChanged(double)));
 	connect(linkageControl_, SIGNAL(valueChanged(double)), this, SLOT(onLinkageControlChanged(double)));
 	connect(loadLookupTableControl_, SIGNAL(valueChanged(double)), this, SLOT(onLoadLookupTableControlChanged(double)));
+	*/
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 }
 
+void SGMLookupTableCoordinator::onInputControlChanged(double inputValue){
+	if(!allControls_->isConnected() || !connectedOnce_)
+		return;
+	if(!inputControl_->withinTolerance(outputControl_->value())){
+		qDebug() << "Forward the value " << inputValue;
+		outputControl_->move(inputValue);
+	}
+	else
+		qDebug() << "Do not forward value " << inputValue << " vs " << outputControl_->value();
+}
+
+
+/*
 void SGMLookupTableCoordinator::onInputControlChanged(double inputValue){
 	if(!connectedOnce_)
 		return;
@@ -77,18 +101,22 @@ void SGMLookupTableCoordinator::onLoadLookupTableControlChanged(double loadLooku
 		internalDoConversion();
 	}
 }
+*/
 
 void SGMLookupTableCoordinator::onAllControlsConnected(bool connected){
 	qDebug() << "Checking all SGM Lookups";
 	if(connected){
 		connectedOnce_ = true;
 		qDebug() << "All SGM Lookups connected";
+		/*
 		internalLoadLookupTable();
 		onLinkageControlChanged(linkageControl_->value());
 		internalDoConversion();
+		*/
 	}
 }
 
+/*
 void SGMLookupTableCoordinator::internalDoConversion(){
 	if(!linkageActive_)
 		return;
@@ -170,3 +198,4 @@ void SGMLookupTableCoordinator::internalLoadLookupTable(){
 
 	loadLookupTableControl_->move(0);
 }
+*/

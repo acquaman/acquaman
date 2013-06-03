@@ -110,7 +110,8 @@ void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 		//qDebug() << "\n\n\nMy data is " << continuousData_;
 	}
 
-	setAcquisitionSucceeded();
+	if(isAcquiring())
+		setAcquisitionSucceeded();
 	checkReadyForAcquisition();
 }
 
