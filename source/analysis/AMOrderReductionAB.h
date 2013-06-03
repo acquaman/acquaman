@@ -1,5 +1,5 @@
-#ifndef AMSCANRANKREDUCTIONAB_H
-#define AMSCANRANKREDUCTIONAB_H
+#ifndef AMORDERREDUCTIONAB_H
+#define AMORDERREDUCTIONAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
@@ -8,10 +8,10 @@
 	of a particular scan dimension.  For example, if you had a 3D scan (scanRank() == 3)
 	this analysis block would provide
   */
-class AMScanRankReductionAB
+class AMOrderReductionAB
 {
 public:
-	AMScanRankReductionAB();
+	AMOrderReductionAB();
 };
 
-#endif // AMSCANRANKREDUCTIONAB_H
+#endif // AMORDERREDUCTIONAB_H
