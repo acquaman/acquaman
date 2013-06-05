@@ -54,3 +54,30 @@ void AMBeamConfiguration::setRay(QVector<QVector3D> rayOne, int index)
     }
 }
 
+void AMBeamConfiguration::alignPositionTwo()
+{
+    QVector3D centerOne = findCenter(positionOne_);
+    QVector3D centerTwo = findCenter(positionTwo_);
+    QVector3D ray = centerTwo - centerOne;
+    QVector<QVector3D> newPosition;
+    for(int i = 0; i < 4; i++)
+    {
+        newPosition<<(positionOne_.at(i)+ray);
+    }
+    setPositionTwo(newPosition);
+}
+
+QVector3D AMBeamConfiguration::findCenter(QVector<QVector3D> shape)
+{
+    QVector3D sum(0,0,0);
+    int count = 0;
+    while(!shape.isEmpty())
+    {
+        sum += shape.first();
+        shape.remove(0);
+        count++;
+    }
+    return sum/count;
+
+}
+

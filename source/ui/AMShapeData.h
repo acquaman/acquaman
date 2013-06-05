@@ -43,6 +43,8 @@ public:
 
     int count();
 
+    bool backwards();
+
 protected:
     QPolygonF* shape_;
     QString name_;

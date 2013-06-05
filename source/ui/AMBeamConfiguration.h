@@ -23,6 +23,11 @@ public:
     void setPositionTwo(QVector<QVector3D> positionTwo);
     void setRay(QVector<QVector3D> ray, int index);
 
+    void alignPositionTwo();
+
+protected:
+    QVector3D findCenter(QVector<QVector3D>);
+
 
 protected:
     static const int ONE;

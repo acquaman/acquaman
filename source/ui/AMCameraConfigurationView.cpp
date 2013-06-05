@@ -27,7 +27,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->setName("defaultConfiguration");
         cameraModel_->setCameraDistortion(-0.09);
         cameraModel_->setCameraFocalLength(0.41);
-        cameraModel_->setCameraFOV(20);
+        cameraModel_->setCameraFOV(0.387);
         cameraModel_->setCameraCenter(QVector3D(0,0,0));
         cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
@@ -37,16 +37,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     }
     else
     {
-        qDebug()<<"Fetching the default configuration from the database";
-        qDebug()<<cameraModel_->cameraCenter();
-        qDebug()<<dbSGM->connectionName();
-        qDebug()<<matchIDs.first();
-        if(cameraModel_)
-            qDebug() << "Not a null pointer";
-        else
-            qDebug( )<< "A null pointer?";
         cameraModel_->loadFromDb(dbSGM,matchIDs.first());
-        //cameraModel_->loadFromDb(AMDatabase::database("user"),1);
     }
 
     setWindowTitle("Configuration");
@@ -99,6 +90,9 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     fhl->addSpacing(20);
     fhl->addWidget(new QLabel("Lens Distortion"));
     fhl->addWidget(cameraDistortion_ = new QLineEdit());
+    fhl->addSpacing(20);
+    fhl->addWidget(new QLabel("Pixel Aspect Ratio"));
+    fhl->addWidget(pixelAspectRatio_ = new QLineEdit());
     fhl->addSpacing(20);
     fhl->addWidget(setButton_ = new QPushButton("Set"));
     fhl->addStretch();
@@ -162,6 +156,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
 
     connect(cameraRotation_, SIGNAL(textChanged(QString)), this, SLOT(updateRotation(QString)));
     connect(cameraRotationSlider_, SIGNAL(valueChanged(int)), this, SLOT(updateRotationSlider(int)));
+
+    connect(pixelAspectRatio_, SIGNAL(textChanged(QString)), this, SLOT(updatePixelAspectRatio(QString)));
 
     connect(saveConfiguration_, SIGNAL(clicked()), this, SLOT(saveConfiguration()));
     connect(configurationName_, SIGNAL(textChanged(QString)), this, SLOT(updateName(QString)));
@@ -227,6 +223,11 @@ double AMCameraConfigurationView::cameraRotation()
     return cameraModel_->cameraRotation();
 }
 
+double AMCameraConfigurationView::pixelAspectRatio()
+{
+    return cameraModel_->pixelAspectRatio();
+}
+
 void AMCameraConfigurationView::setPositionX(double x)
 {
     cameraModel_->setCameraPositionX(x);
@@ -275,6 +276,11 @@ void AMCameraConfigurationView::setCameraDistortion(double distortion)
 void AMCameraConfigurationView::setCameraRotation(double rotation)
 {
     cameraModel_->setCameraRotation(rotation);
+}
+
+void AMCameraConfigurationView::setPixelAspectRatio(double pixelAspectRatio)
+{
+    cameraModel_->setPixelAspectRatio(pixelAspectRatio);
 }
 
 void AMCameraConfigurationView::updatePositionX(QString x)
@@ -358,6 +364,13 @@ void AMCameraConfigurationView::updateRotationSlider(int rotation)
 
 }
 
+void AMCameraConfigurationView::updatePixelAspectRatio(QString pixelAspectRatio)
+{
+    bool* conversionOK = new bool(false);
+    double newValue = pixelAspectRatio.toDouble(conversionOK);
+    if(*conversionOK) setPixelAspectRatio(newValue);
+}
+
 void AMCameraConfigurationView::updateName(QString name)
 {
     cameraModel_->setName(name);
@@ -431,6 +444,7 @@ void AMCameraConfigurationView::updateAll()
     cameraDistortion_->setText(QString::number(cameraDistortion()));
     configurationName_->setText(name);
     cameraRotation_->setText(QString::number(cameraRotation()));
+    pixelAspectRatio_->setText(QString::number(pixelAspectRatio()));
 
 }
 

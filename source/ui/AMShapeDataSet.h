@@ -136,6 +136,8 @@ public:
     /// public functions
     bool isValid(int index);
 
+    bool isBackwards(int index = -1);
+
 
 
 public slots:
@@ -263,6 +265,8 @@ protected:
     /// shifts scene to correspond to motor movement
     void motorMovement(double x, double y, double z, double r);
 
+    QVector<QVector3D> rotateShape(AMShapeData shape);
+
 
     /// Transformations
 
@@ -316,7 +320,7 @@ protected:
 
     QVector<QVector3D> findIntersectionShape(int index);
 
-    QPolygonF intersectionScreenShape(QVector<QVector3D>, int);
+    QPolygonF intersectionScreenShape(QVector<QVector3D>);
 
     /// finds the center cooridnate of the given index
     QVector3D centerCoordinate(int index);

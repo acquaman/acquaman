@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QPushButton>
+#include <QCheckBox>
 
 #include "AMBeamConfiguration.h"
 #include <QVector>
@@ -28,6 +29,14 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     vbl->setSpacing(0);
     vbl->setContentsMargins(0,0,0,0);
 
+    QFrame* optionFrame = new QFrame();
+    QHBoxLayout *ofl = new QHBoxLayout();
+    ofl->setContentsMargins(12,4,12,4);
+    ofl->addWidget(new QLabel("Divergent"));
+    ofl->addWidget(divergentBox_ = new QCheckBox());
+    ofl->addStretch();
+    optionFrame->setLayout(ofl);
+
     QFrame* oneFrame = new QFrame();
     QHBoxLayout *ohl = new QHBoxLayout();
     ohl->setContentsMargins(12,4,12,4);
@@ -48,7 +57,7 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     QVBoxLayout *obvl = new QVBoxLayout();
     obvl->setContentsMargins(12,4,12,4);
     obvl->addStretch();
-    obvl->addWidget(oneSelect_ = new QPushButton("Select"));
+    obvl->addWidget(oneSelect_ = new QPushButton("Select Shape"));
     obvl->addStretch();
     oneButtonFrame->setLayout(obvl);
 
@@ -65,7 +74,7 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     QVBoxLayout *tbvl = new QVBoxLayout();
     tbvl->setContentsMargins(12,4,12,4);
     tbvl->addStretch();
-    tbvl->addWidget(twoSelect_ = new QPushButton("Select"));
+    tbvl->addWidget(twoSelect_ = new QPushButton("Select Point "));
     tbvl->addStretch();
     twoButtonFrame->setLayout(tbvl);
 
@@ -253,11 +262,11 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     thl->addWidget(twoButtonFrame);
     twoFrame->setLayout(thl);
 
+    vbl->addWidget(optionFrame);
     vbl->addWidget(oneFrame);
     vbl->addWidget(twoFrame);
     vbl->addStretch();
-    vbl->addWidget(intersectionButton_ = new QPushButton);
-    vbl->addStretch();
+    vbl->addWidget(intersectionButton_ = new QPushButton("Intersection"));
     setLayout(vbl);
 
 
@@ -265,8 +274,9 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
 
     // make connections
 
+    connect(divergentBox_, SIGNAL(stateChanged(int)), this, SLOT(divergentChecked(int)));
     connect(oneSelect_, SIGNAL(clicked()), this, SIGNAL(oneSelect()));
-    connect(twoSelect_, SIGNAL(clicked()), this, SIGNAL(twoSelect()));
+    connect(twoSelect_, SIGNAL(clicked()), this, SLOT(selectTwo()));
     connect(intersectionButton_, SIGNAL(clicked()), this, SIGNAL(intersection()));
 
 
@@ -285,6 +295,25 @@ void AMBeamConfigurationView::beamChanged(QObject *newBeam)
     else
     {
         qDebug()<<"Cannot assign null to beamModel...(AMBeamConfiguration)";
+    }
+}
+
+void AMBeamConfigurationView::divergentChecked(int checked)
+{
+    QString divergent = "Select Shape";
+    QString nonDivergent = "Select Point ";
+    if(checked) divergent_ = true;
+    else divergent_ = false;
+    if(divergent_) twoSelect_->setText(divergent);
+    else twoSelect_->setText(nonDivergent);
+}
+
+void AMBeamConfigurationView::selectTwo()
+{
+    emit(twoSelect());
+    if(!divergent_)
+    {
+        beamModel_->alignPositionTwo();
     }
 }
 
@@ -431,3 +460,5 @@ void AMBeamConfigurationView::updateTwoFour(QVector3D four)
     twoFourY_->setText(y);
     twoFourZ_->setText(z);
 }
+
+

@@ -70,9 +70,14 @@ double AMCameraConfiguration::cameraRotation()
     return cameraRotation_;
 }
 
+double AMCameraConfiguration::pixelAspectRatio()
+{
+    return pixelAspectRatio_;
+}
+
 #include <QDebug>
-bool AMCameraConfiguration::loadFromDb(AMDatabase *db, int id){
-    qDebug() << "Calling loadFromDb in AMCameraConfiguration " << db->connectionName() << id;
+bool AMCameraConfiguration::loadFromDb(AMDatabase *db, int id)
+{
     return AMDbObject::loadFromDb(db, id);
 }
 
@@ -134,4 +139,9 @@ void AMCameraConfiguration::setCameraDistortion(double distortion)
 void AMCameraConfiguration::setCameraRotation(double rotation)
 {
     cameraRotation_ = rotation;
+}
+
+void AMCameraConfiguration::setPixelAspectRatio(double pixelAspectRatio)
+{
+    pixelAspectRatio_ = pixelAspectRatio;
 }

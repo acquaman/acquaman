@@ -137,7 +137,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
 	doubleClickInProgress_ = false;
 
-    connect(this, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
+//    connect(shapeScene_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
 
 	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
 	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
@@ -190,9 +190,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
 
     /// shape view
-    connect(shapeView_, SIGNAL(xChanged(QString)), this, SLOT(setX(QString)));
-    connect(shapeView_, SIGNAL(yChanged(QString)), this, SLOT(setY(QString)));
-    connect(shapeView_, SIGNAL(zChanged(QString)), this, SLOT(setZ(QString)));
     connect(shapeView_, SIGNAL(setCoordinate()), this, SLOT(reviewCrosshairLinePositions()));
     connect(shapeView_, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
 
@@ -268,6 +265,15 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         if(shapes_.contains(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
+            if(shapeModel_->isBackwards(i))
+            {
+                shapes_[i]->setBrush(QBrush(QColor(Qt::yellow)));
+            }
+            else
+            {
+                shapes_[i]->setBrush(QBrush(QColor(Qt::transparent)));
+            }
+
         }
         else
             qDebug()<<"Missing shape"<<i;
@@ -279,7 +285,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         groupRectangle_->setPolygon(shapeModel_->groupRectangle());
     }
 
-   /// print the intersection shapes
+   // print the intersection shapes
             intersection();
 
 
@@ -338,7 +344,6 @@ void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
 
-//    cameraConfiguration_->show();
     configurationWindow_->show();
 
 }
@@ -601,9 +606,6 @@ void AMShapeDataSetView::clearIntersections()
     }
 }
 
-
-
-
 void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
 {
 
@@ -701,9 +703,6 @@ void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 
 void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
 {
-
-
-
         if(doubleClickInProgress_)
         {
             emit mouseDoubleClicked((position));
@@ -726,8 +725,6 @@ void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
         }
 
         reviewCrosshairLinePositions();
-
-
 }
 
 void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)

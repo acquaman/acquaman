@@ -91,7 +91,6 @@ void AMShapeDataView::setShapeData(AMShapeData *shapeData)
 
 void AMShapeDataView::nameChanged(QString name)
 {
-    qDebug()<<"Here in nameChanged";
     if(isValid())
         shapeModel_->setName(name);
 }
@@ -157,7 +156,6 @@ void AMShapeDataView::update()
 {
     if(isValid())
     {
-        qDebug()<<"Updating data view";
         nameEdit_->setText(shapeModel_->name());
         tiltEdit_->setText(QString::number(shapeModel_->tilt()));
         QVector3D coordinate = shapeModel_->centerCoordinate();

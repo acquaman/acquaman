@@ -8,6 +8,7 @@ class QLabel;
 class QPushButton;
 class AMBeamConfiguration;
 class QVector3D;
+class QCheckBox;
 
 class AMBeamConfigurationView : public QWidget
 {
@@ -24,6 +25,8 @@ signals:
     void intersection();
 
 protected:
+    QCheckBox *divergentBox_;
+
     QLabel *oneOneX_;
     QLabel *oneOneY_;
     QLabel *oneOneZ_;
@@ -63,7 +66,11 @@ protected:
 
     AMBeamConfiguration* beamModel_;
 
+    bool divergent_;
+
 protected slots:
+    void divergentChecked(int);
+    void selectTwo();
     void updateData();
     void updateOneOne(QVector3D);
     void updateOneTwo(QVector3D);

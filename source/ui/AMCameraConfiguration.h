@@ -15,6 +15,7 @@ class AMCameraConfiguration : public AMDbObject
     Q_PROPERTY(QVector3D cameraCenter READ cameraCenter WRITE setCameraCenter)
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
     Q_PROPERTY(double cameraRotation READ cameraRotation WRITE setCameraRotation)
+    Q_PROPERTY(double pixelAspectRatio READ pixelAspectRatio WRITE setPixelAspectRatio)
 
 public:
     explicit AMCameraConfiguration(QObject *parent = 0);
@@ -36,6 +37,8 @@ public:
 
     double cameraRotation();
 
+    double pixelAspectRatio();
+
     virtual bool loadFromDb(AMDatabase *db, int id);
 
     /// Mutators
@@ -56,6 +59,8 @@ public slots:
 
     void setCameraRotation(double rotation);
 
+    void setPixelAspectRatio(double pixelAspectRatio);
+
 
 
 protected:
@@ -65,6 +70,7 @@ protected:
     double cameraFocalLength_;
     double cameraDistortion_;
     double cameraRotation_;
+    double pixelAspectRatio_;
 };
 
 #endif // AMCAMERACONFIGURATIONMODEL_H

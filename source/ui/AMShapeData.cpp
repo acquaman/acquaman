@@ -97,7 +97,6 @@ void AMShapeData::setCoordinate(QVector3D coordinate, int index)
 {
     if(validIndex(index))
         coordinate_[index] = coordinate;
-    else qDebug()<<"Failed to set coordinate; invalid index";
 }
 
 void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
@@ -161,6 +160,20 @@ void AMShapeData::shiftTo(QVector3D shift)
 int AMShapeData::count()
 {
     return coordinateIndex_;
+}
+
+bool AMShapeData::backwards()
+{
+    QVector3D points [3];
+    for(int i = 0; i < 3 ; i++)
+    {
+        points[i] = QVector3D(shape_->at(i));
+    }
+    QVector3D rayOne = points[1] - points[0];
+    QVector3D rayTwo = points[2] - points[1];
+    QVector3D normal = QVector3D::normal(rayOne,rayTwo);
+    // normal should be either positive or negative 1;
+    return(normal.z() < 0);
 }
 
 bool AMShapeData::validIndex(int index)

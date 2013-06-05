@@ -371,10 +371,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 }
 
 
-#include <QDebug>
 // load a AMDbObject (set its properties) by retrieving it based on id.
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
-    qDebug()<<"Here in loadFromDb";
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
 	if(sourceId < 1){
 		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the database id is invalid. Please report this problem to the Acquaman developers.");
