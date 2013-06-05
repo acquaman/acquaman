@@ -267,7 +267,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             if(shapeModel_->isBackwards(i))
             {
-                shapes_[i]->setBrush(QBrush(QColor(Qt::yellow)));
+                shapes_[i]->setBrush(QBrush(QColor(Qt::green)));
             }
             else
             {

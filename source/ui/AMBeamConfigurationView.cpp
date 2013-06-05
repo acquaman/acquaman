@@ -279,7 +279,7 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     connect(twoSelect_, SIGNAL(clicked()), this, SLOT(selectTwo()));
     connect(intersectionButton_, SIGNAL(clicked()), this, SIGNAL(intersection()));
 
-
+    updateData();
 
 }
 

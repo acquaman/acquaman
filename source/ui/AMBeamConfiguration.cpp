@@ -31,6 +31,26 @@ QVector<QVector3D> AMBeamConfiguration::ray(int index)
     return ray;
 }
 
+QList<QVector3D> AMBeamConfiguration::beamOne()
+{
+    QList<QVector3D> beam;
+    for(int i = 0; i < positionOne_.count(); i++)
+    {
+        beam<<positionOne_.at(i);
+    }
+    return beam;
+}
+
+QList<QVector3D> AMBeamConfiguration::beamTwo()
+{
+    QList<QVector3D> beam;
+    for(int i = 0; i < positionTwo_.count(); i++)
+    {
+        beam<<positionTwo_.at(i);
+    }
+    return beam;
+}
+
 
 void AMBeamConfiguration::setPositionOne(QVector<QVector3D> positionOne)
 {
@@ -51,6 +71,24 @@ void AMBeamConfiguration::setRay(QVector<QVector3D> rayOne, int index)
     {
         positionOne_[CLOSE]=rayOne[ONE];
         positionTwo_[CLOSE]=rayOne[TWO];
+    }
+}
+
+void AMBeamConfiguration::setBeamOne(QList<QVector3D> beamOne)
+{
+    positionOne_.clear();
+    for(int i = 0; i < beamOne.count(); i++)
+    {
+        positionOne_<<beamOne.at(i);
+    }
+}
+
+void AMBeamConfiguration::setBeamTwo(QList<QVector3D> beamTwo)
+{
+    positionTwo_.clear();
+    for(int i = 0; i < beamTwo.count(); i++)
+    {
+        positionTwo_<<beamTwo.at(i);
     }
 }
 

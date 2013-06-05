@@ -52,9 +52,29 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
         success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
         success &= AMDbObjectSupport::s()->registerClass<AMSample>();
         success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+        success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
 
         qDebug() << "Status of registration is " << success;
     }
+
+    QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
+    if(matchIDs.count() == 0)
+    {
+        QVector<QVector3D> positionOne;
+        positionOne<<QVector3D(0.02,0.02,0)<<QVector3D(-0.02,0.02,0)<<QVector3D(-0.02,-0.02,0)<<QVector3D(0.02,-0.02,0)<<QVector3D(0.02,0.02,0);
+        QVector<QVector3D> positionTwo;
+        positionTwo<<QVector3D(0.02,0.02,1)<<QVector3D(-0.02,0.02,1)<<QVector3D(-0.02,-0.02,1)<<QVector3D(0.02,-0.02,1)<<QVector3D(0.02,0.02,1);
+        beamModel_->setPositionOne(positionOne);
+        beamModel_->setPositionTwo(positionTwo);
+        beamModel_->setName("defaultConfiguration");
+        bool success = beamModel_->storeToDb(db);
+        if(!success)qDebug()<<"Failed to store default beam to database, in AMShapeDataSet constructor";
+    }
+    else
+    {
+        beamModel_->loadFromDb(db,matchIDs.first());
+    }
+
 }
 
 int AMShapeDataSet::shapeListLength()
@@ -447,7 +467,6 @@ void AMShapeDataSet::moveAllShapes(QPointF position)
         QVector3D oldPosition = transform2Dto3D(currentVector_,distance);
         QVector3D shift = newPosition - oldPosition;
         shiftCoordinates(shift,i);
-        qDebug()<<shift;
     }
     currentVector_ = (position);
 }
@@ -1179,7 +1198,6 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
     // find the angle of rotation
     // angle of rotation: cos(angle) = v1.v2/|v1||v2|
     double theta = acos((QVector3D::dotProduct(newCameraCenter,cameraRotation))/((newCameraCenter.length())*(cameraCenterLength)));
-    qDebug()<<theta;
     // find the third orthogonal component (along the plane of rotation)
     QVector3D uHat = QVector3D::normal(zHat,vHat);
     double shiftedLength = shiftedCoordinate.length();
@@ -1444,7 +1462,7 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     QVector3D point;
     QPointF oldPoint;
     QVector<QVector3D> intersectionShape;
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < intersection.count(); i++)
     {
         oldPoint = intersection.at(i);
         point = oldPoint.x()*wHat + oldPoint.y()*hHat + shapeNComponent[i]*nHat;

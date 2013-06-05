@@ -12,16 +12,22 @@ class AMBeamConfiguration : public AMDbObject
 {
     Q_OBJECT
     //Q_PROPERTY(type name READ access WRITE mutate)
+    Q_PROPERTY(QList<QVector3D> positionOne READ beamOne WRITE setBeamOne)
+    Q_PROPERTY(QList<QVector3D> positionTwo READ beamTwo WRITE setBeamTwo)
 public:
     explicit AMBeamConfiguration(QObject *parent = 0);
 
     QVector<QVector3D> positionOne();
     QVector<QVector3D> positionTwo();
     QVector<QVector3D> ray(int index);
+    QList<QVector3D> beamOne();
+    QList<QVector3D> beamTwo();
 
     void setPositionOne(QVector<QVector3D> positionOne);
     void setPositionTwo(QVector<QVector3D> positionTwo);
     void setRay(QVector<QVector3D> ray, int index);
+    void setBeamOne(QList<QVector3D> beamOne);
+    void setBeamTwo(QList<QVector3D> beamTwo);
 
     void alignPositionTwo();
 
