@@ -286,7 +286,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 			ps.colorMap.setGamma(1);
 		}
 
-		else if (newScan->scanRank() == 2){
+		else if (newScan->scanRank() == 2 || newScan->scanRank() == 3){
 
 			ps.colorMap.setContrast(1);
 			ps.colorMap.setBrightness(0);
@@ -415,7 +415,7 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 		ps.colorMap.setGamma(1);
 	}
 
-	else if (scan->scanRank() == 2){
+	else if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 		ps.colorMap.setContrast(1);
 		ps.colorMap.setBrightness(0);

@@ -1133,7 +1133,8 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				editor = createNewScanEditor(scan->scanRank() == 2);
+				bool use2DScanView = (scan->scanRank() == 2 || scan->scanRank() == 3);
+				editor = createNewScanEditor(use2DScanView);
 				editor->addScan(scan);
 				accepted = true;
 			}
@@ -1150,7 +1151,7 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				if (scan->scanRank() == 2){
+				if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 					temp2D = createNewScanEditor(true);
 					temp2D->addScan(scan);
