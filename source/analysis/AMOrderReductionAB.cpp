@@ -96,7 +96,7 @@ void AMOrderReductionAB::setInputSources()
 		axes_.clear();
 
 		for (int i = 0; i < source_->rank()-1; i++)
-			axes_[i] = AMAxisInfo("invalid", 0, "No input data");
+			axes_.append(AMAxisInfo("invalid", 0, "No input data"));
 
 		setDescription(QString("Reduced Order of %1").arg(source_->name()));
 		connect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));

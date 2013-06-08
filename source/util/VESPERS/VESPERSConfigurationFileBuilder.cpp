@@ -232,6 +232,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
 		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status1));
+
 		if (roperCCD_)
 			contents.append("# Action Dwell WaitPV \"CCD1607-001:extTrig:lock\" \"unlocked\"\n");
 
@@ -277,6 +278,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
 		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status3));
+
 		if (roperCCD_)
 			contents.append("# Action Dwell WaitPV \"CCD1607-001:extTrig:lock\" \"unlocked\"\n");
 
@@ -307,8 +309,11 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	contents.append("# eventID:1 AbsTime:0 Rel0Time:0 relPTime:0\n");
 	contents.append("# commentPrefix: 0\n");
 	contents.append(QString("# PV 0: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(usingMono ? energyFeedback : pvNameAxis1_));
-	if (dimensions_ == 2)
+	if (dimensions_ == 2 || dimensions_ == 3)
 		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis2_));
+
+	if (dimensions_ == 3)
+		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis3_));
 
 	for (int i = 0; i <= 120-dimensions_; i++)
 		contents.append(QString("# PV %1: \"Goober\", disable:0 spectrum:0 ready:0\n").arg(i+dimensions_));

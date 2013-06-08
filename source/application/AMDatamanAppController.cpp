@@ -90,6 +90,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DBinningAB.h"
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
+#include "analysis/AMOrderReductionAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -547,6 +548,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();

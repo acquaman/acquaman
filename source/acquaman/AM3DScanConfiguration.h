@@ -211,11 +211,11 @@ public slots:
 	void setZEnd(double end);
 	/// Sets the time per point.
 	void setTimeStep(double time);
-	/// Sets the priority for the x-axis.  Must be 1, 2, or 3.
+	/// Sets the priority for the x-axis.  Must be 0, 1, or 2.
 	void setXPriority(int priority);
-	/// Sets the priority for the y-axis.  Must be 1, 2, or 3.
+	/// Sets the priority for the y-axis.  Must be 0, 1, or 2.
 	void setYPriority(int priority);
-	/// Sets the priority for the z-axis.  Must be 1, 2, or 3.
+	/// Sets the priority for the z-axis.  Must be 0, 1, or 2.
 	void setZPriority(int priority);
 
 	// Convenience setters.

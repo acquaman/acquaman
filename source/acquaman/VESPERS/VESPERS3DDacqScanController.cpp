@@ -10,6 +10,7 @@
 #include "application/AMAppControllerSupport.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "analysis/AMOrderReductionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -103,6 +104,18 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
+
+	AMOrderReductionAB *temp = 0;
+
+	for (int i = 0, size = i0List.size(); i < size; i++){
+
+		AMDataSource *tempInput = i0List.at(i);
+		temp = new AMOrderReductionAB(QString("%1-r").arg(tempInput->name()));
+		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
+		temp->setSelectedName(tempInput->name());
+		temp->setReducedAxis(2);
+		scan_->addAnalyzedDataSource(temp, true, false);
+	}
 
 	QString i0Name("");
 
@@ -296,6 +309,7 @@ bool VESPERS3DDacqScanController::startImplementation()
 		return false;
 	}
 
+	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
 	return AM3DDacqScanController::startImplementation();
 }
 
@@ -351,8 +365,8 @@ bool VESPERS3DDacqScanController::setupSingleElementMap()
 	builder.setDimensions(3);
 	builder.setSingleElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -414,8 +428,8 @@ bool VESPERS3DDacqScanController::setupFourElementMap()
 	builder.setDimensions(3);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -478,8 +492,8 @@ bool VESPERS3DDacqScanController::setupSingleAndFourElementMap()
 	builder.setSingleElement(true);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
-	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.

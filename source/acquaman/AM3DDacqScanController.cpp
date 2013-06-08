@@ -274,15 +274,15 @@ bool AM3DDacqScanController::atEndOfAxis(int axis, const QMap<int, double> &aeDa
 	// Switch from priority to a real axis.
 	switch (axisPriorities_.at(axis)){
 
-	case 1:	// X
+	case 0:	// X
 		retVal = internal3DConfig_->xEnd() - aeData.value(0) < internal3DConfig_->xStep()/2;
 		break;
 
-	case 2:	// Y
+	case 1:	// Y
 		retVal = internal3DConfig_->yEnd() - aeData.value(1) < internal3DConfig_->yStep()/2;
 		break;
 
-	case 3:	// Z
+	case 2:	// Z
 		retVal = internal3DConfig_->zEnd() - aeData.value(2) < internal3DConfig_->zStep()/2;
 		break;
 	}
@@ -440,7 +440,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 	// Generate the control string.
 	switch(axisPriorities_.at(axis)){
 
-	case 1:	// X
+	case 0:	// X
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(xAxisPVName())
@@ -449,7 +449,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 				.arg(internal3DConfig_->xEnd());
 		break;
 
-	case 2:	// Y
+	case 1:	// Y
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(yAxisPVName())
@@ -458,10 +458,10 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 				.arg(internal3DConfig_->yEnd());
 		break;
 
-	case 3:	// Z
+	case 2:	// Z
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-				.arg(yAxisPVName())
+				.arg(zAxisPVName())
 				.arg(internal3DConfig_->zStart())
 				.arg(internal3DConfig_->zStep())
 				.arg(internal3DConfig_->zEnd());
