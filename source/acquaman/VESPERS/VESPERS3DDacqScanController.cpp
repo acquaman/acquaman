@@ -351,6 +351,8 @@ bool VESPERS3DDacqScanController::setupSingleElementMap()
 	builder.setDimensions(3);
 	builder.setSingleElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -387,6 +389,12 @@ bool VESPERS3DDacqScanController::setupSingleElementMap()
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
+
 	else{
 
 		AMErrorMon::alert(this,
@@ -406,6 +414,8 @@ bool VESPERS3DDacqScanController::setupFourElementMap()
 	builder.setDimensions(3);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -442,6 +452,12 @@ bool VESPERS3DDacqScanController::setupFourElementMap()
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
+
 	else{
 
 		AMErrorMon::alert(this,
@@ -462,6 +478,8 @@ bool VESPERS3DDacqScanController::setupSingleAndFourElementMap()
 	builder.setSingleElement(true);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -502,6 +520,12 @@ bool VESPERS3DDacqScanController::setupSingleAndFourElementMap()
 	// Using the CCD?
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
 
 	else{
 

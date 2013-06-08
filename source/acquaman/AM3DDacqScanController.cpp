@@ -274,15 +274,15 @@ bool AM3DDacqScanController::atEndOfAxis(int axis, const QMap<int, double> &aeDa
 	// Switch from priority to a real axis.
 	switch (axisPriorities_.at(axis)){
 
-	case 0:	// X
+	case 1:	// X
 		retVal = internal3DConfig_->xEnd() - aeData.value(0) < internal3DConfig_->xStep()/2;
 		break;
 
-	case 1:	// Y
+	case 2:	// Y
 		retVal = internal3DConfig_->yEnd() - aeData.value(1) < internal3DConfig_->yStep()/2;
 		break;
 
-	case 2:	// Z
+	case 3:	// Z
 		retVal = internal3DConfig_->zEnd() - aeData.value(2) < internal3DConfig_->zStep()/2;
 		break;
 	}
@@ -371,9 +371,9 @@ bool AM3DDacqScanController::setScanAxesControl()
 	advAcq_->saveConfigFile(filename);
 
 	// Stage 2:  Setup the slow axis and fast axis strings.
-	QString firstPriorityAxis = getControlStringFromAxis(axisPriorities_.at(0));
-	QString secondPriorityAxis = getControlStringFromAxis(axisPriorities_.at(1));
-	QString thirdPriorityAxis = getControlStringFromAxis(axisPriorities_.at(2));
+	QString firstPriorityAxis = getControlStringFromAxis(0);
+	QString secondPriorityAxis = getControlStringFromAxis(1);
+	QString thirdPriorityAxis = getControlStringFromAxis(2);
 
 	// Stage 3:  Load up the file through a text stream and change the controls for all three scan axes.
 	QFile inputFile(filename);
@@ -440,7 +440,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 	// Generate the control string.
 	switch(axisPriorities_.at(axis)){
 
-	case 0:	// X
+	case 1:	// X
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(xAxisPVName())
@@ -449,7 +449,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 				.arg(internal3DConfig_->xEnd());
 		break;
 
-	case 1:	// Y
+	case 2:	// Y
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(yAxisPVName())
@@ -458,7 +458,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 				.arg(internal3DConfig_->yEnd());
 		break;
 
-	case 2:	// Z
+	case 3:	// Z
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(yAxisPVName())
