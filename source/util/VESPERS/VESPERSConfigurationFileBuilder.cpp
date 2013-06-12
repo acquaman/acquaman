@@ -313,7 +313,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis2_));
 
 	if (dimensions_ == 3)
-		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis3_));
+		contents.append(QString("# PV 2: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis3_));
 
 	for (int i = 0; i <= 120-dimensions_; i++)
 		contents.append(QString("# PV %1: \"Goober\", disable:0 spectrum:0 ready:0\n").arg(i+dimensions_));

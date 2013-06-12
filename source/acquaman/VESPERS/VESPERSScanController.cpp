@@ -298,7 +298,7 @@ void VESPERSScanController::addFourElementRegionsOfInterestMeasurements(AMScan *
 		else
 			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" "), list.at(i).name()));
 
-		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, false);
+		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, true);
 	}
 }
 

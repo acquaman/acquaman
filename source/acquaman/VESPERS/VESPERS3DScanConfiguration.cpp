@@ -11,6 +11,9 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setName("3D Map");
 	setUserScanName("3D Map");
 	dbObject_->setParent(this);
+	setXPriority(1);
+	setYPriority(0);
+	setZPriority(2);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setMotor(VESPERS::Motor(VESPERS::H | VESPERS::V));
@@ -38,6 +41,9 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(const VESPERS3DScanConfig
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	dbObject_->setParent(this);
+	setXPriority(original.xPriority());
+	setYPriority(original.yPriority());
+	setZPriority(original.zPriority());
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();

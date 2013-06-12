@@ -86,6 +86,8 @@ protected:
 	AMnDIndex inputIndex(const AMnDIndex &input, int reducedIndex) const;
 	/// Helper method that returns the axis of input source based on provided axis.
 	int inputAxisIndex(int axisId) const;
+	/// Helper method that returns an index of the rank of the analysis block by removing the reduced axis.
+	AMnDIndex outputIndex(const AMnDIndex &input) const;
 
 	/// Pointer to the source that will be analyzed.
 	AMDataSource *source_;

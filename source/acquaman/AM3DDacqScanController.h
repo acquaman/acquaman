@@ -92,6 +92,8 @@ protected:
 	/// String that holds the file name (including path).
 	QString filename_;
 
+	/// Flag used for knowing we are on the first point of the scan still.
+	bool initializeStartPositions_;
 	/// Flag that holds whether the controller should stop once the end of the given axis is finshed.  Is -1 when no axis is selected.  Axis is in priority order.  Note that setting axis = slowest axis is equivalent to the scan finishing on it's own.
 	int stopAtEndOfAxis_;
 

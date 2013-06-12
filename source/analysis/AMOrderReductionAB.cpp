@@ -135,6 +135,11 @@ void AMOrderReductionAB::updateAxes()
 					axes_[axisIndex++] = source_->axisInfoAt(i);
 			}
 		}
+
+		emitSizeChanged();
+		emitValuesChanged();
+		emitAxisInfoChanged();
+		emitInfoChanged();
 	}
 }
 
@@ -168,6 +173,17 @@ int AMOrderReductionAB::inputAxisIndex(int axisId) const
 	return newAxis;
 }
 
+AMnDIndex AMOrderReductionAB::outputIndex(const AMnDIndex &input) const
+{
+	AMnDIndex output = AMnDIndex(rank(), AMnDIndex::DoInit);
+
+	for (int i = 0, index = 0, size = input.rank(); i < size; i++)
+		if (i != reducedAxis_)
+			output[index++] = input.at(i);
+
+	return output;
+}
+
 AMNumber AMOrderReductionAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() == 0)
@@ -191,12 +207,12 @@ AMNumber AMOrderReductionAB::value(const AMnDIndex &indexes) const
 	for (int i = 0, size = data.size(); i < size; i++)
 		val += data.at(i);
 
-	return 0;
+	return val;
 }
-
+#include <QDebug>
 bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-	if (indexStart.rank() == 0 || indexEnd.rank() == 0)
+	if (indexStart.rank() == 0 || indexEnd.rank() == 0 || indexStart.rank() != axes_.size())
 		return false;
 
 	if (!isValid())
@@ -218,8 +234,12 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 		QVector<double> data = QVector<double>(size);
 		source_->values(AMnDIndex(0), AMnDIndex(size-1), data.data());
 
-		for (int i = 0; i < size; i++)
-			outputValues[0] += data.at(i);
+		if (data.at(0) == -1)
+			outputValues[0] = -1;
+
+		else
+			for (int i = 0; i < size && data.at(i) != -1; i++)
+				outputValues[0] += data.at(i);
 
 		break;
 	}
@@ -237,8 +257,12 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 			source_->values(start, end, data.data());
 			outputValues[i] = 0;
 
-			for (int j = 0, size = data.size(); j < size; j++)
-				outputValues[i] += data.at(j);
+			if (data.at(0) == -1)
+				outputValues[i] = -1;
+
+			else
+				for (int j = 0, size = data.size(); j < size && data.at(j) != -1; j++)
+					outputValues[i] += data.at(j);
 
 			start[axis]++;
 			end[axis]++;
@@ -255,19 +279,23 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 		int axis2 = inputAxisIndex(1);
 		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
 
-		for (int i = indexStart.i(); i <= indexEnd.i(); i++){
+		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
 			start[axis2] = indexStart.j();
 			end[axis2] = indexStart.j();
 
-			for (int j = indexStart.j(), jSize = indexEnd.j()-indexStart.j(); j <= indexEnd.j(); j++){
+			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
 				source_->values(start, end, data.data());
 				int outputIndex = i*jSize+j;
 				outputValues[outputIndex] = 0;
 
-				for (int outputIterator = 0, size = data.size(); outputIterator < size; outputIterator++)
-					outputValues[outputIndex] += data.at(outputIterator);
+				if (data.at(0) == -1)
+					outputValues[outputIndex] = -1;
+
+				else
+					for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
+						outputValues[outputIndex] += data.at(outputIterator);
 
 				start[axis2]++;
 				end[axis2]++;
@@ -282,6 +310,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 
 	case 3:{
 
+
 		AMnDIndex start = inputIndex(indexStart, 0);
 		AMnDIndex end = inputIndex(indexStart, source_->size(reducedAxis_)-1);
 		int axis1 = inputAxisIndex(0);
@@ -289,24 +318,28 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 		int axis3 = inputAxisIndex(2);
 		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
 
-		for (int i = indexStart.i(); i <= indexEnd.i(); i++){
+		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
 			start[axis2] = indexStart.j();
 			end[axis2] = indexStart.j();
 
-			for (int j = indexStart.j(), jSize = indexEnd.j()-indexStart.j(); j <= indexEnd.j(); j++){
+			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
 				start[axis3] = indexStart.k();
 				end[axis3] = indexStart.k();
 
-				for (int k = indexStart.k(), kSize = indexEnd.k()-indexStart.k(); k <= indexEnd.k(); k++){
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
 
 					source_->values(start, end, data.data());
 					int outputIndex = i*jSize*kSize+j*kSize+k;
 					outputValues[outputIndex] = 0;
 
-					for (int outputIterator = 0, size = data.size(); outputIterator < size; outputIterator++)
-						outputValues[outputIndex] += data.at(outputIterator);
+					if (data.at(0) == -1)
+						outputValues[outputIndex] = -1;
+
+					else
+						for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
+							outputValues[outputIndex] += data.at(outputIterator);
 
 					start[axis3]++;
 					end[axis3]++;
@@ -333,29 +366,33 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 		int axis4 = inputAxisIndex(3);
 		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
 
-		for (int i = indexStart.i(); i <= indexEnd.i(); i++){
+		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
 			start[axis2] = indexStart.j();
 			end[axis2] = indexStart.j();
 
-			for (int j = indexStart.j(), jSize = indexEnd.j()-indexStart.j(); j <= indexEnd.j(); j++){
+			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
 				start[axis3] = indexStart.k();
 				end[axis3] = indexStart.k();
 
-				for (int k = indexStart.k(), kSize = indexEnd.k()-indexStart.k(); k <= indexEnd.k(); k++){
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
 
 					start[axis4] = indexStart.l();
 					end[axis4] = indexStart.l();
 
-					for (int l = indexStart.l(), lSize = indexEnd.l()-indexStart.l(); l <= indexEnd.l(); l++){
+					for (int l = 0, lSize = indexEnd.l()-indexStart.l()+1; l < lSize; l++){
 
 						source_->values(start, end, data.data());
 						int outputIndex = i*jSize*kSize*lSize+j*kSize*lSize+k*lSize+l;
 						outputValues[outputIndex] = 0;
 
-						for (int outputIterator = 0, size = data.size(); outputIterator < size; outputIterator++)
-							outputValues[outputIndex] += data.at(outputIterator);
+						if (data.at(0) == -1)
+							outputValues[outputIndex] = -1;
+
+						else
+							for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
+								outputValues[outputIndex] += data.at(outputIterator);
 
 						start[axis4]++;
 						end[axis4]++;
@@ -383,7 +420,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 
 	return true;
 }
-
+#include <QDebug>
 AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())
@@ -400,7 +437,11 @@ AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 
 void AMOrderReductionAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged(outputIndex(start), outputIndex(end));
 }
 
 void AMOrderReductionAB::onInputSourceSizeChanged()

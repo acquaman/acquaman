@@ -609,7 +609,7 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 		rv = image;
 		break; }
 	default:
-		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, "Asked to create a plot item for a rank that we don't handle.");
+		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, QString("Asked to create a plot item name %1 which has a rank that we don't handle.").arg(dataSource->name()));
 		rv = 0;
 		break;
 	}

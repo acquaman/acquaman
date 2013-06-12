@@ -57,7 +57,7 @@ void AMOrderReductionABEditor::populateComboBox()
 
 	if (analysisBlock_->rank() != 0){
 
-		for (int i = 0, size = analysisBlock_->rank(); i < size; i++)
+		for (int i = 0, size = analysisBlock_->currentInputSource()->rank(); i < size; i++)
 			reducedAxisOptions_->insertItem(i, analysisBlock_->currentInputSource()->axisInfoAt(i).description, i);
 	}
 }

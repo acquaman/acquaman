@@ -111,9 +111,10 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 		AMDataSource *tempInput = i0List.at(i);
 		temp = new AMOrderReductionAB(QString("%1-r").arg(tempInput->name()));
-		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
+		temp->setDescription("Reduced " % tempInput->description());
 		temp->setSelectedName(tempInput->name());
 		temp->setReducedAxis(2);
+		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
 		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
@@ -145,19 +146,45 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 	case VESPERS::SingleElement:{
 
-		// Add data sources.
+		AMDataSource *rawDataSource = 0;
+		AMOrderReductionAB *reducedROI = 0;
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+3);
+			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
+			reducedROI->setDescription("Reduced "+rawDataSource->description());
+			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setReducedAxis(2);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			scan_->addAnalyzedDataSource(reducedROI, true, false);
+		}
+
 		break;
 	}
 	case VESPERS::FourElement:{
 
-		// Add data sources.
+		AMDataSource *rawDataSource = 0;
+		AMOrderReductionAB *reducedROI = 0;
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+3);
+			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
+			reducedROI->setDescription("Reduced "+rawDataSource->description());
+			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setReducedAxis(2);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			scan_->addAnalyzedDataSource(reducedROI, true, false);
+		}
 
 		break;
 	}
 
 	case VESPERS::SingleElement | VESPERS::FourElement:{
 
-		// Add data sources.
 		break;
 	}
 	}
@@ -203,7 +230,7 @@ void VESPERS3DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 	}
 
