@@ -218,6 +218,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 		break;
 	}
+
 	case VESPERS::FourElement:{
 
 		AMDataSource *rawDataSource = 0;

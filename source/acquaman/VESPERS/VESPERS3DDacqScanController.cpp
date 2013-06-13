@@ -11,6 +11,8 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "analysis/AMOrderReductionAB.h"
+#include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -104,7 +106,7 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
-
+	QList<AMDataSource *> i0ReducedList;
 	AMOrderReductionAB *temp = 0;
 
 	for (int i = 0, size = i0List.size(); i < size; i++){
@@ -115,6 +117,7 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		temp->setSelectedName(tempInput->name());
 		temp->setReducedAxis(2);
 		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
+		i0ReducedList << temp;
 		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
@@ -123,15 +126,15 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	switch (config_->incomingChoice()){
 
 	case VESPERS::Isplit:
-		i0Name = i0List.at(0)->name();
+		i0Name = i0ReducedList.at(0)->name();
 		break;
 
 	case VESPERS::Iprekb:
-		i0Name = i0List.at(1)->name();
+		i0Name = i0ReducedList.at(1)->name();
 		break;
 
 	case VESPERS::Imini:
-		i0Name = i0List.at(2)->name();
+		i0Name = i0ReducedList.at(2)->name();
 		break;
 
 	case VESPERS::Ipost:
@@ -148,7 +151,9 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 		AMDataSource *rawDataSource = 0;
 		AMOrderReductionAB *reducedROI = 0;
+		AM2DNormalizationAB *normROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
 
 		for (int i = 0; i < roiCount; i++){
 
@@ -158,7 +163,19 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 			reducedROI->setSelectedName(rawDataSource->name());
 			reducedROI->setReducedAxis(2);
 			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
-			scan_->addAnalyzedDataSource(reducedROI, true, false);
+			roiList << reducedROI;
+			scan_->addAnalyzedDataSource(reducedROI, false, true);
+		}
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = roiList.at(i);
+			normROI = new AM2DNormalizationAB(QString(rawDataSource->name()).replace("reduced_", "norm_"));
+			normROI->setDescription(QString(rawDataSource->description().replace("Reduced ", "Normalized ")));
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0ReducedList);
+			scan_->addAnalyzedDataSource(normROI, true, false);
 		}
 
 		break;
@@ -167,7 +184,9 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 		AMDataSource *rawDataSource = 0;
 		AMOrderReductionAB *reducedROI = 0;
+		AM2DNormalizationAB *normROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
 
 		for (int i = 0; i < roiCount; i++){
 
@@ -180,10 +199,74 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 			scan_->addAnalyzedDataSource(reducedROI, true, false);
 		}
 
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = roiList.at(i);
+			normROI = new AM2DNormalizationAB(QString(rawDataSource->name()).replace("reduced_", "norm_"));
+			normROI->setDescription(QString(rawDataSource->description().replace("Reduced ", "Normalized ")));
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0ReducedList);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
 		break;
 	}
 
 	case VESPERS::SingleElement | VESPERS::FourElement:{
+
+		AMDataSource *roi1 = 0;
+		AMDataSource *roi4 = 0;
+		AMOrderReductionAB *reducedRoi1 = 0;
+		AMOrderReductionAB *reducedRoi4 = 0;
+		AM2DAdditionAB *sumAB = 0;
+
+		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		QStringList roiNames;
+		int singleElRoiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
+
+		for (int i = 0, count = sameRois.size(); i < count; i++){
+
+			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+3);
+			reducedRoi1 = new AMOrderReductionAB("reduced_"+roi1->name());
+			reducedRoi1->setDescription("Reduced "+roi1->description());
+			reducedRoi1->setSelectedName(roi1->name());
+			reducedRoi1->setReducedAxis(2);
+			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << roi1);
+			scan_->addAnalyzedDataSource(reducedRoi1, false, true);
+
+			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+3+singleElRoiCount);
+			reducedRoi4 = new AMOrderReductionAB("reduced_"+roi4->name());
+			reducedRoi4->setDescription("Reduced "+roi4->description());
+			reducedRoi4->setSelectedName(roi4->name());
+			reducedRoi4->setReducedAxis(2);
+			reducedRoi4->setInputDataSources(QList<AMDataSource *>() << roi4);
+			scan_->addAnalyzedDataSource(reducedRoi4, false, true);
+
+			QString name = roi1->name().left(roi1->name().size()-4);
+			roiNames << name;
+			sumAB = new AM2DAdditionAB("sum_" % name);
+			sumAB->setDescription("Summed " % roi1->description());
+			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
+			scan_->addAnalyzedDataSource(sumAB, false, true);
+
+			roiList << sumAB;
+		}
+
+		AM2DNormalizationAB *normROI = 0;
+		AMDataSource *source = 0;
+
+		for (int i = 0, count = roiList.size(); i < count; i++){
+
+			source = roiList.at(i);
+			normROI = new AM2DNormalizationAB("norm_" % roiNames.at(i));
+			normROI->setDescription("Normalized " % source->description());
+			normROI->setDataName(source->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << source << i0List);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
 
 		break;
 	}
