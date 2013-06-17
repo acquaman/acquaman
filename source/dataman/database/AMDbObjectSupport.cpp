@@ -680,6 +680,7 @@ QString AMDbObjectSupport::stringListSeparator() { return "|@^@|"; }
 // Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 QString AMDbObjectSupport::listSeparator() { return ";"; }
 
+QString AMDbObjectSupport::vectorSeparator() { return "|^@^|"; }
 
 // Temporary tables (to be generalized)
 ///////////////////////

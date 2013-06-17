@@ -6,42 +6,41 @@
 #include "dataman/database/AMDbObject.h"
 
 
+typedef QVector<QVector3D> AMQVector3DVector;
+Q_DECLARE_METATYPE(AMQVector3DVector);
+
 
 
 class AMBeamConfiguration : public AMDbObject
 {
     Q_OBJECT
     //Q_PROPERTY(type name READ access WRITE mutate)
-    Q_PROPERTY(QList<QVector3D> positionOne READ beamOne WRITE setBeamOne)
-    Q_PROPERTY(QList<QVector3D> positionTwo READ beamTwo WRITE setBeamTwo)
+    Q_PROPERTY(AMQVector3DVector positionOne READ positionOne WRITE setPositionOne)
+    Q_PROPERTY(AMQVector3DVector positionTwo READ positionTwo WRITE setPositionTwo)
 public:
     explicit AMBeamConfiguration(QObject *parent = 0);
 
-    QVector<QVector3D> positionOne();
-    QVector<QVector3D> positionTwo();
-    QVector<QVector3D> ray(int index);
+    AMQVector3DVector positionOne();
+    AMQVector3DVector positionTwo();
+    AMQVector3DVector ray(int index);
     QList<QVector3D> beamOne();
     QList<QVector3D> beamTwo();
 
-    void setPositionOne(QVector<QVector3D> positionOne);
-    void setPositionTwo(QVector<QVector3D> positionTwo);
+    void setPositionOne(AMQVector3DVector positionOne);
+    void setPositionTwo(AMQVector3DVector positionTwo);
     void setRay(QVector<QVector3D> ray, int index);
     void setBeamOne(QList<QVector3D> beamOne);
     void setBeamTwo(QList<QVector3D> beamTwo);
 
     void alignPositionTwo();
 
+    int count();
+
 protected:
     QVector3D findCenter(QVector<QVector3D>);
 
 
 protected:
-    static const int ONE;
-    static const int TWO;
-    static const int THREE;
-    static const int FOUR;
-    static const int CLOSE;
-
     QVector<QVector3D> positionOne_;
     QVector<QVector3D> positionTwo_;
 

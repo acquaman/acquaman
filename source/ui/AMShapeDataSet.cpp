@@ -9,26 +9,28 @@
 #include <QDebug>
 #include <math.h>
 #include "ui/AMCameraConfiguration.h"
-#include "ui/AMBeamConfiguration.h"
+//#include "ui/AMBeamConfiguration.h"
+
+
+#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSample.h"
 
-int const AMShapeDataSet::TOPLEFT = 0;
-int const AMShapeDataSet::TOPRIGHT = 1;
-int const AMShapeDataSet::BOTTOMRIGHT = 2;
-int const AMShapeDataSet::BOTTOMLEFT = 3;
-int const AMShapeDataSet::TOPCLOSE = 4;
-int const AMShapeDataSet::RECTANGLE_POINTS = 5;
 
 
+#define TOPLEFT 0
+#define TOPRIGHT 1
+#define BOTTOMRIGHT 2
+#define BOTTOMLEFT 3
+#define TOPCLOSE 4
+#define RECTANGLE_POINTS 5
 
-/// These values approximate the distortion of the camera
-double const AMShapeDataSet::X_XMOVEMENT = 0.015695;
-double const AMShapeDataSet::X_YMOVEMENT = -0.00003425;
-double const AMShapeDataSet::Y_YMOVEMENT = -0.0193235;
-double const AMShapeDataSet::Y_XMOVEMENT = -0.001015967;
+
 
 /// Constructor
 AMShapeDataSet::AMShapeDataSet(QObject *parent) :
@@ -74,6 +76,22 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     {
         beamModel_->loadFromDb(db,matchIDs.first());
     }
+
+
+    /// add motor manipulators
+
+    ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+    ssaManipulatorX_->setContextKnownDescription("X");
+
+    ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+    ssaManipulatorY_->setContextKnownDescription("Y");
+
+    ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
+    ssaManipulatorZ_->setContextKnownDescription("Z");
+
+    ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
+    ssaManipulatorRot_->setContextKnownDescription("R");
+
 
 }
 
@@ -341,6 +359,400 @@ bool AMShapeDataSet::isBackwards(int index)
     if(index == -1) index = current_;
     return shapeList_[index].backwards();
 }
+
+void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, double fieldofView)
+{
+    qDebug()<<"AMShapeDataSet::findCamera - started";
+    /// given the two points on screen and their corresponding positions, find out the camera parameters...
+    /// zHat is (0,0,-1)
+    /// given the point we know it's coordinates in some arbitrary coordinate system, or, given the coordinates,
+    /// we know the point position for some arbitrary camera...
+    /// point one's x position is given by: [sqrt(a+d^2)cos(r+aR)+dsin(r+aR)]/m2tanV
+    /// where a = [sC.(IuH-JzH)]^2 + [sC.vH]^2 + [sC.(JuH+IzH)]^2
+        /// sC is coordinateOne - P
+        /// P is the position of the camera (ie the desired cameraModel_->cameraPostion_;
+        /// I is (Cz-Pz)/|cR|
+        /// C is the center position of the camera (desired cameraModel_->cameraCenter_;
+        /// |cR| is sqrt[(Cx-Px)^2 + (Cy-Py)^2 + (Cz-Pz)^2]
+        /// J is sqrt[1-(I)^2] = sqrt[(Cx-Px)^2 + (Cy-Py)^2]/|cR|
+        /// uH = zH x vH
+        /// vH = zH x cR
+        /// cR = camerCenter - cameraPosition
+    /// d is [(sC.(IuH-JzH))(uH.xH)] + [(sC.vH)(vH.xH)] (zH.xH == 0, so no zH term)
+    /// xH = (1,0,0)
+    /// r is the rotation
+    /// ar is the adjustedRotation which is:
+        /// ar = M_PI if z<0 or x and y are 0
+        /// ar = M_PI - 2atan(y/x) if x is not zero, z >= 0
+        /// ar = 0 if x is 0 and z >= 0
+        /// x, y , z are given by P-C
+    /// m is sC.(JuH+IzH)
+    /// V is the field of view
+    /// we need to find P, C, V, R, A, and F
+    /// A is the pixel Aspect Ratio
+    /// F is the focal Length
+    /// the equation above uses PCVR -> 8 unknowns
+    /// similarly pointOne's y position is given by [dcos(r+aR)-sqrt(a+d^2)sin(r+aR)]/m2tanVasRA
+    /// asR is the screen aspect ratio
+    /// one additional variable is used -> 9 unknowns
+
+    /// additionally
+    /// vH = zH x cR -> (Cy-Py/|vH|,Px-Cx/|vH|,0)
+    /// |vH| = sqrt[(Cy-Py)^2 + (Px-Cx)^2]
+    /// as well,
+    /// uH = zH x vH = (vHy, -vHx, 0)
+
+    /// d is a function of (C,P, coordinate)
+    /// a is a funtion of (C, P, coordinate)
+    /// aR is a function of (C, P)
+    /// m is a funtion of (C, P, coordinate)
+
+    /// we want to find  C, P, V, R, A, and F such that
+    /// transform3Dto2D(coordinateOne) == pointOne
+    /// and transform3Dto2D(coordinateOne + shift) == pointTwo
+
+    /// to find the relationship between pointOne and  point Two we take
+    /// the above equations and substitute in coordinateOne + shift instead of coordinateOne
+    /// the result is
+    /// pointTwo.x = [sqrt(a'+d'^2)cos(r+aR)+d'sin(r+aR)]/m'2tanV
+    /// a' = a(sC) + a0 + a(shift)
+    /// a0 = 2*[(sC.(IuH-JzH))(shift.(IuH-JzH)+(sC.vH)(shift.vH)+(sC.(JuH+IzH))(shift.(JuH+IzH))]
+    /// note that shift takes the place of coordinateOne - P, not just coordinateOne
+    /// d' = d(sC) + d(shift)
+    /// m' = m(sC) + m(shift)
+    /// JuH + IzH == G == C-P/|C-P| except negate z component...
+
+
+    /// start with finding a candidate coordinate in the ideal coordinate system (facing down the z axis, with center at origin)
+    /// given the two screen points and the shift between them, we will find two coordinates that are separated by a scalar*shift
+    /// that scalar will be related to field of view and depth
+
+    double focalLength = 1;
+
+    if(pointOne == pointTwo)
+    {
+        qDebug()<<"Cannot use the same point twice";
+    }
+
+    QVector3D normalizedCoordinate;
+    normalizedCoordinate.setX(-1*(pointOne.x()-0.5)*fieldofView/focalLength);
+    normalizedCoordinate.setY(-1*(pointOne.y()-0.5)*fieldofView/focalLength);
+    normalizedCoordinate.setZ(1);
+    normalizedCoordinate.normalize();
+    ///  here we have a vector representing coordinateOne, must find the relative coordinateTwo representation
+
+    QVector3D normalizedCoordinateTwo;
+    normalizedCoordinateTwo.setX(-1*(pointTwo.x()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateTwo.setY(-1*(pointTwo.y()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateTwo.setZ(1);
+    normalizedCoordinateTwo.normalize();
+
+    QVector3D normalizedCoordinateThree;
+    normalizedCoordinateThree.setX(-1*(pointThree.x()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateThree.setY(-1*(pointThree.y()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateThree.setZ(1);
+    normalizedCoordinateThree.normalize();
+
+    QVector3D normalizedCoordinateFour;
+    normalizedCoordinateFour.setX(-1*(pointFour.x()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateFour.setY(-1*(pointFour.y()-0.5)*fieldofView/focalLength);
+    normalizedCoordinateFour.setZ(1);
+    normalizedCoordinateFour.normalize();
+
+    /// The three vectors represent three rays into the representational coordinate system
+    ///
+
+//    QPointF apparentLengthOne = pointTwo-pointOne;
+//    QPointF apparentLengthTwo = pointThree-pointOne;
+
+//    double screenLengthOne = (pow(apparentLengthOne.x(),2.0)+pow(apparentLengthOne.y(),2.0));
+//    double screenLengthTwo = (pow(apparentLengthTwo.x(),2.0)+pow(apparentLengthTwo.y(),2.0));
+
+    /// must find the scale between the two vectors, which will give the angle between them
+
+    double shiftOneLength = shift.length();
+    double shiftTwoLength = shiftTwo.length();
+    double shiftThreeLength = shiftThree.length();
+    double coordinateLength = coordinateOne.length();
+
+//    double shiftRatio = shiftOneLength/shiftTwoLength;
+
+//    double screenRatio = screenLengthOne/screenLengthTwo;
+
+    /// if the two ratios are not close, it means that they are different angles from the normal.
+    /// if they are close to being the same they are at the same angle, but not necessarily in the same direction
+
+    /// angle between the two shifts is: cos(theta) = shift1.shift2/|shift1|*|shift2|
+
+    double shiftAngleOneTwo = acos(QVector3D::dotProduct(shift,shiftTwo)/(shiftOneLength*shiftTwoLength));
+    double shiftAngleOneThree = acos(QVector3D::dotProduct(shift,shiftThree)/(shiftOneLength*shiftThreeLength));
+    double shiftAngleTwoThree = acos(QVector3D::dotProduct(shiftThree,shiftTwo)/(shiftThreeLength*shiftTwoLength));
+//    qDebug()<<"ShiftAngle"<<shiftAngle;
+
+    /// if angle  is zero, both vectors are parallel
+    /// if the ratio's match up, there are three cases:
+    /// angle 0
+    /// lie on the visual plane
+    /// matching angles
+
+    /// more likely, the ratios will not match up
+
+    double shiftOneAngle = acos(QVector3D::dotProduct(shift,coordinateOne)/(shiftOneLength*coordinateLength));
+    qDebug()<<"Angle one"<<shiftOneAngle;
+    double shiftTwoAngle = acos(QVector3D::dotProduct(shiftTwo,coordinateOne)/(shiftTwoLength*coordinateLength));
+    qDebug()<<"Angle one"<<shiftTwoAngle;
+    /// if shiftOneAngle + shiftTwoAngle = shiftAngle, all three vectors lie on a plane
+
+
+
+    /// to find d, which is the length of the vector of coordinate One
+    /// d = +-beta-+gamma/[(a.c)(1-(a.c)^2)/{(a.c)^2-cos(Theta2)^2}]
+    /// however, beta and gamma are both functions of d, so this will be computed iteratively
+
+
+    qDebug()<<"Finding the coordinateDistance";
+//    coordinateDistance = findCoordinateDistance(coordinateDistance, normalizedCoordinate, normalizedCoordinateTwo, normalizedCoordinateThree,  shiftOneLength, shiftTwoLength, shiftOneAngle, shiftTwoAngle);
+
+
+    /// Here is what is actually happening, ignore most of the stuff above
+    /// the three shifts have the same angle between them no matter where they are
+    /// as well, when creating representational coordinates , the distances between the points must be scaled to the lengths of the shifts
+    /// so that gives six equations and five variables
+    /// three equations for solving the point where a ray intersects a sphere of radius shiftlength*scalingFactor
+    /// three equations for equality between angles (angle12,23,and 13)
+    /// however, this set of equations does not have one single solution, it may have many solutions, depending on where the
+    /// center coordinate is placed along its ray.
+    /// make an initial guess at the distance along the central ray, as well as the distance along one of the shifts.
+    double initialTDistance = 24;
+    double initialDDistance = 54;
+    QList<double> parameters = getCoordinateSystem(initialTDistance,initialDDistance,shiftOneLength,shiftTwoLength,shiftThreeLength,normalizedCoordinate,normalizedCoordinateTwo,normalizedCoordinateThree,normalizedCoordinateFour,shiftAngleOneTwo,shiftAngleOneThree,shiftAngleTwoThree);
+    /// the list returns d,t1,t2,t3,r
+    /// d is the length along the ray going through pointOne, t1-t3 are the same for points2-4
+    /// and r is the factor by which the vectors are scaled - should be proportional to fov only.
+    /// once the fov is found, the depth is just scaled so it fits -- fov affects only the two dimensional shape, so will have to redo?
+    double d, t1, t2, t3, r;
+    d = parameters.at(0);
+    t1 = parameters.at(1);
+    t2 = parameters.at(2);
+    t3 = parameters.at(3);
+    r = parameters.at(4);
+
+    qDebug()<<"d"<<d;
+    qDebug()<<"t1"<<t1;
+    qDebug()<<"t2"<<t2;
+    qDebug()<<"t3"<<t3;
+    qDebug()<<"r"<<r;
+
+    QVector3D A;
+    QVector3D B;
+    QVector3D C;
+    QVector3D E;
+
+    A = d/r*normalizedCoordinate;
+    B = t1/r*normalizedCoordinateTwo;
+    C = t2/r*normalizedCoordinateThree;
+    E = t3/r*normalizedCoordinateFour;
+
+    B = B-A;
+    C = C-A;
+    E = E-A;
+
+    qDebug()<<"A"<<A;
+    qDebug()<<"B"<<B;
+    qDebug()<<"C"<<C;
+    qDebug()<<"E"<<E;
+
+    double factor = 1;
+    double bFactor;
+    double cFactor;
+    double eFactor;
+    double bZ = B.z();
+    double cZ = C.z();
+    double eZ = E.z();
+    double sOneZ = shift.z();
+    double sTwoZ = shiftTwo.z();
+    double sThreeZ = shiftThree.z();
+    double tolerance = 0.00001;
+    if(bZ < tolerance) bZ = 0;
+    if(cZ < tolerance) cZ = 0;
+    if(eZ < tolerance) eZ = 0;
+    if(sOneZ < tolerance) sOneZ = 0;
+    if(sTwoZ < tolerance) sTwoZ = 0;
+    if(sThreeZ < tolerance) sThreeZ = 0;
+
+
+
+    if(notEqual(bZ,sOneZ) || notEqual(cZ,sTwoZ) || notEqual(eZ,sThreeZ))
+    {
+        qDebug()<<bZ<<sOneZ;
+        qDebug()<<cZ<<sTwoZ;
+        qDebug()<<eZ<<sThreeZ;
+
+        if(bZ != 0)
+        {
+            bFactor = sOneZ/bZ;
+        }
+        else if(sOneZ == 0)
+        {
+            bFactor = 1;
+        }
+        else
+        {
+            bFactor = 1;
+            qDebug()<<"Should not have a denominator of zero in bFactor";
+            qDebug()<<"or else shift z is almost 0";
+        }
+
+        if(cZ != 0)
+        {
+            cFactor = sTwoZ/cZ;
+        }
+        else if(sTwoZ == 0)
+        {
+            cFactor = 1;
+        }
+        else
+        {
+            cFactor = 1;
+            qDebug()<<"Should not have a denominator of zero in cFactor";
+        }
+
+        if(eZ != 0)
+        {
+            eFactor = sThreeZ/eZ;
+        }
+        else if(sThreeZ == 0)
+        {
+            eFactor = 1;
+        }
+        else
+        {
+            eFactor = 1;
+            qDebug()<<"Should not have a denominator of zero in eFactor";
+        }
+
+        if(bFactor == 1 || cFactor == 1 || eFactor == 1)
+        {
+            qDebug()<<"some of the factors are 1, must be on the same depth plane as the central point";
+            if(bFactor == 1 && cFactor == 1 && eFactor == 1)
+            {
+                factor = 1;
+                // probably good, or else they are all on the same z
+                if(bZ == cZ && cZ == eZ)
+                {
+                    qDebug()<<"Points can't detect field of view";
+                }
+            }
+            else
+            {
+                factor = bFactor;
+                if(factor == 1)
+                {
+                    factor = cFactor;
+                    bFactor = cFactor;
+                    if(factor == 1)
+                    {
+                        factor = eFactor;
+                        bFactor = eFactor;
+                        cFactor = eFactor;
+                        if(factor ==1)
+                        {
+                            qDebug()<<"Error in findCamera: all factors are one, but did not enter the all 1 branch";
+                        }
+                    }
+                    else
+                    {
+                        if(eFactor != 1 && eFactor !=cFactor)
+                        {
+                                qDebug()<<"contradictory field of view information occured in findCamera first";
+                        }
+                    }
+                }
+                else
+                {
+                    if(cFactor != 1 && cFactor !=bFactor)
+                    {
+                            qDebug()<<"contradictory field of view information occured in findCamera second";
+                    }
+                    if(eFactor != 1 && eFactor !=bFactor)
+                    {
+                            qDebug()<<"contradictory field of view information occured in findCamera third";
+                    }
+                }
+
+            }
+        }
+        else if(bFactor == cFactor && cFactor == eFactor)
+        {
+            factor = bFactor;
+        }
+        else
+        {
+            qDebug()<<"contradictory field of view information occured in findCamera fourth";
+        }
+        // factor is the field of view scaling
+        // it is given by 2tanVF
+        // F is field of view
+        // F is focal length
+        qDebug()<<"Factor is:"<<factor;
+        if(factor != 1 && fieldofView == 1)
+        {
+            findCamera(pointOne,pointTwo,pointThree,pointFour,coordinateOne,shift,shiftTwo,shiftThree,1.0/factor);
+            return;
+        }
+    }
+    double tanFOV = fieldofView/2/focalLength;
+    double fov = atan(tanFOV);
+    /// Acquired the fov;
+    qDebug()<<"field of view has been calculated to be:"<<fov;
+
+
+    /// acquire rotation in 3D space.
+
+
+    /// define the rotation matrix
+    /// R = [ux vx wx
+    ///      uy vy wy
+    ///      uz vx wz]
+    /// Ra = A
+    /// where a is an unrotated point, and A is a rotated point
+    /// cos(theta) = (ux + vy + wz - 1)/2
+    /// w is the cross product of u and v
+    /// u and v are perpendicular to each other
+    /// u and v are both normalized
+
+    /// R has to satisfy
+    /// Ra = A
+    /// for all the shifts:
+    /// b' = B/|B|
+    /// c' = C/|C|
+    /// e' = E/|E|
+    /// B' = shift/|shift|
+    /// etc
+
+    /// Rb' = B'
+    /// etc.
+
+    QVector3D cameraCenter = findOrientation(B,C,E,shift,shiftTwo,shiftThree);
+
+    /// actually, the fov will be wrong if cameraCenter != 0,0,-1
+    /// need to calculate the camera Center first, from there we know what the depth vector looks like
+    /// then the depths of the vectors can be compared to come up with a fov value
+    /// so move cameraCenter up and find depth
+
+    /// after cameraCenter and fov have been found, find the shift, which is just the
+    /// difference between A and coordinate.
+    /// then we will have shift, cameraCenter, and fov
+    /// focal point may need to be modified
+    /// and it may need to be rotated
+
+    /// the only thing not yet accounted for is distortion...
+    /// may not be able to do that
+    /// basically a non linear version of fov
+
+}
+
+
 
 /// creates a new rectangle, and initializes its data
 void AMShapeDataSet::startRectangle(QPointF position)
@@ -636,7 +1048,13 @@ void AMShapeDataSet::oneSelect()
         QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[current_]);
         beamModel_->setPositionOne(newBeamPosition);
 
+//        qDebug()<<newBeamPosition.at(0);
+//        qDebug()<<transform3Dto2D(newBeamPosition.at(0));
+//        qDebug()<<newBeamPosition.at(1);
+//        qDebug()<<transform3Dto2D(newBeamPosition.at(1));
+
         emit beamChanged(beamModel_);
+
     }
     else
     {
@@ -700,6 +1118,9 @@ AMShapeData AMShapeDataSet::applyRotation(AMShapeData shape)
 QVector3D AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center)
 {
     QVector3D direction(0,-1,0);
+    // changed the axis of rotation
+//    center += QVector3D(-0.5,0,-0.35);// should correspond to rotation of the plate
+    ///changed the axis of rotation
     point = rotateCoordinate(point,center,direction,rotation);
     return point;
 }
@@ -1161,7 +1582,6 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
     /// once each component has been calculated, add them up
     // vector = uComponet*u^ + vComponent*v^ + zComponent*z^
 
-    // not very consistent in rotation of the coordinate axis...
 
     double rotation = cameraModel_->cameraRotation();
     double focalLength = cameraModel_->cameraFocalLength();
@@ -1395,12 +1815,13 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     QVector3D hHat = heightVector.normalized();
     QVector3D wHat = widthVector.normalized();
     QVector3D nHat = QVector3D::normal(wHat,hHat);
-    QVector3D l0 [4];
-    QVector3D lHat [4];
-    double distance[4];
+    int count = beamModel_->count();
+    QVector3D l0 [count];
+    QVector3D lHat [count];
+    double distance[count];
     double numerator;
     double denominator;
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < count; i++)
     {
         l0[i] = beamModel_->ray(i).at(0);
         lHat[i] = beamModel_->ray(i).at(1) - l0[i];
@@ -1502,4 +1923,478 @@ QVector3D AMShapeDataSet::centerCoordinate(int index)
         center += shapeList_[index].coordinate(i);
     }
     return center/4.0;
+}
+
+double AMShapeDataSet::findCoordinateDistance(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne, double thetaTwo, double oldError)
+{
+    if(isnan(coordinateDistance))
+    {
+        qDebug()<<"Not a number";
+        return 0;
+    }
+    double oldDistance = coordinateDistance;
+    QPair<double, double> betaResult = beta(coordinateDistance,a,b,c,shiftOne,shiftTwo,thetaOne);
+    double betaTerm[2];
+    betaTerm[0] = betaResult.first;
+    betaTerm[1] = betaResult.second;
+    double gammaTerm = gamma(coordinateDistance, a, c, thetaTwo);
+    /// eight possible outcomes
+    double signedTerm[8];
+    double sign[2] = {1,-1};
+    for(int i = 0; i < 2; i++)
+    {
+        for(int j = 0; j < 2; j++)
+        {
+            for(int k = 0; k < 2; k++)
+            {
+                signedTerm[k+2*j+4*i] = sign[j]*betaTerm[i]+sign[k]*gammaTerm;
+            }
+        }
+    }
+    double aDotC = QVector3D::dotProduct(a,c);
+    double aDotCSquared = pow(aDotC,2.0);
+    qDebug()<<aDotCSquared;
+    double coefficientNumerator = (aDotCSquared-pow(cos(thetaTwo),2.0));
+    double coefficientDenominator = ((1-aDotCSquared)*aDotC);
+    qDebug()<<"ThetaTwo"<<thetaTwo;
+    qDebug()<<"costhetaTwo"<<cos(thetaTwo);
+
+    qDebug()<<"coefficient"<<coefficientNumerator<<"/"<<coefficientDenominator;
+    double coefficient = coefficientNumerator/coefficientDenominator;
+    double result[8];
+    double error;
+    for(int i = 0; i < 8; i++)
+    {
+
+        result[i] = signedTerm[i]*coefficient;
+        qDebug()<<result[i];
+        error = fabs((result[i] - oldDistance)/result[i]);
+        qDebug()<<"Error"<<error<<"oldValue="<<oldDistance;
+        if(error < 0.001)
+            return result[i];
+        if(error < oldError)
+        {
+            qDebug()<<"finding new result";
+            result[i] = findCoordinateDistance(result[i],a,b,c,shiftOne,shiftTwo,thetaOne,thetaTwo, error);
+        }
+    }
+    qDebug()<<"finalResults:";
+    for(int i = 0; i < 8; i++)
+    {
+        qDebug()<<result[i];
+        if(result[i] !=0 && (result[i] < 1000 && result[i] > -1000))
+            return result[i];
+    }
+
+    return result[2];
+
+}
+
+QPair<double,double> AMShapeDataSet::beta(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne)
+{
+    QPair<double,double> alphaResult = alpha(coordinateDistance,a,b,thetaOne);
+    double alphaTerm [2];
+    alphaTerm[0] = alphaResult.first;
+    alphaTerm[1] = alphaResult.second;
+    double termOne = pow(coordinateDistance,2.0)*(pow(QVector3D::dotProduct(a,c),2.0)-1);
+    double termTwo[2];
+    double result[2];
+
+    for(int i = 0; i < 2; i++)
+    {
+        termTwo[i] = pow(alphaTerm[i],2.0)-2*coordinateDistance*(QVector3D::dotProduct(a,b))*alphaTerm[i]+pow(coordinateDistance,2.0);
+        termTwo[i] *= pow(shiftOne,2.0)/pow(shiftTwo,2.0);
+        result[i] = termOne + termTwo[i];
+        result[i] = sqrt(result[i]);
+    }
+
+    return QPair<double,double>(result[0],result[1]);
+}
+
+double AMShapeDataSet::gamma(double coordinateDistance, QVector3D a, QVector3D c, double thetaTwo)
+{
+    double aDotC = QVector3D::dotProduct(a,c);
+    double termOne = sqrt((1-pow(aDotC,2.0)));
+    double numerator = termOne*coordinateDistance*sin(2*thetaTwo)/2;
+    double denominator = pow(aDotC,2.0)-pow(cos(thetaTwo),2.0);
+    if(denominator == 0)
+    {
+        qDebug()<<"gamma: zero in the denominator";
+        return 0;
+    }
+    return numerator/denominator;
+}
+
+QPair<double,double> AMShapeDataSet::alpha(double coordinateDistance, QVector3D a, QVector3D b, double thetaOne)
+{
+    double aDotB = QVector3D::dotProduct(a,b);
+    double squareRootTerm = 1-pow(aDotB,2.0);
+    if(squareRootTerm < 0)
+    {
+        qDebug()<<"alpha: negative under squareRoot";
+        qDebug()<<"a and or b must not be normalized...";
+        return QPair<double,double>(0,0);
+    }
+    squareRootTerm = sqrt(squareRootTerm);
+    double secondTermNumerator = coordinateDistance*sin(2*thetaOne);
+    double secondTermDenominator = 2*(aDotB*aDotB-pow(cos(thetaOne),2.0));
+    double secondTerm = secondTermNumerator*squareRootTerm/secondTermDenominator;
+    double firstTermNumerator = pow(sin(thetaOne),2.0)*aDotB*coordinateDistance;
+    double firstTermDenominator = pow(aDotB,2.0) - pow(cos(thetaOne),2.0);
+    double firstTerm = firstTermNumerator/firstTermDenominator;
+    QPair<double,double> result;
+    result.first = firstTerm + secondTerm;
+    result.second = firstTerm - secondTerm;
+    return result;
+}
+
+QList<double> AMShapeDataSet::getCoordinateSystem(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE)
+{
+    double oldT2 = t2;
+    double oldD = d;
+    double error = 100;
+    while(error > 0.1)
+    {
+        t2 = calculateT2(t2,d,shift1Length,shift2Length,shift3Length,a,b,c,e,angleBC,angleBE,angleCE);
+        d = calculateD(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+        error = std::max(fabs((t2-oldT2)/t2),fabs((d-oldD)/d));
+        oldT2 = t2;
+        oldD = d;
+        // hope it converges
+    }
+    double t1,t3,rSquared, r;
+    t1 = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+    t3 = omega(t2,d,shift1Length,shift2Length,shift3Length,a,b,c,e,angleBC,angleBE);
+    rSquared = (beta(t2,d,shift2Length,a,c));
+    if(rSquared < 0)
+    {
+        qDebug()<<"AMShapeDataSet::getCoordinateSystem radius squared is negative";
+    }
+    else
+    {
+        r = sqrt(rSquared);
+    }
+    QList<double> result;
+    result<<d<<t1<<t2<<t3<<r;
+    return result;
+}
+
+double AMShapeDataSet::calculateT2(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE)
+{
+    double betaTerm = beta(t2,d,shift2Length,a,c);
+    double omegaTerm = omega(t2,d,shift1Length,shift2Length, shift3Length, a,b,c,e,angleBC,angleBE);
+    double termOne = betaTerm*shift2Length*shift3Length*cos(angleCE);
+    double termTwo = omegaTerm*d*QVector3D::dotProduct(a,e) - pow(d,2.0);
+    double numerator = termOne + termTwo;
+    double denominator = omegaTerm*QVector3D::dotProduct(c,e) - d*QVector3D::dotProduct(a,c);
+    double result = numerator/denominator;
+    return result;
+}
+
+double AMShapeDataSet::calculateD(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC)
+{
+    double deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+    double betaTerm = beta(t2,d,shift2Length,a,c);
+    double numerator = pow(deltaTerm,2.0) + pow(d,2.0) - betaTerm*pow(shift1Length,2.0);
+    double denominator = 2*deltaTerm*QVector3D::dotProduct(a,b);
+    double result = numerator/denominator;
+    return result;
+}
+
+double AMShapeDataSet::delta(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC)
+{
+    double termOne = beta(t2,d,shift2Length,a,c)*shift1Length*shift2Length*cos(angleBC);
+    double termTwo = t2*d*QVector3D::dotProduct(a,c) - pow(d,2.0);
+    double numerator = termOne + termTwo;
+    double denominator = t2*QVector3D::dotProduct(b,c) - d*QVector3D::dotProduct(a,b);
+    double result = numerator/denominator;
+    return result;
+}
+
+double AMShapeDataSet::omega(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE)
+{
+    double deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+    double betaTerm = beta(t2,d,shift2Length,a,c);
+    double termOne = betaTerm*shift1Length*shift3Length*cos(angleBE);
+    double termTwo = deltaTerm*d*QVector3D::dotProduct(a,b) - pow(d,2.0);
+    double numerator = termOne + termTwo;
+    double denominator = deltaTerm*QVector3D::dotProduct(b,e) - d*QVector3D::dotProduct(a,e);
+    double result = numerator/denominator;
+    return result;
+}
+
+double AMShapeDataSet::beta(double t2, double d, double shift2Length, QVector3D a, QVector3D c )
+{
+    double numerator = pow(t2,2.0) - 2*t2*d*QVector3D::dotProduct(a,c) + pow(d,2.0);
+    double result = numerator/pow(shift2Length,2.0);
+    return result;
+}
+
+bool AMShapeDataSet::notEqual(double a, double b, double tolerance)
+{
+    double percent = fabs((a-b)/a);
+    return percent>tolerance;
+}
+
+QVector3D AMShapeDataSet::findOrientation(QVector3D b, QVector3D c, QVector3D e, QVector3D shiftB, QVector3D shiftC, QVector3D shiftE)
+{
+    b.normalize();
+    c.normalize();
+    e.normalize();
+
+    shiftB.normalize();
+    shiftC.normalize();
+    shiftE.normalize();
+
+    QVector3D u = QVector3D(1, 1, 1);
+    QVector3D v = QVector3D(1, 1, 1);
+    u.normalize();
+    v.normalize();
+    double error = 100;
+    QVector3D oldU = u;
+    while(error > 0.001)
+    {
+        calculateVectors(u,v,b,shiftB);
+        error = std::max(absError(u.x(),oldU.x()),std::max(absError(u.y(),oldU.y()),absError(u.z(),oldU.z())));
+        // assuming v is fine if u is...
+        oldU = u;
+    }
+    // "calculate" w
+    // confirm the results
+    // calculate theta
+    // need to find the rotation unit vector
+    // Rv = v;
+    qDebug()<<u.x();
+
+    QVector3D w;
+    w.setX(u.y()*v.z()-u.z()*v.y());
+    w.setY(u.z()*v.x()-u.x()*v.z());
+    w.setZ(u.x()*v.y()-u.y()*v.x());
+
+    double theta = acos((u.x()+v.y()+w.z()-1)/2);
+    QVector3D rotationNormal;
+
+    /// to solve for rotationNormal,solve Rv = v for v
+    double aTerm = v.x()*u.z()+v.z()-v.z()*v.x();
+    double bTerm = (1-u.x())*(1-w.z())-w.x()*u.z();
+    if(bTerm == 0)
+    {
+        qDebug()<<"AMShapeDataSet::findOrientation: bTerm is zero...";
+        rotationNormal.setY(0);
+        rotationNormal.setZ(1);
+        rotationNormal.setX(0);
+    }
+    else
+    {
+        double termOneNumerator = v.x()+aTerm/bTerm*w.x();
+        double termOneDenominator = 1-u.x();
+        double termOne;
+        if(termOneDenominator == 0)
+        {
+            qDebug()<<"AMShapeDataSet::findOrientation: termOneDenominatoris 0";
+            if(nearZero(termOneNumerator) == 0)
+            {
+                qDebug()<<"Undefined";
+                termOne = 1;
+
+            }
+            else
+            {
+                qDebug()<<"Indeterminate";
+                termOne = 0;
+            }
+        }
+        else
+        {
+            termOne = termOneNumerator/termOneDenominator;
+        }
+        termOne*=termOne;
+        double termTwo = 1+aTerm*aTerm/(bTerm*bTerm);
+        double denominator = termOne + termTwo;
+        if(denominator == 0)
+        {
+            qDebug()<<"AMShapeDataSet::findOrientation: denominator is zero";
+            rotationNormal.setY(0);
+        }
+        else
+        {
+            rotationNormal.setY(sqrt(1/denominator));
+        }
+
+        rotationNormal.setZ(rotationNormal.y()*aTerm/bTerm);
+
+        if(termOneDenominator == 0)
+        {
+            qDebug()<<"AMShapeDataSet::findOrientation: termOneDenominator is 0";
+            rotationNormal.setX(0);
+        }
+        else
+        {
+            rotationNormal.setX((rotationNormal.y()*v.x()+rotationNormal.z()*w.x())/termOneDenominator);
+        }
+
+    }
+
+    /// have the rotation, and the rotation unit vector, perform the rotation, and return the rotated camera center;
+    /// first check to see that there actually is a rotation performed, as the rotation unit vector will be
+    /// arbitrary with no rotation
+
+    QVector3D cameraCenter = QVector3D(0,0,-1);
+
+    if(nearZero(theta) == 0)
+    {
+        /// skip the rotation
+        cameraCenter = QVector3D(0,0,-1);
+        // or is it 1?
+    }
+    else
+    {
+        /// calculate the rotation
+        /// exact same process as calculating the rotation in transform
+        /// just rotate the camera center from 0,0,-1 to its new position
+        /// which is given by rotating it
+        /// could just apply the rotation matrix, that could be easier...
+        /// since there are two zeros it's just
+        /// rotatedCameraCenter = w*cameraCenter/.z
+        cameraCenter = w*cameraCenter.z();
+
+    }
+
+
+
+
+    return cameraCenter;
+
+}
+
+void AMShapeDataSet::calculateVectors(QVector3D &u, QVector3D &v, QVector3D a, QVector3D newA)
+{
+    /// calculate uz, vx, vy from the simultaneous equations
+    /// calculate ux, uy , vz
+    u.normalize();
+    v.normalize();
+
+    double newAX = newA.x();
+    double newAY = newA.y();
+    double newAZ = newA.z();
+
+    u.setZ(uZ(u.z(), v.x(), v.y(), a, newAX));
+    u.normalize();
+    v.setX(vX(u.z(),v.x(),v.y(),a,newAX,newAZ));
+    v.normalize();
+    v.setY(vY(u.z(),v.x(),v.y(),a,newAX,newAY));
+    v.normalize();
+    v.setZ(vZ(v.x(),v.y()));
+    v.normalize();
+    u.setY(uY(u.z(),v.x(),v.y(),a,newAX));
+    u.normalize();
+    u.setX(uX(u.z(),v.x(),v.y(),a,newAX));
+    u.normalize();
+
+
+
+}
+
+double AMShapeDataSet::uX(double uz, double vx, double vy, QVector3D a, double newAX)
+{
+    double vz = vZ(vx,vy);
+    if(vx == 0)
+    {
+        qDebug()<<"AMShapeDataSet::uX: vx is 0; indeterminate result";
+        return 0.57;
+    }
+    return -1*(uY(uz,vx,vy,a,newAX)*vy-uz*vz)/vx;
+}
+
+double AMShapeDataSet::uY(double uz, double vx, double vy, QVector3D a, double newAX)
+{
+    double vz = vZ(vx,vy);
+    double numerator = newAX*vx+uz*vz*a.x()-vx*vx*a.y()+uz*vx*vy*a.z();
+    double denominator =(vz*vx*a.z()-vy*a.x());
+    if(denominator == 0)
+    {
+        qDebug()<<"AMShapeDataSet::uY: denominator is 0; indeterminate result";
+        return 0.57;
+    }
+    return numerator/denominator;
+}
+
+double AMShapeDataSet::uZ(double uz, double vx, double vy, QVector3D a, double newAX)
+{
+    double ux = uX(uz,vx,vy,a,newAX);
+    double uy = uY(uz,vx,vy,a,newAX);
+    double innerTerm = 1 - ux*ux - uy*uy;
+    if(innerTerm < 0)
+    {
+        qDebug()<<"AMShapeDataSet::uZ: inner term is negative; complex result";
+        innerTerm*=-1;
+    }
+    return sqrt(innerTerm);
+}
+
+double AMShapeDataSet::vX(double uz, double vx, double vy, QVector3D a, double newAX, double newAZ)
+{
+    double ux = uX(uz,vx,vy,a,newAX);
+    double uy = uY(uz,vx,vy,a,newAX);
+    double vz = vZ(vx,vy);
+    double numerator = uz*a.x()+vz*a.y()+ux*vy*a.z()-newAZ;
+    double denominator = uy*a.z();
+    if(denominator == 0)
+    {
+        qDebug()<<"AMShapeDataSet::vX: denominator is zero; invalid solution";
+        return 0;
+    }
+    return numerator/denominator;
+}
+
+
+double AMShapeDataSet::vY(double uz, double vx, double vy, QVector3D a, double newAX, double newAY)
+{
+    double ux = uX(uz,vx,vy,a,newAX);
+    double uy = uY(uz,vx,vy,a,newAX);
+    double vz = vZ(vx,vy);
+    if(a.y() == 0)
+    {
+        qDebug()<<"AMShapeDataSet::vY: ay is zero; invalid solution";
+    }
+    return (newAY - uy*a.x() +  uz*vx*a.z() - ux*vz*a.z())/a.y();
+}
+
+double AMShapeDataSet::vZ(double vx, double vy)
+{
+    double innerTerm = 1-vx*vx-vy*vy;
+    if(innerTerm < 0)
+    {
+        qDebug()<<"AMShapeDataSet::vZ: inner term is negative, imaginary result";
+       innerTerm*=-1;
+    }
+    return sqrt(innerTerm);
+
+}
+
+double AMShapeDataSet::nearZero(double a,double tolerance)
+{
+    if(fabs(a)<tolerance)
+    {
+        return 0;
+    }
+    else return a;
+}
+
+double AMShapeDataSet::absError(double a, double b, double tolerance)
+{
+    a = nearZero(a,tolerance);
+    b = nearZero(b,tolerance);
+    if(a == 0 && b == 0)
+    {
+        return 0;
+    }
+    else if (a == 0)
+    {
+        return fabs((b - a)/b);
+    }
+    else
+    {
+        return fabs((a-b)/a);
+    }
 }

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMetaType>
 #include "dataman/AMnDIndex.h"
+#include "ui/AMBeamConfiguration.h"
 #include <QVector3D>
 #include <QtConcurrentRun>
 #include <QStringBuilder>
@@ -214,6 +215,14 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			resultString << QString::number(val.x()) << QString::number(val.y()) << QString::number(val.z());
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
+
+        else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
+            AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
+            QStringList resultString;
+            foreach(QVector3D d, vectorList)
+                resultString << QString("%1%2%3%2%4").arg(d.x()).arg(AMDbObjectSupport::listSeparator()).arg(d.y()).arg(d.z());
+            values << resultString.join(AMDbObjectSupport::vectorSeparator());
+        }
 
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
@@ -534,6 +543,25 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
 				setProperty(columnName, QVariant::fromValue(vector));
 			}
+            else if(columnType == qMetaTypeId<AMQVector3DVector>())
+            {
+                AMQVector3DVector vector3DList;
+                QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::vectorSeparator(), QString::SkipEmptyParts);
+                foreach(QString i, stringList){
+                    QStringList subList = i.split(AMDbObjectSupport::listSeparator());
+                    QVector3D vector;
+                    if(subList.size() == 3)
+                    {
+                        vector = QVector3D(subList.at(0).toDouble(), subList.at(1).toDouble(), subList.at(2).toDouble());
+                    }
+                    else
+                    {
+                        AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS_IN_AMQVECTOR3DVECTOR, "Couldn't find 3 numbers when attempting to load a 3D geometry point for an AMQVector3DVector from the database."));
+                    }
+                    vector3DList<<vector;
+                }
+                setProperty(columnName, QVariant::fromValue(vector3DList));
+            }
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));
 			}

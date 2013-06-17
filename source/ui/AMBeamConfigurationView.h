@@ -9,6 +9,8 @@ class QPushButton;
 class AMBeamConfiguration;
 class QVector3D;
 class QCheckBox;
+class QComboBox;
+class QLineEdit;
 
 class AMBeamConfigurationView : public QWidget
 {
@@ -63,6 +65,10 @@ protected:
     QPushButton *twoSelect_;
 
     QPushButton *intersectionButton_;
+
+    QComboBox *beamSelectionBox_;
+    QLineEdit *beamConfigurationName_;
+    QPushButton * beamSaveConfiguration_;
 
     AMBeamConfiguration* beamModel_;
 

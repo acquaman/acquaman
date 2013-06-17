@@ -37,7 +37,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 {
 
     shapeModel_ = shapeModel;
-    shapeView_ = new AMShapeDataView();// pass in shapeData
+    shapeView_ = new AMShapeDataView();// start with no shape data, as none has been drawn yet
     shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
@@ -351,6 +351,8 @@ void AMShapeDataSetView::setOperationMode()
 void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
+    qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
+    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.3,-0.7),QPointF(-0.5,0.5), QPointF(0.5,0.9),QVector3D(18,4,21),QVector3D(0.2,1.2,0),QVector3D(1,0,0),QVector3D(0,-0.6,1));
 }
 
 void AMShapeDataSetView::setMotorCoordinatePressed()

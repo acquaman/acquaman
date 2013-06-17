@@ -202,6 +202,7 @@ public:
 	static QString stringListSeparator();
 	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 	static QString listSeparator();
+    static QString vectorSeparator();
 
 	/// Stores thumbnails for all AMDbObjects that use thumbnails
 	static QString thumbnailTableName();

@@ -1,3 +1,5 @@
+
+#include (sgmCommon.pri)
 # video using Multimedia module from QtMobility
 CONFIG += mobility
 MOBILITY += multimedia
@@ -58,14 +60,27 @@ DESTDIR = build
 DEPENDPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 
+INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
+                $$GSL_INCLUDE_DIR \
+                $$MPLOT_INCLUDE_DIR
+
+LIBS += $$GSL_LIB \
+        $$GSL_CBLAS_LIB \
+        -L$$MPLOT_LIB_DIR -lMPlot \
+        -L$$EPICS_LIB_DIR -lca -lCom
+
 CONFIG(mobility) {
         INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
         LIBS += $$MOBILITY_QT_LIB
 }
 
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+
 TARGET = AcquaCam
 
-FORMS +=
+FORMS += source/ui/dataman/AMSamplePlateSelector.ui \
+        source/ui/dataman/AMGenericScanEditor.ui
 
 HEADERS += source/ui/AMColorPickerButton2.h \
         source/ui/AMOverlayVideoWidget2.h \
@@ -87,7 +102,24 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMShapeDataSetView.h \
     source/ui/AMShapeDataView.h \
     source/ui/AMCameraBrowser.h \
-    source/ui/AMShapeDataSetGraphicsView.h
+    source/ui/AMShapeDataSetGraphicsView.h \
+    source/beamline/SGM/SGMMAXvMotor.h \
+    source/beamline/CLS/CLSMAXvMotor.h \
+    source/beamline/AMPVControl.h \
+    source/actions/AMBeamlineControlMoveAction.h \
+    source/actions/AMBeamlineControlStopAction.h \
+    source/actions/AMBeamlineActionItem.h \
+    source/beamline/AMProcessVariable.h \
+    source/beamline/AMProcessVariablePrivate.h \
+    source/util/AMOrderedSetSignalSource.h \
+    source/util/AMDeferredFunctionCall.h \
+    source/beamline/AMControl.h
+#    source/beamline/AMBeamline.h \
+#    source/beamline/AMControlSet.h \
+#    source/dataman/SGM/SGMBeamlineInfo.h \
+#    source/beamline/CLS/CLSSIS3820Scaler.h \
+#    source/beamline/AMOldDetectorSet.h \
+#    source/beamline/CLS/CLSPGTDetector.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -110,5 +142,22 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMShapeDataSetView.cpp \
     source/ui/AMShapeDataView.cpp \
     source/ui/AMCameraBrowser.cpp \
-    source/ui/AMShapeDataSetGraphicsView.cpp
+    source/ui/AMShapeDataSetGraphicsView.cpp \
+    source/beamline/SGM/SGMMAXvMotor.cpp \
+    source/beamline/CLS/CLSMAXvMotor.cpp \
+    source/beamline/AMPVControl.cpp \
+    source/actions/AMBeamlineControlMoveAction.cpp \
+    source/actions/AMBeamlineControlStopAction.cpp \
+    source/actions/AMBeamlineActionItem.cpp \
+    source/beamline/AMProcessVariable.cpp \
+    source/beamline/AMProcessVariablePrivate.cpp \
+    source/util/AMOrderedSetSignalSource.cpp \
+    source/util/AMDeferredFunctionCall.cpp \
+    source/beamline/AMControl.cpp
+#    source/beamline/AMBeamline.cpp \
+#    source/beamline/AMControlSet.cpp \
+#    source/dataman/SGM/SGMBeamlineInfo.cpp \
+#    source/beamline/CLS/CLSSIS3820Scaler.cpp \
+#    source/beamline/AMOldDetectorSet.cpp \
+#source/beamline/CLS/CLSPGTDetector.cpp
 

@@ -5,11 +5,14 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QLineEdit>
 
 #include "AMBeamConfiguration.h"
 #include <QVector>
 #include <QVector3D>
 #include "dataman/database/AMDbObjectSupport.h"
+
 
 #include <QDebug>
 
@@ -261,6 +264,13 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     thl->addWidget(twoTwoFrame);
     thl->addWidget(twoButtonFrame);
     twoFrame->setLayout(thl);
+
+
+//    QFrame *beamSelectionFrame = new QFrame();
+//    QHBoxLayout *bhl = new QHBoxLayout();
+//    bhl->setContentsMargins(12,4,12,4);
+//    bhl->addWidget(beamSelectionBox_ = new ComboBox());
+
 
     vbl->addWidget(optionFrame);
     vbl->addWidget(oneFrame);

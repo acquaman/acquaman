@@ -10,12 +10,16 @@
 #include <QVector>
 #include <QVector3D>
 
+#include "AMBeamConfiguration.h"
+#include <QPair>
+
 class AMShapeData;
 class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
-class AMBeamConfiguration;
+class SGMMAXvMotor;
+//class AMBeamConfiguration;
 
 class AMShapeDataSet: public QObject
 {
@@ -137,6 +141,8 @@ public:
     bool isValid(int index);
 
     bool isBackwards(int index = -1);
+
+    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, double fieldOfView = 1);
 
 
 
@@ -325,6 +331,29 @@ protected:
     /// finds the center cooridnate of the given index
     QVector3D centerCoordinate(int index);
 
+    /// helper functions for findCamera
+    double findCoordinateDistance(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne, double thetaTwo, double oldError = 1000);
+    QPair<double, double> beta(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne);
+    double gamma(double coordinateDistance, QVector3D a, QVector3D c, double thetaTwo);
+    QPair<double, double> alpha(double coordinateDistance, QVector3D a, QVector3D b, double thetaOne);
+    QList<double> getCoordinateSystem(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
+    double calculateT2(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
+    double calculateD(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
+    double delta(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
+    double omega(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c,  QVector3D e, double angleBC, double angleBE);
+    double beta(double t2, double d, double shift2Length, QVector3D a, QVector3D c);
+    bool notEqual(double a, double b, double tolerance = 0.001);
+    QVector3D findOrientation(QVector3D b, QVector3D c, QVector3D e, QVector3D shiftB, QVector3D shiftC, QVector3D shiftE);
+    void calculateVectors(QVector3D &u,QVector3D &v, QVector3D a, QVector3D newA);
+    double uX(double uz, double vx, double vy , QVector3D a, double newAX);
+    double uY(double uz, double vx, double vy, QVector3D a, double newAX);
+    double uZ(double uz, double vx, double vy, QVector3D a, double newAX);
+    double vX(double uz, double vx, double vy, QVector3D a, double newAX, double newAZ);
+    double vY(double uz, double vx, double vy, QVector3D a, double newAX, double newAY);
+    double vZ(double vx, double vy);
+    double nearZero(double a, double tolerance = 0.00001);
+    double absError(double a, double b, double tolerance = 0.00001);
+
 protected:
 
     /// Members
@@ -378,23 +407,16 @@ protected:
     /// mouse location at start of a zoom process
     QPointF zoomPoint_;
 
+    /// motor manipulators
 
+    SGMMAXvMotor *ssaManipulatorX_;
 
-    /// defines the array positions of each point in a polygon rectangle
-    static const int TOPLEFT;
-    static const int TOPRIGHT;
-    static const int BOTTOMRIGHT;
-    static const int BOTTOMLEFT;
-    static const int TOPCLOSE;
+    SGMMAXvMotor *ssaManipulatorY_;
 
-    /// the number of points in a rectangle
-    static const int RECTANGLE_POINTS;
+    SGMMAXvMotor *ssaManipulatorZ_;
 
-    /// constants for movement across the screen- used for approximation to actual distortion
-    static const double X_XMOVEMENT;
-    static const double X_YMOVEMENT;
-    static const double Y_YMOVEMENT;
-    static const double Y_XMOVEMENT;
+    SGMMAXvMotor *ssaManipulatorRot_;
+
 
 
 };

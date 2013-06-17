@@ -2,11 +2,9 @@
 
 
 
-int const AMBeamConfiguration::ONE = 0;
-int const AMBeamConfiguration::TWO = 1;
-int const AMBeamConfiguration::THREE = 2;
-int const AMBeamConfiguration::FOUR = 3;
-int const AMBeamConfiguration::CLOSE = 4;
+#define TOPLEFT 0
+#define CLOSE 4
+
 
 
 AMBeamConfiguration::AMBeamConfiguration(QObject *parent) :
@@ -51,10 +49,11 @@ QList<QVector3D> AMBeamConfiguration::beamTwo()
     return beam;
 }
 
-
+#include <QDebug>
 void AMBeamConfiguration::setPositionOne(QVector<QVector3D> positionOne)
 {
     positionOne_ = positionOne;
+//    qDebug()<<(findCenter(positionOne)-QVector3D(0,0,40));
 }
 
 void AMBeamConfiguration::setPositionTwo(QVector<QVector3D> positionTwo)
@@ -64,13 +63,13 @@ void AMBeamConfiguration::setPositionTwo(QVector<QVector3D> positionTwo)
 
 void AMBeamConfiguration::setRay(QVector<QVector3D> rayOne, int index)
 {
-    positionOne_[index]=rayOne[ONE];
-    positionTwo_[index]=rayOne[TWO];
+    positionOne_[index]=rayOne[0];
+    positionTwo_[index]=rayOne[1];
 
-    if(index == ONE)
+    if(index == TOPLEFT)
     {
-        positionOne_[CLOSE]=rayOne[ONE];
-        positionTwo_[CLOSE]=rayOne[TWO];
+        positionOne_[CLOSE]=rayOne[0];
+        positionTwo_[CLOSE]=rayOne[1];
     }
 }
 
@@ -98,11 +97,16 @@ void AMBeamConfiguration::alignPositionTwo()
     QVector3D centerTwo = findCenter(positionTwo_);
     QVector3D ray = centerTwo - centerOne;
     QVector<QVector3D> newPosition;
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < positionOne_.count(); i++)
     {
         newPosition<<(positionOne_.at(i)+ray);
     }
     setPositionTwo(newPosition);
+}
+
+int AMBeamConfiguration::count()
+{
+    return positionOne_.count();
 }
 
 QVector3D AMBeamConfiguration::findCenter(QVector<QVector3D> shape)

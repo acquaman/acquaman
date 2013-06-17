@@ -292,6 +292,9 @@ protected:
     /// Motor coordinate set button
     QPushButton* setMotorCoordinate_;
 
+    /// Motor move enable
+    QCheckBox* enableMotorMovement_;
+
 
 
 };

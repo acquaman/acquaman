@@ -10,6 +10,8 @@
 AMCameraBrowser::AMCameraBrowser(QObject *parent) :
     QObject(parent)
 {
+    qRegisterMetaType<AMQVector3DVector>();
+
     shapeDataSet_ = new AMShapeDataSet();
 }
 
