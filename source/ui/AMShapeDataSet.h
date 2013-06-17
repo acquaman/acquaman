@@ -142,9 +142,10 @@ public:
 
     bool isBackwards(int index = -1);
 
-    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, double fieldOfView = 1);
+    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, double fieldOfView = 1, QVector3D cameraCenter = QVector3D(0,0,-1));
 
-
+    /// look for intersections with the current beam
+    bool findIntersections();
 
 public slots:
 
@@ -217,15 +218,23 @@ public slots:
     void oneSelect();
     /// selects the second beam shape
     void twoSelect();
-    /// look for intersections with the current beam
-    bool findIntersections();
 
+
+    void enableMotorMovement(bool isEnabled);
+
+    void enableMotorTracking(bool isEnabled);
 
 
 
 signals:
     /// used to change the beam
     void beamChanged(QObject*);
+
+    /// update coordinates
+    void motorMoved();
+
+protected slots:
+    void motorTracking(double);
 
 protected:
 
@@ -240,7 +249,7 @@ protected:
     AMShapeData applyRotation(AMShapeData shape);
 
     /// rotate a single point
-    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center);
+    QVector3D getRotatedPoint(QVector3D point, double rotation);
 
     /// applies tilt to the shape at the given index
     /// takes QPolygonF to stack with rotation
@@ -416,6 +425,11 @@ protected:
     SGMMAXvMotor *ssaManipulatorZ_;
 
     SGMMAXvMotor *ssaManipulatorRot_;
+
+    bool enableMotorMovement_;
+
+    QVector3D centerOfRotation_;
+    QVector3D directionOfRotation_;
 
 
 

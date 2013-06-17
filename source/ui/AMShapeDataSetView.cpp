@@ -62,6 +62,12 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     crosshairThicknessSlider_->setValue(1);
     chl->addSpacing(20);
     chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+    chl->addSpacing(20);
+    chl->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
+    enableMotorMovement_->setChecked(false);
+    chl->addSpacing(20);
+    chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
+    enableMotorTracking_->setChecked(false);
     chl->addStretch();
     crosshairFrame->setLayout(chl);
     showCrosshairCheckBox_->setChecked(true);
@@ -178,6 +184,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(showCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairVisible(bool)));
     connect(lockCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairLocked(bool)));
     connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
+    connect(enableMotorMovement_, SIGNAL(clicked(bool)), this, SLOT(enableMotorMovement(bool)));
+    connect(enableMotorTracking_, SIGNAL(clicked(bool)), this, SLOT(enableMotorTracking(bool)));
 
 
     /// operations bar
@@ -188,6 +196,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(operationButton_, SIGNAL(clicked()), this, SLOT(setOperationMode()));
     connect(groupButton_, SIGNAL(clicked()), this, SLOT(setGroupMode()));
     connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
+
+    connect(shapeModel_, SIGNAL(motorMoved()), this, SLOT(motorMoved()));
 
     /// shape view
     connect(shapeView_, SIGNAL(setCoordinate()), this, SLOT(reviewCrosshairLinePositions()));
@@ -352,16 +362,33 @@ void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
     qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
-    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.3,-0.7),QPointF(-0.5,0.5), QPointF(0.5,0.9),QVector3D(18,4,21),QVector3D(0.2,1.2,0),QVector3D(1,0,0),QVector3D(0,-0.6,1));
+    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.3,-0.7),QPointF(-0.5,0.5), QPointF(0.5,0.9),QVector3D(16,5,1.8),QVector3D(0.2,1.2,0),QVector3D(1,0,0),QVector3D(0,-0.6,1));
 }
 
 void AMShapeDataSetView::setMotorCoordinatePressed()
 {
-    double x = motorXEdit_->text().toDouble();
-    double y = motorYEdit_->text().toDouble();
-    double z = motorZEdit_->text().toDouble();
-    double r = motorREdit_->text().toDouble();
+    double x = (motorXEdit_->text().toDouble());
+    double y = (motorYEdit_->text().toDouble());
+    double z = (motorZEdit_->text().toDouble());
+    double r = (motorREdit_->text().toDouble());
     setMotorCoordinate(x,y,z,r);
+}
+
+void AMShapeDataSetView::enableMotorMovement(bool isEnabled)
+{
+    if(isEnabled != enableMotorMovement_->isChecked())
+    {
+        qDebug()<<"enableMotorMovement has incorrect value";
+        enableMotorMovement_->setChecked(false);
+        isEnabled = false;
+    }
+    shapeModel_->enableMotorMovement(isEnabled);
+
+}
+
+void AMShapeDataSetView::enableMotorTracking(bool isEnabled)
+{
+    shapeModel_->enableMotorTracking(isEnabled);
 }
 
 void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double r)
@@ -373,7 +400,7 @@ void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double
 
 double AMShapeDataSetView::motorRotation()
 {
-    return shapeModel_->motorRotation();
+    return (shapeModel_->motorRotation());
 }
 
 double AMShapeDataSetView::motorX()
@@ -471,6 +498,15 @@ void AMShapeDataSetView::setZ(QString z)
 void AMShapeDataSetView::setRotation(QString rotation)
 {
     shapeModel_->setRotation(rotation.toDouble());
+}
+
+void AMShapeDataSetView::motorMoved()
+{
+    motorXEdit_->setText(QString::number(motorX()));
+    motorYEdit_->setText(QString::number(motorY()));
+    motorZEdit_->setText(QString::number(motorZ()));
+    motorREdit_->setText(QString::number(motorRotation()));
+    reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)

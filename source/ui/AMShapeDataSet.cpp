@@ -41,6 +41,10 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     index_ = -1;
     cameraModel_ = new AMCameraConfiguration();
     beamModel_ = new AMBeamConfiguration();
+    centerOfRotation_ = QVector3D(0,0,0);
+    directionOfRotation_ = QVector3D(0,-1,0);
+
+    enableMotorMovement_ = false;
 
     // create the database
     AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
@@ -91,6 +95,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
     ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
     ssaManipulatorRot_->setContextKnownDescription("R");
+
 
 
 }
@@ -548,6 +553,8 @@ void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF poin
     QVector3D C;
     QVector3D E;
 
+    double distance = A.z();
+
     A = d/r*normalizedCoordinate;
     B = t1/r*normalizedCoordinateTwo;
     C = t2/r*normalizedCoordinateThree;
@@ -560,7 +567,8 @@ void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF poin
     qDebug()<<"A"<<A;
     qDebug()<<"B"<<B;
     qDebug()<<"C"<<C;
-    qDebug()<<"E"<<E;
+    qDebug()<<"E"<<E;\
+
 
     double factor = 1;
     double bFactor;
@@ -753,6 +761,23 @@ void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF poin
 }
 
 
+bool AMShapeDataSet::findIntersections()
+{
+    if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
+    {
+        return false;
+    }
+    intersections_.clear();
+    for(int i = 0; i <= index_; i++)
+    {
+        QVector<QVector3D> intersectionShape = findIntersectionShape(i);
+        if(!intersectionShape.isEmpty())
+        intersections_<<intersectionScreenShape(intersectionShape);
+
+    }
+     return true;
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMShapeDataSet::startRectangle(QPointF position)
@@ -941,10 +966,8 @@ void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
         QVector3D currentPosition = transform2Dto3D(position, depth(oldCoordinate));
         QVector3D newPosition = transform2Dto3D(crosshairPosition, depth(oldCoordinate));
         QVector3D shift = newPosition - currentPosition;
-        for(int i = 0; i <= index_; i++)
-        {
-            shiftCoordinates(shift,i);
-        }
+
+
 //        currentVector_ = inverseVectorTransform(position, oldCoordinate);
 //        moveAllShapes(inverseVectorTransform(crosshairPosition, oldCoordinate));
 //        double motorX = motorCoordinate_.x() + ((Y_YMOVEMENT)*(crosshairPosition.x() - position.x())-(X_YMOVEMENT)*(crosshairPosition.y() - position.y()))/((Y_YMOVEMENT)*(X_XMOVEMENT)-(X_YMOVEMENT)*(Y_XMOVEMENT));
@@ -952,7 +975,45 @@ void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
 //        motorCoordinate_.setX(motorX);
 //        motorCoordinate_.setY(motorY);
 //        QVector3D shift = shapeList_[current_].coordinate(TOPLEFT) - oldCoordinate;
-        motorCoordinate_ += shift;
+
+        /// current
+        double inboardOutboard;
+        double upStreamDownStream;
+        double upDown;
+        if(!enableMotorMovement_)
+        {
+            for(int i = 0; i <= index_; i++)
+            {
+                shiftCoordinates(shift,i);
+            }
+            shift *=-10;
+            motorCoordinate_ += shift;
+            inboardOutboard = motorCoordinate_.x();
+            upStreamDownStream = motorCoordinate_.z();
+            upDown = motorCoordinate_.y();
+
+        }
+        else
+        {
+            shift *= -10;
+            shift += motorCoordinate_;
+            inboardOutboard = shift.x();
+            upStreamDownStream = shift.z();
+            upDown = shift.y();
+
+            qDebug()<<"AMShapeDataSet::shiftToPoint - Attempting to move motors";
+            qDebug()<<"in/out currently at"<<ssaManipulatorX_->value();
+            qDebug()<<"shifting in/out to"<<inboardOutboard;
+            ssaManipulatorX_->move(inboardOutboard);
+
+            qDebug()<<"y is currently at:"<<ssaManipulatorY_->value();
+            qDebug()<<"Shifting upstream/downstream to:"<<upStreamDownStream;
+
+            qDebug()<<"up/down currently at"<<ssaManipulatorZ_->value();
+            qDebug()<<"changing up/down to "<<upDown;
+            ssaManipulatorZ_->move(upDown);
+
+        }
 
     }
 }
@@ -1078,22 +1139,28 @@ void AMShapeDataSet::twoSelect()
 
 }
 
-bool AMShapeDataSet::findIntersections()
+void AMShapeDataSet::enableMotorMovement(bool isEnabled)
 {
-    if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
-    {
-        return false;
-    }
-    intersections_.clear();
-    for(int i = 0; i <= index_; i++)
-    {
-        QVector<QVector3D> intersectionShape = findIntersectionShape(i);
-        if(!intersectionShape.isEmpty())
-        intersections_<<intersectionScreenShape(intersectionShape);
-
-    }
-     return true;
+    enableMotorMovement_ = isEnabled;
 }
+
+void AMShapeDataSet::enableMotorTracking(bool isEnabled)
+{
+    qDebug()<<isEnabled;
+    if(isEnabled)
+    {
+        qDebug()<<"Connecting motor tracking";
+        connect(ssaManipulatorX_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+    }
+    else
+    {
+        qDebug()<<"Disconnecting motor tracking";
+        disconnect(ssaManipulatorX_,SIGNAL(valueChanged(double)),this,SLOT(motorTracking(double)));
+    }
+}
+
+
+
 
 /// shifts all coordinates by  the specifies shift
 void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
@@ -1106,22 +1173,20 @@ void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
 AMShapeData AMShapeDataSet::applyRotation(AMShapeData shape)
 {
     double rotation = shape.rotation();
-    QVector3D center = shape.centerCoordinate();
     for(int i = 0; i<4; i++)
     {
-        shape.setCoordinate(getRotatedPoint(shape.coordinate(i), rotation, center),i);
+        shape.setCoordinate(getRotatedPoint(shape.coordinate(i), rotation),i);
     }
     return shape;
 }
 
 /// finds the new coordinate of a point, given its coordinate, rotation, and center point
-QVector3D AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center)
+QVector3D AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation)
 {
-    QVector3D direction(0,-1,0);
     // changed the axis of rotation
 //    center += QVector3D(-0.5,0,-0.35);// should correspond to rotation of the plate
     ///changed the axis of rotation
-    point = rotateCoordinate(point,center,direction,rotation);
+    point = rotateCoordinate(point,centerOfRotation_,directionOfRotation_,rotation);
     return point;
 }
 
@@ -1413,12 +1478,23 @@ QPointF AMShapeDataSet::undistortPoint(QPointF point)
 /// moves all the shapes based on change in motor movement
 void AMShapeDataSet::motorMovement(double x, double y, double z, double r)
 {
+    QVector3D rotationalOffset = QVector3D(-0.5,0,-0.35);
+    QVector3D newPosition(x,y,z);
+    QVector3D shift = newPosition - motorCoordinate_;
+    shift *= -0.1;
+    QVector3D centerOfRotation = -0.1*newPosition + rotationalOffset;
+    QVector3D directionOfRotation = QVector3D(0,1,0);
+    centerOfRotation_ = centerOfRotation;
+    directionOfRotation_ = directionOfRotation;
+    double rotation = -1*r/180*M_PI;
+
+
     for(int i = 0; i <= index_; i++)
     {
-        QVector3D newPosition(x,y,z);
-        QVector3D shift = newPosition - motorCoordinate_;
         shiftCoordinates(shift,i);
+        shapeList_[i].setRotation(rotation);
     }
+
 
 
 }
@@ -2397,4 +2473,21 @@ double AMShapeDataSet::absError(double a, double b, double tolerance)
     {
         return fabs((a-b)/a);
     }
+}
+
+
+void AMShapeDataSet::motorTracking(double)
+{
+    /// update coordinates, line edits, don't move the motor
+    double motorX = ssaManipulatorX_->value();
+    double motorY = ssaManipulatorZ_->value();
+    double motorZ = ssaManipulatorY_->value();
+    double motorRotation = ssaManipulatorRot_->value();
+
+
+    emit motorMoved();
+
+    setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
+
+
 }

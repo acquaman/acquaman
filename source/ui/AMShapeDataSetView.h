@@ -97,6 +97,8 @@ public slots:
          void setZ(QString z);
          void setRotation(QString rotation);
 
+         void motorMoved();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -192,6 +194,10 @@ protected slots:
     void setGroupMode();
 
     void setMotorCoordinatePressed();
+
+    void enableMotorMovement(bool isEnabled);
+
+    void enableMotorTracking(bool isEnabled);
 
 
 protected:
@@ -294,6 +300,9 @@ protected:
 
     /// Motor move enable
     QCheckBox* enableMotorMovement_;
+
+    /// motor tracking enable
+    QCheckBox* enableMotorTracking_;
 
 
 
