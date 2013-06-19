@@ -107,6 +107,24 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 		break;
 
+	case VESPERS::AttoH | VESPERS::AttoV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttoStage()->horiz());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttoStage()->vert());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageX());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageZ());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		break;
+
 	default:
 		xAxisPVName_ = "";
 		yAxisPVName_ = "";

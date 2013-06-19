@@ -232,6 +232,35 @@ void VESPERSBeamline::setupSampleStage()
 	pseudoWireStage_->setXRange(-1700000, 1700000);
 	pseudoWireStage_->setYRange(-1200000, 1200000);
 	pseudoWireStage_->setZRange(-1200000, 1200000);
+
+	// attocube
+	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageHorizontal_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageVertical_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageNormal_)->setMoveStartTolerance(0.00001);
+
+	pseudoAttoStage_ = new VESPERSSampleStageControl(attoStageHorizontal_, attoStageVertical_, attoStageNormal_, this);
+
+	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "SVM1607-2-B21-11:mm:sp", "SVM1607-2-B21-11:mm", "SVM1607-2-B21-11:status", "SVM1607-2-B21-11:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "SVM1607-2-B21-10:mm:sp", "SVM1607-2-B21-10:mm", "SVM1607-2-B21-10:status", "SVM1607-2-B21-10:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "SVM1607-2-B21-12:mm:sp", "SVM1607-2-B21-12:mm", "SVM1607-2-B21-12:status", "SVM1607-2-B21-12:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageX_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageZ_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageY_)->setMoveStartTolerance(0.00001);
+
+	realAttoStage_ = new VESPERSSampleStageControl(attoStageX_, attoStageZ_, attoStageY_, this);
+
+	attoStagePhi_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:mm:sp", "SVM1607-2-B21-09:mm", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+	attoStageTheta_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:mm:sp", "SVM1607-2-B21-07:mm", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+	attoStagePsi_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:mm:sp", "SVM1607-2-B21-08:mm", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStagePhi_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageTheta_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStagePsi_)->setMoveStartTolerance(0.00001);
 }
 
 void VESPERSBeamline::setupEndstation()

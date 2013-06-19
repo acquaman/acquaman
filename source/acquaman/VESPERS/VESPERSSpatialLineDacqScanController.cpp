@@ -87,6 +87,48 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
 		break;
 
+	case VESPERS::AttoH:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageHorizontal());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		break;
+
+	case VESPERS::AttoV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageVertical());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		break;
+
+	case VESPERS::AttoX:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageX());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		break;
+
+	case VESPERS::AttoZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageZ());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+		break;
+
+	case VESPERS::AttoPhi:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStagePhi());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Phi", 0, "Rotational Position", "deg"));
+		break;
+
+	case VESPERS::AttoTheta:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageTheta());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Theta", 0, "Rotational Position", "deg"));
+		break;
+
+	case VESPERS::AttoPsi:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStagePsi());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Psi", 0, "Rotational Position", "deg"));
+		break;
+
 	default:
 		pvName_ = "";
 		break;

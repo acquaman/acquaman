@@ -153,7 +153,9 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	ionChambersLayout->addWidget(ItGroupBox);
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H" << "X" << "V" << "Z", QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z);
+	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
+				QStringList() << "H" << "X" << "V" << "Z" << "AttoH" << "AttoV" << "AttoX" << "AttoZ" << "AttoPhi" << "AttoTheta" << "AttoPsi",
+				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoPhi << VESPERS::AttoTheta << VESPERS::AttoPsi);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
