@@ -12,6 +12,7 @@
 
 #include "AMBeamConfiguration.h"
 #include <QPair>
+#include <complex>
 
 class AMShapeData;
 class QGraphicsRectItem;
@@ -19,6 +20,7 @@ class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
 class SGMMAXvMotor;
+
 //class AMBeamConfiguration;
 
 class AMShapeDataSet: public QObject
@@ -142,7 +144,7 @@ public:
 
     bool isBackwards(int index = -1);
 
-    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, double fieldOfView = 1, QVector3D cameraCenter = QVector3D(0,0,-1));
+    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, QVector3D cameraCenter = QVector3D(0,0,1), double fieldOfView = 1);
 
     /// look for intersections with the current beam
     bool findIntersections();
@@ -354,14 +356,19 @@ protected:
     bool notEqual(double a, double b, double tolerance = 0.001);
     QVector3D findOrientation(QVector3D b, QVector3D c, QVector3D e, QVector3D shiftB, QVector3D shiftC, QVector3D shiftE);
     void calculateVectors(QVector3D &u,QVector3D &v, QVector3D a, QVector3D newA);
-    double uX(double uz, double vx, double vy , QVector3D a, double newAX);
-    double uY(double uz, double vx, double vy, QVector3D a, double newAX);
-    double uZ(double uz, double vx, double vy, QVector3D a, double newAX);
-    double vX(double uz, double vx, double vy, QVector3D a, double newAX, double newAZ);
-    double vY(double uz, double vx, double vy, QVector3D a, double newAX, double newAY);
-    double vZ(double vx, double vy);
+    QPointF uX(double uz, double vx, double vy , QVector3D a, double newAX);
+    QPointF uY(double uz, double vx, double vy, QVector3D a, double newAX);
+    QPointF uZ(double uz, double vx, double vy, QVector3D a, double newAX);
+    QPointF vX(double uz, double vx, double vy, QVector3D a, double newAX, double newAZ);
+    QPointF vY(double uz, double vx, double vy, QVector3D a, double newAX, double newAY);
+    QPointF vZ(double vx, double vy);
     double nearZero(double a, double tolerance = 0.00001);
     double absError(double a, double b, double tolerance = 0.00001);
+    QVector3D rotateVector(QVector3D coordinate, QVector3D directionOfRotation, QVector3D directionBeforeRotation);
+    double complexAbs(QPointF complexNumber);
+    QPointF convertToPolar(QPointF squareNumber);
+    QPointF convertFromPolar(QPointF polarNumber);
+    QPair<QPointF,QPointF> complexSquareRoot(QPointF polarNumber);
 
 protected:
 

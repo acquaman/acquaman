@@ -161,7 +161,7 @@ public slots:
 protected slots:
     void updateCurrentShape();
 
-protected slots:
+
     /// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved
     void reviewCrosshairLinePositions();
 
@@ -192,12 +192,24 @@ protected slots:
     void setShiftMode();
     void setOperationMode();
     void setGroupMode();
+    void setConfigurationMode();
 
     void setMotorCoordinatePressed();
 
     void enableMotorMovement(bool isEnabled);
 
     void enableMotorTracking(bool isEnabled);
+
+    void showConfigurationWindow();
+
+    void setPoint(QPointF position, int point);
+    void selectPointOne();
+    void selectPointTwo();
+    void selectPointThree();
+    void selectPointFour();
+
+    void runCameraConfiguration();
+
 
 
 protected:
@@ -235,7 +247,7 @@ protected:
 
 protected:
 
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP};
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE};
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
@@ -304,6 +316,16 @@ protected:
     /// motor tracking enable
     QCheckBox* enableMotorTracking_;
 
+    /// camera configuration button
+    QPushButton* configureCameraButton_;
+    /// camera configuration window items
+    QLineEdit* pointLineEdit_[8];
+    QLineEdit* coordinateLineEdit_[12];
+    QPushButton* pointPushButton_[4];
+    QFrame* cameraConfigurationWindow_;
+    QPushButton* startCameraConfiguration_;
+
+    int pointToSelect_;
 
 
 };
