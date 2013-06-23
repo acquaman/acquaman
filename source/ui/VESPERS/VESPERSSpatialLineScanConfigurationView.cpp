@@ -155,7 +155,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
 				QStringList() << "H" << "X" << "V" << "Z" << "AttoH" << "AttoV" << "AttoX" << "AttoZ" << "AttoPhi" << "AttoTheta" << "AttoPsi",
-				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoPhi << VESPERS::AttoTheta << VESPERS::AttoPsi);
+				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
@@ -301,22 +301,50 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 
 	otherPositionLabel_->setText(config_->otherMotorString(config_->motor()));
 
-	switch(config_->otherMotor(config_->motor())){
+	switch(config_->motor()){
 
 	case VESPERS::H:
-		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value());
-		break;
-
-	case VESPERS::V:
 		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value());
 		break;
 
+	case VESPERS::V:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value());
+		break;
+
 	case VESPERS::X:
-		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horiz()->value());
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->vert()->value());
 		break;
 
 	case VESPERS::Z:
-		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->vert()->value());
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horiz()->value());
+		break;
+
+	case VESPERS::AttoH:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value());
+		break;
+
+	case VESPERS::AttoV:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value());
+		break;
+
+	case VESPERS::AttoX:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realAttoStage()->vert()->value());
+		break;
+
+	case VESPERS::AttoZ:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->realAttoStage()->horiz()->value());
+		break;
+
+	case VESPERS::AttoRz:
+		otherPosition_->setValue(-123456789.0);
+		break;
+
+	case VESPERS::AttoRy:
+		otherPosition_->setValue(-123456789.0);
+		break;
+
+	case VESPERS::AttoRx:
+		otherPosition_->setValue(-123456789.0);
 		break;
 
 	default:
@@ -433,6 +461,41 @@ void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
 		break;
+
+	case VESPERS::AttoH:
+		position = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		break;
+
+	case VESPERS::AttoV:
+		position = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		break;
+
+	case VESPERS::AttoX:
+		position = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		break;
+
+	case VESPERS::AttoZ:
+		position = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		break;
+
+	case VESPERS::AttoRz:
+		position = VESPERSBeamline::vespers()->attoStageRz()->value();
+		otherPosition = -123456789.0;
+		break;
+
+	case VESPERS::AttoRy:
+		position = VESPERSBeamline::vespers()->attoStageRy()->value();
+		otherPosition = -123456789.0;
+		break;
+
+	case VESPERS::AttoRx:
+		position = VESPERSBeamline::vespers()->attoStageRx()->value();
+		otherPosition = -123456789.0;
+		break;
 	}
 
 	config_->setStart(position);
@@ -468,6 +531,41 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
+		break;
+
+	case VESPERS::AttoH:
+		position = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		break;
+
+	case VESPERS::AttoV:
+		position = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		break;
+
+	case VESPERS::AttoX:
+		position = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		otherPosition = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		break;
+
+	case VESPERS::AttoZ:
+		position = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		otherPosition = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		break;
+
+	case VESPERS::AttoRz:
+		position = VESPERSBeamline::vespers()->attoStageRz()->value();
+		otherPosition = -123456789.0;
+		break;
+
+	case VESPERS::AttoRy:
+		position = VESPERSBeamline::vespers()->attoStageRy()->value();
+		otherPosition = -123456789.0;
+		break;
+
+	case VESPERS::AttoRx:
+		position = VESPERSBeamline::vespers()->attoStageRx()->value();
+		otherPosition = -123456789.0;
 		break;
 	}
 

@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
+#include "beamline/VESPERS/VESPERSMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -453,11 +454,11 @@ public:
 	/// Returns the y-direction attocube control.
 	AMControl *attoStageY() const { return attoStageY_; }
 	/// Returns the phi rotation attocube control.
-	AMControl *attoStagePhi() const { return attoStagePhi_; }
+	AMControl *attoStageRz() const { return attoStageRz_; }
 	/// Returns the theta tilt attocube control.
-	AMControl *attoStageTheta() const { return attoStageTheta_; }
+	AMControl *attoStageRy() const { return attoStageRy_; }
 	/// Returns the psi tilt attocube control.
-	AMControl *attoStagePsi() const { return attoStagePsi_; }
+	AMControl *attoStageRx() const { return attoStageRx_; }
 
 	// The sample stages.
 	/// Returns the sample stage control built with the pseudo-motors.
@@ -470,6 +471,9 @@ public:
 	VESPERSSampleStageControl *pseudoAttoStage() const { return pseudoAttoStage_; }
 	/// Returns the attocube real-motor stage.
 	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
+
+	// The motor group.
+	VESPERSMotorGroup *motorGroup() const { return motorGroup_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -606,6 +610,8 @@ protected:
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the motor group for the various sample stages.
+	void setupMotorGroup();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -814,9 +820,9 @@ protected:
 	AMControl *attoStageX_;
 	AMControl *attoStageZ_;
 	AMControl *attoStageY_;
-	AMControl *attoStagePhi_;
-	AMControl *attoStageTheta_;
-	AMControl *attoStagePsi_;
+	AMControl *attoStageRz_;
+	AMControl *attoStageRy_;
+	AMControl *attoStageRx_;
 
 	// The sample stage encapsulation.
 	VESPERSSampleStageControl *pseudoSampleStage_;
@@ -824,6 +830,9 @@ protected:
 	VESPERSSampleStageControl *pseudoWireStage_;
 	VESPERSSampleStageControl *pseudoAttoStage_;
 	VESPERSSampleStageControl *realAttoStage_;
+
+	// Motor group.  Binds all the motors for scanning together.
+	VESPERSMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

@@ -368,15 +368,31 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 	double h = 0;
 	double v = 0;
 
-	if (config_->motor() == (VESPERS::H | VESPERS::V)){
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
-	}
-	else if (config_->motor() == (VESPERS::X | VESPERS::Z)){
+		break;
+
+	case VESPERS::X | VESPERS::Z:
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
+		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+		h = VESPERSBeamline::vespers()->attoStageX()->value();
+		v = VESPERSBeamline::vespers()->attoStageZ()->value();
+		break;
 	}
 
 	config_->setXStart(h);
@@ -392,15 +408,31 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 	double h = 0;
 	double v = 0;
 
-	if (config_->motor() == (VESPERS::H | VESPERS::V)){
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
-	}
-	else if (config_->motor() == (VESPERS::X | VESPERS::Z)){
+		break;
+
+	case VESPERS::X | VESPERS::Z:
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
+		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+		h = VESPERSBeamline::vespers()->attoStageX()->value();
+		v = VESPERSBeamline::vespers()->attoStageZ()->value();
+		break;
 	}
 
 	config_->setXEnd(h);

@@ -111,22 +111,22 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
 		break;
 
-	case VESPERS::AttoPhi:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStagePhi());
+	case VESPERS::AttoRz:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageRz());
 		pvName_ = control != 0 ? control->writePVName() : "";
-		scan_->rawData()->addScanAxis(AMAxisInfo("Phi", 0, "Rotational Position", "deg"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Rz", 0, "Rotational Position", "deg"));
 		break;
 
-	case VESPERS::AttoTheta:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageTheta());
+	case VESPERS::AttoRy:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageRy());
 		pvName_ = control != 0 ? control->writePVName() : "";
-		scan_->rawData()->addScanAxis(AMAxisInfo("Theta", 0, "Rotational Position", "deg"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Ry", 0, "Rotational Position", "deg"));
 		break;
 
-	case VESPERS::AttoPsi:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStagePsi());
+	case VESPERS::AttoRx:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->attoStageRx());
 		pvName_ = control != 0 ? control->writePVName() : "";
-		scan_->rawData()->addScanAxis(AMAxisInfo("Psi", 0, "Rotational Position", "deg"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Rx", 0, "Rotational Position", "deg"));
 		break;
 
 	default:
@@ -488,6 +488,22 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 
 		case VESPERS::Z:
 			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::AttoH:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttoStage()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::AttoV:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttoStage()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::AttoX:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttoStage()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::AttoZ:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttoStage()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		default:
