@@ -74,6 +74,34 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	case VESPERS::Z:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->vert());
 		break;
+
+	case VESPERS::AttoH:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttoStage()->horiz());
+		break;
+
+	case VESPERS::AttoV:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttoStage()->vert());
+		break;
+
+	case VESPERS::AttoX:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttoStage()->horiz());
+		break;
+
+	case VESPERS::AttoZ:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttoStage()->vert());
+		break;
+
+	case VESPERS::AttoRx:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRx());
+		break;
+
+	case VESPERS::AttoRy:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRy());
+		break;
+
+	case VESPERS::AttoRz:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRz());
+		break;
 	}
 
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
@@ -236,6 +264,34 @@ VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor mo
 		other = VESPERS::X;
 		break;
 
+	case VESPERS::AttoH:
+		other = VESPERS::AttoV;
+		break;
+
+	case VESPERS::AttoV:
+		other = VESPERS::AttoH;
+		break;
+
+	case VESPERS::AttoX:
+		other = VESPERS::AttoZ;
+		break;
+
+	case VESPERS::AttoZ:
+		other = VESPERS::AttoX;
+		break;
+
+	case VESPERS::AttoRx:
+		other = VESPERS::NoMotor;
+		break;
+
+	case VESPERS::AttoRy:
+		other = VESPERS::NoMotor;
+		break;
+
+	case VESPERS::AttoRz:
+		other = VESPERS::NoMotor;
+		break;
+
 	default:
 		other = VESPERS::NoMotor;
 		break;
@@ -264,6 +320,34 @@ QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor mot
 
 	case VESPERS::Z:
 		string = "Horizontal motor, X";
+		break;
+
+	case VESPERS::AttoH:
+		string = "Horizontal Attocube motor, V";
+		break;
+
+	case VESPERS::AttoV:
+		string = "Horizontal Attocube motor, H";
+		break;
+
+	case VESPERS::AttoX:
+		string = "Vertical Attocube motor, Z";
+		break;
+
+	case VESPERS::AttoZ:
+		string = "Horizontal Attocube motor, X";
+		break;
+
+	case VESPERS::AttoRx:
+		string = "";
+		break;
+
+	case VESPERS::AttoRy:
+		string = "";
+		break;
+
+	case VESPERS::AttoRz:
+		string = "";
 		break;
 
 	default:

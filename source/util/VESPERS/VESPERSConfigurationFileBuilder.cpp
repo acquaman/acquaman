@@ -78,9 +78,9 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	else{
 
 		moveDelay = 0.05;
-		status1.replace(":mm", ":status");
-		status2.replace(":mm", ":status");
-		status3.replace(":mm", ":status");
+		status1.replace(QRegExp(":mm|:deg"), ":status");
+		status2.replace(QRegExp(":mm|:deg"), ":status");
+		status3.replace(QRegExp(":mm|:deg"), ":status");
 		energyFeedback = "";
 	}
 

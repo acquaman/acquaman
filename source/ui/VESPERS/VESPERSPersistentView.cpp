@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
-
 #include "ui/beamline/AMIonChamberView.h"
 
 #include <QHBoxLayout>
@@ -57,6 +56,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	realMotors_->setHorizontalTitle("X");
 	realMotors_->setVerticalTitle("Z");
 	realMotors_->hide();
+
+	motorGroupView_ = new VESPERSMotorGroupView(VESPERSBeamline::vespers()->motorGroup());
 
 	// PID control view widget.
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
@@ -263,8 +264,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->setContentsMargins(15, 7, 11, 7);
 
 	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
-	sampleStageLayout->addWidget(pseudoMotors_);
-	sampleStageLayout->addWidget(realMotors_);
+	sampleStageLayout->addWidget(motorGroupView_);
+//	sampleStageLayout->addWidget(pseudoMotors_);
+//	sampleStageLayout->addWidget(realMotors_);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
@@ -441,6 +443,8 @@ void VESPERSPersistentView::onSSH2Clicked()
 
 void VESPERSPersistentView::setSampleStage(bool sampleStage)
 {
-	pseudoMotors_->setVisible(sampleStage);
-	realMotors_->setVisible(!sampleStage);
+	Q_UNUSED(sampleStage);
+	motorGroupView_->setMotorGroupInfo(VESPERSBeamline::vespers()->motorGroup()->motorGroupInfo("Sample Stage - H and V"));
+//	pseudoMotors_->setVisible(sampleStage);
+//	realMotors_->setVisible(!sampleStage);
 }

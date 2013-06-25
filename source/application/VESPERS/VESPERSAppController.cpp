@@ -55,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
+#include "util/VESPERS/VESPERSAttoCubeHack.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
@@ -150,7 +151,9 @@ bool VESPERSAppController::startup() {
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
-		Q_UNUSED(roiHelper)
+		Q_UNUSED(roiHelper);
+		VESPERSAttoCubeHack *attoHack = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz(), this);
+		Q_UNUSED(attoHack);
 
 		return true;
 	}

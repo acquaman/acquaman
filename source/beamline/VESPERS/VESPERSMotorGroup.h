@@ -18,12 +18,18 @@ public:
 	enum MotionType { Translational = 0, Rotational = 1 };
 
 	/// Constructor.  Builds a new motor group info with a single control.
-	VESPERSMotorGroupInfo(const QString &name, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
+	VESPERSMotorGroupInfo(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
 	/// Constructor.  Builds a new motor group info using two controls.  Currently assumes both are the same motion type.
-	VESPERSMotorGroupInfo(const QString &name, AMControl *firstControl, AMControl *secondControl, MotionType motionType, QObject *parent = 0);
+	VESPERSMotorGroupInfo(const QString &name, const QString &firstPrefix, const QString &secondPrefix, const QString &units, AMControl *firstControl, AMControl *secondControl, MotionType motionType, QObject *parent = 0);
 
 	/// Returns the name of the info.
 	QString name() const { return name_; }
+	/// Returns the prefix of the first control of the info.
+	QString firstPrefix() const { return firstPrefix_; }
+	/// Returns the prefix of the second control of the info.
+	QString secondPrefix() const { return secondPrefix_; }
+	/// Returns the units for this info.
+	QString units() const { return units_; }
 	/// Returns the first control of the info.
 	AMControl *firstControl() const { return firstControl_; }
 	/// Returns the second control of the info.
@@ -36,6 +42,12 @@ public:
 protected:
 	/// Holds the name of the info.
 	QString name_;
+	/// Holds the prefix/short form of the name of the first control.
+	QString firstPrefix_;
+	/// Holds the prefix/short form of the name of the second control.
+	QString secondPrefix_;
+	/// Holds the units for the info.
+	QString units_;
 	/// Holds the pointer to the first control.
 	AMControl *firstControl_;
 	/// Holds the pointer to the second control (if it exists).

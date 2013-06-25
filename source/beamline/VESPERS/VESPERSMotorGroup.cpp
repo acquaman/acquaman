@@ -2,19 +2,26 @@
 
 // VESPERSMotorGroupInfo
 ////////////////////////////////////////
-VESPERSMotorGroupInfo::VESPERSMotorGroupInfo(const QString &name, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent)
+VESPERSMotorGroupInfo::VESPERSMotorGroupInfo(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent)
 	: QObject(parent)
 {
 	name_ = name;
+	firstPrefix_ = prefix;
+	secondPrefix_ = "";
+	units_ = units;
 	firstControl_ = control;
+	secondControl_ = 0;
 	orientation_ = orientation;
 	motionType_ = motionType;
 }
 
-VESPERSMotorGroupInfo::VESPERSMotorGroupInfo(const QString &name, AMControl *firstControl, AMControl *secondControl, MotionType motionType, QObject *parent)
+VESPERSMotorGroupInfo::VESPERSMotorGroupInfo(const QString &name, const QString &firstPrefix, const QString &secondPrefix, const QString &units, AMControl *firstControl, AMControl *secondControl, MotionType motionType, QObject *parent)
 	: QObject(parent)
 {
 	name_ = name;
+	firstPrefix_ = firstPrefix;
+	secondPrefix_ = secondPrefix;
+	units_ = units;
 	firstControl_ = firstControl;
 	secondControl_ = secondControl;
 	orientation_ = None;

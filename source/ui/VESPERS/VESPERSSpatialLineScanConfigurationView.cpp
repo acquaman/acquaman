@@ -154,7 +154,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
-				QStringList() << "H" << "X" << "V" << "Z" << "AttoH" << "AttoV" << "AttoX" << "AttoZ" << "AttoPhi" << "AttoTheta" << "AttoPsi",
+				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx",
 				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
@@ -207,16 +207,16 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(ccdBox, 3, 0, 1, 1);
-	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
+	contentsLayout->addWidget(ccdBox, 3, 3, 1, 1);
+	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-	contentsLayout->addWidget(configureCCDButton_, 6, 0, 1, 1);
-	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
-	contentsLayout->addLayout(ionChambersLayout, 3, 3, 2, 1);
+	contentsLayout->addWidget(configureCCDButton_, 6, 3, 1, 1);
+	contentsLayout->addWidget(motorSetChoiceBox, 0, 4, 3, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 0, 3, 1, 1);
+	contentsLayout->addLayout(ionChambersLayout, 1, 3, 2, 1);
 	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
-	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 1, 3);
+	contentsLayout->addWidget(roiTextBox, 0, 6, 3, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 6, 1, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -350,6 +350,9 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 	default:
 		break;
 	}
+
+	otherPositionLabel_->setVisible(config_->otherMotor(config_->motor()) != VESPERS::NoMotor);
+	otherPosition_->setVisible(config_->otherMotor(config_->motor()) != VESPERS::NoMotor);
 }
 
 void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)

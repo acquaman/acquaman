@@ -169,6 +169,34 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	case VESPERS::Z:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
 		break;
+
+	case VESPERS::AttoH:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("H:fbk", "Horizontal Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoV:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("V:fbk", "Vertical Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoX:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("X:fbk", "Horizontal Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoZ:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoRz:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Rz:fbk", "Rotation Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoRy:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Ry:fbk", "Rotation Feedback", "mm"));
+		break;
+
+	case VESPERS::AttoRx:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Rx:fbk", "Rotation Feedback", "mm"));
+		break;
 	}
 
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
