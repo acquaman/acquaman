@@ -138,14 +138,11 @@ protected:
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;
 
-<<<<<<< HEAD
 	/// HACK FOR TOLERANCE
 	VESPERSChangeEnergyToleranceHackView *energyTolerance_;
-
-=======
 	/// Pointer to the motor group view.
 	VESPERSMotorGroupView *motorGroupView_;
->>>>>>> master
+
 	/// Pointer to the pseudo motor sample stage.
 	VESPERSSampleStageView *pseudoMotors_;
 	/// Pointer to the real motor sample stage.
