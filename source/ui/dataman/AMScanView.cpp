@@ -2123,7 +2123,7 @@ QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSourc
 		return rv;
 	}
 
-	if (scan->scanRank() == 1 || scan->scanRank() == 2) {
+	if (scan->scanRank() == 1 || scan->scanRank() == 2 || scan->scanRank() == 3) {
 		AMAxisInfo ai = scan->rawData()->scanAxisAt(0);	// this isn't really cool... Should stick to publicly exposed data from the data source.
 		QString rv = ai.description;
 		if(!ai.units.isEmpty())

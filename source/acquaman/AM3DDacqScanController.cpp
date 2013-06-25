@@ -9,28 +9,30 @@ AM3DDacqScanController::AM3DDacqScanController(AM3DScanConfiguration *config, QO
 	: AMDacqScanController(config, parent)
 {
 	internal3DConfig_ = config;
+	initializeStartPositions_ = true;
 	positions_ << 0 << 0 << 0;
 	firstPriorityAxisStartPosition_ = 0;
 	secondPriorityAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
 	stopAtEndOfAxis_ = -1;
 
-	axisPriorities_ << internal3DConfig_->xPriority();
+	axisPriorities_ << 0;
 
 	if (internal3DConfig_->yPriority() > internal3DConfig_->xPriority())
-		axisPriorities_.prepend(internal3DConfig_->yPriority());
+		axisPriorities_.prepend(1);
 
 	else
-		axisPriorities_ << internal3DConfig_->yPriority();
+		axisPriorities_ << 1;
 
 	if (internal3DConfig_->zPriority() > axisPriorities_.first())
-		axisPriorities_.prepend(internal3DConfig_->zPriority());
+		axisPriorities_.prepend(2);
 
 	else if (internal3DConfig_->zPriority() > axisPriorities_.last())
-		axisPriorities_.insert(1, internal3DConfig_->zPriority());
+		axisPriorities_.insert(1, 2);
 
 	else
-		axisPriorities_ << internal3DConfig_->zPriority();
+		axisPriorities_ << 2;
+	qDebug() << axisPriorities_;
 }
 
 bool AM3DDacqScanController::startImplementation()
@@ -164,14 +166,14 @@ bool AM3DDacqScanController::event(QEvent *e)
 
 		if(i.key() == 0 && aeData.count() > 1){
 
-			AMnDIndex insertIndex = toScanIndex(aeData);
+			AMnDIndex insertIndex = toScanIndex(aeData);qDebug() << insertIndex.i() << insertIndex.j() << insertIndex.k();
 			// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
 //			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
 			if(insertIndex.i() >= scan_->rawData()->scanSize(0))
 				scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
 			////////////////
 
-			// Because this is a 2D specific scan controller, I am forcing the format to be a certain way.
+			// Because this is a 3D specific scan controller, I am forcing the format to be a certain way.
 			scan_->rawData()->setAxisValue(0, insertIndex.i(), i.value());
 			++i;
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
@@ -233,15 +235,13 @@ AMnDIndex AM3DDacqScanController::toScanIndex(QMap<int, double> aeData)
 	int first = axisPriorities_.at(0);
 	int second = axisPriorities_.at(1);
 	int third = axisPriorities_.at(2);
-
+	qDebug() << axisPriorities_;
 	// First point.  Sets the start positions for the fastest and second fastest axes.
-	if (positions_.at(first) == -1
-			&& positions_.at(second) == 0
-			&& positions_.at(third) == 0){
+	if (initializeStartPositions_){
 
+		initializeStartPositions_ = false;
 		firstPriorityAxisStartPosition_ = aeData.value(first);
 		secondPriorityAxisStartPosition_ = aeData.value(second);
-		positions_[first]++;
 	}
 
 	// After reaching the end of the fastest axis, we need to reset it's position to zero and increment the second fastest axis.
@@ -299,9 +299,9 @@ void AM3DDacqScanController::prefillScanPoints()
 	double yStart = internal3DConfig_->yStart();
 	double yStep = internal3DConfig_->yStep();
 	double yEnd = internal3DConfig_->yEnd();
-	double zStart = internal3DConfig_->yStart();
-	double zStep = internal3DConfig_->yStep();
-	double zEnd = internal3DConfig_->yEnd();
+	double zStart = internal3DConfig_->zStart();
+	double zStep = internal3DConfig_->zStep();
+	double zEnd = internal3DConfig_->zEnd();
 	int xCount = int((xEnd-xStart)/xStep);
 	int yCount = int((yEnd-yStart)/yStep);
 	int zCount = int((zEnd-zStart)/zStep);
@@ -330,7 +330,7 @@ void AM3DDacqScanController::prefillScanPoints()
 			for (int x = 0; x < xCount; x++){
 
 				insertIndex = AMnDIndex(x, y, z);
-
+				qDebug() << "Index:" << insertIndex.i() << insertIndex.j() << insertIndex.k() << "Values:" << xStart+x*xStep << yStart+y*yStep << zStart+z*zStep;
 				scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + x*xStep);
 				scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + y*yStep);
 				scan_->rawData()->setAxisValue(2, insertIndex.k(), zStart + z*zStep);
@@ -343,6 +343,24 @@ void AM3DDacqScanController::prefillScanPoints()
 					else if (scan_->rawDataSources()->at(di)->rank() == 1){
 
 						QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+						scan_->rawData()->setValue(insertIndex, di, data.constData());
+					}
+
+					else if (scan_->rawDataSources()->at(di)->rank() == 2){
+
+						QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(1), -1);
+						scan_->rawData()->setValue(insertIndex, di, data.constData());
+					}
+
+					else if (scan_->rawDataSources()->at(di)->rank() == 3){
+
+						QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(2), -1);
+						scan_->rawData()->setValue(insertIndex, di, data.constData());
+					}
+
+					else if (scan_->rawDataSources()->at(di)->rank() == 4){
+
+						QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(3), -1);
 						scan_->rawData()->setValue(insertIndex, di, data.constData());
 					}
 				}
@@ -371,9 +389,9 @@ bool AM3DDacqScanController::setScanAxesControl()
 	advAcq_->saveConfigFile(filename);
 
 	// Stage 2:  Setup the slow axis and fast axis strings.
-	QString firstPriorityAxis = getControlStringFromAxis(axisPriorities_.at(0));
-	QString secondPriorityAxis = getControlStringFromAxis(axisPriorities_.at(1));
-	QString thirdPriorityAxis = getControlStringFromAxis(axisPriorities_.at(2));
+	QString firstPriorityAxis = getControlStringFromAxis(0);
+	QString secondPriorityAxis = getControlStringFromAxis(1);
+	QString thirdPriorityAxis = getControlStringFromAxis(2);
 
 	// Stage 3:  Load up the file through a text stream and change the controls for all three scan axes.
 	QFile inputFile(filename);
@@ -461,7 +479,7 @@ QString AM3DDacqScanController::getControlStringFromAxis(int axis) const
 	case 2:	// Z
 
 		controlString = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
-				.arg(yAxisPVName())
+				.arg(zAxisPVName())
 				.arg(internal3DConfig_->zStart())
 				.arg(internal3DConfig_->zStep())
 				.arg(internal3DConfig_->zEnd());

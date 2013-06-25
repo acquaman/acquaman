@@ -35,8 +35,10 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 	fourElement_ = false;
 	roperCCD_ = false;
 	marCCD_ = false;
+	pilatusCCD_ = false;
 	pvNameAxis1_ = "";
 	pvNameAxis2_ = "";
+	pvNameAxis3_ = "";
 }
 
 bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
@@ -50,16 +52,17 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	if (!file.open(QIODevice::WriteOnly))
 		return false;
 
-	if (dimensions_ != 1 && dimensions_ != 2)
+	if (dimensions_ != 1 && dimensions_ != 2 && dimensions_ != 3)
 		return false;
 
-	if (pvNameAxis1_.isEmpty() || (dimensions_ == 2 && pvNameAxis2_.isEmpty()))
+	if (pvNameAxis1_.isEmpty() || (dimensions_ == 2 && pvNameAxis2_.isEmpty()) || (dimensions_ == 3 && (pvNameAxis2_.isEmpty() || pvNameAxis3_.isEmpty())))
 		return false;
 
 	double moveDelay = 0;
 	double waitDelay = 0.05;
 	QString status1 = pvNameAxis1_;
 	QString status2 = pvNameAxis2_;
+	QString status3 = pvNameAxis3_;
 	QString energyFeedback;
 	bool usingMono = pvNameAxis1_.contains("Mono");
 
@@ -68,14 +71,16 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		moveDelay = 0.05;
 		status1  = "SMTR1607-1-B20-20:status";
 		status2 = "";
+		status3 = "";
 		energyFeedback = "07B2_Mono_SineB_Egec:eV";
 	}
 
 	else{
 
 		moveDelay = 0.05;
-		status1.replace(":mm", ":status");
-		status2.replace(":mm", ":status");
+		status1.replace(QRegExp(":mm|:deg"), ":status");
+		status2.replace(QRegExp(":mm|:deg"), ":status");
+		status3.replace(QRegExp(":mm|:deg"), ":status");
 		energyFeedback = "";
 	}
 
@@ -90,7 +95,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append(QString("# Control \"%1\" start:0 delta:1 final:10 active:7\n").arg(pvNameAxis1_));
 	}
 
-	else if (dimensions_ == 2){
+	else if (dimensions_ == 2 || dimensions_ == 3){
 
 		contents.append("# Scan \"axis2\" 1 onStart:1\n");
 		contents.append(QString("# Control \"%1\" start:0 delta:1 final:10 active:7\n").arg(pvNameAxis2_));
@@ -146,7 +151,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status1));
 	}
 
-	else if (dimensions_ == 2){
+	else if (dimensions_ == 2 || dimensions_ == 3){
 
 		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
 		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status2));
@@ -180,6 +185,12 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	}
 
 	else if (dimensions_ == 2){
+
+		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
+		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n"));
+	}
+
+	else if (dimensions_ == 3){
 
 		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
 		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n"));
@@ -221,6 +232,53 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
 		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status1));
+
+		if (roperCCD_)
+			contents.append("# Action Dwell WaitPV \"CCD1607-001:extTrig:lock\" \"unlocked\"\n");
+
+		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
+		contents.append("# Action Dwell SetPV \"BL1607-B2-1:dwell:startScan\" \"1\"\n");
+		contents.append(QString("# Action Dwell Delay %1\n").arg(waitDelay));
+		contents.append("# Action Dwell WaitPV \"BL1607-B2-1:dwell:startScan\" \"Stopped\"\n");
+		contents.append(QString("# Action Dwell Delay %1\n").arg(waitDelay));
+
+		if (singleElement_){
+
+			contents.append("# Action Dwell SetPV \"IOC1607-004:dxp1:ReadParams.PROC\" \"1\"\n");
+			contents.append(QString("# Action Dwell Delay %1\n").arg(waitDelay));
+		}
+
+		contents.append("# Action Dwell CallEvent \"readMCS\" 1\n");
+
+		if (roperCCD_){
+
+			contents.append("# Action Dwell SetPV \"DIO1607-01:CCD:ExtSync\" \"0\"\n");
+			contents.append(QString("# Action Dwell Delay %1\n").arg(waitDelay));
+		}
+	}
+
+	// Third axis (if applicable).  Handles the second axis as well.
+	if (dimensions_ == 3){
+
+		// The second axis.
+		contents.append("# Scan \"axis1\" 2 onStart:0\n");
+		contents.append(QString("# Control \"%1\" start:0 delta:1 final:1 active:7\n").arg(pvNameAxis1_));
+		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
+		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status1));
+		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
+		contents.append(QString("# Action Dwell CallScan \"axis3\" 1\n"));
+
+		// The third axis.
+		contents.append("# Scan \"axis3\" 2 onStart:0\n");
+		contents.append(QString("# Control \"%1\" start:0 delta:1 final:1 active:7\n").arg(pvNameAxis3_));
+		contents.append("# Action Move WaitPV \"07B2:POE_BeamStatus\" \"1\"\n");
+
+		if (roperCCD_)
+			contents.append("# Action Move SetPV \"IOC1607-003:det1:Acquire\" \"1\"\n");
+
+		contents.append(QString("# Action Move Delay %1\n").arg(moveDelay));
+		contents.append(QString("# Action Move WaitPV \"%1\" \"MOVE DONE\"\n").arg(status3));
+
 		if (roperCCD_)
 			contents.append("# Action Dwell WaitPV \"CCD1607-001:extTrig:lock\" \"unlocked\"\n");
 
@@ -251,8 +309,11 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	contents.append("# eventID:1 AbsTime:0 Rel0Time:0 relPTime:0\n");
 	contents.append("# commentPrefix: 0\n");
 	contents.append(QString("# PV 0: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(usingMono ? energyFeedback : pvNameAxis1_));
-	if (dimensions_ == 2)
+	if (dimensions_ == 2 || dimensions_ == 3)
 		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis2_));
+
+	if (dimensions_ == 3)
+		contents.append(QString("# PV 2: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis3_));
 
 	for (int i = 0; i <= 120-dimensions_; i++)
 		contents.append(QString("# PV %1: \"Goober\", disable:0 spectrum:0 ready:0\n").arg(i+dimensions_));

@@ -46,6 +46,8 @@ protected slots:
 	void onAddOnsExitSlitGapControlChanged(double addOnsExitSlitGap);
 	/// Handles changes coming from the SGM exit slit gap status and propograting those (almost always) to the AddOns version
 	void onSGMExitSlitGapStatusControlChanged(double sgmExitSlitGapStatus);
+	/// Handles changes in the AddOnsGapMoving
+	void onAddOnsExitSlitGapAddOnsMoving(double addOnsExitSlotGapAddOnsMoving);
 
 	/// Handles the backlash correction and monitors when the exit slit gap hits fully open
 	void onSGMGratingControlFullyOpened(double sgmExitSlitGap);
@@ -100,6 +102,8 @@ protected:
 	AMControl *SGMExitSlitGapFeedbackControl_;
 	/// Holds whether or not we're doing the backlash double movement
 	bool movingAddOnsExitSlitGap_;
+	/// Provides EPICS access to the above boolean
+	AMControl *AddOnsExitSlitGapAddOnsMoving_;
 
 	/// Holds whether or not the move was initiated by the old SGM exit slit gap PV
 	bool sgmInitiatedMovement_;

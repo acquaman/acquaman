@@ -160,7 +160,7 @@ void CLSQE65000Detector::onControlsConnected(bool connected){
 
 	if(connected)
 		setReadyForAcquisition();
-	else
+	else if(!isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
 }
 
@@ -184,11 +184,12 @@ void CLSQE65000Detector::onStatusControlChanged(double value){
 	if(statusControl_->withinTolerance(1))
 		setAcquiring();
 	else if(statusControl_->withinTolerance(0)){
-		setAcquisitionSucceeded();
+		if(isAcquiring())
+			setAcquisitionSucceeded();
 
-		if(isConnected())
-			setReadyForAcquisition();
-		else
+		if(!isConnected() && !isNotReadyForAcquisition())
 			setNotReadyForAcquisition();
+		else if(isConnected() && !isReadyForAcquisition())
+			setReadyForAcquisition();
 	}
 }

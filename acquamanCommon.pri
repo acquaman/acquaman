@@ -677,7 +677,13 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
 	source/actions3/actions/AMTimedWaitActionInfo3.h \
 	source/actions3/actions/AMTimedWaitAction3.h \
-    source/beamline/AMSampleStage.h
+    source/beamline/AMSampleStage.h \
+    source/analysis/AM3DNormalizationAB.h \
+    source/analysis/AM3DNormalizationABEditor.h \
+    source/analysis/AM4DBinningAB.h \
+    source/analysis/AM4DBinningABEditor.h \
+    source/analysis/AMOrderReductionAB.h \
+    source/analysis/AMOrderReductionABEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1139,7 +1145,13 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
 	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
 	source/actions3/actions/AMTimedWaitAction3.cpp \
-    source/beamline/AMSampleStage.cpp
+    source/beamline/AMSampleStage.cpp \
+    source/analysis/AM3DNormalizationAB.cpp \
+    source/analysis/AM3DNormalizationABEditor.cpp \
+    source/analysis/AM4DBinningAB.cpp \
+    source/analysis/AM4DBinningABEditor.cpp \
+    source/analysis/AMOrderReductionAB.cpp \
+    source/analysis/AMOrderReductionABEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1163,5 +1175,21 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

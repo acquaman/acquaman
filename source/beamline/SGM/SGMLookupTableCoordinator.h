@@ -32,28 +32,39 @@ public:
 
 protected slots:
 	void onInputControlChanged(double inputValue);
+	/*
+	void onInputControlChanged(double inputValue);
 	void onLinkageControlChanged(double linkageValue);
 	void onLoadLookupTableControlChanged(double loadLookupValue);
 
+	*/
 	void onAllControlsConnected(bool connected);
 
 protected:
+	/*
 	void internalDoConversion();
 	void internalLoadLookupTable();
+	*/
 
 protected:
+	/*
 	AMControl *inputControl_;
 	AMControl *outputControl_;
 	AMControl *linkageControl_;
 	AMControl *loadLookupTableControl_;
+	*/
+	AMControl *inputControl_;
+	AMControl *outputControl_;
 
 	AMControlSet *allControls_;
 	bool connectedOnce_;
 
+	/*
 	bool linkageActive_;
 	QString lookupTableFullFileName_;
 
 	QMap<double, double> lookupTable_;
+	*/
 };
 
 #endif // SGMLOOKUPTABLECOORDINATOR_H

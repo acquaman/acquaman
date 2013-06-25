@@ -90,6 +90,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DBinningAB.h"
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
+#include "analysis/AMOrderReductionAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -200,6 +201,8 @@ bool AMDatamanAppController::startupLoadSettings()
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
+	if(AMUserSettings::userSettingsStartupError)
+		AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_USER_SETTINGS_STARTUP_ERROR, "Acquaman encountered a problem reading the user settings file, maybe the permissions are set incorrectly.");
 
 	QString userDatabaseFolder = AMUserSettings::userDataFolder;
 	if(userDatabaseFolder.endsWith('/'))
@@ -250,40 +253,51 @@ bool AMDatamanAppController::startupIsFirstTime()
 
 bool AMDatamanAppController::startupOnFirstTime()
 {
-	AMFirstTimeWizard ftw;
-
-	// We're pretty forceful here... The user needs to accept this dialog.
-	if(ftw.exec() != QDialog::Accepted)
-		return false;
-
-	AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
-	if(!AMUserSettings::userDataFolder.endsWith('/'))
-		AMUserSettings::userDataFolder.append("/");
-
-	AMUserSettings::save();
-
-	// Attempt to create user's data folder, only if it doesn't exist:
-	QDir userDataDir(AMUserSettings::userDataFolder);
-	if(!userDataDir.exists()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
-		if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+	if(AMUserSettings::userSettingsStartupError){
+		QMessageBox msgBox;
+		msgBox.setText("Sorry! A serious error was detected on startup.");
+		msgBox.setInformativeText("Acquaman saves some configuration information in a .ini file. Yours cannot be read. Please inform the beamline staff of this error.");
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		if(msgBox.exec() == QDialog::Accepted)
 			return false;
-		}
 	}
+	else{
+		AMFirstTimeWizard ftw;
 
-	// Find out the user's name:
-	AMUser::user()->setName( ftw.field("userName").toString() );
+		// We're pretty forceful here... The user needs to accept this dialog.
+		if(ftw.exec() != QDialog::Accepted)
+			return false;
 
-	if(!startupCreateDatabases())
-		return false;
+		AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+		if(!AMUserSettings::userDataFolder.endsWith('/'))
+			AMUserSettings::userDataFolder.append("/");
 
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades())
-		return false;
+		AMUserSettings::save();
 
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
-	qApp->processEvents();
+		// Attempt to create user's data folder, only if it doesn't exist:
+		QDir userDataDir(AMUserSettings::userDataFolder);
+		if(!userDataDir.exists()) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
+			if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+				return false;
+			}
+		}
+
+		// Find out the user's name:
+		AMUser::user()->setName( ftw.field("userName").toString() );
+
+		if(!startupCreateDatabases())
+			return false;
+
+		// check for and run any database upgrades we require...
+		if(!startupDatabaseUpgrades())
+			return false;
+
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
+		qApp->processEvents();
+	}
 	return true;
 }
 
@@ -534,6 +548,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -1120,7 +1135,8 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				editor = createNewScanEditor(scan->scanRank() == 2);
+				bool use2DScanView = (scan->scanRank() == 2 || scan->scanRank() == 3);
+				editor = createNewScanEditor(use2DScanView);
 				editor->addScan(scan);
 				accepted = true;
 			}
@@ -1137,7 +1153,7 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				if (scan->scanRank() == 2){
+				if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 					temp2D = createNewScanEditor(true);
 					temp2D->addScan(scan);

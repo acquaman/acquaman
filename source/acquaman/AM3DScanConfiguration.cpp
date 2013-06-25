@@ -9,9 +9,9 @@ AM3DScanConfiguration::AM3DScanConfiguration(QObject *parent)
 	zRange_ = qMakePair(0.0, 0.0);
 	steps_ = QList<double>() << 0.0 << 0.0 << 0.0;
 	time_ = 0.0;
-	xPriority_ = 1;
-	yPriority_ = 2;
-	zPriority_ = 3;
+	xPriority_ = 0;
+	yPriority_ = 1;
+	zPriority_ = 2;
 }
 
 AM3DScanConfiguration::AM3DScanConfiguration(const AM3DScanConfiguration &original)
@@ -156,7 +156,7 @@ void AM3DScanConfiguration::setTimeStep(double time)
 
 void AM3DScanConfiguration::setXPriority(int priority)
 {
-	if (priority >= 1 && priority <= 3){
+	if (priority >= 0 && priority <= 2){
 
 		xPriority_ = priority;
 		emit axisConfigurationChanged();
@@ -166,7 +166,7 @@ void AM3DScanConfiguration::setXPriority(int priority)
 
 void AM3DScanConfiguration::setYPriority(int priority)
 {
-	if (priority >= 1 && priority <= 3){
+	if (priority >= 0 && priority <= 2){
 
 		yPriority_ = priority;
 		emit axisConfigurationChanged();
@@ -176,7 +176,7 @@ void AM3DScanConfiguration::setYPriority(int priority)
 
 void AM3DScanConfiguration::setZPriority(int priority)
 {
-	if (priority >= 1 && priority <= 3){
+	if (priority >= 0 && priority <= 2){
 
 		zPriority_ = priority;
 		emit axisConfigurationChanged();

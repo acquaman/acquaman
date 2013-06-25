@@ -175,7 +175,7 @@ void CLSPGTDetectorV2::onControlsConnected(bool connected){
 
 	if(connected)
 		setReadyForAcquisition();
-	else
+	else if(!isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
 }
 
@@ -199,11 +199,12 @@ void CLSPGTDetectorV2::onStatusControlChanged(double value){
 	if(statusControl_->withinTolerance(1))
 		setAcquiring();
 	else if(statusControl_->withinTolerance(0) || statusControl_->withinTolerance(2)){
-		setAcquisitionSucceeded();
+		if(isAcquiring())
+			setAcquisitionSucceeded();
 
-		if(isConnected())
-			setReadyForAcquisition();
-		else
+		if(!isConnected() && !isNotReadyForAcquisition())
 			setNotReadyForAcquisition();
+		else if(isConnected() && !isReadyForAcquisition())
+			setReadyForAcquisition();
 	}
 }
