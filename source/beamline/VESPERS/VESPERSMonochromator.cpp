@@ -49,6 +49,9 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 
 void VESPERSMonochromator::setTolerance(double tolerance)
 {
+	((AMPVwStatusControl *)Eo_)->setMoveStartTolerance(tolerance);
+	((AMPVwStatusControl *)energy_)->setMoveStartTolerance(tolerance);
+	((AMPVwStatusControl *)delE_)->setMoveStartTolerance(tolerance);
 	Eo_->setTolerance(tolerance);
 	energy_->setTolerance(tolerance);
 	delE_->setTolerance(tolerance);
