@@ -28,7 +28,7 @@
 #include <QColor>
 
 
-
+#define SAMPLEPOINTS 6
 
 
 
@@ -123,67 +123,39 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
    // configurationWindow->show();
 
 
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         pointPushButton_[i] = new QPushButton("Set Point " + QString::number(i));
         pointLineEdit_[i] = new QLineEdit("point"+QString::number(i));
-        pointLineEdit_[i+4] = new QLineEdit("point"+QString::number(4+i));
+        pointLineEdit_[i+SAMPLEPOINTS] = new QLineEdit("point"+QString::number(SAMPLEPOINTS+i));
         coordinateLineEdit_[i] = new QLineEdit("coordinate"+QString::number(i));
-        coordinateLineEdit_[i+4] = new QLineEdit("coordinate"+QString::number(4+i));
-        coordinateLineEdit_[i+8] = new QLineEdit("coordinate"+QString::number(8+i));
+        coordinateLineEdit_[i+SAMPLEPOINTS] = new QLineEdit("coordinate"+QString::number(SAMPLEPOINTS+i));
+        coordinateLineEdit_[i+2*SAMPLEPOINTS] = new QLineEdit("coordinate"+QString::number(2*SAMPLEPOINTS+i));
     }
 
     /// camera configuration window (finds camera)
     cameraConfigurationWindow_ = new QFrame();
 
-    QFrame* ccFrameOne = new QFrame();
-    QHBoxLayout* cchlOne = new QHBoxLayout();
-    cchlOne->setContentsMargins(12,4,12,4);
-    cchlOne->addWidget(pointLineEdit_[0]);
-    cchlOne->addSpacing(20);
-    cchlOne->addWidget(pointLineEdit_[1]);
-    cchlOne->addSpacing(20);
-    cchlOne->addWidget(pointPushButton_[0]);
-    cchlOne->addStretch();
-    ccFrameOne->setLayout(cchlOne);
 
-    QFrame* ccFrameTwo = new QFrame();
-    QHBoxLayout* cchlTwo = new QHBoxLayout();
-    cchlTwo->setContentsMargins(12,4,12,4);
-    cchlTwo->addWidget(pointLineEdit_[2]);
-    cchlTwo->addSpacing(20);
-    cchlTwo->addWidget(pointLineEdit_[3]);
-    cchlTwo->addSpacing(20);
-    cchlTwo->addWidget(pointPushButton_[1]);
-    cchlTwo->addStretch();
-    ccFrameTwo->setLayout(cchlTwo);
+    QFrame* ccFrame [SAMPLEPOINTS];
+    QHBoxLayout* cchl [SAMPLEPOINTS];
+    for(int i = 0; i < SAMPLEPOINTS; i++)
+    {
+        ccFrame[i] = new QFrame();
+        cchl[i] = new QHBoxLayout();
+        cchl[i]->setContentsMargins(12,4,12,4);
+        cchl[i]->addWidget(pointLineEdit_[2*i]);
+        cchl[i]->addSpacing(20);
+        cchl[i]->addWidget(pointLineEdit_[2*i+1]);
+        cchl[i]->addSpacing(20);
+        cchl[i]->addWidget(pointPushButton_[i]);
+        cchl[i]->addStretch();
+        ccFrame[i]->setLayout(cchl[i]);
+    }
 
-
-    QFrame* ccFrameThree = new QFrame();
-    QHBoxLayout* cchlThree = new QHBoxLayout();
-    cchlThree->setContentsMargins(12,4,12,4);
-    cchlThree->addWidget(pointLineEdit_[4]);
-    cchlThree->addSpacing(20);
-    cchlThree->addWidget(pointLineEdit_[5]);
-    cchlThree->addSpacing(20);
-    cchlThree->addWidget(pointPushButton_[2]);
-    cchlThree->addStretch();
-    ccFrameThree->setLayout(cchlThree);
-
-    QFrame* ccFrameFour = new QFrame();
-    QHBoxLayout* cchlFour = new QHBoxLayout();
-    cchlFour->setContentsMargins(12,4,12,4);
-    cchlFour->addWidget(pointLineEdit_[6]);
-    cchlFour->addSpacing(20);
-    cchlFour->addWidget(pointLineEdit_[7]);
-    cchlFour->addSpacing(20);
-    cchlFour->addWidget(pointPushButton_[3]);
-    cchlFour->addStretch();
-    ccFrameFour->setLayout(cchlFour);
-
-    QFrame* coordinateLineFrame [4];
-    QHBoxLayout* clhl [4];
-    for(int i = 0; i < 4; i++)
+    QFrame* coordinateLineFrame [SAMPLEPOINTS];
+    QHBoxLayout* clhl [SAMPLEPOINTS];
+    for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         coordinateLineFrame[i] = new QFrame();
         clhl[i] = new QHBoxLayout();
@@ -203,14 +175,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     QVBoxLayout* ccvl = new QVBoxLayout();
     ccvl->setContentsMargins(0,0,0,0);
-    ccvl->addWidget(ccFrameOne);
-    ccvl->addWidget(coordinateLineFrame[0]);
-    ccvl->addWidget(ccFrameTwo);
-    ccvl->addWidget(coordinateLineFrame[1]);
-    ccvl->addWidget(ccFrameThree);
-    ccvl->addWidget(coordinateLineFrame[2]);
-    ccvl->addWidget(ccFrameFour);
-    ccvl->addWidget(coordinateLineFrame[3]);
+    for(int i = 0; i < SAMPLEPOINTS; i++)
+    {
+        ccvl->addWidget(ccFrame[i]);
+        ccvl->addWidget(coordinateLineFrame[i]);
+    }
     ccvl->addWidget(startCameraConfiguration_ = new QPushButton("Configure Camera"));
     ccvl->addStretch();
 
@@ -465,9 +434,23 @@ void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
     qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
-//    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.6,1.1),QPointF(1,0.5), QPointF(0.5,0.3),QVector3D(12,51,11.8),QVector3D(0.2,1.2,0),QVector3D(1,0,0),QVector3D(0,-0.6,1));
+    QPointF points[6];
+    points[0]=QPointF(0.5,0.5);
+    points[1]=QPointF(0.6,1.1);
+    points[2]=QPointF(1,0.5);
+    points[3]=QPointF(0.5,0.3);
+    points[4]=QPointF(0.8,0.5);
+    points[5]=QPointF(0.6,0.6);
+    QVector3D coordinate[6];
+    coordinate[0] = QVector3D(12,51,11.8);
+    coordinate[1] = QVector3D(0.2,1.2,0);
+    coordinate[2] = QVector3D(1,0,0);
+    coordinate[3] = QVector3D(0,-0.6,1);
+    coordinate[4] = QVector3D(0.9,0,1);
+    coordinate[5] = QVector3D(0.3,0.3,1);
+    shapeModel_->findCamera(points,coordinate);
 //    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.25,0.25),QPointF(0.25,0.75),QPointF(0.75,0.25),QVector3D(1,1,1),QVector3D(0.25,0.25,0.5),QVector3D(0.5,-0.5,0),QVector3D(1,1,-1));
-    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.7,1.7),QPointF(1.5,0.5), QPointF(0.5,0.1),QVector3D(12,51,11.8),QVector3D(0.2,-1.2,0),QVector3D(1,0,0),QVector3D(0,0.6,-1));
+//    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.7,1.7),QPointF(1.5,0.5), QPointF(0.5,0.1),QVector3D(12,51,11.8),QVector3D(0.2,-1.2,0),QVector3D(1,0,0),QVector3D(0,0.6,-1));
 //    shapeModel_->findCamera(QPointF(0.25,0.25),QPointF(0.25,0.75),QPointF(0.75,0.25),QPointF(0.75,0.75),QVector3D(0.5,0.5,0),QVector3D(0.5,-1.5,1),QVector3D(-2,1,2),QVector3D(-0.75,-0.75,-1));
 
 }
@@ -545,22 +528,22 @@ void AMShapeDataSetView::selectPointFour()
 void AMShapeDataSetView::runCameraConfiguration()
 {
     qDebug()<<"Running camera Configuration";
-    QVector3D coordinates [4];
-    QPointF points [4];
-    for(int i = 0; i < 4; i++)
+    QVector3D coordinates [SAMPLEPOINTS];
+    QPointF points [SAMPLEPOINTS];
+    for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         points[i] = QPointF(pointLineEdit_[2*i]->text().toDouble(),pointLineEdit_[2*i+1]->text().toDouble());
         coordinates [i] = QVector3D(coordinateLineEdit_[3*i]->text().toDouble(),coordinateLineEdit_[3*i+1]->text().toDouble(),coordinateLineEdit_[3*i+2]->text().toDouble());
     }
-    for(int i = 1; i < 4; i++)
+    for(int i = 1; i < SAMPLEPOINTS; i++)
     {
         coordinates[i] -= coordinates[0];
     }
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         qDebug()<<"point:"<<points[i]<<"coordinate:"<<coordinates[i];
     }
-    shapeModel_->findCamera(points[0],points[1],points[2],points[3],coordinates[0],coordinates[1],coordinates[2], coordinates[3]);
+    shapeModel_->findCamera(points,coordinates);
 
 
 }

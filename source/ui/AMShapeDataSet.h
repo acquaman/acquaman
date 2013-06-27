@@ -13,6 +13,12 @@
 #include "AMBeamConfiguration.h"
 #include <QPair>
 #include <complex>
+#include <QGenericMatrix>
+
+#include <Eigen/SVD>
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
+#include <Eigen/LU>
 
 class AMShapeData;
 class QGraphicsRectItem;
@@ -22,6 +28,8 @@ class AMCameraConfiguration;
 class SGMMAXvMotor;
 
 //class AMBeamConfiguration;
+
+using namespace Eigen;
 
 class AMShapeDataSet: public QObject
 {
@@ -144,7 +152,7 @@ public:
 
     bool isBackwards(int index = -1);
 
-    void findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, QVector3D cameraCenter = QVector3D(0,0,1), double fieldOfView = 1);
+    void findCamera(QPointF points [6], QVector3D coordinates[6], QVector3D cameraCenter = QVector3D(0,0,1), double fieldOfView = 1);
 
     /// look for intersections with the current beam
     bool findIntersections();
@@ -349,6 +357,7 @@ protected:
     QPair<double, double> alpha(double coordinateDistance, QVector3D a, QVector3D b, double thetaOne);
     QList<double> getCoordinateSystem(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
     double calculateT2(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
+    double calcT2(double d, QVector3D a, QVector3D c, double shift2Length);
     double calculateD(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
     double delta(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
     double omega(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c,  QVector3D e, double angleBC, double angleBE);
@@ -369,6 +378,23 @@ protected:
     QPointF convertToPolar(QPointF squareNumber);
     QPointF convertFromPolar(QPointF polarNumber);
     QPair<QPointF,QPointF> complexSquareRoot(QPointF polarNumber);
+    void getTransforms(QPointF points[6],QVector3D coordinates [6]);
+    QVector4D solveMatrix(QVector4D coefficients [4], QVector4D answers);
+    QVector3D findCoordinate(QVector4D coefficients [3], QVector3D screenPosition);
+    void factorTransformMatrix(QVector3D coefficients [3]);
+    double dot(QVector3D,QVector3D);
+    MatrixXd directLinearTransform(QVector3D coordinate[6], QPointF screenposition[6]);
+    MatrixXd constructMatrix(QVector3D coordinate[6], QPointF screenposition[6]);
+    QGenericMatrix<12,12,double> constructWeightMatrix(double sigmaU, double sigmaV);
+    QVector<double> invertMatrix(const int k, const int l, QVector<double> matrix);
+    MatrixXd intrinsicParameters(MatrixXd matrixB);
+    MatrixXd rotationParameters(MatrixXd matrixA, MatrixXd matrixB);
+    MatrixXd translationParameters(MatrixXd matrixA, MatrixXd matrixSubB);
+
+    template <int N, int M, int K, int L>
+    void getMatrix(QGenericMatrix<K,L,double>* matrix);
+
+
 
 protected:
 

@@ -32,6 +32,7 @@
 #define TOPCLOSE 4
 #define RECTANGLE_POINTS 5
 
+using namespace Eigen;
 
 
 /// Constructor
@@ -367,7 +368,7 @@ bool AMShapeDataSet::isBackwards(int index)
     return shapeList_[index].backwards();
 }
 
-void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF pointThree, QPointF pointFour, QVector3D coordinateOne, QVector3D shift, QVector3D shiftTwo, QVector3D shiftThree, QVector3D cameraCenter, double fieldofView)
+void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[], QVector3D cameraCenter, double fieldOfView)
 {
     qDebug()<<"AMShapeDataSet::findCamera - started";
     /// given the four (could be cut down to three?) points on screen and their corresponding positions, find out the camera parameters...
@@ -429,374 +430,394 @@ void AMShapeDataSet::findCamera(QPointF pointOne, QPointF pointTwo, QPointF poin
     /// m' = m(sC) + m(shift)
     /// JuH + IzH == G == C-P/|C-P| except negate z component...
 
-
     /// start with finding a candidate coordinate in the ideal coordinate system (facing down the z axis, with center at origin)
     /// given the two screen points and the shift between them, we will find two coordinates that are separated by a scalar*shift
     /// that scalar will be related to field of view and depth
 
-    double focalLength = 1;
-    double aspectRatio = scaledSize().width()/scaledSize().height();
+//    double focalLength = 1;
+//    double aspectRatio = scaledSize().width()/scaledSize().height();
 
-    if(pointOne == pointTwo)
+
+
+
+
+    QPointF point[6];
+    for(int i = 0; i < 6; i++)
     {
-        qDebug()<<"Cannot use the same point twice";
+        point[i].setX((points[i].x()-0.5));
+        point[i].setY((points[i].y()-0.5));
+    }
+    QVector3D fullCoordinates [6];
+    fullCoordinates[0] = coordinates[0];
+    for(int i = 1; i < 6; i++)
+    {
+        fullCoordinates[i] = coordinates[0]+coordinates[i];
     }
 
-    QVector3D normalizedCoordinate;
-    normalizedCoordinate.setX((pointOne.x()-0.5)*fieldofView/focalLength);
-    normalizedCoordinate.setY((pointOne.y()-0.5)*fieldofView*aspectRatio/focalLength);
-    normalizedCoordinate.setZ(-1);
-    normalizedCoordinate.normalize();
-    ///  here we have a vector representing coordinateOne, must find the relative coordinateTwo representation
+    getTransforms(point,fullCoordinates);
 
-    QVector3D normalizedCoordinateTwo;
-    normalizedCoordinateTwo.setX((pointTwo.x()-0.5)*fieldofView/focalLength);
-    normalizedCoordinateTwo.setY((pointTwo.y()-0.5)*fieldofView*aspectRatio/focalLength);
-    normalizedCoordinateTwo.setZ(-1);
-    normalizedCoordinateTwo.normalize();
 
-    QVector3D normalizedCoordinateThree;
-    normalizedCoordinateThree.setX((pointThree.x()-0.5)*fieldofView/focalLength);
-    normalizedCoordinateThree.setY((pointThree.y()-0.5)*fieldofView*aspectRatio/focalLength);
-    normalizedCoordinateThree.setZ(-1);
-    normalizedCoordinateThree.normalize();
 
-    QVector3D normalizedCoordinateFour;
-    normalizedCoordinateFour.setX((pointFour.x()-0.5)*fieldofView/focalLength);
-    normalizedCoordinateFour.setY((pointFour.y()-0.5)*fieldofView*aspectRatio/focalLength);
-    normalizedCoordinateFour.setZ(-1);
-    normalizedCoordinateFour.normalize();
+//    QVector3D normalizedCoordinate;
+//    normalizedCoordinate.setX((points[0].x()-0.5)*fieldofView/focalLength);
+//    normalizedCoordinate.setY((points[0].y()-0.5)*fieldofView*aspectRatio/focalLength);
+//    normalizedCoordinate.setZ(1);
+//    normalizedCoordinate.normalize();
+//    ///  here we have a vector representing coordinateOne, must find the relative coordinateTwo representation
 
-    /// The four vectors represent four rays into the representational coordinate system
-    ///
+//    QVector3D normalizedCoordinateTwo;
+//    normalizedCoordinateTwo.setX((points[0].x()-0.5)*fieldofView/focalLength);
+//    normalizedCoordinateTwo.setY((points[0].y()-0.5)*fieldofView*aspectRatio/focalLength);
+//    normalizedCoordinateTwo.setZ(1);
+//    normalizedCoordinateTwo.normalize();
 
-//    QPointF apparentLengthOne = pointTwo-pointOne;
-//    QPointF apparentLengthTwo = pointThree-pointOne;
+//    QVector3D normalizedCoordinateThree;
+//    normalizedCoordinateThree.setX((pointThree.x()-0.5)*fieldofView/focalLength);
+//    normalizedCoordinateThree.setY((pointThree.y()-0.5)*fieldofView*aspectRatio/focalLength);
+//    normalizedCoordinateThree.setZ(1);
+//    normalizedCoordinateThree.normalize();
 
-//    double screenLengthOne = (pow(apparentLengthOne.x(),2.0)+pow(apparentLengthOne.y(),2.0));
-//    double screenLengthTwo = (pow(apparentLengthTwo.x(),2.0)+pow(apparentLengthTwo.y(),2.0));
+//    QVector3D normalizedCoordinateFour;
+//    normalizedCoordinateFour.setX((pointFour.x()-0.5)*fieldofView/focalLength);
+//    normalizedCoordinateFour.setY((pointFour.y()-0.5)*fieldofView*aspectRatio/focalLength);
+//    normalizedCoordinateFour.setZ(1);
+//    normalizedCoordinateFour.normalize();
 
-    /// must find the scale between the two vectors, which will give the angle between them
+//    qDebug()<<"Direction of coordOne"<<normalizedCoordinate;
+//    qDebug()<<"Direction of coordTwo"<<normalizedCoordinateTwo;
+//    qDebug()<<"Direction of coordThree"<<normalizedCoordinateThree;
+//    qDebug()<<"Direction of coordFour"<<normalizedCoordinateFour;
 
-    double shiftOneLength = shift.length();
-    double shiftTwoLength = shiftTwo.length();
-    double shiftThreeLength = shiftThree.length();
-//    double coordinateLength = coordinateOne.length();
+//    /// The four vectors represent four rays into the representational coordinate system
+//    ///
 
-//    double shiftRatio = shiftOneLength/shiftTwoLength;
+////    QPointF apparentLengthOne = pointTwo-pointOne;
+////    QPointF apparentLengthTwo = pointThree-pointOne;
 
-//    double screenRatio = screenLengthOne/screenLengthTwo;
+////    double screenLengthOne = (pow(apparentLengthOne.x(),2.0)+pow(apparentLengthOne.y(),2.0));
+////    double screenLengthTwo = (pow(apparentLengthTwo.x(),2.0)+pow(apparentLengthTwo.y(),2.0));
 
-    /// if the two ratios are not close, it means that they are different angles from the normal.
-    /// if they are close to being the same they are at the same angle, but not necessarily in the same direction
+//    /// must find the scale between the two vectors, which will give the angle between them
 
+//    double shiftOneLength = shift.length();
+//    double shiftTwoLength = shiftTwo.length();
+//    double shiftThreeLength = shiftThree.length();
+////    double coordinateLength = coordinateOne.length();
 
-    double shiftAngleOneTwo = acos(QVector3D::dotProduct(shift,shiftTwo)/(shiftOneLength*shiftTwoLength));
-    double shiftAngleOneThree = acos(QVector3D::dotProduct(shift,shiftThree)/(shiftOneLength*shiftThreeLength));
-    double shiftAngleTwoThree = acos(QVector3D::dotProduct(shiftThree,shiftTwo)/(shiftThreeLength*shiftTwoLength));
-//    qDebug()<<"ShiftAngle"<<shiftAngle;
+////    double shiftRatio = shiftOneLength/shiftTwoLength;
 
+////    double screenRatio = screenLengthOne/screenLengthTwo;
 
+//    /// if the two ratios are not close, it means that they are different angles from the normal.
+//    /// if they are close to being the same they are at the same angle, but not necessarily in the same direction
 
 
+//    double shiftAngleOneTwo = acos(QVector3D::dotProduct(shift,shiftTwo)/(shiftOneLength*shiftTwoLength));
+//    double shiftAngleOneThree = acos(QVector3D::dotProduct(shift,shiftThree)/(shiftOneLength*shiftThreeLength));
+//    double shiftAngleTwoThree = acos(QVector3D::dotProduct(shiftThree,shiftTwo)/(shiftThreeLength*shiftTwoLength));
+////    qDebug()<<"ShiftAngle"<<shiftAngle;
 
-    /// to find d, which is the length of the vector of coordinate One
-    /// d = +-beta-+gamma/[(a.c)(1-(a.c)^2)/{(a.c)^2-cos(Theta2)^2}]
-    /// however, beta and gamma are both functions of d, so this will be computed iteratively
 
 
-    qDebug()<<"Finding the coordinateDistance";
-//    coordinateDistance = findCoordinateDistance(coordinateDistance, normalizedCoordinate, normalizedCoordinateTwo, normalizedCoordinateThree,  shiftOneLength, shiftTwoLength, shiftOneAngle, shiftTwoAngle);
 
 
-    /// Here is what is actually happening, ignore most of the stuff above
-    /// the three shifts have the same angle between them no matter where they are
-    /// as well, when creating representational coordinates , the distances between the points must be scaled to the lengths of the shifts
-    /// so that gives six equations and five variables
-    /// three equations for solving the point where a ray intersects a sphere of radius shiftlength*scalingFactor
-    /// three equations for equality between angles (angle12,23,and 13)
-    /// however, this set of equations does not have one single solution, it may have many solutions, depending on where the
-    /// center coordinate is placed along its ray.
-    /// make an initial guess at the distance along the central ray, as well as the distance along one of the shifts.
-    double initialTDistance = 1;
-    double initialDDistance = 1;
-    QList<double> parameters = getCoordinateSystem(initialTDistance,initialDDistance,shiftOneLength,shiftTwoLength,shiftThreeLength,normalizedCoordinate,normalizedCoordinateTwo,normalizedCoordinateThree,normalizedCoordinateFour,shiftAngleOneTwo,shiftAngleOneThree,shiftAngleTwoThree);
-    /// the list returns d,t1,t2,t3,r
-    /// d is the length along the ray going through pointOne, t1-t3 are the same for points2-4
-    /// and r is the factor by which the vectors are scaled - should be proportional to fov only.
-    /// once the fov is found, the depth is just scaled so it fits -- fov affects only the two dimensional shape, so will have to redo?
-    double d, t1, t2, t3, r;
-    d = parameters.at(0);
-    t1 = parameters.at(1);
-    t2 = parameters.at(2);
-    t3 = parameters.at(3);
-    r = parameters.at(4);
+//    /// to find d, which is the length of the vector of coordinate One
+//    /// d = +-beta-+gamma/[(a.c)(1-(a.c)^2)/{(a.c)^2-cos(Theta2)^2}]
+//    /// however, beta and gamma are both functions of d, so this will be computed iteratively
 
-    qDebug()<<"d"<<d;
-    qDebug()<<"t1"<<t1;
-    qDebug()<<"t2"<<t2;
-    qDebug()<<"t3"<<t3;
-    qDebug()<<"r"<<r;
 
-    QVector3D A;
-    QVector3D B;
-    QVector3D C;
-    QVector3D E;
+//    qDebug()<<"Finding the coordinateDistance";
+////    coordinateDistance = findCoordinateDistance(coordinateDistance, normalizedCoordinate, normalizedCoordinateTwo, normalizedCoordinateThree,  shiftOneLength, shiftTwoLength, shiftOneAngle, shiftTwoAngle);
 
 
+//    /// Here is what is actually happening, ignore most of the stuff above
+//    /// the three shifts have the same angle between them no matter where they are
+//    /// as well, when creating representational coordinates , the distances between the points must be scaled to the lengths of the shifts
+//    /// so that gives six equations and five variables
+//    /// three equations for solving the point where a ray intersects a sphere of radius shiftlength*scalingFactor
+//    /// three equations for equality between angles (angle12,23,and 13)
+//    /// however, this set of equations does not have one single solution, it may have many solutions, depending on where the
+//    /// center coordinate is placed along its ray.
+//    /// make an initial guess at the distance along the central ray, as well as the distance along one of the shifts.
+//    double initialTDistance = 0.1;
+//    double initialDDistance = 0.1;
+//    QList<double> parameters = getCoordinateSystem(initialTDistance,initialDDistance,shiftOneLength,shiftTwoLength,shiftThreeLength,normalizedCoordinate,normalizedCoordinateTwo,normalizedCoordinateThree,normalizedCoordinateFour,shiftAngleOneTwo,shiftAngleOneThree,shiftAngleTwoThree);
+//    /// the list returns d,t1,t2,t3,r
+//    /// d is the length along the ray going through pointOne, t1-t3 are the same for points2-4
+//    /// and r is the factor by which the vectors are scaled - should be proportional to fov only.
+//    /// once the fov is found, the depth is just scaled so it fits -- fov affects only the two dimensional shape, so will have to redo?
+//    double d, t1, t2, t3, r;
+//    d = parameters.at(0);
+//    t1 = parameters.at(1);
+//    t2 = parameters.at(2);
+//    t3 = parameters.at(3);
+//    r = parameters.at(4);
 
-    A = d/r*normalizedCoordinate;
-    B = t1/r*normalizedCoordinateTwo;
-    C = t2/r*normalizedCoordinateThree;
-    E = t3/r*normalizedCoordinateFour;
+//    qDebug()<<"d"<<d;
+//    qDebug()<<"t1"<<t1;
+//    qDebug()<<"t2"<<t2;
+//    qDebug()<<"t3"<<t3;
+//    qDebug()<<"r"<<r;
 
-//    double distance = A.z();
+//    QVector3D A;
+//    QVector3D B;
+//    QVector3D C;
+//    QVector3D E;
 
-    B = B-A;
-    C = C-A;
-    E = E-A;
 
-    qDebug()<<"A"<<A;
-    qDebug()<<"B"<<B;
-    qDebug()<<"C"<<C;
-    qDebug()<<"E"<<E;
-
-    qDebug()<<"B length:"<<B.length();
-    qDebug()<<"C length:"<<C.length();
-    qDebug()<<"E length:"<<E.length();
-
-
-
-    /// acquire rotation in 3D space.
-
-
-    /// define the rotation matrix
-    /// R = [ux vx wx
-    ///      uy vy wy
-    ///      uz vx wz]
-    /// Ra = A
-    /// where a is an unrotated point, and A is a rotated point
-    /// cos(theta) = (ux + vy + wz - 1)/2
-    /// w is the cross product of u and v
-    /// u and v are perpendicular to each other
-    /// u and v are both normalized
-
-    /// R has to satisfy
-    /// Ra = A
-    /// for all the shifts:
-    /// b' = B/|B|
-    /// c' = C/|C|
-    /// e' = E/|E|
-    /// B' = shift/|shift|
-    /// etc
-
-    /// Rb' = B'
-    /// etc.
-
-    cameraCenter = findOrientation(B,C,E,shift,shiftTwo,shiftThree);
-
-
-
-    /// distance now is centerOfCamera (or cameraCenter) dot the vector
-
-
-
-
-    qDebug()<<"Camera center:"<<cameraCenter;
-
-    double factor = 1;
-    double bFactor;
-    double cFactor;
-    double eFactor;
-    double bZ =nearZero(B.z());
-    double cZ =nearZero(C.z());
-    double eZ = nearZero(E.z());
-    /// "z" length of the shifts are the lengths along the camera center
-    double sOneZ = nearZero(QVector3D::dotProduct(shift,cameraCenter));
-    double sTwoZ = nearZero(QVector3D::dotProduct(shiftTwo,cameraCenter));
-    double sThreeZ = nearZero(QVector3D::dotProduct(shiftThree,cameraCenter));
-
-
-
-    if(notEqual(bZ,sOneZ) || notEqual(cZ,sTwoZ) || notEqual(eZ,sThreeZ))
-    {
-        qDebug()<<bZ<<sOneZ;
-        qDebug()<<cZ<<sTwoZ;
-        qDebug()<<eZ<<sThreeZ;
-
-        if(bZ != 0)
-        {
-            bFactor = sOneZ/bZ;
-        }
-        else if(sOneZ == 0)
-        {
-            bFactor = 1;
-        }
-        else
-        {
-            bFactor = 1;
-            qDebug()<<"Should not have a denominator of zero in bFactor";
-            qDebug()<<"or else shift z is almost 0";
-        }
-
-        if(cZ != 0)
-        {
-            cFactor = sTwoZ/cZ;
-        }
-        else if(sTwoZ == 0)
-        {
-            cFactor = 1;
-        }
-        else
-        {
-            cFactor = 1;
-            qDebug()<<"Should not have a denominator of zero in cFactor";
-        }
-
-        if(eZ != 0)
-        {
-            eFactor = sThreeZ/eZ;
-        }
-        else if(sThreeZ == 0)
-        {
-            eFactor = 1;
-        }
-        else
-        {
-            eFactor = 1;
-            qDebug()<<"Should not have a denominator of zero in eFactor";
-        }
-
-        if(bFactor == 1 || cFactor == 1 || eFactor == 1)
-        {
-            qDebug()<<"some of the factors are 1, must be on the same depth plane as the central point";
-            if(bFactor == 1 && cFactor == 1 && eFactor == 1)
-            {
-                factor = 1;
-                // probably good, or else they are all on the same z
-                if(bZ == cZ && cZ == eZ)
-                {
-                    qDebug()<<"Points can't detect field of view";
-                }
-            }
-            else
-            {
-                factor = bFactor;
-                if(factor == 1)
-                {
-                    factor = cFactor;
-                    bFactor = cFactor;
-                    if(factor == 1)
-                    {
-                        factor = eFactor;
-                        bFactor = eFactor;
-                        cFactor = eFactor;
-                        if(factor ==1)
-                        {
-                            qDebug()<<"Error in findCamera: all factors are one, but did not enter the all 1 branch";
-                        }
-                    }
-                    else
-                    {
-                        if(eFactor != 1 && eFactor !=cFactor)
-                        {
-                                qDebug()<<"contradictory field of view information occured in findCamera first";
-                        }
-                    }
-                }
-                else
-                {
-                    if(cFactor != 1 && cFactor !=bFactor)
-                    {
-                            qDebug()<<"contradictory field of view information occured in findCamera second";
-                    }
-                    if(eFactor != 1 && eFactor !=bFactor)
-                    {
-                            qDebug()<<"contradictory field of view information occured in findCamera third";
-                    }
-                }
-
-            }
-        }
-        else if(bFactor == cFactor && cFactor == eFactor)
-        {
-            factor = bFactor;
-        }
-        else
-        {
-            qDebug()<<"contradictory field of view information occured in findCamera fourth";
-            double bPrimeFactor = fabs(bFactor);
-            if(bPrimeFactor < 1) bPrimeFactor = 1/bPrimeFactor;
-
-            double cPrimeFactor = fabs(cFactor);
-            if(cPrimeFactor < 1) cPrimeFactor = 1/cPrimeFactor;
-
-            double ePrimeFactor = fabs(eFactor);
-            if(ePrimeFactor < 1) ePrimeFactor = 1/ePrimeFactor;
-
-
-            if(bPrimeFactor >= cPrimeFactor && bPrimeFactor >= ePrimeFactor) factor = bFactor;
-            else if (cPrimeFactor >= bPrimeFactor && cPrimeFactor >= ePrimeFactor) factor = cFactor;
-            else if (ePrimeFactor >= bPrimeFactor && ePrimeFactor >= cPrimeFactor) factor = eFactor;
-        }
-        // factor is the field of view scaling
-        // it is given by 2tanVF
-        // F is field of view
-        // F is focal length
-        qDebug()<<"Factor is:"<<factor;
-        if(notEqual(factor,fieldofView))
-        {
-            findCamera(pointOne,pointTwo,pointThree,pointFour,coordinateOne,shift,shiftTwo,shiftThree,cameraCenter,1.0/factor);
-            return;
-        }
-    }
-    double tanFOV = fieldofView/2/focalLength;
-    double fov = atan(tanFOV);
-    /// Acquired the fov;
-    qDebug()<<"field of view has been calculated to be:"<<fov;
-    double rotation = 0;
-    if(fov < 0)
-    {
-        fov *=-1;
-        rotation = M_PI;
-    }
-
-    /// to find the shift rotate point a, then move it to coordinateOne
-//    QVector3D center = QVector3D(0,0,0);
-    QVector3D oldCameraCenter = QVector3D(0,0,-1);
-    QVector3D rotatedAVector = rotateVector(A, cameraCenter, oldCameraCenter);
-    QVector3D newCenter = coordinateOne - rotatedAVector;
-    cameraCenter = newCenter + cameraCenter;
-
-    qDebug()<<newCenter;
-    qDebug()<<cameraCenter;
-
-    cameraModel_->setCameraCenter(cameraCenter);
-    cameraModel_->setCameraPosition(newCenter);
-    cameraModel_->setCameraFocalLength(1);
-    cameraModel_->setCameraFOV(fov);
-    cameraModel_->setCameraRotation(rotation);
-
-    QVector3D one = shift+coordinateOne;
-    QVector3D two = shiftTwo + coordinateOne;
-    QVector3D three = shiftThree + coordinateOne;
-
-    qDebug()<<"Test results";
-    qDebug()<<"point coordinate pairs should match the input";
-    qDebug()<<transform3Dto2D(coordinateOne)<<transform2Dto3D(pointOne,depth(coordinateOne));
-    qDebug()<<transform3Dto2D(one)<<transform2Dto3D(pointTwo,depth(one));
-    qDebug()<<transform3Dto2D(two)<<transform2Dto3D(pointThree,depth(two));
-    qDebug()<<transform3Dto2D(three)<<transform2Dto3D(pointFour,depth(three));
-
-
-
-
-
-
-    /// pixel aspect ratio
-    /// the only thing not yet accounted for is distortion...
-    /// may not be able to do that
-    /// basically a non linear version of fov
+
+//    A = d/r*normalizedCoordinate;
+//    B = t1/r*normalizedCoordinateTwo;
+//    C = t2/r*normalizedCoordinateThree;
+//    E = t3/r*normalizedCoordinateFour;
+
+////    double distance = A.z();
+
+//    B = B-A;
+//    C = C-A;
+//    E = E-A;
+
+//    qDebug()<<"A"<<A;
+//    qDebug()<<"B"<<B;
+//    qDebug()<<"C"<<C;
+//    qDebug()<<"E"<<E;
+
+//    qDebug()<<"B length:"<<B.length();
+//    qDebug()<<"C length:"<<C.length();
+//    qDebug()<<"E length:"<<E.length();
+
+
+
+//    /// acquire rotation in 3D space.
+
+
+//    /// define the rotation matrix
+//    /// R = [ux vx wx
+//    ///      uy vy wy
+//    ///      uz vx wz]
+//    /// Ra = A
+//    /// where a is an unrotated point, and A is a rotated point
+//    /// cos(theta) = (ux + vy + wz - 1)/2
+//    /// w is the cross product of u and v
+//    /// u and v are perpendicular to each other
+//    /// u and v are both normalized
+
+//    /// R has to satisfy
+//    /// Ra = A
+//    /// for all the shifts:
+//    /// b' = B/|B|
+//    /// c' = C/|C|
+//    /// e' = E/|E|
+//    /// B' = shift/|shift|
+//    /// etc
+
+//    /// Rb' = B'
+//    /// etc.
+
+//    cameraCenter = findOrientation(B,C,E,shift,shiftTwo,shiftThree);
+
+
+
+//    /// distance now is centerOfCamera (or cameraCenter) dot the vector
+
+
+
+
+//    qDebug()<<"Camera center:"<<cameraCenter;
+
+//    double factor = 1;
+//    double bFactor;
+//    double cFactor;
+//    double eFactor;
+//    double bZ =nearZero(B.z());
+//    double cZ =nearZero(C.z());
+//    double eZ = nearZero(E.z());
+//    /// "z" length of the shifts are the lengths along the camera center
+//    double sOneZ = nearZero(QVector3D::dotProduct(shift,cameraCenter));
+//    double sTwoZ = nearZero(QVector3D::dotProduct(shiftTwo,cameraCenter));
+//    double sThreeZ = nearZero(QVector3D::dotProduct(shiftThree,cameraCenter));
+
+
+
+//    if(notEqual(bZ,sOneZ) || notEqual(cZ,sTwoZ) || notEqual(eZ,sThreeZ))
+//    {
+//        qDebug()<<bZ<<sOneZ;
+//        qDebug()<<cZ<<sTwoZ;
+//        qDebug()<<eZ<<sThreeZ;
+
+//        if(bZ != 0)
+//        {
+//            bFactor = sOneZ/bZ;
+//        }
+//        else if(sOneZ == 0)
+//        {
+//            bFactor = 1;
+//        }
+//        else
+//        {
+//            bFactor = 1;
+//            qDebug()<<"Should not have a denominator of zero in bFactor";
+//            qDebug()<<"or else shift z is almost 0";
+//        }
+
+//        if(cZ != 0)
+//        {
+//            cFactor = sTwoZ/cZ;
+//        }
+//        else if(sTwoZ == 0)
+//        {
+//            cFactor = 1;
+//        }
+//        else
+//        {
+//            cFactor = 1;
+//            qDebug()<<"Should not have a denominator of zero in cFactor";
+//        }
+
+//        if(eZ != 0)
+//        {
+//            eFactor = sThreeZ/eZ;
+//        }
+//        else if(sThreeZ == 0)
+//        {
+//            eFactor = 1;
+//        }
+//        else
+//        {
+//            eFactor = 1;
+//            qDebug()<<"Should not have a denominator of zero in eFactor";
+//        }
+
+//        if(bFactor == 1 || cFactor == 1 || eFactor == 1)
+//        {
+//            qDebug()<<"some of the factors are 1, must be on the same depth plane as the central point";
+//            if(bFactor == 1 && cFactor == 1 && eFactor == 1)
+//            {
+//                factor = 1;
+//                // probably good, or else they are all on the same z
+//                if(bZ == cZ && cZ == eZ)
+//                {
+//                    qDebug()<<"Points can't detect field of view";
+//                }
+//            }
+//            else
+//            {
+//                factor = bFactor;
+//                if(factor == 1)
+//                {
+//                    factor = cFactor;
+//                    bFactor = cFactor;
+//                    if(factor == 1)
+//                    {
+//                        factor = eFactor;
+//                        bFactor = eFactor;
+//                        cFactor = eFactor;
+//                        if(factor ==1)
+//                        {
+//                            qDebug()<<"Error in findCamera: all factors are one, but did not enter the all 1 branch";
+//                        }
+//                    }
+//                    else
+//                    {
+//                        if(eFactor != 1 && eFactor !=cFactor)
+//                        {
+//                                qDebug()<<"contradictory field of view information occured in findCamera first";
+//                        }
+//                    }
+//                }
+//                else
+//                {
+//                    if(cFactor != 1 && cFactor !=bFactor)
+//                    {
+//                            qDebug()<<"contradictory field of view information occured in findCamera second";
+//                    }
+//                    if(eFactor != 1 && eFactor !=bFactor)
+//                    {
+//                            qDebug()<<"contradictory field of view information occured in findCamera third";
+//                    }
+//                }
+
+//            }
+//        }
+//        else if(bFactor == cFactor && cFactor == eFactor)
+//        {
+//            factor = bFactor;
+//        }
+//        else
+//        {
+//            qDebug()<<"contradictory field of view information occured in findCamera fourth";
+//            double bPrimeFactor = fabs(bFactor);
+//            if(bPrimeFactor < 1) bPrimeFactor = 1/bPrimeFactor;
+
+//            double cPrimeFactor = fabs(cFactor);
+//            if(cPrimeFactor < 1) cPrimeFactor = 1/cPrimeFactor;
+
+//            double ePrimeFactor = fabs(eFactor);
+//            if(ePrimeFactor < 1) ePrimeFactor = 1/ePrimeFactor;
+
+
+//            if(bPrimeFactor >= cPrimeFactor && bPrimeFactor >= ePrimeFactor) factor = bFactor;
+//            else if (cPrimeFactor >= bPrimeFactor && cPrimeFactor >= ePrimeFactor) factor = cFactor;
+//            else if (ePrimeFactor >= bPrimeFactor && ePrimeFactor >= cPrimeFactor) factor = eFactor;
+//        }
+//        // factor is the field of view scaling
+//        // it is given by 2tanVF
+//        // F is field of view
+//        // F is focal length
+//        qDebug()<<"Factor is:"<<factor;
+//        if(notEqual(factor,fieldofView) && fieldofView == 1)
+//        {
+//            findCamera(pointOne,pointTwo,pointThree,pointFour,coordinateOne,shift,shiftTwo,shiftThree,cameraCenter,1.0/factor);
+//            return;
+//        }
+//    }
+//    double tanFOV = fieldofView/2/focalLength;
+//    double fov = atan(tanFOV);
+//    /// Acquired the fov;
+//    qDebug()<<"field of view has been calculated to be:"<<fov;
+//    double rotation = 0;
+//    if(fov < 0)
+//    {
+//        fov *=-1;
+//        rotation = M_PI;
+//    }
+
+//    /// to find the shift rotate point a, then move it to coordinateOne
+////    QVector3D center = QVector3D(0,0,0);
+//    QVector3D oldCameraCenter = QVector3D(0,0,1);
+//    QVector3D rotatedAVector = rotateVector(A, cameraCenter, oldCameraCenter);
+//    QVector3D newCenter = coordinateOne - rotatedAVector;
+//    cameraCenter = newCenter + cameraCenter;
+
+//    qDebug()<<newCenter;
+//    qDebug()<<cameraCenter;
+
+//    cameraModel_->setCameraCenter(cameraCenter);
+//    cameraModel_->setCameraPosition(newCenter);
+//    cameraModel_->setCameraFocalLength(focalLength);
+//    cameraModel_->setCameraFOV(fov);
+//    cameraModel_->setCameraRotation(rotation);
+
+//    QVector3D one = shift+coordinateOne;
+//    QVector3D two = shiftTwo + coordinateOne;
+//    QVector3D three = shiftThree + coordinateOne;
+
+//    qDebug()<<"Test results";
+//    qDebug()<<"point coordinate pairs should match the input";
+//    qDebug()<<transform3Dto2D(coordinateOne)<<transform2Dto3D(pointOne,depth(coordinateOne));
+//    qDebug()<<transform3Dto2D(one)<<transform2Dto3D(pointTwo,depth(one));
+//    qDebug()<<transform3Dto2D(two)<<transform2Dto3D(pointThree,depth(two));
+//    qDebug()<<transform3Dto2D(three)<<transform2Dto3D(pointFour,depth(three));
+
+
+
+
+
+
+//    /// pixel aspect ratio
+//    /// the only thing not yet accounted for is distortion...
+//    /// may not be able to do that
+//    /// basically a non linear version of fov
 
 }
 
@@ -2169,16 +2190,19 @@ QList<double> AMShapeDataSet::getCoordinateSystem(double t2, double d, double sh
     double oldT2 = t2;
     double oldD = d;
     double error = 100;
-    while(error > 0.001)
+    while(error > 0.101)
     {
         t2 = calculateT2(t2,d,shift1Length,shift2Length,shift3Length,a,b,c,e,angleBC,angleBE,angleCE);
         d = calculateD(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+//        if(d < 0) d*=-1;
         error = std::max(fabs((t2-oldT2)/t2),fabs((d-oldD)/d));
         oldT2 = t2;
         oldD = d;
         // hope it converges
+        /// \todo
     }
     double t1,t3,rSquared, r;
+//    t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
     t1 = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
     t3 = omega(t2,d,shift1Length,shift2Length,shift3Length,a,b,c,e,angleBC,angleBE);
     rSquared = (beta(t2,d,shift2Length,a,c));
@@ -2197,6 +2221,57 @@ QList<double> AMShapeDataSet::getCoordinateSystem(double t2, double d, double sh
 
 double AMShapeDataSet::calculateT2(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE)
 {
+//    double aTerm;
+//    double bTerm;
+//    double cTerm;
+//    double aOne = d*d*(pow(QVector3D::dotProduct(a,c),2.0)-pow(QVector3D::dotProduct(b,c),2.0));
+//    double aTwo = 2*pow(d,3.0)*QVector3D::dotProduct(a,b)*QVector3D::dotProduct(a,c)*QVector3D::dotProduct(b,c);
+//    double aThree = shift1Length*shift1Length*pow(QVector3D::dotProduct(b,c),2.0);
+//    aTerm = aOne-aTwo-aThree;
+//    double bOne = pow(d,3.0)*(4*QVector3D::dotProduct(a,b)*QVector3D::dotProduct(c,b)-2*QVector3D::dotProduct(a,c) + 2*pow(QVector3D::dotProduct(a,b),2.0)*QVector3D::dotProduct(a,c));
+//    double bTwo = 2*d*((shift1Length*shift2Length*cos(angleBC))*(QVector3D::dotProduct(a,c)-QVector3D::dotProduct(a,b)*QVector3D::dotProduct(c,b))+(pow(shift1Length,2.0)*pow(shift2Length,2.0)*pow(cos(angleBC),2.0)));
+//    bTerm = bOne + bTwo;
+//    double cOne = pow(d,4.0)*(1-3*pow(QVector3D::dotProduct(a,b),2.0));
+//    double cTwo = pow(d,2.0)*((2*shift1Length*shift2Length*cos(angleBC)*pow(QVector3D::dotProduct(a,b),2.0))-(pow(shift1Length,2.0)*pow(QVector3D::dotProduct(a,b),2.0))-(shift1Length*shift2Length*cos(angleBC)));
+//    double cThree = pow((shift1Length*shift2Length*cos(angleBC)),2.0);
+//    cTerm = cOne + cTwo + cThree;
+
+//    double firstTerm = -1*bTerm/(2*aTerm);
+//    double squareRootTerm = pow(bTerm,2.0)-4*aTerm*cTerm;
+//    if(squareRootTerm < 0)
+//    {
+//        qDebug()<<"complex t2 result";
+//        squareRootTerm *= -1;
+//        throw 1;
+//    }
+//    double secondTerm = sqrt(squareRootTerm)/(2*aTerm);
+//    double result[2];
+//    result[0] = firstTerm + secondTerm;
+//    result[1] = firstTerm - secondTerm;
+//    if(result[0] > 0)
+//    {
+//        if(result[1] <= 0)
+//        {
+//            return result[1];
+//        }
+//        else if(result[1] < result[0])
+//        {
+//            return result[1];
+//        }
+//        else return result[0];
+//    }
+//    else if(result[1] > 0)
+//    {
+//            return result[0];
+//    }
+//    else
+//    {
+//        if(result[0]>result[1])
+//        {
+//            return result[0];
+//        }
+//        else return result[1];
+//    }
     double betaTerm = beta(t2,d,shift2Length,a,c);
     double omegaTerm = omega(t2,d,shift1Length,shift2Length, shift3Length, a,b,c,e,angleBC,angleBE);
     double termOne = betaTerm*shift2Length*shift3Length*cos(angleCE);
@@ -2211,10 +2286,49 @@ double AMShapeDataSet::calculateT2(double t2, double d, double shift1Length, dou
     return result;
 }
 
+double AMShapeDataSet::calcT2(double d, QVector3D a, QVector3D c, double shift2Length)
+{
+    double termOne = d*QVector3D::dotProduct(a,c);
+    double squareTermTwo = d*d*(QVector3D::dotProduct(a,c)-1)+shift2Length*shift2Length;
+    if(squareTermTwo < 0)
+    {
+        qDebug()<<"Complex t2";
+        return termOne;
+    }
+    double termTwo = sqrt(squareTermTwo);
+    double result[4];
+    result[0] = termOne + termTwo;
+    result[1] = termOne - termTwo;
+
+    result[2] = fabs(result[0] - d);
+    result[3] = fabs(result[1] - d);
+    if(result[2]<result[3])return result[0];
+    else return result[1];
+
+}
+
 double AMShapeDataSet::calculateD(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC)
 {
-    double deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
-    double betaTerm = beta(t2,d,shift2Length,a,c);
+    double deltaTerm;
+    double betaTerm;
+    bool success;
+    do
+    {
+        success = true;
+        try
+        {
+//            t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
+            deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
+            betaTerm = beta(t2,d,shift2Length,a,c);
+        }
+        catch (int n)
+        {
+            qDebug()<<"Exception"<<n;
+            d--;
+            success = false;
+        }
+    }while(!success);
+
     double numerator = pow(deltaTerm,2.0) + pow(d,2.0) - betaTerm*pow(shift1Length,2.0);
     double denominator = 2*deltaTerm*QVector3D::dotProduct(a,b);
     if(denominator == 0)
@@ -2227,7 +2341,9 @@ double AMShapeDataSet::calculateD(double t2, double d, double shift1Length, doub
 
 double AMShapeDataSet::delta(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC)
 {
-    double termOne = beta(t2,d,shift2Length,a,c)*shift1Length*shift2Length*cos(angleBC);
+//    t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
+    double betaTerm = beta(t2,d,shift2Length,a,c);
+    double termOne = betaTerm*shift1Length*shift2Length*cos(angleBC);
     double termTwo = t2*d*QVector3D::dotProduct(a,c) - pow(d,2.0);
     double numerator = termOne + termTwo;
     double denominator = t2*QVector3D::dotProduct(b,c) - d*QVector3D::dotProduct(a,b);
@@ -2241,6 +2357,7 @@ double AMShapeDataSet::delta(double t2, double d, double shift1Length, double sh
 
 double AMShapeDataSet::omega(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE)
 {
+//   t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
     double deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
     double betaTerm = beta(t2,d,shift2Length,a,c);
     double termOne = betaTerm*shift1Length*shift3Length*cos(angleBE);
@@ -2257,6 +2374,8 @@ double AMShapeDataSet::omega(double t2, double d, double shift1Length, double sh
 
 double AMShapeDataSet::beta(double t2, double d, double shift2Length, QVector3D a, QVector3D c )
 {
+//    t2 = 1;
+    //t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
     double numerator = pow(t2,2.0) - 2*t2*d*QVector3D::dotProduct(a,c) + pow(d,2.0);
     if(shift2Length == 0)
     {
@@ -2281,13 +2400,13 @@ QVector3D AMShapeDataSet::findOrientation(QVector3D b, QVector3D c, QVector3D e,
     ///  shiftex shiftey shiftez]  camcenz]  -ez]
 
     QVector3D shift1 = shiftB/shiftB.length();
-    double bz = -1*b.z()/b.length();
+    double bz = 1*b.z()/b.length();
 
     QVector3D shift2 = shiftC/shiftC.length();
-    double cz = -1*c.z()/c.length();
+    double cz = 1*c.z()/c.length();
 
     QVector3D shift3 = shiftE/shiftE.length();
-    double ez = -1*e.z()/e.length();
+    double ez = 1*e.z()/e.length();
 
     /// augmented matrix
     QVector4D s1 = QVector4D(shift1,bz);
@@ -2532,7 +2651,7 @@ QVector3D AMShapeDataSet::findOrientation(QVector3D b, QVector3D c, QVector3D e,
 
         }
     }
-    /// matrix should be proper now
+    /// matrix should be correct now
     s2 = s2 -(s2.x()/s1.x())*s1;
     s3 = s3 - (s3.x()/s1.x())*s1;
     if(nearZero(s2.y()) == 0)qDebug()<<"Improper matrix, xy dependent";
@@ -2954,3 +3073,1021 @@ QPair<QPointF,QPointF> AMShapeDataSet::complexSquareRoot(QPointF polarNumber)
     second = QPointF(r,thetaTwo);
     return QPair<QPointF,QPointF>(first,second);
 }
+
+void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
+{
+    QVector3D iHat, kHat;
+    QVector3D shift;
+    /// R = [iHat|jHat|kHat] T = shift^T
+    /// x = [point^T|1]
+    /// X = [coord^T|1]
+    /// K = [R T]
+    /// A = I*[ax|ay|1]
+    /// x = A*K*X
+    /// cameraCoords = K*X
+
+
+    // test of solve matrix
+    QVector4D test[4];
+    test[0] = QVector4D(8,2,1,-1);
+    test[1] = QVector4D(-1,0,2,-2);
+    test[2] = QVector4D(2,2,0,-3);
+    test[3] = QVector4D(-1,1,-3,0);
+    QVector4D testAnswer = QVector4D(11,-3,-6,-8);
+    QVector4D result = solveMatrix(test,testAnswer);
+    qDebug()<<result;
+
+
+    /// initial kHat guess = 0,0,1
+    kHat = QVector3D(0,0,1);
+    /// initial shift guess = 0,0,0
+    shift = coordinates[0];
+    QVector4D kMatrix = QVector4D(kHat,shift.z());
+    /// E = [Xn][kMatrix]^T-[1|1|1|1]
+    /// want to minimize E
+
+    QVector4D coordTermOne = QVector4D(coordinates[0],1);
+    QVector4D coordTermTwo = QVector4D(coordinates[1],1);
+    QVector4D coordTermThree = QVector4D(coordinates[2],1);
+    QVector4D coordTermFour = QVector4D(coordinates[3],1);
+
+
+
+    QVector4D matrix[4];
+    matrix[0] = coordTermOne;
+    matrix[1] = coordTermTwo;
+    matrix[2] = coordTermThree;
+    matrix[3] = coordTermFour;
+
+    QVector4D answers = QVector4D(1,1,1,1);
+
+    answers = solveMatrix(matrix,answers);
+
+
+//    double xSum = pointOne.x()+pointTwo.x()+pointThree.x()+pointFour.x();
+    QVector4D xAnswers = QVector4D(points[0].x(),points[1].x(), points[2].x(), points[3].x());
+    xAnswers = solveMatrix(matrix,xAnswers);
+
+
+    kHat = QVector3D(answers);
+    iHat = QVector3D(xAnswers);
+
+
+//    double ySum = pointOne.y() + pointTwo.y() + pointThree.y() + pointFour.y();
+    QVector4D yAnswers = QVector4D(points[0].y(), points[1].y(), points[2].y(), points[3].y());
+    yAnswers = solveMatrix(matrix,yAnswers);
+
+
+    QVector4D iVector = QVector4D(xAnswers);
+    QVector4D jVector = QVector4D(yAnswers);
+
+
+    double alphaX = points[2].x()/(QVector4D::dotProduct(iVector,coordTermThree));
+    double alphaY = points[2].y()/(QVector4D::dotProduct(jVector,coordTermThree));
+
+    qDebug()<<alphaX<<alphaY;
+
+    QVector4D xTerm = xAnswers;
+    QVector4D yTerm = yAnswers;
+    QVector4D zTerm = answers;
+
+    QVector3D offset = QVector3D(0.5,0.5,0);
+
+    QVector3D firstPoint = QVector3D(QVector4D::dotProduct(xTerm,coordTermOne),QVector4D::dotProduct(yTerm,coordTermOne),QVector4D::dotProduct(zTerm,coordTermOne));
+    qDebug()<<firstPoint + offset;
+    QVector3D secondPoint = QVector3D(QVector4D::dotProduct(xTerm,coordTermTwo),QVector4D::dotProduct(yTerm,coordTermTwo),QVector4D::dotProduct(zTerm,coordTermTwo));
+    qDebug()<<secondPoint + offset;
+
+    QVector3D thirdPoint = QVector3D(QVector4D::dotProduct(xTerm,coordTermThree),QVector4D::dotProduct(yTerm,coordTermThree),QVector4D::dotProduct(zTerm,coordTermThree));
+    qDebug()<<thirdPoint + offset;
+
+    QVector3D fourthPoint = QVector3D(QVector4D::dotProduct(xTerm,coordTermFour),QVector4D::dotProduct(yTerm,coordTermFour),QVector4D::dotProduct(zTerm,coordTermFour));
+    qDebug()<<fourthPoint + offset;
+
+    QVector4D testPoint = QVector4D(2,0,2,0);
+    testPoint += coordTermOne;
+    QVector3D testLocation = QVector3D(QVector4D::dotProduct(xTerm,testPoint),QVector4D::dotProduct(yTerm,testPoint),QVector4D::dotProduct(zTerm,testPoint));
+    qDebug()<<testLocation + offset;
+    qDebug()<<coordTermOne<<coordTermTwo<<coordTermThree<<coordTermFour<<testPoint;
+    qDebug()<<xAnswers;
+    qDebug()<<yAnswers;
+    qDebug()<<answers;
+    QVector3D kR [3];
+    kR[0] = QVector3D(xAnswers);
+    kR[1] = QVector3D(yAnswers);
+    kR[2] = QVector3D(answers);
+    factorTransformMatrix(kR);
+
+    MatrixXd matrixP = directLinearTransform(coordinates,points);
+
+    MatrixXd matrixB = matrixP.block(0,0,3,3);
+    MatrixXd matrixSubB = matrixP.col(3);
+    MatrixXd matrixA = intrinsicParameters(matrixB);
+    MatrixXd matrixR = rotationParameters(matrixA,matrixB);
+    MatrixXd matrixT = translationParameters(matrixA,matrixSubB);
+
+    MatrixXd matrixExtrinsic(3,4);
+    matrixExtrinsic<<matrixR,matrixT;
+
+    MatrixXd coordinate [6];
+    for(int i = 0; i<6; i++)
+    {
+        coordinate[i].resize(4,1);
+        coordinate[i]<<coordinates[i].x(),coordinates[i].y(),coordinates[i].z(),1;
+    }
+
+    MatrixXd point [6];
+    for(int i= 0; i<6; i++)
+    {
+        point[i] = matrixA*matrixExtrinsic*coordinate[i];
+        point[i] = point[i]/(-1*(point[i](2,0)));
+        qDebug()<<"Point"<<i;
+        qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
+
+    }
+
+    MatrixXd localCoords[6];
+    for(int i = 0; i < 6; i++)
+    {
+        localCoords[i].resize(3,1);
+    }
+    localCoords[0]<<0,0,2;
+    localCoords[1]<<0.2,1.2,2;
+    localCoords[2]<<1,0,2;
+    localCoords[3]<<0,-0.6,3;
+    localCoords[4]<<0.9,0,3;
+    localCoords[5]<<0.3,0.3,3;
+
+    for(int i= 0; i<6; i++)
+    {
+        point[i] = matrixA*localCoords[i];
+        point[i] = point[i]/point[i](2,0);
+        qDebug()<<"Point"<<i;
+        qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
+
+    }
+
+    MatrixXd testCoordinate(4,1);
+    testCoordinate<<13.2,52.5,12.8,1;
+    MatrixXd testScreenPoint = matrixA*matrixExtrinsic*testCoordinate;
+    testScreenPoint = testScreenPoint/(-1*(testScreenPoint(2,0)));
+    qDebug()<<"test point at"<<testScreenPoint(0,0)<<testScreenPoint(1,0);
+    qDebug()<<"should be 0.4, 0.5";
+
+    MatrixXd testTwo(3,1);
+    testTwo<<1.2,1.5,3;
+    testScreenPoint = matrixA*testTwo;
+    testScreenPoint = testScreenPoint/testScreenPoint(2,0);
+    qDebug()<<"test point at"<<testScreenPoint(0,0)<<testScreenPoint(1,0);
+    qDebug()<<"should be 0.4, 0.5";
+
+    MatrixXd intermediateCoords[6];
+    double factor;
+    for(int i = 0; i<6; i++)
+    {
+        intermediateCoords[i] = matrixExtrinsic*coordinate[i];
+        if(i == 0)factor = 2/intermediateCoords[i](2,0);
+        intermediateCoords[i] *= factor;
+        qDebug()<<intermediateCoords[i](0,0)<<intermediateCoords[i](1,0)<<intermediateCoords[i](2,0);
+        point[i] = matrixA*intermediateCoords[i];
+        point[i] /= point[i](2,0)*-1;
+         qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
+    }
+/*
+//    QVector4D transform [3];
+//    transform[0] = xAnswers;
+//    transform[1] = yAnswers;
+//    transform[2] = answers;
+//    QVector3D screenPositions [4];
+//    screenPositions[0] = QVector3D(pointOne.x(),pointOne.y(),1);
+//    screenPositions[1] = QVector3D(pointTwo.x(),pointTwo.y(),1);
+//    screenPositions[2] = QVector3D(pointThree.x(),pointThree.y(),1);
+//    screenPositions[3] = QVector3D(pointFour.x(),pointFour.y(),1);
+//    for(int i = 0; i < 4; i++)
+//    {
+//        qDebug()<<findCoordinate(transform,screenPositions[i]);
+//    }
+
+
+
+//    QVector4D xTerm = QVector4D(termOne, termTwo, termThree, termFour);
+//    QVector4D yTerm = QVector4D(1,1,1,1);
+//    QVector4D eEstimate = xTerm - yTerm;
+//    double estimateValue = eEstimate.length();
+
+//    double bestEstimate = estimateValue;
+//    QVector4D bestKMatrix = kMatrix;
+//    bool smaller = true;
+//    double sign;
+//    double lastEstimate = estimateValue;
+
+//    while(bestEstimate > tolerance)
+//    {
+//        if(smaller)
+//        {
+//            sign = -1;
+//        }
+//        else sign = 1;
+//        kMatrix.setX(kMatrix.x() + sign*kMatrix.x()*bestEstimate/100 + sign*bestEstimate/1000);
+//        kMatrix.setY(kMatrix.y() + sign*kMatrix.y()*bestEstimate/100 + sign*bestEstimate/1000);
+//        kMatrix.setZ(kMatrix.z() + sign*kMatrix.z()*bestEstimate/100 + sign*bestEstimate/1000);
+//        kMatrix.setW(kMatrix.w() + sign*kMatrix.w()*bestEstimate/100 + sign*bestEstimate/1000);
+//        kHat = kMatrix.toVector3D();
+//        kHat.normalize();
+//        kMatrix = QVector4D(kHat,kMatrix.w());
+
+//        termOne = QVector4D::dotProduct(coordTermOne,kMatrix);
+//        termTwo = QVector4D::dotProduct(coordTermTwo,kMatrix);
+//        termThree = QVector4D::dotProduct(coordTermThree,kMatrix);
+//        termFour = QVector4D::dotProduct(coordTermFour,kMatrix);
+
+//        eEstimate = QVector4D(termOne, termTwo, termThree, termFour) - yTerm;
+
+//        estimateValue = eEstimate.length();
+
+
+//        if(estimateValue < bestEstimate)
+//        {
+//            bestEstimate = estimateValue;
+//            bestKMatrix = kMatrix;
+//        }
+//        else if(estimateValue > lastEstimate)
+//        {
+//            smaller = !smaller;
+
+//        }
+//        lastEstimate = estimateValue;
+
+
+//      }
+    */
+
+
+    qDebug()<<"Best kMatrix = "<<kMatrix;
+}
+
+/// solves a 4x4 matrix A with the form y = Ax for the values of x, given y
+/// y and x are 4x1 both
+QVector4D AMShapeDataSet::solveMatrix(QVector4D coefficients[], QVector4D answers)
+{
+    QVector4D coordTermOne = coefficients[0];
+    QVector4D coordTermTwo = coefficients[1];
+    QVector4D coordTermThree = coefficients[2];
+    QVector4D coordTermFour = coefficients[3];
+
+    QVector4D matrix[4];
+    matrix[0] = 2*coordTermOne + coordTermTwo + coordTermThree + coordTermFour;
+    matrix[1] = coordTermOne + 2*coordTermTwo + coordTermThree + coordTermFour;
+    matrix[2] = coordTermOne + coordTermTwo + 2*coordTermThree + coordTermFour;
+    matrix[3] = coordTermOne + coordTermTwo + coordTermThree + 2*coordTermFour;
+
+    QVector4D newAnswers;
+
+    newAnswers.setX(2*answers.x() + answers.y() + answers.z() + answers.w());
+    newAnswers.setY(answers.x() + 2*answers.y() + answers.z() + answers.w());
+    newAnswers.setZ(answers.x() + answers.y() + 2*answers.z() + answers.w());
+    newAnswers.setW(answers.x() + answers.y() + answers.z() + 2*answers.w());
+
+
+
+
+    if(nearZero(matrix[0].x()) == 0)
+    {
+        if(!(nearZero(coordTermOne.x()) == 0))
+        {
+            matrix[0] += coordTermOne;
+            newAnswers.setX(newAnswers.x()+answers.x());
+        }
+        else if(!(nearZero(coordTermTwo.x()) == 0))
+        {
+            matrix[0] -= coordTermTwo;
+            newAnswers.setX(newAnswers.x()-answers.y());
+        }
+        else if(!(nearZero(coordTermThree.x()) == 0))
+        {
+            matrix[0] -= coordTermThree;
+            newAnswers.setX(newAnswers.x()-answers.z());
+        }
+        else if(!(nearZero(coordTermFour.x()) == 0))
+        {
+            matrix[0] -= coordTermFour;
+            newAnswers.setX(newAnswers.x()-answers.w());
+        }
+        else
+        {
+            qDebug()<<"Not enough x's";
+        }
+    }
+    if(nearZero(matrix[1].y()) == 0)
+    {
+        if(nearZero(coordTermTwo.y()) != 0)
+        {
+            matrix[1] += coordTermTwo;
+            newAnswers.setY(newAnswers.y()+answers.y());
+        }
+        else if(nearZero(coordTermThree.y()) != 0)
+        {
+            matrix[1] -= coordTermThree;
+            newAnswers.setY(newAnswers.y()-answers.z());
+        }
+        else if(nearZero(coordTermFour.y()) != 0)
+        {
+            matrix[1] -= coordTermFour;
+            newAnswers.setY(newAnswers.y()-answers.w());
+        }
+        else if(nearZero(coordTermOne.y()) != 0)
+        {
+            matrix[1] -= coordTermOne;
+            newAnswers.setY(newAnswers.y()-answers.x());
+        }
+        else
+        {
+            qDebug()<<"Not enough y's";
+        }
+    }
+    if(nearZero(matrix[2].z()) == 0)
+    {
+        if(!nearZero(coordTermThree.z()) == 0)
+        {
+            matrix[2] += coordTermThree;
+            newAnswers.setZ(newAnswers.z()+answers.z());
+        }
+        else if(!nearZero(coordTermFour.z()) == 0)
+        {
+            matrix[2] -= coordTermFour;
+            newAnswers.setZ(newAnswers.z()-answers.w());
+        }
+        else if(!(nearZero(coordTermOne.z()) == 0))
+        {
+            matrix[2] -= coordTermOne;
+            newAnswers.setZ(newAnswers.z()-answers.x());
+        }
+        else if(!nearZero(coordTermTwo.z()) == 0)
+        {
+            matrix[2] -= coordTermTwo;
+            newAnswers.setZ(newAnswers.z()-answers.y());
+        }
+        else
+        {
+            qDebug()<<"Not enough z's";
+        }
+    }
+    if(nearZero(matrix[3].w()) == 0)
+    {
+        if(!nearZero(coordTermFour.w()) == 0)
+        {
+            matrix[3] += coordTermFour;
+            newAnswers.setW(newAnswers.w()+answers.w());
+        }
+        else if(!nearZero(coordTermOne.w()) == 0)
+        {
+            matrix[3] -= coordTermOne;
+            newAnswers.setW(newAnswers.w()-answers.x());
+        }
+        else if(!nearZero(coordTermTwo.w()) == 0)
+        {
+            matrix[3] -= coordTermTwo;
+            newAnswers.setW(newAnswers.w()-answers.y());
+        }
+        else if(!nearZero(coordTermThree.w()) == 0)
+        {
+            matrix[3] -= coordTermThree;
+            newAnswers.setW(newAnswers.w()-answers.z());
+        }
+        else
+        {
+            qDebug()<<"Not enough w's";
+        }
+    }
+    answers = newAnswers;
+
+
+
+    answers.setY(answers.y()-(matrix[1].x()/matrix[0].x())*answers.x());
+    matrix[1] = matrix[1] - (matrix[1].x()/matrix[0].x())*matrix[0];
+    answers.setZ(answers.z()-(matrix[2].x()/matrix[0].x())*answers.x());
+    matrix[2] = matrix[2] - (matrix[2].x()/matrix[0].x())*matrix[0];
+    answers.setW(answers.w()-(matrix[3].x()/matrix[0].x())*answers.x());
+    matrix[3] = matrix[3] - (matrix[3].x()/matrix[0].x())*matrix[0];
+
+
+    if(nearZero(matrix[1].y()) == 0)
+    {
+        if(nearZero(matrix[2].y()) != 0)
+        {
+            answers.setY(answers.y() - answers.z());
+            matrix[1] = matrix[1] - matrix[2];
+        }
+        else if(nearZero(matrix[3].y()) != 0)
+        {
+            answers.setY(answers.y() - answers.w());
+            matrix[1] = matrix[1] - matrix[3];
+        }
+    }
+
+    answers.setX(answers.x()-(matrix[0].y()/matrix[1].y())*answers.y());
+    matrix[0] = matrix[0] - (matrix[0].y()/matrix[1].y())*matrix[1];
+    answers.setZ(answers.z()-(matrix[2].y()/matrix[1].y())*answers.y());
+    matrix[2] = matrix[2] - (matrix[2].y()/matrix[1].y())*matrix[1];
+    answers.setW(answers.w()-(matrix[3].y()/matrix[1].y())*answers.y());
+    matrix[3] = matrix[3] - (matrix[3].y()/matrix[1].y())*matrix[1];
+
+    if(nearZero(matrix[2].z()) == 0)
+    {
+        if(nearZero(matrix[3].z()) != 0)
+        {
+            answers.setZ(answers.z() - answers.w());
+            matrix[2] = matrix[2] - matrix[3];
+        }
+
+    }
+
+    answers.setX(answers.x()-(matrix[0].z()/matrix[2].z())*answers.z());
+    matrix[0] = matrix[0] - (matrix[0].z()/matrix[2].z())*matrix[2];
+    answers.setY(answers.y()-(matrix[1].z()/matrix[2].z())*answers.z());
+    matrix[1] = matrix[1] - (matrix[1].z()/matrix[2].z())*matrix[2];
+    answers.setW(answers.w()-(matrix[3].z()/matrix[2].z())*answers.z());
+    matrix[3] = matrix[3] - (matrix[3].z()/matrix[2].z())*matrix[2];
+
+
+    if(nearZero(matrix[3].w()) == 0)
+    {
+        qDebug()<<"broken";
+        return QVector4D(0,0,0,0);
+    }
+
+    answers.setX(answers.x()-(matrix[0].w()/matrix[3].w())*answers.w());
+    matrix[0] = matrix[0] - (matrix[0].w()/matrix[3].w())*matrix[3];
+    answers.setY(answers.y()-(matrix[1].w()/matrix[3].w())*answers.w());
+    matrix[1] = matrix[1] - (matrix[1].w()/matrix[3].w())*matrix[3];
+    answers.setZ(answers.z()-(matrix[2].w()/matrix[3].w())*answers.w());
+    matrix[2] = matrix[2] - (matrix[2].w()/matrix[3].w())*matrix[3];
+
+
+
+    answers.setX(answers.x()/matrix[0].x());
+    matrix[0] = matrix[0]/matrix[0].x();
+
+
+    answers.setY(answers.y()/matrix[1].y());
+    matrix[1] = matrix[1]/matrix[1].y();
+
+
+    answers.setZ(answers.z()/matrix[2].z());
+    matrix[2] = matrix[2]/matrix[2].z();
+
+
+    answers.setW(answers.w()/matrix[3].w());
+    matrix[3] = matrix[3]/matrix[3].w();
+
+    return answers;
+}
+
+/// solves for the coordinate of a screen position, given the coefficient matrix,
+// should give the correct line
+// doesn't work at all - indeterminate z
+QVector3D AMShapeDataSet::findCoordinate(QVector4D coefficients[], QVector3D screenPosition)
+{
+
+    QVector4D coeffTermOne = coefficients[0];
+    QVector4D coeffTermTwo = coefficients[1];
+    QVector4D coeffTermThree = coefficients[2];
+
+    QVector4D matrix[3];
+    matrix[0] = 2*coeffTermOne + coeffTermTwo + coeffTermThree;
+    matrix[1] = coeffTermOne + 2*coeffTermTwo + coeffTermThree;
+    matrix[2] = 6*coeffTermOne + coeffTermTwo + 2*coeffTermThree;
+
+    QVector3D newAnswers;
+
+    newAnswers.setX(2*screenPosition.x() + screenPosition.y() + screenPosition.z());
+    newAnswers.setY(screenPosition.x() + 2*screenPosition.y() + screenPosition.z());
+    newAnswers.setZ(6*screenPosition.x() + screenPosition.y() + 2*screenPosition.z());
+
+
+
+
+
+    if(nearZero(matrix[0].x()) == 0)
+    {
+        if(!(nearZero(coeffTermOne.x()) == 0))
+        {
+            matrix[0] += coeffTermOne;
+            newAnswers.setX(newAnswers.x()+screenPosition.x());
+        }
+        else if(!(nearZero(coeffTermTwo.x()) == 0))
+        {
+            matrix[0] -= coeffTermTwo;
+            newAnswers.setX(newAnswers.x()-screenPosition.y());
+        }
+        else if(!(nearZero(coeffTermThree.x()) == 0))
+        {
+            matrix[0] -= coeffTermThree;
+            newAnswers.setX(newAnswers.x()-screenPosition.z());
+        }
+        else
+        {
+            qDebug()<<"Not enough x's";
+        }
+    }
+    if(nearZero(matrix[1].y()) == 0)
+    {
+        if(nearZero(coeffTermTwo.y()) != 0)
+        {
+            matrix[1] += coeffTermTwo;
+            newAnswers.setY(newAnswers.y()+screenPosition.y());
+        }
+        else if(nearZero(coeffTermThree.y()) != 0)
+        {
+            matrix[1] -= coeffTermThree;
+            newAnswers.setY(newAnswers.y()-screenPosition.z());
+        }
+        else if(nearZero(coeffTermOne.y()) != 0)
+        {
+            matrix[1] -= coeffTermOne;
+            newAnswers.setY(newAnswers.y()-screenPosition.x());
+        }
+        else
+        {
+            qDebug()<<"Not enough y's";
+        }
+    }
+    if(nearZero(matrix[2].z()) == 0)
+    {
+        if(!nearZero(coeffTermThree.z()) == 0)
+        {
+            matrix[2] += coeffTermThree;
+            newAnswers.setZ(newAnswers.z()+screenPosition.z());
+        }
+        else if(!(nearZero(coeffTermOne.z()) == 0))
+        {
+            matrix[2] -= coeffTermOne;
+            newAnswers.setZ(newAnswers.z()-screenPosition.x());
+        }
+        else if(!nearZero(coeffTermTwo.z()) == 0)
+        {
+            matrix[2] -= coeffTermTwo;
+            newAnswers.setZ(newAnswers.z()-screenPosition.y());
+        }
+        else
+        {
+            qDebug()<<"Not enough z's";
+        }
+    }
+
+    screenPosition = newAnswers;
+
+
+
+    screenPosition.setY(screenPosition.y()-(matrix[1].x()/matrix[0].x())*screenPosition.x());
+    matrix[1] = matrix[1] - (matrix[1].x()/matrix[0].x())*matrix[0];
+    screenPosition.setZ(screenPosition.z()-(matrix[2].x()/matrix[0].x())*screenPosition.x());
+    matrix[2] = matrix[2] - (matrix[2].x()/matrix[0].x())*matrix[0];
+
+
+    if(nearZero(matrix[1].y()) == 0)
+    {
+        if(nearZero(matrix[2].y()) != 0)
+        {
+            screenPosition.setY(screenPosition.y() - screenPosition.z());
+            matrix[1] = matrix[1] - matrix[2];
+        }
+    }
+
+    screenPosition.setX(screenPosition.x()-(matrix[0].y()/matrix[1].y())*screenPosition.y());
+    matrix[0] = matrix[0] - (matrix[0].y()/matrix[1].y())*matrix[1];
+    screenPosition.setZ(screenPosition.z()-(matrix[2].y()/matrix[1].y())*screenPosition.y());
+    matrix[2] = matrix[2] - (matrix[2].y()/matrix[1].y())*matrix[1];
+
+
+    if(nearZero(matrix[2].z()) == 0)
+    {
+        qDebug()<<"broken";
+//        return QVector3D(0,0,0);
+
+    }
+
+    screenPosition.setX(screenPosition.x()-(matrix[0].z()/matrix[2].z())*screenPosition.z());
+    matrix[0] = matrix[0] - (matrix[0].z()/matrix[2].z())*matrix[2];
+    screenPosition.setY(screenPosition.y()-(matrix[1].z()/matrix[2].z())*screenPosition.z());
+    matrix[1] = matrix[1] - (matrix[1].z()/matrix[2].z())*matrix[2];
+
+
+
+
+
+
+    screenPosition.setX(screenPosition.x()/matrix[0].x());
+    matrix[0] = matrix[0]/matrix[0].x();
+    screenPosition.setX(screenPosition.x() - matrix[0].w());
+
+
+
+    screenPosition.setY(screenPosition.y()/matrix[1].y());
+    matrix[1] = matrix[1]/matrix[1].y();
+    screenPosition.setY(screenPosition.y() - matrix[1].w());
+
+
+    screenPosition.setZ(screenPosition.z()/matrix[2].z());
+    matrix[2] = matrix[2]/matrix[2].z();
+    screenPosition.setZ(screenPosition.z() - matrix[2].w());
+
+
+
+    return screenPosition;
+}
+
+void AMShapeDataSet::factorTransformMatrix(QVector3D coefficients[])
+{
+    QVector3D rowOne = coefficients[0];
+    QVector3D rowTwo = coefficients[1];
+    QVector3D rowThree = coefficients[2];
+
+    double denominator = sqrt(pow(rowThree.z(),2.0) + pow(rowThree.y(),2.0));
+    double c;
+    double s;
+    if((denominator) == 0)
+    {
+        c = 21;
+        s = 17;
+    }
+    else
+    {
+        c = -1*rowThree.z()/denominator;
+        s = rowThree.y()/denominator;
+    }
+    /// matrix stored by columns
+    QVector3D rx[3];
+    rx[0] = QVector3D(1, 0, 0);
+    rx[1] = QVector3D(0, c, s);
+    rx[2] = QVector3D(0, -1*s, c);
+
+    QVector3D mPrime [3];
+    for(int i = 0; i < 3; i++)
+    {
+        mPrime[i] = QVector3D(dot(coefficients[i],rx[0]),dot(coefficients[i],rx[1]), dot(coefficients[i],rx[2]));
+    }
+
+    double cPrime;
+    double sPrime;
+    cPrime = mPrime[3].z();
+    sPrime = mPrime[3].x();
+
+    /// matrix stored by columns
+    QVector3D ry[3];
+    ry[0] = QVector3D(cPrime, 0, -1*sPrime);
+    ry[1] = QVector3D(0, 1, 0);
+    ry[2] = QVector3D(sPrime, 0, cPrime);
+
+    QVector3D mDoublePrime [3];
+    for(int i = 0; i < 3; i++)
+    {
+        mDoublePrime[i] = QVector3D(dot(mPrime[i],ry[0]),dot(mPrime[i],ry[1]), dot(mPrime[i],ry[2]));
+    }
+
+    double cDoublePrime = mDoublePrime[2].y();
+    double sDoublePrime = -1*mDoublePrime[2].x();
+
+    /// matrix stored by columns
+    QVector3D rz[3];
+    rz[0] = QVector3D(cDoublePrime, sDoublePrime, 0);
+    rz[1] = QVector3D(-1*sDoublePrime, cDoublePrime, 0);
+    rz[2] = QVector3D(0, 0, 1);
+
+    QVector3D kMatrix [3];
+    for(int i = 0; i < 3; i++)
+    {
+        kMatrix[i] = QVector3D(dot(mDoublePrime[i],rz[0]),dot(mDoublePrime[i],rz[1]), dot(mDoublePrime[i],rz[2]));
+    }
+
+    /// r is rzTryTrxT
+    // rz is in the correct state to multiply
+    // ry just needs to negat the upper and bottom corners
+    ry[0].setZ(ry[0].z()*-1);
+    ry[2].setX(ry[2].x()*-1);
+
+    QVector3D rzRy [3];
+    for(int i = 0; i < 3; i++)
+    {
+        rzRy[i] = QVector3D(dot(rz[i],ry[0]),dot(rz[i],ry[1]), dot(rz[i],ry[2]));
+    }
+
+    //rx needs the s terms negated as well
+    rx[2].setY(rx[2].y()*-1);
+    rx[1].setZ(rx[1].z()*-1);
+
+    QVector3D finalR [3];
+    for(int i = 0; i < 3; i++)
+    {
+        finalR[i] = QVector3D(dot(rzRy[i],rx[0]),dot(rzRy[i],rx[1]), dot(rzRy[i],rx[2]));
+    }
+
+    for(int i = 0; i < 3; i++)
+    {
+        qDebug()<<kMatrix[i];
+    }
+    for(int i = 0; i < 3; i++)
+    {
+        qDebug()<<finalR[i];
+    }
+
+    /// kR = [a | b | c]
+    /// uo = a.c/c.c
+    QVector3D aTerm,bTerm, cTerm;
+    aTerm = coefficients[0];
+    bTerm = coefficients[1];
+    cTerm = coefficients[2];
+
+    double normal = dot(cTerm,cTerm);
+    double uO = dot(aTerm,cTerm)/normal;
+    double vO = dot(bTerm,cTerm)/normal;
+    double beta = sqrt(dot(bTerm,bTerm)/normal-pow(vO,2.0));
+    double gamma = ((dot(bTerm,aTerm)/normal)-uO*vO)/beta;
+    double alpha = sqrt((dot(aTerm,aTerm)/normal)-pow(uO,2.0)-pow(gamma,2.0));
+
+    qDebug()<<uO<<vO<<beta<<gamma<<alpha;
+
+
+
+
+
+
+}
+
+double AMShapeDataSet::dot(QVector3D a, QVector3D b)
+{
+    double value = QVector3D::dotProduct(a,b);
+    return value;
+}
+
+
+MatrixXd AMShapeDataSet::directLinearTransform(QVector3D coordinate[], QPointF screenPosition[])
+{
+
+
+//        /// construct the 12x11 x matrix from coordinate and screen position
+//    QGenericMatrix<12,11,double> matrix = constructMatrix(coordinate,screenposition,1);
+//    /// transpose is an 11x12 matrix
+//    QGenericMatrix<11,12,double> transpose = matrix.transposed();
+//    /// w is an 11x11 matrix, start with identity
+//    QGenericMatrix<12,12,double> wMatrix = constructWeightMatrix(1,1);
+//    QGenericMatrix<11,12,double> leftInverse = wMatrix*transpose;
+//    QGenericMatrix<11,11,double> inverse = matrix*leftInverse;
+//    QVector<double> inverseData;
+//    for(int i = 0; i<121; i++)
+//    {
+//        inverseData<<inverse.data()[i];
+//    }
+//    const int k = 11/2;
+//    const int l = 11-k;
+//    QGenericMatrix<11,11,double> leftTerm = QGenericMatrix<11,11,double>(invertMatrix(k,l,inverseData).data());
+
+    /// construct the 12x11 x matrix from coordinate and screen position
+    MatrixXd matrix = constructMatrix(coordinate,screenPosition);
+    MatrixXd rhs(matrix.rows(),1);
+    rhs.setZero(matrix.rows(),1);
+    JacobiSVD<MatrixXd> svd(matrix,ComputeThinV|ComputeThinU);
+    svd.compute(matrix,ComputeThinU|ComputeThinV);
+
+
+    MatrixXd singularValues = svd.singularValues();
+    MatrixXd matrixV = svd.matrixV();
+    MatrixXd solution = matrixV.col(matrixV.cols()-1);
+
+    MatrixXd test = matrix*solution;
+
+    /// normalize it
+    QVector3D rThree = QVector3D(solution(8,0),solution(9,0),solution(10,0));
+    double factor = rThree.length();
+//    solution = solution/factor;
+
+    MatrixXd testTwo = matrix*solution;
+
+
+    /// change solution into a 3x4 matrix
+    /// resize goes column by column, and places column by column
+    /// so have to resize to the transpose, then transpose to get the
+    /// desired matrix
+    solution.resize(4,3);
+    solution.transposeInPlace();
+
+    qDebug()<<"done";
+
+    return solution;
+
+
+
+
+
+}
+
+/// creates the x matrix for the dlt, each row is stored sequentially in the vector
+MatrixXd AMShapeDataSet::constructMatrix(QVector3D coordinate[], QPointF screenposition[])
+{
+
+    MatrixXd matrix(12,12);
+    for(int i = 0; i<6; i++)
+    {
+         /// row one
+        matrix(2*i,0) = coordinate[i].x();
+        matrix(2*i,1) = coordinate[i].y();
+        matrix(2*i,2) = coordinate[i].z();
+        matrix(2*i,3) = 1;
+
+        matrix(2*i,4) = 0;
+        matrix(2*i,5) = 0;
+        matrix(2*i,6) = 0;
+        matrix(2*i,7) = 0;
+
+        matrix(2*i,8) = screenposition[i].x()*coordinate[i].x();
+        matrix(2*i,9) = screenposition[i].x()*coordinate[i].y();
+        matrix(2*i,10) = screenposition[i].x()*coordinate[i].z();
+        matrix(2*i,11) = screenposition[i].x();
+
+        /// row two
+
+        matrix(2*i + 1,0) = 0;
+        matrix(2*i + 1,1) = 0;
+        matrix(2*i + 1,2) = 0;
+        matrix(2*i + 1,3) = 0;
+
+        matrix(2*i + 1,4) = coordinate[i].x();
+        matrix(2*i + 1,5) = coordinate[i].y();
+        matrix(2*i + 1,6) = coordinate[i].z();
+        matrix(2*i + 1,7) = 1;
+
+        matrix(2*i + 1,8) = screenposition[i].y()*coordinate[i].x();
+        matrix(2*i + 1,9) = screenposition[i].y()*coordinate[i].y();
+        matrix(2*i + 1,10) = screenposition[i].y()*coordinate[i].z();
+        matrix(2*i + 1,11) = screenposition[i].y();
+    }
+    return matrix;
+
+}
+
+
+QGenericMatrix<12,12,double> AMShapeDataSet::constructWeightMatrix(double sigmaU, double sigmaV)
+{
+    QVector<double> matrix;
+    for(int i = 0; i < 11; i++)
+    {
+        for(int j = 0; j< 11; j++)
+        {
+            if(i == j)
+            {
+                // check for even
+                if(2*(j/2) == j)
+                {
+                    matrix<<1.0/sigmaU;
+                }
+                else
+                {
+                    matrix<<1.0/sigmaV;
+                }
+            }
+            else
+            {
+                matrix<<0;
+            }
+        }
+    }
+    QGenericMatrix<12,12,double> newMatrix = QGenericMatrix<12,12,double>(matrix.data());
+    return newMatrix;
+}
+
+QVector<double> AMShapeDataSet::invertMatrix(const int k, const int l, QVector<double> matrix)
+{
+//    /// find the inverse of this matrix
+//    if(matrix.isEmpty())
+//    {
+//        qDebug()<<"AMShapeDataSet::invertMatrix - error, cannot invert null matrix";
+//        return matrix;
+//    }
+//    if(a != b)
+//    {
+//        qDebug()<<"Attempting to invert a non-square matrix";
+//        return matrix;
+//    }
+//    if(a<2)
+//    {
+//        if(a == 1)
+//        {
+//            QVector<double> newMatrix;
+//            newMatrix[0] = 1.0/matrix[0];
+//            return newMatrix;
+//        }
+//        else
+//        {
+//            qDebug()<<"AMShapeDataSet::invertMatrix - error, attempting to invert matrix with size less than 1";
+//            return matrix;
+//        }
+//    }
+//    // construct the submatrices a, b, c, and d
+
+//    QVector<double> aMatrix;
+//    for(int i = 0; i < k; i++)
+//    {
+//        for(int j = 0; j < k; j++)
+//        {
+//            aMatrix[k*i+j]=matrix[a*i+j];
+//        }
+//    }
+//    QVector<double> bMatrix;
+//    for(int i = 0; i < k; i++)
+//    {
+//        for(int j = 0; j < l; j++)
+//        {
+//            bMatrix[l*i+j] = matrix[a*i+j+k];
+//        }
+//    }
+//    QVector<double>  cMatrix;
+//    for(int i = 0; i < l; i++)
+//    {
+//        for(int j = 0; j < k; j++)
+//        {
+//            cMatrix[k*i+j] = matrix[a*(i+k)+j];
+//        }
+//    }
+//    QVector<double> dMatrix;
+//    for(int i = 0; i < l; i++)
+//    {
+//        for(int j = 0; j < l; j++)
+//        {
+//            dMatrix[l*i+j] = matrix[a*(i+k)+j+k];
+//        }
+//    }
+//    QGenericMatrix<1,1,double> matrixA;
+//    template<k,k,1,1>getMatrix(&matrixA);
+//    QGenericMatrix<k,l,double> matrixB;
+//    QGenericMatrix<l,k,double> matrixC;
+//    QGenericMatrix<l,l,double> matrixD;
+//    matrixA = QGenericMatrix<k,k,double>(aMatrix);
+//    matrixB = QGenericMatrix<k,l,double>(bMatrix);
+//    matrixC = QGenericMatrix<l,k,double>(cMatrix);
+//    matrixD = QGenericMatrix<l,l,double>(dMatrix);
+//    QGenericMatrix<k,k,double> aInverse = QGenericMatrix<k,k,double>(invertMatrix(k,k,aMatrix).data());
+
+//    QGenericMatrix<l,l,double> dCABMatrix = matrixD-(matrixB*aInverse*matrixC);
+//    QGenericMatrix<l,l,double> dCABInverse = QGenericMatrix<l,l,double>(invertMatrix(l,l,dCABMatrix.data()).data());
+
+//    QGenericMatrix<k,k,double> matrixOne;
+//    QGenericMatrix<k,l,double> matrixTwo;
+//    QGenericMatrix<l,k,double> matrixThree;
+//    QGenericMatrix<l,l,double> matrixFour;
+//    matrixOne = aInverse + aInverse*matrixC*dCABInverse*matrixB*aInverse;
+//    matrixTwo = -1*(dCABInverse*matrixB*aInverse);
+//    matrixThree = -1*(aInverse*matrixC*dCABInverse);
+//    matrixFour = dCABInverse;
+
+
+//    QVector<double> partOne, partTwo, partThree, partFour;
+//    partOne = QVector<double>(k*k,matrixOne.data());
+//    partTwo = QVector<double>(k*l,matrixTwo.data());
+//    partThree = QVector<double>(k*l,matrixThree.data());
+//    partFour = QVector<double>(l*l,matrixFour.data());
+//    QVector<double> fullMatrix;
+//    fullMatrix<<partOne<<partTwo<<partThree<<partFour;
+
+}
+
+MatrixXd AMShapeDataSet::intrinsicParameters(MatrixXd matrixB)
+{
+    /// matrix B is equal to A*R
+    /// since R is orthogonal, R*R^T = I
+    /// so BB^T == kAA^T
+    /// where k is some constant
+    /// AA^T(3,3) == 1, so BB^T(3,3) == k
+    MatrixXd matrixK = matrixB*matrixB.transpose();
+    matrixK = matrixK/matrixK(2,2);
+    double alphaX, alphaY, uO, vO, gamma;
+    /// the five intrinsic parameters.
+    /// ideally uO,vO and gamma should be nearZero
+    uO = matrixK(0,2);
+    vO = matrixK(1,2);
+    alphaY = sqrt(matrixK(1,1) - pow(vO,2.0));
+    gamma = (matrixK(0,1)-uO*vO)/alphaY;
+    alphaX = sqrt(matrixK(0,0) - pow(uO,2.0) - pow(gamma,2.0));
+    MatrixXd matrixA(3,3);
+    matrixA<<alphaX, gamma,uO,
+                  0,alphaY,vO,
+                  0,     0, 1;
+
+    return matrixA;
+
+
+}
+
+MatrixXd AMShapeDataSet::rotationParameters(MatrixXd matrixA, MatrixXd matrixB)
+{
+    MatrixXd matrixR = matrixA.inverse()*matrixB;
+    return matrixR;
+}
+
+MatrixXd AMShapeDataSet::translationParameters(MatrixXd matrixA, MatrixXd matrixSubB)
+{
+    MatrixXd matrixT = matrixA.inverse()*matrixSubB;
+    return matrixT;
+}
+
+
+

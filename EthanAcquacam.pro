@@ -46,6 +46,9 @@ linux-g++ {
                 MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
                 MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
                 MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
+
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 
 QT += core gui sql opengl network
@@ -62,7 +65,8 @@ INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
                 $$GSL_INCLUDE_DIR \
-                $$MPLOT_INCLUDE_DIR
+                $$MPLOT_INCLUDE_DIR \
+                $$EIGEN_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
         $$GSL_CBLAS_LIB \
@@ -114,12 +118,7 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/util/AMOrderedSetSignalSource.h \
     source/util/AMDeferredFunctionCall.h \
     source/beamline/AMControl.h
-#    source/beamline/AMBeamline.h \
-#    source/beamline/AMControlSet.h \
-#    source/dataman/SGM/SGMBeamlineInfo.h \
-#    source/beamline/CLS/CLSSIS3820Scaler.h \
-#    source/beamline/AMOldDetectorSet.h \
-#    source/beamline/CLS/CLSPGTDetector.h
+
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \

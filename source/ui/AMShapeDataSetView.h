@@ -319,9 +319,9 @@ protected:
     /// camera configuration button
     QPushButton* configureCameraButton_;
     /// camera configuration window items
-    QLineEdit* pointLineEdit_[8];
-    QLineEdit* coordinateLineEdit_[12];
-    QPushButton* pointPushButton_[4];
+    QLineEdit* pointLineEdit_[12];
+    QLineEdit* coordinateLineEdit_[18];
+    QPushButton* pointPushButton_[6];
     QFrame* cameraConfigurationWindow_;
     QPushButton* startCameraConfiguration_;
 
