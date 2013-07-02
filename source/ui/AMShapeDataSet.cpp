@@ -890,10 +890,10 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     else if(bottomLeft.isNull()) bottomLeft = QVector3D::normal(QVector3D::normal(topRight,shift),topRight);
 
 
-    double topRightlength = (QVector3D::dotProduct(topRight,shift));
+    double topRightlength = (dot(topRight,shift));
     topRight = topRight*topRightlength;
 
-    double topLeftlength = (QVector3D::dotProduct(bottomLeft,shift));
+    double topLeftlength = (dot(bottomLeft,shift));
     bottomLeft = bottomLeft*topLeftlength;
 
 
@@ -1290,7 +1290,7 @@ QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D cente
 
     /// as well, all terms contain a -coordinate.direction component
 
-    double directionTerm = QVector3D::dotProduct(coordinate,direction);
+    double directionTerm = dot(coordinate,direction);
 
     /// all terms also use centerXdirection and directionXcoordinate
     QVector3D cXd = QVector3D::crossProduct(center,direction);
@@ -1329,8 +1329,8 @@ QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D cente
 
     for(int i = 0; i < 3; i++)
     {
-        vector[i] = QVector3D(QVector3D::dotProduct(center,terms[i]) + directions[i]*directionTerm,coord[i],centerXDistance[i]+distanceXCoordinate[i]);
-        component[i] = QVector3D::dotProduct(vector[i],trigTerms);
+        vector[i] = QVector3D(dot(center,terms[i]) + directions[i]*directionTerm,coord[i],centerXDistance[i]+distanceXCoordinate[i]);
+        component[i] = dot(vector[i],trigTerms);
     }
 
     QVector3D rotatedCoordinate(component[0],component[1],component[2]);
@@ -1673,15 +1673,15 @@ QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
     // perform the rotation
     uHat = QVector3D::normal(vHat,zHat);
     // find the angle of rotation
-    theta = -1*acos((QVector3D::dotProduct(idealCameraCenter,shiftedCameraCenter))/(shiftedCameraCenter.lengthSquared()));
+    theta = -1*acos((dot(idealCameraCenter,shiftedCameraCenter))/(shiftedCameraCenter.lengthSquared()));
     double coordinateLength = coordinate.length();
     // find the coordinate's current angle
-    double cosAlpha = QVector3D::dotProduct(uHat,coordinate)/coordinateLength;
-    double sinAlpha = QVector3D::dotProduct(zHat,coordinate)/coordinateLength;
+    double cosAlpha = dot(uHat,coordinate)/coordinateLength;
+    double sinAlpha = dot(zHat,coordinate)/coordinateLength;
 
     // find the resultant components
     double uLength = coordinateLength*(cosAlpha*cos(theta)-sinAlpha*sin(theta));
-    double vLength = QVector3D::dotProduct(coordinate,vHat);
+    double vLength = dot(coordinate,vHat);
     double zLength = coordinateLength*(sinAlpha*cos(theta)+cosAlpha*sin(theta));
 
     // create the new vector
@@ -1754,17 +1754,17 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
     QVector3D newCameraCenter = -1*cameraCenterLength*zHat;
     // find the angle of rotation
     // angle of rotation: cos(angle) = v1.v2/|v1||v2|
-    double theta = acos((QVector3D::dotProduct(newCameraCenter,cameraRotation))/((newCameraCenter.length())*(cameraCenterLength)));
+    double theta = acos((dot(newCameraCenter,cameraRotation))/((newCameraCenter.length())*(cameraCenterLength)));
     // find the third orthogonal component (along the plane of rotation)
     QVector3D uHat = QVector3D::normal(zHat,vHat);
     double shiftedLength = shiftedCoordinate.length();
     // find the angle of the coordinate before rotation
-    double cosAlpha = QVector3D::dotProduct(uHat,shiftedCoordinate)/shiftedLength;
-    double sinAlpha = QVector3D::dotProduct(zHat,shiftedCoordinate)/shiftedLength;
+    double cosAlpha = dot(uHat,shiftedCoordinate)/shiftedLength;
+    double sinAlpha = dot(zHat,shiftedCoordinate)/shiftedLength;
 
     // get the components along the u,v, and z axes
     double uLength = shiftedLength*(cosAlpha*cos(theta)-sinAlpha*sin(theta));
-    double vLength = QVector3D::dotProduct(shiftedCoordinate,vHat);
+    double vLength = dot(shiftedCoordinate,vHat);
     zLength = shiftedLength*(sinAlpha*cos(theta)+cosAlpha*sin(theta));
 
     // add the three orthogonal components together
@@ -1937,7 +1937,7 @@ QVector3D AMShapeDataSet::depthVector(QVector3D coordinate)
     QVector3D depthDirection = cameraModel_->cameraCenter() - cameraModel_->cameraPosition();
     QVector3D cameraToCoordinate = coordinate - cameraModel_->cameraPosition();
     depthDirection.normalize();
-    QVector3D depth = QVector3D::dotProduct(cameraToCoordinate,depthDirection)*depthDirection;
+    QVector3D depth = dot(cameraToCoordinate,depthDirection)*depthDirection;
     return depth;
 }
 
@@ -1963,8 +1963,8 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
         l0[i] = beamModel_->ray(i).at(0);
         lHat[i] = beamModel_->ray(i).at(1) - l0[i];
         lHat[i].normalize();
-        numerator = QVector3D::dotProduct((topLeft - l0[i]),nHat);
-        denominator = QVector3D::dotProduct(lHat[i],nHat);
+        numerator = dot((topLeft - l0[i]),nHat);
+        denominator = dot(lHat[i],nHat);
         if(0 == denominator)
         {
             if(0 == numerator)
@@ -1999,15 +1999,15 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     double shapeNComponent [4];
     for(int i = 0; i < 4; i++)
     {
-        beamHComponent[i] = QVector3D::dotProduct(hHat,shape[i]);
-        beamWComponent[i] = QVector3D::dotProduct(wHat,shape[i]);
-//        beamNComponent[i] = QVector3D::dotProduct(nHat,shape[i]);
+        beamHComponent[i] = dot(hHat,shape[i]);
+        beamWComponent[i] = dot(wHat,shape[i]);
+//        beamNComponent[i] = dot(nHat,shape[i]);
 
         beamShape<<QPointF(beamWComponent[i],beamHComponent[i]);
 
-        shapeHComponent[i] = QVector3D::dotProduct(hHat,rotatedShape.at(i));
-        shapeWComponent[i] = QVector3D::dotProduct(wHat,rotatedShape.at(i));
-        shapeNComponent[i] = QVector3D::dotProduct(nHat,rotatedShape.at(i));
+        shapeHComponent[i] = dot(hHat,rotatedShape.at(i));
+        shapeWComponent[i] = dot(wHat,rotatedShape.at(i));
+        shapeNComponent[i] = dot(nHat,rotatedShape.at(i));
 
         originalShape<<QPointF(shapeWComponent[i],shapeHComponent[i]);
     }
@@ -2088,7 +2088,7 @@ double AMShapeDataSet::findCoordinateDistance(double coordinateDistance, QVector
             }
         }
     }
-    double aDotC = QVector3D::dotProduct(a,c);
+    double aDotC = dot(a,c);
     double aDotCSquared = pow(aDotC,2.0);
     qDebug()<<aDotCSquared;
     double coefficientNumerator = (aDotCSquared-pow(cos(thetaTwo),2.0));
@@ -2133,13 +2133,13 @@ QPair<double,double> AMShapeDataSet::beta(double coordinateDistance, QVector3D a
     double alphaTerm [2];
     alphaTerm[0] = alphaResult.first;
     alphaTerm[1] = alphaResult.second;
-    double termOne = pow(coordinateDistance,2.0)*(pow(QVector3D::dotProduct(a,c),2.0)-1);
+    double termOne = pow(coordinateDistance,2.0)*(pow(dot(a,c),2.0)-1);
     double termTwo[2];
     double result[2];
 
     for(int i = 0; i < 2; i++)
     {
-        termTwo[i] = pow(alphaTerm[i],2.0)-2*coordinateDistance*(QVector3D::dotProduct(a,b))*alphaTerm[i]+pow(coordinateDistance,2.0);
+        termTwo[i] = pow(alphaTerm[i],2.0)-2*coordinateDistance*(dot(a,b))*alphaTerm[i]+pow(coordinateDistance,2.0);
         termTwo[i] *= pow(shiftOne,2.0)/pow(shiftTwo,2.0);
         result[i] = termOne + termTwo[i];
         result[i] = sqrt(result[i]);
@@ -2150,7 +2150,7 @@ QPair<double,double> AMShapeDataSet::beta(double coordinateDistance, QVector3D a
 
 double AMShapeDataSet::gamma(double coordinateDistance, QVector3D a, QVector3D c, double thetaTwo)
 {
-    double aDotC = QVector3D::dotProduct(a,c);
+    double aDotC = dot(a,c);
     double termOne = sqrt((1-pow(aDotC,2.0)));
     double numerator = termOne*coordinateDistance*sin(2*thetaTwo)/2;
     double denominator = pow(aDotC,2.0)-pow(cos(thetaTwo),2.0);
@@ -2164,7 +2164,7 @@ double AMShapeDataSet::gamma(double coordinateDistance, QVector3D a, QVector3D c
 
 QPair<double,double> AMShapeDataSet::alpha(double coordinateDistance, QVector3D a, QVector3D b, double thetaOne)
 {
-    double aDotB = QVector3D::dotProduct(a,b);
+    double aDotB = dot(a,b);
     double squareRootTerm = 1-pow(aDotB,2.0);
     if(squareRootTerm < 0)
     {
@@ -2275,9 +2275,9 @@ double AMShapeDataSet::calculateT2(double t2, double d, double shift1Length, dou
     double betaTerm = beta(t2,d,shift2Length,a,c);
     double omegaTerm = omega(t2,d,shift1Length,shift2Length, shift3Length, a,b,c,e,angleBC,angleBE);
     double termOne = betaTerm*shift2Length*shift3Length*cos(angleCE);
-    double termTwo = omegaTerm*d*QVector3D::dotProduct(a,e) - pow(d,2.0);
+    double termTwo = omegaTerm*d*dot(a,e) - pow(d,2.0);
     double numerator = termOne + termTwo;
-    double denominator = omegaTerm*QVector3D::dotProduct(c,e) - d*QVector3D::dotProduct(a,c);
+    double denominator = omegaTerm*dot(c,e) - d*dot(a,c);
     if(denominator == 0)
     {
         denominator = 0.00001;
@@ -2288,8 +2288,8 @@ double AMShapeDataSet::calculateT2(double t2, double d, double shift1Length, dou
 
 double AMShapeDataSet::calcT2(double d, QVector3D a, QVector3D c, double shift2Length)
 {
-    double termOne = d*QVector3D::dotProduct(a,c);
-    double squareTermTwo = d*d*(QVector3D::dotProduct(a,c)-1)+shift2Length*shift2Length;
+    double termOne = d*dot(a,c);
+    double squareTermTwo = d*d*(dot(a,c)-1)+shift2Length*shift2Length;
     if(squareTermTwo < 0)
     {
         qDebug()<<"Complex t2";
@@ -2330,7 +2330,7 @@ double AMShapeDataSet::calculateD(double t2, double d, double shift1Length, doub
     }while(!success);
 
     double numerator = pow(deltaTerm,2.0) + pow(d,2.0) - betaTerm*pow(shift1Length,2.0);
-    double denominator = 2*deltaTerm*QVector3D::dotProduct(a,b);
+    double denominator = 2*deltaTerm*dot(a,b);
     if(denominator == 0)
     {
         denominator = 0.00001;
@@ -2344,9 +2344,9 @@ double AMShapeDataSet::delta(double t2, double d, double shift1Length, double sh
 //    t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
     double betaTerm = beta(t2,d,shift2Length,a,c);
     double termOne = betaTerm*shift1Length*shift2Length*cos(angleBC);
-    double termTwo = t2*d*QVector3D::dotProduct(a,c) - pow(d,2.0);
+    double termTwo = t2*d*dot(a,c) - pow(d,2.0);
     double numerator = termOne + termTwo;
-    double denominator = t2*QVector3D::dotProduct(b,c) - d*QVector3D::dotProduct(a,b);
+    double denominator = t2*dot(b,c) - d*dot(a,b);
     if(denominator == 0)
     {
         denominator = 0.00001;
@@ -2361,9 +2361,9 @@ double AMShapeDataSet::omega(double t2, double d, double shift1Length, double sh
     double deltaTerm = delta(t2,d,shift1Length,shift2Length,a,b,c,angleBC);
     double betaTerm = beta(t2,d,shift2Length,a,c);
     double termOne = betaTerm*shift1Length*shift3Length*cos(angleBE);
-    double termTwo = deltaTerm*d*QVector3D::dotProduct(a,b) - pow(d,2.0);
+    double termTwo = deltaTerm*d*dot(a,b) - pow(d,2.0);
     double numerator = termOne + termTwo;
-    double denominator = deltaTerm*QVector3D::dotProduct(b,e) - d*QVector3D::dotProduct(a,e);
+    double denominator = deltaTerm*dot(b,e) - d*dot(a,e);
     if(denominator == 0)
     {
         denominator = 0.00001;
@@ -2376,7 +2376,7 @@ double AMShapeDataSet::beta(double t2, double d, double shift2Length, QVector3D 
 {
 //    t2 = 1;
     //t2 = calculateT2(d,shift1Length,shift2Length,a,b,c,angleBC);
-    double numerator = pow(t2,2.0) - 2*t2*d*QVector3D::dotProduct(a,c) + pow(d,2.0);
+    double numerator = pow(t2,2.0) - 2*t2*d*dot(a,c) + pow(d,2.0);
     if(shift2Length == 0)
     {
         shift2Length = 0.00001;
@@ -2999,14 +2999,14 @@ QVector3D AMShapeDataSet::rotateVector(QVector3D coordinate, QVector3D direction
     {
         return coordinate;
     }
-    double theta = -1*acos((QVector3D::dotProduct(directionBeforeRotation,directionOfRotation)));
+    double theta = -1*acos((dot(directionBeforeRotation,directionOfRotation)));
     double coordinateLength = coordinate.length();
     QVector3D uHat = QVector3D::normal(vHat,zHat);
-    double cosAlpha = QVector3D::dotProduct(uHat,coordinate)/coordinateLength;
-    double sinAlpha = QVector3D::dotProduct(zHat,coordinate)/coordinateLength;
+    double cosAlpha = dot(uHat,coordinate)/coordinateLength;
+    double sinAlpha = dot(zHat,coordinate)/coordinateLength;
 
     double uLength = coordinateLength*(cosAlpha*cos(theta) - sinAlpha*sin(theta));
-    double vLength = QVector3D::dotProduct(coordinate,vHat);
+    double vLength = dot(coordinate,vHat);
     double zLength = coordinateLength*(sinAlpha*cos(theta) + cosAlpha*sin(theta));
 
     QVector3D newPosition = uLength*uHat + vLength*vHat + zLength*zHat;
@@ -3189,6 +3189,14 @@ void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
     MatrixXd matrixExtrinsic(3,4);
     matrixExtrinsic<<matrixR,matrixT;
 
+    for(int i = 0; i < matrixExtrinsic.rows(); i++)
+    {
+        for(int j = 0; j < matrixExtrinsic.cols(); j++)
+        {
+            matrixExtrinsic(i,j) = nearZero(matrixExtrinsic(i,j));
+        }
+    }
+
     MatrixXd coordinate [6];
     for(int i = 0; i<6; i++)
     {
@@ -3200,46 +3208,12 @@ void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
     for(int i= 0; i<6; i++)
     {
         point[i] = matrixA*matrixExtrinsic*coordinate[i];
-        point[i] = point[i]/(-1*(point[i](2,0)));
+        point[i] = point[i]/((point[i](2,0)));
         qDebug()<<"Point"<<i;
         qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
 
     }
 
-    MatrixXd localCoords[6];
-    for(int i = 0; i < 6; i++)
-    {
-        localCoords[i].resize(3,1);
-    }
-    localCoords[0]<<0,0,2;
-    localCoords[1]<<0.2,1.2,2;
-    localCoords[2]<<1,0,2;
-    localCoords[3]<<0,-0.6,3;
-    localCoords[4]<<0.9,0,3;
-    localCoords[5]<<0.3,0.3,3;
-
-    for(int i= 0; i<6; i++)
-    {
-        point[i] = matrixA*localCoords[i];
-        point[i] = point[i]/point[i](2,0);
-        qDebug()<<"Point"<<i;
-        qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
-
-    }
-
-    MatrixXd testCoordinate(4,1);
-    testCoordinate<<13.2,52.5,12.8,1;
-    MatrixXd testScreenPoint = matrixA*matrixExtrinsic*testCoordinate;
-    testScreenPoint = testScreenPoint/(-1*(testScreenPoint(2,0)));
-    qDebug()<<"test point at"<<testScreenPoint(0,0)<<testScreenPoint(1,0);
-    qDebug()<<"should be 0.4, 0.5";
-
-    MatrixXd testTwo(3,1);
-    testTwo<<1.2,1.5,3;
-    testScreenPoint = matrixA*testTwo;
-    testScreenPoint = testScreenPoint/testScreenPoint(2,0);
-    qDebug()<<"test point at"<<testScreenPoint(0,0)<<testScreenPoint(1,0);
-    qDebug()<<"should be 0.4, 0.5";
 
     MatrixXd intermediateCoords[6];
     double factor;
@@ -3250,77 +3224,81 @@ void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
         intermediateCoords[i] *= factor;
         qDebug()<<intermediateCoords[i](0,0)<<intermediateCoords[i](1,0)<<intermediateCoords[i](2,0);
         point[i] = matrixA*intermediateCoords[i];
-        point[i] /= point[i](2,0)*-1;
+        point[i] /= point[i](2,0);
          qDebug()<<point[i](0,0)<<point[i](1,0)<<points[i];
     }
-/*
-//    QVector4D transform [3];
-//    transform[0] = xAnswers;
-//    transform[1] = yAnswers;
-//    transform[2] = answers;
-//    QVector3D screenPositions [4];
-//    screenPositions[0] = QVector3D(pointOne.x(),pointOne.y(),1);
-//    screenPositions[1] = QVector3D(pointTwo.x(),pointTwo.y(),1);
-//    screenPositions[2] = QVector3D(pointThree.x(),pointThree.y(),1);
-//    screenPositions[3] = QVector3D(pointFour.x(),pointFour.y(),1);
-//    for(int i = 0; i < 4; i++)
-//    {
-//        qDebug()<<findCoordinate(transform,screenPositions[i]);
-//    }
+
+    MatrixXd coordZero(4,1);
+    coordZero<<0,0,0,1;
+    QVector3D rotationVector = QVector3D(matrixExtrinsic(2,0),matrixExtrinsic(2,1),matrixExtrinsic(2,2));
+    double factorTwo = 1/rotationVector.length();
+
+    matrixExtrinsic *= factorTwo;
+    Matrix3d rotationMatrix = matrixExtrinsic.block(0,0,3,3);
+    double sign = rotationMatrix.determinant();
+    if(notEqual(sign,1) && notEqual(sign,-1))
+    {
+        qDebug()<<"determinant not close to 1, it is:"<<sign;
+    }
+    matrixExtrinsic *= sign;
+
+    MatrixXd cameraCoordinateWorldOrigin = matrixExtrinsic*coordZero;
+    QVector3D cameraCoordinateShift;
+    cameraCoordinateShift.setX(-1*((matrixExtrinsic(0,0)*matrixExtrinsic(0,3))+(matrixExtrinsic(1,0)*matrixExtrinsic(1,3))+(matrixExtrinsic(2,0)*matrixExtrinsic(2,3))));
+    cameraCoordinateShift.setY(-1*((matrixExtrinsic(0,1)*matrixExtrinsic(0,3))+(matrixExtrinsic(1,1)*matrixExtrinsic(1,3))+(matrixExtrinsic(2,1)*matrixExtrinsic(2,3))));
+    cameraCoordinateShift.setZ(-1*((matrixExtrinsic(0,2)*matrixExtrinsic(0,3))+(matrixExtrinsic(1,2)*matrixExtrinsic(1,3))+(matrixExtrinsic(2,2)*matrixExtrinsic(2,3))));
 
 
 
-//    QVector4D xTerm = QVector4D(termOne, termTwo, termThree, termFour);
-//    QVector4D yTerm = QVector4D(1,1,1,1);
-//    QVector4D eEstimate = xTerm - yTerm;
-//    double estimateValue = eEstimate.length();
+    MatrixXd manualCameraCenter = findWorldCameraCenter(matrixExtrinsic);
+    MatrixXd cameraCenterMatrix(3,1);
+    cameraCenterMatrix<<0,0,1;
+    manualCameraCenter = findWorldCoordinate(cameraCenterMatrix,matrixExtrinsic);
 
-//    double bestEstimate = estimateValue;
-//    QVector4D bestKMatrix = kMatrix;
-//    bool smaller = true;
-//    double sign;
-//    double lastEstimate = estimateValue;
-
-//    while(bestEstimate > tolerance)
-//    {
-//        if(smaller)
-//        {
-//            sign = -1;
-//        }
-//        else sign = 1;
-//        kMatrix.setX(kMatrix.x() + sign*kMatrix.x()*bestEstimate/100 + sign*bestEstimate/1000);
-//        kMatrix.setY(kMatrix.y() + sign*kMatrix.y()*bestEstimate/100 + sign*bestEstimate/1000);
-//        kMatrix.setZ(kMatrix.z() + sign*kMatrix.z()*bestEstimate/100 + sign*bestEstimate/1000);
-//        kMatrix.setW(kMatrix.w() + sign*kMatrix.w()*bestEstimate/100 + sign*bestEstimate/1000);
-//        kHat = kMatrix.toVector3D();
-//        kHat.normalize();
-//        kMatrix = QVector4D(kHat,kMatrix.w());
-
-//        termOne = QVector4D::dotProduct(coordTermOne,kMatrix);
-//        termTwo = QVector4D::dotProduct(coordTermTwo,kMatrix);
-//        termThree = QVector4D::dotProduct(coordTermThree,kMatrix);
-//        termFour = QVector4D::dotProduct(coordTermFour,kMatrix);
-
-//        eEstimate = QVector4D(termOne, termTwo, termThree, termFour) - yTerm;
-
-//        estimateValue = eEstimate.length();
+    MatrixXd cameraCalculatedWorldCenter(4,1);
+    cameraCalculatedWorldCenter<<manualCameraCenter;
+    MatrixXd idealCenter = matrixExtrinsic*cameraCalculatedWorldCenter;
+    QVector3D coordinateIdealCenter = QVector3D(idealCenter(0,0),idealCenter(1,0),idealCenter(2,0));
+    qDebug()<<"The calculated camera center resolves to:"<<coordinateIdealCenter;
+    qDebug()<<"Should be: QVector3D(0,0,1)";
 
 
-//        if(estimateValue < bestEstimate)
-//        {
-//            bestEstimate = estimateValue;
-//            bestKMatrix = kMatrix;
-//        }
-//        else if(estimateValue > lastEstimate)
-//        {
-//            smaller = !smaller;
+    double uO = matrixA(0,2);
+    double vO = matrixA(1,2);
+    double skew = matrixA(0,1);
+    if(nearZero(uO) != 0 || nearZero(vO) != 0 || nearZero(skew) != 0)
+    {
+        qDebug()<<"uO,vO or skew is not 0"<<uO<<vO<<skew;
+    }
+    double aX = matrixA(0,0);
+    double aY = matrixA(1,1);
 
-//        }
-//        lastEstimate = estimateValue;
+    double pixelAspectRatio = aX/aY;
+    double focalLength = aX;
+
+//    QVector3D cameraPosition = QVector3D(-1*cameraCoordinateWorldOrigin(0,0),cameraCoordinateWorldOrigin(1,0),cameraCoordinateWorldOrigin(2,0));
+    QVector3D cameraPosition = cameraCoordinateShift;
+    QVector3D cameraCenter = QVector3D(manualCameraCenter(0,0),manualCameraCenter(1,0),manualCameraCenter(2,0));
 
 
-//      }
-    */
+//    /// set parameters to follow the transform2D/3D directions
+//    cameraPosition.setX(-1*cameraPosition.x());
+//    cameraPosition.setY(-1*cameraPosition.y());
+
+//    cameraCenter.setX(-1*cameraCenter.x());
+//    cameraCenter.setY(-1*cameraCenter.y());
+
+    double fov = 0.46;
+    cameraModel_->setCameraCenter(cameraCenter);
+    cameraModel_->setCameraPosition(cameraPosition);
+    cameraModel_->setCameraFocalLength(focalLength);
+    cameraModel_->setCameraFOV(fov);
+    cameraModel_->setPixelAspectRatio(pixelAspectRatio);
+
+    for(int i = 0; i<6; i++)
+    {
+        qDebug()<<transform3Dto2D(coordinates[i])<<point[i](0,0)+0.5<<point[i](1,0)+0.5<<points[i]+QPointF(0.5,0.5);
+    }
 
 
     qDebug()<<"Best kMatrix = "<<kMatrix;
@@ -3824,24 +3802,6 @@ double AMShapeDataSet::dot(QVector3D a, QVector3D b)
 MatrixXd AMShapeDataSet::directLinearTransform(QVector3D coordinate[], QPointF screenPosition[])
 {
 
-
-//        /// construct the 12x11 x matrix from coordinate and screen position
-//    QGenericMatrix<12,11,double> matrix = constructMatrix(coordinate,screenposition,1);
-//    /// transpose is an 11x12 matrix
-//    QGenericMatrix<11,12,double> transpose = matrix.transposed();
-//    /// w is an 11x11 matrix, start with identity
-//    QGenericMatrix<12,12,double> wMatrix = constructWeightMatrix(1,1);
-//    QGenericMatrix<11,12,double> leftInverse = wMatrix*transpose;
-//    QGenericMatrix<11,11,double> inverse = matrix*leftInverse;
-//    QVector<double> inverseData;
-//    for(int i = 0; i<121; i++)
-//    {
-//        inverseData<<inverse.data()[i];
-//    }
-//    const int k = 11/2;
-//    const int l = 11-k;
-//    QGenericMatrix<11,11,double> leftTerm = QGenericMatrix<11,11,double>(invertMatrix(k,l,inverseData).data());
-
     /// construct the 12x11 x matrix from coordinate and screen position
     MatrixXd matrix = constructMatrix(coordinate,screenPosition);
     MatrixXd rhs(matrix.rows(),1);
@@ -3853,15 +3813,17 @@ MatrixXd AMShapeDataSet::directLinearTransform(QVector3D coordinate[], QPointF s
     MatrixXd singularValues = svd.singularValues();
     MatrixXd matrixV = svd.matrixV();
     MatrixXd solution = matrixV.col(matrixV.cols()-1);
+    MatrixXd solutionThree = matrixV.row(matrixV.rows()-1);
+    MatrixXd solutionTwo = svd.solve(rhs);
+    if(solutionTwo != rhs)
+    {
+        qDebug()<<"Solved successfully";
+        return solutionTwo;
+    }
 
     MatrixXd test = matrix*solution;
 
-    /// normalize it
-    QVector3D rThree = QVector3D(solution(8,0),solution(9,0),solution(10,0));
-    double factor = rThree.length();
-//    solution = solution/factor;
 
-    MatrixXd testTwo = matrix*solution;
 
 
     /// change solution into a 3x4 matrix
@@ -3899,10 +3861,10 @@ MatrixXd AMShapeDataSet::constructMatrix(QVector3D coordinate[], QPointF screenp
         matrix(2*i,6) = 0;
         matrix(2*i,7) = 0;
 
-        matrix(2*i,8) = screenposition[i].x()*coordinate[i].x();
-        matrix(2*i,9) = screenposition[i].x()*coordinate[i].y();
-        matrix(2*i,10) = screenposition[i].x()*coordinate[i].z();
-        matrix(2*i,11) = screenposition[i].x();
+        matrix(2*i,8) = -1*screenposition[i].x()*coordinate[i].x();
+        matrix(2*i,9) = -1*screenposition[i].x()*coordinate[i].y();
+        matrix(2*i,10) = -1*screenposition[i].x()*coordinate[i].z();
+        matrix(2*i,11) = -1*screenposition[i].x();
 
         /// row two
 
@@ -3916,139 +3878,17 @@ MatrixXd AMShapeDataSet::constructMatrix(QVector3D coordinate[], QPointF screenp
         matrix(2*i + 1,6) = coordinate[i].z();
         matrix(2*i + 1,7) = 1;
 
-        matrix(2*i + 1,8) = screenposition[i].y()*coordinate[i].x();
-        matrix(2*i + 1,9) = screenposition[i].y()*coordinate[i].y();
-        matrix(2*i + 1,10) = screenposition[i].y()*coordinate[i].z();
-        matrix(2*i + 1,11) = screenposition[i].y();
+        matrix(2*i + 1,8) = -1*screenposition[i].y()*coordinate[i].x();
+        matrix(2*i + 1,9) = -1*screenposition[i].y()*coordinate[i].y();
+        matrix(2*i + 1,10) = -1*screenposition[i].y()*coordinate[i].z();
+        matrix(2*i + 1,11) = -1*screenposition[i].y();
     }
     return matrix;
 
 }
 
 
-QGenericMatrix<12,12,double> AMShapeDataSet::constructWeightMatrix(double sigmaU, double sigmaV)
-{
-    QVector<double> matrix;
-    for(int i = 0; i < 11; i++)
-    {
-        for(int j = 0; j< 11; j++)
-        {
-            if(i == j)
-            {
-                // check for even
-                if(2*(j/2) == j)
-                {
-                    matrix<<1.0/sigmaU;
-                }
-                else
-                {
-                    matrix<<1.0/sigmaV;
-                }
-            }
-            else
-            {
-                matrix<<0;
-            }
-        }
-    }
-    QGenericMatrix<12,12,double> newMatrix = QGenericMatrix<12,12,double>(matrix.data());
-    return newMatrix;
-}
 
-QVector<double> AMShapeDataSet::invertMatrix(const int k, const int l, QVector<double> matrix)
-{
-//    /// find the inverse of this matrix
-//    if(matrix.isEmpty())
-//    {
-//        qDebug()<<"AMShapeDataSet::invertMatrix - error, cannot invert null matrix";
-//        return matrix;
-//    }
-//    if(a != b)
-//    {
-//        qDebug()<<"Attempting to invert a non-square matrix";
-//        return matrix;
-//    }
-//    if(a<2)
-//    {
-//        if(a == 1)
-//        {
-//            QVector<double> newMatrix;
-//            newMatrix[0] = 1.0/matrix[0];
-//            return newMatrix;
-//        }
-//        else
-//        {
-//            qDebug()<<"AMShapeDataSet::invertMatrix - error, attempting to invert matrix with size less than 1";
-//            return matrix;
-//        }
-//    }
-//    // construct the submatrices a, b, c, and d
-
-//    QVector<double> aMatrix;
-//    for(int i = 0; i < k; i++)
-//    {
-//        for(int j = 0; j < k; j++)
-//        {
-//            aMatrix[k*i+j]=matrix[a*i+j];
-//        }
-//    }
-//    QVector<double> bMatrix;
-//    for(int i = 0; i < k; i++)
-//    {
-//        for(int j = 0; j < l; j++)
-//        {
-//            bMatrix[l*i+j] = matrix[a*i+j+k];
-//        }
-//    }
-//    QVector<double>  cMatrix;
-//    for(int i = 0; i < l; i++)
-//    {
-//        for(int j = 0; j < k; j++)
-//        {
-//            cMatrix[k*i+j] = matrix[a*(i+k)+j];
-//        }
-//    }
-//    QVector<double> dMatrix;
-//    for(int i = 0; i < l; i++)
-//    {
-//        for(int j = 0; j < l; j++)
-//        {
-//            dMatrix[l*i+j] = matrix[a*(i+k)+j+k];
-//        }
-//    }
-//    QGenericMatrix<1,1,double> matrixA;
-//    template<k,k,1,1>getMatrix(&matrixA);
-//    QGenericMatrix<k,l,double> matrixB;
-//    QGenericMatrix<l,k,double> matrixC;
-//    QGenericMatrix<l,l,double> matrixD;
-//    matrixA = QGenericMatrix<k,k,double>(aMatrix);
-//    matrixB = QGenericMatrix<k,l,double>(bMatrix);
-//    matrixC = QGenericMatrix<l,k,double>(cMatrix);
-//    matrixD = QGenericMatrix<l,l,double>(dMatrix);
-//    QGenericMatrix<k,k,double> aInverse = QGenericMatrix<k,k,double>(invertMatrix(k,k,aMatrix).data());
-
-//    QGenericMatrix<l,l,double> dCABMatrix = matrixD-(matrixB*aInverse*matrixC);
-//    QGenericMatrix<l,l,double> dCABInverse = QGenericMatrix<l,l,double>(invertMatrix(l,l,dCABMatrix.data()).data());
-
-//    QGenericMatrix<k,k,double> matrixOne;
-//    QGenericMatrix<k,l,double> matrixTwo;
-//    QGenericMatrix<l,k,double> matrixThree;
-//    QGenericMatrix<l,l,double> matrixFour;
-//    matrixOne = aInverse + aInverse*matrixC*dCABInverse*matrixB*aInverse;
-//    matrixTwo = -1*(dCABInverse*matrixB*aInverse);
-//    matrixThree = -1*(aInverse*matrixC*dCABInverse);
-//    matrixFour = dCABInverse;
-
-
-//    QVector<double> partOne, partTwo, partThree, partFour;
-//    partOne = QVector<double>(k*k,matrixOne.data());
-//    partTwo = QVector<double>(k*l,matrixTwo.data());
-//    partThree = QVector<double>(k*l,matrixThree.data());
-//    partFour = QVector<double>(l*l,matrixFour.data());
-//    QVector<double> fullMatrix;
-//    fullMatrix<<partOne<<partTwo<<partThree<<partFour;
-
-}
 
 MatrixXd AMShapeDataSet::intrinsicParameters(MatrixXd matrixB)
 {
@@ -4087,6 +3927,70 @@ MatrixXd AMShapeDataSet::translationParameters(MatrixXd matrixA, MatrixXd matrix
 {
     MatrixXd matrixT = matrixA.inverse()*matrixSubB;
     return matrixT;
+}
+
+MatrixXd AMShapeDataSet::findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix)
+{
+//    JacobiSVD<MatrixXd> svd(extrinsicMatrix,ComputeThinU|ComputeThinV);
+//    svd.compute(extrinsicMatrix,ComputeThinU|ComputeThinV);
+//    MatrixXd matrixV = svd.matrixV();
+//    MatrixXd solution = matrixV.col(matrixV.cols()-1);
+//    MatrixXd solutionTwo = svd.solve(matrix);
+//    MatrixXd zeros = solutionTwo;
+//    zeros.setZero();
+//    if(solutionTwo == zeros)
+//    {
+//        return solution;
+//    }
+//    return solutionTwo
+    MatrixXd fullMatrix(4,4);
+    fullMatrix<<extrinsicMatrix,0,0,0,1;
+    JacobiSVD<MatrixXd> solver(fullMatrix);
+    solver.compute(fullMatrix,ComputeThinU|ComputeThinV);
+    MatrixXd fullSolution(4,1);
+    fullSolution<<matrix,1;
+    MatrixXd solution = solver.solve(fullSolution);
+    MatrixXd testTwo = extrinsicMatrix*solution;
+    solution /= solution(3,0);
+    MatrixXd test = extrinsicMatrix*solution;
+    return solution;
+}
+
+MatrixXd AMShapeDataSet::findWorldCameraCenter(MatrixXd extrinsicMatrix)
+{
+    double alpha = extrinsicMatrix(1,2)*extrinsicMatrix(0,0)-extrinsicMatrix(1,0)*extrinsicMatrix(0,2);
+    double beta = extrinsicMatrix(0,1)*extrinsicMatrix(1,0)-extrinsicMatrix(1,1)*extrinsicMatrix(0,0);
+    double termOne = -1*extrinsicMatrix(0,3)*beta*extrinsicMatrix(2,0);
+    double termTwo = extrinsicMatrix(1,3)*pow(extrinsicMatrix(0,0),2.0)*extrinsicMatrix(2,1);
+    double termThree = -1*extrinsicMatrix(0,3)*extrinsicMatrix(1,0)*extrinsicMatrix(2,1)*extrinsicMatrix(0,0);
+    double termFour = extrinsicMatrix(2,3)*beta*extrinsicMatrix(0,0);
+    double termFive = -1*beta*extrinsicMatrix(0,0);
+    double numerator = termOne + termTwo + termThree + termFour + termFive;
+    double denOne = alpha*extrinsicMatrix(2,0)*extrinsicMatrix(0,1);
+    double denTwo = beta*extrinsicMatrix(0,2)*extrinsicMatrix(2,0);
+    double denThree = -1*alpha*extrinsicMatrix(2,1)*extrinsicMatrix(0,0);
+    double denFour = -1*beta*extrinsicMatrix(0,0)*extrinsicMatrix(1,1);
+    double denominator = denOne + denTwo + denThree + denFour;
+    if(denominator == 0)
+    {
+        qDebug()<<"AMShapeDataSet::findWorldCameraCenter denominator is 0";
+    }
+    double z = numerator/denominator;
+    double yNum = z*alpha + extrinsicMatrix(1,3)*extrinsicMatrix(0,0) - extrinsicMatrix(0,3)*extrinsicMatrix(1,0);
+    if(beta == 0)
+    {
+        qDebug()<<"AMShapeDataSet::findWorldCameraCenter beta is 0";
+    }
+    double y = yNum/beta;
+    double xNum = -1*y*extrinsicMatrix(0,1)-z*extrinsicMatrix(0,2) - extrinsicMatrix(0,3);
+    if(extrinsicMatrix(0,0) == 0)
+    {
+        qDebug()<<"AMShapeDataSet::findWorldCameraCenter r11 is 0";
+    }
+    double x = xNum/extrinsicMatrix(0,0);
+    MatrixXd coordinate(3,1);
+    coordinate<<x,y,z;
+    return coordinate;
 }
 
 

@@ -287,6 +287,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(pointPushButton_[1], SIGNAL(clicked()), this, SLOT(selectPointTwo()));
     connect(pointPushButton_[2], SIGNAL(clicked()), this, SLOT(selectPointThree()));
     connect(pointPushButton_[3], SIGNAL(clicked()), this, SLOT(selectPointFour()));
+    connect(pointPushButton_[4], SIGNAL(clicked()), this, SLOT(selectPointFive()));
+    connect(pointPushButton_[5], SIGNAL(clicked()), this, SLOT(selectPointSix()));
 
     connect(startCameraConfiguration_, SIGNAL(clicked()), this, SLOT(runCameraConfiguration()));
 
@@ -443,11 +445,17 @@ void AMShapeDataSetView::setGroupMode()
     points[5]=QPointF(0.6,0.6);
     QVector3D coordinate[6];
     coordinate[0] = QVector3D(12,51,11.8);
-    coordinate[1] = QVector3D(0.2,1.2,0);
+    coordinate[1] = QVector3D(0.2,-1.2,0);
     coordinate[2] = QVector3D(1,0,0);
-    coordinate[3] = QVector3D(0,-0.6,1);
-    coordinate[4] = QVector3D(0.9,0,1);
-    coordinate[5] = QVector3D(0.3,0.3,1);
+    coordinate[3] = QVector3D(0,0.6,-1);
+    coordinate[4] = QVector3D(0.9,0,-1);
+    coordinate[5] = QVector3D(0.3,-0.3,-1);
+//    coordinate[0] = QVector3D(11,-12,28);
+//    coordinate[1] = QVector3D(0,-1.2,0.2);
+//    coordinate[2] = QVector3D(0,0,1);
+//    coordinate[3] = QVector3D(1,0.6,0);
+//    coordinate[4] = QVector3D(1,0,0.9);
+//    coordinate[5] = QVector3D(1,-0.3,0.3);
     shapeModel_->findCamera(points,coordinate);
 //    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.25,0.25),QPointF(0.25,0.75),QPointF(0.75,0.25),QVector3D(1,1,1),QVector3D(0.25,0.25,0.5),QVector3D(0.5,-0.5,0),QVector3D(1,1,-1));
 //    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.7,1.7),QPointF(1.5,0.5), QPointF(0.5,0.1),QVector3D(12,51,11.8),QVector3D(0.2,-1.2,0),QVector3D(1,0,0),QVector3D(0,0.6,-1));
@@ -523,6 +531,18 @@ void AMShapeDataSetView::selectPointFour()
 {
     setConfigurationMode();
     pointToSelect_ = 3;
+}
+
+void AMShapeDataSetView::selectPointFive()
+{
+    setConfigurationMode();
+    pointToSelect_ = 4;
+}
+
+void AMShapeDataSetView::selectPointSix()
+{
+    setConfigurationMode();
+    pointToSelect_ = 5;
 }
 
 void AMShapeDataSetView::runCameraConfiguration()

@@ -385,11 +385,11 @@ protected:
     double dot(QVector3D,QVector3D);
     MatrixXd directLinearTransform(QVector3D coordinate[6], QPointF screenposition[6]);
     MatrixXd constructMatrix(QVector3D coordinate[6], QPointF screenposition[6]);
-    QGenericMatrix<12,12,double> constructWeightMatrix(double sigmaU, double sigmaV);
-    QVector<double> invertMatrix(const int k, const int l, QVector<double> matrix);
     MatrixXd intrinsicParameters(MatrixXd matrixB);
     MatrixXd rotationParameters(MatrixXd matrixA, MatrixXd matrixB);
     MatrixXd translationParameters(MatrixXd matrixA, MatrixXd matrixSubB);
+    MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
+    MatrixXd findWorldCameraCenter(MatrixXd extrinsicMatrix);
 
     template <int N, int M, int K, int L>
     void getMatrix(QGenericMatrix<K,L,double>* matrix);

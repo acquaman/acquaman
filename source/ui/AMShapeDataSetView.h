@@ -207,6 +207,8 @@ protected slots:
     void selectPointTwo();
     void selectPointThree();
     void selectPointFour();
+    void selectPointFive();
+    void selectPointSix();
 
     void runCameraConfiguration();
 
