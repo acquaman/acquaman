@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
+#include "beamline/VESPERS/VESPERSMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -439,13 +440,40 @@ public:
 	/// Returns the sample stage motor in the z-direction.
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
 
-	// The sample stage.
+	// Attocube motors.
+	/// Returns the horizontal attocube control.
+	AMControl *attoStageHorizontal() const { return attoStageHorizontal_; }
+	/// Returns the vertical attocube control.
+	AMControl *attoStageVertical() const { return attoStageVertical_; }
+	/// Returns the normal attocube control.
+	AMControl *attoStageNormal() const { return attoStageNormal_; }
+	/// Returns the x-direction attocube control.
+	AMControl *attoStageX() const { return attoStageX_; }
+	/// Returns the z-direction attocube control.
+	AMControl *attoStageZ() const { return attoStageZ_; }
+	/// Returns the y-direction attocube control.
+	AMControl *attoStageY() const { return attoStageY_; }
+	/// Returns the phi rotation attocube control.
+	AMControl *attoStageRz() const { return attoStageRz_; }
+	/// Returns the theta tilt attocube control.
+	AMControl *attoStageRy() const { return attoStageRy_; }
+	/// Returns the psi tilt attocube control.
+	AMControl *attoStageRx() const { return attoStageRx_; }
+
+	// The sample stages.
 	/// Returns the sample stage control built with the pseudo-motors.
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
 	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
 	/// Returns the wire stage control built with the pseudo-motors.
 	VESPERSSampleStageControl *pseudoWireStage() const { return pseudoWireStage_; }
+	/// Returns the attocube pseudo-motor stage.
+	VESPERSSampleStageControl *pseudoAttoStage() const { return pseudoAttoStage_; }
+	/// Returns the attocube real-motor stage.
+	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
+
+	// The motor group.
+	VESPERSMotorGroup *motorGroup() const { return motorGroup_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -582,6 +610,8 @@ protected:
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the motor group for the various sample stages.
+	void setupMotorGroup();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -783,10 +813,26 @@ protected:
 	AMControl *sampleStageY_;
 	AMControl *sampleStageZ_;
 
+	// Atto cube motors.
+	AMControl *attoStageHorizontal_;
+	AMControl *attoStageVertical_;
+	AMControl *attoStageNormal_;
+	AMControl *attoStageX_;
+	AMControl *attoStageZ_;
+	AMControl *attoStageY_;
+	AMControl *attoStageRz_;
+	AMControl *attoStageRy_;
+	AMControl *attoStageRx_;
+
 	// The sample stage encapsulation.
 	VESPERSSampleStageControl *pseudoSampleStage_;
 	VESPERSSampleStageControl *realSampleStage_;
 	VESPERSSampleStageControl *pseudoWireStage_;
+	VESPERSSampleStageControl *pseudoAttoStage_;
+	VESPERSSampleStageControl *realAttoStage_;
+
+	// Motor group.  Binds all the motors for scanning together.
+	VESPERSMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

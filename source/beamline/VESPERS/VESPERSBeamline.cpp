@@ -37,6 +37,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupControlSets();
 	setupMono();
 	setupExperimentStatus();
+	setupMotorGroup();
 	setupExposedControls();
 }
 
@@ -220,9 +221,9 @@ void VESPERSBeamline::setupSampleStage()
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 
-	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
 
 	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
 	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
@@ -232,6 +233,58 @@ void VESPERSBeamline::setupSampleStage()
 	pseudoWireStage_->setXRange(-1700000, 1700000);
 	pseudoWireStage_->setYRange(-1200000, 1200000);
 	pseudoWireStage_->setZRange(-1200000, 1200000);
+
+	// attocube
+	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageHorizontal_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageVertical_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageNormal_)->setMoveStartTolerance(0.00001);
+
+	pseudoAttoStage_ = new VESPERSSampleStageControl(attoStageHorizontal_, attoStageVertical_, attoStageNormal_, this);
+
+	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "TS1607-2-B21-07:Z:usermm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:userstatus", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageX_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageZ_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageY_)->setMoveStartTolerance(0.00001);
+
+	realAttoStage_ = new VESPERSSampleStageControl(attoStageX_, attoStageZ_, attoStageY_, this);
+
+	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageRz_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
+
+
+}
+
+void VESPERSBeamline::setupMotorGroup()
+{
+	VESPERSMotorGroupInfo *info = 0;
+	motorGroup_ = new VESPERSMotorGroup(this);
+
+	info = new VESPERSMotorGroupInfo("Sample Stage - H and V", "H", "V", "mm", pseudoSampleStage_->horiz(), pseudoSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Sample Stage - X and Z", "X", "Z", "mm", realSampleStage_->horiz(), realSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Attocube Stage - H and V", "H", "V", "mm", pseudoAttoStage_->horiz(), pseudoAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Attocube Stage - X and Z", "X", "Z", "mm", realAttoStage_->horiz(), realAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
+	info = new VESPERSMotorGroupInfo("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
+	motorGroup_->addMotorGroupInfo(info->name(), info);
 }
 
 void VESPERSBeamline::setupEndstation()

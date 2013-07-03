@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/CLS/CLSStopLightButton.h"
+#include "ui/VESPERS/VESPERSMotorGroupView.h"
 
 class VESPERSSampleStageView;
 
@@ -132,6 +133,8 @@ protected:
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;
 
+	/// Pointer to the motor group view.
+	VESPERSMotorGroupView *motorGroupView_;
 	/// Pointer to the pseudo motor sample stage.
 	VESPERSSampleStageView *pseudoMotors_;
 	/// Pointer to the real motor sample stage.

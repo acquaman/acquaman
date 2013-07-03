@@ -10,6 +10,9 @@
 #include "application/AMAppControllerSupport.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "analysis/AMOrderReductionAB.h"
+#include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -103,21 +106,35 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
+	QList<AMDataSource *> i0ReducedList;
+	AMOrderReductionAB *temp = 0;
+
+	for (int i = 0, size = i0List.size(); i < size; i++){
+
+		AMDataSource *tempInput = i0List.at(i);
+		temp = new AMOrderReductionAB(QString("%1-r").arg(tempInput->name()));
+		temp->setDescription("Reduced " % tempInput->description());
+		temp->setSelectedName(tempInput->name());
+		temp->setReducedAxis(2);
+		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
+		i0ReducedList << temp;
+		scan_->addAnalyzedDataSource(temp, true, false);
+	}
 
 	QString i0Name("");
 
 	switch (config_->incomingChoice()){
 
 	case VESPERS::Isplit:
-		i0Name = i0List.at(0)->name();
+		i0Name = i0ReducedList.at(0)->name();
 		break;
 
 	case VESPERS::Iprekb:
-		i0Name = i0List.at(1)->name();
+		i0Name = i0ReducedList.at(1)->name();
 		break;
 
 	case VESPERS::Imini:
-		i0Name = i0List.at(2)->name();
+		i0Name = i0ReducedList.at(2)->name();
 		break;
 
 	case VESPERS::Ipost:
@@ -132,19 +149,125 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 	case VESPERS::SingleElement:{
 
-		// Add data sources.
+		AMDataSource *rawDataSource = 0;
+		AMOrderReductionAB *reducedROI = 0;
+		AM2DNormalizationAB *normROI = 0;
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+3);
+			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
+			reducedROI->setDescription("Reduced "+rawDataSource->description());
+			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setReducedAxis(2);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			roiList << reducedROI;
+			scan_->addAnalyzedDataSource(reducedROI, false, true);
+		}
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = roiList.at(i);
+			normROI = new AM2DNormalizationAB(QString(rawDataSource->name()).replace("reduced_", "norm_"));
+			normROI->setDescription(QString(rawDataSource->description().replace("Reduced ", "Normalized ")));
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0ReducedList);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
 		break;
 	}
 	case VESPERS::FourElement:{
 
-		// Add data sources.
+		AMDataSource *rawDataSource = 0;
+		AMOrderReductionAB *reducedROI = 0;
+		AM2DNormalizationAB *normROI = 0;
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+3);
+			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
+			reducedROI->setDescription("Reduced "+rawDataSource->description());
+			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setReducedAxis(2);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			scan_->addAnalyzedDataSource(reducedROI, true, false);
+		}
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = roiList.at(i);
+			normROI = new AM2DNormalizationAB(QString(rawDataSource->name()).replace("reduced_", "norm_"));
+			normROI->setDescription(QString(rawDataSource->description().replace("Reduced ", "Normalized ")));
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0ReducedList);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
 
 		break;
 	}
 
 	case VESPERS::SingleElement | VESPERS::FourElement:{
 
-		// Add data sources.
+		AMDataSource *roi1 = 0;
+		AMDataSource *roi4 = 0;
+		AMOrderReductionAB *reducedRoi1 = 0;
+		AMOrderReductionAB *reducedRoi4 = 0;
+		AM2DAdditionAB *sumAB = 0;
+
+		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		QStringList roiNames;
+		int singleElRoiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+		QList<AMDataSource *> roiList;
+
+		for (int i = 0, count = sameRois.size(); i < count; i++){
+
+			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+3);
+			reducedRoi1 = new AMOrderReductionAB("reduced_"+roi1->name());
+			reducedRoi1->setDescription("Reduced "+roi1->description());
+			reducedRoi1->setSelectedName(roi1->name());
+			reducedRoi1->setReducedAxis(2);
+			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << roi1);
+			scan_->addAnalyzedDataSource(reducedRoi1, false, true);
+
+			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+3+singleElRoiCount);
+			reducedRoi4 = new AMOrderReductionAB("reduced_"+roi4->name());
+			reducedRoi4->setDescription("Reduced "+roi4->description());
+			reducedRoi4->setSelectedName(roi4->name());
+			reducedRoi4->setReducedAxis(2);
+			reducedRoi4->setInputDataSources(QList<AMDataSource *>() << roi4);
+			scan_->addAnalyzedDataSource(reducedRoi4, false, true);
+
+			QString name = roi1->name().left(roi1->name().size()-4);
+			roiNames << name;
+			sumAB = new AM2DAdditionAB("sum_" % name);
+			sumAB->setDescription("Summed " % roi1->description());
+			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
+			scan_->addAnalyzedDataSource(sumAB, false, true);
+
+			roiList << sumAB;
+		}
+
+		AM2DNormalizationAB *normROI = 0;
+		AMDataSource *source = 0;
+
+		for (int i = 0, count = roiList.size(); i < count; i++){
+
+			source = roiList.at(i);
+			normROI = new AM2DNormalizationAB("norm_" % roiNames.at(i));
+			normROI->setDescription("Normalized " % source->description());
+			normROI->setDataName(source->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << source << i0List);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
 		break;
 	}
 	}
@@ -190,7 +313,7 @@ void VESPERS3DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 	}
 
@@ -296,6 +419,7 @@ bool VESPERS3DDacqScanController::startImplementation()
 		return false;
 	}
 
+	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
 	return AM3DDacqScanController::startImplementation();
 }
 
@@ -351,6 +475,8 @@ bool VESPERS3DDacqScanController::setupSingleElementMap()
 	builder.setDimensions(3);
 	builder.setSingleElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -387,6 +513,12 @@ bool VESPERS3DDacqScanController::setupSingleElementMap()
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
+
 	else{
 
 		AMErrorMon::alert(this,
@@ -406,6 +538,8 @@ bool VESPERS3DDacqScanController::setupFourElementMap()
 	builder.setDimensions(3);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -442,6 +576,12 @@ bool VESPERS3DDacqScanController::setupFourElementMap()
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
 
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
+
 	else{
 
 		AMErrorMon::alert(this,
@@ -462,6 +602,8 @@ bool VESPERS3DDacqScanController::setupSingleAndFourElementMap()
 	builder.setSingleElement(true);
 	builder.setFourElement(true);
 	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper);
+	builder.setMarCCD(config_->ccdDetector() == VESPERS::Mar);
+	builder.setPilatusCCD(config_->ccdDetector() == VESPERS::Pilatus);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.setPvNameAxis3(zAxisPVName_);	// Ditto.
@@ -502,6 +644,12 @@ bool VESPERS3DDacqScanController::setupSingleAndFourElementMap()
 	// Using the CCD?
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("BL1607-B2-1:AddOns:Roper:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Mar)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Mar:FileNumber", true, false, 0);
+
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		advAcq_->appendRecord("BL1607-B2-1:AddOns:Pilatus:FileNumber", true, false, 0);
 
 	else{
 

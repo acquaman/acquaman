@@ -609,7 +609,7 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 		rv = image;
 		break; }
 	default:
-		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, "Asked to create a plot item for a rank that we don't handle.");
+		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, QString("Asked to create a plot item name %1 which has a rank that we don't handle.").arg(dataSource->name()));
 		rv = 0;
 		break;
 	}
@@ -854,6 +854,13 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 //						tempView->resize(640,480);
 //						tempView->show();
 //					}
+					break;
+
+				case 3:
+					// This assumes the axis that is ignored is the third axis.  This probably should be made more general for the future!
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
+
 					break;
 				}
 			}
@@ -1173,6 +1180,12 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 						break;
 
 					case 2:
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
+						break;
+
+					case 3:
+						// This assumes the axis that is ignored is the third axis.  This probably should be made more general for the future!
 						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 						break;

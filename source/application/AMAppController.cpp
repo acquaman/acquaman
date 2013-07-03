@@ -233,8 +233,11 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 
 	if(openInExistingEditor && scanEditorCount())
 		editor = scanEditorAt(scanEditorCount()-1);
-	else
-		editor = createNewScanEditor(scan->scanRank() == 2);
+	else{
+
+		bool use2DScanView = (scan->scanRank() == 2 || scan->scanRank() == 3);
+		editor = createNewScanEditor(use2DScanView);
+	}
 
 	editor->addScan(scan);
 

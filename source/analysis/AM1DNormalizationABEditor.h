@@ -50,7 +50,7 @@ protected slots:
 	void populateComboBox();
 
 protected:
-	/// Pointer to the derivative analysis block.
+	/// Pointer to the normalization analysis block.
 	AM1DNormalizationAB *analysisBlock_;
 
 	/// The combo box that contains all of the names.  Used for the data input source.

@@ -90,6 +90,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DBinningAB.h"
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
+#include "analysis/AMOrderReductionAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -547,6 +548,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -1133,7 +1135,8 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				editor = createNewScanEditor(scan->scanRank() == 2);
+				bool use2DScanView = (scan->scanRank() == 2 || scan->scanRank() == 3);
+				editor = createNewScanEditor(use2DScanView);
 				editor->addScan(scan);
 				accepted = true;
 			}
@@ -1150,7 +1153,7 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 			if(scan){
 
-				if (scan->scanRank() == 2){
+				if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 					temp2D = createNewScanEditor(true);
 					temp2D->addScan(scan);

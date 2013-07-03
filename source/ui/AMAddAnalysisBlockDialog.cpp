@@ -39,7 +39,7 @@ AMAddAnalysisBlockDialog::AMAddAnalysisBlockDialog(int rank, QWidget *parent)
 
 	if (rank == 0 || rank == 1)
 		populateWith1D();
-	else if (rank == 2)
+	else if (rank == 2 || rank == 3)
 		populateWith2D();
 
 	QFont font;
