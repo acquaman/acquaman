@@ -98,6 +98,9 @@ protected slots:
 	void onSGMAmptekSDD2Connected(bool connected);
 	/// When the SGM's first (new) amptek SDD connects the view is created adn added as a pane to the main window.
 	void onSGMNewAmptekSDD1Connected(bool connected);
+	void onSGMNewAmptekSDD2Connected(bool connected);
+	void onSGMNewAmptekSDD3Connected(bool connected);
+	void onSGMNewAmptekSDD4Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
@@ -152,6 +155,9 @@ protected:
 
 	/// View for controlling the new SGM amptek SDD (first)
 	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;

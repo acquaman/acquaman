@@ -285,6 +285,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
+	newAmptekSDD3_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD3", "Amptek SDD 3", "amptek:sdd3", this);
+	newAmptekSDD4_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD4", "Amptek SDD 4", "amptek:sdd4", this);
 	newPGTDetector_ = new CLSPGTDetectorV2("NEWPGT", "PGT", "MCA1611-01", this);
 	newQE65000Detector_ = new CLSQE65000Detector("NEWQE65000", "QE 65000", "SA0000-03", this);
 	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
@@ -306,6 +308,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
 	newDetectorSet_->addDetector(newAmptekSDD2_);
+	newDetectorSet_->addDetector(newAmptekSDD3_);
+	newDetectorSet_->addDetector(newAmptekSDD4_);
 	newDetectorSet_->addDetector(newPGTDetector_);
 	newDetectorSet_->addDetector(newQE65000Detector_);
 	newDetectorSet_->addDetector(newTEYDetector_);
@@ -316,6 +320,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_ = new AMDetectorGroup("XAS Detectors", this);
 	XASDetectorGroup_->addDetector(newAmptekSDD1_);
 	XASDetectorGroup_->addDetector(newAmptekSDD2_);
+	XASDetectorGroup_->addDetector(newAmptekSDD3_);
+	XASDetectorGroup_->addDetector(newAmptekSDD4_);
 	XASDetectorGroup_->addDetector(newPGTDetector_);
 	XASDetectorGroup_->addDetector(newQE65000Detector_);
 	XASDetectorGroup_->addDetector(newTEYDetector_);
@@ -1142,6 +1148,8 @@ void SGMBeamline::setupExposedControls(){
 void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD1_);
 	addExposedDetector(newAmptekSDD2_);
+	addExposedDetector(newAmptekSDD3_);
+	addExposedDetector(newAmptekSDD4_);
 	addExposedDetector(newPGTDetector_);
 	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);

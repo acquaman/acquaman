@@ -187,6 +187,8 @@ public:
 	AMOldDetector* amptekSDD2() const { return amptekSDD2_;}
 	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
 	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
+	AMDetector* newAmptekSDD3() const { return newAmptekSDD3_;}
+	AMDetector* newAmptekSDD4() const { return newAmptekSDD4_;}
 	AMDetector* newPGTDetector() const { return newPGTDetector_;}
 	AMDetector* newQE65000Detector() const { return newQE65000Detector_;}
 	AMDetector* newTEYDetector() const { return newTEYDetector_;}
@@ -390,6 +392,8 @@ protected:
 	AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
 	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;

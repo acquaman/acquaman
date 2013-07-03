@@ -316,6 +316,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		QStringList preferentialOrdering;
 		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
@@ -323,6 +325,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
 		xasDetectorSelector_->setDefaultsSelected();
@@ -468,6 +472,30 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
 		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
 		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !newAmptekSDD2View_){
+		newAmptekSDD2View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD2());
+		mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "NEW SGM Amptek2", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !newAmptekSDD3View_){
+		newAmptekSDD3View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD3());
+		mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "NEW SGM Amptek3", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
+		newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
+		mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "NEW SGM Amptek4", ":/system-software-update.png");
 	}
 }
 
@@ -1270,6 +1298,18 @@ bool SGMAppController::setupSGMViews(){
 	newAmptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
+
+	newAmptekSDD2View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD2(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD2Connected(bool)));
+	onSGMNewAmptekSDD2Connected(false);
+
+	newAmptekSDD3View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD3(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD3Connected(bool)));
+	onSGMNewAmptekSDD3Connected(false);
+
+	newAmptekSDD4View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
+	onSGMNewAmptekSDD4Connected(false);
 
 	newPGTDetectorView_ = 0;
 	connect(SGMBeamline::sgm()->newPGTDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewPGTDetectorConnected(bool)));
