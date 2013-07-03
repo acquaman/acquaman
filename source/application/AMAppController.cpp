@@ -115,7 +115,8 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
-		mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
+		scanActionRunnerView_->hide();
+		//mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -367,7 +368,14 @@ void AMAppController::showChooseRunDialog()
 	d->show();
 }
 
+void AMAppController::showScanActionsView(){
+	if(scanActionRunnerView_->isHidden())
+		scanActionRunnerView_->show();
+	scanActionRunnerView_->raise();
+}
+
 #include <QMenu>
+#include <QMenuBar>
 bool AMAppController::startupInstallActions()
 {
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
@@ -377,8 +385,16 @@ bool AMAppController::startupInstallActions()
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
+		QAction* openScanActionsViewAction = new QAction("See Scan Actions...", mw_);
+		openScanActionsViewAction->setStatusTip("Open the view to see all actions done by scans");
+		connect(openScanActionsViewAction, SIGNAL(triggered()), this, SLOT(showScanActionsView()));
+
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
+
+		viewMenu_ = menuBar_->addMenu("View");
+		viewMenu_->addAction(openScanActionsViewAction);
+
 		return true;
 	}
 	else
