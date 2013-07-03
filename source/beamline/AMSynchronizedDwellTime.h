@@ -8,6 +8,7 @@ class AMBeamlineActionItem;
 class AMDetector;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
+class AMAction3;
 
 class AMSynchronizedDwellTime : public QObject
 {
@@ -53,6 +54,8 @@ public:
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
 	//virtual AMAction3* createScanningAction(bool scan) = 0;
 	virtual AMBeamlineActionItem* createScanningAction(bool scan) = 0;
+
+	virtual AMAction3* createEnableAtAction3(int index, bool isEnabled) = 0;
 
 signals:
 	/// Notifier that the time has changed.

@@ -515,10 +515,11 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	retVal->addSubAction(fastActionsInitialPositions);
 	// End Initial Positions
 
-	// Scaler Settings:
+	// Scaler and Synchronized Dwell Settings:
 	// Dwell time to milliseconds (seconds/1000)
 	// Scans per Buffer to 1000
 	// Total Scans to 1000
+	// Turn off synchronized dwell coordination for the scaler
 	AMListAction3 *fastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings", "SGM Fast Actions Scaler Settings"), AMListAction3::Parallel);
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
@@ -529,6 +530,7 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	for(int x = 0; x < 32; x++)
 		fastActionsScalerEnableSettings->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(true));
 
+	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->synchronizedDwellTime()->createEnableAtAction3(0, false));
 	retVal->addSubAction(fastActionsScalerEnableSettings);
 	// End Scaler Settings
 
@@ -621,7 +623,7 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	retVal->addSubAction(fastActionsGratingRestore);
 	// End Grating Restore
 
-	// Scaler Settings Restore:
+	// Scaler and Synchronized Dwell Settings Restore:
 	// Dwell time to current
 	// Scans per Buffer to current
 	// Total Scans to current
@@ -633,6 +635,7 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	for(int x = 0; x < 32; x++)
 		fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction3(SGMBeamline::sgm()->scaler()->channelAt(x)->isEnabled()));
 
+	fastActionsScalerSettingsRestore->addSubAction(SGMBeamline::sgm()->synchronizedDwellTime()->createEnableAtAction3(0, SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(0)));
 	retVal->addSubAction(fastActionsScalerSettingsRestore);
 	// End Scaler Settings
 
