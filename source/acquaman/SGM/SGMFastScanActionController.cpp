@@ -422,83 +422,89 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	retVal->addSubAction(fastActionsTrackingOff);
 	// End Tracking Off
 
+	// Initial positions while still moving quickly (energy and undulator)
+	// Energy to start position
+	// Undulator to start step
+	AMListAction3 *fastActionsFastInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Fast Initial Positions", "SGM Fast Actions Fast Initial Positions"), AMListAction3::Parallel);
+	tmpControl = SGMBeamline::sgm()->energy();
+	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
+	energyStartSetpoint.setValue(settings->energyStart());
+	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsFastInitialPositions->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->undulatorStep();
+	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
+	undulatorStepSetpoint.setValue(settings->undulatorStartStep());
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsFastInitialPositions->addSubAction(moveAction);
+
+	retVal->addSubAction(fastActionsFastInitialPositions);
+
 	// Initialization:
-	// Energy to start energy
 	// Undulator Trigger to 0
 	// Undulator Relative Step Storage to 12 (non value)
 	// Undulator Relative Step to 12 (non value)
 	// Undulator Velocity to undulator velocity
 	// Grating Velocity, Velocity Base, Acceleration to motor settings
-	AMListAction3 *fastActionsEnergyStartAndInit = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Energy Start and Init", "SGM Fast Actions Energy Start and Init"), AMListAction3::Parallel);
-	tmpControl = SGMBeamline::sgm()->energy();
-	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
-	//energyStartSetpoint.setValue(270);
-	energyStartSetpoint.setValue(settings->energyStart());
-	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	AMListAction3 *fastActionsInitializeTriggers = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initialize Triggers", "SGM Fast Actions Initialize Triggers"), AMListAction3::Parallel);
 
 	tmpControl = SGMBeamline::sgm()->undulatorFastTracking();
 	AMControlInfo undulatorFastTrackingInitSetpoint = tmpControl->toInfo();
 	undulatorFastTrackingInitSetpoint.setValue(0);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorFastTrackingInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
 	AMControlInfo undulatorRelativeStepStorageInitSetpoint = tmpControl->toInfo();
 	undulatorRelativeStepStorageInitSetpoint.setValue(12);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->undulatorRelativeStep();
 	AMControlInfo undulatorRelativeStepInitSetpoint = tmpControl->toInfo();
 	undulatorRelativeStepInitSetpoint.setValue(12);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->undulatorVelocity();
 	AMControlInfo undulatorVelocityInitSetpoint = tmpControl->toInfo();
 	undulatorVelocityInitSetpoint.setValue(settings->undulatorVelocity());
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->gratingVelocity();
 	AMControlInfo gratingVelocityInitSetpoint = tmpControl->toInfo();
 	gratingVelocityInitSetpoint.setValue(settings->velocity());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
 	AMControlInfo gratingBaseVelocityInitSetpoint = tmpControl->toInfo();
 	gratingBaseVelocityInitSetpoint.setValue(settings->velocityBase());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
 	AMControlInfo gratingAccelerationInitSetpoint = tmpControl->toInfo();
 	gratingAccelerationInitSetpoint.setValue(settings->acceleration());
 	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInitSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsEnergyStartAndInit->addSubAction(moveAction);
+	fastActionsInitializeTriggers->addSubAction(moveAction);
 
-	retVal->addSubAction(fastActionsEnergyStartAndInit);
+	retVal->addSubAction(fastActionsInitializeTriggers);
 	// End Initialization
 
 	// Initial Positions:
-	// Undulator Step to undulator start step
 	// Exit Slit to median position
 	// Continuous Scaler to Off
 	AMListAction3 *fastActionsInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initial Positions", "SGM Fast Actions Initial Positions"), AMListAction3::Parallel);
-	tmpControl = SGMBeamline::sgm()->undulatorStep();
-	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
-	undulatorStepSetpoint.setValue(settings->undulatorStartStep());
-	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsInitialPositions->addSubAction(moveAction);
+
 	tmpControl = SGMBeamline::sgm()->exitSlit();
 	AMControlInfo exitSlitSetpoint = tmpControl->toInfo();
 	exitSlitSetpoint.setValue(settings->exitSlitDistance());
