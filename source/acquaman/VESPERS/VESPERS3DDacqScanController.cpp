@@ -13,6 +13,7 @@
 #include "analysis/AMOrderReductionAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
+#include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -41,6 +42,10 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
+
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", config_->exportSpectraSources(), false, false);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS3DScanConfiguration, VESPERSExporter3DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
 	int yPoints = int((config_->yEnd() - config_->yStart())/config_->yStep());
 	if ((config_->yEnd() - config_->yStart() - (yPoints + 0.01)*config_->yStep()) < 0)

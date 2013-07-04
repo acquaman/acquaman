@@ -69,6 +69,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
@@ -215,6 +216,7 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
 
+	AMExportController::registerExporter<VESPERSExporter3DAscii>();
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
 	AMExportController::registerExporter<VESPERSExporterLineScanAscii>();
@@ -229,6 +231,10 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true, false, false);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", true, false, false);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS3DScanConfiguration, VESPERSExporter3DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true, false, false);
 	if(vespersDefault->id() > 0)
