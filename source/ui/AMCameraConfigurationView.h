@@ -29,6 +29,8 @@ public:
     double cameraDistortion();
     double cameraRotation();
     double pixelAspectRatio();
+    double centreOffsetX();
+    double centreOffsetY();
 
     /// Mutators
     void setPositionX(double x);
@@ -42,6 +44,8 @@ public:
     void setCameraDistortion(double distortion);
     void setCameraRotation(double rotation);
     void setPixelAspectRatio(double pixelAspectRatio);
+    void setCentreOffsetX(double centreOffsetX);
+    void setCentreOffsetY(double centreOffsetY);
 
 public slots:
 
@@ -66,6 +70,9 @@ protected:
     QSlider* cameraRotationSlider_;
 
     QLineEdit* pixelAspectRatio_;
+
+    QLineEdit* centreOffsetX_;
+    QLineEdit* centreOffsetY_;
 
 
     QComboBox* configurationSelection_;
@@ -95,6 +102,9 @@ protected slots:
     void updateRotationSlider(int);
 
     void updatePixelAspectRatio(QString pixelAspectRatio);
+
+    void updateCentreOffsetX(QString centreOffsetX);
+    void updateCentreOffsetY(QString centreOffsetY);
 
     void updateName(QString name);
     void updateSelection(int);

@@ -8,6 +8,7 @@ AMCameraConfiguration::AMCameraConfiguration(QObject *parent) :
     AMDbObject(parent)
 {
     cameraRotation_ = 0;
+    imageCentre_ = QPointF(0,0);
 }
 
 double AMCameraConfiguration::cameraPositionX()
@@ -30,24 +31,24 @@ QVector3D AMCameraConfiguration::cameraPosition()
     return cameraPosition_;
 }
 
-double AMCameraConfiguration::cameraCenterX()
+double AMCameraConfiguration::cameraCentreX()
 {
-    return cameraCenter_.x();
+    return cameraCentre_.x();
 }
 
-double AMCameraConfiguration::cameraCenterY()
+double AMCameraConfiguration::cameraCentreY()
 {
-    return cameraCenter_.y();
+    return cameraCentre_.y();
 }
 
-double AMCameraConfiguration::cameraCenterZ()
+double AMCameraConfiguration::cameraCentreZ()
 {
-    return cameraCenter_.z();
+    return cameraCentre_.z();
 }
 
-QVector3D AMCameraConfiguration::cameraCenter()
+QVector3D AMCameraConfiguration::cameraCentre()
 {
-    return cameraCenter_;
+    return cameraCentre_;
 }
 
 double AMCameraConfiguration::cameraFOV()
@@ -73,6 +74,11 @@ double AMCameraConfiguration::cameraRotation()
 double AMCameraConfiguration::pixelAspectRatio()
 {
     return pixelAspectRatio_;
+}
+
+QPointF AMCameraConfiguration::imageCentre()
+{
+    return imageCentre_;
 }
 
 #include <QDebug>
@@ -101,24 +107,24 @@ void AMCameraConfiguration::setCameraPositionZ(double z)
     cameraPosition_.setZ(z);
 }
 
-void AMCameraConfiguration::setCameraCenter(QVector3D center)
+void AMCameraConfiguration::setCameraCentre(QVector3D centre)
 {
-    cameraCenter_ = center;
+    cameraCentre_ = centre;
 }
 
-void AMCameraConfiguration::setCameraCenterX(double x)
+void AMCameraConfiguration::setCameraCentreX(double x)
 {
-    cameraCenter_.setX(x);
+    cameraCentre_.setX(x);
 }
 
-void AMCameraConfiguration::setCameraCenterY(double y)
+void AMCameraConfiguration::setCameraCentreY(double y)
 {
-    cameraCenter_.setY(y);
+    cameraCentre_.setY(y);
 }
 
-void AMCameraConfiguration::setCameraCenterZ(double z)
+void AMCameraConfiguration::setCameraCentreZ(double z)
 {
-    cameraCenter_.setZ(z);
+    cameraCentre_.setZ(z);
 }
 
 void AMCameraConfiguration::setCameraFOV(double fov)
@@ -144,4 +150,19 @@ void AMCameraConfiguration::setCameraRotation(double rotation)
 void AMCameraConfiguration::setPixelAspectRatio(double pixelAspectRatio)
 {
     pixelAspectRatio_ = pixelAspectRatio;
+}
+
+void AMCameraConfiguration::setImageCentre(QPointF imageCentre)
+{
+    imageCentre_ = imageCentre;
+}
+
+void AMCameraConfiguration::setImageCentreX(double imageCentreX)
+{
+    imageCentre_.setX(imageCentreX);
+}
+
+void AMCameraConfiguration::setImageCentreY(double imageCentreY)
+{
+    imageCentre_.setY(imageCentreY);
 }

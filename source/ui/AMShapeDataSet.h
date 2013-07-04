@@ -152,7 +152,7 @@ public:
 
     bool isBackwards(int index = -1);
 
-    void findCamera(QPointF points [6], QVector3D coordinates[6], QVector3D cameraCenter = QVector3D(0,0,1), double fieldOfView = 1);
+    void findCamera(QPointF points [6], QVector3D coordinates[6]);
 
     /// look for intersections with the current beam
     bool findIntersections();
@@ -351,37 +351,10 @@ protected:
     QVector3D centerCoordinate(int index);
 
     /// helper functions for findCamera
-    double findCoordinateDistance(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne, double thetaTwo, double oldError = 1000);
-    QPair<double, double> beta(double coordinateDistance, QVector3D a, QVector3D b, QVector3D c, double shiftOne, double shiftTwo, double thetaOne);
-    double gamma(double coordinateDistance, QVector3D a, QVector3D c, double thetaTwo);
-    QPair<double, double> alpha(double coordinateDistance, QVector3D a, QVector3D b, double thetaOne);
-    QList<double> getCoordinateSystem(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
-    double calculateT2(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c, QVector3D e, double angleBC, double angleBE, double angleCE);
-    double calcT2(double d, QVector3D a, QVector3D c, double shift2Length);
-    double calculateD(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
-    double delta(double t2, double d, double shift1Length, double shift2Length, QVector3D a, QVector3D b, QVector3D c, double angleBC);
-    double omega(double t2, double d, double shift1Length, double shift2Length, double shift3Length, QVector3D a, QVector3D b, QVector3D c,  QVector3D e, double angleBC, double angleBE);
-    double beta(double t2, double d, double shift2Length, QVector3D a, QVector3D c);
     bool notEqual(double a, double b, double tolerance = 0.001);
-    QVector3D findOrientation(QVector3D b, QVector3D c, QVector3D e, QVector3D shiftB, QVector3D shiftC, QVector3D shiftE);
-    void calculateVectors(QVector3D &u,QVector3D &v, QVector3D a, QVector3D newA);
-    QPointF uX(double uz, double vx, double vy , QVector3D a, double newAX);
-    QPointF uY(double uz, double vx, double vy, QVector3D a, double newAX);
-    QPointF uZ(double uz, double vx, double vy, QVector3D a, double newAX);
-    QPointF vX(double uz, double vx, double vy, QVector3D a, double newAX, double newAZ);
-    QPointF vY(double uz, double vx, double vy, QVector3D a, double newAX, double newAY);
-    QPointF vZ(double vx, double vy);
     double nearZero(double a, double tolerance = 0.00001);
     double absError(double a, double b, double tolerance = 0.00001);
-    QVector3D rotateVector(QVector3D coordinate, QVector3D directionOfRotation, QVector3D directionBeforeRotation);
-    double complexAbs(QPointF complexNumber);
-    QPointF convertToPolar(QPointF squareNumber);
-    QPointF convertFromPolar(QPointF polarNumber);
-    QPair<QPointF,QPointF> complexSquareRoot(QPointF polarNumber);
     void getTransforms(QPointF points[6],QVector3D coordinates [6]);
-    QVector4D solveMatrix(QVector4D coefficients [4], QVector4D answers);
-    QVector3D findCoordinate(QVector4D coefficients [3], QVector3D screenPosition);
-    void factorTransformMatrix(QVector3D coefficients [3]);
     double dot(QVector3D,QVector3D);
     MatrixXd directLinearTransform(QVector3D coordinate[6], QPointF screenposition[6]);
     MatrixXd constructMatrix(QVector3D coordinate[6], QPointF screenposition[6]);
@@ -389,10 +362,8 @@ protected:
     MatrixXd rotationParameters(MatrixXd matrixA, MatrixXd matrixB);
     MatrixXd translationParameters(MatrixXd matrixA, MatrixXd matrixSubB);
     MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
-    MatrixXd findWorldCameraCenter(MatrixXd extrinsicMatrix);
 
-    template <int N, int M, int K, int L>
-    void getMatrix(QGenericMatrix<K,L,double>* matrix);
+
 
 
 

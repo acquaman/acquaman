@@ -12,7 +12,7 @@ class AMCameraConfiguration : public AMDbObject
     Q_PROPERTY(double cameraFOV READ cameraFOV WRITE setCameraFOV)
     Q_PROPERTY(double cameraFocalLength READ cameraFocalLength WRITE setCameraFocalLength)
     Q_PROPERTY(double cameraDistortion READ cameraDistortion WRITE setCameraDistortion)
-    Q_PROPERTY(QVector3D cameraCenter READ cameraCenter WRITE setCameraCenter)
+    Q_PROPERTY(QVector3D cameraCentre READ cameraCentre WRITE setCameraCentre)
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
     Q_PROPERTY(double cameraRotation READ cameraRotation WRITE setCameraRotation)
     Q_PROPERTY(double pixelAspectRatio READ pixelAspectRatio WRITE setPixelAspectRatio)
@@ -26,10 +26,10 @@ public:
     double cameraPositionZ();
     QVector3D cameraPosition();
 
-    double cameraCenterX();
-    double cameraCenterY();
-    double cameraCenterZ();
-    QVector3D cameraCenter();
+    double cameraCentreX();
+    double cameraCentreY();
+    double cameraCentreZ();
+    QVector3D cameraCentre();
 
     double cameraFOV();
     double cameraFocalLength();
@@ -38,6 +38,8 @@ public:
     double cameraRotation();
 
     double pixelAspectRatio();
+
+    QPointF imageCentre();
 
     virtual bool loadFromDb(AMDatabase *db, int id);
 
@@ -48,10 +50,10 @@ public slots:
     void setCameraPositionY(double y);
     void setCameraPositionZ(double z);
 
-    void setCameraCenter(QVector3D center);
-    void setCameraCenterX(double x);
-    void setCameraCenterY(double y);
-    void setCameraCenterZ(double z);
+    void setCameraCentre(QVector3D centre);
+    void setCameraCentreX(double x);
+    void setCameraCentreY(double y);
+    void setCameraCentreZ(double z);
 
     void setCameraFOV(double fov);
     void setCameraFocalLength(double focalLength);
@@ -61,16 +63,21 @@ public slots:
 
     void setPixelAspectRatio(double pixelAspectRatio);
 
+    void setImageCentre(QPointF imageCentre);
+    void setImageCentreX(double imageCentreX);
+    void setImageCentreY(double imageCentreY);
+
 
 
 protected:
     QVector3D cameraPosition_;
-    QVector3D cameraCenter_;
+    QVector3D cameraCentre_;
     double cameraFOV_;
     double cameraFocalLength_;
     double cameraDistortion_;
     double cameraRotation_;
     double pixelAspectRatio_;
+    QPointF imageCentre_;
 };
 
 #endif // AMCAMERACONFIGURATIONMODEL_H

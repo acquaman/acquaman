@@ -28,7 +28,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->setCameraDistortion(-0.09);
         cameraModel_->setCameraFocalLength(0.41);
         cameraModel_->setCameraFOV(0.387);
-        cameraModel_->setCameraCenter(QVector3D(0,0,0));
+        cameraModel_->setCameraCentre(QVector3D(0,0,0));
         cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
         bool success = cameraModel_->storeToDb(dbSGM);
@@ -60,6 +60,9 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     phl->addSpacing(20);
     phl->addWidget(new QLabel("z:"));
     phl->addWidget(positionZ_ = new QLineEdit());
+    phl->addSpacing(20);
+    phl->addWidget(new QLabel("Offset x:"));
+    phl->addWidget(centreOffsetX_ = new QLineEdit());
     phl->addStretch();
     positionFrame->setLayout(phl);
 
@@ -76,6 +79,9 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     chl->addSpacing(20);
     chl->addWidget(new QLabel("z:"));
     chl->addWidget(centerZ_ = new QLineEdit());
+    phl->addSpacing(20);
+    phl->addWidget(new QLabel("Offset y:"));
+    phl->addWidget(centreOffsetY_ = new QLineEdit());
     chl->addStretch();
     centerFrame->setLayout(chl);
 
@@ -159,6 +165,10 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
 
     connect(pixelAspectRatio_, SIGNAL(textChanged(QString)), this, SLOT(updatePixelAspectRatio(QString)));
 
+    connect(centreOffsetX_, SIGNAL(textChanged(QString)), this, SLOT(updateCentreOffsetX(QString)));
+    connect(centreOffsetY_, SIGNAL(textChanged(QString)), this, SLOT(updateCentreOffsetY(QString)));
+
+
     connect(saveConfiguration_, SIGNAL(clicked()), this, SLOT(saveConfiguration()));
     connect(configurationName_, SIGNAL(textChanged(QString)), this, SLOT(updateName(QString)));
     connect(configurationSelection_, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSelection(int)));
@@ -189,17 +199,17 @@ double AMCameraConfigurationView::positionZ()
 
 double AMCameraConfigurationView::centerX()
 {
-    return cameraModel_->cameraCenterX();
+    return cameraModel_->cameraCentreX();
 }
 
 double AMCameraConfigurationView::centerY()
 {
-    return cameraModel_->cameraCenterY();
+    return cameraModel_->cameraCentreY();
 }
 
 double AMCameraConfigurationView::centerZ()
 {
-    return cameraModel_->cameraCenterZ();
+    return cameraModel_->cameraCentreZ();
 }
 
 double AMCameraConfigurationView::cameraFOV()
@@ -228,6 +238,16 @@ double AMCameraConfigurationView::pixelAspectRatio()
     return cameraModel_->pixelAspectRatio();
 }
 
+double AMCameraConfigurationView::centreOffsetX()
+{
+    return cameraModel_->imageCentre().x();
+}
+
+double AMCameraConfigurationView::centreOffsetY()
+{
+    return cameraModel_->imageCentre().y();
+}
+
 void AMCameraConfigurationView::setPositionX(double x)
 {
     cameraModel_->setCameraPositionX(x);
@@ -245,17 +265,17 @@ void AMCameraConfigurationView::setPositionZ(double z)
 
 void AMCameraConfigurationView::setCenterX(double x)
 {
-    cameraModel_->setCameraCenterX(x);
+    cameraModel_->setCameraCentreX(x);
 }
 
 void AMCameraConfigurationView::setCenterY(double y)
 {
-    cameraModel_->setCameraCenterY(y);
+    cameraModel_->setCameraCentreY(y);
 }
 
 void AMCameraConfigurationView::setCenterZ(double z)
 {
-    cameraModel_->setCameraCenterZ(z);
+    cameraModel_->setCameraCentreZ(z);
 }
 
 void AMCameraConfigurationView::setCameraFOV(double fov)
@@ -281,6 +301,16 @@ void AMCameraConfigurationView::setCameraRotation(double rotation)
 void AMCameraConfigurationView::setPixelAspectRatio(double pixelAspectRatio)
 {
     cameraModel_->setPixelAspectRatio(pixelAspectRatio);
+}
+
+void AMCameraConfigurationView::setCentreOffsetX(double centreOffsetX)
+{
+    cameraModel_->setImageCentreX(centreOffsetX);
+}
+
+void AMCameraConfigurationView::setCentreOffsetY(double centreOffsetY)
+{
+    cameraModel_->setImageCentreY(centreOffsetY);
 }
 
 void AMCameraConfigurationView::updatePositionX(QString x)
@@ -371,6 +401,20 @@ void AMCameraConfigurationView::updatePixelAspectRatio(QString pixelAspectRatio)
     if(*conversionOK) setPixelAspectRatio(newValue);
 }
 
+void AMCameraConfigurationView::updateCentreOffsetX(QString centreOffsetX)
+{
+    bool* conversionOK = new bool(false);
+    double newValue = centreOffsetX.toDouble(conversionOK);
+    if(*conversionOK) setCentreOffsetX(newValue);
+}
+
+void AMCameraConfigurationView::updateCentreOffsetY(QString centreOffsetY)
+{
+    bool* conversionOK = new bool(false);
+    double newValue = centreOffsetY.toDouble(conversionOK);
+    if(*conversionOK) setCentreOffsetY(newValue);
+}
+
 void AMCameraConfigurationView::updateName(QString name)
 {
     cameraModel_->setName(name);
@@ -430,7 +474,7 @@ void AMCameraConfigurationView::populateComboBox(int dbIndex)
 void AMCameraConfigurationView::updateAll()
 {
     QVector3D position = cameraModel_->cameraPosition();
-    QVector3D center = cameraModel_->cameraCenter();
+    QVector3D center = cameraModel_->cameraCentre();
     QString name = cameraModel_->name();
     emit update(cameraModel_);
     positionX_->setText(QString::number(position.x()));
@@ -445,6 +489,8 @@ void AMCameraConfigurationView::updateAll()
     configurationName_->setText(name);
     cameraRotation_->setText(QString::number(cameraRotation()));
     pixelAspectRatio_->setText(QString::number(pixelAspectRatio()));
+    centreOffsetX_->setText(QString::number(centreOffsetX()));
+    centreOffsetY_->setText(QString::number(centreOffsetY()));
 
 }
 
