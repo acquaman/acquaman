@@ -81,6 +81,8 @@ protected:
 
     AMCameraConfiguration* cameraModel_;
 
+    double cameraRotationCentre_;
+
 //    AMBeamConfigurationView* beamConfiguration_;
 
 

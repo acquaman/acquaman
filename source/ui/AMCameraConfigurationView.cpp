@@ -40,6 +40,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->loadFromDb(dbSGM,matchIDs.first());
     }
 
+    cameraRotationCentre_ = cameraModel_->cameraRotation();
+
     setWindowTitle("Configuration");
 
     //GUI SETUP
@@ -296,6 +298,12 @@ void AMCameraConfigurationView::setCameraDistortion(double distortion)
 void AMCameraConfigurationView::setCameraRotation(double rotation)
 {
     cameraModel_->setCameraRotation(rotation);
+    qDebug()<<"Changing camera Rotation Centre";
+    cameraRotationCentre_ = rotation;
+    bool block = true;
+    block = cameraRotationSlider_->blockSignals(block);
+    cameraRotationSlider_->setValue(cameraRotationSlider_->maximum()/2);
+    cameraRotationSlider_->blockSignals(block);
 }
 
 void AMCameraConfigurationView::setPixelAspectRatio(double pixelAspectRatio)
@@ -385,11 +393,14 @@ void AMCameraConfigurationView::updateRotation(QString rotation)
 
 void AMCameraConfigurationView::updateRotationSlider(int rotation)
 {
+    double range = 0.25;
     double value = (double)rotation;
     double max = (double)cameraRotationSlider_->maximum();
     double fraction = value/max;
-    setCameraRotation(fraction*6.28 - 3.14);
+    cameraModel_->setCameraRotation(fraction*2*range +(cameraRotationCentre_-range));
+    bool block = cameraRotation_->blockSignals(true);
     cameraRotation_->setText(QString::number(cameraRotation()));
+    cameraRotation_->blockSignals(block);
     emit(update(cameraModel_));
 
 }

@@ -384,6 +384,25 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         fullCoordinates[i] = coordinates[0]+coordinates[i];
     }
 
+    /// auto draw shapes at the points, for convenience
+    AMShapeData* shapes[6];
+    for(int i = 0; i < 6; i++)
+    {
+        qDebug()<<"i ="<<i;
+        index_++;
+        shapes[i] = new AMShapeData();
+        QVector<QVector3D> shapeCoordinates;
+        shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
+        shapes[i]->setCoordinateShape(shapeCoordinates,5);
+        shapes[i]->shiftTo(fullCoordinates[i]);
+        shapes[i]->setTilt(0);
+        shapes[i]->setRotation(0);
+        shapes[i]->setName(i+"th Calibration point");
+        shapeList_.insert(index_,*shapes[i]);
+        updateShape(index_);
+        current_ = index_;
+    }
+
     getTransforms(point,fullCoordinates);
 
 
