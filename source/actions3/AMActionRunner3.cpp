@@ -170,16 +170,29 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 	if(index < 0 || index > queuedActions_.count())
 		index = queuedActions_.count();
 
-	if(!action->isValid()){
+	AMAction3::ActionValidity actionValidity = action->isValid();
+	if(actionValidity != AMAction3::ActionCurrentlyValid){
+		QString windowTitle;
+		QString informationText;
+		if(actionValidity == AMAction3::ActionNotCurrentlyValid){
+			windowTitle = "The Action You've Added May Not Be Valid";
+			informationText = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.";
+		}
+		else if(actionValidity == AMAction3::ActionNeverValid){
+			windowTitle = "The Action You've Added Is Not Valid";
+			informationText = "\n\nYou cannot ignore this warning, this type of action is not supported.";
+		}
+
 		QMessageBox box;
-		box.setWindowTitle("The Action You've Added May Not Be Valid");
+		box.setWindowTitle(windowTitle);
 		box.setText("The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning());
-		box.setInformativeText("\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.");
+		box.setInformativeText(informationText);
 
 		QPushButton* ignoreAndAddButton = new QPushButton("Ignore this warning and add");
 		QPushButton* cancelAddingButton = new QPushButton("Cancel adding this action");
 
-		box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
+		if(actionValidity == AMAction3::ActionNotCurrentlyValid)
+			box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
 		box.addButton(cancelAddingButton, QMessageBox::AcceptRole);
 		box.setDefaultButton(cancelAddingButton);
 

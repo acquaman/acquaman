@@ -147,6 +147,11 @@ public:
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return synchronizedDwellTime_;}
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
+	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.
+	virtual AMAction3::ActionValidity validateAction(AMAction3 *action);
+	/// Returns messages for invalid actions (old scan configurations) and "Action is Currently Valid" for all other actions.
+	virtual QString validateActionMessage(AMAction3 *action);
+
 	SGMBeamlineInfo::sgmGrating currentGrating() const;
 	QString currentEndstation() const;
 

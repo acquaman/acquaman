@@ -64,20 +64,23 @@ AMScanAction::~AMScanAction()
 	}
 }
 
-bool AMScanAction::isValid(){
+AMAction3::ActionValidity AMScanAction::isValid(){
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
 
 	if (!scanInfo){
 		AMErrorMon::alert(this, AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO, "This scan action is not valid because it does not have a valid info.");
-		return false;
+		return AMAction3::ActionNeverValid;
 	}
+
+	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid)
+		return AMBeamline::bl()->validateAction(this);
 
 	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
 	for(int x = 0; x < requestedDetectors.count(); x++)
 		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
-			return false;
+			return AMAction3::ActionNotCurrentlyValid;
 
-	return true;
+	return AMAction3::ActionCurrentlyValid;
 }
 
 QString AMScanAction::notValidWarning(){
@@ -87,6 +90,9 @@ QString AMScanAction::notValidWarning(){
 
 	if (!scanInfo)
 		return "Scan Action is not valid because it does not have a valid configuration\n";
+
+	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid)
+		return AMBeamline::bl()->validateActionMessage(this);
 
 	retVal = "Scan Action is not valid because the following detectors are not available at the moment:\n";
 	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();

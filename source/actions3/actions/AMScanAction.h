@@ -55,7 +55,8 @@ public:
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
 
-	virtual bool isValid();
+	/// Returns the ActionValidity of this scanAction
+	virtual AMAction3::ActionValidity isValid();
 	virtual QString notValidWarning();
 
 	// Re-implemented public functions.

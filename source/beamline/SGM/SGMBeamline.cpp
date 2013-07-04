@@ -32,6 +32,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMOptimizationSupport.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 
+#include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
@@ -484,6 +488,34 @@ int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) con
 		return 4;
 	else
 		return -1;
+}
+
+AMAction3::ActionValidity SGMBeamline::validateAction(AMAction3 *action){
+	AMScanAction *scanAction = qobject_cast<AMScanAction*>(action);
+	if(scanAction){
+		AMScanActionInfo *scanActionInfo = qobject_cast<AMScanActionInfo*>(scanAction->info());
+		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->config());
+		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
+		if(oldXASScanConfiguration || oldFastScanConfiguration)
+			return AMAction3::ActionNeverValid;
+	}
+
+	return AMAction3::ActionCurrentlyValid;
+}
+
+QString SGMBeamline::validateActionMessage(AMAction3 *action){
+	AMScanAction *scanAction = qobject_cast<AMScanAction*>(action);
+	if(scanAction){
+		AMScanActionInfo *scanActionInfo = qobject_cast<AMScanActionInfo*>(scanAction->info());
+		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->config());
+		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
+		if(oldXASScanConfiguration)
+			return QString("The SGM Beamline no longer supports this type of XAS Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
+		if(oldFastScanConfiguration)
+			return QString("The SGM Beamline no longer supports this type of Fast Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
+	}
+
+	return QString("Action is Currently Valid");
 }
 
 int SGMBeamline::currentSamplePlateId() const{
