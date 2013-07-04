@@ -96,6 +96,12 @@ public:
 				   AttemptAnotherCopyResponse,
 				   PromptUserResponse
 				 };
+	/// ActionValidity says whether a potential workflow action is valid based on beamline knowledge
+	enum ActionValidity{
+		ActionNeverValid = 0,			///< NeverValid refers to actions which are entirely unsupported (possibly depricated or not yet implemented)
+		ActionCurrentlyValid = 1,		///< CurrentlyValid refers to actions which can be run at the moment
+		ActionNotCurrentlyValid = 2		///< NotCurrentlyValid refers to actions that cannot be run at the moment, but might be able to be run later. For example, a scan requiring a certain detector may not be runnable at the moment but could be runnable if the detector becomes available before the scan is actually run in the workflow.
+	};
 
 	// Constructor and life-cycle management
 	/////////////////
@@ -142,8 +148,8 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
 	QString statusText() const { return statusText_; }
 
-
-	virtual bool isValid() { return true; }
+	/// Returns an ActionValidity enum for whether this action is valid. Default is AMAction3::ActionCurrentlyValid
+	virtual AMAction3::ActionValidity isValid() { return AMAction3::ActionCurrentlyValid; }
 	virtual QString notValidWarning() { return ""; }
 
 

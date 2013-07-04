@@ -251,7 +251,7 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 	}
 
 	if(!success)
-		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
+		AMErrorMon::alert(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
 }
 
 void AMActionHistoryView3::onSelectionChanged()
@@ -443,7 +443,7 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	if(!childrenSuccess){
 		if(!parentAction)
 			delete action;
-		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
+		AMErrorMon::alert(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
 		return false;
 	}
 

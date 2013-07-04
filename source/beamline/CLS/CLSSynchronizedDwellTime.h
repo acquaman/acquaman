@@ -33,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorTriggerSource;
 class AMAction3;
 
+#define CLSSYNCHRONIZEDWELLTIME_INVALID_TRIGGER 289001
+
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
   process variables for you.  It requires the base name (ex: BL1607-B2-1:dwell) and the index that the detector of interest occupies (0 being the first element by standard C/C++ array
@@ -197,16 +199,18 @@ public:
 	virtual AMDetectorDwellTimeSource* dwellTimeSource();
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
-	AMBeamlineActionItem *createMasterTimeAction(double time);
-	AMAction3 *createMasterTimeAction3(double time);
+	AMBeamlineActionItem* createMasterTimeAction(double time);
+	AMAction3* createMasterTimeAction3(double time);
 
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
-	AMBeamlineActionItem *createScanningAction(bool scan);
-	AMAction3 *createScanningAction3(bool scan);
+	AMBeamlineActionItem* createScanningAction(bool scan);
+	AMAction3* createScanningAction3(bool scan);
 
 	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
-	AMBeamlineActionItem *createModeAction(CLSSynchronizedDwellTime::Mode mode);
-	AMAction3 *createModeAction3(CLSSynchronizedDwellTime::Mode mode);
+	AMBeamlineActionItem* createModeAction(CLSSynchronizedDwellTime::Mode mode);
+	AMAction3* createModeAction3(CLSSynchronizedDwellTime::Mode mode);
+
+	AMAction3* createEnableAtAction3(int index, bool isEnabled);
 
 signals:
 	/// Notifier that the Mode has changed.

@@ -36,6 +36,7 @@ class AMScanController;
 #define AMSCANACTION_DATABASE_NOT_FOUND 103110
 #define AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT 103111
 #define AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO 103112
+#define AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID 103113
 
 class AMScanAction : public AMAction3
 {
@@ -55,7 +56,8 @@ public:
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
 
-	virtual bool isValid();
+	/// Returns the ActionValidity of this scanAction
+	virtual AMAction3::ActionValidity isValid();
 	virtual QString notValidWarning();
 
 	// Re-implemented public functions.

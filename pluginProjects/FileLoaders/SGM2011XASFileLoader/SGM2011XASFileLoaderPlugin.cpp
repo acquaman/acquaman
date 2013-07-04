@@ -41,6 +41,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
 		columns2pvNames_.set("AmptekSDD1", "amptek:sdd1:spectrum");
 		columns2pvNames_.set("AmptekSDD2", "amptek:sdd2:spectrum");
+		columns2pvNames_.set("AmptekSDD3", "amptek:sdd3:spectrum");
+		columns2pvNames_.set("AmptekSDD4", "amptek:sdd4:spectrum");
 	}
 
 	if(offsets2MeasurementInfos_.isEmpty()) {
@@ -48,6 +50,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		offsets2MeasurementInfos_ << "OceanOptics65000";
 		offsets2MeasurementInfos_ << "AmptekSDD1";
 		offsets2MeasurementInfos_ << "AmptekSDD2";
+		offsets2MeasurementInfos_ << "AmptekSDD3";
+		offsets2MeasurementInfos_ << "AmptekSDD4";
 	}
 
 	if(defaultUserVisibleColumns_.isEmpty()) {
@@ -60,6 +64,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		defaultUserVisibleColumns_ << "OceanOptics65000";
 		defaultUserVisibleColumns_ << "AmptekSDD1";
 		defaultUserVisibleColumns_ << "AmptekSDD2";
+		defaultUserVisibleColumns_ << "AmptekSDD3";
+		defaultUserVisibleColumns_ << "AmptekSDD4";
 	}
 
 	if(!scan)
@@ -178,6 +184,20 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					QList<AMAxisInfo> sddAxes;
 					sddAxes << sddEVAxisInfo;
 					AMMeasurementInfo sddInfo("Amptek SDD2", "Amptek Silicon Drift Detector 2", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+				}
+				else if(colName == "AmptekSDD3"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD3", "Amptek Silicon Drift Detector 3", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+				}
+				else if(colName == "AmptekSDD4"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD4", "Amptek Silicon Drift Detector 4", "counts", sddAxes);
 					scan->rawData()->addMeasurement(sddInfo);
 				}
 			}

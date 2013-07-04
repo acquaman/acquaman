@@ -92,6 +92,13 @@ void CLSAdvancedScalerChannelDetector::onModeSwitchSignal(){
 void CLSAdvancedScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 	if(isScanning)
 		setAcquiring();
+	else if(readMode_== AMDetectorDefinitions::SingleRead){
+		data_[0] = singleReading();
+
+		if(isAcquiring())
+			setAcquisitionSucceeded();
+		checkReadyForAcquisition();
+	}
 }
 
 void CLSAdvancedScalerChannelDetector::onReadingChanged(){

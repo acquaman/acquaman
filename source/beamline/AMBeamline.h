@@ -110,6 +110,11 @@ public:
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return 0; }
 
+	/// Call to check on the validity of a potential workflow action. Returns an ActionValidity enum (CurrentlyValid by default).
+	virtual AMAction3::ActionValidity validateAction(AMAction3 *action) { Q_UNUSED(action); return AMAction3::ActionCurrentlyValid; }
+	/// Call to check for a message on the (in)validity of an action
+	virtual QString validateActionMessage(AMAction3 *action) { Q_UNUSED(action); return QString("Action is Currently Valid"); }
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);

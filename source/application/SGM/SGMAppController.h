@@ -88,16 +88,12 @@ protected slots:
 	void onSGMScalerConnected(bool connected);
 	/// When the SGM's synchronized dwell time app connects the view is created and added as a pane to the main window
 	void onSGMSynchronizedDwellTimeConnected(bool connected);
-	/// When the SGM's PGT Sahara SDD connects the view is created and added as a pane to the main window.
-	void onSGMPGTSDDConnected(bool connected);
-	/// When the SGM's OceanOptics Optical Spectrometer connects the view is created and added as a pane to the main window
-	void onSGMOceanOpticsSpectrometerConnected(bool connected);
-	/// When the SGM's first amptek SDD connects the view is created and added as a pane to the main window.
-	void onSGMAmptekSDD1Connected(bool connected);
-	/// When the SGM's second amptek SDD connects the view is created and added as a pane to the main window.
-	void onSGMAmptekSDD2Connected(bool connected);
+
 	/// When the SGM's first (new) amptek SDD connects the view is created adn added as a pane to the main window.
 	void onSGMNewAmptekSDD1Connected(bool connected);
+	void onSGMNewAmptekSDD2Connected(bool connected);
+	void onSGMNewAmptekSDD3Connected(bool connected);
+	void onSGMNewAmptekSDD4Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
@@ -141,23 +137,15 @@ protected:
 	CLSSIS3820ScalerView *sgmScalerView_;
 	/// View for controlling the synchronized dwell time application
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
-	/// View for controlling the PGT Sahara SDD
-	AMOldDetectorView *pgtSDDView_;
-	/// View for controlling the Ocean Optics Optical Spectrometer
-	AMOldDetectorView *oceanOpticsSpectrometerView_;
-	/// View for controlling the first SGM amptek SDD
-	AMOldDetectorView *amptekSDD1View_;
-	/// View for controlling the second SGM amptek SDD
-	AMOldDetectorView *amptekSDD2View_;
 
 	/// View for controlling the new SGM amptek SDD (first)
 	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;
-
-	AMDetectorSelector *newDetectorsSelector_;
-	AMDetectorSelectorView *newDetectorsSelectorView_;
 
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
@@ -168,10 +156,8 @@ protected:
 	AMDetectorSelector *xasDetectorSelector_;
 	AMDetectorSelector *fastDetectorSelector_;
 	/// View holder for XAS
-	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
-	/// View holder for Fast scans
-	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	AMScanConfigurationViewHolder3 *xasScanConfiguration2013Holder3_;
+	/// View holder for Fast scans
 	AMScanConfigurationViewHolder3 *fastScanConfiguration2013Holder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
