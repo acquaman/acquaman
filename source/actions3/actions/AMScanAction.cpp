@@ -72,8 +72,11 @@ AMAction3::ActionValidity AMScanAction::isValid(){
 		return AMAction3::ActionNeverValid;
 	}
 
-	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid)
+	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid){
+		if(AMBeamline::bl()->validateAction(this) == AMAction3::ActionNeverValid)
+			AMErrorMon::alert(this, AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID, QString("This scan action was determined to be invalid by the beamline. The reason given was: %1").arg(AMBeamline::bl()->validateActionMessage(this)));
 		return AMBeamline::bl()->validateAction(this);
+	}
 
 	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
 	for(int x = 0; x < requestedDetectors.count(); x++)
