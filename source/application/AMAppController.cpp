@@ -224,7 +224,9 @@ void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
 {
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
-	updateScanEditorModelItem();
+	// It is possible to cancel a scan just before it starts, so we need to check this to see if there's any controller at all
+	if(action->controller())
+		updateScanEditorModelItem();
 	onCurrentScanActionFinishedImplementation(action);
 }
 

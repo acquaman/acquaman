@@ -178,7 +178,10 @@ void AMScanAction::resumeImplementation()
 
 void AMScanAction::cancelImplementation()
 {
-	controller_->cancel();
+	if(controller_)
+		controller_->cancel();
+	else
+		setCancelled();
 }
 
 void AMScanAction::skipImplementation(const QString &command)
