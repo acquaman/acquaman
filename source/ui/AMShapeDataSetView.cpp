@@ -170,11 +170,22 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     }
 
 
-
+    QFrame* configurationOptionsFrame = new QFrame();
+    QHBoxLayout* cohl = new QHBoxLayout();
+    cohl->setContentsMargins(12,4,12,4);
+    cohl->addWidget(new QLabel("Use motor coordinates:"));
+    cohl->addWidget(motorCoordinateCheckBox_ = new QCheckBox());
+    cohl->addSpacing(20);
+    cohl->addWidget(deleteCalibrationPoints_ = new QPushButton("Delete calibration points"));
+    cohl->addWidget(new QLabel("Use camera Matrix"));
+    cohl->addWidget(cameraMatrixCheckBox_ = new QCheckBox());
+    cohl->addStretch();
+    configurationOptionsFrame->setLayout(cohl);
 
 
     QVBoxLayout* ccvl = new QVBoxLayout();
     ccvl->setContentsMargins(0,0,0,0);
+    ccvl->addWidget(configurationOptionsFrame);
     for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         ccvl->addWidget(ccFrame[i]);
@@ -291,6 +302,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(pointPushButton_[5], SIGNAL(clicked()), this, SLOT(selectPointSix()));
 
     connect(startCameraConfiguration_, SIGNAL(clicked()), this, SLOT(runCameraConfiguration()));
+
+    connect(motorCoordinateCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseMotorCoordinate(bool)));
+    connect(deleteCalibrationPoints_, SIGNAL(clicked()), this, SLOT(deleteCalibrationPoints()));
+    connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseCameraMatrix(bool)));
 
 }
 
@@ -435,31 +450,29 @@ void AMShapeDataSetView::setOperationMode()
 void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
-    qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
-    QPointF points[6];
-    points[0]=QPointF(0.5,0.5);
-    points[1]=QPointF(0.6,1.1);
-    points[2]=QPointF(1,0.5);
-    points[3]=QPointF(0.5,0.3);
-    points[4]=QPointF(0.8,0.5);
-    points[5]=QPointF(0.6,0.6);
-    QVector3D coordinate[6];
-    coordinate[0] = QVector3D(12,51,11.8);
-    coordinate[1] = QVector3D(0.2,-1.2,0);
-    coordinate[2] = QVector3D(1,0,0);
-    coordinate[3] = QVector3D(0,0.6,-1);
-    coordinate[4] = QVector3D(0.9,0,-1);
-    coordinate[5] = QVector3D(0.3,-0.3,-1);
-//    coordinate[0] = QVector3D(11,-12,28);
-//    coordinate[1] = QVector3D(0,-1.2,0.2);
-//    coordinate[2] = QVector3D(0,0,1);
-//    coordinate[3] = QVector3D(1,0.6,0);
-//    coordinate[4] = QVector3D(1,0,0.9);
-//    coordinate[5] = QVector3D(1,-0.3,0.3);
-    shapeModel_->findCamera(points,coordinate);
-//    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.25,0.25),QPointF(0.25,0.75),QPointF(0.75,0.25),QVector3D(1,1,1),QVector3D(0.25,0.25,0.5),QVector3D(0.5,-0.5,0),QVector3D(1,1,-1));
-//    shapeModel_->findCamera(QPointF(0.5,0.5),QPointF(0.7,1.7),QPointF(1.5,0.5), QPointF(0.5,0.1),QVector3D(12,51,11.8),QVector3D(0.2,-1.2,0),QVector3D(1,0,0),QVector3D(0,0.6,-1));
-//    shapeModel_->findCamera(QPointF(0.25,0.25),QPointF(0.25,0.75),QPointF(0.75,0.25),QPointF(0.75,0.75),QVector3D(0.5,0.5,0),QVector3D(0.5,-1.5,1),QVector3D(-2,1,2),QVector3D(-0.75,-0.75,-1));
+//    qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
+//    QPointF points[6];
+//    points[0]=QPointF(0.5,0.5);
+//    points[1]=QPointF(0.6,1.1);
+//    points[2]=QPointF(1,0.5);
+//    points[3]=QPointF(0.5,0.3);
+//    points[4]=QPointF(0.8,0.5);
+//    points[5]=QPointF(0.6,0.6);
+//    QVector3D coordinate[6];
+//    coordinate[0] = QVector3D(12,51,11.8);
+//    coordinate[1] = QVector3D(0.2,-1.2,0);
+//    coordinate[2] = QVector3D(1,0,0);
+//    coordinate[3] = QVector3D(0,0.6,-1);
+//    coordinate[4] = QVector3D(0.9,0,-1);
+//    coordinate[5] = QVector3D(0.3,-0.3,-1);
+////    coordinate[0] = QVector3D(11,-12,28);
+////    coordinate[1] = QVector3D(0,-1.2,0.2);
+////    coordinate[2] = QVector3D(0,0,1);
+////    coordinate[3] = QVector3D(1,0.6,0);
+////    coordinate[4] = QVector3D(1,0,0.9);
+////    coordinate[5] = QVector3D(1,-0.3,0.3);
+//    shapeModel_->findCamera(points,coordinate);
+//    reviewCrosshairLinePositions();
 
 }
 
@@ -505,6 +518,19 @@ void AMShapeDataSetView::setPoint(QPointF position, int pointToSelect)
 {
     pointLineEdit_[pointToSelect*2]->setText(QString::number(position.x()));
     pointLineEdit_[pointToSelect*2 + 1]->setText(QString::number(position.y()));
+    if(useMotorCoordinate_)
+    {
+        coordinateLineEdit_[pointToSelect*3]->setText(QString::number(shapeModel_->motorX()));
+        coordinateLineEdit_[pointToSelect*3 + 1]->setText(QString::number(shapeModel_->motorY()));
+        coordinateLineEdit_[pointToSelect*3 + 2]->setText(QString::number(shapeModel_->motorZ()));
+    }
+}
+
+void AMShapeDataSetView::selectPoint(int point)
+{
+    qDebug()<<"AMShapeDataSetView::selectPoint - point is"<<point;
+    setConfigurationMode();
+    pointToSelect_ = point;
 }
 
 void AMShapeDataSetView::selectPointOne()
@@ -564,9 +590,20 @@ void AMShapeDataSetView::runCameraConfiguration()
         qDebug()<<"point:"<<points[i]<<"coordinate:"<<coordinates[i];
     }
     shapeModel_->findCamera(points,coordinates);
+    cameraConfiguration_->updateAll();
+    reviewCrosshairLinePositions();
+
 
 
 }
+
+void AMShapeDataSetView::deleteCalibrationPoints()
+{
+    shapeModel_->deleteCalibrationPoints();
+    reviewCrosshairLinePositions();
+}
+
+
 
 
 void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double r)
@@ -685,6 +722,16 @@ void AMShapeDataSetView::motorMoved()
     motorZEdit_->setText(QString::number(motorZ()));
     motorREdit_->setText(QString::number(motorRotation()));
     reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::setUseMotorCoordinate(bool use)
+{
+    useMotorCoordinate_ = use;
+}
+
+void AMShapeDataSetView::setUseCameraMatrix(bool use)
+{
+    shapeModel_->setUseCameraMatrix(use);
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)

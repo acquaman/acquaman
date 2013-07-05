@@ -20,6 +20,8 @@
 #include <Eigen/Dense>
 #include <Eigen/LU>
 
+#define SAMPLEPOINTS 6
+
 class AMShapeData;
 class QGraphicsRectItem;
 class QVector3D;
@@ -75,6 +77,8 @@ public:
     QSizeF viewSize();
 
     QSizeF scaledSize();
+
+    bool useCameraMatrix();
 
     /// ------------------------------------------------------------------------------------------------
 
@@ -141,6 +145,8 @@ public:
     void setCurrentInfo(QString info);
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
+
+    void setUseCameraMatrix(bool use);
 
 
 
@@ -234,6 +240,8 @@ public slots:
 
     void enableMotorTracking(bool isEnabled);
 
+    void deleteCalibrationPoints();
+
 
 
 signals:
@@ -302,8 +310,12 @@ protected:
     /// based on the current camera model
     QVector3D transform2Dto3D(QPointF point, double depth);
 
+    QVector3D transform2Dto3DMatrix(QPointF point, double depth);
+
     /// transforms a 3D vector to a 2D point, using current camera configuration
     QPointF transform3Dto2D(QVector3D coordinate);
+
+    QPointF transform3Dto2DMatrix(QVector3D coordinate);
 
     /// scales a length based on distance
     double transformDimension(double dimension, QVector3D coordinate);
@@ -434,6 +446,14 @@ protected:
 
     QVector3D centerOfRotation_;
     QVector3D directionOfRotation_;
+
+    int calibrationPoints_[SAMPLEPOINTS];
+
+    bool useCameraMatrix_;
+
+    bool calibrationRun_;
+
+    MatrixXd cameraMatrix_;
 
 
 

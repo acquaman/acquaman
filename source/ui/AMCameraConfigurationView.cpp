@@ -484,6 +484,7 @@ void AMCameraConfigurationView::populateComboBox(int dbIndex)
 /// updates all the fields in the window
 void AMCameraConfigurationView::updateAll()
 {
+    qDebug()<<"Updating camera window";
     QVector3D position = cameraModel_->cameraPosition();
     QVector3D center = cameraModel_->cameraCentre();
     QString name = cameraModel_->name();
@@ -502,7 +503,7 @@ void AMCameraConfigurationView::updateAll()
     pixelAspectRatio_->setText(QString::number(pixelAspectRatio()));
     centreOffsetX_->setText(QString::number(centreOffsetX()));
     centreOffsetY_->setText(QString::number(centreOffsetY()));
-
+    qDebug()<<"Finished updating camera window";
 }
 
 

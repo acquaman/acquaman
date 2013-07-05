@@ -49,6 +49,13 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
     enableMotorMovement_ = false;
 
+    for(int i = 0; i < SAMPLEPOINTS; i++)
+    {
+        calibrationPoints_[i] = -1;
+    }
+
+    calibrationRun_ = false;
+
     // create the database
     AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
     if(!db)
@@ -186,6 +193,11 @@ QSizeF AMShapeDataSet::viewSize()
 QSizeF AMShapeDataSet::scaledSize()
 {
     return scaledSize_;
+}
+
+bool AMShapeDataSet::useCameraMatrix()
+{
+    return useCameraMatrix_;
 }
 
 /// return the current name
@@ -348,6 +360,11 @@ void AMShapeDataSet::setTilt(double tilt, int index)
     shapeList_[index].setTilt(tilt);
 }
 
+void AMShapeDataSet::setUseCameraMatrix(bool use)
+{
+    useCameraMatrix_ = use;
+}
+
 /// checks if an index is valid
 bool AMShapeDataSet::isValid(int index)
 {
@@ -385,8 +402,9 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
     }
 
     /// auto draw shapes at the points, for convenience
-    AMShapeData* shapes[6];
-    for(int i = 0; i < 6; i++)
+    deleteCalibrationPoints();
+    AMShapeData* shapes[SAMPLEPOINTS];
+    for(int i = 0; i < SAMPLEPOINTS; i++)
     {
         qDebug()<<"i ="<<i;
         index_++;
@@ -399,12 +417,14 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         shapes[i]->setRotation(0);
         shapes[i]->setName(i+"th Calibration point");
         shapeList_.insert(index_,*shapes[i]);
+        calibrationPoints_[i] = index_;
         updateShape(index_);
         current_ = index_;
     }
 
     getTransforms(point,fullCoordinates);
 
+    calibrationRun_ = true;
 
 }
 
@@ -528,7 +548,7 @@ void AMShapeDataSet::moveCurrentShape(QPointF position, int index)
 {
     position = undistortPoint(position);
     if(index == -1) index = current_;
-    if(index <= index_)
+    if(index <= index_ && isValid(index))
     {
         QVector3D coordinate = shapeList_[index].coordinate(TOPLEFT);
         double distance = depth(coordinate);
@@ -705,11 +725,14 @@ void AMShapeDataSet::updateAllShapes()
 /// sets the coordinates for index
 void AMShapeDataSet::setCoordinates(QVector3D coordinate, int index)
 {
-    // get the current center
-    QVector3D center = centerCoordinate(index);
-    QVector3D shift = coordinate - center;
-    // shift the coordinates to the new center
-    shiftCoordinates(shift,index);
+    if(isValid(index))
+    {
+        // get the current center
+        QVector3D center = centerCoordinate(index);
+        QVector3D shift = coordinate - center;
+        // shift the coordinates to the new center
+        shiftCoordinates(shift,index);
+    }
 }
 
 /// Overload of setCoordinates, takes three doubles and an index
@@ -807,14 +830,38 @@ void AMShapeDataSet::enableMotorTracking(bool isEnabled)
     }
 }
 
+void AMShapeDataSet::deleteCalibrationPoints()
+{
+    /// delete the calibration squares
+    for(int i = 0; i < SAMPLEPOINTS; i++)
+    {
+        if(calibrationPoints_[i] >= 0)
+        {
+            shapeList_.remove(calibrationPoints_[i]);
+            if(calibrationPoints_[i] < index_)
+            {
+                shapeList_.insert(calibrationPoints_[i],shapeList_[index_]);
+                shapeList_.remove(index_);
+            }
+            index_--;
+            calibrationPoints_[i] = -1;
+        }
+    }
+
+}
 
 
 
-/// shifts all coordinates by  the specifies shift
+
+/// shifts all coordinates by  the specified shift
 void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
 {
-    shapeList_[index].shift(shift);
-    updateShape(index);
+    if(isValid(index))
+    {
+        qDebug()<<"AMShapeDataSet::shiftCoordinates index ="<<index;
+        shapeList_[index].shift(shift);
+        updateShape(index);
+    }
 }
 
 /// applies the rotation to the shape
@@ -1178,6 +1225,10 @@ QPointF AMShapeDataSet::coordinateTransform(QPointF coordinate)
 /// takes a 2D point on screen, as well as its depth, and transforms it into a 3D coordinate
 QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
 {
+    if(useCameraMatrix_ && calibrationRun_)
+    {
+        return transform2Dto3DMatrix(point,depth);
+    }
     /// Use the position of the item on screen, with knowledge of the
     /// camera position to determine its xyz coordinate.
     /// first convert to a point in an ideal plane, then shift and rotate to match camera
@@ -1280,9 +1331,48 @@ QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
     return finalPosition;
 }
 
+QVector3D AMShapeDataSet::transform2Dto3DMatrix(QPointF point, double depth)
+{
+//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix";
+    qDebug()<<point;
+    point = point - QPointF(0.5,0.5);
+    qDebug()<<point;
+    MatrixXd matrixPoint (3,1);
+    matrixPoint<<point.x(),point.y(),1;
+    MatrixXd matrixP = cameraMatrix_;
+    qDebug()<<matrixP(0,0)<<matrixP(0,1)<<matrixP(0,2)<<matrixP(0,3);
+    qDebug()<<matrixP(1,0)<<matrixP(1,1)<<matrixP(1,2)<<matrixP(1,3);
+    qDebug()<<matrixP(2,0)<<matrixP(2,1)<<matrixP(2,2)<<matrixP(2,3);
+//    MatrixXd matrixB = matrixP.block(0,0,3,3);
+//    MatrixXd matrixSubB = matrixP.col(3);
+//    MatrixXd cTilde = -1*(matrixB.inverse()*matrixSubB);
+//    MatrixXd xTilde = matrixB.inverse()*matrixPoint;
+//    double factor = -1*cTilde(2,0)/xTilde(2,0);
+//    MatrixXd coordinate = (matrixB.inverse()*matrixPoint)+cTilde;
+    MatrixXd coordinate = matrixP.colPivHouseholderQr().solve(matrixPoint);
+    coordinate /= coordinate(3,0);
+    QVector3D location = QVector3D(coordinate(0,0),coordinate(1,0),coordinate(2,0));
+    QVector3D worldDirection = location - cameraModel_->cameraPosition();
+    qDebug()<<worldDirection<<location;
+    worldDirection.normalize();
+    QVector3D centre = cameraModel_->cameraCentre()-cameraModel_->cameraPosition();
+    worldDirection *= depth/dot(worldDirection,centre);
+    worldDirection += cameraModel_->cameraPosition();
+    qDebug()<<transform3Dto2DMatrix(worldDirection);
+//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix - cameraCentre:"<<centre;
+//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix - returning"<<location;
+
+    return worldDirection;
+
+}
+
 /// takes a 3D coordinate and changes it to a 2D location on screen
 QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
 {
+    if(useCameraMatrix_ && calibrationRun_)
+    {
+        return transform3Dto2DMatrix(coordinate);
+    }
     /// Shifts and rotates the entire scene so that it is looking down the z-axis
     /// then converts that to screen coordinates by taking the proportion of
     /// focal length over the coordinate's distance from the camera.
@@ -1418,6 +1508,15 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
     position += QPointF(0.5,0.5);
     position += cameraModel_->imageCentre();
     return position;
+}
+
+QPointF AMShapeDataSet::transform3Dto2DMatrix(QVector3D coordinate)
+{
+    MatrixXd worldCoordinate(4,1);
+    worldCoordinate<<coordinate.x(),coordinate.y(), coordinate.z(),1;
+    MatrixXd screenPosition = cameraMatrix_*worldCoordinate;
+    screenPosition /= screenPosition(2,0);
+    return QPointF(screenPosition(0,0)+0.5,screenPosition(1,0)+0.5);
 }
 
 /// scales a dimension based on distance
@@ -1741,6 +1840,7 @@ void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
         coordinate[i]<<coordinates[i].x(),coordinates[i].y(),coordinates[i].z(),1;
     }
 
+    cameraMatrix_ = matrixA*matrixExtrinsic;
     MatrixXd point [6];
     for(int i= 0; i<6; i++)
     {
@@ -1827,7 +1927,7 @@ void AMShapeDataSet::getTransforms(QPointF points[], QVector3D coordinates[])
 
     for(int i = 0; i<6; i++)
     {
-        qDebug()<<coordinates[i]<<transform3Dto2D(coordinates[i])<<point[i](0,0)+0.5<<point[i](1,0)+0.5<<points[i]+QPointF(0.5,0.5);
+        qDebug()<<coordinates[i]<<transform2Dto3D(points[i]+QPointF(0.5,0.5),depth(coordinates[i]))<<transform3Dto2D(coordinates[i])<<point[i](0,0)+0.5<<point[i](1,0)+0.5<<points[i]+QPointF(0.5,0.5);
     }
 
 

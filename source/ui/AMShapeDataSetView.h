@@ -99,6 +99,10 @@ public slots:
 
          void motorMoved();
 
+         void setUseMotorCoordinate(bool);
+
+         void setUseCameraMatrix(bool);
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -203,6 +207,7 @@ protected slots:
     void showConfigurationWindow();
 
     void setPoint(QPointF position, int point);
+    void selectPoint(int);
     void selectPointOne();
     void selectPointTwo();
     void selectPointThree();
@@ -211,6 +216,9 @@ protected slots:
     void selectPointSix();
 
     void runCameraConfiguration();
+
+    void deleteCalibrationPoints();
+
 
 
 
@@ -326,8 +334,13 @@ protected:
     QPushButton* pointPushButton_[6];
     QFrame* cameraConfigurationWindow_;
     QPushButton* startCameraConfiguration_;
+    QCheckBox* motorCoordinateCheckBox_;
+    QPushButton* deleteCalibrationPoints_;
+    QCheckBox* cameraMatrixCheckBox_;
 
     int pointToSelect_;
+    bool useMotorCoordinate_;
+    bool useCameraMatrix_;
 
 
 };
