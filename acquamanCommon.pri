@@ -677,7 +677,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
 	source/actions3/actions/AMTimedWaitActionInfo3.h \
 	source/actions3/actions/AMTimedWaitAction3.h \
-    source/beamline/AMSampleStage.h \
     source/analysis/AM3DNormalizationAB.h \
     source/analysis/AM3DNormalizationABEditor.h \
     source/analysis/AM4DBinningAB.h \
@@ -1145,7 +1144,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
 	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
 	source/actions3/actions/AMTimedWaitAction3.cpp \
-    source/beamline/AMSampleStage.cpp \
     source/analysis/AM3DNormalizationAB.cpp \
     source/analysis/AM3DNormalizationABEditor.cpp \
     source/analysis/AM4DBinningAB.cpp \
@@ -1175,6 +1173,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
