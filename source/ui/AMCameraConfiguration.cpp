@@ -81,6 +81,11 @@ QPointF AMCameraConfiguration::imageCentre()
     return imageCentre_;
 }
 
+MatrixXd AMCameraConfiguration::cameraMatrix()
+{
+    return cameraMatrix_;
+}
+
 #include <QDebug>
 bool AMCameraConfiguration::loadFromDb(AMDatabase *db, int id)
 {
@@ -165,4 +170,9 @@ void AMCameraConfiguration::setImageCentreX(double imageCentreX)
 void AMCameraConfiguration::setImageCentreY(double imageCentreY)
 {
     imageCentre_.setY(imageCentreY);
+}
+
+void AMCameraConfiguration::setCameraMatrix(MatrixXd cameraMatrix)
+{
+    cameraMatrix_ = cameraMatrix;
 }

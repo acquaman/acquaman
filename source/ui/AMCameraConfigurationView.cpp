@@ -506,5 +506,23 @@ void AMCameraConfigurationView::updateAll()
     qDebug()<<"Finished updating camera window";
 }
 
+void AMCameraConfigurationView::disableAll(bool disable)
+{
+    positionX_->setDisabled(disable);
+    positionY_->setDisabled(disable);
+    positionZ_->setDisabled(disable);
+    centerX_->setDisabled(disable);
+    centerY_->setDisabled(disable);
+    centerZ_->setDisabled(disable);
+    cameraFOV_->setDisabled(disable);
+    cameraFocalLength_->setDisabled(disable);
+    cameraDistortion_->setDisabled(disable);
+    pixelAspectRatio_->setDisabled(disable);
+    cameraRotation_->setDisabled(disable);
+    centreOffsetX_->setDisabled(disable);
+    centreOffsetY_->setDisabled(disable);
+
+}
+
 
 

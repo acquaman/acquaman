@@ -103,6 +103,8 @@ public slots:
 
          void setUseCameraMatrix(bool);
 
+         void showCameraBeamWindow();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -337,6 +339,8 @@ protected:
     QCheckBox* motorCoordinateCheckBox_;
     QPushButton* deleteCalibrationPoints_;
     QCheckBox* cameraMatrixCheckBox_;
+
+    QPushButton* configurationWindowButton_;
 
     int pointToSelect_;
     bool useMotorCoordinate_;

@@ -11,6 +11,8 @@ Q_DECLARE_METATYPE(AMQVector3DVector);
 
 
 
+
+
 class AMBeamConfiguration : public AMDbObject
 {
     Q_OBJECT
@@ -43,6 +45,7 @@ protected:
 protected:
     QVector<QVector3D> positionOne_;
     QVector<QVector3D> positionTwo_;
+
 
 };
 

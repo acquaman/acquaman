@@ -2,10 +2,14 @@
 #define AMCAMERACONFIGURATIONMODEL_H
 
 #include <QVector3D>
+
+#include <Eigen/Core>
+
 #include "dataman/database/AMDbObject.h"
 
 class QVector3D;
 
+using namespace Eigen;
 class AMCameraConfiguration : public AMDbObject
 {
     Q_OBJECT
@@ -16,6 +20,12 @@ class AMCameraConfiguration : public AMDbObject
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
     Q_PROPERTY(double cameraRotation READ cameraRotation WRITE setCameraRotation)
     Q_PROPERTY(double pixelAspectRatio READ pixelAspectRatio WRITE setPixelAspectRatio)
+//    Q_PROPERTY(MatrixXd cameraMatrix READ cameraMatrix WRITE setCameraMatrix)
+//    else if(columnType == qMetaTypeId<MatrixXd>())
+//    {
+//        MatrixXd val = property(columnName).value<MatrixXd();
+
+//    }
 
 public:
     explicit AMCameraConfiguration(QObject *parent = 0);
@@ -40,6 +50,8 @@ public:
     double pixelAspectRatio();
 
     QPointF imageCentre();
+
+    MatrixXd cameraMatrix();
 
     virtual bool loadFromDb(AMDatabase *db, int id);
 
@@ -67,6 +79,8 @@ public slots:
     void setImageCentreX(double imageCentreX);
     void setImageCentreY(double imageCentreY);
 
+    void setCameraMatrix(MatrixXd cameraMatrix);
+
 
 
 protected:
@@ -78,6 +92,7 @@ protected:
     double cameraRotation_;
     double pixelAspectRatio_;
     QPointF imageCentre_;
+    MatrixXd cameraMatrix_;
 };
 
 #endif // AMCAMERACONFIGURATIONMODEL_H

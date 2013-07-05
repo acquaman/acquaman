@@ -50,6 +50,7 @@ public:
 public slots:
 
     void updateAll();
+    void disableAll(bool disable);
 
 
 
@@ -82,6 +83,7 @@ protected:
     AMCameraConfiguration* cameraModel_;
 
     double cameraRotationCentre_;
+
 
 //    AMBeamConfigurationView* beamConfiguration_;
 

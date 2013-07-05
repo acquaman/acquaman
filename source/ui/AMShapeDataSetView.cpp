@@ -68,7 +68,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     chl->addSpacing(20);
     chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
     enableMotorTracking_->setChecked(false);
-    chl->addWidget(configureCameraButton_ = new QPushButton("Configure Camera"));
+    chl->addWidget(configureCameraButton_ = new QPushButton("Calibrate Camera"));
+    chl->addSpacing(20);
+    chl->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
     chl->addStretch();
     crosshairFrame->setLayout(chl);
     showCrosshairCheckBox_->setChecked(true);
@@ -191,11 +193,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
         ccvl->addWidget(ccFrame[i]);
         ccvl->addWidget(coordinateLineFrame[i]);
     }
-    ccvl->addWidget(startCameraConfiguration_ = new QPushButton("Configure Camera"));
+    ccvl->addWidget(startCameraConfiguration_ = new QPushButton("Calibrate Camera"));
     ccvl->addStretch();
 
     cameraConfigurationWindow_->setLayout(ccvl);
-    cameraConfigurationWindow_->setWindowTitle("Configure Camera");
+    cameraConfigurationWindow_->setWindowTitle("Calibrate Camera");
 
 
     index_ = 0;
@@ -306,6 +308,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(motorCoordinateCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseMotorCoordinate(bool)));
     connect(deleteCalibrationPoints_, SIGNAL(clicked()), this, SLOT(deleteCalibrationPoints()));
     connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseCameraMatrix(bool)));
+    connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), cameraConfiguration_, SLOT(disableAll(bool)));
+
+    connect(configurationWindowButton_, SIGNAL(clicked()), this, SLOT(showCameraBeamWindow()));
+
+
 
 }
 
@@ -443,7 +450,7 @@ void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
 
-    configurationWindow_->show();
+//    configurationWindow_->show();
 
 }
 
@@ -732,6 +739,11 @@ void AMShapeDataSetView::setUseMotorCoordinate(bool use)
 void AMShapeDataSetView::setUseCameraMatrix(bool use)
 {
     shapeModel_->setUseCameraMatrix(use);
+}
+
+void AMShapeDataSetView::showCameraBeamWindow()
+{
+    configurationWindow_->show();
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)
