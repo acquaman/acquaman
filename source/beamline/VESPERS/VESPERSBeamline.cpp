@@ -268,23 +268,47 @@ void VESPERSBeamline::setupSampleStage()
 
 void VESPERSBeamline::setupMotorGroup()
 {
-	VESPERSMotorGroupInfo *info = 0;
-	motorGroup_ = new VESPERSMotorGroup(this);
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
 
-	info = new VESPERSMotorGroupInfo("Sample Stage - H and V", "H", "V", "mm", pseudoSampleStage_->horiz(), pseudoSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Sample Stage - X and Z", "X", "Z", "mm", realSampleStage_->horiz(), realSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - H and V", "H", "V", "mm", pseudoAttoStage_->horiz(), pseudoAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - X and Z", "X", "Z", "mm", realAttoStage_->horiz(), realAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
+	motorObject = new AMMotorGroupObject("Sample Stage - H and V",
+										 QStringList() << "H" << "V",
+										 QStringList() << "mm" << "mm",
+										 QList<AMControl *>() << pseudoSampleStage_->horiz() << pseudoSampleStage_->vert(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Sample Stage - X and Z",
+										 QStringList() << "X" << "Z",
+										 QStringList() << "mm" << "mm",
+										 QList<AMControl *>() << realSampleStage_->horiz() << realSampleStage_->vert(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - H and V",
+										 QStringList() << "H" << "V",
+										 QStringList() << "mm" << "mm",
+										 QList<AMControl *>() << pseudoAttoStage_->horiz() << pseudoAttoStage_->vert(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - X and Z",
+										 QStringList() << "X" << "Z",
+										 QStringList() << "mm" << "mm",
+										 QList<AMControl *>() << realAttoStage_->horiz() << realAttoStage_->vert(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void VESPERSBeamline::setupEndstation()

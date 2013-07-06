@@ -83,7 +83,11 @@ class AMMotorGroupView : public QWidget
 	Q_OBJECT
 
 public:
+	/// Constructor.  Handles and builds all the views necessary for \param motorGroup.
 	explicit AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
+
+	/// Sets the view associated with a given name.
+	void setMotorGroupView(const QString &name);
 
 signals:
 

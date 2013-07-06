@@ -57,7 +57,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	realMotors_->setVerticalTitle("Z");
 	realMotors_->hide();
 
-	motorGroupView_ = new VESPERSMotorGroupView(VESPERSBeamline::vespers()->motorGroup());
+	motorGroupView_ = new AMMotorGroupView(VESPERSBeamline::vespers()->motorGroup());
+	motorGroupView_->setMotorGroupView("Sample Stage - H and V");
 
 	// PID control view widget.
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
@@ -444,7 +445,7 @@ void VESPERSPersistentView::onSSH2Clicked()
 void VESPERSPersistentView::setSampleStage(bool sampleStage)
 {
 	Q_UNUSED(sampleStage);
-	motorGroupView_->setMotorGroupInfo(VESPERSBeamline::vespers()->motorGroup()->motorGroupInfo("Sample Stage - H and V"));
+	motorGroupView_->setMotorGroupView("Sample Stage - H and V");
 //	pseudoMotors_->setVisible(sampleStage);
 //	realMotors_->setVisible(!sampleStage);
 }

@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
-#include "beamline/VESPERS/VESPERSMotorGroup.h"
+#include "beamline/AMMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -473,7 +473,7 @@ public:
 	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
 
 	// The motor group.
-	VESPERSMotorGroup *motorGroup() const { return motorGroup_; }
+	AMMotorGroup *motorGroup() const { return motorGroup_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -832,7 +832,7 @@ protected:
 	VESPERSSampleStageControl *realAttoStage_;
 
 	// Motor group.  Binds all the motors for scanning together.
-	VESPERSMotorGroup *motorGroup_;
+	AMMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

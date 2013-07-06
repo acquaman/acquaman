@@ -23,7 +23,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 
 	foreach (QString prefix, motorGroupObject_->prefixes()){
 
-		QLabel *label = new QLabel(prefix % ":");
+		QLabel *label = new QLabel(prefix % " :");
 		label->setFont(font);
 		prefixLabels_ << label;
 	}
@@ -128,7 +128,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 
 	QHBoxLayout *jogLayout = new QHBoxLayout;
 	jogLayout->addWidget(jog, 0, Qt::AlignRight);
-	jogLayout->addWidget(jog_);
+	jogLayout->addWidget(jog_, 0, Qt::AlignRight);
 
 	QVBoxLayout *absoluteValueLayout = new QVBoxLayout;
 
@@ -145,7 +145,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 
 		QHBoxLayout *hLayout = new QHBoxLayout;
 		hLayout->addWidget(prefixLabels_.at(i), 0, Qt::AlignRight);
-		hLayout->addWidget(setpoint);
+		hLayout->addWidget(setpoint, 0, Qt::AlignRight);
 
 		absoluteValueLayout->addLayout(hLayout);
 	}
@@ -155,7 +155,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	for (int i = 0, size = controlSetpoints_.size(); i < size; i++){
 
 		connect(motorGroupObject_->controlAt(i), SIGNAL(valueChanged(double)), controlSetpoints_.at(i), SLOT(setValue(double)));
-		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(double)), this, SLOT(onMovingChanged()));
+		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
 	}
 
 	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
@@ -263,6 +263,13 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	QVBoxLayout *groupLayout = new QVBoxLayout;
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		groupLayout->addWidget(view);
+
+	setLayout(groupLayout);
 }
 
 void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
@@ -276,12 +283,17 @@ void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 
 	temp = popup.exec(mapToGlobal(pos));
 
-	if (temp && motorGroupViews_.value(temp->text())){
+	if (temp)
+		setMotorGroupView(temp->text());
+}
 
-		// This loop is not efficient.  I'm sure there is a better way to deal with this.
+void AMMotorGroupView::setMotorGroupView(const QString &name)
+{
+	if (motorGroupViews_.contains(name)){
+
 		foreach(AMMotorGroupObjectView *view, motorGroupViews_.values())
 			view->hide();
 
-		motorGroupViews_.value(temp->text())->show();
+		motorGroupViews_.value(name)->show();
 	}
 }
