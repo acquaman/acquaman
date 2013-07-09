@@ -72,6 +72,7 @@ public:
 
 
 
+
     void setMedia(QMediaContent url);
     void play();
 
@@ -105,6 +106,11 @@ public slots:
          void setUseCameraMatrix(bool);
 
          void showCameraBeamWindow();
+
+         void showShapeView();
+
+         void setDrawOnShape();
+         void setDrawOnShapeEnabled(bool enable);
 
 
 signals:
@@ -218,7 +224,7 @@ protected slots:
     void selectPointThree();
     void selectPointFour();
     void selectPointFive();
-    void selectPointSix();
+    void selectPointSix();//    void moveCurrentToCoordinate();
 
     void runCameraConfiguration();
 
@@ -349,6 +355,10 @@ protected:
     bool useMotorCoordinate_;
     bool useCameraMatrix_;
 
+    QPushButton* drawOnShapePushButton_;
+    QLineEdit* drawOnShapeLineEdit_;
+    QCheckBox* drawOnShapeCheckBox_;
+    QPushButton* showShapeView_;
 
 
 

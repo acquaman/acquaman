@@ -257,6 +257,11 @@ public slots:
     /// deletes the shapes used for calibration
     void deleteCalibrationPoints();
 
+    /// sets the shape to draw on
+    void setDrawOnShape();
+
+    void setDrawOnShapeEnabled(bool enable);
+
 
 
 signals:
@@ -414,6 +419,11 @@ protected:
     /// finds absolute coordinates from a coordinate and an extrinsic Matrix
     MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
 
+    QVector3D getHeightNormal(AMShapeData shape);
+    QVector3D getWidthNormal(AMShapeData shape);
+    QVector3D getNormal(QVector3D heightVector, QVector3D widthVector);
+    QVector3D getPointOnShape(QPointF position,QVector3D normal);
+
 
 
 
@@ -496,6 +506,10 @@ protected:
 
     /// checked to see if calibration has been run
     bool calibrationRun_;
+
+    AMShapeData drawOnShape_;
+
+    bool drawOnShapeEnabled_;
 
 
 

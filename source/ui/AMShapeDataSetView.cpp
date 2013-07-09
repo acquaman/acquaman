@@ -102,13 +102,28 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     tfl->addStretch(20);
     toolFrame->setLayout(tfl);
 
+    QFrame* shapeFrame = new QFrame();
+    QHBoxLayout* shapeHorizontalLayout =  new QHBoxLayout();
+    shapeHorizontalLayout->setContentsMargins(12,4,12,4);
+    shapeHorizontalLayout->addWidget(showShapeView_ = new QPushButton("Show shape"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(drawOnShapeLineEdit_ = new QLineEdit());
+    shapeFrame->setLayout(shapeHorizontalLayout);
+
+
+    drawOnShapeCheckBox_->setChecked(false);
+    drawOnShapePushButton_->setDisabled(true);
 
 
     QVBoxLayout *vbl = new QVBoxLayout();
     vbl->setContentsMargins(0,0,0,0);
     vbl->addWidget(crosshairFrame);
     vbl->addWidget(shapeScene_);
-    vbl->addWidget(shapeView_);
+    vbl->addWidget(shapeFrame);
     vbl->addWidget(toolFrame);
     setLayout(vbl);
 
@@ -311,6 +326,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(hideCameraParameters(bool)));
 
     connect(configurationWindowButton_, SIGNAL(clicked()), this, SLOT(showCameraBeamWindow()));
+
+    connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
+    connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
+    connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
+
 
 
 
@@ -721,6 +741,23 @@ void AMShapeDataSetView::showCameraBeamWindow()
 {
     configurationWindow_->show();
     configurationWindow_->adjustSize();
+}
+
+void AMShapeDataSetView::showShapeView()
+{
+    shapeView_->show();
+}
+
+void AMShapeDataSetView::setDrawOnShape()
+{
+    shapeModel_->setDrawOnShape();
+    drawOnShapeLineEdit_->setText(QString::number(shapeModel_->currentIndex()));
+}
+
+void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
+{
+    shapeModel_->setDrawOnShapeEnabled(enable);
+    drawOnShapePushButton_->setDisabled(!enable);
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)

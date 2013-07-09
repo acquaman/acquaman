@@ -48,6 +48,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     directionOfRotation_ = QVector3D(0,-1,0);
 
     enableMotorMovement_ = false;
+    drawOnShapeEnabled_ = false;
 
     for(int i = 0; i < SAMPLEPOINTS; i++)
     {
@@ -405,7 +406,6 @@ bool AMShapeDataSet::isValid(int index)
     }
     else
     {
-        qDebug()<<"Invalid index"<<QString::number(index);
         return false;
     }
 }
@@ -445,7 +445,6 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
     AMShapeData* shapes[SAMPLEPOINTS];
     for(int i = 0; i < SAMPLEPOINTS; i++)
     {
-        qDebug()<<"i ="<<i;
         index_++;
         shapes[i] = new AMShapeData();
         QVector<QVector3D> shapeCoordinates;
@@ -495,11 +494,26 @@ void AMShapeDataSet::startRectangle(QPointF position)
     QVector<QVector3D> newShape;
     QVector3D coordinate[RECTANGLE_POINTS];
     double depth = cameraModel_->cameraFocalLength();
-    coordinate[TOPLEFT] = transform2Dto3D(position,depth);
-    coordinate[TOPRIGHT] = transform2Dto3D(position + QPointF(0.01,0),depth);
-    coordinate[BOTTOMRIGHT] = transform2Dto3D(position + QPointF(0.01,0.01),depth);
-    coordinate[BOTTOMLEFT] = transform2Dto3D(position + QPointF(0,0.01),depth);
-    coordinate[TOPCLOSE] = coordinate[TOPLEFT];
+    if(drawOnShapeEnabled_)
+    {
+        QVector3D heightNormal = getHeightNormal(drawOnShape_);
+        QVector3D widthNormal = getWidthNormal(drawOnShape_);
+        QVector3D startPoint = getPointOnShape(position, getNormal(heightNormal,widthNormal));
+        coordinate[TOPLEFT] = startPoint;
+        coordinate[TOPRIGHT] = startPoint + 0.01*widthNormal;
+        coordinate[BOTTOMRIGHT] =  startPoint + 0.01*widthNormal - 0.01*heightNormal;
+        coordinate[BOTTOMLEFT] = startPoint - 0.01*heightNormal;
+        coordinate[TOPCLOSE] = coordinate[TOPLEFT];
+
+    }
+    else
+    {
+        coordinate[TOPLEFT] = transform2Dto3D(position,depth);
+        coordinate[TOPRIGHT] = transform2Dto3D(position + QPointF(0.01,0),depth);
+        coordinate[BOTTOMRIGHT] = transform2Dto3D(position + QPointF(0.01,0.01),depth);
+        coordinate[BOTTOMLEFT] = transform2Dto3D(position + QPointF(0,0.01),depth);
+        coordinate[TOPCLOSE] = coordinate[TOPLEFT];
+    }
     for(int i = 0; i<RECTANGLE_POINTS; i++)
     {
         newShape<<coordinate[i];
@@ -524,6 +538,7 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_].coordinate(TOPLEFT);
     QVector3D bottomRight = transform2Dto3D(position,depth(topLeft));
+    if(drawOnShapeEnabled_) bottomRight = getPointOnShape(position,getNormal(getHeightNormal(drawOnShape_),getWidthNormal(drawOnShape_)));
     QVector3D shift = bottomRight - topLeft;
 
 
@@ -718,7 +733,6 @@ void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
 void AMShapeDataSet::finishGroupRectangle(QPointF position)
 {
         position = undistortPoint(position);
-     qDebug()<<"Changing the group rectangle model";
     QPointF topLeft = groupRectangle_.first();
     QPolygonF newPolygon = constructRectangle(topLeft,position);
     groupRectangle_ = newPolygon;
@@ -728,7 +742,6 @@ void AMShapeDataSet::finishGroupRectangle(QPointF position)
 void AMShapeDataSet::startGroupRectangle(QPointF position)
 {
         position = undistortPoint(position);
-    qDebug()<<"Creating the group rectangle model";
     QPolygonF polygon = constructRectangle(position,position);
     groupRectangle_ = polygon;
 }
@@ -809,10 +822,6 @@ void AMShapeDataSet::oneSelect()
         QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[current_]);
         beamModel_->setPositionOne(newBeamPosition);
 
-//        qDebug()<<newBeamPosition.at(0);
-//        qDebug()<<transform3Dto2D(newBeamPosition.at(0));
-//        qDebug()<<newBeamPosition.at(1);
-//        qDebug()<<transform3Dto2D(newBeamPosition.at(1));
 
         emit beamChanged(beamModel_);
 
@@ -849,7 +858,6 @@ void AMShapeDataSet::enableMotorMovement(bool isEnabled)
 /// starts or stops motor tracking
 void AMShapeDataSet::enableMotorTracking(bool isEnabled)
 {
-    qDebug()<<isEnabled;
     if(isEnabled)
     {
         qDebug()<<"Connecting motor tracking";
@@ -881,6 +889,16 @@ void AMShapeDataSet::deleteCalibrationPoints()
         }
     }
 
+}
+
+void AMShapeDataSet::setDrawOnShape()
+{
+    drawOnShape_ = shapeList_[current_];
+}
+
+void AMShapeDataSet::setDrawOnShapeEnabled(bool enable)
+{
+    drawOnShapeEnabled_ = enable;
 }
 
 
@@ -1392,29 +1410,19 @@ QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
 /// performs the 2D to 3D transform using the precomputed camera matrix
 QVector3D AMShapeDataSet::transform2Dto3DMatrix(QPointF point, double depth)
 {
-//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix";
-    qDebug()<<point;
     point = point - QPointF(0.5,0.5);
-    qDebug()<<point;
     MatrixXd matrixPoint (3,1);
     matrixPoint<<point.x(),point.y(),1;
     MatrixXd matrixP = cameraModel_->cameraMatrixToMatrix();
-    qDebug()<<matrixP(0,0)<<matrixP(0,1)<<matrixP(0,2)<<matrixP(0,3);
-    qDebug()<<matrixP(1,0)<<matrixP(1,1)<<matrixP(1,2)<<matrixP(1,3);
-    qDebug()<<matrixP(2,0)<<matrixP(2,1)<<matrixP(2,2)<<matrixP(2,3);
 
     MatrixXd coordinate = matrixP.colPivHouseholderQr().solve(matrixPoint);
     coordinate /= coordinate(3,0);
     QVector3D location = QVector3D(coordinate(0,0),coordinate(1,0),coordinate(2,0));
     QVector3D worldDirection = location - cameraModel_->cameraPosition();
-    qDebug()<<worldDirection<<location;
     worldDirection.normalize();
     QVector3D centre = cameraModel_->cameraCentre()-cameraModel_->cameraPosition();
     worldDirection *= depth/dot(worldDirection,centre);
     worldDirection += cameraModel_->cameraPosition();
-    qDebug()<<transform3Dto2DMatrix(worldDirection);
-//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix - cameraCentre:"<<centre;
-//    qDebug()<<"AMShapeDataSet::transform2Dto3DMatrix - returning"<<location;
 
     return worldDirection;
 
@@ -1681,10 +1689,8 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     QVector<QVector3D> rotatedShape = rotateShape(shapeList_[index]);
     QVector<QVector3D> shape;
     QVector3D topLeft = rotatedShape.at(TOPLEFT);
-    QVector3D heightVector = topLeft - rotatedShape.at(BOTTOMLEFT);
-    QVector3D widthVector = rotatedShape.at(TOPRIGHT) - topLeft;
-    QVector3D hHat = heightVector.normalized();
-    QVector3D wHat = widthVector.normalized();
+    QVector3D hHat = getHeightNormal(shapeList_[index]);
+    QVector3D wHat = getWidthNormal(shapeList_[index]);
     QVector3D nHat = QVector3D::normal(wHat,hHat);
     int count = beamModel_->count();
     QVector3D l0 [count];
@@ -2006,7 +2012,6 @@ MatrixXd AMShapeDataSet::directLinearTransform(QVector3D coordinate[], QPointF s
     solution.resize(4,3);
     solution.transposeInPlace();
 
-    qDebug()<<"done";
 
     return solution;
 
@@ -2118,4 +2123,52 @@ MatrixXd AMShapeDataSet::findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsic
     //divide by the fourth term, ensure it is 1
     solution /= solution(3,0);
     return solution;
+}
+
+QVector3D AMShapeDataSet::getHeightNormal(AMShapeData shape)
+{
+    QVector<QVector3D> rotatedShape = rotateShape(shape);
+    QVector3D heightVector = rotatedShape.at(TOPLEFT) - rotatedShape.at(BOTTOMLEFT);
+    return heightVector.normalized();
+}
+
+QVector3D AMShapeDataSet::getWidthNormal(AMShapeData shape)
+{
+    QVector<QVector3D> rotatedShape = rotateShape(shape);
+    QVector3D widthVector = rotatedShape.at(TOPRIGHT) - rotatedShape.at(TOPLEFT);
+    return widthVector.normalized();
+}
+
+QVector3D AMShapeDataSet::getNormal(QVector3D heightVector, QVector3D widthVector)
+{
+    return QVector3D::normal(heightVector,widthVector);
+}
+
+QVector3D AMShapeDataSet::getPointOnShape(QPointF position, QVector3D nHat)
+{
+    /// figure out line
+    double depth = cameraModel_->cameraFocalLength();
+    QVector3D l0 = transform2Dto3D(position,depth);
+    QVector3D lVector = transform2Dto3D(position,2*depth) - l0;
+    QVector<QVector3D> rotatedShape = rotateShape(drawOnShape_);
+    double numerator = dot((rotatedShape.at(TOPLEFT) - l0), nHat);
+    double denominator = dot(lVector,nHat);
+    double distance = 0;
+    if(denominator == 0)
+    {
+        if(numerator == 0)
+        {
+            qDebug()<<"AMShapeDataSet::getPointOnShape - Line is on plane";
+        }
+        else
+        {
+            qDebug()<<"AMShapeDataSet::getPointOnShape - Line is parallel to plane";
+        }
+    }
+    else
+    {
+        distance = numerator/denominator;
+    }
+    QVector3D pointOnShape = l0 + distance*lVector;
+    return pointOnShape;
 }
