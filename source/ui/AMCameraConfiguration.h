@@ -8,6 +8,8 @@
 #include "dataman/database/AMDbObject.h"
 
 class QVector3D;
+typedef QVector<QVector3D> AMQVector3DVector;
+
 
 using namespace Eigen;
 class AMCameraConfiguration : public AMDbObject
@@ -20,12 +22,9 @@ class AMCameraConfiguration : public AMDbObject
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
     Q_PROPERTY(double cameraRotation READ cameraRotation WRITE setCameraRotation)
     Q_PROPERTY(double pixelAspectRatio READ pixelAspectRatio WRITE setPixelAspectRatio)
-//    Q_PROPERTY(MatrixXd cameraMatrix READ cameraMatrix WRITE setCameraMatrix)
-//    else if(columnType == qMetaTypeId<MatrixXd>())
-//    {
-//        MatrixXd val = property(columnName).value<MatrixXd();
+    Q_PROPERTY(AMQVector3DVector cameraMatrix READ cameraMatrix WRITE setCameraMatrix)
 
-//    }
+
 
 public:
     explicit AMCameraConfiguration(QObject *parent = 0);
@@ -51,7 +50,9 @@ public:
 
     QPointF imageCentre();
 
-    MatrixXd cameraMatrix();
+    QVector<QVector3D> cameraMatrix();
+
+    MatrixXd cameraMatrixToMatrix();
 
     virtual bool loadFromDb(AMDatabase *db, int id);
 
@@ -79,7 +80,9 @@ public slots:
     void setImageCentreX(double imageCentreX);
     void setImageCentreY(double imageCentreY);
 
-    void setCameraMatrix(MatrixXd cameraMatrix);
+    void setCameraMatrix(QVector<QVector3D> cameraMatrix);
+    /// sets the matrix using a MatrixXd
+    void setCameraMatrixFromMatrix(MatrixXd cameraMatrix);
 
 
 
@@ -92,7 +95,11 @@ protected:
     double cameraRotation_;
     double pixelAspectRatio_;
     QPointF imageCentre_;
-    MatrixXd cameraMatrix_;
+    QVector<QVector3D> cameraMatrix_;
+    /// the matrix form of cameraMatrix
+    /// calculated form setCameraMatrixFromMatrix
+    MatrixXd cameraTransformMatrix_;
+    bool matrixCalculated_;
 };
 
 #endif // AMCAMERACONFIGURATIONMODEL_H

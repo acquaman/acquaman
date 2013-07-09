@@ -224,6 +224,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
             values << resultString.join(AMDbObjectSupport::vectorSeparator());
         }
 
+
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
 		}

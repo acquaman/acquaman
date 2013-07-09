@@ -48,10 +48,13 @@ public:
     /// get the current index of the rectangle List (number of rectangles - 1)
     int shapeListLength();
 
+    /// get the current index
     int currentIndex();
 
+    /// get the camera configuration
     AMCameraConfiguration *cameraConfiguration();
 
+    /// get the beam configuration
     AMBeamConfiguration *beamConfiguration();
 
     /// returns the current grouping rectangle
@@ -64,13 +67,15 @@ public:
 
     double motorRotation();
 
-
+    /// get a list of all the intersections with the beam
     QVector<QPolygonF> intersections();
 
+    /// returns the crosshair location
     QPointF crosshair();
     double crosshairX();
     double crosshairY();
 
+    /// is the crosshair locked?
     bool crosshairLocked();
 
     /// viewSize and scaled_size used for computing coordinates, get values from AMShapeDataSetGraphicsView
@@ -78,6 +83,7 @@ public:
 
     QSizeF scaledSize();
 
+    /// true if using cameraMatrix for transforms
     bool useCameraMatrix();
 
     /// ------------------------------------------------------------------------------------------------
@@ -91,6 +97,7 @@ public:
     double rotation(int index = -1);
     double tilt(int index = -1);
 
+    /// the AMShapeData with given index
     AMShapeData *currentShape(int index = -1);
 
 
@@ -113,6 +120,7 @@ public:
 
     /// Mutators
 
+    /// sets the current index to current
     void setCurrentIndex(int current);
 
     /// sets the current camera model
@@ -146,6 +154,7 @@ public:
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
 
+    /// sets whether to use camera matrix for transforms
     void setUseCameraMatrix(bool use);
 
 
@@ -154,11 +163,15 @@ public:
 
 
     /// public functions
+
+    /// checks for valid index
     bool isValid(int index);
 
+    /// checks if shape is facing away from camera
     bool isBackwards(int index = -1);
 
-    void findCamera(QPointF points [6], QVector3D coordinates[6]);
+    /// finds camera parameters
+    void findCamera(QPointF points [SAMPLEPOINTS], QVector3D coordinates[SAMPLEPOINTS]);
 
     /// look for intersections with the current beam
     bool findIntersections();
@@ -235,11 +248,13 @@ public slots:
     /// selects the second beam shape
     void twoSelect();
 
-
+    /// enables motor moving
     void enableMotorMovement(bool isEnabled);
 
+    /// enables motor tracking
     void enableMotorTracking(bool isEnabled);
 
+    /// deletes the shapes used for calibration
     void deleteCalibrationPoints();
 
 
@@ -252,6 +267,7 @@ signals:
     void motorMoved();
 
 protected slots:
+    /// tracks the motor location
     void motorTracking(double);
 
 protected:
@@ -267,7 +283,7 @@ protected:
     AMShapeData applyRotation(AMShapeData shape);
 
     /// rotate a single point
-    QVector3D getRotatedPoint(QVector3D point, double rotation);
+    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center);
 
     /// applies tilt to the shape at the given index
     /// takes QPolygonF to stack with rotation
@@ -298,6 +314,7 @@ protected:
     /// shifts scene to correspond to motor movement
     void motorMovement(double x, double y, double z, double r);
 
+    /// rotates the given shape
     QVector<QVector3D> rotateShape(AMShapeData shape);
 
 
@@ -355,24 +372,46 @@ protected:
     /// returns depth of a coordinate as a 3D vector
     QVector3D depthVector(QVector3D);
 
+    /// finds the intersection of the shape with the beam
     QVector<QVector3D> findIntersectionShape(int index);
 
+    /// converts the intersection shape to a shape on the screen
     QPolygonF intersectionScreenShape(QVector<QVector3D>);
 
     /// finds the center cooridnate of the given index
     QVector3D centerCoordinate(int index);
 
-    /// helper functions for findCamera
+    /// checks to see if two numbers are not equal, within the given tolerance
     bool notEqual(double a, double b, double tolerance = 0.001);
+
+    /// checks to see if a number is near zero, within the given tolerance
     double nearZero(double a, double tolerance = 0.00001);
+
+    /// finds the absolute error beteween two numbers
     double absError(double a, double b, double tolerance = 0.00001);
+
+    /// finds the parameters of the camera for the given points/coordinates
     void getTransforms(QPointF points[6],QVector3D coordinates [6]);
+
+    /// finds the dot product of two vectors
     double dot(QVector3D,QVector3D);
+
+    /// solves for the DLT of the homogenous equation relating coordinates to points
     MatrixXd directLinearTransform(QVector3D coordinate[6], QPointF screenposition[6]);
+
+    /// constructs a matrix to use in the DLT
     MatrixXd constructMatrix(QVector3D coordinate[6], QPointF screenposition[6]);
+
+    /// solves for the intrinsic camera parameters, given part of the total camera matrix
     MatrixXd intrinsicParameters(MatrixXd matrixB);
+
+    /// solves for the rotation matrix, given the intrinsic matrix and part of the total camera matrix
     MatrixXd rotationParameters(MatrixXd matrixA, MatrixXd matrixB);
+
+    /// solves for the translation matrix, given the intrinsic matrix and part of the total camera matrix
     MatrixXd translationParameters(MatrixXd matrixA, MatrixXd matrixSubB);
+
+    /// finds absolute coordinates from a coordinate and an extrinsic Matrix
     MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
 
 
@@ -442,18 +481,23 @@ protected:
 
     SGMMAXvMotor *ssaManipulatorRot_;
 
+    /// enables or disables motor movement
     bool enableMotorMovement_;
 
+    /// center and direction of rotation
     QVector3D centerOfRotation_;
     QVector3D directionOfRotation_;
 
+    /// list of points used in camera calibration
     int calibrationPoints_[SAMPLEPOINTS];
 
+    /// checked to see if using camera matrix
     bool useCameraMatrix_;
 
+    /// checked to see if calibration has been run
     bool calibrationRun_;
 
-    MatrixXd cameraMatrix_;
+
 
 
 

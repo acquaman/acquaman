@@ -7,7 +7,7 @@
 
 
 typedef QVector<QVector3D> AMQVector3DVector;
-Q_DECLARE_METATYPE(AMQVector3DVector);
+Q_DECLARE_METATYPE(AMQVector3DVector)
 
 
 

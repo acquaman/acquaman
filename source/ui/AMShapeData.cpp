@@ -8,6 +8,7 @@
 #include <QPolygonF>
 #include <QDebug>
 
+/// constructor
 AMShapeData::AMShapeData()
 {
     shape_ = new QPolygonF();
@@ -15,6 +16,7 @@ AMShapeData::AMShapeData()
 
 }
 
+/// constructor
 AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  double idNumber)
 {
     shape_ = new QPolygonF();
@@ -131,6 +133,7 @@ void AMShapeData::setTilt(double tilt)
     tilt_ = tilt;
 }
 
+/// finds the center of the shape - must be rectangular
 QVector3D AMShapeData::centerCoordinate()
 {
     QVector3D center = QVector3D(0,0,0);
@@ -141,6 +144,7 @@ QVector3D AMShapeData::centerCoordinate()
     return center/4.0;
 }
 
+/// shifts the shape by the given amount
 void AMShapeData::shift(QVector3D shift)
 {
     for(int i = 0; i < 5; i++)
@@ -149,6 +153,7 @@ void AMShapeData::shift(QVector3D shift)
     }
 }
 
+/// shifts the shape to the given location
 void AMShapeData::shiftTo(QVector3D shift)
 {
     shift -= centerCoordinate();
@@ -158,11 +163,13 @@ void AMShapeData::shiftTo(QVector3D shift)
     }
 }
 
+/// returns a count of the number of coordinates
 int AMShapeData::count()
 {
     return coordinateIndex_;
 }
 
+/// checks to see if the shape is backwards
 bool AMShapeData::backwards()
 {
     QVector3D points [3];
@@ -177,6 +184,7 @@ bool AMShapeData::backwards()
     return(normal.z() < 0);
 }
 
+/// checks for a valid coordinate index
 bool AMShapeData::validIndex(int index)
 {
     return (index >= 0 && index <= coordinateIndex_);

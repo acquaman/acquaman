@@ -308,7 +308,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(motorCoordinateCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseMotorCoordinate(bool)));
     connect(deleteCalibrationPoints_, SIGNAL(clicked()), this, SLOT(deleteCalibrationPoints()));
     connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setUseCameraMatrix(bool)));
-    connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), cameraConfiguration_, SLOT(disableAll(bool)));
+    connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(hideCameraParameters(bool)));
 
     connect(configurationWindowButton_, SIGNAL(clicked()), this, SLOT(showCameraBeamWindow()));
 
@@ -457,36 +457,11 @@ void AMShapeDataSetView::setOperationMode()
 void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
-//    qDebug()<<"AMShapeDataSetView::setGroupMode - calling findcamera";
-//    QPointF points[6];
-//    points[0]=QPointF(0.5,0.5);
-//    points[1]=QPointF(0.6,1.1);
-//    points[2]=QPointF(1,0.5);
-//    points[3]=QPointF(0.5,0.3);
-//    points[4]=QPointF(0.8,0.5);
-//    points[5]=QPointF(0.6,0.6);
-//    QVector3D coordinate[6];
-//    coordinate[0] = QVector3D(12,51,11.8);
-//    coordinate[1] = QVector3D(0.2,-1.2,0);
-//    coordinate[2] = QVector3D(1,0,0);
-//    coordinate[3] = QVector3D(0,0.6,-1);
-//    coordinate[4] = QVector3D(0.9,0,-1);
-//    coordinate[5] = QVector3D(0.3,-0.3,-1);
-////    coordinate[0] = QVector3D(11,-12,28);
-////    coordinate[1] = QVector3D(0,-1.2,0.2);
-////    coordinate[2] = QVector3D(0,0,1);
-////    coordinate[3] = QVector3D(1,0.6,0);
-////    coordinate[4] = QVector3D(1,0,0.9);
-////    coordinate[5] = QVector3D(1,-0.3,0.3);
-//    shapeModel_->findCamera(points,coordinate);
-//    reviewCrosshairLinePositions();
-
 }
 
 void AMShapeDataSetView::setConfigurationMode()
 {
     mode_ = CONFIGURE;
-
 }
 
 void AMShapeDataSetView::setMotorCoordinatePressed()
@@ -739,11 +714,13 @@ void AMShapeDataSetView::setUseMotorCoordinate(bool use)
 void AMShapeDataSetView::setUseCameraMatrix(bool use)
 {
     shapeModel_->setUseCameraMatrix(use);
+    shapeModel_->updateAllShapes();
 }
 
 void AMShapeDataSetView::showCameraBeamWindow()
 {
     configurationWindow_->show();
+    configurationWindow_->adjustSize();
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)
@@ -752,10 +729,7 @@ void AMShapeDataSetView::setTilt(QString tilt)
     shapeModel_->setTilt(newTilt);
 }
 
-void AMShapeDataSetView::moveCurrentToCoordinate()
-{
-    reviewCrosshairLinePositions();
-}
+
 
 void AMShapeDataSetView::toggleDistortion()
 {
@@ -851,6 +825,12 @@ void AMShapeDataSetView::intersection()
         if(!intersections_.isEmpty()) clearIntersections();
         createIntersectionShapes(shapeModel_->intersections());
     }
+}
+
+void AMShapeDataSetView::hideCameraParameters(bool hide)
+{
+    cameraConfiguration_->hideCameraParameters(hide);
+    configurationWindow_->adjustSize();
 }
 
 void AMShapeDataSetView::updateCurrentShape()

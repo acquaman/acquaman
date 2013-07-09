@@ -18,10 +18,13 @@ class AMCameraConfigurationView;
 class AMBeamConfigurationView;
 class QColor;
 
-/// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
+/// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
 
 For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
+
+
+
 
 class AMShapeDataSetView : public QWidget
 {
@@ -66,8 +69,6 @@ public:
 
 
 
-
-    void moveCurrentToCoordinate();
 
 
 
@@ -164,6 +165,8 @@ public slots:
     void setCameraModel(AMCameraConfiguration*);
 
     void intersection();
+
+    void hideCameraParameters(bool hide);
 protected slots:
     void updateCurrentShape();
 
@@ -345,6 +348,8 @@ protected:
     int pointToSelect_;
     bool useMotorCoordinate_;
     bool useCameraMatrix_;
+
+
 
 
 };

@@ -1,5 +1,5 @@
-#ifndef AMSHAPEDATA2_H
-#define AMSHAPEDATA2_H
+#ifndef AMSHAPEDATA_H
+#define AMSHAPEDATA_H
 
 #include <QObject>
 #include <QRectF>
@@ -15,8 +15,11 @@ class AMShapeData //: public QObject
 {
    // Q_OBJECT
 public:
+    /// constructors
     AMShapeData();
     AMShapeData(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
+
+    /// accessors
     QPolygonF* shape();
     QString name();
     QString otherData();
@@ -26,6 +29,8 @@ public:
     double width();
     double rotation();
     double tilt();
+
+    /// mutators
     void setShape(QPolygonF shape);
     void setName(QString name);
     void setOtherData(QString otherData);
@@ -36,29 +41,45 @@ public:
     void setWidth(double width);
     void setRotation(double rotation);
     void setTilt(double tilt);
+
+    /// returns the center
     QVector3D centerCoordinate();
 
+    /// shifts the shape by shift
     void shift(QVector3D shift);
+    /// shifts the shape to shift
     void shiftTo(QVector3D shift);
 
+    /// number of coordinates
     int count();
 
+    /// checks the direction
     bool backwards();
 
 protected:
+    /// the 2D shape to store
     QPolygonF* shape_;
+    /// the shapes name
     QString name_;
+    /// other data
     QString otherData_;
+    /// an id number
     double idNumber_;
+    /// the 3D shape to store
     QVector<QVector3D> coordinate_;
+    /// height of the shape
     double height_;
+    /// width of the shape
     double width_;
+    /// z-axis rotation
     double rotation_;
+    /// x-axis rotation
     double tilt_;
+    /// the number of coordinates
     int coordinateIndex_;
 
     bool validIndex(int index);
 
 };
 
-#endif // AMSHAPEDATA2_H
+#endif // AMSHAPEDATA_H

@@ -2,11 +2,13 @@
 #include "dataman/database/AMDbObject.h"
 
 #include <QVector3D>
+#include <QDebug>
 
 
 AMCameraConfiguration::AMCameraConfiguration(QObject *parent) :
     AMDbObject(parent)
 {
+    matrixCalculated_ = false;
     cameraRotation_ = 0;
     imageCentre_ = QPointF(0,0);
 }
@@ -81,9 +83,34 @@ QPointF AMCameraConfiguration::imageCentre()
     return imageCentre_;
 }
 
-MatrixXd AMCameraConfiguration::cameraMatrix()
+QVector<QVector3D> AMCameraConfiguration::cameraMatrix()
 {
     return cameraMatrix_;
+}
+
+MatrixXd AMCameraConfiguration::cameraMatrixToMatrix()
+{
+    MatrixXd subMatrix[4];
+    if(!matrixCalculated_ && !cameraMatrix_.isEmpty())
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            subMatrix[i] = MatrixXd(3,1);
+            qDebug()<<"AMCameraConfiguration::cameraMatrixToMatrix : iteration"<<i;
+            qDebug()<<cameraMatrix_.at(i);
+            subMatrix[i]<<cameraMatrix_.at(i).x(),cameraMatrix_.at(i).y(),cameraMatrix_.at(i).z();
+        }
+        MatrixXd cameraMatrix(3,4);
+        cameraMatrix<<subMatrix[0],subMatrix[1],subMatrix[2],subMatrix[3];
+        cameraTransformMatrix_ = cameraMatrix;
+        qDebug()<<"Returning matrix";
+        matrixCalculated_ = true;
+        return cameraMatrix;
+    }
+    else
+    {
+        return cameraTransformMatrix_;
+    }
 }
 
 #include <QDebug>
@@ -172,7 +199,34 @@ void AMCameraConfiguration::setImageCentreY(double imageCentreY)
     imageCentre_.setY(imageCentreY);
 }
 
-void AMCameraConfiguration::setCameraMatrix(MatrixXd cameraMatrix)
+void AMCameraConfiguration::setCameraMatrix(QVector<QVector3D> cameraMatrix)
 {
     cameraMatrix_ = cameraMatrix;
+    matrixCalculated_ = false;
+}
+
+void AMCameraConfiguration::setCameraMatrixFromMatrix(MatrixXd cameraMatrix)
+{
+    if(cameraMatrix.rows() != 3)
+    {
+        qDebug()<<"AMCameraConfiguration::setCameraMatrixFromMatrix - Invalid matrix:rows";
+    }
+    if(cameraMatrix.cols() > 4)
+    {
+        qDebug()<<"AMCameraConfiguration::setCameraMatrixFromMatrix - Invalid matrix:cols";
+    }
+    QVector<QVector3D> newCameraMatrix;
+    for(int i = 0; i < cameraMatrix.cols(); i++)
+    {
+        newCameraMatrix<<QVector3D(cameraMatrix(0,i),cameraMatrix(1,i),cameraMatrix(2,i));
+    }
+    int k = 4-cameraMatrix.cols();
+    for(int j = 0; j < k; j++)
+    {
+        newCameraMatrix<<QVector3D(0,0,0);
+        qDebug()<<"AMCameraConfiguration::setCameraMatrixFromMatrix - probably an invalid camera matrix; finshed with zeros";
+    }
+    cameraMatrix_ = newCameraMatrix;
+    cameraTransformMatrix_  = cameraMatrix;
+    matrixCalculated_ = true;
 }
