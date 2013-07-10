@@ -618,7 +618,6 @@ void AMShapeDataSet::moveCurrentShape(QPointF position, int index)
 void AMShapeDataSet::moveAllShapes(QPointF position)
 {
     position = undistortPoint(position);
-//    QPointF currentVector = currentVector_;
     for(int i = 0; i <= index_; i++)
     {
         double distance = cameraModel_->cameraFocalLength();
@@ -1078,7 +1077,7 @@ QPolygonF AMShapeDataSet::subShape(AMShapeData shape)
 QPolygonF AMShapeDataSet::applyDistortion(QPolygonF shape)
 {
     QPolygonF polygon;
-    for(int i = 0; i <= shape.count(); i++)
+    for(int i = 0; i < shape.count(); i++)
     {
         polygon<<distortPoint(shape[i]);
     }
@@ -1105,7 +1104,7 @@ QPointF AMShapeDataSet::distortPoint(QPointF point)
 QPolygonF AMShapeDataSet::removeDistortion(QPolygonF shape)
 {
     QPolygonF polygon;
-    for(int i = 0; i <= TOPCLOSE; i++)
+    for(int i = 0; i < shape.count(); i++)
     {
         polygon<<undistortPoint(shape[i]);
     }
@@ -1732,7 +1731,6 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     QPolygonF beamShape;
     double beamHComponent [count];
     double beamWComponent [count];
-//    double beamNComponent [4];
     int shapeCount = rotatedShape.count();
     double shapeHComponent [shapeCount];
     double shapeWComponent [shapeCount];
@@ -1802,12 +1800,7 @@ QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D)
 /// finds the coordinate of the center of the shape
 QVector3D AMShapeDataSet::centerCoordinate(int index)
 {
-    QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < 4; i++)//only want the first four points
-    {
-        center += shapeList_[index].coordinate(i);
-    }
-    return center/4.0;
+    return shapeList_[index].centerCoordinate();
 }
 
 

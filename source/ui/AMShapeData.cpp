@@ -141,7 +141,7 @@ QVector3D AMShapeData::centerCoordinate()
     {
         center += coordinate(i);
     }
-    return center/(coordinateIndex_ - 1);
+    return center/(double)(coordinateIndex_ - 1);
 }
 
 /// shifts the shape by the given amount
