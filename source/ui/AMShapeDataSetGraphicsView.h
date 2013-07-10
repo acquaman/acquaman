@@ -44,6 +44,7 @@ protected:
 
 
 
+
 };
 
 #endif // AMSHAPEDATASETGRAPHICSVIEW_H

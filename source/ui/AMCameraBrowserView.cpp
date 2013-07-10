@@ -217,7 +217,6 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
         // Make conections:
         //////////////////////////
 
-//        connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), cameraBrowser_, SLOT(onVideoWidgetDoubleClicked(QPointF)));
         connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
         connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
 

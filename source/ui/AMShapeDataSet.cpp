@@ -217,7 +217,15 @@ bool AMShapeDataSet::useCameraMatrix()
 /// return the current name
 QString AMShapeDataSet::currentName()
 {
-    if(isValid(current_)) return shapeList_[current_].name();
+    return name(current_);
+}
+
+QString AMShapeDataSet::name(int index)
+{
+    if(isValid(index))
+    {
+        return shapeList_[index].name();
+    }
     else return "";
 }
 
@@ -782,8 +790,6 @@ void AMShapeDataSet::finishShape(QPointF position)
         {
             coordinates<<transform2Dto3D(currentPolygon_.at(i),distance);
         }
-        qDebug()<<"Current positions are:"<<currentPolygon_.at(i);
-        qDebug()<<"Current coordinates are: "<<coordinates.at(i);
     }
 
     AMShapeData polygon;
@@ -792,8 +798,8 @@ void AMShapeDataSet::finishShape(QPointF position)
     polygon.setRotation(0);
     polygon.setTilt(0);
     shapeList_.insert(index_,polygon);
-    updateShape(index_);
     current_ = index_;
+    updateShape(index_);
     currentPolygon_.clear();
 
 }

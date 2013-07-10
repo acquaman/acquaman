@@ -92,6 +92,7 @@ public:
     /// other accessors
     //not really used, accessed by shapeDataView from shapeData instead
     QString currentName();
+    QString name(int index);
     QString currentInfo();
 
     double rotation(int index = -1);

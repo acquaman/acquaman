@@ -28,6 +28,7 @@
 #include <QColor>
 
 #include <QTimer>
+#include <QTextDocument>
 
 
 #define SAMPLEPOINTS 6
@@ -109,6 +110,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     tfl->addWidget(setMotorCoordinate_ = new QPushButton("Set"));
     tfl->addStretch(20);
     toolFrame->setLayout(tfl);
+
+
+
 
     QFrame* shapeFrame = new QFrame();
     QHBoxLayout* shapeHorizontalLayout =  new QHBoxLayout();
@@ -226,6 +230,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     index_ = 0;
     groupRectangleActive_= false;
 
+    drawButton_->setToolTip("Click and Hold to draw polygons.");
+
+
 
     QPen pen(borderColour_);
 
@@ -237,6 +244,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     QPolygonF polygon(QRectF(5, 5, 0, 0));
 
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
+
+    textItem_ = shapeScene_->scene()->addText("");
 
 	reviewCrosshairLinePositions();
 
@@ -349,6 +358,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
     connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
+    document_ = textItem_->document();
+    connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
+
 
 
 }
@@ -408,9 +420,12 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         if(shapes_.contains(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
+            shapes_[i]->setToolTip(shapeModel_->name(i));
+
+
             if(shapeModel_->isBackwards(i))
             {
-                shapes_[i]->setBrush(QBrush(QColor(Qt::green)));
+                shapes_[i]->setBrush(QBrush(QColor(Qt::transparent)));
             }
             else
             {
@@ -429,7 +444,19 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
     }
 
    // print the intersection shapes
-            intersection();
+   intersection();
+   if(shapeModel_->isValid(current_))
+   {
+       textItem_->setPos(shapes_[current_]->polygon().first());
+       textItem_->setZValue(1000);
+       textItem_->setTextInteractionFlags(Qt::TextEditable);
+       textItem_->setDefaultTextColor(Qt::red);
+       textItem_->setPlainText(shapeModel_->name(current_));
+   }
+   else
+   {
+       textItem_->setPlainText("");
+   }
 
 
 
@@ -511,6 +538,7 @@ void AMShapeDataSetView::setConfigurationMode()
 
 void AMShapeDataSetView::setMultiDrawMode()
 {
+    if(drawButton_->isDown())
     mode_ = MULTIDRAW;
     emit modeChange();
     emit enterMultiDraw();
@@ -652,6 +680,11 @@ void AMShapeDataSetView::changeDrawButtonText()
     {
         drawButton_->setText("Draw");
     }
+}
+
+void AMShapeDataSetView::updateItemName()
+{
+    shapeView_->setName(textItem_->document()->toPlainText());
 }
 
 
@@ -830,6 +863,7 @@ void AMShapeDataSetView::setMedia(QMediaContent url)
 
 void AMShapeDataSetView::play()
 {
+    qDebug()<<"supported"<<QMediaPlayer::supportedMimeTypes();
     shapeScene_->mediaPlayer()->play();
 }
 
@@ -1095,6 +1129,8 @@ void AMShapeDataSetView::mouseDoubleClickHandler(QPointF position)
         if(mode_ == MULTIDRAW)
         {
             emit mouseMultiDrawDoubleClicked(position);
+            reviewCrosshairLinePositions();
+            emit currentChanged();
         }
         else if(!crosshairLocked())
         {
