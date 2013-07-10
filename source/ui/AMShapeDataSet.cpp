@@ -109,6 +109,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
 
 
+
 }
 
 /// returns the highest index of shapes in shapeList
@@ -498,10 +499,12 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         QVector3D heightNormal = getHeightNormal(drawOnShape_);
         QVector3D widthNormal = getWidthNormal(drawOnShape_);
-        QVector3D startPoint = getPointOnShape(position, getNormal(heightNormal,widthNormal));
+        QVector3D normal = getNormal(heightNormal, widthNormal);
+        QVector3D rightNormal = getNormal(normal,heightNormal);
+        QVector3D startPoint = getPointOnShape(position, normal);
         coordinate[TOPLEFT] = startPoint;
-        coordinate[TOPRIGHT] = startPoint + 0.01*widthNormal;
-        coordinate[BOTTOMRIGHT] =  startPoint + 0.01*widthNormal - 0.01*heightNormal;
+        coordinate[TOPRIGHT] = startPoint + 0.01*rightNormal;
+        coordinate[BOTTOMRIGHT] =  startPoint + 0.01*rightNormal - 0.01*heightNormal;
         coordinate[BOTTOMLEFT] = startPoint - 0.01*heightNormal;
         coordinate[TOPCLOSE] = coordinate[TOPLEFT];
 
@@ -518,13 +521,14 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         newShape<<coordinate[i];
     }
-    QPolygonF polygon;
+//    QPolygonF polygon;
     shapeList_.insert(index_,AMShapeData());
     shapeList_[index_].setName("Shape " + QString::number(index_));
     shapeList_[index_].setOtherData("Coordinate:");
     shapeList_[index_].setIdNumber(index_ * 13);
     shapeList_[index_].setRotation(0);
     shapeList_[index_].setTilt(0);
+
     shapeList_[index_].setCoordinateShape(newShape,5);
     updateShape(index_);
 
@@ -743,6 +747,61 @@ void AMShapeDataSet::startGroupRectangle(QPointF position)
         position = undistortPoint(position);
     QPolygonF polygon = constructRectangle(position,position);
     groupRectangle_ = polygon;
+}
+
+void AMShapeDataSet::drawShape(QPointF position)
+{
+    currentPolygon_<<position;
+}
+
+void AMShapeDataSet::finishShape(QPointF position)
+{
+//    currentPolygon_<<position;
+    if(currentPolygon_.count() < 3)
+    {
+        currentPolygon_.clear();
+        return;
+    }
+    currentPolygon_<<currentPolygon_.first();
+
+    /// add the shape to shapeList_
+    index_++;
+    /// undistort all the points
+    /// get the depth
+    /// get the coordinates
+    double distance = cameraModel_->cameraFocalLength();
+    QVector<QVector3D> coordinates;
+    for(int i = 0; i < currentPolygon_.count(); i++)
+    {
+        currentPolygon_[i] = undistortPoint(currentPolygon_.at(i));
+        if(drawOnShapeEnabled_)
+        {
+             coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_));
+        }
+        else
+        {
+            coordinates<<transform2Dto3D(currentPolygon_.at(i),distance);
+        }
+        qDebug()<<"Current positions are:"<<currentPolygon_.at(i);
+        qDebug()<<"Current coordinates are: "<<coordinates.at(i);
+    }
+
+    AMShapeData polygon;
+    polygon.setCoordinateShape(coordinates,coordinates.count());
+    polygon.setName("Shape " + QString::number(index_));
+    polygon.setRotation(0);
+    polygon.setTilt(0);
+    shapeList_.insert(index_,polygon);
+    updateShape(index_);
+    current_ = index_;
+    currentPolygon_.clear();
+
+}
+
+
+void AMShapeDataSet::startMultiDraw()
+{
+    currentPolygon_.clear();
 }
 
 /// updates the shape for the given index
@@ -1691,6 +1750,7 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     QVector3D hHat = getHeightNormal(shapeList_[index]);
     QVector3D wHat = getWidthNormal(shapeList_[index]);
     QVector3D nHat = QVector3D::normal(wHat,hHat);
+    hHat = QVector3D::normal(nHat,wHat);
     int count = beamModel_->count();
     QVector3D l0 [count];
     QVector3D lHat [count];
@@ -2128,20 +2188,25 @@ MatrixXd AMShapeDataSet::findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsic
 QVector3D AMShapeDataSet::getHeightNormal(AMShapeData shape)
 {
     QVector<QVector3D> rotatedShape = rotateShape(shape);
-    QVector3D heightVector = rotatedShape.at(TOPLEFT) - rotatedShape.at(BOTTOMLEFT);
+    QVector3D heightVector = rotatedShape.at(shape.count()-1) - rotatedShape.at(0);
     return heightVector.normalized();
 }
 
 QVector3D AMShapeDataSet::getWidthNormal(AMShapeData shape)
 {
     QVector<QVector3D> rotatedShape = rotateShape(shape);
-    QVector3D widthVector = rotatedShape.at(TOPRIGHT) - rotatedShape.at(TOPLEFT);
+    QVector3D widthVector = rotatedShape.at(1) - rotatedShape.at(0);
     return widthVector.normalized();
 }
 
 QVector3D AMShapeDataSet::getNormal(QVector3D heightVector, QVector3D widthVector)
 {
     return QVector3D::normal(heightVector,widthVector);
+}
+
+QVector3D AMShapeDataSet::getNormal(AMShapeData shape)
+{
+    return getNormal(getHeightNormal(shape),getWidthNormal(shape));
 }
 
 QVector3D AMShapeDataSet::getPointOnShape(QPointF position, QVector3D nHat)
@@ -2172,3 +2237,6 @@ QVector3D AMShapeDataSet::getPointOnShape(QPointF position, QVector3D nHat)
     QVector3D pointOnShape = l0 + distance*lVector;
     return pointOnShape;
 }
+
+
+

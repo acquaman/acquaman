@@ -222,10 +222,15 @@ public slots:
     /// creates the group rectangle
     void startGroupRectangle(QPointF position);
 
+    void drawShape(QPointF position);
+
+    void finishShape(QPointF position);
+
 
     /// --------------------------------------------------------------------------------
 
 
+    void startMultiDraw();
 
 
     /// updates the shape of the given index (it will not change or move until this is called)
@@ -422,6 +427,7 @@ protected:
     QVector3D getHeightNormal(AMShapeData shape);
     QVector3D getWidthNormal(AMShapeData shape);
     QVector3D getNormal(QVector3D heightVector, QVector3D widthVector);
+    QVector3D getNormal(AMShapeData shape);
     QVector3D getPointOnShape(QPointF position,QVector3D normal);
 
 
@@ -510,6 +516,8 @@ protected:
     AMShapeData drawOnShape_;
 
     bool drawOnShapeEnabled_;
+
+    QPolygonF currentPolygon_;
 
 
 

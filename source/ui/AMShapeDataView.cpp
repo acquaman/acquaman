@@ -173,7 +173,6 @@ bool AMShapeDataView::isValid()
         return false;
     else if(shapeModel_->count() <= 0)
     {
-        qDebug()<<"AMShapeDataView::isValid: "<<shapeModel_->count();
         return false;
     }
     return true;

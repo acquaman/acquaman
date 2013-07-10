@@ -27,8 +27,12 @@
 #include "AMBeamConfigurationView.h"
 #include <QColor>
 
+#include <QTimer>
+
 
 #define SAMPLEPOINTS 6
+
+#define DELAY 1000
 
 
 
@@ -45,6 +49,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     borderColour_ = QColor(Qt::red);
 
     activeBorderColour_ = QColor(Qt::blue);
+
+    pressTimer_ = new QTimer();
+    pressTimer_->setInterval(DELAY);
+    pressTimer_->setSingleShot(true);
 
 
     ///GUI Setup
@@ -264,7 +272,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(this, SIGNAL(mouseOperationPressed(QPointF,QPointF)), shapeModel_, SLOT(shiftToPoint(QPointF,QPointF)));
     connect(this, SIGNAL(mouseOperationSelect(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseGroupPressed(QPointF)), shapeModel_, SLOT(startGroupRectangle(QPointF)));
+    connect(this, SIGNAL(mouseMultiDrawPressed(QPointF)), shapeModel_, SLOT(drawShape(QPointF)));
+    connect(this, SIGNAL(mouseMultiDrawDoubleClicked(QPointF)), shapeModel_, SLOT(finishShape(QPointF)));
+
     connect(this, SIGNAL(setCoordinate(double,double,double)), shapeModel_, SLOT(setCoordinates(double,double,double)));
+    connect(this, SIGNAL(enterMultiDraw()), shapeModel_, SLOT(startMultiDraw()));
 
     connect(this, SIGNAL(oneSelect()), shapeModel_, SLOT(oneSelect()));
     connect(this, SIGNAL(twoSelect()), shapeModel_, SLOT(twoSelect()));
@@ -281,7 +293,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
 
     /// operations bar
-    connect(drawButton_, SIGNAL(clicked()), this, SLOT(setDrawMode()));
+    connect(drawButton_, SIGNAL(pressed()), this, SLOT(setDrawMode()));
+    connect(drawButton_, SIGNAL(released()), this, SLOT(stopTimer()));
     connect(moveButton_, SIGNAL(clicked()), this, SLOT(setMoveMode()));
     connect(editButton_, SIGNAL(clicked()), this, SLOT(setEditMode()));
     connect(shiftButton_, SIGNAL(clicked()), this, SLOT(setShiftMode()));
@@ -331,6 +344,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
     connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
 
+    /// allows non-rectangle drawing
+
+    connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
+    connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
 
 
@@ -449,39 +466,54 @@ bool AMShapeDataSetView::crosshairLocked()
 void AMShapeDataSetView::setDrawMode()
 {
     mode_ = DRAW;
+    pressTimer_->start();
+    emit modeChange();
 }
 
 void AMShapeDataSetView::setMoveMode()
 {
     mode_ = MOVE;
+    emit modeChange();
 }
 
 void AMShapeDataSetView::setEditMode()
 {
     mode_ = EDIT;
+    emit modeChange();
 }
 
 void AMShapeDataSetView::setShiftMode()
 {
     mode_ = SHIFT;
+    emit modeChange();
+
 }
 
 void AMShapeDataSetView::setOperationMode()
 {
     mode_ = OPERATION;
-
-//    configurationWindow_->show();
-
+    emit modeChange();
 }
 
 void AMShapeDataSetView::setGroupMode()
 {
     mode_ = GROUP;
+    emit modeChange();
+
 }
 
 void AMShapeDataSetView::setConfigurationMode()
 {
     mode_ = CONFIGURE;
+    emit modeChange();
+
+}
+
+void AMShapeDataSetView::setMultiDrawMode()
+{
+    mode_ = MULTIDRAW;
+    emit modeChange();
+    emit enterMultiDraw();
 }
 
 void AMShapeDataSetView::setMotorCoordinatePressed()
@@ -603,6 +635,23 @@ void AMShapeDataSetView::deleteCalibrationPoints()
 {
     shapeModel_->deleteCalibrationPoints();
     reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::stopTimer()
+{
+    pressTimer_->stop();
+}
+
+void AMShapeDataSetView::changeDrawButtonText()
+{
+    if(mode_ == MULTIDRAW)
+    {
+        drawButton_->setText("Draw Polygon");
+    }
+    else
+    {
+        drawButton_->setText("Draw");
+    }
 }
 
 
@@ -955,6 +1004,10 @@ void AMShapeDataSetView::mousePressHandler(QPointF position)
     {
         setPoint(position, pointToSelect_);
     }
+    else if(mode_ == MULTIDRAW)
+    {
+        emit mouseMultiDrawPressed((position));
+    }
 
     reviewCrosshairLinePositions();
 }
@@ -999,6 +1052,7 @@ void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 
 void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
 {
+
         if(doubleClickInProgress_)
         {
             emit mouseDoubleClicked((position));
@@ -1038,10 +1092,15 @@ void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
 void AMShapeDataSetView::mouseDoubleClickHandler(QPointF position)
 {
 		doubleClickInProgress_ = true;
-        if(!crosshairLocked())
+        if(mode_ == MULTIDRAW)
+        {
+            emit mouseMultiDrawDoubleClicked(position);
+        }
+        else if(!crosshairLocked())
         {
             setCrosshairPosition(position);
         }
+
 }
 
 void AMShapeDataSetView::mouseMoveHandler(QPointF position)

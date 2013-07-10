@@ -4,6 +4,7 @@
 #include "ui/AMOverlayVideoWidget2.h"
 #include <QWidget>
 
+class QTimer;
 class QGraphicsLineItem;
 class AMShapeDataSet;
 class AMCameraConfiguration;
@@ -147,6 +148,11 @@ signals:
     /// Emitted when the left mouse button is pressed, in group mode
     void mouseGroupPressed(const QPointF& position);
 
+    void mouseMultiDrawPressed(const QPointF& position);
+    void mouseMultiDrawDoubleClicked(const QPointF& position);
+    void enterMultiDraw();
+    void modeChange();
+
 
     void setCoordinate(double x, double y, double z);
 
@@ -208,6 +214,7 @@ protected slots:
     void setOperationMode();
     void setGroupMode();
     void setConfigurationMode();
+    void setMultiDrawMode();
 
     void setMotorCoordinatePressed();
 
@@ -229,6 +236,10 @@ protected slots:
     void runCameraConfiguration();
 
     void deleteCalibrationPoints();
+
+    void stopTimer();
+
+    void changeDrawButtonText();
 
 
 
@@ -268,7 +279,7 @@ protected:
 
 protected:
 
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE};
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
@@ -359,6 +370,8 @@ protected:
     QLineEdit* drawOnShapeLineEdit_;
     QCheckBox* drawOnShapeCheckBox_;
     QPushButton* showShapeView_;
+
+    QTimer* pressTimer_;
 
 
 

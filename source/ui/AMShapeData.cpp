@@ -137,17 +137,17 @@ void AMShapeData::setTilt(double tilt)
 QVector3D AMShapeData::centerCoordinate()
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < (coordinateIndex_ - 1); i++)// dont want the last point
+    for(int i = 0; i < (coordinateIndex_); i++)// dont want the last point
     {
         center += coordinate(i);
     }
-    return center/(double)(coordinateIndex_ - 1);
+    return center/(double)(coordinateIndex_ );
 }
 
 /// shifts the shape by the given amount
 void AMShapeData::shift(QVector3D shift)
 {
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < count(); i++)
     {
         setCoordinate(coordinate_[i] +  shift,i);
     }
@@ -157,7 +157,7 @@ void AMShapeData::shift(QVector3D shift)
 void AMShapeData::shiftTo(QVector3D shift)
 {
     shift -= centerCoordinate();
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < count(); i++)
     {
         setCoordinate(coordinate_[i] +  shift,i);
     }
@@ -172,6 +172,7 @@ int AMShapeData::count()
 /// checks to see if the shape is backwards
 bool AMShapeData::backwards()
 {
+    if(count() < 3)return false;
     QVector3D points [3];
     for(int i = 0; i < 3 ; i++)
     {
