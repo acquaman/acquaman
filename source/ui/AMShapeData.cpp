@@ -137,11 +137,11 @@ void AMShapeData::setTilt(double tilt)
 QVector3D AMShapeData::centerCoordinate()
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < 4; i++)//only want the first four points
+    for(int i = 0; i < (coordinateIndex_ - 1); i++)// dont want the last point
     {
         center += coordinate(i);
     }
-    return center/4.0;
+    return center/(coordinateIndex_ - 1);
 }
 
 /// shifts the shape by the given amount

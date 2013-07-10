@@ -1275,7 +1275,7 @@ QVector<QVector3D> AMShapeDataSet::rotateShape(AMShapeData shape)
     if(shape.rotation() != 0) shape = applyRotation(shape);
     if(shape.tilt() != 0) shape = applyTilt(shape);
     QVector<QVector3D> returnShape;
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < shape.count(); i++)
     {
         returnShape<<shape.coordinate(i);
     }
@@ -1730,29 +1730,36 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     // h component for each shape = h^(dot)coordinate
     QPolygonF originalShape;
     QPolygonF beamShape;
-    double beamHComponent [4];
-    double beamWComponent [4];
+    double beamHComponent [count];
+    double beamWComponent [count];
 //    double beamNComponent [4];
-
-    double shapeHComponent [4];
-    double shapeWComponent [4];
-    double shapeNComponent [4];
-    for(int i = 0; i < 4; i++)
+    int shapeCount = rotatedShape.count();
+    double shapeHComponent [shapeCount];
+    double shapeWComponent [shapeCount];
+    double shapeNComponent [shapeCount];
+    int totalCount = std::max(shapeCount,count);
+    for(int i = 0; i < totalCount; i++)
     {
-        beamHComponent[i] = dot(hHat,shape[i]);
-        beamWComponent[i] = dot(wHat,shape[i]);
-//        beamNComponent[i] = dot(nHat,shape[i]);
+        if(i<count)
+        {
+            beamHComponent[i] = dot(hHat,shape[i]);
+            beamWComponent[i] = dot(wHat,shape[i]);
 
-        beamShape<<QPointF(beamWComponent[i],beamHComponent[i]);
 
-        shapeHComponent[i] = dot(hHat,rotatedShape.at(i));
-        shapeWComponent[i] = dot(wHat,rotatedShape.at(i));
-        shapeNComponent[i] = dot(nHat,rotatedShape.at(i));
+            beamShape<<QPointF(beamWComponent[i],beamHComponent[i]);
+        }
 
-        originalShape<<QPointF(shapeWComponent[i],shapeHComponent[i]);
+        if(i<shapeCount)
+        {
+            shapeHComponent[i] = dot(hHat,rotatedShape.at(i));
+            shapeWComponent[i] = dot(wHat,rotatedShape.at(i));
+            shapeNComponent[i] = dot(nHat,rotatedShape.at(i));
+
+            originalShape<<QPointF(shapeWComponent[i],shapeHComponent[i]);
+        }
     }
-    beamShape<<beamShape.first();
-    originalShape<<originalShape.first();
+//    beamShape<<beamShape.first();
+//    originalShape<<originalShape.first();
 
     QPolygonF intersection = originalShape.intersected(beamShape);
     if(intersection.isEmpty()) return QVector<QVector3D>();
@@ -1764,7 +1771,7 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
     for(int i = 0; i < intersection.count(); i++)
     {
         oldPoint = intersection.at(i);
-        point = oldPoint.x()*wHat + oldPoint.y()*hHat + shapeNComponent[i%4]*nHat;
+        point = oldPoint.x()*wHat + oldPoint.y()*hHat + shapeNComponent[i%shapeCount]*nHat;
         intersectionShape<<point;
     }
 
