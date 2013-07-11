@@ -249,6 +249,10 @@ protected slots:
 
     void updateCurrentTextItemName();
 
+    void setViewName();
+    void setViewOtherData();
+    void setViewIdNumber();
+
 
 
 protected:
@@ -287,6 +291,8 @@ protected:
 protected:
 
     enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
+
+    enum ViewMode{NAME,DATA,ID};
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
@@ -392,7 +398,14 @@ protected:
     QAction* operationAction_;
     QAction* groupAction_;
 
+    QToolBar* labelToolBar_;
+    QAction* viewName_;
+    QAction* viewOtherData_;
+    QAction* viewIdNumber_;
+
     QPushButton* distortionButton_;
+
+    ViewMode currentView_;
 
 };
 

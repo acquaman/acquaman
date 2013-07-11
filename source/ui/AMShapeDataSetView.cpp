@@ -61,6 +61,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     pressTimer_->setInterval(DELAY);
     pressTimer_->setSingleShot(true);
 
+    currentView_ = NAME;
+    mode_ = DRAW;
+
 
 
 
@@ -143,6 +146,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 //    shapeHorizontalLayout->addWidget(toolBar_ = new QToolBar("Tool Bar"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(labelToolBar_ = new QToolBar("Labels"));
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -384,7 +389,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
     connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
-//    connect(textItems_.first(), SIGNAL(textChanged()), this, SLOT(updateItemName()));
     connect(shapeView_, SIGNAL(newName()), this, SLOT(updateCurrentTextItemName()));
 
 
@@ -416,6 +420,21 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     toolBar_->addAction(groupAction_);
 
     markAction_->setToolTip("Press twice for polygon marking.");
+
+    QActionGroup* labelActionGroup = new QActionGroup(this);
+    viewName_ = new QAction("Name", labelActionGroup);
+    viewOtherData_ = new QAction("Data", labelActionGroup);
+    viewIdNumber_ = new QAction("Id", labelActionGroup);
+    viewName_->setCheckable(true);
+    viewOtherData_->setCheckable(true);
+    viewIdNumber_->setCheckable(true);
+    viewName_->setChecked(true);
+    connect(viewName_, SIGNAL(triggered()), this, SLOT(setViewName()));
+    connect(viewOtherData_, SIGNAL(triggered()), this, SLOT(setViewOtherData()));
+    connect(viewIdNumber_, SIGNAL(triggered()), this, SLOT(setViewIdNumber()));
+    labelToolBar_->addAction(viewName_);
+    labelToolBar_->addAction(viewOtherData_);
+    labelToolBar_->addAction(viewIdNumber_);
 
 
 }
@@ -493,11 +512,14 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
             {
 
                 textItems_[i]->setPos(shapes_[i]->polygon().first()-QPointF(0,textItems_.at(i)->boundingRect().height()));
-
-
                 textItems_[i]->setDefaultTextColor(Qt::red);
                 if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
-                textItems_[i]->setPlainText(shapeModel_->name(i));
+                if(currentView_ == NAME)
+                    textItems_[i]->setPlainText(shapeModel_->name(i));
+                else if(currentView_ == DATA)
+                    textItems_[i]->setPlainText(shapeModel_->data(i));
+                else if(currentView_ == ID)
+                    textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
             }
             else
             {
@@ -756,10 +778,21 @@ void AMShapeDataSetView::updateItemName(int index)
     if(shapeModel_->isValid(index))
     {
         shapeView_->blockSignals(true);
-        shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
-        if(index == current_)
+        if(currentView_ == NAME)
         {
-            shapeView_->setName(textItems_[index]->document()->toPlainText());
+            shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+            if(index == current_)
+            {
+                shapeView_->setName(textItems_[index]->document()->toPlainText());
+            }
+        }
+        else if(currentView_ == DATA)
+        {
+            shapeModel_->setData(textItems_[index]->document()->toPlainText(), index);
+        }
+        else if(currentView_ == ID)
+        {
+            shapeModel_->setIdNumber(textItems_[index]->document()->toPlainText().toDouble(), index);
         }
         shapeView_->blockSignals(false);
     }
@@ -770,8 +803,27 @@ void AMShapeDataSetView::updateCurrentTextItemName()
 {
     if(shapeModel_->isValid(current_))
     {
-        textItems_[current_]->setPlainText(currentName());
+        if(currentView_ == NAME)
+            textItems_[current_]->setPlainText(currentName());
     }
+}
+
+void AMShapeDataSetView::setViewName()
+{
+    currentView_ = NAME;
+    reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::setViewOtherData()
+{
+    currentView_ = DATA;
+    reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::setViewIdNumber()
+{
+    currentView_ = ID;
+    reviewCrosshairLinePositions();
 }
 
 

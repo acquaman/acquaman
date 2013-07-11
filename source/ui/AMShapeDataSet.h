@@ -96,6 +96,8 @@ public:
     QString currentName();
     QString name(int index);
     QString currentInfo();
+    QString data(int index);
+    double idNumber(int index);
 
     double rotation(int index = -1);
     double tilt(int index = -1);
@@ -157,6 +159,8 @@ public:
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
     void setName(QString name, int index);
+    void setData(QString data, int index);
+    void setIdNumber(double number, int index);
 
     /// sets whether to use camera matrix for transforms
     void setUseCameraMatrix(bool use);

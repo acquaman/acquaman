@@ -71,6 +71,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     infoLayout->addStretch();
 
     setLayout(infoLayout);
+    setWindowTitle("Shape View");
     /// Make Connections
 
     connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));

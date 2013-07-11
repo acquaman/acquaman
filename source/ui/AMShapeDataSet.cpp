@@ -237,6 +237,26 @@ QString AMShapeDataSet::currentInfo()
     else return "";
 }
 
+QString AMShapeDataSet::data(int index)
+{
+    if(isValid(index))
+    {
+        return shapeList_[index].otherData();
+    }
+    else
+        return "";
+}
+
+double AMShapeDataSet::idNumber(int index)
+{
+    if(isValid(index))
+    {
+        return shapeList_[index].idNumber();
+    }
+    else
+        return 0;
+}
+
 /// returns the rotation of the given index
 double AMShapeDataSet::rotation(int index)
 {
@@ -406,6 +426,22 @@ void AMShapeDataSet::setName(QString name, int index)
     if(isValid(index))
     {
         shapeList_[index].setName(name);
+    }
+}
+
+void AMShapeDataSet::setData(QString data, int index)
+{
+    if(isValid(index))
+    {
+        shapeList_[index].setOtherData(data);
+    }
+}
+
+void AMShapeDataSet::setIdNumber(double number, int index)
+{
+    if(isValid(index))
+    {
+        shapeList_[index].setIdNumber(number);
     }
 }
 
