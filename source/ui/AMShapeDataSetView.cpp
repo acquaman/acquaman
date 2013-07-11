@@ -282,9 +282,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     textItems_<<newItem;
 
 
-    //    wordList_<<"alpha"<<"Alligator"<<"beta"<<"bent"<<"betting"<<"cat"<<"catastrophe"<<"cataclysm";
         QStringList wordList;
-        wordList<<"apple"<<"atlas"<<"alligator"<<"Alpha"<<"Antler";
         wordList_ = new QStringListModel(wordList);
         autoCompleter_ = new QCompleter();
         autoCompleter_->setModel(wordList_);
@@ -295,12 +293,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
 	doubleClickInProgress_ = false;
 
-//    connect(shapeScene_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
 
-	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
-	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
 
-    //mouse is not held down before signal connected
 
     // mouse signals to be handled
     connect(shapeScene_, SIGNAL(mousePressed(QPointF)), this, SLOT(mousePressHandler(QPointF)));
