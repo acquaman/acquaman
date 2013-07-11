@@ -30,6 +30,10 @@
 #include <QTimer>
 #include <QTextDocument>
 
+#include <QToolBar>
+#include <QAction>
+#include <QActionGroup>
+
 
 #define SAMPLEPOINTS 6
 
@@ -54,6 +58,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     pressTimer_ = new QTimer();
     pressTimer_->setInterval(DELAY);
     pressTimer_->setSingleShot(true);
+
+
 
 
     ///GUI Setup
@@ -87,17 +93,26 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     QFrame* toolFrame  = new QFrame();
     QHBoxLayout* tfl = new QHBoxLayout();
     tfl->setContentsMargins(12,4,12,4);
-    tfl->addWidget(drawButton_ = new QPushButton("Draw"));
-    tfl->addSpacing(20);
-    tfl->addWidget(moveButton_ = new QPushButton("Move"));
-    tfl->addSpacing(20);
-    tfl->addWidget(editButton_ = new QPushButton("Edit"));
-    tfl->addSpacing(20);
-    tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
-    tfl->addSpacing(20);
-    tfl->addWidget(operationButton_ = new QPushButton("Operation"));
-    tfl->addSpacing(20);
-    tfl->addWidget(groupButton_ = new QPushButton("Group"));
+
+
+    drawButton_ = new QPushButton("Draw");
+    moveButton_ = new QPushButton("Move");
+    editButton_ = new QPushButton("Edit");
+    shiftButton_ = new QPushButton("Shift");
+    operationButton_ = new QPushButton("Operation");
+    groupButton_ = new QPushButton("Group");
+//    tfl->addWidget(drawButton_ = new QPushButton("Draw"));
+//    tfl->addSpacing(20);
+//    tfl->addWidget(moveButton_ = new QPushButton("Move"));
+//    tfl->addSpacing(20);
+//    tfl->addWidget(editButton_ = new QPushButton("Edit"));
+//    tfl->addSpacing(20);
+//    tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
+//    tfl->addSpacing(20);
+//    tfl->addWidget(operationButton_ = new QPushButton("Operation"));
+//    tfl->addSpacing(20);
+//    tfl->addWidget(groupButton_ = new QPushButton("Group"));
+    tfl->addWidget(toolBar_ = new QToolBar("Tool Bar"));
     tfl->addSpacing(20);
     tfl->addWidget(motorXEdit_ = new QLineEdit());
     tfl->addSpacing(10);
@@ -124,7 +139,12 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(drawOnShapeLineEdit_ = new QLineEdit());
+//    shapeHorizontalLayout->addSpacing(20);
+//    shapeHorizontalLayout->addWidget(toolBar_ = new QToolBar("Tool Bar"));
+    shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
+
+
 
 
     drawOnShapeCheckBox_->setChecked(false);
@@ -245,7 +265,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
 
-    textItem_ = shapeScene_->scene()->addText("");
+    textItems_<<(shapeScene_->scene()->addText(""));
 
 	reviewCrosshairLinePositions();
 
@@ -358,8 +378,36 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
     connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
-    document_ = textItem_->document();
+    document_ = new QTextDocument;
     connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
+
+
+    QActionGroup* actionGroup = new QActionGroup(this);
+    markAction_ = new QAction("Mark",actionGroup);
+    moveAction_ = new QAction("Move", actionGroup);
+    editAction_ = new QAction("Edit", actionGroup);
+    shiftAction_ = new QAction("Shift", actionGroup);
+    operationAction_ = new QAction("Operation", actionGroup);
+    groupAction_ = new QAction("Group", actionGroup);
+    markAction_->setCheckable(true);
+    moveAction_->setCheckable(true);
+    editAction_->setCheckable(true);
+    shiftAction_->setCheckable(true);
+    operationAction_->setCheckable(true);
+    groupAction_->setCheckable(true);
+    markAction_->setChecked(true);
+    connect(markAction_, SIGNAL(triggered()), this, SLOT(setDrawMode()));
+    connect(moveAction_, SIGNAL(triggered()), this, SLOT(setMoveMode()));
+    connect(editAction_, SIGNAL(triggered()), this, SLOT(setEditMode()));
+    connect(shiftAction_, SIGNAL(triggered()), this, SLOT(setShiftMode()));
+    connect(operationAction_, SIGNAL(triggered()), this, SLOT(setOperationMode()));
+    connect(groupAction_, SIGNAL(triggered()), this, SLOT(setGroupMode()));
+    toolBar_->addAction(markAction_);
+    toolBar_->addAction(moveAction_);
+    toolBar_->addAction(editAction_);
+    toolBar_->addAction(shiftAction_);
+    toolBar_->addAction(operationAction_);
+    toolBar_->addAction(groupAction_);
 
 
 
@@ -432,6 +480,23 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
                 shapes_[i]->setBrush(QBrush(QColor(Qt::transparent)));
             }
 
+
+            if(textItems_.count() < i+1) textItems_<< new QGraphicsTextItem("");
+            if(shapeModel_->isValid(i))
+            {
+
+                textItems_[i]->setPos(shapes_[i]->polygon().first()-QPointF(0,textItems_.at(i)->boundingRect().height()));
+                textItems_[i]->setZValue(1000);
+                textItems_[i]->setTextInteractionFlags(Qt::TextEditable);
+                textItems_[i]->setDefaultTextColor(Qt::red);
+                if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
+                textItems_[i]->setPlainText(shapeModel_->name(i));
+            }
+            else
+            {
+                textItems_[i]->setPlainText("");
+            }
+
         }
         else
             qDebug()<<"Missing shape"<<i;
@@ -439,23 +504,17 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
     if(groupRectangleActive_)
     {
-        qDebug()<<"Changing the group rectangle";
         groupRectangle_->setPolygon(shapeModel_->groupRectangle());
     }
 
    // print the intersection shapes
    intersection();
+
    if(shapeModel_->isValid(current_))
    {
-       textItem_->setPos(shapes_[current_]->polygon().first());
-       textItem_->setZValue(1000);
-       textItem_->setTextInteractionFlags(Qt::TextEditable);
-       textItem_->setDefaultTextColor(Qt::red);
-       textItem_->setPlainText(shapeModel_->name(current_));
-   }
-   else
-   {
-       textItem_->setPlainText("");
+        document_ = textItems_[current_]->document();
+        disconnect(this,SLOT(updateItemName()));
+        connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
    }
 
 
@@ -492,8 +551,14 @@ bool AMShapeDataSetView::crosshairLocked()
 
 void AMShapeDataSetView::setDrawMode()
 {
+    if(mode_ == DRAW)
+    {
+        setMultiDrawMode();
+        return;
+    }
     mode_ = DRAW;
-    pressTimer_->start();
+
+//    pressTimer_->start();
     emit modeChange();
 }
 
@@ -538,7 +603,7 @@ void AMShapeDataSetView::setConfigurationMode()
 
 void AMShapeDataSetView::setMultiDrawMode()
 {
-    if(drawButton_->isDown())
+//    if(drawButton_->isDown() || )
     mode_ = MULTIDRAW;
     emit modeChange();
     emit enterMultiDraw();
@@ -667,6 +732,7 @@ void AMShapeDataSetView::deleteCalibrationPoints()
 
 void AMShapeDataSetView::stopTimer()
 {
+    qDebug()<<"StopTimer - stopping timer";
     pressTimer_->stop();
 }
 
@@ -675,16 +741,19 @@ void AMShapeDataSetView::changeDrawButtonText()
     if(mode_ == MULTIDRAW)
     {
         drawButton_->setText("Draw Polygon");
+        markAction_->setText("Mark Polygon");
     }
     else
     {
         drawButton_->setText("Draw");
+        markAction_->setText("Mark");
     }
 }
 
 void AMShapeDataSetView::updateItemName()
 {
-    shapeView_->setName(textItem_->document()->toPlainText());
+    if(shapeModel_->isValid(current_))
+        shapeView_->setName(textItems_[current_]->document()->toPlainText());
 }
 
 
@@ -1086,7 +1155,7 @@ void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 
 void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
 {
-
+    pressTimer_->stop();
         if(doubleClickInProgress_)
         {
             emit mouseDoubleClicked((position));
@@ -1168,6 +1237,7 @@ void AMShapeDataSetView::addNewShape()
     QBrush brush(QColor(Qt::transparent));
     QPolygonF polygon(QRectF(5,5,20,20));
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
+    textItems_.insert(index_, shapeScene_->scene()->addText(""));
 }
 
 /// Remove a rectangle from the scene
@@ -1176,8 +1246,12 @@ void AMShapeDataSetView::deleteShape()
     QGraphicsPolygonItem* polygon = shapes_[index_];
     shapeScene_->scene()->removeItem(shapes_[index_]);
     shapes_.remove(index_);
+    QGraphicsTextItem* text = textItems_[index_];
+    shapeScene_->scene()->removeItem(textItems_[index_]);
+    textItems_.removeAt(index_);
     index_--;
     delete polygon;
+    delete text;
 }
 
 /// change the currently selected item, outline it in blue?
