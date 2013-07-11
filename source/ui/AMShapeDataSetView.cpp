@@ -34,6 +34,9 @@
 #include <QAction>
 #include <QActionGroup>
 
+#include <QCompleter>
+#include <QStringListModel>
+
 #include "GraphicsTextItem.h"
 
 
@@ -148,6 +151,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(labelToolBar_ = new QToolBar("Labels"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -276,6 +281,16 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeScene_->scene()->addItem(newItem);
     textItems_<<newItem;
 
+
+    //    wordList_<<"alpha"<<"Alligator"<<"beta"<<"bent"<<"betting"<<"cat"<<"catastrophe"<<"cataclysm";
+        QStringList wordList;
+        wordList<<"apple"<<"atlas"<<"alligator"<<"Alpha"<<"Antler";
+        wordList_ = new QStringListModel(wordList);
+        autoCompleter_ = new QCompleter();
+        autoCompleter_->setModel(wordList_);
+        autoCompleter_->setCaseSensitivity(Qt::CaseInsensitive);
+        autoCompleteBox_->setCompleter(autoCompleter_);
+
 	reviewCrosshairLinePositions();
 
 	doubleClickInProgress_ = false;
@@ -392,6 +407,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(shapeView_, SIGNAL(newName()), this, SLOT(updateCurrentTextItemName()));
 
 
+    connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
+
+
     QActionGroup* actionGroup = new QActionGroup(this);
     markAction_ = new QAction("Mark",actionGroup);
     moveAction_ = new QAction("Move", actionGroup);
@@ -435,6 +453,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     labelToolBar_->addAction(viewName_);
     labelToolBar_->addAction(viewOtherData_);
     labelToolBar_->addAction(viewIdNumber_);
+
+
 
 
 }
@@ -495,7 +515,11 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
-
+            if(!wordList_->stringList().contains(shapeModel_->data(i)))
+            {
+                wordList_->insertRow(wordList_->rowCount());
+                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->data(i));
+            }
 
             if(shapeModel_->isBackwards(i))
             {
@@ -823,6 +847,12 @@ void AMShapeDataSetView::setViewOtherData()
 void AMShapeDataSetView::setViewIdNumber()
 {
     currentView_ = ID;
+    reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::autoCompleteEnterPressed()
+{
+    shapeModel_->setCurrentInfo(autoCompleteBox_->text());
     reviewCrosshairLinePositions();
 }
 
@@ -1351,7 +1381,7 @@ void AMShapeDataSetView::currentSelectionChanged()
     motorYEdit_->setText(QString::number(motorY()));
     motorZEdit_->setText(QString::number(motorZ()));
 
-
+    autoCompleteBox_->setText(shapeModel_->currentInfo());
 
     if(shapeModel_->isValid(current_))
     {
