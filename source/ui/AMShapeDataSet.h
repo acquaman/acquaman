@@ -41,6 +41,8 @@ public:
     explicit AMShapeDataSet(QObject *parent = 0);
 
 
+    enum AxisDirection {XAXIS,YAXIS,ZAXIS};
+
     /// Accessors
 
     /// member accessors -----------------------------------------------------------------------------------
@@ -154,6 +156,7 @@ public:
     void setCurrentInfo(QString info);
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
+    void setName(QString name, int index);
 
     /// sets whether to use camera matrix for transforms
     void setUseCameraMatrix(bool use);
@@ -225,7 +228,7 @@ public slots:
 
     void drawShape(QPointF position);
 
-    void finishShape(QPointF position);
+    void finishShape();
 
 
     /// --------------------------------------------------------------------------------
@@ -302,6 +305,16 @@ protected:
 
     /// gets a tilted point
     QVector3D getTiltedPoint(QVector3D point, double tilt, QVector3D center);
+
+
+    /// apply y-axis rotation
+    AMShapeData applyYAxisRotation(AMShapeData shape);
+
+    /// gets a single rotated point
+    QVector3D getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center);
+
+    AMShapeData applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle);
+    AMShapeData applySpecifiedRotation(AMShapeData shape, AxisDirection direction);
 
     /// general rotation of a point about a point along the direction
     QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation);
@@ -517,6 +530,8 @@ protected:
     AMShapeData drawOnShape_;
 
     bool drawOnShapeEnabled_;
+
+    bool drawOnShapeSelected_;
 
     QPolygonF currentPolygon_;
 

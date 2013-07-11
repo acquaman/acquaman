@@ -6,6 +6,7 @@
 class AMShapeData;
 class QLineEdit;
 class QPushButton;
+class QSlider;
 
 class AMShapeDataView : public QWidget
 {
@@ -21,6 +22,7 @@ public slots:
     void setZ(QString);
     void setRotation(QString);
     void setShapeData(AMShapeData*);
+    void setYAxisRotation(QString);
 
 
 
@@ -31,12 +33,17 @@ public slots:
     void zChanged(QString);
 
     void rotationChanged(QString);
+    void yAxisRotationChanged(QString);
 
 
 signals:
     void updateShapes();
-    void setCoordinate();
     void applyDistortion();
+    void newName();
+protected slots:
+    void xAxisRotation(int);
+    void yAxisRotation(int);
+    void zAxisRotation(int);
 protected:
     void update();
     bool isValid();
@@ -48,8 +55,11 @@ protected:
     QLineEdit *yEdit_;
     QLineEdit *zEdit_;
     QLineEdit *rotationEdit_;
-    QPushButton *setCoordinate_;
-    QPushButton *distortionButton_;
+    QLineEdit * yRotationEdit_;
+    QSlider* xAxisSlider_;
+    QSlider* yAxisSlider_;
+    QSlider* zAxisSlider_;
+
 };
 
 #endif // AMSHAPEDATAVIEW_H

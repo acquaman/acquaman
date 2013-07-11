@@ -41,6 +41,8 @@ protected:
     /// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.
     QPointF mapSceneToVideo(const QPointF& sceneCoordinate) const;
 
+    void contextMenuEvent(QContextMenuEvent *event);
+
 
 
 

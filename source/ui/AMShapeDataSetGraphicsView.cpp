@@ -21,6 +21,7 @@ void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
 #include <QDebug>
 void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
 {
+    qDebug()<<"AMShapeDataSetGraphicsView::mousePressEvent";
     AMOverlayVideoWidget2::mousePressEvent(event);
 
     if(event->button() == Qt::LeftButton)
@@ -77,6 +78,11 @@ QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordina
     qreal xScene = (sceneCoordinate.x() - activeRect.left())/activeRect.width();
 
     return QPointF(xScene, yScene);
+}
+
+void AMShapeDataSetGraphicsView::contextMenuEvent(QContextMenuEvent *event)
+{
+    /// do nothing;
 }
 
 

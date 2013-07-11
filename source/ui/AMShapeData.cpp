@@ -12,7 +12,7 @@
 AMShapeData::AMShapeData()
 {
     shape_ = new QPolygonF();
-    coordinateIndex_ = -1;
+    coordinateCount_ = -1;
 
 }
 
@@ -24,7 +24,7 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
     setName(name);
     setOtherData(otherData);
     setIdNumber(idNumber);
-    coordinateIndex_ = -1;
+    coordinateCount_ = -1;
 
 }
 
@@ -76,6 +76,11 @@ double AMShapeData::tilt()
     return tilt_;
 }
 
+double AMShapeData::yAxisRotation()
+{
+    return yAxisRotation_;
+}
+
 void AMShapeData::setShape(QPolygonF shape)
 {
     *shape_ = shape;
@@ -108,7 +113,7 @@ void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
     coordinate_.clear();
     for(int i = 0; i < count; i++)
     {
-        if(coordinateIndex_ < i) coordinateIndex_ = i;
+        if(coordinateCount_ < i) coordinateCount_ = i;
         coordinate_<<coordinates[i];
     }
 }
@@ -133,15 +138,20 @@ void AMShapeData::setTilt(double tilt)
     tilt_ = tilt;
 }
 
+void AMShapeData::setYAxisRotation(double yAxisRotation)
+{
+    yAxisRotation_ = yAxisRotation;
+}
+
 /// finds the center of the shape - must be rectangular
 QVector3D AMShapeData::centerCoordinate()
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < (coordinateIndex_); i++)// dont want the last point
+    for(int i = 0; i < (coordinateCount_); i++)// dont want the last point
     {
         center += coordinate(i);
     }
-    return center/(double)(coordinateIndex_ );
+    return center/(double)(coordinateCount_ );
 }
 
 /// shifts the shape by the given amount
@@ -166,7 +176,7 @@ void AMShapeData::shiftTo(QVector3D shift)
 /// returns a count of the number of coordinates
 int AMShapeData::count()
 {
-    return coordinateIndex_;
+    return coordinateCount_;
 }
 
 /// checks to see if the shape is backwards
@@ -188,5 +198,5 @@ bool AMShapeData::backwards()
 /// checks for a valid coordinate index
 bool AMShapeData::validIndex(int index)
 {
-    return (index >= 0 && index <= coordinateIndex_);
+    return (index >= 0 && index <= coordinateCount_);
 }

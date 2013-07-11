@@ -18,9 +18,10 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMBeamConfigurationView;
 class QColor;
-class QTextDocument;
+//class QTextDocument;
 class QToolBar;
 class QAction;
+class GraphicsTextItem;
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
@@ -156,14 +157,17 @@ signals:
     void enterMultiDraw();
     void modeChange();
 
+    void mouseMove(QPointF);
 
-    void setCoordinate(double x, double y, double z);
+
 
     // for beam configuring
     void oneSelect();
     void twoSelect();
 
     void updateShapes(int);
+
+    void applyDistortion();
 
 
 public slots:
@@ -200,9 +204,6 @@ protected slots:
 
      /// manages changing the selection
      void currentSelectionChanged();
-
-
-
 
     /// added mouse move event
     void mouseMoveHandler(QPointF position);
@@ -244,8 +245,9 @@ protected slots:
 
     void changeDrawButtonText();
 
-    void updateItemName();
+    void updateItemName(int index);
 
+    void updateCurrentTextItemName();
 
 
 
@@ -372,15 +374,15 @@ protected:
     bool useCameraMatrix_;
 
     QPushButton* drawOnShapePushButton_;
-    QLineEdit* drawOnShapeLineEdit_;
+//    QLineEdit* drawOnShapeLineEdit_;
     QCheckBox* drawOnShapeCheckBox_;
     QPushButton* showShapeView_;
 
     QTimer* pressTimer_;
 
-    QList<QGraphicsTextItem*> textItems_;
+    QList<GraphicsTextItem*> textItems_;
 
-    QTextDocument* document_;
+//    QTextDocument* document_;
 
     QToolBar* toolBar_;
     QAction* markAction_;
@@ -389,6 +391,8 @@ protected:
     QAction* shiftAction_;
     QAction* operationAction_;
     QAction* groupAction_;
+
+    QPushButton* distortionButton_;
 
 };
 

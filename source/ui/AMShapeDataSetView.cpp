@@ -34,6 +34,8 @@
 #include <QAction>
 #include <QActionGroup>
 
+#include "GraphicsTextItem.h"
+
 
 #define SAMPLEPOINTS 6
 
@@ -137,10 +139,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(drawOnShapeLineEdit_ = new QLineEdit());
 //    shapeHorizontalLayout->addSpacing(20);
 //    shapeHorizontalLayout->addWidget(toolBar_ = new QToolBar("Tool Bar"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -250,7 +252,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     index_ = 0;
     groupRectangleActive_= false;
 
-    drawButton_->setToolTip("Click and Hold to draw polygons.");
+
 
 
 
@@ -265,7 +267,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
 
-    textItems_<<(shapeScene_->scene()->addText(""));
+    GraphicsTextItem* newItem = new GraphicsTextItem();
+    shapeScene_->scene()->addItem(newItem);
+    textItems_<<newItem;
 
 	reviewCrosshairLinePositions();
 
@@ -284,7 +288,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(shapeScene_, SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(mouseLeftReleaseHandler(QPointF)));
     connect(shapeScene_, SIGNAL(mouseRightReleased(QPointF)), this, SLOT(mouseRightReleaseHandler(QPointF)));
     connect(shapeScene_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(mouseDoubleClickHandler(QPointF)));
-    connect(shapeScene_, SIGNAL(mouseMoved(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
+    connect(shapeScene_, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(mouseMove(QPointF)));
+
 
     connect(this, SIGNAL(currentChanged()), this, SLOT(currentSelectionChanged()));
 
@@ -302,9 +307,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(this, SIGNAL(mouseOperationSelect(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseGroupPressed(QPointF)), shapeModel_, SLOT(startGroupRectangle(QPointF)));
     connect(this, SIGNAL(mouseMultiDrawPressed(QPointF)), shapeModel_, SLOT(drawShape(QPointF)));
-    connect(this, SIGNAL(mouseMultiDrawDoubleClicked(QPointF)), shapeModel_, SLOT(finishShape(QPointF)));
+    connect(this, SIGNAL(mouseMultiDrawDoubleClicked(QPointF)), shapeModel_, SLOT(finishShape()));
 
-    connect(this, SIGNAL(setCoordinate(double,double,double)), shapeModel_, SLOT(setCoordinates(double,double,double)));
     connect(this, SIGNAL(enterMultiDraw()), shapeModel_, SLOT(startMultiDraw()));
 
     connect(this, SIGNAL(oneSelect()), shapeModel_, SLOT(oneSelect()));
@@ -334,8 +338,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(shapeModel_, SIGNAL(motorMoved()), this, SLOT(motorMoved()));
 
     /// shape view
-    connect(shapeView_, SIGNAL(setCoordinate()), this, SLOT(reviewCrosshairLinePositions()));
-    connect(shapeView_, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
+    connect(this, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
 
 
     connect(cameraConfiguration_, SIGNAL(update(AMCameraConfiguration*)), this, SLOT(setCameraModel(AMCameraConfiguration*)));
@@ -373,13 +376,16 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
     connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
 
+
+    connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
+
     /// allows non-rectangle drawing
 
     connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
     connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
-    document_ = new QTextDocument;
-    connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
+//    connect(textItems_.first(), SIGNAL(textChanged()), this, SLOT(updateItemName()));
+    connect(shapeView_, SIGNAL(newName()), this, SLOT(updateCurrentTextItemName()));
 
 
     QActionGroup* actionGroup = new QActionGroup(this);
@@ -409,6 +415,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     toolBar_->addAction(operationAction_);
     toolBar_->addAction(groupAction_);
 
+    markAction_->setToolTip("Press twice for polygon marking.");
 
 
 }
@@ -481,13 +488,13 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
             }
 
 
-            if(textItems_.count() < i+1) textItems_<< new QGraphicsTextItem("");
+            if(textItems_.count() < i+1) textItems_<< new GraphicsTextItem();
             if(shapeModel_->isValid(i))
             {
 
                 textItems_[i]->setPos(shapes_[i]->polygon().first()-QPointF(0,textItems_.at(i)->boundingRect().height()));
-                textItems_[i]->setZValue(1000);
-                textItems_[i]->setTextInteractionFlags(Qt::TextEditable);
+
+
                 textItems_[i]->setDefaultTextColor(Qt::red);
                 if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
                 textItems_[i]->setPlainText(shapeModel_->name(i));
@@ -510,11 +517,12 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
    // print the intersection shapes
    intersection();
 
+
    if(shapeModel_->isValid(current_))
    {
-        document_ = textItems_[current_]->document();
-        disconnect(this,SLOT(updateItemName()));
-        connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
+//        document_ = textItems_[current_]->document();
+//        disconnect(this,SLOT(updateItemName()));
+//        connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
    }
 
 
@@ -655,7 +663,6 @@ void AMShapeDataSetView::setPoint(QPointF position, int pointToSelect)
 
 void AMShapeDataSetView::selectPoint(int point)
 {
-    qDebug()<<"AMShapeDataSetView::selectPoint - point is"<<point;
     setConfigurationMode();
     pointToSelect_ = point;
 }
@@ -700,7 +707,6 @@ void AMShapeDataSetView::selectPointSix()
 
 void AMShapeDataSetView::runCameraConfiguration()
 {
-    qDebug()<<"Running camera Configuration";
     QVector3D coordinates [SAMPLEPOINTS];
     QPointF points [SAMPLEPOINTS];
     for(int i = 0; i < SAMPLEPOINTS; i++)
@@ -711,10 +717,6 @@ void AMShapeDataSetView::runCameraConfiguration()
     for(int i = 1; i < SAMPLEPOINTS; i++)
     {
         coordinates[i] -= coordinates[0];
-    }
-    for(int i = 0; i < SAMPLEPOINTS; i++)
-    {
-        qDebug()<<"point:"<<points[i]<<"coordinate:"<<coordinates[i];
     }
     shapeModel_->findCamera(points,coordinates);
     cameraConfiguration_->updateAll();
@@ -732,7 +734,6 @@ void AMShapeDataSetView::deleteCalibrationPoints()
 
 void AMShapeDataSetView::stopTimer()
 {
-    qDebug()<<"StopTimer - stopping timer";
     pressTimer_->stop();
 }
 
@@ -750,10 +751,27 @@ void AMShapeDataSetView::changeDrawButtonText()
     }
 }
 
-void AMShapeDataSetView::updateItemName()
+void AMShapeDataSetView::updateItemName(int index)
+{
+    if(shapeModel_->isValid(index))
+    {
+        shapeView_->blockSignals(true);
+        shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+        if(index == current_)
+        {
+            shapeView_->setName(textItems_[index]->document()->toPlainText());
+        }
+        shapeView_->blockSignals(false);
+    }
+
+}
+
+void AMShapeDataSetView::updateCurrentTextItemName()
 {
     if(shapeModel_->isValid(current_))
-        shapeView_->setName(textItems_[current_]->document()->toPlainText());
+    {
+        textItems_[current_]->setPlainText(currentName());
+    }
 }
 
 
@@ -902,7 +920,6 @@ void AMShapeDataSetView::showShapeView()
 void AMShapeDataSetView::setDrawOnShape()
 {
     shapeModel_->setDrawOnShape();
-    drawOnShapeLineEdit_->setText(QString::number(shapeModel_->currentIndex()));
 }
 
 void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
@@ -1025,6 +1042,7 @@ void AMShapeDataSetView::hideCameraParameters(bool hide)
 void AMShapeDataSetView::updateCurrentShape()
 {
     emit updateShapes(current_);
+    reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
@@ -1054,16 +1072,18 @@ void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
 {
 
     shapeScene_->resizeEvent(event);
-
 	reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::mousePressHandler(QPointF position)
 {
+    connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
+
     if(mode_ == DRAW)
     {
         emit mousePressed((position));
         connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
+
 
     }
     else if(mode_ == MOVE)
@@ -1111,12 +1131,13 @@ void AMShapeDataSetView::mousePressHandler(QPointF position)
     {
         emit mouseMultiDrawPressed((position));
     }
-
     reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 {
+    connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
+
         if (mode_ == MOVE)
         {
             emit mouseMoveRightPressed(position);
@@ -1148,7 +1169,6 @@ void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 
         }
         else emit mouseRightClicked((position));
-
         reviewCrosshairLinePositions();
 
 }
@@ -1171,12 +1191,12 @@ void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
         disconnect(this, SIGNAL(currentChanged()));
         disconnect(shapeModel_, SLOT(moveAllShapes(QPointF)));
         disconnect(shapeModel_, SLOT(finishGroupRectangle(QPointF)));
+        disconnect(this, SLOT(mouseMoveHandler(QPointF)));
 
         if(groupRectangleActive_)
         {
             destroyGroupRectangle();
         }
-
         reviewCrosshairLinePositions();
 }
 
@@ -1187,6 +1207,7 @@ void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
     disconnect(this, SIGNAL(currentChanged()));
     disconnect(shapeModel_, SLOT(rotateRectangle(QPointF)));
     disconnect(shapeModel_, SLOT(zoomShape(QPointF)));
+    disconnect(this, SLOT(mouseMoveHandler(QPointF)));
     reviewCrosshairLinePositions();
 }
 
@@ -1221,7 +1242,9 @@ void AMShapeDataSetView::mouseMoveHandler(QPointF position)
         currentSelectionChanged();
     }
 
-     reviewCrosshairLinePositions();
+//    reviewCrosshairLinePositions();
+
+
 }
 
 
@@ -1237,7 +1260,15 @@ void AMShapeDataSetView::addNewShape()
     QBrush brush(QColor(Qt::transparent));
     QPolygonF polygon(QRectF(5,5,20,20));
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
-    textItems_.insert(index_, shapeScene_->scene()->addText(""));
+    GraphicsTextItem* newItem = new GraphicsTextItem();
+    shapeScene_->scene()->addItem(newItem);
+    textItems_.insert(index_,newItem) ;
+    textItems_[index_]->setZValue(1000);
+    textItems_[index_]->setTextInteractionFlags(Qt::TextEditable);
+    textItems_[index_]->setShapeIndex(index_);
+//    textItems_[index_]->set
+//    textItems_[index_]->setAcceptedMouseButtons(Qt::LeftButton);
+    connect(textItems_[index_], SIGNAL(textChanged(int)), this, SLOT(updateItemName(int)));
 }
 
 /// Remove a rectangle from the scene
@@ -1258,6 +1289,10 @@ void AMShapeDataSetView::deleteShape()
 void AMShapeDataSetView::currentSelectionChanged()
 {
 //    emit currentChanged();
+    if(shapeModel_->isValid(current_))
+        shapes_[current_]->setPen(borderColour_);
+    current_ = shapeModel_->currentIndex();
+
     shapeView_->setShapeData(shapeModel_->currentShape());
     motorREdit_->setText(QString::number(motorRotation()));
     motorXEdit_->setText(QString::number(motorX()));
@@ -1265,14 +1300,14 @@ void AMShapeDataSetView::currentSelectionChanged()
     motorZEdit_->setText(QString::number(motorZ()));
 
 
-    if(shapeModel_->isValid(current_))
-        shapes_[current_]->setPen(borderColour_);
-    current_ = shapeModel_->currentIndex();
+
     if(shapeModel_->isValid(current_))
     {
         shapes_[current_]->setPen(activeBorderColour_);
     }
+
 }
+
 
 void AMShapeDataSetView::createGroupRectangle()
 {

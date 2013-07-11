@@ -49,6 +49,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
     enableMotorMovement_ = false;
     drawOnShapeEnabled_ = false;
+    drawOnShapeSelected_ = false;
 
     for(int i = 0; i < SAMPLEPOINTS; i++)
     {
@@ -400,6 +401,14 @@ void AMShapeDataSet::setTilt(double tilt, int index)
     shapeList_[index].setTilt(tilt);
 }
 
+void AMShapeDataSet::setName(QString name, int index)
+{
+    if(isValid(index))
+    {
+        shapeList_[index].setName(name);
+    }
+}
+
 /// sets whether to use camera matrix for transforms
 void AMShapeDataSet::setUseCameraMatrix(bool use)
 {
@@ -462,6 +471,7 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         shapes[i]->shiftTo(fullCoordinates[i]);
         shapes[i]->setTilt(0);
         shapes[i]->setRotation(0);
+        shapes[i]->setYAxisRotation(0);
         shapes[i]->setName(i+"th Calibration point");
         shapeList_.insert(index_,*shapes[i]);
         calibrationPoints_[i] = index_;
@@ -503,7 +513,7 @@ void AMShapeDataSet::startRectangle(QPointF position)
     QVector<QVector3D> newShape;
     QVector3D coordinate[RECTANGLE_POINTS];
     double depth = cameraModel_->cameraFocalLength();
-    if(drawOnShapeEnabled_)
+    if(drawOnShapeEnabled_ && drawOnShapeSelected_)
     {
         QVector3D heightNormal = getHeightNormal(drawOnShape_);
         QVector3D widthNormal = getWidthNormal(drawOnShape_);
@@ -536,6 +546,7 @@ void AMShapeDataSet::startRectangle(QPointF position)
     shapeList_[index_].setIdNumber(index_ * 13);
     shapeList_[index_].setRotation(0);
     shapeList_[index_].setTilt(0);
+    shapeList_[index_].setYAxisRotation(0);
 
     shapeList_[index_].setCoordinateShape(newShape,5);
     updateShape(index_);
@@ -550,7 +561,7 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_].coordinate(TOPLEFT);
     QVector3D bottomRight = transform2Dto3D(position,depth(topLeft));
-    if(drawOnShapeEnabled_) bottomRight = getPointOnShape(position,getNormal(getHeightNormal(drawOnShape_),getWidthNormal(drawOnShape_)));
+    if(drawOnShapeEnabled_ && drawOnShapeSelected_) bottomRight = getPointOnShape(position,getNormal(getHeightNormal(drawOnShape_),getWidthNormal(drawOnShape_)));
     QVector3D shift = bottomRight - topLeft;
 
 
@@ -762,9 +773,8 @@ void AMShapeDataSet::drawShape(QPointF position)
     currentPolygon_<<position;
 }
 
-void AMShapeDataSet::finishShape(QPointF position)
+void AMShapeDataSet::finishShape()
 {
-//    currentPolygon_<<position;
     if(currentPolygon_.count() < 3)
     {
         currentPolygon_.clear();
@@ -782,7 +792,7 @@ void AMShapeDataSet::finishShape(QPointF position)
     for(int i = 0; i < currentPolygon_.count(); i++)
     {
         currentPolygon_[i] = undistortPoint(currentPolygon_.at(i));
-        if(drawOnShapeEnabled_)
+        if(drawOnShapeEnabled_ && drawOnShapeSelected_)
         {
              coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_));
         }
@@ -797,6 +807,7 @@ void AMShapeDataSet::finishShape(QPointF position)
     polygon.setName("Shape " + QString::number(index_));
     polygon.setRotation(0);
     polygon.setTilt(0);
+    polygon.setYAxisRotation(0);
     shapeList_.insert(index_,polygon);
     current_ = index_;
     updateShape(index_);
@@ -871,6 +882,7 @@ void AMShapeDataSet::placeGrid(QPointF position)
             shapeList_[index_].setIdNumber(position.x());
             shapeList_[index_].setTilt(0);
             shapeList_[index_].setRotation(0);
+            shapeList_[index_].setYAxisRotation(0);
             updateShape(index_);
             current_ = index_;
         }
@@ -958,6 +970,7 @@ void AMShapeDataSet::deleteCalibrationPoints()
 void AMShapeDataSet::setDrawOnShape()
 {
     drawOnShape_ = shapeList_[current_];
+    drawOnShapeSelected_ = true;
 }
 
 void AMShapeDataSet::setDrawOnShapeEnabled(bool enable)
@@ -1039,6 +1052,57 @@ QVector3D AMShapeDataSet::getTiltedPoint(QVector3D point, double tilt, QVector3D
     return coordinate;
 }
 
+AMShapeData AMShapeDataSet::applyYAxisRotation(AMShapeData shape)
+{
+    double rotation = shape.yAxisRotation();
+    QVector3D center = shape.centerCoordinate();
+    for(int i = 0; i<shape.count(); i++)
+    {
+        shape.setCoordinate(getYAxisRotatedPoint(shape.coordinate(i),rotation,center),i);
+    }
+    return shape;
+}
+
+QVector3D AMShapeDataSet::getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center)
+{
+    QVector3D direction(0,1,0);
+    QVector3D coordinate = rotateCoordinate(point, center, direction, rotation);
+    return coordinate;
+}
+
+AMShapeData AMShapeDataSet::applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle)
+{
+    QVector3D centre = shape.centerCoordinate();
+    for(int i = 0; i < shape.count(); i++)
+    {
+        shape.setCoordinate(rotateCoordinate(shape.coordinate(i),centre,direction,angle),i);
+    }
+    return shape;
+}
+
+AMShapeData AMShapeDataSet::applySpecifiedRotation(AMShapeData shape, AMShapeDataSet::AxisDirection direction)
+{
+    double angle;
+    QVector3D axis;
+    if(direction == XAXIS)
+    {
+        angle = shape.tilt();
+        axis = QVector3D(1,0,0);
+    }
+    else if(direction == YAXIS)
+    {
+
+        angle = shape.yAxisRotation();
+        axis = QVector3D(0,1,0);
+    }
+    else if(direction == ZAXIS)
+    {
+        angle = shape.rotation();
+        axis = QVector3D(0,0,1);
+    }
+    return applySpecifiedRotation(shape,axis,angle);
+}
+
 /// rotates a coordinate about the given line, by the given amount
 /// \param coordinate: the coordinate to rotate
 /// \param center: the point about which to rotate the coordinate
@@ -1117,6 +1181,7 @@ QPolygonF AMShapeDataSet::subShape(AMShapeData shape)
 {
     if(shape.rotation() != 0) shape = applyRotation(shape);
     if(shape.tilt() != 0) shape = applyTilt(shape);
+    if(shape.yAxisRotation() != 0) shape = applySpecifiedRotation(shape,YAXIS);
 
 
     QPolygonF newShape;
@@ -1338,6 +1403,7 @@ QVector<QVector3D> AMShapeDataSet::rotateShape(AMShapeData shape)
 {
     if(shape.rotation() != 0) shape = applyRotation(shape);
     if(shape.tilt() != 0) shape = applyTilt(shape);
+    if(shape.yAxisRotation() != 0) shape = applyYAxisRotation(shape);
     QVector<QVector3D> returnShape;
     for(int i = 0; i < shape.count(); i++)
     {
@@ -1772,14 +1838,6 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index)
         denominator = dot(lHat[i],nHat);
         if(0 == denominator)
         {
-            if(0 == numerator)
-            {
-                qDebug()<<"Line is on plane";
-            }
-            else
-            {
-                qDebug()<<"Line is parallel to plane";
-            }
             distance[i] = 1;
         }
         else
@@ -1852,6 +1910,7 @@ QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D)
     newShape.setCoordinateShape(shape3D,shape3D.count());
     newShape.setRotation(0);
     newShape.setTilt(0);
+    newShape.setYAxisRotation(0);
 
 
     QPolygonF shape;
