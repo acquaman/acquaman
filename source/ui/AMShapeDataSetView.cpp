@@ -41,6 +41,8 @@
 #include <QMediaPlayer>
 #include <QPainterPath>
 
+#include "AMCameraConfigurationWizard.h"
+
 
 #define SAMPLEPOINTS 6
 
@@ -259,6 +261,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     cameraConfigurationWindow_->setLayout(ccvl);
     cameraConfigurationWindow_->setWindowTitle("Calibrate Camera");
+
+    AMCameraConfigurationWizard* wizard = new AMCameraConfigurationWizard();
+    wizard->show();
 
 
 

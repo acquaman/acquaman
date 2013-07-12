@@ -118,7 +118,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/util/AMOrderedSetSignalSource.h \
     source/util/AMDeferredFunctionCall.h \
     source/beamline/AMControl.h \
-    source/ui/GraphicsTextItem.h
+    source/ui/GraphicsTextItem.h \
+    source/ui/AMCameraConfigurationWizard.h
 
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
@@ -154,7 +155,8 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/util/AMOrderedSetSignalSource.cpp \
     source/util/AMDeferredFunctionCall.cpp \
     source/beamline/AMControl.cpp \
-    source/ui/GraphicsTextItem.cpp
+    source/ui/GraphicsTextItem.cpp \
+    source/ui/AMCameraConfigurationWizard.cpp
 #    source/beamline/AMBeamline.cpp \
 #    source/beamline/AMControlSet.cpp \
 #    source/dataman/SGM/SGMBeamlineInfo.cpp \
