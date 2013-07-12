@@ -88,6 +88,8 @@ public:
     /// true if using cameraMatrix for transforms
     bool useCameraMatrix();
 
+    QPolygonF currentPolygon();
+
     /// ------------------------------------------------------------------------------------------------
 
 

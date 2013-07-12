@@ -38,6 +38,8 @@
 #include <QStringListModel>
 
 #include "GraphicsTextItem.h"
+#include <QMediaPlayer>
+#include <QPainterPath>
 
 
 #define SAMPLEPOINTS 6
@@ -259,6 +261,53 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfigurationWindow_->setWindowTitle("Calibrate Camera");
 
 
+
+//    viewPortWindow_ = new QFrame();
+//    QVBoxLayout* mainViewPortLayout = new QVBoxLayout();
+//    mainViewPortLayout->setContentsMargins(0,0,0,0);
+
+//    int number = 3;
+//    QFrame* viewFrame[number];
+//    QHBoxLayout* viewLayout[number];
+
+
+
+//    for(int i = 0; i < number; i++)
+//    {
+//        viewFrame[i] = new QFrame();
+//        viewLayout[i] = new QHBoxLayout();
+//        viewLayout[i]->setContentsMargins(12,4,12,4);
+//    }
+//    viewLayout[0]->addWidget(new QLabel("View port widget"));
+//    viewLayout[1]->addWidget(viewPortView_ = new QGraphicsView());
+//    viewLayout[2]->addWidget(new QPushButton("View"));
+
+//    for(int i = 0; i < number; i++)
+//    {
+//        viewLayout[i]->addStretch();
+//        viewFrame[i]->setLayout(viewLayout[i]);
+//        mainViewPortLayout->addWidget(viewFrame[i]);
+//    }
+//    viewPortWindow_->setLayout(mainViewPortLayout);
+//    viewPortWindow_->setWindowTitle("Scene sub view");
+
+//    viewPortView_->setScene(shapeScene_->scene());
+//    viewMediaPlayer_ = new QMediaPlayer();
+//    QGraphicsVideoItem* item = new QGraphicsVideoItem();
+//    viewMediaPlayer_->setVideoOutput(item);
+//    viewPortView_->scene()->addItem(shapeScene_->videoItem());
+//    viewPortView_->scene()->addItem(item);
+//    viewMediaPlayer_->setMedia(QUrl("http://10.52.48.104/axis-cgi/mjpg/video.cgi?resolution=CIF"));//mediaPlayer()->media().canonicalUrl()));
+//    viewMediaPlayer_->play();
+//    qDebug()<<viewMediaPlayer_->media().canonicalUrl();
+//    viewPortView_->setSceneRect(0,0,500,500);
+
+
+
+//    viewPortWindow_->show();
+
+
+
     index_ = 0;
     groupRectangleActive_= false;
 
@@ -289,11 +338,13 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
         autoCompleter_->setCaseSensitivity(Qt::CaseInsensitive);
         autoCompleteBox_->setCompleter(autoCompleter_);
 
-	reviewCrosshairLinePositions();
+
 
 	doubleClickInProgress_ = false;
 
-
+    QPainterPath* path = new QPainterPath();
+    path->addPolygon(polygon);
+    currentShape_ = shapeScene_->scene()->addPath(*path,pen,brush);
 
 
     // mouse signals to be handled
@@ -448,7 +499,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     labelToolBar_->addAction(viewOtherData_);
     labelToolBar_->addAction(viewIdNumber_);
 
-
+    reviewCrosshairLinePositions();
 
 
 }
@@ -483,6 +534,8 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
 
 
+
+
     crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
@@ -496,6 +549,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
     else if(index_ > shapeModel_->shapeListLength())
     {
         while(index_ > shapeModel_->shapeListLength()) deleteShape();
+
         if(shapeModel_->isValid(current_))
             shapes_[current_]->setPen(QColor(Qt::red));
         current_ = -1;
@@ -565,6 +619,12 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 //        connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
    }
 
+   // show the polygon currently being drawn
+   QPolygonF currentPolygon = shapeModel_->currentPolygon();
+   QPainterPath* path = new QPainterPath();
+   path->addPolygon(currentPolygon);
+   currentShape_->setPath(*path);
+
 
 
 
@@ -602,10 +662,11 @@ void AMShapeDataSetView::setDrawMode()
     if(mode_ == DRAW)
     {
         setMultiDrawMode();
+        markAction_->setToolTip("Click to place a vertex, double click for last vertex.");
         return;
     }
     mode_ = DRAW;
-
+    markAction_->setToolTip("Press twice for polygon marking.");
 //    pressTimer_->start();
     emit modeChange();
 }

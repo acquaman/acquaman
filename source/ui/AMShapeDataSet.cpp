@@ -215,6 +215,11 @@ bool AMShapeDataSet::useCameraMatrix()
     return useCameraMatrix_;
 }
 
+QPolygonF AMShapeDataSet::currentPolygon()
+{
+    return screenShape(currentPolygon_);
+}
+
 /// return the current name
 QString AMShapeDataSet::currentName()
 {
