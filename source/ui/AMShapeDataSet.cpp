@@ -215,6 +215,7 @@ bool AMShapeDataSet::useCameraMatrix()
     return useCameraMatrix_;
 }
 
+/// The polyon currently being drawn
 QPolygonF AMShapeDataSet::currentPolygon()
 {
     return screenShape(currentPolygon_);
@@ -513,7 +514,16 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         shapes[i]->setTilt(0);
         shapes[i]->setRotation(0);
         shapes[i]->setYAxisRotation(0);
-        shapes[i]->setName(i+"th Calibration point");
+        QString suffix;
+        if(i == 1)
+            suffix = "st";
+        else if (i == 2)
+            suffix = "nd";
+        else if (i == 3)
+            suffix = "rd";
+        else
+            suffix = "th";
+        shapes[i]->setName(QString::number(i)+ suffix + " Calibration point");
         shapeList_.insert(index_,*shapes[i]);
         calibrationPoints_[i] = index_;
         updateShape(index_);
@@ -580,6 +590,7 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         newShape<<coordinate[i];
     }
+    qDebug()<<"AMShapeDataSet::startRectangle - top left to right:"<<coordinate[TOPRIGHT]-coordinate[TOPLEFT];
 //    QPolygonF polygon;
     shapeList_.insert(index_,AMShapeData());
     shapeList_[index_].setName("Shape " + QString::number(index_));
@@ -602,14 +613,23 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_].coordinate(TOPLEFT);
     QVector3D bottomRight = transform2Dto3D(position,depth(topLeft));
-    if(drawOnShapeEnabled_ && drawOnShapeSelected_) bottomRight = getPointOnShape(position,getNormal(getHeightNormal(drawOnShape_),getWidthNormal(drawOnShape_)));
-    QVector3D shift = bottomRight - topLeft;
 
-
-    QVector3D topRight = shapeList_[current_].coordinate(TOPRIGHT) - topLeft;
+    QVector3D topRight;
+    QVector3D bottomLeft;
+    if(drawOnShapeEnabled_ && drawOnShapeSelected_)
+    {
+        bottomRight = getPointOnShape(position,getNormal(drawOnShape_));
+        topRight = getWidthNormal(drawOnShape_);
+        bottomLeft = getHeightNormal(drawOnShape_);
+    }
+    else
+    {
+        topRight = rightVector();//shapeList_[current_].coordinate(TOPRIGHT) - topLeft;
+        bottomLeft = downVector();//QVector3D::normal(depthVector(topLeft).normalized(),topRight);//shapeList_[current_].coordinate(BOTTOMLEFT) - topLeft;
+    }
     topRight.normalize();
-    QVector3D bottomLeft = shapeList_[current_].coordinate(BOTTOMLEFT) - topLeft;
     bottomLeft.normalize();
+    QVector3D shift = bottomRight - topLeft;
     if(topRight.isNull() && bottomLeft.isNull()) qDebug()<<"null shape";
     else if(topRight.isNull()) topRight = QVector3D::normal(QVector3D::normal(bottomLeft,shift),bottomLeft);
     else if(bottomLeft.isNull()) bottomLeft = QVector3D::normal(QVector3D::normal(topRight,shift),topRight);
@@ -2343,6 +2363,23 @@ QVector3D AMShapeDataSet::getPointOnShape(QPointF position, QVector3D nHat)
     QVector3D pointOnShape = l0 + distance*lVector;
     return pointOnShape;
 }
+
+QVector3D AMShapeDataSet::downVector()
+{
+    QVector3D top = transform2Dto3D(QPointF(0.5,0),1);
+    QVector3D bottom = transform2Dto3D(QPointF(0.5,1),1);
+    QVector3D downVector = bottom - top;
+    return downVector;
+}
+
+QVector3D AMShapeDataSet::rightVector()
+{
+    QVector3D left = transform2Dto3D(QPointF(0,0.5),1);
+    QVector3D right = transform2Dto3D(QPointF(1,0.5),1);
+    QVector3D rightVector = right - left;
+    return rightVector;
+}
+
 
 
 

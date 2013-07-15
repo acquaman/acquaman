@@ -450,6 +450,9 @@ protected:
     QVector3D getNormal(AMShapeData shape);
     QVector3D getPointOnShape(QPointF position,QVector3D normal);
 
+    QVector3D downVector();
+    QVector3D rightVector();
+
 
 
 

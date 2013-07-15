@@ -21,7 +21,6 @@ void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
 #include <QDebug>
 void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    qDebug()<<"AMShapeDataSetGraphicsView::mousePressEvent";
     AMOverlayVideoWidget2::mousePressEvent(event);
 
     if(event->button() == Qt::LeftButton)

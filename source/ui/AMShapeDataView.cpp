@@ -74,14 +74,14 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     setWindowTitle("Shape View");
     /// Make Connections
 
-    connect(nameEdit_, SIGNAL(textChanged(QString)), this, SLOT(nameChanged(QString)));
-    connect(tiltEdit_, SIGNAL(textChanged(QString)), this, SLOT(tiltChanged(QString)));
-    connect(rotationEdit_, SIGNAL(textChanged(QString)), this, SLOT(rotationChanged(QString)));
-    connect(yRotationEdit_, SIGNAL(textChanged(QString)), this, SLOT(yAxisRotationChanged(QString)));
+    connect(nameEdit_, SIGNAL(textEdited(QString)), this, SLOT(nameChanged(QString)));
+    connect(tiltEdit_, SIGNAL(textEdited(QString)), this, SLOT(tiltChanged(QString)));
+    connect(rotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(rotationChanged(QString)));
+    connect(yRotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(yAxisRotationChanged(QString)));
 
-    connect(xEdit_, SIGNAL(textChanged(QString)), this, SLOT(xChanged(QString)));
-    connect(yEdit_, SIGNAL(textChanged(QString)), this, SLOT(yChanged(QString)));
-    connect(zEdit_, SIGNAL(textChanged(QString)), this, SLOT(zChanged(QString)));
+    connect(xEdit_, SIGNAL(textEdited(QString)), this, SLOT(xChanged(QString)));
+    connect(yEdit_, SIGNAL(textEdited(QString)), this, SLOT(yChanged(QString)));
+    connect(zEdit_, SIGNAL(textEdited(QString)), this, SLOT(zChanged(QString)));
 
     connect(xAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(xAxisRotation(int)));
     connect(yAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(yAxisRotation(int)));
@@ -155,6 +155,8 @@ void AMShapeDataView::tiltChanged(QString tilt)
 
 void AMShapeDataView::xChanged(QString xString)
 {
+
+    qDebug()<<"AMShapeDataView::xChanged";
     if(isValid())
     {
         double x = xString.toDouble();
@@ -167,6 +169,7 @@ void AMShapeDataView::xChanged(QString xString)
 
 void AMShapeDataView::yChanged(QString yString)
 {
+    qDebug()<<"AMShapeDataView::yChanged";
     if(isValid())
     {
         double y = yString.toDouble();
@@ -179,6 +182,7 @@ void AMShapeDataView::yChanged(QString yString)
 
 void AMShapeDataView::zChanged(QString zString)
 {
+    qDebug()<<"AMShapeDataView::zChanged";
     if(isValid())
     {
         double z = zString.toDouble();
@@ -260,7 +264,6 @@ void AMShapeDataView::update()
 {
     if(isValid())
     {
-        blockSignals(true);
         nameEdit_->setText(shapeModel_->name());
         tiltEdit_->setText(QString::number(shapeModel_->tilt()));
         QVector3D coordinate = shapeModel_->centerCoordinate();
@@ -269,7 +272,6 @@ void AMShapeDataView::update()
         zEdit_->setText(QString::number(coordinate.z()));
         rotationEdit_->setText(QString::number(shapeModel_->rotation()));
         yRotationEdit_->setText(QString::number(shapeModel_->yAxisRotation()));
-        blockSignals(false);
         emit updateShapes();
     }
     else
