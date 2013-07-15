@@ -42,10 +42,10 @@ public:
 	explicit VESPERSPersistentView(QWidget *parent = 0);
 
 signals:
+	/// Notifier that the current sample has changed.
+	void currentSampleStageChanged(const QString &name);
 
 public slots:
-	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
-	void setSampleStage(bool sampleStage);
 
 protected slots:
 	/// Handles the valves button push.  Opens or closes based the current state of the current state.
@@ -71,7 +71,7 @@ protected slots:
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
 	void onShutterStateChanged(bool state);
 	/// Handles the state change from the experiment ready status.
-	void onExperimentStatusChanged(bool ready) { experimentReady_->setPixmap(QIcon(ready == true ? ":/ON.png" : ":/RED.png").pixmap(25)); }
+	void onExperimentStatusChanged();
 	/// Handles changes to the energy from outside the program.
 	void onEnergyChanged(double energy) { energySetpoint_->blockSignals(true); energySetpoint_->setValue(energy); energySetpoint_->blockSignals(false); }
 	/// Sets the new energy.
@@ -86,6 +86,8 @@ protected slots:
 	void setXGap() { if (xSlit_->value() != slits_->gapX()) slits_->setGapX(xSlit_->value()); }
 	/// If a new value for the Z slit gap, passes it down to the slits model.
 	void setZGap() { if (zSlit_->value() != slits_->gapZ()) slits_->setGapZ(zSlit_->value()); }
+	/// Handles the popup menu that enables or disables the POE beam status enable.
+	void onPOEStatusEnablePopupMenuRequested(const QPoint &point);
 
 protected:
 	/// Button and label for the valves.
@@ -135,10 +137,6 @@ protected:
 
 	/// Pointer to the motor group view.
 	AMMotorGroupView *motorGroupView_;
-	/// Pointer to the pseudo motor sample stage.
-	VESPERSSampleStageView *pseudoMotors_;
-	/// Pointer to the real motor sample stage.
-	VESPERSSampleStageView *realMotors_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

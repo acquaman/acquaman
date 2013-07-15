@@ -56,7 +56,7 @@ signals:
 	/// Notifier that the beam has gone down.  When the POE status enable goes from true to false this notifies the beamline that the beam has dumped.
 	void beamDumped();
 	/// Notifier that the POE status has changed.  Passes the new state.
-	void POEStatusChanged(bool);
+	void poeStatusChanged(bool);
 	/// Notifier that the fast shutter status has changed.  Passes the new state.
 	void fastShutterStatusChanged(bool);
 	/// Notifier that the CCD status has changed.  Passes the new state.

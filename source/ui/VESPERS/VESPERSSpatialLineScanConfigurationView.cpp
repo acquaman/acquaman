@@ -157,6 +157,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx",
 				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
 	motorButtonGroup_->button(int(config_->motor()))->click();
+	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
 	// CCD label.
@@ -353,6 +354,11 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 
 	otherPositionLabel_->setVisible(config_->otherMotor(config_->motor()) != VESPERS::NoMotor);
 	otherPosition_->setVisible(config_->otherMotor(config_->motor()) != VESPERS::NoMotor);
+}
+
+void VESPERSSpatialLineScanConfigurationView::onMotorUpdated(int id)
+{
+	motorButtonGroup_->button(id)->setChecked(true);
 }
 
 void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)

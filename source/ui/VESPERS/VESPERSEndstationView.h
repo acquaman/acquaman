@@ -97,9 +97,6 @@ public:
 
 public slots:
 
-	/// Sets whether or not the view is showing the normal sample motor or the y motor.  True is normal stage and false is the y motor.
-	void setUsingNormalMotor(bool use);
-
 protected slots:
 	/// Handles setting the microscope slider without creating a signal/slot loop.
 	void setMicroscopeLight(int val) { micLight_->blockSignals(true); micLight_->setValue(val); micLight_->blockSignals(false); }
@@ -140,10 +137,6 @@ protected slots:
 	void singleElClicked() { endstation_->setCurrent("1-Element Vortex motor"); }
 	/// Handles the 4-el vortex being clicked.
 	void fourElClicked() { endstation_->setCurrent("4-Element Vortex motor"); }
-	/// Handles the normal focus being clicked.
-	void normalFocusClicked();
-	/// Handles the y normal focus being clicked.
-	void yFocusClicked() { endstation_->setCurrent("Y (normal) motor"); }
 
 	// Slots handling the feedback updates from the PV.
 	/// Handles the CCD distance update.
@@ -171,7 +164,7 @@ protected slots:
 	/// Handles the 4-el vortex distance update.
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the normal focus distance update.
-	void normalFocusUpdate(double val) { normalFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); yFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
+	void onLaserDistanceChanged(double val);
 
 protected:
 	// Microscope light setup.
@@ -195,8 +188,6 @@ protected:
 	QToolButton *microscopeButton_;
 	QToolButton *fourElButton_;
 	QToolButton *singleElButton_;
-	QToolButton *normalFocusButton_;
-	QToolButton *yFocusButton_;
 
 	// The endstation model.
 	VESPERSEndstation *endstation_;

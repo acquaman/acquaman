@@ -112,8 +112,8 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	arrowLayout->addWidget(goDown_, 2, 1);
 	arrowLayout->addWidget(goLeft_, 1, 0);
 	arrowLayout->addWidget(goRight_, 1, 2);
-	arrowLayout->addWidget(goIn_, 2, 0);
-	arrowLayout->addWidget(goOut_, 0, 2);
+	arrowLayout->addWidget(goIn_, 0, 2);
+	arrowLayout->addWidget(goOut_, 2, 0);
 	arrowLayout->addWidget(stopButton_, 1, 1);
 	arrowLayout->addWidget(status_, 0, 0);
 
@@ -158,13 +158,13 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
 	}
 
-	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
+	connect(controlSetpoints_.at(0), SIGNAL(returnPressed()), this, SLOT(onFirstControlSetpoint()));
 
 	if (controlSetpoints_.size() > 1)
-		connect(controlSetpoints_.at(1), SIGNAL(editingFinished()), this, SLOT(onSecondControlSetpoint()));
+		connect(controlSetpoints_.at(1), SIGNAL(returnPressed()), this, SLOT(onSecondControlSetpoint()));
 
 	if (controlSetpoints_.size() > 2)
-		connect(controlSetpoints_.at(2), SIGNAL(editingFinished()), this, SLOT(onThirdControlSetpoint()));
+		connect(controlSetpoints_.at(2), SIGNAL(returnPressed()), this, SLOT(onThirdControlSetpoint()));
 
 	QHBoxLayout *motorGroupLayout = new QHBoxLayout;
 	motorGroupLayout->addLayout(arrowLayout);
@@ -201,13 +201,13 @@ void AMMotorGroupObjectView::onRightClicked()
 	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
 }
 
-void AMMotorGroupObjectView::onInClicked()
+void AMMotorGroupObjectView::onOutClicked()
 {
 	int index = motorGroupObject_->normalIndex();
 	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
 }
 
-void AMMotorGroupObjectView::onOutClicked()
+void AMMotorGroupObjectView::onInClicked()
 {
 	int index = motorGroupObject_->normalIndex();
 	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
@@ -256,15 +256,68 @@ void AMMotorGroupObjectView::onThirdControlSetpoint()
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 	: QWidget(parent)
 {
+	viewMode_ = Exclusive;
 	motorGroup_ = motorGroup;
 
-	foreach(QString name, motorGroup_->names())
+	availableMotorGroupObjects_ = new QComboBox;
+
+	foreach(QString name, motorGroup_->names()){
+
+		availableMotorGroupObjects_->addItem(name);
 		motorGroupViews_.insert(name, new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name)));
+	}
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		view->setTitleVisible(false);
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QVBoxLayout *groupLayout = new QVBoxLayout;
+	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		groupLayout->addWidget(view);
+
+	setLayout(groupLayout);
+}
+
+AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
+	: QWidget(parent)
+{
+	viewMode_ = viewMode;
+	motorGroup_ = motorGroup;
+
+	availableMotorGroupObjects_ = new QComboBox;
+
+	foreach(QString name, motorGroup_->names()){
+
+		availableMotorGroupObjects_->addItem(name);
+		motorGroupViews_.insert(name, new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name)));
+	}
+
+	if (viewMode_ == Exclusive)
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+			view->setTitleVisible(false);
+
+	else if (viewMode_ == Multiple){
+
+		availableMotorGroupObjects_->hide();
+
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+			view->hide();
+	}
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		view->setTitleVisible(false);
+
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(availableMotorGroupObjects_, SIGNAL(currentIndexChanged(QString)), this, SLOT(setMotorGroupView(QString)));
+
+	QVBoxLayout *groupLayout = new QVBoxLayout;
+	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
 
 	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
 		groupLayout->addWidget(view);
@@ -276,24 +329,163 @@ void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 {
 	QMenu popup(this);
 	QAction *temp;
-	QList<QString> names = motorGroupViews_.keys();
 
-	for (int i = 0, size = names.size(); i < size; i++)
-		popup.addAction(names.at(i));
+	buildStandardMenuItems(&popup);
 
 	temp = popup.exec(mapToGlobal(pos));
 
-	if (temp)
-		setMotorGroupView(temp->text());
+	if (temp){
+
+		if (temp->text().contains("Switch to Multiple"))
+			setViewMode(Multiple);
+
+		else if (temp->text().contains("Switch to Exclusive"))
+			setViewMode(Exclusive);
+
+		else
+			setMotorGroupView(temp->text());
+	}
 }
 
 void AMMotorGroupView::setMotorGroupView(const QString &name)
 {
-	if (motorGroupViews_.contains(name)){
+	if (!motorGroupViews_.contains(name))
+		return;
+
+	if (viewMode_ == Exclusive){
 
 		foreach(AMMotorGroupObjectView *view, motorGroupViews_.values())
 			view->hide();
 
+		currentMotorGroupObject_ = qMakePair(name, motorGroupViews_.value(name));
 		motorGroupViews_.value(name)->show();
+
+		if (availableMotorGroupObjects_->currentIndex() != availableMotorGroupObjects_->findText(name)){
+
+			availableMotorGroupObjects_->blockSignals(true);
+			availableMotorGroupObjects_->setCurrentIndex(availableMotorGroupObjects_->findText(name));
+			availableMotorGroupObjects_->blockSignals(false);
+		}
+
+		emit currentMotorGroupObjectViewChanged(name);
 	}
+
+	else if (viewMode_ == Multiple){
+
+		AMMotorGroupObjectView *view = motorGroupViews_.value(name);
+
+		if (visibleMotorGroupObjectViews_.contains(name))
+			visibleMotorGroupObjectViews_.remove(name);
+
+		else
+			visibleMotorGroupObjectViews_.insert(name, view);
+
+		view->setVisible(!view->isVisible());
+		emit motorGroupVisibilityChanged();
+	}
+}
+
+void AMMotorGroupView::setViewMode(ViewMode mode)
+{
+	if (viewMode_ != mode){
+
+		viewMode_ = mode;
+
+		availableMotorGroupObjects_->setVisible(viewMode_ == Exclusive);
+
+		// Since Multiple view is the only one currently that shows the titles, I'm cheating by checking only against it.
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values()){
+
+			view->setTitleVisible(viewMode_ == Multiple);
+			view->hide();
+		}
+
+		if (viewMode_ == Exclusive){
+
+			currentMotorGroupObject_.second->show();
+			emit currentMotorGroupObjectViewChanged(currentMotorGroupObject_.first);
+		}
+
+		else if (viewMode_ == Multiple){
+
+			// This is just in case there isn't a selected view yet.
+			if (visibleMotorGroupObjectViews_.isEmpty()){
+
+				visibleMotorGroupObjectViews_.insert(currentMotorGroupObject_.first, currentMotorGroupObject_.second);
+				currentMotorGroupObject_.second->show();
+			}
+
+			else
+				foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews_.values())
+					view->show();
+
+			emit motorGroupVisibilityChanged();
+		}
+	}
+}
+
+void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
+{
+	if (viewMode_ == Exclusive){
+
+		menu->addAction("Switch to Multiple View");
+	}
+
+	else if (viewMode_ == Multiple){
+
+		menu->addAction("Switch to Exclusive View");
+		menu->addSeparator();
+
+		for (int i = 0, size = motorGroupViews_.size(); i < size; i++){
+
+			QAction *action = new QAction(motorGroupViews_.keys().at(i), menu);
+			action->setCheckable(true);
+			action->setChecked(motorGroupViews_.values().at(i)->isVisible());
+			menu->addAction(action);
+		}
+	}
+}
+
+QString AMMotorGroupView::currentMotorGroupObjectName() const
+{
+	return viewMode_ == Exclusive ? currentMotorGroupObject_.first : "";
+}
+
+AMMotorGroupObjectView *AMMotorGroupView::currentMotorGroupObjectView() const
+{
+	return viewMode_ == Exclusive ? currentMotorGroupObject_.second : 0;
+}
+
+QStringList AMMotorGroupView::visibleMotorGroupObjectNames() const
+{
+	if (viewMode_ == Multiple){
+
+		QStringList visibleNames;
+
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+			if (view->isVisible())
+				visibleNames << view->motorGroupObject()->name();
+
+		return visibleNames;
+	}
+
+	else
+		return QStringList();
+}
+
+QList<AMMotorGroupObjectView *> AMMotorGroupView::visibleMotorGroupObjectViews() const
+{
+	if (viewMode_ == Multiple){
+
+		QList<AMMotorGroupObjectView *> visibleViews;
+
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+			if (view->isVisible())
+				visibleViews << view;
+
+		return visibleViews;
+	}
+
+	else
+		return QList<AMMotorGroupObjectView *>();
 }

@@ -182,7 +182,7 @@ void VESPERSExperimentConfiguration::usePOEStatus(bool use)
 	if (poeBeamStatusEnable_->isConnected())
 		poeBeamStatusEnable_->move(use == true ? 0.0 : 1.0);
 
-	emit POEStatusChanged(use);
+	emit poeStatusChanged(use);
 	determineExperimentStatus();
 }
 

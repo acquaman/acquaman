@@ -51,8 +51,6 @@ public:
 	const AMScanConfiguration* configuration() const { return config_; }
 
 public slots:
-	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
-	void setSampleStage(bool sampleStage);
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
@@ -83,6 +81,8 @@ protected slots:
 	void onDefaultXANESScanClicked();
 	/// Slot that sets up the regions for standard EXAFS scans.
 	void onDefaultEXAFSScanClicked();
+	/// Handles making sure "Go To Position" looks appropriate when the motors change.
+	void onMotorsUpdated(int id);
 
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }

@@ -36,6 +36,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
 	dbObject_->setParent(this);
+	setMotor(VESPERS::H | VESPERS::V);
 	setFluorescenceDetector(VESPERS::NoXRF);
 	setTransmissionChoice(VESPERS::Ipost);
 	setIncomingChoice(VESPERS::Imini);

@@ -59,13 +59,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(endstation_, SIGNAL(singleElFbkChanged(double)), this, SLOT(singleElUpdate(double)));
-	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
-	normalFocusButton_ = new QToolButton;
-	connect(normalFocusButton_, SIGNAL(clicked()), this, SLOT(normalFocusClicked()));
-	yFocusButton_ = new QToolButton;
-	yFocusButton_->hide();
-	connect(yFocusButton_, SIGNAL(clicked()), this, SLOT(yFocusClicked()));
-	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(normalFocusUpdate(double)));
 
 	// Setup the microscope light.  Tracking needs to be off!  Otherwise, the program might get into an infinite signal slot loop.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -96,8 +89,13 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	laserPowerButton_ = new QToolButton;
 	laserPowerButton_->setIcon(QIcon(":/red-laser.png"));
 	laserPowerButton_->setCheckable(true);
+	laserPowerButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	QFont font(this->font());
+	font.setBold(true);
+	laserPowerButton_->setFont(font);
 	connect(laserPowerButton_, SIGNAL(clicked()), endstation_, SLOT(toggleLaserPower()));
 	connect(endstation_, SIGNAL(laserPoweredChanged()), this, SLOT(laserPowerUpdate()));
+	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged(double)));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
@@ -114,12 +112,10 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	controlGBLayout->addWidget(microscopeButton_, 9, 10, 2, 3);
 	controlGBLayout->addWidget(singleElButton_, 15, 5, 2, 3);
 	controlGBLayout->addWidget(fourElButton_, 16, 11, 2, 3);
-	controlGBLayout->addWidget(normalFocusButton_, 12, 11, 2, 3);
-	controlGBLayout->addWidget(yFocusButton_, 12, 11, 2, 3);	// This shares the same position as normalFocusButton.
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
-	controlGBLayout->addWidget(laserPowerButton_, 9, 15, 2, 1);
+	controlGBLayout->addWidget(laserPowerButton_, 10, 13, 2, 5);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);
@@ -158,27 +154,23 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
-void VESPERSEndstationView::normalFocusClicked()
+void VESPERSEndstationView::onLaserDistanceChanged(double val)
 {
-	if (!endstation_->laserPowered())
-		QMessageBox::warning(this, "Laser is not on", "Remember to turn the laser on when focusing your sample.", QMessageBox::Ok);
+	QPalette palette(this->palette());
 
-	endstation_->setCurrent("Normal Sample Stage");
-}
+	if (endstation_->laserPowered()){
 
-void VESPERSEndstationView::setUsingNormalMotor(bool use)
-{
-	usingNormal_ = use;
-	normalFocusButton_->setVisible(usingNormal_);
-	yFocusButton_->setVisible(!usingNormal_);
+		palette.setBrush(QPalette::ButtonText, Qt::darkGreen);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText(QString("%1 mm").arg(val, 0, 'f', 3));
+	}
 
-	bool isNormalMotor = endstation_->current()->name().contains("normal", Qt::CaseInsensitive);
+	else {
 
-	if (isNormalMotor && usingNormal_)
-		normalFocusClicked();
-
-	else if (isNormalMotor && !usingNormal_)
-		yFocusClicked();
+		palette.setBrush(QPalette::ButtonText, Qt::black);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText("OFF");
+	}
 }
 
 void VESPERSEndstationView::setWindow(AMControl *control)
@@ -189,11 +181,9 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 	QString name(control->name());
 	QPair<double, double> pair(endstation_->getLimits(control));
 
-	if (name.compare("CCD motor") == 0 || name.compare("1-Element Vortex motor") == 0 || name.compare("4-Element Vortex motor") == 0)
+	if (name == "CCD motor" || name == "1-Element Vortex motor" || name == "4-Element Vortex motor")
 		window_->setControl(control, pair.first, pair.second);
-	else if (name.compare("Normal Sample Stage") == 0 || name.compare("Y (normal) motor") == 0)
-		window_->setControl(control);
-	else if (name.compare("Microscope motor") == 0)
+	else if (name == "Microscope motor")
 		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);
 }
 
@@ -213,6 +203,7 @@ void VESPERSEndstationView::laserPowerUpdate()
 	}
 
 	laserPowerButton_->blockSignals(false);
+	onLaserDistanceChanged(endstation_->laserPosition());
 }
 
 void VESPERSEndstationView::lightBulbToggled(bool pressed)

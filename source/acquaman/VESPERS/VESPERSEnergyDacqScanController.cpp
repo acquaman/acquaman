@@ -134,7 +134,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	}
 
 	// Fourth stage.
-	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
@@ -142,7 +142,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
-	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
 
 		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
@@ -162,12 +162,13 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 {
 	currentRegionIndex_ = 0;
 
-	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+	if (config_->motor() == (VESPERS::H | VESPERS::V)){
 
 		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageHorizontal()->toInfo());
 		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageVertical()->toInfo());
 	}
-	else{
+
+	else if (config_->motor() == (VESPERS::X | VESPERS::Z)){
 
 		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageX()->toInfo());
 		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageZ()->toInfo());

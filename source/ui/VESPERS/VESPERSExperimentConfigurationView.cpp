@@ -89,7 +89,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 
 	QCheckBox *component = new QCheckBox("POE");
 	components_->addButton(component, 0);
-	connect(experimentConfiguration_, SIGNAL(POEStatusChanged(bool)), component, SLOT(setChecked(bool)));
+//	connect(experimentConfiguration_, SIGNAL(POEStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(usePOEStatus(bool)));
 	compLayout->addWidget(component);
 
