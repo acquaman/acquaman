@@ -69,6 +69,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
@@ -215,6 +216,7 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
 
+	AMExportController::registerExporter<VESPERSExporter3DAscii>();
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
 	AMExportController::registerExporter<VESPERSExporterLineScanAscii>();
@@ -229,6 +231,10 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true, false, false);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", true, false, false);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS3DScanConfiguration, VESPERSExporter3DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true, false, false);
 	if(vespersDefault->id() > 0)
@@ -248,16 +254,22 @@ void VESPERSAppController::setupUserInterface()
 	endstationView_ = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 	// Setup the general status page.
 	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+<<<<<<< HEAD
 	// Setup page that auto-enables detectors.
 	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
 //	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
+=======
+>>>>>>> master
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
+<<<<<<< HEAD
 	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
 //	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
+=======
+>>>>>>> master
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -330,18 +342,16 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addRightWidget(persistentView_);
 
 	// Show the endstation control view first.
-	mw_->setCurrentPane(experimentConfigurationView);
+	mw_->setCurrentPane(endstationView_);
 }
 
 void VESPERSAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
+	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
 	// copy ROIs from one detector to another.
 	connect(xrf1ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf4ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
 	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
-
-	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageChoiceChanged(bool)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -654,12 +664,93 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 	mw_->undock(mapScanConfigurationViewHolder3_);
 }
 
-void VESPERSAppController::onSampleStageChoiceChanged(bool change)
+void VESPERSAppController::onSampleStageChoiceChanged(const QString &name)
 {
-	persistentView_->setSampleStage(change);
-	endstationView_->setUsingNormalMotor(change);
-	exafsConfigView_->setSampleStage(change);
-	energyScanConfigurationView_->setSampleStage(change);
+	int motor = VESPERS::sampleStageNameToEnum(name);
+
+	if (exafsMotorAcceptable(motor))
+		exafsScanConfig_->setMotor(motor);
+
+	if (energyScanMotorAcceptable(motor))
+		energyScanConfiguration_->setMotor(motor);
+
+	if (mapMotorAcceptable(motor))
+		mapScanConfiguration_->setMotor(motor);
+
+	if (lineScanMotorAcceptable(motor))
+		lineScanConfiguration_->setMotor(convertSampleStageMotorToIndividualMotor(motor));
+}
+
+bool VESPERSAppController::exafsMotorAcceptable(int motor) const
+{
+	if (motor == (VESPERS::H | VESPERS::V)
+			|| motor == (VESPERS::X | VESPERS::Z)
+			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
+			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+
+		return true;
+
+	return false;
+}
+
+bool VESPERSAppController::energyScanMotorAcceptable(int motor) const
+{
+	if (motor == (VESPERS::H | VESPERS::V)
+			|| motor == (VESPERS::X | VESPERS::Z)
+			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
+			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+
+		return true;
+
+	return false;
+}
+
+bool VESPERSAppController::mapMotorAcceptable(int motor) const
+{
+	if (motor == (VESPERS::H | VESPERS::V)
+			|| motor == (VESPERS::X | VESPERS::Z)
+			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
+			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+
+		return true;
+
+	return false;
+}
+
+bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
+{
+	if (motor == (VESPERS::H | VESPERS::V)
+			|| motor == (VESPERS::X | VESPERS::Z)
+			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == VESPERS::AttoRx
+			|| motor == VESPERS::AttoRy
+			|| motor == VESPERS::AttoRz)
+
+		return true;
+
+	return false;
+}
+
+int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) const
+{
+	if ((motor & VESPERS::H) == VESPERS::H)
+		return VESPERS::H;
+
+	if ((motor & VESPERS::X) == VESPERS::X)
+		return VESPERS::X;
+
+	if ((motor & VESPERS::AttoH) == VESPERS::AttoH)
+		return VESPERS::AttoH;
+
+	if ((motor & VESPERS::AttoX) == VESPERS::AttoX)
+		return VESPERS::AttoX;
+
+	if (motor == VESPERS::AttoRx || motor == VESPERS::AttoRy || motor == VESPERS::AttoRz)
+		return motor;
+
+	// A default that won't cause crashes.
+	return VESPERS::H;
 }
 
 void VESPERSAppController::fixCDF(const QUrl &url)

@@ -170,16 +170,29 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 	if(index < 0 || index > queuedActions_.count())
 		index = queuedActions_.count();
 
-	if(!action->isValid()){
+	AMAction3::ActionValidity actionValidity = action->isValid();
+	if(actionValidity != AMAction3::ActionCurrentlyValid){
+		QString windowTitle;
+		QString informationText;
+		if(actionValidity == AMAction3::ActionNotCurrentlyValid){
+			windowTitle = "The Action You've Added May Not Be Valid";
+			informationText = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.";
+		}
+		else if(actionValidity == AMAction3::ActionNeverValid){
+			windowTitle = "The Action You've Added Is Not Valid";
+			informationText = "\n\nYou cannot ignore this warning, this type of action is not supported.";
+		}
+
 		QMessageBox box;
-		box.setWindowTitle("The Action You've Added May Not Be Valid");
+		box.setWindowTitle(windowTitle);
 		box.setText("The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning());
-		box.setInformativeText("\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.");
+		box.setInformativeText(informationText);
 
 		QPushButton* ignoreAndAddButton = new QPushButton("Ignore this warning and add");
 		QPushButton* cancelAddingButton = new QPushButton("Cancel adding this action");
 
-		box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
+		if(actionValidity == AMAction3::ActionNotCurrentlyValid)
+			box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
 		box.addButton(cancelAddingButton, QMessageBox::AcceptRole);
 		box.setDefaultButton(cancelAddingButton);
 
@@ -313,30 +326,43 @@ void AMActionRunner3::internalDoNextAction()
 			//oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 
-		if(!currentAction_->isValid()){
+		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
+		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
+		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+
+		AMAction3::ActionValidity actionValidity = currentAction_->isValid();
+		if(actionValidity != AMAction3::ActionCurrentlyValid){
+			QString windowTitle;
+			QString informationText;
+			if(actionValidity == AMAction3::ActionNotCurrentlyValid){
+				windowTitle = "The Action You've Added May Not Be Valid";
+				informationText = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.\nConsidering the action is about to run right now, this seems very unlikely.";
+			}
+			else if(actionValidity == AMAction3::ActionNeverValid){
+				windowTitle = "The Action You've Added Is Not Valid";
+				informationText = "\n\nYou cannot ignore this warning, this type of action is not supported.";
+			}
+
 			QMessageBox box;
-			box.setWindowTitle("The Action You're About To Run Is Not Be Valid");
+			box.setWindowTitle(windowTitle);
 			box.setText("The '" % currentAction_->info()->typeDescription() % "' action you're about to run reports:\n" % currentAction_->notValidWarning());
-			box.setInformativeText("\n\nYou can ignore this warning if you wish but you should likely cancel running the action.");
+			box.setInformativeText(informationText);
 
 			QPushButton* ignoreAndRunButton = new QPushButton("Ignore this warning and run");
 			QPushButton* cancelRunningButton = new QPushButton("Cancel running this action");
 
-			box.addButton(ignoreAndRunButton, QMessageBox::RejectRole);
+			if(actionValidity == AMAction3::ActionNotCurrentlyValid)
+				box.addButton(ignoreAndRunButton, QMessageBox::RejectRole);
 			box.addButton(cancelRunningButton, QMessageBox::AcceptRole);
 			box.setDefaultButton(cancelRunningButton);
 
 			box.exec();
 			if(box.clickedButton() == cancelRunningButton){
-				setQueuePaused(true);
+				cancelCurrentAction();
 				return;
 			}
 		}
-
-		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
-		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
-		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
-		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){

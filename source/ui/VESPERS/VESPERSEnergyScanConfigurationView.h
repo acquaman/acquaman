@@ -48,8 +48,6 @@ public:
 	const AMScanConfiguration *configuration() const { return config_; }
 
 public slots:
-	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
-	void setSampleStage(bool sampleStage);
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
@@ -62,6 +60,8 @@ protected slots:
 	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Handles making sure "Go To Position" looks appropriate when the motors change.
+	void onMotorsUpdated(int id);
 
 	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
 	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }

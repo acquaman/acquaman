@@ -262,6 +262,33 @@ namespace VESPERS {
 
 		pv->setValues(converted, 256);
 	}
+
+	/// Converts the string into an appropriate Motor enum represented as an int.
+	inline int sampleStageNameToEnum(const QString &name)
+	{
+		if (name == "Sample Stage - H, V, N")
+			return H | V;
+
+		else if (name == "Sample Stage - X, Z, Y")
+			return X | Z;
+
+		else if (name == "Attocube Stage - H, V, N")
+			return AttoH | AttoV;
+
+		else if (name == "Attocube Stage - X, Z, Y")
+			return AttoX | AttoZ;
+
+		else if (name == "Attocube Stage - Rx")
+			return AttoRx;
+
+		else if (name == "Attocube Stage - Ry")
+			return AttoRy;
+
+		else if (name == "Attocube Stage - Rz")
+			return AttoRz;
+
+		return NoMotor;
+	}
 }
 
 #endif // VESPERS_H

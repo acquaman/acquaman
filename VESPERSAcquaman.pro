@@ -86,7 +86,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.h \
 	source/beamline/VESPERS/VESPERSMotorGroup.h \
 	source/ui/VESPERS/VESPERSMotorGroupView.h \
-	source/util/VESPERS/VESPERSAttoCubeHack.h
+	source/util/VESPERS/VESPERSAttoCubeHack.h \
+	source/dataman/export/VESPERS/VESPERSExporter3DAscii.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -170,7 +171,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.cpp \
 	source/beamline/VESPERS/VESPERSMotorGroup.cpp \
 	source/ui/VESPERS/VESPERSMotorGroupView.cpp \
-	source/util/VESPERS/VESPERSAttoCubeHack.cpp
+	source/util/VESPERS/VESPERSAttoCubeHack.cpp \
+	source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc

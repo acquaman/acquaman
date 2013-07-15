@@ -190,5 +190,7 @@
         <file>32x32/media-seek-forward-6.png</file>
         <file>32x32/format-list-ordered.png</file>
         <file>Yellow.png</file>
+        <file>go-in.png</file>
+        <file>go-out.png</file>
     </qresource>
 </RCC>

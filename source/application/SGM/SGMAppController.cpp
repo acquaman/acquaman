@@ -284,25 +284,8 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_ && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
-		// Do old XAS
-		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
-		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
+	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
-		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
-		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
-		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
-		connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-		// End old XAS
-
-		// Do old Fast
-		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
-		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
-		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
-		connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-		// End old Fast
-
 		// Do New XAS
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
 		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
@@ -316,6 +299,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		QStringList preferentialOrdering;
 		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
 		preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
@@ -323,6 +308,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
 		xasDetectorSelector_->setDefaultsSelected();
@@ -353,20 +340,19 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastScanConfiguration2013View_->setDetectorSelector(fastDetectorSelector_);
 		fastScanConfiguration2013Holder3_->setView(fastScanConfiguration2013View_);
 		// End New Fast
-
-		newDetectorsSelectorView_ = new AMDetectorSelectorView(newDetectorsSelector_);
-		mw_->addPane(newDetectorsSelectorView_, "Beamline Control", "SGM New Detectors", ":/system-software-update.png", true);
 	}
-	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
+	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
 		//do nothing
 	}
-	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationHolder3_->isEnabled() && !fastScanConfigurationHolder3_->isEnabled()){
-		xasScanConfigurationHolder3_->setEnabled(true);
-		fastScanConfigurationHolder3_->setEnabled(true);
+	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013Holder3_->isEnabled() && !fastScanConfiguration2013Holder3_->isEnabled()){
+		//xasScanConfigurationHolder3_->setEnabled(true);
+		//fastScanConfigurationHolder3_->setEnabled(true);
+		xasScanConfiguration2013Holder3_->setEnabled(true);
+		fastScanConfiguration2013Holder3_->setEnabled(true);
 	}
-	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfigurationView_->isVisible() && fastScanConfigurationView_->isVisible()){
-		xasScanConfigurationHolder3_->setEnabled(false);
-		fastScanConfigurationHolder3_->setEnabled(false);
+	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isVisible() && fastScanConfiguration2013View_->isVisible()){
+		xasScanConfiguration2013Holder3_->setEnabled(false);
+		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}
 
 	if(!checkedBadStartupSettings_){
@@ -431,43 +417,35 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 	}
 }
 
-void SGMAppController::onSGMPGTSDDConnected(bool connected){
-	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->pgtDetector()->isConnected() && !pgtSDDView_){
-		pgtSDDView_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->pgtDetector());
-		mw_->addPane(pgtSDDView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
-	}
-}
-
-void SGMAppController::onSGMOceanOpticsSpectrometerConnected(bool connected){
-	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->oos65000Detector() && SGMBeamline::sgm()->oos65000Detector()->isConnected() && !oceanOpticsSpectrometerView_){
-		oceanOpticsSpectrometerView_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->oos65000Detector());
-		mw_->addPane(oceanOpticsSpectrometerView_, "Beamline Detectors", "SGM QE65000", ":/system-software-update.png");
-	}
-}
-
-void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
-	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected() && ! amptekSDD1View_){
-		amptekSDD1View_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
-		mw_->addPane(amptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
-	}
-}
-
-void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
-	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
-		amptekSDD2View_ = AMOldDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
-		mw_->addPane(amptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
-	}
-}
-
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
 		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
 		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !newAmptekSDD2View_){
+		newAmptekSDD2View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD2());
+		mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "NEW SGM Amptek2", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !newAmptekSDD3View_){
+		newAmptekSDD3View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD3());
+		mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "NEW SGM Amptek3", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
+		newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
+		mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "NEW SGM Amptek4", ":/system-software-update.png");
 	}
 }
 
@@ -695,6 +673,8 @@ bool SGMAppController::setupSGMExporterOptions(){
 	if(matchIDs.count() > 0){
 		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
+		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration2013, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
+		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration2013, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 	}
 	else
 		return false;
@@ -1254,22 +1234,21 @@ bool SGMAppController::setupSGMViews(){
 
 	mw_->insertHeading("Beamline Detectors", 1);
 
-	pgtSDDView_ = 0;
-	connect(SGMBeamline::sgm()->pgtDetector()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMPGTSDDConnected(bool)));
-	onSGMPGTSDDConnected(false);
-	oceanOpticsSpectrometerView_ = 0;
-	connect(SGMBeamline::sgm()->oos65000Detector()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMOceanOpticsSpectrometerConnected(bool)));
-	onSGMOceanOpticsSpectrometerConnected(false);
-	amptekSDD1View_ = 0;
-	connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
-	onSGMAmptekSDD1Connected(false);
-	amptekSDD2View_ = 0;
-	connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
-	onSGMAmptekSDD2Connected(false);
-
 	newAmptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
+
+	newAmptekSDD2View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD2(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD2Connected(bool)));
+	onSGMNewAmptekSDD2Connected(false);
+
+	newAmptekSDD3View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD3(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD3Connected(bool)));
+	onSGMNewAmptekSDD3Connected(false);
+
+	newAmptekSDD4View_ = 0;
+	connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
+	onSGMNewAmptekSDD4Connected(false);
 
 	newPGTDetectorView_ = 0;
 	connect(SGMBeamline::sgm()->newPGTDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewPGTDetectorConnected(bool)));
@@ -1283,31 +1262,9 @@ bool SGMAppController::setupSGMViews(){
 	connect(SGMBeamline::sgm()->newTEYDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewTEYDetectorConnected(bool)));
 	onSGMNewTEYDetectorConnected(false);
 
-	newDetectorsSelectorView_ = 0;
-	newDetectorsSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->newDetectorSet(), this);
-	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
-	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
-	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
-	newDetectorsSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
-	QStringList preferentialOrdering;
-	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
-	preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
-	newDetectorsSelector_->setPreferentialOrdering(preferentialOrdering);
-
 	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 
 	mw_->insertHeading("Experiment Setup", 2);
-	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
-	mw_->addPane(xasScanConfigurationHolder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
-
-	fastScanConfigurationView_ = 0; //NULL
-	fastScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
-	mw_->addPane(fastScanConfigurationHolder3_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 	xasScanConfiguration2013View_ = 0; //NULL
 	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
@@ -1316,9 +1273,6 @@ bool SGMAppController::setupSGMViews(){
 	fastScanConfiguration2013View_ = 0; //NULL
 	fastScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(fastScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM Fast Scan", ":/utilities-system-monitor.png");
-
-	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));

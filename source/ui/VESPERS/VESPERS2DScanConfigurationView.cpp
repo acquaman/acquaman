@@ -151,6 +151,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 				QStringList() << "H && V" << "X && Z" << "Atto H && V" << "Atto X && Z",
 				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
+	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
 	motorButtonGroup_->button(int(config_->motor()))->click();
 
 	// CCD label.
@@ -310,6 +311,11 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 void VESPERS2DScanConfigurationView::onMotorChanged(int id)
 {
 	config_->setMotor(id);
+}
+
+void VESPERS2DScanConfigurationView::onMotorUpdated(int id)
+{
+	motorButtonGroup_->button(id)->setChecked(true);
 }
 
 void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int id)

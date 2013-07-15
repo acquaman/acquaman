@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
-#include "beamline/VESPERS/VESPERSMotorGroup.h"
+#include "beamline/AMMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -201,13 +201,17 @@ public:
 	/// Returns the control for the beam selection motor.
 	AMControl *beamSelectionMotor() const { return beamSelectionMotor_; }
 
-	// The experiment configuration.
-	/// Returns the experiment configuration model.
-	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
-
-	// The endstation configuration.
-	/// Returns the endstation configuration model.
-	VESPERSEndstationConfiguration *endstationConfiguration() const { return endstationConfiguration_; }
+	// POE status and enable.
+	/// Returns the POE status control.
+	AMControl *poeStatusControl() const { return poeBeamStatus_; }
+	/// Returns the POE status enable control.
+	AMControl *poeStatusEnableControl() const { return poeBeamStatusEnable_; }
+	/// Sets the POE status enable to \param enabled.
+	void setPOEStatusEnable(bool enabled);
+	/// Returns the POE beam status enable.
+	bool poeStatusEnable() const { return int(poeBeamStatusEnable_->value()) == 0; }
+	/// Returns the POE beam status.
+	bool poeStatus() const { return int(poeBeamStatus_->value()) == 1; }
 
 	// The helper controls for changing the dwell time for each region.
 	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
@@ -473,7 +477,7 @@ public:
 	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
 
 	// The motor group.
-	VESPERSMotorGroup *motorGroup() const { return motorGroup_; }
+	AMMotorGroup *motorGroup() const { return motorGroup_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -538,6 +542,10 @@ signals:
 	void flowSwitchStatus(bool);
 	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
 	void flowTransducerStatus(bool);
+	/// Notifier that the POE status has changed.  Passes the new state.
+	void poeStatusChanged(bool);
+	/// Notifier that the POE status enable has changed.
+	void poeStatusEnableChanged();
 
 public slots:
 	/// Class that opens all the valves on the beamline in sequence.
@@ -583,11 +591,14 @@ protected slots:
 	void sampleStageError();
 	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
 	void synchronizedDwellTimeConnected(bool connected);
+	/// Determines whether the beam has dumped or not.
+	void onPOEStatusChanged();
 
 	/// Helper slot that handles opening the next valve.
 	void openAllValvesHelper();
 	/// Helper slot that handles closing the next valve.
 	void closeAllValvesHelper();
+
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -604,8 +615,6 @@ protected:
 	void setupSampleStage();
 	/// Sets up mono settings.
 	void setupMono();
-	/// Sets up the experiment status.
-	void setupExperimentStatus();
 	/// Sets up various beamline components.
 	void setupComponents();
 	/// Sets up the exposed actions.
@@ -651,6 +660,12 @@ protected:
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;
 
+	// POE status and enable.
+	// The POE beam status control.
+	AMControl *poeBeamStatus_;
+	// The POE beam status enable.
+	AMControl *poeBeamStatusEnable_;
+
 	// The shutters.
 	AMControl *psh1_;
 	AMControl *psh2_;
@@ -659,11 +674,6 @@ protected:
 
 	// Endstation
 	VESPERSEndstation *endstation_;
-
-	// Experiment Configuration
-	VESPERSExperimentConfiguration *experimentConfiguration_;
-	// Endstation Configuration
-	VESPERSEndstationConfiguration *endstationConfiguration_;
 
 	// Dwell time control helper functions for the dwell time.
 	AMControl *dwellTimeTrigger_;
@@ -832,7 +842,7 @@ protected:
 	VESPERSSampleStageControl *realAttoStage_;
 
 	// Motor group.  Binds all the motors for scanning together.
-	VESPERSMotorGroup *motorGroup_;
+	AMMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

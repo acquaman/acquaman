@@ -114,6 +114,9 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 	if (!action)
 		return false;
 
+	if(action->isValid() == AMAction3::ActionNeverValid)
+		return false;
+
 	if(index<0 || index > subActionCount())
 		index = subActionCount();
 

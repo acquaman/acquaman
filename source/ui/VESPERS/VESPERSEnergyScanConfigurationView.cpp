@@ -74,8 +74,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Setting the scan position.
 	QGroupBox *goToPositionGroupBox = addGoToPositionView(config_->goToPosition(), config_->x(), config_->y());
 
-	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
-
 	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPositionCheckBox_, SLOT(setChecked(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), setCurrentPositionButton_, SLOT(setEnabled(bool)));
@@ -83,6 +81,9 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 	connect(setCurrentPositionButton_, SIGNAL(clicked()), this, SLOT(setScanPosition()));
+	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorsUpdated(int)));
+
+	onMotorsUpdated(config_->motor());
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
@@ -218,48 +219,15 @@ void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 	checkCCDFileNames(name);
 }
 
-void VESPERSEnergyScanConfigurationView::setScanPosition()
+void VESPERSEnergyScanConfigurationView::onMotorsUpdated(int id)
 {
-	double x = 0;
-	double y = 0;
-
-	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
-
-		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
-		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
-		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-	}
-
-	else {
-
-		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
-		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
-		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-	}
-
-	config_->setPosition(x, y);
-	positionsSaved_->setText("Saved");
-	QPalette palette(this->palette());
-	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
-	positionsSaved_->setPalette(palette);
-}
-
-void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
-{
-	estimatedTime_->setText("Estimated time:\t" + VESPERS::convertTimeToString(config_->totalTime()));
-}
-
-void VESPERSEnergyScanConfigurationView::setSampleStage(bool sampleStage)
-{
-	if (sampleStage){
+	if (id == int(VESPERS::H | VESPERS::V) || id == (VESPERS::AttoH | VESPERS::AttoV)){
 
 		savedXPosition_->setText(QString("H: %1 mm").arg(0.0, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(0.0, 0, 'g', 3));
 	}
 
-	else {
+	else if (id == int(VESPERS::X | VESPERS::Z) || id == (VESPERS::AttoX | VESPERS::AttoZ)){
 
 		savedXPosition_->setText(QString("X: %1 mm").arg(0.0, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(0.0, 0, 'g', 3));
@@ -269,4 +237,58 @@ void VESPERSEnergyScanConfigurationView::setSampleStage(bool sampleStage)
 	QPalette palette(this->palette());
 	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
 	positionsSaved_->setPalette(palette);
+}
+
+void VESPERSEnergyScanConfigurationView::setScanPosition()
+{
+	double x = 0;
+	double y = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		x = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+
+		x = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+		break;
+	}
+
+	config_->setPosition(x, y);
+	positionsSaved_->setText("Saved");
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+	positionsSaved_->setPalette(palette);
+}
+
+
+void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
+{
+	estimatedTime_->setText("Estimated time:\t" + VESPERS::convertTimeToString(config_->totalTime()));
 }

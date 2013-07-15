@@ -75,6 +75,9 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
 	void showChooseRunDialog();
 
+	/// Displays the view for the scanActions or brings it to the front
+	void showScanActionsView();
+
 	///////////////////////////////////
 
 protected slots:
@@ -110,6 +113,9 @@ protected:
 	AMWorkflowView3 *scanActionRunnerView_;
 	/// Flag holding whether the AMGenericScanEditor's automatically are switched to when they have a running scan.  The default is true.
 	bool automaticBringScanEditorToFrontWithRunningScans_;
+
+	/// Menus
+	QMenu *viewMenu_;
 };
 
 #endif // AMAPPCONTROLLER_H

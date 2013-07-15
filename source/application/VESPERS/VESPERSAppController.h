@@ -90,7 +90,7 @@ protected slots:
 	void onMoveImmediatelyFailure();
 
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
-	void onSampleStageChoiceChanged(bool change);
+	void onSampleStageChoiceChanged(const QString &name);
 
 	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
 	virtual void fixCDF(const QUrl &url);
@@ -111,6 +111,18 @@ protected:
 	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
+
+	// Methods that know what is acceptable for which scan type.
+	/// Returns whether the given motor is acceptable for EXAFS.
+	bool exafsMotorAcceptable(int motor) const;
+	/// Returns whether the given motor is acceptable for energy scans.
+	bool energyScanMotorAcceptable(int motor) const;
+	/// Returns whether the given motor is acceptable for 2D maps.
+	bool mapMotorAcceptable(int motor) const;
+	/// Returns whether the given motor is acceptable for line scans.
+	bool lineScanMotorAcceptable(int motor) const;
+	/// Converts a given combination motor group into an acceptable motor enum for the line scan.  Returns only the "horizontal" component.
+	int convertSampleStageMotorToIndividualMotor(int motor) const;
 
 	// Things to do on startup.
 	/// Ensures that all the necessary directories exist before they are used and create errors.

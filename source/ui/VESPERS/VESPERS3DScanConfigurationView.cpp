@@ -164,7 +164,7 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	I0Group_->button((int)config_->incomingChoice())->click();
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H and V" << "X and Z", QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z));
+	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H and V", QList<int>() << (VESPERS::H | VESPERS::V));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 	motorButtonGroup_->button(int(config_->motor()))->click();
 

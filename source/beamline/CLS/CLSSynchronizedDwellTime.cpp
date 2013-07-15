@@ -152,6 +152,12 @@ AMAction3 *CLSSynchronizedDwellTime::createModeAction3(CLSSynchronizedDwellTime:
 	return action;
 }
 
+AMAction3* CLSSynchronizedDwellTime::createEnableAtAction3(int index, bool isEnabled){
+	if(!elementAt(index))
+		return 0;
+	return elementAt(index)->createEnableAction3(isEnabled);
+}
+
 void CLSSynchronizedDwellTime::onScanningChanged(double status){
 	emit scanningChanged((int)status == 1 ? true : false);
 	if((int)status == 0)
@@ -164,8 +170,18 @@ void CLSSynchronizedDwellTime::onDwellTimeChanged(double dwellTime){
 }
 
 void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
-	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead)
+	if(!isConnected() || isScanning() || readMode != AMDetectorDefinitions::SingleRead){
+		QString specificProblem;
+		if(!isConnected())
+			specificProblem = "[The synchronized dwell time was not connected]";
+		else if(isScanning())
+			specificProblem = "[The syncrhonized dwell time is already scanning]";
+		else if(readMode != AMDetectorDefinitions::SingleRead)
+			specificProblem = "[The syncrhonized dwell time trigger was not a SingleRead request]";
+		AMErrorMon::alert(this, CLSSYNCHRONIZEDWELLTIME_INVALID_TRIGGER, QString("Error, the synchronized dwell time attempted to trigger in an inappropiate way %1. This is a serious problem and should not have happened, please contact your the Acquaman developer for your beamline.").arg(specificProblem));
+		triggerSource_->setFailed();
 		return;
+	}
 
 	//start();
 	if(mode() == CLSSynchronizedDwellTime::Continuous){

@@ -36,7 +36,6 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDetectors();
 	setupControlSets();
 	setupMono();
-	setupExperimentStatus();
 	setupMotorGroup();
 	setupExposedControls();
 }
@@ -195,10 +194,10 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)sampleStageY_)->setMoveStartTolerance(0.0001);
 	((AMPVwStatusControl *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
-	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
-	pseudoSampleStage_->setXRange(-1700000, 1700000);
-	pseudoSampleStage_->setYRange(-1200000, 1200000);
-	pseudoSampleStage_->setZRange(-1200000, 1200000);
+//	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+//	pseudoSampleStage_->setXRange(-1700000, 1700000);
+//	pseudoSampleStage_->setYRange(-1200000, 1200000);
+//	pseudoSampleStage_->setZRange(-1200000, 1200000);
 
 	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageZ_, sampleStageY_, this);
 	realSampleStage_->setXRange(-1700000, 1700000);
@@ -229,6 +228,11 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
 	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
 
+	pseudoSampleStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
+	pseudoSampleStage_->setXRange(-1700000, 1700000);
+	pseudoSampleStage_->setYRange(-1200000, 1200000);
+	pseudoSampleStage_->setZRange(-1200000, 1200000);
+
 	pseudoWireStage_ = new VESPERSSampleStageControl(wireStageHorizontal_, wireStageVertical_, wireStageNormal_, this);
 	pseudoWireStage_->setXRange(-1700000, 1700000);
 	pseudoWireStage_->setYRange(-1200000, 1200000);
@@ -246,8 +250,8 @@ void VESPERSBeamline::setupSampleStage()
 	pseudoAttoStage_ = new VESPERSSampleStageControl(attoStageHorizontal_, attoStageVertical_, attoStageNormal_, this);
 
 	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "TS1607-2-B21-07:Z:usermm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:userstatus", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 
 	((AMPVwStatusControl *)attoStageX_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageZ_)->setMoveStartTolerance(0.00001);
@@ -262,34 +266,56 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)attoStageRz_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
-
-
 }
 
 void VESPERSBeamline::setupMotorGroup()
 {
-	VESPERSMotorGroupInfo *info = 0;
-	motorGroup_ = new VESPERSMotorGroup(this);
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
 
-	info = new VESPERSMotorGroupInfo("Sample Stage - H and V", "H", "V", "mm", pseudoSampleStage_->horiz(), pseudoSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Sample Stage - X and Z", "X", "Z", "mm", realSampleStage_->horiz(), realSampleStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - H and V", "H", "V", "mm", pseudoAttoStage_->horiz(), pseudoAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - X and Z", "X", "Z", "mm", realAttoStage_->horiz(), realAttoStage_->vert(), VESPERSMotorGroupInfo::Translational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
-	info = new VESPERSMotorGroupInfo("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, VESPERSMotorGroupInfo::Horizontal, VESPERSMotorGroupInfo::Rotational, this);
-	motorGroup_->addMotorGroupInfo(info->name(), info);
+	motorObject = new AMMotorGroupObject("Sample Stage - H, V, N",
+										 QStringList() << "H" << "V" << "N",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << pseudoSampleStage_->horiz() << pseudoSampleStage_->vert() << pseudoSampleStage_->norm(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Sample Stage - X, Z, Y",
+										 QStringList() << "X" << "Z" << "Y",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << realSampleStage_->horiz() << realSampleStage_->vert() << realSampleStage_->norm(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - H, V, N",
+										 QStringList() << "H" << "V" << "N",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << pseudoAttoStage_->horiz() << pseudoAttoStage_->vert() << pseudoAttoStage_->norm(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - X, Z, Y",
+										 QStringList() << "X" << "Z" << "Y",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << realAttoStage_->horiz() << realAttoStage_->vert() << realAttoStage_->norm(),
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void VESPERSBeamline::setupEndstation()
 {
-	endstation_ = new VESPERSEndstation(sampleStageNormal_, sampleStageY_, this);
+	endstation_ = new VESPERSEndstation(this);
 }
 
 void VESPERSBeamline::setupDetectors()
@@ -684,14 +710,25 @@ void VESPERSBeamline::setupComponents()
 	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
+
+	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
+	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
+	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(onPOEStatusChanged()));
+	connect(poeBeamStatusEnable_, SIGNAL(valueChanged(double)), this, SIGNAL(poeStatusEnableChanged()));
 }
 
-void VESPERSBeamline::setupExperimentStatus()
+void VESPERSBeamline::onPOEStatusChanged()
 {
-	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
-	connect(experimentConfiguration_, SIGNAL(beamDumped()), this, SIGNAL(beamDumped()));
+	bool beamStatus = poeStatus();
+	emit poeStatusChanged(beamStatus);
 
-	endstationConfiguration_ = new VESPERSEndstationConfiguration(this);
+	if (poeStatusEnable() && !beamStatus)
+		emit beamDumped();
+}
+
+void VESPERSBeamline::setPOEStatusEnable(bool enabled)
+{
+	poeBeamStatusEnable_->move(enabled ? 0 : 1);
 }
 
 void VESPERSBeamline::setupExposedControls()

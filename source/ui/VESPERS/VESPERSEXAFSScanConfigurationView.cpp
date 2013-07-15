@@ -134,8 +134,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 	connect(setCurrentPositionButton_, SIGNAL(clicked()), this, SLOT(setScanPosition()));
+	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorsUpdated(int)));
 
-	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
+	onMotorsUpdated(config_->motor());
 
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
@@ -381,15 +382,15 @@ void VESPERSEXAFSScanConfigurationView::onDefaultEXAFSScanClicked()
 	config_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
 }
 
-void VESPERSEXAFSScanConfigurationView::setSampleStage(bool sampleStage)
+void VESPERSEXAFSScanConfigurationView::onMotorsUpdated(int id)
 {
-	if (sampleStage){
+	if (id == int(VESPERS::H | VESPERS::V) || id == (VESPERS::AttoH | VESPERS::AttoV)){
 
 		savedXPosition_->setText(QString("H: %1 mm").arg(0.0, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(0.0, 0, 'g', 3));
 	}
 
-	else {
+	else if (id == int(VESPERS::X | VESPERS::Z) || id == (VESPERS::AttoX | VESPERS::AttoZ)){
 
 		savedXPosition_->setText(QString("X: %1 mm").arg(0.0, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(0.0, 0, 'g', 3));
@@ -406,20 +407,40 @@ void VESPERSEXAFSScanConfigurationView::setScanPosition()
 	double x = 0;
 	double y = 0;
 
-	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
 
 		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-	}
+		break;
 
-	else {
+	case VESPERS::X | VESPERS::Z:
 
 		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
 		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		x = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+
+		x = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
+		y = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+		break;
 	}
 
 	config_->setPosition(x, y);
