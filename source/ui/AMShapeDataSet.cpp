@@ -590,8 +590,6 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         newShape<<coordinate[i];
     }
-    qDebug()<<"AMShapeDataSet::startRectangle - top left to right:"<<coordinate[TOPRIGHT]-coordinate[TOPLEFT];
-//    QPolygonF polygon;
     shapeList_.insert(index_,AMShapeData());
     shapeList_[index_].setName("Shape " + QString::number(index_));
     shapeList_[index_].setOtherData("Coordinate:");
@@ -620,12 +618,12 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     {
         bottomRight = getPointOnShape(position,getNormal(drawOnShape_));
         topRight = getWidthNormal(drawOnShape_);
-        bottomLeft = getHeightNormal(drawOnShape_);
+        bottomLeft = QVector3D::normal(topRight,getNormal(drawOnShape_));
     }
     else
     {
-        topRight = rightVector();//shapeList_[current_].coordinate(TOPRIGHT) - topLeft;
-        bottomLeft = downVector();//QVector3D::normal(depthVector(topLeft).normalized(),topRight);//shapeList_[current_].coordinate(BOTTOMLEFT) - topLeft;
+        topRight = rightVector();
+        bottomLeft = downVector();
     }
     topRight.normalize();
     bottomLeft.normalize();
@@ -1866,10 +1864,13 @@ double AMShapeDataSet::depth(QVector3D coordinate)
 /// depth vector is the same for all coordinates on the plane that is normal to depth vector, with the same distance */
 QVector3D AMShapeDataSet::depthVector(QVector3D coordinate)
 {
-    QVector3D depthDirection = cameraModel_->cameraCentre() - cameraModel_->cameraPosition();
-    QVector3D cameraToCoordinate = coordinate - cameraModel_->cameraPosition();
-    depthDirection.normalize();
-    QVector3D depth = dot(cameraToCoordinate,depthDirection)*depthDirection;
+    QVector3D cameraCenterClose = transform2Dto3D(QPointF(0.5,0.5),1);// actual camera center
+    QVector3D cameraCenterFar = transform2Dto3D(QPointF(0.5,0.5),2);// a second vector in the direction of the center
+    QVector3D cameraDirection = cameraCenterFar - cameraCenterClose;
+    cameraDirection.normalize();
+    QVector3D cameraToCoordinate = coordinate - cameraCenterClose;
+    double length = dot(cameraToCoordinate, cameraDirection) + 1;
+    QVector3D depth = length * cameraDirection;
     return depth;
 }
 
@@ -2325,11 +2326,13 @@ QVector3D AMShapeDataSet::getWidthNormal(AMShapeData shape)
     return widthVector.normalized();
 }
 
+/// gets the normal vector pointing out of a shape
 QVector3D AMShapeDataSet::getNormal(QVector3D heightVector, QVector3D widthVector)
 {
     return QVector3D::normal(heightVector,widthVector);
 }
 
+/// overload of getNormal, takes an AMShapeData
 QVector3D AMShapeDataSet::getNormal(AMShapeData shape)
 {
     return getNormal(getHeightNormal(shape),getWidthNormal(shape));
