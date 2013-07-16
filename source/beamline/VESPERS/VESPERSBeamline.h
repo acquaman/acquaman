@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
@@ -41,7 +40,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
 
