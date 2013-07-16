@@ -364,17 +364,11 @@ protected:
 
     QPointF transform3Dto2DMatrix(QVector3D coordinate);
 
-    /// scales a length based on distance
-    double transformDimension(double dimension, QVector3D coordinate);
+//    /// scales a vector based on distance
+//    QPointF transformVector(QPointF vector, QVector3D coordinate);
 
-    /// inverse scaling based on distance
-    double inverseDimensionTransform(double dimension, QVector3D coordinate);
-
-    /// scales a vector based on distance
-    QPointF transformVector(QPointF vector, QVector3D coordinate);
-
-    /// invers scaling of vector
-    QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
+//    /// invers scaling of vector
+//    QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
 
 
 

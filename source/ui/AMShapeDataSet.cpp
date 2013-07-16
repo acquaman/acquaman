@@ -326,13 +326,10 @@ void AMShapeDataSet::setCameraModel(AMCameraConfiguration *model)
     if(cameraModel_ != model)
     {
         cameraModel_ = model;
-        calibrationRun_ = false;
-        updateAllShapes();
     }
-    else
-    {
-        updateAllShapes();
-    }
+    calibrationRun_ = cameraModel_->hasMatrix();
+    qDebug()<<"AMShapeDataSet::setCameraModel - calibration run:"<<calibrationRun_;
+    updateAllShapes();
 }
 
 /// sets the beam model to the given model
@@ -1599,6 +1596,8 @@ QVector3D AMShapeDataSet::transform2Dto3D(QPointF point, double depth)
 /// performs the 2D to 3D transform using the precomputed camera matrix
 QVector3D AMShapeDataSet::transform2Dto3DMatrix(QPointF point, double depth)
 {
+
+    /// \todo - not fully using the matrix?
     point = point - QPointF(0.5,0.5);
     MatrixXd matrixPoint (3,1);
     matrixPoint<<point.x(),point.y(),1;
@@ -1622,8 +1621,10 @@ QPointF AMShapeDataSet::transform3Dto2D(QVector3D coordinate)
 {
     if(useCameraMatrix_ && calibrationRun_)
     {
+        qDebug()<<"AMShapeDataSet::transform3Dto2D - using matrix";
         return transform3Dto2DMatrix(coordinate);
     }
+    qDebug()<<"AMShapeDataSet::transform3Dto2D - using parameters";
     /// Shifts and rotates the entire scene so that it is looking down the z-axis
     /// then converts that to screen coordinates by taking the proportion of
     /// focal length over the coordinate's distance from the camera.
@@ -1771,39 +1772,24 @@ QPointF AMShapeDataSet::transform3Dto2DMatrix(QVector3D coordinate)
     return QPointF(screenPosition(0,0)+0.5,screenPosition(1,0)+0.5);
 }
 
-/// scales a dimension based on distance
-double AMShapeDataSet::transformDimension(double dimension, QVector3D coordinate)
-{
-    double focalLength = cameraModel_->cameraFocalLength();
-    double newDimension = dimension*focalLength/depth(coordinate);
-    return newDimension;
-}
 
-/// finds the length of a dimension based on its appearance and distance
-double AMShapeDataSet::inverseDimensionTransform(double dimension, QVector3D coordinate)
-{
-    double focalLength = cameraModel_->cameraFocalLength();
-    double newDimension = dimension*depth(coordinate)/focalLength;
-    return newDimension;
-}
+///// takes a vector and finds how it appears
+//QPointF AMShapeDataSet::transformVector(QPointF vector, QVector3D coordinate)
+//{
+//    double focalLength = cameraModel_->cameraFocalLength();
+//    double distance = depth(coordinate);
+//    double scale = focalLength/distance;
+//    QPointF newVector = vector*scale;
+//    return newVector;
+//}
 
-/// takes a vector and finds how it appears
-QPointF AMShapeDataSet::transformVector(QPointF vector, QVector3D coordinate)
-{
-    double focalLength = cameraModel_->cameraFocalLength();
-    double distance = depth(coordinate);
-    double scale = focalLength/distance;
-    QPointF newVector = vector*scale;
-    return newVector;
-}
-
-/// based on the appearance of a vector, finds the actual vector
-QPointF AMShapeDataSet::inverseVectorTransform(QPointF vector, QVector3D coordinate)
-{
-    double focalLength = cameraModel_->cameraFocalLength();
-    QPointF newVector = vector*depth(coordinate)/focalLength;
-    return newVector;
-}
+///// based on the appearance of a vector, finds the actual vector
+//QPointF AMShapeDataSet::inverseVectorTransform(QPointF vector, QVector3D coordinate)
+//{
+//    double focalLength = cameraModel_->cameraFocalLength();
+//    QPointF newVector = vector*depth(coordinate)/focalLength;
+//    return newVector;
+//}
 
 
 QPolygonF AMShapeDataSet::screenShape(QPolygonF shape)
@@ -2341,6 +2327,7 @@ QVector3D AMShapeDataSet::getNormal(AMShapeData shape)
 QVector3D AMShapeDataSet::getPointOnShape(QPointF position, QVector3D nHat)
 {
     /// figure out line
+    /// pick a depth to use, doesn't really matter what it is
     double depth = cameraModel_->cameraFocalLength();
     QVector3D l0 = transform2Dto3D(position,depth);
     QVector3D lVector = transform2Dto3D(position,2*depth) - l0;

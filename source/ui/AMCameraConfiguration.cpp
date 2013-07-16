@@ -88,6 +88,7 @@ QVector<QVector3D> AMCameraConfiguration::cameraMatrix()
     return cameraMatrix_;
 }
 
+/// creates the matrix from the QVector, if it hasn't already been created
 MatrixXd AMCameraConfiguration::cameraMatrixToMatrix()
 {
     MatrixXd subMatrix[4];
@@ -96,14 +97,11 @@ MatrixXd AMCameraConfiguration::cameraMatrixToMatrix()
         for(int i = 0; i < 4; i++)
         {
             subMatrix[i] = MatrixXd(3,1);
-            qDebug()<<"AMCameraConfiguration::cameraMatrixToMatrix : iteration"<<i;
-            qDebug()<<cameraMatrix_.at(i);
             subMatrix[i]<<cameraMatrix_.at(i).x(),cameraMatrix_.at(i).y(),cameraMatrix_.at(i).z();
         }
         MatrixXd cameraMatrix(3,4);
         cameraMatrix<<subMatrix[0],subMatrix[1],subMatrix[2],subMatrix[3];
         cameraTransformMatrix_ = cameraMatrix;
-        qDebug()<<"Returning matrix";
         matrixCalculated_ = true;
         return cameraMatrix;
     }
@@ -111,6 +109,11 @@ MatrixXd AMCameraConfiguration::cameraMatrixToMatrix()
     {
         return cameraTransformMatrix_;
     }
+}
+
+bool AMCameraConfiguration::hasMatrix()
+{
+    return !cameraMatrix_.isEmpty();
 }
 
 #include <QDebug>
@@ -224,9 +227,10 @@ void AMCameraConfiguration::setCameraMatrixFromMatrix(MatrixXd cameraMatrix)
     for(int j = 0; j < k; j++)
     {
         newCameraMatrix<<QVector3D(0,0,0);
-        qDebug()<<"AMCameraConfiguration::setCameraMatrixFromMatrix - probably an invalid camera matrix; finshed with zeros";
+        qDebug()<<"AMCameraConfiguration::setCameraMatrixFromMatrix - probably an invalid camera matrix; finished with zeros";
     }
     cameraMatrix_ = newCameraMatrix;
     cameraTransformMatrix_  = cameraMatrix;
     matrixCalculated_ = true;
 }
+
