@@ -29,22 +29,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class VESPERSEndstation : public QObject
 {
 	Q_OBJECT
+
 public:
 	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.
 	explicit VESPERSEndstation(QObject *parent = 0);
 
 	/// Returns the state of the endstation XIA shutter.
-	bool shutterState() const { return (int)filterShutterLower_->value() == 1 ? true : false; }
+	bool shutterState() const { return (int)filterShutterLower_->value() == 1; }
 	/// Returns a bool on the state of the power of the microscope.  True for powered, false for un-powered.
-	bool laserPowered() { return (int)laserPower_->value() == 1 ? true : false; }
+	bool laserPowered() const { return (int)laserPower_->value() == 1; }
 	/// Returns whether the microscope is in the home position.
-	bool microscopeInHomePosition(double value) { return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second); }
+	bool microscopeInSafePosition(double value) const;
 	/// Overloaded function.  Uses current value.
-	bool microscopeInHomePosition() { return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second); }
+	bool microscopeInSafePosition() const;
 	/// Returns whether the CCD is in the home position.
-	bool ccdInHomePosition(double value) { return controlWithinTolerance(ccdControl_, value, softLimits_.value(ccdControl_).second); }
+	bool ccdInSafePosition(double value) const;
 	/// Overloaded function.  Uses current value.
-	bool ccdInHomePosition() { return controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).second); }
+	bool ccdInSafePosition() const;
 	/// Enables/Disables the microscope PV by blocking signals.
 	void lightEnabled(bool on) { micLightPV_->blockSignals(!on); }
 	/// Returns the current control being focused on.
@@ -52,7 +53,7 @@ public:
 	/// Returns a control based on the name.  Returns 0 if invalid.
 	AMControl *control(QString name) const;
 	/// Returns the soft limits for the given control (if any) as a QPair<double, double>.
-	QPair<double, double> getLimits(AMControl *control) { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
+	QPair<double, double> getLimits(AMControl *control) const { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
@@ -66,6 +67,10 @@ public:
 	int filterThickness() const { return filterThickness_; }
 	/// Returns the current value of the laser sensor.
 	double laserPosition() const { return laserPositionControl_->value(); }
+	/// Returns whether the helium buffer is attached to the CCD.
+	bool heliumBufferAttached() const { return heliumBufferAttached_; }
+	/// Returns whether the CCD is at 90 degrees or not.
+	bool ccdAt90Degrees() const { return ccdAt90Degrees_; }
 
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
@@ -110,10 +115,14 @@ public slots:
 	void closeShutter() { setShutterState(false); }
 	/// Set the value for the microscope.  Must be between 0 and 100.
 	void setLightIntensity(int intensity) { if (micLightPV_->getInt() != intensity) micLightPV_->setValue(intensity); }
+	/// Set the flag on whether the helium buffer is attached.
+	void setHeliumBufferFlag(bool attached);
+	/// Set the flag on whether or not the CCD is at 90 degrees or not.
+	void setCCDAt90Degrees(bool at90Degrees);
 
 protected slots:
 	/// Helper slot that emits the right signal based on the current state of filterLower.
-	void onShutterChanged(double val) { emit shutterChanged((int)val == 1 ? true : false); }
+	void onShutterChanged(double val) { emit shutterChanged((int)val == 1); }
 	/// Determines if the filters are all connected.  They shouldn't be accessed until they are all connected.
 	void onFiltersConnected();
 	/// Helper slot that emits a signal with the current index related to the thickness of the filters.
@@ -123,8 +132,8 @@ protected slots:
 
 protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
-	bool controlWithinTolerance(AMControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
-	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
+	bool controlWithinTolerance(AMControl *control, double value, double position) const { return fabs(value-position) < control->tolerance(); }
+	/// Helper function to properly toggle the filter PVs.
 	void toggleControl(AMControl *control) { control->move(1); control->move(0); }
 
 	// Holds the previous state of the filter connectivity.
@@ -134,6 +143,12 @@ protected:
 	QMap<AMControl *, QPair<double, double> > softLimits_;
 	// Names of microscope positions.
 	QPair<QString, QString> microscopeNames_;
+	/// Flag holding whether or not the helium buffer is attached to the CCD or not.
+	bool heliumBufferAttached_;
+	/// Upper soft limit when using the helium buffer.
+	double upperCcdSoftLimitwHeliumBuffer_;
+	/// Flag holding whether or not the CCD is at 90 degrees or not.
+	bool ccdAt90Degrees_;
 
 	// Control pointers.
 	// The current control being pointed to.

@@ -106,6 +106,9 @@ bool VESPERSEndstation::loadConfiguration()
 	softLimits_.insert(microscopeControl_, qMakePair(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
 
 	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
+	upperCcdSoftLimitwHeliumBuffer_ = contents.at(19).toDouble();
+	heliumBufferAttached_ = contents.at(20) == "YES";
+	ccdAt90Degrees_ = contents.at(21) == "YES";
 
 	updateControl(current_);
 
@@ -292,4 +295,54 @@ void VESPERSEndstation::setShutterState(bool state)
 		toggleControl(filterShutterUpper_);
 
 	toggleControl(filterShutterLower_);
+}
+
+void VESPERSEndstation::setHeliumBufferFlag(bool attached)
+{
+	heliumBufferAttached_ = attached;
+}
+
+void VESPERSEndstation::setCCDAt90Degrees(bool at90Degrees)
+{
+	ccdAt90Degrees_ = at90Degrees;
+}
+
+bool VESPERSEndstation::microscopeInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second);
+}
+
+bool VESPERSEndstation::microscopeInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second);
+}
+
+bool VESPERSEndstation::ccdInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return value > softLimits_.value(ccdControl_).second;
+
+	else
+		return value > upperCcdSoftLimitwHeliumBuffer_;
+}
+
+bool VESPERSEndstation::ccdInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return ccdControl_->value() > softLimits_.value(ccdControl_).second;
+
+	else
+		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
 }

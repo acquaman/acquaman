@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QPushButton>
 #include <QProcess>
+#include <QCheckBox>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -79,6 +80,10 @@ protected:
 	QLineEdit *vortex4LowLimit_;
 	QLineEdit *vortex4HighLimit_;
 	QLineEdit *vortex4HomePosition_;
+
+	QLineEdit *ccdBufferSafePosition_;
+	QCheckBox *usingBuffer_;
+	QCheckBox *at90Deg_;
 };
 
 /// This class shows all the general endstation controls.
@@ -112,7 +117,7 @@ protected slots:
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
-		if (!endstation_->microscopeInHomePosition()){
+		if (!endstation_->microscopeInSafePosition()){
 
 			AMControl *control = endstation_->control("Microscope motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
@@ -124,7 +129,7 @@ protected slots:
 	/// Handles the Microscope being clicked.
 	void microscopeClicked()
 	{
-		if (!endstation_->ccdInHomePosition()){
+		if (!endstation_->ccdInSafePosition()){
 
 			AMControl *control = endstation_->control("CCD motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
@@ -144,7 +149,7 @@ protected slots:
 	{
 		ccdButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (!endstation_->ccdInHomePosition(val))
+		if (!endstation_->ccdInSafePosition(val))
 			microscopeButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
 		else
 			microscopeButton_->setStyleSheet(this->styleSheet());
@@ -154,7 +159,7 @@ protected slots:
 	{
 		microscopeButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (!endstation_->microscopeInHomePosition(val))
+		if (!endstation_->microscopeInSafePosition(val))
 			ccdButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
 		else
 			ccdButton_->setStyleSheet(this->styleSheet());
