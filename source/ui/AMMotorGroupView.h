@@ -154,6 +154,8 @@ protected slots:
 protected:
 	/// Adds the standard actions to the popup menu based on its current view mode.
 	void buildStandardMenuItems(QMenu *menu);
+	/// Handles the standard actions from this class.
+	void handleStandardMenuItems(const QString &command);
 
 	/// Holds the view mode flag.
 	ViewMode viewMode_;

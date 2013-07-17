@@ -336,15 +336,20 @@ void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 
 	if (temp){
 
-		if (temp->text().contains("Switch to Multiple"))
-			setViewMode(Multiple);
-
-		else if (temp->text().contains("Switch to Exclusive"))
-			setViewMode(Exclusive);
-
-		else
-			setMotorGroupView(temp->text());
+		handleStandardMenuItems(temp->text());
 	}
+}
+
+void AMMotorGroupView::handleStandardMenuItems(const QString &command)
+{
+	if (command.contains("Switch to Multiple"))
+		setViewMode(Multiple);
+
+	else if (command.contains("Switch to Exclusive"))
+		setViewMode(Exclusive);
+
+	else
+		setMotorGroupView(command);
 }
 
 void AMMotorGroupView::setMotorGroupView(const QString &name)
