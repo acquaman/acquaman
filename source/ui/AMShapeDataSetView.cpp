@@ -493,16 +493,20 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     viewName_ = new QAction("Name", labelActionGroup);
     viewOtherData_ = new QAction("Data", labelActionGroup);
     viewIdNumber_ = new QAction("Id", labelActionGroup);
+    viewHidden_ = new QAction("Hide", labelActionGroup);
     viewName_->setCheckable(true);
     viewOtherData_->setCheckable(true);
     viewIdNumber_->setCheckable(true);
+    viewHidden_->setCheckable(true);
     viewName_->setChecked(true);
     connect(viewName_, SIGNAL(triggered()), this, SLOT(setViewName()));
     connect(viewOtherData_, SIGNAL(triggered()), this, SLOT(setViewOtherData()));
     connect(viewIdNumber_, SIGNAL(triggered()), this, SLOT(setViewIdNumber()));
+    connect(viewHidden_, SIGNAL(triggered()), this, SLOT(setViewHidden()));
     labelToolBar_->addAction(viewName_);
     labelToolBar_->addAction(viewOtherData_);
     labelToolBar_->addAction(viewIdNumber_);
+    labelToolBar_->addAction(viewHidden_);
 
     reviewCrosshairLinePositions();
 
@@ -597,6 +601,11 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
                     textItems_[i]->setPlainText(shapeModel_->data(i));
                 else if(currentView_ == ID)
                     textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
+
+                if(currentView_ == HIDE)
+                    textItems_[i]->hide();
+                else if(!textItems_[i]->isVisible())
+                    textItems_[i]->show();
             }
             else
             {
@@ -904,6 +913,12 @@ void AMShapeDataSetView::setViewOtherData()
 void AMShapeDataSetView::setViewIdNumber()
 {
     currentView_ = ID;
+    reviewCrosshairLinePositions();
+}
+
+void AMShapeDataSetView::setViewHidden()
+{
+    currentView_ = HIDE;
     reviewCrosshairLinePositions();
 }
 

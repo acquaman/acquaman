@@ -254,6 +254,7 @@ protected slots:
     void setViewName();
     void setViewOtherData();
     void setViewIdNumber();
+    void setViewHidden();
 
     void autoCompleteEnterPressed();
 
@@ -296,7 +297,7 @@ protected:
 
     enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
 
-    enum ViewMode{NAME,DATA,ID};
+    enum ViewMode{NAME,DATA,ID,HIDE};
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
@@ -406,6 +407,7 @@ protected:
     QAction* viewName_;
     QAction* viewOtherData_;
     QAction* viewIdNumber_;
+    QAction* viewHidden_;
 
     QPushButton* distortionButton_;
 

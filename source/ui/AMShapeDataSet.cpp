@@ -759,10 +759,13 @@ void AMShapeDataSet::setZoomPoint(QPointF position)
 /// change the current rectangles rotation
 void AMShapeDataSet::rotateRectangle(QPointF position)
 {
-    double rotation = shapeList_[current_]->rotation()+(position - currentVector_).x();
-    shapeList_[current_]->setRotation(rotation);
-    updateShape(current_);
-    currentVector_ = position;
+    if(isValid(current_))
+    {
+        double rotation = shapeList_[current_]->rotation()+(position - currentVector_).x();
+        shapeList_[current_]->setRotation(rotation);
+        updateShape(current_);
+        currentVector_ = position;
+    }
 }
 
 /// change the current rectangles depth
