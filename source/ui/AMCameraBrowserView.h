@@ -15,6 +15,8 @@ class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMCameraBrowser;
 
+#include <QMediaPlayer>
+
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMCameraBrowserView : public QWidget
 {
@@ -80,7 +82,7 @@ protected slots:
 
 
 	/// Called when the media player has an error (ex: invalid URL specified)
-	void onMediaPlayerError();
+	void onMediaPlayerError(QMediaPlayer::Error e);
 
 };
 

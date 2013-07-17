@@ -51,6 +51,59 @@ linux-g++ {
                 EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 
+macx {
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = dev
+
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+		# GSL Dependencies
+		#GSL_LIB = -lgsl
+		#GSL_CBLAS_LIB = -lgslcblas
+		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+
+		# GSL Dependencies
+		GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
+
+		# LibXML Dependencies (required by dacq library)
+		XML_LIB = -lxml2
+		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		#CDFLib dependencies
+		#CDF_LIB = -lcdf
+		#CDF_INCLUDE_DIR = /usr/local/include
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+		#Qt Mobility Dependencies
+                #MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.2-osx/lib/QtMultimediaKit.framework/Versions/Current
+                #MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+                #MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.2-osx/include/QtMultimediaKit
+                ##MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
+                #MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.2-osx/include/QtMobility
+
+                MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/Library/Frameworks/QtMultimediaKit.framework
+                MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+                MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMultimediaKit
+                #MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
+                MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMobility
+
+		#Eigen
+		EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+}
+
 QT += core gui sql opengl network
 
 # add video using Multimedia module from QtMobility, if we have it
@@ -75,6 +128,8 @@ LIBS += $$GSL_LIB \
 
 CONFIG(mobility) {
         INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
+	#INCLUDEPATH += $$MULTIMEDIA_QT_INCLUDE_SRC_DIR
+	INCLUDEPATH += $$MOBILITY_QT_INCLUDE_SRC_DIR
         LIBS += $$MOBILITY_QT_LIB
 }
 

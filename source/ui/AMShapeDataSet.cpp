@@ -50,7 +50,8 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     enableMotorMovement_ = false;
 
     // create the database
-    AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
+    //AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
+    AMDatabase *db = AMDatabase::createDatabase("user", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA/userdata.db");
     if(!db)
         qDebug() << "Uh oh, no database created";
     else

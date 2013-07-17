@@ -37,6 +37,7 @@ AMCameraBrowserView::AMCameraBrowserView(QWidget *parent, bool useOpenGlViewport
 
 
 #include <QDebug>
+#include <QApplication>
 void AMCameraBrowserView::onSourceComboBoxChanged(int index)
 {
     qDebug() << "Here in onSourceComboBoxChanged";
@@ -57,6 +58,7 @@ void AMCameraBrowserView::onSourceComboBoxChanged(int index)
 			setWindowTitle(url.toString());
             videoWidget_->setMedia(url);
             qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
+	    qDebug() << "Have a QApplication? " << QApplication::applicationName();
             videoWidget_->play();
 		}
 		else {
@@ -118,8 +120,10 @@ void AMCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
     cameraBrowser_->setCurrentURL(sourceURL);
 }
 
-void AMCameraBrowserView::onMediaPlayerError()
+void AMCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
+	qDebug() << "Error was " << e;
+	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
@@ -219,7 +223,7 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
 
 //        connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), cameraBrowser_, SLOT(onVideoWidgetDoubleClicked(QPointF)));
         connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
-        connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
 
 
 

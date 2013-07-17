@@ -707,10 +707,14 @@ void AMShapeDataSetView::toggleDistortion()
 void AMShapeDataSetView::setMedia(QMediaContent url)
 {
     shapeScene_->mediaPlayer()->setMedia(url);
+    qDebug() << "Status? " << shapeScene_->mediaPlayer()->mediaStatus();
 }
 
+#include <QApplication>
 void AMShapeDataSetView::play()
 {
+	qDebug() << "QApplication here" << QApplication::applicationName();
+	qDebug() << "Status later? " << shapeScene_->mediaPlayer()->mediaStatus();
     shapeScene_->mediaPlayer()->play();
 }
 
