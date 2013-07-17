@@ -13,11 +13,15 @@ class AMCameraConfigurationWizard : public QWizard
     Q_OBJECT
 public:
     enum {Page_Intro, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
-            Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five};
+            Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
     AMCameraConfigurationWizard(QWidget* parent = 0);
     int nextId() const;
+public slots:
+    void back();
 private slots:
     void showHelp();
+private:
+    bool backwards_;
 };
 
 
@@ -79,6 +83,8 @@ public:
     void initializePage();
 
     bool isComplete() const;
+
+    void stopTimer();
 
 private slots:
     void nextPage();

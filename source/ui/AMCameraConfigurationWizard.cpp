@@ -25,11 +25,16 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setPage(Page_Wait_Three, new WaitPage);
     setPage(Page_Wait_Four, new WaitPage);
     setPage(Page_Wait_Five, new WaitPage);
+    setPage(Page_Wait_Six, new WaitPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
 //    setPixmap(QWizard::LogoPixmap, QPixMap());
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
     setWindowTitle("Camera Wizard");
+//    connect(QWizard::button(QWizard::BackButton),SIGNAL(clicked()), this,SLOT(back()));
+    disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
+    connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
+    backwards_ = false;
 }
 
 int AMCameraConfigurationWizard::nextId() const
@@ -45,33 +50,82 @@ int AMCameraConfigurationWizard::nextId() const
             }
             else
             {
-                return Page_Select_One;
+                return Page_Wait_One;
             }
         case Page_Select_One:
-            return Page_Wait_One;
-        case Page_Select_Two:
             return Page_Wait_Two;
-        case Page_Select_Three:
+        case Page_Select_Two:
             return Page_Wait_Three;
-        case Page_Select_Four:
+        case Page_Select_Three:
             return Page_Wait_Four;
-        case Page_Select_Five:
+        case Page_Select_Four:
             return Page_Wait_Five;
+        case Page_Select_Five:
+            return Page_Wait_Six;
         case Page_Select_Six:
             return Page_Final;
         case Page_Wait_One:
-            return Page_Select_Two;
+            return Page_Select_One;
         case Page_Wait_Two:
-            return Page_Select_Three;
+            return Page_Select_Two;
         case Page_Wait_Three:
-            return Page_Select_Four;
+            return Page_Select_Three;
         case Page_Wait_Four:
-            return Page_Select_Five;
+            return Page_Select_Four;
         case Page_Wait_Five:
+            return Page_Select_Five;
+        case Page_Wait_Six:
             return Page_Select_Six;
         case Page_Final:
         default:
             return -1;
+    }
+}
+
+#include <QDebug>
+void AMCameraConfigurationWizard::back()
+{
+    qDebug()<<"AMCameraConfigurationWizard::back current Id() ="<<currentId();
+    int id = currentId();
+    switch(id)
+    {
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+        case Page_Wait_Four:
+        case Page_Wait_Five:
+        case Page_Wait_Six:
+            ((WaitPage*)page(id))->stopTimer();
+            QWizard::back();
+            break;
+        case Page_Select_One:
+            while(currentId() != Page_Check)
+            {
+                QWizard::back();
+            }
+            break;
+        case Page_Select_Two:
+            while(currentId() != Page_Wait_One) QWizard::back();
+            if(currentId() == Page_Wait_One) initializePage(Page_Wait_One);
+            break;
+        case Page_Select_Three:
+            while(currentId() != Page_Wait_Two) QWizard::back();
+            if(currentId() == Page_Wait_Two) initializePage(Page_Wait_Two);
+            break;
+        case Page_Select_Four:
+            while(currentId() != Page_Wait_Three) QWizard::back();
+            if(currentId() == Page_Wait_Three) initializePage(Page_Wait_Three);
+            break;
+        case Page_Select_Five:
+            while(currentId() != Page_Wait_Four) QWizard::back();
+            if(currentId() == Page_Wait_Four) initializePage(Page_Wait_Four);
+            break;
+        case Page_Select_Six:
+            while(currentId() != Page_Wait_Five) QWizard::back();
+            if(currentId() == Page_Wait_Five) initializePage(Page_Wait_Five);
+            break;
+        default:
+            QWizard::back();
     }
 }
 
@@ -211,6 +265,35 @@ void WaitPage::initializePage()
 {
 
     waitTimer_->start(1000);
+    int wizardId = wizard()->currentId();
+    int relativeId = 0;
+    switch(wizardId)
+    {
+    case AMCameraConfigurationWizard::Page_Wait_One:
+        relativeId = 1;
+        break;
+    case AMCameraConfigurationWizard::Page_Wait_Two:
+        relativeId = 2;
+        break;
+    case AMCameraConfigurationWizard::Page_Wait_Three:
+        relativeId = 3;
+        break;
+    case AMCameraConfigurationWizard::Page_Wait_Four:
+        relativeId = 4;
+        break;
+    case AMCameraConfigurationWizard::Page_Wait_Five:
+        relativeId = 5;
+        break;
+    case AMCameraConfigurationWizard::Page_Wait_Six:
+        relativeId = 6;
+        break;
+    default:
+        relativeId = 0;
+        break;
+    }
+
+    QString title = QString("Moving to position %1").arg(relativeId);
+    setTitle(title);
 }
 
 bool WaitPage::isComplete() const
@@ -218,8 +301,14 @@ bool WaitPage::isComplete() const
     return false;
 }
 
+void WaitPage::stopTimer()
+{
+    waitTimer_->stop();
+}
+
 void WaitPage::nextPage()
 {
     waitTimer_->stop();
     wizard()->next();
 }
+
