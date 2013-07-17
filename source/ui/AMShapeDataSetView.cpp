@@ -820,10 +820,7 @@ void AMShapeDataSetView::runCameraConfiguration()
         points[i] = QPointF(pointLineEdit_[2*i]->text().toDouble(),pointLineEdit_[2*i+1]->text().toDouble());
         coordinates [i] = QVector3D(coordinateLineEdit_[3*i]->text().toDouble(),coordinateLineEdit_[3*i+1]->text().toDouble(),coordinateLineEdit_[3*i+2]->text().toDouble());
     }
-    for(int i = 1; i < SAMPLEPOINTS; i++)
-    {
-        coordinates[i] -= coordinates[0];
-    }
+
     shapeModel_->findCamera(points,coordinates);
     cameraConfiguration_->updateAll();
     reviewCrosshairLinePositions();
@@ -1430,7 +1427,6 @@ void AMShapeDataSetView::deleteShape()
 /// change the currently selected item, outline it in blue?
 void AMShapeDataSetView::currentSelectionChanged()
 {
-//    emit currentChanged();
     if(shapeModel_->isValid(current_))
         shapes_[current_]->setPen(borderColour_);
     current_ = shapeModel_->currentIndex();
@@ -1447,6 +1443,7 @@ void AMShapeDataSetView::currentSelectionChanged()
     {
         shapes_[current_]->setPen(activeBorderColour_);
     }
+    reviewCrosshairLinePositions();
 
 }
 

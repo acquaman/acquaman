@@ -19,6 +19,8 @@ public:
     AMShapeData();
     AMShapeData(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
 
+    ~AMShapeData();
+
     /// accessors
     QPolygonF* shape();
     QString name();
@@ -57,6 +59,8 @@ public:
 
     /// checks the direction
     bool backwards();
+
+    bool operator==(const AMShapeData& other) const;
 
 protected:
     /// the 2D shape to store

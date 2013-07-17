@@ -28,6 +28,11 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
 
 }
 
+AMShapeData::~AMShapeData()
+{
+    coordinate_.clear();
+}
+
 QPolygonF* AMShapeData::shape()
 {
     return shape_;
@@ -193,6 +198,36 @@ bool AMShapeData::backwards()
     QVector3D normal = QVector3D::normal(rayOne,rayTwo);
     // normal should be either positive or negative 1;
     return(normal.z() < 0);
+}
+
+bool AMShapeData::operator ==(const AMShapeData &other) const
+{
+    if(other.name_ != name_)
+        return false;
+    if(other.idNumber_ != idNumber_)
+        return false;
+    if(other.otherData_ != otherData_)
+        return false;
+    if(other.rotation_ != rotation_)
+        return false;
+    if(other.height_ != height_)
+        return false;
+    if(other.width_ != width_)
+        return false;
+    if(other.tilt_ != tilt_)
+        return false;
+    if(other.yAxisRotation_ != yAxisRotation_)
+        return false;
+    if(other.coordinateCount_ != coordinateCount_)
+        return false;
+    if(other.shape_ != shape_)
+        return false;
+    for(int i = 0; i < coordinateCount_; i++)
+    {
+        if(other.coordinate_.at(i) != coordinate_.at(i))
+            return false;
+    }
+    return true;
 }
 
 /// checks for a valid coordinate index

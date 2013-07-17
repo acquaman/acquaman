@@ -154,8 +154,7 @@ public:
     void setScaledSize(QSizeF scaledSize);
 
 
-
-    // not really used (done through shapedataview/shapedata)
+    /// setters for shape elements
     void setCurrentName(QString name);
     void setCurrentInfo(QString info);
     void setRotation(double rotation, int index = -1);
@@ -232,14 +231,16 @@ public slots:
     /// creates the group rectangle
     void startGroupRectangle(QPointF position);
 
+    /// draws a non-rectangular shape
     void drawShape(QPointF position);
 
+    /// completes the non-rectangular shape currently being drawn
     void finishShape();
 
 
     /// --------------------------------------------------------------------------------
 
-
+    /// starts the drawing of polygon
     void startMultiDraw();
 
 
@@ -275,6 +276,7 @@ public slots:
     /// sets the shape to draw on
     void setDrawOnShape();
 
+    /// enables drawing on the set shap
     void setDrawOnShapeEnabled(bool enable);
 
 
@@ -357,25 +359,19 @@ protected:
     /// based on the current camera model
     QVector3D transform2Dto3D(QPointF point, double depth);
 
+    /// transforms 2D point to 3D vector, using current camera matrix
     QVector3D transform2Dto3DMatrix(QPointF point, double depth);
 
     /// transforms a 3D vector to a 2D point, using current camera configuration
     QPointF transform3Dto2D(QVector3D coordinate);
 
+    /// transforms 3D vector to 2D point, using current camera matrix
     QPointF transform3Dto2DMatrix(QVector3D coordinate);
-
-//    /// scales a vector based on distance
-//    QPointF transformVector(QPointF vector, QVector3D coordinate);
-
-//    /// invers scaling of vector
-//    QPointF inverseVectorTransform(QPointF vector, QVector3D coordinate);
-
-
 
 
     /// Helper functions
 
-    /// makes the shape screen sized
+    /// converts a shape from normalized coordinates to an actual screen position
     QPolygonF screenShape(QPolygonF shape);
 
     /// builds a rectangle from the specified points
@@ -438,13 +434,22 @@ protected:
     /// finds absolute coordinates from a coordinate and an extrinsic Matrix
     MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
 
+    /// returns the unit vector in the direction of the last line in the shape.
+    /// for a rectangle this is the "upward" direction
     QVector3D getHeightNormal(AMShapeData shape);
+    /// returns the unit vector in the direction of the first line in the shape
+    /// for a rectangle this is the "right" direction
     QVector3D getWidthNormal(AMShapeData shape);
+    /// returns the vector normal to heightVector and widthVector
     QVector3D getNormal(QVector3D heightVector, QVector3D widthVector);
+    /// returns the vector normal to the given shape
     QVector3D getNormal(AMShapeData shape);
+    /// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
     QVector3D getPointOnShape(QPointF position,QVector3D normal);
 
+    /// returns the unit vector in the direction of the top of the screen to the bottom
     QVector3D downVector();
+    /// returns the unit vector in the direction from the left of the screen to the right
     QVector3D rightVector();
 
 
@@ -457,7 +462,7 @@ protected:
 
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles
-    QMap<int,AMShapeData> shapeList_;
+    QList<AMShapeData*> shapeList_;
 
     /// highest current index
     int index_;
@@ -489,6 +494,7 @@ protected:
     /// intersections
     QVector<QPolygonF> intersections_;
 
+    /// the position of the crosshair
     QPointF crosshair_;
 
     bool crosshairLocked_;
@@ -506,12 +512,16 @@ protected:
 
     /// motor manipulators
 
+    /// X motor
     SGMMAXvMotor *ssaManipulatorX_;
 
+    /// Y motor
     SGMMAXvMotor *ssaManipulatorY_;
 
+    /// Z motor
     SGMMAXvMotor *ssaManipulatorZ_;
 
+    /// rotation motor
     SGMMAXvMotor *ssaManipulatorRot_;
 
     /// enables or disables motor movement
@@ -522,7 +532,7 @@ protected:
     QVector3D directionOfRotation_;
 
     /// list of points used in camera calibration
-    int calibrationPoints_[SAMPLEPOINTS];
+    AMShapeData* calibrationPoints_[SAMPLEPOINTS];
 
     /// checked to see if using camera matrix
     bool useCameraMatrix_;
@@ -530,12 +540,16 @@ protected:
     /// checked to see if calibration has been run
     bool calibrationRun_;
 
+    /// the shape to draw on, if enabled
     AMShapeData drawOnShape_;
 
+    /// true if drawing on shape is enabled
     bool drawOnShapeEnabled_;
 
+    /// true if a drawOnShape_ is a valid shape
     bool drawOnShapeSelected_;
 
+    /// the polygon currently being drawn
     QPolygonF currentPolygon_;
 
 
