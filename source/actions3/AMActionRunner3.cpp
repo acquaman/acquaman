@@ -64,8 +64,10 @@ void AMActionRunner3::releaseWorkflow()
 }
 
 AMActionRunner3* AMActionRunner3::scanActionRunner(){
-	if(!scanActionRunnerInstance_)
-		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
+	if(!scanActionRunnerInstance_){
+		//scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
+		scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
+	}
 	return scanActionRunnerInstance_;
 }
 
@@ -95,7 +97,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			if(parentAction)
 				parentLogId = parentAction->logActionId();
 
-			if(!AMActionLog3::logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			if(loggingDatabase_ && !AMActionLog3::logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -140,12 +142,12 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		if(parentAction)
 			parentLogId = parentAction->logActionId();
 		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
-			if(!AMActionLog3::logCompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			if(loggingDatabase_ && !AMActionLog3::logCompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
 		else if(listAction){
-			if(!AMActionLog3::updateCompletedAction(currentAction_, loggingDatabase_)) {
+			if(loggingDatabase_ && !AMActionLog3::updateCompletedAction(currentAction_, loggingDatabase_)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -443,7 +445,7 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 		if(parentAction)
 			parentLogId = parentAction->logActionId();
 		// log it:
-		if(!AMActionLog3::logCompletedAction(action, loggingDatabase_, parentLogId)) {
+		if(loggingDatabase_ && !AMActionLog3::logCompletedAction(action, loggingDatabase_, parentLogId)) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -201, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 		}
 

@@ -320,7 +320,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
 			int parentLogId = logActionId();
-			if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
+			if(loggingDatabase_ && !AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 				//NEM April 5th, 2012
 			}
 		}
@@ -329,14 +329,15 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
-			if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
+			if(loggingDatabase_ && !AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
 				//NEM April 5th, 2012
 			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction)){
 				int parentLogId = logActionId();
-				AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				if(loggingDatabase_)
+					AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
 			}
 		}
 	}
