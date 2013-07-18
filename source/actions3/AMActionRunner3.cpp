@@ -39,6 +39,7 @@ AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, QObject *parent) :
 	QObject(parent)
 {
 	loggingDatabase_ = loggingDatabase;
+	cachedLogCount_ = 0;
 	currentAction_ = 0;
 	isPaused_ = true;
 	queueModel_ = new AMActionRunnerQueueModel3(this, this);
@@ -65,8 +66,8 @@ void AMActionRunner3::releaseWorkflow()
 
 AMActionRunner3* AMActionRunner3::scanActionRunner(){
 	if(!scanActionRunnerInstance_){
-		//scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
-		scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
+		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
+		//scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
 	}
 	return scanActionRunnerInstance_;
 }
@@ -497,6 +498,14 @@ bool AMActionRunner3::cancelImmediateActions()
 	foreach(AMAction3* action, immediateActions_)
 		action->cancel();
 	return true;
+}
+
+void AMActionRunner3::incrementCachedLogCount(){
+	cachedLogCount_++;
+}
+
+void AMActionRunner3::resetCachedLogCount(){
+	cachedLogCount_ = 0;
 }
 
 int AMActionRunner3::indexOfQueuedAction(const AMAction3 *action) {

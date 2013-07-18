@@ -98,6 +98,7 @@ public:
 	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
 
 	AMDatabase* loggingDatabase() const { return loggingDatabase_; }
+	int cachedLogCount() const { return cachedLogCount_;}
 
 
 	// The Current Action that we (might be)/are executing
@@ -179,6 +180,9 @@ public slots:
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();
 
+	void incrementCachedLogCount();
+	void resetCachedLogCount();
+
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
@@ -194,6 +198,7 @@ protected:
 
 	AMActionRunnerQueueModel3* queueModel_;
 	AMDatabase *loggingDatabase_;
+	int cachedLogCount_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();

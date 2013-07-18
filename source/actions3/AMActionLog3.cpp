@@ -164,8 +164,20 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
+#include "actions3/AMActionRunner3.h"
 bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
 		AMActionLog3 actionLog(uncompletedAction);
 		actionLog.setParentId(parentLogId);
 		bool success = actionLog.storeToDb(database);
@@ -186,6 +198,17 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG, "The actions logging system attempted to update a log action that hadn't already been saved. Please report this problem to the Acquaman developers.");
 			return false;
 		}
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
 		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
 		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
 		if(matchingIds.count() == 0){
@@ -206,6 +229,17 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 
 bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database, int parentLogId){
 	if(completedAction && completedAction->inFinalState()) {
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
 		AMActionLog3 actionLog(completedAction);
 		actionLog.setParentId(parentLogId);
 		return actionLog.storeToDb(database);
