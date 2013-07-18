@@ -1,5 +1,5 @@
-#ifndef CLSPSEUDOMOTORGROUPOBJECT_H
-#define CLSPSEUDOMOTORGROUPOBJECT_H
+#ifndef CLSPSEUDOMOTORGROUP_H
+#define CLSPSEUDOMOTORGROUP_H
 
 #include "beamline/AMMotorGroup.h"
 
@@ -13,6 +13,7 @@ public:
 	CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent = 0);
 	/// Constructor.  Builds a new motor group object which mimics the AMMotorGroupObject with up to three controls.
 	CLSPseudoMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, AMControl *resetControl, QObject *parent = 0);
+
 	/// Returns the reset control.
 	AMControl *resetControl() const { return resetControl_; }
 
@@ -25,4 +26,4 @@ protected:
 	AMControl *resetControl_;
 };
 
-#endif // CLSPSEUDOMOTORGROUPOBJECT_H
+#endif // CLSPSEUDOMOTORGROUP_H

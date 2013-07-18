@@ -334,10 +334,8 @@ void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 
 	temp = popup.exec(mapToGlobal(pos));
 
-	if (temp){
-
+	if (temp)
 		handleStandardMenuItems(temp->text());
-	}
 }
 
 void AMMotorGroupView::handleStandardMenuItems(const QString &command)

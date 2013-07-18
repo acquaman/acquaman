@@ -47,7 +47,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
-	motorGroupView_ = new AMMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
 	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 

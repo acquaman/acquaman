@@ -1,4 +1,4 @@
-#include "CLSPseudoMotorGroupObject.h"
+#include "CLSPseudoMotorGroup.h"
 
 CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent)
 	: AMMotorGroupObject(name, prefix, units, control, orientation, motionType, parent)

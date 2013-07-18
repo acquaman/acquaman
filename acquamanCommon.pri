@@ -685,7 +685,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
 	source/ui/AMMotorGroupView.h \
-    source/beamline/CLS/CLSPseudoMotorGroupObject.h
+	source/ui/CLS/CLSPseudoMotorGroupView.h \
+	source/beamline/CLS/CLSPseudoMotorGroup.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1155,7 +1156,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
 	source/ui/AMMotorGroupView.cpp \
-    source/beamline/CLS/CLSPseudoMotorGroupObject.cpp
+	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
+	source/beamline/CLS/CLSPseudoMotorGroup.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1179,29 +1181,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
