@@ -106,7 +106,7 @@ void AMBeamConfiguration::alignPositionTwo()
 
 int AMBeamConfiguration::count()
 {
-    return positionOne_.count();
+    return std::min(positionOne_.count(), positionTwo_.count());
 }
 
 QVector3D AMBeamConfiguration::findCenter(QVector<QVector3D> shape)

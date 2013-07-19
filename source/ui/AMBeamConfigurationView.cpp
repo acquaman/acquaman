@@ -335,7 +335,7 @@ void AMBeamConfigurationView::updateData()
     QVector<QVector3D> positionTwo = beamModel_->positionTwo();
     for(int i = 0; i < 4; i++)
     {
-        if(!positionOne.isEmpty() && !positionOne[i].isNull())
+        if(!positionOne.isEmpty() && positionOne.count() > i && !positionOne[i].isNull())
         {
 
             switch(i)
@@ -357,7 +357,7 @@ void AMBeamConfigurationView::updateData()
             qDebug()<<"invalid first shape";
         }
 
-        if(!positionTwo.isEmpty() && !positionTwo[i].isNull())
+        if(!positionTwo.isEmpty() && positionTwo.count() > i && !positionTwo[i].isNull())
         {
             switch(i)
             {

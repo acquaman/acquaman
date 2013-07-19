@@ -60,6 +60,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
+
+
     borderColour_ = QColor(Qt::red);
 
     activeBorderColour_ = QColor(Qt::blue);
@@ -72,6 +74,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     mode_ = DRAW;
 
 
+    cameraWizard_ = new AMCameraConfigurationWizard();
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
+    view->setScene(shapeScene_->scene());
+    cameraWizard_->setView(view);
 
 
     ///GUI Setup
@@ -157,6 +163,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(labelToolBar_ = new QToolBar("Labels"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -262,8 +270,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfigurationWindow_->setLayout(ccvl);
     cameraConfigurationWindow_->setWindowTitle("Calibrate Camera");
 
-    AMCameraConfigurationWizard* wizard = new AMCameraConfigurationWizard();
-    wizard->show();
+
 
 
 
@@ -448,6 +455,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
 
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
+    connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
 
     /// allows non-rectangle drawing
 
@@ -508,7 +516,12 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     labelToolBar_->addAction(viewIdNumber_);
     labelToolBar_->addAction(viewHidden_);
 
+    /// wizard
+
+
     reviewCrosshairLinePositions();
+
+
 
 
 }
@@ -1058,6 +1071,7 @@ void AMShapeDataSetView::setUseCameraMatrix(bool use)
 {
     shapeModel_->setUseCameraMatrix(use);
     shapeModel_->updateAllShapes();
+    reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::showCameraBeamWindow()
@@ -1080,6 +1094,39 @@ void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
 {
     shapeModel_->setDrawOnShapeEnabled(enable);
     drawOnShapePushButton_->setDisabled(!enable);
+}
+
+void AMShapeDataSetView::reviewCameraConfiguration()
+{
+    bool review = false;
+    QList<QPointF*>* pointList = cameraWizard_->pointList();
+    foreach(QPointF* point, *pointList)
+    {
+        if(*point != QPointF(0,0))
+            review = true;
+    }
+
+    QList<QVector3D*>* coordinateList = cameraWizard_->coordinateList();
+    QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
+    QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
+    QPointF factor = bottomRight - topLeft;
+    QPointF offset = topLeft;
+    QPointF positions[SAMPLEPOINTS];
+    QVector3D coordinates[SAMPLEPOINTS];
+    if(review)
+    {
+        for(int i = 0; i < SAMPLEPOINTS; i++)
+        {
+            positions[i] = (*pointList->at(i));
+            positions[i].setX(positions[i].x()*(factor.x()));
+            positions[i].setY(positions[i].y()*(factor.y()));
+            positions[i] += offset;
+            coordinates[i] = *coordinateList->at(i);
+        }
+        shapeModel_->findCamera(positions,coordinates);
+        shapeModel_->updateAllShapes();
+        reviewCrosshairLinePositions();
+    }
 }
 
 void AMShapeDataSetView::setTilt(QString tilt)
@@ -1191,6 +1238,19 @@ void AMShapeDataSetView::hideCameraParameters(bool hide)
 {
     cameraConfiguration_->hideCameraParameters(hide);
     configurationWindow_->adjustSize();
+}
+
+void AMShapeDataSetView::startCameraWizard()
+{
+    delete cameraWizard_;
+    cameraWizard_ = new AMCameraConfigurationWizard();
+    connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
+    view->setScene(shapeScene_->scene());
+    view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
+    cameraWizard_->setView(view);
+//    cameraWizard_->restart();
+    cameraWizard_->show();
 }
 
 void AMShapeDataSetView::updateCurrentShape()

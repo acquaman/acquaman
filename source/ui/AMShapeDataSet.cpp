@@ -883,7 +883,7 @@ void AMShapeDataSet::finishShape()
         }
     }
 
-    AMShapeData* polygon;
+    AMShapeData* polygon = new AMShapeData();
     polygon->setCoordinateShape(coordinates,coordinates.count());
     polygon->setName("Shape " + QString::number(index_));
     polygon->setRotation(0);

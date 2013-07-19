@@ -28,8 +28,8 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	resize(size());
 
 	// Widgets on top!
-//	QPushButton* test = new QPushButton("Help!");
-//	scene()->addWidget(test);
+//    QPushButton* test = new QPushButton("Help!");
+//    scene()->addWidget(test);
 
 }
 

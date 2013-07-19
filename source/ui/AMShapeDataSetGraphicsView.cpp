@@ -59,6 +59,11 @@ void AMShapeDataSetGraphicsView::mouseMoveEvent(QMouseEvent *event)
         emit mouseMoved(mapSceneToVideo(mapToScene(event->pos())));
 }
 
+void AMShapeDataSetGraphicsView::setVideoItem(QGraphicsVideoItem *item)
+{
+    videoItem_ = item;
+}
+
 
 QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
