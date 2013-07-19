@@ -437,7 +437,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 			if(!databaseBackupDir.cd(".BACKUPS")){
 				databaseBackupDir.mkdir(".BACKUPS");
 				if(!databaseBackupDir.cd(".BACKUPS")){
-					lastErrorString = QString("Failure to create or find backup directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Failure to create or find backup directory for upgrade %1 in database %2").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade());
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND;
 					success = false;
 				}
@@ -445,7 +445,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 			if(success && !databaseBackupDir.cd(backupsSubFolder)){
 				databaseBackupDir.mkdir(backupsSubFolder);
 				if(!databaseBackupDir.cd(backupsSubFolder)){
-					lastErrorString = QString("Failure to create or find backup sub directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Failure to create or find backup sub directory for upgrade %1 in database %2 as %3").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade()).arg(backupsSubFolder);
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_SUBDIRECTORY_NOT_FOUND;
 					success = false;
 				}

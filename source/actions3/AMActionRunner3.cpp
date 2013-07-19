@@ -68,8 +68,10 @@ void AMActionRunner3::releaseWorkflow()
 }
 
 AMActionRunner3* AMActionRunner3::scanActionRunner(){
-	if(!scanActionRunnerInstance_)
+	if(!scanActionRunnerInstance_){
 		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
+		//scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
+	}
 	return scanActionRunnerInstance_;
 }
 

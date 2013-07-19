@@ -467,6 +467,7 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 
 int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
 	AMActionLogItem3 *item = logItem(parent);
+
 	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) ){
 		if(item->numberOfChildren() != -1)
 			return item->numberOfChildren();
