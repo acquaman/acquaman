@@ -8,7 +8,7 @@ class AMShapeDataSetGraphicsView : public AMOverlayVideoWidget2
 {
     Q_OBJECT
 public:
-    explicit AMShapeDataSetGraphicsView(QWidget *parent, bool useOpenGlViewport = true);
+    explicit AMShapeDataSetGraphicsView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
     void resizeEvent(QResizeEvent *event);
 

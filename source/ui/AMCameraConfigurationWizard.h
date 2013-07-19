@@ -3,6 +3,7 @@
 
 #include <QWizard>
 #include <QList>
+#include "AMGraphicsViewWizard.h"
 
 
 class QLabel;
@@ -13,7 +14,7 @@ class QGraphicsItem;
 class QPointF;
 class QVector3D;
 
-class AMCameraConfigurationWizard : public QWizard
+class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
 public:
@@ -22,14 +23,14 @@ public:
     AMCameraConfigurationWizard(QWidget* parent = 0);
     ~AMCameraConfigurationWizard();
     int nextId() const;
-    AMShapeDataSetGraphicsView* view();
-    QGraphicsItem* videoItem();
+//    AMShapeDataSetGraphicsView* view();
+//    QGraphicsItem* videoItem();
 
-    QPointF scale();
+//    QPointF scale();
 
-    void setScale(QPointF scale);
+//    void setScale(QPointF scale);
 
-    void setScale(double scaleFactor);
+//    void setScale(double scaleFactor);
 
     void addPoint(QPointF position);
 
@@ -42,7 +43,7 @@ public slots:
     void back();
     /// sets the view
     /// duplicates the scene in the passed view, does not keep the original one
-    void setView(AMShapeDataSetGraphicsView* view);
+//    void setView(AMShapeDataSetGraphicsView* view);
 
     void allDone();
 
@@ -53,14 +54,14 @@ signals:
 private slots:
     void showHelp();
 private:
-    bool backwards_;
+//    bool backwards_;
 
-    QPointF scale_;
+//    QPointF scale_;
 
     QList<QPointF*>* pointList_;
     QList<QVector3D*>* coordinateList_;
 
-    AMShapeDataSetGraphicsView* view_;
+//    AMShapeDataSetGraphicsView* view_;
 
     int numberOfPoints_;
 };
@@ -130,7 +131,7 @@ private:
     AMShapeDataSetGraphicsView* view_;
 };
 
-class WaitPage : public QWizardPage
+class WaitPage : public AMWaitPage
 {
     Q_OBJECT
 public:
@@ -138,16 +139,8 @@ public:
 
     void initializePage();
 
-    bool isComplete() const;
-
-    void stopTimer();
-
-private slots:
-    void nextPage();
-
 private:
     QLabel* topLabel_;
-    QTimer* waitTimer_;
 };
 
 #endif // AMCAMERACONFIGURATIONWIZARD_H

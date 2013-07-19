@@ -21,7 +21,7 @@
 
 
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
-    : QWizard(parent)
+    : AMGraphicsViewWizard(parent)
 {
     numberOfPoints_ = 6;
     setPage(Page_Intro, new IntroPage);
@@ -48,9 +48,9 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SLOT(allDone()));
-    backwards_ = false;
-    scale_ = QPointF(1,1);
-    view_ = new AMShapeDataSetGraphicsView(0);
+//    backwards_ = false;
+//    scale_ = QPointF(1,1);
+//    view_ = new AMShapeDataSetGraphicsView(0);
 
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
@@ -87,7 +87,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 {
 
-    delete view_;
+//    delete view_;
     pointList_->clear();
     delete pointList_;
 
@@ -141,29 +141,30 @@ int AMCameraConfigurationWizard::nextId() const
     }
 }
 
-AMShapeDataSetGraphicsView *AMCameraConfigurationWizard::view()
-{
-    return view_;
-}
 
-QPointF AMCameraConfigurationWizard::scale()
-{
-    return scale_;
-}
+//AMShapeDataSetGraphicsView *AMCameraConfigurationWizard::view()
+//{
+//    return view_;
+//}
 
-void AMCameraConfigurationWizard::setScale(QPointF scale)
-{
-    scale_ = scale;
-    view_->scale(scale_.x(),scale_.y());
-}
+//QPointF AMCameraConfigurationWizard::scale()
+//{
+//    return scale_;
+//}
 
-void AMCameraConfigurationWizard::setScale(double scaleFactor)
-{
-    setScale(QPointF(1/scale().x(),1/scale().y()));
+//void AMCameraConfigurationWizard::setScale(QPointF scale)
+//{
+//    scale_ = scale;
+//    view_->scale(scale_.x(),scale_.y());
+//}
 
-    QPointF scalePoint(scaleFactor,scaleFactor);
-    setScale(scalePoint);
-}
+//void AMCameraConfigurationWizard::setScale(double scaleFactor)
+//{
+//    setScale(QPointF(1/scale().x(),1/scale().y()));
+
+//    QPointF scalePoint(scaleFactor,scaleFactor);
+//    setScale(scalePoint);
+//}
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
@@ -197,7 +198,7 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
         return;
 
 
-    QList<QGraphicsItem*> list = view_->items();
+    QList<QGraphicsItem*> list = view()->items();
     QGraphicsVideoItem* videoItem;
     foreach(QGraphicsItem* item, list)
     {
@@ -211,14 +212,14 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
     newPoint = pointList_->at(index);
     QPointF topLeft = videoItem->sceneBoundingRect().topLeft();
     QPointF bottomRight = videoItem->sceneBoundingRect().bottomRight();
-    double left = view_->mapSceneToVideo(topLeft).x();
-    double right = view_->mapSceneToVideo(bottomRight).x();
-    double top = view_->mapSceneToVideo(topLeft).y();
-    double bottom = view_->mapSceneToVideo(bottomRight).y();
-    double positionX = position.x();//right;
+    double left = view()->mapSceneToVideo(topLeft).x();
+    double right = view()->mapSceneToVideo(bottomRight).x();
+    double top = view()->mapSceneToVideo(topLeft).y();
+    double bottom = view()->mapSceneToVideo(bottomRight).y();
+    double positionX = position.x();
     positionX = (positionX - left);
     positionX = positionX/(right-left);
-    double positionY= position.y();//view_->mapSceneToVideo(bottomRight).y();
+    double positionY= position.y();
     positionY = positionY - top;
     positionY = positionY/(bottom-top);
     QPointF newPosition(positionX,positionY);
@@ -292,18 +293,18 @@ void AMCameraConfigurationWizard::back()
     }
 }
 
-void AMCameraConfigurationWizard::setView(AMShapeDataSetGraphicsView* view)
-{
-    view_ = view;
+//void AMCameraConfigurationWizard::setView(AMShapeDataSetGraphicsView* view)
+//{
+//    view_ = view;
 
-    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
-    copier->cloneScene(view->scene());
-    view_->setScene(copier->scene());
+//    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
+//    copier->cloneScene(view->scene());
+//    view_->setScene(copier->scene());
 
-    view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-}
+//    view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+//    view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+//    view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+//}
 
 void AMCameraConfigurationWizard::allDone()
 {
@@ -350,7 +351,7 @@ CheckPage::CheckPage(QWidget *parent)
     topLabel_->setWordWrap(true);
     isConfigured_ = new QCheckBox("Is the camera correct?");
 
-    checkView_ = new AMShapeDataSetGraphicsView(0);
+    checkView_ = new AMShapeDataSetGraphicsView();
 
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -382,6 +383,8 @@ void CheckPage::initializePage()
     viewLayout->addWidget(checkView_);
     viewLayout->addStretch();
     viewFrame->setLayout(viewLayout);
+    qDebug()<<"CheckPage::initializePage view name is"<<checkView_->objectName();
+    qDebug()<<"CheckPage::initializePage scene name is"<<checkView_->scene()->objectName();
 
 
     layout()->addWidget(viewFrame);
@@ -401,6 +404,7 @@ void CheckPage::cleanupPage()
     layout->addWidget(isConfigured_);
     layout->addStretch();
     setLayout(layout);
+
 }
 
 
@@ -471,9 +475,13 @@ void SelectPage::initializePage()
 
     setTitle("Selection Page " + QString::number(relativeId));
 
-    topLabel_->setText(topLabel_->text()+ QString::number(relativeId));
+    QVector3D coordinate = *((AMCameraConfigurationWizard*)wizard())->coordinateList()->at(relativeId-1);
+
+    topLabel_->setText(QString("Select the point corresponding to the coordinate: %1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
 
     setSelectionView(((AMCameraConfigurationWizard*)wizard())->view());
+    qDebug()<<"SelectPage::initializePage view name is"<<view_->objectName();
+    qDebug()<<"SelectPage::initializePage scene name is"<<view_->scene()->objectName();
 
     QFrame* viewFrame = new QFrame();
     QHBoxLayout* viewLayout = new QHBoxLayout();
@@ -516,29 +524,22 @@ void SelectPage::addPoint(QPointF position)
 
 
 WaitPage::WaitPage(QWidget *parent)
-    : QWizardPage(parent)
+    : AMWaitPage(parent)
 {
-
     setTitle("Wait Page");
     topLabel_ = new QLabel(tr("Please wait until the next page appears."));
     topLabel_->setWordWrap(true);
-    waitTimer_ = new QTimer();
-
-
-
-
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(topLabel_);
     setLayout(layout);
 
-    connect(waitTimer_, SIGNAL(timeout()), this, SLOT(nextPage()));
 }
 
 void WaitPage::initializePage()
 {
 
-    waitTimer_->start(1000);
+    AMWaitPage::startTimer(1000);
     int wizardId = wizard()->currentId();
     int relativeId = 0;
     switch(wizardId)
@@ -570,21 +571,7 @@ void WaitPage::initializePage()
     setTitle(title);
 }
 
-bool WaitPage::isComplete() const
-{
-    return false;
-}
 
-void WaitPage::stopTimer()
-{
-    waitTimer_->stop();
-}
-
-void WaitPage::nextPage()
-{
-    waitTimer_->stop();
-    wizard()->next();
-}
 
 
 

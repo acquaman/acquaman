@@ -271,55 +271,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfigurationWindow_->setWindowTitle("Calibrate Camera");
 
 
-
-
-
-//    viewPortWindow_ = new QFrame();
-//    QVBoxLayout* mainViewPortLayout = new QVBoxLayout();
-//    mainViewPortLayout->setContentsMargins(0,0,0,0);
-
-//    int number = 3;
-//    QFrame* viewFrame[number];
-//    QHBoxLayout* viewLayout[number];
-
-
-
-//    for(int i = 0; i < number; i++)
-//    {
-//        viewFrame[i] = new QFrame();
-//        viewLayout[i] = new QHBoxLayout();
-//        viewLayout[i]->setContentsMargins(12,4,12,4);
-//    }
-//    viewLayout[0]->addWidget(new QLabel("View port widget"));
-//    viewLayout[1]->addWidget(viewPortView_ = new QGraphicsView());
-//    viewLayout[2]->addWidget(new QPushButton("View"));
-
-//    for(int i = 0; i < number; i++)
-//    {
-//        viewLayout[i]->addStretch();
-//        viewFrame[i]->setLayout(viewLayout[i]);
-//        mainViewPortLayout->addWidget(viewFrame[i]);
-//    }
-//    viewPortWindow_->setLayout(mainViewPortLayout);
-//    viewPortWindow_->setWindowTitle("Scene sub view");
-
-//    viewPortView_->setScene(shapeScene_->scene());
-//    viewMediaPlayer_ = new QMediaPlayer();
-//    QGraphicsVideoItem* item = new QGraphicsVideoItem();
-//    viewMediaPlayer_->setVideoOutput(item);
-//    viewPortView_->scene()->addItem(shapeScene_->videoItem());
-//    viewPortView_->scene()->addItem(item);
-//    viewMediaPlayer_->setMedia(QUrl("http://10.52.48.104/axis-cgi/mjpg/video.cgi?resolution=CIF"));//mediaPlayer()->media().canonicalUrl()));
-//    viewMediaPlayer_->play();
-//    qDebug()<<viewMediaPlayer_->media().canonicalUrl();
-//    viewPortView_->setSceneRect(0,0,500,500);
-
-
-
-//    viewPortWindow_->show();
-
-
-
     index_ = 0;
     groupRectangleActive_= false;
 
@@ -516,7 +467,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     labelToolBar_->addAction(viewIdNumber_);
     labelToolBar_->addAction(viewHidden_);
 
-    /// wizard
+
+    bool defaultUseCameraMatrix = true;
+    cameraMatrixCheckBox_->setChecked(defaultUseCameraMatrix);
+    setUseCameraMatrix(defaultUseCameraMatrix);
+    hideCameraParameters(defaultUseCameraMatrix);
 
 
     reviewCrosshairLinePositions();
@@ -1124,6 +1079,7 @@ void AMShapeDataSetView::reviewCameraConfiguration()
             coordinates[i] = *coordinateList->at(i);
         }
         shapeModel_->findCamera(positions,coordinates);
+        cameraConfiguration_->updateAll();
         shapeModel_->updateAllShapes();
         reviewCrosshairLinePositions();
     }
