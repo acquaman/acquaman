@@ -82,6 +82,10 @@ public:
 	/// Returns the number of loops this action performed or -1 is this was not a loop action
 	int numberOfLoops() const;
 
+	int numberOfChildren() const;
+
+	void updateNumberOfChildren(int numberOfChildren) const;
+
 	/// Returns true if the this log item is to show a seleced-like color because its parent is selected. Pass in the item view you're working with.
 	bool parentSelected(QAbstractItemView *viewer) const;
 	/// Returns the full map of item views and whether this log item should show the selected-like color
@@ -101,6 +105,8 @@ protected:
 	int id_;
 	/// True if we've already loaded and cached the remaining information from the database
 	mutable bool loadedFromDb_;
+
+	mutable int numberOfChildren_;
 
 	// These variables cache the content that was loaded from the database
 	/////////////////
