@@ -226,6 +226,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
+					qDebug() << "obj->modified() is " << obj->modified() << " and obj->id() is " << obj->id() << " for " << obj->name() << obj->dbObjectInfo()->className;
 					if(!obj->modified() && (obj->id() >= 1) )
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 					else{

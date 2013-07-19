@@ -37,6 +37,7 @@ AMActionLogItem3::AMActionLogItem3(AMDatabase *db, int id)
 	db_ = db;
 	id_ = id;
 	loadedFromDb_ = false;
+	numberOfChildren_ = -1;
 }
 
 QDateTime AMActionLogItem3::endDateTime() const
@@ -104,6 +105,14 @@ int AMActionLogItem3::numberOfLoops() const{
 	if(!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return numberOfLoops_;
+}
+
+int AMActionLogItem3::numberOfChildren() const{
+	return numberOfChildren_;
+}
+
+void AMActionLogItem3::updateNumberOfChildren(int numberOfChildren) const{
+	numberOfChildren_ = numberOfChildren;
 }
 
 bool AMActionLogItem3::parentSelected(QAbstractItemView *viewer) const{
@@ -429,13 +438,23 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 }
 
 int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
+	AMActionLogItem3 *item = logItem(parent);
+	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) ){
+		if(item->numberOfChildren() != -1)
+			return item->numberOfChildren();
+	}
+
 	if(rowCount() == 0)
 		return 0;
 	int subChildCount = 0;
 	for(int x = 0; x < rowCount(parent); x++)
 		if(hasChildren(index(x, 0, parent)))
 			subChildCount += childrenCount(index(x, 0, parent));
-	return rowCount(parent) + subChildCount;
+
+	int retVal = rowCount(parent) + subChildCount;
+	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) )
+		item->updateNumberOfChildren(retVal);
+	return retVal;
 }
 
 int AMActionHistoryModel3::successfulChildrenCount(const QModelIndex &parent) const{
