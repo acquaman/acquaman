@@ -57,6 +57,8 @@ public:
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
 	bool isCollapsed() const { return isCollapsed_; }
 
+	AMActionHistoryModel3* model() const { return model_; }
+
 signals:
 	/// This signal is emitted with \c true when the view widget is collapsed to show only the header bar, and \c false when it is restored.
 	void collapsed(bool isCollapsed);

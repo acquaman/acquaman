@@ -164,6 +164,7 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
+/*
 #include "actions3/AMActionRunner3.h"
 bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
@@ -248,6 +249,7 @@ bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, AMDataba
 		return false;
 	}
 }
+*/
 
 void AMActionLog3::onInfoDestroyed(){
 	info_ = 0; //NULL

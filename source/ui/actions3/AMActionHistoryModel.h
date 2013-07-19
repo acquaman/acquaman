@@ -42,6 +42,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY_NUMBER_OF_ITEMS 213014
 
 class AMDatabase;
+class AMAction3;
+class AMActionLog3;
 
 /// typedef for using a QMap of QAbstractItemView pointers and bools. Used to map out which items have selected parents and should show a different color even though they're not selected. Mapping is to ensure that multiple views can look at the model. Introduces some coupling.
 typedef QMap<QAbstractItemView*, bool> ParentSelectMap;
@@ -53,6 +55,7 @@ class AMActionLogItem3 {
 public:
 	/// Constructor requires the \c id of the AMActionLog and the database \c db where it is stored.
 	AMActionLogItem3(AMDatabase* db, int id);
+	AMActionLogItem3(const AMActionLog3 &actionLog);
 
 	/// Call this to refresh the item's content from the database
 	void refresh() { loadedFromDb_ = false; }
@@ -198,6 +201,10 @@ public slots:
 
 	/// Refreshes the entire model immediately by reading from the database.
 	void refreshFromDb();
+
+	bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database, int parentLogId = -1);
+	bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database);
+	bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database, int parentLogId = -1);
 
 signals:
 	/// This signal is emitted before the model is refreshed or updated. Views might want to use it to remember their scrolling position, etc.

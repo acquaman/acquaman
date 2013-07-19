@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "actions3/AMActionLog3.h"
+#include "actions3/AMLoopAction3.h"
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -38,6 +39,31 @@ AMActionLogItem3::AMActionLogItem3(AMDatabase *db, int id)
 	id_ = id;
 	loadedFromDb_ = false;
 	numberOfChildren_ = -1;
+}
+
+AMActionLogItem3::AMActionLogItem3(const AMActionLog3 &actionLog)
+{
+	db_ = actionLog.database();
+	id_ = actionLog.id();
+	numberOfChildren_ = -1;
+
+	shortDescription_ = actionLog.info()->shortDescription();
+	longDescription_  = actionLog.info()->longDescription();
+	iconFileName_ = actionLog.iconFileName();
+	startDateTime_ = actionLog.startDateTime();
+	endDateTime_ = actionLog.endDateTime();
+	finalState_ = actionLog.finalState();
+	canCopy_ = actionLog.info()->canCopy();
+	parentId_ = actionLog.parentId();
+	actionInheritedLoop_ = actionLog.actionInheritedLoop();
+	// Only set number of loops from the database if this logAction inherited the loop action
+	if(actionInheritedLoop_){
+		const AMLoopActionInfo3 *loopInfo = qobject_cast<const AMLoopActionInfo3*>(actionLog.info());
+		numberOfLoops_ = loopInfo->loopCount();
+	}
+	else
+		numberOfLoops_ = -1;
+	loadedFromDb_ = true;
 }
 
 QDateTime AMActionLogItem3::endDateTime() const
@@ -178,11 +204,13 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	connect(&refreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshFromDb()));
 	connect(&specificRefreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshSpecificIds()));
 
+	/*
 	if(db_) {
 		connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreated(QString,int)));
 		connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)));
 		connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)));
 	}
+	*/
 
 	succeededIcon_ = QPixmap(":/22x22/greenCheck.png");
 	cancelledIcon_ = QPixmap(":/22x22/orangeX.png");
@@ -694,6 +722,126 @@ void AMActionHistoryModel3::refreshFromDb()
 	emit modelRefreshed();
 }
 
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMListAction3.h"
+bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
+	if(uncompletedAction && !uncompletedAction->inFinalState()){
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
+		AMActionLog3 actionLog(uncompletedAction);
+		actionLog.setParentId(parentLogId);
+		bool success = actionLog.storeToDb(database);
+		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(uncompletedAction);
+		if(success && listAction){
+			AMListAction3 *modifyListAction = const_cast<AMListAction3*>(listAction);
+			modifyListAction->setLogActionId(actionLog.id());
+		}
+
+		//AMActionLogItem3* item = new AMActionLogItem3(db_, id);
+		AMActionLogItem3* item = new AMActionLogItem3(actionLog);
+		if(insideVisibleDateTimeRange(item->startDateTime())) {
+			emit modelAboutToBeRefreshed();
+			/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
+			appendItem(item);
+			visibleActionsCount_++;
+			emit modelRefreshed();
+		}
+		else {
+			delete item;
+		}
+
+		return success;
+	}
+	return false;
+}
+
+bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedAction, AMDatabase *database){
+	if(completedAction && completedAction->inFinalState()) {
+		int infoId = completedAction->info()->id();
+		if(infoId < 1){
+			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG, "The actions logging system attempted to update a log action that hadn't already been saved. Please report this problem to the Acquaman developers.");
+			return false;
+		}
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
+		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
+		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
+		if(matchingIds.count() == 0){
+			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX, QString("The actions logging system attempted to update a log action with a bad database index (%1). Please report this problem to the Acquaman developers.").arg(infoId));
+			return false;
+		}
+		int logId = matchingIds.last();
+		AMActionLog3 actionLog;
+		actionLog.loadFromDb(database, logId);
+		actionLog.setFromAction(completedAction);
+		if(actionLog.storeToDb(database)){
+			// OK, this is a specific update.
+			idsRequiringRefresh_ << actionLog.id();
+			specificRefreshFunctionCall_.schedule();
+			return true;
+		}
+		return false;
+	}
+	else {
+		AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_UNCOMPLETED_ACTION, QString("The actions logging system attempted to update a log action that hadn't yet finished running. Please report this problem to the Acquaman developers."));
+		return false;
+	}
+}
+
+bool AMActionHistoryModel3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database, int parentLogId){
+	if(completedAction && completedAction->inFinalState()) {
+
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
+		if(database == AMDatabase::database("scanActions")){
+			if(!database->transactionInProgress())
+				database->startTransaction();
+			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+
+		AMActionLog3 actionLog(completedAction);
+		actionLog.setParentId(parentLogId);
+		if(actionLog.storeToDb(database)){
+			//AMActionLogItem3* item = new AMActionLogItem3(db_, id);
+			AMActionLogItem3* item = new AMActionLogItem3(actionLog);
+			if(insideVisibleDateTimeRange(item->startDateTime())) {
+				emit modelAboutToBeRefreshed();
+				/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
+				appendItem(item);
+				visibleActionsCount_++;
+				emit modelRefreshed();
+			}
+			else {
+				delete item;
+			}
+			return true;
+		}
+		return false;
+	}
+	else {
+		return false;
+	}
+}
 
 void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int id)
 {
