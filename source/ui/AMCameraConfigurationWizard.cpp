@@ -44,7 +44,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setOption(HaveHelpButton, true);
 //    setPixmap(QWizard::LogoPixmap, QPixMap());
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
-    setWindowTitle("Camera Wizard");
+    setWindowTitle(message(Title_Wizard));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -68,7 +68,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     for(int i = 0; i < numberOfPoints_; i++)
     {
         pointList_->append(new QPointF(0,0));
-//        coordinateList_->append(new QVector3D(0,0,0));
     }
     /// set the coordinates
     coordinateList_->append(new  QVector3D(0,0,0));
@@ -84,7 +83,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 {
 
-//    delete view_;
     pointList_->clear();
     delete pointList_;
 
@@ -211,6 +209,56 @@ QList<QVector3D *> *AMCameraConfigurationWizard::coordinateList()
     return coordinateList_;
 }
 
+QString AMCameraConfigurationWizard::message(WizardMessage messageType)
+{
+    switch(messageType)
+    {
+    case Title_Wizard:
+        return QString("Camera Wizard");
+    case Title_Help:
+        return QString("Camera Wizard Help");
+    case Default_Help:
+        return QString("Default help message.");
+    case Title_Intro:
+        return QString("Introduction Page");
+    case Page_Intro_Text:
+        return QString(tr("This is the introduction page of the camera configuration wizard."));
+    case Page_Intro_Help:
+        return QString("Help message for the intro page");
+    case Title_Check:
+        return QString("Check page");
+    case Page_Check_Text:
+        return QString(tr("This is the page where you check to see if the camera is correctly lined up."));
+    case Page_Check_CheckBox:
+        return QString("Is the camera correct?");
+    case Page_Check_Back:
+        return QString(tr("< &Intro"));
+    case Page_Check_Help:
+        return QString("Help message for check page.");
+    case Title_Select:
+        return QString("Selection Page ");
+    case Page_Select_Text:
+        return QString(tr("Select the point corresponding to the coordinate: "));
+    case Page_Select_Help:
+        return QString("Help message for selection page");
+    case Title_Wait:
+        return QString("Moving to position ");
+    case Page_Wait_Text:
+        return QString(tr("Please wait until the next page appears."));
+    case Page_Wait_Help:
+        return QString("Help message for wait page");
+    case Title_Final:
+        return QString("Final Page");
+    case Page_Final_Text:
+        return QString("This is the final page of the wizard.");
+    case Page_Final_Help:
+        return QString("Help message for final page.");
+    default:
+        return QString("Default message.");
+    }
+
+}
+
 
 
 
@@ -269,25 +317,30 @@ void AMCameraConfigurationWizard::back()
 
 void AMCameraConfigurationWizard::showHelp()
 {
-    QString message;
+    QString helpMessage;
     switch(currentId())
     {
-        case Page_Intro:
-            message = "Help message for the intro page";
-            break;
-        default:
-            message = "Default help message.";
+    case Page_Intro:
+        helpMessage = message(Page_Intro_Help);
+        break;
+    case Page_Check:
+        helpMessage = message(Page_Check_Help);
+        break;
+    case Page_Final:
+        helpMessage = message(Page_Final_Help);
+    default:
+        helpMessage = message(Default_Help);
     }
 
-    QMessageBox::information(this, "Camera Wizard Help", message);
+    QMessageBox::information(this, message(Title_Help), helpMessage);
 }
 
 
 IntroPage::IntroPage(QWidget *parent)
     : QWizardPage(parent)
 {
-    setTitle("Introduction Page");
-    topLabel_ = new QLabel(tr("This is the introduction page of the camera configuration wizard."));
+    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Intro));
+    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Intro_Text));
     topLabel_->setWordWrap(true);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -307,18 +360,23 @@ void IntroPage::timerEvent(QTimerEvent *event)
     wizard()->next();
 }
 
+AMCameraConfigurationWizard *IntroPage::viewWizard()
+{
+    return (AMCameraConfigurationWizard*)wizard();
+}
+
 
 
 CheckPage::CheckPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle("Check page");
-    topLabel_ = new QLabel(tr("This is the page where you check to see if the camera is correctly lined up."));
+    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Check));
+    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Text));
     topLabel_->setWordWrap(true);
-    isConfigured_ = new QCheckBox("Is the camera correct?");
+    isConfigured_ = new QCheckBox(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_CheckBox));
 
 
-    setButtonText(QWizard::BackButton,tr("< &Intro"));
+    setButtonText(QWizard::BackButton,viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Back));
 
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -345,12 +403,17 @@ void CheckPage::configuredSet(bool set)
     setFinalPage(set);
 }
 
+AMCameraConfigurationWizard *CheckPage::viewWizard()
+{
+    return (AMCameraConfigurationWizard*)wizard();
+}
+
 
 FinalPage::FinalPage(QWidget *parent)
     :QWizardPage(parent)
 {
-    setTitle("Final Page");
-    topLabel_ = new QLabel(tr("This is the final page of the wizard."));
+    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Final));
+    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Final_Text));
     topLabel_->setWordWrap(true);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -358,12 +421,17 @@ FinalPage::FinalPage(QWidget *parent)
     setLayout(layout);
 }
 
+AMCameraConfigurationWizard *FinalPage::viewWizard()
+{
+    return (AMCameraConfigurationWizard*)wizard();
+}
+
 
 SelectPage::SelectPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle("Selection Page");
-    topLabel_ = new QLabel(tr("This is the selection page number "));
+    setTitle(message(Title));
+    topLabel_ = new QLabel(message(Text));
     topLabel_->setWordWrap(true);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -399,11 +467,11 @@ void SelectPage::initializePage()
             relativeId = 0;
     }
 
-    setTitle("Selection Page " + QString::number(relativeId));
+    setTitle(message(Title) + QString::number(relativeId));
 
     QVector3D coordinate = *((AMCameraConfigurationWizard*)wizard())->coordinateList()->at(relativeId-1);
 
-    topLabel_->setText(QString("Select the point corresponding to the coordinate: %1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
+    topLabel_->setText(message(Text) + QString("%1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
 
     AMViewPage::initializePage();
 
@@ -416,12 +484,34 @@ void SelectPage::addPoint(QPointF position)
     ((AMCameraConfigurationWizard*)wizard())->addPoint(position);
 }
 
+AMCameraConfigurationWizard *SelectPage::viewWizard()
+{
+    return (AMCameraConfigurationWizard*)wizard();
+}
+
+QString SelectPage::message(SelectPage::MessageType type)
+{
+    AMCameraConfigurationWizard::WizardMessage wizardMessage;
+    switch(type)
+    {
+    case Title:
+        wizardMessage = AMCameraConfigurationWizard::Title_Select;
+        break;
+    case Text:
+        wizardMessage = AMCameraConfigurationWizard::Page_Select_Text;
+        break;
+    default:
+        wizardMessage = AMCameraConfigurationWizard::Default_Help;
+    }
+    return viewWizard()->message(wizardMessage);
+}
+
 
 WaitPage::WaitPage(QWidget *parent)
     : AMWaitPage(parent)
 {
-    setTitle("Wait Page");
-    topLabel_ = new QLabel(tr("Please wait until the next page appears."));
+    setTitle(message(Title));
+    topLabel_ = new QLabel(message(Text));
     topLabel_->setWordWrap(true);
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -461,8 +551,30 @@ void WaitPage::initializePage()
         break;
     }
 
-    QString title = QString("Moving to position %1").arg(relativeId);
+    QString title = message(Title) + QString("%1").arg(relativeId);
     setTitle(title);
+}
+
+AMCameraConfigurationWizard *WaitPage::viewWizard()
+{
+    return (AMCameraConfigurationWizard*)wizard();
+}
+
+QString WaitPage::message(WaitPage::MessageType type)
+{
+    AMCameraConfigurationWizard::WizardMessage wizardMessage;
+    switch(type)
+    {
+    case Title:
+        wizardMessage = AMCameraConfigurationWizard::Title_Wait;
+        break;
+    case Text:
+        wizardMessage = AMCameraConfigurationWizard::Page_Wait_Text;
+        break;
+    default:
+        wizardMessage = AMCameraConfigurationWizard::Default_Help;
+    }
+    return viewWizard()->message(wizardMessage);
 }
 
 

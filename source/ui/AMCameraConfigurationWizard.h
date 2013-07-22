@@ -25,6 +25,13 @@ class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 public:
     enum {Page_Intro, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
+
+    enum WizardMessage {Title_Wizard, Title_Help, Default_Help,
+                        Title_Intro, Page_Intro_Text, Page_Intro_Help,
+                        Title_Check, Page_Check_Text, Page_Check_CheckBox, Page_Check_Back, Page_Check_Help,
+                        Title_Select, Page_Select_Text, Page_Select_Help,
+                        Title_Wait, Page_Wait_Text, Page_Wait_Help,
+                        Title_Final, Page_Final_Text, Page_Final_Help};
     AMCameraConfigurationWizard(QWidget* parent = 0);
     ~AMCameraConfigurationWizard();
 
@@ -42,6 +49,8 @@ public:
     /// returns the pointer to the list of coordinates \todo make the coordinates changeable
     // currently these are hardcoded
     QList<QVector3D*>* coordinateList();
+
+    QString message(WizardMessage);
 
 
 public slots:
@@ -77,6 +86,8 @@ public:
     void initializePage();
 
     void timerEvent(QTimerEvent *event);
+protected:
+    AMCameraConfigurationWizard* viewWizard();
 private:
     QLabel* topLabel_;
 
@@ -93,9 +104,10 @@ public slots:
     void initializePage();
 
 
-private slots:
+protected slots:
     void configuredSet(bool set);
-
+protected:
+    AMCameraConfigurationWizard* viewWizard();
 private:
     QLabel* topLabel_;
     QCheckBox* isConfigured_;
@@ -106,6 +118,9 @@ class FinalPage : public QWizardPage
     Q_OBJECT
 public:
     FinalPage(QWidget* parent = 0);
+
+protected:
+    AMCameraConfigurationWizard* viewWizard();
 
 private:
     QLabel* topLabel_;
@@ -122,6 +137,10 @@ public:
 public slots:
 
     void addPoint(QPointF position);
+protected:
+    enum MessageType {Title, Text};
+    AMCameraConfigurationWizard* viewWizard();
+    QString message(MessageType type);
 
 private:
     QLabel* topLabel_;
@@ -135,8 +154,15 @@ public:
 
     void initializePage();
 
+protected:
+    enum MessageType {Title, Text};
+    AMCameraConfigurationWizard* viewWizard();
+    QString message(MessageType type);
+
 private:
     QLabel* topLabel_;
 };
+
+
 
 #endif // AMCAMERACONFIGURATIONWIZARD_H
