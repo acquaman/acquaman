@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QVector3D>
 #include "AMGraphicsVideoSceneCopier.h"
+#include <QTimerEvent>
 
 
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
@@ -44,13 +45,9 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 //    setPixmap(QWizard::LogoPixmap, QPixMap());
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
     setWindowTitle("Camera Wizard");
-//    connect(QWizard::button(QWizard::BackButton),SIGNAL(clicked()), this,SLOT(back()));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
-    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SLOT(allDone()));
-//    backwards_ = false;
-//    scale_ = QPointF(1,1);
-//    view_ = new AMShapeDataSetGraphicsView(0);
+    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
@@ -140,31 +137,6 @@ int AMCameraConfigurationWizard::nextId() const
             return -1;
     }
 }
-
-
-//AMShapeDataSetGraphicsView *AMCameraConfigurationWizard::view()
-//{
-//    return view_;
-//}
-
-//QPointF AMCameraConfigurationWizard::scale()
-//{
-//    return scale_;
-//}
-
-//void AMCameraConfigurationWizard::setScale(QPointF scale)
-//{
-//    scale_ = scale;
-//    view_->scale(scale_.x(),scale_.y());
-//}
-
-//void AMCameraConfigurationWizard::setScale(double scaleFactor)
-//{
-//    setScale(QPointF(1/scale().x(),1/scale().y()));
-
-//    QPointF scalePoint(scaleFactor,scaleFactor);
-//    setScale(scalePoint);
-//}
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
@@ -293,25 +265,7 @@ void AMCameraConfigurationWizard::back()
     }
 }
 
-//void AMCameraConfigurationWizard::setView(AMShapeDataSetGraphicsView* view)
-//{
-//    view_ = view;
 
-//    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
-//    copier->cloneScene(view->scene());
-//    view_->setScene(copier->scene());
-
-//    view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//    view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//    view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-//}
-
-void AMCameraConfigurationWizard::allDone()
-{
-
-    emit done();
-    emit customButtonClicked(0);
-}
 
 void AMCameraConfigurationWizard::showHelp()
 {
@@ -339,26 +293,39 @@ IntroPage::IntroPage(QWidget *parent)
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(topLabel_);
     setLayout(layout);
+
+}
+
+void IntroPage::initializePage()
+{
+    startTimer(0);
+}
+
+void IntroPage::timerEvent(QTimerEvent *event)
+{
+    killTimer(event->timerId());
+    wizard()->next();
 }
 
 
 
 CheckPage::CheckPage(QWidget *parent)
-    : QWizardPage(parent)
+    : AMViewPage(parent)
 {
     setTitle("Check page");
     topLabel_ = new QLabel(tr("This is the page where you check to see if the camera is correctly lined up."));
     topLabel_->setWordWrap(true);
     isConfigured_ = new QCheckBox("Is the camera correct?");
 
-    checkView_ = new AMShapeDataSetGraphicsView();
+
+    setButtonText(QWizard::BackButton,tr("< &Intro"));
 
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(topLabel_);
     layout->addWidget(isConfigured_);
     setLayout(layout);
-
+    isConfigured_->setChecked(true);
 
 
 
@@ -368,51 +335,15 @@ CheckPage::CheckPage(QWidget *parent)
     registerField("isConfigured", isConfigured_);
 }
 
-void CheckPage::setCheckView(AMShapeDataSetGraphicsView *view)
-{
-    checkView_ = view;
-}
-
 void CheckPage::initializePage()
 {
-    setCheckView(((AMCameraConfigurationWizard*)wizard())->view());
-
-    QFrame* viewFrame = new QFrame();
-    QHBoxLayout* viewLayout = new QHBoxLayout();
-    viewLayout->addStretch();
-    viewLayout->addWidget(checkView_);
-    viewLayout->addStretch();
-    viewFrame->setLayout(viewLayout);
-    qDebug()<<"CheckPage::initializePage view name is"<<checkView_->objectName();
-    qDebug()<<"CheckPage::initializePage scene name is"<<checkView_->scene()->objectName();
-
-
-    layout()->addWidget(viewFrame);
-
-    double scaleFactor = 2;
-//    ((AMCameraConfigurationWizard*)wizard())->setScale(scaleFactor);
-
-
+    AMViewPage::initializePage();
 }
-
-void CheckPage::cleanupPage()
-{
-    QLayout* oldLayout = (this->layout());
-    delete oldLayout;
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    layout->addWidget(isConfigured_);
-    layout->addStretch();
-    setLayout(layout);
-
-}
-
 
 void CheckPage::configuredSet(bool set)
 {
     setFinalPage(set);
 }
-
 
 
 FinalPage::FinalPage(QWidget *parent)
@@ -429,7 +360,7 @@ FinalPage::FinalPage(QWidget *parent)
 
 
 SelectPage::SelectPage(QWidget *parent)
-    : QWizardPage(parent)
+    : AMViewPage(parent)
 {
     setTitle("Selection Page");
     topLabel_ = new QLabel(tr("This is the selection page number "));
@@ -438,11 +369,6 @@ SelectPage::SelectPage(QWidget *parent)
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(topLabel_);
     setLayout(layout);
-}
-
-void SelectPage::setSelectionView(AMShapeDataSetGraphicsView *view)
-{
-    view_ = view;
 }
 
 void SelectPage::initializePage()
@@ -479,42 +405,10 @@ void SelectPage::initializePage()
 
     topLabel_->setText(QString("Select the point corresponding to the coordinate: %1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
 
-    setSelectionView(((AMCameraConfigurationWizard*)wizard())->view());
-    qDebug()<<"SelectPage::initializePage view name is"<<view_->objectName();
-    qDebug()<<"SelectPage::initializePage scene name is"<<view_->scene()->objectName();
-
-    QFrame* viewFrame = new QFrame();
-    QHBoxLayout* viewLayout = new QHBoxLayout();
-    viewLayout->addStretch();
-    viewLayout->addWidget(view_);
-    viewLayout->addStretch();
-    viewFrame->setLayout(viewLayout);
-
-    layout()->addWidget(viewFrame);
-    double scaleFactor = 1;
-    ((AMCameraConfigurationWizard*)wizard())->setScale(scaleFactor);
-
-    connect(view_, SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+    AMViewPage::initializePage();
 
 
-
-}
-
-
-
-void SelectPage::cleanupPage()
-{
-    QLayout* oldLayout = (this->layout());
-    delete oldLayout;
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    setLayout(layout);
-    topLabel_->setText("This is the selection page number ");
-}
-
-void SelectPage::setView(AMShapeDataSetGraphicsView *view)
-{
-    view_ = view;
+    connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }
 
 void SelectPage::addPoint(QPointF position)

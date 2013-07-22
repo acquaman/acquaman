@@ -3,8 +3,11 @@
 #include <QPointF>
 #include "AMGraphicsVideoSceneCopier.h"
 #include "AMShapeDataSetGraphicsView.h"
+#include <QLayout>
 
 #include <QTimer>
+
+#include <QDebug>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -78,5 +81,51 @@ void AMWaitPage::nextPage()
 {
     waitTimer_->stop();
     wizard()->next();
+}
+
+
+AMViewPage::AMViewPage(QWidget *parent)
+    : QWizardPage(parent)
+{
+    viewFrame_ = new QFrame();
+    view_ = new AMShapeDataSetGraphicsView();
+
+}
+
+AMShapeDataSetGraphicsView *AMViewPage::view()
+{
+    return view_;
+}
+
+void AMViewPage::setView(AMShapeDataSetGraphicsView *view)
+{
+    view_ = view;
+}
+
+
+void AMViewPage::initializePage()
+{
+    if(true)
+    {
+        setView(((AMGraphicsViewWizard*)wizard())->view());
+    }
+    addView();
+}
+
+void AMViewPage::cleanupPage()
+{
+    layout()->removeWidget(viewFrame_);
+}
+
+
+void AMViewPage::addView()
+{
+    viewFrame_ = new QFrame();
+    QHBoxLayout* viewLayout = new QHBoxLayout();
+    viewLayout->addStretch();
+    viewLayout->addWidget(view_);
+    viewLayout->addStretch();
+    viewFrame_->setLayout(viewLayout);
+    layout()->addWidget(viewFrame_);
 }
 

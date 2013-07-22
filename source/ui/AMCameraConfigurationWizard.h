@@ -14,6 +14,11 @@ class QGraphicsItem;
 class QPointF;
 class QVector3D;
 
+/** The AMCameraConfigurationWizard is the wizard for configuring the camera
+*   The user is presented with an image and asked to check if it is already configured.
+*   If it is not configured, it goes through a series of pages asking the user to select
+*   the appropriate point, as well as moving when necessary \note (currently it just waits).
+*/
 class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
@@ -22,50 +27,46 @@ public:
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
     AMCameraConfigurationWizard(QWidget* parent = 0);
     ~AMCameraConfigurationWizard();
+
+    /// reimplementation of nextId.
+    /// it is necessary to control the page flow from the wizard
+    /// rather than the pages becuase there is more than one instance of several pages
     int nextId() const;
-//    AMShapeDataSetGraphicsView* view();
-//    QGraphicsItem* videoItem();
 
-//    QPointF scale();
-
-//    void setScale(QPointF scale);
-
-//    void setScale(double scaleFactor);
-
+    /// sets the appropriate point in the list and goes on to the next page
     void addPoint(QPointF position);
 
+    /// returns the pointer to the list of points
     QList<QPointF*>* pointList();
 
+    /// returns the pointer to the list of coordinates \todo make the coordinates changeable
+    // currently these are hardcoded
     QList<QVector3D*>* coordinateList();
 
 
 public slots:
+    /// reimplementation of the back slot, used to move the motor back to the appropriate place
+    /// on going back to a previous page
     void back();
-    /// sets the view
-    /// duplicates the scene in the passed view, does not keep the original one
-//    void setView(AMShapeDataSetGraphicsView* view);
-
-    void allDone();
-
 
 signals:
+    /// signal emitted when the finish button is pressed
     void done();
 
 private slots:
+    /// shows the help messages
     void showHelp();
 private:
-//    bool backwards_;
 
-//    QPointF scale_;
-
+    /// list of the six points that will be used to calibrate the camera
     QList<QPointF*>* pointList_;
+    /// list of the points corresponding to each coordinate
     QList<QVector3D*>* coordinateList_;
-
-//    AMShapeDataSetGraphicsView* view_;
-
+    /// number of points in each list - should be six with current camera configuration method
     int numberOfPoints_;
 };
 
+/// Intro page is just the introduction/howto for this wizard.
 
 class IntroPage : public QWizardPage
 {
@@ -73,23 +74,24 @@ class IntroPage : public QWizardPage
 public:
     IntroPage(QWidget* parent = 0);
 
+    void initializePage();
+
+    void timerEvent(QTimerEvent *event);
 private:
-    ///contents
     QLabel* topLabel_;
 
 };
 
 
-class CheckPage : public QWizardPage
+class CheckPage : public AMViewPage
 {
     Q_OBJECT
 public:
     CheckPage(QWidget* parent = 0);
 public slots:
-    void setCheckView(AMShapeDataSetGraphicsView* view);
 
     void initializePage();
-    void cleanupPage();
+
 
 private slots:
     void configuredSet(bool set);
@@ -97,7 +99,6 @@ private slots:
 private:
     QLabel* topLabel_;
     QCheckBox* isConfigured_;
-    AMShapeDataSetGraphicsView* checkView_;
 };
 
 class FinalPage : public QWizardPage
@@ -110,25 +111,20 @@ private:
     QLabel* topLabel_;
 };
 
-class SelectPage : public QWizardPage
+class SelectPage : public AMViewPage
 {
     Q_OBJECT
 public:
     SelectPage(QWidget* parent = 0);
 
-    void setSelectionView(AMShapeDataSetGraphicsView* view);
     void initializePage();
 
-    void cleanupPage();
-
 public slots:
-    void setView(AMShapeDataSetGraphicsView* view);
 
     void addPoint(QPointF position);
 
 private:
     QLabel* topLabel_;
-    AMShapeDataSetGraphicsView* view_;
 };
 
 class WaitPage : public AMWaitPage

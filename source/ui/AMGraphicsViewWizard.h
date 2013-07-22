@@ -6,6 +6,7 @@
 class AMShapeDataSetGraphicsView;
 class QPointF;
 class QTimer;
+class QFrame;
 
 class AMGraphicsViewWizard : public QWizard
 {
@@ -44,6 +45,32 @@ protected slots:
 private:
     QTimer* waitTimer_;
 
+
+};
+
+class AMViewPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    AMViewPage(QWidget* parent = 0);
+
+    AMShapeDataSetGraphicsView* view();
+
+public slots:
+    void setView(AMShapeDataSetGraphicsView* view);
+
+    void initializePage();
+    void cleanupPage();
+
+
+protected slots:
+    void addView();
+
+private:
+    AMShapeDataSetGraphicsView* view_;
+
+    QLayout* layout_;
+    QFrame* viewFrame_;
 
 };
 
