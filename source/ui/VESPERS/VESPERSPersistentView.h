@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/CLS/CLSStopLightButton.h"
-#include "ui/AMMotorGroupView.h"
+#include "ui/CLS/CLSPseudoMotorGroupView.h"
 
 #include "ui/VESPERS/VESPERSChangeEnergyToleranceHackView.h"
 
@@ -143,7 +143,7 @@ protected:
 	/// HACK FOR TOLERANCE
 	VESPERSChangeEnergyToleranceHackView *energyTolerance_;
 	/// Pointer to the motor group view.
-	AMMotorGroupView *motorGroupView_;
+	CLSPseudoMotorGroupView *motorGroupView_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

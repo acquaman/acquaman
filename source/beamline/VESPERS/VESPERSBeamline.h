@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
@@ -41,9 +40,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -479,6 +478,16 @@ public:
 	// The motor group.
 	AMMotorGroup *motorGroup() const { return motorGroup_; }
 
+	// The reset controls for the pseudo motors.
+	/// Returns the pseudo sample stage reset control.
+	AMControl *pseudoSampleStageResetControl() const { return pseudoSampleStageResetControl_; }
+	/// Returns the real sample stage reset control.
+	AMControl *realSampleStageResetControl() const { return realSampleStageResetControl_; }
+	/// Returns the pseudo attocube stage reset control.
+	AMControl *pseudoAttoStageResetControl() const { return pseudoAttoStageResetControl_; }
+	/// Returns the real attocube stage reset control.
+	AMControl *realAttoStageResetControl() const { return realAttoStageResetControl_; }
+
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
 	AMControl *sampleStagePidX() const { return sampleStagePidX_; }
@@ -840,6 +849,12 @@ protected:
 	VESPERSSampleStageControl *pseudoWireStage_;
 	VESPERSSampleStageControl *pseudoAttoStage_;
 	VESPERSSampleStageControl *realAttoStage_;
+
+	// The reset controls for each sample stage.
+	AMControl *pseudoSampleStageResetControl_;
+	AMControl *realSampleStageResetControl_;
+	AMControl *pseudoAttoStageResetControl_;
+	AMControl *realAttoStageResetControl_;
 
 	// Motor group.  Binds all the motors for scanning together.
 	AMMotorGroup *motorGroup_;

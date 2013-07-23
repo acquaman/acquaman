@@ -266,6 +266,12 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)attoStageRz_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
+
+	// Reset signals.
+	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
+	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
+	pseudoAttoStageResetControl_ = new AMSinglePVControl("Pseudo Atto Stage Reset Control", "TS1607-2-B21-07:HNV:loadOffsets.PROC", this, 0.1);
+	realAttoStageResetControl_ = new AMSinglePVControl("Real Atto Stage Reset Control", "TS1607-2-B21-07:XYZ:loadOffsets.PROC", this, 0.1);
 }
 
 void VESPERSBeamline::setupMotorGroup()
@@ -273,36 +279,40 @@ void VESPERSBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new AMMotorGroup(this);
 
-	motorObject = new AMMotorGroupObject("Sample Stage - H, V, N",
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N",
 										 QStringList() << "H" << "V" << "N",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << pseudoSampleStage_->horiz() << pseudoSampleStage_->vert() << pseudoSampleStage_->norm(),
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 pseudoSampleStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Sample Stage - X, Z, Y",
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y",
 										 QStringList() << "X" << "Z" << "Y",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << realSampleStage_->horiz() << realSampleStage_->vert() << realSampleStage_->norm(),
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 realSampleStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Attocube Stage - H, V, N",
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
 										 QStringList() << "H" << "V" << "N",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << pseudoAttoStage_->horiz() << pseudoAttoStage_->vert() << pseudoAttoStage_->norm(),
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 pseudoAttoStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Attocube Stage - X, Z, Y",
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y",
 										 QStringList() << "X" << "Z" << "Y",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << realAttoStage_->horiz() << realAttoStage_->vert() << realAttoStage_->norm(),
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 realAttoStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
