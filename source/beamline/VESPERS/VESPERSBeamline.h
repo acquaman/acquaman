@@ -499,6 +499,17 @@ public:
 	/// Returns the sample stage PID control.
 	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
+	// Wire stage PID controls.
+	/// Returns the PID control for the x-direction of the wire stage.
+	AMControl *wireStagePidX() const { return wireStagePidX_; }
+	/// Returns the PID control for the y-direction of the wire stage.
+	AMControl *wireStagePidY() const { return wireStagePidY_; }
+	/// Returns the PID control for the z-direction of the wire stage.
+	AMControl *wireStagPidZ() const { return wireStagePidZ_; }
+
+	/// Returns the wire stage PID control.
+	VESPERSPIDLoopControl *wireStagePID() const { return wireStagePID_; }
+
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
 	/// Returns the pressure control set.
@@ -863,8 +874,12 @@ protected:
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
+	AMControl *wireStagePidX_;
+	AMControl *wireStagePidY_;
+	AMControl *wireStagePidZ_;
 
 	VESPERSPIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *wireStagePID_;
 
 	// End sample stage controls.
 

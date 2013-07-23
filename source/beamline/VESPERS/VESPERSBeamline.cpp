@@ -220,6 +220,12 @@ void VESPERSBeamline::setupSampleStage()
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 
+	wireStagePidX_ = new AMPVControl("Wire Stage PID X", "SVM1607-2-B21-05:hold:sp", "SVM1607-2-B21-05:hold", QString(), this);
+	wireStagePidY_ = new AMPVControl("Wire Stage PID Y", "SVM1607-2-B21-06:hold:sp", "SVM1607-2-B21-06:hold", QString(), this);
+	wireStagePidZ_ = new AMPVControl("Wire Stage PID Z", "SVM1607-2-B21-04:hold:sp", "SVM1607-2-B21-04:hold", QString(), this);
+
+	wireStagePID_ = new VESPERSPIDLoopControl("PID - Wire Stage", wireStagePidX_, wireStagePidY_, wireStagePidZ_, this);
+
 	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
 	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
 	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);

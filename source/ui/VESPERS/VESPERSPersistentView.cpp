@@ -51,8 +51,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
 	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 
-	// PID control view widget.
-	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	// PID control view widgets.
+	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidWireStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->wireStagePID());
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -264,7 +265,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
 	persistentLayout->addWidget(motorGroupView_, 0, Qt::AlignLeft);
-	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(pidSampleStageView);
+	persistentLayout->addWidget(pidWireStageView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
