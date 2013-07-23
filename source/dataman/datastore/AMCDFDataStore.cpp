@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMCDFDataStore::AMCDFDataStore(QObject* parent) : AMDataStore(parent) {
 
+	Q_UNUSED(TT2000NULL);
+
 	cdfId_ = 0;
 	readOnly_ = false;
 	cdfFilePath_ = tempFileName("amData");

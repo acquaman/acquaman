@@ -41,6 +41,14 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 	pvNameAxis3_ = "";
 }
 
+bool VESPERSConfigurationFileBuilder::isAttocubeMotor(const QString &pv) const
+{
+	return pv.contains("TS1607-2-B21-07")
+			|| pv.contains("SVM1607-2-B21-09")
+			|| pv.contains("SVM1607-2-B21-08")
+			|| pv.contains("SVM1607-2-B21-07");
+}
+
 bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 {
 	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
@@ -77,7 +85,13 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	else{
 
-		moveDelay = 0.05;
+		// The attocube is significantly slower since it doesn't run through a MaxV card.
+		if (isAttocubeMotor(pvNameAxis1_))
+			moveDelay = 0.5;
+
+		else
+			moveDelay = 0.05;
+
 		status1.replace(QRegExp(":mm|:deg"), ":status");
 		status2.replace(QRegExp(":mm|:deg"), ":status");
 		status3.replace(QRegExp(":mm|:deg"), ":status");
