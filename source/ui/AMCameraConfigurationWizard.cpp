@@ -19,6 +19,7 @@
 #include <QVector3D>
 #include "AMGraphicsVideoSceneCopier.h"
 #include <QTimerEvent>
+#include "AMGraphicsViewWizard.h"
 
 
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
@@ -52,7 +53,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
 
-//    videoItem_ = 0;
     QSize maxSize(0,0);
     QList<int> pageNumbers = pageIds();
     foreach(int pageNumber, pageNumbers)
@@ -165,8 +165,14 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
         break;
     }
     if(index < 0 )
+    {
+        for(int i = 0; i < pointList_->count(); i++)
+        {
+            newPoint = pointList_->at(i);
+            *newPoint = QPointF(0,0);
+        }
         return;
-
+    }
 
     QList<QGraphicsItem*> list = view()->items();
     QGraphicsVideoItem* videoItem;
@@ -209,7 +215,7 @@ QList<QVector3D *> *AMCameraConfigurationWizard::coordinateList()
     return coordinateList_;
 }
 
-QString AMCameraConfigurationWizard::message(WizardMessage messageType)
+QString AMCameraConfigurationWizard::message(int messageType)
 {
     switch(messageType)
     {
@@ -337,56 +343,33 @@ void AMCameraConfigurationWizard::showHelp()
 
 
 IntroPage::IntroPage(QWidget *parent)
-    : QWizardPage(parent)
+    : AMWizardPage(parent)
 {
-    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Intro));
-    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Intro_Text));
-    topLabel_->setWordWrap(true);
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    setLayout(layout);
-
 }
 
 void IntroPage::initializePage()
 {
+    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Intro));
+    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Intro_Text));
     startTimer(0);
+
 }
 
 void IntroPage::timerEvent(QTimerEvent *event)
 {
     killTimer(event->timerId());
-    wizard()->next();
+    viewWizard()->next();
 }
-
-AMCameraConfigurationWizard *IntroPage::viewWizard()
-{
-    return (AMCameraConfigurationWizard*)wizard();
-}
-
 
 
 CheckPage::CheckPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Check));
-    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Text));
-    topLabel_->setWordWrap(true);
-    isConfigured_ = new QCheckBox(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_CheckBox));
-
-
-    setButtonText(QWizard::BackButton,viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Back));
-
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
+    isConfigured_ = new QCheckBox();
+    isConfigured_->setChecked(true);
+    QVBoxLayout* layout = (QVBoxLayout*)(this->layout());
     layout->addWidget(isConfigured_);
     setLayout(layout);
-    isConfigured_->setChecked(true);
-
-
-
 
     connect(isConfigured_, SIGNAL(clicked(bool)), this, SLOT(configuredSet(bool)));
 
@@ -396,52 +379,50 @@ CheckPage::CheckPage(QWidget *parent)
 void CheckPage::initializePage()
 {
     AMViewPage::initializePage();
+    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Check));
+    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Text));
+    isConfigured_->setText(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_CheckBox));
+    setButtonText(QWizard::BackButton,viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Back));
+
 }
 
 void CheckPage::configuredSet(bool set)
 {
     setFinalPage(set);
+    if(set)
+    {
+        ((AMCameraConfigurationWizard*)viewWizard())->addPoint(QPointF(0,0));
+    }
 }
 
-AMCameraConfigurationWizard *CheckPage::viewWizard()
-{
-    return (AMCameraConfigurationWizard*)wizard();
-}
+
 
 
 FinalPage::FinalPage(QWidget *parent)
-    :QWizardPage(parent)
+    :AMWizardPage(parent)
+{
+}
+
+void FinalPage::initializePage()
 {
     setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Final));
-    topLabel_ = new QLabel(viewWizard()->message(AMCameraConfigurationWizard::Page_Final_Text));
-    topLabel_->setWordWrap(true);
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    setLayout(layout);
+    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Final_Text));
 }
 
-AMCameraConfigurationWizard *FinalPage::viewWizard()
-{
-    return (AMCameraConfigurationWizard*)wizard();
-}
+
 
 
 SelectPage::SelectPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle(message(Title));
-    topLabel_ = new QLabel(message(Text));
-    topLabel_->setWordWrap(true);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    setLayout(layout);
 }
 
 void SelectPage::initializePage()
 {
-    int currentId = wizard()->currentId();
+    setTitle(message(Title));
+    setLabelText(message(Text));
+    int currentId = viewWizard()->currentId();
     int relativeId = 0;
     switch(currentId)
     {
@@ -469,7 +450,7 @@ void SelectPage::initializePage()
 
     setTitle(message(Title) + QString::number(relativeId));
 
-    QVector3D coordinate = *((AMCameraConfigurationWizard*)wizard())->coordinateList()->at(relativeId-1);
+    QVector3D coordinate = *(((AMCameraConfigurationWizard*)viewWizard())->coordinateList()->at(relativeId-1));
 
     topLabel_->setText(message(Text) + QString("%1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
 
@@ -481,17 +462,13 @@ void SelectPage::initializePage()
 
 void SelectPage::addPoint(QPointF position)
 {
-    ((AMCameraConfigurationWizard*)wizard())->addPoint(position);
+    ((AMCameraConfigurationWizard*)viewWizard())->addPoint(position);
 }
 
-AMCameraConfigurationWizard *SelectPage::viewWizard()
-{
-    return (AMCameraConfigurationWizard*)wizard();
-}
 
 QString SelectPage::message(SelectPage::MessageType type)
 {
-    AMCameraConfigurationWizard::WizardMessage wizardMessage;
+    int wizardMessage;
     switch(type)
     {
     case Title:
@@ -510,21 +487,16 @@ QString SelectPage::message(SelectPage::MessageType type)
 WaitPage::WaitPage(QWidget *parent)
     : AMWaitPage(parent)
 {
-    setTitle(message(Title));
-    topLabel_ = new QLabel(message(Text));
-    topLabel_->setWordWrap(true);
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(topLabel_);
-    setLayout(layout);
 
 }
 
 void WaitPage::initializePage()
 {
 
+    setTitle(message(Title));
+    setLabelText(message(Text));
     AMWaitPage::startTimer(1000);
-    int wizardId = wizard()->currentId();
+    int wizardId = viewWizard()->currentId();
     int relativeId = 0;
     switch(wizardId)
     {
@@ -555,14 +527,10 @@ void WaitPage::initializePage()
     setTitle(title);
 }
 
-AMCameraConfigurationWizard *WaitPage::viewWizard()
-{
-    return (AMCameraConfigurationWizard*)wizard();
-}
 
 QString WaitPage::message(WaitPage::MessageType type)
 {
-    AMCameraConfigurationWizard::WizardMessage wizardMessage;
+    int wizardMessage;
     switch(type)
     {
     case Title:

@@ -6,8 +6,9 @@
 #include <QLayout>
 
 #include <QTimer>
-
+#include <QLabel>
 #include <QDebug>
+#include <QVector3D>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -39,6 +40,19 @@ void AMGraphicsViewWizard::setScale(double scaleFactor)
     setScale(scalePoint);
 }
 
+
+QString AMGraphicsViewWizard::message(int type)
+{
+    if(type)
+    {
+        return "Default message";
+    }
+    else
+    {
+        return "Default Error message";
+    }
+}
+
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 {
     view_ = view;
@@ -54,9 +68,31 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
     view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 }
 
+AMWizardPage::AMWizardPage(QWidget *parent)
+    :QWizardPage(parent)
+{
+    setTitle("AMWizardPage Title");
+    QVBoxLayout* selectLayout = new QVBoxLayout();
+    selectLayout->setContentsMargins(0,0,0,0);
+    selectLayout->addWidget(topLabel_ = new QLabel("AMWizardPage Label"));
+    selectLayout->addStretch();
+    setLayout(selectLayout);
+    topLabel_->setWordWrap(true);
+}
+
+AMGraphicsViewWizard *AMWizardPage::viewWizard() const
+{
+    return (AMGraphicsViewWizard*)wizard();
+}
+
+void AMWizardPage::setLabelText(QString text)
+{
+    topLabel_->setText(text);
+}
+
 
 AMWaitPage::AMWaitPage(QWidget *parent)
-    :QWizardPage(parent)
+    :AMWizardPage(parent)
 {
     waitTimer_ = new QTimer();
     connect(waitTimer_, SIGNAL(timeout()), this, SLOT(nextPage()));
@@ -85,7 +121,7 @@ void AMWaitPage::nextPage()
 
 
 AMViewPage::AMViewPage(QWidget *parent)
-    : QWizardPage(parent)
+    : AMWizardPage(parent)
 {
     viewFrame_ = new QFrame();
     view_ = new AMShapeDataSetGraphicsView();
@@ -128,4 +164,6 @@ void AMViewPage::addView()
     viewFrame_->setLayout(viewLayout);
     layout()->addWidget(viewFrame_);
 }
+
+
 

@@ -26,7 +26,7 @@ public:
     enum {Page_Intro, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
 
-    enum WizardMessage {Title_Wizard, Title_Help, Default_Help,
+    enum {Title_Wizard, Title_Help, Default_Help,
                         Title_Intro, Page_Intro_Text, Page_Intro_Help,
                         Title_Check, Page_Check_Text, Page_Check_CheckBox, Page_Check_Back, Page_Check_Help,
                         Title_Select, Page_Select_Text, Page_Select_Help,
@@ -41,7 +41,7 @@ public:
     int nextId() const;
 
     /// sets the appropriate point in the list and goes on to the next page
-    void addPoint(QPointF position);
+    virtual void addPoint(QPointF position);
 
     /// returns the pointer to the list of points
     QList<QPointF*>* pointList();
@@ -50,7 +50,7 @@ public:
     // currently these are hardcoded
     QList<QVector3D*>* coordinateList();
 
-    QString message(WizardMessage);
+    virtual QString message(int messageType);
 
 
 public slots:
@@ -77,7 +77,7 @@ private:
 
 /// Intro page is just the introduction/howto for this wizard.
 
-class IntroPage : public QWizardPage
+class IntroPage : public AMWizardPage
 {
     Q_OBJECT
 public:
@@ -86,10 +86,6 @@ public:
     void initializePage();
 
     void timerEvent(QTimerEvent *event);
-protected:
-    AMCameraConfigurationWizard* viewWizard();
-private:
-    QLabel* topLabel_;
 
 };
 
@@ -107,23 +103,16 @@ public slots:
 protected slots:
     void configuredSet(bool set);
 protected:
-    AMCameraConfigurationWizard* viewWizard();
-private:
-    QLabel* topLabel_;
     QCheckBox* isConfigured_;
 };
 
-class FinalPage : public QWizardPage
+class FinalPage : public AMWizardPage
 {
     Q_OBJECT
 public:
     FinalPage(QWidget* parent = 0);
 
-protected:
-    AMCameraConfigurationWizard* viewWizard();
-
-private:
-    QLabel* topLabel_;
+    void initializePage();
 };
 
 class SelectPage : public AMViewPage
@@ -138,12 +127,9 @@ public slots:
 
     void addPoint(QPointF position);
 protected:
-    enum MessageType {Title, Text};
-    AMCameraConfigurationWizard* viewWizard();
+//    AMCameraConfigurationWizard* viewWizard();
     QString message(MessageType type);
 
-private:
-    QLabel* topLabel_;
 };
 
 class WaitPage : public AMWaitPage
@@ -155,12 +141,8 @@ public:
     void initializePage();
 
 protected:
-    enum MessageType {Title, Text};
-    AMCameraConfigurationWizard* viewWizard();
     QString message(MessageType type);
 
-private:
-    QLabel* topLabel_;
 };
 
 

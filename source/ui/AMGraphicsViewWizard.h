@@ -7,11 +7,14 @@ class AMShapeDataSetGraphicsView;
 class QPointF;
 class QTimer;
 class QFrame;
+class QLabel;
+class QVector3D;
 
 class AMGraphicsViewWizard : public QWizard
 {
     Q_OBJECT
 public:
+//    typedef int WizardMessage;
     AMGraphicsViewWizard(QWidget* parent = 0);
 
     AMShapeDataSetGraphicsView* view();
@@ -20,6 +23,12 @@ public:
 
     void setScale(QPointF scale);
     void setScale(double scaleFactor);
+
+    virtual void addPoint(QPointF position) = 0;
+
+    virtual QList<QVector3D*>* coordinateList() = 0;
+
+    virtual QString message(int type);
 
 public slots:
     void setView(AMShapeDataSetGraphicsView* view);
@@ -30,7 +39,23 @@ private:
 
 };
 
-class AMWaitPage : public QWizardPage
+
+class AMWizardPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    enum MessageType {Title, Text};
+    AMWizardPage(QWidget* parent = 0);
+    AMGraphicsViewWizard* viewWizard() const;
+public slots:
+    void setLabelText(QString text);
+protected:
+    QLabel* topLabel_;
+
+};
+
+
+class AMWaitPage : public AMWizardPage
 {
     Q_OBJECT
 public:
@@ -48,7 +73,8 @@ private:
 
 };
 
-class AMViewPage : public QWizardPage
+
+class AMViewPage : public AMWizardPage
 {
     Q_OBJECT
 public:

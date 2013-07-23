@@ -42,6 +42,7 @@
 #include <QPainterPath>
 
 #include "AMCameraConfigurationWizard.h"
+#include "AMBeamConfigurationWizard.h"
 
 
 #define SAMPLEPOINTS 6
@@ -78,6 +79,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
     view->setScene(shapeScene_->scene());
     cameraWizard_->setView(view);
+
+    beamWizard_ = new AMBeamConfigurationWizard();
+    beamWizard_->setView(view);
 
 
     ///GUI Setup
@@ -165,6 +169,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -407,6 +413,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
     connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
+    connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
 
     /// allows non-rectangle drawing
 
@@ -1207,6 +1214,17 @@ void AMShapeDataSetView::startCameraWizard()
     cameraWizard_->setView(view);
 //    cameraWizard_->restart();
     cameraWizard_->show();
+}
+
+void AMShapeDataSetView::startBeamWizard()
+{
+    delete beamWizard_;
+    beamWizard_ = new AMBeamConfigurationWizard();
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
+    view->setScene(shapeScene_->scene());
+    view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
+    beamWizard_->setView(view);
+    beamWizard_->show();
 }
 
 void AMShapeDataSetView::updateCurrentShape()
