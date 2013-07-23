@@ -1060,12 +1060,14 @@ void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
 
 void AMShapeDataSetView::reviewCameraConfiguration()
 {
+    qDebug()<<"Here in AMShapeDataSetView::reviewCameraConfiguration";
     bool review = false;
     QList<QPointF*>* pointList = cameraWizard_->pointList();
     foreach(QPointF* point, *pointList)
     {
         if(*point != QPointF(0,0))
             review = true;
+        qDebug()<<"Review is "<<review;
     }
 
     QList<QVector3D*>* coordinateList = cameraWizard_->coordinateList();

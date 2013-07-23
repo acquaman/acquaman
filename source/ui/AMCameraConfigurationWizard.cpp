@@ -45,7 +45,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setOption(HaveHelpButton, true);
 //    setPixmap(QWizard::LogoPixmap, QPixMap());
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
-    setWindowTitle(message(Title_Wizard));
+    setWindowTitle(message(Wizard_Title));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -138,6 +138,7 @@ int AMCameraConfigurationWizard::nextId() const
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
+    qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
     QPointF* newPoint;
     int index;
     switch(currentId())
@@ -164,15 +165,18 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
         index = -1;
         break;
     }
-    if(index < 0 )
+
+    if(field("isConfigured").toBool())
     {
         for(int i = 0; i < pointList_->count(); i++)
         {
+            qDebug()<<"Deleting point"<<i;
             newPoint = pointList_->at(i);
             *newPoint = QPointF(0,0);
         }
         return;
     }
+    else if(index < 0)return;
 
     QList<QGraphicsItem*> list = view()->items();
     QGraphicsVideoItem* videoItem;
@@ -201,6 +205,11 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
     QPointF newPosition(positionX,positionY);
     *newPoint = newPosition;
 
+    foreach(QPointF* point, *pointList_)
+    {
+        qDebug()<<*point;
+    }
+
     next();
 
 }
@@ -217,51 +226,119 @@ QList<QVector3D *> *AMCameraConfigurationWizard::coordinateList()
 
 QString AMCameraConfigurationWizard::message(int messageType)
 {
+    if(messageType == Wizard_Title)
+        return QString("Camera Wizard");
+    else if(messageType == Help_Title)
+        return QString("Camera Wizard Help");
+    switch(currentId())
+    {
+    case Page_Intro:
+        switch(messageType)
+        {
+        case Title:
+            return QString("Introduction Page");
+        case Text:
+            return QString(tr("This is the introduction page of the camera configuration wizard."));
+        case Help:
+            return QString("Help message for the intro page");
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Check:
+        switch(messageType)
+        {
+        case Title:
+            return QString("Check page");
+        case Text:
+             return QString(tr("This is the page where you check to see if the camera is correctly lined up."));
+        case Help:
+             return QString("Help message for check page.");
+        case Other:
+            return QString("Is the camera correct?");
+        case Default:
+            return QString(tr("< &Intro"));
+        default:
+            break;
+        }
+        break;
+    case Page_Select_One:
+    case Page_Select_Two:
+    case Page_Select_Three:
+    case Page_Select_Four:
+    case Page_Select_Five:
+    case Page_Select_Six:
+        switch(messageType)
+        {
+        case Title:
+            return QString("Selection Page ");
+        case Text:
+            return QString(tr("Select the point corresponding to the coordinate: "));
+        case Help:
+            return QString("Help message for selection page");
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Wait_One:
+    case Page_Wait_Two:
+    case Page_Wait_Three:
+    case Page_Wait_Four:
+    case Page_Wait_Five:
+    case Page_Wait_Six:
+        switch(messageType)
+        {
+        case Title:
+            return QString("Moving to position ");
+        case Text:
+             return QString(tr("Please wait until the next page appears."));
+        case Help:
+            return QString("Help message for wait page");
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Final:
+        switch(messageType)
+        {
+        case Title:
+            return QString("Final Page");
+        case Text:
+            return QString("This is the final page of the wizard.");
+        case Help:
+            return QString("Help message for final page.");
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    }
     switch(messageType)
     {
-    case Title_Wizard:
-        return QString("Camera Wizard");
-    case Title_Help:
-        return QString("Camera Wizard Help");
-    case Default_Help:
+    case Title:
+        return "Default Title";
+    case Text:
+         return QString("Default message.");
+    case Help:
         return QString("Default help message.");
-    case Title_Intro:
-        return QString("Introduction Page");
-    case Page_Intro_Text:
-        return QString(tr("This is the introduction page of the camera configuration wizard."));
-    case Page_Intro_Help:
-        return QString("Help message for the intro page");
-    case Title_Check:
-        return QString("Check page");
-    case Page_Check_Text:
-        return QString(tr("This is the page where you check to see if the camera is correctly lined up."));
-    case Page_Check_CheckBox:
-        return QString("Is the camera correct?");
-    case Page_Check_Back:
-        return QString(tr("< &Intro"));
-    case Page_Check_Help:
-        return QString("Help message for check page.");
-    case Title_Select:
-        return QString("Selection Page ");
-    case Page_Select_Text:
-        return QString(tr("Select the point corresponding to the coordinate: "));
-    case Page_Select_Help:
-        return QString("Help message for selection page");
-    case Title_Wait:
-        return QString("Moving to position ");
-    case Page_Wait_Text:
-        return QString(tr("Please wait until the next page appears."));
-    case Page_Wait_Help:
-        return QString("Help message for wait page");
-    case Title_Final:
-        return QString("Final Page");
-    case Page_Final_Text:
-        return QString("This is the final page of the wizard.");
-    case Page_Final_Help:
-        return QString("Help message for final page.");
+    case Other:
+    case Default:
     default:
-        return QString("Default message.");
+        return "";
     }
+
+
+
+
+
+
 
 }
 
@@ -274,6 +351,11 @@ void AMCameraConfigurationWizard::back()
     switch(id)
     {
         case Page_Wait_One:
+            ((WaitPage*)page(id))->stopTimer();
+            QWizard::back();
+            cleanupPage(Page_Check);
+            initializePage(Page_Check);
+            break;
         case Page_Wait_Two:
         case Page_Wait_Three:
         case Page_Wait_Four:
@@ -321,26 +403,6 @@ void AMCameraConfigurationWizard::back()
 
 
 
-void AMCameraConfigurationWizard::showHelp()
-{
-    QString helpMessage;
-    switch(currentId())
-    {
-    case Page_Intro:
-        helpMessage = message(Page_Intro_Help);
-        break;
-    case Page_Check:
-        helpMessage = message(Page_Check_Help);
-        break;
-    case Page_Final:
-        helpMessage = message(Page_Final_Help);
-    default:
-        helpMessage = message(Default_Help);
-    }
-
-    QMessageBox::information(this, message(Title_Help), helpMessage);
-}
-
 
 IntroPage::IntroPage(QWidget *parent)
     : AMWizardPage(parent)
@@ -349,8 +411,8 @@ IntroPage::IntroPage(QWidget *parent)
 
 void IntroPage::initializePage()
 {
-    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Intro));
-    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Intro_Text));
+    setTitle(message(Title));
+    setLabelText(message(Text));
     startTimer(0);
 
 }
@@ -379,10 +441,10 @@ CheckPage::CheckPage(QWidget *parent)
 void CheckPage::initializePage()
 {
     AMViewPage::initializePage();
-    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Check));
-    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Text));
-    isConfigured_->setText(viewWizard()->message(AMCameraConfigurationWizard::Page_Check_CheckBox));
-    setButtonText(QWizard::BackButton,viewWizard()->message(AMCameraConfigurationWizard::Page_Check_Back));
+    setTitle(message(Title));
+    setLabelText(message(Text));
+    isConfigured_->setText(message(Other));
+    setButtonText(QWizard::BackButton,message(Default));
 
 }
 
@@ -391,7 +453,7 @@ void CheckPage::configuredSet(bool set)
     setFinalPage(set);
     if(set)
     {
-        ((AMCameraConfigurationWizard*)viewWizard())->addPoint(QPointF(0,0));
+        viewWizard()->addPoint(QPointF(0,0));
     }
 }
 
@@ -405,8 +467,8 @@ FinalPage::FinalPage(QWidget *parent)
 
 void FinalPage::initializePage()
 {
-    setTitle(viewWizard()->message(AMCameraConfigurationWizard::Title_Final));
-    setLabelText(viewWizard()->message(AMCameraConfigurationWizard::Page_Final_Text));
+    setTitle(message(Title));
+    setLabelText(message(Text));
 }
 
 
@@ -466,22 +528,6 @@ void SelectPage::addPoint(QPointF position)
 }
 
 
-QString SelectPage::message(SelectPage::MessageType type)
-{
-    int wizardMessage;
-    switch(type)
-    {
-    case Title:
-        wizardMessage = AMCameraConfigurationWizard::Title_Select;
-        break;
-    case Text:
-        wizardMessage = AMCameraConfigurationWizard::Page_Select_Text;
-        break;
-    default:
-        wizardMessage = AMCameraConfigurationWizard::Default_Help;
-    }
-    return viewWizard()->message(wizardMessage);
-}
 
 
 WaitPage::WaitPage(QWidget *parent)
@@ -528,22 +574,6 @@ void WaitPage::initializePage()
 }
 
 
-QString WaitPage::message(WaitPage::MessageType type)
-{
-    int wizardMessage;
-    switch(type)
-    {
-    case Title:
-        wizardMessage = AMCameraConfigurationWizard::Title_Wait;
-        break;
-    case Text:
-        wizardMessage = AMCameraConfigurationWizard::Page_Wait_Text;
-        break;
-    default:
-        wizardMessage = AMCameraConfigurationWizard::Default_Help;
-    }
-    return viewWizard()->message(wizardMessage);
-}
 
 
 

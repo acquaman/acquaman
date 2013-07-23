@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QDebug>
 #include <QVector3D>
+#include <QMessageBox>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -45,7 +46,7 @@ QString AMGraphicsViewWizard::message(int type)
 {
     if(type)
     {
-        return "Default message";
+        return "Default message parent";
     }
     else
     {
@@ -68,6 +69,11 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
     view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 }
 
+void AMGraphicsViewWizard::showHelp()
+{
+    QMessageBox::information(this, message(Help_Title), message(Help));
+}
+
 AMWizardPage::AMWizardPage(QWidget *parent)
     :QWizardPage(parent)
 {
@@ -83,6 +89,30 @@ AMWizardPage::AMWizardPage(QWidget *parent)
 AMGraphicsViewWizard *AMWizardPage::viewWizard() const
 {
     return (AMGraphicsViewWizard*)wizard();
+}
+
+QString AMWizardPage::message(int type)
+{
+    int messageType;
+    switch(type)
+    {
+    case Title:
+        messageType = AMGraphicsViewWizard::Title;
+        break;
+    case Text:
+        messageType = AMGraphicsViewWizard::Text;
+        break;
+    case Other:
+        messageType = AMGraphicsViewWizard::Other;
+        break;
+    case Help:
+        messageType = AMGraphicsViewWizard::Help;
+        break;
+    default:
+        messageType = AMGraphicsViewWizard::Default;
+        break;
+    }
+    return viewWizard()->message(messageType);
 }
 
 void AMWizardPage::setLabelText(QString text)

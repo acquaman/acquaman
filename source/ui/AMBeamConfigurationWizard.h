@@ -15,19 +15,20 @@ public:
           Page_Set_Two, Page_Set_Three, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Final,
           Wait_One_Again, Wait_Two_Again, Wait_Three_Again};
 
-    enum WizardMessage {Title_Wizard,
-                        Title_Intro};
+
     AMBeamConfigurationWizard(QWidget* parent = 0);
     ~AMBeamConfigurationWizard();
 
     int nextId() const;
 
 
-    QString message(WizardMessage);
+    QString message(int);
 
     void addPoint(QPointF position);
 
     QList<QVector3D*>* coordinateList();
+
+    int relativeId();
 
 public slots:
     void back();
@@ -53,14 +54,18 @@ class AMBeamIntroPage : public AMWizardPage
     Q_OBJECT
 public:
     AMBeamIntroPage(QWidget* parent = 0);
+    void initializePage();
+//    QString message(int type);
 };
 
 class AMBeamCheckPage : public AMViewPage
 {
     Q_OBJECT
 public:
+//    enum {Title, Text, CheckBox};
     AMBeamCheckPage(QWidget* parent = 0);
     void initializePage();
+//    QString message(int type);
 
 public slots:
 
@@ -76,6 +81,7 @@ class AMBeamWaitPage : public AMWaitPage
 public:
     AMBeamWaitPage(QWidget* parent = 0);
     void initializePage();
+//    QString message(int type);
 };
 
 class AMBeamSelectPage : public AMViewPage
@@ -85,6 +91,8 @@ public:
     AMBeamSelectPage(QWidget* parent = 0);
 
     void initializePage();
+
+//    QString message(int type);
 };
 
 class AMBeamFinalPage : public AMWizardPage
@@ -93,6 +101,7 @@ class AMBeamFinalPage : public AMWizardPage
 public:
     AMBeamFinalPage(QWidget* parent = 0);
     void initializePage();
+//    QString message(int type);
 };
 
 #endif // AMBEAMCONFIGURATIONWIZARD_H

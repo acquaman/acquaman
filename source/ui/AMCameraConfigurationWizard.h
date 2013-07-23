@@ -26,12 +26,6 @@ public:
     enum {Page_Intro, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
 
-    enum {Title_Wizard, Title_Help, Default_Help,
-                        Title_Intro, Page_Intro_Text, Page_Intro_Help,
-                        Title_Check, Page_Check_Text, Page_Check_CheckBox, Page_Check_Back, Page_Check_Help,
-                        Title_Select, Page_Select_Text, Page_Select_Help,
-                        Title_Wait, Page_Wait_Text, Page_Wait_Help,
-                        Title_Final, Page_Final_Text, Page_Final_Help};
     AMCameraConfigurationWizard(QWidget* parent = 0);
     ~AMCameraConfigurationWizard();
 
@@ -64,7 +58,7 @@ signals:
 
 private slots:
     /// shows the help messages
-    void showHelp();
+//    void showHelp();
 private:
 
     /// list of the six points that will be used to calibrate the camera
@@ -128,7 +122,7 @@ public slots:
     void addPoint(QPointF position);
 protected:
 //    AMCameraConfigurationWizard* viewWizard();
-    QString message(MessageType type);
+//    QString message(int type);
 
 };
 
@@ -141,7 +135,7 @@ public:
     void initializePage();
 
 protected:
-    QString message(MessageType type);
+//    QString message(int type);
 
 };
 

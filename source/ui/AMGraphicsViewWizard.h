@@ -14,7 +14,7 @@ class AMGraphicsViewWizard : public QWizard
 {
     Q_OBJECT
 public:
-//    typedef int WizardMessage;
+    enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
     AMGraphicsViewWizard(QWidget* parent = 0);
 
     AMShapeDataSetGraphicsView* view();
@@ -30,8 +30,11 @@ public:
 
     virtual QString message(int type);
 
+
 public slots:
     void setView(AMShapeDataSetGraphicsView* view);
+
+    virtual void showHelp();
 
 private:
     AMShapeDataSetGraphicsView* view_;
@@ -44,9 +47,10 @@ class AMWizardPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    enum MessageType {Title, Text};
+    enum {Title, Text, Help, Other, Default};
     AMWizardPage(QWidget* parent = 0);
     AMGraphicsViewWizard* viewWizard() const;
+    virtual QString message(int type);
 public slots:
     void setLabelText(QString text);
 protected:

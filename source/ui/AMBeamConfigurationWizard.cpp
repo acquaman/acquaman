@@ -7,6 +7,7 @@
 #include <QLayout>
 #include <QDebug>
 #include <QCheckBox>
+#include <QMessageBox>
 
 
 
@@ -27,7 +28,7 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
-    setWindowTitle(message(Title_Wizard));
+    setWindowTitle(message(Wizard_Title));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -68,7 +69,6 @@ int AMBeamConfigurationWizard::nextId() const
         if(setting_) return Page_Set_Three;
         else return Page_Check_Three;
     case Page_Set_One:
-        qDebug()<<"Current page is page_set_one";
         return Wait_Two_Again;
     case Page_Set_Two:
         return Wait_Three_Again;
@@ -91,7 +91,6 @@ void AMBeamConfigurationWizard::next()
     }
     else if (nextId() == Wait_Two_Again)
     {
-        qDebug()<<"NextId is Wait_Two_Again";
         setting_ = false;
         QWizard::back();
         while(currentId() != Page_Wait_Two)
@@ -119,17 +118,137 @@ void AMBeamConfigurationWizard::next()
 
 void AMBeamConfigurationWizard::showHelp()
 {
+    QString helpMessage = message(Help);
+
+    QMessageBox::information(this,message(Help_Title), helpMessage);
 }
 
 
-QString AMBeamConfigurationWizard::message(AMBeamConfigurationWizard::WizardMessage type)
+QString AMBeamConfigurationWizard::message(int type)
 {
     switch(type)
     {
-    case Title_Wizard:
+    case Wizard_Title:
         return "Beam Configuration Wizard";
+    case Help_Title:
+        return "Help";
+    case Title:
+        switch(currentId())
+        {
+        case Page_Intro:
+            return "Introduction Page";
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+            return "Confirm Beam";
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+            return "Set Beam";
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+            return "Please Wait";
+        case Page_Final:
+            return "Final page Title";
+        }
+    case Text:
+        switch(currentId())
+        {
+        case Page_Intro:
+            return "Introduction page text.";
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+            return QString("Check to see if beam %1 is in the correct configuration.").arg(relativeId());
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+            return QString("Draw a box over beam position %1").arg(relativeId());
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+            return QString("Moving to position %1").arg(relativeId());
+        case Page_Final:
+            return (QString("Check Page %1 has value: %2 \n").arg(Page_Check_One).arg(field(QString("Configured %1").arg(Page_Check_One)).toBool())
+                    + QString("Check Page %1 has value: %2 \n").arg(Page_Check_Two).arg(field(QString("Configured %1").arg(Page_Check_Two)).toBool())
+                                 + QString("Check Page %1 has value: %2").arg(Page_Check_Three).arg(field(QString("Configured %1").arg(Page_Check_Three)).toBool()));
+        }
+    case Other:
+        switch(currentId())
+        {
+        case Page_Intro:
+            return "";
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+            return "Is the beam correct?";
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+        case Page_Final:
+        default:
+            return "";
+        }
+    case Help:
+        switch(currentId())
+        {
+        case Page_Intro:
+            return "Intro page help";
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+            return "Check Page help";
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+            return "set page help";
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+            return "Wait page help";
+        case Page_Final:
+            return "Final page help";
+        default:
+            return "";
+        }
+    case Default:
+        switch(currentId())
+        {
+        case Page_Intro:
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+        case Page_Final:
+        default:
+            return "";
+        }
     default:
-        return "Default Message";
+        switch(currentId())
+        {
+        case Page_Intro:
+        case Page_Check_One:
+        case Page_Check_Two:
+        case Page_Check_Three:
+        case Page_Set_One:
+        case Page_Set_Two:
+        case Page_Set_Three:
+        case Page_Wait_One:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
+        case Page_Final:
+        default:
+            return "";
+        }
     }
 }
 
@@ -143,6 +262,33 @@ void AMBeamConfigurationWizard::addPoint(QPointF position)
 QList<QVector3D *> *AMBeamConfigurationWizard::coordinateList()
 {
     return coordinateList_;
+}
+
+int AMBeamConfigurationWizard::relativeId()
+{
+    switch(currentId())
+    {
+    case Page_Check_One:
+        return 1;
+    case Page_Check_Two:
+        return 2;
+    case Page_Check_Three:
+        return 3;
+    case Page_Wait_One:
+        return 1;
+    case Page_Wait_Two:
+        return 2;
+    case Page_Wait_Three:
+        return 3;
+    case Page_Set_One:
+        return 1;
+    case Page_Set_Two:
+        return 2;
+    case Page_Set_Three:
+        return 3;
+    default:
+        return 0;
+    }
 }
 
 void AMBeamConfigurationWizard::back()
@@ -233,17 +379,22 @@ void AMBeamConfigurationWizard::back()
 AMBeamIntroPage::AMBeamIntroPage(QWidget *parent)
     : AMWizardPage(parent)
 {
-    setTitle("Intro");
-    setLabelText("Intro page label text.");
-
 }
+
+void AMBeamIntroPage::initializePage()
+{
+    setTitle(message(Title));
+    setLabelText(message(Text));
+}
+
+
 
 AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
     : AMViewPage(parent)
 {
     setTitle("Check Page");
     setLabelText("Check Page label text.");
-    beamConfigured_ = new QCheckBox("Is the beam in the correct spot?");
+    beamConfigured_ = new QCheckBox();
     beamConfigured_->setChecked(true);
     layout()->addWidget(beamConfigured_);
 
@@ -253,30 +404,19 @@ AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
 
 void AMBeamCheckPage::initializePage()
 {
-    int currentId = viewWizard()->currentId();
-    int relativeId = 0;
-    switch(currentId)
-    {
-    case AMBeamConfigurationWizard::Page_Check_One:
-        relativeId = 1;
-        break;
-    case AMBeamConfigurationWizard::Page_Check_Two:
-        relativeId = 2;
-        break;
-    case AMBeamConfigurationWizard::Page_Check_Three:
-        relativeId = 3;
-        break;
-    default:
-        relativeId = 0;
-    }
-    setTitle(title() + QString("%1").arg(relativeId));
-    setLabelText(QString("This is check page %1").arg(relativeId));
+
+    qDebug()<<"Check page, setting title";
+    setTitle(message(Title));
+    setLabelText(message(Text));
+    beamConfigured_->setText(message(Other));
 
     QString fieldName = QString("Configured %1").arg(viewWizard()->currentId());
     if(field(fieldName).isNull())
         registerField(fieldName,beamConfigured_);
     AMViewPage::initializePage();
 }
+
+
 
 void AMBeamCheckPage::configuredChanged(bool configured)
 {
@@ -287,60 +427,32 @@ void AMBeamCheckPage::configuredChanged(bool configured)
 AMBeamWaitPage::AMBeamWaitPage(QWidget *parent)
     : AMWaitPage(parent)
 {
-    setTitle("Wait Page");
-    setLabelText("Wait page label text");
+
 }
 
 void AMBeamWaitPage::initializePage()
 {
-    int relativeId;
-    switch(viewWizard()->currentId())
-    {
-    case AMBeamConfigurationWizard::Page_Wait_One:
-        relativeId = 1;
-        break;
-    case AMBeamConfigurationWizard::Page_Wait_Two:
-        relativeId = 2;
-        break;
-    case AMBeamConfigurationWizard::Page_Wait_Three:
-        relativeId = 3;
-        break;
-    default:
-        relativeId = 0;
-    }
-    setLabelText(QString("Moving to position %1").arg(relativeId));
+
+    setTitle(message(Title));
+    setLabelText(message(Text));
 
     AMWaitPage::startTimer(1000);
 }
 
 
+
+
 AMBeamSelectPage::AMBeamSelectPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle("Select Page");
-    setLabelText("Selection Page");
+
 }
 
 void AMBeamSelectPage::initializePage()
 {
     qDebug()<<"Initializing beam set page"<<viewWizard()->currentId();
-    int relativeId;
-    switch(viewWizard()->currentId())
-    {
-    case AMBeamConfigurationWizard::Page_Set_One:
-        relativeId = 1;
-        break;
-    case AMBeamConfigurationWizard::Page_Set_Two:
-        relativeId = 2;
-        break;
-    case AMBeamConfigurationWizard::Page_Set_Three:
-        relativeId = 3;
-        break;
-    default:
-        relativeId = 0;
-    }
-
-    setLabelText(QString("This is selection page %1").arg(relativeId));
+    setTitle(message(Title));
+    setLabelText(message(Text));
 
     AMViewPage::initializePage();
 }
@@ -349,13 +461,11 @@ void AMBeamSelectPage::initializePage()
 AMBeamFinalPage::AMBeamFinalPage(QWidget *parent)
     :AMWizardPage(parent)
 {
-    setTitle("Final Page");
-    setLabelText("Final Page label Text.");
 }
 
 void AMBeamFinalPage::initializePage()
 {
-    setLabelText(QString("Check Page %1 has value: %2 \n").arg(AMBeamConfigurationWizard::Page_Check_One).arg(field(QString("Configured %1").arg(AMBeamConfigurationWizard::Page_Check_One)).toBool())
-    + QString("Check Page %1 has value: %2 \n").arg(AMBeamConfigurationWizard::Page_Check_Two).arg(field(QString("Configured %1").arg(AMBeamConfigurationWizard::Page_Check_Two)).toBool())
-    + QString("Check Page %1 has value: %2").arg(AMBeamConfigurationWizard::Page_Check_Three).arg(field(QString("Configured %1").arg(AMBeamConfigurationWizard::Page_Check_Three)).toBool()));
+    setTitle(message(Title));
+    setLabelText(message(Text));
 }
+
