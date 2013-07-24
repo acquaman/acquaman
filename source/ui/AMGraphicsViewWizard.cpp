@@ -93,6 +93,18 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
     view_->setScene(copier->scene());
     view_->scene()->setObjectName("AMGraphicsViewWizard scene 1");
 
+    /// This item prevents the screen from flashing or going blank
+    /// when there is a QGraphicsItem or a descendent in less than
+    /// all the views, but at least one.
+    /// It seems that placing a QGraphicsTextItem with it's bounding rectangle
+    /// touching the current views boundaries (adjusted for scrolling) will
+    /// stop the behaviour.
+    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
+    textFixItem->setObjectName("Fix");
+    textFixItem->setZValue(INT_MAX);
+    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
+    view_->scene()->addItem(textFixItem);
+
 
     view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -113,6 +125,13 @@ void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
     AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
     copier->updateScene(view_->scene(),view->scene());
 
+    /// re add the "Fix" item (see setView)
+    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
+    textFixItem->setObjectName("Fix");
+    textFixItem->setZValue(INT_MAX);
+    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
+    view_->scene()->addItem(textFixItem);
+
 }
 
 void AMGraphicsViewWizard::outputItems()
@@ -127,6 +146,7 @@ void AMGraphicsViewWizard::fixText()
     QGraphicsTextItem* fixTextItem;
     foreach(QGraphicsItem* item, list)
     {
+
         if(item->type() == QGraphicsTextItem::Type)
         {
             QGraphicsTextItem* textItem = (QGraphicsTextItem*)(item);
@@ -140,10 +160,8 @@ void AMGraphicsViewWizard::fixText()
 
     QRect visibleRect = view_->viewport()->rect();
 
-    qDebug()<<visibleRect;
     visibleRect.moveTopLeft((QPoint(view_->horizontalScrollBar()->value(),
     view_->verticalScrollBar()->value())));
-    qDebug()<<visibleRect.topLeft();
 
     QPointF fixLocation = visibleRect.topLeft() - (fixTextItem->boundingRect().bottomRight());
     fixTextItem->setPos(fixLocation);

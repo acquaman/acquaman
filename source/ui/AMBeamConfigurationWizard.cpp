@@ -74,6 +74,7 @@ int AMBeamConfigurationWizard::nextId() const
         else
             return Wait_One_Again;
     case Page_Wait_One:
+//        return Page_Intro;
         if(setting_) return Page_Set_One;
         else return Page_Check_One;
     case Page_Wait_Two:
@@ -127,6 +128,15 @@ void AMBeamConfigurationWizard::next()
             initializePage(Page_Wait_Three);
         }
     }
+    else if((currentId() == Page_Check_One && !(field(QString("Configured %1").arg(Page_Check_One)).toBool()))
+            || (currentId() == Page_Check_Two && !(field(QString("Configured %1").arg(Page_Check_Two)).toBool())))
+    {
+        while(currentId() != Page_Check_Three)
+        {
+            QWizard::next();
+        }
+        next();
+    }
     else AMGraphicsViewWizard::next();
 }
 
@@ -140,130 +150,100 @@ void AMBeamConfigurationWizard::showHelp()
 
 QString AMBeamConfigurationWizard::message(int type)
 {
-    switch(type)
+    if(type == Wizard_Title) return "Beam Configuration Wizard";
+    else if(type == Help_Title) return "Help";
+
+    switch(currentId())
     {
-    case Wizard_Title:
-        return "Beam Configuration Wizard";
-    case Help_Title:
-        return "Help";
-    case Title:
-        switch(currentId())
+    case Page_Intro:
+        switch(type)
         {
-        case Page_Intro:
+        case Title:
             return "Introduction Page";
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
-            return "Confirm Beam";
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
-            return "Set Beam";
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-            return "Please Wait";
-        case Page_Final:
-            return "Final page Title";
-        }
-    case Text:
-        switch(currentId())
-        {
-        case Page_Intro:
+        case Text:
             return "Introduction page text.";
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
+        case Help:
+            return "Intro page help";
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+
+    case Page_Check_One:
+    case Page_Check_Two:
+    case Page_Check_Three:
+        switch(type)
+        {
+        case Title:
+            return "Confirm Beam";
+        case Text:
             return QString("Check to see if beam %1 is in the correct configuration.").arg(relativeId());
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
+        case Help:
+            return "Check Page help";
+        case Other:
+            return "Is the beam correct?";
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Set_One:
+    case Page_Set_Two:
+     case Page_Set_Three:
+        switch(type)
+        {
+        case Title:
+            return "Set Beam";
+        case Text:
             return QString("Draw a box over beam position %1").arg(relativeId());
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
+        case Help:
+            return "set page help";
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Wait_One:
+    case Page_Wait_Two:
+    case Page_Wait_Three:
+        switch(type)
+        {
+        case Title:
+            return "Please Wait";
+        case Text:
             return QString("Moving to position %1").arg(relativeId());
-        case Page_Final:
+        case Help:
+            return "Wait page help";
+        case Other:
+        case Default:
+        default:
+            break;
+        }
+        break;
+    case Page_Final:
+        switch(type)
+        {
+        case Title:
+            return "Final page Title";
+        case Text:
             return (QString("Check Page %1 has value: %2 \n").arg(Page_Check_One).arg(field(QString("Configured %1").arg(Page_Check_One)).toBool())
                     + QString("Check Page %1 has value: %2 \n").arg(Page_Check_Two).arg(field(QString("Configured %1").arg(Page_Check_Two)).toBool())
                                  + QString("Check Page %1 has value: %2").arg(Page_Check_Three).arg(field(QString("Configured %1").arg(Page_Check_Three)).toBool()));
-        }
-    case Other:
-        switch(currentId())
-        {
-        case Page_Intro:
-            return "";
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
-            return "Is the beam correct?";
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-        case Page_Final:
-        default:
-            return "";
-        }
-    case Help:
-        switch(currentId())
-        {
-        case Page_Intro:
-            return "Intro page help";
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
-            return "Check Page help";
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
-            return "set page help";
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-            return "Wait page help";
-        case Page_Final:
+        case Help:
             return "Final page help";
+        case Other:
+        case Default:
         default:
-            return "";
-        }
-    case Default:
-        switch(currentId())
-        {
-        case Page_Intro:
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-        case Page_Final:
-        default:
-            return "";
+            break;
         }
     default:
-        switch(currentId())
-        {
-        case Page_Intro:
-        case Page_Check_One:
-        case Page_Check_Two:
-        case Page_Check_Three:
-        case Page_Set_One:
-        case Page_Set_Two:
-        case Page_Set_Three:
-        case Page_Wait_One:
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-        case Page_Final:
-        default:
-            return "";
-        }
+        return "";
     }
+
+    return "";
 }
 
 QList<QPointF *> *AMBeamConfigurationWizard::pointList()
@@ -274,11 +254,10 @@ QList<QPointF *> *AMBeamConfigurationWizard::pointList()
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
     int index = relativeId() - 1;
-    QPointF* newPoint = new QPointF();
+    QPointF* newPoint;// = new QPointF();
     if(topLeft_)
     {
         newPoint = (*pointList_)[2*(index)];
-        qDebug()<<"Connecting view";
         connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
         topLeft_ = !topLeft_;
     }
@@ -287,14 +266,9 @@ void AMBeamConfigurationWizard::addPoint(QPointF position)
         newPoint = (*pointList_)[2*(index) + 1];
     }
     *newPoint = mapPointToVideo(position);
-    for(int i = 0; i < numberOfPoints_; i++)
-    {
-        qDebug()<<"Point"<<i<<*pointList_->at(i);
-    }
 
     emit showShape(index);
 
-//    outputItems();
 
 }
 
@@ -335,6 +309,8 @@ int AMBeamConfigurationWizard::relativeId()
         return 0;
     }
 }
+
+
 
 void AMBeamConfigurationWizard::back()
 {

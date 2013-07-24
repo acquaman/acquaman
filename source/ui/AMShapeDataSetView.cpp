@@ -483,6 +483,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     setUseCameraMatrix(defaultUseCameraMatrix);
     hideCameraParameters(defaultUseCameraMatrix);
 
+    /// This fixes the problem with with different views flashing or going white
+    /// when they have QGraphicsTextItems or GraphicsTextItems in them.
+    /// No real reason why this works, it just does.
+    /// see AMGraphicsViewWizard::setView for a full description (AMGraphicsViewWizard.cpp)
     QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
     textFixItem->setZValue(INT_MAX);
     textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
@@ -928,12 +932,8 @@ void AMShapeDataSetView::beamShape(int shapeNumber)
     reviewCrosshairLinePositions();
     AMShapeDataSetGraphicsView* newView = new AMShapeDataSetGraphicsView();
     newView->setScene(shapeScene_->scene());
-//    beamWizard_->setView(newView);
-    updateTracker_++;
-    if(updateTracker_ > 10)
-        updateTracker_ = 0;
-//    if(updateTracker_ = 0)
-        beamWizard_->updateScene(newView);
+    beamWizard_->updateScene(newView);
+
 
 }
 

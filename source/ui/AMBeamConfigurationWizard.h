@@ -13,7 +13,7 @@ class AMBeamConfigurationWizard : public AMGraphicsViewWizard
 public:
     enum {Page_Intro, Page_Check_One, Page_Check_Two, Page_Check_Three, Page_Set_One,
           Page_Set_Two, Page_Set_Three, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Final,
-          Wait_One_Again, Wait_Two_Again, Wait_Three_Again};
+          Wait_One_Again, Wait_Two_Again, Wait_Three_Again, Skip_Check};
 
 
     AMBeamConfigurationWizard(QWidget* parent = 0);
@@ -29,6 +29,9 @@ public:
     QList<QVector3D*>* coordinateList();
 
     int relativeId();
+
+
+
 
 public slots:
     void back();

@@ -7,6 +7,7 @@
 #include <QTextDocument>
 #include "GraphicsTextItem.h"
 #include <QDebug>
+#include <QTimer>
 
 AMGraphicsVideoSceneCopier::AMGraphicsVideoSceneCopier(QWidget* parent)
     : QObject(parent)
@@ -25,14 +26,9 @@ QGraphicsScene *AMGraphicsVideoSceneCopier::scene()
 
 void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith)
 {
-    qDebug()<<"AMGraphicsVideoSceneCopier::updateScene - updating scene";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
     /// need to figure out what items are new and put them into the old scene
-    // add new items
-    int newCount = newList.count();
-    int oldCount = oldList.count();
-    qDebug()<<"AMGraphicsVideoSceneCopier::updateScene"<<newCount<<oldCount;
     foreach(QGraphicsItem* item, oldList)
     {
         if(item->type() != QGraphicsItem::UserType)
@@ -67,11 +63,7 @@ void AMGraphicsVideoSceneCopier::cloneScene()
 
     QList<QGraphicsItem*> sceneList = oldScene->items();
 
-    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
-    textFixItem->setObjectName("Fix");
-    textFixItem->setZValue(INT_MAX);
-    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
-    newScene->addItem(textFixItem);
+
 
     foreach(QGraphicsItem* item, sceneList)
     {
@@ -96,7 +88,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     int type = item->type();
     if(type == QGraphicsRectItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding rect";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding rect";
         QGraphicsRectItem* rectItem = (QGraphicsRectItem*)item;
         QGraphicsRectItem* newRectItem = new QGraphicsRectItem();
         newRectItem->setZValue(rectItem->zValue());
@@ -106,10 +98,10 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     }
     else if(type == QGraphicsTextItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding text";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding text";
         QGraphicsTextItem* textItem = (QGraphicsTextItem*)item;
         QGraphicsTextItem* newTextItem = new QGraphicsTextItem();
-        newTextItem->setZValue(textItem->zValue());
+        newTextItem->setZValue(0);
         newTextItem->setPlainText(textItem->document()->toPlainText());
         newTextItem->setFont(textItem->font());
         newTextItem->setDefaultTextColor(textItem->defaultTextColor());
@@ -117,7 +109,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     }
     else if(type == QGraphicsPolygonItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding poly";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding poly";
 
         QGraphicsPolygonItem* polyItem = (QGraphicsPolygonItem*)item;
         QGraphicsPolygonItem* newPolyItem = new QGraphicsPolygonItem();
@@ -130,7 +122,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     }
     else if(type == QGraphicsLineItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding line";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding line";
         QGraphicsLineItem* lineItem = (QGraphicsLineItem*)item;
         QGraphicsLineItem* newLineItem = new QGraphicsLineItem();
         newLineItem->setZValue(lineItem->zValue());
@@ -140,7 +132,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     }
     else if(type == QGraphicsPathItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding path";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding path";
         QGraphicsPathItem* pathItem = (QGraphicsPathItem*)item;
         QGraphicsPathItem* newPathItem = new QGraphicsPathItem();
         newPathItem->setZValue(pathItem->zValue());
@@ -150,10 +142,10 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     }
     else if(type == GraphicsTextItem::Type)
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding graphicsText";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding graphicsText";
         GraphicsTextItem* textItem = (GraphicsTextItem*)item;
         GraphicsTextItem* newTextItem = new GraphicsTextItem();
-        newTextItem->setZValue(textItem->zValue());
+        newTextItem->setZValue(0);
         newTextItem->setPlainText(textItem->document()->toPlainText());
         newTextItem->setFont(textItem->font());
         newTextItem->setDefaultTextColor(textItem->defaultTextColor());
@@ -186,13 +178,13 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
         }
         else
         {
-            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other custom";
+//            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other custom";
              newItem = new QGraphicsPolygonItem();
         }
     }
     else
     {
-        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other";
+//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other";
         newItem = new QGraphicsPolygonItem();
     }
 
