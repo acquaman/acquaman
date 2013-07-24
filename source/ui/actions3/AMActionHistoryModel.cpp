@@ -466,11 +466,22 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 }
 
 int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
+	if(!parent.isValid())
+		return items_.count();
+
 	AMActionLogItem3 *item = logItem(parent);
+	/*
 	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) ){
 		if(item->numberOfChildren() != -1)
 			return item->numberOfChildren();
 	}
+	*/
+	if(!item)
+		qDebug() << "What, no item?!?";
+	else
+		qDebug() << "So child count is " << item->numberOfChildren();
+	if(item && item->numberOfChildren() != -1)
+		return item->numberOfChildren();
 
 	if(rowCount() == 0)
 		return 0;
@@ -480,7 +491,8 @@ int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
 			subChildCount += childrenCount(index(x, 0, parent));
 
 	int retVal = rowCount(parent) + subChildCount;
-	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) )
+	//if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) )
+	if(item)
 		item->updateNumberOfChildren(retVal);
 	return retVal;
 }
@@ -718,6 +730,7 @@ void AMActionHistoryModel3::refreshFromDb()
 		if(!recurseActionsLogLevelCreate(-1, parentIdsAndIdsAscending))
 			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_LIST, "The action history failed to generate its internal list. Please report this problem to the Acquaman developers ");
 	}
+	qDebug() << "Done recursing";
 
 	emit modelRefreshed();
 }
@@ -843,6 +856,7 @@ bool AMActionHistoryModel3::logCompletedAction(const AMAction3 *completedAction,
 	}
 }
 
+/*
 void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int id)
 {
 	if(tableName != actionLogTableName_)
@@ -896,6 +910,7 @@ void AMActionHistoryModel3::onDatabaseItemRemoved(const QString &tableName, int 
 	Q_UNUSED(id)
 	refreshFunctionCall_.schedule();
 }
+*/
 
 void AMActionHistoryModel3::refreshSpecificIds()
 {
@@ -975,9 +990,11 @@ void AMActionHistoryModel3::clear()
 
 bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){
 	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
+	/**/
 	// No more recursion if there are no children (base case)
 	if(childIdsInReverse.count() == 0)
 		return true;
+	/**/
 
 	// Grab the index of the parent in the list
 	int indexOfParent;
@@ -989,9 +1006,21 @@ bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int,
 	else
 		indexOfParent = 0;
 
+	/*
+	// No more recursion if there are no children (base case)
+	if(childIdsInReverse.count() == 0){
+		if(indexOfParent != 0)
+			items_.at(indexOfParent)->updateNumberOfChildren(0);
+		return true;
+	}
+	*/
+
 	// Place this level of items in reverse order
 	for(int x = 0; x < childIdsInReverse.count(); x++)
 		items_.insert(indexOfParent, new AMActionLogItem3(db_, childIdsInReverse.at(x)));
+
+	items_.at(indexOfParent)->updateNumberOfChildren(childIdsInReverse.count());
+	//qDebug() << "Updated number of children to " << items_.at(indexOfParent)->numberOfChildren();
 
 	// Ask to place the children for each child in order
 	bool success = true;

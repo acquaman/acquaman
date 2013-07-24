@@ -213,12 +213,14 @@ signals:
 	void modelRefreshed();
 
 protected slots:
+	/*
 	/// Called when the database table has an actionLog added. If possible, simply appends that action to the model instead of doing a full refresh.
 	void onDatabaseItemCreated(const QString& tableName, int id);
 	/// Called when the database table has an actionLog changed. Simply updates the action instead of doing a full refresh.
 	void onDatabaseItemUpdated(const QString& tableName, int id);
 	/// Called when the database table has an actionLog removed. Triggers a full refresh of the model.
 	void onDatabaseItemRemoved(const QString& tableName, int id);
+	*/
 
 	/// Called to refresh only the items belonging to a specific set of AMActionLog ids, found in idsRequiringRefresh_.  Used to optimize our response when one or more actionLogs are updated in the database. Note that these ids may or may not be visible for us.
 	void refreshSpecificIds();
