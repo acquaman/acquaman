@@ -185,6 +185,11 @@ public:
     /// look for intersections with the current beam
     bool findIntersections();
 
+    void deleteShape(int index);
+
+
+
+
 public slots:
 
     /// Mouse interactions--------------------------------------------------------------------------------
@@ -278,6 +283,9 @@ public slots:
 
     /// enables drawing on the set shap
     void setDrawOnShapeEnabled(bool enable);
+
+    void setBeamMarker(QPointF position, int index);
+    void updateBeamMarker(QPointF position, int index);
 
 
 
@@ -456,6 +464,8 @@ protected:
 
 
 
+
+
 protected:
 
     /// Members
@@ -551,6 +561,10 @@ protected:
 
     /// the polygon currently being drawn
     QPolygonF currentPolygon_;
+
+    AMShapeData* beamMarkers_[3];
+
+
 
 
 

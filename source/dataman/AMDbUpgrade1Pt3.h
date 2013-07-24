@@ -4,7 +4,7 @@
 #include "dataman/database/AMDbUpgrade.h"
 
 /// This class is used to upgrade databases from AMSample to AMSamplePre2013. This is necessary to upgrade for improvements for AMSample.
-
+/*
 class AMDbUpgrade1Pt3 : public AMDbUpgrade
 {
     Q_OBJECT
@@ -30,5 +30,5 @@ public:
     /// Returns the description of the upgrade
     virtual QString description() const;
 };
-
+*/
 #endif // AMDBUPGRADE1PT3_H

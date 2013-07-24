@@ -44,6 +44,8 @@
 #include "AMCameraConfigurationWizard.h"
 #include "AMBeamConfigurationWizard.h"
 
+#include <limits>
+
 
 #define SAMPLEPOINTS 6
 
@@ -61,7 +63,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
-
+    updateTracker_ = 0;
 
     borderColour_ = QColor(Qt::red);
 
@@ -73,6 +75,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     currentView_ = NAME;
     mode_ = DRAW;
+//    beamList_<<-1<<-1<<-1;
 
 
     cameraWizard_ = new AMCameraConfigurationWizard();
@@ -480,6 +483,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     setUseCameraMatrix(defaultUseCameraMatrix);
     hideCameraParameters(defaultUseCameraMatrix);
 
+    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
+    textFixItem->setZValue(INT_MAX);
+    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
+    shapeScene_->scene()->addItem(textFixItem);
 
     reviewCrosshairLinePositions();
 
@@ -613,7 +620,6 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
    QPainterPath* path = new QPainterPath();
    path->addPolygon(currentPolygon);
    currentShape_->setPath(*path);
-
 
 
 
@@ -903,6 +909,34 @@ void AMShapeDataSetView::autoCompleteEnterPressed()
     reviewCrosshairLinePositions();
 }
 
+void AMShapeDataSetView::beamShape(int shapeNumber)
+{
+    QList<QPointF*>* points;
+    if(beamWizard_ != 0)
+        points = beamWizard_->pointList();
+    else return;
+    QPointF topLeft = mapPointToVideo(*(points->at(2*shapeNumber)));
+    QPointF bottomRight = mapPointToVideo(*(points->at(2*shapeNumber+1)));
+
+
+
+    shapeModel_->setBeamMarker(topLeft,shapeNumber);
+    shapeModel_->updateBeamMarker(bottomRight, shapeNumber);
+
+
+
+    reviewCrosshairLinePositions();
+    AMShapeDataSetGraphicsView* newView = new AMShapeDataSetGraphicsView();
+    newView->setScene(shapeScene_->scene());
+//    beamWizard_->setView(newView);
+    updateTracker_++;
+    if(updateTracker_ > 10)
+        updateTracker_ = 0;
+//    if(updateTracker_ = 0)
+        beamWizard_->updateScene(newView);
+
+}
+
 
 
 
@@ -1060,31 +1094,29 @@ void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
 
 void AMShapeDataSetView::reviewCameraConfiguration()
 {
-    qDebug()<<"Here in AMShapeDataSetView::reviewCameraConfiguration";
     bool review = false;
     QList<QPointF*>* pointList = cameraWizard_->pointList();
     foreach(QPointF* point, *pointList)
     {
         if(*point != QPointF(0,0))
             review = true;
-        qDebug()<<"Review is "<<review;
     }
 
     QList<QVector3D*>* coordinateList = cameraWizard_->coordinateList();
-    QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
-    QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
-    QPointF factor = bottomRight - topLeft;
-    QPointF offset = topLeft;
+//    QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
+//    QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
+//    QPointF factor = bottomRight - topLeft;
+//    QPointF offset = topLeft;
     QPointF positions[SAMPLEPOINTS];
     QVector3D coordinates[SAMPLEPOINTS];
     if(review)
     {
         for(int i = 0; i < SAMPLEPOINTS; i++)
         {
-            positions[i] = (*pointList->at(i));
-            positions[i].setX(positions[i].x()*(factor.x()));
-            positions[i].setY(positions[i].y()*(factor.y()));
-            positions[i] += offset;
+            positions[i] = mapPointToVideo(*pointList->at(i));
+//            positions[i].setX(positions[i].x()*(factor.x()));
+//            positions[i].setY(positions[i].y()*(factor.y()));
+//            positions[i] += offset;
             coordinates[i] = *coordinateList->at(i);
         }
         shapeModel_->findCamera(positions,coordinates);
@@ -1122,6 +1154,19 @@ void AMShapeDataSetView::play()
 QMediaPlayer* AMShapeDataSetView::mediaPlayer()
 {
     return shapeScene_->mediaPlayer();
+}
+
+QPointF AMShapeDataSetView::mapPointToVideo(QPointF position)
+{
+    QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
+    QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
+    QPointF factor = bottomRight - topLeft;
+    QPointF offset = topLeft;
+    QPointF newPosition;
+    newPosition.setX(position.x()*factor.x());
+    newPosition.setY(position.y()*factor.y());
+    newPosition += offset;
+    return newPosition;
 }
 
 void AMShapeDataSetView::setCrosshairColor(const QColor &color)
@@ -1214,7 +1259,6 @@ void AMShapeDataSetView::startCameraWizard()
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     cameraWizard_->setView(view);
-//    cameraWizard_->restart();
     cameraWizard_->show();
 }
 
@@ -1222,6 +1266,7 @@ void AMShapeDataSetView::startBeamWizard()
 {
     delete beamWizard_;
     beamWizard_ = new AMBeamConfigurationWizard();
+    connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));

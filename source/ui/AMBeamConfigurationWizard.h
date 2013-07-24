@@ -24,7 +24,7 @@ public:
 
     QString message(int);
 
-    void addPoint(QPointF position);
+    QList<QPointF*>* pointList();
 
     QList<QVector3D*>* coordinateList();
 
@@ -37,15 +37,23 @@ public slots:
 
     void showHelp();
 
+    void addPoint(QPointF position);
+
+    void endPoint(QPointF position);
+
 
 signals:
     void done();
+    void showShape(int);
+
 protected:
     bool setting_;
 
     QList<QVector3D*>* coordinateList_;
 
     QList<QPointF*>* pointList_;
+
+    bool topLeft_;
 
 };
 

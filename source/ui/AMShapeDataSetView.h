@@ -87,6 +87,8 @@ public:
 
     QMediaPlayer* mediaPlayer();
 
+    QPointF mapPointToVideo(QPointF);
+
 public slots:
 
         /// Set the crosshair color
@@ -266,6 +268,9 @@ protected slots:
 
     void autoCompleteEnterPressed();
 
+    void beamShape(int);
+
+
 
 
 protected:
@@ -294,6 +299,7 @@ protected:
     void createIntersectionShapes(QVector<QPolygonF>);
 
     void clearIntersections();
+
 
 
 
@@ -436,6 +442,10 @@ protected:
 
     QPushButton* beamWizardButton_;
     AMBeamConfigurationWizard* beamWizard_;
+
+    QList<QGraphicsPolygonItem*> beamList_;
+    int updateTracker_;
+
 
 };
 

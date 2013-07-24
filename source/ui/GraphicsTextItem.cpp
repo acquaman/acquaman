@@ -7,6 +7,9 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene)
 {
     document_ = document();
     connect(document_, SIGNAL(contentsChanged()), SLOT(changingText()));
+    QFont font;
+    font.setFamily("Helvitica");
+    setFont(font);
 }
 
 void GraphicsTextItem::setShapeIndex(int index)
@@ -17,6 +20,11 @@ void GraphicsTextItem::setShapeIndex(int index)
 int GraphicsTextItem::shapeIndex()
 {
     return shapeIndex_;
+}
+
+int GraphicsTextItem::type() const
+{
+    return Type;
 }
 
 

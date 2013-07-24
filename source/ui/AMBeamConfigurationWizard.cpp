@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QMessageBox>
+#include "AMShapeDataSetGraphicsView.h"
 
 
 
@@ -38,6 +39,19 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     setting_ = false;
+
+    /// two points for each square, three squares.
+    numberOfPoints_ = 6;
+
+    pointList_ = new QList<QPointF*>();
+
+    for(int i = 0; i < numberOfPoints_; i++)
+    {
+        pointList_->append(new QPointF(0,0));
+    }
+
+    topLeft_ = true;
+
 }
 
 AMBeamConfigurationWizard::~AMBeamConfigurationWizard()
@@ -252,11 +266,42 @@ QString AMBeamConfigurationWizard::message(int type)
     }
 }
 
+QList<QPointF *> *AMBeamConfigurationWizard::pointList()
+{
+    return pointList_;
+}
+
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
+    int index = relativeId() - 1;
     QPointF* newPoint = new QPointF();
-    *newPoint = position;
-    pointList_->append(newPoint);
+    if(topLeft_)
+    {
+        newPoint = (*pointList_)[2*(index)];
+        qDebug()<<"Connecting view";
+        connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
+        topLeft_ = !topLeft_;
+    }
+    else
+    {
+        newPoint = (*pointList_)[2*(index) + 1];
+    }
+    *newPoint = mapPointToVideo(position);
+    for(int i = 0; i < numberOfPoints_; i++)
+    {
+        qDebug()<<"Point"<<i<<*pointList_->at(i);
+    }
+
+    emit showShape(index);
+
+//    outputItems();
+
+}
+
+void AMBeamConfigurationWizard::endPoint(QPointF position)
+{
+    disconnect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
+    topLeft_ = true;
 }
 
 QList<QVector3D *> *AMBeamConfigurationWizard::coordinateList()
@@ -385,6 +430,7 @@ void AMBeamIntroPage::initializePage()
 {
     setTitle(message(Title));
     setLabelText(message(Text));
+
 }
 
 
@@ -398,7 +444,8 @@ AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
     beamConfigured_->setChecked(true);
     layout()->addWidget(beamConfigured_);
 
-    connect(beamConfigured_, SIGNAL(clicked(bool)), this, SLOT(configuredChanged(bool)));
+
+     connect(beamConfigured_, SIGNAL(clicked(bool)), this, SLOT(configuredChanged(bool)));
 
 }
 
@@ -455,6 +502,12 @@ void AMBeamSelectPage::initializePage()
     setLabelText(message(Text));
 
     AMViewPage::initializePage();
+
+
+    disconnect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
+    disconnect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
+    connect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
+    connect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
 }
 
 

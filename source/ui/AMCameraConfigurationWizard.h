@@ -34,8 +34,7 @@ public:
     /// rather than the pages becuase there is more than one instance of several pages
     int nextId() const;
 
-    /// sets the appropriate point in the list and goes on to the next page
-    virtual void addPoint(QPointF position);
+
 
     /// returns the pointer to the list of points
     QList<QPointF*>* pointList();
@@ -52,6 +51,9 @@ public slots:
     /// on going back to a previous page
     void back();
 
+    /// sets the appropriate point in the list and goes on to the next page
+    virtual void addPoint(QPointF position);
+
 signals:
     /// signal emitted when the finish button is pressed
     void done();
@@ -66,7 +68,7 @@ private:
     /// list of the points corresponding to each coordinate
     QList<QVector3D*>* coordinateList_;
     /// number of points in each list - should be six with current camera configuration method
-    int numberOfPoints_;
+//    int numberOfPoints_;
 };
 
 /// Intro page is just the introduction/howto for this wizard.

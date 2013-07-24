@@ -5,6 +5,7 @@
 
 class QGraphicsScene;
 class QObject;
+class QGraphicsItem;
 
 
 /// This class copies a scene for use in another view
@@ -22,6 +23,9 @@ public:
     /// the copy
     QGraphicsScene* scene();
 
+    /// tries to update sceneToUpdate to mathc sceneToUpdateWith as best as possible
+    void updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith);
+
 
 
 public slots:
@@ -36,8 +40,10 @@ signals:
     /// emitted after the scene has been copied
     void sceneCloned();
 
+protected:
+    QGraphicsItem* getCopy(QGraphicsItem* item);
 
-private:
+protected:
 
     QGraphicsScene* originalScene_;
     QGraphicsScene* scene_;

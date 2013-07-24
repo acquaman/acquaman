@@ -178,31 +178,9 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
     }
     else if(index < 0)return;
 
-    QList<QGraphicsItem*> list = view()->items();
-    QGraphicsVideoItem* videoItem;
-    foreach(QGraphicsItem* item, list)
-    {
-        if(item->type() > 12)
-        {
-            videoItem = (QGraphicsVideoItem*)item;
-        }
-
-    }
 
     newPoint = pointList_->at(index);
-    QPointF topLeft = videoItem->sceneBoundingRect().topLeft();
-    QPointF bottomRight = videoItem->sceneBoundingRect().bottomRight();
-    double left = view()->mapSceneToVideo(topLeft).x();
-    double right = view()->mapSceneToVideo(bottomRight).x();
-    double top = view()->mapSceneToVideo(topLeft).y();
-    double bottom = view()->mapSceneToVideo(bottomRight).y();
-    double positionX = position.x();
-    positionX = (positionX - left);
-    positionX = positionX/(right-left);
-    double positionY= position.y();
-    positionY = positionY - top;
-    positionY = positionY/(bottom-top);
-    QPointF newPosition(positionX,positionY);
+    QPointF newPosition = mapPointToVideo(position);
     *newPoint = newPosition;
 
     foreach(QPointF* point, *pointList_)
@@ -440,11 +418,12 @@ CheckPage::CheckPage(QWidget *parent)
 
 void CheckPage::initializePage()
 {
-    AMViewPage::initializePage();
+
     setTitle(message(Title));
     setLabelText(message(Text));
     isConfigured_->setText(message(Other));
     setButtonText(QWizard::BackButton,message(Default));
+    AMViewPage::initializePage();
 
 }
 

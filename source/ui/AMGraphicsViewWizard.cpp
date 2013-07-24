@@ -10,6 +10,9 @@
 #include <QDebug>
 #include <QVector3D>
 #include <QMessageBox>
+#include <QGraphicsItem>
+#include <QGraphicsVideoItem>
+#include <QScrollBar>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -46,12 +49,38 @@ QString AMGraphicsViewWizard::message(int type)
 {
     if(type)
     {
-        return "Default message parent";
+        return "Default message";
     }
     else
     {
         return "Default Error message";
     }
+}
+
+QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point)
+{
+    QList<QGraphicsItem*> list = view()->items();
+    QGraphicsVideoItem* videoItem;
+    foreach(QGraphicsItem* item, list)
+    {
+        if(item->type() == QGraphicsItem::UserType)
+        {
+            videoItem = (QGraphicsVideoItem*)item;
+        }
+    }
+    QPointF topLeft = videoItem->sceneBoundingRect().topLeft();
+    QPointF bottomRight = videoItem->sceneBoundingRect().bottomRight();
+    QPointF sceneTopLeft = view()->mapSceneToVideo(topLeft);
+    QPointF sceneBottomRight = view()->mapSceneToVideo(bottomRight);
+    double left = sceneTopLeft.x();
+    double right = sceneBottomRight.x();
+    double top = sceneTopLeft.y();
+    double bottom = sceneBottomRight.y();
+
+    double positionX = (point.x() - left)/(right-left);
+    double positionY = (point.y() - top)/(bottom - top);
+
+    return QPointF(positionX, positionY);
 }
 
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
@@ -64,14 +93,61 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
     view_->setScene(copier->scene());
     view_->scene()->setObjectName("AMGraphicsViewWizard scene 1");
 
+
     view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+
+    fixText();
+
+
 }
 
 void AMGraphicsViewWizard::showHelp()
 {
     QMessageBox::information(this, message(Help_Title), message(Help));
+}
+
+void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
+{
+    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
+    copier->updateScene(view_->scene(),view->scene());
+
+}
+
+void AMGraphicsViewWizard::outputItems()
+{
+    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
+    copier->cloneScene(view_->scene());
+}
+
+void AMGraphicsViewWizard::fixText()
+{
+    QList<QGraphicsItem*> list = this->view()->items();
+    QGraphicsTextItem* fixTextItem;
+    foreach(QGraphicsItem* item, list)
+    {
+        if(item->type() == QGraphicsTextItem::Type)
+        {
+            QGraphicsTextItem* textItem = (QGraphicsTextItem*)(item);
+            if(textItem->objectName() == "Fix")
+            {
+                fixTextItem = textItem;
+            }
+        }
+    }
+
+
+    QRect visibleRect = view_->viewport()->rect();
+
+    qDebug()<<visibleRect;
+    visibleRect.moveTopLeft((QPoint(view_->horizontalScrollBar()->value(),
+    view_->verticalScrollBar()->value())));
+    qDebug()<<visibleRect.topLeft();
+
+    QPointF fixLocation = visibleRect.topLeft() - (fixTextItem->boundingRect().bottomRight());
+    fixTextItem->setPos(fixLocation);
+
 }
 
 AMWizardPage::AMWizardPage(QWidget *parent)
@@ -176,6 +252,9 @@ void AMViewPage::initializePage()
         setView(((AMGraphicsViewWizard*)wizard())->view());
     }
     addView();
+    viewWizard()->fixText();
+    connect(view_->verticalScrollBar(), SIGNAL(valueChanged(int)), viewWizard(), SLOT(fixText()));
+    connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), viewWizard(), SLOT(fixText()));
 }
 
 void AMViewPage::cleanupPage()

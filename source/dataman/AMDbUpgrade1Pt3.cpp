@@ -1,5 +1,5 @@
 #include "AMDbUpgrade1Pt3.h"
-
+/*
 AMDbUpgrade1Pt3::AMDbUpgrade1Pt3(QString databaseNameToUpgrade, QObject *parent) :
     AMDbUpgrade(databaseNameToUpgrade,parent)
 {
@@ -55,3 +55,4 @@ bool AMDbUpgrade1Pt3::upgradeImplementation(){
 
     return success;
 }
+*/

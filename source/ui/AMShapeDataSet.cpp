@@ -54,6 +54,10 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     for(int i= 0; i < SAMPLEPOINTS; i++)
     {
         calibrationPoints_[i] = new AMShapeData();
+        if(i < 3)
+        {
+            beamMarkers_[i] = new AMShapeData();
+        }
     }
 
     calibrationRun_ = false;
@@ -549,7 +553,13 @@ bool AMShapeDataSet::findIntersections()
         intersections_<<intersectionScreenShape(intersectionShape);
 
     }
-     return true;
+    return true;
+}
+
+void AMShapeDataSet::deleteShape(int index)
+{
+    AMShapeData* oldShape = shapeList_.takeAt(index);
+    delete oldShape;
 }
 
 
@@ -655,6 +665,7 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
     bool deleted = false;
     for(int i = 0; i < index_ + 1; i++)
     {
+        deleted = false;
         if(contains(position,i))
         {
             AMShapeData* polygon = shapeList_.takeAt(i);
@@ -668,6 +679,16 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
                     j = SAMPLEPOINTS;
                     deleted = true;
 
+                }
+                if(j < 3)
+                {
+                    if(polygon == beamMarkers_[j])
+                    {
+                        delete beamMarkers_[j];
+                        beamMarkers_[j] = 0;
+                        j = SAMPLEPOINTS;
+                        deleted = true;
+                    }
                 }
             }
             if(!deleted)
@@ -1065,6 +1086,26 @@ void AMShapeDataSet::setDrawOnShapeEnabled(bool enable)
     drawOnShapeEnabled_ = enable;
 }
 
+void AMShapeDataSet::setBeamMarker(QPointF position, int index)
+{
+
+    int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
+    if(removalIndex >= 0)
+    {
+        shapeList_.removeAt(removalIndex);
+        index_--;
+    }
+
+    startRectangle(position);
+    beamMarkers_[index] = shapeList_[index_];
+
+}
+
+void AMShapeDataSet::updateBeamMarker(QPointF position, int index)
+{
+    current_ = shapeList_.indexOf(beamMarkers_[index]);
+    finishRectangle(position);
+}
 
 
 /// tracks motor movement and shifts drawings accordingly

@@ -24,11 +24,13 @@ public:
     void setScale(QPointF scale);
     void setScale(double scaleFactor);
 
-    virtual void addPoint(QPointF position) = 0;
+
 
     virtual QList<QVector3D*>* coordinateList() = 0;
 
     virtual QString message(int type);
+
+    QPointF mapPointToVideo(QPointF);
 
 
 public slots:
@@ -36,9 +38,21 @@ public slots:
 
     virtual void showHelp();
 
-private:
+    virtual void addPoint(QPointF position) = 0;
+
+    void updateScene(AMShapeDataSetGraphicsView* view);
+    void outputItems();
+    void fixText();
+
+protected:
+
+
+
+
+protected:
     AMShapeDataSetGraphicsView* view_;
     QPointF* scale_;
+    int numberOfPoints_;
 
 };
 
