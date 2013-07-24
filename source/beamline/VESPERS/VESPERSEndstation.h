@@ -67,6 +67,8 @@ public:
 	int filterThickness() const { return filterThickness_; }
 	/// Returns the current value of the laser sensor.
 	double laserPosition() const { return laserPositionControl_->value(); }
+	/// Returns whether the laser sensor is reading values or not.
+	bool laserPositionValid() const { return laserPositionStatusControl_->value() == 1.0; }
 	/// Returns whether the helium buffer is attached to the CCD.
 	bool heliumBufferAttached() const { return heliumBufferAttached_; }
 	/// Returns whether the CCD is at 90 degrees or not.
@@ -97,6 +99,8 @@ signals:
 	void fourElFbkChanged(double);
 	/// Notifier that the laser position has changed.
 	void laserPositionChanged(double);
+	/// Notifier that the laser position is valid or not.
+	void laserPositionValidityChanged(bool);
 
 public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
@@ -129,6 +133,8 @@ protected slots:
 	void onFiltersChanged();
 	/// Handles updating the control window if the configuration changes.
 	void updateControl(AMControl *control);
+	/// Checks the value of the laser sensor status and emits the signal based on the value.
+	void onLaserPositionValidityChanged(double value);
 
 protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
@@ -160,6 +166,7 @@ protected:
 	AMControl *fourElControl_;
 	AMControl *singleElControl_;
 	AMControl *laserPositionControl_;
+	AMControl *laserPositionStatusControl_;
 
 	// Microscope light PV.
 	AMProcessVariable *micLightPV_;

@@ -117,8 +117,17 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	arrowLayout->addWidget(stopButton_, 1, 1);
 	arrowLayout->addWidget(status_, 0, 0);
 
+	QStringList units = motorGroupObject_->units();
+	units.removeDuplicates();
+	QString unitString = "";
+
+	foreach (QString temp, units)
+		unitString = unitString % temp % "/";
+
+	unitString.chop(1);
+
 	jog_ = new QDoubleSpinBox;
-	jog_->setSuffix(" mm");
+	jog_->setSuffix(" " % unitString);
 	jog_->setSingleStep(0.001);
 	jog_->setMinimum(0.0000);
 	jog_->setValue(0.050);

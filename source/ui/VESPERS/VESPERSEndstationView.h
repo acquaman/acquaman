@@ -168,8 +168,8 @@ protected slots:
 	void singleElUpdate(double val) { singleElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the 4-el vortex distance update.
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles the normal focus distance update.
-	void onLaserDistanceChanged(double val);
+	/// Handles the laser position value changed signal.
+	void onLaserDistanceChanged();
 
 protected:
 	// Microscope light setup.

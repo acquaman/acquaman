@@ -39,6 +39,7 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", true, 1.0, 2.0, this);
 
 	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
+	laserPositionStatusControl_ = new AMReadOnlyPVControl("Laser Position Status", "PSD1607-2-B20-01:OUT1:fbk:status", this);
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -77,10 +78,16 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
 	connect(laserPositionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPositionChanged(double)));
+	connect(laserPositionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onLaserPositionValidityChanged(double)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
 		connect(list.at(i), SIGNAL(connected(bool)), this, SLOT(onFiltersConnected()));
+}
+
+void VESPERSEndstation::onLaserPositionValidityChanged(double value)
+{
+	emit laserPositionValidityChanged(value == 1.0);
 }
 
 bool VESPERSEndstation::loadConfiguration()

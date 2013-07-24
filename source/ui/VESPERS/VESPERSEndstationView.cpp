@@ -95,7 +95,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	laserPowerButton_->setFont(font);
 	connect(laserPowerButton_, SIGNAL(clicked()), endstation_, SLOT(toggleLaserPower()));
 	connect(endstation_, SIGNAL(laserPoweredChanged()), this, SLOT(laserPowerUpdate()));
-	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged(double)));
+	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged()));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
@@ -154,15 +154,22 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
-void VESPERSEndstationView::onLaserDistanceChanged(double val)
+void VESPERSEndstationView::onLaserDistanceChanged()
 {
 	QPalette palette(this->palette());
 
-	if (endstation_->laserPowered()){
+	if (endstation_->laserPowered() && endstation_->laserPositionValid()){
 
 		palette.setBrush(QPalette::ButtonText, Qt::darkGreen);
 		laserPowerButton_->setPalette(palette);
-		laserPowerButton_->setText(QString("%1 mm").arg(val, 0, 'f', 3));
+		laserPowerButton_->setText(QString("%1 mm").arg(endstation_->laserPosition(), 0, 'f', 3));
+	}
+
+	else if (endstation_->laserPowered()){
+
+		palette.setBrush(QPalette::ButtonText, Qt::red);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText("-FFFFFF");
 	}
 
 	else {
@@ -203,7 +210,7 @@ void VESPERSEndstationView::laserPowerUpdate()
 	}
 
 	laserPowerButton_->blockSignals(false);
-	onLaserDistanceChanged(endstation_->laserPosition());
+	onLaserDistanceChanged();
 }
 
 void VESPERSEndstationView::lightBulbToggled(bool pressed)
