@@ -87,6 +87,8 @@ signals:
 public slots:
 
 protected:
+	/// Returns whether the given PV name is an attocube motor or not.
+	bool isAttocubeMotor(const QString &pv) const;
 
 	/// The number of dimensions.
 	int dimensions_;
