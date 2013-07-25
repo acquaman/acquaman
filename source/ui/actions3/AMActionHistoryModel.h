@@ -187,10 +187,10 @@ public:
 	/// Returns the limit on the number of actions that will be pulled from the database and displayed. This might be larger than rowCount() if there aren't enough actions in the visible range to hit the limit.  Caveat: sometimes it will also be smaller than rowCount(), if we've appended new recently-finished actions since a full database refresh -- In that operation, the limit is not obeyed.
 	int maximumActionsToDisplay() const { return maximumActionsLimit_; }
 	int nextGoodMaximumActions() const;
-	/// Returns the oldest dateTime limit of our visible range. Actions older than this will not be shown.  Returns an invalid QDateTime if there is no oldest limit.
-	QDateTime visibleRangeOldestDateTime() const { return visibleRangeOldest_; }
-	/// Returns the newest (ie: most recent) dateTime limit of our visible range.  Actions more recent than this will not be shown. Returns an invalid QDateTime if there is no newest limit.
-	QDateTime visibleRangeNewestDateTime() const { return visibleRangeNewest_; }
+	// /// Returns the oldest dateTime limit of our visible range. Actions older than this will not be shown.  Returns an invalid QDateTime if there is no oldest limit.
+	// QDateTime visibleRangeOldestDateTime() const { return visibleRangeOldest_; }
+	// /// Returns the newest (ie: most recent) dateTime limit of our visible range.  Actions more recent than this will not be shown. Returns an invalid QDateTime if there is no newest limit.
+	// QDateTime visibleRangeNewestDateTime() const { return visibleRangeNewest_; }
 	/// Returns the total number of actions that would be included in the visible range, if maximumActionsToDisplay() was not restricting anything.
 	int visibleActionsCount() const { return visibleActionsCount_; }
 
@@ -213,6 +213,7 @@ public:
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
+	QModelIndex indexForNode(AMPointerTreeNode *node) const;
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
@@ -235,7 +236,7 @@ public:
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
 	/*! Automatically calls refreshFromDb() if the time range has changed, when control returns to the event loop.*/
-	void setVisibleDateTimeRange(const QDateTime& oldest, const QDateTime& newest = QDateTime());
+	//void setVisibleDateTimeRange(const QDateTime& oldest, const QDateTime& newest = QDateTime());
 
 	/// Set the default maximum number of actions to show. If more actions exist within the visibleDateTimeRange, only the most recent \c maximumActionsCount will be shown.
 	/*! Automatically calls refreshFromDb() if the maximumActionsCount has changed, when control returns to the event loop.*/
@@ -270,7 +271,7 @@ protected slots:
 protected:
 	/// Helper function that returns true if the given \c dateTime is within the visibleDateTimeRange.
 	/*! Remember that visibleRangeOldest_ and visibleRangeNewest_ are ignored (no restrictions) if they are invalid. */
-	bool insideVisibleDateTimeRange(const QDateTime& dateTime);
+	//bool insideVisibleDateTimeRange(const QDateTime& dateTime);
 
 	/// Helper function to append a row to the model with a given AMActionLogItem \c item. We don't have a public addRow() / insertRow() interface.
 	void appendItem(AMActionLogItem3* item);
@@ -280,8 +281,8 @@ protected:
 
 	/// Helper function to recurse through the actions log database information and populate the list
 	bool recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds);
-	/// Helper function to recurse through the items list and clear each level in order
-	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
+	// /// Helper function to recurse through the items list and clear each level in order
+	// bool recurseActionsLogLevelClear(QModelIndex parentIndex);
 
 	/// Helper function to recursively mark children as parentSelected or not for a given item view in the mapping
 	void recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected);
@@ -291,8 +292,8 @@ protected:
 protected:
 	/// Database to be used
 	AMDatabase* db_;
-	/// Ranges for visible dates
-	QDateTime visibleRangeOldest_, visibleRangeNewest_;
+	// /// Ranges for visible dates
+	// QDateTime visibleRangeOldest_, visibleRangeNewest_;
 	/// Maximum number of action logs to show
 	int maximumActionsLimit_;
 	/// Count of the visible number of actions
@@ -303,7 +304,7 @@ protected:
 	QString actionLogTableName_;
 
 	/// A list of these holds the actionLog data that we return in data()
-	QList<AMActionLogItem3*> items_;
+	//QList<AMActionLogItem3*> items_;
 	AMPointerTree *itemTree_;
 	AMPointerTreeNode *itemTreeRoot_;
 	QHash<int, AMPointerTreeNode*> idsToTreeNodes_;

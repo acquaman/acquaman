@@ -62,8 +62,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	model_->setMaximumActionsToDisplay(200);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
-	QDateTime everAgo = QDateTime();
-	model_->setVisibleDateTimeRange(everAgo);
+//	QDateTime everAgo = QDateTime();
+//	model_->setVisibleDateTimeRange(everAgo);
 
 	// Setup UI
 	//////////////////////
@@ -186,8 +186,6 @@ void AMActionHistoryView3::collapse(bool doCollapse)
 
 void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 {
-	model_->nextGoodMaximumActions();
-
 	// If we're showing all the available actions, don't do anything
 	if(model_->maximumActionsToDisplay() > model_->visibleActionsCount())
 		return;
@@ -201,6 +199,7 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 {
+	/*
 	QDateTime oldest = QDateTime::currentDateTime();
 
 	switch(rangeIndex) {
@@ -227,6 +226,7 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 	}
 
 	model_->setVisibleDateTimeRange(oldest);
+	*/
 }
 
 

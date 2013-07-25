@@ -283,8 +283,8 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	db_ = db;
 	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
-	maximumActionsLimit_ = 200;
-	visibleRangeOldest_ = QDateTime::fromString("M1d1y70", "'M'M'd'd'y'yy");
+	maximumActionsLimit_ = 100;
+//	visibleRangeOldest_ = QDateTime::fromString("M1d1y70", "'M'M'd'd'y'yy");
 
 	connect(&refreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshFromDb()));
 	connect(&specificRefreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshSpecificIds()));
@@ -323,10 +323,15 @@ int AMActionHistoryModel3::nextGoodMaximumActions() const{
 		else
 			indexer--;
 	}
+
+	if( nextGoodMaximum < ((4*maximumActionsLimit_)/3) )
+		nextGoodMaximum = ((4*maximumActionsLimit_)/3);
+
+	if(nextGoodMaximum == -1)
+		nextGoodMaximum = visibleActionsCount_-1;
+
 	qDebug() << "Next good maximum is at " << nextGoodMaximum;
-	return nextGoodMaximum;
-	//for(int x = 0; x < topLevelIds_.count(); x++)
-	//	qDebug() << "There is a good spot at " << visibleActionsCount_-topLevelIds_.at(x);
+	return nextGoodMaximum+1;
 }
 
 QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
@@ -717,6 +722,17 @@ AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) cons
 	return static_cast<AMActionLogItem3*>(indexNode->item());
 }
 
+QModelIndex AMActionHistoryModel3::indexForNode(AMPointerTreeNode *node) const{
+	if(!node || !node->parentNode())
+		return QModelIndex();
+
+	for(int x = 0; x < node->parentNode()->childCount(); x++)
+		if(node->parentNode()->childNodeAt(x) == node)
+			return createIndex(x, 0, (void*)(node));
+
+	return QModelIndex();
+}
+
 QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) const{
 	if(!logItem)
 		return QModelIndex();
@@ -819,6 +835,7 @@ void AMActionHistoryModel3::markIndexGroupAsDeselected(const QModelIndex &index,
 	markIndexGroup(index, viewer, false);
 }
 
+/*
 void AMActionHistoryModel3::setVisibleDateTimeRange(const QDateTime &oldest, const QDateTime &newest)
 {
 	if(oldest == visibleRangeOldest_ && newest == visibleRangeNewest_)
@@ -828,9 +845,11 @@ void AMActionHistoryModel3::setVisibleDateTimeRange(const QDateTime &oldest, con
 	visibleRangeNewest_ = newest;
 	refreshFunctionCall_.schedule();
 }
+*/
 
 void AMActionHistoryModel3::setMaximumActionsToDisplay(int maximumActionsCount)
 {
+	qDebug() << "Calling setMax with " << maximumActionsLimit_ << "and " << maximumActionsCount;
 	if(maximumActionsLimit_ == maximumActionsCount)
 		return;
 
@@ -962,7 +981,8 @@ void AMActionHistoryModel3::refreshFromDb()
 		if(!recurseActionsLogLevelCreate(-1, parentIdsAndIdsAscending))
 			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_LIST, "The action history failed to generate its internal list. Please report this problem to the Acquaman developers ");
 	}
-	qDebug() << "Done recursing";
+	qDebug() << "Done recursing, model children count " << childrenCount() << " max action " << maximumActionsLimit_;
+	qDebug() << itemTree_->rootNode()->childCount() << itemTree_->rootNode()->childNodeAt(0)->childCount();
 
 	emit modelRefreshed();
 }
@@ -993,16 +1013,16 @@ bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAct
 
 		//AMActionLogItem3* item = new AMActionLogItem3(db_, id);
 		AMActionLogItem3* item = new AMActionLogItem3(actionLog);
-		if(insideVisibleDateTimeRange(item->startDateTime())) {
+//		if(insideVisibleDateTimeRange(item->startDateTime())) {
 			emit modelAboutToBeRefreshed();
 			/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
 			appendItem(item);
 			visibleActionsCount_++;
 			emit modelRefreshed();
-		}
-		else {
-			delete item;
-		}
+//		}
+//		else {
+//			delete item;
+//		}
 
 		return success;
 	}
@@ -1069,16 +1089,16 @@ bool AMActionHistoryModel3::logCompletedAction(const AMAction3 *completedAction,
 		if(actionLog.storeToDb(database)){
 			//AMActionLogItem3* item = new AMActionLogItem3(db_, id);
 			AMActionLogItem3* item = new AMActionLogItem3(actionLog);
-			if(insideVisibleDateTimeRange(item->startDateTime())) {
+//			if(insideVisibleDateTimeRange(item->startDateTime())) {
 				emit modelAboutToBeRefreshed();
 				/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
 				appendItem(item);
 				visibleActionsCount_++;
 				emit modelRefreshed();
-			}
-			else {
-				delete item;
-			}
+//			}
+//			else {
+//				delete item;
+//			}
 			return true;
 		}
 		return false;
@@ -1146,6 +1166,35 @@ void AMActionHistoryModel3::onDatabaseItemRemoved(const QString &tableName, int 
 
 void AMActionHistoryModel3::refreshSpecificIds()
 {
+	qDebug() << "Doing specificIds refresh";
+	// will contain the indexes of any rows that should be deleted.
+	//QModelIndexList topLevelsToDelete;
+
+	QSet<int>::const_iterator i = idsRequiringRefresh_.constBegin();
+	while (i != idsRequiringRefresh_.constEnd()) {
+		AMPointerTreeNode *oneNode = idsToTreeNodes_.value(*i);
+		if(oneNode){
+			AMActionLogItem3 *oneItem = static_cast<AMActionLogItem3*>(oneNode->item());
+			if(oneItem){
+				oneItem->refresh();
+				QModelIndex changedIndexFirst = indexForLogItem(oneItem);
+				QModelIndex changedIndexLast = indexForLogItem(oneItem).sibling(changedIndexFirst.row(), 2);
+				emit dataChanged(changedIndexFirst, changedIndexLast);
+			}
+		}
+		++i;
+	}
+
+	idsRequiringRefresh_.clear();
+
+//	// Now delete any rows that shouldn't be there anymore. Do it by QModelIndex and things should be fine.
+//	if(!topLevelsToDelete.isEmpty()) {
+//		emit modelAboutToBeRefreshed();
+//		for(int x = 0; x < topLevelsToDelete.count(); x++)
+//			recurseActionsLogLevelClear(topLevelsToDelete.at(x));
+//		emit modelRefreshed();
+//	}
+	/*
 	// will contain the indexes of any rows that should be deleted.
 	QModelIndexList topLevelsToDelete;
 
@@ -1182,8 +1231,10 @@ void AMActionHistoryModel3::refreshSpecificIds()
 			recurseActionsLogLevelClear(topLevelsToDelete.at(x));
 		emit modelRefreshed();
 	}
+	*/
 }
 
+/*
 bool AMActionHistoryModel3::insideVisibleDateTimeRange(const QDateTime &dateTime)
 {
 	if(visibleRangeOldest_.isValid() && dateTime < visibleRangeOldest_)
@@ -1193,9 +1244,29 @@ bool AMActionHistoryModel3::insideVisibleDateTimeRange(const QDateTime &dateTime
 
 	return true;
 }
+*/
 
 void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
 {
+	int parentId = item->parentId();
+	AMPointerTreeNode *parentNode;
+	QModelIndex parentIndex;
+	if(parentId == -1){
+		parentNode = itemTree_->rootNode();
+		parentIndex = QModelIndex();
+	}
+	else{
+		parentNode= idsToTreeNodes_.value(parentId);
+		parentIndex = indexForNode(parentNode);
+	}
+
+	beginInsertRows(parentIndex, parentNode->childCount(), parentNode->childCount());
+	AMPointerTreeNode *pointerTreeNode = new AMPointerTreeNode(item, parentNode);
+	idsToTreeNodes_.insert(item->id(), pointerTreeNode);
+	parentNode->appendChildNode(pointerTreeNode);
+	endInsertRows();
+
+	/*
 	int parentId = item->parentId();
 	QModelIndex parentIndex = QModelIndex();
 
@@ -1209,6 +1280,7 @@ void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
 	beginInsertRows(parentIndex, parentRowCount, parentRowCount);
 	items_.append(item);
 	endInsertRows();
+	*/
 }
 
 void AMActionHistoryModel3::clear()
@@ -1277,52 +1349,52 @@ bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int,
 	return success;
 }
 
-bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex){
-	int childrenCount = rowCount(parentIndex);
-	// No more recursion if there are no children (base case)
-	if(childrenCount == 0)
-		return true;
+//bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex){
+//	int childrenCount = rowCount(parentIndex);
+//	// No more recursion if there are no children (base case)
+//	if(childrenCount == 0)
+//		return true;
 
-	// Recursively clear children's children
-	bool success = true;
-	for(int x = childrenCount-1; x >= 0; x--)
-		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
+//	// Recursively clear children's children
+//	bool success = true;
+//	for(int x = childrenCount-1; x >= 0; x--)
+//		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
 
-	// Clear this level of children
-	AMActionLogItem3 *item;
-	beginRemoveRows(parentIndex, 0, childrenCount);
-	for(int x = childrenCount-1; x >= 0; x--){
-		item = logItem(index(x, 0, parentIndex));
-		success &= items_.removeOne(item);
-		delete item;
-	}
-	endRemoveRows();
+//	// Clear this level of children
+//	AMActionLogItem3 *item;
+//	beginRemoveRows(parentIndex, 0, childrenCount);
+//	for(int x = childrenCount-1; x >= 0; x--){
+//		item = logItem(index(x, 0, parentIndex));
+//		success &= items_.removeOne(item);
+//		delete item;
+//	}
+//	endRemoveRows();
 
-	return success;
-	/*
-	int childrenCount = rowCount(parentIndex);
-	// No more recursion if there are no children (base case)
-	if(childrenCount == 0)
-		return true;
+//	return success;
+//	/*
+//	int childrenCount = rowCount(parentIndex);
+//	// No more recursion if there are no children (base case)
+//	if(childrenCount == 0)
+//		return true;
 
-	// Recursively clear children's children
-	bool success = true;
-	for(int x = childrenCount-1; x >= 0; x--)
-		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
+//	// Recursively clear children's children
+//	bool success = true;
+//	for(int x = childrenCount-1; x >= 0; x--)
+//		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
 
-	// Clear this level of children
-	AMActionLogItem3 *item;
-	beginRemoveRows(parentIndex, 0, childrenCount);
-	for(int x = childrenCount-1; x >= 0; x--){
-		item = logItem(index(x, 0, parentIndex));
-		success &= items_.removeOne(item);
-		delete item;
-	}
-	endRemoveRows();
+//	// Clear this level of children
+//	AMActionLogItem3 *item;
+//	beginRemoveRows(parentIndex, 0, childrenCount);
+//	for(int x = childrenCount-1; x >= 0; x--){
+//		item = logItem(index(x, 0, parentIndex));
+//		success &= items_.removeOne(item);
+//		delete item;
+//	}
+//	endRemoveRows();
 
-	return success;
-	*/
-}
+//	return success;
+//	*/
+//}
 
 void AMActionHistoryModel3::recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected){
 	// If a child was selected (actually selected) before the parent, unselect the child in the selection model ... later steps will automatically set the parentSelected mapping
