@@ -86,6 +86,7 @@ QList<void*> AMPointerTreeNode::clearNode(){
 		item_ = 0;
 	}
 	parentNode_ = 0;
+	descendantCount_ = -1;
 	return descendantItems;
 }
 
@@ -307,6 +308,25 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 
 AMActionHistoryModel3::~AMActionHistoryModel3() {
 	clear();
+}
+
+int AMActionHistoryModel3::nextGoodMaximumActions() const{
+	qDebug() << "Current maximum is " << maximumActionsLimit_;
+	qDebug() << "Current total actions is " << visibleActionsCount_;
+	qDebug() << "Current visible actions is " << childrenCount();
+
+	int nextGoodMaximum = -1;
+	int indexer = topLevelIds_.count()-1;
+	while(nextGoodMaximum == -1 && indexer >= 0){
+		if(visibleActionsCount_-topLevelIds_.at(indexer) > maximumActionsLimit_)
+			nextGoodMaximum = visibleActionsCount_-topLevelIds_.at(indexer);
+		else
+			indexer--;
+	}
+	qDebug() << "Next good maximum is at " << nextGoodMaximum;
+	return nextGoodMaximum;
+	//for(int x = 0; x < topLevelIds_.count(); x++)
+	//	qDebug() << "There is a good spot at " << visibleActionsCount_-topLevelIds_.at(x);
 }
 
 QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
@@ -835,7 +855,17 @@ void AMActionHistoryModel3::refreshFromDb()
 	QList<int> parentIds;
 	QSqlQuery q;
 	QSqlQuery q2;	// used to count the total number in the visible range, if we didn't have a limit.
+	QSqlQuery q3;	// used to find the "good" places for show more actions operations
 
+	q = db_->select(actionLogTableName_,
+			"id,parentId",
+			"1 ORDER BY startDateTime DESC LIMIT ?");
+	q.bindValue(0, maximumActionsLimit_);
+	q2 = db_->select(actionLogTableName_,
+			 "COUNT(1)");
+	q3 = db_->select(actionLogTableName_, "id", "parentId=-1");
+
+	/*
 	// need to setup the query differently based on whether we have oldest and newest visible range limits.
 	// both newest and oldest limits:
 	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
@@ -884,6 +914,7 @@ void AMActionHistoryModel3::refreshFromDb()
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)");
 	}
+	*/
 
 	// run the query and get the ids:
 	if(!q.exec())
@@ -903,6 +934,14 @@ void AMActionHistoryModel3::refreshFromDb()
 		visibleActionsCount_ = -1;	// you should never see this
 	}
 	q2.finish();
+
+	topLevelIds_.clear();
+	if(!q3.exec())
+		qDebug() << "Crap, that query didn't work";
+	while(q3.next()){
+		topLevelIds_ << q3.value(0).toInt();
+	}
+	q3.finish();
 
 	bool prunedLists = false;
 	while(!prunedLists && (ids.count() > 0) ){

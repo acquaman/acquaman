@@ -186,6 +186,7 @@ public:
 
 	/// Returns the limit on the number of actions that will be pulled from the database and displayed. This might be larger than rowCount() if there aren't enough actions in the visible range to hit the limit.  Caveat: sometimes it will also be smaller than rowCount(), if we've appended new recently-finished actions since a full database refresh -- In that operation, the limit is not obeyed.
 	int maximumActionsToDisplay() const { return maximumActionsLimit_; }
+	int nextGoodMaximumActions() const;
 	/// Returns the oldest dateTime limit of our visible range. Actions older than this will not be shown.  Returns an invalid QDateTime if there is no oldest limit.
 	QDateTime visibleRangeOldestDateTime() const { return visibleRangeOldest_; }
 	/// Returns the newest (ie: most recent) dateTime limit of our visible range.  Actions more recent than this will not be shown. Returns an invalid QDateTime if there is no newest limit.
@@ -296,6 +297,7 @@ protected:
 	int maximumActionsLimit_;
 	/// Count of the visible number of actions
 	int visibleActionsCount_;
+	QList<int> topLevelIds_;
 
 	/// Database table name of the action log class
 	QString actionLogTableName_;

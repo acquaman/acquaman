@@ -117,6 +117,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	//rangeComboBox_->setCurrentIndex(1);
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
+	rangeComboBox_->setEnabled(false);
 
 	//treeView_ = new QTreeView();
 	treeView_ = new AMActionHistoryTreeView3();
@@ -185,6 +186,8 @@ void AMActionHistoryView3::collapse(bool doCollapse)
 
 void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 {
+	model_->nextGoodMaximumActions();
+
 	// If we're showing all the available actions, don't do anything
 	if(model_->maximumActionsToDisplay() > model_->visibleActionsCount())
 		return;
@@ -192,7 +195,8 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 	// Latch these states for when the deferred call in setMaximumActionsToDisplay finishes
 	showingMoreActions_ = true;
 	countBeforeShowMoreActions_ = model_->childrenCount();
-	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	//model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	model_->setMaximumActionsToDisplay(model_->nextGoodMaximumActions());
 }
 
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
@@ -360,6 +364,7 @@ void AMActionHistoryView3::onModelRefreshed()
 	// If not, then call the onShowMoreActionsButtonClicked (effectively recursively)
 	// If yes, then unlatch that bool
 	if(showingMoreActions_){
+		qDebug() << "Counts before " << countBeforeShowMoreActions_ << " total actions shown now " << totalActionsShown;
 		if(countBeforeShowMoreActions_ == totalActionsShown)
 			onShowMoreActionsButtonClicked();
 		else
