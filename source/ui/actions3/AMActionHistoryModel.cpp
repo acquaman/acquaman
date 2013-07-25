@@ -74,6 +74,21 @@ int AMPointerTreeNode::descendantCount() const{
 	return descendantCount_;
 }
 
+QList<void*> AMPointerTreeNode::clearNode(){
+	QList<void*> descendantItems;
+	while(!childrenNodes_.isEmpty()){
+		descendantItems.append(childrenNodes_.last()->clearNode());
+		AMPointerTreeNode *lastChildNode = childrenNodes_.takeLast();
+		delete lastChildNode;
+	}
+	if(item_){
+		descendantItems.append(item_);
+		item_ = 0;
+	}
+	parentNode_ = 0;
+	return descendantItems;
+}
+
 void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
 	if(childNode)
 		childrenNodes_.append(childNode);
@@ -93,6 +108,10 @@ const AMPointerTreeNode* AMPointerTree::nodeFromItem(void *item) const{
 
 AMPointerTreeNode* AMPointerTree::rootNode(){
 	return rootNode_;
+}
+
+QList<void*> AMPointerTree::clearTree(){
+	return rootNode_->clearNode();
 }
 
 // AMActionLogItem
@@ -804,6 +823,7 @@ void AMActionHistoryModel3::refreshFromDb()
 {
 	emit modelAboutToBeRefreshed();
 
+	qDebug() << "Just starting refreshFromDb, about to clear model";
 	// clear the model:
 	clear();
 
@@ -1154,21 +1174,31 @@ void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
 
 void AMActionHistoryModel3::clear()
 {
-	if(items_.isEmpty())
+	//if(items_.isEmpty())
+	if(itemTree_->rootNode()->childCount() == 0)
 		return;
 
-	if(!recurseActionsLogLevelClear(QModelIndex()))
+	beginResetModel();
+	QList<void*> itemsToDelete = itemTree_->clearTree();
+	while(!itemsToDelete.isEmpty()){
+		AMActionLogItem3 * oneItem = static_cast<AMActionLogItem3*>(itemsToDelete.takeLast());
+		delete oneItem;
+	}
+
+	endResetModel();
+	/*if(!recurseActionsLogLevelClear(QModelIndex()))
 		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_CLEAR_LIST, "The action history failed to clear its internal list. Please report this problem to the Acquaman developers ");
+	*/
 }
 
 bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){
 	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
-	/**/
+
 	// No more recursion if there are no children (base case)
 	if(childIdsInReverse.count() == 0)
 		return true;
-	/**/
 
+	/*
 	// Grab the index of the parent in the list
 	int indexOfParent;
 	if(!items_.count() == 0){
@@ -1179,31 +1209,19 @@ bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int,
 	else
 		indexOfParent = 0;
 
-	/*
-	// No more recursion if there are no children (base case)
-	if(childIdsInReverse.count() == 0){
-		if(indexOfParent != 0)
-			items_.at(indexOfParent)->updateNumberOfChildren(0);
-		return true;
-	}
-	*/
-
 	// Place this level of items in reverse order
 	for(int x = 0; x < childIdsInReverse.count(); x++)
 		items_.insert(indexOfParent, new AMActionLogItem3(db_, childIdsInReverse.at(x)));
 
 	items_.at(indexOfParent)->updateNumberOfChildren(childIdsInReverse.count());
 	//qDebug() << "Updated number of children to " << items_.at(indexOfParent)->numberOfChildren();
+	*/
 
 	AMPointerTreeNode *parentNode;
-	if(parentId == -1){
+	if(parentId == -1)
 		parentNode = itemTree_->rootNode();
-		qDebug() << "Parent id is -1, use rootNode";
-	}
-	else{
+	else
 		parentNode = idsToTreeNodes_.value(parentId);
-		qDebug() << "Parent id is " << parentId;
-	}
 
 	//for(int x = 0; x < childIdsInReverse.count(); x++){
 	for(int x = childIdsInReverse.count()-1; x >= 0; x--){
@@ -1211,7 +1229,6 @@ bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int,
 		AMPointerTreeNode *pointerTreeNode = new AMPointerTreeNode(actionLogItem, parentNode);
 		idsToTreeNodes_.insert(childIdsInReverse.at(x), pointerTreeNode);
 		parentNode->appendChildNode(pointerTreeNode);
-		//itemTree_->rootNode()->appendChildNode(pointerTreeNode);
 	}
 
 	// Ask to place the children for each child in order
@@ -1243,6 +1260,29 @@ bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex)
 	endRemoveRows();
 
 	return success;
+	/*
+	int childrenCount = rowCount(parentIndex);
+	// No more recursion if there are no children (base case)
+	if(childrenCount == 0)
+		return true;
+
+	// Recursively clear children's children
+	bool success = true;
+	for(int x = childrenCount-1; x >= 0; x--)
+		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
+
+	// Clear this level of children
+	AMActionLogItem3 *item;
+	beginRemoveRows(parentIndex, 0, childrenCount);
+	for(int x = childrenCount-1; x >= 0; x--){
+		item = logItem(index(x, 0, parentIndex));
+		success &= items_.removeOne(item);
+		delete item;
+	}
+	endRemoveRows();
+
+	return success;
+	*/
 }
 
 void AMActionHistoryModel3::recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected){

@@ -57,6 +57,8 @@ public:
 	int childCount() const;
 	int descendantCount() const;
 
+	QList<void*> clearNode();
+
 public slots:
 	void appendChildNode(AMPointerTreeNode *childNode);
 
@@ -76,6 +78,8 @@ public:
 	const AMPointerTreeNode* nodeFromItem(void *item) const;
 
 	AMPointerTreeNode* rootNode();
+
+	QList<void*> clearTree();
 
 protected:
 	AMPointerTreeNode *rootNode_;
