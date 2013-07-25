@@ -50,6 +50,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     enableMotorMovement_ = false;
     drawOnShapeEnabled_ = false;
     drawOnShapeSelected_ = false;
+    samplePlateSelected_ = false;
 
     for(int i= 0; i < SAMPLEPOINTS; i++)
     {
@@ -691,6 +692,12 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
                     }
                 }
             }
+            if(!deleted && (polygon == samplePlateShape_))
+            {
+                delete samplePlateShape_;
+                samplePlateShape_ = 0;
+                deleted = true;
+            }
             if(!deleted)
             {
                 delete polygon;
@@ -1081,6 +1088,15 @@ void AMShapeDataSet::setDrawOnShape()
     }
 }
 
+void AMShapeDataSet::setDrawOnSamplePlate()
+{
+    if(samplePlateSelected_)
+    {
+        drawOnShape_ = *samplePlateShape_;
+        drawOnShapeSelected_ = true;
+    }
+}
+
 void AMShapeDataSet::setDrawOnShapeEnabled(bool enable)
 {
     drawOnShapeEnabled_ = enable;
@@ -1098,6 +1114,7 @@ void AMShapeDataSet::setBeamMarker(QPointF position, int index)
 
     startRectangle(position);
     beamMarkers_[index] = shapeList_[index_];
+    beamMarkers_[index]->setName(QString("Beam Shape %1").arg(index + 1));
 
 }
 
@@ -1120,7 +1137,55 @@ void AMShapeDataSet::beamCalibrate()
     oneSelect();
     current_ = shapeList_.indexOf(beamMarkers_[2]);
     twoSelect();
+    for(int i = 0; i < 3; i++)
+    {
+        AMShapeData* polygon = shapeList_.takeAt(shapeList_.indexOf(beamMarkers_[i]));
+        if(polygon == beamMarkers_[i])
+        {
+            delete beamMarkers_[i];
+            beamMarkers_[i] = 0;
+            polygon = 0;
+            index_--;
+        }
+        else
+        {
+            qDebug()<<"AMShapeDataSet::beamCalibrate - error in deleting shapes";
+            shapeList_<<polygon;
+        }
 
+    }
+
+}
+
+void AMShapeDataSet::setSamplePlate()
+{
+    if(isValid(current_))
+    {
+        for(int i = 0; i < 3; i++)
+        {
+            if(shapeList_[current_] == beamMarkers_[i])
+            {
+                qDebug()<<"AMShapeDataSet::setSamplePlate - cannot set sample plate to be a beam shape.";
+                samplePlateSelected_ = false;
+                return;
+            }
+        }
+        samplePlateShape_ = shapeList_[current_];
+        samplePlateShape_->setName("Sample Plate");
+        samplePlateShape_->setOtherData("Sample Plate");
+        samplePlateSelected_ = true;
+    }
+
+}
+
+void AMShapeDataSet::moveSamplePlateTo(QVector3D coordinate)
+{
+    if(samplePlateSelected_)
+    {
+
+        samplePlateShape_->shiftTo(coordinate);
+        updateShape(shapeList_.indexOf(samplePlateShape_));
+    }
 }
 
 

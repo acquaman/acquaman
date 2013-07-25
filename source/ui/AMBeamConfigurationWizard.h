@@ -30,6 +30,8 @@ public:
 
     int relativeId();
 
+    void waitPage();
+
 
 
 
@@ -46,7 +48,6 @@ public slots:
 
 
 signals:
-    void done();
     void showShape(int);
 
 protected:
@@ -66,17 +67,14 @@ class AMBeamIntroPage : public AMWizardPage
 public:
     AMBeamIntroPage(QWidget* parent = 0);
     void initializePage();
-//    QString message(int type);
 };
 
 class AMBeamCheckPage : public AMViewPage
 {
     Q_OBJECT
 public:
-//    enum {Title, Text, CheckBox};
     AMBeamCheckPage(QWidget* parent = 0);
     void initializePage();
-//    QString message(int type);
 
 public slots:
 
@@ -92,7 +90,6 @@ class AMBeamWaitPage : public AMWaitPage
 public:
     AMBeamWaitPage(QWidget* parent = 0);
     void initializePage();
-//    QString message(int type);
 };
 
 class AMBeamSelectPage : public AMViewPage
@@ -103,7 +100,6 @@ public:
 
     void initializePage();
 
-//    QString message(int type);
 };
 
 class AMBeamFinalPage : public AMWizardPage
@@ -112,7 +108,6 @@ class AMBeamFinalPage : public AMWizardPage
 public:
     AMBeamFinalPage(QWidget* parent = 0);
     void initializePage();
-//    QString message(int type);
 };
 
 #endif // AMBEAMCONFIGURATIONWIZARD_H

@@ -63,7 +63,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
-    updateTracker_ = 0;
+    updateTracker_ = -1;
 
     borderColour_ = QColor(Qt::red);
 
@@ -75,7 +75,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     currentView_ = NAME;
     mode_ = DRAW;
-//    beamList_<<-1<<-1<<-1;
 
 
     cameraWizard_ = new AMCameraConfigurationWizard();
@@ -198,6 +197,16 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     cvl->setContentsMargins(0,0,0,0);
     cvl->addWidget(cameraConfiguration_);
     cvl->addWidget(beamConfiguration_);
+
+    QFrame* samplePlateFrame = new QFrame();
+    QHBoxLayout* samplePlateLayout = new QHBoxLayout();
+    samplePlateLayout->setContentsMargins(12,4,12,4);
+    samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
+    samplePlateLayout->addStretch();
+    samplePlateFrame->setLayout(samplePlateLayout);
+
+    cvl->addWidget(samplePlateFrame);
+
     configurationWindow_->setLayout(cvl);
 
     configurationWindow_->setWindowTitle("Configuration");
@@ -408,6 +417,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(cameraMatrixCheckBox_, SIGNAL(clicked(bool)), this, SLOT(hideCameraParameters(bool)));
 
     connect(configurationWindowButton_, SIGNAL(clicked()), this, SLOT(showCameraBeamWindow()));
+
+    connect(samplePlateButton_, SIGNAL(clicked()), this, SLOT(setSamplePlate()));
 
     connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
@@ -922,25 +933,48 @@ void AMShapeDataSetView::beamShape(int shapeNumber)
     QPointF topLeft = mapPointToVideo(*(points->at(2*shapeNumber)));
     QPointF bottomRight = mapPointToVideo(*(points->at(2*shapeNumber+1)));
 
+    setDrawOnShapeEnabled(true);
+    shapeModel_->setDrawOnSamplePlate();
 
 
     shapeModel_->setBeamMarker(topLeft,shapeNumber);
     shapeModel_->updateBeamMarker(bottomRight, shapeNumber);
-
-
+    currentChanged();
 
     reviewCrosshairLinePositions();
-    AMShapeDataSetGraphicsView* newView = new AMShapeDataSetGraphicsView();
-    newView->setScene(shapeScene_->scene());
-    beamWizard_->updateScene(newView);
+
+    if(updateTracker_ == shapeNumber)
+    {
+        beamWizard_->updateShape(shapes_[current_]);
+    }
+    else
+    {
+        AMShapeDataSetGraphicsView* newView = new AMShapeDataSetGraphicsView();
+        newView->setScene(shapeScene_->scene());
+        beamWizard_->updateScene(newView);
+    }
+
+    updateTracker_ = shapeNumber;
+
 
 
 }
 
 void AMShapeDataSetView::beamCalibrate()
 {
-    shapeModel_->beamCalibrate();
 
+    shapeModel_->beamCalibrate();
+    reviewCrosshairLinePositions();
+
+}
+
+void AMShapeDataSetView::moveBeamSamplePlate(int index)
+{
+    shapeModel_->moveSamplePlateTo(*(beamWizard_->coordinateList()->at(index)));
+    reviewCrosshairLinePositions();
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
+    view->setScene(shapeScene_->scene());
+    beamWizard_->updateScene(view);
 }
 
 
@@ -1274,11 +1308,17 @@ void AMShapeDataSetView::startBeamWizard()
     beamWizard_ = new AMBeamConfigurationWizard();
     connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
     connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
+    connect(beamWizard_, SIGNAL(moveTo(int)), this, SLOT(moveBeamSamplePlate(int)));
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     beamWizard_->setView(view);
     beamWizard_->show();
+}
+
+void AMShapeDataSetView::setSamplePlate()
+{
+    shapeModel_->setSamplePlate();
 }
 
 void AMShapeDataSetView::updateCurrentShape()

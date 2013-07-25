@@ -23,9 +23,12 @@ public:
     /// the copy
     QGraphicsScene* scene();
 
-    /// tries to update sceneToUpdate to mathc sceneToUpdateWith as best as possible
+    /// updates the whole scene
     void updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith);
 
+
+    /// updates a single QGraphicsItem
+    void updateShape(QGraphicsItem* item, QGraphicsScene* sceneToUpdate);
 
 
 public slots:

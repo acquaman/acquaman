@@ -271,12 +271,17 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
 //    bhl->setContentsMargins(12,4,12,4);
 //    bhl->addWidget(beamSelectionBox_ = new ComboBox());
 
+    QFrame* buttonFrame = new QFrame();
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    buttonLayout->setContentsMargins(12,4,12,4);
+    buttonLayout->addWidget(intersectionButton_ = new QPushButton("Intersection"));
+    buttonFrame->setLayout(buttonLayout);
 
     vbl->addWidget(optionFrame);
     vbl->addWidget(oneFrame);
     vbl->addWidget(twoFrame);
     vbl->addStretch();
-    vbl->addWidget(intersectionButton_ = new QPushButton("Intersection"));
+    vbl->addWidget(buttonFrame);
     setLayout(vbl);
 
 

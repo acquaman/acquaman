@@ -198,6 +198,9 @@ public slots:
     void startCameraWizard();
 
     void startBeamWizard();
+
+    void setSamplePlate();
+
 protected slots:
     void updateCurrentShape();
 
@@ -271,6 +274,8 @@ protected slots:
     void beamShape(int);
 
     void beamCalibrate();
+
+    void moveBeamSamplePlate(int);
 
 
 
@@ -447,6 +452,9 @@ protected:
 
     QList<QGraphicsPolygonItem*> beamList_;
     int updateTracker_;
+
+    QPushButton* samplePlateButton_;
+
 
 
 };

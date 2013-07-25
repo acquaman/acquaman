@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QMessageBox>
 #include "AMShapeDataSetGraphicsView.h"
+#include <QVector3D>
 
 
 
@@ -32,7 +33,6 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setWindowTitle(message(Wizard_Title));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
-    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
     disconnect(button(QWizard::NextButton), SIGNAL(clicked()), this, SLOT(next()));
     connect(button(QWizard::NextButton), SIGNAL(clicked()), this, SLOT(next()));
 
@@ -51,6 +51,12 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     }
 
     topLeft_ = true;
+
+    coordinateList_ = new QList<QVector3D*>();
+    coordinateList_->clear();
+    coordinateList_->append(new QVector3D(0,0,0));
+    coordinateList_->append(new QVector3D(0,0,-0.5));
+    coordinateList_->append(new QVector3D(0,0,0.5));
 
 }
 
@@ -246,15 +252,19 @@ QString AMBeamConfigurationWizard::message(int type)
     return "";
 }
 
+
 QList<QPointF *> *AMBeamConfigurationWizard::pointList()
 {
     return pointList_;
 }
 
+
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
+
     int index = relativeId() - 1;
-    QPointF* newPoint;// = new QPointF();
+    QPointF* newPoint;
+
     if(topLeft_)
     {
         newPoint = (*pointList_)[2*(index)];
@@ -265,12 +275,14 @@ void AMBeamConfigurationWizard::addPoint(QPointF position)
     {
         newPoint = (*pointList_)[2*(index) + 1];
     }
+
     *newPoint = mapPointToVideo(position);
 
     emit showShape(index);
 
 
 }
+
 
 void AMBeamConfigurationWizard::endPoint(QPointF position)
 {
@@ -308,6 +320,11 @@ int AMBeamConfigurationWizard::relativeId()
     default:
         return 0;
     }
+}
+
+void AMBeamConfigurationWizard::waitPage()
+{
+    emit moveTo(relativeId() - 1);
 }
 
 
@@ -437,6 +454,7 @@ void AMBeamCheckPage::initializePage()
     if(field(fieldName).isNull())
         registerField(fieldName,beamConfigured_);
     AMViewPage::initializePage();
+
 }
 
 
@@ -460,6 +478,9 @@ void AMBeamWaitPage::initializePage()
     setLabelText(message(Text));
 
     AMWaitPage::startTimer(1000);
+
+    viewWizard()->waitPage();
+
 }
 
 
@@ -478,6 +499,7 @@ void AMBeamSelectPage::initializePage()
     setLabelText(message(Text));
 
     AMViewPage::initializePage();
+
 
 
     disconnect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));

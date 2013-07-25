@@ -46,9 +46,23 @@ void AMGraphicsViewWizard::setScale(double scaleFactor)
     setScale(scalePoint);
 }
 
+void AMGraphicsViewWizard::waitPage()
+{
+    emit moveTo(currentId());
+}
 
+/// defines text in one location
 QString AMGraphicsViewWizard::message(int type)
 {
+    // example of intended use:
+    // switch(pageNumber)
+    //  case page1:
+    //      switch(type)
+    //          case Title:
+    //              return "Title Text";
+    //          case Help:
+    //              return "Help message text";
+    //  etc.
     if(type)
     {
         return "Default message";
@@ -136,11 +150,12 @@ void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
 
 }
 
-void AMGraphicsViewWizard::outputItems()
+void AMGraphicsViewWizard::updateShape(QGraphicsPolygonItem *item)
 {
     AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
-    copier->cloneScene(view_->scene());
+    copier->updateShape(item,view_->scene());
 }
+
 
 void AMGraphicsViewWizard::fixText()
 {

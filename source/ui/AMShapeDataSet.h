@@ -281,6 +281,9 @@ public slots:
     /// sets the shape to draw on
     void setDrawOnShape();
 
+    /// sets the shape as SamplePlate
+    void setDrawOnSamplePlate();
+
     /// enables drawing on the set shap
     void setDrawOnShapeEnabled(bool enable);
 
@@ -288,6 +291,10 @@ public slots:
     void updateBeamMarker(QPointF position, int index);
 
     void beamCalibrate();
+
+    void setSamplePlate();
+
+    void moveSamplePlateTo(QVector3D coordinate);
 
 
 
@@ -566,6 +573,10 @@ protected:
     QPolygonF currentPolygon_;
 
     AMShapeData* beamMarkers_[3];
+
+    AMShapeData* samplePlateShape_;
+
+    bool samplePlateSelected_;
 
 
 

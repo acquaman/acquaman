@@ -26,6 +26,7 @@ QGraphicsScene *AMGraphicsVideoSceneCopier::scene()
 
 void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith)
 {
+    qDebug()<<"Update scene";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
     /// need to figure out what items are new and put them into the old scene
@@ -45,6 +46,46 @@ void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGrap
     }
 
 
+}
+
+void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene* scene)
+{
+    qDebug()<<"Update shape";
+    QList<QGraphicsItem*> list = scene->items();
+    foreach(QGraphicsItem* listItem, list)
+    {
+        if(listItem->type() == item->type())
+        {
+            if(item->type() == QGraphicsPolygonItem::Type)
+            {
+                QGraphicsPolygonItem* newPolygonItem =  qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
+                QGraphicsPolygonItem* listPolygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(listItem);
+                if(newPolygonItem && listPolygonItem)
+                {
+                    if(listPolygonItem->pen() == newPolygonItem->pen())
+                    {
+                        listPolygonItem->setPolygon(newPolygonItem->polygon());
+                        listItem = listPolygonItem;
+                    }
+                }
+            }
+
+
+        }
+        if(listItem->type() == GraphicsTextItem::Type || listItem->type() == QGraphicsTextItem::Type)
+        {
+            QGraphicsTextItem* textItem = qgraphicsitem_cast<QGraphicsTextItem*>(listItem);
+            if(!textItem)
+            {
+                textItem = qgraphicsitem_cast<GraphicsTextItem*>(listItem);
+            }
+            QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
+            if(textItem && polygonItem && textItem->defaultTextColor() == polygonItem->pen().color())
+            {
+                  textItem->setPos(polygonItem->polygon().first().x(), polygonItem->polygon().first().y() - textItem->boundingRect().height());
+            }
+        }
+    }
 }
 
 void AMGraphicsVideoSceneCopier::setOriginalScene(QGraphicsScene *originalScene)
