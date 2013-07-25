@@ -108,6 +108,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	QLabel* showLabel = new QLabel("Show: ");
 	showLabel->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(showLabel);
+	showLabel->hide();
 	rangeComboBox_ = new QComboBox();
 	rangeComboBox_->addItem("Last Hour");
 	rangeComboBox_->addItem("Last 4 Hours");
@@ -117,7 +118,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	//rangeComboBox_->setCurrentIndex(1);
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
-	rangeComboBox_->setEnabled(false);
+	rangeComboBox_->hide();
 
 	//treeView_ = new QTreeView();
 	treeView_ = new AMActionHistoryTreeView3();
@@ -161,7 +162,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(model_, SIGNAL(modelAboutToBeRefreshed()), this, SLOT(onModelAboutToBeRefreshed()));
 	connect(model_, SIGNAL(modelRefreshed()), this, SLOT(onModelRefreshed()));
 
-	connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
+	//connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
@@ -197,9 +198,9 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 	model_->setMaximumActionsToDisplay(model_->nextGoodMaximumActions());
 }
 
+/*
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 {
-	/*
 	QDateTime oldest = QDateTime::currentDateTime();
 
 	switch(rangeIndex) {
@@ -226,8 +227,8 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 	}
 
 	model_->setVisibleDateTimeRange(oldest);
-	*/
 }
+ */
 
 
 
