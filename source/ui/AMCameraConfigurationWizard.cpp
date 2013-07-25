@@ -48,10 +48,9 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setWindowTitle(message(Wizard_Title));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
-//    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 
-    pointList_ = new QList<QPointF*>();
-    coordinateList_ = new QList<QVector3D*>();
+//    pointList_ = new QList<QPointF*>();
+//    coordinateList_ = new QList<QVector3D*>();
 
     QSize maxSize(0,0);
     QList<int> pageNumbers = pageIds();
@@ -70,6 +69,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
         pointList_->append(new QPointF(0,0));
     }
     /// set the coordinates
+    coordinateList_->clear();
     coordinateList_->append(new  QVector3D(0,0,0));
     coordinateList_->append(new  QVector3D(0,0,12));
     coordinateList_->append(new  QVector3D(5,0,5));
@@ -82,10 +82,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 {
-
-    pointList_->clear();
-    delete pointList_;
-
 }
 
 int AMCameraConfigurationWizard::nextId() const
@@ -401,14 +397,6 @@ void AMCameraConfigurationWizard::back()
             QWizard::back();
     }
 }
-
-
-
-
-//IntroPage::IntroPage(QWidget *parent)
-//    : AMWizardPage(parent)
-//{
-//}
 
 void IntroPage::initializePage()
 {

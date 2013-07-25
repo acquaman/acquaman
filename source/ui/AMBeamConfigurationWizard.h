@@ -32,7 +32,7 @@ public slots:
 
     void next();
 
-    void showHelp();
+//    void showHelp();
 
     void addPoint(QPointF position);
 
@@ -71,7 +71,6 @@ class AMBeamWaitPage : public AMWaitPage
 {
     Q_OBJECT
 public:
-//    AMBeamWaitPage(QWidget* parent = 0);
     void initializePage();
 };
 
@@ -79,7 +78,6 @@ class AMBeamSelectPage : public AMViewPage
 {
     Q_OBJECT
 public:
-//    AMBeamSelectPage(QWidget* parent = 0);
 
     void initializePage();
 

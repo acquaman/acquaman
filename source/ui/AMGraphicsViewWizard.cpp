@@ -20,6 +20,10 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 {
     view_ = new AMShapeDataSetGraphicsView();
     scale_ = new QPointF(1,1);
+    pointList_ = new QList<QPointF*>();
+    coordinateList_ = new QList<QVector3D*>();
+
+
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 }
 

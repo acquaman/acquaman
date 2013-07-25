@@ -1134,20 +1134,23 @@ void AMShapeDataSet::beamCalibrate()
     if(shapeList_.isEmpty()) return;
     for(int i = 0; i < 3; i++)
     {
-        AMShapeData* polygon = shapeList_.takeAt(shapeList_.indexOf(beamMarkers_[i]));
-        if(polygon == beamMarkers_[i])
+        int index = shapeList_.indexOf(beamMarkers_[i]);
+        if(index >= 0)
         {
-            delete beamMarkers_[i];
-            beamMarkers_[i] = 0;
-            polygon = 0;
-            index_--;
+            AMShapeData* polygon = shapeList_.takeAt(index);
+            if(polygon == beamMarkers_[i])
+            {
+                delete beamMarkers_[i];
+                beamMarkers_[i] = 0;
+                polygon = 0;
+                index_--;
+            }
+            else
+            {
+                qDebug()<<"AMShapeDataSet::beamCalibrate - error in deleting shapes";
+                shapeList_<<polygon;
+            }
         }
-        else
-        {
-            qDebug()<<"AMShapeDataSet::beamCalibrate - error in deleting shapes";
-            shapeList_<<polygon;
-        }
-
     }
 
 }

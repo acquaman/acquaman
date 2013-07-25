@@ -43,7 +43,7 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     /// two points for each square, three squares.
     numberOfPoints_ = 6;
 
-    pointList_ = new QList<QPointF*>();
+//    pointList_ = new QList<QPointF*>();
 
     for(int i = 0; i < numberOfPoints_; i++)
     {
@@ -52,7 +52,6 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 
     topLeft_ = true;
 
-    coordinateList_ = new QList<QVector3D*>();
     coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
     coordinateList_->append(new QVector3D(0,0,-0.5));
@@ -146,12 +145,12 @@ void AMBeamConfigurationWizard::next()
     else AMGraphicsViewWizard::next();
 }
 
-void AMBeamConfigurationWizard::showHelp()
-{
-    QString helpMessage = message(Help);
+//void AMBeamConfigurationWizard::showHelp()
+//{
+//    QString helpMessage = message(Help);
 
-    QMessageBox::information(this,message(Help_Title), helpMessage);
-}
+//    QMessageBox::information(this,message(Help_Title), helpMessage);
+//}
 
 
 QString AMBeamConfigurationWizard::message(int type)
@@ -291,21 +290,15 @@ int AMBeamConfigurationWizard::relativeId()
     switch(currentId())
     {
     case Page_Check_One:
+        case Page_Wait_One:
+        case Page_Set_One:
         return 1;
     case Page_Check_Two:
-        return 2;
-    case Page_Check_Three:
-        return 3;
-    case Page_Wait_One:
-        return 1;
     case Page_Wait_Two:
-        return 2;
-    case Page_Wait_Three:
-        return 3;
-    case Page_Set_One:
-        return 1;
     case Page_Set_Two:
         return 2;
+    case Page_Check_Three:
+    case Page_Wait_Three:
     case Page_Set_Three:
         return 3;
     default:
@@ -431,19 +424,10 @@ void AMBeamCheckPage::initializePage()
 
 }
 
-
-
 void AMBeamCheckPage::configuredChanged(bool configured)
 {
     qDebug()<<"Configuration is"<<configured;
 }
-
-
-//AMBeamWaitPage::AMBeamWaitPage(QWidget *parent)
-//    : AMWaitPage(parent)
-//{
-
-//}
 
 void AMBeamWaitPage::initializePage()
 {
@@ -453,17 +437,7 @@ void AMBeamWaitPage::initializePage()
     AMWaitPage::startTimer(1000);
 
     viewWizard()->waitPage();
-
 }
-
-
-
-
-//AMBeamSelectPage::AMBeamSelectPage(QWidget *parent)
-//    : AMViewPage(parent)
-//{
-
-//}
 
 void AMBeamSelectPage::initializePage()
 {
