@@ -21,19 +21,11 @@ public:
 
     int nextId() const;
 
-
     QString message(int);
-
-    QList<QPointF*>* pointList();
-
-    QList<QVector3D*>* coordinateList();
 
     int relativeId();
 
     void waitPage();
-
-
-
 
 public slots:
     void back();
@@ -53,21 +45,12 @@ signals:
 protected:
     bool setting_;
 
-    QList<QVector3D*>* coordinateList_;
 
-    QList<QPointF*>* pointList_;
 
     bool topLeft_;
 
 };
 
-class AMBeamIntroPage : public AMWizardPage
-{
-    Q_OBJECT
-public:
-    AMBeamIntroPage(QWidget* parent = 0);
-    void initializePage();
-};
 
 class AMBeamCheckPage : public AMViewPage
 {
@@ -88,7 +71,7 @@ class AMBeamWaitPage : public AMWaitPage
 {
     Q_OBJECT
 public:
-    AMBeamWaitPage(QWidget* parent = 0);
+//    AMBeamWaitPage(QWidget* parent = 0);
     void initializePage();
 };
 
@@ -96,18 +79,12 @@ class AMBeamSelectPage : public AMViewPage
 {
     Q_OBJECT
 public:
-    AMBeamSelectPage(QWidget* parent = 0);
+//    AMBeamSelectPage(QWidget* parent = 0);
 
     void initializePage();
 
 };
 
-class AMBeamFinalPage : public AMWizardPage
-{
-    Q_OBJECT
-public:
-    AMBeamFinalPage(QWidget* parent = 0);
-    void initializePage();
-};
+
 
 #endif // AMBEAMCONFIGURATIONWIZARD_H

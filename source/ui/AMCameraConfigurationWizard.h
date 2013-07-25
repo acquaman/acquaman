@@ -34,17 +34,9 @@ public:
     /// rather than the pages becuase there is more than one instance of several pages
     int nextId() const;
 
-
-
-    /// returns the pointer to the list of points
-    QList<QPointF*>* pointList();
-
-    /// returns the pointer to the list of coordinates \todo make the coordinates changeable
-    // currently these are hardcoded
-    QList<QVector3D*>* coordinateList();
-
     virtual QString message(int messageType);
 
+    int relativeId();
 
 public slots:
     /// reimplementation of the back slot, used to move the motor back to the appropriate place
@@ -53,22 +45,10 @@ public slots:
 
     /// sets the appropriate point in the list and goes on to the next page
     virtual void addPoint(QPointF position);
-
-signals:
-    /// signal emitted when the finish button is pressed
-//    void done();
-
-private slots:
-    /// shows the help messages
-//    void showHelp();
-private:
-
-    /// list of the six points that will be used to calibrate the camera
-    QList<QPointF*>* pointList_;
-    /// list of the points corresponding to each coordinate
-    QList<QVector3D*>* coordinateList_;
-    /// number of points in each list - should be six with current camera configuration method
-//    int numberOfPoints_;
+protected:
+    double coordinateX(int id);
+    double coordinateY(int id);
+    double coordinateZ(int id);
 };
 
 /// Intro page is just the introduction/howto for this wizard.
@@ -77,8 +57,6 @@ class IntroPage : public AMWizardPage
 {
     Q_OBJECT
 public:
-    IntroPage(QWidget* parent = 0);
-
     void initializePage();
 
     void timerEvent(QTimerEvent *event);
@@ -95,50 +73,29 @@ public slots:
 
     void initializePage();
 
-
 protected slots:
     void configuredSet(bool set);
 protected:
     QCheckBox* isConfigured_;
 };
 
-class FinalPage : public AMWizardPage
-{
-    Q_OBJECT
-public:
-    FinalPage(QWidget* parent = 0);
-
-    void initializePage();
-};
 
 class SelectPage : public AMViewPage
 {
     Q_OBJECT
 public:
-    SelectPage(QWidget* parent = 0);
-
     void initializePage();
 
 public slots:
 
     void addPoint(QPointF position);
-protected:
-//    AMCameraConfigurationWizard* viewWizard();
-//    QString message(int type);
-
 };
 
 class WaitPage : public AMWaitPage
 {
     Q_OBJECT
 public:
-    WaitPage(QWidget* parent = 0);
-
     void initializePage();
-
-protected:
-//    QString message(int type);
-
 };
 
 

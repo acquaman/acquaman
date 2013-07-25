@@ -44,9 +44,9 @@ public:
     /// emits moveTo signal with currentId as the argument
     virtual void waitPage();
 
+    virtual QList<QPointF*>* pointList();
 
-
-    virtual QList<QVector3D*>* coordinateList() = 0;
+    virtual QList<QVector3D*>* coordinateList();
 
     /// used to set all the text for the wizard in one easy to find
     ///  location.  Must be reimplemented to get desired text.
@@ -95,6 +95,10 @@ protected:
     QPointF* scale_;
     int numberOfPoints_;
 
+    QList<QVector3D*>* coordinateList_;
+
+    QList<QPointF*>* pointList_;
+
 };
 
 
@@ -105,6 +109,9 @@ public:
     enum {Title, Text, Help, Other, Default};
     AMWizardPage(QWidget* parent = 0);
     AMGraphicsViewWizard* viewWizard() const;
+
+    virtual void initializePage();
+
     /// used to set messages using the message function
     /// in AMGraphicsViewWizard
     /// simply invokes message with the corresponding type

@@ -51,6 +51,16 @@ void AMGraphicsViewWizard::waitPage()
     emit moveTo(currentId());
 }
 
+QList<QPointF *> *AMGraphicsViewWizard::pointList()
+{
+    return pointList_;
+}
+
+QList<QVector3D *> *AMGraphicsViewWizard::coordinateList()
+{
+    return coordinateList_;
+}
+
 /// defines text in one location
 QString AMGraphicsViewWizard::message(int type)
 {
@@ -202,6 +212,12 @@ AMGraphicsViewWizard *AMWizardPage::viewWizard() const
     return (AMGraphicsViewWizard*)wizard();
 }
 
+void AMWizardPage::initializePage()
+{
+    setTitle(message(Title));
+    setLabelText(message(Text));
+}
+
 QString AMWizardPage::message(int type)
 {
     int messageType;
@@ -282,6 +298,7 @@ void AMViewPage::setView(AMShapeDataSetGraphicsView *view)
 
 void AMViewPage::initializePage()
 {
+    AMWizardPage::initializePage();
     if(true)
     {
         setView(((AMGraphicsViewWizard*)wizard())->view());

@@ -28,7 +28,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     numberOfPoints_ = 6;
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
-    setPage(Page_Final, new FinalPage);
+    setPage(Page_Final, new AMWizardPage);
     setPage(Page_Select_One, new SelectPage);
     setPage(Page_Select_Two, new SelectPage);
     setPage(Page_Select_Three, new SelectPage);
@@ -90,9 +90,6 @@ AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 
 int AMCameraConfigurationWizard::nextId() const
 {
-
-
-
     switch(currentId())
     {
         case Page_Intro:
@@ -192,15 +189,21 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 
 }
 
-QList<QPointF *> *AMCameraConfigurationWizard::pointList()
+double AMCameraConfigurationWizard::coordinateX(int id)
 {
-    return pointList_;
+    return coordinateList()->at(id-1)->x();
 }
 
-QList<QVector3D *> *AMCameraConfigurationWizard::coordinateList()
+double AMCameraConfigurationWizard::coordinateY(int id)
 {
-    return coordinateList_;
+    return coordinateList()->at(id-1)->y();
 }
+
+double AMCameraConfigurationWizard::coordinateZ(int id)
+{
+    return coordinateList()->at(id-1)->z();
+}
+
 
 QString AMCameraConfigurationWizard::message(int messageType)
 {
@@ -251,9 +254,9 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Selection Page ");
+            return QString("Selection Page %1").arg(relativeId());
         case Text:
-            return QString(tr("Select the point corresponding to the coordinate: "));
+            return QString("Select the point corresponding to the coordinate: %1, %2, %3").arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
         case Help:
             return QString("Help message for selection page");
         case Other:
@@ -271,7 +274,7 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Moving to position ");
+            return QString("Moving to position %1").arg(relativeId());
         case Text:
              return QString(tr("Please wait until the next page appears."));
         case Help:
@@ -311,13 +314,33 @@ QString AMCameraConfigurationWizard::message(int messageType)
     default:
         return "";
     }
+}
 
-
-
-
-
-
-
+int AMCameraConfigurationWizard::relativeId()
+{
+    switch(currentId())
+    {
+    case Page_Select_One:
+    case Page_Wait_One:
+        return 1;
+    case Page_Select_Two:
+     case Page_Wait_Two:
+        return 2;
+    case Page_Select_Three:
+    case Page_Wait_Three:
+        return 3;
+    case Page_Select_Four:
+    case Page_Wait_Four:
+        return 4;
+    case Page_Select_Five:
+    case Page_Wait_Five:
+        return 5;
+    case Page_Select_Six:
+    case Page_Wait_Six:
+        return 6;
+    default:
+        return 0;
+    }
 }
 
 
@@ -382,15 +405,14 @@ void AMCameraConfigurationWizard::back()
 
 
 
-IntroPage::IntroPage(QWidget *parent)
-    : AMWizardPage(parent)
-{
-}
+//IntroPage::IntroPage(QWidget *parent)
+//    : AMWizardPage(parent)
+//{
+//}
 
 void IntroPage::initializePage()
 {
-    setTitle(message(Title));
-    setLabelText(message(Text));
+    AMWizardPage::initializePage();
     startTimer(0);
 
 }
@@ -418,9 +440,6 @@ CheckPage::CheckPage(QWidget *parent)
 
 void CheckPage::initializePage()
 {
-
-    setTitle(message(Title));
-    setLabelText(message(Text));
     isConfigured_->setText(message(Other));
     setButtonText(QWizard::BackButton,message(Default));
     AMViewPage::initializePage();
@@ -439,65 +458,15 @@ void CheckPage::configuredSet(bool set)
 
 
 
-FinalPage::FinalPage(QWidget *parent)
-    :AMWizardPage(parent)
-{
-}
+//SelectPage::SelectPage(QWidget *parent)
+//    : AMViewPage(parent)
+//{
 
-void FinalPage::initializePage()
-{
-    setTitle(message(Title));
-    setLabelText(message(Text));
-}
-
-
-
-
-SelectPage::SelectPage(QWidget *parent)
-    : AMViewPage(parent)
-{
-
-}
+//}
 
 void SelectPage::initializePage()
 {
-    setTitle(message(Title));
-    setLabelText(message(Text));
-    int currentId = viewWizard()->currentId();
-    int relativeId = 0;
-    switch(currentId)
-    {
-        case AMCameraConfigurationWizard::Page_Select_One:
-            relativeId = 1;
-            break;
-        case AMCameraConfigurationWizard::Page_Select_Two:
-            relativeId = 2;
-            break;
-        case AMCameraConfigurationWizard::Page_Select_Three:
-            relativeId = 3;
-            break;
-        case AMCameraConfigurationWizard::Page_Select_Four:
-            relativeId = 4;
-            break;
-        case AMCameraConfigurationWizard::Page_Select_Five:
-            relativeId = 5;
-            break;
-        case AMCameraConfigurationWizard::Page_Select_Six:
-            relativeId = 6;
-            break;
-        default:
-            relativeId = 0;
-    }
-
-    setTitle(message(Title) + QString::number(relativeId));
-
-    QVector3D coordinate = *(((AMCameraConfigurationWizard*)viewWizard())->coordinateList()->at(relativeId-1));
-
-    topLabel_->setText(message(Text) + QString("%1,%2,%3").arg(coordinate.x()).arg(coordinate.y()).arg(coordinate.z()));
-
     AMViewPage::initializePage();
-
-
     connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }
 
@@ -506,50 +475,15 @@ void SelectPage::addPoint(QPointF position)
     ((AMCameraConfigurationWizard*)viewWizard())->addPoint(position);
 }
 
-
-
-
-WaitPage::WaitPage(QWidget *parent)
-    : AMWaitPage(parent)
-{
-
-}
+//WaitPage::WaitPage(QWidget *parent)
+//    : AMWaitPage(parent)
+//{
+//}
 
 void WaitPage::initializePage()
 {
-
-    setTitle(message(Title));
-    setLabelText(message(Text));
     AMWaitPage::startTimer(1000);
-    int wizardId = viewWizard()->currentId();
-    int relativeId = 0;
-    switch(wizardId)
-    {
-    case AMCameraConfigurationWizard::Page_Wait_One:
-        relativeId = 1;
-        break;
-    case AMCameraConfigurationWizard::Page_Wait_Two:
-        relativeId = 2;
-        break;
-    case AMCameraConfigurationWizard::Page_Wait_Three:
-        relativeId = 3;
-        break;
-    case AMCameraConfigurationWizard::Page_Wait_Four:
-        relativeId = 4;
-        break;
-    case AMCameraConfigurationWizard::Page_Wait_Five:
-        relativeId = 5;
-        break;
-    case AMCameraConfigurationWizard::Page_Wait_Six:
-        relativeId = 6;
-        break;
-    default:
-        relativeId = 0;
-        break;
-    }
-
-    QString title = message(Title) + QString("%1").arg(relativeId);
-    setTitle(title);
+    AMWaitPage::initializePage();
 }
 
 

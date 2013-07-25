@@ -26,7 +26,6 @@ QGraphicsScene *AMGraphicsVideoSceneCopier::scene()
 
 void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith)
 {
-    qDebug()<<"Update scene";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
     /// need to figure out what items are new and put them into the old scene
@@ -50,7 +49,6 @@ void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGrap
 
 void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene* scene)
 {
-    qDebug()<<"Update shape";
     QList<QGraphicsItem*> list = scene->items();
     foreach(QGraphicsItem* listItem, list)
     {

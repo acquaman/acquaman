@@ -1126,17 +1126,12 @@ void AMShapeDataSet::updateBeamMarker(QPointF position, int index)
 
 void AMShapeDataSet::beamCalibrate()
 {
-//    for(int i = 0; i < 3; i ++)
-//    {
-//        if(beamMarkers_[i] == 0)
-//            return;
-//    }
-//    /// set two shapes
 
     current_ = shapeList_.indexOf(beamMarkers_[0]);
     oneSelect();
     current_ = shapeList_.indexOf(beamMarkers_[2]);
     twoSelect();
+    if(shapeList_.isEmpty()) return;
     for(int i = 0; i < 3; i++)
     {
         AMShapeData* polygon = shapeList_.takeAt(shapeList_.indexOf(beamMarkers_[i]));

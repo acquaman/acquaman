@@ -16,7 +16,7 @@
 AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
-    setPage(Page_Intro, new AMBeamIntroPage);
+    setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check_One, new AMBeamCheckPage);
     setPage(Page_Check_Two, new AMBeamCheckPage);
     setPage(Page_Check_Three, new AMBeamCheckPage);
@@ -26,7 +26,7 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setPage(Page_Set_One, new AMBeamSelectPage);
     setPage(Page_Set_Two, new AMBeamSelectPage);
     setPage(Page_Set_Three, new AMBeamSelectPage);
-    setPage(Page_Final, new AMBeamFinalPage);
+    setPage(Page_Final, new AMWizardPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
@@ -165,9 +165,9 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Introduction Page";
+            return "Beam Wizard Introduction Page";
         case Text:
-            return "Introduction page text.";
+            return "Beam Wizard introduction page text.";
         case Help:
             return "Intro page help";
         case Other:
@@ -253,11 +253,6 @@ QString AMBeamConfigurationWizard::message(int type)
 }
 
 
-QList<QPointF *> *AMBeamConfigurationWizard::pointList()
-{
-    return pointList_;
-}
-
 
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
@@ -290,10 +285,6 @@ void AMBeamConfigurationWizard::endPoint(QPointF position)
     topLeft_ = true;
 }
 
-QList<QVector3D *> *AMBeamConfigurationWizard::coordinateList()
-{
-    return coordinateList_;
-}
 
 int AMBeamConfigurationWizard::relativeId()
 {
@@ -414,25 +405,11 @@ void AMBeamConfigurationWizard::back()
 
 }
 
-AMBeamIntroPage::AMBeamIntroPage(QWidget *parent)
-    : AMWizardPage(parent)
-{
-}
-
-void AMBeamIntroPage::initializePage()
-{
-    setTitle(message(Title));
-    setLabelText(message(Text));
-
-}
-
 
 
 AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
     : AMViewPage(parent)
 {
-    setTitle("Check Page");
-    setLabelText("Check Page label text.");
     beamConfigured_ = new QCheckBox();
     beamConfigured_->setChecked(true);
     layout()->addWidget(beamConfigured_);
@@ -445,9 +422,6 @@ AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
 void AMBeamCheckPage::initializePage()
 {
 
-    qDebug()<<"Check page, setting title";
-    setTitle(message(Title));
-    setLabelText(message(Text));
     beamConfigured_->setText(message(Other));
 
     QString fieldName = QString("Configured %1").arg(viewWizard()->currentId());
@@ -465,17 +439,16 @@ void AMBeamCheckPage::configuredChanged(bool configured)
 }
 
 
-AMBeamWaitPage::AMBeamWaitPage(QWidget *parent)
-    : AMWaitPage(parent)
-{
+//AMBeamWaitPage::AMBeamWaitPage(QWidget *parent)
+//    : AMWaitPage(parent)
+//{
 
-}
+//}
 
 void AMBeamWaitPage::initializePage()
 {
 
-    setTitle(message(Title));
-    setLabelText(message(Text));
+   AMWaitPage::initializePage();
 
     AMWaitPage::startTimer(1000);
 
@@ -486,37 +459,22 @@ void AMBeamWaitPage::initializePage()
 
 
 
-AMBeamSelectPage::AMBeamSelectPage(QWidget *parent)
-    : AMViewPage(parent)
-{
+//AMBeamSelectPage::AMBeamSelectPage(QWidget *parent)
+//    : AMViewPage(parent)
+//{
 
-}
+//}
 
 void AMBeamSelectPage::initializePage()
 {
-    qDebug()<<"Initializing beam set page"<<viewWizard()->currentId();
-    setTitle(message(Title));
-    setLabelText(message(Text));
-
     AMViewPage::initializePage();
-
-
 
     disconnect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
     disconnect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
     connect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
     connect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
-}
 
 
-AMBeamFinalPage::AMBeamFinalPage(QWidget *parent)
-    :AMWizardPage(parent)
-{
 }
 
-void AMBeamFinalPage::initializePage()
-{
-    setTitle(message(Title));
-    setLabelText(message(Text));
-}
 
