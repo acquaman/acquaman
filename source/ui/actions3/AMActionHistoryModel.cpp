@@ -30,6 +30,71 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDateTimeUtils.h"
 #include "util/AMErrorMonitor.h"
 
+// AMPointerTree(Node)
+////////////////////////////
+
+AMPointerTreeNode::AMPointerTreeNode(void *item, AMPointerTreeNode *parentNode, QObject *parent) :
+	QObject(parent)
+{
+	item_ = item;
+	parentNode_ = parentNode;
+	descendantCount_ = -1;
+}
+
+void* AMPointerTreeNode::item(){
+	return item_;
+}
+
+const AMPointerTreeNode* AMPointerTreeNode::parentNode() const{
+	return parentNode_;
+}
+
+const AMPointerTreeNode* AMPointerTreeNode::childNodeAt(int index) const{
+	if(index == -1 && childrenNodes_.count() > 0)
+		return childrenNodes_.last();
+	if(index < -2 || index > childrenNodes_.count())
+		return 0; //NULL
+	return childrenNodes_.at(index);
+}
+
+int AMPointerTreeNode::childCount() const{
+	return childrenNodes_.count();
+}
+
+int AMPointerTreeNode::descendantCount() const{
+	if(descendantCount_ != -1)
+		return descendantCount_;
+
+	int totalDescendantCount = 0;
+	for(int x = 0; x < childrenNodes_.count(); x++)
+		totalDescendantCount += childrenNodes_.at(x)->descendantCount();
+
+	totalDescendantCount += childCount();
+	descendantCount_ = totalDescendantCount;
+	return descendantCount_;
+}
+
+void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
+	if(childNode)
+		childrenNodes_.append(childNode);
+}
+
+AMPointerTree::AMPointerTree(AMPointerTreeNode *rootNode, QObject *parent) :
+	QObject(parent)
+{
+	rootNode_ = rootNode;
+}
+
+const AMPointerTreeNode* AMPointerTree::nodeFromItem(void *item) const{
+	if(itemsToNodes_.contains(item))
+		return itemsToNodes_.value(item);
+	return 0;
+}
+
+AMPointerTreeNode* AMPointerTree::rootNode(){
+	return rootNode_;
+}
+
 // AMActionLogItem
 ////////////////////////////
 
@@ -204,6 +269,9 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	connect(&refreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshFromDb()));
 	connect(&specificRefreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshSpecificIds()));
 
+	itemTreeRoot_ = new AMPointerTreeNode(0, 0, this);
+	itemTree_ = new AMPointerTree(itemTreeRoot_, this);
+
 	/*
 	if(db_) {
 		connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreated(QString,int)));
@@ -224,6 +292,23 @@ AMActionHistoryModel3::~AMActionHistoryModel3() {
 
 QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
 {
+	// Return bad index if it's outside the column range
+	if(column < 0 || column > 4)
+		return QModelIndex();
+
+	AMPointerTreeNode *parentNode;
+	if(!parent.isValid())
+		parentNode = itemTree_->rootNode();
+	else
+		parentNode = static_cast<AMPointerTreeNode*>(parent.internalPointer());
+
+	if(!parentNode || row < 0 || row > parentNode->childCount()){
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELINDEX_OUT_OF_BOUNDS, "The action history attempted to access information that was entirely out of bounds. Please report this problem to the Acquaman developers ");
+		return QModelIndex();
+	}
+	return createIndex(row, column, (void*)(parentNode->childNodeAt(row)));
+
+	/*
 	// Return bad index if it's outside the column range
 	if(column < 0 || column > 4)
 		return QModelIndex();
@@ -261,10 +346,29 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 		}
 		return QModelIndex();
 	}
+	*/
 }
 
 QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 {
+	if(!child.isValid())
+		return QModelIndex();
+
+	AMPointerTreeNode *childNode = static_cast<AMPointerTreeNode*>(child.internalPointer());
+	if(!childNode || !childNode->parentNode() || (childNode->parentNode() == itemTree_->rootNode()) )
+		return QModelIndex();
+
+	const AMPointerTreeNode *parentNode = childNode->parentNode();
+	if(!parentNode || !parentNode->parentNode())
+		return QModelIndex();
+	const AMPointerTreeNode *grandparentNode = parentNode->parentNode();
+
+	for(int x = 0; x < grandparentNode->childCount(); x++){
+		if(grandparentNode->childNodeAt(x) == parentNode)
+			return createIndex(x, 0, (void*)(parentNode));
+	}
+	return QModelIndex();
+	/*
 	if(!child.isValid())
 		return QModelIndex();
 
@@ -277,10 +381,21 @@ QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 			return indexForLogItem(items_.at(x));
 
 	return QModelIndex();
+	*/
 }
 
 int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 {
+	AMPointerTreeNode *parentNode;
+	if(!parent.isValid())
+		parentNode = itemTree_->rootNode();
+	else
+		parentNode = static_cast<AMPointerTreeNode*>(parent.internalPointer());
+
+	if(!parentNode)
+		return 0;
+	return parentNode->childCount();
+	/*
 	// top level
 	if(!parent.isValid()){
 		int topLevelsFound = 0;
@@ -305,6 +420,7 @@ int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 
 		return childrenFound;
 	}
+	*/
 }
 
 int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
@@ -317,7 +433,13 @@ int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
 
 QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 {
-	AMActionLogItem3 *item = logItem(index);
+	//AMActionLogItem3 *item = logItem(index);
+	AMPointerTreeNode *indexNode = static_cast<AMPointerTreeNode*>(index.internalPointer());
+	if(!indexNode){
+		//NEM
+		return QVariant();
+	}
+	AMActionLogItem3 *item = static_cast<AMActionLogItem3*>(indexNode->item());
 	if(!item){
 		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM, QString("The action history attempted to access data with a bad item (row: %1 column: %2). Please report this problem to the Acquaman developers ").arg(index.row()).arg(index.column()));
 		return QVariant();
@@ -417,7 +539,14 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 		return Qt::NoItemFlags;
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
-	AMActionLogItem3 *item = logItem(index);
+	//AMActionLogItem3 *item = logItem(index);
+	AMPointerTreeNode *indexNode = static_cast<AMPointerTreeNode*>(index.internalPointer());
+	AMActionLogItem3 *item;
+	if(indexNode){
+		//NEM
+		item = static_cast<AMActionLogItem3*>(indexNode->item());
+	}
+
 	// In case the item didn't (or isn't yet) in some sort of finished state
 	if(item && item->canCopy() && !(item->finalState() == 7 || item->finalState() == 8 || item->finalState() == 9) )
 		return Qt::ItemIsEnabled;
@@ -451,6 +580,19 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 	if(!parent.isValid())
 		return true; // top level must have children
 	else{
+		AMPointerTreeNode *parentNode = static_cast<AMPointerTreeNode*>(parent.internalPointer());
+		if(!parentNode){
+			//NEM
+			return false;
+		}
+		if(parentNode->childCount() == 0)
+			return false;
+		return true;
+	}
+	/*
+	if(!parent.isValid())
+		return true; // top level must have children
+	else{
 		AMActionLogItem3 *parentLogItem = logItem(parent);
 		if(!parentLogItem){
 			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_HASCHILDREN_BAD_PARENT_ITEM, "The action history attempted to check hasChildren on a bad parent item. Please report this problem to the Acquaman developers ");
@@ -463,38 +605,51 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 
 		return false;
 	}
+	*/
 }
 
 int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
+	AMPointerTreeNode *parentNode;
 	if(!parent.isValid())
-		return items_.count();
-
-	AMActionLogItem3 *item = logItem(parent);
-	/*
-	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) ){
-		if(item->numberOfChildren() != -1)
-			return item->numberOfChildren();
-	}
-	*/
-	if(!item)
-		qDebug() << "What, no item?!?";
+		parentNode = itemTree_->rootNode();
 	else
-		qDebug() << "So child count is " << item->numberOfChildren();
-	if(item && item->numberOfChildren() != -1)
-		return item->numberOfChildren();
+		parentNode = static_cast<AMPointerTreeNode*>(parent.internalPointer());
 
-	if(rowCount() == 0)
+	if(!parentNode){
+		//NEM
 		return 0;
-	int subChildCount = 0;
-	for(int x = 0; x < rowCount(parent); x++)
-		if(hasChildren(index(x, 0, parent)))
-			subChildCount += childrenCount(index(x, 0, parent));
+	}
+	return parentNode->descendantCount();
 
-	int retVal = rowCount(parent) + subChildCount;
-	//if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) )
-	if(item)
-		item->updateNumberOfChildren(retVal);
-	return retVal;
+//	if(!parent.isValid())
+//		return items_.count();
+
+//	AMActionLogItem3 *item = logItem(parent);
+//	/*
+//	if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) ){
+//		if(item->numberOfChildren() != -1)
+//			return item->numberOfChildren();
+//	}
+//	*/
+//	if(!item)
+//		qDebug() << "What, no item?!?";
+//	else
+//		qDebug() << "So child count is " << item->numberOfChildren();
+//	if(item && item->numberOfChildren() != -1)
+//		return item->numberOfChildren();
+
+//	if(rowCount() == 0)
+//		return 0;
+//	int subChildCount = 0;
+//	for(int x = 0; x < rowCount(parent); x++)
+//		if(hasChildren(index(x, 0, parent)))
+//			subChildCount += childrenCount(index(x, 0, parent));
+
+//	int retVal = rowCount(parent) + subChildCount;
+//	//if(item && ((item->finalState() == AMAction3::Succeeded) || (item->finalState() == AMAction3::Failed) || (item->finalState() == AMAction3::Cancelled) ) )
+//	if(item)
+//		item->updateNumberOfChildren(retVal);
+//	return retVal;
 }
 
 int AMActionHistoryModel3::successfulChildrenCount(const QModelIndex &parent) const{
@@ -516,10 +671,27 @@ AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) cons
 {
 	if(!index.isValid())
 		return 0;
-	return static_cast<AMActionLogItem3*>(index.internalPointer());
+	AMPointerTreeNode *indexNode = static_cast<AMPointerTreeNode*>(index.internalPointer());
+	if(!indexNode)
+		return 0;
+
+	return static_cast<AMActionLogItem3*>(indexNode->item());
 }
 
 QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) const{
+	if(!logItem)
+		return QModelIndex();
+
+	const AMPointerTreeNode *relatedNode = itemTree_->nodeFromItem(logItem);
+	if(!relatedNode || !relatedNode->parentNode())
+		return QModelIndex();
+
+	for(int x = 0; x < relatedNode->parentNode()->childCount(); x++)
+		if(relatedNode->parentNode()->childNodeAt(x) == relatedNode)
+			return createIndex(x, 0, (void*)(relatedNode));
+
+	return QModelIndex();
+	/*
 	if(!logItem)
 		return QModelIndex();
 
@@ -554,6 +726,7 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 		}
 		return createIndex(numberOfSiblings, 0, logItem);
 	}
+	*/
 }
 
 QModelIndex AMActionHistoryModel3::topLevelParent(const QModelIndex &child) const{
@@ -1021,6 +1194,25 @@ bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int,
 
 	items_.at(indexOfParent)->updateNumberOfChildren(childIdsInReverse.count());
 	//qDebug() << "Updated number of children to " << items_.at(indexOfParent)->numberOfChildren();
+
+	AMPointerTreeNode *parentNode;
+	if(parentId == -1){
+		parentNode = itemTree_->rootNode();
+		qDebug() << "Parent id is -1, use rootNode";
+	}
+	else{
+		parentNode = idsToTreeNodes_.value(parentId);
+		qDebug() << "Parent id is " << parentId;
+	}
+
+	//for(int x = 0; x < childIdsInReverse.count(); x++){
+	for(int x = childIdsInReverse.count()-1; x >= 0; x--){
+		AMActionLogItem3 *actionLogItem = new AMActionLogItem3(db_, childIdsInReverse.at(x));
+		AMPointerTreeNode *pointerTreeNode = new AMPointerTreeNode(actionLogItem, parentNode);
+		idsToTreeNodes_.insert(childIdsInReverse.at(x), pointerTreeNode);
+		parentNode->appendChildNode(pointerTreeNode);
+		//itemTree_->rootNode()->appendChildNode(pointerTreeNode);
+	}
 
 	// Ask to place the children for each child in order
 	bool success = true;

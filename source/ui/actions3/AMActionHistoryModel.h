@@ -45,6 +45,43 @@ class AMDatabase;
 class AMAction3;
 class AMActionLog3;
 
+class AMPointerTreeNode : public QObject
+{
+Q_OBJECT
+public:
+	AMPointerTreeNode(void *item, AMPointerTreeNode *parentNode, QObject *parent = 0);
+
+	void* item();
+	const AMPointerTreeNode* parentNode() const;
+	const AMPointerTreeNode* childNodeAt(int index) const;
+	int childCount() const;
+	int descendantCount() const;
+
+public slots:
+	void appendChildNode(AMPointerTreeNode *childNode);
+
+protected:
+	void *item_;
+	AMPointerTreeNode *parentNode_;
+	QList<AMPointerTreeNode*> childrenNodes_;
+	mutable int descendantCount_;
+};
+
+class AMPointerTree : public QObject
+{
+Q_OBJECT
+public:
+	AMPointerTree(AMPointerTreeNode *rootNode, QObject *parent = 0);
+
+	const AMPointerTreeNode* nodeFromItem(void *item) const;
+
+	AMPointerTreeNode* rootNode();
+
+protected:
+	AMPointerTreeNode *rootNode_;
+	QHash<void*, AMPointerTreeNode*> itemsToNodes_;
+};
+
 /// typedef for using a QMap of QAbstractItemView pointers and bools. Used to map out which items have selected parents and should show a different color even though they're not selected. Mapping is to ensure that multiple views can look at the model. Introduces some coupling.
 typedef QMap<QAbstractItemView*, bool> ParentSelectMap;
 Q_DECLARE_METATYPE(ParentSelectMap)
@@ -261,6 +298,9 @@ protected:
 
 	/// A list of these holds the actionLog data that we return in data()
 	QList<AMActionLogItem3*> items_;
+	AMPointerTree *itemTree_;
+	AMPointerTreeNode *itemTreeRoot_;
+	QHash<int, AMPointerTreeNode*> idsToTreeNodes_;
 
 	/// Used to schedule a delayed call to refreshFromDb()
 	AMDeferredFunctionCall refreshFunctionCall_;
