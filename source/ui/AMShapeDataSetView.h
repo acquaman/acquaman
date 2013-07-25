@@ -270,6 +270,8 @@ protected slots:
 
     void beamShape(int);
 
+    void beamCalibrate();
+
 
 
 

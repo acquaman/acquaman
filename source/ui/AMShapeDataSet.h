@@ -287,6 +287,9 @@ public slots:
     void setBeamMarker(QPointF position, int index);
     void updateBeamMarker(QPointF position, int index);
 
+    void beamCalibrate();
+
+
 
 
 signals:

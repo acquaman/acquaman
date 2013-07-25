@@ -48,7 +48,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setWindowTitle(message(Wizard_Title));
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
-    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
+//    connect(button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();

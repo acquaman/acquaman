@@ -44,6 +44,8 @@ public slots:
     void outputItems();
     void fixText();
 
+signals:
+    void done();
 protected:
 
 

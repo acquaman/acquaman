@@ -937,6 +937,12 @@ void AMShapeDataSetView::beamShape(int shapeNumber)
 
 }
 
+void AMShapeDataSetView::beamCalibrate()
+{
+    shapeModel_->beamCalibrate();
+
+}
+
 
 
 
@@ -1267,6 +1273,7 @@ void AMShapeDataSetView::startBeamWizard()
     delete beamWizard_;
     beamWizard_ = new AMBeamConfigurationWizard();
     connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
+    connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));

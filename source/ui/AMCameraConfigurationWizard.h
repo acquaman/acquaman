@@ -56,7 +56,7 @@ public slots:
 
 signals:
     /// signal emitted when the finish button is pressed
-    void done();
+//    void done();
 
 private slots:
     /// shows the help messages

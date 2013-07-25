@@ -13,12 +13,14 @@
 #include <QGraphicsItem>
 #include <QGraphicsVideoItem>
 #include <QScrollBar>
+#include <QAbstractButton>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
 {
     view_ = new AMShapeDataSetGraphicsView();
     scale_ = new QPointF(1,1);
+    connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 }
 
 AMShapeDataSetGraphicsView *AMGraphicsViewWizard::view()

@@ -1107,6 +1107,23 @@ void AMShapeDataSet::updateBeamMarker(QPointF position, int index)
     finishRectangle(position);
 }
 
+void AMShapeDataSet::beamCalibrate()
+{
+//    for(int i = 0; i < 3; i ++)
+//    {
+//        if(beamMarkers_[i] == 0)
+//            return;
+//    }
+//    /// set two shapes
+
+    current_ = shapeList_.indexOf(beamMarkers_[0]);
+    oneSelect();
+    current_ = shapeList_.indexOf(beamMarkers_[2]);
+    twoSelect();
+
+}
+
+
 
 /// tracks motor movement and shifts drawings accordingly
 void AMShapeDataSet::motorTracking(double)
