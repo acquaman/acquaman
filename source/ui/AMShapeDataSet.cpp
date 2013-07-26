@@ -1196,7 +1196,7 @@ void AMShapeDataSet::moveSamplePlateTo(QVector3D coordinate)
 
 void AMShapeDataSet::moveSamplePlate(int movement)
 {
-    if(samplePlate != 0)
+    if(samplePlateShape_ != 0)
     {
         QVector3D direction = getWidthNormal(*samplePlateShape_);
         double shapeWidth = (samplePlateShape_->coordinate(1) - samplePlateShape_->coordinate(0)).length();
