@@ -11,6 +11,7 @@ class QLabel;
 class QVector3D;
 class QGraphicsPolygonItem;
 class QCheckBox;
+class QGraphicsTextItem;
 
 
 /// Wizard class
@@ -98,6 +99,8 @@ protected:
     QList<QVector3D*>* coordinateList_;
 
     QList<QPointF*>* pointList_;
+
+    QGraphicsTextItem* fixItem_;
 
 };
 

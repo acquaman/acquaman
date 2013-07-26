@@ -30,6 +30,16 @@ public:
     /// updates a single QGraphicsItem
     void updateShape(QGraphicsItem* item, QGraphicsScene* sceneToUpdate);
 
+    /// attempts to update only the shapes that it needs to
+    /// if the number of items in either scene has changed it has
+    /// to do a full updateScene
+    void updateChange(QGraphicsScene* sceneToUpdate, QGraphicsScene* sceneToUpdateWith);
+
+    bool updateItem(QGraphicsItem* itemToUpdate, QGraphicsItem* itemToCopy);
+
+    bool getEquivalent(QGraphicsItem* itemOne, QGraphicsItem* itemTwo);
+
+
 
 public slots:
     /// sets the original scene and copies it
@@ -45,6 +55,7 @@ signals:
 
 protected:
     QGraphicsItem* getCopy(QGraphicsItem* item);
+    void copyItem(QGraphicsItem* itemToUpdate, QGraphicsItem* itemToCopy);
 
 protected:
 

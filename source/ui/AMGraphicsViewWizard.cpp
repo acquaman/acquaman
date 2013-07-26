@@ -135,11 +135,11 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
     /// It seems that placing a QGraphicsTextItem with it's bounding rectangle
     /// touching the current views boundaries (adjusted for scrolling) will
     /// stop the behaviour.
-    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
-    textFixItem->setObjectName("Fix");
-    textFixItem->setZValue(INT_MAX);
-    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
-    view_->scene()->addItem(textFixItem);
+    fixItem_ = new QGraphicsTextItem("Fix");
+    fixItem_->setObjectName("Fix");
+    fixItem_->setZValue(INT_MAX);
+    fixItem_->setPos(-1*fixItem_->boundingRect().width(), -1*fixItem_->boundingRect().height());
+    view_->scene()->addItem(fixItem_);
 
 
     view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -165,15 +165,18 @@ void AMGraphicsViewWizard::addPoint(QPointF position)
 
 void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
 {
-    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
-    copier->updateScene(view_->scene(),view->scene());
+    view_->scene()->removeItem(fixItem_);
 
-    /// re add the "Fix" item (see setView)
-    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
-    textFixItem->setObjectName("Fix");
-    textFixItem->setZValue(INT_MAX);
-    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
-    view_->scene()->addItem(textFixItem);
+    AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
+    copier->updateChange(view_->scene(),view->scene());
+
+    view_->scene()->addItem(fixItem_);
+//    /// re add the "Fix" item (see setView)
+//    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
+//    textFixItem->setObjectName("Fix");
+//    textFixItem->setZValue(INT_MAX);
+//    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
+//    view_->scene()->addItem(textFixItem);
 
 }
 

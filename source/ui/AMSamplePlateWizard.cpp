@@ -133,6 +133,17 @@ void AMSamplePlateWizard::back()
             initializePage(Page_Check);
         }
         break;
+    case Page_Set:
+        while(currentId() != Page_Check)
+        {
+            QWizard::back();
+        }
+        if(currentId() == Page_Check)
+        {
+            cleanupPage(Page_Check);
+            initializePage(Page_Check);
+        }
+        break;
     default:
         QWizard::back();
     }
@@ -167,9 +178,9 @@ AMSampleSetPage::AMSampleSetPage(QWidget *parent)
 void AMSampleSetPage::initializePage()
 {
     AMViewPage::initializePage();
-    adjustmentSlider_->setValue(0);
     layout()->addWidget(adjustmentSlider_);
     disconnect(adjustmentSlider_, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
+    adjustmentSlider_->setValue(0);
     connect(adjustmentSlider_, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
 }
 

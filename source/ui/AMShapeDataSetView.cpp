@@ -1336,7 +1336,10 @@ void AMShapeDataSetView::moveSamplePlate(int movement)
     shapeModel_->moveSamplePlate(relativeMovement);
     reviewCrosshairLinePositions();
     int index = shapeModel_->samplePlateIndex();
-    samplePlateWizard_->updateShape(shapes_[index]);
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
+    view->setScene(shapeScene_->scene());
+    if(shapeModel_->isValid(index))
+        samplePlateWizard_->updateScene(view);
 }
 
 void AMShapeDataSetView::updateCurrentShape()

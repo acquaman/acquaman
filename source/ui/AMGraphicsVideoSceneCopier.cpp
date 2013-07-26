@@ -26,19 +26,41 @@ QGraphicsScene *AMGraphicsVideoSceneCopier::scene()
 
 void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith)
 {
+    qDebug()<<"AMGraphicsVideoSceneCopier::updateScene";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
     /// need to figure out what items are new and put them into the old scene
-    foreach(QGraphicsItem* item, oldList)
+//    foreach(QGraphicsItem* item, oldList)
+//    {
+
+//        if(item->type() != QGraphicsItem::UserType)
+//        {
+//            qDebug()<<item->type()<<item->boundingRect()<<item->pos();
+//            sceneToUpdate->removeItem(item);
+//        }
+//    }
+//    qDebug()<<"Old items";
+    QGraphicsItem* videoItem;
+    while(!oldList.isEmpty())
     {
-        if(item->type() != QGraphicsItem::UserType)
+        QGraphicsItem* item = oldList.takeLast();
         sceneToUpdate->removeItem(item);
+        if(item->type() == QGraphicsItem::UserType)
+        {
+            videoItem = item;
+        }
+
+
     }
 
+    sceneToUpdate->addItem(videoItem);
+//    qDebug()<<"new items";
     foreach(QGraphicsItem* item, newList)
     {
+
         if(item->type() != QGraphicsItem::UserType)
         {
+
             QGraphicsItem* newItem = getCopy(item);
             sceneToUpdate->addItem(newItem);
         }
@@ -83,6 +105,242 @@ void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene
                   textItem->setPos(polygonItem->polygon().first().x(), polygonItem->polygon().first().y() - textItem->boundingRect().height());
             }
         }
+    }
+}
+
+void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGraphicsScene *sceneToUpdateWith)
+{
+    qDebug()<<"AMGraphicsVideoSceneCopier::updateChange";
+    QList<QGraphicsItem*> oldList = sceneToUpdate->items();
+    QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
+
+    /// if the lists are not the same length, have to do a full update
+    if(oldList.count() != newList.count())
+    {
+//        qDebug()<<"refreshing entire scene - counts differ";
+        updateScene(sceneToUpdate,sceneToUpdateWith);
+        return;
+    }
+
+    /// create sublists that ignore the graphics item.
+    /// the oldList is in reverse order of the newList
+    QList<QGraphicsItem*> oldItems;
+    QList<QGraphicsItem*> newItems;
+    QList<QList<QGraphicsItem*> > oldListList;
+    QList<int> zValues;
+
+    qDebug()<<"New items";
+    foreach(QGraphicsItem* newItem, newList)
+    {
+        if(newItem->type() != QGraphicsItem::UserType)
+        {
+            qDebug()<<newItem->type()<<newItem->boundingRect()<<newItem->zValue();
+            newItems.append(newItem);
+        }
+    }
+    QGraphicsItem* oldItem;
+    qDebug()<<"Old items";
+    for(int i = 0; i < oldList.count(); i++)
+    {
+
+        oldItem = oldList[(oldList.count() - 1) - i];
+        if(oldItem->type() != QGraphicsItem::UserType)
+        {
+            int currentZ = oldItem->zValue();
+            if(zValues.contains(currentZ))
+            {
+                oldListList[zValues.indexOf(currentZ)].append(oldItem);
+            }
+            else
+            {
+                QList<QGraphicsItem*> subList;
+                subList.append(oldItem);
+                zValues.append(currentZ);
+                oldListList.append(subList);
+            }
+        }
+    }
+    for(int i = 0; i < oldListList.count(); i++)
+    {
+        oldItems<<oldListList[oldListList.count() -1 -i];
+    }
+    foreach(QGraphicsItem* item, oldItems)
+    {
+         qDebug()<<item->type()<<item->boundingRect()<<item->zValue();
+    }
+
+//        oldItem = oldList.at((oldList.count() - 1) - i);
+//        if(oldItem->type() != QGraphicsItem::UserType)
+//        {
+//            qDebug()<<oldItem->type()<<oldItem->boundingRect()<<oldItem->zValue();
+//            oldItems.append(oldItem);
+//        }
+
+
+    /// should now have two lists of equivalent shapes.
+    /// must go through each item in oldItems, check for equivalence
+    /// with the corresponding newItems, and update them if necessary
+    /// just leave the video item be
+//    qDebug()<<"Checking shapes for differences.";
+    bool success = true;
+    for(int i = 0; i < oldItems.count(); i++)
+    {
+        success = updateItem(oldItems[i], newItems[i]);
+        if(!success)
+        {
+            qDebug()<<"Refreshing whole scene, individual update failed";
+            updateScene(sceneToUpdate, sceneToUpdateWith);
+            return;
+        }
+    }
+    qDebug()<<"quick update complete";
+}
+
+bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphicsItem *itemToCopy)
+{
+    if(itemToUpdate->type() != itemToCopy->type())
+    {
+        qDebug()<<itemToUpdate->type()<<"!="<<itemToCopy->type();
+        bool textTypes;
+        textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == GraphicsTextItem::Type) || (itemToUpdate->type() == GraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
+        if(!textTypes)
+            return false;
+        qDebug()<<"Text is fine";
+    }
+    bool equal = getEquivalent(itemToUpdate,itemToCopy);
+    if(!equal)
+    {
+        copyItem(itemToUpdate, itemToCopy);
+    }
+    return true;
+
+}
+
+bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphicsItem *itemTwo)
+{
+//    qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - Checking QGraphicsItem properties";
+    if(itemOne->type() != itemTwo->type())
+    {
+//        qDebug()<<itemOne->type()<<itemTwo->type();
+        return false;
+    }
+    else if(itemOne->pos() != itemTwo->pos())
+    {
+//        qDebug()<<itemOne->pos()<<itemTwo->pos();
+        return false;
+    }
+    else if(itemOne->zValue() != itemTwo->zValue())
+    {
+//        qDebug()<<itemOne->zValue()<<itemTwo->zValue();
+        return false;
+    }
+
+    QGraphicsRectItem* rectOne;
+    QGraphicsRectItem* rectTwo;
+    QGraphicsPolygonItem* polyOne;
+    QGraphicsPolygonItem* polyTwo;
+    QGraphicsLineItem* lineOne;
+    QGraphicsLineItem* lineTwo;
+    QGraphicsPathItem* pathOne;
+    QGraphicsPathItem* pathTwo;
+    QGraphicsTextItem* textOne;
+    QGraphicsTextItem* textTwo;
+
+
+//    qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - performing cast";
+
+
+
+    switch(itemOne->type())
+    {
+    case QGraphicsRectItem::Type:
+        rectOne = qgraphicsitem_cast<QGraphicsRectItem*>(itemOne);
+        rectTwo = qgraphicsitem_cast<QGraphicsRectItem*>(itemTwo);
+        if(!rectOne || !rectTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast rect";
+            return false;
+        }
+//        qDebug()<<"Checking rect";
+        if(rectOne->rect() != rectTwo->rect())
+            return false;
+//        qDebug()<<"Checking pen";
+        if(rectOne->pen() != rectTwo->pen())
+            return false;
+//        qDebug()<<"Checking brush";
+        if(rectOne->brush() != rectTwo->brush())
+            return false;
+//        qDebug()<<"the rects are equivalent";
+        return true;
+        break;
+    case QGraphicsPolygonItem::Type:
+        polyOne = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemOne);
+        polyTwo = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemTwo);
+        if(!polyOne || !polyTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+            return false;
+        }
+        if(polyOne->polygon() != polyTwo->polygon())
+            return false;
+        else if(polyOne->pen() != polyTwo->pen())
+            return false;
+        else if(polyOne->brush() != polyTwo->brush())
+            return false;
+        else
+            return true;
+        break;
+    case QGraphicsLineItem::Type:
+        lineOne = qgraphicsitem_cast<QGraphicsLineItem*>(itemOne);
+        lineTwo = qgraphicsitem_cast<QGraphicsLineItem*>(itemTwo);
+        if(!lineOne || !lineTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+            return false;
+        }
+        if(lineOne->line() != lineTwo->line())
+            return false;
+        else if(lineOne->pen() != lineTwo->pen())
+            return false;
+        else
+            return true;
+        break;
+    case QGraphicsPathItem::Type:
+        pathOne = qgraphicsitem_cast<QGraphicsPathItem*>(itemOne);
+        pathTwo = qgraphicsitem_cast<QGraphicsPathItem*>(itemTwo);
+        if(!pathOne || !pathTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+            return false;
+        }
+        if(pathOne->path() != pathTwo->path())
+            return false;
+        else if(pathOne->pen() != pathTwo->pen())
+            return false;
+        else if(pathOne->brush() != pathTwo->brush())
+            return false;
+        else
+            return true;
+        return true;
+        break;
+    case QGraphicsTextItem::Type:
+    case GraphicsTextItem::Type:
+        textOne = (QGraphicsTextItem*)(itemOne);
+        textTwo = (QGraphicsTextItem*)(itemTwo);
+        if(!textOne || !textTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+            return false;
+        }
+        if(textOne->document()->toPlainText() != textTwo->document()->toPlainText())
+            return false;
+        else if(textOne->defaultTextColor() != textTwo->defaultTextColor())
+            return false;
+        else
+            return true;
+    default:
+        qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - Unknown type";
+        return false;
     }
 }
 
@@ -140,7 +398,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
 //        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding text";
         QGraphicsTextItem* textItem = (QGraphicsTextItem*)item;
         QGraphicsTextItem* newTextItem = new QGraphicsTextItem();
-        newTextItem->setZValue(0);
+        newTextItem->setZValue(textItem->zValue());
         newTextItem->setPlainText(textItem->document()->toPlainText());
         newTextItem->setFont(textItem->font());
         newTextItem->setDefaultTextColor(textItem->defaultTextColor());
@@ -184,7 +442,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
 //        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding graphicsText";
         GraphicsTextItem* textItem = (GraphicsTextItem*)item;
         GraphicsTextItem* newTextItem = new GraphicsTextItem();
-        newTextItem->setZValue(0);
+        newTextItem->setZValue(textItem->zValue());
         newTextItem->setPlainText(textItem->document()->toPlainText());
         newTextItem->setFont(textItem->font());
         newTextItem->setDefaultTextColor(textItem->defaultTextColor());
@@ -200,7 +458,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
         QGraphicsVideoItem* videoItem = dynamic_cast<QGraphicsVideoItem*>(item);
         if(videoItem != 0)
         {
-            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding video";
+//            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding video";
             QGraphicsVideoItem* newVideoItem = new QGraphicsVideoItem();
             newVideoItem->setZValue(-1);
             QMediaPlayer* mediaPlayer = new QMediaPlayer();
@@ -232,3 +490,89 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
     newItem->setVisible(item->isVisible());
     return newItem;
 }
+
+void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphicsItem *itemToCopy)
+{
+    QGraphicsRectItem* rectOne;
+    QGraphicsRectItem* rectTwo;
+    QGraphicsPolygonItem* polyOne;
+    QGraphicsPolygonItem* polyTwo;
+    QGraphicsLineItem* lineOne;
+    QGraphicsLineItem* lineTwo;
+    QGraphicsPathItem* pathOne;
+    QGraphicsPathItem* pathTwo;
+    QGraphicsTextItem* textOne;
+    QGraphicsTextItem* textTwo;
+
+
+    itemToUpdate->setPos(itemToCopy->pos());
+    itemToUpdate->setZValue(itemToCopy->zValue());
+
+    switch(itemToUpdate->type())
+    {
+    case QGraphicsRectItem::Type:
+        rectOne = qgraphicsitem_cast<QGraphicsRectItem*>(itemToUpdate);
+        rectTwo = qgraphicsitem_cast<QGraphicsRectItem*>(itemToCopy);
+        if(!rectOne || !rectTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast rect";
+            return;
+        }
+        rectOne->setRect(rectTwo->rect());
+        rectOne->setPen(rectTwo->pen());
+        rectOne->setBrush(rectTwo->brush());
+        return;
+    case QGraphicsPolygonItem::Type:
+        polyOne = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemToUpdate);
+        polyTwo = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemToCopy);
+        if(!polyOne || !polyTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast polygon";
+            return;
+        }
+        polyOne->setPolygon(polyTwo->polygon());
+        polyOne->setPen(polyTwo->pen());
+        polyOne->setBrush(polyTwo->brush());
+        return;
+    case QGraphicsLineItem::Type:
+        lineOne = qgraphicsitem_cast<QGraphicsLineItem*>(itemToUpdate);
+        lineTwo = qgraphicsitem_cast<QGraphicsLineItem*>(itemToCopy);
+        if(!lineOne || !lineTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast line";
+            return;
+        }
+        lineOne->setLine(lineTwo->line());
+        lineOne->setPen(lineTwo->pen());
+        return;
+    case QGraphicsPathItem::Type:
+        pathOne = qgraphicsitem_cast<QGraphicsPathItem*>(itemToUpdate);
+        pathTwo = qgraphicsitem_cast<QGraphicsPathItem*>(itemToCopy);
+        if(!pathOne || !pathTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast path";
+            return;
+        }
+        pathOne->setPath(pathTwo->path());
+        pathOne->setPen(pathTwo->pen());
+        pathOne->setBrush(pathTwo->brush());
+        return;
+    case QGraphicsTextItem::Type:
+    case GraphicsTextItem::Type:
+        textOne = (QGraphicsTextItem*)(itemToUpdate);
+        textTwo = (QGraphicsTextItem*)(itemToCopy);
+        if(!textOne || !textTwo)
+        {
+            qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast text. Type is"<<itemToUpdate->type()<<itemToCopy->type();
+            return;
+        }
+        textOne->setPlainText(textTwo->document()->toPlainText());
+        textOne->setDefaultTextColor(textTwo->defaultTextColor());
+        return;
+    default:
+        qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - Unknown type"<<itemToUpdate->type();
+        return;
+    }
+}
+
+
