@@ -728,7 +728,7 @@ void AMActionHistoryModel3::refreshFromDb()
 bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
@@ -773,7 +773,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
@@ -810,7 +810,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 bool AMActionHistoryModel3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database, int parentLogId){
 	if(completedAction && completedAction->inFinalState()) {
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
