@@ -14,6 +14,7 @@
 #include <QGraphicsVideoItem>
 #include <QScrollBar>
 #include <QAbstractButton>
+#include <QCheckBox>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -27,12 +28,12 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
 }
 
-AMShapeDataSetGraphicsView *AMGraphicsViewWizard::view()
+AMShapeDataSetGraphicsView *AMGraphicsViewWizard::view() const
 {
     return view_;
 }
 
-QPointF AMGraphicsViewWizard::scale()
+QPointF AMGraphicsViewWizard::scale() const
 {
     return *scale_;
 }
@@ -55,12 +56,12 @@ void AMGraphicsViewWizard::waitPage()
     emit moveTo(currentId());
 }
 
-QList<QPointF *> *AMGraphicsViewWizard::pointList()
+QList<QPointF *> *AMGraphicsViewWizard::pointList() const
 {
     return pointList_;
 }
 
-QList<QVector3D *> *AMGraphicsViewWizard::coordinateList()
+QList<QVector3D *> *AMGraphicsViewWizard::coordinateList() const
 {
     return coordinateList_;
 }
@@ -87,7 +88,7 @@ QString AMGraphicsViewWizard::message(int type)
     }
 }
 
-QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point)
+QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 {
     QList<QGraphicsItem*> list = view()->items();
     QGraphicsVideoItem* videoItem;
@@ -111,6 +112,11 @@ QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point)
     double positionY = (point.y() - top)/(bottom - top);
 
     return QPointF(positionX, positionY);
+}
+
+bool AMGraphicsViewWizard::checked(int page) const
+{
+    return field(QString("configured%1").arg(page)).toBool();
 }
 
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
@@ -148,6 +154,13 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 void AMGraphicsViewWizard::showHelp()
 {
     QMessageBox::information(this, message(Help_Title), message(Help));
+}
+
+void AMGraphicsViewWizard::addPoint(QPointF position)
+{
+    QPointF* newPoint = new QPointF();
+    *newPoint = position;
+    pointList_->append(newPoint);
 }
 
 void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
@@ -330,5 +343,27 @@ void AMViewPage::addView()
     layout()->addWidget(viewFrame_);
 }
 
+
+AMCheckPage::AMCheckPage(QWidget *parent)
+    : AMViewPage(parent)
+{
+    isConfigured_ = new QCheckBox();
+    isConfigured_->setChecked(true);
+    layout()->addWidget(isConfigured_);
+}
+
+void AMCheckPage::initializePage()
+{
+    isConfigured_->setText(message(Other));
+    AMViewPage::initializePage();
+    QString fieldName = QString("configured%1").arg(viewWizard()->currentId());
+    if(field(fieldName).isNull())
+    {
+        qDebug()<<"Registering field"<<fieldName;
+        registerField(fieldName, isConfigured_);
+        qDebug()<<field(QString("configured%1").arg(viewWizard()->currentId())).toBool();
+    }
+
+}
 
 

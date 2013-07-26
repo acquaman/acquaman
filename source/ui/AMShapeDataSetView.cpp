@@ -43,6 +43,7 @@
 
 #include "AMCameraConfigurationWizard.h"
 #include "AMBeamConfigurationWizard.h"
+#include "AMSamplePlateWizard.h"
 
 #include <limits>
 
@@ -64,6 +65,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
     updateTracker_ = -1;
+    samplePlateMovement_ = 0;
 
     borderColour_ = QColor(Qt::red);
 
@@ -84,6 +86,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     beamWizard_ = new AMBeamConfigurationWizard();
     beamWizard_->setView(view);
+
+    samplePlateWizard_ = new AMSamplePlateWizard();
+    samplePlateWizard_->setView(view);
 
 
     ///GUI Setup
@@ -125,17 +130,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shiftButton_ = new QPushButton("Shift");
     operationButton_ = new QPushButton("Operation");
     groupButton_ = new QPushButton("Group");
-//    tfl->addWidget(drawButton_ = new QPushButton("Draw"));
-//    tfl->addSpacing(20);
-//    tfl->addWidget(moveButton_ = new QPushButton("Move"));
-//    tfl->addSpacing(20);
-//    tfl->addWidget(editButton_ = new QPushButton("Edit"));
-//    tfl->addSpacing(20);
-//    tfl->addWidget(shiftButton_ = new QPushButton("Shift"));
-//    tfl->addSpacing(20);
-//    tfl->addWidget(operationButton_ = new QPushButton("Operation"));
-//    tfl->addSpacing(20);
-//    tfl->addWidget(groupButton_ = new QPushButton("Group"));
+
+
     tfl->addWidget(toolBar_ = new QToolBar("Tool Bar"));
     tfl->addSpacing(20);
     tfl->addWidget(motorXEdit_ = new QLineEdit());
@@ -161,8 +157,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
-//    shapeHorizontalLayout->addSpacing(20);
-//    shapeHorizontalLayout->addWidget(toolBar_ = new QToolBar("Tool Bar"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
     shapeHorizontalLayout->addSpacing(20);
@@ -173,6 +167,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
+    shapeHorizontalLayout->addSpacing(20);
+    shapeHorizontalLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Sample Wizard"));
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
@@ -210,8 +206,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     configurationWindow_->setLayout(cvl);
 
     configurationWindow_->setWindowTitle("Configuration");
-
-   // configurationWindow->show();
 
 
     for(int i = 0; i < SAMPLEPOINTS; i++)
@@ -428,6 +422,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
     connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
     connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
+    connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));
 
     /// allows non-rectangle drawing
 
@@ -497,7 +492,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     /// This fixes the problem with with different views flashing or going white
     /// when they have QGraphicsTextItems or GraphicsTextItems in them.
     /// No real reason why this works, it just does.
-    /// see AMGraphicsViewWizard::setView for a full description (AMGraphicsViewWizard.cpp)
+    /// see AMGraphicsViewWizard::setView (AMGraphicsViewWizard.cpp) for a full description
     QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
     textFixItem->setZValue(INT_MAX);
     textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
@@ -1316,9 +1311,32 @@ void AMShapeDataSetView::startBeamWizard()
     beamWizard_->show();
 }
 
+void AMShapeDataSetView::startSampleWizard()
+{
+    delete samplePlateWizard_;
+    samplePlateWizard_ = new AMSamplePlateWizard();
+    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
+    connect(samplePlateWizard_, SIGNAL(movePlate(int)), this, SLOT(moveSamplePlate(int)));
+    view->setScene(shapeScene_->scene());
+    view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
+    samplePlateWizard_->setView(view);
+    samplePlateWizard_->show();
+}
+
 void AMShapeDataSetView::setSamplePlate()
 {
     shapeModel_->setSamplePlate();
+}
+
+void AMShapeDataSetView::moveSamplePlate(int movement)
+{
+    qDebug()<<"Moving sample plate";
+    int relativeMovement = movement - samplePlateMovement_;
+    samplePlateMovement_ = movement;
+    shapeModel_->moveSamplePlate(relativeMovement);
+    reviewCrosshairLinePositions();
+    int index = shapeModel_->samplePlateIndex();
+    samplePlateWizard_->updateShape(shapes_[index]);
 }
 
 void AMShapeDataSetView::updateCurrentShape()

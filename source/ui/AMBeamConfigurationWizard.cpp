@@ -17,9 +17,9 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
     setPage(Page_Intro, new AMWizardPage);
-    setPage(Page_Check_One, new AMBeamCheckPage);
-    setPage(Page_Check_Two, new AMBeamCheckPage);
-    setPage(Page_Check_Three, new AMBeamCheckPage);
+    setPage(Page_Check_One, new AMCheckPage);
+    setPage(Page_Check_Two, new AMCheckPage);
+    setPage(Page_Check_Three, new AMCheckPage);
     setPage(Page_Wait_One, new AMBeamWaitPage);
     setPage(Page_Wait_Two, new AMBeamWaitPage);
     setPage(Page_Wait_Three, new AMBeamWaitPage);
@@ -43,7 +43,6 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     /// two points for each square, three squares.
     numberOfPoints_ = 6;
 
-//    pointList_ = new QList<QPointF*>();
 
     for(int i = 0; i < numberOfPoints_; i++)
     {
@@ -74,12 +73,11 @@ int AMBeamConfigurationWizard::nextId() const
     case Page_Check_Two:
         return Page_Wait_Three;
     case Page_Check_Three:
-        if(field(QString("Configured %1").arg(Page_Check_One)).toBool() && field(QString("Configured %1").arg(Page_Check_Two)).toBool() && field(QString("Configured %1").arg(Page_Check_Three)).toBool())
+        if(checked(Page_Check_One) && checked(Page_Check_Two) && checked(Page_Check_Three))//field(QString("configured%1").arg(Page_Check_One)).toBool() && field(QString("configured%1").arg(Page_Check_Two)).toBool() && field(QString("configured%1").arg(Page_Check_Three)).toBool())
             return Page_Final;
         else
             return Wait_One_Again;
     case Page_Wait_One:
-//        return Page_Intro;
         if(setting_) return Page_Set_One;
         else return Page_Check_One;
     case Page_Wait_Two:
@@ -133,8 +131,8 @@ void AMBeamConfigurationWizard::next()
             initializePage(Page_Wait_Three);
         }
     }
-    else if((currentId() == Page_Check_One && !(field(QString("Configured %1").arg(Page_Check_One)).toBool()))
-            || (currentId() == Page_Check_Two && !(field(QString("Configured %1").arg(Page_Check_Two)).toBool())))
+    else if((currentId() == Page_Check_One && !(field(QString("configured%1").arg(Page_Check_One)).toBool()))
+            || (currentId() == Page_Check_Two && !(field(QString("configured%1").arg(Page_Check_Two)).toBool())))
     {
         while(currentId() != Page_Check_Three)
         {
@@ -144,14 +142,6 @@ void AMBeamConfigurationWizard::next()
     }
     else AMGraphicsViewWizard::next();
 }
-
-//void AMBeamConfigurationWizard::showHelp()
-//{
-//    QString helpMessage = message(Help);
-
-//    QMessageBox::information(this,message(Help_Title), helpMessage);
-//}
-
 
 QString AMBeamConfigurationWizard::message(int type)
 {
@@ -234,9 +224,9 @@ QString AMBeamConfigurationWizard::message(int type)
         case Title:
             return "Final page Title";
         case Text:
-            return (QString("Check Page %1 has value: %2 \n").arg(Page_Check_One).arg(field(QString("Configured %1").arg(Page_Check_One)).toBool())
-                    + QString("Check Page %1 has value: %2 \n").arg(Page_Check_Two).arg(field(QString("Configured %1").arg(Page_Check_Two)).toBool())
-                                 + QString("Check Page %1 has value: %2").arg(Page_Check_Three).arg(field(QString("Configured %1").arg(Page_Check_Three)).toBool()));
+            return (QString("Check Page %1 has value: %2 \n").arg(Page_Check_One).arg(field(QString("configured%1").arg(Page_Check_One)).toBool())
+                    + QString("Check Page %1 has value: %2 \n").arg(Page_Check_Two).arg(field(QString("configured%1").arg(Page_Check_Two)).toBool())
+                                 + QString("Check Page %1 has value: %2").arg(Page_Check_Three).arg(field(QString("configured%1").arg(Page_Check_Three)).toBool()));
         case Help:
             return "Final page help";
         case Other:
@@ -278,7 +268,7 @@ void AMBeamConfigurationWizard::addPoint(QPointF position)
 }
 
 
-void AMBeamConfigurationWizard::endPoint(QPointF position)
+void AMBeamConfigurationWizard::endPoint()
 {
     disconnect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
     topLeft_ = true;
@@ -399,34 +389,9 @@ void AMBeamConfigurationWizard::back()
 }
 
 
-
-AMBeamCheckPage::AMBeamCheckPage(QWidget *parent)
-    : AMViewPage(parent)
-{
-    beamConfigured_ = new QCheckBox();
-    beamConfigured_->setChecked(true);
-    layout()->addWidget(beamConfigured_);
-
-
-     connect(beamConfigured_, SIGNAL(clicked(bool)), this, SLOT(configuredChanged(bool)));
-
-}
-
 void AMBeamCheckPage::initializePage()
 {
-
-    beamConfigured_->setText(message(Other));
-
-    QString fieldName = QString("Configured %1").arg(viewWizard()->currentId());
-    if(field(fieldName).isNull())
-        registerField(fieldName,beamConfigured_);
-    AMViewPage::initializePage();
-
-}
-
-void AMBeamCheckPage::configuredChanged(bool configured)
-{
-    qDebug()<<"Configuration is"<<configured;
+    AMCheckPage::initializePage();
 }
 
 void AMBeamWaitPage::initializePage()
@@ -444,9 +409,9 @@ void AMBeamSelectPage::initializePage()
     AMViewPage::initializePage();
 
     disconnect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
-    disconnect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
+    disconnect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint()));
     connect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
-    connect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint(QPointF)));
+    connect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint()));
 
 
 }

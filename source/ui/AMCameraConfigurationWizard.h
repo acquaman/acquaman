@@ -64,19 +64,16 @@ public:
 };
 
 
-class CheckPage : public AMViewPage
+class CheckPage : public AMCheckPage
 {
     Q_OBJECT
 public:
-    CheckPage(QWidget* parent = 0);
+//    CheckPage(QWidget* parent = 0);
 public slots:
 
     void initializePage();
 
 protected slots:
-    void configuredSet(bool set);
-protected:
-    QCheckBox* isConfigured_;
 };
 
 

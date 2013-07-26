@@ -187,6 +187,8 @@ public:
 
     void deleteShape(int index);
 
+    int samplePlateIndex();
+
 
 
 
@@ -295,6 +297,9 @@ public slots:
     void setSamplePlate();
 
     void moveSamplePlateTo(QVector3D coordinate);
+
+    /// move the sample plate by a small amount, proportional to movement
+    void moveSamplePlate(int movement);
 
 
 

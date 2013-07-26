@@ -26,6 +26,7 @@ class QStringListModel;
 class QMediaPlayer;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
+class AMSamplePlateWizard;
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
@@ -199,7 +200,11 @@ public slots:
 
     void startBeamWizard();
 
+    void startSampleWizard();
+
     void setSamplePlate();
+
+    void moveSamplePlate(int movement);
 
 protected slots:
     void updateCurrentShape();
@@ -454,6 +459,10 @@ protected:
     int updateTracker_;
 
     QPushButton* samplePlateButton_;
+
+    QPushButton* samplePlateWizardButton_;
+    AMSamplePlateWizard* samplePlateWizard_;
+    int samplePlateMovement_;
 
 
 

@@ -32,12 +32,9 @@ public slots:
 
     void next();
 
-//    void showHelp();
-
     void addPoint(QPointF position);
 
-    void endPoint(QPointF position);
-
+    void endPoint();
 
 signals:
     void showShape(int);
@@ -45,26 +42,16 @@ signals:
 protected:
     bool setting_;
 
-
-
     bool topLeft_;
-
 };
 
 
-class AMBeamCheckPage : public AMViewPage
+class AMBeamCheckPage : public AMCheckPage
 {
     Q_OBJECT
 public:
-    AMBeamCheckPage(QWidget* parent = 0);
     void initializePage();
-
-public slots:
-
-    void configuredChanged(bool);
-
 protected:
-    QCheckBox* beamConfigured_;
 };
 
 class AMBeamWaitPage : public AMWaitPage

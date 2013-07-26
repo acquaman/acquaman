@@ -563,6 +563,11 @@ void AMShapeDataSet::deleteShape(int index)
     delete oldShape;
 }
 
+int AMShapeDataSet::samplePlateIndex()
+{
+    return shapeList_.indexOf(samplePlateShape_);
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMShapeDataSet::startRectangle(QPointF position)
@@ -934,7 +939,10 @@ void AMShapeDataSet::startMultiDraw()
 void AMShapeDataSet::updateShape(int index)
 {
    /// must set shape based on coordinates
-    shapeList_[index]->setShape(subShape(*shapeList_.at(index)));
+    if(isValid(index))
+    {
+        shapeList_[index]->setShape(subShape(*shapeList_.at(index)));
+    }
 
 }
 
@@ -1182,6 +1190,18 @@ void AMShapeDataSet::moveSamplePlateTo(QVector3D coordinate)
     {
 
         samplePlateShape_->shiftTo(coordinate);
+        updateShape(shapeList_.indexOf(samplePlateShape_));
+    }
+}
+
+void AMShapeDataSet::moveSamplePlate(int movement)
+{
+    if(samplePlate != 0)
+    {
+        QVector3D direction = getWidthNormal(*samplePlateShape_);
+        double shapeWidth = (samplePlateShape_->coordinate(1) - samplePlateShape_->coordinate(0)).length();
+        QVector3D shiftMovement = direction * movement/1000 * shapeWidth;
+        samplePlateShape_->shift(shiftMovement);
         updateShape(shapeList_.indexOf(samplePlateShape_));
     }
 }

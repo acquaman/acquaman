@@ -49,8 +49,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
-//    pointList_ = new QList<QPointF*>();
-//    coordinateList_ = new QList<QVector3D*>();
 
     QSize maxSize(0,0);
     QList<int> pageNumbers = pageIds();
@@ -91,12 +89,13 @@ int AMCameraConfigurationWizard::nextId() const
         case Page_Intro:
             return Page_Check;
         case Page_Check:
-            if(field("isConfigured").toBool())
+        if(checked(Page_Check))
             {
-                return -1;
+                return Page_Final;
             }
             else
             {
+
                 return Page_Wait_One;
             }
         case Page_Select_One:
@@ -159,7 +158,7 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
         break;
     }
 
-    if(field("isConfigured").toBool())
+    if(checked(Page_Check))
     {
         for(int i = 0; i < pointList_->count(); i++)
         {
@@ -412,49 +411,16 @@ void IntroPage::timerEvent(QTimerEvent *event)
 }
 
 
-CheckPage::CheckPage(QWidget *parent)
-    : AMViewPage(parent)
-{
-    isConfigured_ = new QCheckBox();
-    isConfigured_->setChecked(true);
-    QVBoxLayout* layout = (QVBoxLayout*)(this->layout());
-    layout->addWidget(isConfigured_);
-    setLayout(layout);
-
-    connect(isConfigured_, SIGNAL(clicked(bool)), this, SLOT(configuredSet(bool)));
-
-    registerField("isConfigured", isConfigured_);
-}
-
 void CheckPage::initializePage()
 {
-    isConfigured_->setText(message(Other));
+    AMCheckPage::initializePage();
     setButtonText(QWizard::BackButton,message(Default));
-    AMViewPage::initializePage();
-
 }
-
-void CheckPage::configuredSet(bool set)
-{
-    setFinalPage(set);
-    if(set)
-    {
-        viewWizard()->addPoint(QPointF(0,0));
-    }
-}
-
-
-
-
-//SelectPage::SelectPage(QWidget *parent)
-//    : AMViewPage(parent)
-//{
-
-//}
 
 void SelectPage::initializePage()
 {
     AMViewPage::initializePage();
+    disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
     connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }
 
@@ -462,11 +428,6 @@ void SelectPage::addPoint(QPointF position)
 {
     ((AMCameraConfigurationWizard*)viewWizard())->addPoint(position);
 }
-
-//WaitPage::WaitPage(QWidget *parent)
-//    : AMWaitPage(parent)
-//{
-//}
 
 void WaitPage::initializePage()
 {

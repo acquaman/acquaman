@@ -10,6 +10,7 @@ class QFrame;
 class QLabel;
 class QVector3D;
 class QGraphicsPolygonItem;
+class QCheckBox;
 
 
 /// Wizard class
@@ -34,9 +35,9 @@ public:
     enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
     AMGraphicsViewWizard(QWidget* parent = 0);
 
-    AMShapeDataSetGraphicsView* view();
+    AMShapeDataSetGraphicsView* view() const;
 
-    QPointF scale();
+    QPointF scale() const;
 
     void setScale(QPointF scale);
     void setScale(double scaleFactor);
@@ -44,9 +45,9 @@ public:
     /// emits moveTo signal with currentId as the argument
     virtual void waitPage();
 
-    virtual QList<QPointF*>* pointList();
+    virtual QList<QPointF*>* pointList() const;
 
-    virtual QList<QVector3D*>* coordinateList();
+    virtual QList<QVector3D*>* coordinateList() const;
 
     /// used to set all the text for the wizard in one easy to find
     ///  location.  Must be reimplemented to get desired text.
@@ -60,7 +61,10 @@ public:
     /// the view/scene in AMShapeDataSetView. It needs to be
     /// remapped from the the video bounding rect to the
     /// video item.
-    QPointF mapPointToVideo(QPointF);
+    QPointF mapPointToVideo(QPointF) const;
+
+    /// used to access the state of the checkbox in an AMCheckPage
+    virtual bool checked(int page) const;
 
 
 public slots:
@@ -74,7 +78,7 @@ public slots:
     /// this directly.
     virtual void showHelp();
 
-    virtual void addPoint(QPointF position) = 0;
+    virtual void addPoint(QPointF position);
 
     void updateScene(AMShapeDataSetGraphicsView* view);
 
@@ -85,10 +89,6 @@ public slots:
 signals:
     void done();
     void moveTo(int);
-protected:
-
-
-
 
 protected:
     AMShapeDataSetGraphicsView* view_;
@@ -168,6 +168,17 @@ private:
     QLayout* layout_;
     QFrame* viewFrame_;
 
+};
+
+class AMCheckPage : public AMViewPage
+{
+    Q_OBJECT
+public:
+    AMCheckPage(QWidget* parent = 0);
+    virtual void initializePage();
+
+protected:
+    QCheckBox* isConfigured_;
 };
 
 
