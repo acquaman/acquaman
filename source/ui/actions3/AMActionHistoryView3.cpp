@@ -62,8 +62,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	model_->setMaximumActionsToDisplay(200);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
-	QDateTime everAgo = QDateTime();
-	model_->setVisibleDateTimeRange(everAgo);
+//	QDateTime everAgo = QDateTime();
+//	model_->setVisibleDateTimeRange(everAgo);
 
 	// Setup UI
 	//////////////////////
@@ -108,6 +108,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	QLabel* showLabel = new QLabel("Show: ");
 	showLabel->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(showLabel);
+	showLabel->hide();
 	rangeComboBox_ = new QComboBox();
 	rangeComboBox_->addItem("Last Hour");
 	rangeComboBox_->addItem("Last 4 Hours");
@@ -117,6 +118,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	//rangeComboBox_->setCurrentIndex(1);
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
+	rangeComboBox_->hide();
 
 	//treeView_ = new QTreeView();
 	treeView_ = new AMActionHistoryTreeView3();
@@ -160,7 +162,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(model_, SIGNAL(modelAboutToBeRefreshed()), this, SLOT(onModelAboutToBeRefreshed()));
 	connect(model_, SIGNAL(modelRefreshed()), this, SLOT(onModelRefreshed()));
 
-	connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
+	//connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
@@ -192,9 +194,11 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 	// Latch these states for when the deferred call in setMaximumActionsToDisplay finishes
 	showingMoreActions_ = true;
 	countBeforeShowMoreActions_ = model_->childrenCount();
-	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	//model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	model_->setMaximumActionsToDisplay(model_->nextGoodMaximumActions());
 }
 
+/*
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 {
 	QDateTime oldest = QDateTime::currentDateTime();
@@ -224,6 +228,7 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 
 	model_->setVisibleDateTimeRange(oldest);
 }
+ */
 
 
 
@@ -360,6 +365,7 @@ void AMActionHistoryView3::onModelRefreshed()
 	// If not, then call the onShowMoreActionsButtonClicked (effectively recursively)
 	// If yes, then unlatch that bool
 	if(showingMoreActions_){
+		qDebug() << "Counts before " << countBeforeShowMoreActions_ << " total actions shown now " << totalActionsShown;
 		if(countBeforeShowMoreActions_ == totalActionsShown)
 			onShowMoreActionsButtonClicked();
 		else
