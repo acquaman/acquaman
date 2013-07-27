@@ -475,8 +475,10 @@ public:
 	/// Returns the attocube real-motor stage.
 	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
 
-	// The motor group.
-	AMMotorGroup *motorGroup() const { return motorGroup_; }
+	// The motor group and specific motor group object getters.
+	CLSPseudoMotorGroup *motorGroup() const { return motorGroup_; }
+	/// Returns the pseudo sample stage motor group object.
+
 
 	// The reset controls for the pseudo motors.
 	/// Returns the pseudo sample stage reset control.
@@ -868,7 +870,7 @@ protected:
 	AMControl *realAttoStageResetControl_;
 
 	// Motor group.  Binds all the motors for scanning together.
-	AMMotorGroup *motorGroup_;
+	CLSPseudoMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;

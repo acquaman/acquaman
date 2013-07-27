@@ -266,8 +266,9 @@ void VESPERSBeamline::setupSampleStage()
 
 void VESPERSBeamline::setupMotorGroup()
 {
+	// This is an AMMotorGroupObject because the CLSPseudoMotorGroupObject isn't used for all the motor group objects.
 	AMMotorGroupObject *motorObject = 0;
-	motorGroup_ = new AMMotorGroup(this);
+	motorGroup_ = new CLSPseudoMotorGroup(this);
 
 	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N",
 										 QStringList() << "H" << "V" << "N",
