@@ -96,6 +96,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(laserPowerButton_, SIGNAL(clicked()), endstation_, SLOT(toggleLaserPower()));
 	connect(endstation_, SIGNAL(laserPoweredChanged()), this, SLOT(laserPowerUpdate()));
 	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged()));
+	connect(endstation_, SIGNAL(laserPositionValidityChanged(bool)), this, SLOT(onLaserDistanceChanged()));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;

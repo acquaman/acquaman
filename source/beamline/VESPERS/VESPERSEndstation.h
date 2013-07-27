@@ -68,7 +68,7 @@ public:
 	/// Returns the current value of the laser sensor.
 	double laserPosition() const { return laserPositionControl_->value(); }
 	/// Returns whether the laser sensor is reading values or not.
-	bool laserPositionValid() const { return laserPositionStatusControl_->value() == 1.0; }
+	bool laserPositionValid() const { return laserPositionStatusControl_->value() == 0.0; }
 	/// Returns whether the helium buffer is attached to the CCD.
 	bool heliumBufferAttached() const { return heliumBufferAttached_; }
 	/// Returns whether the CCD is at 90 degrees or not.
