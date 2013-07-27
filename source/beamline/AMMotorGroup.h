@@ -5,6 +5,7 @@
 #include <QMap>
 
 #include "beamline/AMControl.h"
+#include "actions/AMBeamlineActionItem.h"
 
 /// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.
 class AMMotorGroupObject : public QObject
@@ -15,7 +16,7 @@ public:
 	/// Enum for the orientation of motor.
 	enum Orientation { Horizontal = 0, Vertical, Normal };
 	/// Enum for the motion type of the motor.
-	enum MotionType { Translational = 0, Rotational = 1 };
+	enum MotionType { None = -1, Translational = 0, Rotational = 1 };
 
 	/// Constructor.  Builds a new motor group object with a single control.
 	AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
@@ -54,6 +55,50 @@ public:
 	int verticalIndex() const;
 	/// Returns the index of the normal control (or -1 if no normal orientation control exists).
 	int normalIndex() const;
+
+	/// Returns the prefix of the horizontal control, if it exists.  Returns an empty string otherwise.
+	QString horizontalPrefix() const;
+	/// Returns the prefix of the vertical control, if it exists.  Returns an empty string otherwise.
+	QString verticalPrefix() const;
+	/// Returns the prefix of the normal control, if it exists.  Returns an empty string otherwise.
+	QString normalPrefix() const;
+
+	/// Returns the units of the horizontal control, if it exists.  Returns an empty string otherwise.
+	QString horizontalUnits() const;
+	/// Returns the units of the vertical control, if it exists.  Returns an empty string otherwise.
+	QString verticalUnits() const;
+	/// Returns the units of the normal control, if it exists.  Returns an empty string otherwise.
+	QString normalUnits() const;
+
+	/// Returns the horizontal control, if it exists.  Returns 0 otherwise.
+	AMControl *horizontalControl() const;
+	/// Returns the vertical control, if it exists.  Returns 0 otherwise.
+	AMControl *verticalControl() const;
+	/// Returns the normal control, if it exists.  Returns 0 otherwise.
+	AMControl *normalControl() const;
+
+	/// Returns the horizontal motion type, if it exists.  Returns None otherwise.
+	AMMotorGroupObject::MotionType horizontalMotionType() const;
+	/// Returns the vertical motion type, if it exists.  Returns None otherwise.
+	AMMotorGroupObject::MotionType verticalMotionType() const;
+	/// Returns the normal motion type, if it exists.  Returns None otherwise.
+	AMMotorGroupObject::MotionType normalMotionType() const;
+
+	// Old actions.  Will update with new ones as soon as I can.
+	/// Returns a newly created move action for the horizontal postion.  Returns 0 if not connected.
+	AMBeamlineActionItem *createHorizontalMoveAction(double position);
+	/// Returns a newly created stop action for the horizontal position.  Returns 0 if not connected.
+	AMBeamlineActionItem *createHorizontalStopAction();
+	/// Returns a newly created move action for the vertical postion.  Returns 0 if not connected.
+	AMBeamlineActionItem *createVerticalMoveAction(double position);
+	/// Returns a newly created stop action for the vertical position.  Returns 0 if not connected.
+	AMBeamlineActionItem *createVerticalStopAction();
+	/// Returns a newly created move action for the normal postion.  Returns 0 if not connected.
+	AMBeamlineActionItem *createNormalMoveAction(double position);
+	/// Returns a newly created stop action for the normal position.  Returns 0 if not connected.
+	AMBeamlineActionItem *createNormalStopAction();
+	/// Returns a newly created action that stops ALL the motors.  Returns 0 if not all motors are connected.
+	AMBeamlineActionItem *createStopAllAction();
 
 protected:
 	/// Holds the name of the info.

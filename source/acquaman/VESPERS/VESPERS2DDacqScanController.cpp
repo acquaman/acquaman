@@ -90,9 +90,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	switch(config_->motor()){
 
 	case VESPERS::H | VESPERS::V:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
 		xAxisPVName_ = control != 0 ? control->writePVName() : "";
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl());
 		yAxisPVName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
@@ -108,9 +108,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		break;
 
 	case VESPERS::AttoH | VESPERS::AttoV:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttoStage()->horiz());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl());
 		xAxisPVName_ = control != 0 ? control->writePVName() : "";
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttoStage()->vert());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl());
 		yAxisPVName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));

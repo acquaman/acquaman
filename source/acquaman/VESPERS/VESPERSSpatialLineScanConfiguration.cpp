@@ -31,7 +31,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setName("Line Scan");
 	setUserScanName("Line Scan");
 	dbObject_->setParent(this);
-	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
 	setIncomingChoice(VESPERS::Imini);
@@ -60,35 +60,35 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	switch(int(original.motor())){
 
 	case VESPERS::H:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
 		break;
 
 	case VESPERS::X:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->horiz());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl());
 		break;
 
 	case VESPERS::V:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl());
 		break;
 
 	case VESPERS::Z:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->vert());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl());
 		break;
 
 	case VESPERS::AttoH:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttoStage()->horiz());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl());
 		break;
 
 	case VESPERS::AttoV:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttoStage()->vert());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl());
 		break;
 
 	case VESPERS::AttoX:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttoStage()->horiz());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl());
 		break;
 
 	case VESPERS::AttoZ:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttoStage()->vert());
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl());
 		break;
 
 	case VESPERS::AttoRx:

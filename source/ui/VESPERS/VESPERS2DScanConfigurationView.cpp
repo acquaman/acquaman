@@ -380,8 +380,8 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	case VESPERS::H | VESPERS::V:
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:
@@ -420,8 +420,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	case VESPERS::H | VESPERS::V:
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:
