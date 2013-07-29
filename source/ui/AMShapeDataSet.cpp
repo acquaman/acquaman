@@ -703,6 +703,12 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
                 samplePlateShape_ = 0;
                 deleted = true;
             }
+            if(!deleted && (polygon == cameraConfigurationShape_))
+            {
+                delete cameraConfigurationShape_;
+                cameraConfigurationShape_ = 0;
+                deleted = true;
+            }
             if(!deleted)
             {
                 delete polygon;
@@ -1184,13 +1190,23 @@ void AMShapeDataSet::setSamplePlate()
 
 }
 
+void AMShapeDataSet::setCameraConfigurationShape()
+{
+    if(isValid(current_))
+    {
+        cameraConfigurationShape_ = shapeList_[current_];
+        cameraConfigurationShape_->setName("Configuration shape");
+        cameraConfigurationShape_->setOtherData("Config");
+    }
+}
+
 void AMShapeDataSet::moveSamplePlateTo(QVector3D coordinate)
 {
     if(samplePlateSelected_)
     {
 
         samplePlateShape_->shiftTo(coordinate);
-        updateShape(shapeList_.indexOf(samplePlateShape_));
+        updateShape(samplePlateIndex());
     }
 }
 
@@ -1202,7 +1218,7 @@ void AMShapeDataSet::moveSamplePlate(int movement)
         double shapeWidth = (samplePlateShape_->coordinate(1) - samplePlateShape_->coordinate(0)).length();
         QVector3D shiftMovement = direction * movement/1000 * shapeWidth;
         samplePlateShape_->shift(shiftMovement);
-        updateShape(shapeList_.indexOf(samplePlateShape_));
+        updateShape(samplePlateIndex());
     }
 }
 

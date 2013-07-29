@@ -27,6 +27,7 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setPage(Page_Set_Two, new AMBeamSelectPage);
     setPage(Page_Set_Three, new AMBeamSelectPage);
     setPage(Page_Final, new AMWizardPage);
+    setPage(Page_Option, new AMWizardOptionPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
@@ -53,8 +54,14 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 
     coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,0,-0.5));
-    coordinateList_->append(new QVector3D(0,0,0.5));
+    coordinateList_->append(new QVector3D(1,0,-0.5));
+    coordinateList_->append(new QVector3D(2,0,0.5));
+    coordinateList_->append(new QVector3D(3,0,0));
+    coordinateList_->append(new QVector3D(4,0,-0.5));
+    coordinateList_->append(new QVector3D(5,0,0.5));
+
+
+    addOptionPage(Page_Intro);
 
 }
 
@@ -67,7 +74,10 @@ int AMBeamConfigurationWizard::nextId() const
     switch(currentId())
     {
     case Page_Intro:
-        return Page_Wait_One;
+        if(showOptionPage())
+            return Page_Option;
+        else
+            return Page_Wait_One;
     case Page_Check_One:
         return Page_Wait_Two;
     case Page_Check_Two:

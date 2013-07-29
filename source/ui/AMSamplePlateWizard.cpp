@@ -9,10 +9,17 @@
 AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
+    numberOfPoints_ = 3;
+    coordinateList_->append(new QVector3D(0,0,0));
+    coordinateList_->append(new QVector3D(0,1,0));
+    coordinateList_->append(new QVector3D(0,3,5));
+
+
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check, new AMSampleCheckPage);
     setPage(Page_Wait, new AMSampleWaitPage);
     setPage(Page_Set, new AMSampleSetPage);
+    setPage(Page_Option, new AMWizardOptionPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
@@ -25,7 +32,9 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 
     setMinimumSize(600,600);
 
-    numberOfPoints_ = 1;
+    addOptionPage(Page_Intro);
+
+
 
 
 
@@ -37,12 +46,13 @@ AMSamplePlateWizard::~AMSamplePlateWizard()
 
 int AMSamplePlateWizard::nextId() const
 {
-    qDebug()<<"AMSamplePlateWizard::nextId - Current Id:"<<currentId();
-    qDebug()<<"Checked state:"<<checked(Page_Check);
     switch(currentId())
     {
     case Page_Intro:
-        return Page_Check;
+        if(showOptionPage())
+            return Page_Option;
+        else
+            return Page_Check;
     case Page_Check:
         if(checked(Page_Check))
             return -1;

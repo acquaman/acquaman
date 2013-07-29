@@ -26,6 +26,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
     numberOfPoints_ = 6;
+    showOptionPage_ = false;
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
     setPage(Page_Final, new AMWizardPage);
@@ -41,6 +42,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setPage(Page_Wait_Four, new WaitPage);
     setPage(Page_Wait_Five, new WaitPage);
     setPage(Page_Wait_Six, new WaitPage);
+    setPage(Page_Option, new AMWizardOptionPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
 //    setPixmap(QWizard::LogoPixmap, QPixMap());
@@ -49,6 +51,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
+    addOptionPage(Page_Intro);
 
     QSize maxSize(0,0);
     QList<int> pageNumbers = pageIds();
@@ -87,7 +90,11 @@ int AMCameraConfigurationWizard::nextId() const
     switch(currentId())
     {
         case Page_Intro:
-            return Page_Check;
+        if(showOptionPage())
+            return Page_Option;
+        else return Page_Check;
+    case Page_Option:
+        return Page_Check;
         case Page_Check:
         if(checked(Page_Check))
             {
@@ -183,6 +190,7 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
     next();
 
 }
+
 
 double AMCameraConfigurationWizard::coordinateX(int id)
 {

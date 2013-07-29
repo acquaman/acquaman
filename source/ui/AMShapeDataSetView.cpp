@@ -90,6 +90,8 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     samplePlateWizard_ = new AMSamplePlateWizard();
     samplePlateWizard_->setView(view);
 
+    showBeamOutline_ = true;
+
 
     ///GUI Setup
     QFrame* crosshairFrame = new QFrame();
@@ -198,10 +200,16 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     QHBoxLayout* samplePlateLayout = new QHBoxLayout();
     samplePlateLayout->setContentsMargins(12,4,12,4);
     samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
+    samplePlateLayout->addSpacing(20);
+    samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
+    samplePlateLayout->addStretch(20);
+    samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
     samplePlateLayout->addStretch();
     samplePlateFrame->setLayout(samplePlateLayout);
 
     cvl->addWidget(samplePlateFrame);
+
+    showBeamOutlineCheckBox_->setChecked(true);
 
     configurationWindow_->setLayout(cvl);
 
@@ -414,6 +422,10 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     connect(samplePlateButton_, SIGNAL(clicked()), this, SLOT(setSamplePlate()));
 
+    connect(cameraConfigurationShapeButton_, SIGNAL(clicked()), this, SLOT(setCameraConfigurationShape()));
+
+    connect(showBeamOutlineCheckBox_, SIGNAL(toggled(bool)), this, SLOT(showBeamOutline(bool)));
+
     connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
     connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
@@ -617,13 +629,6 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
    // print the intersection shapes
    intersection();
 
-
-   if(shapeModel_->isValid(current_))
-   {
-//        document_ = textItems_[current_]->document();
-//        disconnect(this,SLOT(updateItemName()));
-//        connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateItemName()));
-   }
 
    // show the polygon currently being drawn
    QPolygonF currentPolygon = shapeModel_->currentPolygon();
@@ -1329,6 +1334,12 @@ void AMShapeDataSetView::setSamplePlate()
     reviewCrosshairLinePositions();
 }
 
+void AMShapeDataSetView::setCameraConfigurationShape()
+{
+    shapeModel_->setCameraConfigurationShape();
+    reviewCrosshairLinePositions();
+}
+
 void AMShapeDataSetView::moveSamplePlate(int movement)
 {
     int relativeMovement = movement - samplePlateMovement_;
@@ -1339,6 +1350,12 @@ void AMShapeDataSetView::moveSamplePlate(int movement)
     AMShapeDataSetGraphicsView* view = shapeScene_;
     if(shapeModel_->isValid(index))
         samplePlateWizard_->updateScene(view);
+}
+
+void AMShapeDataSetView::showBeamOutline(bool show)
+{
+    showBeamOutline_ = show;
+    reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::updateCurrentShape()
@@ -1354,6 +1371,11 @@ void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
     {
         QPen pen(QColor(Qt::yellow));
         QBrush brush(QColor(Qt::yellow));
+        if(!showBeamOutline_)
+        {
+         pen.setColor(Qt::transparent);
+         brush.setColor(Qt::transparent);
+        }
         QPolygonF polygon(QRectF(5,5,20,20));
         intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
         intersections_[i]->setPolygon(shapes.first());

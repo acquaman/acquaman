@@ -23,7 +23,7 @@ class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
 public:
-    enum {Page_Intro, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
+    enum {Page_Intro, Page_Option, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
 
     AMCameraConfigurationWizard(QWidget* parent = 0);
@@ -38,6 +38,7 @@ public:
 
     int relativeId();
 
+
 public slots:
     /// reimplementation of the back slot, used to move the motor back to the appropriate place
     /// on going back to a previous page
@@ -45,6 +46,7 @@ public slots:
 
     /// sets the appropriate point in the list and goes on to the next page
     virtual void addPoint(QPointF position);
+
 protected:
     double coordinateX(int id);
     double coordinateY(int id);
@@ -67,8 +69,6 @@ public:
 class CheckPage : public AMCheckPage
 {
     Q_OBJECT
-public:
-//    CheckPage(QWidget* parent = 0);
 public slots:
 
     void initializePage();

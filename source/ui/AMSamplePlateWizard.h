@@ -9,7 +9,7 @@ class AMSamplePlateWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
 public:
-    enum {Page_Intro, Page_Check, Page_Wait, Page_Set, Page_Final};
+    enum {Page_Intro, Page_Check, Page_Wait, Page_Set, Page_Final, Page_Option};
     AMSamplePlateWizard(QWidget* parent = 0);
     ~AMSamplePlateWizard();
 

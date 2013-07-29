@@ -204,7 +204,11 @@ public slots:
 
     void setSamplePlate();
 
+    void setCameraConfigurationShape();
+
     void moveSamplePlate(int movement);
+
+    void showBeamOutline(bool show);
 
 protected slots:
     void updateCurrentShape();
@@ -464,6 +468,11 @@ protected:
     AMSamplePlateWizard* samplePlateWizard_;
     int samplePlateMovement_;
 
+    QPushButton* cameraConfigurationShapeButton_;
+
+    QCheckBox* showBeamOutlineCheckBox_;
+
+    bool showBeamOutline_;
 
 
 };

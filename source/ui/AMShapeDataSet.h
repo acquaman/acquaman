@@ -296,6 +296,8 @@ public slots:
 
     void setSamplePlate();
 
+    void setCameraConfigurationShape();
+
     void moveSamplePlateTo(QVector3D coordinate);
 
     /// move the sample plate by a small amount, proportional to movement
@@ -577,11 +579,17 @@ protected:
     /// the polygon currently being drawn
     QPolygonF currentPolygon_;
 
+    /// markers used to show/set the location of the beam
     AMShapeData* beamMarkers_[3];
 
+    /// shape used to show/set the sample plate location
     AMShapeData* samplePlateShape_;
 
+    /// checks if sample plate is a valid shape
     bool samplePlateSelected_;
+
+    /// shape used to check camera configuration
+    AMShapeData* cameraConfigurationShape_;
 
 
 

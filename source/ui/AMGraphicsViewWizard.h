@@ -2,16 +2,18 @@
 #define AMGRAPHICSVIEWWIZARD_H
 
 #include <QWizard>
+#include <QVector3D>
 
 class AMShapeDataSetGraphicsView;
 class QPointF;
 class QTimer;
 class QFrame;
 class QLabel;
-class QVector3D;
+//class QVector3D;
 class QGraphicsPolygonItem;
 class QCheckBox;
 class QGraphicsTextItem;
+class QLineEdit;
 
 
 /// Wizard class
@@ -50,6 +52,10 @@ public:
 
     virtual QList<QVector3D*>* coordinateList() const;
 
+    int numberOfPoints() const;
+
+
+
     /// used to set all the text for the wizard in one easy to find
     ///  location.  Must be reimplemented to get desired text.
     /// Simply do a switch for each page and check for each
@@ -67,13 +73,25 @@ public:
     /// used to access the state of the checkbox in an AMCheckPage
     virtual bool checked(int page) const;
 
+    void addOptionPage(int id);
+
+    bool showOptionPage() const;
+
+    void setOptionPage(int id);
+
 
 public slots:
     void setView(AMShapeDataSetGraphicsView* view);
 
+    virtual void setPoint(QPointF point, int index);
+
+    virtual void setCoordinate(QVector3D coordinate, int index);
+
+
+
     /// shows the help message.
     /// if message is not reimplemented it will only
-    /// say "Default message"
+    /// display "Default message"
     /// either reimplement message (and define text
     /// for each page for the enum Help) or reimplement
     /// this directly.
@@ -91,6 +109,9 @@ signals:
     void done();
     void moveTo(int);
 
+protected slots:
+    void showOptions(int id);
+    void showOptionsButton(int id);
 protected:
     AMShapeDataSetGraphicsView* view_;
     QPointF* scale_;
@@ -101,6 +122,10 @@ protected:
     QList<QPointF*>* pointList_;
 
     QGraphicsTextItem* fixItem_;
+
+    bool showOptionPage_;
+
+    int optionsPage_;
 
 };
 
@@ -188,6 +213,24 @@ protected slots:
 
 protected:
     QCheckBox* isConfigured_;
+};
+
+class AMWizardOptionPage : public AMWizardPage
+{
+    Q_OBJECT
+public:
+    AMWizardOptionPage(QWidget* parent = 0);
+    virtual void initializePage();
+
+    virtual void cleanupPage();
+
+    virtual bool isComplete() const;
+protected slots:
+    void textChanged();
+
+protected:
+    QLineEdit** coordinateEdit_;
+    QFrame* coordinateFrame_;
 };
 
 

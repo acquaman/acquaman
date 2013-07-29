@@ -15,6 +15,7 @@
 #include <QScrollBar>
 #include <QAbstractButton>
 #include <QCheckBox>
+#include <QLineEdit>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
@@ -23,6 +24,8 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
+    showOptionPage_ = false;
+    optionsPage_ = -1;
 
 
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -64,6 +67,23 @@ QList<QPointF *> *AMGraphicsViewWizard::pointList() const
 QList<QVector3D *> *AMGraphicsViewWizard::coordinateList() const
 {
     return coordinateList_;
+}
+
+int AMGraphicsViewWizard::numberOfPoints() const
+{
+    return numberOfPoints_;
+}
+
+void AMGraphicsViewWizard::setPoint(QPointF point, int index)
+{
+    if(pointList_->count() > index)
+        (*pointList_->at(index)) = point;
+}
+
+void AMGraphicsViewWizard::setCoordinate(QVector3D coordinate, int index)
+{
+    if(pointList_->count() > index)
+        (*coordinateList_->at(index)) = coordinate;
 }
 
 /// defines text in one location
@@ -119,6 +139,25 @@ bool AMGraphicsViewWizard::checked(int page) const
     return field(QString("configured%1").arg(page)).toBool();
 }
 
+void AMGraphicsViewWizard::addOptionPage(int id)
+{
+    setOption(HaveCustomButton1);
+    setButtonText(CustomButton1,"Options");
+    connect(this, SIGNAL(customButtonClicked(int)), this, SLOT(showOptions(int)));
+    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(showOptionsButton(int)));
+    setOptionPage(id);
+}
+
+bool AMGraphicsViewWizard::showOptionPage() const
+{
+    return showOptionPage_;
+}
+
+void AMGraphicsViewWizard::setOptionPage(int id)
+{
+    optionsPage_ = id;
+}
+
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 {
     view_ = view;
@@ -156,6 +195,8 @@ void AMGraphicsViewWizard::showHelp()
     QMessageBox::information(this, message(Help_Title), message(Help));
 }
 
+
+
 void AMGraphicsViewWizard::addPoint(QPointF position)
 {
     QPointF* newPoint = new QPointF();
@@ -171,12 +212,6 @@ void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
     copier->updateChange(view_->scene(),view->scene());
 
     view_->scene()->addItem(fixItem_);
-//    /// re add the "Fix" item (see setView)
-//    QGraphicsTextItem* textFixItem = new QGraphicsTextItem("Fix");
-//    textFixItem->setObjectName("Fix");
-//    textFixItem->setZValue(INT_MAX);
-//    textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
-//    view_->scene()->addItem(textFixItem);
 
 }
 
@@ -213,6 +248,28 @@ void AMGraphicsViewWizard::fixText()
     QPointF fixLocation = visibleRect.topLeft() - (fixTextItem->boundingRect().bottomRight());
     fixTextItem->setPos(fixLocation);
 
+}
+
+void AMGraphicsViewWizard::showOptions(int id)
+{
+    if(id == CustomButton1)
+    {
+        showOptionPage_ = true;
+        next();
+        showOptionPage_ = false;
+    }
+}
+
+void AMGraphicsViewWizard::showOptionsButton(int id)
+{
+    if(id == optionsPage_)
+    {
+        button(CustomButton1)->show();
+    }
+    else if(button(CustomButton1)->isVisible())
+    {
+        button(CustomButton1)->hide();
+    }
 }
 
 AMWizardPage::AMWizardPage(QWidget *parent)
@@ -373,5 +430,86 @@ void AMCheckPage::checkBoxChanged(bool state)
 {
     qDebug()<<"AMCheckPage::checkBoxChanged - check state is: "<<state;
 }
+
+
+AMWizardOptionPage::AMWizardOptionPage(QWidget *parent)
+    : AMWizardPage(parent)
+{
+}
+
+void AMWizardOptionPage::initializePage()
+{
+    int points = viewWizard()->numberOfPoints();
+    coordinateEdit_ = new QLineEdit* [3*points];
+    for(int i = 0; i < 3*points; i++)
+    {
+        coordinateEdit_[i] = new QLineEdit();
+    }
+//    int numberOfRows = points/2 + points%2;
+    QFrame* rowFrame [points];
+    QHBoxLayout* rowLayout [points];
+    coordinateFrame_ = new QFrame();
+    QVBoxLayout* pageLayout = new QVBoxLayout();
+    for(int i = 0; i < points; i++)
+    {
+        rowFrame[i] = new QFrame();
+        rowLayout[i] = new QHBoxLayout();
+        rowLayout[i]->setContentsMargins(12,4,12,4);
+        for(int j = 0; j < 3; j++)
+        {
+            rowLayout[i]->addWidget(coordinateEdit_[3*i + j]);
+        }
+
+        rowLayout[i]->addStretch();
+        rowFrame[i]->setLayout(rowLayout[i]);
+        pageLayout->addWidget(rowFrame[i]);
+    }
+    pageLayout->addStretch();
+    coordinateFrame_->setLayout(pageLayout);
+
+    layout()->addWidget(coordinateFrame_);
+
+    AMWizardPage::initializePage();
+
+
+    for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
+    {
+        coordinateEdit_[3*i]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->x()));
+        connect(coordinateEdit_[3*i], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+        coordinateEdit_[3*i+1]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->y()));
+        connect(coordinateEdit_[3*i+1], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+        coordinateEdit_[3*i+2]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->z()));
+        connect(coordinateEdit_[3*i+2], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+    }
+
+
+}
+
+void AMWizardOptionPage::cleanupPage()
+{
+    layout()->removeWidget(coordinateFrame_);
+    delete coordinateFrame_;
+}
+
+bool AMWizardOptionPage::isComplete() const
+{
+    return false;
+}
+
+void AMWizardOptionPage::textChanged()
+{
+    for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
+    {
+        double x,y,z;
+        x = coordinateEdit_[3*i]->text().toDouble();
+        y = coordinateEdit_[3*i+1]->text().toDouble();
+        z = coordinateEdit_[3*i+2]->text().toDouble();
+        QVector3D newVector(x,y,z);
+        viewWizard()->setCoordinate(newVector, i);
+    }
+
+
+}
+
 
 
