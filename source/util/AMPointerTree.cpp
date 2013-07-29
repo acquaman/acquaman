@@ -32,6 +32,8 @@ int AMPointerTreeNode::childCount() const{
 }
 
 int AMPointerTreeNode::descendantCount() const{
+	return descendantCount_;
+	/*
 	if(descendantCount_ != -1)
 		return descendantCount_;
 
@@ -42,6 +44,7 @@ int AMPointerTreeNode::descendantCount() const{
 	totalDescendantCount += childCount();
 	descendantCount_ = totalDescendantCount;
 	return descendantCount_;
+	*/
 }
 
 QList<void*> AMPointerTreeNode::clearNode(){
@@ -63,9 +66,16 @@ QList<void*> AMPointerTreeNode::clearNode(){
 void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
 	if(childNode){
 		childrenNodes_.append(childNode);
-		emit childNodeAppended(childNode);
-		connect(childNode, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SIGNAL(childNodeAppended(AMPointerTreeNode*)));
+		emit descendantNodeAppended(childNode);
+		descendantCount_++;
+		//connect(childNode, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SIGNAL(childNodeAppended(AMPointerTreeNode*)));
+		connect(childNode, SIGNAL(descendantNodeAppended(AMPointerTreeNode*)), this, SLOT(onDescendantNodeAppended(AMPointerTreeNode*)));
 	}
+}
+
+void AMPointerTreeNode::onDescendantNodeAppended(AMPointerTreeNode *descendantNode){
+	emit descendantNodeAppended(descendantNode);
+	descendantCount_++;
 }
 
 
@@ -76,7 +86,7 @@ AMPointerTree::AMPointerTree(AMPointerTreeNode *rootNode, QObject *parent) :
 	QObject(parent)
 {
 	rootNode_ = rootNode;
-	connect(rootNode_, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SLOT(onChildNodeAppended(AMPointerTreeNode*)));
+	connect(rootNode_, SIGNAL(descendantNodeAppended(AMPointerTreeNode*)), this, SLOT(onDescendantNodeAppended(AMPointerTreeNode*)));
 }
 
 const AMPointerTreeNode* AMPointerTree::nodeFromItem(void *item) const{
@@ -93,7 +103,7 @@ QList<void*> AMPointerTree::clearTree(){
 	return rootNode_->clearNode();
 }
 
-void AMPointerTree::onChildNodeAppended(AMPointerTreeNode *childNode){
-	if(!itemsToNodes_.contains(childNode->item()))
-		itemsToNodes_.insert(childNode->item(), childNode);
+void AMPointerTree::onDescendantNodeAppended(AMPointerTreeNode *descendantNode){
+	if(!itemsToNodes_.contains(descendantNode->item()))
+		itemsToNodes_.insert(descendantNode->item(), descendantNode);
 }

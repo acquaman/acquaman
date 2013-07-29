@@ -186,6 +186,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		numberOfLoops_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "loopCount").toInt();
 	else
 		numberOfLoops_ = -1;
+
 	loadedFromDb_ = true;
 
 	return true;
@@ -710,6 +711,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 
+		/*
 		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
@@ -719,6 +721,11 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 				database->startTransaction();
 			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
 		}
+		*/
+		if(database == AMDatabase::database("scanActions") && database->transactionInProgress()){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
+		}
 
 		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
 		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
@@ -727,6 +734,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 		int logId = matchingIds.last();
+
 		AMActionLog3 actionLog;
 		actionLog.loadFromDb(database, logId);
 		actionLog.setFromAction(completedAction);
@@ -736,6 +744,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			specificRefreshFunctionCall_.schedule();
 			return true;
 		}
+
 		return false;
 	}
 	else {
