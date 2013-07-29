@@ -61,8 +61,11 @@ QList<void*> AMPointerTreeNode::clearNode(){
 }
 
 void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
-	if(childNode)
+	if(childNode){
 		childrenNodes_.append(childNode);
+		emit childNodeAppended(childNode);
+		connect(childNode, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SIGNAL(childNodeAppended(AMPointerTreeNode*)));
+	}
 }
 
 
@@ -73,6 +76,7 @@ AMPointerTree::AMPointerTree(AMPointerTreeNode *rootNode, QObject *parent) :
 	QObject(parent)
 {
 	rootNode_ = rootNode;
+	connect(rootNode_, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SLOT(onChildNodeAppended(AMPointerTreeNode*)));
 }
 
 const AMPointerTreeNode* AMPointerTree::nodeFromItem(void *item) const{
@@ -87,4 +91,9 @@ AMPointerTreeNode* AMPointerTree::rootNode(){
 
 QList<void*> AMPointerTree::clearTree(){
 	return rootNode_->clearNode();
+}
+
+void AMPointerTree::onChildNodeAppended(AMPointerTreeNode *childNode){
+	if(!itemsToNodes_.contains(childNode->item()))
+		itemsToNodes_.insert(childNode->item(), childNode);
 }
