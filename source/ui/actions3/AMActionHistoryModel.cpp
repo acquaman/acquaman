@@ -197,6 +197,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 
 AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : QAbstractItemModel(parent)
 {
+	updateCallCount_ = 0;
 	db_ = db;
 	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
@@ -682,16 +683,23 @@ bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAct
 			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
 		}
 
+		/*
 		AMActionLog3 actionLog(uncompletedAction);
 		actionLog.setParentId(parentLogId);
 		bool success = actionLog.storeToDb(database);
+		*/
+		AMActionLog3 *actionLog = new AMActionLog3(uncompletedAction);
+		infosToLogsForUncompletedActions_.insert(uncompletedAction->info(), actionLog);
+		actionLog->setParentId(parentLogId);
+		bool success = actionLog->storeToDb(database);
 		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(uncompletedAction);
 		if(success && listAction){
 			AMListAction3 *modifyListAction = const_cast<AMListAction3*>(listAction);
-			modifyListAction->setLogActionId(actionLog.id());
+			modifyListAction->setLogActionId(actionLog->id());
+			qDebug() << "Starting the log for list type called " << modifyListAction->info()->longDescription();
 		}
 
-		AMActionLogItem3* item = new AMActionLogItem3(actionLog);
+		AMActionLogItem3* item = new AMActionLogItem3(*actionLog);
 		emit modelAboutToBeRefreshed();
 		/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
 		appendItem(item);
@@ -711,7 +719,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 
-		/*
+
 		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
@@ -721,12 +729,15 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 				database->startTransaction();
 			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
 		}
-		*/
+		/**/
+		/*
 		if(database == AMDatabase::database("scanActions") && database->transactionInProgress()){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
+		*/
 
+		/*
 		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
 		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
 		if(matchingIds.count() == 0){
@@ -739,11 +750,27 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 		actionLog.loadFromDb(database, logId);
 		actionLog.setFromAction(completedAction);
 		if(actionLog.storeToDb(database)){
+			updateCallCount_++;
+			qDebug() << "Now that count is " << updateCallCount_;
 			// OK, this is a specific update.
 			idsRequiringRefresh_ << actionLog.id();
 			specificRefreshFunctionCall_.schedule();
 			return true;
 		}
+		*/
+		AMActionLog3 *actionLog = infosToLogsForUncompletedActions_.value(completedAction->info());
+		infosToLogsForUncompletedActions_.remove(completedAction->info());
+		actionLog->setFromAction(completedAction);
+		if(actionLog->storeToDb(database)){
+			updateCallCount_++;
+			qDebug() << "Now that count is " << updateCallCount_;
+			qDebug() << "Successfully updated for log called " << completedAction->info()->longDescription();
+			// OK, this is a specific update.
+			idsRequiringRefresh_ << actionLog->id();
+			specificRefreshFunctionCall_.schedule();
+			return true;
+		}
+		qDebug() << "Store to db failed for " << completedAction->info()->longDescription();
 
 		return false;
 	}
@@ -939,3 +966,4 @@ void AMActionHistoryModel3::markIndexGroup(const QModelIndex &index, QAbstractIt
 			markIndexGroupAsDeselected(index.parent(), viewer);
 	}
 }
+                                                                                                                                                                                                       
