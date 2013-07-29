@@ -197,7 +197,6 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 
 AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : QAbstractItemModel(parent)
 {
-	updateCallCount_ = 0;
 	db_ = db;
 	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
@@ -584,7 +583,6 @@ void AMActionHistoryModel3::markIndexGroupAsDeselected(const QModelIndex &index,
 
 void AMActionHistoryModel3::setMaximumActionsToDisplay(int maximumActionsCount)
 {
-	qDebug() << "Calling setMax with " << maximumActionsLimit_ << "and " << maximumActionsCount;
 	if(maximumActionsLimit_ == maximumActionsCount)
 		return;
 
@@ -696,7 +694,6 @@ bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAct
 		if(success && listAction){
 			AMListAction3 *modifyListAction = const_cast<AMListAction3*>(listAction);
 			modifyListAction->setLogActionId(actionLog->id());
-			qDebug() << "Starting the log for list type called " << modifyListAction->info()->longDescription();
 		}
 
 		AMActionLogItem3* item = new AMActionLogItem3(*actionLog);
@@ -719,7 +716,6 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 
-
 		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 200){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
@@ -729,49 +725,19 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 				database->startTransaction();
 			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
 		}
-		/**/
-		/*
-		if(database == AMDatabase::database("scanActions") && database->transactionInProgress()){
-			database->commitTransaction();
-			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
-		}
-		*/
 
-		/*
-		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
-		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
-		if(matchingIds.count() == 0){
-			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX, QString("The actions logging system attempted to update a log action with a bad database index (%1). Please report this problem to the Acquaman developers.").arg(infoId));
-			return false;
-		}
-		int logId = matchingIds.last();
-
-		AMActionLog3 actionLog;
-		actionLog.loadFromDb(database, logId);
-		actionLog.setFromAction(completedAction);
-		if(actionLog.storeToDb(database)){
-			updateCallCount_++;
-			qDebug() << "Now that count is " << updateCallCount_;
-			// OK, this is a specific update.
-			idsRequiringRefresh_ << actionLog.id();
-			specificRefreshFunctionCall_.schedule();
-			return true;
-		}
-		*/
 		AMActionLog3 *actionLog = infosToLogsForUncompletedActions_.value(completedAction->info());
 		infosToLogsForUncompletedActions_.remove(completedAction->info());
 		actionLog->setFromAction(completedAction);
 		if(actionLog->storeToDb(database)){
-			updateCallCount_++;
-			qDebug() << "Now that count is " << updateCallCount_;
-			qDebug() << "Successfully updated for log called " << completedAction->info()->longDescription();
 			// OK, this is a specific update.
 			idsRequiringRefresh_ << actionLog->id();
 			specificRefreshFunctionCall_.schedule();
+			delete actionLog;
 			return true;
 		}
-		qDebug() << "Store to db failed for " << completedAction->info()->longDescription();
 
+		delete actionLog;
 		return false;
 	}
 	else {

@@ -249,7 +249,6 @@ protected:
 	/// A quick mapping of actionLog id to its AMPointerTreeNode
 	QHash<int, AMPointerTreeNode*> idsToTreeNodes_;
 	QHash<const AMActionInfo3*, AMActionLog3*> infosToLogsForUncompletedActions_;
-	int updateCallCount_;
 
 	/// Used to schedule a delayed call to refreshFromDb()
 	AMDeferredFunctionCall refreshFunctionCall_;
