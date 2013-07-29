@@ -966,4 +966,3 @@ void AMActionHistoryModel3::markIndexGroup(const QModelIndex &index, QAbstractIt
 			markIndexGroupAsDeselected(index.parent(), viewer);
 	}
 }
-                                                                                                                                                                                                       
