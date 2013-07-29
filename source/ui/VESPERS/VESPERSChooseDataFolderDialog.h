@@ -35,8 +35,6 @@ protected slots:
 protected:
 	/// Method that checks whether the input is valid or not.  Takes into account whether in advanced or not-advanced mode.
 	bool pathOk(const QString &path) const;
-	/// Method that takes a path as a string and returns the proposal number (if there is one).
-	QString getProposalNumber(const QString &dir) const;
 
 	/// The line edit that holds the proposal number or the path to a folder.
 	QLineEdit *path_;

@@ -5,6 +5,7 @@
 #include "dataman/AMScan.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "actions/AMBeamlineListAction.h"
+#include "beamline/VESPERS/VESPERSCCDDetector.h"
 
 class QEpicsAdvAcq;
 
