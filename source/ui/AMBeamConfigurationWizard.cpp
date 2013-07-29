@@ -154,9 +154,14 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Beam Wizard Introduction Page";
+            return "Beam Configuration Wizard";
         case Text:
-            return "Beam Wizard introduction page text.";
+            return QString(tr("This wizard will help you to configure the beam settings. \n") +
+                           ("The sample plate will be moved to three different locations. ") +
+                    ("If, at any of the three locations, ") +
+                    "the rectangle on screen does not match up well to the location of the beamspot uncheck the checkbox on that " +
+                    "page.  You will then be asked to draw a rectangle around the beamspot in each of the three positions.  For further " +
+                    "explanation, click the \"Help\" button for detailed information for that page.");
         case Help:
             return "Intro page help";
         case Other:

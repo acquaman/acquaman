@@ -180,6 +180,12 @@ public:
     AMCheckPage(QWidget* parent = 0);
     virtual void initializePage();
 
+signals:
+    void checked(bool);
+
+protected slots:
+    virtual void checkBoxChanged(bool state);
+
 protected:
     QCheckBox* isConfigured_;
 };

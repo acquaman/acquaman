@@ -4,12 +4,13 @@
 #include <QAbstractButton>
 #include <QSlider>
 #include <QLayout>
+#include <QDebug>
 
 AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
     setPage(Page_Intro, new AMWizardPage);
-    setPage(Page_Check, new AMCheckPage);
+    setPage(Page_Check, new AMSampleCheckPage);
     setPage(Page_Wait, new AMSampleWaitPage);
     setPage(Page_Set, new AMSampleSetPage);
     setStartId(Page_Intro);
@@ -36,12 +37,17 @@ AMSamplePlateWizard::~AMSamplePlateWizard()
 
 int AMSamplePlateWizard::nextId() const
 {
+    qDebug()<<"AMSamplePlateWizard::nextId - Current Id:"<<currentId();
+    qDebug()<<"Checked state:"<<checked(Page_Check);
     switch(currentId())
     {
     case Page_Intro:
         return Page_Check;
     case Page_Check:
-        return Page_Wait;
+        if(checked(Page_Check))
+            return -1;
+        else
+            return Page_Wait;
     case Page_Wait:
         return Page_Set;
     case Page_Set:
@@ -152,7 +158,6 @@ void AMSamplePlateWizard::back()
 
 void AMSamplePlateWizard::sliderChanged()
 {
-//    page(currentId())->setToolTip(QString("Slider value is %1").arg(field("adjustmentSlider").toInt()));
     emit movePlate(field("adjustmentSlider").toInt());
 }
 
@@ -191,4 +196,8 @@ void AMSampleSetPage::sliderChanged()
 }
 
 
+void AMSampleCheckPage::checkBoxChanged(bool state)
+{
+    setFinalPage(state);
+}
 

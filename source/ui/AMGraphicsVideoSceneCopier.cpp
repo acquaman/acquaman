@@ -134,7 +134,7 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
     {
         if(newItem->type() != QGraphicsItem::UserType)
         {
-            qDebug()<<newItem->type()<<newItem->boundingRect()<<newItem->zValue();
+//            qDebug()<<newItem->type()<<newItem->boundingRect()<<newItem->zValue();
             newItems.append(newItem);
         }
     }
@@ -164,18 +164,6 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
     {
         oldItems<<oldListList[oldListList.count() -1 -i];
     }
-    foreach(QGraphicsItem* item, oldItems)
-    {
-         qDebug()<<item->type()<<item->boundingRect()<<item->zValue();
-    }
-
-//        oldItem = oldList.at((oldList.count() - 1) - i);
-//        if(oldItem->type() != QGraphicsItem::UserType)
-//        {
-//            qDebug()<<oldItem->type()<<oldItem->boundingRect()<<oldItem->zValue();
-//            oldItems.append(oldItem);
-//        }
-
 
     /// should now have two lists of equivalent shapes.
     /// must go through each item in oldItems, check for equivalence
@@ -206,6 +194,7 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
         if(!textTypes)
             return false;
         qDebug()<<"Text is fine";
+        return true;
     }
     bool equal = getEquivalent(itemToUpdate,itemToCopy);
     if(!equal)

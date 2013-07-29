@@ -353,6 +353,7 @@ AMCheckPage::AMCheckPage(QWidget *parent)
     isConfigured_ = new QCheckBox();
     isConfigured_->setChecked(true);
     layout()->addWidget(isConfigured_);
+    connect(isConfigured_, SIGNAL(toggled(bool)), this, SLOT(checkBoxChanged(bool)));
 }
 
 void AMCheckPage::initializePage()
@@ -364,9 +365,13 @@ void AMCheckPage::initializePage()
     {
         qDebug()<<"Registering field"<<fieldName;
         registerField(fieldName, isConfigured_);
-        qDebug()<<field(QString("configured%1").arg(viewWizard()->currentId())).toBool();
     }
 
+}
+
+void AMCheckPage::checkBoxChanged(bool state)
+{
+    qDebug()<<"AMCheckPage::checkBoxChanged - check state is: "<<state;
 }
 
 

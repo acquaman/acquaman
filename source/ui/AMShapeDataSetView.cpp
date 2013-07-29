@@ -1326,18 +1326,17 @@ void AMShapeDataSetView::startSampleWizard()
 void AMShapeDataSetView::setSamplePlate()
 {
     shapeModel_->setSamplePlate();
+    reviewCrosshairLinePositions();
 }
 
 void AMShapeDataSetView::moveSamplePlate(int movement)
 {
-    qDebug()<<"Moving sample plate";
     int relativeMovement = movement - samplePlateMovement_;
     samplePlateMovement_ = movement;
     shapeModel_->moveSamplePlate(relativeMovement);
     reviewCrosshairLinePositions();
     int index = shapeModel_->samplePlateIndex();
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
-    view->setScene(shapeScene_->scene());
+    AMShapeDataSetGraphicsView* view = shapeScene_;
     if(shapeModel_->isValid(index))
         samplePlateWizard_->updateScene(view);
 }

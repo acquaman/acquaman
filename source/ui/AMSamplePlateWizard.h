@@ -51,4 +51,11 @@ protected:
     QSlider* adjustmentSlider_;
 };
 
+class AMSampleCheckPage : public AMCheckPage
+{
+    Q_OBJECT
+protected slots:
+    virtual void checkBoxChanged(bool state);
+};
+
 #endif // AMSAMPLEPLATEWIZARD_H
