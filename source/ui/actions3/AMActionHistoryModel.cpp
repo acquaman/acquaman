@@ -186,6 +186,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		numberOfLoops_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "loopCount").toInt();
 	else
 		numberOfLoops_ = -1;
+
 	loadedFromDb_ = true;
 
 	return true;
@@ -671,7 +672,7 @@ void AMActionHistoryModel3::refreshFromDb()
 bool AMActionHistoryModel3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database, int parentLogId){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 100){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
@@ -710,7 +711,8 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		/*
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 100){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
@@ -718,6 +720,11 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			if(!database->transactionInProgress())
 				database->startTransaction();
 			AMActionRunner3::scanActionRunner()->incrementCachedLogCount();
+		}
+		*/
+		if(database == AMDatabase::database("scanActions") && database->transactionInProgress()){
+			database->commitTransaction();
+			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}
 
 		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
@@ -727,6 +734,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			return false;
 		}
 		int logId = matchingIds.last();
+
 		AMActionLog3 actionLog;
 		actionLog.loadFromDb(database, logId);
 		actionLog.setFromAction(completedAction);
@@ -736,6 +744,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			specificRefreshFunctionCall_.schedule();
 			return true;
 		}
+
 		return false;
 	}
 	else {
@@ -747,7 +756,7 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 bool AMActionHistoryModel3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database, int parentLogId){
 	if(completedAction && completedAction->inFinalState()) {
 
-		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 1){
+		if(database == AMDatabase::database("scanActions") && AMActionRunner3::scanActionRunner()->cachedLogCount() > 100){
 			database->commitTransaction();
 			AMActionRunner3::scanActionRunner()->resetCachedLogCount();
 		}

@@ -22,13 +22,16 @@ public slots:
 	void appendChildNode(AMPointerTreeNode *childNode);
 
 signals:
-	void childNodeAppended(AMPointerTreeNode *childNode);
+	void descendantNodeAppended(AMPointerTreeNode *descendantNode);
+
+protected slots:
+	void onDescendantNodeAppended(AMPointerTreeNode *descendantNode);
 
 protected:
 	void *item_;
 	AMPointerTreeNode *parentNode_;
 	QList<AMPointerTreeNode*> childrenNodes_;
-	mutable int descendantCount_;
+	int descendantCount_;
 };
 
 class AMPointerTree : public QObject
@@ -44,7 +47,7 @@ public:
 	QList<void*> clearTree();
 
 protected slots:
-	void onChildNodeAppended(AMPointerTreeNode *childNode);
+	void onDescendantNodeAppended(AMPointerTreeNode *descendantNode);
 
 protected:
 	AMPointerTreeNode *rootNode_;
