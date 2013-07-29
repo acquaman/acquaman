@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMDatabase;
 class AMAction3;
+class AMActionInfo3;
 class AMActionLog3;
 
 class AMPointerTreeNode;
@@ -247,6 +248,8 @@ protected:
 	AMPointerTreeNode *itemTreeRoot_;
 	/// A quick mapping of actionLog id to its AMPointerTreeNode
 	QHash<int, AMPointerTreeNode*> idsToTreeNodes_;
+	QHash<const AMActionInfo3*, AMActionLog3*> infosToLogsForUncompletedActions_;
+	int updateCallCount_;
 
 	/// Used to schedule a delayed call to refreshFromDb()
 	AMDeferredFunctionCall refreshFunctionCall_;
