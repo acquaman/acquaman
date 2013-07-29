@@ -41,14 +41,16 @@ public:
 	AMOldDetector *detector() { return detector_; }
 
 protected slots:
+	/// Slot that handles when the start button is clicked.  It checks to see if a file with the current name and number exists and, if yes, prompts the user for input.
+	void onStartClicked();
 	/// Slot used to switch the icon on the currently acquiring indicator.
-	void onIsAcquiringChanged(bool isAcquiring) { isAcquiring_->setPixmap(QIcon(isAcquiring == true ? ":/ON.png" : ":/OFF.png").pixmap(25)); }
+	void onIsAcquiringChanged(bool isAcquiring);
 	/// Slot used to update the state label.
 	void onStateChanged(VESPERSCCDDetector::State newState);
 	/// Slot used to set the acquire time on the detector.
-	void setAcquireTime(double time) { if (time != detector_->acquireTime()) detector_->setAcquireTime(time); }
+	void setAcquireTime(double time);
 	/// Overloaded.  Slot used to set the acquire time on the detector.
-	void setAcquireTime() { if (acquireTime_->value() != detector_->acquireTime()) detector_->setAcquireTime(acquireTime_->value()); }
+	void setAcquireTime();
 	/// Slot used to update the trigger mode combo box.
 	void onTriggerModeChanged(VESPERSCCDDetector::TriggerMode mode);
 	/// Slot used to set the trigger mode on the detector.
@@ -64,19 +66,11 @@ protected slots:
 	/// Used to set the CCD Path when it changes from the program.
 	void ccdPathEdited();
 	/// Used to set the CCD File name when it changes from the program.
-	void ccdFileEdited() { detector_->setCCDName(fileNameEdit_->text()); }
+	void ccdFileEdited();
 	/// Used to set the CCD Number when it changes from the program.
-	void ccdNumberEdited() { detector_->setCCDNumber(fileNumberEdit_->text().toInt()); }
+	void ccdNumberEdited();
 	/// Used to update the ccdNumber value.
-	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
-
-	// This might be removed since the detectors that would use these methods may not be used again.
-//	/// Gets a filename for the CCD image to be read.
-//	void getCCDFileNameAndLoad();
-//	/// Called when the imageReady() signal is emitted from the detector.  Displays the image.
-//	void displayCCDFile();
-//	/// TEST METHOD
-//	void displayCCDFileTest();
+	void ccdNumberUpdate(int val);
 
 protected:
 	/*! Sets up the view based with the given detector.
@@ -98,8 +92,6 @@ protected:
 	QLabel *state_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
-	/// The image being viewed - can be any image.
-	QLabel *image_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

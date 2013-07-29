@@ -50,17 +50,6 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
-//	QPushButton *loadCCDButton = new QPushButton("Load Image");
-//	connect(loadCCDButton, SIGNAL(clicked()), this, SLOT(getCCDFileNameAndLoad()));
-//	connect(loadCCDButton, SIGNAL(clicked()), detector_, SLOT(loadImageFromFile()));
-
-//	image_ = new QLabel;
-//	QPixmap pixmap = QPixmap(600, 600);
-//	pixmap.fill(Qt::blue);
-//	image_->setPixmap(pixmap);
-//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFile()));
-//	connect(detector_, SIGNAL(imageReady()), this, SLOT(displayCCDFileTest()));
-
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 	connect(detector_, SIGNAL(isAcquiringChanged(bool)), this, SLOT(onIsAcquiringChanged(bool)));
@@ -78,7 +67,7 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 
 	QToolButton *startButton = new QToolButton;
 	startButton->setIcon(QIcon(":/play_button_green.png"));
-	connect(startButton, SIGNAL(clicked()), detector_, SLOT(start()));
+	connect(startButton, SIGNAL(clicked()), this, SLOT(onStartClicked()));
 
 	QToolButton *stopButton = new QToolButton;
 	stopButton->setIcon(QIcon(":/red-stop-button.png"));
@@ -305,73 +294,67 @@ void VESPERSCCDDetectorView::ccdPathEdited()
 	detector_->setCCDPath(filePathEdit_->text());
 }
 
-//#include "MPlot/MPlotColorMap.h"
-//#include <QTime>
-//#include <QRgb>
+void VESPERSCCDDetectorView::onIsAcquiringChanged(bool isAcquiring)
+{
+	isAcquiring_->setPixmap(QIcon(isAcquiring ? ":/ON.png" : ":/OFF.png").pixmap(25));
+}
 
-//void VESPERSCCDDetectorView::displayCCDFileTest()
-//{
-//	QTime time1;
-//	time1.start();
+void VESPERSCCDDetectorView::setAcquireTime(double time)
+{
+	if (time != detector_->acquireTime())
+		detector_->setAcquireTime(time);
+}
 
-//	QVector<int> data = detector_->imageData();
-//	QImage image = QImage(2084, 2084, QImage::Format_ARGB32);
+void VESPERSCCDDetectorView::setAcquireTime()
+{
+	if (acquireTime_->value() != detector_->acquireTime())
+		detector_->setAcquireTime(acquireTime_->value());
+}
 
-//	QTime time;
-//	time.start();
+void VESPERSCCDDetectorView::ccdFileEdited()
+{
+	detector_->setCCDName(fileNameEdit_->text());
+}
 
-//	int maximum = data.at(0);
-//	int minimum = data.at(0);
+void VESPERSCCDDetectorView::ccdNumberEdited()
+{
+	detector_->setCCDNumber(fileNumberEdit_->text().toInt());
+}
 
-//	for (int i = 0, size = data.size(); i < size; i++){
+void VESPERSCCDDetectorView::ccdNumberUpdate(int val)
+{
+	fileNumberEdit_->setText(QString::number(val));
+}
 
-//		if (data.at(i) < minimum)
-//			minimum = data.at(i);
+void VESPERSCCDDetectorView::onStartClicked()
+{
+	QString fullPath = detector_->ccdFilePath();
+	QString name = detector_->ccdFileName();
 
-//		if (data.at(i) > maximum)
-//			maximum = data.at(i);
-//	}
-//	qDebug() << "Finding min and max:" << time.restart() << "ms";
-//	MPlotColorMap map = MPlotColorMap(MPlotColorMap::Jet);
-//	MPlotInterval range = MPlotInterval(minimum, int(maximum*0.10));
+	if (detector_->name().contains("Roper"))
+		name.append(QString("_%1.spe").arg(detector_->ccdFileNumber()));
 
-//	int xSize = detector_->size().i();
-//	int ySize = detector_->size().j();
+	else if (detector_->name().contains("Mar"))
+		name.append(QString("_%1.tif").arg(detector_->ccdFileNumber()));
 
-////	for (int i = 0; i < xSize; i++){
+	else if (detector_->name().contains("Pilatus"))
+		name.append(QString("-%1.tif").arg(detector_->ccdFileNumber()));
 
-////		int offset = i*ySize;
+	fullPath.append(name);
+	QFileInfo fileInfo = QFileInfo(fullPath);
 
-////		for (int j = 0; j < ySize; j++)
-////			image.setPixel(i, j, map.rgbAt(data.at(j + offset), range));
-////	}
-//	for (int y = 0; y < ySize; y++){
+	if (fileInfo.exists()){
 
-//		int offset = y*xSize;
-//		QRgb *line = (QRgb *)image.scanLine(y);
+		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
+																							 "File already exists!",
+																							 QString("The file \"%1\" already exists.  Do you want to overwrite?"),
+																							 QMessageBox::Ok,
+																							 QMessageBox::Cancel));
 
-//		for (int x = 0; x < xSize; x++)
-//			line[x] = map.rgbAt(data.at(x + offset), range);
-//	}
+		if (button == QMessageBox::Ok)
+			detector_->start();
+	}
 
-//	qDebug() << "Time to set data in the pixels" << time.restart() << "ms";
-
-//	QPixmap newImage;
-//	newImage.convertFromImage(image);
-//	qDebug() << "Converting QImage to QPixmap" << time.restart() << "ms";
-//	newImage = newImage.scaled(600, 600, Qt::KeepAspectRatio);
-//	qDebug() << "Scaling QPixmap" << time.restart() << "ms";
-//	image_->setPixmap(newImage);
-
-//	qDebug() << "Time to fully load and display image is" << time1.elapsed() << "ms";
-//}
-
-//void VESPERSCCDDetectorView::getCCDFileNameAndLoad()
-//{
-
-//}
-
-//void VESPERSCCDDetectorView::displayCCDFile()
-//{
-
-//}
+	else
+		detector_->start();
+}
