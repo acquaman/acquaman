@@ -337,8 +337,11 @@ void VESPERSCCDDetectorView::onStartClicked()
 	else if (detector_->name().contains("Mar"))
 		name.append(QString("_%1.tif").arg(detector_->ccdFileNumber()));
 
-	else if (detector_->name().contains("Pilatus"))
+	else if (detector_->name().contains("Pilatus")){
+
+		fullPath = fullPath.replace("/ramdisk", "/nas/pilatus/500_500");
 		name.append(QString("-%1.tif").arg(detector_->ccdFileNumber()));
+	}
 
 	fullPath.append(name);
 	QFileInfo fileInfo = QFileInfo(fullPath);
@@ -347,7 +350,7 @@ void VESPERSCCDDetectorView::onStartClicked()
 
 		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
 																							 "File already exists!",
-																							 QString("The file \"%1\" already exists.  Do you want to overwrite?"),
+																							 QString("The file \"%1\" already exists.  Do you want to overwrite?").arg(name),
 																							 QMessageBox::Ok,
 																							 QMessageBox::Cancel));
 
