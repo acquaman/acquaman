@@ -26,4 +26,14 @@ protected:
 	AMControl *resetControl_;
 };
 
+/// This class extends the AMMotorGroup for the CLS pseudo motor application.
+class CLSPseudoMotorGroup : public AMMotorGroup
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	explicit CLSPseudoMotorGroup(QObject *parent = 0);
+};
+
 #endif // CLSPSEUDOMOTORGROUP_H

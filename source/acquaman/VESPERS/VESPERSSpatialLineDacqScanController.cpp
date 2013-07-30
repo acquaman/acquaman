@@ -64,7 +64,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	switch(config_->motor()){
 
 	case VESPERS::H:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		break;
@@ -76,7 +76,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 
 	case VESPERS::V:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 		break;
@@ -503,35 +503,35 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 		switch(config_->otherMotor(config_->motor())){
 
 		case VESPERS::H:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::V:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::X:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::Z:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::AttoH:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttoStage()->createHorizontalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::AttoV:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttoStage()->createVerticalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::AttoX:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttoStage()->createHorizontalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
 			break;
 
 		case VESPERS::AttoZ:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttoStage()->createVerticalMoveAction(config_->otherPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		default:

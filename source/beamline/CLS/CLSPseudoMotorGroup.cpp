@@ -1,5 +1,8 @@
 #include "CLSPseudoMotorGroup.h"
 
+// CLSPseudoMotorGroupObject
+////////////////////////////////////////////////////
+
 CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent)
 	: AMMotorGroupObject(name, prefix, units, control, orientation, motionType, parent)
 {
@@ -10,4 +13,13 @@ CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name, const 
 	: AMMotorGroupObject(name, prefixes, units, controls, orientations, motionTypes, parent)
 {
 	resetControl_ = resetControl;
+}
+
+// CLSPseudoMotorGroup
+////////////////////////////////////////////////////
+
+CLSPseudoMotorGroup::CLSPseudoMotorGroup(QObject *parent)
+	: AMMotorGroup(parent)
+{
+
 }

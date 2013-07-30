@@ -34,10 +34,6 @@ class VESPERSMarCCDDetector : public VESPERSCCDDetector
 public:
 	/// Constructor.
 	VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
-
-protected:
-	/// Pure virtual fucntion.  The implementation method used for loading images.  Implementations must emit the imageReady() signal after loading data.
-	virtual void loadImageFromFileImplementation(const QString &filename);
 };
 
 #endif // VESPERSMARCCDDETECTOR_H

@@ -2,6 +2,17 @@
 #define CLSPSEUDOMOTORGROUPVIEW_H
 
 #include "ui/AMMotorGroupView.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
+
+/// This class extends the AMMotorGroupObjectView for the CLS pseudo motor application.
+class CLSPseudoMotorGroupObjectView : public AMMotorGroupObjectView
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
+	explicit CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent = 0);
+};
 
 /// This class acts as a simple extension that enables the use of reseting the pseudo-motors.
 /*!
@@ -18,9 +29,9 @@ class CLSPseudoMotorGroupView : public AMMotorGroupView
 public:
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	/// \note Maybe I should subclass AMMotorGroup for consistency in naming?
-	CLSPseudoMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
+	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
-	CLSPseudoMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
+	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
 
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.

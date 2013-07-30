@@ -91,7 +91,7 @@ AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDChangeStateAction(bool tur
 
 void VESPERSPIDLoopControl::repair()
 {
-	if (VESPERSBeamline::vespers()->pseudoSampleStage()->isConnected() && !(x_->isConnected() && y_->isConnected() && z_->isConnected()))
+	if (!(x_->isConnected() && y_->isConnected() && z_->isConnected()))
 		return;
 
 	// Repairing the sample stage is a two stage process.
@@ -104,7 +104,7 @@ void VESPERSPIDLoopControl::repair()
 	AMBeamlineListAction *repairAction = new AMBeamlineListAction(repairActionsList);
 
 	repairActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	repairActionsList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createStopAllAction());
+	repairActionsList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createStopAllAction());
 
 	repairActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	repairActionsList->appendAction(1, createPIDChangeStateAction(true));

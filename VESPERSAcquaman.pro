@@ -17,13 +17,11 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSXRFScanController.h \
 	source/ui/VESPERS/VESPERSXRFScanConfigurationView.h \
 	source/ui/VESPERS/VESPERSPersistentView.h \
-	source/ui/VESPERS/VESPERSSampleStageView.h \
 	source/ui/VESPERS/VESPERSXRFElementView.h \
 	source/util/VESPERS/XRFPeriodicTable.h \
 	source/ui/VESPERS/XRFPeriodicTableView.h \
 	source/util/VESPERS/ROIHelper.h \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
-	source/beamline/VESPERS/VESPERSSampleStageControl.h \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
@@ -95,13 +93,11 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanController.cpp \
 	source/ui/VESPERS/VESPERSXRFScanConfigurationView.cpp \
 	source/ui/VESPERS/VESPERSPersistentView.cpp \
-	source/ui/VESPERS/VESPERSSampleStageView.cpp \
 	source/ui/VESPERS/VESPERSXRFElementView.cpp \
 	source/util/VESPERS/XRFPeriodicTable.cpp \
 	source/ui/VESPERS/XRFPeriodicTableView.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
-	source/beamline/VESPERS/VESPERSSampleStageControl.cpp \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \

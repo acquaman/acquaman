@@ -60,11 +60,11 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		zPoints += 2;
 
 	AMPVwStatusControl *control = 0;
-	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
 	xAxisPVName_ = control != 0 ? control->writePVName() : "";
-	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl());
 	yAxisPVName_ = control != 0 ? control->writePVName() : "";
-	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoWireStage()->vert());
+	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl());
 	zAxisPVName_ = control != 0 ? control->writePVName() : "";
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));

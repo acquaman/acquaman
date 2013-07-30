@@ -382,8 +382,8 @@ void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 
 	config_->setXStart(h);
 	hStart_->setValue(h);
@@ -395,8 +395,8 @@ void VESPERS3DScanConfigurationView::onSetStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetEndPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 
 	config_->setXEnd(h);
 	hEnd_->setValue(h);
@@ -408,7 +408,7 @@ void VESPERS3DScanConfigurationView::onSetEndPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStage()->vert()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
 	config_->setZStart(wire);
 	wireStart_->setValue(wire);
@@ -418,7 +418,7 @@ void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStage()->vert()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
 	config_->setZEnd(wire);
 	wireEnd_->setValue(wire);

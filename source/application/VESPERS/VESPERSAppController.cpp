@@ -85,6 +85,10 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 {
 	moveImmediatelyAction_ = 0;
 
+	roperCCDStartup_ = false;
+	marCCDStartup_ = false;
+	pilatusCCDStartup_ = false;
+
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
@@ -338,6 +342,11 @@ void VESPERSAppController::makeConnections()
 	// copy ROIs from one detector to another.
 	connect(xrf1ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf4ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
 	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
+
+	// Startup connections for the CCD detectors.
+	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
+	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
+	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -503,9 +512,9 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
 		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
@@ -517,9 +526,9 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
 		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
@@ -848,4 +857,40 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	scan->loadFromDb(AMDatabase::database("user"), scan->id());
 	// Release the object.
 	scan->release();
+}
+
+void VESPERSAppController::onRoperCCDConnected(bool connected)
+{
+	if (!roperCCDStartup_ && connected){
+
+		roperCCDStartup_ = true;
+		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
+
+		if (!proposalNumber.isEmpty())
+			VESPERSBeamline::vespers()->roperCCD()->setCCDPath(QString("/nas/vespers/%1/CCDImages").arg(proposalNumber));
+	}
+}
+
+void VESPERSAppController::onMarCCDConnected(bool connected)
+{
+	if (!marCCDStartup_ && connected){
+
+		marCCDStartup_ = true;
+		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
+
+		if (!proposalNumber.isEmpty())
+			VESPERSBeamline::vespers()->marCCD()->setCCDPath(QString("/home/vespers/users/%1/").arg(proposalNumber));
+	}
+}
+
+void VESPERSAppController::onPilatusCCDConnected(bool connected)
+{
+	if (!pilatusCCDStartup_ && connected){
+
+		pilatusCCDStartup_ = true;
+		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
+
+		if (!proposalNumber.isEmpty())
+			VESPERSBeamline::vespers()->pilatusCCD()->setCCDPath(QString("/ramdisk/%1/").arg(proposalNumber));
+	}
 }

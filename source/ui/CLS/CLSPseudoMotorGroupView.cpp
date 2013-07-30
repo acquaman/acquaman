@@ -4,12 +4,24 @@
 
 #include <QMenu>
 
-CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
+// CLSPseudoMotorGroupObjectView
+////////////////////////////////////////////////////
+
+CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent)
+	: AMMotorGroupObjectView(motorGroupObject, parent)
+{
+
+}
+
+// CLSPseudoMotorGroupView
+////////////////////////////////////////////////////
+
+CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent)
 	: AMMotorGroupView(motorGroup, parent)
 {
 }
 
-CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
+CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
 	: AMMotorGroupView(motorGroup, viewMode, parent)
 {
 
