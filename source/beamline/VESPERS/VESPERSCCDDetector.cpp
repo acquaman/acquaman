@@ -8,8 +8,6 @@
 VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &description, const QString &pvBase, const AMnDIndex &detectorSize, QObject *parent)
 	: VESPERSCCDDetectorInfo(name, description, detectorSize, parent), AMOldDetector(name)
 {
-	imageData_ = QVector<int>(size().product());
-
 	imageModeControl_ = new AMPVControl("Image Mode", pvBase % ":ImageMode_RBV", "ccd1607-002:cam1:ImageMode", QString(), this, 0.1);
 	triggerModeControl_ = new AMPVControl("Trigger Mode", pvBase % ":TriggerMode_RBV", "ccd1607-002:cam1:TriggerMode", QString(), this, 0.1);
 	operationControl_ = new AMSinglePVControl("Operation", pvBase % ":Acquire", this, 0.1);
@@ -24,6 +22,17 @@ VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &descr
 	ccdNumber_ = new AMSinglePVControl("File Number",pvBase % ":FileNumber", this);
 
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(imageModeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(triggerModeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(operationControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(stateControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(acquireTimeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(autoSaveControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(saveFileControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(ccdPath_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(ccdFile_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(ccdNumber_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
 	connect(triggerModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerModeChanged()));
 	connect(operationControl_, SIGNAL(valueChanged(double)), this, SLOT(onIsAcquiringChanged()));
@@ -31,10 +40,28 @@ VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &descr
 	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onAcquireTimeChanged(double)));
 	connect(autoSaveControl_, SIGNAL(valueChanged(double)), this, SLOT(onAutoSaveEnabledChanged()));
 	connect(saveFileControl_, SIGNAL(valueChanged(double)), this, SLOT(onSaveFileStateChanged()));
-
 	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
 	connect(ccdNumber_, SIGNAL(valueChanged(double)), this, SLOT(onCCDNumberChanged()));
+}
+
+void VESPERSCCDDetector::onConnectedChanged()
+{
+	if (isConnected() && !allControlsConnected())
+		setConnected(false);
+
+	else if (!isConnected() && allControlsConnected())
+		setConnected(true);
+}
+
+bool VESPERSCCDDetector::allControlsConnected() const
+{
+	return operationControl_->isConnected()
+			&& stateControl_->isConnected()
+			&& acquireTimeControl_->isConnected()
+			&& ccdPath_->isConnected()
+			&& ccdFile_->isConnected()
+			&& ccdNumber_->isConnected();
 }
 
 VESPERSCCDDetector::ImageMode VESPERSCCDDetector::imageMode() const
@@ -247,9 +274,4 @@ AMBeamlineActionItem *VESPERSCCDDetector::createFileNumberAction(int number)
 	action->setSetpoint(number);
 
 	return action;
-}
-
-void VESPERSCCDDetector::loadImageFromFile(const QString &filename)
-{
-	loadImageFromFileImplementation(filename);
 }

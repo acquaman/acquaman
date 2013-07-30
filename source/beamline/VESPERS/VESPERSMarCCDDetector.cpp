@@ -23,9 +23,3 @@ VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString 
 	: VESPERSCCDDetector(name, description, "ccd1607-002:cam1", AMnDIndex(2048, 2048), parent)
 {
 }
-
-void VESPERSMarCCDDetector::loadImageFromFileImplementation(const QString &filename)
-{
-	Q_UNUSED(filename)
-	// Needs to be implemented.
-}

@@ -867,7 +867,7 @@ void VESPERSAppController::onRoperCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->roperCCD()->setCCDPath(QString("/nas/vespers/%1/").arg(proposalNumber));
+			VESPERSBeamline::vespers()->roperCCD()->setCCDPath(QString("/nas/vespers/%1/CCDImages").arg(proposalNumber));
 	}
 }
 
@@ -879,7 +879,7 @@ void VESPERSAppController::onMarCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->marCCD()->setCCDPath(QString("/nas/vespers/%1/").arg(proposalNumber));
+			VESPERSBeamline::vespers()->marCCD()->setCCDPath(QString("/home/vespers/users/%1/").arg(proposalNumber));
 	}
 }
 
@@ -891,6 +891,6 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->pilatusCCD()->setCCDPath(QString("/nas/vespers/%1/").arg(proposalNumber));
+			VESPERSBeamline::vespers()->pilatusCCD()->setCCDPath(QString("/ramdisk/%1/").arg(proposalNumber));
 	}
 }
