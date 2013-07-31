@@ -65,11 +65,11 @@ public:
 	// Static functions:
 	////////////////////////////
 	/// Call this function to log an uncompleted action (start of an AMListAction or AMLoopAction) to the database. Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database. Optionally pass a parent log id go enforce parent-child relationship.
-	static bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database, int parentLogId = -1);
-	static bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database);
+	//static bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database, int parentLogId = -1);
+	//static bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database);
 
 	/// Call this function to log a completed action to the database. Returns false and does nothing if the action is still running.  Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database. Optionally pass a parent log id go enforce parent-child relationship.
-	static bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database, int parentLogId = -1);
+	//static bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database, int parentLogId = -1);
 
 	// Public accessors
 	////////////////////////////

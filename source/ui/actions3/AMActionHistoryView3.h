@@ -57,6 +57,8 @@ public:
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
 	bool isCollapsed() const { return isCollapsed_; }
 
+	AMActionHistoryModel3* model() const { return model_; }
+
 signals:
 	/// This signal is emitted with \c true when the view widget is collapsed to show only the header bar, and \c false when it is restored.
 	void collapsed(bool isCollapsed);
@@ -68,8 +70,8 @@ public slots:
 protected slots:
 	/// Called when the "show more actions" button is clicked. Doubles the model's maximumActionsToDisplay().
 	void onShowMoreActionsButtonClicked();
-	/// Called when one of the preset time-range filters is clicked. Calls the model's setVisibleTimeRange().
-	void onRangeComboBoxActivated(int rangeIndex);
+	// /// Called when one of the preset time-range filters is clicked. Calls the model's setVisibleTimeRange().
+	// void onRangeComboBoxActivated(int rangeIndex);
 	/// Called when the "Re-run this action" button is clicked. If we were constructed with access to an AMActionRunner, and the AMActionInfo associated with the selected items have been registered in AMActionRegistry, then we will re-queue copies of these actions in the AMActionRunner.
 	void onReRunActionButtonClicked();
 	/// Called when the selection changes... We use this to determine whether to enable the reRunActionButton_

@@ -226,7 +226,7 @@ bool SGMXASScanActionController::event(QEvent *e){
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			emit finishWritingToFile();
-			setFinished();
+//			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();

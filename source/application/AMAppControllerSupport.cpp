@@ -240,5 +240,27 @@ namespace AMAppControllerSupport{
 		}
 		return true;
 	}
+
+	QList<AMActionRunnerGroup*> actionRunnerGroups_;
+
+	void addActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel){
+		actionRunnerGroups_.append(new AMActionRunnerGroup(databaseName, actionRunner, actionHistoryModel));
+	}
+
+	AMActionRunner3* actionRunnerFromDatabaseName(const QString &databaseName){
+		for(int x = 0; x < actionRunnerGroups_.count(); x++)
+			if(actionRunnerGroups_.at(x)->databaseName() == databaseName)
+				return actionRunnerGroups_.at(x)->actionRunner();
+
+		return 0;
+	}
+
+	AMActionHistoryModel3* actionHistoryModelFromDatabaseName(const QString &databaseName){
+		for(int x = 0; x < actionRunnerGroups_.count(); x++)
+			if(actionRunnerGroups_.at(x)->databaseName() == databaseName)
+				return actionRunnerGroups_.at(x)->actionHistoryModel();
+
+		return 0;
+	}
 }
 
