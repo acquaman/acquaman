@@ -365,7 +365,6 @@ void AMActionHistoryView3::onModelRefreshed()
 	// If not, then call the onShowMoreActionsButtonClicked (effectively recursively)
 	// If yes, then unlatch that bool
 	if(showingMoreActions_){
-		qDebug() << "Counts before " << countBeforeShowMoreActions_ << " total actions shown now " << totalActionsShown;
 		if(countBeforeShowMoreActions_ == totalActionsShown)
 			onShowMoreActionsButtonClicked();
 		else
