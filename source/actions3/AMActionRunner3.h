@@ -98,6 +98,7 @@ public:
 	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
 
 	AMDatabase* loggingDatabase() const { return loggingDatabase_; }
+
 	int cachedLogCount() const { return cachedLogCount_; }
 
 
