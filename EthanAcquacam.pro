@@ -123,7 +123,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMGraphicsVideoSceneCopier.h \
     source/ui/AMGraphicsViewWizard.h \
     source/ui/AMBeamConfigurationWizard.h \
-    source/ui/AMSamplePlateWizard.h
+    source/ui/AMSamplePlateWizard.h \
+    source/ui/AMShapeDataListView.h
 
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
@@ -164,7 +165,8 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMGraphicsVideoSceneCopier.cpp \
     source/ui/AMGraphicsViewWizard.cpp \
     source/ui/AMBeamConfigurationWizard.cpp \
-    source/ui/AMSamplePlateWizard.cpp
+    source/ui/AMSamplePlateWizard.cpp \
+    source/ui/AMShapeDataListView.cpp
 #    source/beamline/AMBeamline.cpp \
 #    source/beamline/AMControlSet.cpp \
 #    source/dataman/SGM/SGMBeamlineInfo.cpp \

@@ -33,7 +33,7 @@ class SGMMAXvMotor;
 
 using namespace Eigen;
 
-class AMShapeDataSet: public QObject
+class AMShapeDataSet: public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -49,6 +49,8 @@ public:
 
     /// get the current index of the rectangle List (number of rectangles - 1)
     int shapeListLength();
+
+    QList<AMShapeData*>* shapeList();
 
     /// get the current index
     int currentIndex();
@@ -98,7 +100,7 @@ public:
     QString currentName();
     QString name(int index);
     QString currentInfo();
-    QString data(int index);
+    QString otherData(int index);
     double idNumber(int index);
 
     double rotation(int index = -1);
@@ -160,7 +162,7 @@ public:
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
     void setName(QString name, int index);
-    void setData(QString data, int index);
+    void setOtherData(QString data, int index);
     void setIdNumber(double number, int index);
 
     /// sets whether to use camera matrix for transforms
@@ -188,6 +190,11 @@ public:
     void deleteShape(int index);
 
     int samplePlateIndex();
+
+
+    /// list model functions
+    int rowCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
 
 
 
@@ -304,6 +311,8 @@ public slots:
     void moveSamplePlate(int movement);
 
     void addBeamMarker(int index);
+
+    void updateView();
 
 
 

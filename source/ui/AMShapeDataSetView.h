@@ -27,6 +27,7 @@ class QMediaPlayer;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
+class AMShapeDataListView;
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
@@ -42,6 +43,9 @@ class AMShapeDataSetView : public QWidget
 public:
 	/// Constructor.
     explicit AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+
+    /// Destructor
+    ~AMShapeDataSetView();
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
@@ -318,11 +322,7 @@ protected:
 
     void clearIntersections();
 
-
-
-
-
-
+    void setListViewModel();
 
 
 protected:
@@ -475,6 +475,11 @@ protected:
     QCheckBox* showBeamOutlineCheckBox_;
 
     bool showBeamOutline_;
+
+    AMShapeDataListView* shapeDataListView_;
+
+
+
 
 
 };

@@ -193,7 +193,10 @@ QString AMBeamConfigurationWizard::message(int type)
         case Text:
             return QString("Check to see if beam %1 is in the correct configuration.").arg(relativeId());
         case Help:
-            return "Check Page help";
+            return QString("Check to see if the rectangle appears around the beamspot.  \n") +
+                           "If the beamspot is not visible, ensure that visible light has been turned on.  \n" +
+                           "If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  " +
+                           "This may require changing of the coordinates on the options page, accessible from the introduction page.  ";
         case Other:
             return "Is the beam correct?";
         case Default:
@@ -211,7 +214,8 @@ QString AMBeamConfigurationWizard::message(int type)
         case Text:
             return QString("Draw a box over beam position %1").arg(relativeId());
         case Help:
-            return "set page help";
+            return QString("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  ")
+                    + "Try to fit the box to best encompass the whole beamspot.";
         case Other:
         case Default:
         default:

@@ -420,7 +420,6 @@ void AMCheckPage::initializePage()
     QString fieldName = QString("configured%1").arg(viewWizard()->currentId());
     if(field(fieldName).isNull())
     {
-        qDebug()<<"Registering field"<<fieldName;
         registerField(fieldName, isConfigured_);
     }
 
@@ -428,7 +427,6 @@ void AMCheckPage::initializePage()
 
 void AMCheckPage::checkBoxChanged(bool state)
 {
-    qDebug()<<"AMCheckPage::checkBoxChanged - check state is: "<<state;
 }
 
 

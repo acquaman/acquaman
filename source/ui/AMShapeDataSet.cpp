@@ -37,7 +37,7 @@ using namespace Eigen;
 
 /// Constructor
 AMShapeDataSet::AMShapeDataSet(QObject *parent) :
-    QObject(parent)
+    QAbstractListModel(parent)
 {
     crosshair_ = QPointF(0.5,0.5);
     crosshairLocked_ = false;
@@ -123,6 +123,8 @@ int AMShapeDataSet::shapeListLength()
 {
     return index_;
 }
+
+
 
 /// returns the current index
 int AMShapeDataSet::currentIndex()
@@ -245,11 +247,11 @@ QString AMShapeDataSet::name(int index)
 /// return the current info
 QString AMShapeDataSet::currentInfo()
 {
-    return data(current_);
+    return otherData(current_);
 }
 
 /// return the data of the specified index
-QString AMShapeDataSet::data(int index)
+QString AMShapeDataSet::otherData(int index)
 {
     if(isValid(index))
     {
@@ -409,7 +411,7 @@ void AMShapeDataSet::setCurrentName(QString name)
 /// set th current info
 void AMShapeDataSet::setCurrentInfo(QString info)
 {
-    setData(info,current_);
+    setOtherData(info,current_);
 }
 
 /// sets the rotation for the given index
@@ -442,7 +444,7 @@ void AMShapeDataSet::setName(QString name, int index)
 }
 
 /// sets the data of the specifed index
-void AMShapeDataSet::setData(QString data, int index)
+void AMShapeDataSet::setOtherData(QString data, int index)
 {
     if(isValid(index))
     {
@@ -526,7 +528,9 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         else
             suffix = "th";
         shapes[i]->setName(QString::number(i)+ suffix + " Calibration point");
+        beginInsertRows(QModelIndex(),index_,index_);
         shapeList_<<shapes[i];
+        endInsertRows();
         calibrationPoints_[i] = shapeList_[index_];
         updateShape(index_);
         current_ = index_;
@@ -561,7 +565,9 @@ void AMShapeDataSet::deleteShape(int index)
 {
     if(isValid(index))
     {
+        beginRemoveRows(QModelIndex(),index,index);
         AMShapeData* oldShape = shapeList_.takeAt(index);
+        endRemoveRows();
         delete oldShape;
         index_--;
     }
@@ -570,6 +576,24 @@ void AMShapeDataSet::deleteShape(int index)
 int AMShapeDataSet::samplePlateIndex()
 {
     return shapeList_.indexOf(samplePlateShape_);
+}
+
+int AMShapeDataSet::rowCount(const QModelIndex &parent) const
+{
+    return shapeList_.count();
+}
+
+QVariant AMShapeDataSet::data(const QModelIndex &index, int role) const
+{
+    if(!index.isValid())
+        return QVariant();
+    switch(role)
+    {
+    case Qt::DisplayRole:
+        return shapeList_.at(index.row())->name();
+    default:
+        return QVariant();
+    }
 }
 
 
@@ -611,7 +635,9 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         newShape<<coordinate[i];
     }
+    beginInsertRows(QModelIndex(),rowCount(QModelIndex()),rowCount(QModelIndex()));
     shapeList_<<new AMShapeData();
+    endInsertRows();
     shapeList_[index_]->setName("Shape " + QString::number(index_));
     shapeList_[index_]->setOtherData("Coordinate:");
     shapeList_[index_]->setIdNumber(index_ * 13);
@@ -678,8 +704,9 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
         deleted = false;
         if(contains(position,i))
         {
+            beginRemoveRows(QModelIndex(),i,i);
             AMShapeData* polygon = shapeList_.takeAt(i);
-
+            endRemoveRows();
             for(int j = 0; j < SAMPLEPOINTS; j++)
             {
                 if(polygon == calibrationPoints_[j])
@@ -932,7 +959,9 @@ void AMShapeDataSet::finishShape()
     polygon->setRotation(0);
     polygon->setTilt(0);
     polygon->setYAxisRotation(0);
+    beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<polygon;
+    endInsertRows();
     current_ = index_;
     updateShape(index_);
     currentPolygon_.clear();
@@ -999,7 +1028,9 @@ void AMShapeDataSet::placeGrid(QPointF position)
             index_ += 1;
             QPointF topLeft(i*0.05,j*0.05);
             QPointF bottomRight((i+1)*0.05,(j+1)*0.05);
+            beginInsertRows(QModelIndex(),index_,index_);
             shapeList_<<new AMShapeData(constructRectangle(topLeft,bottomRight));
+            endInsertRows();
             QVector<QVector3D> shape;
             for(int k = 0; k < 5; k++)
             {
@@ -1085,7 +1116,9 @@ void AMShapeDataSet::deleteCalibrationPoints()
                 index = shapeList_.indexOf(calibrationPoints_[i]);
                 if(isValid(index))
                 {
+                    beginRemoveRows(QModelIndex(),index_,index_);
                     shapeList_.removeAt(index);
+                    endRemoveRows();
                     index_--;
                 }
                 delete calibrationPoints_[i];
@@ -1126,7 +1159,9 @@ void AMShapeDataSet::setBeamMarker(QPointF position, int index)
     int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
     if(removalIndex >= 0)
     {
+        beginRemoveRows(QModelIndex(), index_,index_);
         shapeList_.removeAt(removalIndex);
+        endRemoveRows();
         index_--;
     }
 
@@ -1155,7 +1190,9 @@ void AMShapeDataSet::beamCalibrate()
         int index = shapeList_.indexOf(beamMarkers_[i]);
         if(index >= 0)
         {
+            beginRemoveRows(QModelIndex(),index,index);
             AMShapeData* polygon = shapeList_.takeAt(index);
+            endRemoveRows();
             if(polygon == beamMarkers_[i])
             {
                 delete beamMarkers_[i];
@@ -1166,7 +1203,9 @@ void AMShapeDataSet::beamCalibrate()
             else
             {
                 qDebug()<<"AMShapeDataSet::beamCalibrate - error in deleting shapes";
+                beginInsertRows(QModelIndex(),index_,index);
                 shapeList_<<polygon;
+                endInsertRows();
             }
         }
     }
@@ -1248,13 +1287,20 @@ void AMShapeDataSet::addBeamMarker(int index)
             newBeamShape->setRotation(0);
             newBeamShape->setTilt(0);
             newBeamShape->setYAxisRotation(0);
+            beginInsertRows(QModelIndex(),index_,index_);
             shapeList_.append(newBeamShape);
+            endInsertRows();
             beamMarkers_[index] = newBeamShape;
             index_++;
             current_ = index_;
             updateShape(current_);
         }
     }
+}
+
+void AMShapeDataSet::updateView()
+{
+    emit dataChanged(index(0), index(shapeList_.count()));
 }
 
 

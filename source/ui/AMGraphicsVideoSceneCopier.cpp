@@ -26,20 +26,8 @@ QGraphicsScene *AMGraphicsVideoSceneCopier::scene()
 
 void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGraphicsScene* sceneToUpdateWith)
 {
-    qDebug()<<"AMGraphicsVideoSceneCopier::updateScene";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
-    /// need to figure out what items are new and put them into the old scene
-//    foreach(QGraphicsItem* item, oldList)
-//    {
-
-//        if(item->type() != QGraphicsItem::UserType)
-//        {
-//            qDebug()<<item->type()<<item->boundingRect()<<item->pos();
-//            sceneToUpdate->removeItem(item);
-//        }
-//    }
-//    qDebug()<<"Old items";
     QGraphicsItem* videoItem;
     while(!oldList.isEmpty())
     {
@@ -54,7 +42,6 @@ void AMGraphicsVideoSceneCopier::updateScene(QGraphicsScene* sceneToUpdate,QGrap
     }
 
     sceneToUpdate->addItem(videoItem);
-//    qDebug()<<"new items";
     foreach(QGraphicsItem* item, newList)
     {
 
@@ -110,14 +97,12 @@ void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene
 
 void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGraphicsScene *sceneToUpdateWith)
 {
-    qDebug()<<"AMGraphicsVideoSceneCopier::updateChange";
     QList<QGraphicsItem*> oldList = sceneToUpdate->items();
     QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
 
     /// if the lists are not the same length, have to do a full update
     if(oldList.count() != newList.count())
     {
-//        qDebug()<<"refreshing entire scene - counts differ";
         updateScene(sceneToUpdate,sceneToUpdateWith);
         return;
     }
@@ -129,17 +114,14 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
     QList<QList<QGraphicsItem*> > oldListList;
     QList<int> zValues;
 
-    qDebug()<<"New items";
     foreach(QGraphicsItem* newItem, newList)
     {
         if(newItem->type() != QGraphicsItem::UserType)
         {
-//            qDebug()<<newItem->type()<<newItem->boundingRect()<<newItem->zValue();
             newItems.append(newItem);
         }
     }
     QGraphicsItem* oldItem;
-    qDebug()<<"Old items";
     for(int i = 0; i < oldList.count(); i++)
     {
 
@@ -169,19 +151,16 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
     /// must go through each item in oldItems, check for equivalence
     /// with the corresponding newItems, and update them if necessary
     /// just leave the video item be
-//    qDebug()<<"Checking shapes for differences.";
     bool success = true;
     for(int i = 0; i < oldItems.count(); i++)
     {
         success = updateItem(oldItems[i], newItems[i]);
         if(!success)
         {
-            qDebug()<<"Refreshing whole scene, individual update failed";
             updateScene(sceneToUpdate, sceneToUpdateWith);
             return;
         }
     }
-    qDebug()<<"quick update complete";
 }
 
 bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphicsItem *itemToCopy)

@@ -47,6 +47,10 @@
 
 #include <limits>
 
+#include "AMShapeDataListView.h"
+
+#include "AMShapeDataSetItemModel.h"
+
 
 #define SAMPLEPOINTS 6
 
@@ -92,6 +96,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     showBeamOutline_ = true;
 
+    shapeDataListView_ = new AMShapeDataListView();
+    setListViewModel();
+    shapeDataListView_->show();
 
     ///GUI Setup
     QFrame* crosshairFrame = new QFrame();
@@ -517,6 +524,13 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
 }
 
+AMShapeDataSetView::~AMShapeDataSetView()
+{
+    delete beamWizard_;
+    delete cameraWizard_;
+    delete samplePlateWizard_;
+}
+
 
 void AMShapeDataSetView::reviewCrosshairLinePositions()
 {
@@ -576,11 +590,10 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
-            qDebug()<<shapes_[i]->polygon();
-            if(!wordList_->stringList().contains(shapeModel_->data(i)))
+            if(!wordList_->stringList().contains(shapeModel_->otherData(i)))
             {
                 wordList_->insertRow(wordList_->rowCount());
-                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->data(i));
+                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->otherData(i));
             }
 
             if(shapeModel_->isBackwards(i))
@@ -604,7 +617,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
                 if(currentView_ == NAME)
                     textItems_[i]->setPlainText(shapeModel_->name(i));
                 else if(currentView_ == DATA)
-                    textItems_[i]->setPlainText(shapeModel_->data(i));
+                    textItems_[i]->setPlainText(shapeModel_->otherData(i));
                 else if(currentView_ == ID)
                     textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
 
@@ -638,7 +651,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
    path->addPolygon(currentPolygon);
    currentShape_->setPath(*path);
 
-
+    shapeModel_->updateView();
 
 }
 
@@ -876,7 +889,7 @@ void AMShapeDataSetView::updateItemName(int index)
         }
         else if(currentView_ == DATA)
         {
-            shapeModel_->setData(textItems_[index]->document()->toPlainText(), index);
+            shapeModel_->setOtherData(textItems_[index]->document()->toPlainText(), index);
         }
         else if(currentView_ == ID)
         {
@@ -1400,6 +1413,13 @@ void AMShapeDataSetView::clearIntersections()
         shapeScene_->scene()->removeItem(intersections_.first());
         intersections_.remove(0);
     }
+}
+
+
+void AMShapeDataSetView::setListViewModel()
+{
+    shapeDataListView_->setResizeMode(QListView::Adjust);
+    shapeDataListView_->setModel(shapeModel_);
 }
 
 void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
