@@ -13,6 +13,7 @@ AMShapeData::AMShapeData()
 {
     shape_ = new QPolygonF();
     coordinateCount_ = -1;
+    visible_ = true;
 
 }
 
@@ -25,6 +26,7 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
     setOtherData(otherData);
     setIdNumber(idNumber);
     coordinateCount_ = -1;
+    visible_ = true;
 
 }
 
@@ -84,6 +86,11 @@ double AMShapeData::tilt()
 double AMShapeData::yAxisRotation()
 {
     return yAxisRotation_;
+}
+
+bool AMShapeData::visible() const
+{
+    return visible_;
 }
 
 void AMShapeData::setShape(QPolygonF shape)
@@ -146,6 +153,11 @@ void AMShapeData::setTilt(double tilt)
 void AMShapeData::setYAxisRotation(double yAxisRotation)
 {
     yAxisRotation_ = yAxisRotation;
+}
+
+void AMShapeData::setVisible(bool visible)
+{
+    visible_ = visible;
 }
 
 /// finds the center of the shape - must be rectangular

@@ -48,49 +48,47 @@ public:
     /// member accessors -----------------------------------------------------------------------------------
 
     /// get the current index of the rectangle List (number of rectangles - 1)
-    int shapeListLength();
-
-    QList<AMShapeData*>* shapeList();
+    int shapeListLength() const;
 
     /// get the current index
-    int currentIndex();
+    int currentIndex() const;
 
     /// get the camera configuration
-    AMCameraConfiguration *cameraConfiguration();
+    AMCameraConfiguration *cameraConfiguration() const;
 
     /// get the beam configuration
-    AMBeamConfiguration *beamConfiguration();
+    AMBeamConfiguration *beamConfiguration() const;
 
     /// returns the current grouping rectangle
-    QPolygonF groupRectangle();
+    QPolygonF groupRectangle() const;
 
     /// gets each component of the motor coordinate
-    double motorX();
-    double motorY();
-    double motorZ();
+    double motorX() const;
+    double motorY() const;
+    double motorZ() const;
 
-    double motorRotation();
+    double motorRotation() const;
 
     /// get a list of all the intersections with the beam
-    QVector<QPolygonF> intersections();
+    QVector<QPolygonF> intersections() const;
 
     /// returns the crosshair location
-    QPointF crosshair();
-    double crosshairX();
-    double crosshairY();
+    QPointF crosshair() const;
+    double crosshairX() const;
+    double crosshairY() const;
 
     /// is the crosshair locked?
-    bool crosshairLocked();
+    bool crosshairLocked() const;
 
     /// viewSize and scaled_size used for computing coordinates, get values from AMShapeDataSetGraphicsView
-    QSizeF viewSize();
+    QSizeF viewSize() const;
 
-    QSizeF scaledSize();
+    QSizeF scaledSize() const;
 
     /// true if using cameraMatrix for transforms
-    bool useCameraMatrix();
+    bool useCameraMatrix() const;
 
-    QPolygonF currentPolygon();
+    QPolygonF currentPolygon() const;
 
     /// ------------------------------------------------------------------------------------------------
 
@@ -102,6 +100,8 @@ public:
     QString currentInfo();
     QString otherData(int index);
     double idNumber(int index);
+    bool visible() const;
+    bool visible(int index) const;
 
     double rotation(int index = -1);
     double tilt(int index = -1);
@@ -164,6 +164,8 @@ public:
     void setName(QString name, int index);
     void setOtherData(QString data, int index);
     void setIdNumber(double number, int index);
+    void setVisible(bool visible);
+    void setVisible(bool visible, int index);
 
     /// sets whether to use camera matrix for transforms
     void setUseCameraMatrix(bool use);
@@ -389,7 +391,7 @@ protected:
     /// Transformations
 
     /// transforms point to where you are actually clicking
-    QPointF coordinateTransform(QPointF);
+    QPointF coordinateTransform(QPointF) const;
 
     /// transforms the given point and depth to a 3D coordinate
     /// based on the current camera model
@@ -408,7 +410,7 @@ protected:
     /// Helper functions
 
     /// converts a shape from normalized coordinates to an actual screen position
-    QPolygonF screenShape(QPolygonF shape);
+    QPolygonF screenShape(QPolygonF shape) const;
 
     /// builds a rectangle from the specified points
     QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);

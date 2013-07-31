@@ -32,6 +32,7 @@ public:
     double rotation();
     double tilt();
     double yAxisRotation();
+    bool visible() const;
 
     /// mutators
     void setShape(QPolygonF shape);
@@ -45,6 +46,7 @@ public:
     void setRotation(double rotation);
     void setTilt(double tilt);
     void setYAxisRotation(double yAxisRotation);
+    void setVisible(bool visible);
 
     /// returns the center
     QVector3D centerCoordinate();
@@ -85,6 +87,8 @@ protected:
     double yAxisRotation_;
     /// the number of coordinates
     int coordinateCount_;
+
+    bool visible_;
 
     bool validIndex(int index);
 

@@ -17,6 +17,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     else
         shapeModel_ = shapeModel;
 
+
     /// Set up GUI
 
     QFrame* coordinateFrame= new QFrame();
@@ -51,6 +52,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     sliderLayout->addWidget(yAxisSlider_ = new QSlider(Qt::Horizontal));
     sliderLayout->addSpacing(20);
     sliderLayout->addWidget(zAxisSlider_ = new QSlider(Qt::Horizontal));
+    sliderLayout->addSpacing(20);
+    sliderLayout->addWidget(showHideButton_ = new QPushButton("Show/Hide"));
     sliderLayout->addStretch();
     sliderFrame->setLayout(sliderLayout);
     xAxisSlider_->setRange(-250,250);
@@ -86,6 +89,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     connect(xAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(xAxisRotation(int)));
     connect(yAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(yAxisRotation(int)));
     connect(zAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(zAxisRotation(int)));
+
+    connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
 
 }
 
@@ -156,7 +161,6 @@ void AMShapeDataView::tiltChanged(QString tilt)
 void AMShapeDataView::xChanged(QString xString)
 {
 
-    qDebug()<<"AMShapeDataView::xChanged";
     if(isValid())
     {
         double x = xString.toDouble();
@@ -169,7 +173,6 @@ void AMShapeDataView::xChanged(QString xString)
 
 void AMShapeDataView::yChanged(QString yString)
 {
-    qDebug()<<"AMShapeDataView::yChanged";
     if(isValid())
     {
         double y = yString.toDouble();
@@ -182,7 +185,6 @@ void AMShapeDataView::yChanged(QString yString)
 
 void AMShapeDataView::zChanged(QString zString)
 {
-    qDebug()<<"AMShapeDataView::zChanged";
     if(isValid())
     {
         double z = zString.toDouble();
@@ -224,9 +226,20 @@ void AMShapeDataView::yAxisRotationChanged(QString rotation)
     }
 }
 
+void AMShapeDataView::toggleShapeVisible()
+{
+    bool visible = !shapeModel_->visible();
+    setShapeVisible(visible);
+    emit updateShapes();
+}
+
+void AMShapeDataView::setShapeVisible(bool visible)
+{
+    shapeModel_->setVisible(visible);
+}
+
 void AMShapeDataView::xAxisRotation(int value)
 {
-    qDebug()<<"Update x axis rotation";
     double max = xAxisSlider_->maximum();
     double tilt = value/max*M_PI;
     shapeModel_->setTilt(tilt);

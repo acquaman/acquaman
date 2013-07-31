@@ -214,6 +214,8 @@ public slots:
 
     void showBeamOutline(bool show);
 
+//    void setShapeVisible(bool visible);
+
 protected slots:
     void updateCurrentShape();
 

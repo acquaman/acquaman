@@ -49,7 +49,6 @@
 
 #include "AMShapeDataListView.h"
 
-#include "AMShapeDataSetItemModel.h"
 
 
 #define SAMPLEPOINTS 6
@@ -453,6 +452,11 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
 
+    /// shape list view
+    connect(shapeDataListView_, SIGNAL(currentIndexChanged()), this, SLOT(currentSelectionChanged()));
+
+//    connect(shapeView_, SIGNAL(shapeVisible(bool)), this, SLOT(setShapeVisible(bool)));
+
 
     QActionGroup* actionGroup = new QActionGroup(this);
     markAction_ = new QAction("Mark",actionGroup);
@@ -590,6 +594,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
+            shapes_[i]->setVisible(shapeModel_->visible(i));
             if(!wordList_->stringList().contains(shapeModel_->otherData(i)))
             {
                 wordList_->insertRow(wordList_->rowCount());
@@ -623,8 +628,8 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
                 if(currentView_ == HIDE)
                     textItems_[i]->hide();
-                else if(!textItems_[i]->isVisible())
-                    textItems_[i]->show();
+                else /*if(!textItems_[i]->isVisible())*/
+                    textItems_[i]->setVisible(shapes_[i]->isVisible());
             }
             else
             {
@@ -1381,6 +1386,15 @@ void AMShapeDataSetView::showBeamOutline(bool show)
     reviewCrosshairLinePositions();
 }
 
+//void AMShapeDataSetView::setShapeVisible(bool visible)
+//{
+//    if(shapeModel_->isValid(current_))
+//    {
+//        shapes_[current_]->setVisible(visible);
+//        reviewCrosshairLinePositions();
+//    }
+//}
+
 void AMShapeDataSetView::updateCurrentShape()
 {
     emit updateShapes(current_);
@@ -1657,7 +1671,10 @@ void AMShapeDataSetView::currentSelectionChanged()
     if(shapeModel_->isValid(current_))
     {
         shapes_[current_]->setPen(activeBorderColour_);
+//        shapeView_->setShapeVisible(shapes_[current_]->isVisible());
+
     }
+
     reviewCrosshairLinePositions();
 
 }

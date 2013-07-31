@@ -119,7 +119,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 }
 
 /// returns the highest index of shapes in shapeList
-int AMShapeDataSet::shapeListLength()
+int AMShapeDataSet::shapeListLength() const
 {
     return index_;
 }
@@ -127,103 +127,103 @@ int AMShapeDataSet::shapeListLength()
 
 
 /// returns the current index
-int AMShapeDataSet::currentIndex()
+int AMShapeDataSet::currentIndex() const
 {
     return current_;
 }
 
 /// returns the cameraConfiguration
-AMCameraConfiguration *AMShapeDataSet::cameraConfiguration()
+AMCameraConfiguration *AMShapeDataSet::cameraConfiguration() const
 {
     return cameraModel_;
 }
 
 /// returns the beam configuration
-AMBeamConfiguration *AMShapeDataSet::beamConfiguration()
+AMBeamConfiguration *AMShapeDataSet::beamConfiguration() const
 {
     return beamModel_;
 }
 
 /// returns the group rectangle in screen coordinates
-QPolygonF AMShapeDataSet::groupRectangle()
+QPolygonF AMShapeDataSet::groupRectangle() const
 {
     return screenShape(groupRectangle_);
 }
 
 /// returns motor x coordinate
-double AMShapeDataSet::motorX()
+double AMShapeDataSet::motorX() const
 {
     return motorCoordinate_.x();
 }
 
 /// returns motor y coordinate
-double AMShapeDataSet::motorY()
+double AMShapeDataSet::motorY() const
 {
     return motorCoordinate_.y();
 }
 
 /// returns motor z coordinate
-double AMShapeDataSet::motorZ()
+double AMShapeDataSet::motorZ() const
 {
     return motorCoordinate_.z();
 }
 
 /// returns the motor rotation
-double AMShapeDataSet::motorRotation()
+double AMShapeDataSet::motorRotation() const
 {
     return motorRotation_;
 }
 
 /// returns the intersections
-QVector<QPolygonF> AMShapeDataSet::intersections()
+QVector<QPolygonF> AMShapeDataSet::intersections() const
 {
     return intersections_;
 }
 
 /// returns the crosshair x value
-double AMShapeDataSet::crosshairX()
+double AMShapeDataSet::crosshairX() const
 {
     return crosshair_.x();
 }
 
 /// returns the crosshair y value
-double AMShapeDataSet::crosshairY()
+double AMShapeDataSet::crosshairY() const
 {
     return crosshair_.y();
 }
 
 /// returns the crosshair point
-QPointF AMShapeDataSet::crosshair()
+QPointF AMShapeDataSet::crosshair() const
 {
     return crosshair_;
 }
 
 /// is the crossHair locked?
-bool AMShapeDataSet::crosshairLocked()
+bool AMShapeDataSet::crosshairLocked() const
 {
     return crosshairLocked_;
 }
 
 /// returns the view size of the video widget
-QSizeF AMShapeDataSet::viewSize()
+QSizeF AMShapeDataSet::viewSize() const
 {
     return viewSize_;
 }
 
 /// returns the scaled size of the video widget
-QSizeF AMShapeDataSet::scaledSize()
+QSizeF AMShapeDataSet::scaledSize() const
 {
     return scaledSize_;
 }
 
 /// is the cameraMatrix being used?
-bool AMShapeDataSet::useCameraMatrix()
+bool AMShapeDataSet::useCameraMatrix() const
 {
     return useCameraMatrix_;
 }
 
 /// The polyon currently being drawn
-QPolygonF AMShapeDataSet::currentPolygon()
+QPolygonF AMShapeDataSet::currentPolygon() const
 {
     return screenShape(currentPolygon_);
 }
@@ -270,6 +270,16 @@ double AMShapeDataSet::idNumber(int index)
     }
     else
         return 0;
+}
+
+bool AMShapeDataSet::visible() const
+{
+    return visible(current_);
+}
+
+bool AMShapeDataSet::visible(int index) const
+{
+    return shapeList_.at(index)->visible();
 }
 
 /// returns the rotation of the given index
@@ -459,6 +469,16 @@ void AMShapeDataSet::setIdNumber(double number, int index)
     {
         shapeList_[index]->setIdNumber(number);
     }
+}
+
+void AMShapeDataSet::setVisible(bool visible)
+{
+    setVisible(visible,current_);
+}
+
+void AMShapeDataSet::setVisible(bool visible, int index)
+{
+    shapeList_[index]->setVisible(visible);
 }
 
 /// sets whether to use camera matrix for transforms
@@ -1738,7 +1758,7 @@ QVector<QVector3D> AMShapeDataSet::rotateShape(AMShapeData shape)
 }
 
 /// transforms a coordinate point for display on the screen
-QPointF AMShapeDataSet::coordinateTransform(QPointF coordinate)
+QPointF AMShapeDataSet::coordinateTransform(QPointF coordinate) const
 {
 
     QRectF activeRect = QRectF(QPointF((viewSize().width()-scaledSize().width())/2,
@@ -2060,7 +2080,7 @@ QPointF AMShapeDataSet::transform3Dto2DMatrix(QVector3D coordinate)
 //}
 
 
-QPolygonF AMShapeDataSet::screenShape(QPolygonF shape)
+QPolygonF AMShapeDataSet::screenShape(QPolygonF shape) const
 {
     QPolygonF newShape;
     for(int i = 0; i < shape.count(); i++)

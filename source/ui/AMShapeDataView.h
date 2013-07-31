@@ -35,11 +35,15 @@ public slots:
     void rotationChanged(QString);
     void yAxisRotationChanged(QString);
 
+    void toggleShapeVisible();
+
+    void setShapeVisible(bool visible);
 
 signals:
     void updateShapes();
     void applyDistortion();
     void newName();
+    void shapeVisible(bool);
 protected slots:
     void xAxisRotation(int);
     void yAxisRotation(int);
@@ -59,6 +63,7 @@ protected:
     QSlider* xAxisSlider_;
     QSlider* yAxisSlider_;
     QSlider* zAxisSlider_;
+    QPushButton* showHideButton_;
 
 };
 
