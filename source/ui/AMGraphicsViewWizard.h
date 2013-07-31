@@ -21,8 +21,9 @@ class QLineEdit;
 /// Also contains the common functionality
 /// of the Camera, Beam, and Sample plate wizards
 /// such as move sample plate to point,
-/// mapping point to the video and a message function,
-///  which allows all text to be easily defined in one place.
+/// mapping point to the video and as well as
+/// common wizard functionality that makes it
+/// faster to create a wizard with less extra classes and methods
 
 /// All pages in a subclass of this wizard should be descendents of
 /// AMWizard page.
@@ -38,20 +39,27 @@ public:
     enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
     AMGraphicsViewWizard(QWidget* parent = 0);
 
+    /// returns the view held by this wizard
     AMShapeDataSetGraphicsView* view() const;
 
+    /// returns the scaling of the view
     QPointF scale() const;
 
+    /// setting the scale of the view allows it to be zoomed in or out
     void setScale(QPointF scale);
     void setScale(double scaleFactor);
 
     /// emits moveTo signal with currentId as the argument
     virtual void waitPage();
 
+    /// returns the list of points
     virtual QList<QPointF*>* pointList() const;
 
+    /// returns the list of coordinates
     virtual QList<QVector3D*>* coordinateList() const;
 
+    /// the number of points for this wizard.
+    /// used to generate the options page
     int numberOfPoints() const;
 
 
@@ -73,18 +81,25 @@ public:
     /// used to access the state of the checkbox in an AMCheckPage
     virtual bool checked(int page) const;
 
+    /// adds the option page, making it accessible from
+    /// the page with page number 'id'
     void addOptionPage(int id);
 
+    /// returns true if the page is set to be shown
     bool showOptionPage() const;
 
+    /// sets the page to access the options page from
     void setOptionPage(int id);
 
 
 public slots:
+    /// sets the view
     void setView(AMShapeDataSetGraphicsView* view);
 
+    /// sets the point in pointList at index to point
     virtual void setPoint(QPointF point, int index);
 
+    /// sets the coordinate in coordinateList at index to coordinate
     virtual void setCoordinate(QVector3D coordinate, int index);
 
 
@@ -97,8 +112,10 @@ public slots:
     /// this directly.
     virtual void showHelp();
 
+    /// appends a point to pointList
     virtual void addPoint(QPointF position);
 
+    /// updates the scene
     void updateScene(AMShapeDataSetGraphicsView* view);
 
     void updateShape(QGraphicsPolygonItem* item);

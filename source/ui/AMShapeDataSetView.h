@@ -286,6 +286,8 @@ protected slots:
 
     void moveBeamSamplePlate(int);
 
+    void showBeamMarker(int);
+
 
 
 

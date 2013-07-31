@@ -27,6 +27,12 @@ public:
 
     void waitPage();
 
+    void showBeamShape();
+
+    bool setting();
+
+    bool reviewBeamShape();
+
 public slots:
     void back();
 
@@ -39,8 +45,12 @@ public slots:
 signals:
     void showShape(int);
 
+    void showBeamMarker(int);
+
 protected:
     bool setting_;
+
+    bool reviewBeamShape_;
 
     bool topLeft_;
 };

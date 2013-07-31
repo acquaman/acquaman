@@ -303,6 +303,8 @@ public slots:
     /// move the sample plate by a small amount, proportional to movement
     void moveSamplePlate(int movement);
 
+    void addBeamMarker(int index);
+
 
 
 

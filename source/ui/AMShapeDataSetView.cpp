@@ -576,6 +576,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
+            qDebug()<<shapes_[i]->polygon();
             if(!wordList_->stringList().contains(shapeModel_->data(i)))
             {
                 wordList_->insertRow(wordList_->rowCount());
@@ -595,8 +596,9 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
             if(textItems_.count() < i+1) textItems_<< new GraphicsTextItem();
             if(shapeModel_->isValid(i))
             {
-
-                textItems_[i]->setPos(shapes_[i]->polygon().first()-QPointF(0,textItems_.at(i)->boundingRect().height()));
+                QPointF point(0,textItems_[i]->boundingRect().height());
+                QPointF first = shapes_[i]->polygon().first();
+                textItems_[i]->setPos(first-point);
                 textItems_[i]->setDefaultTextColor(Qt::red);
                 if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
                 if(currentView_ == NAME)
@@ -977,6 +979,13 @@ void AMShapeDataSetView::moveBeamSamplePlate(int index)
     beamWizard_->updateScene(view);
 }
 
+void AMShapeDataSetView::showBeamMarker(int index)
+{
+    shapeModel_->addBeamMarker(index);
+    reviewCrosshairLinePositions();
+    beamWizard_->updateScene(shapeScene_);
+}
+
 
 
 
@@ -1309,6 +1318,7 @@ void AMShapeDataSetView::startBeamWizard()
     connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
     connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
     connect(beamWizard_, SIGNAL(moveTo(int)), this, SLOT(moveBeamSamplePlate(int)));
+    connect(beamWizard_, SIGNAL(showBeamMarker(int)), this, SLOT(showBeamMarker(int)));
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));

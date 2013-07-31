@@ -559,8 +559,12 @@ bool AMShapeDataSet::findIntersections()
 
 void AMShapeDataSet::deleteShape(int index)
 {
-    AMShapeData* oldShape = shapeList_.takeAt(index);
-    delete oldShape;
+    if(isValid(index))
+    {
+        AMShapeData* oldShape = shapeList_.takeAt(index);
+        delete oldShape;
+        index_--;
+    }
 }
 
 int AMShapeDataSet::samplePlateIndex()
@@ -1219,6 +1223,37 @@ void AMShapeDataSet::moveSamplePlate(int movement)
         QVector3D shiftMovement = direction * movement/1000 * shapeWidth;
         samplePlateShape_->shift(shiftMovement);
         updateShape(samplePlateIndex());
+    }
+}
+
+void AMShapeDataSet::addBeamMarker(int index)
+{
+    qDebug()<<"AMShapeDataSet::addBeamMarker";
+    if(beamMarkers_[index])
+    {
+        qDebug()<<"Beam marker is null";
+        deleteShape(shapeList_.indexOf(beamMarkers_[index]));
+    }
+    qDebug()<<"creating new shape";
+    AMShapeData* newBeamShape = new AMShapeData();
+    int sampleIndex = shapeList_.indexOf(samplePlateShape_);
+    if(sampleIndex >= 0)
+    {
+        qDebug()<<"valid sample index";
+        QVector<QVector3D> coordinateShape = findIntersectionShape(shapeList_.indexOf(samplePlateShape_));
+        if(!coordinateShape.isEmpty())
+        {
+            newBeamShape->setCoordinateShape(coordinateShape,coordinateShape.count());
+            newBeamShape->setName(QString("Beam Marker %1").arg(index));
+            newBeamShape->setRotation(0);
+            newBeamShape->setTilt(0);
+            newBeamShape->setYAxisRotation(0);
+            shapeList_.append(newBeamShape);
+            beamMarkers_[index] = newBeamShape;
+            index_++;
+            current_ = index_;
+            updateShape(current_);
+        }
     }
 }
 

@@ -17,9 +17,9 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
     setPage(Page_Intro, new AMWizardPage);
-    setPage(Page_Check_One, new AMCheckPage);
-    setPage(Page_Check_Two, new AMCheckPage);
-    setPage(Page_Check_Three, new AMCheckPage);
+    setPage(Page_Check_One, new AMBeamCheckPage);
+    setPage(Page_Check_Two, new AMBeamCheckPage);
+    setPage(Page_Check_Three, new AMBeamCheckPage);
     setPage(Page_Wait_One, new AMBeamWaitPage);
     setPage(Page_Wait_Two, new AMBeamWaitPage);
     setPage(Page_Wait_Three, new AMBeamWaitPage);
@@ -40,6 +40,7 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     setting_ = false;
+    reviewBeamShape_ = true;
 
     /// two points for each square, three squares.
     numberOfPoints_ = 6;
@@ -54,11 +55,11 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 
     coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(1,0,-0.5));
-    coordinateList_->append(new QVector3D(2,0,0.5));
-    coordinateList_->append(new QVector3D(3,0,0));
-    coordinateList_->append(new QVector3D(4,0,-0.5));
-    coordinateList_->append(new QVector3D(5,0,0.5));
+    coordinateList_->append(new QVector3D(0,0,-0.5));
+    coordinateList_->append(new QVector3D(0,0,0.5));
+    coordinateList_->append(new QVector3D(0,0,0));
+    coordinateList_->append(new QVector3D(0,0,-0.5));
+    coordinateList_->append(new QVector3D(0,0,0.5));
 
 
     addOptionPage(Page_Intro);
@@ -83,7 +84,7 @@ int AMBeamConfigurationWizard::nextId() const
     case Page_Check_Two:
         return Page_Wait_Three;
     case Page_Check_Three:
-        if(checked(Page_Check_One) && checked(Page_Check_Two) && checked(Page_Check_Three))//field(QString("configured%1").arg(Page_Check_One)).toBool() && field(QString("configured%1").arg(Page_Check_Two)).toBool() && field(QString("configured%1").arg(Page_Check_Three)).toBool())
+        if(checked(Page_Check_One) && checked(Page_Check_Two) && checked(Page_Check_Three))
             return Page_Final;
         else
             return Wait_One_Again;
@@ -112,6 +113,7 @@ void AMBeamConfigurationWizard::next()
     if(nextId() == Wait_One_Again)
     {
         setting_ = true;
+        reviewBeamShape_ = false;
         while(currentId() != Page_Wait_One)
             QWizard::back();
         if(currentId() == Page_Wait_One)
@@ -316,6 +318,21 @@ void AMBeamConfigurationWizard::waitPage()
     emit moveTo(relativeId() - 1);
 }
 
+void AMBeamConfigurationWizard::showBeamShape()
+{
+    emit showBeamMarker(relativeId()-1);
+}
+
+bool AMBeamConfigurationWizard::setting()
+{
+    return setting_;
+}
+
+bool AMBeamConfigurationWizard::reviewBeamShape()
+{
+    return reviewBeamShape_;
+}
+
 
 
 void AMBeamConfigurationWizard::back()
@@ -370,6 +387,7 @@ void AMBeamConfigurationWizard::back()
         break;
     case Page_Set_One:
         setting_ = false;
+        reviewBeamShape_ = true;
         QWizard::back();
         while(currentId() != Page_Wait_Three)
             QWizard::next();
@@ -406,6 +424,10 @@ void AMBeamConfigurationWizard::back()
 
 void AMBeamCheckPage::initializePage()
 {
+    if(((AMBeamConfigurationWizard*)viewWizard())->reviewBeamShape())
+    {
+        ((AMBeamConfigurationWizard*)viewWizard())->showBeamShape();
+    }
     AMCheckPage::initializePage();
 }
 
