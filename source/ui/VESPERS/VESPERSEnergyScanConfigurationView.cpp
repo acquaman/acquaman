@@ -66,6 +66,8 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	scanName_ = addScanNameView(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
+	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -248,24 +250,24 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 
 	case VESPERS::H | VESPERS::V:
 
-		x = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		x = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		y = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
 		break;
 
 	case VESPERS::X | VESPERS::Z:
 
-		x = VESPERSBeamline::vespers()->realSampleStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->realSampleStage()->vert()->value();
+		x = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value();
+		y = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
 		break;
 
 	case VESPERS::AttoH | VESPERS::AttoV:
 
-		x = VESPERSBeamline::vespers()->pseudoAttoStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->pseudoAttoStage()->vert()->value();
+		x = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
+		y = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
 		break;
@@ -273,8 +275,8 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 	case VESPERS::AttoX | VESPERS::AttoZ:
 
 
-		x = VESPERSBeamline::vespers()->realAttoStage()->horiz()->value();
-		y = VESPERSBeamline::vespers()->realAttoStage()->vert()->value();
+		x = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
+		y = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
 		break;

@@ -168,6 +168,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	scanName_ = addScanNameView(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
+	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -378,8 +380,8 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	case VESPERS::H | VESPERS::V:
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:
@@ -418,8 +420,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	case VESPERS::H | VESPERS::V:
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:

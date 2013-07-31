@@ -93,14 +93,14 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 
 	else if (motorGroupObject_->motionTypeAt(motorGroupObject_->normalIndex()) == AMMotorGroupObject::Translational){
 
-		goIn_->setIcon(QIcon(":/go-in.png"));
-		goOut_->setIcon(QIcon(":/go-out.png"));
+		goIn_->setIcon(QIcon(":/go-out.png"));
+		goOut_->setIcon(QIcon(":/go-in.png"));
 	}
 
 	else{
 
-		goIn_->setIcon(QIcon(":/ArrowCW.png"));
-		goOut_->setIcon(QIcon(":/ArrowCCW.png"));
+		goIn_->setIcon(QIcon(":/ArrowCCW.png"));
+		goOut_->setIcon(QIcon(":/ArrowCW.png"));
 	}
 
 	stopButton_ = new QToolButton;
@@ -112,13 +112,22 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	arrowLayout->addWidget(goDown_, 2, 1);
 	arrowLayout->addWidget(goLeft_, 1, 0);
 	arrowLayout->addWidget(goRight_, 1, 2);
-	arrowLayout->addWidget(goIn_, 0, 2);
-	arrowLayout->addWidget(goOut_, 2, 0);
+	arrowLayout->addWidget(goIn_, 2, 0);
+	arrowLayout->addWidget(goOut_, 0, 2);
 	arrowLayout->addWidget(stopButton_, 1, 1);
 	arrowLayout->addWidget(status_, 0, 0);
 
+	QStringList units = motorGroupObject_->units();
+	units.removeDuplicates();
+	QString unitString = "";
+
+	foreach (QString temp, units)
+		unitString = unitString % temp % "/";
+
+	unitString.chop(1);
+
 	jog_ = new QDoubleSpinBox;
-	jog_->setSuffix(" mm");
+	jog_->setSuffix(" " % unitString);
 	jog_->setSingleStep(0.001);
 	jog_->setMinimum(0.0000);
 	jog_->setValue(0.050);
@@ -158,13 +167,13 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
 	}
 
-	connect(controlSetpoints_.at(0), SIGNAL(returnPressed()), this, SLOT(onFirstControlSetpoint()));
+	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
 
 	if (controlSetpoints_.size() > 1)
-		connect(controlSetpoints_.at(1), SIGNAL(returnPressed()), this, SLOT(onSecondControlSetpoint()));
+		connect(controlSetpoints_.at(1), SIGNAL(editingFinished()), this, SLOT(onSecondControlSetpoint()));
 
 	if (controlSetpoints_.size() > 2)
-		connect(controlSetpoints_.at(2), SIGNAL(returnPressed()), this, SLOT(onThirdControlSetpoint()));
+		connect(controlSetpoints_.at(2), SIGNAL(editingFinished()), this, SLOT(onThirdControlSetpoint()));
 
 	QHBoxLayout *motorGroupLayout = new QHBoxLayout;
 	motorGroupLayout->addLayout(arrowLayout);
@@ -192,13 +201,13 @@ void AMMotorGroupObjectView::onDownClicked()
 void AMMotorGroupObjectView::onLeftClicked()
 {
 	int index = motorGroupObject_->horizontalIndex();
-	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
+	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
 }
 
 void AMMotorGroupObjectView::onRightClicked()
 {
 	int index = motorGroupObject_->horizontalIndex();
-	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
+	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
 }
 
 void AMMotorGroupObjectView::onOutClicked()
@@ -334,17 +343,20 @@ void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 
 	temp = popup.exec(mapToGlobal(pos));
 
-	if (temp){
+	if (temp)
+		handleStandardMenuItems(temp->text());
+}
 
-		if (temp->text().contains("Switch to Multiple"))
-			setViewMode(Multiple);
+void AMMotorGroupView::handleStandardMenuItems(const QString &command)
+{
+	if (command.contains("Switch to Multiple"))
+		setViewMode(Multiple);
 
-		else if (temp->text().contains("Switch to Exclusive"))
-			setViewMode(Exclusive);
+	else if (command.contains("Switch to Exclusive"))
+		setViewMode(Exclusive);
 
-		else
-			setMotorGroupView(temp->text());
-	}
+	else
+		setMotorGroupView(command);
 }
 
 void AMMotorGroupView::setMotorGroupView(const QString &name)

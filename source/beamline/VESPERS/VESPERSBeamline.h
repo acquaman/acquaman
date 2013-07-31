@@ -25,14 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
@@ -41,9 +39,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -464,20 +462,35 @@ public:
 	/// Returns the psi tilt attocube control.
 	AMControl *attoStageRx() const { return attoStageRx_; }
 
-	// The sample stages.
-	/// Returns the sample stage control built with the pseudo-motors.
-	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
-	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
-	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
-	/// Returns the wire stage control built with the pseudo-motors.
-	VESPERSSampleStageControl *pseudoWireStage() const { return pseudoWireStage_; }
-	/// Returns the attocube pseudo-motor stage.
-	VESPERSSampleStageControl *pseudoAttoStage() const { return pseudoAttoStage_; }
-	/// Returns the attocube real-motor stage.
-	VESPERSSampleStageControl *realAttoStage() const { return realAttoStage_; }
+	// The motor group and specific motor group object getters.
+	/// Returns the CLSPseudoMotorGroup pointer.
+	CLSPseudoMotorGroup *motorGroup() const { return motorGroup_; }
+	/// Returns the pseudo sample stage motor group object.
+	AMMotorGroupObject *pseudoSampleStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Stage - H, V, N"); }
+	/// Returns the real sample stage motor group object.
+	AMMotorGroupObject *realSampleStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Stage - X, Z, Y"); }
+	/// Returns the pseudo wire stage motor group object.
+	AMMotorGroupObject *pseudoWireStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Wire Stage - H, V, N"); }
+	/// Returns the pseudo attocube stage motor group object.
+	AMMotorGroupObject *pseudoAttocubeStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - H, V, N"); }
+	/// Returns the real attocube stage motor group object.
+	AMMotorGroupObject *realAttocubeStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - X, Z, Y"); }
+	/// Returns the Rx rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRxMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rx"); }
+	/// Returns the Ry rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRyMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Ry"); }
+	/// Returns the Rz rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRzMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rz"); }
 
-	// The motor group.
-	AMMotorGroup *motorGroup() const { return motorGroup_; }
+	// The reset controls for the pseudo motors.
+	/// Returns the pseudo sample stage reset control.
+	AMControl *pseudoSampleStageResetControl() const { return pseudoSampleStageResetControl_; }
+	/// Returns the real sample stage reset control.
+	AMControl *realSampleStageResetControl() const { return realSampleStageResetControl_; }
+	/// Returns the pseudo attocube stage reset control.
+	AMControl *pseudoAttoStageResetControl() const { return pseudoAttoStageResetControl_; }
+	/// Returns the real attocube stage reset control.
+	AMControl *realAttoStageResetControl() const { return realAttoStageResetControl_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -489,6 +502,17 @@ public:
 
 	/// Returns the sample stage PID control.
 	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+
+	// Wire stage PID controls.
+	/// Returns the PID control for the x-direction of the wire stage.
+	AMControl *wireStagePidX() const { return wireStagePidX_; }
+	/// Returns the PID control for the y-direction of the wire stage.
+	AMControl *wireStagePidY() const { return wireStagePidY_; }
+	/// Returns the PID control for the z-direction of the wire stage.
+	AMControl *wireStagPidZ() const { return wireStagePidZ_; }
+
+	/// Returns the wire stage PID control.
+	VESPERSPIDLoopControl *wireStagePID() const { return wireStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -834,22 +858,25 @@ protected:
 	AMControl *attoStageRy_;
 	AMControl *attoStageRx_;
 
-	// The sample stage encapsulation.
-	VESPERSSampleStageControl *pseudoSampleStage_;
-	VESPERSSampleStageControl *realSampleStage_;
-	VESPERSSampleStageControl *pseudoWireStage_;
-	VESPERSSampleStageControl *pseudoAttoStage_;
-	VESPERSSampleStageControl *realAttoStage_;
+	// The reset controls for each sample stage.
+	AMControl *pseudoSampleStageResetControl_;
+	AMControl *realSampleStageResetControl_;
+	AMControl *pseudoAttoStageResetControl_;
+	AMControl *realAttoStageResetControl_;
 
 	// Motor group.  Binds all the motors for scanning together.
-	AMMotorGroup *motorGroup_;
+	CLSPseudoMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
+	AMControl *wireStagePidX_;
+	AMControl *wireStagePidY_;
+	AMControl *wireStagePidZ_;
 
 	VESPERSPIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *wireStagePID_;
 
 	// End sample stage controls.
 

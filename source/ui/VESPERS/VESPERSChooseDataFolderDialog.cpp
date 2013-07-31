@@ -1,5 +1,7 @@
 #include "VESPERSChooseDataFolderDialog.h"
 
+#include "application/VESPERS/VESPERS.h"
+
 #include <QLabel>
 #include <QFileDialog>
 #include <QLineEdit>
@@ -26,7 +28,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	folderButton->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
-	QString path = getProposalNumber(folder_);
+	QString path = VESPERS::getProposalNumber(folder_);
 
 	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
@@ -41,7 +43,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 		path = folder_;
 
 	path_->setText(path);
-	okButton_->setEnabled(pathOk(advancedCheck_->isChecked() ? folder_ : getProposalNumber(folder_)));
+	okButton_->setEnabled(pathOk(advancedCheck_->isChecked() ? folder_ : VESPERS::getProposalNumber(folder_)));
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(path_);
@@ -138,25 +140,13 @@ void VESPERSChooseDataFolderDialog::onTextChanged(const QString &text)
 	folder_ = text;
 }
 
-QString VESPERSChooseDataFolderDialog::getProposalNumber(const QString &dir) const
-{
-	QString string = dir;
-	QStringList pathParts = string.split("/");
-	int index = pathParts.indexOf(QRegExp("^\\d{2,2}-\\d{4,4}$"));
-
-	if (index == -1)
-		return QString("");
-
-	return pathParts.at(index);
-}
-
 bool VESPERSChooseDataFolderDialog::pathOk(const QString &path) const
 {
 	if (advancedCheck_->isChecked())
 		return QFileInfo(path).exists();
 
 	else
-		return !getProposalNumber(path).isEmpty();
+		return !VESPERS::getProposalNumber(path).isEmpty();
 }
 
 void VESPERSChooseDataFolderDialog::getFilePath()

@@ -17,16 +17,13 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSXRFScanController.h \
 	source/ui/VESPERS/VESPERSXRFScanConfigurationView.h \
 	source/ui/VESPERS/VESPERSPersistentView.h \
-	source/ui/VESPERS/VESPERSSampleStageView.h \
 	source/ui/VESPERS/VESPERSXRFElementView.h \
 	source/util/VESPERS/XRFPeriodicTable.h \
 	source/ui/VESPERS/XRFPeriodicTableView.h \
 	source/util/VESPERS/ROIHelper.h \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
-	source/beamline/VESPERS/VESPERSSampleStageControl.h \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
-	source/ui/VESPERS/VESPERSMapSetupView.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/util/VESPERS/XRFElement.h \
@@ -38,10 +35,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
 	source/ui/VESPERS/VESPERSDiagnosticsView.h \
-	source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
 	source/ui/util/AMPeriodicTableDialog.h \
-	source/beamline/VESPERS/VESPERSExperimentConfiguration.h \
-	source/util/VESPERS/VESPERSMapSetup.h \
 	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h \
 	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.h \
 	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.h \
@@ -51,8 +45,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERS2DScanConfiguration.h \
 	source/ui/VESPERS/VESPERS2DScanConfigurationView.h \
 	source/dataman/export/VESPERS/VESPERSExporter2DAscii.h \
-	source/beamline/VESPERS/VESPERSEndstationConfiguration.h \
-	source/ui/VESPERS/VESPERSEndstationConfigurationView.h \
 	source/dataman/export/VESPERS/VESPERSExporterSMAK.h \
 	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h \
 	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h \
@@ -100,16 +92,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanController.cpp \
 	source/ui/VESPERS/VESPERSXRFScanConfigurationView.cpp \
 	source/ui/VESPERS/VESPERSPersistentView.cpp \
-	source/ui/VESPERS/VESPERSSampleStageView.cpp \
 	source/ui/VESPERS/VESPERSXRFElementView.cpp \
 	source/util/VESPERS/XRFPeriodicTable.cpp \
 	source/ui/VESPERS/XRFPeriodicTableView.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
-	source/beamline/VESPERS/VESPERSSampleStageControl.cpp \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
-	source/ui/VESPERS/VESPERSMapSetupView.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/util/VESPERS/XRFElement.cpp \
@@ -121,10 +110,7 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.cpp \
 	source/ui/VESPERS/VESPERSBeamSelectorView.cpp \
 	source/ui/VESPERS/VESPERSDiagnosticsView.cpp \
-	source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
 	source/ui/util/AMPeriodicTableDialog.cpp \
-	source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp \
-	source/util/VESPERS/VESPERSMapSetup.cpp \
 	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.cpp \
 	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.cpp \
 	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.cpp \
@@ -134,8 +120,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERS2DScanConfiguration.cpp \
 	source/ui/VESPERS/VESPERS2DScanConfigurationView.cpp \
 	source/dataman/export/VESPERS/VESPERSExporter2DAscii.cpp \
-	source/beamline/VESPERS/VESPERSEndstationConfiguration.cpp \
-	source/ui/VESPERS/VESPERSEndstationConfigurationView.cpp \
 	source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp \
 	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.cpp \
 	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.cpp \
@@ -170,6 +154,22 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

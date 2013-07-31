@@ -95,7 +95,8 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	laserPowerButton_->setFont(font);
 	connect(laserPowerButton_, SIGNAL(clicked()), endstation_, SLOT(toggleLaserPower()));
 	connect(endstation_, SIGNAL(laserPoweredChanged()), this, SLOT(laserPowerUpdate()));
-	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged(double)));
+	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged()));
+	connect(endstation_, SIGNAL(laserPositionValidityChanged(bool)), this, SLOT(onLaserDistanceChanged()));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
@@ -154,15 +155,22 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
-void VESPERSEndstationView::onLaserDistanceChanged(double val)
+void VESPERSEndstationView::onLaserDistanceChanged()
 {
 	QPalette palette(this->palette());
 
-	if (endstation_->laserPowered()){
+	if (endstation_->laserPowered() && endstation_->laserPositionValid()){
 
 		palette.setBrush(QPalette::ButtonText, Qt::darkGreen);
 		laserPowerButton_->setPalette(palette);
-		laserPowerButton_->setText(QString("%1 mm").arg(val, 0, 'f', 3));
+		laserPowerButton_->setText(QString("%1 mm").arg(endstation_->laserPosition(), 0, 'f', 3));
+	}
+
+	else if (endstation_->laserPowered()){
+
+		palette.setBrush(QPalette::ButtonText, Qt::red);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText("-FFFFFF");
 	}
 
 	else {
@@ -203,7 +211,7 @@ void VESPERSEndstationView::laserPowerUpdate()
 	}
 
 	laserPowerButton_->blockSignals(false);
-	onLaserDistanceChanged(endstation_->laserPosition());
+	onLaserDistanceChanged();
 }
 
 void VESPERSEndstationView::lightBulbToggled(bool pressed)
@@ -251,6 +259,10 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	vortex4HighLimit_ = new QLineEdit;
 	vortex4HomePosition_ = new QLineEdit;
 
+	ccdBufferSafePosition_ = new QLineEdit;
+	usingBuffer_ = new QCheckBox;
+	at90Deg_ = new QCheckBox;
+
 	// Aligning.
 	ccdLowLimit_->setAlignment(Qt::AlignCenter);
 	ccdHighLimit_->setAlignment(Qt::AlignCenter);
@@ -269,6 +281,10 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	vortex4HighLimit_->setAlignment(Qt::AlignCenter);
 	vortex4HomePosition_->setAlignment(Qt::AlignCenter);
 
+	ccdBufferSafePosition_->setAlignment(Qt::AlignCenter);
+	usingBuffer_->setText("Helium Buffer");
+	at90Deg_->setText("CCD at 90 deg");
+
 	// Setting up the group box layouts.
 	QGroupBox *ccdGB = new QGroupBox("CCD Setup");
 	QGridLayout *ccdLowLayout = new QGridLayout;
@@ -280,11 +296,16 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	QGridLayout *ccdHomeLayout = new QGridLayout;
 	ccdHomeLayout->addWidget(ccdHomePosition_, 0, 0, 1, 3);
 	ccdHomeLayout->addWidget(new QLabel(tr("mm")), 0, 2);
+	QGridLayout *ccdBufferSafeLayout = new QGridLayout;
+	ccdBufferSafeLayout->addWidget(ccdBufferSafePosition_, 0, 0, 1, 3);
+	ccdBufferSafeLayout->addWidget(new QLabel(tr("mm")), 0, 2);
 
 	QFormLayout *ccdLayout = new QFormLayout;
 	ccdLayout->addRow("Low Limit", ccdLowLayout);
 	ccdLayout->addRow("High Limit", ccdHighLayout);
-	ccdLayout->addRow("Home Position", ccdHomeLayout);
+	ccdLayout->addRow("Safe Position", ccdHomeLayout);
+	ccdLayout->addRow("Buffer Position", ccdBufferSafeLayout);
+	ccdLayout->addRow(usingBuffer_, at90Deg_);
 	ccdGB->setLayout(ccdLayout);
 
 	QGroupBox *microscopeGB = new QGroupBox("Microscope Setup");
@@ -386,6 +407,10 @@ void VESPERSEndstationLimitsView::saveFile()
 	out << microscopeOutPosition_->text() + "\n";
 	out << microscopeInStatus_->text() + "\n";
 	out << microscopeOutStatus_->text() + "\n";
+	out << "CCD Extras\n";
+	out << ccdBufferSafePosition_->text() + "\n";
+	out << (usingBuffer_->isChecked() ? "YES\n" : "NO\n");
+	out << (at90Deg_->isChecked() ? "YES\n" : "NO\n");
 
 	file.close();
 
@@ -398,29 +423,33 @@ void VESPERSEndstationLimitsView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
-		// If there is no configuration file, then it creates a file with some default values.
-		if (!file.open(QFile::ReadOnly | QFile::Text)){
+	// If there is no configuration file, then it creates a file with some default values.
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
 
-			ccdLowLimit_->setText(QString::number(35, 'f', 1));
-			ccdHighLimit_->setText(QString::number(190, 'f', 1));
-			ccdHomePosition_->setText(QString::number(190, 'f', 1));
+		ccdLowLimit_->setText(QString::number(100, 'f', 1));
+		ccdHighLimit_->setText(QString::number(230, 'f', 1));
+		ccdHomePosition_->setText(QString::number(230, 'f', 1));
 
-			vortexLowLimit_->setText(QString::number(60, 'f', 1));
-			vortexHighLimit_->setText(QString::number(180, 'f', 1));
-			vortexHomePosition_->setText(QString::number(180, 'f', 1));
+		vortexLowLimit_->setText(QString::number(60, 'f', 1));
+		vortexHighLimit_->setText(QString::number(180, 'f', 1));
+		vortexHomePosition_->setText(QString::number(180, 'f', 1));
 
-			vortex4LowLimit_->setText(QString::number(60, 'f', 1));
-			vortex4HighLimit_->setText(QString::number(180, 'f', 1));
-			vortex4HomePosition_->setText(QString::number(180, 'f', 1));
+		vortex4LowLimit_->setText(QString::number(60, 'f', 1));
+		vortex4HighLimit_->setText(QString::number(180, 'f', 1));
+		vortex4HomePosition_->setText(QString::number(180, 'f', 1));
 
-			microscopeInPosition_->setText(QString::number(90, 'f', 1));
-			microscopeOutPosition_->setText(QString::number(190, 'f', 1));
-			microscopeInStatus_->setText("In");
-			microscopeOutStatus_->setText("Out");
+		microscopeInPosition_->setText(QString::number(90, 'f', 1));
+		microscopeOutPosition_->setText(QString::number(190, 'f', 1));
+		microscopeInStatus_->setText("In");
+		microscopeOutStatus_->setText("Out");
 
-			saveFile();
+		ccdBufferSafePosition_->setText(QString::number(350, 'f', 1));
+		usingBuffer_->setChecked(true);
+		at90Deg_->setChecked(true);
 
-			return;
+		saveFile();
+
+		return;
 	}
 
 	QTextStream in(&file);
@@ -447,4 +476,8 @@ void VESPERSEndstationLimitsView::loadFile()
 	microscopeOutPosition_->setText(contents.at(15));
 	microscopeInStatus_->setText(contents.at(16));
 	microscopeOutStatus_->setText(contents.at(17));
+
+	ccdBufferSafePosition_->setText(contents.at(19));
+	usingBuffer_->setChecked(contents.at(20) == "YES");
+	at90Deg_->setChecked(contents.at(21) == "YES");
 }

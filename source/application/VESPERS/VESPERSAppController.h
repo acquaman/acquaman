@@ -95,6 +95,13 @@ protected slots:
 	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
 	virtual void fixCDF(const QUrl &url);
 
+	/// Handles setting the path for the Roper CCD when it is connected.
+	void onRoperCCDConnected(bool connected);
+	/// Handles setting the path for the Mar CCD when it is connected.
+	void onMarCCDConnected(bool connected);
+	/// Handles setting the path for the Pilatus CCD when it is connected.
+	void onPilatusCCDConnected(bool connected);
+
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
@@ -193,6 +200,13 @@ protected:
 	VESPERSPersistentView *persistentView_;
 	/// Pointer to the endstation view.
 	VESPERSEndstationView *endstationView_;
+
+	/// Flag for holding the startup flag for the Roper CCD.  This is false until the roper is connected.
+	bool roperCCDStartup_;
+	/// Flag for holding the startup flag for the Mar CCD.  This is false until the roper is connected.
+	bool marCCDStartup_;
+	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
+	bool pilatusCCDStartup_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

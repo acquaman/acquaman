@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSPersistentView.h"
-#include "ui/VESPERS/VESPERSSampleStageView.h"
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/CLS/CLSIonChamberView.h"
@@ -47,12 +46,13 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
-	motorGroupView_ = new AMMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
 	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 
-	// PID control view widget.
-	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	// PID control view widgets.
+	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidWireStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->wireStagePID());
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -264,7 +264,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
 	persistentLayout->addWidget(motorGroupView_, 0, Qt::AlignLeft);
-	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(pidSampleStageView);
+	persistentLayout->addWidget(pidWireStageView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);

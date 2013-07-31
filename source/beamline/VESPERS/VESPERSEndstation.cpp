@@ -39,6 +39,7 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", true, 1.0, 2.0, this);
 
 	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
+	laserPositionStatusControl_ = new AMReadOnlyPVControl("Laser Position Status", "PSD1607-2-B20-01:OUT1:fbk:status", this);
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -77,10 +78,16 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
 	connect(laserPositionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPositionChanged(double)));
+	connect(laserPositionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onLaserPositionValidityChanged(double)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
 		connect(list.at(i), SIGNAL(connected(bool)), this, SLOT(onFiltersConnected()));
+}
+
+void VESPERSEndstation::onLaserPositionValidityChanged(double value)
+{
+	emit laserPositionValidityChanged(value == 1.0);
 }
 
 bool VESPERSEndstation::loadConfiguration()
@@ -106,6 +113,9 @@ bool VESPERSEndstation::loadConfiguration()
 	softLimits_.insert(microscopeControl_, qMakePair(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
 
 	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
+	upperCcdSoftLimitwHeliumBuffer_ = contents.at(19).toDouble();
+	heliumBufferAttached_ = contents.at(20) == "YES";
+	ccdAt90Degrees_ = contents.at(21) == "YES";
 
 	updateControl(current_);
 
@@ -292,4 +302,54 @@ void VESPERSEndstation::setShutterState(bool state)
 		toggleControl(filterShutterUpper_);
 
 	toggleControl(filterShutterLower_);
+}
+
+void VESPERSEndstation::setHeliumBufferFlag(bool attached)
+{
+	heliumBufferAttached_ = attached;
+}
+
+void VESPERSEndstation::setCCDAt90Degrees(bool at90Degrees)
+{
+	ccdAt90Degrees_ = at90Degrees;
+}
+
+bool VESPERSEndstation::microscopeInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second);
+}
+
+bool VESPERSEndstation::microscopeInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second);
+}
+
+bool VESPERSEndstation::ccdInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return value > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return value > softLimits_.value(ccdControl_).second;
+}
+
+bool VESPERSEndstation::ccdInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return ccdControl_->value() > softLimits_.value(ccdControl_).second;
 }

@@ -148,12 +148,14 @@ public slots:
 	void setViewMode(ViewMode mode);
 
 protected slots:
-	/// Handles the popup menu that allows you to change the motors yo want to change.
-	void onCustomContextMenuRequested(const QPoint &pos);
+	/// Handles the popup menu that allows you to change the motors you want to change.
+	virtual void onCustomContextMenuRequested(const QPoint &pos);
 
 protected:
 	/// Adds the standard actions to the popup menu based on its current view mode.
 	void buildStandardMenuItems(QMenu *menu);
+	/// Handles the standard actions from this class.
+	void handleStandardMenuItems(const QString &command);
 
 	/// Holds the view mode flag.
 	ViewMode viewMode_;
