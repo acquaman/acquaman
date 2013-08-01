@@ -28,8 +28,7 @@ class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
 class SGMMAXvMotor;
-
-//class AMBeamConfiguration;
+class AMCamera;
 
 using namespace Eigen;
 
@@ -94,31 +93,33 @@ public:
 
 
     /// other accessors
-    //not really used, accessed by shapeDataView from shapeData instead
-    QString currentName();
-    QString name(int index);
-    QString currentInfo();
-    QString otherData(int index);
-    double idNumber(int index);
+    QString currentName() const;
+    QString name(int index) const;
+    QString currentInfo() const;
+    QString otherData(int index) const;
+    double idNumber(int index) const;
     bool visible() const;
     bool visible(int index) const;
 
-    double rotation(int index = -1);
-    double tilt(int index = -1);
+    double rotation(int index) const;
+    double rotation() const;
+    double tilt(int index) const;
+    double tilt() const;
 
     /// the AMShapeData with given index
-    AMShapeData *currentShape(int index = -1);
+    AMShapeData *currentShape(int index) const;
+    AMShapeData *currentShape() const;
 
 
     /// get the shape with given index
-    QPolygonF shape(int index);
+    QPolygonF shape(int index) const;
 
 
     /// returns the coordinate of the given index
-    QVector3D coordinate(int index);
+    QVector3D coordinate(int index) const;
 
     /// returns the coordinate of the current index
-    QVector3D currentCoordinate();
+    QVector3D currentCoordinate() const;
 
     /// -----------------------------------------------------------------------------------
 
@@ -178,10 +179,11 @@ public:
     /// public functions
 
     /// checks for valid index
-    bool isValid(int index);
+    bool isValid(int index) const;
 
     /// checks if shape is facing away from camera
-    bool isBackwards(int index = -1);
+    bool isBackwards(int index) const;
+    bool isBackwards() const;
 
     /// finds camera parameters
     void findCamera(QPointF points [SAMPLEPOINTS], QVector3D coordinates[SAMPLEPOINTS]);
@@ -191,7 +193,7 @@ public:
 
     void deleteShape(int index);
 
-    int samplePlateIndex();
+    int samplePlateIndex() const;
 
 
     /// list model functions
@@ -340,71 +342,56 @@ protected:
     void shiftCoordinates(QVector3D shift, int index);
 
     /// applies rotation to the shape at the given index
-    AMShapeData applyRotation(AMShapeData shape);
+    AMShapeData applyRotation(AMShapeData shape) const;
 
     /// rotate a single point
-    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center);
+    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center) const;
 
     /// applies tilt to the shape at the given index
     /// takes QPolygonF to stack with rotation
-    AMShapeData applyTilt(AMShapeData shape);
+    AMShapeData applyTilt(AMShapeData shape) const;
 
     /// gets a tilted point
-    QVector3D getTiltedPoint(QVector3D point, double tilt, QVector3D center);
+    QVector3D getTiltedPoint(QVector3D point, double tilt, QVector3D center) const;
 
 
     /// apply y-axis rotation
-    AMShapeData applyYAxisRotation(AMShapeData shape);
+    AMShapeData applyYAxisRotation(AMShapeData shape) const;
 
     /// gets a single rotated point
-    QVector3D getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center);
+    QVector3D getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center) const;
 
-    AMShapeData applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle);
-    AMShapeData applySpecifiedRotation(AMShapeData shape, AxisDirection direction);
+    AMShapeData applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle) const;
+    AMShapeData applySpecifiedRotation(AMShapeData shape, AxisDirection direction) const;
 
     /// general rotation of a point about a point along the direction
-    QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation);
+    QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const;
 
 
     /// rotates, tilts, and distorts the shape at index
-    QPolygonF subShape(AMShapeData shape);
+    QPolygonF subShape(AMShapeData shape) const;
 
     /// apply distortion to the current shape
-    QPolygonF applyDistortion(QPolygonF shape);
+    QPolygonF applyDistortion(QPolygonF shape) const;
 
-    /// distort a point
-    QPointF distortPoint(QPointF point);
 
     /// remove distortion from a shape
-    QPolygonF removeDistortion(QPolygonF shape);
+    QPolygonF removeDistortion(QPolygonF shape) const;
 
     /// remove distortion from a point
-    QPointF undistortPoint(QPointF point);
+    QPointF undistortPoint(QPointF point) const;
 
     /// shifts scene to correspond to motor movement
     void motorMovement(double x, double y, double z, double r);
 
     /// rotates the given shape
-    QVector<QVector3D> rotateShape(AMShapeData shape);
+    QVector<QVector3D> rotateShape(AMShapeData shape) const;
 
 
     /// Transformations
 
     /// transforms point to where you are actually clicking
     QPointF coordinateTransform(QPointF) const;
-
-    /// transforms the given point and depth to a 3D coordinate
-    /// based on the current camera model
-    QVector3D transform2Dto3D(QPointF point, double depth);
-
-    /// transforms 2D point to 3D vector, using current camera matrix
-    QVector3D transform2Dto3DMatrix(QPointF point, double depth);
-
-    /// transforms a 3D vector to a 2D point, using current camera configuration
-    QPointF transform3Dto2D(QVector3D coordinate);
-
-    /// transforms 3D vector to 2D point, using current camera matrix
-    QPointF transform3Dto2DMatrix(QVector3D coordinate);
 
 
     /// Helper functions
@@ -413,82 +400,56 @@ protected:
     QPolygonF screenShape(QPolygonF shape) const;
 
     /// builds a rectangle from the specified points
-    QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight);
+    QPolygonF constructRectangle(QPointF topLeft, QPointF bottomRight) const;
 
     /// returns the size of the rectangle specified by the two points
-    QSizeF size(QPointF topLeft, QPointF bottomRight);
+    QSizeF size(QPointF topLeft, QPointF bottomRight) const;
 
     /// returns whether the shape at the given index contains the given point
-    bool contains(QPointF position,int index);
-
-    /// finds the center of the polygon, assumes a rectangle
-    QPointF findCenter(QPolygonF);
+    bool contains(QPointF position,int index) const;
 
     /// returns the depth of a given coordinate, based on camera model
-    double depth(QVector3D);
+    double depth(QVector3D) const;
 
     /// returns depth of a coordinate as a 3D vector
-    QVector3D depthVector(QVector3D);
+    QVector3D depthVector(QVector3D) const;
 
     /// finds the intersection of the shape with the beam
-    QVector<QVector3D> findIntersectionShape(int index);
+    QVector<QVector3D> findIntersectionShape(int index) const;
 
     /// converts the intersection shape to a shape on the screen
-    QPolygonF intersectionScreenShape(QVector<QVector3D>);
+    QPolygonF intersectionScreenShape(QVector<QVector3D>) const;
 
-    /// finds the center cooridnate of the given index
-    QVector3D centerCoordinate(int index);
-
-    /// checks to see if two numbers are not equal, within the given tolerance
-    bool notEqual(double a, double b, double tolerance = 0.001);
-
-    /// checks to see if a number is near zero, within the given tolerance
-    double nearZero(double a, double tolerance = 0.00001);
-
-    /// finds the absolute error beteween two numbers
-    double absError(double a, double b, double tolerance = 0.00001);
-
-    /// finds the parameters of the camera for the given points/coordinates
-    void getTransforms(QPointF points[6],QVector3D coordinates [6]);
+    /// finds the center coordinate of the given index
+    QVector3D centerCoordinate(int index) const;
 
     /// finds the dot product of two vectors
-    double dot(QVector3D,QVector3D);
-
-    /// solves for the DLT of the homogenous equation relating coordinates to points
-    MatrixXd directLinearTransform(QVector3D coordinate[6], QPointF screenposition[6]);
-
-    /// constructs a matrix to use in the DLT
-    MatrixXd constructMatrix(QVector3D coordinate[6], QPointF screenposition[6]);
-
-    /// solves for the intrinsic camera parameters, given part of the total camera matrix
-    MatrixXd intrinsicParameters(MatrixXd matrixB);
-
-    /// solves for the rotation matrix, given the intrinsic matrix and part of the total camera matrix
-    MatrixXd rotationParameters(MatrixXd matrixA, MatrixXd matrixB);
-
-    /// solves for the translation matrix, given the intrinsic matrix and part of the total camera matrix
-    MatrixXd translationParameters(MatrixXd matrixA, MatrixXd matrixSubB);
-
-    /// finds absolute coordinates from a coordinate and an extrinsic Matrix
-    MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix);
+    double dot(QVector3D,QVector3D) const;
 
     /// returns the unit vector in the direction of the last line in the shape.
     /// for a rectangle this is the "upward" direction
-    QVector3D getHeightNormal(AMShapeData shape);
+    QVector3D getHeightNormal(AMShapeData shape) const;
     /// returns the unit vector in the direction of the first line in the shape
     /// for a rectangle this is the "right" direction
-    QVector3D getWidthNormal(AMShapeData shape);
+    QVector3D getWidthNormal(AMShapeData shape) const;
     /// returns the vector normal to heightVector and widthVector
-    QVector3D getNormal(QVector3D heightVector, QVector3D widthVector);
+    QVector3D getNormal(QVector3D heightVector, QVector3D widthVector) const;
     /// returns the vector normal to the given shape
-    QVector3D getNormal(AMShapeData shape);
+    QVector3D getNormal(AMShapeData shape) const;
     /// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
-    QVector3D getPointOnShape(QPointF position,QVector3D normal);
+    QVector3D getPointOnShape(QPointF position,QVector3D normal) const;
 
     /// returns the unit vector in the direction of the top of the screen to the bottom
-    QVector3D downVector();
+    QVector3D downVector() const;
     /// returns the unit vector in the direction from the left of the screen to the right
-    QVector3D rightVector();
+    QVector3D rightVector() const;
+
+
+    void insertItem(AMShapeData* item);
+
+    void removeItem(int index);
+
+    AMShapeData* takeItem(int index);
 
 
 
@@ -510,8 +471,8 @@ protected:
     /// index of the currently selected item
     int current_;
 
-    /// the camera model
-    AMCameraConfiguration* cameraModel_;
+    /// The camera model
+    AMCamera* camera_;
 
     /// the beam model
     AMBeamConfiguration* beamModel_;
@@ -574,11 +535,6 @@ protected:
     /// list of points used in camera calibration
     AMShapeData* calibrationPoints_[SAMPLEPOINTS];
 
-    /// checked to see if using camera matrix
-    bool useCameraMatrix_;
-
-    /// checked to see if calibration has been run
-    bool calibrationRun_;
 
     /// the shape to draw on, if enabled
     AMShapeData drawOnShape_;

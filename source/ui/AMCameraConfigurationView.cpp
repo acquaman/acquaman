@@ -17,7 +17,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     QWidget(parent)
 {
     if(cameraConfiguration == 0)
-        qDebug()<<"Null camera configuration";
+        qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Null camera configuration";
     else
         cameraModel_ = cameraConfiguration;
     AMDatabase *dbSGM = AMDatabase::database("user");
@@ -32,8 +32,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
         bool success = cameraModel_->storeToDb(dbSGM);
-        if(!success)qDebug()<<"Failed to store item in database";
-        else qDebug()<<"successfully stored item in database";
+        if(!success)qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Failed to store item in database";
+        else qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - successfully stored item in database";
     }
     else
     {

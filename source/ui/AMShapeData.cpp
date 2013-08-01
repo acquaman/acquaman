@@ -40,7 +40,7 @@ QPolygonF* AMShapeData::shape()
     return shape_;
 }
 
-QString AMShapeData::name()
+QString AMShapeData::name() const
 {
     return name_;
 }
@@ -55,7 +55,7 @@ double AMShapeData::idNumber()
     return idNumber_;
 }
 
-QVector3D AMShapeData::coordinate(int index)
+QVector3D AMShapeData::coordinate(int index) const
 {
     if(validIndex(index))
         return coordinate_[index];
@@ -161,7 +161,7 @@ void AMShapeData::setVisible(bool visible)
 }
 
 /// finds the center of the shape - must be rectangular
-QVector3D AMShapeData::centerCoordinate()
+QVector3D AMShapeData::centerCoordinate() const
 {
     QVector3D center = QVector3D(0,0,0);
     for(int i = 0; i < (coordinateCount_); i++)// dont want the last point
@@ -243,7 +243,7 @@ bool AMShapeData::operator ==(const AMShapeData &other) const
 }
 
 /// checks for a valid coordinate index
-bool AMShapeData::validIndex(int index)
+bool AMShapeData::validIndex(int index) const
 {
     return (index >= 0 && index <= coordinateCount_);
 }

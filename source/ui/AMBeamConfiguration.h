@@ -24,7 +24,7 @@ public:
 
     AMQVector3DVector positionOne();
     AMQVector3DVector positionTwo();
-    AMQVector3DVector ray(int index);
+    AMQVector3DVector ray(int index) const;
     QList<QVector3D> beamOne();
     QList<QVector3D> beamTwo();
 
@@ -36,7 +36,7 @@ public:
 
     void alignPositionTwo();
 
-    int count();
+    int count() const;
 
 protected:
     QVector3D findCenter(QVector<QVector3D>);

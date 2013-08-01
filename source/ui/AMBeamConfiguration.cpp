@@ -22,7 +22,7 @@ QVector<QVector3D> AMBeamConfiguration::positionTwo()
     return positionTwo_;
 }
 
-QVector<QVector3D> AMBeamConfiguration::ray(int index)
+QVector<QVector3D> AMBeamConfiguration::ray(int index) const
 {
     QVector<QVector3D> ray;
     ray<<(positionOne_.at(index))<<(positionTwo_.at(index));
@@ -104,7 +104,7 @@ void AMBeamConfiguration::alignPositionTwo()
     setPositionTwo(newPosition);
 }
 
-int AMBeamConfiguration::count()
+int AMBeamConfiguration::count() const
 {
     return std::min(positionOne_.count(), positionTwo_.count());
 }

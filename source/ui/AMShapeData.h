@@ -23,10 +23,10 @@ public:
 
     /// accessors
     QPolygonF* shape();
-    QString name();
+    QString name() const;
     QString otherData();
     double idNumber();
-    QVector3D coordinate(int index);
+    QVector3D coordinate(int index) const;
     double height();
     double width();
     double rotation();
@@ -49,7 +49,7 @@ public:
     void setVisible(bool visible);
 
     /// returns the center
-    QVector3D centerCoordinate();
+    QVector3D centerCoordinate() const;
 
     /// shifts the shape by shift
     void shift(QVector3D shift);
@@ -90,7 +90,7 @@ protected:
 
     bool visible_;
 
-    bool validIndex(int index);
+    bool validIndex(int index) const;
 
 };
 
