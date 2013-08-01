@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbObject.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/database/AMConstDbObject.h"
 #include "acquaman.h"
 #include "util/AMErrorMonitor.h"
 
@@ -218,6 +219,12 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
+		}
+
+		else if(columnType == qMetaTypeId<AMConstDbObject*>()){
+			qDebug() << "Found column of type AMConstDbObject";
+			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
+			values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
 		}
 
 		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName;id"... which will let us re-load it later.
@@ -544,6 +551,32 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				else
 					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
 				setProperty(columnName, QVariant::fromValue(vector));
+			}
+			else if(columnType == qMetaTypeId<AMConstDbObject*>()){
+				AMConstDbObject *constObject = 0;
+				AMDbObject* reloadedObject = 0;
+
+				QString columnValue = values.at(ri).toString();
+				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
+				if(objectLocation.count() == 2) {
+					QString tableName = objectLocation.at(0);
+					int dbId = objectLocation.at(1).toInt();
+
+					reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, dbId);
+					qDebug() << "Trying to reload " << tableName << dbId << " for " << columnName << " as " << db->connectionName();
+					if(!reloadedObject){
+						qDebug() << "Didn't work";
+						//NEM
+						//if(AMErrorMon::lastErrorCode() == AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE)
+						//loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(databaseToUse->connectionName(), tableName, dbId));
+					}
+					else
+						qDebug() << "Worked with " << reloadedObject->id();
+				}
+
+				constObject = new AMConstDbObject(reloadedObject);
+				setProperty(columnName, QVariant::fromValue(constObject));
+				qDebug() << "Database wants to reload an AMConstDbObject";
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));

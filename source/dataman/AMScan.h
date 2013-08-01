@@ -42,6 +42,7 @@ class AMScanConfiguration;
 class AMScanDictionary;
 
 class AMSample;
+class AMConstDbObject;
 
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
@@ -87,6 +88,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
 	Q_PROPERTY(AMDbObject* sample READ dbReadSample WRITE dbLoadSample)
+	Q_PROPERTY(AMConstDbObject* constSample READ dbReadConstSample WRITE dbWriteConstSample)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
@@ -511,6 +513,7 @@ protected:
 	/// database id of the run and sample that this scan is associated with
 	int runId_, sampleId_;
 	const AMSample *sample_;
+	AMConstDbObject *constSample_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
@@ -569,6 +572,9 @@ protected:
 
 	AMDbObject* dbReadSample() const;
 	void dbLoadSample(AMDbObject *newSample);
+
+	AMConstDbObject* dbReadConstSample() const;
+	void dbWriteConstSample(AMConstDbObject *newConstSample);
 
 	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".

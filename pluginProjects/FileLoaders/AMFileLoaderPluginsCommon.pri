@@ -153,7 +153,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.h \
-		$$AM_INCLUDE_DIR/dataman/AMTextStream.h
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
@@ -189,4 +190,5 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.cpp

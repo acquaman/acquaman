@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman.h"
 #include "dataman/database/AMDbObject.h"
+#include "dataman/database/AMConstDbObject.h"
 
 /*!
 
@@ -66,5 +67,6 @@ namespace AM {
 		qRegisterMetaType<AMDbObjectList>();
 		qRegisterMetaType<AMDbObject*>();
 		qRegisterMetaType<AMHighPrecisionDateTime>();
+		qRegisterMetaType<AMConstDbObject*>();
 	}
 }

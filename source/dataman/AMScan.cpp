@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScan.h"
 #include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMConstDbObject.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMSample.h"
@@ -43,6 +44,7 @@ AMScan::AMScan(QObject *parent)
 	runId_ = -1;
 	sampleId_ = -1;
 	sample_ = 0; //NULL
+	constSample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
@@ -182,6 +184,10 @@ void AMScan::setSample(const AMSample *sample){
 		return;
 	if( (!sample_ && sample) || (sample_ && !sample) || (sample_->id() != sample->id()) ){
 		sample_ = sample;
+		if(!constSample_)
+			constSample_ = new AMConstDbObject(sample_, this);
+		else
+			constSample_->setObject(sample_);
 		setModified(true);
 	}
 }
@@ -441,6 +447,14 @@ void AMScan::dbLoadSample(AMDbObject *newSample){
 	AMSample *dbo = 0;
 	if ((dbo = qobject_cast<AMSample *>(newSample)))
 		sample_ = dbo;
+}
+
+AMConstDbObject* AMScan::dbReadConstSample() const{
+	return constSample_;
+}
+
+void AMScan::dbWriteConstSample(AMConstDbObject *newConstSample){
+	constSample_ = newConstSample;
 }
 
 // Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.

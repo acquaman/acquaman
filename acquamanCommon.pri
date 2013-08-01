@@ -687,7 +687,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMMotorGroupView.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
-	source/util/AMPointerTree.h
+	source/util/AMPointerTree.h \
+    source/dataman/database/AMConstDbObject.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1159,7 +1160,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
-	source/util/AMPointerTree.cpp
+	source/util/AMPointerTree.cpp \
+    source/dataman/database/AMConstDbObject.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1183,3 +1185,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+

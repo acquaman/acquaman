@@ -44,7 +44,7 @@ Q_OBJECT
 
 public:
 	/// Default constructor.
-	explicit AMSample(QObject *parent = 0);
+	Q_INVOKABLE explicit AMSample(QObject *parent = 0);
 	/// This constructor initializes a sample with a given name.
 	AMSample(const QString& sampleName, QObject* parent = 0);
 	/// This constructor immediately loads a stored sample from the database.
