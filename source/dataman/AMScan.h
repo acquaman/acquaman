@@ -87,7 +87,6 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
-	Q_PROPERTY(AMDbObject* sample READ dbReadSample WRITE dbLoadSample)
 	Q_PROPERTY(AMConstDbObject* constSample READ dbReadConstSample WRITE dbWriteConstSample)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
@@ -157,7 +156,7 @@ public:
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
 	int sampleId() const { return sampleId_; }
-	const AMSample* sample() const { return sample_; }
+	const AMSample* sample() const;
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -512,7 +511,6 @@ protected:
 	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
 	int runId_, sampleId_;
-	const AMSample *sample_;
 	AMConstDbObject *constSample_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
@@ -569,9 +567,6 @@ protected:
 	AMDbObject* dbGetScanConfiguration() const;
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
-
-	AMDbObject* dbReadSample() const;
-	void dbLoadSample(AMDbObject *newSample);
 
 	AMConstDbObject* dbReadConstSample() const;
 	void dbWriteConstSample(AMConstDbObject *newConstSample);

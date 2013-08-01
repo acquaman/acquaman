@@ -306,7 +306,7 @@ void AMSampleEditor::saveCurrentSample() {
 	if(currentSampleId() > 0) {
 		sample_->setName(sampleName_->text());
 		sample_->setElementList(parseElementString(sampleElements_->text()));
-		//sample_->storeToDb(db_);
+		sample_->storeToDb(db_);
 	}
 }
 

@@ -43,7 +43,6 @@ AMScan::AMScan(QObject *parent)
 	endDateTime_ = QDateTime();
 	runId_ = -1;
 	sampleId_ = -1;
-	sample_ = 0; //NULL
 	constSample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
@@ -157,6 +156,11 @@ double AMScan::elapsedTime() const
 	return -1;
 }
 
+const AMSample* AMScan::sample() const{
+	const AMSample *retVal = qobject_cast<const AMSample*>(constSample_->object());
+	return retVal;
+}
+
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 void AMScan::setRunId(int newRunId) {
 
@@ -180,14 +184,13 @@ void AMScan::setSampleId(int newSampleId) {
 }
 
 void AMScan::setSample(const AMSample *sample){
-	if(!sample_ && !sample)
+	if(!constSample_->object() && !sample)
 		return;
-	if( (!sample_ && sample) || (sample_ && !sample) || (sample_->id() != sample->id()) ){
-		sample_ = sample;
+	if( (!constSample_->object() && sample) || (constSample_->object() && !sample) || (constSample_->object()->id() != sample->id()) ){
 		if(!constSample_)
-			constSample_ = new AMConstDbObject(sample_, this);
+			constSample_ = new AMConstDbObject(sample, this);
 		else
-			constSample_->setObject(sample_);
+			constSample_->setObject(sample);
 		setModified(true);
 	}
 }
@@ -437,16 +440,6 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 	AMScanConfiguration* sc;
 	if((sc = qobject_cast<AMScanConfiguration*>(newObject)))
 		setScanConfiguration(sc);
-}
-
-AMDbObject* AMScan::dbReadSample() const{
-	return const_cast<AMSample*>(sample_);
-}
-
-void AMScan::dbLoadSample(AMDbObject *newSample){
-	AMSample *dbo = 0;
-	if ((dbo = qobject_cast<AMSample *>(newSample)))
-		sample_ = dbo;
 }
 
 AMConstDbObject* AMScan::dbReadConstSample() const{
