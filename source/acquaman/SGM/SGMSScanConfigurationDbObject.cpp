@@ -1,9 +1,12 @@
 #include "SGMSScanConfigurationDbObject.h"
 
+#include <QDebug>
+
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(QObject *parent) :
 	AMDbObject(parent)
 {
-
+	constSample_ = new AMSample(1, AMDatabase::database("user"));
+	qDebug() << "dateTime: " << constSample_->dateTime();
 }
 
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original) :
@@ -11,6 +14,8 @@ SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(const SGMSScanConfi
 {
 	trackingGroup_ = original.trackingGroup();
 	fluxResolutionGroup_ = original.fluxResolutionGroup();
+	constSample_ = new AMSample(1, AMDatabase::database("user"));
+	qDebug() << "dateTime: " << constSample_->dateTime();
 }
 
 bool SGMSScanConfigurationDbObject::monoTracking() const{
@@ -127,3 +132,11 @@ void SGMSScanConfigurationDbObject::setHarmonic(SGMBeamlineInfo::sgmHarmonic har
 		setModified(true);
 	}
 }
+
+
+void SGMSScanConfigurationDbObject::dbLoadConstSample(AMDbObject *object){
+	AMSample *dbo;
+	if ((dbo = qobject_cast<AMSample *>(object)))
+		constSample_ = dbo;
+}
+

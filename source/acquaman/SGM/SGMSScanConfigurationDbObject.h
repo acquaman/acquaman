@@ -5,6 +5,8 @@
 #include "dataman/SGM/SGMBeamlineInfo.h"
 #include "dataman/info/AMControlInfoList.h"
 
+#include "dataman/AMSample.h"
+
 /// This class is the common database object for all scan configurations for the SGM beamline.
 /*!
 	This class holds all of the persistent values that all scan configurations will need.  It is meant
@@ -18,8 +20,10 @@ Q_OBJECT
 
 Q_PROPERTY(AMDbObject* trackingGroup READ dbGetTrackingGroup WRITE dbLoadTrackingGroup)
 Q_PROPERTY(AMDbObject* fluxResolutionGroup READ dbGetFluxResolutionGroup WRITE dbLoadFluxResolutionGroup)
+Q_PROPERTY(AMDbObject* constSample READ dbGetConstSample WRITE dbLoadConstSample)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Configuration Database Object")
+Q_CLASSINFO("constSample", "constStore=true")
 
 public:
 	/// Constructor
@@ -94,11 +98,17 @@ protected:
 	/// Load the flux/resolution group from the database: Never called, because dbGetFluxResolutionGroup() is always valid.
 	void dbLoadFluxResolutionGroup(AMDbObject*) {} // never called
 
+	AMDbObject* dbGetConstSample() { return const_cast<AMSample*>(constSample_); }
+	void dbLoadConstSample(AMDbObject *object);
+
 protected:
 	/// Info list for the tracking group (track mono, track undulator, track exit slit)
 	AMControlInfoList trackingGroup_;
 	/// Info list for the flux/resolution group (exit slit gap, grating, harmonic)
 	AMControlInfoList fluxResolutionGroup_;
+
+	const AMSample *constSample_;
 };
 
 #endif // SGMSSCANCONFIGURATIONDBOBJECT_H
+

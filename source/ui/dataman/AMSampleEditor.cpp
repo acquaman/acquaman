@@ -113,7 +113,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 
 
 /// Returns the id of the currently-selected sample, or -1 if it's a non-existent/invalid sample
-int AMSampleEditor::currentSample() const {
+int AMSampleEditor::currentSampleId() const {
 	if(sample_->id() > 0)
 		return sample_->id();
 	else
@@ -122,9 +122,9 @@ int AMSampleEditor::currentSample() const {
 
 
 /// Set the currently-selected sample, by ID
-void AMSampleEditor::setCurrentSample(int id) {
+void AMSampleEditor::setCurrentSampleFromId(int id) {
 
-	int oldSampleId = currentSample();
+	int oldSampleId = currentSampleId();
 
 	if(sample_->loadFromDb(db_, id)) {
 		sampleName_->setReadOnly(false);
@@ -145,8 +145,10 @@ void AMSampleEditor::setCurrentSample(int id) {
 			sampleName_->selectAll();
 		}
 
-		if(newSampleActive_ || id != oldSampleId)
+		if(newSampleActive_ || id != oldSampleId){
 			emit currentSampleChanged(id);
+			emit currentSamplePointerChanged(sample_);
+		}
 	}
 	else {
 		sampleName_->setText("[no sample]");
@@ -161,8 +163,10 @@ void AMSampleEditor::setCurrentSample(int id) {
 		sampleSelector_->blockSignals(false);
 
 
-		if(oldSampleId != -1)
+		if(oldSampleId != -1){
 			emit currentSampleChanged(-1);
+			emit currentSamplePointerChanged(0);
+		}
 	}
 
 	newSampleActive_ = false;
@@ -229,9 +233,9 @@ void AMSampleEditor::refreshSamples() {
 
 
 	// Do we need to update the info on the existing sample?
-	int currentSamp = currentSample();
+	int currentSamp = currentSampleId();
 	if(refreshId_ == currentSamp || refreshId_ < 1)
-		setCurrentSample(currentSamp);
+		setCurrentSampleFromId(currentSamp);
 
 	refreshId_ = -1;
 }
@@ -274,7 +278,7 @@ void AMSampleEditor::onCBCurrentIndexChanged(int index) {
 		createNewSample();
 
 	else
-		setCurrentSample(sampleSelector_->itemData(index, AM::IdRole).toInt());
+		setCurrentSampleFromId(sampleSelector_->itemData(index, AM::IdRole).toInt());
 
 }
 
@@ -299,10 +303,10 @@ void AMSampleEditor::saveCurrentSample() {
 	sampleName_->blockSignals(false);
 	sampleElements_->blockSignals(false);
 
-	if(currentSample() > 0) {
+	if(currentSampleId() > 0) {
 		sample_->setName(sampleName_->text());
 		sample_->setElementList(parseElementString(sampleElements_->text()));
-		sample_->storeToDb(db_);
+		//sample_->storeToDb(db_);
 	}
 }
 

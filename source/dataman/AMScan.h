@@ -41,6 +41,8 @@ typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 class AMScanConfiguration;
 class AMScanDictionary;
 
+class AMSample;
+
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
 #endif
@@ -84,6 +86,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
+	Q_PROPERTY(AMDbObject* sample READ dbReadSample WRITE dbLoadSample)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
@@ -107,6 +110,8 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
 	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 	Q_CLASSINFO("indexType", "upgradeDefault=<none>")
+
+	Q_CLASSINFO("sample", "constStore=true")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -150,6 +155,7 @@ public:
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
 	int sampleId() const { return sampleId_; }
+	const AMSample* sample() const { return sample_; }
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -433,6 +439,7 @@ public slots:
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
+	void setSample(const AMSample *sample);
 	/// Sets the indexation type.
 	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
@@ -503,6 +510,7 @@ protected:
 	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
 	int runId_, sampleId_;
+	const AMSample *sample_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
@@ -558,6 +566,9 @@ protected:
 	AMDbObject* dbGetScanConfiguration() const;
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
+
+	AMDbObject* dbReadSample() const;
+	void dbLoadSample(AMDbObject *newSample);
 
 	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".

@@ -42,6 +42,7 @@ AMScan::AMScan(QObject *parent)
 	endDateTime_ = QDateTime();
 	runId_ = -1;
 	sampleId_ = -1;
+	sample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
@@ -173,6 +174,15 @@ void AMScan::setSampleId(int newSampleId) {
 
 		setModified(true);
 		emit sampleIdChanged(sampleId_);
+	}
+}
+
+void AMScan::setSample(const AMSample *sample){
+	if(!sample_ && !sample)
+		return;
+	if( (!sample_ && sample) || (sample_ && !sample) || (sample_->id() != sample->id()) ){
+		sample_ = sample;
+		setModified(true);
 	}
 }
 
@@ -421,6 +431,16 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 	AMScanConfiguration* sc;
 	if((sc = qobject_cast<AMScanConfiguration*>(newObject)))
 		setScanConfiguration(sc);
+}
+
+AMDbObject* AMScan::dbReadSample() const{
+	return const_cast<AMSample*>(sample_);
+}
+
+void AMScan::dbLoadSample(AMDbObject *newSample){
+	AMSample *dbo = 0;
+	if ((dbo = qobject_cast<AMSample *>(newSample)))
+		sample_ = dbo;
 }
 
 // Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.

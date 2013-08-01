@@ -42,13 +42,13 @@ public:
 	explicit AMSampleEditor(AMDatabase* db, QWidget *parent = 0);
 
 	/// Returns the id of the currently-selected sample, or -1 if it's a non-existent/invalid sample
-	int currentSample() const;
+	int currentSampleId() const;
 
 signals:
 
 public slots:
 	/// Set the currently-selected sample, by ID
-	void setCurrentSample(int id);
+	void setCurrentSampleFromId(int id);
 
 	/// Create a new sample and set it as the currently-selected sample
 	void createNewSample();
@@ -75,6 +75,7 @@ protected slots:
 signals:
 	/// Emitted when the currently-selected sample changes. \c id is -1 if there is no valid sample selected
 	void currentSampleChanged(int id);
+	void currentSamplePointerChanged(const AMSample *sample);
 
 protected:
 	/// The currently-selected sample

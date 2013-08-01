@@ -169,6 +169,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	keys << "AMDbObjectType";
 	values << type();
 
+	qDebug() << myInfo->columns;
 	// store all the columns:
 	//////////////////////////////////////////////////
 	for(int i=0; i<myInfo->columnCount; i++) {
@@ -224,11 +225,16 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
 
+				bool constStore = (AMDbObjectSupport::dbPropertyAttribute(metaObject(), columnName, "constStore") == QString("true"));
+				qDebug() << "Looking at columnName: " << columnName << "constStore is " << constStore << "modified is " << obj->modified();
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
 					qDebug() << "obj->modified() is " << obj->modified() << " and obj->id() is " << obj->id() << " for " << obj->name() << obj->dbObjectInfo()->className;
-					if(!obj->modified() && (obj->id() >= 1) )
+					if( (!obj->modified() && (obj->id() >= 1)) ||  constStore){
+						if(obj->modified() && constStore)
+							qDebug() << "Found a case where constStore is necessary because the object is modified";
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+					}
 					else{
 						if(obj->storeToDb(obj->database()))
 							values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
@@ -237,7 +243,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 					}
 				}
 
-				else if(!obj->modified() && obj->database()==db && obj->id() >=1){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+				else if( (!obj->modified() && obj->database()==db && obj->id() >=1) || constStore){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+					if(obj->modified() && constStore)
+						qDebug() << "Found a case where constStore is necessary because the object is modified";
 					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 				}
 				else {

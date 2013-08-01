@@ -556,13 +556,13 @@ void AMSamplePlateView::onAddSampleButtonClicked() {
 	if(manipulator_)
 		samplePlate_->append(
 					AMSamplePosition(
-						sampleSelector_->currentSample(),
+						sampleSelector_->currentSampleId(),
 						manipulator_->position(),
 						manipulator_->facilityId()));
 	else
 		samplePlate_->append(
 					AMSamplePosition(
-						sampleSelector_->currentSample(),
+						sampleSelector_->currentSampleId(),
 						AMControlInfoList(),
 						0));
 

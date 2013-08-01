@@ -339,6 +339,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		disconnect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSample*)), currentScan_, SLOT(setSample(const AMSample*)));
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 	}
@@ -359,6 +360,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		connect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSample*)), currentScan_, SLOT(setSample(const AMSample*)));
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 
@@ -390,7 +392,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
-		sampleEditor_->setCurrentSample(scan->sampleId());
+		sampleEditor_->setCurrentSampleFromId(scan->sampleId());
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
@@ -412,7 +414,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 		// what to set run selector to?
 
-		sampleEditor_->setCurrentSample(-1);
+		sampleEditor_->setCurrentSampleFromId(-1);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
 
