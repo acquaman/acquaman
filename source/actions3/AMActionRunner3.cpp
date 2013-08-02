@@ -32,6 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMScanController.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "ui/actions3/AMActionHistoryModel.h"
+
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
@@ -39,6 +42,7 @@ AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, QObject *parent) :
 	QObject(parent)
 {
 	loggingDatabase_ = loggingDatabase;
+	cachedLogCount_ = 0;
 	currentAction_ = 0;
 	isPaused_ = true;
 	queueModel_ = new AMActionRunnerQueueModel3(this, this);
@@ -64,8 +68,10 @@ void AMActionRunner3::releaseWorkflow()
 }
 
 AMActionRunner3* AMActionRunner3::scanActionRunner(){
-	if(!scanActionRunnerInstance_)
+	if(!scanActionRunnerInstance_){
 		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
+		//scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
+	}
 	return scanActionRunnerInstance_;
 }
 
@@ -95,7 +101,9 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			if(parentAction)
 				parentLogId = parentAction->logActionId();
 
-			if(!AMActionLog3::logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+			//if(!AMActionLog3::logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			if(!historyModel || !historyModel->logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -140,12 +148,16 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		if(parentAction)
 			parentLogId = parentAction->logActionId();
 		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
-			if(!AMActionLog3::logCompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+			//if(!AMActionLog3::logCompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+			if(!historyModel || !historyModel->logCompletedAction(currentAction_, loggingDatabase_, parentLogId)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
 		else if(listAction){
-			if(!AMActionLog3::updateCompletedAction(currentAction_, loggingDatabase_)) {
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+			//if(!AMActionLog3::updateCompletedAction(currentAction_, loggingDatabase_)) {
+			if(!historyModel || !historyModel->updateCompletedAction(currentAction_, loggingDatabase_)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -443,7 +455,9 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 		if(parentAction)
 			parentLogId = parentAction->logActionId();
 		// log it:
-		if(!AMActionLog3::logCompletedAction(action, loggingDatabase_, parentLogId)) {
+		AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+		//if(!AMActionLog3::logCompletedAction(action, loggingDatabase_, parentLogId)) {
+		if(!historyModel || !historyModel->logCompletedAction(action, loggingDatabase_, parentLogId)){
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -201, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 		}
 
@@ -495,6 +509,14 @@ bool AMActionRunner3::cancelImmediateActions()
 	foreach(AMAction3* action, immediateActions_)
 		action->cancel();
 	return true;
+}
+
+void AMActionRunner3::incrementCachedLogCount(){
+	cachedLogCount_++;
+}
+
+void AMActionRunner3::resetCachedLogCount(){
+	cachedLogCount_ = 0;
 }
 
 int AMActionRunner3::indexOfQueuedAction(const AMAction3 *action) {

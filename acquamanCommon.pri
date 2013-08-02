@@ -686,7 +686,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMMotorGroup.h \
 	source/ui/AMMotorGroupView.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
-	source/beamline/CLS/CLSPseudoMotorGroup.h
+	source/beamline/CLS/CLSPseudoMotorGroup.h \
+	source/util/AMPointerTree.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1157,7 +1158,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMMotorGroup.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
-	source/beamline/CLS/CLSPseudoMotorGroup.cpp
+	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
+	source/util/AMPointerTree.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

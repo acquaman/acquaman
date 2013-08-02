@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "actions3/actions/AMScanAction.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "ui/actions3/AMActionHistoryModel.h"
+
 #include <QDebug>
 
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
@@ -320,7 +323,10 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
 			int parentLogId = logActionId();
-			if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+
+			//if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
+			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
 				//NEM April 5th, 2012
 			}
 		}
@@ -329,14 +335,19 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
-			if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+			//if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
+			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
 				//NEM April 5th, 2012
 			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction)){
 				int parentLogId = logActionId();
-				AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+				//AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				if(historyModel)
+					historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
 			}
 		}
 	}
