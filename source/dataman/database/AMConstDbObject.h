@@ -7,14 +7,18 @@ class AMConstDbObject : public QObject
 {
 Q_OBJECT
 public:
+	/// Constructor, takes an underlying AMDbObject*
 	AMConstDbObject(const AMDbObject *object, QObject *parent = 0);
 
+	/// Retrieves the object, you will need to qobject_cast it to the type you desire
 	const AMDbObject* object() const;
 
 public slots:
+	/// Sets the object
 	void setObject(const AMDbObject *object);
 
 protected:
+	/// The object being stored
 	const AMDbObject *object_;
 };
 
