@@ -42,8 +42,8 @@ AMScan::AMScan(QObject *parent)
 	dateTime_ = QDateTime::currentDateTime();
 	endDateTime_ = QDateTime();
 	runId_ = -1;
-	sampleId_ = -1;
-	constSample_ = 0; //NULL
+	//sampleId_ = -1;
+	sample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
@@ -59,7 +59,7 @@ AMScan::AMScan(QObject *parent)
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
 //	data_ = new AMCDFDataStore();
 
-	sampleNameLoaded_ = false;
+	//sampleNameLoaded_ = false;
 
 	nameDictionary_ = new AMScanDictionary(this, this);
 	//nameDictionary_->setOperatingOnName(true);
@@ -156,21 +156,45 @@ double AMScan::elapsedTime() const
 	return -1;
 }
 
+int AMScan::sampleId() const{
+	if(sample_->object())
+		return sample_->object()->id();
+	return -1;
+}
+
 const AMSample* AMScan::sample() const{
-	const AMSample *retVal = qobject_cast<const AMSample*>(constSample_->object());
+	const AMSample *retVal = qobject_cast<const AMSample*>(sample_->object());
 	return retVal;
 }
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 void AMScan::setRunId(int newRunId) {
 
-	if(newRunId <= 0) runId_ = -1;
-	else runId_ = newRunId;
+	if(newRunId <= 0)
+		runId_ = -1;
+	else
+		runId_ = newRunId;
 	setModified(true);
 }
 
+
 // Sets name of sample
 void AMScan::setSampleId(int newSampleId) {
+	if(!sample_ || !sample_->object() || (sample_->object()->id() != newSampleId) ){
+		//sampleNameLoaded_ = false;	// invalidate the sample name cache
+		if(newSampleId <= 0)
+			sample_ = 0; //NULL
+		else{
+			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+			if(!sample_)
+				sample_ = new AMConstDbObject(newSample, this);
+			else
+				sample_->setObject(newSample);
+		}
+		setModified(true);
+		emit sampleIdChanged(newSampleId);
+	}
+	/*
 	if(sampleId_ != newSampleId){
 		sampleNameLoaded_ = false;	// invalidate the sample name cache
 		if(newSampleId <= 0)
@@ -181,16 +205,18 @@ void AMScan::setSampleId(int newSampleId) {
 		setModified(true);
 		emit sampleIdChanged(sampleId_);
 	}
+	*/
 }
 
+
 void AMScan::setSample(const AMSample *sample){
-	if(!constSample_->object() && !sample)
+	if(!sample_->object() && !sample)
 		return;
-	if( (!constSample_->object() && sample) || (constSample_->object() && !sample) || (constSample_->object()->id() != sample->id()) ){
-		if(!constSample_)
-			constSample_ = new AMConstDbObject(sample, this);
+	if( (!sample_->object() && sample) || (sample_->object() && !sample) || (sample_->object()->id() != sample->id()) ){
+		if(!sample_)
+			sample_ = new AMConstDbObject(sample, this);
 		else
-			constSample_->setObject(sample);
+			sample_->setObject(sample);
 		setModified(true);
 	}
 }
@@ -205,15 +231,19 @@ QString AMScan::unEvaluatedName() const{
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
+	if(sample_ && sample_->object())
+		return sample_->object()->name();
+	return "[no sample]";
+	/*
 	if(!sampleNameLoaded_)
 		retrieveSampleName();
 
 	return sampleName_;
-
+	*/
 }
 
 
-
+/*
 void AMScan::retrieveSampleName() const {
 	if(sampleId() <1 || database() == 0)
 		sampleName_ = "[no sample]";
@@ -227,6 +257,7 @@ void AMScan::retrieveSampleName() const {
 			sampleName_ = "[no sample]";
 	}
 }
+*/
 
 
 // Loads a saved scan from the database into self. Returns true on success.
@@ -442,12 +473,12 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
-AMConstDbObject* AMScan::dbReadConstSample() const{
-	return constSample_;
+AMConstDbObject* AMScan::dbReadSample() const{
+	return sample_;
 }
 
-void AMScan::dbWriteConstSample(AMConstDbObject *newConstSample){
-	constSample_ = newConstSample;
+void AMScan::dbWriteSample(AMConstDbObject *newSample){
+	sample_ = newSample;
 }
 
 // Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.

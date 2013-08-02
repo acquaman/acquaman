@@ -528,7 +528,27 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	// Finally, we need to update the AMDbObjectTypes_* tables (allColumns, visibleColumns, loadColumns).  The still have the old names and will corrupt the database if not updated.
 	QList<int> ids = db->objectsMatching("AMDbObjectTypes_table", "tableName", tableName);
 
-	if (ids.size() == 1){
+	if(tableName == "AMScan_table"){
+		for(int x = 0; x < ids.count(); x++){
+			bool success = true;
+			success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			// It is possible that the column is not visible.  Check before updating.
+			if (db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (!success){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+				return false;
+			}
+		}
+	}
+	else if (ids.size() == 1){
 
 		bool success = true;
 		success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
