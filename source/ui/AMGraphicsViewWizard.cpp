@@ -364,7 +364,30 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
     {
         qDebug()<<"Error is NetworkError";
         QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
+        QGraphicsVideoItem* videoItem;
+        bool success = false;
+        foreach(QGraphicsItem* item, view_->scene()->items())
+        {
+            if(item->type() == QGraphicsItem::UserType)
+            {
+                videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
+                if(videoItem) success = true;
+            }
+        }
+
+
         mediaPlayer_->stop();
+        mediaPlayer_->setMedia(QMediaContent());
+        if(success)
+        {
+            qDebug()<<"Deleting and adding new video";
+            delete mediaPlayer_;
+            mediaPlayer_ = new QMediaPlayer();
+            mediaPlayer_->setMedia(mediaUrl);
+            mediaPlayer_->setVideoOutput(videoItem);
+            mediaPlayer_->play();
+        }
+
 
 //        mediaPlayer_->setMedia(mediaUrl);
 //        mediaPlayer_->play();
