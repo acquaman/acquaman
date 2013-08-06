@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "analysis/AM3DAdditionAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
+#include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
@@ -230,17 +231,24 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	case VESPERS::SingleElement:{
 
 		AMDataSource *rawDataSource = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AM2DNormalizationAB *normROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 
 			rawDataSource = scan_->rawDataSources()->at(i+2);
+			correctedROI = new AM2DDeadTimeCorrectionAB("corrected_" % rawDataSource->name());
+			correctedROI->setDescription("Corrected " % rawDataSource->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
 			normROI->setDescription("Normalized "+rawDataSource->description());
-			normROI->setDataName(rawDataSource->name());
+			normROI->setDataName(correctedROI->name());
 			normROI->setNormalizationName(i0Name);
-			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+			normROI->setInputDataSources(QList<AMDataSource *>() << correctedROI << i0List);
 			scan_->addAnalyzedDataSource(normROI, true, false);
 		}
 
@@ -276,6 +284,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 		AMDataSource *roi1 = 0;
 		AMDataSource *roi4 = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AM2DAdditionAB *sumAB = 0;
 
 		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
@@ -285,12 +296,16 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		for (int i = 0, count = sameRois.size(); i < count; i++){
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+2);
+			correctedROI = new AM2DDeadTimeCorrectionAB("corrected_" % roi1->name());
+			correctedROI->setDescription("Corrected " % roi1->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << roi1 << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+2+singleElRoiCount);
 			QString name = roi1->name().left(roi1->name().size()-4);
 			roiNames << name;
 			sumAB = new AM2DAdditionAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
-			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
+			sumAB->setInputDataSources(QList<AMDataSource *>() << correctedROI << roi4);
 			scan_->addAnalyzedDataSource(sumAB, false, true);
 		}
 

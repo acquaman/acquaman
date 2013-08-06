@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "analysis/AM1DDeadTimeAB.h"
 
 #include "dataman/export/AMExporterAthena.h"
 #include "application/AMAppControllerSupport.h"

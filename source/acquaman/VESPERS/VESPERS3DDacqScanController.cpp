@@ -14,6 +14,7 @@
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
+#include "analysis/AM2DDeadTimeCorrectionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
