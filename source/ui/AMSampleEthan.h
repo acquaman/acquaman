@@ -7,7 +7,7 @@
 #include "dataman/AMSamplePlate.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
-class AMSampleEthan : AMDbObject
+class AMSampleEthan : public AMDbObject
 {
     Q_OBJECT
 

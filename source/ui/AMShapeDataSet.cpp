@@ -669,7 +669,6 @@ void AMShapeDataSet::startRectangle(QPointF position)
     }
     insertItem(new AMShapeData());
     shapeList_[index_]->setName("Shape " + QString::number(index_));
-    shapeList_[index_]->setOtherData("Coordinate:");
     shapeList_[index_]->setIdNumber(index_ * 13);
     shapeList_[index_]->setRotation(0);
     shapeList_[index_]->setTilt(0);

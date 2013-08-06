@@ -14,6 +14,8 @@ AMShapeData::AMShapeData()
     shape_ = new QPolygonF();
     coordinateCount_ = -1;
     visible_ = true;
+    sample_ = new AMSampleEthan("First Sample");
+    setOtherData(sample_->name());
 
 }
 
@@ -27,6 +29,8 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
     setIdNumber(idNumber);
     coordinateCount_ = -1;
     visible_ = true;
+    sample_ = new AMSampleEthan("First Sample");
+    setOtherData(sample_->name());
 
 }
 
@@ -35,7 +39,7 @@ AMShapeData::~AMShapeData()
     coordinate_.clear();
 }
 
-QPolygonF* AMShapeData::shape()
+QPolygonF* AMShapeData::shape() const
 {
     return shape_;
 }
@@ -45,12 +49,12 @@ QString AMShapeData::name() const
     return name_;
 }
 
-QString AMShapeData::otherData()
+QString AMShapeData::otherData() const
 {
     return otherData_;
 }
 
-double AMShapeData::idNumber()
+double AMShapeData::idNumber() const
 {
     return idNumber_;
 }
@@ -63,27 +67,27 @@ QVector3D AMShapeData::coordinate(int index) const
         return QVector3D(0,0,0);
 }
 
-double AMShapeData::height()
+double AMShapeData::height() const
 {
     return height_;
 }
 
-double AMShapeData::width()
+double AMShapeData::width() const
 {
     return width_;
 }
 
-double AMShapeData::rotation()
+double AMShapeData::rotation() const
 {
     return rotation_;
 }
 
-double AMShapeData::tilt()
+double AMShapeData::tilt() const
 {
     return tilt_;
 }
 
-double AMShapeData::yAxisRotation()
+double AMShapeData::yAxisRotation() const
 {
     return yAxisRotation_;
 }
@@ -91,6 +95,11 @@ double AMShapeData::yAxisRotation()
 bool AMShapeData::visible() const
 {
     return visible_;
+}
+
+AMSampleEthan *AMShapeData::sample() const
+{
+    return sample_;
 }
 
 void AMShapeData::setShape(QPolygonF shape)
@@ -158,6 +167,11 @@ void AMShapeData::setYAxisRotation(double yAxisRotation)
 void AMShapeData::setVisible(bool visible)
 {
     visible_ = visible;
+}
+
+void AMShapeData::setSample(AMSampleEthan *sample)
+{
+    sample_ = sample;
 }
 
 /// finds the center of the shape - must be rectangular

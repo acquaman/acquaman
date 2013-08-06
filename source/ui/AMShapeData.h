@@ -5,6 +5,7 @@
 #include <QRectF>
 #include <QVector3D>
 #include <QVector>
+#include "AMSampleEthan.h"
 
 
 class QString;
@@ -22,17 +23,19 @@ public:
     ~AMShapeData();
 
     /// accessors
-    QPolygonF* shape();
+    QPolygonF* shape() const;
     QString name() const;
-    QString otherData();
-    double idNumber();
+    QString otherData() const;
+    double idNumber() const;
     QVector3D coordinate(int index) const;
-    double height();
-    double width();
-    double rotation();
-    double tilt();
-    double yAxisRotation();
+    double height() const;
+    double width() const;
+    double rotation() const;
+    double tilt() const;
+    double yAxisRotation() const;
     bool visible() const;
+
+    AMSampleEthan* sample() const;
 
     /// mutators
     void setShape(QPolygonF shape);
@@ -47,6 +50,8 @@ public:
     void setTilt(double tilt);
     void setYAxisRotation(double yAxisRotation);
     void setVisible(bool visible);
+
+    void setSample(AMSampleEthan* sample);
 
     /// returns the center
     QVector3D centerCoordinate() const;
@@ -89,6 +94,8 @@ protected:
     int coordinateCount_;
 
     bool visible_;
+
+    AMSampleEthan* sample_;
 
     bool validIndex(int index) const;
 
