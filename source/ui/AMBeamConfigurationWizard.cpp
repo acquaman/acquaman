@@ -319,7 +319,7 @@ int AMBeamConfigurationWizard::relativeId()
 
 void AMBeamConfigurationWizard::waitPage()
 {
-    emit moveTo(relativeId() - 1);
+    emit moveTo(*coordinateList()->at(relativeId() - 1));
 }
 
 void AMBeamConfigurationWizard::showBeamShape()
@@ -440,8 +440,10 @@ void AMBeamWaitPage::initializePage()
 
    AMWaitPage::initializePage();
 
+   qDebug()<<"Calling startTimer";
     AMWaitPage::startTimer(1000);
 
+    qDebug()<<"Calling wait page";
     viewWizard()->waitPage();
 }
 

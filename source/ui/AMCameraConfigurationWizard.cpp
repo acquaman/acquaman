@@ -27,6 +27,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 {
     numberOfPoints_ = 6;
     showOptionPage_ = false;
+    qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - adding new pages";
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
     setPage(Page_Final, new AMWizardPage);
@@ -71,14 +72,14 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     }
     /// set the coordinates
     coordinateList_->clear();
-    coordinateList_->append(new  QVector3D(0,0,0));
-    coordinateList_->append(new  QVector3D(0,0,12));
-    coordinateList_->append(new  QVector3D(5,0,5));
-    coordinateList_->append(new  QVector3D(0,5,0));
-    coordinateList_->append(new  QVector3D(12,0,0));
-    coordinateList_->append(new  QVector3D(12,5,0));
+    coordinateList_->append(new  QVector3D(0,6,0));
+    coordinateList_->append(new  QVector3D(-5,6,0));
+    coordinateList_->append(new  QVector3D(0,6,-20));
+    coordinateList_->append(new  QVector3D(10,2,-8));
+    coordinateList_->append(new  QVector3D(-10,2,-8));
+    coordinateList_->append(new  QVector3D(0,2,8.5));
 
-
+    qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
 
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
@@ -87,6 +88,8 @@ AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 
 int AMCameraConfigurationWizard::nextId() const
 {
+    qDebug()<<"AMCameraConfigurationWizard::nextId";
+
     switch(currentId())
     {
         case Page_Intro:
@@ -321,6 +324,7 @@ QString AMCameraConfigurationWizard::message(int messageType)
 
 int AMCameraConfigurationWizard::relativeId()
 {
+    qDebug()<<"AMCameraConfigurationWizard::relativeId";
     switch(currentId())
     {
     case Page_Select_One:
@@ -346,11 +350,18 @@ int AMCameraConfigurationWizard::relativeId()
     }
 }
 
+void AMCameraConfigurationWizard::waitPage()
+{
+    qDebug()<<"AMCameraConfigurationWizard::waitPage";
+    emit moveTo(*coordinateList()->at(relativeId()-1));
+}
+
 
 
 
 void AMCameraConfigurationWizard::back()
 {
+    qDebug()<<"AMCameraConfigurationWizard::back";
     int id = currentId();
     switch(id)
     {
@@ -439,8 +450,10 @@ void SelectPage::addPoint(QPointF position)
 
 void WaitPage::initializePage()
 {
-    AMWaitPage::startTimer(1000);
+    qDebug()<<"WaitPage::initializePage";
     AMWaitPage::initializePage();
+    AMWaitPage::startTimer(1000);
+
 }
 
 

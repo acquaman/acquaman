@@ -3,6 +3,7 @@
 
 #include <QWizard>
 #include <QVector3D>
+#include <QMediaPlayer>
 
 class AMShapeDataSetGraphicsView;
 class QPointF;
@@ -14,6 +15,7 @@ class QGraphicsPolygonItem;
 class QCheckBox;
 class QGraphicsTextItem;
 class QLineEdit;
+//class QMediaPlayer;
 
 
 /// Wizard class
@@ -38,6 +40,7 @@ public:
     /// These are the different message elements
     enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
     AMGraphicsViewWizard(QWidget* parent = 0);
+    ~AMGraphicsViewWizard();
 
     /// returns the view held by this wizard
     AMShapeDataSetGraphicsView* view() const;
@@ -91,6 +94,14 @@ public:
     /// sets the page to access the options page from
     void setOptionPage(int id);
 
+    /// in order to prevent motor movement enabled from being changed outside of where it should be
+    /// it is not operated in the same way as a regular member.  It is always false except immediately
+    /// after it requests its state.  After the state is read, it immediately becomes false again
+    bool motorMovementEnabled();
+
+    void checkMotorMovementState();
+
+
 
 public slots:
     /// sets the view
@@ -122,13 +133,19 @@ public slots:
 
     void fixText();
 
+    void testMoveSlot();
+
 signals:
     void done();
-    void moveTo(int);
+    void moveTo(QVector3D);
+    void requestMotorMovementEnabled();
+    void moveSucceeded();
 
 protected slots:
     void showOptions(int id);
     void showOptionsButton(int id);
+    void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
+    void mediaPlayerErrorChanged(QMediaPlayer::Error);
 protected:
     AMShapeDataSetGraphicsView* view_;
     QPointF* scale_;
@@ -143,6 +160,14 @@ protected:
     bool showOptionPage_;
 
     int optionsPage_;
+
+private slots:
+    void setMotorMovementEnabled(bool motorMovementEnabled);
+private:
+    bool motorMovementEnabled_;
+
+    QMediaPlayer* mediaPlayer_;
+
 
 };
 
@@ -175,15 +200,18 @@ class AMWaitPage : public AMWizardPage
     Q_OBJECT
 public:
     AMWaitPage(QWidget* parent = 0);
+    void initializePage();
     bool isComplete() const;
     void stopTimer();
     void startTimer(int msec);
 protected slots:
     void nextPage();
+    bool checkState();
 
 
 private:
     QTimer* waitTimer_;
+    bool waitingToMove_;
 
 
 };

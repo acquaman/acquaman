@@ -38,6 +38,8 @@ public:
 
     int relativeId();
 
+    void waitPage();
+
 
 public slots:
     /// reimplementation of the back slot, used to move the motor back to the appropriate place
@@ -93,6 +95,7 @@ class WaitPage : public AMWaitPage
     Q_OBJECT
 public:
     void initializePage();
+
 };
 
 

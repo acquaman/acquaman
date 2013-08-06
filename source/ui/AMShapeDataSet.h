@@ -201,6 +201,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
 
+    bool motorMovementenabled();
+
 
 
 public slots:
@@ -318,6 +320,11 @@ public slots:
 
     void updateView();
 
+    void moveMotorTo(QVector3D coordinate);
+
+    void stopMotors();
+
+
 
 
 
@@ -328,9 +335,13 @@ signals:
     /// update coordinates
     void motorMoved();
 
+    void moveSucceeded();
+
 protected slots:
     /// tracks the motor location
     void motorTracking(double);
+
+    void motorsFinishedMoving();
 
 protected:
 
@@ -450,6 +461,9 @@ protected:
     void removeItem(int index);
 
     AMShapeData* takeItem(int index);
+
+
+    QVector3D beamIntersectionPoint(QVector3D samplePoint);
 
 
 

@@ -438,6 +438,10 @@ void AMCamera::setScaledSize(QSizeF scaledSize)
 
 double AMCamera::focalLength() const
 {
+    if(calibrationRun_ && useCameraMatrix_)
+    {
+        return 1;
+    }
     return cameraConfiguration()->cameraFocalLength();
 }
 
@@ -468,6 +472,8 @@ QPointF AMCamera::undistortPoint(QPointF point) const
         return point;
     // set up
     double distortionFactor = cameraConfiguration_->cameraDistortion();
+    if(distortionFactor == 0)
+        return point;
     QPointF newPoint;
     double x = point.x()-0.5;
     double y = point.y()-0.5;
@@ -592,10 +598,18 @@ double AMCamera::dot(QVector3D a, QVector3D b) const
     return value;
 }
 
+
 QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 {
-    /// \todo - not fully using the matrix
+    bool isCentred = false;
+    if(point == QPointF(0.5,0.5))
+    {
+        isCentred = true;
+    }
+
     point = point - QPointF(0.5,0.5);
+    if(isCentred)
+        point += QPointF(0.1,0.1);
     MatrixXd matrixPoint (3,1);
     matrixPoint<<point.x(),point.y(),1;
     MatrixXd matrixP = cameraConfiguration()->cameraMatrixToMatrix();
@@ -603,13 +617,95 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     MatrixXd coordinate = matrixP.colPivHouseholderQr().solve(matrixPoint);
     coordinate /= coordinate(3,0);
     QVector3D location = QVector3D(coordinate(0,0),coordinate(1,0),coordinate(2,0));
-    QVector3D worldDirection = location - cameraConfiguration()->cameraPosition();
-    worldDirection.normalize();
-    QVector3D centre = cameraConfiguration()->cameraCentre()-cameraConfiguration()->cameraPosition();
-    worldDirection *= depth/dot(worldDirection,centre);
-    worldDirection += cameraConfiguration()->cameraPosition();
 
-    return worldDirection;
+    MatrixXd matrixPointTwo (3,1);
+    matrixPointTwo<<2000*point.x(),2000*point.y(),2000;
+    MatrixXd coordinateTwo;
+    JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
+    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+    coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+    coordinateTwo /= coordinateTwo(3,0);
+    QVector3D locationTwo = QVector3D(coordinateTwo(0,0),coordinateTwo(1,0),coordinateTwo(2,0));
+
+
+
+    QPointF centrePoint = QPointF(0,0);
+    MatrixXd centrePointOne (3,1);
+    MatrixXd centrePointTwo (3,1);
+    centrePointOne<<centrePoint.x(),centrePoint.y(),1;
+    centrePointTwo<<0,0,100;
+
+    MatrixXd centreCoordinateOne = matrixP.colPivHouseholderQr().solve(centrePointOne);
+    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+    MatrixXd centreCoordinateTwo = svdOfMatrixP.solve(centrePointTwo);
+    centreCoordinateOne /= centreCoordinateOne(3,0);
+    centreCoordinateTwo /= centreCoordinateTwo(3,0);
+
+    QVector3D centreLocationOne = QVector3D(centreCoordinateOne(0,0),centreCoordinateOne(1,0), centreCoordinateOne(2,0));
+    QVector3D centreLocationTwo = QVector3D(centreCoordinateTwo(0,0),centreCoordinateTwo(1,0), centreCoordinateTwo(2,0));
+
+
+
+    double pointT = (locationTwo - location).length();
+    QVector3D parameters = lineParameters(location, locationTwo, pointT);
+
+    double centreT = (centreLocationTwo - centreLocationOne).length();
+    QVector3D centreParameters = lineParameters(centreLocationOne, centreLocationTwo,centreT);
+
+    QVector3D centrePointsVector = location - centreLocationOne;
+    MatrixXd centrePointMatrix (3,1);
+    centrePointMatrix<<centrePointsVector.x(),centrePointsVector.y(),centrePointsVector.z();
+    MatrixXd parameterMatrix (3,2);
+    parameterMatrix<<centreParameters.x(),-1*parameters.x(),
+            centreParameters.y(),-1*parameters.y(),
+            centreParameters.z(),-1*parameters.z();
+    /// svd solution of this should give [tc , t]
+    /// where t is the parameter of the location line
+    /// and tc is the parameter of the centre line.
+    /// putting in the solution should give the same point, which should be
+    /// the camera position.
+
+    JacobiSVD<MatrixXd> solver(parameterMatrix);
+    solver.compute(parameterMatrix, ComputeThinU|ComputeThinV);
+    MatrixXd solution = solver.solve(centrePointMatrix);
+
+
+    double coordinateT = solution(1);
+    QVector3D calculatedPositionOne = location + coordinateT*parameters;
+
+    QVector3D desiredPoint;
+    QVector3D cameraCentre = centreLocationOne - calculatedPositionOne;
+    cameraCentre.normalize();
+
+    if(!isCentred)
+    {
+
+        QVector3D locationDirection = location - calculatedPositionOne;
+        locationDirection.normalize();
+        double cosTheta = dot(cameraCentre,locationDirection);
+        double length = depth/cosTheta;
+        locationDirection *= length;
+        desiredPoint = calculatedPositionOne + locationDirection;
+
+    }
+    else
+    {
+        desiredPoint = calculatedPositionOne + cameraCentre*depth;
+    }
+
+    return desiredPoint;
+
+
+
+
+//    QVector3D worldDirection = location - cameraConfiguration()->cameraPosition();
+//    worldDirection.normalize();
+//    QVector3D centre = cameraConfiguration()->cameraCentre()-cameraConfiguration()->cameraPosition();
+//    worldDirection *= depth/dot(worldDirection,centre);
+//    worldDirection += cameraConfiguration()->cameraPosition();
+
+//    qDebug()<<worldDirection;
+//    return worldDirection;
 }
 
 QPointF AMCamera::transform3Dto2DMatrix(QVector3D coordinate) const
@@ -780,6 +876,15 @@ double AMCamera::absError(double a, double b, double tolerance) const
     {
         return fabs((a-b)/a);
     }
+}
+
+QVector3D AMCamera::lineParameters(QVector3D pointOne, QVector3D pointTwo, double t) const
+{
+    double a,b,c;
+    a = (pointTwo.x() - pointOne.x())/t;
+    b = (pointTwo.y() - pointOne.y())/t;
+    c = (pointTwo.z() - pointOne.z())/t;
+    return QVector3D(a,b,c);
 }
 
 

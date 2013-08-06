@@ -7,6 +7,7 @@
 #include <Eigen/LU>
 #include <Eigen/Dense>
 #include <QSizeF>
+#include <QVector3D>
 
 class AMCameraConfiguration;
 class QPointF;
@@ -96,6 +97,11 @@ protected:
 
     /// finds the absolute error beteween two numbers
     double absError(double a, double b, double tolerance = 0.00001) const;
+
+    /// returns a,b, and c for the equation of a line ( x = x0 + at, y = y0 + bt, z = z0 + ct)
+    /// given two points and the distance between them (t).
+    /// returns the values as a vector
+    QVector3D lineParameters(QVector3D pointOne, QVector3D pointTwo, double t) const;
 
 
 protected:

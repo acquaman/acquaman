@@ -66,6 +66,11 @@ int AMSamplePlateWizard::nextId() const
     }
 }
 
+void AMSamplePlateWizard::waitPage()
+{
+    emit moveTo(*coordinateList()->at(0));
+}
+
 QString AMSamplePlateWizard::message(int type)
 {
     if(type == Wizard_Title) return "Sample Plate Wizard";

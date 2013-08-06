@@ -3,6 +3,7 @@
 
 #include "ui/AMOverlayVideoWidget2.h"
 #include <QWidget>
+#include <QVector3D>
 
 class QTimer;
 class QGraphicsLineItem;
@@ -182,6 +183,10 @@ signals:
 
     void applyDistortion();
 
+    void motorMovementEnabled(bool enabled);
+
+    void moveSucceeded();
+
 
 public slots:
 
@@ -213,6 +218,8 @@ public slots:
     void moveSamplePlate(int movement);
 
     void showBeamOutline(bool show);
+
+    void moveTestSlot();
 
 //    void setShapeVisible(bool visible);
 
@@ -290,9 +297,11 @@ protected slots:
 
     void beamCalibrate();
 
-    void moveBeamSamplePlate(int);
+    void moveBeamSamplePlate(QVector3D);
 
     void showBeamMarker(int);
+
+    void transmitMotorMovementEnabled();
 
 
 
@@ -325,6 +334,10 @@ protected:
     void clearIntersections();
 
     void setListViewModel();
+
+    void setGUI();
+
+    void makeConnections();
 
 
 protected:
@@ -375,17 +388,11 @@ protected:
 
     /// crosshair control bar
 
-    QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
+    QCheckBox *lockCrosshairCheckBox_;
+    QCheckBox *showCrosshairCheckBox_;
     AMColorPickerButton2* crosshairColorPicker_;
     QSlider* crosshairThicknessSlider_;
 
-    /// Mode buttons
-    QPushButton* drawButton_;
-    QPushButton* moveButton_;
-    QPushButton* editButton_;
-    QPushButton* shiftButton_;
-    QPushButton* operationButton_;
-    QPushButton* groupButton_;
     /// Motor coordinate control
     QLineEdit* motorXEdit_;
     QLineEdit* motorYEdit_;
@@ -419,15 +426,12 @@ protected:
     bool useCameraMatrix_;
 
     QPushButton* drawOnShapePushButton_;
-//    QLineEdit* drawOnShapeLineEdit_;
     QCheckBox* drawOnShapeCheckBox_;
     QPushButton* showShapeView_;
 
     QTimer* pressTimer_;
 
     QList<GraphicsTextItem*> textItems_;
-
-//    QTextDocument* document_;
 
     QToolBar* toolBar_;
     QAction* markAction_;

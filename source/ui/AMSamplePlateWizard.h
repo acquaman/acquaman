@@ -15,6 +15,8 @@ public:
 
     int nextId() const;
 
+    void waitPage();
+
     QString message(int type);
 
 public slots:

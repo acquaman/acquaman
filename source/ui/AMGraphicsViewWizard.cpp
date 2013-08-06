@@ -16,19 +16,49 @@
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QMediaPlayer>
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
 {
+    qDebug()<<"AMGraphicsViewWizard::AMGraphicsViewWizard";
     view_ = new AMShapeDataSetGraphicsView();
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
     showOptionPage_ = false;
     optionsPage_ = -1;
+    motorMovementEnabled_ = false;
+    mediaPlayer_ = new QMediaPlayer();
 
 
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
+}
+
+AMGraphicsViewWizard::~AMGraphicsViewWizard()
+{
+    QGraphicsVideoItem* videoItem = 0;
+    foreach(QGraphicsItem* item, view_->scene()->items())
+    {
+        if(item->type() == QGraphicsItem::UserType)
+        {
+            QGraphicsVideoItem* potentialItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
+            if(potentialItem)
+            {
+                videoItem = potentialItem;
+            }
+        }
+    }
+    if(videoItem)
+    {
+        QMediaPlayer* player = (QMediaPlayer*)videoItem->mediaObject();
+        QVideoWidget* nullPlayer = 0;
+        player->stop();
+        player->setVideoOutput(nullPlayer);
+        view_->scene()->removeItem(videoItem);
+        delete player;
+        delete videoItem;
+    }
 }
 
 AMShapeDataSetGraphicsView *AMGraphicsViewWizard::view() const
@@ -56,7 +86,7 @@ void AMGraphicsViewWizard::setScale(double scaleFactor)
 
 void AMGraphicsViewWizard::waitPage()
 {
-    emit moveTo(currentId());
+    emit moveTo(*coordinateList()->at(currentId()));
 }
 
 QList<QPointF *> *AMGraphicsViewWizard::pointList() const
@@ -158,8 +188,22 @@ void AMGraphicsViewWizard::setOptionPage(int id)
     optionsPage_ = id;
 }
 
+bool AMGraphicsViewWizard::motorMovementEnabled()
+{
+    bool returnValue = motorMovementEnabled_;
+    motorMovementEnabled_ = false;
+    return returnValue;
+}
+
+void AMGraphicsViewWizard::checkMotorMovementState()
+{
+    qDebug()<<"AMGraphicsViewWizard::checkMotorMovementState - emitting request for enabled state";
+    emit requestMotorMovementEnabled();
+}
+
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 {
+    qDebug()<<"AMGraphicsViewWizard::setView";
     view_ = view;
     view_->setObjectName("AMGraphicsViewWizard view 1");
 
@@ -187,6 +231,25 @@ void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 
     fixText();
 
+    /// get the mediaObject
+    foreach(QGraphicsItem* item, view_->scene()->items())
+    {
+        if(item->type() == QGraphicsItem::UserType)
+        {
+            QGraphicsVideoItem* videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
+            if(videoItem)
+            {
+                QMediaPlayer* videoPlayer = qobject_cast<QMediaPlayer*>(videoItem->mediaObject());
+                if(videoPlayer)
+                {
+                    mediaPlayer_ = videoPlayer;
+                }
+            }
+        }
+    }
+
+//    connect(mediaPlayer_, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(mediaPlayerStateChanged(QMediaPlayer::MediaStatus)));
+    connect(mediaPlayer_, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(mediaPlayerErrorChanged(QMediaPlayer::Error)));
 
 }
 
@@ -250,6 +313,12 @@ void AMGraphicsViewWizard::fixText()
 
 }
 
+void AMGraphicsViewWizard::testMoveSlot()
+{
+    qDebug()<<"Move signal received by GraphicsViewWizard";
+    emit moveSucceeded();
+}
+
 void AMGraphicsViewWizard::showOptions(int id)
 {
     if(id == CustomButton1)
@@ -262,6 +331,8 @@ void AMGraphicsViewWizard::showOptions(int id)
 
 void AMGraphicsViewWizard::showOptionsButton(int id)
 {
+    qDebug()<<"Media player error is"<<mediaPlayer_->error();
+
     if(id == optionsPage_)
     {
         button(CustomButton1)->show();
@@ -272,9 +343,45 @@ void AMGraphicsViewWizard::showOptionsButton(int id)
     }
 }
 
+void AMGraphicsViewWizard::mediaPlayerStateChanged(QMediaPlayer::MediaStatus state)
+{
+    qDebug()<<"AMGraphicsViewWizard::mediaPlayerStateChanged"<<state;
+    qDebug()<<"Media player error is"<<mediaPlayer_->error();
+    if(state == QMediaPlayer::InvalidMedia)
+    {
+        qDebug()<<"State is InvalidMedia";
+        QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
+        mediaPlayer_->stop();
+        mediaPlayer_->setMedia(mediaUrl);
+        mediaPlayer_->play();
+    }
+}
+
+void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
+{
+    qDebug()<<"AMGraphicsViewWizard::mediaPlayerErrorChanged"<<state;
+    if(state == QMediaPlayer::NetworkError)
+    {
+        qDebug()<<"Error is NetworkError";
+        QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
+        mediaPlayer_->stop();
+
+//        mediaPlayer_->setMedia(mediaUrl);
+//        mediaPlayer_->play();
+    }
+
+}
+
+void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
+{
+    qDebug()<<"AMGraphicsViewWizard::setMotorMovementEnabled - setting state";
+    motorMovementEnabled_ = motorMovementEnabled;
+}
+
 AMWizardPage::AMWizardPage(QWidget *parent)
     :QWizardPage(parent)
 {
+    qDebug()<<"AMWizardPage::AMWizardPage";
     setTitle("AMWizardPage Title");
     QVBoxLayout* selectLayout = new QVBoxLayout();
     selectLayout->setContentsMargins(0,0,0,0);
@@ -291,6 +398,7 @@ AMGraphicsViewWizard *AMWizardPage::viewWizard() const
 
 void AMWizardPage::initializePage()
 {
+    qDebug()<<"AMWizardPage::initializePage";
     setTitle(message(Title));
     setLabelText(message(Text));
 }
@@ -328,8 +436,21 @@ void AMWizardPage::setLabelText(QString text)
 AMWaitPage::AMWaitPage(QWidget *parent)
     :AMWizardPage(parent)
 {
+
+    qDebug()<<"AMWaitPage::AMWaitPage";
+    waitingToMove_ = false;
     waitTimer_ = new QTimer();
     connect(waitTimer_, SIGNAL(timeout()), this, SLOT(nextPage()));
+
+}
+
+void AMWaitPage::initializePage()
+{
+     qDebug()<<"AMWaitPage::initializePage";
+    AMWizardPage::initializePage();
+    waitingToMove_ = true;
+    connect(viewWizard(), SIGNAL(moveSucceeded()), this, SLOT(nextPage()));
+
 }
 
 bool AMWaitPage::isComplete() const
@@ -339,19 +460,59 @@ bool AMWaitPage::isComplete() const
 
 void AMWaitPage::stopTimer()
 {
-    waitTimer_->stop();
+
+    if(waitingToMove_)
+    {
+        bool state = checkState();
+        if(!state)
+            waitTimer_->stop();
+        else
+        {
+            waitTimer_->stop();
+        }
+    }
+    waitingToMove_ = false;
 }
 
 void AMWaitPage::startTimer(int msec)
 {
-    waitTimer_->start(msec);
+    qDebug()<<"AMWaitPage::startTimer";
+    viewWizard()->checkMotorMovementState();
+    bool state = viewWizard()->motorMovementEnabled();
+    if(!state)
+        waitTimer_->start(msec);
+    else
+    {
+        viewWizard()->waitPage();
+    }
+
 }
 
 void AMWaitPage::nextPage()
 {
-    waitTimer_->stop();
-    wizard()->next();
+    qDebug()<<"AMWaitPage::nextPage";
+
+    if(waitingToMove_)
+    {
+        bool state = checkState();
+        if(!state)
+            waitTimer_->stop();
+        else
+        {
+            waitTimer_->stop();
+        }
+        wizard()->next();
+    }
+    waitingToMove_ = false;
+
 }
+
+bool AMWaitPage::checkState()
+{
+    viewWizard()->checkMotorMovementState();
+    return viewWizard()->motorMovementEnabled();
+}
+
 
 
 AMViewPage::AMViewPage(QWidget *parent)
@@ -417,16 +578,19 @@ void AMCheckPage::initializePage()
 {
     isConfigured_->setText(message(Other));
     AMViewPage::initializePage();
+    qDebug()<<"Initializing AMCheckPage";
     QString fieldName = QString("configured%1").arg(viewWizard()->currentId());
     if(field(fieldName).isNull())
     {
         registerField(fieldName, isConfigured_);
     }
+    qDebug()<<"Finished initializing";
 
 }
 
 void AMCheckPage::checkBoxChanged(bool state)
 {
+    qDebug()<<"Check box changed to"<<state;
 }
 
 

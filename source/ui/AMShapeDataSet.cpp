@@ -8,8 +8,7 @@
 #include <QGraphicsVideoItem>
 #include <QDebug>
 #include <math.h>
-#include "ui/AMCameraConfiguration.h"
-//#include "ui/AMBeamConfiguration.h"
+#include "AMCameraConfiguration.h"
 #include "AMCamera.h"
 
 
@@ -115,7 +114,10 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
 
 
-
+    connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
 }
 
 /// returns the highest index of shapes in shapeList
@@ -621,6 +623,11 @@ QVariant AMShapeDataSet::data(const QModelIndex &index, int role) const
     }
 }
 
+bool AMShapeDataSet::motorMovementenabled()
+{
+    return enableMotorMovement_;
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMShapeDataSet::startRectangle(QPointF position)
@@ -681,6 +688,8 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_]->coordinate(TOPLEFT);
     QVector3D bottomRight = camera_->transform2Dto3D(position,depth(topLeft));
+    qDebug()<<"topLeft,bottomRight"<<topLeft<<bottomRight;
+    qDebug()<<camera_->transform2Dto3D(camera_->transform3Dto2D(topLeft),depth(topLeft));
 
     QVector3D topRight;
     QVector3D bottomLeft;
@@ -694,6 +703,8 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     {
         topRight = rightVector();
         bottomLeft = downVector();
+        qDebug()<<"TopRightVector is"<<topRight;
+        qDebug()<<"BottomLeftVector is "<<bottomLeft;
     }
     topRight.normalize();
     bottomLeft.normalize();
@@ -711,9 +722,14 @@ void AMShapeDataSet::finishRectangle(QPointF position)
 
 
 
+
     shapeList_[current_]->setCoordinate(topLeft + topRight,TOPRIGHT);
-    shapeList_[current_]->setCoordinate(bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
+    shapeList_[current_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
     shapeList_[current_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
+    for(int i = 0; i < shapeList_[current_]->count(); i++)
+    {
+        qDebug()<<shapeList_[current_]->coordinate(i);
+    }
     updateShape(current_);
 
 }
@@ -1310,6 +1326,43 @@ void AMShapeDataSet::updateView()
     emit dataChanged(index(0), index(shapeList_.count()));
 }
 
+void AMShapeDataSet::moveMotorTo(QVector3D coordinate)
+{
+    double x = coordinate.x();
+    double y = coordinate.y();
+    double z = coordinate.z();
+    if(enableMotorMovement_)
+    {
+            qDebug()<<"AMShapeDataSet::moveMotorTo attempting to move motors";
+            ssaManipulatorX_->move(x);
+            ssaManipulatorY_->move(y);
+            ssaManipulatorZ_->move(z);
+//            qDebug()<<"Move signals emitted";
+//            emit moveSucceeded();
+    }
+    else
+    {
+        qDebug()<<"Cannot move motors.";
+    }
+
+}
+
+void AMShapeDataSet::stopMotors()
+{
+    if(enableMotorMovement_)
+    {
+        qDebug()<<"Attempting to stop motors";
+        ssaManipulatorRot_->stop();
+        ssaManipulatorX_->stop();
+        ssaManipulatorY_->stop();
+        ssaManipulatorZ_->stop();
+    }
+    else
+    {
+        qDebug()<<"AMShapeDataSet::stopMotors - cannot stop motors, movement is not enabled";
+    }
+}
+
 
 
 /// tracks motor movement and shifts drawings accordingly
@@ -1331,6 +1384,15 @@ void AMShapeDataSet::motorTracking(double)
     setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
 
 
+}
+
+void AMShapeDataSet::motorsFinishedMoving()
+{
+    if(!ssaManipulatorX_->isMoving())
+        if(!ssaManipulatorY_->isMoving())
+            if(!ssaManipulatorZ_->isMoving())
+                if(!ssaManipulatorRot_->isMoving())
+                    emit moveSucceeded();
 }
 
 
@@ -1890,6 +1952,20 @@ AMShapeData *AMShapeDataSet::takeItem(int index)
     AMShapeData* oldShape = shapeList_.takeAt(index);
     endRemoveRows();
     return oldShape;
+}
+
+QVector3D AMShapeDataSet::beamIntersectionPoint(QVector3D samplePoint)
+{
+    double y = samplePoint.y();
+    QList<QVector3D> beamOne = beamConfiguration()->beamOne();
+    QVector3D midPointOne(0,0,0);
+    foreach(QVector3D coordinate, beamOne)
+    {
+        midPointOne += coordinate;
+    }
+    midPointOne/=4;// not 4, number of points
+    /// \todo finish
+    return (QVector3D(0,0,0));
 }
 
 
