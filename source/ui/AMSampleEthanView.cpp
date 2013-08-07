@@ -8,6 +8,9 @@
 #include <QStringListModel>
 #include <QTextEdit>
 #include "AMElementListEdit.h"
+#include "util/AMPeriodicTableDialog.h"
+#include "util/AMPeriodicTable.h"
+#include "util/AMPeriodicTableView.h"
 
 #include "AMSampleEthan.h"
 
@@ -67,6 +70,22 @@ void AMSampleEthanView::addTag()
         wordList_->setStringList(stringList);
     }
     tagText_->setText("");
+}
+
+void AMSampleEthanView::showPeriodicTable()
+{
+    AMPeriodicTable* periodicTable = AMPeriodicTable::table();
+
+//    QList<const AMElement*> elList = periodicTable->elements();
+//    AMPeriodicTableView* tableView = new AMPeriodicTableView();
+//    AMPeriodicTableDialog* periodicTableDialog = new AMPeriodicTableDialog();
+//    QList<const AMElement*> elementList = AMPeriodicTable::table()->elements();
+    const AMElement* element = AMPeriodicTableDialog::getElement(this);
+
+    AMElement* newElement = new AMElement();
+    *newElement = *element;
+
+    elementList.append(newElement);
 }
 
 void AMSampleEthanView::update()
@@ -143,6 +162,7 @@ void AMSampleEthanView::loadSample(QString sampleName)
 
 
 
+
 void AMSampleEthanView::setUpGui()
 {
 
@@ -168,6 +188,8 @@ void AMSampleEthanView::setUpGui()
     sampleViewLayout->addWidget(elementsText_ = new QLineEdit());
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(elementList_ = new AMElementListEdit());
+    sampleViewLayout->addSpacing(20);
+    sampleViewLayout->addWidget(showElementDialog_ = new QPushButton("Show element dialog"));
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(sampleLoader_ = new QComboBox);
     sampleViewLayout->addSpacing(20);
@@ -199,6 +221,7 @@ void AMSampleEthanView::makeConnections()
     connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
+    connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
 }
 
 void AMSampleEthanView::loadFromDb()
