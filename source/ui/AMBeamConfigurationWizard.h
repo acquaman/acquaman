@@ -7,6 +7,9 @@
 class QLabel;
 class QCheckBox;
 
+
+/// Wizard to configure the beam.  After a failed check takes three sets of
+/// two dimensional points.  Access these points to reposition the beam.
 class AMBeamConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT

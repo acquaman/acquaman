@@ -126,7 +126,9 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMSamplePlateWizard.h \
     source/ui/AMShapeDataListView.h \
     source/ui/AMCamera.h \
-    source/ui/AMSampleEthan.h
+    source/ui/AMSampleEthan.h \
+    source/ui/AMSampleEthanView.h \
+    source/ui/AMElementListEdit.h
 
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
@@ -170,11 +172,8 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMSamplePlateWizard.cpp \
     source/ui/AMShapeDataListView.cpp \
     source/ui/AMCamera.cpp \
-    source/ui/AMSampleEthan.cpp
-#    source/beamline/AMBeamline.cpp \
-#    source/beamline/AMControlSet.cpp \
-#    source/dataman/SGM/SGMBeamlineInfo.cpp \
-#    source/beamline/CLS/CLSSIS3820Scaler.cpp \
-#    source/beamline/AMOldDetectorSet.cpp \
-#source/beamline/CLS/CLSPGTDetector.cpp
+    source/ui/AMSampleEthan.cpp \
+    source/ui/AMSampleEthanView.cpp \
+    source/ui/AMElementListEdit.cpp
+
 

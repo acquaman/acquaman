@@ -5,6 +5,9 @@
 
 class QSlider;
 
+
+/// Wizard for repositioning the Sample plate.
+/// used to adjust it based on its exact position.
 class AMSamplePlateWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT

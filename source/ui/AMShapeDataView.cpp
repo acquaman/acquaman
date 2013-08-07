@@ -9,6 +9,8 @@
 
 #include <QDebug>
 
+#include "AMSampleEthanView.h"
+
 AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     QWidget(parent)
 {
@@ -16,6 +18,10 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
         shapeModel_ = new AMShapeData();
     else
         shapeModel_ = shapeModel;
+
+
+
+    sampleView_ = new AMSampleEthanView();
 
 
     /// Set up GUI
@@ -54,6 +60,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     sliderLayout->addWidget(zAxisSlider_ = new QSlider(Qt::Horizontal));
     sliderLayout->addSpacing(20);
     sliderLayout->addWidget(showHideButton_ = new QPushButton("Show/Hide"));
+    sliderLayout->addSpacing(20);
+    sliderLayout->addWidget(showSampleView_ = new QPushButton("Show Sample"));
     sliderLayout->addStretch();
     sliderFrame->setLayout(sliderLayout);
     xAxisSlider_->setRange(-250,250);
@@ -91,6 +99,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     connect(zAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(zAxisRotation(int)));
 
     connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
+    connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
 
 }
 
@@ -126,7 +135,10 @@ void AMShapeDataView::setRotation(QString rotation)
 
 void AMShapeDataView::setShapeData(AMShapeData *shapeData)
 {
+
     shapeModel_ = shapeData;
+    if(shapeModel_)
+        sampleView_->setSample(shapeModel_->sample());
     update();
 }
 
@@ -236,6 +248,11 @@ void AMShapeDataView::toggleShapeVisible()
 void AMShapeDataView::setShapeVisible(bool visible)
 {
     shapeModel_->setVisible(visible);
+}
+
+void AMShapeDataView::showSampleView()
+{
+    sampleView_->show();
 }
 
 void AMShapeDataView::xAxisRotation(int value)

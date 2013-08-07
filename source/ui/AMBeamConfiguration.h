@@ -11,7 +11,9 @@ Q_DECLARE_METATYPE(AMQVector3DVector)
 
 
 
-
+/// Holds the information for where the beam is positioned.
+/// contains a 3D representation of the beam using two sets of points
+/// to define two shapes.  The beam is interpreted as the rays connecting the two shapes together.
 
 class AMBeamConfiguration : public AMDbObject
 {

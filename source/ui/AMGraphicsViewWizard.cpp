@@ -21,7 +21,6 @@
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
 {
-    qDebug()<<"AMGraphicsViewWizard::AMGraphicsViewWizard";
     view_ = new AMShapeDataSetGraphicsView();
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
@@ -203,7 +202,6 @@ void AMGraphicsViewWizard::checkMotorMovementState()
 
 void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
 {
-    qDebug()<<"AMGraphicsViewWizard::setView";
     view_ = view;
     view_->setObjectName("AMGraphicsViewWizard view 1");
 
@@ -287,20 +285,20 @@ void AMGraphicsViewWizard::updateShape(QGraphicsPolygonItem *item)
 
 void AMGraphicsViewWizard::fixText()
 {
-    QList<QGraphicsItem*> list = this->view()->items();
-    QGraphicsTextItem* fixTextItem;
-    foreach(QGraphicsItem* item, list)
-    {
+//    QList<QGraphicsItem*> list = this->view()->items();
+//    QGraphicsTextItem* fixTextItem;
+//    foreach(QGraphicsItem* item, list)
+//    {
 
-        if(item->type() == QGraphicsTextItem::Type)
-        {
-            QGraphicsTextItem* textItem = (QGraphicsTextItem*)(item);
-            if(textItem->objectName() == "Fix")
-            {
-                fixTextItem = textItem;
-            }
-        }
-    }
+//        if(item->type() == QGraphicsTextItem::Type)
+//        {
+//            QGraphicsTextItem* textItem = (QGraphicsTextItem*)(item);
+//            if(textItem->objectName() == "Fix")
+//            {
+//                fixTextItem = textItem;
+//            }
+//        }
+//    }
 
 
     QRect visibleRect = view_->viewport()->rect();
@@ -308,8 +306,8 @@ void AMGraphicsViewWizard::fixText()
     visibleRect.moveTopLeft((QPoint(view_->horizontalScrollBar()->value(),
     view_->verticalScrollBar()->value())));
 
-    QPointF fixLocation = visibleRect.topLeft() - (fixTextItem->boundingRect().bottomRight());
-    fixTextItem->setPos(fixLocation);
+    QPointF fixLocation = visibleRect.topLeft() - (fixItem_->boundingRect().bottomRight());
+    fixItem_->setPos(fixLocation);
 
 }
 
@@ -404,7 +402,6 @@ void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
 AMWizardPage::AMWizardPage(QWidget *parent)
     :QWizardPage(parent)
 {
-    qDebug()<<"AMWizardPage::AMWizardPage";
     setTitle("AMWizardPage Title");
     QVBoxLayout* selectLayout = new QVBoxLayout();
     selectLayout->setContentsMargins(0,0,0,0);
@@ -421,7 +418,6 @@ AMGraphicsViewWizard *AMWizardPage::viewWizard() const
 
 void AMWizardPage::initializePage()
 {
-    qDebug()<<"AMWizardPage::initializePage";
     setTitle(message(Title));
     setLabelText(message(Text));
 }
@@ -460,7 +456,6 @@ AMWaitPage::AMWaitPage(QWidget *parent)
     :AMWizardPage(parent)
 {
 
-    qDebug()<<"AMWaitPage::AMWaitPage";
     waitingToMove_ = false;
     waitTimer_ = new QTimer();
     connect(waitTimer_, SIGNAL(timeout()), this, SLOT(nextPage()));
@@ -469,7 +464,6 @@ AMWaitPage::AMWaitPage(QWidget *parent)
 
 void AMWaitPage::initializePage()
 {
-     qDebug()<<"AMWaitPage::initializePage";
     AMWizardPage::initializePage();
     waitingToMove_ = true;
     connect(viewWizard(), SIGNAL(moveSucceeded()), this, SLOT(nextPage()));
@@ -499,7 +493,6 @@ void AMWaitPage::stopTimer()
 
 void AMWaitPage::startTimer(int msec)
 {
-    qDebug()<<"AMWaitPage::startTimer";
     viewWizard()->checkMotorMovementState();
     bool state = viewWizard()->motorMovementEnabled();
     if(!state)
@@ -513,7 +506,6 @@ void AMWaitPage::startTimer(int msec)
 
 void AMWaitPage::nextPage()
 {
-    qDebug()<<"AMWaitPage::nextPage";
 
     if(waitingToMove_)
     {
@@ -601,13 +593,11 @@ void AMCheckPage::initializePage()
 {
     isConfigured_->setText(message(Other));
     AMViewPage::initializePage();
-    qDebug()<<"Initializing AMCheckPage";
     QString fieldName = QString("configured%1").arg(viewWizard()->currentId());
     if(field(fieldName).isNull())
     {
         registerField(fieldName, isConfigured_);
     }
-    qDebug()<<"Finished initializing";
 
 }
 

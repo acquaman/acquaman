@@ -7,7 +7,10 @@ class AMShapeData;
 class QLineEdit;
 class QPushButton;
 class QSlider;
+class AMSampleEthanView;
 
+
+/// This class is a view for the AMShapeData class.
 class AMShapeDataView : public QWidget
 {
     Q_OBJECT
@@ -39,6 +42,8 @@ public slots:
 
     void setShapeVisible(bool visible);
 
+    void showSampleView();
+
 signals:
     void updateShapes();
     void applyDistortion();
@@ -64,6 +69,9 @@ protected:
     QSlider* yAxisSlider_;
     QSlider* zAxisSlider_;
     QPushButton* showHideButton_;
+
+    AMSampleEthanView* sampleView_;
+    QPushButton* showSampleView_;
 
 };
 

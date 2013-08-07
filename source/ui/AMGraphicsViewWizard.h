@@ -94,11 +94,16 @@ public:
     /// sets the page to access the options page from
     void setOptionPage(int id);
 
-    /// in order to prevent motor movement enabled from being changed outside of where it should be
+    // These functions are to protect from accidental motor movement during testing
+
+    /// in order to prevent motorMovementEnabled_ from being changed outside of where it should be
     /// it is not operated in the same way as a regular member.  It is always false except immediately
     /// after it requests its state.  After the state is read, it immediately becomes false again
     bool motorMovementEnabled();
 
+    /// call this to request the motorMovementState
+    /// this must be called before motorMovementEnabled()
+    /// in order to get the true value
     void checkMotorMovementState();
 
 
@@ -131,8 +136,10 @@ public slots:
 
     void updateShape(QGraphicsPolygonItem* item);
 
+    /// repositions the "fix text".
     void fixText();
 
+    /// connects the move succeeded signal to a slot.
     void testMoveSlot();
 
 signals:

@@ -174,6 +174,10 @@ void AMSampleEthan::addTag(const QString tag)
         tags_.append(tag);
         setModified(true);
     }
+    while(hasTag(""))
+    {
+        tags_.removeAt(tags_.indexOf(""));
+    }
 }
 
 void AMSampleEthan::removeTag(const QString tag)

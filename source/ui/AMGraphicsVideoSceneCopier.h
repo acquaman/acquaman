@@ -10,6 +10,7 @@ class QGraphicsItem;
 
 /// This class copies a scene for use in another view
 /// can be used to duplicate a scene with a video widget
+/// -pointless if there is no video in the scene
 class AMGraphicsVideoSceneCopier : public QObject
 {
     Q_OBJECT

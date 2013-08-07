@@ -12,6 +12,9 @@ class QString;
 class QVector3D;
 class QPolygonF;
 
+/// This class holds a 3D shape and a 2D shape.
+/// The 2D shape is meant to correspond to a visualization
+/// of the 3D shape.
 class AMShapeData //: public QObject
 {
    // Q_OBJECT

@@ -17,7 +17,7 @@ class QVector3D;
 /** The AMCameraConfigurationWizard is the wizard for configuring the camera
 *   The user is presented with an image and asked to check if it is already configured.
 *   If it is not configured, it goes through a series of pages asking the user to select
-*   the appropriate point, as well as moving when necessary \note (currently it just waits).
+*   the appropriate point, as well as moving when necessary.
 */
 class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {

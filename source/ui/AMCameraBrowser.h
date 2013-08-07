@@ -16,29 +16,14 @@ class AMCameraBrowser : public QObject
     Q_OBJECT
 public:
     AMCameraBrowser(QObject *parent = 0);
-
-
-
-
     /// Accessors
     QString currentURL();
     AMShapeDataSet *shapeDataSet();
 
     /// Mutators
     void setCurrentURL(QString currentURL);
-
-
 public slots:
-
-
-
-
-
-
-
 protected slots:
-
-
 protected:
     AMShapeDataSet *shapeDataSet_;
 

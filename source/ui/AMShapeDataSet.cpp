@@ -75,6 +75,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
         success &= AMDbObjectSupport::s()->registerClass<AMSample>();
         success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
         success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSampleEthan>();
 
         qDebug() << "Status of registration is " << success;
     }
@@ -687,8 +688,6 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_]->coordinate(TOPLEFT);
     QVector3D bottomRight = camera_->transform2Dto3D(position,depth(topLeft));
-    qDebug()<<"topLeft,bottomRight"<<topLeft<<bottomRight;
-    qDebug()<<camera_->transform2Dto3D(camera_->transform3Dto2D(topLeft),depth(topLeft));
 
     QVector3D topRight;
     QVector3D bottomLeft;
@@ -702,8 +701,6 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     {
         topRight = rightVector();
         bottomLeft = downVector();
-        qDebug()<<"TopRightVector is"<<topRight;
-        qDebug()<<"BottomLeftVector is "<<bottomLeft;
     }
     topRight.normalize();
     bottomLeft.normalize();
@@ -725,10 +722,10 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     shapeList_[current_]->setCoordinate(topLeft + topRight,TOPRIGHT);
     shapeList_[current_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
     shapeList_[current_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
-    for(int i = 0; i < shapeList_[current_]->count(); i++)
-    {
-        qDebug()<<shapeList_[current_]->coordinate(i);
-    }
+//    for(int i = 0; i < shapeList_[current_]->count(); i++)
+//    {
+//        qDebug()<<shapeList_[current_]->coordinate(i);
+//    }
     updateShape(current_);
 
 }
