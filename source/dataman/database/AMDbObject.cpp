@@ -174,9 +174,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	//////////////////////////////////////////////////
 	for(int i=0; i<myInfo->columnCount; i++) {
 
-		int columnType = myInfo->columnTypes.at(i);
+        int columnType = myInfo->columnTypes.at(i);
 		QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
-		const char* columnName = columnNameBA.constData();
+        const char* columnName = columnNameBA.constData();
 
 		// add column name to key list... UNLESS the type is an AMDbObjectList. In that case, it gets its own table instead of a column.
 		if(columnType != qMetaTypeId<AMDbObjectList>())
@@ -193,7 +193,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 
 		}
-		else if(columnType == qMetaTypeId<AMIntList>()) {
+        else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
 			QStringList resultString;
 			foreach(int i, intList)
@@ -270,8 +270,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << property(columnName).value<AMHighPrecisionDateTime>().dateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
 		}
 		// everything else
-		else
-			values << property(columnName);
+        else
+            values << property(columnName);
 	}
 	////////////////////////////////////////
 

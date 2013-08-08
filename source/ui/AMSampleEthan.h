@@ -6,15 +6,18 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMSamplePlate.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "source/acquaman.h"
+
+
 
 class AMSampleEthan : public AMDbObject
 {
     Q_OBJECT
-
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
     Q_PROPERTY(QString notes READ notes WRITE setNotes)
     Q_PROPERTY(QByteArray image READ rawImage WRITE setRawImage)
     Q_PROPERTY(QStringList tags READ tags WRITE setTags)
+    Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
 
     Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
     Q_CLASSINFO("elementIds", "hidden=true")
@@ -39,10 +42,12 @@ public:
     QString dateTimeString() const;
     QString notes() const;
     QByteArray image() const;
-    QList<AMElement*> elements() const;
+    QList<const AMElement*> elements() const;
     QList<AMScan*> scanList() const;
     QStringList tags() const;
     AMSamplePlate* samplePlate() const;
+    QList<int> elementList() const;
+    QList<int> sampleNumber() const;
 
 
     /// thumbnails
@@ -67,10 +72,12 @@ public slots:
     void setNotes(const QString notes);
     void setImage(const QImage& image);
     void setRawImage(const QByteArray& rawPngImage);
-    void setElements(const QList<AMElement*> elements);
+    void setElements(const QList<const AMElement*> elements);
     void setScanList(const QList<AMScan*> scanList);
     void setTags(const QStringList tags);
     void setSamplePlate(AMSamplePlate* samplePlate);
+    void setElementList(const QList<int>& elements);
+    void setSampleNumber(const QList<int> sampleNumber);
 
     /// adds a tag to the stringList, if it is not already in it
     void addTag(const QString tag);
@@ -82,6 +89,10 @@ public slots:
     /// removes all instances of a scan, if it is in the scanList, else does nothing
     void removeScan(AMScan* scan);
 
+    void addElement(const AMElement* element);
+    void removeElement(const AMElement* element);
+    void toggleElement(const AMElement* element);
+
     void setCurrentDateTime();
 
 protected:
@@ -89,7 +100,7 @@ protected:
     QDateTime dateTime_;
     QString notes_;
     QByteArray image_;
-    QList<AMElement*> elements_;
+    QList<const AMElement*> elements_;
     QList<AMScan*> scanList_;
     QStringList tags_;
     AMSamplePlate* samplePlate_;

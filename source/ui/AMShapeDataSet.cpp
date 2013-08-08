@@ -70,6 +70,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     {
         bool success = true;
 
+        AM::registerTypes();
         success &= AMDbObjectSupport::s()->registerDatabase(db);
         success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
         success &= AMDbObjectSupport::s()->registerClass<AMSample>();

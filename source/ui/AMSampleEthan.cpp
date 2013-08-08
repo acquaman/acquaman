@@ -1,5 +1,7 @@
 #include "AMSampleEthan.h"
 
+#include "util/AMPeriodicTable.h"
+
 AMSampleEthan::AMSampleEthan(QObject* parent)
     : AMDbObject(parent)
 {
@@ -50,7 +52,7 @@ QByteArray AMSampleEthan::image() const
     return rawImage();
 }
 
-QList<AMElement *> AMSampleEthan::elements() const
+QList<const AMElement *> AMSampleEthan::elements() const
 {
     return elements_;
 }
@@ -68,6 +70,35 @@ QStringList AMSampleEthan::tags() const
 AMSamplePlate *AMSampleEthan::samplePlate() const
 {
     return samplePlate_;
+}
+
+QList<int> AMSampleEthan::elementList() const
+{
+    qDebug()<<"AMSampleEthan::intElements";
+    QList<int> elementList;
+    foreach(const AMElement* element, elements_)
+    {
+        if(element)
+        {
+            elementList<<element->atomicNumber();
+        }
+    }
+    foreach(int el, elementList)
+    {
+        qDebug()<<"AMSampleEthan::intElements - has element"<<el;
+    }
+
+    return elementList;
+}
+
+QList<int> AMSampleEthan::sampleNumber() const
+{
+    QList<int> intList;
+    if(elements().isEmpty())
+        intList<<0;
+    else
+        intList<<elements().last()->atomicNumber();
+    return intList;
 }
 
 int AMSampleEthan::thumbnailCount() const
@@ -107,7 +138,7 @@ bool AMSampleEthan::hasScan(AMScan *scan) const
 QString AMSampleEthan::elementString() const
 {
     QStringList elementStringList;
-    foreach(AMElement* element, elements_)
+    foreach(const AMElement* element, elements_)
     {
         elementStringList.append(element->symbol());
     }
@@ -143,8 +174,9 @@ void AMSampleEthan::setRawImage(const QByteArray &rawPngImage)
     setModified(true);
 }
 
-void AMSampleEthan::setElements(const QList<AMElement *> elements)
+void AMSampleEthan::setElements(const QList<const AMElement *> elements)
 {
+    qDebug()<<"AMSampleEthan::setElements";
     elements_ = elements;
     setModified(true);
 }
@@ -167,6 +199,25 @@ void AMSampleEthan::setSamplePlate(AMSamplePlate *samplePlate)
     setModified(true);
 }
 
+void AMSampleEthan::setElementList(const AMIntList& elements)
+{
+    qDebug()<<"AMSampleEthan::setIntElements";
+    elements_.clear();
+    foreach(int element, elements)
+    {
+        qDebug()<<"AMSampleEthan::setIntElements - adding element"<<element;
+        elements_.append(AMPeriodicTable::table()->elementByAtomicNumber(element));
+        setModified(true);
+    }
+}
+
+void AMSampleEthan::setSampleNumber(const QList<int> sampleNumber)
+{
+    if(!sampleNumber.empty())
+        addElement(AMPeriodicTable::table()->elementByAtomicNumber(sampleNumber.first()));
+    setModified(true);
+}
+
 void AMSampleEthan::addTag(const QString tag)
 {
     if(!hasTag(tag))
@@ -177,7 +228,9 @@ void AMSampleEthan::addTag(const QString tag)
     while(hasTag(""))
     {
         tags_.removeAt(tags_.indexOf(""));
+        setModified(true);
     }
+
 }
 
 void AMSampleEthan::removeTag(const QString tag)
@@ -205,6 +258,34 @@ void AMSampleEthan::removeScan(AMScan *scan)
         scanList_.removeAt(scanList_.indexOf(scan));
         setModified(true);
     }
+}
+
+void AMSampleEthan::addElement(const AMElement *element)
+{
+    if(!elements_.contains(element))
+    {
+        int position = 0;
+        while(elements_.count() > position && elements_.at(position)->atomicNumber() < element->atomicNumber())
+            position++;
+        elements_.insert(position,element);
+    }
+    setModified(true);
+}
+
+void AMSampleEthan::removeElement(const AMElement *element)
+{
+    while(elements_.contains(element))
+    {
+        elements_.removeAt(elements_.indexOf(element));
+    }
+}
+
+void AMSampleEthan::toggleElement(const AMElement *element)
+{
+    if(elements_.contains(element))
+        removeElement(element);
+    else
+        addElement(element);
 }
 
 void AMSampleEthan::setCurrentDateTime()

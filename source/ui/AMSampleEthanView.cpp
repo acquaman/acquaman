@@ -37,12 +37,11 @@ AMSampleEthanView::AMSampleEthanView(AMSampleEthan *sample, QWidget *parent)
 void AMSampleEthanView::setSample(AMSampleEthan *sample)
 {
     sample_ = sample;
-    update();
+    updateFrames();
 }
 
 void AMSampleEthanView::setName(QString name)
 {
-    qDebug()<<"AMSampleEthanView::setName - setting name to"<<name;
     sample_->setName(name);
 }
 
@@ -72,25 +71,29 @@ void AMSampleEthanView::addTag()
     tagText_->setText("");
 }
 
-void AMSampleEthanView::showPeriodicTable()
+void AMSampleEthanView::removeTag(int index)
 {
-    AMPeriodicTable* periodicTable = AMPeriodicTable::table();
-
-//    QList<const AMElement*> elList = periodicTable->elements();
-//    AMPeriodicTableView* tableView = new AMPeriodicTableView();
-//    AMPeriodicTableDialog* periodicTableDialog = new AMPeriodicTableDialog();
-//    QList<const AMElement*> elementList = AMPeriodicTable::table()->elements();
-    const AMElement* element = AMPeriodicTableDialog::getElement(this);
-
-    AMElement* newElement = new AMElement();
-    *newElement = *element;
-
-    elementList.append(newElement);
+    sample_->removeTag(tagText_->text());
 }
 
-void AMSampleEthanView::update()
+void AMSampleEthanView::removeTag()
 {
-    qDebug()<<"AMSampleEthanView::update - Updating view";
+    removeTag(tagBox_->currentIndex());
+    updateFrames();
+}
+
+void AMSampleEthanView::showPeriodicTable()
+{
+    const AMElement* element = AMPeriodicTableDialog::getElement(this);
+    if(element)
+        sample_->toggleElement(element);
+
+
+    updateFrames();
+}
+
+void AMSampleEthanView::updateFrames()
+{
     if(sample_)
     {
         nameText_->setText(sample_->name());
@@ -121,12 +124,12 @@ void AMSampleEthanView::update()
         QStringListModel* tagListModel = new QStringListModel(tagList);
         tagBox_->setModel(tagListModel);
     }
+
 }
 
 
 void AMSampleEthanView::loadSample(QString sampleName)
 {
-    qDebug()<<"AMSampleEthanView::loadSample";
     AMDatabase* db = AMDatabase::database("user");
     QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name", sampleName);
     if(matchIDs.count() == 0)
@@ -138,7 +141,6 @@ void AMSampleEthanView::loadSample(QString sampleName)
         int sampleId;
         if(matchIDs.count() > 1)
         {
-            qDebug()<<"AMSampleEthanView::loadSample - Multiple matches found for sample:"<<sampleName;
             int currentIndex = sampleLoader_->currentIndex();
             QList<int> indexList;
             for(int i = 0; i < sampleLoader_->count(); i++)
@@ -154,10 +156,16 @@ void AMSampleEthanView::loadSample(QString sampleName)
         {
             sampleId = 0;
         }
-        bool success = sample_->loadFromDb(db,matchIDs.at(sampleId));
+        AMSampleEthan* tempSample = new AMSampleEthan();
+        bool success = tempSample->loadFromDb(db,matchIDs.at(sampleId));
         if(!success) qDebug()<<"AMSampleEthanView::loadSample - Failed to load sample from database.";
+        else
+        {
+            delete sample_;
+            sample_ = tempSample;
+        }
     }
-    update();
+    updateFrames();
 }
 
 
@@ -172,8 +180,6 @@ void AMSampleEthanView::setUpGui()
     completer_->setModel(wordList_);
     completer_->setCaseSensitivity(Qt::CaseInsensitive);
 
-
-
     /// set up gui
     QVBoxLayout* sampleViewLayout = new QVBoxLayout();
     sampleViewLayout->setContentsMargins(12,4,12,4);
@@ -183,11 +189,11 @@ void AMSampleEthanView::setUpGui()
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(tagBox_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
+    sampleViewLayout->addWidget(removeTagButton_ = new QPushButton("Remove Tag"));
+    sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(notesText_ = new QTextEdit());
     sampleViewLayout->addSpacing(20);
-    sampleViewLayout->addWidget(elementsText_ = new QLineEdit());
-    sampleViewLayout->addSpacing(20);
-    sampleViewLayout->addWidget(elementList_ = new AMElementListEdit());
+    sampleViewLayout->addWidget(elementsText_ = new QLineEdit());;
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(showElementDialog_ = new QPushButton("Show element dialog"));
     sampleViewLayout->addSpacing(20);
@@ -207,7 +213,7 @@ void AMSampleEthanView::setUpGui()
     tagBox_->setLineEdit(tagText_);
 
 
-    update();
+    updateFrames();
 
     populateSampleLoader();
 
@@ -218,6 +224,7 @@ void AMSampleEthanView::makeConnections()
     connect(nameText_, SIGNAL(textEdited(QString)), this, SLOT(setName(QString)));
     connect(dateTimeText_, SIGNAL(textEdited(QString)), this, SLOT(setDateTime(QString)));
     connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
+    connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
@@ -226,6 +233,8 @@ void AMSampleEthanView::makeConnections()
 
 void AMSampleEthanView::loadFromDb()
 {
+
+
     AMDatabase* db = AMDatabase::database("user");
     if(sample_ == 0)
     {
@@ -256,6 +265,7 @@ void AMSampleEthanView::loadFromDb()
 
 void AMSampleEthanView::populateSampleLoader()
 {
+    sampleLoader_->clear();
     AMDatabase* db = AMDatabase::database("user");
     QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name");
     foreach(QVariant item, nameList)
@@ -266,11 +276,11 @@ void AMSampleEthanView::populateSampleLoader()
 
 void AMSampleEthanView::saveToDb()
 {
-    qDebug()<<"AMSampleEthanView::saveToDb - saving to database";
     AMDatabase* db = AMDatabase::database("user");
     bool success = sample_->storeToDb(db);
     if(!success) qDebug()<<"AMSampleEthanView::saveToDb - failed to store item to db";
-    update();
+    populateSampleLoader();
+    updateFrames();
 }
 
 

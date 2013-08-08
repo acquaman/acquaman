@@ -60,7 +60,7 @@
 AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
-
+    qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
     shapeView_ = new AMShapeDataView();// start with no shape data, as none has been drawn yet
     shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);

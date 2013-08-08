@@ -26,10 +26,12 @@ public slots:
     void setDateTime(QString dateTime);
     void setNotes();
     void addTag();
+    void removeTag(int index);
+    void removeTag();
     void showPeriodicTable();
 
 protected slots:
-    void update();
+    void updateFrames();
     void saveToDb();
     void loadSample(QString);
 
@@ -46,13 +48,13 @@ private:
     QLineEdit* dateTimeText_;
     QTextEdit* notesText_;
     QLineEdit* elementsText_;
-    AMElementListEdit* elementList_;
     QPushButton* showElementDialog_;
     AMPeriodicTableDialog* elementDialog_;
 
     QComboBox* tagBox_;
     QCompleter* completer_;
     QStringListModel* wordList_;
+    QPushButton* removeTagButton_;
 
     QComboBox* sampleLoader_;
     QPushButton* saveToDb_;
