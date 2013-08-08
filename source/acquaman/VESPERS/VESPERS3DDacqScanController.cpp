@@ -14,7 +14,7 @@
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
-#include "analysis/AM2DDeadTimeCorrectionAB.h"
+#include "analysis/AM3DDeadTimeCorrectionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -158,17 +158,24 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		AMDataSource *rawDataSource = 0;
 		AMOrderReductionAB *reducedROI = 0;
 		AM2DNormalizationAB *normROI = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 		QList<AMDataSource *> roiList;
 
 		for (int i = 0; i < roiCount; i++){
 
 			rawDataSource = scan_->rawDataSources()->at(i+3);
+			correctedROI = new AM3DDeadTimeCorrectionAB("corrected_" % rawDataSource->name());
+			correctedROI->setDescription("Corrected " % rawDataSource->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
 			reducedROI->setDescription("Reduced "+rawDataSource->description());
-			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setSelectedName(correctedROI->name());
 			reducedROI->setReducedAxis(2);
-			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << correctedROI);
 			roiList << reducedROI;
 			scan_->addAnalyzedDataSource(reducedROI, false, true);
 		}
@@ -223,6 +230,9 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 		AMDataSource *roi1 = 0;
 		AMDataSource *roi4 = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AMOrderReductionAB *reducedRoi1 = 0;
 		AMOrderReductionAB *reducedRoi4 = 0;
 		AM2DAdditionAB *sumAB = 0;
@@ -235,11 +245,15 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		for (int i = 0, count = sameRois.size(); i < count; i++){
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+3);
+			correctedROI = new AM3DDeadTimeCorrectionAB("corrected_" % roi1->name());
+			correctedROI->setDescription("Corrected " % roi1->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << roi1 << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			reducedRoi1 = new AMOrderReductionAB("reduced_"+roi1->name());
 			reducedRoi1->setDescription("Reduced "+roi1->description());
-			reducedRoi1->setSelectedName(roi1->name());
+			reducedRoi1->setSelectedName(correctedROI->name());
 			reducedRoi1->setReducedAxis(2);
-			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << roi1);
+			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << correctedROI);
 			scan_->addAnalyzedDataSource(reducedRoi1, false, true);
 
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+3+singleElRoiCount);

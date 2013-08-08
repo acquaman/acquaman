@@ -248,14 +248,24 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		if (edge.contains(QRegExp("L\\d$")))
 			edge.chop(1);
 
+		AMDataSource *rawDataSource = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
 			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
+				rawDataSource = scan_->rawDataSources()->at(i);
+				correctedROI = new AM1DDeadTimeAB("corrected_" % rawDataSource->name());
+				correctedROI->setDescription("Corrected " % rawDataSource->description());
+				correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+				scan_->addAnalyzedDataSource(correctedROI, false, true);
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
-				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i));
-				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+				normPFY->setInputDataSources(QList<AMDataSource *>() << correctedROI << scan_->rawDataSources()->at(i));
+				normPFY->setExpression(QString("%1/%2").arg(correctedROI->name()).arg(scan_->rawDataSources()->at(0)->name()));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
 			}
 		}

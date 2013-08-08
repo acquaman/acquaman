@@ -1,18 +1,18 @@
-#ifndef AM2DDEADTIMECORRECTIONAB_H
-#define AM2DDEADTIMECORRECTIONAB_H
+#ifndef AM3DDEADTIMECORRECTIONAB_H
+#define AM3DDEADTIMECORRECTIONAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-/// This analysis block accepts one 2D input data source and does a dead time correction to all values using two 2D input data sources, Input Count Rate (ICR) and Output Count Rate (OCR).  The output data source is a 2D data source.
-class AM2DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
+/// This analysis block accepts one 3D input data source and does a dead time correction to all values using two 3D input data sources, Input Count Rate (ICR) and Output Count Rate (OCR).  The output data source is a 3D data source.
+class AM3DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=2D Map Dead Time Correction Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=3D Map Dead Time Correction Block")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AM2DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AM3DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
 	QString infoDescription() const { return QString(); }
@@ -52,12 +52,12 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 
-	/// Holds the 2D spectrum data source.
+	/// Holds the 3D spectrum data source.
 	AMDataSource *spectra_;
-	/// Holds the 2D input count rate data source.
+	/// Holds the 3D input count rate data source.
 	AMDataSource *icr_;
-	/// Holds the 2D output count rate data source.
+	/// Holds the 3D output count rate data source.
 	AMDataSource *ocr_;
 };
 
-#endif // AM2DDEADTIMECORRECTIONAB_H
+#endif // AM3DDEADTIMECORRECTIONAB_H
