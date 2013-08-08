@@ -131,7 +131,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMElementListEdit.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/ui/util/AMPeriodicTableView.h \
-    source/acquaman.h
+    source/acquaman.h \
+    source/ui/util/AMSamplePeriodicTableDialog.h
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -179,6 +180,7 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMElementListEdit.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/ui/util/AMPeriodicTableView.cpp \
-    source/acquaman.cpp
+    source/acquaman.cpp \
+    source/ui/util/AMSamplePeriodicTableDialog.cpp
 
 RESOURCES = source/util/ElementData.qrc

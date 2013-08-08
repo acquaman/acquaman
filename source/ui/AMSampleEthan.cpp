@@ -74,7 +74,6 @@ AMSamplePlate *AMSampleEthan::samplePlate() const
 
 QList<int> AMSampleEthan::elementList() const
 {
-    qDebug()<<"AMSampleEthan::intElements";
     QList<int> elementList;
     foreach(const AMElement* element, elements_)
     {
@@ -83,11 +82,6 @@ QList<int> AMSampleEthan::elementList() const
             elementList<<element->atomicNumber();
         }
     }
-    foreach(int el, elementList)
-    {
-        qDebug()<<"AMSampleEthan::intElements - has element"<<el;
-    }
-
     return elementList;
 }
 
@@ -176,7 +170,6 @@ void AMSampleEthan::setRawImage(const QByteArray &rawPngImage)
 
 void AMSampleEthan::setElements(const QList<const AMElement *> elements)
 {
-    qDebug()<<"AMSampleEthan::setElements";
     elements_ = elements;
     setModified(true);
 }
@@ -201,11 +194,9 @@ void AMSampleEthan::setSamplePlate(AMSamplePlate *samplePlate)
 
 void AMSampleEthan::setElementList(const AMIntList& elements)
 {
-    qDebug()<<"AMSampleEthan::setIntElements";
     elements_.clear();
     foreach(int element, elements)
     {
-        qDebug()<<"AMSampleEthan::setIntElements - adding element"<<element;
         elements_.append(AMPeriodicTable::table()->elementByAtomicNumber(element));
         setModified(true);
     }
@@ -223,14 +214,9 @@ void AMSampleEthan::addTag(const QString tag)
     if(!hasTag(tag))
     {
         tags_.append(tag);
-        setModified(true);
     }
-    while(hasTag(""))
-    {
-        tags_.removeAt(tags_.indexOf(""));
-        setModified(true);
-    }
-
+    tags_.removeAll("");
+    setModified(true);
 }
 
 void AMSampleEthan::removeTag(const QString tag)

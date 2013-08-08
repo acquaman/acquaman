@@ -13,6 +13,8 @@
 #include "util/AMPeriodicTableView.h"
 
 #include "AMSampleEthan.h"
+#include "util/AMSamplePeriodicTableDialog.h"
+
 
 AMSampleEthanView::AMSampleEthanView(QWidget* parent)
     : QWidget(parent)
@@ -84,7 +86,8 @@ void AMSampleEthanView::removeTag()
 
 void AMSampleEthanView::showPeriodicTable()
 {
-    const AMElement* element = AMPeriodicTableDialog::getElement(this);
+    const AMElement* element = AMSamplePeriodicTableDialog::getElement(sample_->elements());
+
     if(element)
         sample_->toggleElement(element);
 
@@ -265,12 +268,23 @@ void AMSampleEthanView::loadFromDb()
 
 void AMSampleEthanView::populateSampleLoader()
 {
+    int currentIndex = sampleLoader_->currentIndex();
+    QString currentSampleName = nameText_->text();
+    sampleLoader_->blockSignals(true);
     sampleLoader_->clear();
+    sampleLoader_->blockSignals(false);
     AMDatabase* db = AMDatabase::database("user");
     QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name");
     foreach(QVariant item, nameList)
     {
         sampleLoader_->addItem(item.toString());
+    }
+    sampleLoader_->setCurrentIndex(currentIndex);
+    if(sampleLoader_->itemText(currentIndex) != currentSampleName)
+    {
+        // samples are in a different order...
+        qDebug()<<"populateSampleLoader - Samples out of order";
+        sampleLoader_->setCurrentIndex(-1);
     }
 }
 
