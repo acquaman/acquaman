@@ -3,7 +3,9 @@
 
 #include <QListView>
 
+
 class AMShapeDataSet;
+class AMSampleEthanView;
 
 class AMShapeDataListView : public QListView
 {
@@ -18,6 +20,9 @@ signals:
 
 protected:
     AMShapeDataSet* shapeModel();
+
+protected:
+    AMSampleEthanView* sampleView_;
 };
 
 #endif // AMSHAPEDATALISTVIEW_H

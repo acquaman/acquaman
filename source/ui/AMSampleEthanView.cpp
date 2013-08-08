@@ -159,14 +159,13 @@ void AMSampleEthanView::loadSample(QString sampleName)
         {
             sampleId = 0;
         }
-        AMSampleEthan* tempSample = new AMSampleEthan();
-        bool success = tempSample->loadFromDb(db,matchIDs.at(sampleId));
+//        AMSampleEthan* tempSample = new AMSampleEthan();
+        bool success = sample_->loadFromDb(db,matchIDs.at(sampleId));
         if(!success) qDebug()<<"AMSampleEthanView::loadSample - Failed to load sample from database.";
-        else
-        {
-            delete sample_;
-            sample_ = tempSample;
-        }
+//        else
+//        {
+//            sample_ = tempSample;
+//        }
     }
     updateFrames();
 }
