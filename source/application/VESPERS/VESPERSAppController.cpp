@@ -681,7 +681,7 @@ bool VESPERSAppController::exafsMotorAcceptable(int motor) const
 	if (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
 
 		return true;
 
@@ -693,7 +693,7 @@ bool VESPERSAppController::energyScanMotorAcceptable(int motor) const
 	if (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
 
 		return true;
 
@@ -705,7 +705,7 @@ bool VESPERSAppController::mapMotorAcceptable(int motor) const
 	if (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoV))
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
 
 		return true;
 
