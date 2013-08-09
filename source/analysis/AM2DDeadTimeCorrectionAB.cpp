@@ -136,9 +136,9 @@ bool AM2DDeadTimeCorrectionAB::values(const AMnDIndex &indexStart, const AMnDInd
 	icr_->values(indexStart, indexEnd, icr.data());
 	ocr_->values(indexStart, indexEnd, ocr.data());
 
-	for (int i = indexStart.i(), iSize = indexEnd.i()-indexStart.i(); i <= indexEnd.i(); i++){
+	for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
-		for (int j = indexStart.j(); j <= indexEnd.j(); j++){
+		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
 			int index = i+j*iSize;
 

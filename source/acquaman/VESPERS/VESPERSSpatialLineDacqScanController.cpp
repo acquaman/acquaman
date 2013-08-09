@@ -285,7 +285,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
 		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
-		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << fastPeakSource << slowPeakSource);
 		scan_->addAnalyzedDataSource(correctedSpectra1El, true, false);
 
 		break;

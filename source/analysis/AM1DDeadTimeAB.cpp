@@ -127,14 +127,14 @@ bool AM1DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	QVector<double> icr = QVector<double>(totalSize);
 	QVector<double> ocr = QVector<double>(totalSize);
 	spectra_->values(indexStart, indexEnd, data.data());
-	icr_->values(indexStart.i(), indexEnd.i(), icr.data());
-	ocr_->values(indexStart.i(), indexEnd.i(), ocr.data());
+	icr_->values(indexStart, indexEnd, icr.data());
+	ocr_->values(indexStart, indexEnd, ocr.data());
 
-	for (int i = indexStart.i(); i < totalSize; i++){
+	for (int i = 0; i < totalSize; i++){
 
 		// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
 		if (icr.at(i) <= 0 || ocr.at(i) <= 0)
-				outputValues[i] = 0;
+			outputValues[i] = 0;
 
 		else
 			outputValues[i] = data.at(i)*icr.at(i)/ocr.at(i);

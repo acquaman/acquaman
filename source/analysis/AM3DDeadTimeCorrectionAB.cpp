@@ -142,11 +142,11 @@ bool AM3DDeadTimeCorrectionAB::values(const AMnDIndex &indexStart, const AMnDInd
 	icr_->values(indexStart, indexEnd, icr.data());
 	ocr_->values(indexStart, indexEnd, ocr.data());
 
-	for (int i = indexStart.i(), iSize = indexEnd.i()-indexStart.i(); i <= indexEnd.i(); i++){
+	for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
-		for (int j = indexStart.j(), jSize = indexEnd.j()-indexStart.j(); j <= indexEnd.j(); j++){
+		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
-			for (int k = indexStart.k(); k <= indexEnd.k(); k++){
+			for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
 
 				int index = i + j*iSize + k*iSize*jSize;
 

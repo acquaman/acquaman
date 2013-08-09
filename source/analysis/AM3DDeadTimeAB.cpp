@@ -169,14 +169,14 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	icr_->values(start2D, end2D, icr.data());
 	ocr_->values(start2D, end2D, ocr.data());
 
-	for (int i = 0, iSize = indexEnd.i()-indexStart.i(); i <= iSize; i++){
+	for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
-		for (int j = 0, jSize = indexEnd.j()-indexStart.j(); j <= jSize; j++){
+		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
 			// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
 			if (icr.at(i*jSize+j) <= 0 || ocr.at(i*jSize+j) <= 0){
 
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k(); k <= kSize; k++)
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++)
 					outputValues[i*jSize*kSize+j*kSize+k] = 0;
 			}
 
@@ -184,7 +184,7 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 
 				double factor = icr.at(i*jSize+j)/ocr.at(i*jSize+j);
 
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k(); k <= kSize; k++)
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++)
 					outputValues[i*jSize*kSize+j*kSize+k] = data.at(i*jSize*kSize+j*kSize+k)*factor;
 			}
 		}
