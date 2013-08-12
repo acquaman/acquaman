@@ -84,8 +84,6 @@ void AMScanActionController::resumeImplementation(){
 }
 
 void AMScanActionController::cancelImplementation(){
-	qDebug() << "Heard a general request for cancelling in AMScanActionController";
-
 	connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(setCancelled()));
 	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 }

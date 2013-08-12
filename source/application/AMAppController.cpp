@@ -307,7 +307,6 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
 	if(o == mw_ && e->type() == QEvent::Close) {
-		qDebug() << "In the AMAppController::eventFilter for QEvent::Close";
 		if(overrideCloseCheck_)
 			qApp->quit();
 		if(!canCloseScanEditors()) {

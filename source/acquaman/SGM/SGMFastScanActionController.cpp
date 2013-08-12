@@ -422,6 +422,25 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	retVal->addSubAction(fastActionsTrackingOff);
 	// End Tracking Off
 
+	// Initial velocity for mono and undulator ... if we haven't done a regular move in a while we can easily wind up with a slow velocity stuck in there
+	AMListAction3 *fastActionsInitializeVelocity = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initialize Velocity", "SGM Fast Actions Initialize Velocity"), AMListAction3::Parallel);
+
+	tmpControl = SGMBeamline::sgm()->undulatorVelocity();
+	AMControlInfo undulatorVelocityStartupSetpoint = tmpControl->toInfo();
+	undulatorVelocityStartupSetpoint.setValue(11811);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorVelocityStartupSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitializeVelocity->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityStartupSetpoint = tmpControl->toInfo();
+	gratingVelocityStartupSetpoint.setValue(10000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityStartupSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitializeVelocity->addSubAction(moveAction);
+
+	retVal->addSubAction(fastActionsInitializeVelocity);
+	// End initial velocity
+
 	// Initial positions while still moving quickly (energy and undulator)
 	// Energy to start position
 	// Undulator to start step
