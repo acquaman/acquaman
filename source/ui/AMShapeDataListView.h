@@ -21,8 +21,6 @@ signals:
 protected:
     AMShapeDataSet* shapeModel();
 
-protected:
-    AMSampleEthanView* sampleView_;
 };
 
 #endif // AMSHAPEDATALISTVIEW_H

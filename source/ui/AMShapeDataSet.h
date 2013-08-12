@@ -36,9 +36,8 @@ class AMShapeDataSet: public QAbstractListModel
 {
     Q_OBJECT
 public:
-    /// Constructor
-    explicit AMShapeDataSet(QObject *parent = 0);
 
+    static AMShapeDataSet* set();
 
     enum AxisDirection {XAXIS,YAXIS,ZAXIS};
 
@@ -203,6 +202,8 @@ public:
 
     bool motorMovementenabled();
 
+    QList<AMShapeData*> shapeList();
+
 
 
 public slots:
@@ -337,6 +338,8 @@ signals:
 
     void moveSucceeded();
 
+    void shapesChanged();
+
 protected slots:
     /// tracks the motor location
     void motorTracking(double);
@@ -345,6 +348,9 @@ protected slots:
     void motorsFinishedMoving();
 
 protected:
+
+    /// Constructor
+    explicit AMShapeDataSet(QObject *parent = 0);
 
 
     /// Manipulations
@@ -468,6 +474,8 @@ protected:
 protected:
 
     /// Members
+
+    static AMShapeDataSet* set_;
 
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles

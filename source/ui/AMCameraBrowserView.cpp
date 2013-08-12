@@ -16,6 +16,7 @@
 #include "ui/AMShapeDataView.h"
 #include "AMCameraBrowser.h"
 #include <QLineEdit>
+#include "AMSampleContainerView.h"
 
 #include <QDebug>
 
@@ -179,6 +180,10 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
 {
     cameraBrowser_ = cameraBrowser;
     videoWidget_ = new AMShapeDataSetView(cameraBrowser_->shapeDataSet());
+    sampleView_ = new AMSampleContainerView();
+    sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
+    sampleView_->show();
+
     //	crosshairLocked_ = false;
 
         setWindowTitle("Video");
@@ -219,7 +224,6 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
 
         connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
         connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
-
 
 
 

@@ -7,7 +7,11 @@
 #include "dataman/AMSamplePlate.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "source/acquaman.h"
+#include <QVector3D>
+#include <QVector>
 
+
+class AMShapeData;
 
 /// Represents a sample to be scanned.  Holds the sample plate it is on, the scans
 /// that have been performed on it, as well as an element list, notes, image, dateTime.
@@ -53,6 +57,7 @@ public:
     QString samplePlateName() const;
     /// returns the elements as a list of atomic numbers
     QList<int> elementList() const;
+    AMShapeData* sampleShapePositionData() const;
 
 
     /// thumbnails
@@ -86,6 +91,8 @@ public slots:
 
     /// sets the element list from a list of atomic numbers
     void setElementList(const QList<int>& elements);
+
+    void setSampleShapePositionData(AMShapeData* sampleShapePositionData);
 
     /// adds a tag to the stringList, if it is not already in it
     void addTag(const QString tag);
@@ -128,6 +135,10 @@ protected:
     QStringList tags_;
     /// sample plate this sample is associated with
     AMSamplePlate* samplePlate_;
+
+    QVector<QVector3D> samplePosition_;
+    AMShapeData* samplePlatePosition_;
+    AMShapeData* sampleShapePositionData_;
 
 
 };

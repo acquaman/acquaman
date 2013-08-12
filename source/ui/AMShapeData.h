@@ -31,14 +31,10 @@ public:
     QString otherData() const;
     double idNumber() const;
     QVector3D coordinate(int index) const;
-    double height() const;
-    double width() const;
     double rotation() const;
     double tilt() const;
     double yAxisRotation() const;
     bool visible() const;
-
-    AMSampleEthan* sample() const;
 
     /// mutators
     void setShape(QPolygonF shape);
@@ -47,14 +43,10 @@ public:
     void setIdNumber(double idNumber);
     void setCoordinate(QVector3D coordinate, int index);
     void setCoordinateShape(QVector<QVector3D> coordinates, int count);
-    void setHeight(double height);
-    void setWidth(double width);
-    void setRotation(double rotation);
-    void setTilt(double tilt);
+    void setRotation(double zAxisRotation);
+    void setTilt(double xAxisRotation);
     void setYAxisRotation(double yAxisRotation);
     void setVisible(bool visible);
-
-    void setSample(AMSampleEthan* sample);
 
     /// returns the center
     QVector3D centerCoordinate() const;
@@ -83,22 +75,16 @@ protected:
     double idNumber_;
     /// the 3D shape to store
     QVector<QVector3D> coordinate_;
-    /// height of the shape
-    double height_;
-    /// width of the shape
-    double width_;
     /// z-axis rotation
-    double rotation_;
+    double zAxisRotation_;
     /// x-axis rotation
-    double tilt_;
+    double xAxisRotation_;
     /// y-axis rotation
     double yAxisRotation_;
     /// the number of coordinates
     int coordinateCount_;
 
     bool visible_;
-
-    AMSampleEthan* sample_;
 
     bool validIndex(int index) const;
 

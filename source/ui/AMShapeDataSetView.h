@@ -190,6 +190,7 @@ signals:
     void moveSucceeded();
 
 
+
 public slots:
 
 	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)

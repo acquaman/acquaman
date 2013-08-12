@@ -143,8 +143,6 @@ void AMShapeDataView::setShapeData(AMShapeData *shapeData)
 {
 
     shapeModel_ = shapeData;
-    if(shapeModel_)
-        sampleView_->setSample(shapeModel_->sample());
     update();
 }
 

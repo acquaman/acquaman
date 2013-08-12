@@ -34,94 +34,18 @@
 
 using namespace Eigen;
 
+AMShapeDataSet* AMShapeDataSet::set_;
 
-/// Constructor
-AMShapeDataSet::AMShapeDataSet(QObject *parent) :
-    QAbstractListModel(parent)
+AMShapeDataSet* AMShapeDataSet::set()
 {
-    crosshair_ = QPointF(0.5,0.5);
-    crosshairLocked_ = false;
-    index_ = -1;
-    camera_ = new AMCamera();
-    beamModel_ = new AMBeamConfiguration();
-    centerOfRotation_ = QVector3D(0,0,0);
-    directionOfRotation_ = QVector3D(0,-1,0);
-
-    enableMotorMovement_ = false;
-    drawOnShapeEnabled_ = false;
-    drawOnShapeSelected_ = false;
-    samplePlateSelected_ = false;
-
-    for(int i= 0; i < SAMPLEPOINTS; i++)
+    if(!set_)
     {
-        calibrationPoints_[i] = new AMShapeData();
-        if(i < 3)
-        {
-            beamMarkers_[i] = new AMShapeData();
-        }
+        set_ = new AMShapeDataSet();
     }
+    return set_;
 
-
-    // create the database
-    AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
-    if(!db)
-        qDebug() << "Uh oh, no database created";
-    else
-    {
-        bool success = true;
-
-        AM::registerTypes();
-        success &= AMDbObjectSupport::s()->registerDatabase(db);
-        success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSample>();
-        success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSampleEthan>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
-
-        qDebug() << "Status of registration is " << success;
-    }
-
-    QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
-    if(matchIDs.count() == 0)
-    {
-        QVector<QVector3D> positionOne;
-        positionOne<<QVector3D(0.02,0.02,0)<<QVector3D(-0.02,0.02,0)<<QVector3D(-0.02,-0.02,0)<<QVector3D(0.02,-0.02,0)<<QVector3D(0.02,0.02,0);
-        QVector<QVector3D> positionTwo;
-        positionTwo<<QVector3D(0.02,0.02,1)<<QVector3D(-0.02,0.02,1)<<QVector3D(-0.02,-0.02,1)<<QVector3D(0.02,-0.02,1)<<QVector3D(0.02,0.02,1);
-        beamModel_->setPositionOne(positionOne);
-        beamModel_->setPositionTwo(positionTwo);
-        beamModel_->setName("defaultConfiguration");
-        bool success = beamModel_->storeToDb(db);
-        if(!success)qDebug()<<"Failed to store default beam to database, in AMShapeDataSet constructor";
-    }
-    else
-    {
-        beamModel_->loadFromDb(db,matchIDs.first());
-    }
-
-
-    /// add motor manipulators
-
-    ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
-    ssaManipulatorX_->setContextKnownDescription("X");
-
-    ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
-    ssaManipulatorY_->setContextKnownDescription("Y");
-
-    ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
-    ssaManipulatorZ_->setContextKnownDescription("Z");
-
-    ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
-    ssaManipulatorRot_->setContextKnownDescription("R");
-
-
-
-    connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-    connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-    connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-    connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
 }
+
 
 /// returns the highest index of shapes in shapeList
 int AMShapeDataSet::shapeListLength() const
@@ -629,6 +553,11 @@ QVariant AMShapeDataSet::data(const QModelIndex &index, int role) const
 bool AMShapeDataSet::motorMovementenabled()
 {
     return enableMotorMovement_;
+}
+
+QList<AMShapeData *> AMShapeDataSet::shapeList()
+{
+    return shapeList_;
 }
 
 
@@ -1390,6 +1319,95 @@ void AMShapeDataSet::motorsFinishedMoving()
                     emit moveSucceeded();
 }
 
+/// Constructor
+AMShapeDataSet::AMShapeDataSet(QObject *parent) :
+    QAbstractListModel(parent)
+{
+    qDebug()<<"Constructing new AMShapeDataSet";
+    crosshair_ = QPointF(0.5,0.5);
+    crosshairLocked_ = false;
+    index_ = -1;
+    camera_ = new AMCamera();
+    beamModel_ = new AMBeamConfiguration();
+    centerOfRotation_ = QVector3D(0,0,0);
+    directionOfRotation_ = QVector3D(0,-1,0);
+
+    enableMotorMovement_ = false;
+    drawOnShapeEnabled_ = false;
+    drawOnShapeSelected_ = false;
+    samplePlateSelected_ = false;
+
+    for(int i= 0; i < SAMPLEPOINTS; i++)
+    {
+        calibrationPoints_[i] = new AMShapeData();
+        if(i < 3)
+        {
+            beamMarkers_[i] = new AMShapeData();
+        }
+    }
+
+
+    // create the database
+    AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
+    if(!db)
+        qDebug() << "Uh oh, no database created";
+    else
+    {
+        bool success = true;
+
+        AM::registerTypes();
+        success &= AMDbObjectSupport::s()->registerDatabase(db);
+        success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+        success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+        success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSampleEthan>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+
+        qDebug() << "Status of registration is " << success;
+    }
+
+    QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
+    if(matchIDs.count() == 0)
+    {
+        QVector<QVector3D> positionOne;
+        positionOne<<QVector3D(0.02,0.02,0)<<QVector3D(-0.02,0.02,0)<<QVector3D(-0.02,-0.02,0)<<QVector3D(0.02,-0.02,0)<<QVector3D(0.02,0.02,0);
+        QVector<QVector3D> positionTwo;
+        positionTwo<<QVector3D(0.02,0.02,1)<<QVector3D(-0.02,0.02,1)<<QVector3D(-0.02,-0.02,1)<<QVector3D(0.02,-0.02,1)<<QVector3D(0.02,0.02,1);
+        beamModel_->setPositionOne(positionOne);
+        beamModel_->setPositionTwo(positionTwo);
+        beamModel_->setName("defaultConfiguration");
+        bool success = beamModel_->storeToDb(db);
+        if(!success)qDebug()<<"Failed to store default beam to database, in AMShapeDataSet constructor";
+    }
+    else
+    {
+        beamModel_->loadFromDb(db,matchIDs.first());
+    }
+
+
+    /// add motor manipulators
+
+    ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+    ssaManipulatorX_->setContextKnownDescription("X");
+
+    ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+    ssaManipulatorY_->setContextKnownDescription("Y");
+
+    ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
+    ssaManipulatorZ_->setContextKnownDescription("Z");
+
+    ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
+    ssaManipulatorRot_->setContextKnownDescription("R");
+
+
+
+    connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+    connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+}
+
 
 /// shifts all coordinates by  the specified shift
 void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
@@ -1875,6 +1893,7 @@ void AMShapeDataSet::insertItem(AMShapeData *item)
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
     endInsertRows();
+    emit shapesChanged();
 }
 
 void AMShapeDataSet::removeItem(int index)
@@ -1882,6 +1901,7 @@ void AMShapeDataSet::removeItem(int index)
     beginRemoveRows(QModelIndex(),index,index);
     shapeList_.removeAt(index);
     endRemoveRows();
+    emit shapesChanged();
 }
 
 AMShapeData *AMShapeDataSet::takeItem(int index)
@@ -1889,6 +1909,7 @@ AMShapeData *AMShapeDataSet::takeItem(int index)
     beginRemoveRows(QModelIndex(),index,index);
     AMShapeData* oldShape = shapeList_.takeAt(index);
     endRemoveRows();
+    emit shapesChanged();
     return oldShape;
 }
 
@@ -1939,6 +1960,8 @@ bool AMShapeDataSet::moveMotors(double x, double y, double z)
     }
     return success;
 }
+
+
 
 
 

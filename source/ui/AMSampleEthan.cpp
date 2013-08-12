@@ -2,6 +2,8 @@
 
 #include "util/AMPeriodicTable.h"
 
+#include "AMShapeData.h"
+
 AMSampleEthan::AMSampleEthan(QObject* parent)
     : AMDbObject(parent)
 {
@@ -98,6 +100,11 @@ QList<int> AMSampleEthan::elementList() const
         }
     }
     return elementList;
+}
+
+AMShapeData *AMSampleEthan::sampleShapePositionData() const
+{
+    return sampleShapePositionData_;
 }
 
 
@@ -216,6 +223,11 @@ void AMSampleEthan::setElementList(const AMIntList& elements)
     {
         addElement(AMPeriodicTable::table()->elementByAtomicNumber(element));
     }
+}
+
+void AMSampleEthan::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
+{
+    sampleShapePositionData_ = sampleShapePositionData;
 }
 
 

@@ -9,6 +9,7 @@ class QPointF;
 class QStringList;
 class AMShapeDataSet;
 class AMShapeDataSetView;
+class AMSampleContainer;
 
 
 class AMCameraBrowser : public QObject
@@ -19,6 +20,7 @@ public:
     /// Accessors
     QString currentURL();
     AMShapeDataSet *shapeDataSet();
+    AMSampleContainer* sampleContainer();
 
     /// Mutators
     void setCurrentURL(QString currentURL);
@@ -26,6 +28,8 @@ public slots:
 protected slots:
 protected:
     AMShapeDataSet *shapeDataSet_;
+
+    AMSampleContainer* sampleContainer_;
 
 
 

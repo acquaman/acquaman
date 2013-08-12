@@ -14,9 +14,6 @@ AMShapeData::AMShapeData()
     shape_ = new QPolygonF();
     coordinateCount_ = -1;
     visible_ = true;
-    sample_ = new AMSampleEthan("First Sample");
-    setOtherData(sample_->name());
-
 }
 
 /// constructor
@@ -29,9 +26,6 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
     setIdNumber(idNumber);
     coordinateCount_ = -1;
     visible_ = true;
-    sample_ = new AMSampleEthan("First Sample");
-    setOtherData(sample_->name());
-
 }
 
 AMShapeData::~AMShapeData()
@@ -67,24 +61,15 @@ QVector3D AMShapeData::coordinate(int index) const
         return QVector3D(0,0,0);
 }
 
-double AMShapeData::height() const
-{
-    return height_;
-}
-
-double AMShapeData::width() const
-{
-    return width_;
-}
 
 double AMShapeData::rotation() const
 {
-    return rotation_;
+    return zAxisRotation_;
 }
 
 double AMShapeData::tilt() const
 {
-    return tilt_;
+    return xAxisRotation_;
 }
 
 double AMShapeData::yAxisRotation() const
@@ -97,10 +82,6 @@ bool AMShapeData::visible() const
     return visible_;
 }
 
-AMSampleEthan *AMShapeData::sample() const
-{
-    return sample_;
-}
 
 void AMShapeData::setShape(QPolygonF shape)
 {
@@ -139,24 +120,15 @@ void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
     }
 }
 
-void AMShapeData::setHeight(double height)
+
+void AMShapeData::setRotation(double zAxisRotation)
 {
-    height_ = height;
+    zAxisRotation_ = zAxisRotation;
 }
 
-void AMShapeData::setWidth(double width)
+void AMShapeData::setTilt(double xAxisRotation)
 {
-    width_ = width;
-}
-
-void AMShapeData::setRotation(double rotation)
-{
-    rotation_ = rotation;
-}
-
-void AMShapeData::setTilt(double tilt)
-{
-    tilt_ = tilt;
+    xAxisRotation_ = xAxisRotation;
 }
 
 void AMShapeData::setYAxisRotation(double yAxisRotation)
@@ -167,11 +139,6 @@ void AMShapeData::setYAxisRotation(double yAxisRotation)
 void AMShapeData::setVisible(bool visible)
 {
     visible_ = visible;
-}
-
-void AMShapeData::setSample(AMSampleEthan *sample)
-{
-    sample_ = sample;
 }
 
 /// finds the center of the shape - must be rectangular
@@ -234,13 +201,9 @@ bool AMShapeData::operator ==(const AMShapeData &other) const
         return false;
     if(other.otherData_ != otherData_)
         return false;
-    if(other.rotation_ != rotation_)
+    if(other.zAxisRotation_ != zAxisRotation_)
         return false;
-    if(other.height_ != height_)
-        return false;
-    if(other.width_ != width_)
-        return false;
-    if(other.tilt_ != tilt_)
+    if(other.xAxisRotation_ != xAxisRotation_)
         return false;
     if(other.yAxisRotation_ != yAxisRotation_)
         return false;

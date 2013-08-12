@@ -14,6 +14,7 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMCameraBrowser;
+class AMSampleContainerView;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMCameraBrowserView : public QWidget
@@ -68,6 +69,8 @@ protected:
     AMShapeDataSetView* videoWidget_;
 
     QComboBox* sourceComboBox_;
+
+    AMSampleContainerView* sampleView_;
 
 
 
