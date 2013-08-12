@@ -438,10 +438,10 @@ void AMCamera::setScaledSize(QSizeF scaledSize)
 
 double AMCamera::focalLength() const
 {
-    if(calibrationRun_ && useCameraMatrix_)
-    {
-        return 1;
-    }
+//    if(calibrationRun_ && useCameraMatrix_)
+//    {
+//        return 1;
+//    }
     return cameraConfiguration()->cameraFocalLength();
 }
 
@@ -605,11 +605,15 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     if(point == QPointF(0.5,0.5))
     {
         isCentred = true;
+        qDebug()<<"AMCamera::transform2Dto3DMatrix - Is centered";
     }
 
+    /// translate point to coordinate system
     point = point - QPointF(0.5,0.5);
+
     if(isCentred)
         point += QPointF(0.1,0.1);
+
     MatrixXd matrixPoint (3,1);
     matrixPoint<<point.x(),point.y(),1;
     MatrixXd matrixP = cameraConfiguration()->cameraMatrixToMatrix();

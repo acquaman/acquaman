@@ -24,11 +24,11 @@ class AMBeamConfiguration : public AMDbObject
 public:
     explicit AMBeamConfiguration(QObject *parent = 0);
 
-    AMQVector3DVector positionOne();
-    AMQVector3DVector positionTwo();
+    AMQVector3DVector positionOne() const;
+    AMQVector3DVector positionTwo() const;
     AMQVector3DVector ray(int index) const;
-    QList<QVector3D> beamOne();
-    QList<QVector3D> beamTwo();
+    QList<QVector3D> beamOne() const;
+    QList<QVector3D> beamTwo() const;
 
     void setPositionOne(AMQVector3DVector positionOne);
     void setPositionTwo(AMQVector3DVector positionTwo);
@@ -41,7 +41,7 @@ public:
     int count() const;
 
 protected:
-    QVector3D findCenter(QVector<QVector3D>);
+    QVector3D findCenter(QVector<QVector3D>) const;
 
 
 protected:

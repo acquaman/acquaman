@@ -14,6 +14,7 @@
 
 #include "AMSampleEthan.h"
 #include "util/AMSamplePeriodicTableDialog.h"
+//#include "dataman/AMSamplePlate.h"
 
 
 AMSampleEthanView::AMSampleEthanView(QWidget* parent)
@@ -104,6 +105,7 @@ void AMSampleEthanView::updateFrames()
         tagText_->setText(sample_->tags().join(", "));
         notesText_->setText(sample_->notes());
         elementsText_->setText(sample_->elementString());
+        samplePlateName_->setText(sample_->samplePlateName());
     }
     AMDatabase* db = AMDatabase::database("user");
     QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "tags");
@@ -159,14 +161,47 @@ void AMSampleEthanView::loadSample(QString sampleName)
         {
             sampleId = 0;
         }
-//        AMSampleEthan* tempSample = new AMSampleEthan();
         bool success = sample_->loadFromDb(db,matchIDs.at(sampleId));
         if(!success) qDebug()<<"AMSampleEthanView::loadSample - Failed to load sample from database.";
-//        else
-//        {
-//            sample_ = tempSample;
-//        }
     }
+    updateFrames();
+}
+
+void AMSampleEthanView::changeSamplePlate(QString name)
+{
+    AMDatabase* db = AMDatabase::database("user");
+    /// load the sample plate, make sure it's the same one, set it as sample_'s samplePlate_.
+    QList<int> comboBoxList;
+    int dbIndex;
+    for(int i = 0; i < samplePlateLoader_->count(); i++)
+    {
+        if(samplePlateLoader_->itemText(i) == name)
+            comboBoxList<<i;
+    }
+    QList<int> matchIds = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>(),"name", name);
+    if(matchIds.count() < 1)
+    {
+        qDebug()<<"AMSampleEthanView::changeSamplePlate - Error in sample plate selector, no matching sample plate";
+        return;
+    }
+    else if(matchIds.count() > 1)
+    {
+        if(matchIds.count() != comboBoxList.count())
+        {
+            qDebug()<<"AMSampleEthanView::changeSamplePlate - inconsistent count in loader and database";
+            return;
+        }
+        int index = comboBoxList.indexOf(samplePlateLoader_->currentIndex());
+        dbIndex = matchIds.at(index);
+    }
+    else
+    {
+        dbIndex = matchIds.first();
+    }
+    AMSamplePlate* samplePlate = new AMSamplePlate();
+    samplePlate->loadFromDb(db,dbIndex);
+    sample_->setSamplePlate(samplePlate);
+
     updateFrames();
 }
 
@@ -199,7 +234,11 @@ void AMSampleEthanView::setUpGui()
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(showElementDialog_ = new QPushButton("Show element dialog"));
     sampleViewLayout->addSpacing(20);
-    sampleViewLayout->addWidget(sampleLoader_ = new QComboBox);
+    sampleViewLayout->addWidget(samplePlateName_ = new QLineEdit());
+    sampleViewLayout->addSpacing(20);
+    sampleViewLayout->addWidget(samplePlateLoader_ = new QComboBox());
+    sampleViewLayout->addSpacing(20);
+    sampleViewLayout->addWidget(sampleLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(saveToDb_ = new QPushButton("Save to Database"));
     sampleViewLayout->addStretch();
@@ -217,6 +256,8 @@ void AMSampleEthanView::setUpGui()
 
     updateFrames();
 
+    populateSamplePlateLoader();
+
     populateSampleLoader();
 
 }
@@ -228,9 +269,25 @@ void AMSampleEthanView::makeConnections()
     connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
     connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
+    connect(samplePlateLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSamplePlate(QString)));
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
+}
+
+void AMSampleEthanView::populateSamplePlateLoader()
+{
+    samplePlateLoader_->blockSignals(true);
+    samplePlateLoader_->clear();
+    samplePlateLoader_->blockSignals(false);
+    AMDatabase* db = AMDatabase::database("user");
+    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>(), "name");
+    foreach(QVariant item, nameList)
+    {
+        samplePlateLoader_->addItem(item.toString());
+    }
+
+
 }
 
 void AMSampleEthanView::loadFromDb()

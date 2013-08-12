@@ -71,7 +71,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     zAxisSlider_->setRange(-250,250);
     zAxisSlider_->setValue(0);
 
-
+    coordinateFrame_ = new QFrame();
 
 
     QVBoxLayout* infoLayout = new QVBoxLayout();
@@ -79,6 +79,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     infoLayout->addWidget(coordinateFrame);
     infoLayout->addWidget(rotationFrame);
     infoLayout->addWidget(sliderFrame);
+    infoLayout->addWidget(coordinateFrame_);
     infoLayout->addStretch();
 
     setLayout(infoLayout);
@@ -101,6 +102,11 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
     connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
 
+}
+
+bool AMShapeDataView::showingSample()
+{
+    return sampleView_->isVisible();
 }
 
 void AMShapeDataView::setName(QString name)
@@ -294,6 +300,7 @@ void AMShapeDataView::update()
 {
     if(isValid())
     {
+        updateCoordinateLabels();
         nameEdit_->setText(shapeModel_->name());
         tiltEdit_->setText(QString::number(shapeModel_->tilt()));
         QVector3D coordinate = shapeModel_->centerCoordinate();
@@ -320,6 +327,56 @@ bool AMShapeDataView::isValid()
         return false;
     }
     return true;
+}
+
+void AMShapeDataView::updateCoordinateLabels()
+{
+    int points = shapeModel_->count();
+    if(points != oldCount_)
+    {
+        layout()->removeWidget(coordinateFrame_);
+        delete coordinateFrame_;
+        coordinateFrame_ = new QFrame();
+        if(coordinateEdit_)
+        {
+//            for(int i = 0; i < 3*oldCount_; i ++)
+//            {
+//                delete coordinateEdit_[i];
+//            }
+            delete [] coordinateEdit_;
+        }
+
+        coordinateEdit_ = new QLineEdit*[points*3];
+        QVBoxLayout* verticalLayout= new QVBoxLayout();
+        verticalLayout->setContentsMargins(0,0,0,0);
+        QFrame* pointFrame [points];
+        QHBoxLayout* pointLayout [points];
+        for(int i = 0; i < points; i++)
+        {
+            pointFrame[i] = new QFrame();
+            pointLayout[i] = new QHBoxLayout();
+            pointLayout[i]->setContentsMargins(12,4,12,4);
+            pointLayout[i]->addWidget(coordinateEdit_[3*i] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).x())));
+            pointLayout[i]->addWidget(coordinateEdit_[3*i+1] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).y())));
+            pointLayout[i]->addWidget(coordinateEdit_[3*i+2] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).z())));
+            pointLayout[i]->addStretch();
+            pointFrame[i]->setLayout(pointLayout[i]);
+            verticalLayout->addWidget(pointFrame[i]);
+        }
+        verticalLayout->addStretch();
+        coordinateFrame_->setLayout(verticalLayout);
+        layout()->addWidget(coordinateFrame_);
+    }
+    else
+    {
+        for(int i = 0; i < points; i ++)
+        {
+            coordinateEdit_[3*i]->setText(QString("%1").arg(shapeModel_->coordinate(i).x()));
+            coordinateEdit_[3*i+1]->setText(QString("%1").arg(shapeModel_->coordinate(i).y()));
+            coordinateEdit_[3*i+2]->setText(QString("%1").arg(shapeModel_->coordinate(i).z()));
+        }
+    }
+    oldCount_ = points;
 }
 
 

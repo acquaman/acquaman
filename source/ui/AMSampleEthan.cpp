@@ -5,6 +5,8 @@
 AMSampleEthan::AMSampleEthan(QObject* parent)
     : AMDbObject(parent)
 {
+    setCurrentDateTime();
+    setSamplePlate(new AMSamplePlate());
 }
 
 AMSampleEthan::AMSampleEthan(const QString &sampleName, QObject *parent)
@@ -12,6 +14,7 @@ AMSampleEthan::AMSampleEthan(const QString &sampleName, QObject *parent)
 {
     setCurrentDateTime();
     setName(sampleName);
+    setSamplePlate(new AMSamplePlate());
 }
 
 AMSampleEthan::AMSampleEthan(int databaseId, AMDatabase *database, QObject *parent)
@@ -27,9 +30,8 @@ void AMSampleEthan::destroySample()
 
 void AMSampleEthan::destroySample(AMDatabase *db, int sampleId)
 {
-    if(db ==0) return;
-
-    db->deleteRow(sampleId,AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>());
+    if(db)
+        db->deleteRow(sampleId,AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>());
 }
 
 QDateTime AMSampleEthan::dateTime() const
@@ -39,7 +41,8 @@ QDateTime AMSampleEthan::dateTime() const
 
 QString AMSampleEthan::dateTimeString() const
 {
-    return dateTime().toString("MMM d  (yyyy)");
+    /// returns the dateTime formatted with dateTimeFormat
+    return dateTime().toString(dateTimeFormat());
 }
 
 QString AMSampleEthan::notes() const
@@ -72,6 +75,18 @@ AMSamplePlate *AMSampleEthan::samplePlate() const
     return samplePlate_;
 }
 
+AMDbObject *AMSampleEthan::dbGetSamplePlate() const
+{
+    return (AMDbObject*)samplePlate_;
+}
+
+QString AMSampleEthan::samplePlateName() const
+{
+    if(samplePlate_)
+        return samplePlate_->name();
+    else return "";
+}
+
 QList<int> AMSampleEthan::elementList() const
 {
     QList<int> elementList;
@@ -85,15 +100,6 @@ QList<int> AMSampleEthan::elementList() const
     return elementList;
 }
 
-QList<int> AMSampleEthan::sampleNumber() const
-{
-    QList<int> intList;
-    if(elements().isEmpty())
-        intList<<0;
-    else
-        intList<<elements().last()->atomicNumber();
-    return intList;
-}
 
 int AMSampleEthan::thumbnailCount() const
 {
@@ -119,18 +125,22 @@ QByteArray AMSampleEthan::rawImage() const
     return image_;
 }
 
+/// checks to see if the tag is in the list
 bool AMSampleEthan::hasTag(QString tag) const
 {
     return tags_.contains(tag,Qt::CaseSensitive);
 }
 
+/// checks to see if the scan is in the list
 bool AMSampleEthan::hasScan(AMScan *scan) const
 {
     return scanList_.contains(scan);
 }
 
+
 QString AMSampleEthan::elementString() const
 {
+    /// output a string listing of the elements
     QStringList elementStringList;
     foreach(const AMElement* element, elements_)
     {
@@ -152,6 +162,7 @@ void AMSampleEthan::setNotes(const QString notes)
     setModified(true);
 }
 
+/// sets the image from a QImage
 void AMSampleEthan::setImage(const QImage& sampleImage)
 {
     QBuffer imageBuffer;
@@ -192,44 +203,49 @@ void AMSampleEthan::setSamplePlate(AMSamplePlate *samplePlate)
     setModified(true);
 }
 
+void AMSampleEthan::dbSetSamplePlate(AMDbObject *samplePlate)
+{
+    AMSamplePlate* newPlate = (AMSamplePlate*)samplePlate;
+    setSamplePlate(newPlate);
+}
+
 void AMSampleEthan::setElementList(const AMIntList& elements)
 {
     elements_.clear();
     foreach(int element, elements)
     {
-        elements_.append(AMPeriodicTable::table()->elementByAtomicNumber(element));
-        setModified(true);
+        addElement(AMPeriodicTable::table()->elementByAtomicNumber(element));
     }
 }
 
-void AMSampleEthan::setSampleNumber(const QList<int> sampleNumber)
-{
-    if(!sampleNumber.empty())
-        addElement(AMPeriodicTable::table()->elementByAtomicNumber(sampleNumber.first()));
-    setModified(true);
-}
 
 void AMSampleEthan::addTag(const QString tag)
 {
+    /// add a tag, if not already in the list
+    bool modified = false;
     if(!hasTag(tag))
     {
         tags_.append(tag);
+        modified = true;
     }
-    tags_.removeAll("");
-    setModified(true);
+
+    /// remove all empty tags
+    int count = tags_.removeAll("");
+    if(count > 0) modified = true;
+    setModified(modified);
 }
 
 void AMSampleEthan::removeTag(const QString tag)
 {
-    while(hasTag(tag))
-    {
-        tags_.removeAt(tags_.indexOf(tag));
+    /// remove all instances of tag
+    int count = tags_.removeAll(tag);
+    if(count > 0)
         setModified(true);
-    }
 }
 
 void AMSampleEthan::addScan(AMScan *scan)
 {
+    /// add scan to the list
     if(!hasScan(scan))
     {
         scanList_.append(scan);
@@ -239,6 +255,7 @@ void AMSampleEthan::addScan(AMScan *scan)
 
 void AMSampleEthan::removeScan(AMScan *scan)
 {
+    /// remove all instances of scan
     while(hasScan(scan))
     {
         scanList_.removeAt(scanList_.indexOf(scan));
@@ -248,26 +265,29 @@ void AMSampleEthan::removeScan(AMScan *scan)
 
 void AMSampleEthan::addElement(const AMElement *element)
 {
+    /// add an element into the list.
+    /// place it in order according to atomic number
     if(!elements_.contains(element))
     {
         int position = 0;
         while(elements_.count() > position && elements_.at(position)->atomicNumber() < element->atomicNumber())
             position++;
         elements_.insert(position,element);
+        setModified(true);
     }
-    setModified(true);
+
 }
 
 void AMSampleEthan::removeElement(const AMElement *element)
 {
-    while(elements_.contains(element))
-    {
-        elements_.removeAt(elements_.indexOf(element));
-    }
+    /// removes all instances of element from the list
+    int count = elements_.removeAll(element);
+    if(count > 0) setModified(true);
 }
 
 void AMSampleEthan::toggleElement(const AMElement *element)
 {
+    /// toggle element into or out of the list
     if(elements_.contains(element))
         removeElement(element);
     else
@@ -278,4 +298,10 @@ void AMSampleEthan::setCurrentDateTime()
 {
     setDateTime(QDateTime::currentDateTime());
     setModified(true);
+}
+
+/// the format used to present dateTime as a string
+QString AMSampleEthan::dateTimeFormat() const
+{
+    return QString("MMM d (yyyy)");
 }

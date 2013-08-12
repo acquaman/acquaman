@@ -77,6 +77,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
         success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
         success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
         success &= AMDbObjectSupport::s()->registerClass<AMSampleEthan>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 
         qDebug() << "Status of registration is " << success;
     }
@@ -640,6 +641,8 @@ void AMShapeDataSet::startRectangle(QPointF position)
     QVector<QVector3D> newShape;
     QVector3D coordinate[RECTANGLE_POINTS];
     double depth = camera_->focalLength();
+    /// if drawing on shape, the point to start at lies
+    /// on the shape to draw on.
     if(drawOnShapeEnabled_ && drawOnShapeSelected_)
     {
         QVector3D heightNormal = getHeightNormal(drawOnShape_);
@@ -689,7 +692,6 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     position = undistortPoint(position);
     QVector3D topLeft = shapeList_[current_]->coordinate(TOPLEFT);
     QVector3D bottomRight = camera_->transform2Dto3D(position,depth(topLeft));
-
     QVector3D topRight;
     QVector3D bottomLeft;
     if(drawOnShapeEnabled_ && drawOnShapeSelected_)
@@ -719,14 +721,9 @@ void AMShapeDataSet::finishRectangle(QPointF position)
 
 
 
-
     shapeList_[current_]->setCoordinate(topLeft + topRight,TOPRIGHT);
     shapeList_[current_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
     shapeList_[current_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
-//    for(int i = 0; i < shapeList_[current_]->count(); i++)
-//    {
-//        qDebug()<<shapeList_[current_]->coordinate(i);
-//    }
     updateShape(current_);
 
 }
@@ -919,17 +916,18 @@ void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
             upStreamDownStream = shift.y();
             upDown = shift.z();
 
-            qDebug()<<"AMShapeDataSet::shiftToPoint - Attempting to move motors";
-            qDebug()<<"in/out currently at"<<ssaManipulatorX_->value();
-            qDebug()<<"shifting in/out to"<<inboardOutboard;
-            ssaManipulatorX_->move(inboardOutboard);
+            moveMotors(inboardOutboard, upStreamDownStream, upDown);
+//            qDebug()<<"AMShapeDataSet::shiftToPoint - Attempting to move motors";
+//            qDebug()<<"in/out currently at"<<ssaManipulatorX_->value();
+//            qDebug()<<"shifting in/out to"<<inboardOutboard;
+//            ssaManipulatorX_->move(inboardOutboard);
 
-            qDebug()<<"y is currently at:"<<ssaManipulatorY_->value();
-            qDebug()<<"Shifting upstream/downstream to:"<<upStreamDownStream;
+//            qDebug()<<"y is currently at:"<<ssaManipulatorY_->value();
+//            qDebug()<<"Shifting upstream/downstream to:"<<upStreamDownStream;
 
-            qDebug()<<"up/down currently at"<<ssaManipulatorZ_->value();
-            qDebug()<<"changing up/down to "<<upDown;
-            ssaManipulatorZ_->move(upDown);
+//            qDebug()<<"up/down currently at"<<ssaManipulatorZ_->value();
+//            qDebug()<<"changing up/down to "<<upDown;
+//            ssaManipulatorZ_->move(upDown);
 
         }
 
@@ -1331,9 +1329,9 @@ void AMShapeDataSet::moveMotorTo(QVector3D coordinate)
     if(enableMotorMovement_)
     {
             qDebug()<<"AMShapeDataSet::moveMotorTo attempting to move motors";
-            ssaManipulatorX_->move(x);
-            ssaManipulatorY_->move(y);
-            ssaManipulatorZ_->move(z);
+            bool success = moveMotors(x,y,z);
+            if(!success)
+                qDebug()<<"AMShapeDataSet::moveMotorTo - failed to moveMotors";
 //            qDebug()<<"Move signals emitted";
 //            emit moveSucceeded();
     }
@@ -1403,63 +1401,6 @@ void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
     }
 }
 
-/// applies the rotation to the shape
-AMShapeData AMShapeDataSet::applyRotation(AMShapeData shape) const
-{
-    QVector3D center = shape.centerCoordinate();
-    double rotation = shape.rotation();
-    for(int i = 0; i < shape.count(); i++)
-    {
-        shape.setCoordinate(getRotatedPoint(shape.coordinate(i), rotation, center),i);
-    }
-    return shape;
-}
-
-/// finds the new coordinate of a point, given its coordinate, rotation, and center point
-QVector3D AMShapeDataSet::getRotatedPoint(QVector3D point, double rotation, QVector3D center) const
-{
-    QVector3D direction = QVector3D(0,0,1);
-    point = rotateCoordinate(point,center,direction,rotation);
-    return point;
-}
-
-/// Applies tilt to a shape
-AMShapeData AMShapeDataSet::applyTilt(AMShapeData shape) const
-{
-    double tilt = shape.tilt();
-    QVector3D center = shape.centerCoordinate();
-    for(int i = 0; i<shape.count(); i++)
-    {
-        shape.setCoordinate(getTiltedPoint(shape.coordinate(i),tilt,center),i);
-    }
-    return shape;
-}
-
-/// Applies tilt to a point
-QVector3D AMShapeDataSet::getTiltedPoint(QVector3D point, double tilt, QVector3D center) const
-{
-    QVector3D direction(1,0,0);
-    QVector3D coordinate = rotateCoordinate(point,center,direction,tilt);
-    return coordinate;
-}
-
-AMShapeData AMShapeDataSet::applyYAxisRotation(AMShapeData shape) const
-{
-    double rotation = shape.yAxisRotation();
-    QVector3D center = shape.centerCoordinate();
-    for(int i = 0; i<shape.count(); i++)
-    {
-        shape.setCoordinate(getYAxisRotatedPoint(shape.coordinate(i),rotation,center),i);
-    }
-    return shape;
-}
-
-QVector3D AMShapeDataSet::getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center) const
-{
-    QVector3D direction(0,1,0);
-    QVector3D coordinate = rotateCoordinate(point, center, direction, rotation);
-    return coordinate;
-}
 
 AMShapeData AMShapeDataSet::applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle)const
 {
@@ -1570,8 +1511,8 @@ QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D cente
 /// applies rotation, tilt, and distortion to the shape
 QPolygonF AMShapeDataSet::subShape(AMShapeData shape) const
 {
-    if(shape.rotation() != 0) shape = applyRotation(shape);
-    if(shape.tilt() != 0) shape = applyTilt(shape);
+    if(shape.rotation() != 0) shape = applySpecifiedRotation(shape,ZAXIS);
+    if(shape.tilt() != 0) shape = applySpecifiedRotation(shape,XAXIS);
     if(shape.yAxisRotation() != 0) shape = applySpecifiedRotation(shape,YAXIS);
 
 
@@ -1645,9 +1586,9 @@ void AMShapeDataSet::motorMovement(double x, double y, double z, double r)
 /// applies 3D rotation and tilt to the 3D shape in an AMShapeData
 QVector<QVector3D> AMShapeDataSet::rotateShape(AMShapeData shape) const
 {
-    if(shape.rotation() != 0) shape = applyRotation(shape);
-    if(shape.tilt() != 0) shape = applyTilt(shape);
-    if(shape.yAxisRotation() != 0) shape = applyYAxisRotation(shape);
+    if(shape.rotation() != 0) shape = applySpecifiedRotation(shape, ZAXIS);
+    if(shape.tilt() != 0) shape = applySpecifiedRotation(shape, XAXIS);
+    if(shape.yAxisRotation() != 0) shape = applySpecifiedRotation(shape, YAXIS);
     QVector<QVector3D> returnShape;
     for(int i = 0; i < shape.count(); i++)
     {
@@ -1963,6 +1904,40 @@ QVector3D AMShapeDataSet::beamIntersectionPoint(QVector3D samplePoint)
     midPointOne/=4;// not 4, number of points
     /// \todo finish
     return (QVector3D(0,0,0));
+}
+
+/// moves the x, y, z motors
+bool AMShapeDataSet::moveMotors(double x, double y, double z)
+{
+    bool success = false;
+    if(motorMovementenabled())
+    {
+        success = true;
+        AMControl::FailureExplanation failure [3];
+//        const double XLIMITPOS = 0;
+//        const double XLIMITNEG = 0;
+//        const double YLIMITPOS = 0;
+//        const double YLIMITNEG = 0;
+//        const double ZLIMITPOS = 0;
+//        const double ZLIMITNEG = 0;
+//        if(x > XLIMITPOS)
+//            x = XLIMIT;
+//        if(x < XLIMITNEG)
+//            x = XLIMITNEG;
+        failure[0] = ssaManipulatorX_->move(x);
+        failure[1] = ssaManipulatorY_->move(y);
+        failure[2] = ssaManipulatorZ_->move(z);
+
+        for(int i = 0; i < 3; i++)
+        {
+            if(failure[i] != AMControl::NoFailure)
+            {
+                success = false;
+                qDebug()<<AMControl::failureExplanation(failure[i]);
+            }
+        }
+    }
+    return success;
 }
 
 

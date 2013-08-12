@@ -341,6 +341,7 @@ protected slots:
     /// tracks the motor location
     void motorTracking(double);
 
+    /// checks to see if the motor is finished moving
     void motorsFinishedMoving();
 
 protected:
@@ -352,27 +353,11 @@ protected:
     /// shifts all coordinates by a given amount
     void shiftCoordinates(QVector3D shift, int index);
 
-    /// applies rotation to the shape at the given index
-    AMShapeData applyRotation(AMShapeData shape) const;
-
-    /// rotate a single point
-    QVector3D getRotatedPoint(QVector3D point, double rotation, QVector3D center) const;
-
-    /// applies tilt to the shape at the given index
-    /// takes QPolygonF to stack with rotation
-    AMShapeData applyTilt(AMShapeData shape) const;
-
-    /// gets a tilted point
-    QVector3D getTiltedPoint(QVector3D point, double tilt, QVector3D center) const;
-
-
-    /// apply y-axis rotation
-    AMShapeData applyYAxisRotation(AMShapeData shape) const;
-
-    /// gets a single rotated point
-    QVector3D getYAxisRotatedPoint(QVector3D point, double rotation, QVector3D center) const;
-
+    /// apply the rotation in the given direction by the given angle to the given shape
     AMShapeData applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle) const;
+
+    /// convenience function for above apply specified rotation.
+    /// applies axis rotation to the shape, in direction XAXIS, YAXIS, or  ZAXIS, by the amount given in shape.
     AMShapeData applySpecifiedRotation(AMShapeData shape, AxisDirection direction) const;
 
     /// general rotation of a point about a point along the direction
@@ -455,15 +440,24 @@ protected:
     /// returns the unit vector in the direction from the left of the screen to the right
     QVector3D rightVector() const;
 
-
+    /// inserts an item into the shape list - use this rather than inserting
+    /// manually into the list - keeps the model updated
     void insertItem(AMShapeData* item);
 
+    /// removes an item from the shape list - use this rather than
+    /// removing items manually - keeps the model updated
     void removeItem(int index);
 
+    /// removes an item from the shape list and returns it
+    /// use this rather than taking manually - keeps the model updated
     AMShapeData* takeItem(int index);
 
-
+    /// used to find the point to move the plate to, to position beneath the beam
     QVector3D beamIntersectionPoint(QVector3D samplePoint);
+
+
+    bool moveMotors(double x, double y, double z);
+
 
 
 

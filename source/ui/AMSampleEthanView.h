@@ -34,12 +34,15 @@ protected slots:
     void updateFrames();
     void saveToDb();
     void loadSample(QString);
+    void changeSamplePlate(QString);
 
 protected:
     void setUpGui();
     void makeConnections();
+    void populateSamplePlateLoader();
     void loadFromDb();
     void populateSampleLoader();
+
 
 
 private:
@@ -55,6 +58,9 @@ private:
     QCompleter* completer_;
     QStringListModel* wordList_;
     QPushButton* removeTagButton_;
+
+    QLineEdit* samplePlateName_;
+    QComboBox* samplePlateLoader_;
 
     QComboBox* sampleLoader_;
     QPushButton* saveToDb_;

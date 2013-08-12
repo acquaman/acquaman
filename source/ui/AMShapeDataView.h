@@ -8,6 +8,7 @@ class QLineEdit;
 class QPushButton;
 class QSlider;
 class AMSampleEthanView;
+class QFrame;
 
 
 /// This class is a view for the AMShapeData class.
@@ -16,6 +17,8 @@ class AMShapeDataView : public QWidget
     Q_OBJECT
 public:
     explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
+
+    bool showingSample();
 
 public slots:
     void setName(QString);
@@ -44,6 +47,7 @@ public slots:
 
     void showSampleView();
 
+
 signals:
     void updateShapes();
     void applyDistortion();
@@ -56,6 +60,7 @@ protected slots:
 protected:
     void update();
     bool isValid();
+    void updateCoordinateLabels();
 protected:
     AMShapeData *shapeModel_;
     QLineEdit *nameEdit_;
@@ -70,8 +75,12 @@ protected:
     QSlider* zAxisSlider_;
     QPushButton* showHideButton_;
 
+    QLineEdit** coordinateEdit_;
+    QFrame* coordinateFrame_;
+
     AMSampleEthanView* sampleView_;
     QPushButton* showSampleView_;
+    int oldCount_;
 
 };
 

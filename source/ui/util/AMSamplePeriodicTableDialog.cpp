@@ -19,7 +19,8 @@ AMSamplePeriodicTableDialog::AMSamplePeriodicTableDialog(QList<const AMElement *
         foreach(const AMElement* element, elements)
         {
             elementButton = ptView->button(element);
-            elementButton->setDown(true);
+            elementButton->setCheckable(true);
+            elementButton->setChecked(true);
         }
     }
 
