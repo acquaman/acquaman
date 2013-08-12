@@ -69,7 +69,7 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();
 
-	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
+	/// Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
@@ -77,6 +77,9 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 
 	/// Displays the view for the scanActions or brings it to the front
 	void showScanActionsView();
+
+	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
+	void forceQuitAcquaman();
 
 	///////////////////////////////////
 
@@ -116,6 +119,9 @@ protected:
 
 	/// Menus
 	QMenu *viewMenu_;
+
+	/// Flag for overriding check on eventfilter for QEvent::Close
+	bool overrideCloseCheck_;
 };
 
 #endif // AMAPPCONTROLLER_H
