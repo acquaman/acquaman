@@ -13,6 +13,8 @@
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
 
+#include "dataman/AMSample.h"
+
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
@@ -29,6 +31,21 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	configuration_->setEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
+
+	QString scanName;
+	QString sampleName;
+	if(scan_->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(scan_->sampleId(), AMUser::user()->database()).name();
+	if(configuration_->userScanName() == ""){
+		scanName = configuration_->autoScanName();
+		scan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+	}
+	else{
+		scanName = configuration_->userScanName();
+		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
+	}
 
 	insertionIndex_ = AMnDIndex(0);
 
