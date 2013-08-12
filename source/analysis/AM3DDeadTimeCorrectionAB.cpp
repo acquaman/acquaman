@@ -1,25 +1,6 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+#include "AM3DDeadTimeCorrectionAB.h"
 
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "AM3DDeadTimeAB.h"
-
-AM3DDeadTimeAB::AM3DDeadTimeAB(const QString &outputName, QObject *parent)
+AM3DDeadTimeCorrectionAB::AM3DDeadTimeCorrectionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
 	spectra_ = 0;
@@ -30,27 +11,22 @@ AM3DDeadTimeAB::AM3DDeadTimeAB(const QString &outputName, QObject *parent)
 	setState(AMDataSource::InvalidFlag);
 }
 
-// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-/* - there must be a data source of rank() = 3.
-   - there must be two data sources of rank() = 2.
-*/
-bool AM3DDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
+bool AM3DDeadTimeCorrectionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
 		return true; // always acceptable; the null input.
 
-	// otherwise there are three data sources, one with rank 3 and two with rank 2.
+	// otherwise there are three data sources with rank 2.
 	if (dataSources.count() == 3
 			&& dataSources.at(0)->rank() == 3
-			&& dataSources.at(1)->rank() == 2
-			&& dataSources.at(2)->rank() == 2)
+			&& dataSources.at(1)->rank() == 3
+			&& dataSources.at(2)->rank() == 3)
 		return true;
 
 	return false;
 }
 
-// Set the data source inputs.
-void AM3DDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+void AM3DDeadTimeCorrectionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
 {
 	// disconnect connections from old sources, if they exist.
 	if(spectra_ != 0 && icr_ != 0 && ocr_ != 0) {
@@ -121,7 +97,7 @@ void AM3DDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 	emitInfoChanged();
 }
 
-AMNumber AM3DDeadTimeAB::value(const AMnDIndex &indexes) const
+AMNumber AM3DDeadTimeCorrectionAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != 3)
 		return AMNumber(AMNumber::DimensionError);
@@ -136,13 +112,13 @@ AMNumber AM3DDeadTimeAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	if ((int)spectra_->value(indexes) == 0 || double(ocr_->value(AMnDIndex(indexes.i(), indexes.j()))) == 0)
+	if ((int)spectra_->value(indexes) == 0 || double(ocr_->value(indexes)) == 0)
 		return 0;
 	else
-		return double(icr_->value(AMnDIndex(indexes.i(), indexes.j())))/double(ocr_->value(AMnDIndex(indexes.i(), indexes.j())))*(int)spectra_->value(indexes);
+		return double(icr_->value(indexes))/double(ocr_->value(indexes))*(int)spectra_->value(indexes);
 }
 
-bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+bool AM3DDeadTimeCorrectionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 3 || indexEnd.rank() != 3)
 		return false;
@@ -158,34 +134,28 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-	AMnDIndex start2D = AMnDIndex(indexStart.i(), indexStart.j());
-	AMnDIndex end2D = AMnDIndex(indexEnd.i(), indexEnd.j());
-	int icrOcrTotalSize = start2D.totalPointsTo(end2D);
 
 	QVector<double> data = QVector<double>(totalSize);
-	QVector<double> icr = QVector<double>(icrOcrTotalSize);
-	QVector<double> ocr = QVector<double>(icrOcrTotalSize);
+	QVector<double> icr = QVector<double>(totalSize);
+	QVector<double> ocr = QVector<double>(totalSize);
 	spectra_->values(indexStart, indexEnd, data.data());
-	icr_->values(start2D, end2D, icr.data());
-	ocr_->values(start2D, end2D, ocr.data());
+	icr_->values(indexStart, indexEnd, icr.data());
+	ocr_->values(indexStart, indexEnd, ocr.data());
 
 	for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
 
 		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
 
-			// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
-			if (icr.at(i*jSize+j) <= 0 || ocr.at(i*jSize+j) <= 0){
+			for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
 
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++)
-					outputValues[i*jSize*kSize+j*kSize+k] = 0;
-			}
+				int index = i + j*iSize + k*iSize*jSize;
 
-			else {
+				// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
+				if (icr.at(index) <= 0 || ocr.at(index) <= 0)
+					outputValues[index] = 0;
 
-				double factor = icr.at(i*jSize+j)/ocr.at(i*jSize+j);
-
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++)
-					outputValues[i*jSize*kSize+j*kSize+k] = data.at(i*jSize*kSize+j*kSize+k)*factor;
+				else
+					outputValues[index] = data.at(index)*icr.at(index)/ocr.at(index);
 			}
 		}
 	}
@@ -193,7 +163,7 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	return true;
 }
 
-AMNumber AM3DDeadTimeAB::axisValue(int axisNumber, int index) const
+AMNumber AM3DDeadTimeCorrectionAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -202,50 +172,47 @@ AMNumber AM3DDeadTimeAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::DimensionError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	if (index >= axes_.at(axisNumber).size)
+	if (index >= spectra_->size(axisNumber))
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
 	return spectra_->axisValue(axisNumber, index);
 }
 
-// Connected to be called when the values of the input data source change
-void AM3DDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+void AM3DDeadTimeCorrectionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);
 }
 
-// Connected to be called when the size of the input source changes
-void AM3DDeadTimeAB::onInputSourceSizeChanged()
+void AM3DDeadTimeCorrectionAB::onInputSourceSizeChanged()
 {
-	if(axes_.at(0).size != spectra_->size(0)){
+	if (axes_.at(0).size != spectra_->size(0)){
 
 		axes_[0].size = spectra_->size(0);
 		emitSizeChanged(0);
 	}
 
-	if(axes_.at(1).size != spectra_->size(1)){
+	if (axes_.at(1).size != spectra_->size(1)){
 
 		axes_[1].size = spectra_->size(1);
 		emitSizeChanged(1);
 	}
 
-	if(axes_.at(2).size != spectra_->size(2)){
+	if (axes_.at(2).size != spectra_->size(2)){
 
 		axes_[2].size = spectra_->size(2);
 		emitSizeChanged(2);
 	}
 }
 
-// Connected to be called when the state() flags of any input source change
-void AM3DDeadTimeAB::onInputSourceStateChanged()
+void AM3DDeadTimeCorrectionAB::onInputSourceStateChanged()
 {
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
 }
 
-void AM3DDeadTimeAB::reviewState()
+void AM3DDeadTimeCorrectionAB::reviewState()
 {
 	if (spectra_ == 0 || icr_ == 0 || ocr_ == 0 || !spectra_->isValid() || !icr_->isValid() || !ocr_->isValid()){
 
@@ -256,7 +223,7 @@ void AM3DDeadTimeAB::reviewState()
 		setState(0);
 }
 
-bool AM3DDeadTimeAB::loadFromDb(AMDatabase *db, int id)
+bool AM3DDeadTimeCorrectionAB::loadFromDb(AMDatabase *db, int id)
 {
 	bool success = AMDbObject::loadFromDb(db, id);
 	if(success)

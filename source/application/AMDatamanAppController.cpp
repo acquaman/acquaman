@@ -91,6 +91,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
 #include "analysis/AMOrderReductionAB.h"
+#include "analysis/AM1DDeadTimeAB.h"
+#include "analysis/AM2DDeadTimeCorrectionAB.h"
+#include "analysis/AM3DDeadTimeCorrectionAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -549,6 +552,9 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
