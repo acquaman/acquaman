@@ -290,7 +290,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
 		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
+		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
 		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
 		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
