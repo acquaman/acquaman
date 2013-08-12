@@ -312,6 +312,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
 		xasDetectorSelector_->setDefaultsSelected();
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
