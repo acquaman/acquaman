@@ -269,6 +269,11 @@ bool SGMFastScanActionController::startImplementation(){
 }
 
 void SGMFastScanActionController::cancelImplementation(){
+	if(lastState() == AMScanController::Running){
+		SGMBeamline::sgm()->energy()->stop();
+		SGMBeamline::sgm()->undulatorStep()->stop();
+		SGMBeamline::sgm()->scaler()->setScanning(false);
+	}
 	AMScanActionController::cancelImplementation();
 }
 

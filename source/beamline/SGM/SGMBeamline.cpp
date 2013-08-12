@@ -976,7 +976,8 @@ void SGMBeamline::setupControls(){
 	amNames2pvNames_.resetLookup();
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	energySpacingParam_ = new AMReadOnlyPVControl("energySpacingParam", sgmPVName, this);
@@ -1036,7 +1037,7 @@ void SGMBeamline::setupControls(){
 	harmonic_->setDescription("Harmonic");
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
-	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20, 20 );
+	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", sgmPVName+":stop", this, 20, 20 );
 	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
 	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
 	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
