@@ -32,6 +32,8 @@ protected slots:
 	void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
 
+	void onScanNameEditChanged(const QString &scanName);
+
 protected:
 	SGMXASScanConfiguration2013 *configuration_;
 
@@ -50,6 +52,9 @@ protected:
 
 	QVBoxLayout *mainVL_;
 	QGridLayout *bottomGL_;
+
+	QLabel *scanNameLabel_;
+	QLineEdit *scanNameEdit_;
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H
