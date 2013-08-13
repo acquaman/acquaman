@@ -13,6 +13,8 @@
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
 
+#include "dataman/AMSample.h"
+
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
@@ -29,6 +31,21 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	configuration_->setEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
+
+	QString scanName;
+	QString sampleName;
+	if(scan_->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(scan_->sampleId(), AMUser::user()->database()).name();
+	if(configuration_->userScanName() == ""){
+		scanName = configuration_->autoScanName();
+		scan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+	}
+	else{
+		scanName = configuration_->userScanName();
+		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
+	}
 
 	insertionIndex_ = AMnDIndex(0);
 
@@ -252,6 +269,11 @@ bool SGMFastScanActionController::startImplementation(){
 }
 
 void SGMFastScanActionController::cancelImplementation(){
+	if(lastState() == AMScanController::Running){
+		SGMBeamline::sgm()->energy()->stop();
+		SGMBeamline::sgm()->undulatorStep()->stop();
+		SGMBeamline::sgm()->scaler()->setScanning(false);
+	}
 	AMScanActionController::cancelImplementation();
 }
 
@@ -421,6 +443,25 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	fastActionsTrackingOff->addSubAction(moveAction);
 	retVal->addSubAction(fastActionsTrackingOff);
 	// End Tracking Off
+
+	// Initial velocity for mono and undulator ... if we haven't done a regular move in a while we can easily wind up with a slow velocity stuck in there
+	AMListAction3 *fastActionsInitializeVelocity = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Initialize Velocity", "SGM Fast Actions Initialize Velocity"), AMListAction3::Parallel);
+
+	tmpControl = SGMBeamline::sgm()->undulatorVelocity();
+	AMControlInfo undulatorVelocityStartupSetpoint = tmpControl->toInfo();
+	undulatorVelocityStartupSetpoint.setValue(11811);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorVelocityStartupSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitializeVelocity->addSubAction(moveAction);
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityStartupSetpoint = tmpControl->toInfo();
+	gratingVelocityStartupSetpoint.setValue(10000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityStartupSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	fastActionsInitializeVelocity->addSubAction(moveAction);
+
+	retVal->addSubAction(fastActionsInitializeVelocity);
+	// End initial velocity
 
 	// Initial positions while still moving quickly (energy and undulator)
 	// Energy to start position

@@ -36,6 +36,9 @@ class AMScanActionControllerScanOptimizer;
 class AMScanActionControllerScanValidator;
 class AMAction3;
 
+class AMActionRunner3;
+class AMActionHistoryModel3;
+
 class AMScanConfigurationObjectInfo{
 public:
 	/// The default constructor creates an invalid object
@@ -79,6 +82,24 @@ private:
 
 	/// checks to make sure a QMetaObject inherits AMExporterOption
 	bool inheritsExporterOption(const QMetaObject *metaObject) const;
+};
+
+class AMActionRunnerGroup{
+public:
+	AMActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel){
+		databaseName_ = databaseName;
+		actionRunner_ = actionRunner;
+		actionHistoryModel_ = actionHistoryModel;
+	}
+
+	QString databaseName() const { return databaseName_; }
+	AMActionRunner3* actionRunner() const { return actionRunner_; }
+	AMActionHistoryModel3* actionHistoryModel() const { return actionHistoryModel_; }
+
+protected:
+	QString databaseName_;
+	AMActionRunner3 *actionRunner_;
+	AMActionHistoryModel3 *actionHistoryModel_;
 };
 
 namespace AMAppControllerSupport{
@@ -186,6 +207,11 @@ namespace AMAppControllerSupport{
 
 	void optimize(QList<AMScanActionControllerScanOptimizer*> optimizers, AMAction3 *scanActionTree);
 	bool validate(QList<AMScanActionControllerScanValidator*> validators, AMAction3 *scanActionTree);
+
+	extern QList<AMActionRunnerGroup*> actionRunnerGroups_;
+	void addActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel);
+	AMActionRunner3* actionRunnerFromDatabaseName(const QString &databaseName);
+	AMActionHistoryModel3* actionHistoryModelFromDatabaseName(const QString &databaseName);
 }
 
 #endif // AMAPPCONTROLLERSUPPORT_H

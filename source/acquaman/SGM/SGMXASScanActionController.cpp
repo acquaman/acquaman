@@ -14,6 +14,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
+#include "dataman/AMSample.h"
+
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMScanActionController(cfg, parent)
 {
@@ -27,6 +29,21 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	QString scanName;
+	QString sampleName;
+	if(scan_->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(scan_->sampleId(), AMUser::user()->database()).name();
+	if(configuration_->userScanName() == ""){
+		scanName = configuration_->autoScanName();
+		scan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+	}
+	else{
+		scanName = configuration_->userScanName();
+		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
+	}
 
 	insertionIndex_ = AMnDIndex(0);
 
@@ -226,7 +243,7 @@ bool SGMXASScanActionController::event(QEvent *e){
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			emit finishWritingToFile();
-			setFinished();
+//			setFinished();
 			break;}
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();

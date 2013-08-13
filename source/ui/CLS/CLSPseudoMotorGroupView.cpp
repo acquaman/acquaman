@@ -76,7 +76,7 @@ void CLSPseudoMotorGroupView::handleCLSPseudoMotorGroupMenuItems(const QString &
 	if (viewMode_ == Exclusive && qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject())){
 
 		CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-		pseudoMotor->resetControl();
+		pseudoMotor->resetPseudoMotor();
 	}
 
 	else if (viewMode_ == Multiple){
@@ -86,7 +86,7 @@ void CLSPseudoMotorGroupView::handleCLSPseudoMotorGroupMenuItems(const QString &
 			if (qobject_cast<CLSPseudoMotorGroupObject *>(view->motorGroupObject())){
 
 				CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-				pseudoMotor->resetControl();
+				pseudoMotor->resetPseudoMotor();
 			}
 		}
 	}

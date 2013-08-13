@@ -207,6 +207,8 @@ void AMDetectorGeneralDetailedView::onReadModeChanged(AMDetectorDefinitions::Rea
 void AMDetectorGeneralDetailedView::onStartAcquisitionButtonClicked(){
 	//detector_->acquire(detector_->readMode());
 
+	detector_->acquire(detector_->readMode());
+	/*
 	if(detector_->detectorTriggerSource()){
 		qDebug() << "Trigger detector using trigger source";
 		detector_->detectorTriggerSource()->trigger(detector_->readMode());
@@ -215,6 +217,7 @@ void AMDetectorGeneralDetailedView::onStartAcquisitionButtonClicked(){
 		qDebug() << "Trigger detector old school directly";
 		detector_->acquire(detector_->readMode());
 	}
+	*/
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeDSBEditingFinished(){

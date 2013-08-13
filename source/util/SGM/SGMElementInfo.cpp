@@ -714,6 +714,7 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
 	disconnect(&fastScanSettings_, 0);
 	fastScanSettings_ = fastScanSettings;
+	qDebug() << "Setting modified true in SGMFastScanParameters";
 	setModified(true);
 	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));

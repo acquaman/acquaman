@@ -61,6 +61,9 @@ public:
 	static AMActionRunner3* scanActionRunner();
 	static void releaseScanActionRunner();
 
+	/// Unique name for one of the preset action runner instances
+	QString actionRunnerTitle() { return actionRunnerTitle_; }
+
 	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
 
@@ -98,6 +101,8 @@ public:
 	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
 
 	AMDatabase* loggingDatabase() const { return loggingDatabase_; }
+
+	int cachedLogCount() const { return cachedLogCount_; }
 
 
 	// The Current Action that we (might be)/are executing
@@ -179,6 +184,9 @@ public slots:
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();
 
+	void incrementCachedLogCount();
+	void resetCachedLogCount();
+
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
@@ -194,6 +202,10 @@ protected:
 
 	AMActionRunnerQueueModel3* queueModel_;
 	AMDatabase *loggingDatabase_;
+	int cachedLogCount_;
+
+	/// Holds a unique title for the different action runner instances
+	QString actionRunnerTitle_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();
@@ -204,7 +216,7 @@ protected:
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
-	explicit AMActionRunner3(AMDatabase *loggingDatabase, QObject *parent = 0);
+	explicit AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
 	~AMActionRunner3();
 

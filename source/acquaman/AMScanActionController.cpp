@@ -30,6 +30,12 @@ void AMScanActionController::onStateChanged(int oldState, int newState){
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 		if(scanActionMessager)
 			scanActionMessager->removeReceiver(this);
+
+		qDebug() << "Need to test the scanActions db to see if there's an open transaction when going from " << oldState << " to " << newState;
+		if(AMDatabase::database("scanActions")->transactionInProgress()){
+			qDebug() << "Detected a commitTransaction() required in AMScanActionScanController";
+			AMDatabase::database("scanActions")->commitTransaction();
+		}
 	}
 }
 
@@ -78,6 +84,8 @@ void AMScanActionController::resumeImplementation(){
 }
 
 void AMScanActionController::cancelImplementation(){
+	connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(setCancelled()));
+	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 }
 
 #include "acquaman/AMAgnosticDataAPI.h"

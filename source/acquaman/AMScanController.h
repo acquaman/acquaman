@@ -65,6 +65,8 @@ public:
 
 	/// Returns the current state of the scan controller
 	AMScanController::ScanState state() const;
+	/// Returns the last state the scan controller was in before the current state
+	AMScanController::ScanState lastState() const;
 
 	// Convenience Functions to test the state of the scan.
 	///////////////////////
@@ -185,7 +187,9 @@ private:
 
 private:
 	/// The current state of the scan.  Private because implementations must use the protected notification functions (setStarted(), setFinished(), etc.) to change this, so that signals are properly emitted.
-	ScanState state_;
+	AMScanController::ScanState state_;
+	/// The last state of the scan before the current state. Helpful for making decisions.
+	AMScanController::ScanState lastState_;
 };
 
 /*!
