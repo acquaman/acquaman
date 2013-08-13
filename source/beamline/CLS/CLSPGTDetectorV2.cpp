@@ -124,6 +124,14 @@ const double* CLSPGTDetectorV2::data() const{
 	return data_;
 }
 
+#include "ui/CLS/CLSPGTDetectorV2View.h"
+AMControl* CLSPGTDetectorV2::privilegedIntegrationModeControl(const QObject *caller){
+	const CLSPGTDetectorV2View *view = qobject_cast<const CLSPGTDetectorV2View*>(caller);
+	if(view)
+		return integrationModeControl_;
+	return 0; //NULL
+}
+
 bool CLSPGTDetectorV2::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;

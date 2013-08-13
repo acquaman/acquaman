@@ -139,26 +139,26 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	}
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	QHBoxLayout *mainHL = new QHBoxLayout();
+	mainHL_ = new QHBoxLayout();
 
 	QVBoxLayout *tmpVL;
 
-	mainHL->addWidget(startAcquisitionButton_);
+	mainHL_->addWidget(startAcquisitionButton_);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(new QLabel("Dwell"));
 	tmpVL->addWidget(acquisitionTimeDSB_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(new QLabel("Reading"));
 	tmpVL->addWidget(singleReadingDSB_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(readModeLabel_);
 	tmpVL->addWidget(readModeSelector_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 
-	mainHL->addWidget(statusLabel_);
-	mainVL->addLayout(mainHL);
+	mainHL_->addWidget(statusLabel_);
+	mainVL->addLayout(mainHL_);
 	if(view_)
 		mainVL->addWidget(view_);
 	else

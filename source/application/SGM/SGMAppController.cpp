@@ -450,10 +450,12 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	}
 }
 
+#include "ui/CLS/CLSPGTDetectorV2View.h"
 void SGMAppController::onSGMNewPGTDetectorConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newPGTDetector() && SGMBeamline::sgm()->newPGTDetector()->isConnected() && !newPGTDetectorView_){
-		newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
+		//newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
+		newPGTDetectorView_ = new CLSPGTDetectorV2View(qobject_cast<CLSPGTDetectorV2*>(SGMBeamline::sgm()->newPGTDetector()));
 		mw_->addPane(newPGTDetectorView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
 	}
 }
