@@ -324,154 +324,362 @@ void AMExporterGeneralAscii::writeSeparateSections()
 {
 	QTextStream ts(file_);
 
-	for(int s=0; s<separateSectionDataSources_.count(); s++) {
+	if (option_->higherDimensionsInRows()){
 
-		ts << option_->newlineDelimiter();
+		for(int s=0; s<separateSectionDataSources_.count(); s++) {
 
-		setCurrentDataSource(separateSectionDataSources_.at(s));	// sets currentDataSourceIndex_
-		AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
-
-		// section header?
-		if(option_->sectionHeaderIncluded()) {
-			ts << parseKeywordString(option_->sectionHeader());
 			ts << option_->newlineDelimiter();
-		}
 
-		// column header?
-		if(option_->columnHeaderIncluded()) {
-			// 1D data sources:
-			if(ds->rank() == 0) {
-				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
-			}
-			else if(ds->rank() == 1) {
-				if(separateSectionIncludeX_.at(s))
-					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
-				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
-			}
-			else if(ds->rank() == 2) {	// 2D
-				if(separateSectionIncludeX_.at(s))
-					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
-				// need a loop over the second axis columns
-				for(int cc=0; cc<ds->size(1); cc++) {
-					setCurrentColumnIndex(cc);
-					ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
-				}
-			}
-			ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
-		}
+			setCurrentDataSource(separateSectionDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-		// table
-		switch(ds->rank()) {
-		case 0:
-			ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
-			break;
-		case 1: {
-			int maxTableRows = ds->size(0);
-			for(int r=0; r<maxTableRows; r++) {
-				if(separateSectionIncludeX_.at(s)) {
-					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
-				}
-				ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
-			}
-		}
-		break;
-		case 2: {
-			int maxTableRows = ds->size(0);
-			for(int r=0; r<maxTableRows; r++) {
-				if(separateSectionIncludeX_.at(s))
-					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
-				// need a loop over the second axis columns
-				for(int cc=0; cc<ds->size(1); cc++) {
-					ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
-				}
+			// section header?
+			if(option_->sectionHeaderIncluded()) {
+				ts << parseKeywordString(option_->sectionHeader());
 				ts << option_->newlineDelimiter();
 			}
+
+			// column header?
+			if(option_->columnHeaderIncluded()) {
+				// 1D data sources:
+				if(ds->rank() == 0) {
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+				}
+				else if(ds->rank() == 1) {
+					if(separateSectionIncludeX_.at(s))
+						ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+				}
+				else if(ds->rank() == 2) {	// 2D
+					if(separateSectionIncludeX_.at(s))
+						ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+					// need a loop over the second axis columns
+					for(int cc=0; cc<ds->size(1); cc++) {
+						setCurrentColumnIndex(cc);
+						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+					}
+				}
+				ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
+			}
+
+			// table
+			switch(ds->rank()) {
+			case 0:
+				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				break;
+			case 1: {
+				int maxTableRows = ds->size(0);
+				for(int r=0; r<maxTableRows; r++) {
+					if(separateSectionIncludeX_.at(s)) {
+						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+					}
+					ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				}
+			}
+				break;
+			case 2: {
+				int maxTableRows = ds->size(0);
+				for(int r=0; r<maxTableRows; r++) {
+					if(separateSectionIncludeX_.at(s))
+						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+					// need a loop over the second axis columns
+					for(int cc=0; cc<ds->size(1); cc++) {
+						ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
+					}
+					ts << option_->newlineDelimiter();
+				}
+			}
+				break;
+			default:
+				/// \todo Implement 3D
+				break;
+			}
 		}
-		break;
-		default:
-			/// \todo Implement 3D
-			break;
+	}
+
+	// For writing out in columns.  Essentially transposing the file.
+	else{
+
+		for(int s=0; s<separateSectionDataSources_.count(); s++) {
+
+			setCurrentDataSource(separateSectionDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+			// section header?
+			if(option_->sectionHeaderIncluded()) {
+				ts << parseKeywordString(option_->sectionHeader());
+				ts << option_->newlineDelimiter();
+			}
+
+			// If including the X values.
+			if (separateSectionIncludeX_.at(s)){
+
+				switch(ds->rank()){
+
+				case 0:
+					break;
+
+				case 1:
+				case 2:{
+
+					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+
+					int maxTableColumns = ds->size(0);
+
+					for(int column = 0; column < maxTableColumns; column++)
+						ts << ds->axisValue(0,column).toString() << option_->columnDelimiter();
+
+					ts << option_->newlineDelimiter();
+
+					break;
+				}
+
+				default:
+					/// \todo 3D.
+					break;
+				}
+			}
+
+			// Main table with column headers prefacing rows.
+			switch (ds->rank()){
+
+			case 0:{
+
+				if(option_->columnHeaderIncluded())
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+
+				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+
+				break;
+			}
+
+			case 1:{
+
+				if (option_->columnHeaderIncluded())
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+
+				int maxTableColumns = ds->size(0);
+
+				for(int column = 0; column < maxTableColumns; column++)
+					ts << ds->value(column).toString() << option_->columnDelimiter();
+
+				ts << option_->newlineDelimiter();
+
+				break;
+			}
+
+			case 2:{
+
+				for (int cc = 0; cc < ds->size(1); cc++){
+
+					if (option_->columnHeaderIncluded())
+						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+
+					int maxTableColumns = ds->size(0);
+
+					for (int column = 0; column < maxTableColumns; column++)
+						ts << ds->value(AMnDIndex(column, cc)).toString() << option_->columnDelimiter();
+
+					ts << option_->newlineDelimiter();
+				}
+
+				break;
+			}
+
+			default:
+				/// \todo 3D
+				break;
+			}
 		}
 	}
 }
 
 bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolderPath)
 {
-	for(int s=0; s<separateFileDataSources_.count(); s++) {
+	if (option_->higherDimensionsInRows()){
 
-		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
-		AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+		for(int s=0; s<separateFileDataSources_.count(); s++) {
 
-		QFile file;
-		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-		if(!openFile(&file, separateFileName)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
-			return false;
-		}
+			QFile file;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
 
-		QTextStream ts(&file);
-
-		// section header?
-		if(option_->sectionHeaderIncluded()) {
-			ts << parseKeywordString(option_->sectionHeader());
-			ts << option_->newlineDelimiter();
-		}
-
-		// column header?
-		if(option_->columnHeaderIncluded()) {
-			// 1D data sources:
-			if(ds->rank() == 0) {
-				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+			if(!openFile(&file, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
 			}
-			else if(ds->rank() == 1) {
-				if(separateFileIncludeX_.at(s))
-					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
-				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
-			}
-			else if(ds->rank() == 2) {	// 2D
-				if(separateFileIncludeX_.at(s))
-					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
-				// need a loop over the second axis columns
-				for(int cc=0; cc<ds->size(1); cc++) {
-					setCurrentColumnIndex(cc);
-					ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
-				}
-			}
-			ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
-		}
 
-		// table
-		switch(ds->rank()) {
-		case 0:
-			ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
-			break;
-		case 1: {
-			int maxTableRows = ds->size(0);
-			for(int r=0; r<maxTableRows; r++) {
-				if(separateFileIncludeX_.at(s)) {
-					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
-				}
-				ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
-			}
-		}
-		break;
-		case 2: {
-			int maxTableRows = ds->size(0);
-			for(int r=0; r<maxTableRows; r++) {
-				if(separateFileIncludeX_.at(s))
-					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
-				// need a loop over the second axis columns
-				for(int cc=0; cc<ds->size(1); cc++) {
-					ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
-				}
+			QTextStream ts(&file);
+
+			// section header?
+			if(option_->sectionHeaderIncluded()) {
+				ts << parseKeywordString(option_->sectionHeader());
 				ts << option_->newlineDelimiter();
 			}
+
+			// column header?
+			if(option_->columnHeaderIncluded()) {
+				// 1D data sources:
+				if(ds->rank() == 0) {
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+				}
+				else if(ds->rank() == 1) {
+					if(separateFileIncludeX_.at(s))
+						ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+				}
+				else if(ds->rank() == 2) {	// 2D
+					if(separateFileIncludeX_.at(s))
+						ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+					// need a loop over the second axis columns
+					for(int cc=0; cc<ds->size(1); cc++) {
+						setCurrentColumnIndex(cc);
+						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+					}
+				}
+				ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
+			}
+
+			// table
+			switch(ds->rank()) {
+			case 0:
+				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				break;
+			case 1: {
+				int maxTableRows = ds->size(0);
+				for(int r=0; r<maxTableRows; r++) {
+					if(separateFileIncludeX_.at(s)) {
+						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+					}
+					ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				}
+			}
+				break;
+			case 2: {
+				int maxTableRows = ds->size(0);
+				for(int r=0; r<maxTableRows; r++) {
+					if(separateFileIncludeX_.at(s))
+						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+					// need a loop over the second axis columns
+					for(int cc=0; cc<ds->size(1); cc++) {
+						ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
+					}
+					ts << option_->newlineDelimiter();
+				}
+			}
+				break;
+			default:
+				/// \todo Implement 3D
+				break;
+			}
 		}
-		break;
-		default:
-			/// \todo Implement 3D
-			break;
+	}
+
+	// For writing out in columns.  Essentially transposing the file.
+	else{
+
+		for(int s=0; s<separateFileDataSources_.count(); s++) {
+
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+			QFile file;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+
+			if(!openFile(&file, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
+			}
+
+			QTextStream ts(&file);
+
+			// section header?
+			if(option_->sectionHeaderIncluded()) {
+				ts << parseKeywordString(option_->sectionHeader());
+				ts << option_->newlineDelimiter();
+			}
+
+			// If including the X values.
+			if (separateFileIncludeX_.at(s)){
+
+				switch(ds->rank()){
+
+				case 0:
+					break;
+
+				case 1:
+				case 2:{
+
+					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+
+					int maxTableColumns = ds->size(0);
+
+					for(int column = 0; column < maxTableColumns; column++)
+						ts << ds->axisValue(0,column).toString() << option_->columnDelimiter();
+
+					ts << option_->newlineDelimiter();
+
+					break;
+				}
+
+				default:
+					/// \todo 3D.
+					break;
+				}
+			}
+
+			// Main table with column headers prefacing rows.
+			switch (ds->rank()){
+
+			case 0:{
+
+				if(option_->columnHeaderIncluded())
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+
+				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+
+				break;
+			}
+
+			case 1:{
+
+				if (option_->columnHeaderIncluded())
+					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+
+				int maxTableColumns = ds->size(0);
+
+				for(int column = 0; column < maxTableColumns; column++)
+					ts << ds->value(column).toString() << option_->columnDelimiter();
+
+				ts << option_->newlineDelimiter();
+
+				break;
+			}
+
+			case 2:{
+
+				for (int cc = 0; cc < ds->size(1); cc++){
+
+					if (option_->columnHeaderIncluded())
+						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+
+					int maxTableColumns = ds->size(0);
+
+					for (int column = 0; column < maxTableColumns; column++)
+						ts << ds->value(AMnDIndex(column, cc)).toString() << option_->columnDelimiter();
+
+					ts << option_->newlineDelimiter();
+				}
+
+				break;
+			}
+
+			default:
+				/// \todo 3D
+				break;
+			}
 		}
 	}
 

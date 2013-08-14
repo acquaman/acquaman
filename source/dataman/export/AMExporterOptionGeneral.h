@@ -43,6 +43,8 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(bool includeHigherDimensionSources READ includeHigherDimensionSources WRITE setIncludeHigherDimensionSources)
 	Q_PROPERTY(bool firstColumnOnly READ firstColumnOnly WRITE setFirstColumnOnly)
 	Q_PROPERTY(bool separateHigherDimensionalSources READ separateHigherDimensionalSources WRITE setSeparateHigherDimensionalSources)
+	Q_PROPERTY(bool higherDimensionsInRows READ higherDimensionsInRows WRITE setHigherDimensionsInRows)
+
 	Q_PROPERTY(QStringList dataSources READ dataSources WRITE dbLoadDataSources)
 	Q_PROPERTY(AMIntList dataSourceOrganizeModes READ dataSourceOrganizeModes WRITE dbLoadDataSourceOrganizeModes)
 	Q_PROPERTY(AMIntList dataSourceIsRequired READ dataSourceIsRequired WRITE dbLoadDataSourceIsRequired)
@@ -51,6 +53,7 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(QString separateSectionFileName READ separateSectionFileName WRITE setSeparateSectionFileName)
 
 	Q_CLASSINFO("includeHigherDimensionSources", "upgradeDefault=true")
+	Q_CLASSINFO("higherDimensionsInRows", "upgradeDefault=true")
 
 public:
 
@@ -80,6 +83,8 @@ public:
 	bool includeHigherDimensionSources() const { return includeHigherDimensionSources_; }
 	bool firstColumnOnly() const { return firstColumnOnly_; }
 	bool separateHigherDimensionalSources() const { return separateHigherDimensionalSources_; }
+	bool higherDimensionsInRows() const { return higherDimensionsInRows_; }
+
 	AMIntList dataSourceOrganizeModes() const { return dataSourceOrganizeMode_; }
 	AMIntList dataSourceIsRequired() const{ return dataSourceIsRequired_; }
 	AMIntList dataSourceOmitAxisValueColumns() const { return dataSourceOmitAxisValueColumn_; }
@@ -104,6 +109,7 @@ public slots:
 	void setIncludeHigherDimensionSources(bool includeHigherSources) { includeHigherDimensionSources_ = includeHigherSources; setModified(true); }
 	void setFirstColumnOnly(bool firstOnly) { firstColumnOnly_ = firstOnly; setModified(true); }
 	void setSeparateHigherDimensionalSources(bool separateHigherDimensions) { separateHigherDimensionalSources_ = separateHigherDimensions; setModified(true); }
+	void setHigherDimensionsInRows(bool writeInRows) { higherDimensionsInRows_ = writeInRows; setModified(true); }
 
 	void addDataSource(const QString& name, bool omitAxisValueColumn, int organizeMode = CombineInColumnsMode, bool isRequired = true) {
 		dataSources_ << name;
@@ -183,6 +189,8 @@ protected:
 	bool firstColumnOnly_;
 	/// Additional flag for separating higher dimensional data sources (2D and up) into their own files.
 	bool separateHigherDimensionalSources_;
+	/// Flag for whether the higher dimensional data sources are exported in columns or rows.  Defaults to true (rows).
+	bool higherDimensionsInRows_;
 
 	/// parallel list to dataSources_: specifies where to place each data source (Interpret as AMExporterOptionGeneral::DataSourceLocation)
 	AMIntList dataSourceOrganizeMode_;

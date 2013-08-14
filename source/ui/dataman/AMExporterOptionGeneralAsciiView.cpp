@@ -82,6 +82,7 @@ void AMExporterOptionGeneralAsciiView::initializeViewFromOption()
 	firstColumnOnlyCheck->setChecked(option_->firstColumnOnly());
 	separateHigherDimensionSourcesCheck->setChecked(option_->separateHigherDimensionalSources());
 	sourcesSelectorFrame->setEnabled(!option_->includeAllDataSources());
+	higherDimensionsInRows->setChecked(option_->higherDimensionsInRows());
 
 
 	columnHeaderText->setText(option_->columnHeader());
@@ -155,8 +156,9 @@ void AMExporterOptionGeneralAsciiView::makeUIConnections()
 	connect(newlineGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onNewlineButtonChanged(int)));
 	connect(newlineOtherText, SIGNAL(textChanged(QString)), this, SLOT(onNewlineOtherTextChanged(QString)));
 
-	connect(sourcesAvailableListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSourcesAvailableSelectedChanged()));
+	connect(higherDimensionsInRows, SIGNAL(toggled(bool)), this, SLOT(onHigherDimensionsInRowsToggled(bool)));
 
+	connect(sourcesAvailableListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSourcesAvailableSelectedChanged()));
 }
 
 
@@ -378,4 +380,9 @@ void AMExporterOptionGeneralAsciiView::onHeaderTextChanged()
 void AMExporterOptionGeneralAsciiView::onSectionHeaderTextChanged()
 {
 	option_->setSectionHeader(sectionHeaderText->toPlainText());
+}
+
+void AMExporterOptionGeneralAsciiView::onHigherDimensionsInRowsToggled(bool checked)
+{
+	option_->setHigherDimensionsInRows(checked);
 }

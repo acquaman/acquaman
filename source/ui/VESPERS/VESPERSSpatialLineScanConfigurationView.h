@@ -92,6 +92,8 @@ protected slots:
 
 	/// Slot that updates the horizontal step size spin box.
 	void updateStep(double val) { step_->setValue(val*1000); }
+	/// Helper slot that sets whether we export spectra in rows or columns.
+	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.

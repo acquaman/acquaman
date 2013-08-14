@@ -22,6 +22,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
@@ -46,6 +47,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(const VESPERS3DScanConfig
 	setZPriority(original.zPriority());
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
+	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
@@ -170,4 +172,12 @@ void  VESPERS3DScanConfiguration::setExportSpectraSources(bool exportSpectra)
 		return;
 
 	exportSpectraSources_ = exportSpectra;
+}
+
+void VESPERS3DScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }
