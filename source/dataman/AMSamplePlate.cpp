@@ -22,7 +22,29 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMDateTimeUtils.h"
 
+#include "dataman/AMSample.h"
+#include "dataman/database/AMConstDbObject.h"
+#include "dataman/database/AMDbObjectSupport.h"
+
 #include "math.h"
+
+AMSamplePosition::AMSamplePosition(int sampleId, const AMControlInfoList &position, int facilityId) :
+	position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList())
+{
+	sample_ = 0; //NULL
+	setSampleId(sampleId);
+}
+
+int AMSamplePosition::sampleId() const{
+	if(sample_->object())
+		return sample_->object()->id();
+	return -1;
+}
+
+const AMSample* AMSamplePosition::sample() const{
+	const AMSample *retVal = qobject_cast<const AMSample*>(sample_->object());
+	return retVal;
+}
 
 bool AMSamplePosition::positionWithinBounds() const{
 	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
@@ -152,6 +174,41 @@ double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const
 	}
 
 	return 9999997;
+}
+
+void AMSamplePosition::setSampleId(int newSampleId){
+	if(!sample_ || !sample_->object() || (sample_->object()->id() != newSampleId) ){
+		if(newSampleId <= 0)
+			sample_ = 0; //NULL
+		else{
+			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+			if(!sample_)
+				sample_ = new AMConstDbObject(newSample, this);
+			else
+				sample_->setObject(newSample);
+		}
+		setModified(true);
+	}
+}
+
+void AMSamplePosition::setSample(const AMSample *sample){
+	if(!sample_->object() && !sample)
+		return;
+	if( (!sample_->object() && sample) || (sample_->object() && !sample) || (sample_->object()->id() != sample->id()) ){
+		if(!sample_)
+			sample_ = new AMConstDbObject(sample, this);
+		else
+			sample_->setObject(sample);
+		setModified(true);
+	}
+}
+
+AMConstDbObject* AMSamplePosition::dbReadSample() const{
+	return sample_;
+}
+
+void AMSamplePosition::dbWriteSample(AMConstDbObject *newSample){
+	sample_ = newSample;
 }
 
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {

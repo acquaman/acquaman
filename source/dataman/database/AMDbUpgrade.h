@@ -110,6 +110,9 @@ protected:
 #define AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE 450106
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES 450107
 #define AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES 450108
+#define AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME 450109
+#define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID 450110
+#define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES 450111
 
 namespace AMDbUpgradeSupport{
 	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases.
@@ -148,6 +151,12 @@ namespace AMDbUpgradeSupport{
 	  */
 
 	bool removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName);
+
+	/// Facilitates changing an integer id column to an AMConstDbObject column
+	/*!
+	  */
+	bool idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName);
+
 }
 
 #endif // AMDBUPGRADE_H

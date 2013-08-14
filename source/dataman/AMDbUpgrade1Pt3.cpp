@@ -36,10 +36,37 @@ bool AMDbUpgrade1Pt3::upgradeNecessary() const{
 			return true;
 	}
 
+	// Check to make sure that this AMDbObjectType is in the AMDbObjectTypes_table
+	matchingAMScanType = databaseToUpgrade_->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "AMSamplePosition");
+
+	// So we found that, we need to upgrade if the sampleId column is still there and the sample column is not
+	if(matchingAMScanType.count() > 0 ){
+
+		QSqlQuery query = databaseToUpgrade_->query();
+		query.prepare(QString("PRAGMA table_info(%1);").arg("AMSamplePosition_table"));
+		databaseToUpgrade_->execQuery(query);
+		QStringList columnNames;
+		if (query.first()){
+
+			do {
+				columnNames << query.value(1).toString();
+			}while(query.next());
+		}
+		query.finish();
+
+		if(columnNames.contains("sampleId") && !columnNames.contains("sample"))
+			return true;
+	}
+
 	return false;
 }
 
 bool AMDbUpgrade1Pt3::upgradeImplementation(){
+	bool success = true;
+	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMScan_table", "sampleId", "sample", "AMSample_table");
+	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMSamplePosition_table", "sampleId", "sample", "AMSample_table");
+	return success;
+	/*
 	bool success = true;
 
 	// Change the column name from sampleId to sample
@@ -84,6 +111,7 @@ bool AMDbUpgrade1Pt3::upgradeImplementation(){
 		AMErrorMon::alert(this, AMDBUPGRADE1PT3_COULD_NOT_UPDATE_EMPTY_VALUES, "Could not update the empty values from -1 to an empty string in AMScan_table.");
 
 	return success;
+	*/
 }
 
 AMDbUpgrade* AMDbUpgrade1Pt3::createCopy() const{

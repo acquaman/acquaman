@@ -29,11 +29,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObject.h"
 #include "acquaman.h"
 
+class AMSample;
+class AMConstDbObject;
+
 /// This is a small helper class for AMSamplePlate, which stores a set of samples and their associated positions on the sample plate/manipulator
 class AMSamplePosition : public AMDbObject {
 	Q_OBJECT
 
-	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+//	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(AMConstDbObject* sample READ dbReadSample WRITE dbWriteSample)
 	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 	Q_PROPERTY(AMDbObject* position READ dbGetPosition WRITE dbLoadPosition)
 
@@ -44,11 +48,14 @@ class AMSamplePosition : public AMDbObject {
 
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
-	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
-		sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
+	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 );
+	//Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
+	//	sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
 
 	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSample table.
-	int sampleId() const { return sampleId_; }
+	//int sampleId() const { return sampleId_; }
+	int sampleId() const;
+	const AMSample* sample() const;
 	/// Returns the facilityId that this sample position is relevant for.  (The motor positions from the SGM sample manipulator won't make sense to the REIXS positioner, etc.)  This corresponds to the facilities in the database's AMFacility table.
 	int facilityId() const { return facilityId_; }
 	/// Returns a non-modifiable reference to the sample position (stored as an AMControlInfoList). If you need a by-value copy of the position, just assign this to a local AMControlInfoList.
@@ -64,7 +71,9 @@ public:
 
 
 	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSample table.
-	void setSampleId(int id) { sampleId_ = id; setModified(true); }
+	//void setSampleId(int id) { sampleId_ = id; setModified(true); }
+	void setSampleId(int newSampleId);
+	void setSample(const AMSample *sample);
 	/// Set the database id of the facility (ie: beamline) to which this position is relevant. This corresponds to the id of a facilty in the database's AMFacility table.
 	void setFacilityId(int id) { facilityId_ = id; setModified(true); }
 	/// Set the position of this sample on the plate, as an AMControlInfoList.
@@ -76,7 +85,8 @@ public:
 
 	/// Copy all the values from \c other (including sampleId(), facilityId(), and position()), but retain our old database identity.  (Unlike the default assignment operator and copy constructor, our database() and id() will remain the same after calling this function.)
 	void setValuesFrom(const AMSamplePosition& other) {
-		sampleId_ = other.sampleId_;
+		//sampleId_ = other.sampleId_;
+		setSample(other.sample());
 		facilityId_ = other.facilityId_;
 		position_.setValuesFrom(other.position_);
 
@@ -88,7 +98,8 @@ public:
 
 protected:
 	/// The database id of the stored sample at this position
-	int sampleId_;
+	//int sampleId_;
+	AMConstDbObject *sample_;
 	/// The position (ie: of the sample manipulator, whatever you want) that this sample is found at, expressed as an AMControlInfoList.
 	AMControlInfoList position_;
 	/// The facility (ie: beamline) to which this position is relevant. The motor positions from the SGM sample manipulator won't make sense to the REIXS sample manipulator, etc.
@@ -105,6 +116,9 @@ protected:
 	void dbLoadTopLeftPosition(AMDbObject*) {}
 	AMDbObject* dbGetBottomRightPosition() { return &bottomRightPosition_;}
 	void dbLoadBottomRightPosition(AMDbObject*) {}
+
+	AMConstDbObject* dbReadSample() const;
+	void dbWriteSample(AMConstDbObject *newSample);
 };
 
 

@@ -709,3 +709,50 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 
 	return true;
 }
+
+bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName){
+	bool success = true;
+
+	// Change the column name from idColumnName to constDbObjectColumnName
+	success &= AMDbUpgradeSupport::changeColumnName(databaseToEdit, typeTableName, idColumnName, constDbObjectColumnName, "TEXT");
+	// If that worked, change all cases where the value was "-1" to "" (empty string)
+	if(success)
+		success &= databaseToEdit->update(typeTableName, QString("%1='-1'").arg(constDbObjectColumnName), constDbObjectColumnName, "");
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME, QString("Could not change the %1 column to %2 in %3.").arg(idColumnName).arg(constDbObjectColumnName).arg(typeTableName));
+	// If that worked, grab all of the other values and update them from "#" to "relatedTypeTableName;#"
+	if(success){
+		// Grab id and constDbObjectColumnName column for all rows in typeTableName where the constDbObjectColumnName isn't empty string
+		QSqlQuery query = databaseToEdit->select(typeTableName, QString("id,%2").arg(constDbObjectColumnName), QString("%1!=''").arg(constDbObjectColumnName));
+		databaseToEdit->execQuery(query);
+		QMap<int, QString> results;
+		// Iterate and place in a map
+		if (query.first()){
+
+			do {
+				results.insert(query.value(0).toInt(), query.value(1).toString());
+			}while(query.next());
+		}
+		query.finish();
+
+		// Start a transaction, for each value in the map update the constDbObjectColumnName column for that id from "#" to "relatedTypeTableName;#"
+		databaseToEdit->startTransaction();
+		QMap<int, QString>::const_iterator i = results.constBegin();
+		while (i != results.constEnd() && success) {
+			success &= databaseToEdit->update(i.key(), typeTableName, constDbObjectColumnName, QString("%1;%2").arg(relatedTypeTableName).arg(i.value()));
+			++i;
+		}
+		// Rollback if we failed, commit if we succeeded
+		if(!success){
+			databaseToEdit->rollbackTransaction();
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID, QString("Could not change the %1 column value to a table based value for one of the indexes in %2.").arg(constDbObjectColumnName).arg(typeTableName));
+		}
+		else
+			databaseToEdit->commitTransaction();
+
+	}
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES, QString("Could not update the empty values from -1 to an empty string in %1.").arg(typeTableName));
+
+	return success;
+}
