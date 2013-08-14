@@ -2,6 +2,8 @@
 
 #include <QStringBuilder>
 
+#include "ui/CLS/CLSPGTDetectorV2View.h"
+
 CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {
@@ -124,7 +126,6 @@ const double* CLSPGTDetectorV2::data() const{
 	return data_;
 }
 
-#include "ui/CLS/CLSPGTDetectorV2View.h"
 AMControl* CLSPGTDetectorV2::privilegedIntegrationModeControl(const QObject *caller){
 	const CLSPGTDetectorV2View *view = qobject_cast<const CLSPGTDetectorV2View*>(caller);
 	if(view)
@@ -208,7 +209,7 @@ void CLSPGTDetectorV2::onStatusControlChanged(double value){
 		setAcquiring();
 	else if(statusControl_->withinTolerance(0) || statusControl_->withinTolerance(2)){
 		if(isAcquiring())
-			setAcquisitionSucceeded();
+			QTimer::singleShot(100, this, SLOT(setAcquisitionSucceeded())	);
 
 		if(!isConnected() && !isNotReadyForAcquisition())
 			setNotReadyForAcquisition();
