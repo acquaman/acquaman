@@ -75,6 +75,8 @@ public:
 	AMAction3* createEnableAction3(bool setEnabled);
 	bool isEnabled() const;
 
+	double detectorTemperature() const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
@@ -84,6 +86,9 @@ public slots:
 
 	/// Amptek detectors do not support clearing
 	virtual bool clear() { return false; }
+
+signals:
+	void detectorTemperatureChanged(double newTemperature);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

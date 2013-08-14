@@ -16,6 +16,7 @@
 #include "MPlot/MPlotPoint.h"
 
 class AMDetectorViewStatusView;
+class QHBoxLayout;
 
 class AMDetectorGeneralBriefView : public QWidget
 {
@@ -93,6 +94,8 @@ protected:
 	QLabel *readModeLabel_;
 	/// The readMode selector
 	QComboBox *readModeSelector_;
+
+	QHBoxLayout *mainHL_;
 
 	/// This is the plot widget that holds the plot used for viewing the spectra.
 	MPlotWidget *view_;

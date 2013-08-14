@@ -139,26 +139,26 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	}
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	QHBoxLayout *mainHL = new QHBoxLayout();
+	mainHL_ = new QHBoxLayout();
 
 	QVBoxLayout *tmpVL;
 
-	mainHL->addWidget(startAcquisitionButton_);
+	mainHL_->addWidget(startAcquisitionButton_);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(new QLabel("Dwell"));
 	tmpVL->addWidget(acquisitionTimeDSB_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(new QLabel("Reading"));
 	tmpVL->addWidget(singleReadingDSB_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 	tmpVL = new QVBoxLayout();
 	tmpVL->addWidget(readModeLabel_);
 	tmpVL->addWidget(readModeSelector_);
-	mainHL->addLayout(tmpVL);
+	mainHL_->addLayout(tmpVL);
 
-	mainHL->addWidget(statusLabel_);
-	mainVL->addLayout(mainHL);
+	mainHL_->addWidget(statusLabel_);
+	mainVL->addLayout(mainHL_);
 	if(view_)
 		mainVL->addWidget(view_);
 	else
@@ -202,22 +202,9 @@ void AMDetectorGeneralDetailedView::onReadModeChanged(AMDetectorDefinitions::Rea
 		readModeLabel_->setText("Invalid");
 }
 
-#include <QDebug>
 #include "beamline/AMDetectorTriggerSource.h"
 void AMDetectorGeneralDetailedView::onStartAcquisitionButtonClicked(){
-	//detector_->acquire(detector_->readMode());
-
 	detector_->acquire(detector_->readMode());
-	/*
-	if(detector_->detectorTriggerSource()){
-		qDebug() << "Trigger detector using trigger source";
-		detector_->detectorTriggerSource()->trigger(detector_->readMode());
-	}
-	else{
-		qDebug() << "Trigger detector old school directly";
-		detector_->acquire(detector_->readMode());
-	}
-	*/
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeDSBEditingFinished(){
@@ -225,7 +212,6 @@ void AMDetectorGeneralDetailedView::onAcquisitionTimeDSBEditingFinished(){
 }
 
 void AMDetectorGeneralDetailedView::onReadModeSelectedCurrentIndexChanged(const QString &indexString){
-	qDebug() << "Want to change read mode to " << indexString;
 	if(indexString == "Single Read" && detector_->readMode() != AMDetectorDefinitions::SingleRead)
 		detector_->setReadMode(AMDetectorDefinitions::SingleRead);
 	else if(indexString == "Continuous Read" && detector_->readMode() != AMDetectorDefinitions::ContinuousRead)
