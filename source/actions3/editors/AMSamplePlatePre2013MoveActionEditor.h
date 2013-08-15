@@ -17,11 +17,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPLATEMOVEACTIONEDITOR_H
-#define AMSAMPLEPLATEMOVEACTIONEDITOR_H
+#ifndef AMSAMPLEPLATEPRE2013MOVEACTIONEDITOR_H
+#define AMSAMPLEPLATEPRE2013MOVEACTIONEDITOR_H
 
 #include <QFrame>
-#include "actions3/actions/AMSamplePlateMoveActionInfo.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveActionInfo.h"
 
 class QComboBox;
 class QLabel;
@@ -30,13 +30,13 @@ class QCheckBox;
 #define AMSAMPLEPLATEMOVEACTIONEDITOR_ATTEMPTED_TO_LOAD_BAD_PLATE 327201
 
 /// This widget provides an in-place editor for AMControlMoveActionInfo.
-class AMSamplePlateMoveActionEditor : public QFrame
+class AMSamplePlatePre2013MoveActionEditor : public QFrame
 {
 Q_OBJECT
 
 public:
 	/// Constructor
-	Q_INVOKABLE AMSamplePlateMoveActionEditor(AMSamplePlateMoveActionInfo *info, QWidget *parent = 0);
+	Q_INVOKABLE AMSamplePlatePre2013MoveActionEditor(AMSamplePlatePre2013MoveActionInfo *info, QWidget *parent = 0);
 
 protected slots:
 	/// Called when the sample position combo box is activated to choose a different sample on the plate.
@@ -48,7 +48,7 @@ protected slots:
 
 
 protected:
-	AMSamplePlateMoveActionInfo *info_;
+	AMSamplePlatePre2013MoveActionInfo *info_;
 
 	/// Holds the descriptions (as DisplayRole text) and names (as UserRole) of the controls we have available to choose from.
 	QComboBox* samplePositionSelectorBox_;
@@ -63,4 +63,4 @@ protected:
 	void populateSamplePositions();
 };
 
-#endif // AMSAMPLEPLATEMOVEACTIONEDITOR_H
+#endif // AMSAMPLEPLATEPRE2013MOVEACTIONEDITOR_H

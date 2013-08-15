@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPOSITIONVIEW_H
-#define AMSAMPLEPOSITIONVIEW_H
+#ifndef AMSAMPLEPOSITIONPRE2013VIEW_H
+#define AMSAMPLEPOSITIONPRE2013VIEW_H
 
 #include <QWidget>
 
@@ -29,8 +29,8 @@ class QGroupBox;
 
 class AMTopFrame2;
 
-#include "AMSamplePlateView.h"
-class AMSamplePlateView;
+#include "AMSamplePlatePre2013View.h"
+class AMSamplePlatePre2013View;
 class AMSampleManipulator;
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
@@ -38,7 +38,7 @@ class AMBeamlineCameraWidgetWithSourceTabs;
 #endif
 
 /// This widget provides a complete full-screen view for users to view, move, align, and tag samples in the machine. It simply combines three widgets: an AMCrosshairVideoWidget for the video, whatever widget you want to provide for controlling the sample manipulator, and an AMSamplePlateView. We create the video widget and sample plate view for you.
-class AMSampleManagementWidget : public QWidget
+class AMSampleManagementPre2013Widget : public QWidget
 {
 Q_OBJECT
 public:
@@ -49,10 +49,10 @@ public:
 \param sampleCameraDescription The title the user will see for the camera view (ex: "Endstation Top View").
 \param samplePlate A pointer that will be passed to the AMSamplePlateView constructor as the sample plate to work with; it can be 0 if the plate view should create its own plate.
 \param manipulator [Optional] If you want the AMSamplePlateView to be able to mark and move sample positions, you should include an AMSampleManipulator instance \c manipulator, which will be passed to the AMSamplePlateView.*/
-	AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate = 0, AMSampleManipulator* manipulator = 0, QWidget *parent = 0);
+	AMSampleManagementPre2013Widget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlatePre2013* samplePlate = 0, AMSampleManipulator* manipulator = 0, QWidget *parent = 0);
 
 	/// Accesses the sample plate view
-	AMSamplePlateView* samplePlateView() { return plateView_; }
+	AMSamplePlatePre2013View* samplePlateView() { return plateView_; }
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 	/// Access the camera widget.
 	AMBeamlineCameraWidgetWithSourceTabs* cameraWidget() { return cameraWidget_; }
@@ -61,7 +61,7 @@ public:
 	QWidget* manipulatorWidget() { return manipulatorWidget_; }
 signals:
 	/// Forwards the newSamplePlateSelected() from the AMSamplePlateView.
-	void newSamplePlateSelected(AMSamplePlate *selectedPlate);
+	void newSamplePlateSelected(AMSamplePlatePre2013 *selectedPlate);
 
 protected slots:
 	/// responds to and forwards the newSamplePlateSelected() signal from AMSamplePlate.
@@ -73,7 +73,7 @@ protected:
 	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget_;
 #endif
 
-	AMSamplePlateView *plateView_;
+	AMSamplePlatePre2013View *plateView_;
 	QWidget *manipulatorWidget_;
 
 	AMTopFrame2 *topFrame_;
@@ -81,4 +81,4 @@ protected:
 
 
 
-#endif // AMSAMPLEPOSITIONVIEW_H
+#endif // AMSAMPLEPOSITIONPRE2013VIEW_H

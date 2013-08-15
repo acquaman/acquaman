@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/AMUser.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
@@ -535,7 +535,7 @@ QString SGMBeamline::currentSampleDescription(){
 	if(currentId == -1)
 		return "<Unknown Sample>";
 	else
-		return AMSample(currentId, AMUser::user()->database()).name();
+		return AMSamplePre2013(currentId, AMUser::user()->database()).name();
 }
 
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
@@ -709,7 +709,7 @@ QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set
 	return retVal;
 }
 
-void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+void SGMBeamline::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
 	if(currentSamplePlate_ != newSamplePlate){
 		currentSamplePlate_ = newSamplePlate;
 		emit currentSamplePlateChanged(currentSamplePlate_);

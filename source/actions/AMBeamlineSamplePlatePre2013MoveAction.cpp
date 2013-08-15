@@ -18,13 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMBeamlineSamplePlateMoveAction.h"
+#include "AMBeamlineSamplePlatePre2013MoveAction.h"
 
-#include "ui/dataman/AMSamplePlateView.h"
+#include "ui/dataman/AMSamplePlatePre2013View.h"
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
-AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, AMSamplePlateItemModel *plateModel, QObject *parent) :
+AMBeamlineSamplePlatePre2013MoveAction::AMBeamlineSamplePlatePre2013MoveAction(int sampleID, AMSamplePlatePre2013ItemModel *plateModel, QObject *parent) :
 		AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner(), parent)
 {
 	sampleID_ = sampleID;
@@ -34,7 +34,7 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 	bool foundSampleOnPlate = false;
 	if(samplePlateModel_){
 		for(int x = 0; x < samplePlateModel_->rowCount(QModelIndex()); x++){
-			AMSamplePosition* tmpSamplePos = qobject_cast<AMSamplePosition*>(samplePlateModel_->data(samplePlateModel_->index(x), AM::PointerRole).value<QObject*>());
+			AMSamplePositionPre2013* tmpSamplePos = qobject_cast<AMSamplePositionPre2013*>(samplePlateModel_->data(samplePlateModel_->index(x), AM::PointerRole).value<QObject*>());
 			if(tmpSamplePos->sampleId() == sampleID_ ){
 				foundSampleOnPlate = true;
 				connect(samplePlateModel_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onSamplePlateDataChanged(QModelIndex,QModelIndex)));
@@ -52,26 +52,26 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 	}
 }
 
-AMBeamlineActionItemView* AMBeamlineSamplePlateMoveAction::createView(int index){
-	return new AMBeamlineSamplePlateMoveActionView(this, index);
+AMBeamlineActionItemView* AMBeamlineSamplePlatePre2013MoveAction::createView(int index){
+	return new AMBeamlineSamplePlatePre2013MoveActionView(this, index);
 }
 
-AMBeamlineActionItem* AMBeamlineSamplePlateMoveAction::createCopy() const{
+AMBeamlineActionItem* AMBeamlineSamplePlatePre2013MoveAction::createCopy() const{
 	if(sampleID_ && samplePlateModel_){
-		AMBeamlineSamplePlateMoveAction *retVal = new AMBeamlineSamplePlateMoveAction(sampleID_, samplePlateModel_);
+		AMBeamlineSamplePlatePre2013MoveAction *retVal = new AMBeamlineSamplePlatePre2013MoveAction(sampleID_, samplePlateModel_);
 		retVal->setSetpoint(setpoint_);
 		return retVal;
 	}
 	return 0; //NULL
 }
 
-QString AMBeamlineSamplePlateMoveAction::sampleDescription() const{
+QString AMBeamlineSamplePlatePre2013MoveAction::sampleDescription() const{
 	return sampleDescription_;
 }
 
-void AMBeamlineSamplePlateMoveAction::onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
+void AMBeamlineSamplePlatePre2013MoveAction::onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
 	Q_UNUSED(bottomRight)
-	AMSamplePosition* tmpSamplePos = qobject_cast<AMSamplePosition*>(samplePlateModel_->data(topLeft, AM::PointerRole).value<QObject*>());
+	AMSamplePositionPre2013* tmpSamplePos = qobject_cast<AMSamplePositionPre2013*>(samplePlateModel_->data(topLeft, AM::PointerRole).value<QObject*>());
 	if(tmpSamplePos->sampleId() == sampleID_ ){
 		setDescription("Move to sample \""+samplePlateModel_->data(topLeft, Qt::EditRole).toString()+"\"");
 		emit descriptionChanged(description());
@@ -79,7 +79,7 @@ void AMBeamlineSamplePlateMoveAction::onSamplePlateDataChanged(QModelIndex topLe
 }
 
 
-AMBeamlineSamplePlateMoveActionView::AMBeamlineSamplePlateMoveActionView(AMBeamlineSamplePlateMoveAction *samplePlateAction, int index, QWidget *parent) :
+AMBeamlineSamplePlatePre2013MoveActionView::AMBeamlineSamplePlatePre2013MoveActionView(AMBeamlineSamplePlatePre2013MoveAction *samplePlateAction, int index, QWidget *parent) :
 		AMBeamlineControlSetMoveActionView(samplePlateAction, index, parent)
 {
 	samplePlateAction_ = samplePlateAction;
@@ -89,7 +89,7 @@ AMBeamlineSamplePlateMoveActionView::AMBeamlineSamplePlateMoveActionView(AMBeaml
 
 }
 
-void AMBeamlineSamplePlateMoveActionView::onInfoChanged(){
+void AMBeamlineSamplePlatePre2013MoveActionView::onInfoChanged(){
 	QString sampleName, tmpStr;
 	if(index_ != -1){
 		sampleName.setNum(index_);

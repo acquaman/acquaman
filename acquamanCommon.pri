@@ -282,7 +282,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
-	source/dataman/AMSample.h \
 	source/dataman/AMScan.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
@@ -326,15 +325,11 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	source/ui/dataman/AMSampleManagementWidget.h \
-	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
-	source/dataman/AMSamplePlate.h \
 	source/ui/dataman/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
 	source/ui/AMVerticalStackWidget.h \
 	source/ui/AMHeaderButton.h \
-	source/ui/dataman/AMSampleEditor.h \
 	source/util/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
@@ -394,7 +389,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/CLS/CLSPGTDetectorView.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
 	source/actions/AMBeamlineListAction.h \
 	source/actions/AMBeamlineControlWaitAction.h \
 	source/actions/AMBeamlineUserConfirmAction.h \
@@ -411,7 +405,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
 	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
-	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/beamline/CLS/CLSOceanOptics65000Detector.h \
@@ -584,9 +577,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
 	source/actions2/editors/AMChangeRunActionEditor.h \
 	source/ui/dataman/AMSimpleDataSourceEditor.h \
-	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
-	source/actions3/actions/AMSamplePlateMoveAction.h \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
 	source/qttelnet/qttelnet.h \
 	source/beamline/CLS/CLSProcServManager.h \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
@@ -598,7 +588,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMSADetector.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
-	source/ui/dataman/AMSampleSelector.h \
 	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
@@ -689,7 +678,18 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
 	source/dataman/database/AMConstDbObject.h \
-	source/dataman/AMDbUpgrade1Pt3.h
+	source/dataman/AMDbUpgrade1Pt3.h \
+	source/dataman/AMSamplePre2013.h \
+    source/dataman/AMSamplePlatePre2013.h \
+    source/ui/dataman/AMSamplePlatePre2013View.h \
+    source/ui/dataman/AMSampleManagementPre2013Widget.h \
+    source/ui/dataman/AMSamplePre2013Editor.h \
+    source/ui/dataman/AMSamplePre2013Selector.h \
+    source/actions/AMBeamlineSamplePlatePre2013MoveAction.h \
+    source/actions3/actions/AMSamplePlatePre2013MoveAction.h \
+    source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
+    source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
+    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -779,7 +779,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
-	source/dataman/AMSample.cpp \
 	source/dataman/AMScan.cpp \
 	source/dataman/AMScanSetModel.cpp \
 	source/dataman/AMXASScan.cpp \
@@ -814,15 +813,11 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	source/ui/dataman/AMSampleManagementWidget.cpp \
-	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
-	source/dataman/AMSamplePlate.cpp \
 	source/ui/dataman/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \
-	source/ui/dataman/AMSampleEditor.cpp \
 	source/util/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
@@ -880,7 +875,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/CLS/CLSPGTDetectorView.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
 	source/actions/AMBeamlineUserConfirmAction.cpp \
@@ -897,7 +891,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
 	#source/ui/dataman/AM3dDataSourceView.cpp \
-	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/beamline/CLS/CLSOceanOptics65000Detector.cpp \
@@ -1058,9 +1051,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
 	source/actions2/editors/AMChangeRunActionEditor.cpp \
 	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
-	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
-	source/actions3/actions/AMSamplePlateMoveAction.cpp \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
 	source/qttelnet/qttelnet.cpp \
 	source/beamline/CLS/CLSProcServManager.cpp \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
@@ -1072,7 +1062,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMSADetector.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
-	source/ui/dataman/AMSampleSelector.cpp \
 	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
@@ -1163,7 +1152,18 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/database/AMConstDbObject.cpp \
-	source/dataman/AMDbUpgrade1Pt3.cpp
+	source/dataman/AMDbUpgrade1Pt3.cpp \
+	source/dataman/AMSamplePre2013.cpp \
+    source/dataman/AMSamplePlatePre2013.cpp \
+    source/ui/dataman/AMSamplePlatePre2013View.cpp \
+    source/ui/dataman/AMSampleManagementPre2013Widget.cpp \
+    source/ui/dataman/AMSamplePre2013Editor.cpp \
+    source/ui/dataman/AMSamplePre2013Selector.cpp \
+    source/actions/AMBeamlineSamplePlatePre2013MoveAction.cpp \
+    source/actions3/actions/AMSamplePlatePre2013MoveAction.cpp \
+    source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
+    source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
+    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1187,6 +1187,52 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -41,7 +41,7 @@ typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 class AMScanConfiguration;
 class AMScanDictionary;
 
-class AMSample;
+class AMSamplePre2013;
 class AMConstDbObject;
 
 #ifndef ACQUAMAN_NO_ACQUISITION
@@ -101,7 +101,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString indexType READ indexType WRITE setIndexType)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
-	Q_CLASSINFO("sampleId", "createIndex=true")
+	//Q_CLASSINFO("sampleId", "createIndex=true")
 	Q_CLASSINFO("runId", "createIndex=true")
 
 	Q_CLASSINFO("rawDataSources", "hidden=true")
@@ -157,7 +157,7 @@ public:
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
 	//int sampleId() const { return sampleId_; }
 	int sampleId() const;
-	const AMSample* sample() const;
+	const AMSamplePre2013* sample() const;
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -441,7 +441,7 @@ public slots:
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
-	void setSample(const AMSample *sample);
+	void setSample(const AMSamplePre2013 *sample);
 	/// Sets the indexation type.
 	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 

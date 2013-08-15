@@ -17,7 +17,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePlateMoveAction.h"
+#include "AMSamplePlatePre2013MoveAction.h"
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMBeamline.h"
@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
-AMSamplePlateMoveAction::AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *info, QObject *parent) :
+AMSamplePlatePre2013MoveAction::AMSamplePlatePre2013MoveAction(AMSamplePlatePre2013MoveActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {
 	if(AMBeamline::bl()->isConnected())
@@ -40,7 +40,7 @@ AMSamplePlateMoveAction::AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *in
 	moveListAction_ = 0; //NULL
 }
 
-AMSamplePlateMoveAction::AMSamplePlateMoveAction(const AMSamplePlateMoveAction &other) :
+AMSamplePlatePre2013MoveAction::AMSamplePlatePre2013MoveAction(const AMSamplePlatePre2013MoveAction &other) :
 	AMAction3(other)
 {
 	if(AMBeamline::bl()->isConnected())
@@ -51,26 +51,26 @@ AMSamplePlateMoveAction::AMSamplePlateMoveAction(const AMSamplePlateMoveAction &
 	moveListAction_ = 0; //NULL
 }
 
-AMAction3* AMSamplePlateMoveAction::createCopy() const{
-	return new AMSamplePlateMoveAction(*this);
+AMAction3* AMSamplePlatePre2013MoveAction::createCopy() const{
+	return new AMSamplePlatePre2013MoveAction(*this);
 }
 
-void AMSamplePlateMoveAction::onMoveListStarted(){
+void AMSamplePlatePre2013MoveAction::onMoveListStarted(){
 	setStarted();
 }
 
-void AMSamplePlateMoveAction::onMoveListFailed(){
+void AMSamplePlatePre2013MoveAction::onMoveListFailed(){
 	disconnect(moveListAction_, SIGNAL(started()), this, SLOT(onMoveListStarted()));
 	disconnect(moveListAction_, SIGNAL(failed()), this, SLOT(onMoveListFailed()));
 	disconnect(moveListAction_, SIGNAL(succeeded()), this, SLOT(onMoveListSucceeded()));
 	disconnect(moveListAction_, SIGNAL(cancelled()), this, SLOT(onMoveListCancelled()));
 	disconnect(moveListAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(progressChanged(double,double)));
 
-	AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_MOVELIST_FAILED, QString("There was an error moving one or more motors after start was called."));
+	AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_MOVELIST_FAILED, QString("There was an error moving one or more motors after start was called."));
 	setFailed();
 }
 
-void AMSamplePlateMoveAction::onMoveListSucceeded(){
+void AMSamplePlatePre2013MoveAction::onMoveListSucceeded(){
 	disconnect(moveListAction_, SIGNAL(started()), this, SLOT(onMoveListStarted()));
 	disconnect(moveListAction_, SIGNAL(failed()), this, SLOT(onMoveListFailed()));
 	disconnect(moveListAction_, SIGNAL(succeeded()), this, SLOT(onMoveListSucceeded()));
@@ -81,7 +81,7 @@ void AMSamplePlateMoveAction::onMoveListSucceeded(){
 	setSucceeded();
 }
 
-void AMSamplePlateMoveAction::onMoveListCancelled(){
+void AMSamplePlatePre2013MoveAction::onMoveListCancelled(){
 	disconnect(moveListAction_, SIGNAL(started()), this, SLOT(onMoveListStarted()));
 	disconnect(moveListAction_, SIGNAL(failed()), this, SLOT(onMoveListFailed()));
 	disconnect(moveListAction_, SIGNAL(succeeded()), this, SLOT(onMoveListSucceeded()));
@@ -91,9 +91,9 @@ void AMSamplePlateMoveAction::onMoveListCancelled(){
 	setCancelled();
 }
 
-void AMSamplePlateMoveAction::startImplementation(){
+void AMSamplePlatePre2013MoveAction::startImplementation(){
 	if(!samplePlateMoveInfo()->samplePosition()){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_BAD_POSITION_SETPOINT, QString("There was an error moving the sample positioner, because the sample position is not valid."));
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_BAD_POSITION_SETPOINT, QString("There was an error moving the sample positioner, because the sample position is not valid."));
 		setFailed();
 		return;
 	}
@@ -106,14 +106,14 @@ void AMSamplePlateMoveAction::startImplementation(){
 
 	// Must have a sample positioner and the motors must be able to move
 	if(!sampleManipulator_){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_NO_SAMPLE_POSITIONER, QString("There was an error moving the sample positioner, because the sample positioner was not found."));
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_NO_SAMPLE_POSITIONER, QString("There was an error moving the sample positioner, because the sample positioner was not found."));
 		setFailed();
 		return;
 	}
 	// Check if we can move all positioner motors
 	for(int x = 0; x < sampleManipulator_->count(); x++){
 		if(!sampleManipulator_->at(x)->canMove()){
-			AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_POSITIONER_MOTOR_CANNOT_MOVE, QString("There was an error moving the sample positioner, because the motor named %1 could not move.").arg(sampleManipulator_->at(x)->description()));
+			AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_POSITIONER_MOTOR_CANNOT_MOVE, QString("There was an error moving the sample positioner, because the motor named %1 could not move.").arg(sampleManipulator_->at(x)->description()));
 			setFailed();
 			return;
 		}
@@ -121,7 +121,7 @@ void AMSamplePlateMoveAction::startImplementation(){
 	// Check that each movement requested is in range
 	for(int x = 0; x < sampleManipulator_->count(); x++){
 		if(sampleManipulator_->at(x)->valueOutOfRange(setpoint.at(x).value())){
-			AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_POSITIONER_MOVE_OUT_OF_RANGE, QString("There was an error moving the sample positioner, because moving to %1 is out of range for the motor named %2.").arg(setpoint.at(x).value()).arg(sampleManipulator_->at(x)->description()));
+			AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_POSITIONER_MOVE_OUT_OF_RANGE, QString("There was an error moving the sample positioner, because moving to %1 is out of range for the motor named %2.").arg(setpoint.at(x).value()).arg(sampleManipulator_->at(x)->description()));
 			setFailed();
 			return;
 		}
@@ -141,7 +141,7 @@ void AMSamplePlateMoveAction::startImplementation(){
 
 	// doublecheck to make sure we got them all
 	if(moveListAction_->numberOfChildren() != setpoint.count()){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTION_CONTROL_MOVE_CREATION_FAILED, "There was an error moving the sample positioner, one or more motors failed to create a move action.");
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_CONTROL_MOVE_CREATION_FAILED, "There was an error moving the sample positioner, one or more motors failed to create a move action.");
 		setFailed();
 		return;
 	}
@@ -159,7 +159,7 @@ void AMSamplePlateMoveAction::startImplementation(){
 	moveListAction_->start();
 }
 
-void AMSamplePlateMoveAction::cancelImplementation(){
+void AMSamplePlatePre2013MoveAction::cancelImplementation(){
 	if(!sampleManipulator_){
 		setCancelled();
 		return;

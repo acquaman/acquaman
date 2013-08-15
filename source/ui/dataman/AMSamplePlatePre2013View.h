@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPLATEVIEW_H
-#define AMSAMPLEPLATEVIEW_H
+#ifndef AMSAMPLEPLATEVIEWPRE2013_H
+#define AMSAMPLEPLATEVIEWPRE2013_H
 
 
 
@@ -28,11 +28,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyledItemDelegate>
 
 
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/database/AMDatabase.h"
 
 #include "ui_AMSamplePlateSelector.h"
-#include "ui/dataman/AMSampleEditor.h"
+#include "ui/dataman/AMSamplePre2013Editor.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "util/AMDateTimeUtils.h"
@@ -49,13 +49,13 @@ AMSamplePositionViewActionsWidget: editor widget provided by the delegate; place
 
 */
 
-class AMSamplePlateItemModel : public QAbstractListModel {
+class AMSamplePlatePre2013ItemModel : public QAbstractListModel {
 
 	Q_OBJECT
 
 public:
 	/// Constructor requires a valid \c plate to expose as a QAbstractListModel. The sample/position pairs (AMSamplePosition) will provide the data for the items in the list.
-	AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent = 0);
+	AMSamplePlatePre2013ItemModel(AMSamplePlatePre2013* plate, QObject* parent = 0);
 
 	/// Reimplemented from QAbstractListModel
 	int rowCount(const QModelIndex &parent) const {
@@ -160,10 +160,10 @@ protected slots:
 protected:
 
 	/// Access a cached sample object, ensuring it is loaded from the database and up-to-date
-	const AMSample& getCachedSample(int index) const;
+	const AMSamplePre2013& getCachedSample(int index) const;
 
-	AMSamplePlate* plate_;
-	mutable QList<AMSample> cachedSamples_;
+	AMSamplePlatePre2013* plate_;
+	mutable QList<AMSamplePre2013> cachedSamples_;
 
 	QString sampleTableName_;
 };
@@ -171,12 +171,12 @@ protected:
 
 
 /// This delegate draws samples and their position (from AMSamplePlateItemModel) in a list view.  You can use it by calling setItemDelegate(new AMSamplePlateItemDelegate) on your QListView.
-class AMSamplePlateItemDelegate : public QStyledItemDelegate {
+class AMSamplePlatePre2013ItemDelegate : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
-	AMSamplePlateItemDelegate(QObject* parent = 0);
-	virtual ~AMSamplePlateItemDelegate();
+	AMSamplePlatePre2013ItemDelegate(QObject* parent = 0);
+	virtual ~AMSamplePlatePre2013ItemDelegate();
 
 	// Reimplemented delegate functions
 	////////////////////////
@@ -215,13 +215,13 @@ protected:
 /// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
 /*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.
   */
-class AMSamplePlateSelector : public QWidget, private Ui::AMSamplePlateSelector {
+class AMSamplePlatePre2013Selector : public QWidget, private Ui::AMSamplePlateSelector {
 	Q_OBJECT
 public:
-	explicit AMSamplePlateSelector(AMSamplePlate* sourcePlate = 0, QWidget* parent = 0);
+	explicit AMSamplePlatePre2013Selector(AMSamplePlatePre2013* sourcePlate = 0, QWidget* parent = 0);
 
 	/// Returns the active sample plate object
-	AMSamplePlate* samplePlate() { return plate_; }
+	AMSamplePlatePre2013* samplePlate() { return plate_; }
 
 	/// Convenience function for samplePlate()->id()
 	int samplePlateId() const { return plate_->id(); }
@@ -269,7 +269,7 @@ protected slots:
 protected:
 	Ui::AMSamplePlateSelector ui_;
 
-	AMSamplePlate* plate_;
+	AMSamplePlatePre2013* plate_;
 
 	/// Deferred call to re-load all the available plates from the database
 	AMDeferredFunctionCall plateRefreshScheduler_;
@@ -285,15 +285,15 @@ protected:
 
 class AMSampleManipulator;
 
-class AMSamplePlateView : public QWidget
+class AMSamplePlatePre2013View : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
-	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
+	explicit AMSamplePlatePre2013View(AMSamplePlatePre2013* existingPlate = 0, QWidget *parent = 0);
 
 	/// Returns the current sample plate
-	AMSamplePlate* samplePlate() { return samplePlate_; }
+	AMSamplePlatePre2013* samplePlate() { return samplePlate_; }
 
 public slots:
 	void setManipulator(AMSampleManipulator *manipulator) { manipulator_ = manipulator; }
@@ -321,11 +321,11 @@ protected slots:
 
 protected:
 	/// Widget to select and swap current sample plate
-	AMSamplePlateSelector* samplePlateSelector_;
+	AMSamplePlatePre2013Selector* samplePlateSelector_;
 	/// List view (with custom delegate) to see the samples and positions on the plate
 	QListView *sampleListView_;
 	/// A widget to select a sample
-	AMSampleEditor* sampleSelector_;
+	AMSamplePre2013Editor* sampleSelector_;
 
 	QPushButton *moreInformationButton_;
 
@@ -335,21 +335,21 @@ protected:
 	QVBoxLayout *vl_;
 
 	/// Pointer to the sample plate object we display / change
-	AMSamplePlate* samplePlate_;
+	AMSamplePlatePre2013* samplePlate_;
 	/// Manipulator used to move samples into position / grab current positions
 	AMSampleManipulator *manipulator_;
 
 	/// A model that wraps an AMSamplePlate object for exposing as a list view
-	AMSamplePlateItemModel* samplePlateModel_;
+	AMSamplePlatePre2013ItemModel* samplePlateModel_;
 };
 
 #include "MPlot/MPlotRectangle.h"
 #include "MPlot/MPlotPoint.h"
-class AMSamplePlatePositionInfo : public QObject
+class AMSamplePlatePre2013PositionInfo : public QObject
 {
 Q_OBJECT
 public:
-	AMSamplePlatePositionInfo(AMSamplePlate *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent = 0);
+	AMSamplePlatePre2013PositionInfo(AMSamplePlatePre2013 *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent = 0);
 
 	MPlotRectangle* area() const;
 	MPlotPoint* position() const;
@@ -361,7 +361,7 @@ public:
 	QColor getPositionColor(bool isHighlighted = false) const;
 
 protected:
-	AMSamplePlate *samplePlate_;
+	AMSamplePlatePre2013 *samplePlate_;
 	int index_;
 	QString description_;
 
@@ -371,11 +371,11 @@ protected:
 	MPlotPoint *position_;
 };
 
-class AMSamplePlatePositionInfoView : public QFrame
+class AMSamplePlatePre2013PositionInfoView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSamplePlatePositionInfoView(AMSamplePlatePositionInfo *positionInfo, QWidget *parent = 0);
+	AMSamplePlatePre2013PositionInfoView(AMSamplePlatePre2013PositionInfo *positionInfo, QWidget *parent = 0);
 
 public slots:
 	void setHighlighted(bool isHighlighted);
@@ -395,20 +395,20 @@ protected:
 
 	bool isHighlighted_;
 
-	AMSamplePlatePositionInfo *positionInfo_;
+	AMSamplePlatePre2013PositionInfo *positionInfo_;
 };
 
-class AMSamplePlatePositionInfoListView : public QWidget
+class AMSamplePlatePre2013PositionInfoListView : public QWidget
 {
 Q_OBJECT
 public:
-	AMSamplePlatePositionInfoListView(QList<AMSamplePlatePositionInfoView*> infoViews, QWidget *parent = 0);
+	AMSamplePlatePre2013PositionInfoListView(QList<AMSamplePlatePre2013PositionInfoView*> infoViews, QWidget *parent = 0);
 
 protected slots:
 	void onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted);
 
 protected:
-	QList<AMSamplePlatePositionInfoView*> infoViews_;
+	QList<AMSamplePlatePre2013PositionInfoView*> infoViews_;
 };
 
 class AMScrollViewWidget : public QWidget
@@ -419,18 +419,18 @@ public:
 };
 
 #include "MPlot/MPlotWidget.h"
-class AMSamplePlateAdditionalInformationView : public QWidget
+class AMSamplePlatePre2013AdditionalInformationView : public QWidget
 {
 Q_OBJECT
 public:
-	AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel* samplePlateModel, QWidget *parent = 0);
+	AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel* samplePlateModel, QWidget *parent = 0);
 
 protected:
-	AMSamplePlate *samplePlate_;
-	AMSamplePlateItemModel* samplePlateModel_;
+	AMSamplePlatePre2013 *samplePlate_;
+	AMSamplePlatePre2013ItemModel* samplePlateModel_;
 
-	QList<AMSamplePlatePositionInfo*> positionInfos_;
-	QList<AMSamplePlatePositionInfoView*> positionInfoViews_;
+	QList<AMSamplePlatePre2013PositionInfo*> positionInfos_;
+	QList<AMSamplePlatePre2013PositionInfoView*> positionInfoViews_;
 
 	MPlotWidget *imageView_;
 	MPlot *imagePlot_;
@@ -440,11 +440,11 @@ protected:
 
 #include <QDialog>
 #include <QDoubleSpinBox>
-class AMSamplePositionManuallyEnterView : public QDialog
+class AMSamplePositionPre2013ManuallyEnterView : public QDialog
 {
 Q_OBJECT
 public:
-	AMSamplePositionManuallyEnterView(QWidget *parent = 0);
+	AMSamplePositionPre2013ManuallyEnterView(QWidget *parent = 0);
 
 signals:
 	void finished(double upDown, double inOut, double upStDownSt, double rot);
@@ -470,11 +470,11 @@ protected:
 	double upDown_, inOut_, upStDownSt_, rot_;
 };
 
-class AMSamplePositionAdditionalInformationView : public QDialog
+class AMSamplePositionPre2013AdditionalInformationView : public QDialog
 {
 Q_OBJECT
 public:
-	AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent = 0);
+	AMSamplePositionPre2013AdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePositionPre2013 *samplePosition, QWidget *parent = 0);
 
 signals:
 	void finished();
@@ -502,7 +502,7 @@ protected:
 
 protected:
 	AMSampleManipulator *manipulator_;
-	AMSamplePosition *samplePosition_;
+	AMSamplePositionPre2013 *samplePosition_;
 
 	AMControlInfoList originalTopLeft_;
 	AMControlInfoList originalBottomRight_;
@@ -519,8 +519,8 @@ protected:
 	QPushButton *cancelButton_;
 	QLabel *errorLabel_;
 
-	AMSamplePositionManuallyEnterView *enterTopLeftDialog_;
-	AMSamplePositionManuallyEnterView *enterBottomRightDialog_;
+	AMSamplePositionPre2013ManuallyEnterView *enterTopLeftDialog_;
+	AMSamplePositionPre2013ManuallyEnterView *enterBottomRightDialog_;
 };
 
-#endif // AMSAMPLEPLATEVIEW_H
+#endif // AMSAMPLEPLATEVIEWPRE2013_H

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPOSITIONVIEWACTIONSWIDGET_H
-#define AMSAMPLEPOSITIONVIEWACTIONSWIDGET_H
+#ifndef AMSAMPLEPOSITIONPRE2013VIEWACTIONSWIDGET_H
+#define AMSAMPLEPOSITIONPRE2013VIEWACTIONSWIDGET_H
 
 #include <QFrame>
 
@@ -28,14 +28,14 @@ namespace Ui {
 }
 
 /// This widget adds a "Mark", "Move To", and "Remove" button when editing sample position items; it's used by AMSamplePlateView.
-class AMSamplePositionViewActionsWidget : public QFrame
+class AMSamplePositionPre2013ViewActionsWidget : public QFrame
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  \c row is the row index that we are acting as the editor for.
-	explicit AMSamplePositionViewActionsWidget(int row, QWidget *parent = 0);
-	~AMSamplePositionViewActionsWidget();
+	explicit AMSamplePositionPre2013ViewActionsWidget(int row, QWidget *parent = 0);
+	~AMSamplePositionPre2013ViewActionsWidget();
 
 signals:
 	/// Emitted with the row number when the 'Mark' button is pressed
@@ -63,4 +63,4 @@ private:
 	Ui::AMSamplePositionViewActionsWidget *ui;
 };
 
-#endif // AMSAMPLEPOSITIONVIEWACTIONSWIDGET_H
+#endif // AMSAMPLEPOSITIONPRE2013VIEWACTIONSWIDGET_H

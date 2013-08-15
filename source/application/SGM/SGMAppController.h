@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class AMSampleManagementWidget;
+class AMSampleManagementPre2013Widget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
 class AMOldDetectorView;
@@ -132,7 +132,7 @@ protected:
 
 protected:
 	/// View to manage the sample positioner and the sample plates
-	AMSampleManagementWidget *samplePositionView_;
+	AMSampleManagementPre2013Widget *samplePositionView_;
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
 	/// View for controlling the synchronized dwell time application

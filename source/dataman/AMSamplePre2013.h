@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLE_H
-#define AMSAMPLE_H
+#ifndef AMSAMPLEPRE2013_H
+#define AMSAMPLEPRE2013_H
 
 #include "dataman/database/AMDbObject.h"
 #include <QImage>
@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QImage>
 
 /// This class represents instances of objects that map to Samples in the user database.
-class AMSample : public AMDbObject
+class AMSamplePre2013 : public AMDbObject
 {
 Q_OBJECT
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
@@ -44,11 +44,11 @@ Q_OBJECT
 
 public:
 	/// Default constructor.
-	Q_INVOKABLE explicit AMSample(QObject *parent = 0);
+	Q_INVOKABLE explicit AMSamplePre2013(QObject *parent = 0);
 	/// This constructor initializes a sample with a given name.
-	AMSample(const QString& sampleName, QObject* parent = 0);
+	AMSamplePre2013(const QString& sampleName, QObject* parent = 0);
 	/// This constructor immediately loads a stored sample from the database.
-	AMSample(int databaseId, AMDatabase* database, QObject* parent = 0);
+	AMSamplePre2013(int databaseId, AMDatabase* database, QObject* parent = 0);
 
 	// Sample management interface
 
@@ -154,4 +154,4 @@ protected:
 	AMIntList elements_;
 };
 
-#endif // AMSAMPLE_H
+#endif // AMSAMPLEPRE2013_H

@@ -63,55 +63,31 @@ bool AMDbUpgrade1Pt3::upgradeNecessary() const{
 
 bool AMDbUpgrade1Pt3::upgradeImplementation(){
 	bool success = true;
+
+	// Change sampleId to sample (AMConstDbObject*) in AMScan and AMSamplePosition
 	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMScan_table", "sampleId", "sample", "AMSample_table");
 	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMSamplePosition_table", "sampleId", "sample", "AMSample_table");
+
+	QMap<QString, QString> parentTablesToColumnsNames;
+	QMap<QString, int> indexTablesToIndexSide;
+
+	// Change AMSample to AMSamplePre2013 and update in AMScan and AMSamplePosition
+	parentTablesToColumnsNames.insert("AMScan_table", "sample");
+	parentTablesToColumnsNames.insert("AMSamplePosition_table", "sample");
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMSample", "AMSamplePre2013", parentTablesToColumnsNames, indexTablesToIndexSide);
+
+	// Change AMSamplePosition to AMSamplePositionPre2013 and update in auxiliary table
+	parentTablesToColumnsNames.clear();
+	indexTablesToIndexSide.clear();
+	indexTablesToIndexSide.insert("AMSamplePlate_table_positions", 2);
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMSamplePosition", "AMSamplePositionPre2013", parentTablesToColumnsNames, indexTablesToIndexSide);
+
+	// Change AMSamplePlate to AMSamplePlatePre2013 and update in auxiliary table
+	parentTablesToColumnsNames.clear();
+	indexTablesToIndexSide.clear();
+	indexTablesToIndexSide.insert("AMSamplePlate_table_positions", 1);
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMSamplePlate", "AMSamplePlatePre2013", parentTablesToColumnsNames, indexTablesToIndexSide);
 	return success;
-	/*
-	bool success = true;
-
-	// Change the column name from sampleId to sample
-	success &= AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "AMScan_table", "sampleId", "sample", "TEXT");
-	// If that worked, change all cases where the value was "-1" to "" (empty string)
-	if(success)
-		success &= databaseToUpgrade_->update("AMScan_table", "sample='-1'", "sample", "");
-	else
-		AMErrorMon::alert(this, AMDBUPGRADE1PT3_COULD_NOT_CHANGE_COLUMN_NAME, "Could not change the sampleID column to sample in AMScan_table.");
-	// If that worked, grab all of the other values and update them from "#" to "AMSample_table;#"
-	if(success){
-		// Grab id and sample column for all rows in AMScan_table where the sample isn't empty string
-		QSqlQuery query = databaseToUpgrade_->select("AMScan_table", "id,sample", "sample!=''");
-		databaseToUpgrade_->execQuery(query);
-		QMap<int, QString> results;
-		// Iterate and place in a map
-		if (query.first()){
-
-			do {
-				results.insert(query.value(0).toInt(), query.value(1).toString());
-			}while(query.next());
-		}
-		query.finish();
-
-		// Start a transaction, for each value in the map update the sample column for that id from "#" to "AMSample_table;#"
-		databaseToUpgrade_->startTransaction();
-		QMap<int, QString>::const_iterator i = results.constBegin();
-		while (i != results.constEnd() && success) {
-			success &= databaseToUpgrade_->update(i.key(), "AMScan_table", "sample", QString("AMSample_table;%1").arg(i.value()));
-			++i;
-		}
-		// Rollback if we failed, commit if we succeeded
-		if(!success){
-			databaseToUpgrade_->rollbackTransaction();
-			AMErrorMon::alert(this, AMDBUPGRADE1PT3_COULD_NOT_UPDATE_TO_TABLE_BASED_ID, "Could not change the sample column value to a table based value for one of the indexes in AMScan_table.");
-		}
-		else
-			databaseToUpgrade_->commitTransaction();
-
-	}
-	else
-		AMErrorMon::alert(this, AMDBUPGRADE1PT3_COULD_NOT_UPDATE_EMPTY_VALUES, "Could not update the empty values from -1 to an empty string in AMScan_table.");
-
-	return success;
-	*/
 }
 
 AMDbUpgrade* AMDbUpgrade1Pt3::createCopy() const{

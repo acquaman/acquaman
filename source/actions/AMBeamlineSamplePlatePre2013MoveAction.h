@@ -18,20 +18,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMBEAMLINESAMPLEPLATEMOVEACTION_H
-#define AMBEAMLINESAMPLEPLATEMOVEACTION_H
+#ifndef AMBEAMLINESAMPLEPLATEPRE2013MOVEACTION_H
+#define AMBEAMLINESAMPLEPLATEPRE2013MOVEACTION_H
 
 #include "AMBeamlineControlSetMoveAction.h"
 
 #define AMBEAMLINEACTIONITEM_SAMPLE_ID_NOT_ON_PLATE 27300
 
-class AMSamplePlateItemModel;
+class AMSamplePlatePre2013ItemModel;
 
-class AMBeamlineSamplePlateMoveAction : public AMBeamlineControlSetMoveAction
+class AMBeamlineSamplePlatePre2013MoveAction : public AMBeamlineControlSetMoveAction
 {
 Q_OBJECT
 public:
-	AMBeamlineSamplePlateMoveAction(int sampleID, AMSamplePlateItemModel *plateModel, QObject *parent = 0);
+	AMBeamlineSamplePlatePre2013MoveAction(int sampleID, AMSamplePlatePre2013ItemModel *plateModel, QObject *parent = 0);
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
@@ -44,21 +44,21 @@ protected slots:
 
 protected:
 	int sampleID_;
-	AMSamplePlateItemModel *samplePlateModel_;
+	AMSamplePlatePre2013ItemModel *samplePlateModel_;
 	QString sampleDescription_;
 };
 
-class AMBeamlineSamplePlateMoveActionView : public AMBeamlineControlSetMoveActionView
+class AMBeamlineSamplePlatePre2013MoveActionView : public AMBeamlineControlSetMoveActionView
 {
 Q_OBJECT
 public:
-	AMBeamlineSamplePlateMoveActionView(AMBeamlineSamplePlateMoveAction *samplePlateAction, int index = 0, QWidget *parent = 0);
+	AMBeamlineSamplePlatePre2013MoveActionView(AMBeamlineSamplePlatePre2013MoveAction *samplePlateAction, int index = 0, QWidget *parent = 0);
 
 protected slots:
 	void onInfoChanged();
 
 protected:
-	AMBeamlineSamplePlateMoveAction *samplePlateAction_;
+	AMBeamlineSamplePlatePre2013MoveAction *samplePlateAction_;
 };
 
-#endif // AMBEAMLINESAMPLEPLATEMOVEACTION_H
+#endif // AMBEAMLINESAMPLEPLATEPRE2013MOVEACTION_H

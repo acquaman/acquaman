@@ -17,17 +17,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPLATEMOVEACTIONINFO_H
-#define AMSAMPLEPLATEMOVEACTIONINFO_H
+#ifndef AMSAMPLEPLATEPRE2013MOVEACTIONINFO_H
+#define AMSAMPLEPLATEPRE2013MOVEACTIONINFO_H
 
 #include "actions3/AMActionInfo3.h"
 #include "dataman/info/AMControlInfoList.h"
 
-#define AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPLATE_ID 327001
-#define AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPOSITION_INDEX 327002
-#define AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPOSITION_ID 327003
+#define AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPLATE_ID 327001
+#define AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPOSITION_INDEX 327002
+#define AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPOSITION_ID 327003
 
-class AMSamplePlateMoveActionInfo : public AMActionInfo3
+class AMSamplePlatePre2013MoveActionInfo : public AMActionInfo3
 {
 Q_OBJECT
 Q_PROPERTY(int samplePlateId READ samplePlateId WRITE setSamplePlateId)
@@ -35,10 +35,10 @@ Q_PROPERTY(int samplePositionIndex READ samplePositionIndex WRITE setSamplePosit
 
 public:
 	/// Constructor. You should always specify the paramaters, but we provide the default for database reload
-	Q_INVOKABLE AMSamplePlateMoveActionInfo(int samplePlateId = -1, int samplePositionIndex = -1, QObject *parent = 0);
+	Q_INVOKABLE AMSamplePlatePre2013MoveActionInfo(int samplePlateId = -1, int samplePositionIndex = -1, QObject *parent = 0);
 
 	/// Copy constructor
-	AMSamplePlateMoveActionInfo(const AMSamplePlateMoveActionInfo &other);
+	AMSamplePlatePre2013MoveActionInfo(const AMSamplePlatePre2013MoveActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
 	virtual AMActionInfo3* createCopy() const;
@@ -82,4 +82,4 @@ protected:
 	AMControlInfoList *samplePosition_;
 };
 
-#endif // AMSAMPLEPLATEMOVEACTIONINFO_H
+#endif // AMSAMPLEPLATEPRE2013MOVEACTIONINFO_H

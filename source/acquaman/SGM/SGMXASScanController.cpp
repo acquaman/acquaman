@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DSummingAB.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMUser.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "util/AMErrorMonitor.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
@@ -49,7 +49,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	if(specificScan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
 	else
-		sampleName = AMSample(specificScan_->sampleId(), AMUser::user()->database()).name();
+		sampleName = AMSamplePre2013(specificScan_->sampleId(), AMUser::user()->database()).name();
 	if(config_->userScanName() == ""){
 		scanName = config_->autoScanName();
 		specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));

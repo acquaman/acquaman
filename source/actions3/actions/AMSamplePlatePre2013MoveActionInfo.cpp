@@ -17,12 +17,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePlateMoveActionInfo.h"
+#include "AMSamplePlatePre2013MoveActionInfo.h"
 
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "util/AMErrorMonitor.h"
 
-AMSamplePlateMoveActionInfo::AMSamplePlateMoveActionInfo(int samplePlateId, int samplePositionIndex, QObject *parent) :
+AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(int samplePlateId, int samplePositionIndex, QObject *parent) :
 	AMActionInfo3("Sample Move", "Sample Move", ":/system-run.png", parent)
 {
 	//samplePlateId_ = samplePlateId;
@@ -33,7 +33,7 @@ AMSamplePlateMoveActionInfo::AMSamplePlateMoveActionInfo(int samplePlateId, int 
 	updateDescriptionText();
 }
 
-AMSamplePlateMoveActionInfo::AMSamplePlateMoveActionInfo(const AMSamplePlateMoveActionInfo &other) :
+AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(const AMSamplePlatePre2013MoveActionInfo &other) :
 	AMActionInfo3(other)
 {
 	//samplePlateId_ = other.samplePlateId();
@@ -43,29 +43,29 @@ AMSamplePlateMoveActionInfo::AMSamplePlateMoveActionInfo(const AMSamplePlateMove
 	samplePosition_ = 0; //NULL
 }
 
-AMActionInfo3* AMSamplePlateMoveActionInfo::createCopy() const{
-	return new AMSamplePlateMoveActionInfo(*this);
+AMActionInfo3* AMSamplePlatePre2013MoveActionInfo::createCopy() const{
+	return new AMSamplePlatePre2013MoveActionInfo(*this);
 }
 
-QString AMSamplePlateMoveActionInfo::typeDescription() const{
+QString AMSamplePlatePre2013MoveActionInfo::typeDescription() const{
 	return "Sample Move";
 }
 
-int AMSamplePlateMoveActionInfo::samplePlateId() const{
+int AMSamplePlatePre2013MoveActionInfo::samplePlateId() const{
 	return samplePlateId_;
 }
 
-int AMSamplePlateMoveActionInfo::samplePositionIndex() const{
+int AMSamplePlatePre2013MoveActionInfo::samplePositionIndex() const{
 	return samplePositionIndex_;
 }
 
-const AMControlInfoList* AMSamplePlateMoveActionInfo::samplePosition(){
+const AMControlInfoList* AMSamplePlatePre2013MoveActionInfo::samplePosition(){
 	if( (samplePlateId_ == -1) || (samplePositionIndex_ == -1) )
 		return 0; //NULL
 
-	AMSamplePlate samplePlate;
+	AMSamplePlatePre2013 samplePlate;
 	if(!samplePlate.loadFromDb(AMDatabase::database("user"), samplePlateId_)){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPLATE_ID, QString("Failed to generate sample move information, there is no plate with id %1 in the database").arg(samplePlateId_));
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPLATE_ID, QString("Failed to generate sample move information, there is no plate with id %1 in the database").arg(samplePlateId_));
 		//return samplePosition_;
 		return 0; //NULL
 	}
@@ -85,52 +85,52 @@ const AMControlInfoList* AMSamplePlateMoveActionInfo::samplePosition(){
 	}
 	*/
 	if(samplePositionId < 0){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPOSITION_INDEX, QString("Failed to generate sample move information, there is no position at index %1 on plate %2").arg(samplePositionIndex_).arg(samplePlateId_));
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPOSITION_INDEX, QString("Failed to generate sample move information, there is no position at index %1 on plate %2").arg(samplePositionIndex_).arg(samplePlateId_));
 		//return samplePosition_;
 		return 0; //NULL
 	}
 
 	samplePosition_ = new AMControlInfoList();
 	if(!samplePosition_->loadFromDb(AMDatabase::database("user"), samplePositionId)){
-		AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTIONINFO_INVALID_SAMPLEPOSITION_ID, QString("Failed to generate sample move information, there is no position with id %1 on plate %2").arg(samplePositionIndex_).arg(samplePlateId_));
+		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPOSITION_ID, QString("Failed to generate sample move information, there is no position with id %1 on plate %2").arg(samplePositionIndex_).arg(samplePlateId_));
 		return 0; //NULL
 	}
 	return samplePosition_;
 }
 
-QString AMSamplePlateMoveActionInfo::samplePlateName() const{
+QString AMSamplePlatePre2013MoveActionInfo::samplePlateName() const{
 	if(samplePlateId() == -1)
 		return "No Plate Selected";
 
-	AMSamplePlate samplePlate;
+	AMSamplePlatePre2013 samplePlate;
 	if(!samplePlate.loadFromDb(AMDatabase::database("user"), samplePlateId_))
 		return "Plate Error";
 
 	return samplePlate.name();
 }
 
-QString AMSamplePlateMoveActionInfo::samplePositionName() const{
+QString AMSamplePlatePre2013MoveActionInfo::samplePositionName() const{
 	if(samplePlateId() == -1)
 		return "No Plate Selected";
 
 	if(samplePositionIndex() < 0)
 		return "No Sample Selected";
 
-	AMSamplePlate samplePlate;
+	AMSamplePlatePre2013 samplePlate;
 	if(!samplePlate.loadFromDb(AMDatabase::database("user"), samplePlateId_))
 		return "Plate Error";
 
 	if(samplePositionIndex() > samplePlate.count())
 		return "Sample Index Error";
 
-	AMSample actualSample;
+	AMSamplePre2013 actualSample;
 	if(!actualSample.loadFromDb(AMDatabase::database("user"), samplePlate.at(samplePositionIndex()).sampleId()))
 		return "Sample Error";
 
 	return actualSample.name();
 }
 
-void AMSamplePlateMoveActionInfo::setSamplePlateId(int samplePlateId){
+void AMSamplePlatePre2013MoveActionInfo::setSamplePlateId(int samplePlateId){
 	if(samplePlateId_ != samplePlateId){
 		samplePlateId_ = samplePlateId;
 		samplePosition_ = 0; //NULL
@@ -139,7 +139,7 @@ void AMSamplePlateMoveActionInfo::setSamplePlateId(int samplePlateId){
 	}
 }
 
-void AMSamplePlateMoveActionInfo::setSamplePositionIndex(int samplePositionId){
+void AMSamplePlatePre2013MoveActionInfo::setSamplePositionIndex(int samplePositionId){
 	if(samplePositionIndex_ != samplePositionId){
 		samplePositionIndex_ = samplePositionId;
 		samplePosition_ = 0; //NULL
@@ -148,7 +148,7 @@ void AMSamplePlateMoveActionInfo::setSamplePositionIndex(int samplePositionId){
 	}
 }
 
-void AMSamplePlateMoveActionInfo::updateDescriptionText(){
+void AMSamplePlatePre2013MoveActionInfo::updateDescriptionText(){
 	QString description;
 
 	if(samplePlateId_ == -1)

@@ -18,14 +18,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEEDITOR_H
-#define AMSAMPLEEDITOR_H
+#ifndef AMSAMPLEPRE2013EDITOR_H
+#define AMSAMPLEPRE2013EDITOR_H
 
 #include <QWidget>
 #include <QHash>
 #include <QModelIndex>
 
-class AMSample;
+class AMSamplePre2013;
 class AMDatabase;
 
 class QComboBox;
@@ -34,12 +34,12 @@ class QLabel;
 class QVBoxLayout;
 
 /// The AMSampleEditor class provides a widget that lets the user choose a sample from the list of samples, and edit characteristics of the sample.  The changes made to the sample are saved back to the database immediately.
-class AMSampleEditor : public QWidget
+class AMSamplePre2013Editor : public QWidget
 {
 Q_OBJECT
 public:
 	/// Default constructor
-	explicit AMSampleEditor(AMDatabase* db, QWidget *parent = 0);
+	explicit AMSamplePre2013Editor(AMDatabase* db, QWidget *parent = 0);
 
 	/// Returns the id of the currently-selected sample, or -1 if it's a non-existent/invalid sample
 	int currentSampleId() const;
@@ -75,11 +75,11 @@ protected slots:
 signals:
 	/// Emitted when the currently-selected sample changes. \c id is -1 if there is no valid sample selected
 	void currentSampleChanged(int id);
-	void currentSamplePointerChanged(const AMSample *sample);
+	void currentSamplePointerChanged(const AMSamplePre2013 *sample);
 
 protected:
 	/// The currently-selected sample
-	AMSample* sample_;
+	AMSamplePre2013* sample_;
 
 	// UI components:
 	QComboBox* sampleSelector_;
@@ -112,4 +112,4 @@ protected:
 
 };
 
-#endif // AMSAMPLEEDITOR_H
+#endif // AMSAMPLEPRE2013EDITOR_H

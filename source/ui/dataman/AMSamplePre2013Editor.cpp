@@ -18,13 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSampleEditor.h"
+#include "AMSamplePre2013Editor.h"
 
 #include <QComboBox>
 #include <QLineEdit>
 #include <QLabel>
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/database/AMDatabase.h"
 
 #include <QVBoxLayout>
@@ -37,11 +37,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //#include "ui/AMElementListEdit.h"
 #include <QListView>
 
-AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
+AMSamplePre2013Editor::AMSamplePre2013Editor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {
 	db_ = db;
-	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
+	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>();
 
 	vl_ = new QVBoxLayout();
 	vl_->setContentsMargins(0, 0, 0, 0);
@@ -91,7 +91,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 				   "font-weight: bold;"
 				   "font-family: \"Lucida Grande\"; }");
 
-	sample_ = new AMSample(this);
+	sample_ = new AMSamplePre2013(this);
 	newSampleActive_ = false;
 
 	// Make connections:
@@ -113,7 +113,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 
 
 /// Returns the id of the currently-selected sample, or -1 if it's a non-existent/invalid sample
-int AMSampleEditor::currentSampleId() const {
+int AMSamplePre2013Editor::currentSampleId() const {
 	if(sample_->id() > 0)
 		return sample_->id();
 	else
@@ -122,7 +122,7 @@ int AMSampleEditor::currentSampleId() const {
 
 
 /// Set the currently-selected sample, by ID
-void AMSampleEditor::setCurrentSampleFromId(int id) {
+void AMSamplePre2013Editor::setCurrentSampleFromId(int id) {
 
 	int oldSampleId = currentSampleId();
 
@@ -173,7 +173,7 @@ void AMSampleEditor::setCurrentSampleFromId(int id) {
 }
 
 /// Call this to refresh the list of samples in the ComboBox from the database
-void AMSampleEditor::refreshSamples() {
+void AMSamplePre2013Editor::refreshSamples() {
 
 
 	// Refresh-scheduled flag is now turned off, because we're completing the refresh
@@ -244,7 +244,7 @@ void AMSampleEditor::refreshSamples() {
 
 /// This is called when a row in the database is updated/created/removed:
 /*! In the future, it might be good to detect when our current sample has been deleted from the DB, and handle that situation intelligently.  Right now what happens is that the refreshSamples() will run like always; at the end, the loadFromDb() for the current sample will fail, it will become an invalid sample. */
-void AMSampleEditor::onDatabaseUpdated(const QString& tableName, int id) {
+void AMSamplePre2013Editor::onDatabaseUpdated(const QString& tableName, int id) {
 	Q_UNUSED(id);
 
 	if(tableName != sampleTableName_)
@@ -271,7 +271,7 @@ void AMSampleEditor::onDatabaseUpdated(const QString& tableName, int id) {
 
 
 /// Called when the current index of the combo box changes, indicating new sample selected
-void AMSampleEditor::onCBCurrentIndexChanged(int index) {
+void AMSamplePre2013Editor::onCBCurrentIndexChanged(int index) {
 
 	// Top index is the 'add new sample' entry
 	if(index == 0)
@@ -282,18 +282,18 @@ void AMSampleEditor::onCBCurrentIndexChanged(int index) {
 
 }
 
-void AMSampleEditor::createNewSample() {
+void AMSamplePre2013Editor::createNewSample() {
 	static int sampleNum = 1;
 
 	delete sample_;
-	sample_ = new AMSample(QString("New Sample %1").arg(sampleNum++), this);
+	sample_ = new AMSamplePre2013(QString("New Sample %1").arg(sampleNum++), this);
 	sample_->setDateTime(QDateTime::currentDateTime());
 	sample_->storeToDb(db_);
 	newSampleActive_ = true;
 	// this will trigger a database update... causing re-loading of the combo-box list, followed by re-setting the current sample id as the current sample. Luckily, the deferred processing of the onDatabaseUpdate() --> refreshSamples() link will let sample_->id() become set by storeToDb() before refreshSamples() is called. That's fantastic, because it means this sample will become the current sample automatically.
 }
 
-void AMSampleEditor::saveCurrentSample() {
+void AMSamplePre2013Editor::saveCurrentSample() {
 
 	/// clear focus on the editors. \todo Move this to subclass of qlineedit?
 	sampleName_->blockSignals(true);
@@ -311,7 +311,7 @@ void AMSampleEditor::saveCurrentSample() {
 }
 
 #include "util/AMPeriodicTable.h"
-QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
+QList<int> AMSamplePre2013Editor::parseElementString(const QString &elementString) {
 	QList<int> rv;
 
 
@@ -332,7 +332,7 @@ QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
 }
 
 #include <QMessageBox>
-void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
+void AMSamplePre2013Editor::onSampleDeleteButtonClicked(const QModelIndex &index) {
 
 	if(!index.isValid() || index.row() < 1)
 		return;
@@ -348,5 +348,5 @@ void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
 	confirmBox.setIcon(QMessageBox::Question);
 	confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	if(confirmBox.exec() == QMessageBox::Ok)
-		AMSample::destroySample(db_, sampleId);
+		AMSamplePre2013::destroySample(db_, sampleId);
 }

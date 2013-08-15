@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSampleManagementWidget.h"
+#include "AMSampleManagementPre2013Widget.h"
 
 #include <QGridLayout>
 #include <QUrl>
@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 
-AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
+AMSampleManagementPre2013Widget::AMSampleManagementPre2013Widget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlatePre2013* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
 	QWidget(parent)
 {
 #ifdef AM_MOBILITY_VIDEO_ENABLED
@@ -41,7 +41,7 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 
 	topFrame_ = new AMTopFrame2("Sample Management & Positioning", QIcon(":/system-software-update.png"));
 
-	plateView_ = new AMSamplePlateView(samplePlate);
+	plateView_ = new AMSamplePlatePre2013View(samplePlate);
 	plateView_->setManipulator(manipulator);
 
 	manipulatorWidget_ = manipulatorWidget;
@@ -67,7 +67,7 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 	setLayout(vl);
 }
 
-void AMSampleManagementWidget::onNewSamplePlateSelected() {
+void AMSampleManagementPre2013Widget::onNewSamplePlateSelected() {
 	// qdebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }

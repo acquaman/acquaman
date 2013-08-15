@@ -17,19 +17,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLESELECTOR_H
-#define AMSAMPLESELECTOR_H
+#ifndef AMSAMPLEPRE2013SELECTOR_H
+#define AMSAMPLEPRE2013SELECTOR_H
 
 #include <QComboBox>
 
 class AMDatabase;
 
 /// A combo box to choose an existing sample from the database, or create a new one.
-class AMSampleSelector : public QComboBox
+class AMSamplePre2013Selector : public QComboBox
 {
     Q_OBJECT
 public:
-	explicit AMSampleSelector(AMDatabase* db, QWidget *parent = 0);
+	explicit AMSamplePre2013Selector(AMDatabase* db, QWidget *parent = 0);
 
 	/// Returns the id of the currently-selected sample, or -1 if no samples / none selected.
 	int currentSample() const;
@@ -68,4 +68,4 @@ protected:
 	int lastIndex_;
 };
 
-#endif // AMSAMPLESELECTOR_H
+#endif // AMSAMPLEPRE2013SELECTOR_H

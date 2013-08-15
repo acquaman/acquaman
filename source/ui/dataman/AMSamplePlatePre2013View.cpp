@@ -18,21 +18,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePlateView.h"
+#include "AMSamplePlatePre2013View.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "ui/dataman/AMSamplePositionViewActionsWidget.h"
+#include "ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 
 #include "beamline/AMSampleManipulator.h"
 #include "util/AMErrorMonitor.h"
 
-AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
+AMSamplePlatePre2013ItemModel::AMSamplePlatePre2013ItemModel(AMSamplePlatePre2013* plate, QObject* parent) :
 	QAbstractListModel(parent)
 {
 	plate_ = plate;
 
-	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
+	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>();
 
 	connect(plate_, SIGNAL(samplePositionAboutToBeAdded(int)), this, SLOT(onSamplePositionAboutToBeAdded(int)));
 	connect(plate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
@@ -45,12 +45,12 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 
 	cachedSamples_.reserve(plate_->count());
 	for(int i=plate_->count()-1; i>=0; i--)
-		cachedSamples_ << AMSample();
+		cachedSamples_ << AMSamplePre2013();
 }
 
 
 // Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
-QString AMSamplePlateItemModel::positionsString(int index) const {
+QString AMSamplePlatePre2013ItemModel::positionsString(int index) const {
 
 	const AMControlInfoList& positions = plate_->at(index).position();
 
@@ -75,33 +75,33 @@ QString AMSamplePlateItemModel::positionsString(int index) const {
 }
 
 // Received from AMSamplePlate. Used to implement beginInsertRows.
-void AMSamplePlateItemModel::onSamplePositionAboutToBeAdded(int index) {
+void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeAdded(int index) {
 	beginInsertRows(QModelIndex(), index, index);
-	cachedSamples_.insert(index, AMSample());
+	cachedSamples_.insert(index, AMSamplePre2013());
 }
 
 // Received from AMSamplePlate. Used to implement endInsertRows.
-void AMSamplePlateItemModel::onSamplePositionAdded(int index) {
+void AMSamplePlatePre2013ItemModel::onSamplePositionAdded(int index) {
 	Q_UNUSED(index)
 
 	endInsertRows();
 }
 
 // Received from AMSamplePlate. Used to implement beginRemoveRows.
-void AMSamplePlateItemModel::onSamplePositionAboutToBeRemoved(int index) {
+void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeRemoved(int index) {
 
 	beginRemoveRows(QModelIndex(), index, index);
 }
 
 // Received from AMSamplePlate. Used to implement endRemoveRows.
-void AMSamplePlateItemModel::onSamplePositionRemoved(int index) {
+void AMSamplePlatePre2013ItemModel::onSamplePositionRemoved(int index) {
 
 	cachedSamples_.removeAt(index);
 	endRemoveRows();
 }
 
 // Access a cached sample object, ensuring it is loaded from the database and up-to-date
-const AMSample& AMSamplePlateItemModel::getCachedSample(int index) const {
+const AMSamplePre2013& AMSamplePlatePre2013ItemModel::getCachedSample(int index) const {
 	int correctId = plate_->at(index).sampleId();
 
 	// we can tell if this one's been loaded by looking at its id. If it's 0 (or a wrong id), it's not the sample info we want.
@@ -116,7 +116,7 @@ const AMSample& AMSamplePlateItemModel::getCachedSample(int index) const {
 
 
 // Watches the database for update signals... To see if sample information changes for one of our existing sampleIds...
-void AMSamplePlateItemModel::onDatabaseItemUpdated(const QString &tableName, int id) {
+void AMSamplePlatePre2013ItemModel::onDatabaseItemUpdated(const QString &tableName, int id) {
 	if(tableName != sampleTableName_)
 		return;
 
@@ -132,7 +132,7 @@ void AMSamplePlateItemModel::onDatabaseItemUpdated(const QString &tableName, int
 	}
 }
 
-void AMSamplePlateItemModel::onDatabaseItemRemoved(const QString &tableName, int id) {
+void AMSamplePlatePre2013ItemModel::onDatabaseItemRemoved(const QString &tableName, int id) {
 	if(tableName != sampleTableName_)
 		return;
 
@@ -140,7 +140,7 @@ void AMSamplePlateItemModel::onDatabaseItemRemoved(const QString &tableName, int
 	for(int i=0; i<cachedSamples_.count(); i++) {
 		if(cachedSamples_.at(i).id() == id) {
 			// it was this sample! Oh dear, It's gone.. what to do?
-			cachedSamples_[i] = AMSample();
+			cachedSamples_[i] = AMSamplePre2013();
 			cachedSamples_[i].setName("[Deleted Sample]");
 			emit dataChanged(index(i), index(i));
 		}
@@ -149,15 +149,15 @@ void AMSamplePlateItemModel::onDatabaseItemRemoved(const QString &tableName, int
 
 
 
-AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject* parent) : QStyledItemDelegate(parent) {
+AMSamplePlatePre2013ItemDelegate::AMSamplePlatePre2013ItemDelegate(QObject* parent) : QStyledItemDelegate(parent) {
 
 }
 
-AMSamplePlateItemDelegate::~AMSamplePlateItemDelegate() {
+AMSamplePlatePre2013ItemDelegate::~AMSamplePlatePre2013ItemDelegate() {
 
 }
 
-void AMSamplePlateItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void AMSamplePlatePre2013ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	QString sampleName(index.data(Qt::DisplayRole).toString());
 	QString elementString(index.data(AM::UserRole).toString());
@@ -236,18 +236,18 @@ void AMSamplePlateItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 	painter->drawLine(QPoint(textRect.left(), dividerLineY), QPoint(textRect.right(), dividerLineY));
 }
 
-QSize AMSamplePlateItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+QSize AMSamplePlatePre2013ItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	QSize original = QStyledItemDelegate::sizeHint(option, index);
 	return original.expandedTo(QSize(10, 66));
 }
 
 // create an editor widget with buttons to mark, move to, and remove this sample.
-QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+QWidget* AMSamplePlatePre2013ItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	Q_UNUSED(option)
 
-	AMSamplePositionViewActionsWidget* editor = new AMSamplePositionViewActionsWidget(index.row(), parent);
+	AMSamplePositionPre2013ViewActionsWidget* editor = new AMSamplePositionPre2013ViewActionsWidget(index.row(), parent);
 
 	connect(editor, SIGNAL(rowMarkPressed(int)), this, SIGNAL(rowMarkPressed(int)));
 	connect(editor, SIGNAL(rowMoveToPressed(int)), this, SIGNAL(rowMoveToPressed(int)));
@@ -259,14 +259,14 @@ QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOp
 }
 
 // no editor information is required... We get the row number from the constructor, and that's all we care about.
-void AMSamplePlateItemDelegate::setEditorData(QWidget *iEditor, const QModelIndex &index) const {
+void AMSamplePlatePre2013ItemDelegate::setEditorData(QWidget *iEditor, const QModelIndex &index) const {
 
 	Q_UNUSED(iEditor)
 	Q_UNUSED(index)
 }
 
 // Place the editor below the item...
-void AMSamplePlateItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void AMSamplePlatePre2013ItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 	Q_UNUSED(index)
 	QRect itemRect = option.rect;
 	QRect editorRect(itemRect.left(), itemRect.top()+itemRect.height()-26, itemRect.width(), 26);
@@ -275,7 +275,7 @@ void AMSamplePlateItemDelegate::updateEditorGeometry(QWidget *editor, const QSty
 }
 
 // Don't do anything to set back the model data...
-void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
+void AMSamplePlatePre2013ItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
 
 	Q_UNUSED(editor)
 	Q_UNUSED(model)
@@ -283,12 +283,12 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 }
 
 
-AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
+AMSamplePlatePre2013Selector::AMSamplePlatePre2013Selector(AMSamplePlatePre2013* sourcePlate, QWidget *parent)
 	: QWidget(parent) {
 
-	samplePlateTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>();
+	samplePlateTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>();
 	// Either use an external plate (if specified in sourcePlate), or make an internal one.
-	plate_ = sourcePlate ? sourcePlate : new AMSamplePlate(this);
+	plate_ = sourcePlate ? sourcePlate : new AMSamplePlatePre2013(this);
 
 	ui_.setupUi(this);
 	ui_.notesEditor->setObjectName("notesEditor");
@@ -328,7 +328,7 @@ AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget
 	connect(plate_, SIGNAL(loadedFromDb()), this, SLOT(onSamplePlateChanged()), Qt::QueuedConnection);
 }
 
-void AMSamplePlateSelector::onSamplePlateChanged(/*bool isValid*/) {
+void AMSamplePlatePre2013Selector::onSamplePlateChanged(/*bool isValid*/) {
 	if(/*isValid &&*/ plate_->id() > 0) {
 		ui_.nameEdit->setText(plate_->name());
 		ui_.createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
@@ -350,7 +350,7 @@ void AMSamplePlateSelector::onSamplePlateChanged(/*bool isValid*/) {
 
 
 
-void AMSamplePlateSelector::populateSamplePlates() {
+void AMSamplePlatePre2013Selector::populateSamplePlates() {
 
 	plateRefreshScheduler_.unschedule();
 
@@ -383,7 +383,7 @@ void AMSamplePlateSelector::populateSamplePlates() {
 }
 
 
-void AMSamplePlateSelector::onComboBoxActivated(int index){
+void AMSamplePlatePre2013Selector::onComboBoxActivated(int index){
 
 	// index is the activated index within the existingPlates_ combo box. It could mean...
 
@@ -402,7 +402,7 @@ void AMSamplePlateSelector::onComboBoxActivated(int index){
 }
 
 
-void AMSamplePlateSelector::startCreatingNewPlate() {
+void AMSamplePlatePre2013Selector::startCreatingNewPlate() {
 	// We're going to steal the name edit as the place for the user to enter the name of this new plate
 	disconnect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
 	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
@@ -413,7 +413,7 @@ void AMSamplePlateSelector::startCreatingNewPlate() {
 
 }
 
-void AMSamplePlateSelector::onFinishCreatingNewPlate() {
+void AMSamplePlatePre2013Selector::onFinishCreatingNewPlate() {
 
 	// restore usual connections for the name edit box...
 	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
@@ -426,7 +426,7 @@ void AMSamplePlateSelector::onFinishCreatingNewPlate() {
 	if(newName.isEmpty())
 		return;
 
-	AMSamplePlate newPlate;
+	AMSamplePlatePre2013 newPlate;
 	newPlate.setName(ui_.nameEdit->text());
 	if(newPlate.storeToDb(AMDatabase::database("user")))
 		changeSamplePlate(newPlate.id());
@@ -435,7 +435,7 @@ void AMSamplePlateSelector::onFinishCreatingNewPlate() {
 
 }
 
-void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) {
+void AMSamplePlatePre2013Selector::onDatabaseUpdated(const QString &tableName, int id) {
 
 	if(tableName != samplePlateTableName_ )
 		return;
@@ -461,7 +461,7 @@ void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) 
 		ui_.notesEditor->setText("todo");
 	}
 	else {
-		AMSamplePlate p;
+		AMSamplePlatePre2013 p;
 		/// \todo optimize to not require a full loadFromDb.  All we care about is the name and the dateTime... don't need to load all the samples and positions.
 		p.loadFromDb(AMDatabase::database("user"), id);
 		ui_.plateComboBox->setItemData(index, p.name(), Qt::DisplayRole);
@@ -470,7 +470,7 @@ void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) 
 	}
 }
 
-void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) {
+void AMSamplePlatePre2013Selector::onDatabaseRemoved(const QString &tableName, int id) {
 	if(tableName == samplePlateTableName_ ) {
 		if(id == plate_->id()) {
 			// deleted the current sample plate... This could be a problem.
@@ -481,7 +481,7 @@ void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) 
 	}
 }
 
-void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) {
+void AMSamplePlatePre2013Selector::onDatabaseCreated(const QString &tableName, int id) {
 	Q_UNUSED(id)
 	if(tableName != samplePlateTableName_)
 		return;
@@ -490,30 +490,30 @@ void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) 
 }
 
 #include <QGroupBox>
-AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *parent) : QWidget(parent) {
+AMSamplePlatePre2013View::AMSamplePlatePre2013View(AMSamplePlatePre2013 *existingPlate, QWidget *parent) : QWidget(parent) {
 
 	manipulator_ = 0;
 
 	if(existingPlate)
 		samplePlate_ = existingPlate;
 	else
-		samplePlate_ = new AMSamplePlate(this);
+		samplePlate_ = new AMSamplePlatePre2013(this);
 
 	QGroupBox* samplePlateGroupBox = new QGroupBox("Current sample plate");
 	QGroupBox* samplesGroupBox = new QGroupBox("Samples");
 	QVBoxLayout* vl1 = new QVBoxLayout();
 	QVBoxLayout* vl2 = new QVBoxLayout();
 
-	samplePlateSelector_ = new AMSamplePlateSelector(samplePlate_);
+	samplePlateSelector_ = new AMSamplePlatePre2013Selector(samplePlate_);
 	moreInformationButton_ = new QPushButton("More Information");
 	moreInformationButton_->setEnabled(false);
-	sampleSelector_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleSelector_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	addSampleButton_ = new QPushButton("Add Sample to Plate");
 
 	sampleListView_ = new QListView();
-	AMSamplePlateItemDelegate* listViewDelegate = new AMSamplePlateItemDelegate;
+	AMSamplePlatePre2013ItemDelegate* listViewDelegate = new AMSamplePlatePre2013ItemDelegate;
 	sampleListView_->setItemDelegate(listViewDelegate);
-	samplePlateModel_ = new AMSamplePlateItemModel(samplePlate_, this);
+	samplePlateModel_ = new AMSamplePlatePre2013ItemModel(samplePlate_, this);
 	sampleListView_->setIconSize(QSize(45, 60));
 	sampleListView_->setAlternatingRowColors(true);
 	sampleListView_->setModel(samplePlateModel_);
@@ -550,18 +550,18 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 
 }
 
-void AMSamplePlateView::onAddSampleButtonClicked() {
+void AMSamplePlatePre2013View::onAddSampleButtonClicked() {
 
 
 	if(manipulator_)
 		samplePlate_->append(
-					AMSamplePosition(
+					AMSamplePositionPre2013(
 						sampleSelector_->currentSampleId(),
 						manipulator_->position(),
 						manipulator_->facilityId()));
 	else
 		samplePlate_->append(
-					AMSamplePosition(
+					AMSamplePositionPre2013(
 						sampleSelector_->currentSampleId(),
 						AMControlInfoList(),
 						0));
@@ -574,7 +574,7 @@ void AMSamplePlateView::onAddSampleButtonClicked() {
 #include "util/AMErrorMonitor.h"
 
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowMarkPressed(int row) {
+void AMSamplePlatePre2013View::onRowMarkPressed(int row) {
 	if(manipulator_)
 		(*samplePlate_)[row].setPosition( manipulator_->position() );
 	else {
@@ -588,7 +588,7 @@ void AMSamplePlateView::onRowMarkPressed(int row) {
 
 
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowMoveToPressed(int row) {
+void AMSamplePlatePre2013View::onRowMoveToPressed(int row) {
 
 	if(manipulator_){
 
@@ -601,7 +601,7 @@ void AMSamplePlateView::onRowMoveToPressed(int row) {
 }
 
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowRemovePressed(int row) {
+void AMSamplePlatePre2013View::onRowRemovePressed(int row) {
 	samplePlate_->remove(row);
 
 	// save the sample plate, because it's been modified.
@@ -609,25 +609,25 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 }
 
 #include <QDebug>
-void AMSamplePlateView::onAdditionalInformationRequested(int row){
+void AMSamplePlatePre2013View::onAdditionalInformationRequested(int row){
 	if(manipulator_){
-		AMSamplePosition *positionInQuestion = &(samplePlate_->operator [](row));
-		AMSamplePositionAdditionalInformationView *additionalInformationView = new AMSamplePositionAdditionalInformationView(manipulator_, positionInQuestion );
+		AMSamplePositionPre2013 *positionInQuestion = &(samplePlate_->operator [](row));
+		AMSamplePositionPre2013AdditionalInformationView *additionalInformationView = new AMSamplePositionPre2013AdditionalInformationView(manipulator_, positionInQuestion );
 		additionalInformationView->show();
 	}
 }
 
-void AMSamplePlateView::onAdditionalPlateInformationRequested(){
-	AMSamplePlateAdditionalInformationView *additionalPlateInformation = new AMSamplePlateAdditionalInformationView(samplePlate_, samplePlateModel_);
+void AMSamplePlatePre2013View::onAdditionalPlateInformationRequested(){
+	AMSamplePlatePre2013AdditionalInformationView *additionalPlateInformation = new AMSamplePlatePre2013AdditionalInformationView(samplePlate_, samplePlateModel_);
 	additionalPlateInformation->show();
 }
 
-void AMSamplePlateView::onSamplePlateChanged(){
+void AMSamplePlatePre2013View::onSamplePlateChanged(){
 	moreInformationButton_->setEnabled(true);
 	emit newSamplePlateSelected();
 }
 
-void AMSamplePlateItemModel::onSamplePositionChanged(int r)
+void AMSamplePlatePre2013ItemModel::onSamplePositionChanged(int r)
 {
 	if(r < plate_->count()) {
 		QModelIndex i = index(r,0);
@@ -635,7 +635,7 @@ void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 	}
 }
 
-AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent) :
+AMSamplePlatePre2013PositionInfo::AMSamplePlatePre2013PositionInfo(AMSamplePlatePre2013 *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent) :
 	QObject(parent)
 {
 	samplePlate_ = samplePlate;
@@ -699,19 +699,19 @@ AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate,
 	*/
 }
 
-MPlotRectangle* AMSamplePlatePositionInfo::area() const{
+MPlotRectangle* AMSamplePlatePre2013PositionInfo::area() const{
 	return area_;
 }
 
-MPlotPoint* AMSamplePlatePositionInfo::position() const{
+MPlotPoint* AMSamplePlatePre2013PositionInfo::position() const{
 	return position_;
 }
 
-QString AMSamplePlatePositionInfo::description() const{
+QString AMSamplePlatePre2013PositionInfo::description() const{
 	return description_;
 }
 
-QString AMSamplePlatePositionInfo::errors() const{
+QString AMSamplePlatePre2013PositionInfo::errors() const{
 	QString retVal;
 	if(!samplePlate_->at(index_).positionWithinBounds())
 		retVal.append("Position is not within its boundaries.");
@@ -721,7 +721,7 @@ QString AMSamplePlatePositionInfo::errors() const{
 	return retVal;
 }
 
-QColor AMSamplePlatePositionInfo::getAreaColor(bool isHighlighted) const{
+QColor AMSamplePlatePre2013PositionInfo::getAreaColor(bool isHighlighted) const{
 	QColor retVal;
 	if(!samplePlate_->at(index_).positionWithinBounds() && isHighlighted)
 		retVal = Qt::darkMagenta;
@@ -740,7 +740,7 @@ QColor AMSamplePlatePositionInfo::getAreaColor(bool isHighlighted) const{
 	return retVal;
 }
 
-QColor AMSamplePlatePositionInfo::getPositionColor(bool isHighlighted) const{
+QColor AMSamplePlatePre2013PositionInfo::getPositionColor(bool isHighlighted) const{
 	QColor retVal;
 	if(!samplePlate_->at(index_).positionWithinBounds() && isHighlighted)
 		retVal = Qt::black;
@@ -758,7 +758,7 @@ QColor AMSamplePlatePositionInfo::getPositionColor(bool isHighlighted) const{
 	return retVal;
 }
 
-AMSamplePlatePositionInfoView::AMSamplePlatePositionInfoView(AMSamplePlatePositionInfo *positionInfo, QWidget *parent) :
+AMSamplePlatePre2013PositionInfoView::AMSamplePlatePre2013PositionInfoView(AMSamplePlatePre2013PositionInfo *positionInfo, QWidget *parent) :
 	QFrame(parent)
 {
 	setFrameStyle(QFrame::StyledPanel);
@@ -797,12 +797,12 @@ AMSamplePlatePositionInfoView::AMSamplePlatePositionInfoView(AMSamplePlatePositi
 	setLayout(vl);
 }
 
-void AMSamplePlatePositionInfoView::mouseReleaseEvent(QMouseEvent *e){
+void AMSamplePlatePre2013PositionInfoView::mouseReleaseEvent(QMouseEvent *e){
 	setHighlighted(!isHighlighted_);
 	e->accept();
 }
 
-void AMSamplePlatePositionInfoView::setHighlighted(bool isHighlighted){
+void AMSamplePlatePre2013PositionInfoView::setHighlighted(bool isHighlighted){
 	if(isHighlighted == isHighlighted_)
 		return;
 
@@ -823,7 +823,7 @@ void AMSamplePlatePositionInfoView::setHighlighted(bool isHighlighted){
 	emit becameHighlighted(isHighlighted_);
 }
 
-AMSamplePlatePositionInfoListView::AMSamplePlatePositionInfoListView(QList<AMSamplePlatePositionInfoView *> infoViews, QWidget *parent) :
+AMSamplePlatePre2013PositionInfoListView::AMSamplePlatePre2013PositionInfoListView(QList<AMSamplePlatePre2013PositionInfoView *> infoViews, QWidget *parent) :
 	QWidget(parent)
 {
 	infoViews_ = infoViews;
@@ -848,8 +848,8 @@ AMSamplePlatePositionInfoListView::AMSamplePlatePositionInfoListView(QList<AMSam
 	setLayout(vl);
 }
 
-void AMSamplePlatePositionInfoListView::onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted){
-	AMSamplePlatePositionInfoView *infoView = qobject_cast<AMSamplePlatePositionInfoView*>(QObject::sender());
+void AMSamplePlatePre2013PositionInfoListView::onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted){
+	AMSamplePlatePre2013PositionInfoView *infoView = qobject_cast<AMSamplePlatePre2013PositionInfoView*>(QObject::sender());
 	if(infoView && isHighlighted)
 		for(int x = 0; x < infoViews_.count(); x++)
 			if(infoViews_.at(x) != infoView)
@@ -862,7 +862,7 @@ AMScrollViewWidget::AMScrollViewWidget(QLayout *layout, QWidget *parent) :
 	setLayout(layout);
 }
 
-AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel *samplePlateModel, QWidget *parent) :
+AMSamplePlatePre2013AdditionalInformationView::AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel *samplePlateModel, QWidget *parent) :
 	QWidget(parent)
 {
 	setWindowModality(Qt::ApplicationModal);
@@ -900,15 +900,15 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 
 	//QVBoxLayout *positionInfosVL = new QVBoxLayout();
 
-	AMSamplePlatePositionInfo *positionInfo;
+	AMSamplePlatePre2013PositionInfo *positionInfo;
 	for(int x = 0; x < samplePlate_->count(); x++){
-		positionInfo = new AMSamplePlatePositionInfo(samplePlate_, x, samplePlateModel_->sampleName(x), horizontalScale, verticalScale);
+		positionInfo = new AMSamplePlatePre2013PositionInfo(samplePlate_, x, samplePlateModel_->sampleName(x), horizontalScale, verticalScale);
 		imagePlot_->addItem(positionInfo->position());
 		if(positionInfo->area())
 			imagePlot_->addItem(positionInfo->area());
 
 		positionInfos_.append(positionInfo);
-		positionInfoViews_.append(new AMSamplePlatePositionInfoView(positionInfo));
+		positionInfoViews_.append(new AMSamplePlatePre2013PositionInfoView(positionInfo));
 		//positionInfosVL->addWidget(positionInfoViews_.last());
 	}
 
@@ -921,7 +921,7 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 	positionInfosScrollArea->setWidget(positionInfosScroll);
 	positionInfosScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	*/
-	AMSamplePlatePositionInfoListView *infoViewsList = new AMSamplePlatePositionInfoListView(positionInfoViews_);
+	AMSamplePlatePre2013PositionInfoListView *infoViewsList = new AMSamplePlatePre2013PositionInfoListView(positionInfoViews_);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(imageView_);
@@ -933,7 +933,7 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 
 #include <QFormLayout>
 
-AMSamplePositionManuallyEnterView::AMSamplePositionManuallyEnterView(QWidget *parent) :
+AMSamplePositionPre2013ManuallyEnterView::AMSamplePositionPre2013ManuallyEnterView(QWidget *parent) :
 	QDialog(parent)
 {
 	QFormLayout *fl = new QFormLayout();
@@ -979,11 +979,11 @@ AMSamplePositionManuallyEnterView::AMSamplePositionManuallyEnterView(QWidget *pa
 	rot_ = -999999;
 }
 
-void AMSamplePositionManuallyEnterView::onCancelButtonClicked(){
+void AMSamplePositionPre2013ManuallyEnterView::onCancelButtonClicked(){
 	hideAndFinish();
 }
 
-void AMSamplePositionManuallyEnterView::onApplyButtonClicked(){
+void AMSamplePositionPre2013ManuallyEnterView::onApplyButtonClicked(){
 	upDown_ = upDownDSBox_->value();
 	inOut_ = inOutDSBox_->value();
 	upStDownSt_ = upStDownStDSBox_->value();
@@ -991,17 +991,17 @@ void AMSamplePositionManuallyEnterView::onApplyButtonClicked(){
 	hideAndFinish();
 }
 
-void AMSamplePositionManuallyEnterView::hideAndFinish(){
+void AMSamplePositionPre2013ManuallyEnterView::hideAndFinish(){
 	hide();
 	emit finished(upDown_, inOut_, upStDownSt_, rot_);
 }
 
-void AMSamplePositionManuallyEnterView::closeEvent(QCloseEvent *e){
+void AMSamplePositionPre2013ManuallyEnterView::closeEvent(QCloseEvent *e){
 	e->accept();
 	hideAndFinish();
 }
 
-AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent) :
+AMSamplePositionPre2013AdditionalInformationView::AMSamplePositionPre2013AdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePositionPre2013 *samplePosition, QWidget *parent) :
 	QDialog(parent)
 {
 	manipulator_ = manipulator;
@@ -1074,33 +1074,33 @@ AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformation
 	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
 }
 
-void AMSamplePositionAdditionalInformationView::onTopLeftSetFromManipulator(){
+void AMSamplePositionPre2013AdditionalInformationView::onTopLeftSetFromManipulator(){
 	samplePosition_->setTopLeftPosition(manipulator_->position());
 	setTopLeftText();
 	checkValidity();
 }
 
-void AMSamplePositionAdditionalInformationView::onBottomRightSetFromManipulator(){
+void AMSamplePositionPre2013AdditionalInformationView::onBottomRightSetFromManipulator(){
 	samplePosition_->setBottomRightPosition(manipulator_->position());
 	setBottomRightText();
 	checkValidity();
 }
 
-void AMSamplePositionAdditionalInformationView::onTopLeftManuallyEnterClicked(){
-	enterTopLeftDialog_ = new AMSamplePositionManuallyEnterView();
+void AMSamplePositionPre2013AdditionalInformationView::onTopLeftManuallyEnterClicked(){
+	enterTopLeftDialog_ = new AMSamplePositionPre2013ManuallyEnterView();
 	connect(enterTopLeftDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onTopLeftManualEnterFinished(double,double,double,double)));
 	enterTopLeftDialog_->show();
 }
 
-void AMSamplePositionAdditionalInformationView::onBottomRightManuallyEnterClicked(){
-	enterBottomRightDialog_ = new AMSamplePositionManuallyEnterView();
+void AMSamplePositionPre2013AdditionalInformationView::onBottomRightManuallyEnterClicked(){
+	enterBottomRightDialog_ = new AMSamplePositionPre2013ManuallyEnterView();
 	connect(enterBottomRightDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onBottomRightManualEnterFinished(double,double,double,double)));
 	enterBottomRightDialog_->show();
 }
 
 #include <QDebug>
 
-void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+void AMSamplePositionPre2013AdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
 	//qdebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;
 	AMControlInfoList newTopLeft;
 	newTopLeft.setValuesFrom(manipulator_->position());
@@ -1116,7 +1116,7 @@ void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(dou
 	enterTopLeftDialog_ = 0; //NULL
 }
 
-void AMSamplePositionAdditionalInformationView::onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+void AMSamplePositionPre2013AdditionalInformationView::onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
 	AMControlInfoList newBottomRight;
 	newBottomRight.setValuesFrom(manipulator_->position());
 	newBottomRight[0].setValue(inOut);
@@ -1131,7 +1131,7 @@ void AMSamplePositionAdditionalInformationView::onBottomRightManualEnterFinished
 	enterBottomRightDialog_ = 0; //NULL
 }
 
-void AMSamplePositionAdditionalInformationView::onCancelButtonClicked(){
+void AMSamplePositionPre2013AdditionalInformationView::onCancelButtonClicked(){
 	if( (samplePosition_->topLeftPosition().count() != 0) && !(samplePosition_->topLeftPosition() == originalTopLeft_)){
 		samplePosition_->setTopLeftPosition(originalTopLeft_);
 		setTopLeftText();
@@ -1143,18 +1143,18 @@ void AMSamplePositionAdditionalInformationView::onCancelButtonClicked(){
 	hideAndFinish();
 }
 
-void AMSamplePositionAdditionalInformationView::onApplyButtonClicked(){
+void AMSamplePositionPre2013AdditionalInformationView::onApplyButtonClicked(){
 	if(samplePosition_->modified())
 		samplePosition_->storeToDb(samplePosition_->database());
 	hideAndFinish();
 }
 
-void AMSamplePositionAdditionalInformationView::hideAndFinish(){
+void AMSamplePositionPre2013AdditionalInformationView::hideAndFinish(){
 	hide();
 	emit finished();
 }
 
-void AMSamplePositionAdditionalInformationView::closeEvent(QCloseEvent *e){
+void AMSamplePositionPre2013AdditionalInformationView::closeEvent(QCloseEvent *e){
 	if( (samplePosition_->topLeftPosition().count() != 0) && !(samplePosition_->topLeftPosition() == originalTopLeft_)){
 		samplePosition_->setTopLeftPosition(originalTopLeft_);
 		setTopLeftText();
@@ -1167,7 +1167,7 @@ void AMSamplePositionAdditionalInformationView::closeEvent(QCloseEvent *e){
 	hideAndFinish();
 }
 
-void AMSamplePositionAdditionalInformationView::setTopLeftText(){
+void AMSamplePositionPre2013AdditionalInformationView::setTopLeftText(){
 	if(samplePosition_->topLeftPosition().count() == 0)
 		topLeftLabel_->setText("No Values Set");
 	else{
@@ -1179,7 +1179,7 @@ void AMSamplePositionAdditionalInformationView::setTopLeftText(){
 	}
 }
 
-void AMSamplePositionAdditionalInformationView::setBottomRightText(){
+void AMSamplePositionPre2013AdditionalInformationView::setBottomRightText(){
 	if(samplePosition_->bottomRightPosition().count() == 0)
 		bottomRightLabel_->setText("No Values Set");
 	else{
@@ -1192,7 +1192,7 @@ void AMSamplePositionAdditionalInformationView::setBottomRightText(){
 }
 
 
-void AMSamplePositionAdditionalInformationView::checkValidity(){
+void AMSamplePositionPre2013AdditionalInformationView::checkValidity(){
 	if( (samplePosition_->topLeftPosition().count() != 0) && (samplePosition_->bottomRightPosition().count() != 0) ){
 		for(int x = 0; x < samplePosition_->topLeftPosition().count(); x++){
 			double positionValue = samplePosition_->position().at(x).value();

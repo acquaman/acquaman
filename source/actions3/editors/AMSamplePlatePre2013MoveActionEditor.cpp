@@ -17,7 +17,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePlateMoveActionEditor.h"
+#include "AMSamplePlatePre2013MoveActionEditor.h"
 
 #include <QComboBox>
 #include <QLabel>
@@ -28,10 +28,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "util/AMErrorMonitor.h"
 
-AMSamplePlateMoveActionEditor::AMSamplePlateMoveActionEditor(AMSamplePlateMoveActionInfo *info, QWidget *parent) :
+AMSamplePlatePre2013MoveActionEditor::AMSamplePlatePre2013MoveActionEditor(AMSamplePlatePre2013MoveActionInfo *info, QWidget *parent) :
 	QFrame(parent)
 {
 	info_ = info;
@@ -56,7 +56,7 @@ AMSamplePlateMoveActionEditor::AMSamplePlateMoveActionEditor(AMSamplePlateMoveAc
 	connect(changeSamplePlateCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onChangeSamplePlateCheckBoxToggled(bool)));
 }
 
-void AMSamplePlateMoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChanged(int index){
+void AMSamplePlatePre2013MoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePlateId(samplePlateSelectorBox_->itemData(index).toInt());
 
 	if(info_->samplePlateId() < 0)
@@ -70,7 +70,7 @@ void AMSamplePlateMoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChange
 	populateSamplePositions();
 }
 
-void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChanged(int index){
+void AMSamplePlatePre2013MoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePositionIndex(samplePositionSelectorBox_->itemData(index).toInt());
 
 	/*
@@ -80,17 +80,17 @@ void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChang
 	*/
 }
 
-void AMSamplePlateMoveActionEditor::onChangeSamplePlateCheckBoxToggled(bool canChangePlate){
+void AMSamplePlatePre2013MoveActionEditor::onChangeSamplePlateCheckBoxToggled(bool canChangePlate){
 	samplePlateSelectorBox_->setEnabled(canChangePlate);
 }
 
-void AMSamplePlateMoveActionEditor::populateSamplePlates(){
+void AMSamplePlatePre2013MoveActionEditor::populateSamplePlates(){
 	int currentPlateIndex = 0;
 
 	samplePlateSelectorBox_->clear();
 
 	QSqlQuery q2 = AMDatabase::database("user")->query();
-	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>()));
+	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>()));
 	q2.exec();
 	int id;
 	QString name;
@@ -115,7 +115,7 @@ void AMSamplePlateMoveActionEditor::populateSamplePlates(){
 		samplePositionSelectorBox_->setEnabled(true);
 }
 
-void AMSamplePlateMoveActionEditor::populateSamplePositions(){
+void AMSamplePlatePre2013MoveActionEditor::populateSamplePositions(){
 	samplePositionSelectorBox_->clear();
 
 	int currentPositionIndex = 0;
@@ -124,7 +124,7 @@ void AMSamplePlateMoveActionEditor::populateSamplePositions(){
 		samplePositionSelectorBox_->addItem("No Plate Selected", QVariant(-1));
 	else{
 		samplePositionSelectorBox_->addItem("No Sample Selected", QVariant(-1));
-		AMSamplePlate samplePlate;
+		AMSamplePlatePre2013 samplePlate;
 		if(!samplePlate.loadFromDb(AMDatabase::database("user"), samplePlateSelectorBox_->itemData(samplePlateSelectorBox_->currentIndex()).toInt()) ){
 			AMErrorMon::alert(this, AMSAMPLEPLATEMOVEACTIONEDITOR_ATTEMPTED_TO_LOAD_BAD_PLATE, QString("The sample move action editor attempted to load a sample plate from the database that doesn't exist, id is %1.").arg(samplePlateSelectorBox_->itemData(samplePlateSelectorBox_->currentIndex()).toInt()));
 			return;
@@ -137,7 +137,7 @@ void AMSamplePlateMoveActionEditor::populateSamplePositions(){
 			sampleIdsSearchString.append( QString("%1,").arg(samplePlate.at(x).sampleId()) );
 		}
 
-		QSqlQuery q2 = AMDatabase::database("user")->select(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "id,name", QString("id IN (%1)").arg(sampleIdsSearchString.remove(sampleIdsSearchString.count()-1, 1)) );
+		QSqlQuery q2 = AMDatabase::database("user")->select(AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "id,name", QString("id IN (%1)").arg(sampleIdsSearchString.remove(sampleIdsSearchString.count()-1, 1)) );
 		q2.exec();
 		QString name;
 		int sampleId;

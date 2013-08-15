@@ -398,14 +398,14 @@ QString AMExporter::krSampleName(const QString& arg) {
 	return currentScan_->sampleName();
 }
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 
 QString AMExporter::krSampleElements(const QString& arg) {
 	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 	return s.elementString();
 }
@@ -414,7 +414,7 @@ QString AMExporter::krSampleCreationDate(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 
 	if(arg.isEmpty())
@@ -428,7 +428,7 @@ QString AMExporter::krSampleNotes(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 	return s.notes();
 }

@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMScanView.h"
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/dataman/AMRunSelector.h"
-#include "ui/dataman/AMSampleEditor.h"
+#include "ui/dataman/AMSamplePre2013Editor.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
@@ -93,7 +93,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
-	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
@@ -195,7 +195,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
-	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
@@ -339,7 +339,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
-		disconnect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSample*)), currentScan_, SLOT(setSample(const AMSample*)));
+		disconnect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSamplePre2013*)), currentScan_, SLOT(setSample(const AMSamplePre2013*)));
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 	}
@@ -360,7 +360,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
-		connect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSample*)), currentScan_, SLOT(setSample(const AMSample*)));
+		connect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSamplePre2013*)), currentScan_, SLOT(setSample(const AMSamplePre2013*)));
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 

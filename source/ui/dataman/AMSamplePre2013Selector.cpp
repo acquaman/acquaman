@@ -17,23 +17,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSampleSelector.h"
+#include "AMSamplePre2013Selector.h"
 
 #include "dataman/database/AMDatabase.h"
 #include "acquaman.h"
 #include <QInputDialog>
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include <QListView>
 #include "ui/AMDetailedItemDelegate.h"
 #include <QMessageBox>
 #include "util/AMDateTimeUtils.h"
 
-AMSampleSelector::AMSampleSelector(AMDatabase* db, QWidget *parent) :
+AMSamplePre2013Selector::AMSamplePre2013Selector(AMDatabase* db, QWidget *parent) :
     QComboBox(parent)
 {
 	db_ = db;
-	tableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
+	tableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>();
 	currentlyInsertingSample_ = false;
 
 	QListView* lview = new QListView();
@@ -54,14 +54,14 @@ AMSampleSelector::AMSampleSelector(AMDatabase* db, QWidget *parent) :
 	connect(this, SIGNAL(activated(int)), this, SLOT(onActivated(int)));
 }
 
-void AMSampleSelector::onCurrentIndexChanged(int)
+void AMSamplePre2013Selector::onCurrentIndexChanged(int)
 {
 	emit currentSampleChanged(currentSample());
 
 	// currentIndex == 0 will be handled in onActivated().
 }
 
-void AMSampleSelector::populateFromDb()
+void AMSamplePre2013Selector::populateFromDb()
 {
 	clear();
 
@@ -83,7 +83,7 @@ void AMSampleSelector::populateFromDb()
 	}
 }
 
-void AMSampleSelector::onDatabaseRowUpdated(const QString &tableName, int row)
+void AMSamplePre2013Selector::onDatabaseRowUpdated(const QString &tableName, int row)
 {
 	if(tableName != tableName_)
 		return;
@@ -92,7 +92,7 @@ void AMSampleSelector::onDatabaseRowUpdated(const QString &tableName, int row)
 	int index = findData(row, AM::IdRole);
 	// and update it.
 	if(index != -1) {
-		AMSample s;
+		AMSamplePre2013 s;
 		s.loadFromDb(db_, row);
 
 		setItemText(index, s.name());
@@ -100,12 +100,12 @@ void AMSampleSelector::onDatabaseRowUpdated(const QString &tableName, int row)
 	}
 }
 
-void AMSampleSelector::onDatabaseRowAdded(const QString &tableName, int row)
+void AMSamplePre2013Selector::onDatabaseRowAdded(const QString &tableName, int row)
 {
 	if(tableName != tableName_)
 		return;
 
-	AMSample s;
+	AMSamplePre2013 s;
 
 	// We can count that this will be the most recent, so insert it at the beginning.
 	insertItem(1, s.name());
@@ -118,7 +118,7 @@ void AMSampleSelector::onDatabaseRowAdded(const QString &tableName, int row)
 	}
 }
 
-void AMSampleSelector::onDatabaseRowRemoved(const QString &tableName, int row)
+void AMSamplePre2013Selector::onDatabaseRowRemoved(const QString &tableName, int row)
 {
 	if(tableName != tableName_)
 		return;
@@ -132,19 +132,19 @@ void AMSampleSelector::onDatabaseRowRemoved(const QString &tableName, int row)
 }
 
 
-void AMSampleSelector::showAddSampleDialog()
+void AMSamplePre2013Selector::showAddSampleDialog()
 {
 	bool ok;
 	QString newSampleName = QInputDialog::getText(this, "New Sample", "Please enter a name for the new sample", QLineEdit::Normal, "New Sample 1", &ok);
 	if(ok) {
 		currentlyInsertingSample_ = true;
-		AMSample s(newSampleName);
+		AMSamplePre2013 s(newSampleName);
 		s.setDateTime(QDateTime::currentDateTime());
 		s.storeToDb(db_);
 	}
 }
 
-void AMSampleSelector::setCurrentSample(int id)
+void AMSamplePre2013Selector::setCurrentSample(int id)
 {
 	if(id < 1)
 		setCurrentIndex(-1);
@@ -153,7 +153,7 @@ void AMSampleSelector::setCurrentSample(int id)
 	setCurrentIndex(index);
 }
 
-int AMSampleSelector::currentSample() const
+int AMSamplePre2013Selector::currentSample() const
 {
 	if(currentIndex() < 1)
 		return -1;
@@ -161,13 +161,13 @@ int AMSampleSelector::currentSample() const
 	return itemData(currentIndex(), AM::IdRole).toInt();
 }
 
-void AMSampleSelector::onActivated(int currentIndex)
+void AMSamplePre2013Selector::onActivated(int currentIndex)
 {
 	if(currentIndex == 0)
 		showAddSampleDialog();
 }
 
-void AMSampleSelector::onSampleDeleteButtonClicked(const QModelIndex &index) {
+void AMSamplePre2013Selector::onSampleDeleteButtonClicked(const QModelIndex &index) {
 
 	if(!index.isValid() || index.row() < 1)
 		return;
@@ -183,5 +183,5 @@ void AMSampleSelector::onSampleDeleteButtonClicked(const QModelIndex &index) {
 	confirmBox.setIcon(QMessageBox::Question);
 	confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	if(confirmBox.exec() == QMessageBox::Ok)
-		AMSample::destroySample(db_, sampleId);
+		AMSamplePre2013::destroySample(db_, sampleId);
 }

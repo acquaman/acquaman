@@ -18,22 +18,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPLATE_H
-#define AMSAMPLEPLATE_H
+#ifndef AMSAMPLEPLATEPRE2013_H
+#define AMSAMPLEPLATEPRE2013_H
 
 #include <QList>
 #include <QDateTime>
 
-#include "AMSample.h"
+#include "AMSamplePre2013.h"
 #include "dataman/info/AMControlInfoList.h"
 #include "dataman/database/AMDbObject.h"
 #include "acquaman.h"
 
-class AMSample;
 class AMConstDbObject;
 
 /// This is a small helper class for AMSamplePlate, which stores a set of samples and their associated positions on the sample plate/manipulator
-class AMSamplePosition : public AMDbObject {
+class AMSamplePositionPre2013 : public AMDbObject {
 	Q_OBJECT
 
 //	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
@@ -48,14 +47,14 @@ class AMSamplePosition : public AMDbObject {
 
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
-	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 );
+	Q_INVOKABLE AMSamplePositionPre2013(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 );
 	//Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
 	//	sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
 
-	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSample table.
+	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSamplePre2013 table.
 	//int sampleId() const { return sampleId_; }
 	int sampleId() const;
-	const AMSample* sample() const;
+	const AMSamplePre2013* sample() const;
 	/// Returns the facilityId that this sample position is relevant for.  (The motor positions from the SGM sample manipulator won't make sense to the REIXS positioner, etc.)  This corresponds to the facilities in the database's AMFacility table.
 	int facilityId() const { return facilityId_; }
 	/// Returns a non-modifiable reference to the sample position (stored as an AMControlInfoList). If you need a by-value copy of the position, just assign this to a local AMControlInfoList.
@@ -64,16 +63,16 @@ public:
 	const AMControlInfoList& topLeftPosition() const { return topLeftPosition_;}
 	const AMControlInfoList& bottomRightPosition() const { return bottomRightPosition_;}
 	bool positionWithinBounds() const;
-	bool overlaps(const AMSamplePosition &other) const;
+	bool overlaps(const AMSamplePositionPre2013 &other) const;
 	bool matchesPosition(const AMControlInfoList &other) const;
 	bool matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const;
 	double rms3SpaceDistance(const AMControlInfoList &other) const;
 
 
-	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSample table.
+	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSamplePre2013 table.
 	//void setSampleId(int id) { sampleId_ = id; setModified(true); }
 	void setSampleId(int newSampleId);
-	void setSample(const AMSample *sample);
+	void setSample(const AMSamplePre2013 *sample);
 	/// Set the database id of the facility (ie: beamline) to which this position is relevant. This corresponds to the id of a facilty in the database's AMFacility table.
 	void setFacilityId(int id) { facilityId_ = id; setModified(true); }
 	/// Set the position of this sample on the plate, as an AMControlInfoList.
@@ -84,7 +83,7 @@ public:
 
 
 	/// Copy all the values from \c other (including sampleId(), facilityId(), and position()), but retain our old database identity.  (Unlike the default assignment operator and copy constructor, our database() and id() will remain the same after calling this function.)
-	void setValuesFrom(const AMSamplePosition& other) {
+	void setValuesFrom(const AMSamplePositionPre2013& other) {
 		//sampleId_ = other.sampleId_;
 		setSample(other.sample());
 		facilityId_ = other.facilityId_;
@@ -124,7 +123,7 @@ protected:
 
 
 /// An AMSamplePlate is a database object that can be associated with users and their scans.  A sample plate contains one or (most often) more samples. We also remember the position for each sample (ie: from a set of positioning motors, etc.) necessary to reposition the sample in the same spot later.
-class AMSamplePlate : public AMDbObject, public AMOrderedList<AMSamplePosition>
+class AMSamplePlatePre2013 : public AMDbObject, public AMOrderedList<AMSamplePositionPre2013>
 {
 Q_OBJECT
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
@@ -135,9 +134,9 @@ Q_OBJECT
 
 public:
 	/// Default constructor: an empty sample plate with no samples.
-	Q_INVOKABLE explicit AMSamplePlate(QObject *parent = 0);
+	Q_INVOKABLE explicit AMSamplePlatePre2013(QObject *parent = 0);
 	/// Copy constructor
-	AMSamplePlate(const AMSamplePlate& other);
+	AMSamplePlatePre2013(const AMSamplePlatePre2013& other);
 
 
 	/// Re-implemented from AMDbObject::loadFromDb().  If the number of sample positions stays the same, the new positions will be re-loaded into the existing sample position objects, and no sample positions will be added or removed. We'll need to signal that the sample plate data changed.
@@ -184,4 +183,4 @@ protected:
 };
 
 
-#endif // AMSAMPLEPLATE_H
+#endif // AMSAMPLEPLATEPRE2013_H

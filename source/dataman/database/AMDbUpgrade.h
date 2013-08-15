@@ -154,6 +154,12 @@ namespace AMDbUpgradeSupport{
 
 	/// Facilitates changing an integer id column to an AMConstDbObject column
 	/*!
+	  This method can be used for transitioning database properties from integer ids to AMConstDbObjects. You need to do that part in your class by coding it yourself. Once that's done, you can use this function to help update the database.
+	  Pass in the database to edit.
+	  Pass in the typeTableName (for example, if you made changes to AMScan then pass in AMScan_table)
+	  Pass in the integer id column name (for example, the old colum name might have been sampleId)
+	  Pass in the new column name (for example, the new columnname might be sample)
+	  Pass in the related table name (for example, AMDbUpgrade1Pt3 changes AMScan from an integer sample id to an AMConstDbObject sample, so the related table name is AMSample_table)
 	  */
 	bool idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName);
 

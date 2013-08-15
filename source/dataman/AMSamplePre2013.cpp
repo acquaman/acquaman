@@ -18,10 +18,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSample.h"
+#include "AMSamplePre2013.h"
 
 
-AMSample::AMSample(QObject *parent) :
+AMSamplePre2013::AMSamplePre2013(QObject *parent) :
 	AMDbObject(parent)
 {
 
@@ -29,7 +29,7 @@ AMSample::AMSample(QObject *parent) :
 
 
 // This constructor initializes a sample with a given name.
-AMSample::AMSample(const QString& sampleName, QObject* parent)
+AMSamplePre2013::AMSamplePre2013(const QString& sampleName, QObject* parent)
 	: AMDbObject(parent)
 {
 	dateTime_ = QDateTime::currentDateTime();
@@ -37,7 +37,7 @@ AMSample::AMSample(const QString& sampleName, QObject* parent)
 }
 
 // This constructor immediately loads a stored sample from the database.
-AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
+AMSamplePre2013::AMSamplePre2013(int databaseId, AMDatabase* database, QObject* parent)
 	: AMDbObject(parent)
 {
 
@@ -45,16 +45,16 @@ AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 }
 
 #include "dataman/database/AMDbObjectSupport.h"
-void AMSample::destroySample(AMDatabase* db, int id) {
+void AMSamplePre2013::destroySample(AMDatabase* db, int id) {
 	if(db == 0)
 		return;
-	db->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass<AMSample>());
+	db->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>());
 }
 
 #include "util/AMPeriodicTable.h"
 
 // Format the elements into a string: ex: "B, N, Cl"
-QString AMSample::elementString() const {
+QString AMSamplePre2013::elementString() const {
 
 	QStringList sl;
 
@@ -65,9 +65,9 @@ QString AMSample::elementString() const {
 	return sl.join(", ");
 }
 
-QString AMSample::sampleNameForId(AMDatabase *db, int sampleId)
+QString AMSamplePre2013::sampleNameForId(AMDatabase *db, int sampleId)
 {
-	QVariant rv = db->retrieve(sampleId, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name");
+	QVariant rv = db->retrieve(sampleId, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name");
 	if(!rv.isValid())
 		return "[Invalid Sample]";
 	else

@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePositionViewActionsWidget.h"
+#include "AMSamplePositionPre2013ViewActionsWidget.h"
 #include "ui_AMSamplePositionViewActionsWidget.h"
 
 #include <QMenu>
 
-AMSamplePositionViewActionsWidget::AMSamplePositionViewActionsWidget(int row, QWidget *parent) :
+AMSamplePositionPre2013ViewActionsWidget::AMSamplePositionPre2013ViewActionsWidget(int row, QWidget *parent) :
 	QFrame(parent),
 	ui(new Ui::AMSamplePositionViewActionsWidget)
 {
@@ -52,12 +52,12 @@ AMSamplePositionViewActionsWidget::AMSamplePositionViewActionsWidget(int row, QW
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
-AMSamplePositionViewActionsWidget::~AMSamplePositionViewActionsWidget()
+AMSamplePositionPre2013ViewActionsWidget::~AMSamplePositionPre2013ViewActionsWidget()
 {
 	delete ui;
 }
 
-void AMSamplePositionViewActionsWidget::onCustomContextMenuRequested(QPoint point){
+void AMSamplePositionPre2013ViewActionsWidget::onCustomContextMenuRequested(QPoint point){
 	QMenu popup(this);
 	QAction *tempAction = popup.addAction("Additional Information");
 	tempAction = popup.exec(this->mapToGlobal(point));

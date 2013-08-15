@@ -34,7 +34,7 @@ class AMScanView;
 class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
-class AMSampleEditor;
+class AMSamplePre2013Editor;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
@@ -200,7 +200,7 @@ protected:
 	AM2DScanView *scanView2D_;
 
 	/// Sample editor
-	AMSampleEditor* sampleEditor_;
+	AMSamplePre2013Editor* sampleEditor_;
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;

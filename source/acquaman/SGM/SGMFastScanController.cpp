@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMFastScanController.h"
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 
 SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	config_ = cfg;
@@ -41,7 +41,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	if(specificScan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
 	else
-		sampleName = AMSample(specificScan_->sampleId(), AMUser::user()->database()).name();
+		sampleName = AMSamplePre2013(specificScan_->sampleId(), AMUser::user()->database()).name();
 	if(config_->userScanName() == ""){
 		scanName = config_->autoScanName();
 		specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));

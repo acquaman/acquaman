@@ -17,34 +17,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEPLATEMOVEACTION_H
-#define AMSAMPLEPLATEMOVEACTION_H
+#ifndef AMSAMPLEPLATEPRE2013MOVEACTION_H
+#define AMSAMPLEPLATEPRE2013MOVEACTION_H
 
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMSamplePlateMoveActionInfo.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveActionInfo.h"
 #include "dataman/info/AMControlInfoList.h"
 
 #include <QTimer>
 
-#define AMSAMPLEPLATEMOVEACTION_NO_SAMPLE_POSITIONER 327101
-#define AMSAMPLEPLATEMOVEACTION_POSITIONER_MOTOR_CANNOT_MOVE 327102
-#define AMSAMPLEPLATEMOVEACTION_POSITIONER_MOVE_OUT_OF_RANGE 327103
-#define AMSAMPLEPLATEMOVEACTION_CONTROL_MOVE_CREATION_FAILED 327104
-#define AMSAMPLEPLATEMOVEACTION_MOVELIST_FAILED 327105
-#define AMSAMPLEPLATEMOVEACTION_BAD_POSITION_SETPOINT 327106
+#define AMSAMPLEPLATEPRE2013MOVEACTION_NO_SAMPLE_POSITIONER 327101
+#define AMSAMPLEPLATEPRE2013MOVEACTION_POSITIONER_MOTOR_CANNOT_MOVE 327102
+#define AMSAMPLEPLATEPRE2013MOVEACTION_POSITIONER_MOVE_OUT_OF_RANGE 327103
+#define AMSAMPLEPLATEPRE2013MOVEACTION_CONTROL_MOVE_CREATION_FAILED 327104
+#define AMSAMPLEPLATEPRE2013MOVEACTION_MOVELIST_FAILED 327105
+#define AMSAMPLEPLATEPRE2013MOVEACTION_BAD_POSITION_SETPOINT 327106
 
 class AMControlSet;
 class AMParallelListAction3;
 
-class AMSamplePlateMoveAction : public AMAction3
+class AMSamplePlatePre2013MoveAction : public AMAction3
 {
 Q_OBJECT
 
 public:
 	/// Constructor, Requires and takes ownership of an exisiting AMSamplePlateMoveActionInfo. Does not require a control set, this will be looked up from the beamline automatically.
-	Q_INVOKABLE AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *info, QObject *parent = 0);
+	Q_INVOKABLE AMSamplePlatePre2013MoveAction(AMSamplePlatePre2013MoveActionInfo *info, QObject *parent = 0);
 	/// Copy constructor
-	AMSamplePlateMoveAction(const AMSamplePlateMoveAction &other);
+	AMSamplePlatePre2013MoveAction(const AMSamplePlatePre2013MoveAction &other);
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const;
 
@@ -90,9 +90,9 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMSamplePlateMoveActionInfo. This makes it easier to access.
-	const AMSamplePlateMoveActionInfo* samplePlateMoveInfo() const { return qobject_cast<const AMSamplePlateMoveActionInfo*>(info()); }
+	const AMSamplePlatePre2013MoveActionInfo* samplePlateMoveInfo() const { return qobject_cast<const AMSamplePlatePre2013MoveActionInfo*>(info()); }
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	AMSamplePlateMoveActionInfo* samplePlateMoveInfo() { return qobject_cast<AMSamplePlateMoveActionInfo*>(info()); }
+	AMSamplePlatePre2013MoveActionInfo* samplePlateMoveInfo() { return qobject_cast<AMSamplePlatePre2013MoveActionInfo*>(info()); }
 
 protected:
 	/// Timer used to issue progress updates on a per-second basis
@@ -108,4 +108,4 @@ protected:
 	AMParallelListAction3 *moveListAction_;
 };
 
-#endif // AMSAMPLEPLATEMOVEACTION_H
+#endif // AMSAMPLEPLATEPRE2013MOVEACTION_H

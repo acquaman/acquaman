@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMConstDbObject.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
@@ -162,8 +162,8 @@ int AMScan::sampleId() const{
 	return -1;
 }
 
-const AMSample* AMScan::sample() const{
-	const AMSample *retVal = qobject_cast<const AMSample*>(sample_->object());
+const AMSamplePre2013* AMScan::sample() const{
+	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sample_->object());
 	return retVal;
 }
 
@@ -185,7 +185,7 @@ void AMScan::setSampleId(int newSampleId) {
 		if(newSampleId <= 0)
 			sample_ = 0; //NULL
 		else{
-			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
 			if(!sample_)
 				sample_ = new AMConstDbObject(newSample, this);
 			else
@@ -209,7 +209,7 @@ void AMScan::setSampleId(int newSampleId) {
 }
 
 
-void AMScan::setSample(const AMSample *sample){
+void AMScan::setSample(const AMSamplePre2013 *sample){
 	if(!sample_->object() && !sample)
 		return;
 	if( (!sample_->object() && sample) || (sample_->object() && !sample) || (sample_->object()->id() != sample->id()) ){
@@ -234,30 +234,7 @@ QString AMScan::sampleName() const {
 	if(sample_ && sample_->object())
 		return sample_->object()->name();
 	return "[no sample]";
-	/*
-	if(!sampleNameLoaded_)
-		retrieveSampleName();
-
-	return sampleName_;
-	*/
 }
-
-
-/*
-void AMScan::retrieveSampleName() const {
-	if(sampleId() <1 || database() == 0)
-		sampleName_ = "[no sample]";
-
-	else {
-		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("name"));
-		if(vSampleName.isValid())
-			sampleName_ =  vSampleName.toString();
-		else
-			sampleName_ = "[no sample]";
-	}
-}
-*/
 
 
 // Loads a saved scan from the database into self. Returns true on success.

@@ -58,7 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
 
-class AMSamplePlate;
+class AMSamplePlatePre2013;
 class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
@@ -164,7 +164,7 @@ public:
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
 	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
-	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	AMSamplePlatePre2013* currentSamplePlate() const { return currentSamplePlate_; }
 	virtual int currentSamplePlateId() const;
 	int currentSampleId();
 	QString currentSampleDescription();
@@ -252,7 +252,7 @@ public:
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
 
 public slots:
-	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
+	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
 
 	void visibleLightOn();
 	void visibleLightOff();
@@ -271,7 +271,7 @@ signals:
 
 	void visibleLightStatusChanged(const QString& status);
 	void beamlineWarningsChanged(const QString& warnings);
-	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
+	void currentSamplePlateChanged(AMSamplePlatePre2013 *newSamplePlate);
 
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
@@ -451,7 +451,7 @@ protected:
 	QList<AMControlSet*> unconnectedSets_;
 
 	/// The sample plate currently in the SSA chamber:
-	AMSamplePlate* currentSamplePlate_;
+	AMSamplePlatePre2013* currentSamplePlate_;
 
 	CLSSIS3820Scaler *scaler_;
 

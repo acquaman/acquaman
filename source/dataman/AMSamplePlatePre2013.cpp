@@ -18,35 +18,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePlate.h"
+#include "AMSamplePlatePre2013.h"
 #include "util/AMErrorMonitor.h"
 #include "util/AMDateTimeUtils.h"
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/database/AMConstDbObject.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
 #include "math.h"
 
-AMSamplePosition::AMSamplePosition(int sampleId, const AMControlInfoList &position, int facilityId) :
+AMSamplePositionPre2013::AMSamplePositionPre2013(int sampleId, const AMControlInfoList &position, int facilityId) :
 	position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList())
 {
 	sample_ = 0; //NULL
 	setSampleId(sampleId);
 }
 
-int AMSamplePosition::sampleId() const{
+int AMSamplePositionPre2013::sampleId() const{
 	if(sample_->object())
 		return sample_->object()->id();
 	return -1;
 }
 
-const AMSample* AMSamplePosition::sample() const{
-	const AMSample *retVal = qobject_cast<const AMSample*>(sample_->object());
+const AMSamplePre2013* AMSamplePositionPre2013::sample() const{
+	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sample_->object());
 	return retVal;
 }
 
-bool AMSamplePosition::positionWithinBounds() const{
+bool AMSamplePositionPre2013::positionWithinBounds() const{
 	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
 		return true;
 
@@ -69,7 +69,7 @@ bool AMSamplePosition::positionWithinBounds() const{
 	return true;
 }
 
-bool AMSamplePosition::overlaps(const AMSamplePosition &other) const{
+bool AMSamplePositionPre2013::overlaps(const AMSamplePositionPre2013 &other) const{
 	if( ((topLeftPosition().isEmpty()) || (bottomRightPosition().isEmpty())) && ((other.topLeftPosition().isEmpty()) || (other.bottomRightPosition().isEmpty())) )
 		return false;
 
@@ -95,7 +95,7 @@ bool AMSamplePosition::overlaps(const AMSamplePosition &other) const{
 	}
 }
 
-bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
+bool AMSamplePositionPre2013::matchesPosition(const AMControlInfoList &other) const{
 	if(position() == other)
 		return true;
 
@@ -121,7 +121,7 @@ bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
 	return true;
 }
 
-bool AMSamplePosition::matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const{
+bool AMSamplePositionPre2013::matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const{
 	if(position() == other)
 		return true;
 
@@ -162,7 +162,7 @@ bool AMSamplePosition::matchesPositionWithinTolerances(const AMControlInfoList &
 	return true;
 }
 
-double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const{
+double AMSamplePositionPre2013::rms3SpaceDistance(const AMControlInfoList &other) const{
 	if(matchesPosition(other))
 		return 0;
 
@@ -176,12 +176,12 @@ double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const
 	return 9999997;
 }
 
-void AMSamplePosition::setSampleId(int newSampleId){
+void AMSamplePositionPre2013::setSampleId(int newSampleId){
 	if(!sample_ || !sample_->object() || (sample_->object()->id() != newSampleId) ){
 		if(newSampleId <= 0)
 			sample_ = 0; //NULL
 		else{
-			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
 			if(!sample_)
 				sample_ = new AMConstDbObject(newSample, this);
 			else
@@ -191,7 +191,7 @@ void AMSamplePosition::setSampleId(int newSampleId){
 	}
 }
 
-void AMSamplePosition::setSample(const AMSample *sample){
+void AMSamplePositionPre2013::setSample(const AMSamplePre2013 *sample){
 	if(!sample_->object() && !sample)
 		return;
 	if( (!sample_->object() && sample) || (sample_->object() && !sample) || (sample_->object()->id() != sample->id()) ){
@@ -203,15 +203,15 @@ void AMSamplePosition::setSample(const AMSample *sample){
 	}
 }
 
-AMConstDbObject* AMSamplePosition::dbReadSample() const{
+AMConstDbObject* AMSamplePositionPre2013::dbReadSample() const{
 	return sample_;
 }
 
-void AMSamplePosition::dbWriteSample(AMConstDbObject *newSample){
+void AMSamplePositionPre2013::dbWriteSample(AMConstDbObject *newSample){
 	sample_ = newSample;
 }
 
-AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
+AMSamplePlatePre2013::AMSamplePlatePre2013(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePositionPre2013>() {
 
 	setName("New Sample Plate");
 	dateTime_ = QDateTime::currentDateTime();
@@ -224,7 +224,7 @@ AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedLis
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(samplePositionChanged(int)));
 }
 
-AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrderedList<AMSamplePosition>(other) {
+AMSamplePlatePre2013::AMSamplePlatePre2013(const AMSamplePlatePre2013& other) : AMDbObject(), AMOrderedList<AMSamplePositionPre2013>(other) {
 	// Forward internal signals (itemAdded, etc.) from our signalSource() as our own
 	connect(signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(samplePositionAboutToBeAdded(int)));
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(samplePositionAdded(int)));
@@ -236,7 +236,7 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 // Using auto-generated assignment operator is fine
 
 #include <QDebug>
-int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
+int AMSamplePlatePre2013::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
 	if( tolerances.count() == 0 ){
 		for(int x = count()-1; x >= 0; x--){
 			if( at(x).matchesPosition(position) ){
@@ -273,7 +273,7 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 	return -1;
 }
 
-bool AMSamplePlate::sampleAtIndexOverlaps(int index) const{
+bool AMSamplePlatePre2013::sampleAtIndexOverlaps(int index) const{
 	for(int x = 0; x < count(); x++)
 		if( (x != index) && (at(x).overlaps(at(index))))
 			return true;
@@ -283,7 +283,7 @@ bool AMSamplePlate::sampleAtIndexOverlaps(int index) const{
 
 
 // Export the current positions to the database
-AMDbObjectList AMSamplePlate::dbGetPositions() {
+AMDbObjectList AMSamplePlatePre2013::dbGetPositions() {
 	AMDbObjectList rv;
 
 	for(int i=0; i<count(); i++)
@@ -294,14 +294,14 @@ AMDbObjectList AMSamplePlate::dbGetPositions() {
 
 
 // Load the positions for an existing sample plate from the database
-void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
+void AMSamplePlatePre2013::dbLoadPositions(const AMDbObjectList& newPositions) {
 
 	//qdebug() << "AMSamplePlate: loading positions in loadFromDb()";
 
 	clear();	// get rid of our existing
 
 	for(int i=0; i<newPositions.count(); i++) {
-		AMSamplePosition* newSamplePosition = qobject_cast<AMSamplePosition*>(newPositions.at(i));
+		AMSamplePositionPre2013* newSamplePosition = qobject_cast<AMSamplePositionPre2013*>(newPositions.at(i));
 		if(newSamplePosition) {
 			append(*newSamplePosition);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list. Uses default copy constructor in AMControlInfoList
 		}
@@ -314,7 +314,7 @@ void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
 	}
 }
 
-bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
+bool AMSamplePlatePre2013::loadFromDb(AMDatabase *db, int id)
 {
 	int oldPositionsCount = count();
 

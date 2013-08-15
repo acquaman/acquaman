@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
-#include "ui/dataman/AMSampleManagementWidget.h"
+#include "ui/dataman/AMSampleManagementPre2013Widget.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -1216,13 +1216,13 @@ bool SGMAppController::setupSGMPeriodicTable(){
 bool SGMAppController::setupSGMViews(){
 	// Create panes in the main window:
 	mw_->insertHeading("Beamline Control", 0);
-	samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
+	samplePositionView_ = new AMSampleManagementPre2013Widget(new SGMSampleManipulatorView(),
 							   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
 							   "Sample Camera",
 							   SGMBeamline::sgm()->currentSamplePlate(),
 							   SGMBeamline::sgm()->sampleManipulator());
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
 	// Jan 11, 2013: I don't think this is necessary at all anymore
 	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));

@@ -64,12 +64,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMXASScan.h>
 #include <dataman/AMFastScan.h>
 #include <dataman/AMRun.h>
-#include <dataman/AMSample.h>
+#include <dataman/AMSamplePre2013.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
 #include <dataman/info/AMOldDetectorInfoSet.h>
 #include <dataman/info/AMDetectorInfoSet.h>
-#include <dataman/AMSamplePlate.h>
+#include <dataman/AMSamplePlatePre2013.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
@@ -535,7 +535,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMFacility>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
@@ -563,8 +563,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePositionPre2013>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 
