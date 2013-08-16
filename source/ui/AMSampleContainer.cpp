@@ -33,7 +33,7 @@ AMSampleEthan *AMSampleContainer::sample(int index) const
 
 QString AMSampleContainer::sampleName() const
 {
-    return sampleName(index());
+    return sampleName(currentIndex());
 }
 
 QString AMSampleContainer::sampleName(int index) const
@@ -43,7 +43,7 @@ QString AMSampleContainer::sampleName(int index) const
 
 QDateTime AMSampleContainer::dateTime() const
 {
-    return dateTime(index());
+    return dateTime(currentIndex());
 }
 
 QDateTime AMSampleContainer::dateTime(int index) const
@@ -53,7 +53,7 @@ QDateTime AMSampleContainer::dateTime(int index) const
 
 QString AMSampleContainer::dateTimeString() const
 {
-    return dateTimeString(index());
+    return dateTimeString(currentIndex());
 }
 
 QString AMSampleContainer::dateTimeString(int index) const
@@ -63,7 +63,7 @@ QString AMSampleContainer::dateTimeString(int index) const
 
 QString AMSampleContainer::sampleNotes() const
 {
-    return sampleNotes(index());
+    return sampleNotes(currentIndex());
 }
 
 QString AMSampleContainer::sampleNotes(int index) const
@@ -73,7 +73,7 @@ QString AMSampleContainer::sampleNotes(int index) const
 
 QByteArray AMSampleContainer::sampleImage() const
 {
-    return sampleImage(index());
+    return sampleImage(currentIndex());
 }
 
 QByteArray AMSampleContainer::sampleImage(int index) const
@@ -81,7 +81,7 @@ QByteArray AMSampleContainer::sampleImage(int index) const
     return sample(index)->rawImage();
 }
 
-int AMSampleContainer::index() const
+int AMSampleContainer::currentIndex() const
 {
     if(sampleList_.count() < 1 || index_ < 0)
         return -1;
@@ -109,6 +109,17 @@ QVariant AMSampleContainer::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
     }
+}
+
+int AMSampleContainer::indexOfSample(const AMShapeData *shape) const
+{
+    foreach(AMSampleEthan* sample, sampleList_)
+    {
+        if(sample->sampleShapePositionData() == shape)
+            return sampleList_.indexOf(sample);
+    }
+    return -1;
+
 }
 
 void AMSampleContainer::setSampleList(QList<AMSampleEthan *> sampleList)
@@ -170,7 +181,7 @@ void AMSampleContainer::setIndex(int index)
 
 void AMSampleContainer::updateSamples()
 {
-    QList<AMShapeData*> shapeList = AMShapeDataSet::set()->shapeList();
+    const QList<AMShapeData*> shapeList = AMShapeDataSet::set()->shapeList();
     if(shapeList.count() > sampleList().count())
     {
         foreach(AMShapeData* shape, shapeList)

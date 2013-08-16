@@ -26,8 +26,10 @@ public:
     void setCurrentURL(QString currentURL);
 public slots:
     void sampleIndexChanged(int);
+    void shapeIndexChanged(int);
 signals:
     void indexChanged(int);
+    void changeSampleIndex(int);
 protected slots:
 protected:
     AMShapeDataSet *shapeDataSet_;

@@ -30,12 +30,14 @@ public:
     QByteArray sampleImage() const;
     QByteArray sampleImage(int index) const;
 
-    int index() const;
+    int currentIndex() const;
     int count() const;
 
     int rowCount(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role) const;
+
+    int indexOfSample(const AMShapeData* shape) const;
 
 
 public slots:

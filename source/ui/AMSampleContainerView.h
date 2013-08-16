@@ -17,6 +17,9 @@ public:
 
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+public slots:
+    void setCurrentSelection(int);
+
 signals:
     void indexChanged(int);
 

@@ -205,7 +205,7 @@ public:
 
     bool motorMovementenabled();
 
-    QList<AMShapeData*> shapeList();
+     const QList<AMShapeData*> shapeList();
 
 
 
@@ -342,6 +342,8 @@ signals:
     void moveSucceeded();
 
     void shapesChanged();
+
+    void currentIndexChanged(int);
 
 protected slots:
     /// tracks the motor location
@@ -488,7 +490,7 @@ protected:
     int index_;
 
     /// index of the currently selected item
-    int current_;
+    int currentIndex_;
 
     /// The camera model
     AMCamera* camera_;

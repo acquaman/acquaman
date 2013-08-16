@@ -25,13 +25,19 @@ void AMSampleContainerView::setSampleContainer(AMSampleContainer *sampleContaine
 void AMSampleContainerView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     sampleContainer_->setIndex(current.row());
-    int index = sampleContainer_->index();
-    sampleView_->setSample(sampleContainer_->sample(sampleContainer_->index()));
+    int index = sampleContainer_->currentIndex();
+    sampleView_->setSample(sampleContainer_->sample(sampleContainer_->currentIndex()));
     sampleView_->show();
 
     emit indexChanged(index);
 
     update(QModelIndex());
+}
+
+void AMSampleContainerView::setCurrentSelection(int rowIndex)
+{
+    QModelIndex modelIndex = sampleContainer_->index(rowIndex);
+    setCurrentIndex(modelIndex);
 }
 
 void AMSampleContainerView::init()

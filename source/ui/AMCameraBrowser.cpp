@@ -18,6 +18,7 @@ AMCameraBrowser::AMCameraBrowser(QObject *parent) :
 
     connect(shapeDataSet_, SIGNAL(shapesChanged()), sampleContainer_, SLOT(updateSamples()));
     connect(this, SIGNAL(indexChanged(int)), shapeDataSet_, SLOT(setCurrentIndex(int)));
+    connect(shapeDataSet_, SIGNAL(currentIndexChanged(int)), this, SLOT(shapeIndexChanged(int)));
 }
 
 
@@ -49,6 +50,17 @@ void AMCameraBrowser::sampleIndexChanged(int index)
     AMShapeData* shapeData = sampleContainer_->sample(index)->sampleShapePositionData();
     shapeIndex = shapeDataSet_->indexOfShape(shapeData);
     emit indexChanged(shapeIndex);
+}
+
+void AMCameraBrowser::shapeIndexChanged(int index)
+{
+    int sampleIndex = -1;
+    if(index >= 0)
+    {
+        const AMShapeData* shapeData = shapeDataSet_->shapeList().at(index);
+        sampleIndex = sampleContainer_->indexOfSample(shapeData);
+    }
+    emit changeSampleIndex(sampleIndex);
 }
 
 

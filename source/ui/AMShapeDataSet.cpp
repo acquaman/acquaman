@@ -58,7 +58,7 @@ int AMShapeDataSet::shapeListLength() const
 /// returns the current index
 int AMShapeDataSet::currentIndex() const
 {
-    return current_;
+    return currentIndex_;
 }
 
 /// returns the cameraConfiguration
@@ -160,7 +160,7 @@ QPolygonF AMShapeDataSet::currentPolygon() const
 /// return the current name
 QString AMShapeDataSet::currentName() const
 {
-    return name(current_);
+    return name(currentIndex_);
 }
 
 /// returns the name of the specified index
@@ -176,7 +176,7 @@ QString AMShapeDataSet::name(int index) const
 /// return the current info
 QString AMShapeDataSet::currentInfo() const
 {
-    return otherData(current_);
+    return otherData(currentIndex_);
 }
 
 /// return the data of the specified index
@@ -203,7 +203,7 @@ double AMShapeDataSet::idNumber(int index) const
 
 bool AMShapeDataSet::visible() const
 {
-    return visible(current_);
+    return visible(currentIndex_);
 }
 
 bool AMShapeDataSet::visible(int index) const
@@ -221,7 +221,7 @@ double AMShapeDataSet::rotation(int index) const
 
 double AMShapeDataSet::rotation() const
 {
-    return rotation(current_);
+    return rotation(currentIndex_);
 }
 
 /// returns the tilt for the given index
@@ -234,7 +234,7 @@ double AMShapeDataSet::tilt(int index) const
 
 double AMShapeDataSet::tilt() const
 {
-    return tilt(current_);
+    return tilt(currentIndex_);
 }
 
 /// returns a pointer to the AMShapeData with  index, by default current_
@@ -247,7 +247,7 @@ AMShapeData *AMShapeDataSet::currentShape(int index) const
 
 AMShapeData *AMShapeDataSet::currentShape() const
 {
-    return currentShape(current_);
+    return currentShape(currentIndex_);
 }
 
 int AMShapeDataSet::indexOfShape(AMShapeData *shape) const
@@ -273,13 +273,14 @@ QVector3D AMShapeDataSet::coordinate(int index) const
 /// calls coordinate with index equal to current_
 QVector3D AMShapeDataSet::currentCoordinate() const
 {
-    return coordinate(current_);
+    return coordinate(currentIndex_);
 }
 
 /// set the current index
 void AMShapeDataSet::setCurrentIndex(int current)
 {
-    current_ = current;
+    currentIndex_ = current;
+    emit currentIndexChanged(currentIndex_);
 }
 
 /// changes the current camera model
@@ -352,13 +353,13 @@ void AMShapeDataSet::setScaledSize(QSizeF scaledSize)
 /// set the current name
 void AMShapeDataSet::setCurrentName(QString name)
 {
-    setName(name,current_);
+    setName(name,currentIndex_);
 }
 
 /// set th current info
 void AMShapeDataSet::setCurrentInfo(QString info)
 {
-    setOtherData(info,current_);
+    setOtherData(info,currentIndex_);
 }
 
 /// sets the rotation for the given index
@@ -366,7 +367,7 @@ void AMShapeDataSet::setRotation(double rotation, int index)
 {
     if(-1 == index)
     {
-        index = current_;
+        index = currentIndex_;
     }
     shapeList_[index]->setRotation(rotation);
 }
@@ -376,7 +377,7 @@ void AMShapeDataSet::setTilt(double tilt, int index)
 {
     if(-1 == index)
     {
-        index = current_;
+        index = currentIndex_;
     }
     shapeList_[index]->setTilt(tilt);
 }
@@ -410,7 +411,7 @@ void AMShapeDataSet::setIdNumber(double number, int index)
 
 void AMShapeDataSet::setVisible(bool visible)
 {
-    setVisible(visible,current_);
+    setVisible(visible,currentIndex_);
 }
 
 void AMShapeDataSet::setVisible(bool visible, int index)
@@ -447,7 +448,7 @@ bool AMShapeDataSet::isBackwards(int index) const
 
 bool AMShapeDataSet::isBackwards() const
 {
-    return isBackwards(current_);
+    return isBackwards(currentIndex_);
 }
 
 /// figures out camera parameters given a set of points and coordinates
@@ -494,7 +495,7 @@ void AMShapeDataSet::findCamera(QPointF points [], QVector3D coordinates[])
         insertItem(shapes[i]);
         calibrationPoints_[i] = shapeList_[index_];
         updateShape(index_);
-        current_ = index_;
+        setCurrentIndex(index_);
     }
 
     /// find the camera parameters
@@ -558,7 +559,7 @@ bool AMShapeDataSet::motorMovementenabled()
     return enableMotorMovement_;
 }
 
-QList<AMShapeData *> AMShapeDataSet::shapeList()
+const QList<AMShapeData *> AMShapeDataSet::shapeList()
 {
     return shapeList_;
 }
@@ -616,15 +617,15 @@ void AMShapeDataSet::startRectangle(QPointF position)
     insertItem(newShapeData);
     updateShape(index_);
 
-    current_ = index_;
+    setCurrentIndex(index_);
 }
 
 /// Changes the bottom right corner of the current rectangle
 void AMShapeDataSet::finishRectangle(QPointF position)
 {
-    if(!isValid(current_))return;
+    if(!isValid(currentIndex_))return;
     position = undistortPoint(position);
-    QVector3D topLeft = shapeList_[current_]->coordinate(TOPLEFT);
+    QVector3D topLeft = shapeList_[currentIndex_]->coordinate(TOPLEFT);
     QVector3D bottomRight = camera_->transform2Dto3D(position,depth(topLeft));
     QVector3D topRight;
     QVector3D bottomLeft;
@@ -655,10 +656,10 @@ void AMShapeDataSet::finishRectangle(QPointF position)
 
 
 
-    shapeList_[current_]->setCoordinate(topLeft + topRight,TOPRIGHT);
-    shapeList_[current_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
-    shapeList_[current_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
-    updateShape(current_);
+    shapeList_[currentIndex_]->setCoordinate(topLeft + topRight,TOPRIGHT);
+    shapeList_[currentIndex_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
+    shapeList_[currentIndex_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
+    updateShape(currentIndex_);
 
 }
 
@@ -724,10 +725,10 @@ void AMShapeDataSet::selectCurrentShape(QPointF position)
     }
     if(i <= index_)
     {
-        current_ = i;
+        setCurrentIndex(i);
         currentVector_ = undistortPoint(position);
     }
-    else current_ = index_ + 1;
+    else setCurrentIndex(index_ + 1);
 }
 
 /// moves the currently selected rectangle by position + currentVector_
@@ -735,7 +736,7 @@ void AMShapeDataSet::moveCurrentShape(QPointF position, int index)
 {
     /// \todo store oldPosition as a vector?
     position = undistortPoint(position);
-    if(index == -1) index = current_;
+    if(index == -1) index = currentIndex_;
     if(index <= index_ && isValid(index))
     {
         QVector3D coordinate = shapeList_[index]->coordinate(TOPLEFT);
@@ -793,11 +794,11 @@ void AMShapeDataSet::setZoomPoint(QPointF position)
 /// change the current rectangles rotation
 void AMShapeDataSet::rotateRectangle(QPointF position)
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        double rotation = shapeList_[current_]->rotation()+(position - currentVector_).x();
-        shapeList_[current_]->setRotation(rotation);
-        updateShape(current_);
+        double rotation = shapeList_[currentIndex_]->rotation()+(position - currentVector_).x();
+        shapeList_[currentIndex_]->setRotation(rotation);
+        updateShape(currentIndex_);
         currentVector_ = position;
     }
 }
@@ -805,11 +806,11 @@ void AMShapeDataSet::rotateRectangle(QPointF position)
 /// change the current rectangles depth
 void AMShapeDataSet::zoomShape(QPointF position)
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        QVector3D coordinate = shapeList_[current_]->coordinate(TOPLEFT);
+        QVector3D coordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
         QVector3D change = depthVector(coordinate)*(zoomPoint_.y()/position.y() - 1);
-        shiftCoordinates(change,current_);
+        shiftCoordinates(change,currentIndex_);
     }
     zoomPoint_ = position;
 
@@ -819,9 +820,9 @@ void AMShapeDataSet::zoomShape(QPointF position)
 void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
     position = undistortPoint(position);
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        QVector3D oldCoordinate = shapeList_[current_]->coordinate(TOPLEFT);
+        QVector3D oldCoordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
         QVector3D currentPosition = camera_->transform2Dto3D(position, depth(oldCoordinate));
         QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
         QVector3D shift = newPosition - currentPosition;
@@ -850,17 +851,6 @@ void AMShapeDataSet::shiftToPoint(QPointF position, QPointF crosshairPosition)
             upDown = shift.z();
 
             moveMotors(inboardOutboard, upStreamDownStream, upDown);
-//            qDebug()<<"AMShapeDataSet::shiftToPoint - Attempting to move motors";
-//            qDebug()<<"in/out currently at"<<ssaManipulatorX_->value();
-//            qDebug()<<"shifting in/out to"<<inboardOutboard;
-//            ssaManipulatorX_->move(inboardOutboard);
-
-//            qDebug()<<"y is currently at:"<<ssaManipulatorY_->value();
-//            qDebug()<<"Shifting upstream/downstream to:"<<upStreamDownStream;
-
-//            qDebug()<<"up/down currently at"<<ssaManipulatorZ_->value();
-//            qDebug()<<"changing up/down to "<<upDown;
-//            ssaManipulatorZ_->move(upDown);
 
         }
 
@@ -925,7 +915,7 @@ void AMShapeDataSet::finishShape()
     polygon->setTilt(0);
     polygon->setYAxisRotation(0);
     insertItem(polygon);
-    current_ = index_;
+    setCurrentIndex(index_);
     updateShape(index_);
     currentPolygon_.clear();
 
@@ -973,7 +963,7 @@ void AMShapeDataSet::setCoordinates(QVector3D coordinate, int index)
 /// Overload of setCoordinates, takes three doubles and an index
 void AMShapeDataSet::setCoordinates(double x, double y, double z, int index)
 {
-    if(-1 == index) index = current_;
+    if(-1 == index) index = currentIndex_;
     QVector3D coordinate;
     coordinate.setX(x);
     coordinate.setY(y);
@@ -1003,7 +993,7 @@ void AMShapeDataSet::placeGrid(QPointF position)
             shapeList_[index_]->setRotation(0);
             shapeList_[index_]->setYAxisRotation(0);
             updateShape(index_);
-            current_ = index_;
+            setCurrentIndex(index_);
         }
     }
 
@@ -1012,9 +1002,9 @@ void AMShapeDataSet::placeGrid(QPointF position)
 /// selects the first point for beam configuration
 void AMShapeDataSet::oneSelect()
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[current_]);
+        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[currentIndex_]);
         beamModel_->setPositionOne(newBeamPosition);
 
 
@@ -1031,9 +1021,9 @@ void AMShapeDataSet::oneSelect()
 void AMShapeDataSet::twoSelect()
 {
 
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[current_]);
+        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[currentIndex_]);
         beamModel_->setPositionTwo(newBeamPosition);
         emit beamChanged(beamModel_);
     }
@@ -1090,9 +1080,9 @@ void AMShapeDataSet::deleteCalibrationPoints()
 /// sets the shape to draw on, and checks if it is valid
 void AMShapeDataSet::setDrawOnShape()
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        drawOnShape_ = *shapeList_[current_];
+        drawOnShape_ = *shapeList_[currentIndex_];
         drawOnShapeSelected_ = true;
     }
 }
@@ -1128,16 +1118,16 @@ void AMShapeDataSet::setBeamMarker(QPointF position, int index)
 
 void AMShapeDataSet::updateBeamMarker(QPointF position, int index)
 {
-    current_ = shapeList_.indexOf(beamMarkers_[index]);
+    setCurrentIndex(shapeList_.indexOf(beamMarkers_[index]));
     finishRectangle(position);
 }
 
 void AMShapeDataSet::beamCalibrate()
 {
 
-    current_ = shapeList_.indexOf(beamMarkers_[0]);
+    setCurrentIndex(shapeList_.indexOf(beamMarkers_[0]));
     oneSelect();
-    current_ = shapeList_.indexOf(beamMarkers_[2]);
+    setCurrentIndex(shapeList_.indexOf(beamMarkers_[2]));
     twoSelect();
     if(shapeList_.isEmpty()) return;
     for(int i = 0; i < 3; i++)
@@ -1164,18 +1154,18 @@ void AMShapeDataSet::beamCalibrate()
 
 void AMShapeDataSet::setSamplePlate()
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
         for(int i = 0; i < 3; i++)
         {
-            if(shapeList_[current_] == beamMarkers_[i])
+            if(shapeList_[currentIndex_] == beamMarkers_[i])
             {
                 qDebug()<<"AMShapeDataSet::setSamplePlate - cannot set sample plate to be a beam shape.";
                 samplePlateSelected_ = false;
                 return;
             }
         }
-        samplePlateShape_ = shapeList_[current_];
+        samplePlateShape_ = shapeList_[currentIndex_];
         samplePlateShape_->setName("Sample Plate");
         samplePlateShape_->setOtherData("Sample Plate");
         samplePlateSelected_ = true;
@@ -1185,9 +1175,9 @@ void AMShapeDataSet::setSamplePlate()
 
 void AMShapeDataSet::setCameraConfigurationShape()
 {
-    if(isValid(current_))
+    if(isValid(currentIndex_))
     {
-        cameraConfigurationShape_ = shapeList_[current_];
+        cameraConfigurationShape_ = shapeList_[currentIndex_];
         cameraConfigurationShape_->setName("Configuration shape");
         cameraConfigurationShape_->setOtherData("Config");
     }
@@ -1240,8 +1230,8 @@ void AMShapeDataSet::addBeamMarker(int index)
             insertItem(newBeamShape);
             beamMarkers_[index] = newBeamShape;
             index_++;
-            current_ = index_;
-            updateShape(current_);
+            setCurrentIndex(index_);
+            updateShape(currentIndex_);
         }
     }
 }
