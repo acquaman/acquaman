@@ -223,6 +223,7 @@ void AMSampleEthanView::setUpGui()
     completer_->setCaseSensitivity(Qt::CaseInsensitive);
 
     /// set up gui
+    QFrame* sampleFrame = new QFrame();
     QVBoxLayout* sampleViewLayout = new QVBoxLayout();
     sampleViewLayout->setContentsMargins(12,4,12,4);
     sampleViewLayout->addWidget(nameText_ = new QLineEdit());
@@ -243,14 +244,21 @@ void AMSampleEthanView::setUpGui()
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(samplePlateLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
-    sampleViewLayout->addWidget(shapeDataView_);
-    sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(sampleLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(saveToDb_ = new QPushButton("Save to Database"));
     sampleViewLayout->addStretch();
 
-    setLayout(sampleViewLayout);
+    sampleFrame->setLayout(sampleViewLayout);
+
+    QHBoxLayout* viewLayout = new QHBoxLayout();
+    viewLayout->setContentsMargins(0,0,0,0);
+    viewLayout->addWidget(sampleFrame);
+    viewLayout->addWidget(shapeDataView_);
+    viewLayout->addStretch();
+
+    setLayout(viewLayout);
+
 
     tagText_ = new QLineEdit();
 
