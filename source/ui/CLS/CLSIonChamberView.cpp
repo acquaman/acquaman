@@ -94,26 +94,21 @@ void CLSIonChamberView::onCustomContextMenuRequested(QPoint pos)
 	QMenu popup(this);
 
 	QAction *temp = popup.addAction("Basic View");
-	if (isBasic_)
-		temp->setDisabled(true);
+	temp->setDisabled(isBasic_);
 
 	temp = popup.addAction("Advanced View");
-	if (!isBasic_)
-		temp->setDisabled(true);
+	temp->setDisabled(!isBasic_);
 
 	popup.addSeparator();
 
 	temp = popup.addAction("Status View");
-	if (state_ == Status)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Status);
 
 	temp = popup.addAction("Counts View");
-	if (state_ == Counts)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Counts);
 
 	temp = popup.addAction("Voltage View");
-	if (state_ == Voltage)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Voltage);
 
 	temp = popup.exec(mapToGlobal(pos));
 

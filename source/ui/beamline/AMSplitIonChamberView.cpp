@@ -150,16 +150,13 @@ void AMSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 	QMenu popup(this);
 
 	QAction *temp = popup.addAction("Status View");
-	if (state_ == Status)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Status);
 
 	temp = popup.addAction("Counts View");
-	if (state_ == Counts)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Counts);
 
 	temp = popup.addAction("Voltage View");
-	if (state_ == Voltage)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Voltage);
 
 	popup.addSeparator();
 
