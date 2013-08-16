@@ -75,6 +75,8 @@ void CLSIonChamberView::onModeViewChanged()
 		units_->hide();
 		plus_->show();
 		minus_->show();
+		state_ = Status;
+		onReadingsChanged();
 	}
 	else {
 
@@ -82,6 +84,8 @@ void CLSIonChamberView::onModeViewChanged()
 		minus_->hide();
 		value_->show();
 		units_->show();
+		state_ = Voltage;
+		onReadingsChanged();
 	}
 }
 

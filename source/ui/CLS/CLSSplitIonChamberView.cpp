@@ -118,6 +118,8 @@ void CLSSplitIonChamberView::onModeViewChanged()
 
 		plus_->show();
 		minus_->show();
+		state_ = Status;
+		onReadingsChanged();
 	}
 	else if (isBasic_ && !isLocked_){
 
@@ -125,19 +127,24 @@ void CLSSplitIonChamberView::onModeViewChanged()
 		plusA_->show();
 		minusB_->show();
 		plusB_->show();
+		state_ = Status;
+		onReadingsChanged();
 	}
 	else if (!isBasic_ && isLocked_){
 
 		value_->show();
 		units_->show();
-
+		state_ = Voltage;
+		onReadingsChanged();
 	}
-	else{
+	else if (!isBasic_ && !isLocked_){
 
 		valueA_->show();
 		unitsA_->show();
 		valueB_->show();
 		unitsB_->show();
+		state_ = Voltage;
+		onReadingsChanged();
 	}
 }
 
