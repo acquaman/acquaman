@@ -118,6 +118,8 @@ protected:
 	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
+	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
+	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Methods that know what is acceptable for which scan type.
 	/// Returns whether the given motor is acceptable for EXAFS.

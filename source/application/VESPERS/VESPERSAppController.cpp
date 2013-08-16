@@ -413,12 +413,10 @@ void VESPERSAppController::onCancelScanIssued()
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
 
-	if (editor->using2DScanView()){
-
+	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
-		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
-	}
 }
 
 void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
@@ -439,21 +437,31 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 	else if (editor->scanAt(0)->analyzedDataSourceCount())
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 
-	if (editor->using2DScanView()){
+	configureSingleSpectrumView(editor, scan);
+}
 
-		VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
+void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan)
+{
+	int scanRank = scan->scanRank();
+	QStringList spectraNames;
 
-		if (config && config->fluorescenceDetector() == VESPERS::SingleElement)
-			editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+	for (int i = 0, size = scan->dataSourceCount(); i < size; i++)
+		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
+			spectraNames << scan->dataSourceAt(i)->name();
 
-		else if (config && config->fluorescenceDetector() == VESPERS::FourElement)
-			editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
+	if (spectraNames.contains("sumSpectra-1eland4el"))
+		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
 
-		else if (config && config->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement))
-			editor->setSingleSpectrumViewDataSourceName("sumSpectra-1eland4el");
+	else if (spectraNames.contains("correctedSum-4el"))
+		editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
 
-		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
-	}
+	else if (spectraNames.contains("correctedRawSpectra-1el"))
+		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+
+	else if (!spectraNames.isEmpty())
+		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
+
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)

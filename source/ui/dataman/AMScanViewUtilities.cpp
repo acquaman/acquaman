@@ -773,6 +773,10 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 	// Fill in the button groups and models.
 	sources_ = sources;
+
+	foreach (AMDataSource *source, sources_)
+		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
+
 	QAbstractButton *button = 0;
 	AMDataSource *source = 0;
 	MPlotVectorSeriesData *model = 0;
@@ -797,21 +801,26 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 	// Setup the plot's independant axis.
 	if (!sources_.isEmpty()){
 
-		AMAxisInfo info = sources_.last()->axisInfoAt(sources_.last()->rank()-1);
-
-		if (info.units.isEmpty())
-			plot_->plot()->axisBottom()->setAxisName(info.name);
-
-		else
-			plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
-
-		x_.resize(info.size);
-
-		for (int i = 0; i < info.size; i++)
-			x_[i] = double(info.start) + i*double(info.increment);
-
-		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+		onAxisInfoChanged();
 	}
+}
+
+void AMScanViewSingleSpectrumView::onAxisInfoChanged()
+{
+	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 #include <QFileDialog>

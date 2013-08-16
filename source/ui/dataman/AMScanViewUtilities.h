@@ -248,6 +248,8 @@ protected slots:
 	void onMaximumChanged();
 	/// Slot that handles when the log enabled button is toggled.
 	void onLogScaleEnabled(bool enable);
+	/// Slot that handles if the axis info for a data source changes.
+	void onAxisInfoChanged();
 
 protected:
 	/// Sets up the plot.
