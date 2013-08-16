@@ -7,6 +7,7 @@
 AMSampleEthan::AMSampleEthan(QObject* parent)
     : AMDbObject(parent)
 {
+    setName("New Sample");
     setCurrentDateTime();
     setSamplePlate(new AMSamplePlate());
 }

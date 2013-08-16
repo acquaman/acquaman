@@ -224,6 +224,8 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
 
         connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
         connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+        connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
+        connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
 
 
 

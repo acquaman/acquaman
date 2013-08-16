@@ -8,6 +8,7 @@ class AMSampleEthanView;
 
 class AMSampleContainerView : public QListView
 {
+    Q_OBJECT
 public:
     AMSampleContainerView(QWidget* parent = 0);
     AMSampleContainerView(AMSampleContainer* sampleContainer, QWidget *parent = 0);
@@ -15,6 +16,9 @@ public:
     void setSampleContainer(AMSampleContainer* sampleContainer);
 
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+signals:
+    void indexChanged(int);
 
 protected:
     void init();

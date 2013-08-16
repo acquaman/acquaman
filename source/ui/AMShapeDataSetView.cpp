@@ -95,9 +95,9 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     showBeamOutline_ = true;
 
-    shapeDataListView_ = new AMShapeDataListView();
-    setListViewModel();
-    shapeDataListView_->show();
+//    shapeDataListView_ = new AMShapeDataListView();
+//    setListViewModel();
+//    shapeDataListView_->show();
 
     index_ = 0;
     groupRectangleActive_= false;
@@ -217,7 +217,7 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
     for(int i = 0; i < index_+ 1; i++)
     {
-        if(shapes_.contains(i))
+        if(shapes_.contains(i) && shapeModel_->isValid(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
@@ -1089,11 +1089,11 @@ void AMShapeDataSetView::clearIntersections()
 }
 
 
-void AMShapeDataSetView::setListViewModel()
-{
-    shapeDataListView_->setResizeMode(QListView::Adjust);
-    shapeDataListView_->setModel(shapeModel_);
-}
+//void AMShapeDataSetView::setListViewModel()
+//{
+////    shapeDataListView_->setResizeMode(QListView::Adjust);
+////    shapeDataListView_->setModel(shapeModel_);
+//}
 
 
 
@@ -1715,7 +1715,7 @@ void AMShapeDataSetView::makeConnections()
     connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
 
     /// shape list view
-    connect(shapeDataListView_, SIGNAL(currentIndexChanged()), this, SLOT(currentSelectionChanged()));
+//    connect(shapeDataListView_, SIGNAL(currentIndexChanged()), this, SLOT(currentSelectionChanged()));
 
 //    connect(shapeView_, SIGNAL(shapeVisible(bool)), this, SLOT(setShapeVisible(bool)));
 

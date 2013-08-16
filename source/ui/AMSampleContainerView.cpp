@@ -6,7 +6,7 @@
 AMSampleContainerView::AMSampleContainerView(QWidget *parent)
     :QListView(parent)
 {
-    setWindowTitle("Sample Container");
+    init();
 }
 
 AMSampleContainerView::AMSampleContainerView(AMSampleContainer *sampleContainer, QWidget *parent)
@@ -18,7 +18,6 @@ AMSampleContainerView::AMSampleContainerView(AMSampleContainer *sampleContainer,
 
 void AMSampleContainerView::setSampleContainer(AMSampleContainer *sampleContainer)
 {
-    init();
     sampleContainer_ = sampleContainer;
     setModel(sampleContainer_);
 }
@@ -26,14 +25,13 @@ void AMSampleContainerView::setSampleContainer(AMSampleContainer *sampleContaine
 void AMSampleContainerView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     sampleContainer_->setIndex(current.row());
+    int index = sampleContainer_->index();
     sampleView_->setSample(sampleContainer_->sample(sampleContainer_->index()));
     sampleView_->show();
-    for(int i = 0; i < sampleContainer_->count(); i++)
-    {
-        qDebug()<<sampleContainer_->sampleName(i);
-    }
 
-    this->update(QModelIndex());
+    emit indexChanged(index);
+
+    update(QModelIndex());
 }
 
 void AMSampleContainerView::init()

@@ -33,7 +33,7 @@ public:
     QString currentSourceURL() const;
 
 
-signals:
+
 
 public slots:
 

@@ -250,6 +250,11 @@ AMShapeData *AMShapeDataSet::currentShape() const
     return currentShape(current_);
 }
 
+int AMShapeDataSet::indexOfShape(AMShapeData *shape) const
+{
+    return shapeList_.indexOf(shape);
+}
+
 /// returns the shape in screen coordinates
 QPolygonF AMShapeDataSet::shape(int index) const
 {
@@ -521,9 +526,7 @@ void AMShapeDataSet::deleteShape(int index)
 {
     if(isValid(index))
     {
-        AMShapeData* oldShape = takeItem(index);
-        delete oldShape;
-        index_--;
+        removeItem(index);
     }
 }
 
@@ -601,14 +604,16 @@ void AMShapeDataSet::startRectangle(QPointF position)
     {
         newShape<<coordinate[i];
     }
-    insertItem(new AMShapeData());
-    shapeList_[index_]->setName("Shape " + QString::number(index_));
-    shapeList_[index_]->setIdNumber(index_ * 13);
-    shapeList_[index_]->setRotation(0);
-    shapeList_[index_]->setTilt(0);
-    shapeList_[index_]->setYAxisRotation(0);
+    AMShapeData* newShapeData = new AMShapeData();
 
-    shapeList_[index_]->setCoordinateShape(newShape,5);
+    newShapeData->setName("Shape " + QString::number(index_));
+    newShapeData->setIdNumber(index_ * 13);
+    newShapeData->setRotation(0);
+    newShapeData->setTilt(0);
+    newShapeData->setYAxisRotation(0);
+
+    newShapeData->setCoordinateShape(newShape,5);
+    insertItem(newShapeData);
     updateShape(index_);
 
     current_ = index_;
@@ -705,7 +710,6 @@ void AMShapeDataSet::deleteRectangle(QPointF position)
                 delete polygon;
                 polygon = 0;
             }
-           index_--;
         }
     }
 }
@@ -1074,7 +1078,6 @@ void AMShapeDataSet::deleteCalibrationPoints()
                 if(isValid(index))
                 {
                     removeItem(index);
-                    index_--;
                 }
                 delete calibrationPoints_[i];
                 calibrationPoints_[i] = 0;
@@ -1115,7 +1118,6 @@ void AMShapeDataSet::setBeamMarker(QPointF position, int index)
     if(removalIndex >= 0)
     {
         removeItem(removalIndex);
-        index_--;
     }
 
     startRectangle(position);
@@ -1149,7 +1151,6 @@ void AMShapeDataSet::beamCalibrate()
                 delete beamMarkers_[i];
                 beamMarkers_[i] = 0;
                 polygon = 0;
-                index_--;
             }
             else
             {
@@ -1898,6 +1899,7 @@ void AMShapeDataSet::insertItem(AMShapeData *item)
 
 void AMShapeDataSet::removeItem(int index)
 {
+    index_--;
     beginRemoveRows(QModelIndex(),index,index);
     shapeList_.removeAt(index);
     endRemoveRows();
@@ -1906,6 +1908,7 @@ void AMShapeDataSet::removeItem(int index)
 
 AMShapeData *AMShapeDataSet::takeItem(int index)
 {
+    index_--;
     beginRemoveRows(QModelIndex(),index,index);
     AMShapeData* oldShape = shapeList_.takeAt(index);
     endRemoveRows();

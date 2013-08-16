@@ -30,6 +30,7 @@ public slots:
     void removeTag();
     void showPeriodicTable();
 
+
 protected slots:
     void updateFrames();
     void saveToDb();

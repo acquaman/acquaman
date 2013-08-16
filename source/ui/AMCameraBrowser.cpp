@@ -17,6 +17,7 @@ AMCameraBrowser::AMCameraBrowser(QObject *parent) :
     sampleContainer_ = new AMSampleContainer();
 
     connect(shapeDataSet_, SIGNAL(shapesChanged()), sampleContainer_, SLOT(updateSamples()));
+    connect(this, SIGNAL(indexChanged(int)), shapeDataSet_, SLOT(setCurrentIndex(int)));
 }
 
 
@@ -40,6 +41,14 @@ AMSampleContainer *AMCameraBrowser::sampleContainer()
 void AMCameraBrowser::setCurrentURL(QString currentURL)
 {
     currentURL_ = currentURL;
+}
+
+void AMCameraBrowser::sampleIndexChanged(int index)
+{
+    int shapeIndex = 0;
+    AMShapeData* shapeData = sampleContainer_->sample(index)->sampleShapePositionData();
+    shapeIndex = shapeDataSet_->indexOfShape(shapeData);
+    emit indexChanged(shapeIndex);
 }
 
 

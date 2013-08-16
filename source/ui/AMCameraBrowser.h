@@ -25,6 +25,9 @@ public:
     /// Mutators
     void setCurrentURL(QString currentURL);
 public slots:
+    void sampleIndexChanged(int);
+signals:
+    void indexChanged(int);
 protected slots:
 protected:
     AMShapeDataSet *shapeDataSet_;

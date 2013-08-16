@@ -336,7 +336,7 @@ protected:
 
     void clearIntersections();
 
-    void setListViewModel();
+//    void setListViewModel();
 
     void setGUI();
 
@@ -485,7 +485,7 @@ protected:
 
     bool showBeamOutline_;
 
-    AMShapeDataListView* shapeDataListView_;
+//    AMShapeDataListView* shapeDataListView_;
 
 
 

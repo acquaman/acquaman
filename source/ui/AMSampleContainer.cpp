@@ -25,7 +25,9 @@ const QList<AMSampleEthan *> AMSampleContainer::sampleList() const
 AMSampleEthan *AMSampleContainer::sample(int index) const
 {
     if(isValid(index))
+    {
         return sampleList_[index];
+    }
     return nullSample_;
 }
 
@@ -121,6 +123,7 @@ void AMSampleContainer::addSample(AMSampleEthan *sample)
         beginInsertRows(QModelIndex(), count(), count());
         sampleList_.append(sample);
         endInsertRows();
+        connect(sample, SIGNAL(nameChanged(QString)), this, SLOT(updateNames()));
     }
 }
 
@@ -168,22 +171,40 @@ void AMSampleContainer::setIndex(int index)
 void AMSampleContainer::updateSamples()
 {
     QList<AMShapeData*> shapeList = AMShapeDataSet::set()->shapeList();
-    foreach(AMShapeData* shape, shapeList)
+    if(shapeList.count() > sampleList().count())
     {
-        if(!hasShape(shape))
+        foreach(AMShapeData* shape, shapeList)
         {
-            AMSampleEthan* newSample = new AMSampleEthan();
-            newSample->setSampleShapePositionData(shape);
-            newSample->setName(shape->name());
-            addSample(newSample);
+            if(!hasShape(shape))
+            {
+                AMSampleEthan* newSample = new AMSampleEthan();
+                newSample->setSampleShapePositionData(shape);
+                newSample->setName(shape->name());
+                addSample(newSample);
+            }
         }
     }
+    else if(shapeList.count() < sampleList().count())
+    {
+        foreach(AMSampleEthan* sample, sampleList_)
+        {
+            if(!shapeList.contains(sample->sampleShapePositionData()))
+            {
+                removeSample(sample);
+            }
+        }
+    }
+}
+
+void AMSampleContainer::updateNames()
+{
+    dataChanged(QModelIndex(),QModelIndex());
 }
 
 
 bool AMSampleContainer::isValid(int index) const
 {
-    return (index > 0 && index < sampleList_.count());
+    return (index >= 0 && index < sampleList_.count());
 }
 
 bool AMSampleContainer::hasShape(AMShapeData *shapeData) const

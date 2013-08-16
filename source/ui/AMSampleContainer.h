@@ -51,6 +51,7 @@ public slots:
     void setIndex(int index);
 
     void updateSamples();
+    void updateNames();
 
 
 protected:

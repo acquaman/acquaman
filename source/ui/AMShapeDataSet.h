@@ -109,6 +109,9 @@ public:
     AMShapeData *currentShape(int index) const;
     AMShapeData *currentShape() const;
 
+    /// the index of the given shape
+    int indexOfShape(AMShapeData* shape) const;
+
 
     /// get the shape with given index
     QPolygonF shape(int index) const;
@@ -125,7 +128,7 @@ public:
 
 
 
-
+public slots:
 
     /// Mutators
 
@@ -174,7 +177,7 @@ public:
 
 
 
-
+public:
     /// public functions
 
     /// checks for valid index
