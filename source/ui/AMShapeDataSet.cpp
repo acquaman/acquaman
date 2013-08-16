@@ -310,7 +310,16 @@ void AMShapeDataSet::setMotorCoordinate(double x, double y, double z, double r)
 /// toggles distortion on or off
 void AMShapeDataSet::toggleDistortion()
 {
-    distortion_ = !distortion_;
+    if(distortion_)
+    {
+        qDebug()<<"True";
+    }
+    if(!distortion_)
+    {
+        qDebug()<<"False";
+    }
+    bool newValue = !distortion_;
+    distortion_ = newValue;
     updateAllShapes();
 }
 
@@ -1328,6 +1337,8 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     drawOnShapeSelected_ = false;
     samplePlateSelected_ = false;
 
+    distortion_ = true;
+
     for(int i= 0; i < SAMPLEPOINTS; i++)
     {
         calibrationPoints_[i] = new AMShapeData();
@@ -1530,7 +1541,6 @@ QPolygonF AMShapeDataSet::subShape(AMShapeData shape) const
     {
         newShape<<camera_->transform3Dto2D(shape.coordinate(i));
     }
-
 
     if(distortion_)
     {

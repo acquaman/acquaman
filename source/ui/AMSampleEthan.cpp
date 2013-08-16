@@ -108,6 +108,16 @@ AMShapeData *AMSampleEthan::sampleShapePositionData() const
     return sampleShapePositionData_;
 }
 
+AMDbObjectList AMSampleEthan::dbReadScanList() const
+{
+    AMDbObjectList scanList;
+    foreach(AMScan* scan, scanList_)
+    {
+        scanList<<scan;
+    }
+    return scanList;
+}
+
 
 int AMSampleEthan::thumbnailCount() const
 {
@@ -215,6 +225,27 @@ void AMSampleEthan::dbSetSamplePlate(AMDbObject *samplePlate)
 {
     AMSamplePlate* newPlate = (AMSamplePlate*)samplePlate;
     setSamplePlate(newPlate);
+}
+
+void AMSampleEthan::dbLoadScanList(const AMDbObjectList &newScanList)
+{
+    while(!scanList_.isEmpty())
+    {
+        AMScan* deleteMe = scanList_.takeLast();
+        delete deleteMe;
+    }
+
+    foreach(AMDbObject* newScan, newScanList)
+    {
+        AMScan* scan = qobject_cast<AMScan*>(newScan);
+        if(scan)
+        {
+            scanList_.append(scan);
+        }
+        else
+            qDebug()<<"AMSampleEthan::dbLoadScanList - could not load scan list from db";
+    }
+
 }
 
 void AMSampleEthan::setElementList(const AMIntList& elements)

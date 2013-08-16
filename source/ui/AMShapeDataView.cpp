@@ -73,7 +73,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     sliderLayout->addWidget(showHideButton_ = new QPushButton("Show/Hide"));
     sliderLayout->addSpacing(20);
     sliderLayout->addWidget(showSampleView_ = new QPushButton("Show Sample"));
-    sliderLayout->addStretch();
+//    sliderLayout->addStretch();
     sliderFrame->setLayout(sliderLayout);
     xAxisSlider_->setRange(-250,250);
     xAxisSlider_->setValue(0);
@@ -90,8 +90,9 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     infoLayout->addWidget(coordinateFrame);
     infoLayout->addWidget(rotationFrame);
     infoLayout->addWidget(sliderFrame);
+    infoLayout->addSpacing(2);
     infoLayout->addWidget(coordinateFrame_);
-    infoLayout->addStretch();
+//    infoLayout->addStretch();
 
     setLayout(infoLayout);
     setWindowTitle("Shape View");

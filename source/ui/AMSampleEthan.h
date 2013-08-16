@@ -24,6 +24,7 @@ class AMSampleEthan : public AMDbObject
     Q_PROPERTY(QStringList tags READ tags WRITE setTags)
     Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
     Q_PROPERTY(AMDbObject* samplePlate READ dbGetSamplePlate WRITE dbSetSamplePlate)
+    Q_PROPERTY(AMDbObjectList scanList READ dbReadScanList WRITE dbLoadScanList)
 
     Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
     Q_CLASSINFO("elementIds", "hidden=true")
@@ -58,6 +59,7 @@ public:
     /// returns the elements as a list of atomic numbers
     QList<int> elementList() const;
     AMShapeData* sampleShapePositionData() const;
+    AMDbObjectList dbReadScanList() const;
 
 
     /// thumbnails
@@ -88,6 +90,7 @@ public slots:
     void setTags(const QStringList tags);
     void setSamplePlate(AMSamplePlate* samplePlate);
     void dbSetSamplePlate(AMDbObject* samplePlate);
+    void dbLoadScanList(const AMDbObjectList& newScanList);
 
     /// sets the element list from a list of atomic numbers
     void setElementList(const QList<int>& elements);

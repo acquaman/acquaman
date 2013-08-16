@@ -137,7 +137,30 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/dataman/info/AMControlInfoList.h \
     source/dataman/info/AMControlInfo.h \
     source/ui/AMSampleContainer.h \
-    source/ui/AMSampleContainerView.h
+    source/ui/AMSampleContainerView.h \
+    source/dataman/AMScan.h \
+    source/dataman/datastore/AMInMemoryDataStore.h \
+    source/dataman/AMScanDictionary.h \
+    source/dataman/AMScanParametersDictionary.h \
+    source/dataman/AMAnalysisBlock.h \
+    source/util/AMDateTimeUtils.h \
+    source/dataman/datasource/AMDataSourceSeriesData.h \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.h \
+    source/dataman/datasource/AMDataSourceImageData.h \
+    source/application/AMPluginsManager.h \
+    source/util/AMSettings.h \
+    source/dataman/datasource/AMRawDataSource.h \
+    source/acquaman/AMScanConfiguration.h \
+    source/dataman/datastore/AMDataStore.h \
+    source/dataman/AMNumber.h \
+    source/dataman/AMRun.h \
+    source/util/AMTagReplacementParser.h \
+    source/dataman/datasource/AMDataSource.h \
+    source/ui/dataman/AMSimpleDataSourceEditor.h \
+    source/dataman/info/AMDetectorInfoSet.h \
+    source/dataman/info/AMDetectorInfo.h \
+    source/dataman/AMAxisInfo.h
+
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
         source/ui/AMColorPickerButton2.cpp \
@@ -191,6 +214,28 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/dataman/info/AMControlInfoList.cpp \
     source/dataman/info/AMControlInfo.cpp \
     source/ui/AMSampleContainer.cpp \
-    source/ui/AMSampleContainerView.cpp
+    source/ui/AMSampleContainerView.cpp \
+    source/dataman/AMScan.cpp \
+    source/dataman/datastore/AMInMemoryDataStore.cpp \
+    source/dataman/AMScanDictionary.cpp \
+    source/dataman/AMScanParametersDictionary.cpp \
+    source/dataman/AMAnalysisBlock.cpp \
+    source/util/AMDateTimeUtils.cpp \
+    source/dataman/datasource/AMDataSourceSeriesData.cpp \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
+    source/dataman/datasource/AMDataSourceImageData.cpp \
+    source/application/AMPluginsManager.cpp \
+    source/util/AMSettings.cpp \
+    source/dataman/datasource/AMRawDataSource.cpp \
+    source/acquaman/AMScanConfiguration.cpp \
+    source/dataman/datastore/AMDataStore.cpp \
+    source/dataman/AMNumber.cpp \
+    source/dataman/AMRun.cpp \
+    source/util/AMTagReplacementParser.cpp \
+    source/dataman/datasource/AMDataSource.cpp \
+    source/ui/dataman/AMSimpleDataSourceEditor.cpp \
+    source/dataman/info/AMDetectorInfoSet.cpp \
+    source/dataman/info/AMDetectorInfo.cpp \
+    source/dataman/AMAxisInfo.cpp
 
 RESOURCES = source/util/ElementData.qrc

@@ -22,7 +22,7 @@ public:
     /// returns a const reference to the list of samples
     const QList<AMSampleEthan*> sampleList() const;
 
-    /// returns the sampel at the given index
+    /// returns the sample at the given index
     AMSampleEthan* sample(int index) const;
 
     /// returns the current sampleName
