@@ -55,7 +55,7 @@ void AMCameraBrowser::sampleIndexChanged(int index)
 void AMCameraBrowser::shapeIndexChanged(int index)
 {
     int sampleIndex = -1;
-    if(index >= 0)
+    if(index >= 0 && shapeDataSet()->isValid(index))
     {
         const AMShapeData* shapeData = shapeDataSet_->shapeList().at(index);
         sampleIndex = sampleContainer_->indexOfSample(shapeData);

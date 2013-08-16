@@ -62,7 +62,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 {
     qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
-    shapeView_ = new AMShapeDataView();// start with no shape data, as none has been drawn yet
+    shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
     shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());

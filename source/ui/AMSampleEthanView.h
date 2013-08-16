@@ -12,6 +12,7 @@ class QComboBox;
 class QTextEdit;
 class AMElementListEdit;
 class AMPeriodicTableDialog;
+class AMShapeDataView;
 
 class AMSampleEthanView : public QWidget
 {
@@ -67,6 +68,8 @@ private:
     QPushButton* saveToDb_;
 
     AMSampleEthan* sample_;
+
+    AMShapeDataView* shapeDataView_;
 };
 
 #endif // AMSAMPLEETHANVIEW_H

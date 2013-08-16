@@ -11,6 +11,17 @@
 
 #include "AMSampleEthanView.h"
 
+
+AMShapeDataView* AMShapeDataView::instance_;
+
+AMShapeDataView* AMShapeDataView::shapeView()
+{
+    if(!instance_)
+        instance_ = new AMShapeDataView();
+    return instance_;
+}
+
+
 AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     QWidget(parent)
 {
@@ -21,7 +32,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 
 
-    sampleView_ = new AMSampleEthanView();
+//    sampleView_ = new AMSampleEthanView();
 
 
     /// Set up GUI
@@ -104,10 +115,10 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 }
 
-bool AMShapeDataView::showingSample()
-{
-    return sampleView_->isVisible();
-}
+//bool AMShapeDataView::showingSample()
+//{
+////    return sampleView_->isVisible();
+//}
 
 void AMShapeDataView::setName(QString name)
 {
@@ -256,7 +267,7 @@ void AMShapeDataView::setShapeVisible(bool visible)
 
 void AMShapeDataView::showSampleView()
 {
-    sampleView_->show();
+//    sampleView_->show();
 }
 
 void AMShapeDataView::xAxisRotation(int value)

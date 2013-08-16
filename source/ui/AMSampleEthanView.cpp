@@ -11,6 +11,7 @@
 #include "util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
 #include "util/AMPeriodicTableView.h"
+#include "AMShapeDataView.h"
 
 #include "AMSampleEthan.h"
 #include "util/AMSamplePeriodicTableDialog.h"
@@ -20,7 +21,7 @@
 AMSampleEthanView::AMSampleEthanView(QWidget* parent)
     : QWidget(parent)
 {
-
+    qDebug()<<"Creating new AMSampleView 1";
     sample_ = 0;
     setUpGui();
     makeConnections();
@@ -31,6 +32,7 @@ AMSampleEthanView::AMSampleEthanView(QWidget* parent)
 AMSampleEthanView::AMSampleEthanView(AMSampleEthan *sample, QWidget *parent)
     : QWidget(parent)
 {
+    qDebug()<<"Creating new AMSampleView 2";
     sample_ = sample;
     setUpGui();
     makeConnections();
@@ -40,6 +42,7 @@ AMSampleEthanView::AMSampleEthanView(AMSampleEthan *sample, QWidget *parent)
 void AMSampleEthanView::setSample(AMSampleEthan *sample)
 {
     sample_ = sample;
+//    shapeDataView_->setShapeData(sample->sampleShapePositionData());
     updateFrames();
 }
 
@@ -210,6 +213,8 @@ void AMSampleEthanView::changeSamplePlate(QString name)
 
 void AMSampleEthanView::setUpGui()
 {
+    qDebug()<<"Called setupgui";
+    shapeDataView_ = AMShapeDataView::shapeView();
 
     QStringList wordList;
     wordList_ = new QStringListModel(wordList);
@@ -237,6 +242,8 @@ void AMSampleEthanView::setUpGui()
     sampleViewLayout->addWidget(samplePlateName_ = new QLineEdit());
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(samplePlateLoader_ = new QComboBox());
+    sampleViewLayout->addSpacing(20);
+    sampleViewLayout->addWidget(shapeDataView_);
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(sampleLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);

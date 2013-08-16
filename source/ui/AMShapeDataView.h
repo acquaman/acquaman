@@ -16,9 +16,8 @@ class AMShapeDataView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
-
-    bool showingSample();
+    static AMShapeDataView* shapeView();
+//    bool showingSample();
 
 public slots:
     void setName(QString);
@@ -78,9 +77,14 @@ protected:
     QLineEdit** coordinateEdit_;
     QFrame* coordinateFrame_;
 
-    AMSampleEthanView* sampleView_;
+//    AMSampleEthanView* sampleView_;
     QPushButton* showSampleView_;
     int oldCount_;
+
+    static AMShapeDataView* instance_;
+
+private:
+    explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
 
 };
 
