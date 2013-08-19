@@ -100,8 +100,8 @@ macx {
                 #MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
                 MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMobility
 
-		#Eigen
-		EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 
 QT += core gui sql opengl network
@@ -181,8 +181,8 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/ui/AMSamplePlateWizard.h \
     source/ui/AMShapeDataListView.h \
     source/ui/AMCamera.h \
-    source/ui/AMSampleEthan.h \
-    source/ui/AMSampleEthanView.h \
+    source/ui/AMSample.h \
+    source/ui/AMSampleView.h \
     source/ui/AMElementListEdit.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/ui/util/AMPeriodicTableView.h \
@@ -259,8 +259,8 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/ui/AMSamplePlateWizard.cpp \
     source/ui/AMShapeDataListView.cpp \
     source/ui/AMCamera.cpp \
-    source/ui/AMSampleEthan.cpp \
-    source/ui/AMSampleEthanView.cpp \
+    source/ui/AMSample.cpp \
+    source/ui/AMSampleView.cpp \
     source/ui/AMElementListEdit.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/ui/util/AMPeriodicTableView.cpp \

@@ -10,7 +10,7 @@
 
 #include <QDebug>
 
-#include "AMSampleEthanView.h"
+#include "AMSampleView.h"
 
 
 AMShapeDataView* AMShapeDataView::instance_;
@@ -33,7 +33,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 
     coordinateEdit_ = 0;
-//    sampleView_ = new AMSampleEthanView();
+//    sampleView_ = new AMSampleView();
 
 
     /// Set up GUI

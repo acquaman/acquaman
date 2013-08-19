@@ -1,13 +1,13 @@
 #include "AMSampleContainer.h"
 
-#include "AMSampleEthan.h"
+#include "AMSample.h"
 #include "AMShapeDataSet.h"
 #include "AMShapeData.h"
 
 AMSampleContainer::AMSampleContainer(QObject* parent)
     :QAbstractListModel(parent)
 {
-    nullSample_ = new AMSampleEthan();
+    nullSample_ = new AMSample();
     nullSample_->setName("");
     nullSample_->setNotes("");
     nullSample_->setDateTime(QDateTime());
@@ -17,12 +17,12 @@ AMSampleContainer::AMSampleContainer(QObject* parent)
     nullSample_->setScanList(QList<AMScan*>());
 }
 
-const QList<AMSampleEthan *> AMSampleContainer::sampleList() const
+const QList<AMSample *> AMSampleContainer::sampleList() const
 {
     return sampleList_;
 }
 
-AMSampleEthan *AMSampleContainer::sample(int index) const
+AMSample *AMSampleContainer::sample(int index) const
 {
     if(isValid(index))
     {
@@ -113,7 +113,7 @@ QVariant AMSampleContainer::data(const QModelIndex &index, int role) const
 
 int AMSampleContainer::indexOfSample(const AMShapeData *shape) const
 {
-    foreach(AMSampleEthan* sample, sampleList_)
+    foreach(AMSample* sample, sampleList_)
     {
         if(sample->sampleShapePositionData() == shape)
             return sampleList_.indexOf(sample);
@@ -122,12 +122,12 @@ int AMSampleContainer::indexOfSample(const AMShapeData *shape) const
 
 }
 
-void AMSampleContainer::setSampleList(QList<AMSampleEthan *> sampleList)
+void AMSampleContainer::setSampleList(QList<AMSample *> sampleList)
 {
     sampleList_ = sampleList;
 }
 
-void AMSampleContainer::addSample(AMSampleEthan *sample)
+void AMSampleContainer::addSample(AMSample *sample)
 {
     if(!sampleList_.contains(sample))
     {
@@ -138,7 +138,7 @@ void AMSampleContainer::addSample(AMSampleEthan *sample)
     }
 }
 
-void AMSampleContainer::removeSample(AMSampleEthan *sample)
+void AMSampleContainer::removeSample(AMSample *sample)
 {
     int counts = sampleList_.count(sample) - 1;
     if(counts < 0) return;
@@ -188,7 +188,7 @@ void AMSampleContainer::updateSamples()
         {
             if(!hasShape(shape))
             {
-                AMSampleEthan* newSample = new AMSampleEthan();
+                AMSample* newSample = new AMSample();
                 newSample->setSampleShapePositionData(shape);
                 newSample->setName(shape->name());
                 addSample(newSample);
@@ -197,7 +197,7 @@ void AMSampleContainer::updateSamples()
     }
     else if(shapeList.count() < sampleList().count())
     {
-        foreach(AMSampleEthan* sample, sampleList_)
+        foreach(AMSample* sample, sampleList_)
         {
             if(!shapeList.contains(sample->sampleShapePositionData()))
             {
@@ -221,7 +221,7 @@ bool AMSampleContainer::isValid(int index) const
 bool AMSampleContainer::hasShape(AMShapeData *shapeData) const
 {
     bool has = false;
-    foreach(AMSampleEthan* sample, sampleList_)
+    foreach(AMSample* sample, sampleList_)
     {
         if(sample->sampleShapePositionData() == shapeData)
             has = true;

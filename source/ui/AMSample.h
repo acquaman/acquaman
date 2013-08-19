@@ -1,5 +1,5 @@
-#ifndef AMSAMPLEETHAN_H
-#define AMSAMPLEETHAN_H
+#ifndef AMSAMPLE_H
+#define AMSAMPLE_H
 
 #include "dataman/database/AMDbObject.h"
 #include "util/AMElement.h"
@@ -15,7 +15,7 @@ class AMShapeData;
 
 /// Represents a sample to be scanned.  Holds the sample plate it is on, the scans
 /// that have been performed on it, as well as an element list, notes, image, dateTime.
-class AMSampleEthan : public AMDbObject
+class AMSample : public AMDbObject
 {
     Q_OBJECT
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
@@ -30,11 +30,11 @@ class AMSampleEthan : public AMDbObject
     Q_CLASSINFO("elementIds", "hidden=true")
 public:
     /// default constructor
-    explicit AMSampleEthan(QObject* parent = 0);
+    explicit AMSample(QObject* parent = 0);
     /// This constructor initializes a sample with a given name.
-    AMSampleEthan(const QString& sampleName, QObject* parent = 0);
+    AMSample(const QString& sampleName, QObject* parent = 0);
     /// this constructor immediately loads a stored sample from the database.
-    AMSampleEthan(int databaseId, AMDatabase *database, QObject *parent = 0);
+    AMSample(int databaseId, AMDatabase *database, QObject *parent = 0);
 
 
     /// sample management interface
@@ -147,4 +147,4 @@ protected:
 
 };
 
-#endif // AMSAMPLEETHAN_H
+#endif // AMSAMPLE_H

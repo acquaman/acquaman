@@ -27,7 +27,8 @@ class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
-class SGMMAXvMotor;
+//class SGMMAXvMotor;
+class AMControl;
 class AMCamera;
 
 using namespace Eigen;
@@ -537,16 +538,20 @@ protected:
     /// motor manipulators
 
     /// X motor
-    SGMMAXvMotor *ssaManipulatorX_;
+    //SGMMAXvMotor *ssaManipulatorX_;
+    AMControl *ssaManipulatorX_;
 
     /// Y motor
-    SGMMAXvMotor *ssaManipulatorY_;
+    //SGMMAXvMotor *ssaManipulatorY_;
+    AMControl *ssaManipulatorY_;
 
     /// Z motor
-    SGMMAXvMotor *ssaManipulatorZ_;
+    //SGMMAXvMotor *ssaManipulatorZ_;
+    AMControl *ssaManipulatorZ_;
 
     /// rotation motor
-    SGMMAXvMotor *ssaManipulatorRot_;
+    //SGMMAXvMotor *ssaManipulatorRot_;
+    AMControl *ssaManipulatorRot_;
 
     /// enables or disables motor movement
     bool enableMotorMovement_;

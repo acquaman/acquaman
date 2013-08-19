@@ -15,7 +15,7 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/SGM/SGMMAXvMotor.h"
+//#include "beamline/SGM/SGMMAXvMotor.h"
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -1349,6 +1349,8 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     }
 
 
+    AMDatabase *db = AMDatabase::database("user");
+    /*
     // create the database
     AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
     if(!db)
@@ -1363,11 +1365,12 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
         success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
         success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSampleEthan>();
+        success &= AMDbObjectSupport::s()->registerClass<AMSample>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 
         qDebug() << "Status of registration is " << success;
     }
+    */
 
     QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
     if(matchIDs.count() == 0)
@@ -1390,17 +1393,29 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
     /// add motor manipulators
 
-    ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+    ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
     ssaManipulatorX_->setContextKnownDescription("X");
 
-    ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+    ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
     ssaManipulatorY_->setContextKnownDescription("Y");
 
-    ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
+    ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
     ssaManipulatorZ_->setContextKnownDescription("Z");
 
-    ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
+    ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
     ssaManipulatorRot_->setContextKnownDescription("R");
+
+    //ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+    //ssaManipulatorX_->setContextKnownDescription("X");
+
+    //ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+    //ssaManipulatorY_->setContextKnownDescription("Y");
+
+    //ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
+    //ssaManipulatorZ_->setContextKnownDescription("Z");
+
+    //ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
+    //ssaManipulatorRot_->setContextKnownDescription("R");
 
 
 
