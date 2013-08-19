@@ -158,7 +158,7 @@ namespace VESPERS {
 	}
 
 	/// Builds the standard exporter option used for all exported scans.
-	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage)
+	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
 	{
 		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", name);
 
@@ -186,6 +186,7 @@ namespace VESPERS {
 		vespersDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->setHigherDimensionsInRows(exportSpectraInRows);
 		vespersDefault->storeToDb(AMDatabase::database("user"));
 
 		return vespersDefault;

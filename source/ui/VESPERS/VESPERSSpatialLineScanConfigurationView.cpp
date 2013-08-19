@@ -202,9 +202,11 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources());
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources(), config_->exportSpectraInRows());
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
+	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;

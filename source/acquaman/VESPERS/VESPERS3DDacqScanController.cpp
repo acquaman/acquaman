@@ -44,7 +44,7 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", config_->exportSpectraSources(), false, false);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", config_->exportSpectraSources(), false, false, config_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERS3DScanConfiguration, VESPERSExporter3DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
