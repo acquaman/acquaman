@@ -163,6 +163,20 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         rowFrame[i]->setLayout(rfhl[i]);
         mvl->addWidget(rowFrame[i]);
     }
+
+    QFrame* otherParams = new QFrame();
+    QHBoxLayout* otherParamsLayout = new QHBoxLayout();
+    otherParamsLayout->setContentsMargins(12,4,12,4);
+    otherParamsLayout->addWidget(new QLabel("Focal Length"));
+    otherParamsLayout->addWidget(cameraFocalLength_);
+    otherParamsLayout->addSpacing(20);
+    otherParamsLayout->addWidget(new QLabel("Distortion"));
+    otherParamsLayout->addWidget(cameraDistortion_);
+    otherParamsLayout->addStretch();
+    otherParams->setLayout(otherParamsLayout);
+
+
+    mvl->addWidget(otherParams);
     mvl->addStretch();
     matrixFrame_->setLayout(mvl);
 

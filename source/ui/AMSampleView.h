@@ -4,7 +4,7 @@
 #include <QWidget>
 
 class QLineEdit;
-class AMSampleEthan;
+class AMSample;
 class QPushButton;
 class QCompleter;
 class QStringListModel;
@@ -18,16 +18,16 @@ class AMShapeDataView;
 /// It can be used to load or save a sample to the database,
 /// as well as to set or view the name, date, notes, tags, elements,
 /// and sample plate of the sample.
-class AMSampleEthanView : public QWidget
+class AMSampleView : public QWidget
 {
     Q_OBJECT
 public:
-    AMSampleEthanView(QWidget* parent = 0);
-    AMSampleEthanView(AMSampleEthan* sample, QWidget* parent = 0);
+    AMSampleView(QWidget* parent = 0);
+    AMSampleView(AMSample* sample, QWidget* parent = 0);
 
 public slots:
     /// set the sample to view
-    void setSample(AMSampleEthan* sample);
+    void setSample(AMSample* sample);
     /// set the name of the current sample
     void setName(QString name);
     /// set the dateTime of the current sample
@@ -104,7 +104,7 @@ private:
     QPushButton* saveToDb_;
 
     /// the sample that is being viewed by this view
-    AMSampleEthan* sample_;
+    AMSample* sample_;
 
     /// view for visualizing the sample's AMShapeData
     AMShapeDataView* shapeDataView_;

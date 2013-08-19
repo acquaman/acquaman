@@ -85,6 +85,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSelector.h"
 #include "beamline/AMDetectorSet.h"
 
+#include "ui/AMCameraBrowserView.h"
+#include "ui/AMCameraBrowser.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -1224,6 +1227,9 @@ bool SGMAppController::setupSGMViews(){
 							   SGMBeamline::sgm()->sampleManipulator());
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
+
+    cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
+    mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
 
 	// Jan 11, 2013: I don't think this is necessary at all anymore
 	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));

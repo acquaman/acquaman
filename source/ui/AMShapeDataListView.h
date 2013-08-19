@@ -5,7 +5,7 @@
 
 
 class AMShapeDataSet;
-class AMSampleEthanView;
+class AMSampleView;
 
 class AMShapeDataListView : public QListView
 {

@@ -50,6 +50,9 @@ macx {
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
 		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
+
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 linux-g++ {
 
@@ -90,6 +93,9 @@ linux-g++ {
                 MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
                 MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
                 MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
+
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 linux-g++-32 {
 
@@ -130,6 +136,9 @@ linux-g++-32 {
 
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -170,6 +179,9 @@ linux-g++-64 {
 
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+                #Eigen
+                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 
 }
 
@@ -216,7 +228,8 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$GSL_INCLUDE_DIR \
 		$$XML_INCLUDE_DIR \
 		$$QWTPLOT3D_INCLUDE_DIR \
-		$$CDF_INCLUDE_DIR
+                $$CDF_INCLUDE_DIR \
+                $$EIGEN_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
@@ -705,7 +718,34 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMSamplePlatePre2013MoveAction.h \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
-    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h
+    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
+    source/ui/AMCameraBrowser.h \
+    source/ui/AMCameraBrowserView.h \
+    source/ui/AMSampleContainer.h \
+    source/ui/AMShapeDataSet.h \
+    source/ui/AMSample.h \
+    source/ui/AMShapeData.h \
+    source/ui/AMCamera.h \
+    source/ui/AMBeamConfiguration.h \
+    source/ui/AMCameraConfiguration.h \
+    source/ui/AMShapeDataSetView.h \
+    source/ui/AMSampleContainerView.h \
+    source/ui/AMSampleView.h \
+    source/ui/AMCameraConfigurationView.h \
+    source/ui/AMBeamConfigurationView.h \
+    source/ui/AMShapeDataView.h \
+    source/ui/AMCameraConfigurationWizard.h \
+    source/ui/AMBeamConfigurationWizard.h \
+    source/ui/AMSamplePlateWizard.h \
+    source/ui/AMGraphicsViewWizard.h \
+    source/ui/AMShapeDataSetGraphicsView.h \
+    source/ui/GraphicsTextItem.h \
+    source/ui/AMColorPickerButton2.h \
+    source/ui/util/AMSamplePeriodicTableDialog.h \
+    source/ui/AMGraphicsVideoSceneCopier.h \
+    source/ui/AMOverlayVideoWidget2.h \
+    source/ui/util/AMPeriodicTableDialog.h \
+
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1179,7 +1219,34 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMSamplePlatePre2013MoveAction.cpp \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
-    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp
+    source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
+    source/ui/AMCameraBrowser.cpp \
+    source/ui/AMCameraBrowserView.cpp \
+    source/ui/AMSampleContainer.cpp \
+    source/ui/AMShapeDataSet.cpp \
+    source/ui/AMSample.cpp \
+    source/ui/AMShapeData.cpp \
+    source/ui/AMCamera.cpp \
+    source/ui/AMBeamConfiguration.cpp \
+    source/ui/AMCameraConfiguration.cpp \
+    source/ui/AMShapeDataSetView.cpp \
+    source/ui/AMSampleContainerView.cpp \
+    source/ui/AMSampleView.cpp \
+    source/ui/AMCameraConfigurationView.cpp \
+    source/ui/AMBeamConfigurationView.cpp \
+    source/ui/AMShapeDataView.cpp \
+    source/ui/AMCameraConfigurationWizard.cpp \
+    source/ui/AMBeamConfigurationWizard.cpp \
+    source/ui/AMSamplePlateWizard.cpp \
+    source/ui/AMGraphicsViewWizard.cpp \
+    source/ui/AMShapeDataSetGraphicsView.cpp \
+    source/ui/GraphicsTextItem.cpp \
+    source/ui/AMColorPickerButton2.cpp \
+    source/ui/util/AMSamplePeriodicTableDialog.cpp \
+    source/ui/AMGraphicsVideoSceneCopier.cpp \
+    source/ui/AMOverlayVideoWidget2.cpp \
+    source/ui/util/AMPeriodicTableDialog.cpp
+
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

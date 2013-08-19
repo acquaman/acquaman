@@ -27,7 +27,8 @@ class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
-class SGMMAXvMotor;
+//class SGMMAXvMotor;
+class AMControl;
 class AMCamera;
 
 using namespace Eigen;
@@ -345,6 +346,8 @@ signals:
 
     void currentIndexChanged(int);
 
+    void shapeNameChanged(QString newName, QString oldName);
+
 protected slots:
     /// tracks the motor location
     void motorTracking(double);
@@ -365,18 +368,18 @@ protected:
     void shiftCoordinates(QVector3D shift, int index);
 
     /// apply the rotation in the given direction by the given angle to the given shape
-    AMShapeData applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle) const;
+    AMShapeData* applySpecifiedRotation(const AMShapeData* shape, QVector3D direction, double angle) const;
 
     /// convenience function for above apply specified rotation.
     /// applies axis rotation to the shape, in direction XAXIS, YAXIS, or  ZAXIS, by the amount given in shape.
-    AMShapeData applySpecifiedRotation(AMShapeData shape, AxisDirection direction) const;
+    AMShapeData* applySpecifiedRotation(const AMShapeData* shape, AxisDirection direction) const;
 
     /// general rotation of a point about a point along the direction
     QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const;
 
 
     /// rotates, tilts, and distorts the shape at index
-    QPolygonF subShape(AMShapeData shape) const;
+    QPolygonF subShape(const AMShapeData* shape) const;
 
     /// apply distortion to the current shape
     QPolygonF applyDistortion(QPolygonF shape) const;
@@ -392,7 +395,7 @@ protected:
     void motorMovement(double x, double y, double z, double r);
 
     /// rotates the given shape
-    QVector<QVector3D> rotateShape(AMShapeData shape) const;
+    QVector<QVector3D> rotateShape(const AMShapeData* shape) const;
 
 
     /// Transformations
@@ -435,14 +438,14 @@ protected:
 
     /// returns the unit vector in the direction of the last line in the shape.
     /// for a rectangle this is the "upward" direction
-    QVector3D getHeightNormal(AMShapeData shape) const;
+    QVector3D getHeightNormal(const AMShapeData* shape) const;
     /// returns the unit vector in the direction of the first line in the shape
     /// for a rectangle this is the "right" direction
-    QVector3D getWidthNormal(AMShapeData shape) const;
+    QVector3D getWidthNormal(const AMShapeData* shape) const;
     /// returns the vector normal to heightVector and widthVector
     QVector3D getNormal(QVector3D heightVector, QVector3D widthVector) const;
     /// returns the vector normal to the given shape
-    QVector3D getNormal(AMShapeData shape) const;
+    QVector3D getNormal(const AMShapeData* shape) const;
     /// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
     QVector3D getPointOnShape(QPointF position,QVector3D normal) const;
 
@@ -535,16 +538,20 @@ protected:
     /// motor manipulators
 
     /// X motor
-    SGMMAXvMotor *ssaManipulatorX_;
+    //SGMMAXvMotor *ssaManipulatorX_;
+    AMControl *ssaManipulatorX_;
 
     /// Y motor
-    SGMMAXvMotor *ssaManipulatorY_;
+    //SGMMAXvMotor *ssaManipulatorY_;
+    AMControl *ssaManipulatorY_;
 
     /// Z motor
-    SGMMAXvMotor *ssaManipulatorZ_;
+    //SGMMAXvMotor *ssaManipulatorZ_;
+    AMControl *ssaManipulatorZ_;
 
     /// rotation motor
-    SGMMAXvMotor *ssaManipulatorRot_;
+    //SGMMAXvMotor *ssaManipulatorRot_;
+    AMControl *ssaManipulatorRot_;
 
     /// enables or disables motor movement
     bool enableMotorMovement_;
@@ -558,7 +565,7 @@ protected:
 
 
     /// the shape to draw on, if enabled
-    AMShapeData drawOnShape_;
+    AMShapeData* drawOnShape_;
 
     /// true if drawing on shape is enabled
     bool drawOnShapeEnabled_;

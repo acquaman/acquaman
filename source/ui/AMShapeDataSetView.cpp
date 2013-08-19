@@ -642,6 +642,18 @@ void AMShapeDataSetView::transmitMotorMovementEnabled()
     emit motorMovementEnabled(shapeModel_->motorMovementenabled());
 }
 
+void AMShapeDataSetView::updateShapeName(QString newName, QString oldName)
+{
+    qDebug()<<"AMShapeDataSetView::updateShapeName - Updating shape name";
+    if(currentView_ == NAME)
+    {
+        if(currentIndex() >= 0 && textItems_.count() > currentIndex() && textItems_.at(currentIndex())->document()->toPlainText() == oldName)
+            textItems_[currentIndex()]->setPlainText(newName);
+        else
+            reviewCrosshairLinePositions();
+    }
+}
+
 
 
 
@@ -1418,8 +1430,8 @@ void AMShapeDataSetView::setGUI()
     QFrame* shapeFrame = new QFrame();
     QHBoxLayout* shapeHorizontalLayout =  new QHBoxLayout();
     shapeHorizontalLayout->setContentsMargins(12,4,12,4);
-    shapeHorizontalLayout->addWidget(showShapeView_ = new QPushButton("Show shape"));
-    shapeHorizontalLayout->addSpacing(20);
+//    shapeHorizontalLayout->addWidget(showShapeView_ = new QPushButton("Show shape"));
+//    shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
     shapeHorizontalLayout->addSpacing(20);
     shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
@@ -1695,7 +1707,7 @@ void AMShapeDataSetView::makeConnections()
 
     connect(showBeamOutlineCheckBox_, SIGNAL(toggled(bool)), this, SLOT(showBeamOutline(bool)));
 
-    connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
+//    connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
     connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
 
@@ -1734,5 +1746,6 @@ void AMShapeDataSetView::makeConnections()
     connect(viewHidden_, SIGNAL(triggered()), this, SLOT(setViewHidden()));
 
     connect(shapeModel_, SIGNAL(moveSucceeded()), this, SLOT(moveTestSlot()));
+    connect(shapeModel_, SIGNAL(shapeNameChanged(QString, QString)), this, SLOT(updateShapeName(QString, QString)));
 
 }

@@ -4,9 +4,9 @@
 #include <QListView>
 
 class AMSampleContainer;
-class AMSampleEthanView;
+class AMSampleView;
 
-/// This class is a view for a list of AMSampleEthans
+/// This class is a view for a list of AMSamples
 /// uses index changed and setCurrentSelection to coordinate
 /// selected sample with AMShapeDataSet
 class AMSampleContainerView : public QListView
@@ -38,7 +38,7 @@ protected:
     /// the sample container
     AMSampleContainer* sampleContainer_;
     /// the view for individual samples
-    AMSampleEthanView* sampleView_;
+    AMSampleView* sampleView_;
 };
 
 #endif // AMSAMPLECONTAINERVIEW_H

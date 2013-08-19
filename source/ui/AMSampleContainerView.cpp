@@ -1,7 +1,7 @@
 #include "AMSampleContainerView.h"
 
 #include "AMSampleContainer.h"
-#include "AMSampleEthanView.h"
+#include "AMSampleView.h"
 #include <QDebug>
 AMSampleContainerView::AMSampleContainerView(QWidget *parent)
     :QListView(parent)
@@ -43,6 +43,6 @@ void AMSampleContainerView::setCurrentSelection(int rowIndex)
 void AMSampleContainerView::init()
 {
     setWindowTitle("Sample Container");
-    sampleView_ = new AMSampleEthanView();
+    sampleView_ = new AMSampleView();
 }
 

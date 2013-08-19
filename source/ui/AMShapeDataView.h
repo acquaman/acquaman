@@ -7,7 +7,7 @@ class AMShapeData;
 class QLineEdit;
 class QPushButton;
 class QSlider;
-class AMSampleEthanView;
+class AMSampleView;
 class QFrame;
 
 
@@ -46,6 +46,8 @@ public slots:
 
     void showSampleView();
 
+    void setCoordinate();
+
 
 signals:
     void updateShapes();
@@ -62,7 +64,7 @@ protected:
     void updateCoordinateLabels();
 protected:
     AMShapeData *shapeModel_;
-    QLineEdit *nameEdit_;
+//    QLineEdit *nameEdit_;
     QLineEdit *tiltEdit_;
     QLineEdit *xEdit_;
     QLineEdit *yEdit_;
@@ -77,7 +79,7 @@ protected:
     QLineEdit** coordinateEdit_;
     QFrame* coordinateFrame_;
 
-//    AMSampleEthanView* sampleView_;
+//    AMSampleView* sampleView_;
     QPushButton* showSampleView_;
     int oldCount_;
 

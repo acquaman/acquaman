@@ -1,4 +1,4 @@
-#include "AMSampleEthanView.h"
+#include "AMSampleView.h"
 
 #include <QLineEdit>
 #include <QLayout>
@@ -13,12 +13,12 @@
 #include "util/AMPeriodicTableView.h"
 #include "AMShapeDataView.h"
 
-#include "AMSampleEthan.h"
+#include "AMSample.h"
 #include "util/AMSamplePeriodicTableDialog.h"
 //#include "dataman/AMSamplePlate.h"
 
 
-AMSampleEthanView::AMSampleEthanView(QWidget* parent)
+AMSampleView::AMSampleView(QWidget* parent)
     : QWidget(parent)
 {
     qDebug()<<"Creating new AMSampleView 1";
@@ -29,7 +29,7 @@ AMSampleEthanView::AMSampleEthanView(QWidget* parent)
 
 }
 
-AMSampleEthanView::AMSampleEthanView(AMSampleEthan *sample, QWidget *parent)
+AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
     : QWidget(parent)
 {
     qDebug()<<"Creating new AMSampleView 2";
@@ -39,32 +39,32 @@ AMSampleEthanView::AMSampleEthanView(AMSampleEthan *sample, QWidget *parent)
     loadFromDb();
 }
 
-void AMSampleEthanView::setSample(AMSampleEthan *sample)
+void AMSampleView::setSample(AMSample *sample)
 {
     sample_ = sample;
 //    shapeDataView_->setShapeData(sample->sampleShapePositionData());
     updateFrames();
 }
 
-void AMSampleEthanView::setName(QString name)
+void AMSampleView::setName(QString name)
 {
     sample_->setName(name);
 }
 
-void AMSampleEthanView::setDateTime(QString dateTime)
+void AMSampleView::setDateTime(QString dateTime)
 {
     QDateTime sampleDateTime;
     sampleDateTime.fromString(dateTime,"MMM d  (yyyy)");
     sample_->setDateTime(sampleDateTime);
 }
 
-void AMSampleEthanView::setNotes()
+void AMSampleView::setNotes()
 {
     QString notes = notesText_->toPlainText();
     sample_->setNotes(notes);
 }
 
-void AMSampleEthanView::addTag()
+void AMSampleView::addTag()
 {
     QString text = tagText_->text();
     sample_->addTag(text);
@@ -77,18 +77,18 @@ void AMSampleEthanView::addTag()
     tagText_->setText("");
 }
 
-void AMSampleEthanView::removeTag(int index)
+void AMSampleView::removeTag(int index)
 {
     sample_->removeTag(tagText_->text());
 }
 
-void AMSampleEthanView::removeTag()
+void AMSampleView::removeTag()
 {
     removeTag(tagBox_->currentIndex());
     updateFrames();
 }
 
-void AMSampleEthanView::showPeriodicTable()
+void AMSampleView::showPeriodicTable()
 {
     const AMElement* element = AMSamplePeriodicTableDialog::getElement(sample_->elements());
 
@@ -99,7 +99,7 @@ void AMSampleEthanView::showPeriodicTable()
     updateFrames();
 }
 
-void AMSampleEthanView::updateFrames()
+void AMSampleView::updateFrames()
 {
     if(sample_)
     {
@@ -111,7 +111,7 @@ void AMSampleEthanView::updateFrames()
         samplePlateName_->setText(sample_->samplePlateName());
     }
     AMDatabase* db = AMDatabase::database("user");
-    QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "tags");
+    QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "tags");
     QStringList itemList;
     foreach(QVariant item, matchIDs)
     {
@@ -136,10 +136,10 @@ void AMSampleEthanView::updateFrames()
 }
 
 
-void AMSampleEthanView::loadSample(QString sampleName)
+void AMSampleView::loadSample(QString sampleName)
 {
     AMDatabase* db = AMDatabase::database("user");
-    QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name", sampleName);
+    QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", sampleName);
     if(matchIDs.count() == 0)
     {
         qDebug()<<"AMSampleEthanView::loadSample - No match found for sample: "<<sampleName;
@@ -170,7 +170,7 @@ void AMSampleEthanView::loadSample(QString sampleName)
     updateFrames();
 }
 
-void AMSampleEthanView::changeSamplePlate(QString name)
+void AMSampleView::changeSamplePlate(QString name)
 {
     AMDatabase* db = AMDatabase::database("user");
     /// load the sample plate, make sure it's the same one, set it as sample_'s samplePlate_.
@@ -211,7 +211,7 @@ void AMSampleEthanView::changeSamplePlate(QString name)
 
 
 
-void AMSampleEthanView::setUpGui()
+void AMSampleView::setUpGui()
 {
     qDebug()<<"Called setupgui";
     shapeDataView_ = AMShapeDataView::shapeView();
@@ -277,7 +277,7 @@ void AMSampleEthanView::setUpGui()
 
 }
 
-void AMSampleEthanView::makeConnections()
+void AMSampleView::makeConnections()
 {
     connect(nameText_, SIGNAL(textEdited(QString)), this, SLOT(setName(QString)));
     connect(dateTimeText_, SIGNAL(textEdited(QString)), this, SLOT(setDateTime(QString)));
@@ -290,7 +290,7 @@ void AMSampleEthanView::makeConnections()
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
 }
 
-void AMSampleEthanView::populateSamplePlateLoader()
+void AMSampleView::populateSamplePlateLoader()
 {
     samplePlateLoader_->blockSignals(true);
     samplePlateLoader_->clear();
@@ -305,7 +305,7 @@ void AMSampleEthanView::populateSamplePlateLoader()
 
 }
 
-void AMSampleEthanView::loadFromDb()
+void AMSampleView::loadFromDb()
 {
 
 
@@ -313,10 +313,10 @@ void AMSampleEthanView::loadFromDb()
     if(sample_ == 0)
     {
         QString defaultName = "defaultSample";
-        QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name", defaultName);
+        QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", defaultName);
         if(matchIDs.count() == 0)
         {
-            sample_ = new AMSampleEthan();
+            sample_ = new AMSample();
             sample_->setName(defaultName);
             sample_->setCurrentDateTime();
             sample_->setNotes("Default Notes");
@@ -325,7 +325,7 @@ void AMSampleEthanView::loadFromDb()
         }
         else
         {
-            sample_ = new AMSampleEthan();
+            sample_ = new AMSample();
             bool success = sample_->loadFromDb(db,matchIDs.first());
             if(!success) qDebug()<<"AMSampleEthanView::loadFromDb - failed to load item from database";
         }
@@ -337,7 +337,7 @@ void AMSampleEthanView::loadFromDb()
     }
 }
 
-void AMSampleEthanView::populateSampleLoader()
+void AMSampleView::populateSampleLoader()
 {
     int currentIndex = sampleLoader_->currentIndex();
     QString currentSampleName = nameText_->text();
@@ -345,7 +345,7 @@ void AMSampleEthanView::populateSampleLoader()
     sampleLoader_->clear();
     sampleLoader_->blockSignals(false);
     AMDatabase* db = AMDatabase::database("user");
-    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSampleEthan>(), "name");
+    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name");
     foreach(QVariant item, nameList)
     {
         sampleLoader_->addItem(item.toString());
@@ -359,7 +359,7 @@ void AMSampleEthanView::populateSampleLoader()
     }
 }
 
-void AMSampleEthanView::saveToDb()
+void AMSampleView::saveToDb()
 {
     AMDatabase* db = AMDatabase::database("user");
     bool success = sample_->storeToDb(db);

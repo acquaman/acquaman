@@ -6,10 +6,11 @@
 #include <QPushButton>
 #include <QSlider>
 #include <cmath>
+#include <QLabel>
 
 #include <QDebug>
 
-#include "AMSampleEthanView.h"
+#include "AMSampleView.h"
 
 
 AMShapeDataView* AMShapeDataView::instance_;
@@ -31,8 +32,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
         shapeModel_ = shapeModel;
 
 
-
-//    sampleView_ = new AMSampleEthanView();
+    coordinateEdit_ = 0;
+//    sampleView_ = new AMSampleView();
 
 
     /// Set up GUI
@@ -40,7 +41,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     QFrame* coordinateFrame= new QFrame();
     QHBoxLayout* ihl = new QHBoxLayout();
     ihl->setContentsMargins(12,4,12,4);
-    ihl->addWidget(nameEdit_ = new QLineEdit());
+//    ihl->addWidget(nameEdit_ = new QLineEdit());
+//    nameEdit_ = new QLineEdit();
     ihl->addSpacing(10);
     ihl->addWidget(xEdit_ = new QLineEdit());
     ihl->addSpacing(10);
@@ -98,7 +100,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     setWindowTitle("Shape View");
     /// Make Connections
 
-    connect(nameEdit_, SIGNAL(textEdited(QString)), this, SLOT(nameChanged(QString)));
+//    connect(nameEdit_, SIGNAL(textEdited(QString)), this, SLOT(nameChanged(QString)));
     connect(tiltEdit_, SIGNAL(textEdited(QString)), this, SLOT(tiltChanged(QString)));
     connect(rotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(rotationChanged(QString)));
     connect(yRotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(yAxisRotationChanged(QString)));
@@ -110,6 +112,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     connect(xAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(xAxisRotation(int)));
     connect(yAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(yAxisRotation(int)));
     connect(zAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(zAxisRotation(int)));
+
 
     connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
     connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
@@ -123,7 +126,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 void AMShapeDataView::setName(QString name)
 {
-    nameEdit_->setText(name);
+//    nameEdit_->setText(name);
 }
 
 void AMShapeDataView::setTilt(QString tilt)
@@ -268,7 +271,20 @@ void AMShapeDataView::setShapeVisible(bool visible)
 
 void AMShapeDataView::showSampleView()
 {
-//    sampleView_->show();
+    //    sampleView_->show();
+}
+
+void AMShapeDataView::setCoordinate()
+{
+    QVector3D newCoordinate;
+    for(int i = 0; i < shapeModel_->count(); i++)
+    {
+        newCoordinate.setX(coordinateEdit_[3*i]->text().toDouble());
+        newCoordinate.setY(coordinateEdit_[3*i+1]->text().toDouble());
+        newCoordinate.setZ(coordinateEdit_[3*i+2]->text().toDouble());
+        shapeModel_->setCoordinate(newCoordinate,i);
+    }
+    emit updateShapes();
 }
 
 void AMShapeDataView::xAxisRotation(int value)
@@ -311,7 +327,7 @@ void AMShapeDataView::update()
     if(isValid())
     {
         updateCoordinateLabels();
-        nameEdit_->setText(shapeModel_->name());
+//        nameEdit_->setText(shapeModel_->name());
         tiltEdit_->setText(QString::number(shapeModel_->tilt()));
         QVector3D coordinate = shapeModel_->centerCoordinate();
         xEdit_->setText(QString::number(coordinate.x()));
@@ -323,7 +339,7 @@ void AMShapeDataView::update()
     }
     else
     {
-        nameEdit_->setText("None selected");
+//        nameEdit_->setText("None selected");
     }
 
 }
@@ -363,15 +379,42 @@ void AMShapeDataView::updateCoordinateLabels()
         QHBoxLayout* pointLayout [points];
         for(int i = 0; i < points; i++)
         {
+            QString labelText;
+            if(4 == points)
+            {
+                switch(i)
+                {
+                case 0:
+                    labelText = "Top Left";
+                    break;
+                case 1:
+                    labelText = "Top Right";
+                    break;
+                case 2:
+                    labelText = "Bottom Right";
+                    break;
+                case 3:
+                    labelText = "Bottom Left";
+                    break;
+                default:
+                    labelText = QString("%1").arg(i);
+                }
+            }
+            else
+                labelText = QString("%1").arg(i);
+
             pointFrame[i] = new QFrame();
             pointLayout[i] = new QHBoxLayout();
             pointLayout[i]->setContentsMargins(12,4,12,4);
             pointLayout[i]->addWidget(coordinateEdit_[3*i] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).x())));
             pointLayout[i]->addWidget(coordinateEdit_[3*i+1] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).y())));
             pointLayout[i]->addWidget(coordinateEdit_[3*i+2] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).z())));
+            pointLayout[i]->addWidget(new QLabel(labelText));
             pointLayout[i]->addStretch();
             pointFrame[i]->setLayout(pointLayout[i]);
             verticalLayout->addWidget(pointFrame[i]);
+            for(int n = 0; n < 3; n++)
+                connect(coordinateEdit_[3*i+n], SIGNAL(textEdited(QString)), this, SLOT(setCoordinate()));
         }
         verticalLayout->addStretch();
         coordinateFrame_->setLayout(verticalLayout);

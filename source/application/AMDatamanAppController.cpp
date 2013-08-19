@@ -102,6 +102,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
+#include "ui/AMCameraConfiguration.h"
+#include "ui/AMBeamConfiguration.h"
+#include "ui/AMSample.h"
+
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -571,6 +575,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
+
+    success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+    success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+    success &= AMDbObjectSupport::s()->registerClass<AMSample>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();

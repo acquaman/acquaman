@@ -6,10 +6,10 @@
 #include <QDateTime>
 #include <QImage>
 
-class AMSampleEthan;
+class AMSample;
 class AMShapeData;
 
-/// This class is a container of zero or more AMSampleEthan
+/// This class is a container of zero or more AMSample
 /// It inherits from the QAbstractListModel so that it can be
 /// easily visualized using QListView.
 class AMSampleContainer : public QAbstractListModel
@@ -20,10 +20,10 @@ public:
     AMSampleContainer(QObject* parent = 0);
 
     /// returns a const reference to the list of samples
-    const QList<AMSampleEthan*> sampleList() const;
+    const QList<AMSample*> sampleList() const;
 
     /// returns the sample at the given index
-    AMSampleEthan* sample(int index) const;
+    AMSample* sample(int index) const;
 
     /// returns the current sampleName
     QString sampleName() const;
@@ -63,11 +63,11 @@ public:
 
 public slots:
     /// sets the sample List to the one provided
-    void setSampleList(QList<AMSampleEthan*> sampleList);
+    void setSampleList(QList<AMSample*> sampleList);
     /// adds the given sample to the list
-    void addSample(AMSampleEthan* sample);
+    void addSample(AMSample* sample);
     /// removes the specified sample from the list
-    void removeSample(AMSampleEthan* sample);
+    void removeSample(AMSample* sample);
     /// sets the name of the specified sample
     void setSampleName(QString name, int index);
     /// sets the dateTime of the specified sample
@@ -96,11 +96,11 @@ protected:
 
 protected:
     /// list of samples
-    QList<AMSampleEthan*> sampleList_;
+    QList<AMSample*> sampleList_;
     /// current index
     int index_;
     /// null sample, for use in initializing displays
-    AMSampleEthan* nullSample_;
+    AMSample* nullSample_;
 };
 
 #endif // AMSAMPLECONTAINER_H

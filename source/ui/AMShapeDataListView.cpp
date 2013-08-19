@@ -1,7 +1,7 @@
 #include "AMShapeDataListView.h"
 
 #include "AMShapeDataSet.h"
-#include "AMSampleEthanView.h"
+#include "AMSampleView.h"
 
 AMShapeDataListView::AMShapeDataListView(QWidget* parent)
     : QListView(parent)
