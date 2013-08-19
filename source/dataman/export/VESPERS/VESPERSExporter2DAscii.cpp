@@ -220,39 +220,75 @@ void VESPERSExporter2DAscii::writeSeparateSections()
 
 bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 {
-	for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
+	if (option_->higherDimensionsInRows()){
 
-		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
-		AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
+		for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
 
-		QFile output;
-		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-		if(!openFile(&output, separateFileName)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
-			return false;
+			QFile output;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+
+			if(!openFile(&output, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
+			}
+
+			int spectraSize = source->size(2);
+			QString columnDelimiter = option_->columnDelimiter();
+			QString newLineDelimiter = option_->newlineDelimiter();
+			QTextStream out(&output);
+
+			for (int y = 0, ySize = source->size(1); y < ySize; y++){
+
+				for (int x = 0, xSize = source->size(0); x < xSize; x++){
+
+					QVector<double> data(spectraSize);
+					source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
+
+					for (int i = 0; i < spectraSize; i++)
+						out << data.at(i) << columnDelimiter;
+
+					out << newLineDelimiter;
+				}
+			}
+
+			output.close();
 		}
+	}
 
-		int spectraSize = source->size(2);
-		QString columnDelimiter = option_->columnDelimiter();
-		QString newLineDelimiter = option_->newlineDelimiter();
-		QTextStream out(&output);
+	else{
 
-		for (int y = 0, ySize = source->size(1); y < ySize; y++){
+		for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
 
-			for (int x = 0, xSize = source->size(0); x < xSize; x++){
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-				QVector<double> data(spectraSize);
-				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
+			QFile output;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
 
-				for (int i = 0; i < spectraSize; i++)
-					out << data.at(i) << columnDelimiter;
+			if(!openFile(&output, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
+			}
+
+			int spectraSize = source->size(2);
+			QString columnDelimiter = option_->columnDelimiter();
+			QString newLineDelimiter = option_->newlineDelimiter();
+			QTextStream out(&output);
+
+			for (int i = 0; i < spectraSize; i++){
+
+				for (int y = 0, ySize = source->size(1); y < ySize; y++)
+					for (int x = 0, xSize = source->size(0); x < xSize; x++)
+						out << double(source->value(AMnDIndex(x, y, i))) << columnDelimiter;
 
 				out << newLineDelimiter;
 			}
-		}
 
-		output.close();
+			output.close();
+		}
 	}
 
 	return true;

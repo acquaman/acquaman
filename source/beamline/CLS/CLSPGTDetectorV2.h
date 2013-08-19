@@ -69,6 +69,9 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
 
+	/// Returns the integration mode control if the caller is of a privileged type (CLSPGTDetectorV2View)
+	AMControl* privilegedIntegrationModeControl(const QObject *caller);
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);

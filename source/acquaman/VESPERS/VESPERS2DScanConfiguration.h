@@ -75,6 +75,8 @@ public:
 	bool exportAsAscii() const { return exportAsAscii_; }
 	/// Returns whether we are going to export the spectra data sources or not.
 	bool exportSpectraSources() const { return exportSpectraSources_; }
+	/// Returns whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows() const { return exportSpectraInRows_; }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	virtual QString headerText() const;
@@ -88,6 +90,8 @@ public slots:
 	void setExportAsAscii(bool exportAsAscii);
 	/// Sets whether we export the scan with the spectra included or not.
 	void setExportSpectraSources(bool exportSpectra);
+	/// Sets whether we are exporting the spectra in rows or columns.
+	void setExportSpectraInRows(bool exportInRows);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -101,6 +105,8 @@ protected:
 	bool exportAsAscii_;
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
+	/// Flag holding whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows_;
 };
 
 #endif // VESPERS2DSCANCONFIGURATION_H
