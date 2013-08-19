@@ -268,6 +268,16 @@ void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
+
+	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+
+		QPalette palette = scanName_->palette();
+		palette.setColor(QPalette::Base, Qt::red);
+		scanName_->setPalette(palette);
+	}
+
+	else
+		scanName_->setPalette(this->palette());
 }
 
 void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &name) const
@@ -403,6 +413,7 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 		checkCCDFileNames(name);
 	}
 
+	onScanNameEdited();
 	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
 }
