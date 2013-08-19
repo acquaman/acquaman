@@ -26,8 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	: AMXASScanConfiguration(parent), VESPERSScanConfiguration()
 {
-	setName("Energy Scan");
-	setUserScanName("Energy Scan");
+	setName("EnergyScan");
+	setUserScanName("EnergyScan");
 	dbObject_->setParent(this);
 	regions_->setSensibleRange(10000, 20000);
 	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energy());
