@@ -14,6 +14,7 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMCameraBrowser;
+class AMSampleContainerView;
 
 #include <QMediaPlayer>
 
@@ -34,7 +35,7 @@ public:
     QString currentSourceURL() const;
 
 
-signals:
+
 
 public slots:
 
@@ -70,6 +71,8 @@ protected:
     AMShapeDataSetView* videoWidget_;
 
     QComboBox* sourceComboBox_;
+
+    AMSampleContainerView* sampleView_;
 
 
 

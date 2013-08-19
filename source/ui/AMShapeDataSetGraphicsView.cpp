@@ -7,8 +7,8 @@ AMShapeDataSetGraphicsView::AMShapeDataSetGraphicsView(QWidget *parent, bool use
     AMOverlayVideoWidget2(parent, useOpenGlViewport)
 {
 
-
 }
+
 
 void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
 {
@@ -18,6 +18,7 @@ void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
 
 }
 
+#include <QDebug>
 void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mousePressEvent(event);
@@ -25,6 +26,7 @@ void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         emit mousePressed(mapSceneToVideo(mapToScene(event->pos())));
+
     }
     else if (event->button() == Qt::RightButton)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(event->pos())));
@@ -57,6 +59,11 @@ void AMShapeDataSetGraphicsView::mouseMoveEvent(QMouseEvent *event)
         emit mouseMoved(mapSceneToVideo(mapToScene(event->pos())));
 }
 
+void AMShapeDataSetGraphicsView::setVideoItem(QGraphicsVideoItem *item)
+{
+    videoItem_ = item;
+}
+
 
 QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
@@ -76,3 +83,10 @@ QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordina
 
     return QPointF(xScene, yScene);
 }
+
+void AMShapeDataSetGraphicsView::contextMenuEvent(QContextMenuEvent *event)
+{
+    /// do nothing;
+}
+
+

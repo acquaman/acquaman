@@ -32,8 +32,8 @@ AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 {
 	QFile file(":/ElementalInformation.txt");
 
-	if (!file.open(QFile::ReadOnly | QFile::Text)){
-		emit unableToLoad(file.fileName(), file.errorString());
+    if (!file.open(QFile::ReadOnly | QFile::Text)){
+        emit unableToLoad(file.fileName(), file.errorString());
 		return;
 	}
 

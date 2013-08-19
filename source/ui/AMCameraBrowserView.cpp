@@ -16,6 +16,7 @@
 #include "ui/AMShapeDataView.h"
 #include "AMCameraBrowser.h"
 #include <QLineEdit>
+#include "AMSampleContainerView.h"
 
 #include <QDebug>
 
@@ -183,6 +184,10 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
 {
     cameraBrowser_ = cameraBrowser;
     videoWidget_ = new AMShapeDataSetView(cameraBrowser_->shapeDataSet());
+    sampleView_ = new AMSampleContainerView();
+    sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
+    sampleView_->show();
+
     //	crosshairLocked_ = false;
 
         setWindowTitle("Video");
@@ -221,10 +226,20 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
         // Make conections:
         //////////////////////////
 
-//        connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), cameraBrowser_, SLOT(onVideoWidgetDoubleClicked(QPointF)));
         connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
+	/*
+<<<<<<< HEAD
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
 
+=======
+*/
+        connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+        connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
+        connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
+        connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
+	/*
+>>>>>>> e99820f2e6cc6199b24e81bb71d7c609c042900e
+*/
 
 
 

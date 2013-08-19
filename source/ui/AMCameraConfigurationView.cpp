@@ -17,7 +17,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     QWidget(parent)
 {
     if(cameraConfiguration == 0)
-        qDebug()<<"Null camera configuration";
+        qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Null camera configuration";
     else
         cameraModel_ = cameraConfiguration;
     AMDatabase *dbSGM = AMDatabase::database("user");
@@ -32,8 +32,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
         bool success = cameraModel_->storeToDb(dbSGM);
-        if(!success)qDebug()<<"Failed to store item in database";
-        else qDebug()<<"successfully stored item in database";
+        if(!success)qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Failed to store item in database";
+        else qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - successfully stored item in database";
     }
     else
     {
@@ -132,17 +132,45 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     shl->addStretch();
     selectionFrame->setLayout(shl);
 
-//    beamConfiguration_ = new AMBeamConfigurationView();
 
+    cameraFrame_= new QFrame();
+    QVBoxLayout* cvl  = new QVBoxLayout();
+    cvl->setContentsMargins(0,0,0,0);
+    cvl->addWidget(positionFrame);
+    cvl->addWidget(centerFrame);
+    cvl->addWidget(fovFrame);
+    cvl->addWidget(rotationFrame);
+    cvl->addStretch();
+    cameraFrame_->setLayout(cvl);
 
+    matrixFrame_ = new QFrame();
+    QVBoxLayout* mvl = new QVBoxLayout();
+    mvl->setContentsMargins(0,0,0,0);
 
-    vbl->addWidget(positionFrame);
-    vbl->addWidget(centerFrame);
-    vbl->addWidget(fovFrame);
-    vbl->addWidget(rotationFrame);
+    QFrame* rowFrame[3];
+    QHBoxLayout* rfhl[3];
+    for(int i = 0; i < 3; i++)
+    {
+        rowFrame[i] = new QFrame();
+        rfhl[i] = new QHBoxLayout();
+        rfhl[i]->setContentsMargins(12,4,12,4);
+        for(int j = 0; j < 4; j++)
+        {
+            rfhl[i]->addWidget(matrixElement_[4*i+j] = new QLineEdit());
+            rfhl[i]->addSpacing(20);
+        }
+        rfhl[i]->addStretch();
+        rowFrame[i]->setLayout(rfhl[i]);
+        mvl->addWidget(rowFrame[i]);
+    }
+    mvl->addStretch();
+    matrixFrame_->setLayout(mvl);
+
+    vbl->addWidget(cameraFrame_);
+    vbl->addWidget(matrixFrame_);
     vbl->addWidget(selectionFrame);
-//    vbl->addWidget(beamConfiguration_);
     setLayout(vbl);
+    matrixFrame_->hide();
 
     populateComboBox(1);
 
@@ -174,12 +202,13 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     connect(saveConfiguration_, SIGNAL(clicked()), this, SLOT(saveConfiguration()));
     connect(configurationName_, SIGNAL(textChanged(QString)), this, SLOT(updateName(QString)));
     connect(configurationSelection_, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSelection(int)));
-     connect(overwriteButton_, SIGNAL(clicked()), this, SLOT(overwriteConfiguration()));
+    connect(overwriteButton_, SIGNAL(clicked()), this, SLOT(overwriteConfiguration()));
 
-//     connect(beamConfiguration_, SIGNAL(oneSelect()), this, SIGNAL(oneSelect()));
-//     connect(beamConfiguration_, SIGNAL(twoSelect()), this, SIGNAL(twoSelect()));
-//     connect(this, SIGNAL(beamChanged(QObject*)), beamConfiguration_, SLOT(beamChanged(QObject*)));
-//     connect(beamConfiguration_, SIGNAL(intersection()), this, SIGNAL(intersection()));
+    for(int i = 0; i < 12; i++)
+    {
+        connect(matrixElement_[i], SIGNAL(textChanged(QString)), this, SLOT(updateMatrix()));
+    }
+
 
 }
 
@@ -465,6 +494,19 @@ void AMCameraConfigurationView::overwriteConfiguration()
     populateComboBox(cameraModel_->id());
 }
 
+void AMCameraConfigurationView::updateMatrix()
+{
+    QVector<QVector3D> cameraModel;
+    QVector3D columns[4];
+    for(int i = 0; i < 4; i++)
+    {
+        columns[i] = QVector3D(matrixElement_[i]->text().toDouble(),matrixElement_[4+i]->text().toDouble(),matrixElement_[8+i]->text().toDouble());
+        cameraModel<<columns[i];
+    }
+    cameraModel_->setCameraMatrix(cameraModel);
+
+}
+
 /// looks up currently saved configurations, and shows them in the combo box
 void AMCameraConfigurationView::populateComboBox(int dbIndex)
 {
@@ -484,6 +526,7 @@ void AMCameraConfigurationView::populateComboBox(int dbIndex)
 /// updates all the fields in the window
 void AMCameraConfigurationView::updateAll()
 {
+    qDebug()<<"Updating camera window";
     QVector3D position = cameraModel_->cameraPosition();
     QVector3D center = cameraModel_->cameraCentre();
     QString name = cameraModel_->name();
@@ -502,6 +545,37 @@ void AMCameraConfigurationView::updateAll()
     pixelAspectRatio_->setText(QString::number(pixelAspectRatio()));
     centreOffsetX_->setText(QString::number(centreOffsetX()));
     centreOffsetY_->setText(QString::number(centreOffsetY()));
+    QVector<QVector3D> cameraMatrix;
+    cameraMatrix = cameraModel_->cameraMatrix();
+    if(cameraMatrix.isEmpty())
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            cameraMatrix<<QVector3D(0,0,0);
+        }
+    }
+    for(int i = 0; i < 4; i++)
+    {
+        matrixElement_[i]->setText(QString("%1").arg(cameraMatrix.at(i).x()));
+        matrixElement_[4+i]->setText(QString("%1").arg(cameraMatrix.at(i).y()));
+        matrixElement_[8+i]->setText(QString("%1").arg(cameraMatrix.at(i).z()));
+    }
+    qDebug()<<"Finished updating camera window";
+}
+
+void AMCameraConfigurationView::hideCameraParameters(bool hide)
+{
+
+    if(hide)
+    {
+        cameraFrame_->hide();
+        matrixFrame_->show();
+    }
+    else
+    {
+        matrixFrame_->hide();
+        cameraFrame_->show();
+    }
 
 }
 

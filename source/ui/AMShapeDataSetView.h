@@ -3,7 +3,9 @@
 
 #include "ui/AMOverlayVideoWidget2.h"
 #include <QWidget>
+#include <QVector3D>
 
+class QTimer;
 class QGraphicsLineItem;
 class AMShapeDataSet;
 class AMCameraConfiguration;
@@ -17,11 +19,26 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMBeamConfigurationView;
 class QColor;
+class QToolBar;
+class QAction;
+class GraphicsTextItem;
+class QCompleter;
+class QStringListModel;
+class QMediaPlayer;
+class AMCameraConfigurationWizard;
+class AMBeamConfigurationWizard;
+class AMSamplePlateWizard;
+class AMShapeDataListView;
 
-/// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
-/*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
+/// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
+/*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video,
+ *taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display,
+ *via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
 
 For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
+
+
+
 
 class AMShapeDataSetView : public QWidget
 {
@@ -29,6 +46,9 @@ class AMShapeDataSetView : public QWidget
 public:
 	/// Constructor.
     explicit AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+
+    /// Destructor
+    ~AMShapeDataSetView();
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
@@ -67,7 +87,6 @@ public:
 
 
 
-    void moveCurrentToCoordinate();
 
 
 
@@ -75,6 +94,8 @@ public:
     void play();
 
     QMediaPlayer* mediaPlayer();
+
+    QPointF mapPointToVideo(QPointF);
 
 public slots:
 
@@ -98,6 +119,19 @@ public slots:
          void setRotation(QString rotation);
 
          void motorMoved();
+
+         void setUseMotorCoordinate(bool);
+
+         void setUseCameraMatrix(bool);
+
+         void showCameraBeamWindow();
+
+         void showShapeView();
+
+         void setDrawOnShape();
+         void setDrawOnShapeEnabled(bool enable);
+
+         void reviewCameraConfiguration();
 
 
 signals:
@@ -134,14 +168,27 @@ signals:
     /// Emitted when the left mouse button is pressed, in group mode
     void mouseGroupPressed(const QPointF& position);
 
+    void mouseMultiDrawPressed(const QPointF& position);
+    void mouseMultiDrawDoubleClicked(const QPointF& position);
+    void enterMultiDraw();
+    void modeChange();
 
-    void setCoordinate(double x, double y, double z);
+    void mouseMove(QPointF);
+
+
 
     // for beam configuring
     void oneSelect();
     void twoSelect();
 
     void updateShapes(int);
+
+    void applyDistortion();
+
+    void motorMovementEnabled(bool enabled);
+
+    void moveSucceeded();
+
 
 
 public slots:
@@ -158,6 +205,27 @@ public slots:
     void setCameraModel(AMCameraConfiguration*);
 
     void intersection();
+
+    void hideCameraParameters(bool hide);
+
+    void startCameraWizard();
+
+    void startBeamWizard();
+
+    void startSampleWizard();
+
+    void setSamplePlate();
+
+    void setCameraConfigurationShape();
+
+    void moveSamplePlate(int movement);
+
+    void showBeamOutline(bool show);
+
+    void moveTestSlot();
+
+//    void setShapeVisible(bool visible);
+
 protected slots:
     void updateCurrentShape();
 
@@ -177,9 +245,6 @@ protected slots:
      /// manages changing the selection
      void currentSelectionChanged();
 
-
-
-
     /// added mouse move event
     void mouseMoveHandler(QPointF position);
 
@@ -193,6 +258,7 @@ protected slots:
     void setOperationMode();
     void setGroupMode();
     void setConfigurationMode();
+    void setMultiDrawMode();
 
     void setMotorCoordinatePressed();
 
@@ -203,14 +269,43 @@ protected slots:
     void showConfigurationWindow();
 
     void setPoint(QPointF position, int point);
+    void selectPoint(int);
     void selectPointOne();
     void selectPointTwo();
     void selectPointThree();
     void selectPointFour();
     void selectPointFive();
-    void selectPointSix();
+    void selectPointSix();//    void moveCurrentToCoordinate();
 
     void runCameraConfiguration();
+
+    void deleteCalibrationPoints();
+
+    void stopTimer();
+
+    void changeDrawButtonText();
+
+    void updateItemName(int index);
+
+    void updateCurrentTextItemName();
+
+    void setViewName();
+    void setViewOtherData();
+    void setViewIdNumber();
+    void setViewHidden();
+
+    void autoCompleteEnterPressed();
+
+    void beamShape(int);
+
+    void beamCalibrate();
+
+    void moveBeamSamplePlate(QVector3D);
+
+    void showBeamMarker(int);
+
+    void transmitMotorMovementEnabled();
+
 
 
 
@@ -241,15 +336,18 @@ protected:
 
     void clearIntersections();
 
+//    void setListViewModel();
 
+    void setGUI();
 
-
-
+    void makeConnections();
 
 
 protected:
 
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE};
+    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
+
+    enum ViewMode{NAME,DATA,ID,HIDE};
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
@@ -293,17 +391,11 @@ protected:
 
     /// crosshair control bar
 
-    QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
+    QCheckBox *lockCrosshairCheckBox_;
+    QCheckBox *showCrosshairCheckBox_;
     AMColorPickerButton2* crosshairColorPicker_;
     QSlider* crosshairThicknessSlider_;
 
-    /// Mode buttons
-    QPushButton* drawButton_;
-    QPushButton* moveButton_;
-    QPushButton* editButton_;
-    QPushButton* shiftButton_;
-    QPushButton* operationButton_;
-    QPushButton* groupButton_;
     /// Motor coordinate control
     QLineEdit* motorXEdit_;
     QLineEdit* motorYEdit_;
@@ -326,8 +418,77 @@ protected:
     QPushButton* pointPushButton_[6];
     QFrame* cameraConfigurationWindow_;
     QPushButton* startCameraConfiguration_;
+    QCheckBox* motorCoordinateCheckBox_;
+    QPushButton* deleteCalibrationPoints_;
+    QCheckBox* cameraMatrixCheckBox_;
+
+    QPushButton* configurationWindowButton_;
 
     int pointToSelect_;
+    bool useMotorCoordinate_;
+    bool useCameraMatrix_;
+
+    QPushButton* drawOnShapePushButton_;
+    QCheckBox* drawOnShapeCheckBox_;
+    QPushButton* showShapeView_;
+
+    QTimer* pressTimer_;
+
+    QList<GraphicsTextItem*> textItems_;
+
+    QToolBar* toolBar_;
+    QAction* markAction_;
+    QAction* moveAction_;
+    QAction* editAction_;
+    QAction* shiftAction_;
+    QAction* operationAction_;
+    QAction* groupAction_;
+
+    QToolBar* labelToolBar_;
+    QAction* viewName_;
+    QAction* viewOtherData_;
+    QAction* viewIdNumber_;
+    QAction* viewHidden_;
+
+    QPushButton* distortionButton_;
+
+    ViewMode currentView_;
+
+    QLineEdit* autoCompleteBox_;
+    QCompleter* autoCompleter_;
+    QStringListModel* wordList_;
+
+    QFrame* viewPortWindow_;
+    QGraphicsView* viewPortView_;
+    QMediaPlayer* viewMediaPlayer_;
+
+    QGraphicsPathItem* currentShape_;
+
+    QPushButton* cameraWizardButton_;
+    AMCameraConfigurationWizard* cameraWizard_;
+
+    QPushButton* beamWizardButton_;
+    AMBeamConfigurationWizard* beamWizard_;
+
+    QList<QGraphicsPolygonItem*> beamList_;
+    int updateTracker_;
+
+    QPushButton* samplePlateButton_;
+
+    QPushButton* samplePlateWizardButton_;
+    AMSamplePlateWizard* samplePlateWizard_;
+    int samplePlateMovement_;
+
+    QPushButton* cameraConfigurationShapeButton_;
+
+    QCheckBox* showBeamOutlineCheckBox_;
+
+    bool showBeamOutline_;
+
+//    AMShapeDataListView* shapeDataListView_;
+
+
+
 
 
 };

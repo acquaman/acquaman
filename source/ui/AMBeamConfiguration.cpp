@@ -12,24 +12,24 @@ AMBeamConfiguration::AMBeamConfiguration(QObject *parent) :
 {
 }
 
-QVector<QVector3D> AMBeamConfiguration::positionOne()
+QVector<QVector3D> AMBeamConfiguration::positionOne() const
 {
     return positionOne_;
 }
 
-QVector<QVector3D> AMBeamConfiguration::positionTwo()
+QVector<QVector3D> AMBeamConfiguration::positionTwo() const
 {
     return positionTwo_;
 }
 
-QVector<QVector3D> AMBeamConfiguration::ray(int index)
+QVector<QVector3D> AMBeamConfiguration::ray(int index) const
 {
     QVector<QVector3D> ray;
     ray<<(positionOne_.at(index))<<(positionTwo_.at(index));
     return ray;
 }
 
-QList<QVector3D> AMBeamConfiguration::beamOne()
+QList<QVector3D> AMBeamConfiguration::beamOne() const
 {
     QList<QVector3D> beam;
     for(int i = 0; i < positionOne_.count(); i++)
@@ -39,7 +39,7 @@ QList<QVector3D> AMBeamConfiguration::beamOne()
     return beam;
 }
 
-QList<QVector3D> AMBeamConfiguration::beamTwo()
+QList<QVector3D> AMBeamConfiguration::beamTwo() const
 {
     QList<QVector3D> beam;
     for(int i = 0; i < positionTwo_.count(); i++)
@@ -104,12 +104,12 @@ void AMBeamConfiguration::alignPositionTwo()
     setPositionTwo(newPosition);
 }
 
-int AMBeamConfiguration::count()
+int AMBeamConfiguration::count() const
 {
-    return positionOne_.count();
+    return std::min(positionOne_.count(), positionTwo_.count());
 }
 
-QVector3D AMBeamConfiguration::findCenter(QVector<QVector3D> shape)
+QVector3D AMBeamConfiguration::findCenter(QVector<QVector3D> shape) const
 {
     QVector3D sum(0,0,0);
     int count = 0;

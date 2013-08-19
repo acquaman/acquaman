@@ -172,7 +172,49 @@ HEADERS += source/ui/AMColorPickerButton2.h \
     source/beamline/AMProcessVariablePrivate.h \
     source/util/AMOrderedSetSignalSource.h \
     source/util/AMDeferredFunctionCall.h \
-    source/beamline/AMControl.h
+    source/beamline/AMControl.h \
+    source/ui/GraphicsTextItem.h \
+    source/ui/AMCameraConfigurationWizard.h \
+    source/ui/AMGraphicsVideoSceneCopier.h \
+    source/ui/AMGraphicsViewWizard.h \
+    source/ui/AMBeamConfigurationWizard.h \
+    source/ui/AMSamplePlateWizard.h \
+    source/ui/AMShapeDataListView.h \
+    source/ui/AMCamera.h \
+    source/ui/AMSampleEthan.h \
+    source/ui/AMSampleEthanView.h \
+    source/ui/AMElementListEdit.h \
+    source/ui/util/AMPeriodicTableDialog.h \
+    source/ui/util/AMPeriodicTableView.h \
+    source/acquaman.h \
+    source/ui/util/AMSamplePeriodicTableDialog.h \
+    source/dataman/AMSamplePlate.h \
+    source/dataman/info/AMControlInfoList.h \
+    source/dataman/info/AMControlInfo.h \
+    source/ui/AMSampleContainer.h \
+    source/ui/AMSampleContainerView.h \
+    source/dataman/AMScan.h \
+    source/dataman/datastore/AMInMemoryDataStore.h \
+    source/dataman/AMScanDictionary.h \
+    source/dataman/AMScanParametersDictionary.h \
+    source/dataman/AMAnalysisBlock.h \
+    source/util/AMDateTimeUtils.h \
+    source/dataman/datasource/AMDataSourceSeriesData.h \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.h \
+    source/dataman/datasource/AMDataSourceImageData.h \
+    source/application/AMPluginsManager.h \
+    source/util/AMSettings.h \
+    source/dataman/datasource/AMRawDataSource.h \
+    source/acquaman/AMScanConfiguration.h \
+    source/dataman/datastore/AMDataStore.h \
+    source/dataman/AMNumber.h \
+    source/dataman/AMRun.h \
+    source/util/AMTagReplacementParser.h \
+    source/dataman/datasource/AMDataSource.h \
+    source/ui/dataman/AMSimpleDataSourceEditor.h \
+    source/dataman/info/AMDetectorInfoSet.h \
+    source/dataman/info/AMDetectorInfo.h \
+    source/dataman/AMAxisInfo.h
 
 
 SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
@@ -207,11 +249,48 @@ SOURCES += source/application/AcquaCam/AcquaCamMain.cpp \
     source/beamline/AMProcessVariablePrivate.cpp \
     source/util/AMOrderedSetSignalSource.cpp \
     source/util/AMDeferredFunctionCall.cpp \
-    source/beamline/AMControl.cpp
-#    source/beamline/AMBeamline.cpp \
-#    source/beamline/AMControlSet.cpp \
-#    source/dataman/SGM/SGMBeamlineInfo.cpp \
-#    source/beamline/CLS/CLSSIS3820Scaler.cpp \
-#    source/beamline/AMOldDetectorSet.cpp \
-#source/beamline/CLS/CLSPGTDetector.cpp
+    source/beamline/AMControl.cpp \
+    source/ui/GraphicsTextItem.cpp \
+    source/ui/AMCameraConfigurationWizard.cpp \
+    source/ui/AMGraphicsVideoSceneCopier.cpp \
+    source/ui/AMGraphicsViewWizard.cpp \
+    source/ui/AMBeamConfigurationWizard.cpp \
+    source/ui/AMSamplePlateWizard.cpp \
+    source/ui/AMShapeDataListView.cpp \
+    source/ui/AMCamera.cpp \
+    source/ui/AMSampleEthan.cpp \
+    source/ui/AMSampleEthanView.cpp \
+    source/ui/AMElementListEdit.cpp \
+    source/ui/util/AMPeriodicTableDialog.cpp \
+    source/ui/util/AMPeriodicTableView.cpp \
+    source/acquaman.cpp \
+    source/ui/util/AMSamplePeriodicTableDialog.cpp \
+    source/dataman/AMSamplePlate.cpp \
+    source/dataman/info/AMControlInfoList.cpp \
+    source/dataman/info/AMControlInfo.cpp \
+    source/ui/AMSampleContainer.cpp \
+    source/ui/AMSampleContainerView.cpp \
+    source/dataman/AMScan.cpp \
+    source/dataman/datastore/AMInMemoryDataStore.cpp \
+    source/dataman/AMScanDictionary.cpp \
+    source/dataman/AMScanParametersDictionary.cpp \
+    source/dataman/AMAnalysisBlock.cpp \
+    source/util/AMDateTimeUtils.cpp \
+    source/dataman/datasource/AMDataSourceSeriesData.cpp \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
+    source/dataman/datasource/AMDataSourceImageData.cpp \
+    source/application/AMPluginsManager.cpp \
+    source/util/AMSettings.cpp \
+    source/dataman/datasource/AMRawDataSource.cpp \
+    source/acquaman/AMScanConfiguration.cpp \
+    source/dataman/datastore/AMDataStore.cpp \
+    source/dataman/AMNumber.cpp \
+    source/dataman/AMRun.cpp \
+    source/util/AMTagReplacementParser.cpp \
+    source/dataman/datasource/AMDataSource.cpp \
+    source/ui/dataman/AMSimpleDataSourceEditor.cpp \
+    source/dataman/info/AMDetectorInfoSet.cpp \
+    source/dataman/info/AMDetectorInfo.cpp \
+    source/dataman/AMAxisInfo.cpp
 
+RESOURCES = source/util/ElementData.qrc

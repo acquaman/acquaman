@@ -7,9 +7,13 @@
 
 
 typedef QVector<QVector3D> AMQVector3DVector;
-Q_DECLARE_METATYPE(AMQVector3DVector);
+Q_DECLARE_METATYPE(AMQVector3DVector)
 
 
+
+/// Holds the information for where the beam is positioned.
+/// contains a 3D representation of the beam using two sets of points
+/// to define two shapes.  The beam is interpreted as the rays connecting the two shapes together.
 
 class AMBeamConfiguration : public AMDbObject
 {
@@ -20,11 +24,11 @@ class AMBeamConfiguration : public AMDbObject
 public:
     explicit AMBeamConfiguration(QObject *parent = 0);
 
-    AMQVector3DVector positionOne();
-    AMQVector3DVector positionTwo();
-    AMQVector3DVector ray(int index);
-    QList<QVector3D> beamOne();
-    QList<QVector3D> beamTwo();
+    AMQVector3DVector positionOne() const;
+    AMQVector3DVector positionTwo() const;
+    AMQVector3DVector ray(int index) const;
+    QList<QVector3D> beamOne() const;
+    QList<QVector3D> beamTwo() const;
 
     void setPositionOne(AMQVector3DVector positionOne);
     void setPositionTwo(AMQVector3DVector positionTwo);
@@ -34,15 +38,16 @@ public:
 
     void alignPositionTwo();
 
-    int count();
+    int count() const;
 
 protected:
-    QVector3D findCenter(QVector<QVector3D>);
+    QVector3D findCenter(QVector<QVector3D>) const;
 
 
 protected:
     QVector<QVector3D> positionOne_;
     QVector<QVector3D> positionTwo_;
+
 
 };
 
