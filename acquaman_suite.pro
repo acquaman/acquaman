@@ -21,4 +21,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	EnsureLegalHeader \
 	VESPERSBendingMirrors.pro \
 	SGMAmptekCoordinator.pro \
-	SGMLookupTableCoordinator.pro
+	SGMLookupTableCoordinator.pro \
+        EthanAcquacam.pro

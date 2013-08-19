@@ -37,6 +37,13 @@ linux-g++ {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+                #CDFLib dependencies
+                #CDF_LIB = -lcdf
+                #CDF_INCLUDE_DIR = /usr/local/include
+                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
 }
 linux-g++-32 {
 

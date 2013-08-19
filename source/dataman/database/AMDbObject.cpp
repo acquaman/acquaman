@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMetaType>
 #include "dataman/AMnDIndex.h"
+#include "ui/AMBeamConfiguration.h"
 #include <QVector3D>
 #include <QtConcurrentRun>
 #include <QStringBuilder>
@@ -174,9 +175,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	//////////////////////////////////////////////////
 	for(int i=0; i<myInfo->columnCount; i++) {
 
-		int columnType = myInfo->columnTypes.at(i);
+        int columnType = myInfo->columnTypes.at(i);
 		QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
-		const char* columnName = columnNameBA.constData();
+        const char* columnName = columnNameBA.constData();
 
 		// add column name to key list... UNLESS the type is an AMDbObjectList. In that case, it gets its own table instead of a column.
 		if(columnType != qMetaTypeId<AMDbObjectList>())
@@ -193,7 +194,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 
 		}
-		else if(columnType == qMetaTypeId<AMIntList>()) {
+        else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
 			QStringList resultString;
 			foreach(int i, intList)
@@ -215,6 +216,15 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			resultString << QString::number(val.x()) << QString::number(val.y()) << QString::number(val.z());
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
+
+        else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
+            AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
+            QStringList resultString;
+            foreach(QVector3D d, vectorList)
+                resultString << QString("%1%2%3%2%4").arg(d.x()).arg(AMDbObjectSupport::listSeparator()).arg(d.y()).arg(d.z());
+            values << resultString.join(AMDbObjectSupport::vectorSeparator());
+        }
+
 
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
@@ -277,8 +287,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << property(columnName).value<AMHighPrecisionDateTime>().dateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
 		}
 		// everything else
-		else
-			values << property(columnName);
+        else
+            values << property(columnName);
 	}
 	////////////////////////////////////////
 
@@ -388,10 +398,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 }
 
 
-
 // load a AMDbObject (set its properties) by retrieving it based on id.
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
-
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
 	if(sourceId < 1){
 		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the database id is invalid. Please report this problem to the Acquaman developers.");
@@ -573,6 +581,25 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 				constObject = new AMConstDbObject(reloadedObject);
 				setProperty(columnName, QVariant::fromValue(constObject));
+			}
+			else if(columnType == qMetaTypeId<AMQVector3DVector>())
+			{
+				AMQVector3DVector vector3DList;
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::vectorSeparator(), QString::SkipEmptyParts);
+				foreach(QString i, stringList){
+					QStringList subList = i.split(AMDbObjectSupport::listSeparator());
+					QVector3D vector;
+					if(subList.size() == 3)
+					{
+						vector = QVector3D(subList.at(0).toDouble(), subList.at(1).toDouble(), subList.at(2).toDouble());
+					}
+					else
+					{
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS_IN_AMQVECTOR3DVECTOR, "Couldn't find 3 numbers when attempting to load a 3D geometry point for an AMQVector3DVector from the database."));
+					}
+					vector3DList<<vector;
+				}
+				setProperty(columnName, QVariant::fromValue(vector3DList));
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));

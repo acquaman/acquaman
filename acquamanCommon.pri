@@ -69,16 +69,27 @@ linux-g++ {
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
-		GSL_LIB = -lgsl
-		GSL_CBLAS_LIB = -lgslcblas
+                #GSL_LIB = -lgsl
+                #GSL_CBLAS_LIB = -lgslcblas
+                GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+                GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+                GSL_CBLAS_LIB = -lgslcblas
 
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		#CDFLib dependencies
-		CDF_LIB = -lcdf
-		CDF_INCLUDE_DIR = /usr/local/include
+                #CDF_LIB = -lcdf
+                #CDF_INCLUDE_DIR = /usr/local/include
+                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+                #Qt Mobility Dependencies
+                MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
+                MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+                MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
 }
 linux-g++-32 {
 
@@ -214,6 +225,11 @@ LIBS += $$GSL_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB
+
+CONFIG(mobility) {
+        INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
+        LIBS += $$MOBILITY_QT_LIB
+}
 
 DEFINES += AM_ENABLE_BOUNDS_CHECKING
 
