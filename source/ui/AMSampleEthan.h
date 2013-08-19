@@ -80,6 +80,7 @@ public:
 public slots:
 
     /// mutators
+    void setName(const QString &name);
     void setDateTime(const QDateTime dateTime);
     void setNotes(const QString notes);
     /// set Image from a QImage

@@ -7,6 +7,7 @@
 AMSampleEthan::AMSampleEthan(QObject* parent)
     : AMDbObject(parent)
 {
+    sampleShapePositionData_ = 0;
     setName("New Sample");
     setCurrentDateTime();
     setSamplePlate(new AMSamplePlate());
@@ -168,6 +169,14 @@ QString AMSampleEthan::elementString() const
     return elementStringList.join(", ");
 }
 
+void AMSampleEthan::setName(const QString &name)
+{
+    AMDbObject::setName(name);
+    AMShapeData* samplePosition = sampleShapePositionData();
+    if(samplePosition)
+        samplePosition->setName(name);
+}
+
 void AMSampleEthan::setDateTime(const QDateTime dateTime)
 {
     dateTime_ = dateTime;
@@ -260,6 +269,7 @@ void AMSampleEthan::setElementList(const AMIntList& elements)
 void AMSampleEthan::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
     sampleShapePositionData_ = sampleShapePositionData;
+    sampleShapePositionData_->setName(name());
 }
 
 

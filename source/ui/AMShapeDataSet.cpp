@@ -624,7 +624,7 @@ void AMShapeDataSet::startRectangle(QPointF position)
 
     newShapeData->setCoordinateShape(newShape,5);
     insertItem(newShapeData);
-    updateShape(index_);
+//    updateShape(index_);
 
     setCurrentIndex(index_);
 }
@@ -942,7 +942,7 @@ void AMShapeDataSet::updateShape(int index)
    /// must set shape based on coordinates
     if(isValid(index))
     {
-        shapeList_[index]->setShape(subShape(*shapeList_.at(index)));
+        shapeList_[index]->setShape(subShape(shapeList_.at(index)));
     }
 
 }
@@ -1013,7 +1013,7 @@ void AMShapeDataSet::oneSelect()
 {
     if(isValid(currentIndex_))
     {
-        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[currentIndex_]);
+        QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
         beamModel_->setPositionOne(newBeamPosition);
 
 
@@ -1032,7 +1032,7 @@ void AMShapeDataSet::twoSelect()
 
     if(isValid(currentIndex_))
     {
-        QVector<QVector3D> newBeamPosition = rotateShape(*shapeList_[currentIndex_]);
+        QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
         beamModel_->setPositionTwo(newBeamPosition);
         emit beamChanged(beamModel_);
     }
@@ -1091,7 +1091,7 @@ void AMShapeDataSet::setDrawOnShape()
 {
     if(isValid(currentIndex_))
     {
-        drawOnShape_ = *shapeList_[currentIndex_];
+        drawOnShape_ = shapeList_[currentIndex_];
         drawOnShapeSelected_ = true;
     }
 }
@@ -1100,7 +1100,7 @@ void AMShapeDataSet::setDrawOnSamplePlate()
 {
     if(samplePlateSelected_)
     {
-        drawOnShape_ = *samplePlateShape_;
+        drawOnShape_ = samplePlateShape_;
         drawOnShapeSelected_ = true;
     }
 }
@@ -1206,7 +1206,7 @@ void AMShapeDataSet::moveSamplePlate(int movement)
 {
     if(samplePlateSelected_)
     {
-        QVector3D direction = getWidthNormal(*samplePlateShape_);
+        QVector3D direction = getWidthNormal(samplePlateShape_);
         double shapeWidth = (samplePlateShape_->coordinate(1) - samplePlateShape_->coordinate(0)).length();
         QVector3D shiftMovement = direction * movement/1000 * shapeWidth;
         samplePlateShape_->shift(shiftMovement);
@@ -1422,34 +1422,36 @@ void AMShapeDataSet::shiftCoordinates(QVector3D shift, int index)
 }
 
 
-AMShapeData AMShapeDataSet::applySpecifiedRotation(AMShapeData shape, QVector3D direction, double angle)const
+AMShapeData* AMShapeDataSet::applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, double angle) const
 {
-    QVector3D centre = shape.centerCoordinate();
-    for(int i = 0; i < shape.count(); i++)
+    AMShapeData* newShape = new AMShapeData();
+    newShape->copy(shape);
+    QVector3D centre = newShape->centerCoordinate();
+    for(int i = 0; i < newShape->count(); i++)
     {
-        shape.setCoordinate(rotateCoordinate(shape.coordinate(i),centre,direction,angle),i);
+        newShape->setCoordinate(rotateCoordinate(newShape->coordinate(i),centre,direction,angle),i);
     }
-    return shape;
+    return newShape;
 }
 
-AMShapeData AMShapeDataSet::applySpecifiedRotation(AMShapeData shape, AMShapeDataSet::AxisDirection direction) const
+AMShapeData* AMShapeDataSet::applySpecifiedRotation(const AMShapeData* shape, AMShapeDataSet::AxisDirection direction) const
 {
     double angle;
     QVector3D axis;
     if(direction == XAXIS)
     {
-        angle = shape.tilt();
+        angle = shape->tilt();
         axis = QVector3D(1,0,0);
     }
     else if(direction == YAXIS)
     {
 
-        angle = shape.yAxisRotation();
+        angle = shape->yAxisRotation();
         axis = QVector3D(0,1,0);
     }
     else if(direction == ZAXIS)
     {
-        angle = shape.rotation();
+        angle = shape->rotation();
         axis = QVector3D(0,0,1);
     }
     return applySpecifiedRotation(shape,axis,angle);
@@ -1529,17 +1531,29 @@ QVector3D AMShapeDataSet::rotateCoordinate(QVector3D coordinate, QVector3D cente
 }
 
 /// applies rotation, tilt, and distortion to the shape
-QPolygonF AMShapeDataSet::subShape(AMShapeData shape) const
+QPolygonF AMShapeDataSet::subShape(const AMShapeData* shape) const
 {
-    if(shape.rotation() != 0) shape = applySpecifiedRotation(shape,ZAXIS);
-    if(shape.tilt() != 0) shape = applySpecifiedRotation(shape,XAXIS);
-    if(shape.yAxisRotation() != 0) shape = applySpecifiedRotation(shape,YAXIS);
+    AMShapeData* rotatedShape = new AMShapeData();
+    rotatedShape->copy(shape);
 
+
+    if(rotatedShape->rotation() != 0)
+    {
+        rotatedShape = applySpecifiedRotation(rotatedShape,ZAXIS);
+    }
+    if(rotatedShape->tilt() != 0)
+    {
+        rotatedShape = applySpecifiedRotation(rotatedShape,XAXIS);
+    }
+    if(rotatedShape->yAxisRotation() != 0)
+    {
+        rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
+    }
 
     QPolygonF newShape;
-    for(int i = 0; i < shape.count(); i++)
+    for(int i = 0; i < rotatedShape->count(); i++)
     {
-        newShape<<camera_->transform3Dto2D(shape.coordinate(i));
+        newShape<<camera_->transform3Dto2D(rotatedShape->coordinate(i));
     }
 
     if(distortion_)
@@ -1603,15 +1617,17 @@ void AMShapeDataSet::motorMovement(double x, double y, double z, double r)
 }
 
 /// applies 3D rotation and tilt to the 3D shape in an AMShapeData
-QVector<QVector3D> AMShapeDataSet::rotateShape(AMShapeData shape) const
+QVector<QVector3D> AMShapeDataSet::rotateShape(const AMShapeData *shape) const
 {
-    if(shape.rotation() != 0) shape = applySpecifiedRotation(shape, ZAXIS);
-    if(shape.tilt() != 0) shape = applySpecifiedRotation(shape, XAXIS);
-    if(shape.yAxisRotation() != 0) shape = applySpecifiedRotation(shape, YAXIS);
+    AMShapeData* newShape = new AMShapeData();
+    newShape->copy(shape);
+    if(newShape->rotation() != 0) newShape = applySpecifiedRotation(newShape, ZAXIS);
+    if(newShape->tilt() != 0) newShape = applySpecifiedRotation(newShape, XAXIS);
+    if(newShape->yAxisRotation() != 0) newShape = applySpecifiedRotation(newShape, YAXIS);
     QVector<QVector3D> returnShape;
-    for(int i = 0; i < shape.count(); i++)
+    for(int i = 0; i < newShape->count(); i++)
     {
-        returnShape<<shape.coordinate(i);
+        returnShape<<newShape->coordinate(i);
     }
     return returnShape;
 }
@@ -1697,11 +1713,11 @@ QVector3D AMShapeDataSet::depthVector(QVector3D coordinate) const
 QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index) const
 {
     /// First find the shape on the same plane
-    QVector<QVector3D> rotatedShape = rotateShape(*shapeList_[index]);
+    QVector<QVector3D> rotatedShape = rotateShape(shapeList_[index]);
     QVector<QVector3D> shape;
     QVector3D topLeft = rotatedShape.at(TOPLEFT);
-    QVector3D hHat = getHeightNormal(*shapeList_[index]);
-    QVector3D wHat = getWidthNormal(*shapeList_[index]);
+    QVector3D hHat = getHeightNormal(shapeList_[index]);
+    QVector3D wHat = getWidthNormal(shapeList_[index]);
     QVector3D nHat = QVector3D::normal(wHat,hHat);
     hHat = QVector3D::normal(nHat,wHat);
     int count = beamModel_->count();
@@ -1785,11 +1801,11 @@ QVector<QVector3D> AMShapeDataSet::findIntersectionShape(int index) const
 QPolygonF AMShapeDataSet::intersectionScreenShape(QVector<QVector3D> shape3D) const
 {
 
-    AMShapeData newShape;
-    newShape.setCoordinateShape(shape3D,shape3D.count());
-    newShape.setRotation(0);
-    newShape.setTilt(0);
-    newShape.setYAxisRotation(0);
+    AMShapeData* newShape = new AMShapeData();
+    newShape->setCoordinateShape(shape3D,shape3D.count());
+    newShape->setRotation(0);
+    newShape->setTilt(0);
+    newShape->setYAxisRotation(0);
 
 
     QPolygonF shape;
@@ -1817,14 +1833,14 @@ double AMShapeDataSet::dot(QVector3D a, QVector3D b) const
 }
 
 
-QVector3D AMShapeDataSet::getHeightNormal(AMShapeData shape) const
+QVector3D AMShapeDataSet::getHeightNormal(const AMShapeData* shape) const
 {
     QVector<QVector3D> rotatedShape = rotateShape(shape);
-    QVector3D heightVector = rotatedShape.at(shape.count()-1) - rotatedShape.at(0);
+    QVector3D heightVector = rotatedShape.at(shape->count()-1) - rotatedShape.at(0);
     return heightVector.normalized();
 }
 
-QVector3D AMShapeDataSet::getWidthNormal(AMShapeData shape) const
+QVector3D AMShapeDataSet::getWidthNormal(const AMShapeData* shape) const
 {
     QVector<QVector3D> rotatedShape = rotateShape(shape);
     QVector3D widthVector = rotatedShape.at(1) - rotatedShape.at(0);
@@ -1838,7 +1854,7 @@ QVector3D AMShapeDataSet::getNormal(QVector3D heightVector, QVector3D widthVecto
 }
 
 /// overload of getNormal, takes an AMShapeData
-QVector3D AMShapeDataSet::getNormal(AMShapeData shape) const
+QVector3D AMShapeDataSet::getNormal(const AMShapeData* shape) const
 {
     return getNormal(getHeightNormal(shape),getWidthNormal(shape));
 }
@@ -1894,6 +1910,8 @@ void AMShapeDataSet::insertItem(AMShapeData *item)
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
     endInsertRows();
+    connect(item, SIGNAL(nameChanged(QString, QString)), this, SIGNAL(shapeNameChanged(QString, QString)));
+    updateShape(index_);
     emit shapesChanged();
 }
 
