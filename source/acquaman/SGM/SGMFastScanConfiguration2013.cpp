@@ -168,7 +168,13 @@ QString SGMFastScanConfiguration2013::dbLoadWarnings() const{
 bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 	if(index < 0 && index >= settings_.count())
 		return false;
-	return setParameters(settings_.at(index));
+	//return setParameters(settings_.at(index));
+	if(currentSettings_)
+		qDebug() << "Before setting from preset " << currentSettings_->modified();
+	bool retVal = setParameters(settings_.at(index));
+	if(currentSettings_)
+		qDebug() << "After setting from preset" << currentSettings_->modified();
+	return retVal;
 }
 
 bool SGMFastScanConfiguration2013::setParameters(SGMFastScanParameters *settings){

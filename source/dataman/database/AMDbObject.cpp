@@ -222,7 +222,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 		else if(columnType == qMetaTypeId<AMConstDbObject*>()){
 			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
-			values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
+			if(constObject)
+				values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
+			else
+				values << QString();
 		}
 
 		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName;id"... which will let us re-load it later.

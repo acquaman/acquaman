@@ -157,7 +157,7 @@ double AMScan::elapsedTime() const
 }
 
 int AMScan::sampleId() const{
-	if(sample_->object())
+	if(sample_ && sample_->object())
 		return sample_->object()->id();
 	return -1;
 }

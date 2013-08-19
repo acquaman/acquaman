@@ -493,6 +493,13 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 	setFastScanSettings(fastScanSettings);
 }
 
+SGMFastScanParameters::SGMFastScanParameters(AMDatabase *db, int id) :
+	AMDbObject(0)
+{
+	qDebug() << "Used OTHER constructor for SGMFastScanParameters";
+	loadFromDb(db, id);
+}
+
 SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
 	if(this != &other){
 		AMDbObject::operator=(other);
@@ -712,18 +719,24 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 }
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
-	disconnect(&fastScanSettings_, 0);
-	fastScanSettings_ = fastScanSettings;
-	qDebug() << "Setting modified true in SGMFastScanParameters";
-	setModified(true);
-	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(accelerationChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
-	connect(&fastScanSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+	qDebug() << "Calling setFastScanSettings, modified is " << modified();
+	if(fastScanSettings_ != fastScanSettings){
+		disconnect(&fastScanSettings_, 0);
+		qDebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
+		fastScanSettings_ = fastScanSettings;
+		qDebug() << "Setting modified true in SGMFastScanParameters";
+		setModified(true);
+		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(accelerationChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
+		connect(&fastScanSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+	}
+	else
+		qDebug() << "No need to setModified(true), they were the same";
 }
 
 void SGMFastScanParameters::onStartChanged(){

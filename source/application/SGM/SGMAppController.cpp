@@ -289,7 +289,8 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+	//if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+	if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		// Do New XAS
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
