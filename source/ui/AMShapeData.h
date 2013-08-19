@@ -15,13 +15,13 @@ class QPolygonF;
 /// This class holds a 3D shape and a 2D shape.
 /// The 2D shape is meant to correspond to a visualization
 /// of the 3D shape.
-class AMShapeData //: public QObject
+class AMShapeData : public QObject
 {
-   // Q_OBJECT
+    Q_OBJECT
 public:
     /// constructors
-    AMShapeData();
-    AMShapeData(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0);
+    AMShapeData(QObject* parent = 0);
+    AMShapeData(QPolygonF shape, QString name = "Name", QString otherData = "",  double idNumber = 0, QObject* parent = 0);
 
     ~AMShapeData();
 
@@ -37,7 +37,7 @@ public:
     bool visible() const;
 
     /// mutators
-    void setShape(QPolygonF shape);
+    void setShape(const QPolygonF shape);
     void setName(QString name);
     void setOtherData(QString otherData);
     void setIdNumber(double idNumber);
@@ -48,6 +48,8 @@ public:
     void setYAxisRotation(double yAxisRotation);
     void setVisible(bool visible);
 
+    void copy(const AMShapeData* other);
+
     /// returns the center
     QVector3D centerCoordinate() const;
 
@@ -57,12 +59,14 @@ public:
     void shiftTo(QVector3D shift);
 
     /// number of coordinates
-    int count();
+    int count() const;
 
     /// checks the direction
     bool backwards();
 
-    bool operator==(const AMShapeData& other) const;
+    bool isEqual(const AMShapeData& other) const;
+signals:
+    void nameChanged(QString newName, QString oldName);
 
 protected:
     /// the 2D shape to store

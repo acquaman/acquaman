@@ -9,7 +9,8 @@
 #include <QDebug>
 
 /// constructor
-AMShapeData::AMShapeData()
+AMShapeData::AMShapeData(QObject* parent)
+    :QObject(parent)
 {
     shape_ = new QPolygonF();
     coordinateCount_ = -1;
@@ -17,7 +18,8 @@ AMShapeData::AMShapeData()
 }
 
 /// constructor
-AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  double idNumber)
+AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  double idNumber, QObject* parent)
+    :QObject(parent)
 {
     shape_ = new QPolygonF();
     *shape_ = shape;
@@ -27,6 +29,7 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  doub
     coordinateCount_ = -1;
     visible_ = true;
 }
+
 
 AMShapeData::~AMShapeData()
 {
@@ -83,14 +86,19 @@ bool AMShapeData::visible() const
 }
 
 
-void AMShapeData::setShape(QPolygonF shape)
+void AMShapeData::setShape(const QPolygonF shape)
 {
     *shape_ = shape;
 }
 
 void AMShapeData::setName(QString name)
 {
-    name_ = name;
+    if(name_ != name)
+    {
+        QString oldName = name_;
+        name_ = name;
+        emit nameChanged(name, oldName);
+    }
 }
 
 void AMShapeData::setOtherData(QString otherData)
@@ -106,7 +114,9 @@ void AMShapeData::setIdNumber(double idNumber)
 void AMShapeData::setCoordinate(QVector3D coordinate, int index)
 {
     if(validIndex(index))
+    {
         coordinate_[index] = coordinate;
+    }
 }
 
 void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
@@ -115,8 +125,13 @@ void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
     coordinate_.clear();
     for(int i = 0; i < count; i++)
     {
-        if(coordinateCount_ < i) coordinateCount_ = i;
+        if(coordinateCount_ < i)
+        {
+            coordinateCount_ = i;
+        }
         coordinate_<<coordinates[i];
+        if(coordinateCount_ < coordinate_.count())
+            coordinateCount_ = coordinate_.count();
     }
 }
 
@@ -139,6 +154,33 @@ void AMShapeData::setYAxisRotation(double yAxisRotation)
 void AMShapeData::setVisible(bool visible)
 {
     visible_ = visible;
+}
+
+void AMShapeData::copy(const AMShapeData *other)
+{
+    setName(other->name());
+    setOtherData(other->otherData());
+    setIdNumber(other->idNumber());
+    setRotation(other->rotation());
+    setTilt(other->tilt());
+    setYAxisRotation(other->yAxisRotation());
+    setVisible(other->visible());
+    setShape(*other->shape());
+    QVector<QVector3D> nullShape;
+    for(int i = 0; i < other->count(); i++)
+    {
+        nullShape.append(QVector3D(0,0,0));
+    }
+    setCoordinateShape(nullShape,other->count());
+    for(int i = 0; i < other->count(); i++)
+    {
+        setCoordinate(other->coordinate(i),i);
+
+    }
+    if(count() != other->count())
+    {
+        qDebug()<<"AMShapeData::copy - counts not equal";
+    }
 }
 
 /// finds the center of the shape - must be rectangular
@@ -172,7 +214,7 @@ void AMShapeData::shiftTo(QVector3D shift)
 }
 
 /// returns a count of the number of coordinates
-int AMShapeData::count()
+int AMShapeData::count() const
 {
     return coordinateCount_;
 }
@@ -193,7 +235,7 @@ bool AMShapeData::backwards()
     return(normal.z() < 0);
 }
 
-bool AMShapeData::operator ==(const AMShapeData &other) const
+bool AMShapeData::isEqual(const AMShapeData &other) const
 {
     if(other.name_ != name_)
         return false;

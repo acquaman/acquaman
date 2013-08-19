@@ -46,6 +46,8 @@ public slots:
 
     void showSampleView();
 
+    void setCoordinate();
+
 
 signals:
     void updateShapes();
@@ -62,7 +64,7 @@ protected:
     void updateCoordinateLabels();
 protected:
     AMShapeData *shapeModel_;
-    QLineEdit *nameEdit_;
+//    QLineEdit *nameEdit_;
     QLineEdit *tiltEdit_;
     QLineEdit *xEdit_;
     QLineEdit *yEdit_;
