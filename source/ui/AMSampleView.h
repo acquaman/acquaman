@@ -45,7 +45,8 @@ public slots:
 
     void updateSampleName(QString);
 
-
+signals:
+    void updateName(QString);
 
 protected slots:
     /// update the fields in the view
@@ -56,6 +57,7 @@ protected slots:
     void loadSample(QString);
     /// change the sample plate associated with this sample
     void changeSamplePlate(QString);
+    void onSampleNameChanged(QString);
 
 protected:
     /// set up the ui elements of the view

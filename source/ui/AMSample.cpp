@@ -172,10 +172,14 @@ QString AMSample::elementString() const
 
 void AMSample::setName(const QString &name)
 {
+    qDebug()<<"AMSample::setName - setting name to"<<name;
         AMDbObject::setName(name);
         AMShapeData* samplePosition = sampleShapePositionData();
         if(samplePosition)
+        {
+            qDebug()<<"Has sample position";
             samplePosition->setName(name);
+        }
 }
 
 void AMSample::setDateTime(const QDateTime dateTime)

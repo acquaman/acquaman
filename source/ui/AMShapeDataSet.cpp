@@ -279,6 +279,7 @@ QVector3D AMShapeDataSet::currentCoordinate() const
 /// set the current index
 void AMShapeDataSet::setCurrentIndex(int current)
 {
+    qDebug()<<"AMShapeDataSet::setCurrentIndex - changing index to"<<current;
     currentIndex_ = current;
     emit currentIndexChanged(currentIndex_);
 }
@@ -434,6 +435,17 @@ void AMShapeDataSet::setUseCameraMatrix(bool use)
     camera_->setUseCameraMatrix(use);
 }
 
+void AMShapeDataSet::setOverrideMouseSelection(bool overrideMouseSelection)
+{
+    overrideMouseSelection_ = overrideMouseSelection;
+}
+
+void AMShapeDataSet::setCurrentShapeIndex(int index)
+{
+    setOverrideMouseSelection(true);
+    setCurrentIndex(index);
+}
+
 /// checks if an index is valid
 bool AMShapeDataSet::isValid(int index) const
 {
@@ -571,6 +583,11 @@ bool AMShapeDataSet::motorMovementenabled()
 const QList<AMShapeData *> AMShapeDataSet::shapeList()
 {
     return shapeList_;
+}
+
+bool AMShapeDataSet::overrideMouseSelection()
+{
+    return overrideMouseSelection_;
 }
 
 
@@ -731,12 +748,25 @@ void AMShapeDataSet::selectCurrentShape(QPointF position)
     {
        i++;
     }
-    if(i <= index_)
+    if(!overrideMouseSelection())
     {
-        setCurrentIndex(i);
-        currentVector_ = undistortPoint(position);
+        if(i <= index_)
+        {
+
+            setCurrentIndex(i);
+
+            currentVector_ = undistortPoint(position);
+        }
+        else
+        {
+            qDebug()<<"AMShapeDataSet::selectCurrentShape - setting current index to"<<index_+1;
+            setCurrentIndex(index_ + 1);
+        }
     }
-    else setCurrentIndex(index_ + 1);
+    else
+    {
+        setOverrideMouseSelection(false);
+    }
 }
 
 /// moves the currently selected rectangle by position + currentVector_
