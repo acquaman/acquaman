@@ -47,6 +47,7 @@ class AMDetectorSelector;
 class AMDetectorSelectorView;
 
 class AMCameraBrowserView;
+class AMSamplePlateView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -135,8 +136,9 @@ protected:
 protected:
 	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementPre2013Widget *samplePositionView_;
-    /// camera widget
-    AMCameraBrowserView* cameraBrowserView_;
+	/// camera widget
+	AMCameraBrowserView *cameraBrowserView_;
+	AMSamplePlateView *samplePlateView_;
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
 	/// View for controlling the synchronized dwell time application

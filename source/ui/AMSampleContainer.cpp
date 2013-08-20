@@ -135,6 +135,7 @@ void AMSampleContainer::addSample(AMSample *sample)
         sampleList_.append(sample);
         endInsertRows();
         connect(sample, SIGNAL(nameChanged(QString)), this, SLOT(updateNames()));
+	emit sampleAdded(sample);
     }
 }
 

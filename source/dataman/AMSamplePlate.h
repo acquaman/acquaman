@@ -23,6 +23,20 @@ public:
 	/// Returns the QDateTime when this sample plate was created (for ordering)
 	QDateTime dateTime() const;
 
+	/// Adds a sample and automatically calls append with the name as the key
+	bool addSample(AMSample *sample);
+
+signals:
+	// The following signals are forwarded from our signalSource().
+	void sampleChanged(int index);
+	void sampleAdded(int index);
+	void sampleRemoved(int index);
+	void sampleAboutToBeAdded(int index);
+	void sampleAboutToBeRemoved(int index);
+
+protected slots:
+	void onSampleNameChanged(const QString &name);
+
 protected:
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);

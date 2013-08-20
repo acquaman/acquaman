@@ -16,6 +16,7 @@ AMSample::AMSample(QObject* parent)
 AMSample::AMSample(const QString &sampleName, QObject *parent)
     : AMDbObject(parent)
 {
+	sampleShapePositionData_ = 0;
     setCurrentDateTime();
     setName(sampleName);
     setSamplePlate(new AMSamplePlatePre2013());

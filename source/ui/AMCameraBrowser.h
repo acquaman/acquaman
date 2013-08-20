@@ -14,32 +14,32 @@ class AMSampleContainer;
 
 class AMCameraBrowser : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AMCameraBrowser(QObject *parent = 0);
-    /// Accessors
-    QString currentURL();
-    AMShapeDataSet *shapeDataSet();
-    AMSampleContainer* sampleContainer();
+	AMCameraBrowser(QObject *parent = 0);
+	/// Accessors
+	QString currentURL();
+	AMShapeDataSet *shapeDataSet();
+	AMSampleContainer* sampleContainer();
 
-    /// Mutators
-    void setCurrentURL(QString currentURL);
+	/// Mutators
+	void setCurrentURL(QString currentURL);
 public slots:
-    void sampleIndexChanged(int);
-    void shapeIndexChanged(int);
+	void sampleIndexChanged(int);
+	void shapeIndexChanged(int);
 signals:
-    void indexChanged(int);
-    void changeSampleIndex(int);
+	void indexChanged(int);
+	void changeSampleIndex(int);
 protected slots:
 protected:
-    AMShapeDataSet *shapeDataSet_;
+	AMShapeDataSet *shapeDataSet_;
 
-    AMSampleContainer* sampleContainer_;
-
-
+	AMSampleContainer* sampleContainer_;
 
 
-    QString currentURL_;
+
+
+	QString currentURL_;
 
 };
 

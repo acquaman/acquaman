@@ -1350,27 +1350,28 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
 
     AMDatabase *db = AMDatabase::database("user");
-    /*
-    // create the database
-    AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
-    if(!db)
-        qDebug() << "Uh oh, no database created";
-    else
-    {
-        bool success = true;
+    if(!db){
+	    // create the database
+	    //db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
+	    db = AMDatabase::createDatabase("user", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA/userdata.db");
+	    if(!db)
+		    qDebug() << "Uh oh, no database created";
+	    else
+	    {
+		    bool success = true;
 
-        AM::registerTypes();
-        success &= AMDbObjectSupport::s()->registerDatabase(db);
-        success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
-        success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSample>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
+		    AM::registerTypes();
+		    success &= AMDbObjectSupport::s()->registerDatabase(db);
+		    success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
+		    success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
+		    success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+		    success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+		    success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+		    success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 
-        qDebug() << "Status of registration is " << success;
+		    qDebug() << "Status of registration is " << success;
+	    }
     }
-    */
 
     QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
     if(matchIDs.count() == 0)
