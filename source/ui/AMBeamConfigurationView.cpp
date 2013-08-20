@@ -335,7 +335,6 @@ void AMBeamConfigurationView::selectTwo()
 
 void AMBeamConfigurationView::updateData()
 {
-    qDebug()<<"Updating labels";
     QVector<QVector3D> positionOne = beamModel_->positionOne();
     QVector<QVector3D> positionTwo = beamModel_->positionTwo();
     for(int i = 0; i < 4; i++)

@@ -82,16 +82,16 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
     mode_ = DRAW;
 
 
-    cameraWizard_ = new AMCameraConfigurationWizard();
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
-    view->setScene(shapeScene_->scene());
-    cameraWizard_->setView(view);
+//    cameraWizard_ = new AMCameraConfigurationWizard();
+//    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
+//    view->setScene(shapeScene_->scene());
+//    cameraWizard_->setView(view);
 
-    beamWizard_ = new AMBeamConfigurationWizard();
-    beamWizard_->setView(view);
+//    beamWizard_ = new AMBeamConfigurationWizard();
+//    beamWizard_->setView(view);
 
-    samplePlateWizard_ = new AMSamplePlateWizard();
-    samplePlateWizard_->setView(view);
+//    samplePlateWizard_ = new AMSamplePlateWizard();
+//    samplePlateWizard_->setView(view);
 
     showBeamOutline_ = true;
 
@@ -511,7 +511,10 @@ void AMShapeDataSetView::updateItemName(int index)
         shapeView_->blockSignals(true);
         if(currentView_ == NAME)
         {
-            shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+//            shapeModel_->blockSignals(true);
+//            shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+//            shapeModel_->blockSignals(false);
+            emit changeSampleName(index,textItems_[index]->document()->toPlainText());
             if(index == current_)
             {
                 shapeView_->setName(textItems_[index]->document()->toPlainText());
@@ -1713,9 +1716,9 @@ void AMShapeDataSetView::makeConnections()
 
 
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
-    connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
-    connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
-    connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));
+//    connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
+//    connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
+//    connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));
 
 
     /// allows non-rectangle drawing

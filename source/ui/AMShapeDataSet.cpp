@@ -664,9 +664,8 @@ void AMShapeDataSet::finishRectangle(QPointF position)
     bottomLeft = bottomLeft*topLeftlength;
 
 
-
     shapeList_[currentIndex_]->setCoordinate(topLeft + topRight,TOPRIGHT);
-    shapeList_[currentIndex_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);//bottomRight,BOTTOMRIGHT);//(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
+    shapeList_[currentIndex_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
     shapeList_[currentIndex_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
     updateShape(currentIndex_);
 
@@ -1350,27 +1349,29 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
 
 
     AMDatabase *db = AMDatabase::database("user");
-    /*
-    // create the database
-    AMDatabase *db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
-    if(!db)
-        qDebug() << "Uh oh, no database created";
-    else
-    {
-        bool success = true;
 
-        AM::registerTypes();
-        success &= AMDbObjectSupport::s()->registerDatabase(db);
-        success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
-        success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
-        success &= AMDbObjectSupport::s()->registerClass<AMSample>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
+    if(!db){
+        // create the database
+        db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
+        if(!db)
+            qDebug() << "Uh oh, no database created";
+        else
+        {
+            bool success = true;
 
-        qDebug() << "Status of registration is " << success;
+            AM::registerTypes();
+            success &= AMDbObjectSupport::s()->registerDatabase(db);
+            success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
+            success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
+            success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+            success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+            success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+            success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
+
+            qDebug() << "Status of registration is " << success;
+        }
     }
-    */
+
 
     QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
     if(matchIDs.count() == 0)
@@ -1925,7 +1926,7 @@ void AMShapeDataSet::insertItem(AMShapeData *item)
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
     endInsertRows();
-    connect(item, SIGNAL(nameChanged(QString, QString)), this, SIGNAL(shapeNameChanged(QString, QString)));
+    connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapesChanged()));
     updateShape(index_);
     emit shapesChanged();
 }

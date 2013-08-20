@@ -2,6 +2,7 @@
 
 #include "AMSampleContainer.h"
 #include "AMSampleView.h"
+#include "AMSample.h"
 #include <QDebug>
 AMSampleContainerView::AMSampleContainerView(QWidget *parent)
     :QListView(parent)

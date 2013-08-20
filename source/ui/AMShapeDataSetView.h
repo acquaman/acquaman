@@ -189,6 +189,8 @@ signals:
 
     void moveSucceeded();
 
+    void changeSampleName(int, QString);
+
 
 
 public slots:

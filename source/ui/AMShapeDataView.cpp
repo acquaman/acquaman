@@ -7,6 +7,7 @@
 #include <QSlider>
 #include <cmath>
 #include <QLabel>
+#include <QScrollArea>
 
 #include <QDebug>
 
@@ -73,9 +74,9 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     sliderLayout->addWidget(zAxisSlider_ = new QSlider(Qt::Horizontal));
     sliderLayout->addSpacing(20);
     sliderLayout->addWidget(showHideButton_ = new QPushButton("Show/Hide"));
-    sliderLayout->addSpacing(20);
-    sliderLayout->addWidget(showSampleView_ = new QPushButton("Show Sample"));
-//    sliderLayout->addStretch();
+//    sliderLayout->addSpacing(20);
+//    sliderLayout->addWidget(showSampleView_ = new QPushButton("Show Sample"));
+    sliderLayout->addStretch();
     sliderFrame->setLayout(sliderLayout);
     xAxisSlider_->setRange(-250,250);
     xAxisSlider_->setValue(0);
@@ -85,6 +86,9 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     zAxisSlider_->setValue(0);
 
     coordinateFrame_ = new QFrame();
+    scrollArea_ = new QScrollArea();
+    scrollArea_->setWidget(coordinateFrame_);
+    scrollArea_->setWidgetResizable(true);
 
 
     QVBoxLayout* infoLayout = new QVBoxLayout();
@@ -93,8 +97,8 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     infoLayout->addWidget(rotationFrame);
     infoLayout->addWidget(sliderFrame);
     infoLayout->addSpacing(2);
-    infoLayout->addWidget(coordinateFrame_);
-//    infoLayout->addStretch();
+    infoLayout->addWidget(scrollArea_);
+    infoLayout->addStretch();
 
     setLayout(infoLayout);
     setWindowTitle("Shape View");
@@ -115,7 +119,7 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 
     connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
-    connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
+//    connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
 
 }
 
@@ -283,6 +287,10 @@ void AMShapeDataView::setCoordinate()
         newCoordinate.setY(coordinateEdit_[3*i+1]->text().toDouble());
         newCoordinate.setZ(coordinateEdit_[3*i+2]->text().toDouble());
         shapeModel_->setCoordinate(newCoordinate,i);
+        if(i == 0)
+        {
+            shapeModel_->setCoordinate(newCoordinate,shapeModel_->count()-1);
+        }
     }
     emit updateShapes();
 }
@@ -357,10 +365,10 @@ bool AMShapeDataView::isValid()
 
 void AMShapeDataView::updateCoordinateLabels()
 {
-    int points = shapeModel_->count();
+    int points = shapeModel_->count() - 1;// ignore the closing point of the shape
     if(points != oldCount_)
     {
-        layout()->removeWidget(coordinateFrame_);
+//        layout()->removeWidget(coordinateFrame_);
         delete coordinateFrame_;
         coordinateFrame_ = new QFrame();
         if(coordinateEdit_)
@@ -410,7 +418,7 @@ void AMShapeDataView::updateCoordinateLabels()
             pointLayout[i]->addWidget(coordinateEdit_[3*i+1] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).y())));
             pointLayout[i]->addWidget(coordinateEdit_[3*i+2] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).z())));
             pointLayout[i]->addWidget(new QLabel(labelText));
-            pointLayout[i]->addStretch();
+//            pointLayout[i]->addStretch();
             pointFrame[i]->setLayout(pointLayout[i]);
             verticalLayout->addWidget(pointFrame[i]);
             for(int n = 0; n < 3; n++)
@@ -418,7 +426,9 @@ void AMShapeDataView::updateCoordinateLabels()
         }
         verticalLayout->addStretch();
         coordinateFrame_->setLayout(verticalLayout);
-        layout()->addWidget(coordinateFrame_);
+//        layout()->addWidget(coordinateFrame_);
+        scrollArea_->setWidget(coordinateFrame_);
+        scrollArea_->setMaximumSize(coordinateFrame_->size());
     }
     else
     {

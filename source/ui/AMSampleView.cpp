@@ -99,6 +99,19 @@ void AMSampleView::showPeriodicTable()
     updateFrames();
 }
 
+void AMSampleView::updateSampleName(QString name)
+{
+    nameText_->setText(name);
+    if(sample_ && name != sample_->name())
+    {
+        qDebug()<<"AMSampleView::updateSampleName - sample has a different name than what was passed in";
+        qDebug()<<"Sample's name is:"<<sample_->name();
+        qDebug()<<"Updated name is:"<<name;
+    }
+}
+
+
+
 void AMSampleView::updateFrames()
 {
     if(sample_)
@@ -288,6 +301,7 @@ void AMSampleView::makeConnections()
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
+    connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
 }
 
 void AMSampleView::populateSamplePlateLoader()

@@ -95,9 +95,8 @@ void AMShapeData::setName(QString name)
 {
     if(name_ != name)
     {
-        QString oldName = name_;
         name_ = name;
-        emit nameChanged(name, oldName);
+        emit nameChanged(name);
     }
 }
 

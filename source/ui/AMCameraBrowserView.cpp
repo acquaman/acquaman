@@ -237,6 +237,7 @@ void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
         connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
         connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
         connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
+//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
 	/*
 >>>>>>> e99820f2e6cc6199b24e81bb71d7c609c042900e
 */

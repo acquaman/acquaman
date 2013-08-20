@@ -1228,8 +1228,9 @@ bool SGMAppController::setupSGMViews(){
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
-    cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
-    mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
+    cameraBrowserView_ = new AMCameraBrowserView(0, true);
+    cameraBrowserView_->show();
+    //mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
 
 	// Jan 11, 2013: I don't think this is necessary at all anymore
 	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
