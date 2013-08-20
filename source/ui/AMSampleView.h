@@ -43,6 +43,9 @@ public slots:
     /// show the periodic table dialog box
     void showPeriodicTable();
 
+    void updateSampleName(QString);
+
+
 
 protected slots:
     /// update the fields in the view

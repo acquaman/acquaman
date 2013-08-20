@@ -119,6 +119,10 @@ public slots:
     /// sets dateTime_ to the current DateTime
     void setCurrentDateTime();
 
+signals:
+    void sampleNameChanged(QString);
+//protected slots:
+//    void setSampleName(QString);
 protected:
     /// format string used to format the dateTime
     QString dateTimeFormat() const;

@@ -9,6 +9,7 @@ class QPushButton;
 class QSlider;
 class AMSampleView;
 class QFrame;
+class QScrollArea;
 
 
 /// This class is a view for the AMShapeData class.
@@ -78,9 +79,10 @@ protected:
 
     QLineEdit** coordinateEdit_;
     QFrame* coordinateFrame_;
+    QScrollArea* scrollArea_;
 
 //    AMSampleView* sampleView_;
-    QPushButton* showSampleView_;
+//    QPushButton* showSampleView_;
     int oldCount_;
 
     static AMShapeDataView* instance_;

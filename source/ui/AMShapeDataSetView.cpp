@@ -95,10 +95,6 @@ AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *pare
 
     showBeamOutline_ = true;
 
-//    shapeDataListView_ = new AMShapeDataListView();
-//    setListViewModel();
-//    shapeDataListView_->show();
-
     index_ = 0;
     groupRectangleActive_= false;
 
@@ -512,9 +508,10 @@ void AMShapeDataSetView::updateItemName(int index)
         if(currentView_ == NAME)
         {
             shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+//            emit changeSampleName(index,textItems_[index]->document()->toPlainText());
             if(index == current_)
             {
-                shapeView_->setName(textItems_[index]->document()->toPlainText());
+//                shapeView_->setName(textItems_[index]->document()->toPlainText());
             }
         }
         else if(currentView_ == DATA)
@@ -642,12 +639,12 @@ void AMShapeDataSetView::transmitMotorMovementEnabled()
     emit motorMovementEnabled(shapeModel_->motorMovementenabled());
 }
 
-void AMShapeDataSetView::updateShapeName(QString newName, QString oldName)
+void AMShapeDataSetView::updateShapeName(QString newName)
 {
     qDebug()<<"AMShapeDataSetView::updateShapeName - Updating shape name";
     if(currentView_ == NAME)
     {
-        if(currentIndex() >= 0 && textItems_.count() > currentIndex() && textItems_.at(currentIndex())->document()->toPlainText() == oldName)
+        if(currentIndex() >= 0 && textItems_.count() > currentIndex())
             textItems_[currentIndex()]->setPlainText(newName);
         else
             reviewCrosshairLinePositions();
@@ -1707,7 +1704,6 @@ void AMShapeDataSetView::makeConnections()
 
     connect(showBeamOutlineCheckBox_, SIGNAL(toggled(bool)), this, SLOT(showBeamOutline(bool)));
 
-//    connect(showShapeView_, SIGNAL(clicked()), this, SLOT(showShapeView()));
     connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
     connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
 
@@ -1746,6 +1742,6 @@ void AMShapeDataSetView::makeConnections()
     connect(viewHidden_, SIGNAL(triggered()), this, SLOT(setViewHidden()));
 
     connect(shapeModel_, SIGNAL(moveSucceeded()), this, SLOT(moveTestSlot()));
-    connect(shapeModel_, SIGNAL(shapeNameChanged(QString, QString)), this, SLOT(updateShapeName(QString, QString)));
+    connect(shapeModel_, SIGNAL(shapeNameChanged(QString)), this, SLOT(updateShapeName(QString)));
 
 }

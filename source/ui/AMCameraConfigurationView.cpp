@@ -13,6 +13,8 @@
 #include <QSlider>
 #include "ui/AMBeamConfigurationView.h"
 
+
+
 AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *cameraConfiguration, QWidget *parent) :
     QWidget(parent)
 {
@@ -95,13 +97,13 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     fhl->addWidget(cameraFOV_ = new QLineEdit());
     fhl->addSpacing(20);
     fhl->addWidget(new QLabel("Camera Focal Length"));
-    fhl->addWidget(cameraFocalLength_ = new QLineEdit());
+    fhl->addWidget(cameraFocalLength_[CAMERAFRAME] = new QLineEdit());
     fhl->addSpacing(20);
     fhl->addWidget(new QLabel("Lens Distortion"));
-    fhl->addWidget(cameraDistortion_ = new QLineEdit());
+    fhl->addWidget(cameraDistortion_[CAMERAFRAME] = new QLineEdit());
     fhl->addSpacing(20);
     fhl->addWidget(new QLabel("Pixel Aspect Ratio"));
-    fhl->addWidget(pixelAspectRatio_ = new QLineEdit());
+    fhl->addWidget(pixelAspectRatio_[CAMERAFRAME] = new QLineEdit());
     fhl->addSpacing(20);
     fhl->addWidget(setButton_ = new QPushButton("Set"));
     fhl->addStretch();
@@ -169,10 +171,13 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     QHBoxLayout* otherParamsLayout = new QHBoxLayout();
     otherParamsLayout->setContentsMargins(12,4,12,4);
     otherParamsLayout->addWidget(new QLabel("Focal Length"));
-    otherParamsLayout->addWidget(cameraFocalLength_);
+    otherParamsLayout->addWidget(cameraFocalLength_[MATRIXFRAME] = new QLineEdit());
     otherParamsLayout->addSpacing(20);
     otherParamsLayout->addWidget(new QLabel("Distortion"));
-    otherParamsLayout->addWidget(cameraDistortion_);
+    otherParamsLayout->addWidget(cameraDistortion_[MATRIXFRAME] = new QLineEdit());
+    otherParamsLayout->addSpacing(20);
+    otherParamsLayout->addWidget(new QLabel("Pixel Aspect Ratio"));
+    otherParamsLayout->addWidget(pixelAspectRatio_[MATRIXFRAME] = new QLineEdit());
     otherParamsLayout->addStretch();
     otherParams->setLayout(otherParamsLayout);
 
@@ -200,15 +205,18 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
     connect(centerY_, SIGNAL(textChanged(QString)), this, SLOT(updateCenterY(QString)));
     connect(centerZ_, SIGNAL(textChanged(QString)), this, SLOT(updateCenterZ(QString)));
     connect(cameraFOV_, SIGNAL(textChanged(QString)), this, SLOT(updateFOV(QString)));
-    connect(cameraFocalLength_, SIGNAL(textChanged(QString)), this, SLOT(updateFocalLength(QString)));
-    connect(cameraDistortion_, SIGNAL(textChanged(QString)), this, SLOT(updateDistortion(QString)));
+    connect(cameraFocalLength_[CAMERAFRAME], SIGNAL(textChanged(QString)), this, SLOT(updateFocalLength(QString)));
+    connect(cameraFocalLength_[MATRIXFRAME], SIGNAL(textChanged(QString)), this, SLOT(updateFocalLength(QString)));
+    connect(cameraDistortion_[CAMERAFRAME], SIGNAL(textChanged(QString)), this, SLOT(updateDistortion(QString)));
+    connect(cameraDistortion_[MATRIXFRAME], SIGNAL(textChanged(QString)), this, SLOT(updateDistortion(QString)));
     connect(setButton_, SIGNAL(clicked()), this, SLOT(updateAll()));
 
 
     connect(cameraRotation_, SIGNAL(textChanged(QString)), this, SLOT(updateRotation(QString)));
     connect(cameraRotationSlider_, SIGNAL(valueChanged(int)), this, SLOT(updateRotationSlider(int)));
 
-    connect(pixelAspectRatio_, SIGNAL(textChanged(QString)), this, SLOT(updatePixelAspectRatio(QString)));
+    connect(pixelAspectRatio_[CAMERAFRAME], SIGNAL(textChanged(QString)), this, SLOT(updatePixelAspectRatio(QString)));
+    connect(pixelAspectRatio_[MATRIXFRAME], SIGNAL(textChanged(QString)), this, SLOT(updatePixelAspectRatio(QString)));
 
     connect(centreOffsetX_, SIGNAL(textChanged(QString)), this, SLOT(updateCentreOffsetX(QString)));
     connect(centreOffsetY_, SIGNAL(textChanged(QString)), this, SLOT(updateCentreOffsetY(QString)));
@@ -553,11 +561,14 @@ void AMCameraConfigurationView::updateAll()
     centerY_->setText(QString::number(center.y()));
     centerZ_->setText(QString::number(center.z()));
     cameraFOV_->setText(QString::number(cameraFOV()));
-    cameraFocalLength_->setText(QString::number(cameraFocalLength()));
-    cameraDistortion_->setText(QString::number(cameraDistortion()));
+    cameraFocalLength_[CAMERAFRAME]->setText(QString::number(cameraFocalLength()));
+    cameraFocalLength_[MATRIXFRAME]->setText(QString::number(cameraFocalLength()));
+    cameraDistortion_[CAMERAFRAME]->setText(QString::number(cameraDistortion()));
+    cameraDistortion_[MATRIXFRAME]->setText(QString::number(cameraDistortion()));
     configurationName_->setText(name);
     cameraRotation_->setText(QString::number(cameraRotation()));
-    pixelAspectRatio_->setText(QString::number(pixelAspectRatio()));
+    pixelAspectRatio_[CAMERAFRAME]->setText(QString::number(pixelAspectRatio()));
+    pixelAspectRatio_[MATRIXFRAME]->setText(QString::number(pixelAspectRatio()));
     centreOffsetX_->setText(QString::number(centreOffsetX()));
     centreOffsetY_->setText(QString::number(centreOffsetY()));
     QVector<QVector3D> cameraMatrix;

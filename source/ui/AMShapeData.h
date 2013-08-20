@@ -66,7 +66,7 @@ public:
 
     bool isEqual(const AMShapeData& other) const;
 signals:
-    void nameChanged(QString newName, QString oldName);
+    void nameChanged(QString name);
 
 protected:
     /// the 2D shape to store

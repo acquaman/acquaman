@@ -27,6 +27,8 @@ public slots:
     /// sets the current selection
     void setCurrentSelection(int);
 
+//    void updateSampleName(int, QString);
+
 signals:
     /// signal emitted when the current index has been changed
     void indexChanged(int);

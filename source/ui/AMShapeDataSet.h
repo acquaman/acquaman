@@ -346,7 +346,7 @@ signals:
 
     void currentIndexChanged(int);
 
-    void shapeNameChanged(QString newName, QString oldName);
+    void shapeNameChanged(QString newName);
 
 protected slots:
     /// tracks the motor location

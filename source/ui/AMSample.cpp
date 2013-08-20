@@ -16,7 +16,7 @@ AMSample::AMSample(QObject* parent)
 AMSample::AMSample(const QString &sampleName, QObject *parent)
     : AMDbObject(parent)
 {
-	sampleShapePositionData_ = 0;
+    sampleShapePositionData_ = 0;
     setCurrentDateTime();
     setName(sampleName);
     setSamplePlate(new AMSamplePlatePre2013());
@@ -172,10 +172,10 @@ QString AMSample::elementString() const
 
 void AMSample::setName(const QString &name)
 {
-    AMDbObject::setName(name);
-    AMShapeData* samplePosition = sampleShapePositionData();
-    if(samplePosition)
-        samplePosition->setName(name);
+        AMDbObject::setName(name);
+        AMShapeData* samplePosition = sampleShapePositionData();
+        if(samplePosition)
+            samplePosition->setName(name);
 }
 
 void AMSample::setDateTime(const QDateTime dateTime)
@@ -271,6 +271,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
     sampleShapePositionData_ = sampleShapePositionData;
     sampleShapePositionData_->setName(name());
+    connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
 }
 
 
@@ -360,3 +361,4 @@ QString AMSample::dateTimeFormat() const
 {
     return QString("MMM d (yyyy)");
 }
+

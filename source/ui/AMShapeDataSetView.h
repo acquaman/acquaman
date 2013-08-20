@@ -189,6 +189,8 @@ signals:
 
     void moveSucceeded();
 
+    void changeSampleName(int, QString);
+
 
 
 public slots:
@@ -306,7 +308,7 @@ protected slots:
 
     void transmitMotorMovementEnabled();
 
-    void updateShapeName(QString newName, QString oldName);
+    void updateShapeName(QString newName);
 
 
 

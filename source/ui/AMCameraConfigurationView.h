@@ -6,6 +6,10 @@
 
 #define MATRIXSIZE 12
 
+#define FRAMES 2
+#define CAMERAFRAME 0
+#define MATRIXFRAME 1
+
 class QLineEdit;
 class QPushButton;
 class AMCameraConfiguration;
@@ -98,15 +102,15 @@ protected:
     QLineEdit* centerY_;
     QLineEdit* centerZ_;
     QLineEdit* cameraFOV_;
-    QLineEdit* cameraFocalLength_;
-    QLineEdit* cameraDistortion_;
+    QLineEdit* cameraFocalLength_[FRAMES];
+    QLineEdit* cameraDistortion_[FRAMES];
     QPushButton* setButton_;
     QPushButton* overwriteButton_;
 
     QLineEdit* cameraRotation_;
     QSlider* cameraRotationSlider_;
 
-    QLineEdit* pixelAspectRatio_;
+    QLineEdit* pixelAspectRatio_[FRAMES];
 
     QLineEdit* centreOffsetX_;
     QLineEdit* centreOffsetY_;
