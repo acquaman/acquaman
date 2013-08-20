@@ -16,7 +16,7 @@ HOME_FOLDER = $$system(echo $HOME)
 macx {
 
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
-		CONFIG -= mobility
+		#CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = dev
@@ -53,6 +53,10 @@ macx {
 
                 #Eigen
                 EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+
+		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
+		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include
 }
 linux-g++ {
 
@@ -745,6 +749,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/AMGraphicsVideoSceneCopier.h \
     source/ui/AMOverlayVideoWidget2.h \
     source/ui/util/AMPeriodicTableDialog.h \
+    source/dataman/AMSamplePlate.h
 
 
 # OS-specific files:
@@ -1245,7 +1250,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/util/AMSamplePeriodicTableDialog.cpp \
     source/ui/AMGraphicsVideoSceneCopier.cpp \
     source/ui/AMOverlayVideoWidget2.cpp \
-    source/ui/util/AMPeriodicTableDialog.cpp
+    source/ui/util/AMPeriodicTableDialog.cpp \
+    source/dataman/AMSamplePlate.cpp
 
 
 # OS-specific files
@@ -1270,6 +1276,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

@@ -1,0 +1,41 @@
+#ifndef AMSAMPLEPLATE_H
+#define AMSAMPLEPLATE_H
+
+#include "dataman/database/AMDbObject.h"
+#include "util/AMOrderedSet.h"
+#include "ui/AMSample.h"
+
+class AMSamplePlate : public AMDbObject, public AMOrderedSet<QString, AMSample*>
+{
+Q_OBJECT
+Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
+Q_PROPERTY(AMDbObjectList samples READ dbGetSamples WRITE dbLoadSamples)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples on a Sample Plate")
+Q_CLASSINFO("dateTime", "createIndex=true")
+
+public:
+	/// Invokable constructor for the AMDbObject system
+	Q_INVOKABLE AMSamplePlate(QObject *parent = 0);
+	/// Copy constructor
+	AMSamplePlate(const AMSamplePlate &other);
+
+	/// Returns the QDateTime when this sample plate was created (for ordering)
+	QDateTime dateTime() const;
+
+protected:
+	/// Set the dateTime for the AMDbObject system
+	void dbLoadDateTime(const QDateTime &newDateTime);
+
+	/// Used to store the sample list to the database
+	AMDbObjectList dbGetSamples();
+	/// Used to retrieve the sample list from the database
+	void dbLoadSamples(const AMDbObjectList &newSamples);
+
+protected:
+	/// QDateTime for when this sample plate was created
+	QDateTime dateTime_;
+
+};
+
+#endif // AMSAMPLEPLATE_H
