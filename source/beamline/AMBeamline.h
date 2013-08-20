@@ -27,6 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMDetectorGroup.h"
 
+class AMSampleContainer;
+class AMSamplePlate;
+class AMSample;
+
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
 /// One good way for components in the Acquaman framework to access and set a variety of beamline controls is through a centralized AMBeamline object.  This class provides the basic functionality expected of every beamline, and can be subclassed to include the specific controls available on a particular machine.  It uses the singleton design pattern to ensure that only a single instance of the beamline object exists; you can access this object through AMBeamline::bl().
@@ -115,9 +119,16 @@ public:
 	/// Call to check for a message on the (in)validity of an action
 	virtual QString validateActionMessage(AMAction3 *action) { Q_UNUSED(action); return QString("Action is Currently Valid"); }
 
+	AMSampleContainer* sampleContainer();
+	AMSamplePlate* samplePlate();
+	void setSamplePlate(AMSamplePlate *samplePlate);
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
+
+protected slots:
+	void onSampleContainerSampleAdded(AMSample *sample);
 
 protected:
 	/// Singleton classes have a protected constructor; all access is through AMBeamline::bl() or YourBeamline::bl()
@@ -132,6 +143,9 @@ protected:
 	AMDetectorSet *exposedDetectors_;
 
 	QList<AMDetectorGroup*> exposedDetectorGroups_;
+
+	AMSampleContainer *sampleContainer_;
+	AMSamplePlate *samplePlate_;
 };
 
 #endif /*BEAMLINE_H_*/

@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include "ui/AMSampleContainer.h"
+#include "dataman/AMSamplePlate.h"
+//#include "ui/AMSample.h"
+
 AMBeamline* AMBeamline::instance_ = 0;
 
 
@@ -30,6 +34,9 @@ AMBeamline::AMBeamline(const QString& controlName)
 {
 	exposedControls_ = new AMControlSet(this);
 	exposedDetectors_ = new AMDetectorSet(this);
+	sampleContainer_ = new AMSampleContainer(this);
+	samplePlate_ = 0; //NULL
+	connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
 }
 
 AMBeamline::~AMBeamline()
@@ -54,6 +61,23 @@ AMBeamline * AMBeamline::bl()
 	 }
 
 	return instance_;
+}
+
+AMSampleContainer* AMBeamline::sampleContainer(){
+	return sampleContainer_;
+}
+
+AMSamplePlate* AMBeamline::samplePlate(){
+	return samplePlate_;
+}
+
+void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
+	samplePlate_ = samplePlate;
+}
+
+void AMBeamline::onSampleContainerSampleAdded(AMSample *sample){
+	if(samplePlate_)
+		samplePlate_->addSample(sample);
 }
 
 bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){

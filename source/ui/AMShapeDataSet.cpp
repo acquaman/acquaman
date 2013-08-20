@@ -1373,6 +1373,7 @@ AMShapeDataSet::AMShapeDataSet(QObject *parent) :
     }
 
 
+
     QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name","defaultConfiguration");
     if(matchIDs.count() == 0)
     {

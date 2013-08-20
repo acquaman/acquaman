@@ -420,6 +420,7 @@ SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &
 		setScalerTime(other.scalerTime());
 		setBaseLine(other.baseLine());
 		setUndulatorVelocity(other.undulatorVelocity());
+		setModified(false);
 	}
 	return *this;
 }

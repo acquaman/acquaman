@@ -173,7 +173,7 @@ bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 		qDebug() << "Before setting from preset " << currentSettings_->modified();
 	bool retVal = setParameters(settings_.at(index));
 	if(currentSettings_)
-		qDebug() << "After setting from preset" << currentSettings_->modified();
+		qDebug() << "After setting from preset" << currentSettings_->modified() << currentSettings_->fastScanSettings().modified();
 	return retVal;
 }
 

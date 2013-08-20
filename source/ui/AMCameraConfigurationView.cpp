@@ -33,6 +33,7 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
         cameraModel_->setCameraCentre(QVector3D(0,0,0));
         cameraModel_->setCameraPosition(QVector3D(0,0,1));
         cameraModel_->setCameraRotation(0);
+	cameraModel_->setPixelAspectRatio(1);
         bool success = cameraModel_->storeToDb(dbSGM);
         if(!success)qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Failed to store item in database";
         else qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - successfully stored item in database";
