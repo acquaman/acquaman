@@ -271,7 +271,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
     sampleShapePositionData_ = sampleShapePositionData;
     sampleShapePositionData_->setName(name());
-    connect(sampleShapePositionData_, SIGNAL(nameChanged(QString,QString)), this, SLOT(setName(QString)));
+    connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
 }
 
 

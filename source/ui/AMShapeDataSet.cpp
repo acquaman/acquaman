@@ -1926,7 +1926,7 @@ void AMShapeDataSet::insertItem(AMShapeData *item)
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
     endInsertRows();
-    connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapesChanged()));
+    connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapeNameChanged(QString)));
     updateShape(index_);
     emit shapesChanged();
 }
