@@ -5,7 +5,7 @@
 #include "util/AMOrderedSet.h"
 #include "ui/AMSample.h"
 
-class AMSamplePlate : public AMDbObject, public AMOrderedSet<QString, AMSample*>
+class AMSamplePlate : public AMDbObject
 {
 Q_OBJECT
 Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
@@ -23,8 +23,14 @@ public:
 	/// Returns the QDateTime when this sample plate was created (for ordering)
 	QDateTime dateTime() const;
 
+	int sampleCount() const;
+
+	AMSample* sampleAt(int index);
+
 	/// Adds a sample and automatically calls append with the name as the key
 	bool addSample(AMSample *sample);
+
+	int indexOfSample(AMSample *sample);
 
 signals:
 	// The following signals are forwarded from our signalSource().
@@ -49,6 +55,8 @@ protected:
 protected:
 	/// QDateTime for when this sample plate was created
 	QDateTime dateTime_;
+
+	AMOrderedList<AMSample*> samples_;
 
 };
 

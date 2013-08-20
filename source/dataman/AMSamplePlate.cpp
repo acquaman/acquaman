@@ -1,29 +1,47 @@
 #include "AMSamplePlate.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
-	AMDbObject(parent), AMOrderedSet<QString, AMSample*>()
+	AMDbObject(parent)
 {
-	setAllowsDuplicateKeys(true);
-
 	dateTime_ = QDateTime::currentDateTime();
 
 	// Forward internal signals (itemAdded, etc.) from our signalSource() as our own
-	connect(signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(sampleAboutToBeAdded(int)));
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(sampleAdded(int)));
-	connect(signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SIGNAL(sampleAboutToBeRemoved(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(sampleRemoved(int)));
-	connect(signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(sampleChanged(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(sampleAboutToBeAdded(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(sampleAdded(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SIGNAL(sampleAboutToBeRemoved(int)));
+	connect(samples_.signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(sampleRemoved(int)));
+	connect(samples_.signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(sampleChanged(int)));
 }
 
 QDateTime AMSamplePlate::dateTime() const{
 	return dateTime_;
 }
 
+int AMSamplePlate::sampleCount() const{
+	return samples_.count();
+}
+
+AMSample* AMSamplePlate::sampleAt(int index){
+	if(index == -1)
+		return samples_.at(samples_.count()-1);
+	if(index < 0 || index > sampleCount())
+		return 0; //NULL
+	return samples_.at(index);
+}
+
 bool AMSamplePlate::addSample(AMSample *sample){
-	bool retVal = append(sample, sample->name());
-	if(retVal)
-		connect(sample, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
-	return retVal;
+	samples_.append(sample);
+	connect(sample, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+	return true;
+}
+
+int AMSamplePlate::indexOfSample(AMSample *sample){
+	if(!sample)
+		return -1;
+	for(int x = 0; x < samples_.count(); x++)
+		if(samples_.at(x) == sample)
+			return x;
+	return -1;
 }
 
 void AMSamplePlate::onSampleNameChanged(const QString &name){
@@ -31,7 +49,7 @@ void AMSamplePlate::onSampleNameChanged(const QString &name){
 	AMSample *sample = qobject_cast<AMSample*>(QObject::sender());
 	if(sample){
 		qDebug() << "It's a sample, so let's emit sampleChanged";
-		emit sampleChanged(indexOfValue(sample));
+		emit sampleChanged(indexOfSample(sample));
 	}
 }
 
@@ -41,18 +59,18 @@ void AMSamplePlate::dbLoadDateTime(const QDateTime &newDateTime){
 
 AMDbObjectList AMSamplePlate::dbGetSamples(){
 	AMDbObjectList retVal;
-	for(int x = 0; x < count(); x++)
-		retVal << this->operator[](x);
+	for(int x = 0; x < samples_.count(); x++)
+		retVal << samples_[x];
 	return retVal;
 }
 
 void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
-	clear();
+	samples_.clear();
 
 	for(int x = 0; x < newSamples.count(); x++){
 		AMSample *newSample = qobject_cast<AMSample*>(newSamples.at(x));
 		if(newSample)
-			append(newSample, newSample->name());
+			samples_.append(newSample);
 	}
 }
 

@@ -18,7 +18,7 @@ int AMSamplePlateItemModel::rowCount(const QModelIndex &parent) const
 {
 	if(parent.isValid())
 		return 0;
-	return samplePlate_->count();
+	return samplePlate_->sampleCount();
 }
 
 QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
@@ -52,8 +52,8 @@ QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	*/
-	qDebug() << "in ::data() going to return the name right now which is " << samplePlate_->at(index.row())->name();
-	return samplePlate_->at(index.row())->name();
+	qDebug() << "in ::data() going to return the name right now which is " << samplePlate_->sampleAt(index.row())->name();
+	return samplePlate_->sampleAt(index.row())->name();
 }
 
 Qt::ItemFlags AMSamplePlateItemModel::flags(const QModelIndex &index) const
@@ -94,7 +94,7 @@ void AMSamplePlateItemModel::onSampleRemoved(int index){
 
 void AMSamplePlateItemModel::onSampleChanged(int index){
 	qDebug() << "Sample at index " << index << " changed";
-	emit dataChanged(createIndex(index, 0, samplePlate_->at(index)), createIndex(index, 0, samplePlate_->at(index)));
+	emit dataChanged(createIndex(index, 0, samplePlate_->sampleAt(index)), createIndex(index, 0, samplePlate_->sampleAt(index)));
 }
 
 AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject *parent) :
