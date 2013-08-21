@@ -172,12 +172,10 @@ QString AMSample::elementString() const
 
 void AMSample::setName(const QString &name)
 {
-    qDebug()<<"AMSample::setName - setting name to"<<name;
         AMDbObject::setName(name);
         AMShapeData* samplePosition = sampleShapePositionData();
         if(samplePosition)
         {
-            qDebug()<<"Has sample position";
             samplePosition->setName(name);
         }
 }
@@ -273,9 +271,17 @@ void AMSample::setElementList(const AMIntList& elements)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
-    sampleShapePositionData_ = sampleShapePositionData;
-    sampleShapePositionData_->setName(name());
-    connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+    if(sampleShapePositionData_ != sampleShapePositionData)
+    {
+        if(sampleShapePositionData_)
+            disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+        sampleShapePositionData_ = sampleShapePositionData;
+        if(sampleShapePositionData_)
+        {
+            sampleShapePositionData_->setName(name());
+            connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+        }
+    }
 }
 
 

@@ -119,8 +119,8 @@ public slots:
     /// sets dateTime_ to the current DateTime
     void setCurrentDateTime();
 
-signals:
-    void sampleNameChanged(QString);
+//signals:
+//    void sampleNameChanged(QString);
 //protected slots:
 //    void setSampleName(QString);
 protected:

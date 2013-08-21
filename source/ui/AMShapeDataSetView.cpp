@@ -641,11 +641,10 @@ void AMShapeDataSetView::transmitMotorMovementEnabled()
 
 void AMShapeDataSetView::updateShapeName(QString newName)
 {
-    qDebug()<<"AMShapeDataSetView::updateShapeName - Updating shape name";
     if(currentView_ == NAME)
     {
         if(currentIndex() >= 0 && textItems_.count() > currentIndex())
-            textItems_[currentIndex()]->setPlainText(newName);
+            textItems_[currentIndex()]->setPlainText(shapeModel_->name(currentIndex()));
         else
             reviewCrosshairLinePositions();
     }
@@ -1307,10 +1306,6 @@ void AMShapeDataSetView::addNewShape()
     textItems_[index_]->setZValue(1000);
     textItems_[index_]->setTextInteractionFlags(Qt::TextEditable);
     textItems_[index_]->setShapeIndex(index_);
-    qDebug()<<"AMShapeDataSetView::addNewShape"<<index_;
-    qDebug()<<"AMShapeDataSetView::addNewShape"<<textItems_[index_]->shapeIndex();
-//    textItems_[index_]->set
-//    textItems_[index_]->setAcceptedMouseButtons(Qt::LeftButton);
     connect(textItems_[index_], SIGNAL(textChanged(int)), this, SLOT(updateItemName(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), shapeModel_, SLOT(setCurrentShapeIndex(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), this, SLOT(currentSelectionChanged()));

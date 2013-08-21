@@ -57,14 +57,12 @@ void AMCameraBrowser::sampleIndexChanged(int index)
 
 void AMCameraBrowser::shapeIndexChanged(int index)
 {
-    qDebug()<<"AMCameraBrowser::shapeIndexChanged"<<index;
 	int sampleIndex = -1;
 	if(index >= 0 && shapeDataSet()->isValid(index))
 	{
 		const AMShapeData* shapeData = shapeDataSet_->shapeList().at(index);
 		sampleIndex = sampleContainer_->indexOfSample(shapeData);
 	}
-    qDebug()<<"AMCameraBrowser::shapeIndexChanged - index is"<<sampleIndex;
 	emit changeSampleIndex(sampleIndex);
 }
 
