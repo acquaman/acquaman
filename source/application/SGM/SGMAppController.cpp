@@ -88,6 +88,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMCameraBrowserView.h"
 #include "ui/AMCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
+#include "ui/beamline/AMBeamlineSampleManagementView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -1229,8 +1230,8 @@ bool SGMAppController::setupSGMViews(){
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
-	cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
-	mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
+	//cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
+	//mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
 	AMSamplePlate *testSamplePlate = new AMSamplePlate();
 	/*
 	AMSample *tempSample = new AMSample("David 1");
@@ -1239,8 +1240,11 @@ bool SGMAppController::setupSGMViews(){
 	testSamplePlate->addSample(tempSample);
 	*/
 	SGMBeamline::sgm()->setSamplePlate(testSamplePlate);
-	samplePlateView_ = new AMSamplePlateView(testSamplePlate);
-	mw_->addPane(samplePlateView_, "Beamline Control", "SGM Sample Plate", ":/system-software-update.png");
+	//samplePlateView_ = new AMSamplePlateView(testSamplePlate);
+	//samplePlateView_ = new AMSamplePlateView(0);
+	//mw_->addPane(samplePlateView_, "Beamline Control", "SGM Sample Plate", ":/system-software-update.png");
+	sampleManagementView_ = new AMBeamlineSampleManagementView(SGMBeamline::sgm());
+	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
 	// Jan 11, 2013: I don't think this is necessary at all anymore
 	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
