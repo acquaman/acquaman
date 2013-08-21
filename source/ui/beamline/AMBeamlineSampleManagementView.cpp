@@ -2,12 +2,14 @@
 
 #include <QBoxLayout>
 #include <QPushButton>
+#include <QSplitter>
 
 #include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
 #include "ui/dataman/AMSamplePlateBrowserView.h"
 #include "beamline/AMBeamline.h"
+#include "beamline/camera/AMSampleCamera.h"
 
 AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beamline, QWidget *parent) :
 	QWidget(parent)
@@ -33,9 +35,16 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 	samplePlateBrowserView_->hide();
 
+	QSplitter *mainSplitter = new QSplitter();
+	QWidget *leftWidget = new QWidget();
+	QWidget *rightWidget = new QWidget();
+	leftWidget->setLayout(leftVL);
+	rightWidget->setLayout(rightVL);
+	mainSplitter->addWidget(leftWidget);
+	mainSplitter->addWidget(rightWidget);
+
 	QHBoxLayout *mainHL = new QHBoxLayout();
-	mainHL->addLayout(leftVL);
-	mainHL->addLayout(rightVL);
+	mainHL->addWidget(mainSplitter);
 
 	setLayout(mainHL);
 
@@ -46,12 +55,21 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 	AMSamplePlateCreationDialog creationDialog;
-	creationDialog.exec();
+	int retVal = creationDialog.exec();
 
-	AMSamplePlate *samplePlate = new AMSamplePlate();
-	samplePlate->setName(creationDialog.samplePlateName());
+	if(retVal == QDialog::Accepted){
+		AMSamplePlate *oldSamplePlate = beamline_->samplePlate();
+		if(oldSamplePlate){
+			AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
+			for(int x = oldSamplePlate->sampleCount()-1; x >= 0; x--)
+				sampleCamera->removeSample(oldSamplePlate->sampleAt(x));
+		}
 
-	beamline_->setSamplePlate(samplePlate);
+		AMSamplePlate *samplePlate = new AMSamplePlate();
+		samplePlate->setName(creationDialog.samplePlateName());
+
+		beamline_->setSamplePlate(samplePlate);
+	}
 }
 
 void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){

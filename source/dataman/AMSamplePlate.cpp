@@ -32,6 +32,7 @@ AMSample* AMSamplePlate::sampleAt(int index){
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+	storeToDb(database());
 	return true;
 }
 
@@ -78,6 +79,7 @@ AMSamplePlateBrowser::AMSamplePlateBrowser(AMDatabase *database, QObject *parent
 	QAbstractListModel(parent)
 {
 	database_ = database;
+	reloadFromDatabase();
 }
 
 int AMSamplePlateBrowser::rowCount(const QModelIndex &parent) const

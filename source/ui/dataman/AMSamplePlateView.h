@@ -2,12 +2,13 @@
 #define AMSAMPLEPLATEVIEW_H
 
 #include <QWidget>
-#include <QListView>
+#include <QGroupBox>
 #include <QAbstractListModel>
 #include <QStyledItemDelegate>
 
 #include "dataman/AMSamplePlate.h"
 
+class QListView;
 class QVBoxLayout;
 class QLabel;
 
@@ -84,7 +85,7 @@ protected:
 	*/
 };
 
-class AMSamplePlateView : public QWidget
+class AMSamplePlateView : public QGroupBox
 {
 Q_OBJECT
 public:

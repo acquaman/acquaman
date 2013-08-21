@@ -105,6 +105,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMBeamConfiguration.h"
 #include "dataman/AMSample.h"
+#include "dataman/AMSamplePlate.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
@@ -576,9 +577,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
-    success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
-    success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
-    success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
