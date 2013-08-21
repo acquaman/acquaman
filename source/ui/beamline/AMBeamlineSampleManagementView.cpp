@@ -8,6 +8,7 @@
 #include "ui/dataman/AMSamplePlateView.h"
 #include "ui/dataman/AMSamplePlateBrowserView.h"
 #include "beamline/AMBeamline.h"
+#include "beamline/camera/AMSampleCamera.h"
 
 AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beamline, QWidget *parent) :
 	QWidget(parent)
@@ -46,12 +47,19 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 	AMSamplePlateCreationDialog creationDialog;
-	creationDialog.exec();
+	int retVal = creationDialog.exec();
 
-	AMSamplePlate *samplePlate = new AMSamplePlate();
-	samplePlate->setName(creationDialog.samplePlateName());
+	if(retVal == QDialog::Accepted){
+		AMSamplePlate *oldSamplePlate = beamline_->samplePlate();
+		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
+		for(int x = oldSamplePlate->sampleCount()-1; x >= 0; x--)
+			sampleCamera->removeSample(oldSamplePlate->sampleAt(x));
 
-	beamline_->setSamplePlate(samplePlate);
+		AMSamplePlate *samplePlate = new AMSamplePlate();
+		samplePlate->setName(creationDialog.samplePlateName());
+
+		beamline_->setSamplePlate(samplePlate);
+	}
 }
 
 void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){

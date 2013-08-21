@@ -30,6 +30,7 @@ class AMCameraConfiguration;
 //class SGMMAXvMotor;
 class AMControl;
 class AMCamera;
+class AMSample;
 
 using namespace Eigen;
 
@@ -333,8 +334,8 @@ public slots:
 
     void stopMotors();
 
-
-
+    /// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
+    void removeSample(AMSample *sample);
 
 
 signals:

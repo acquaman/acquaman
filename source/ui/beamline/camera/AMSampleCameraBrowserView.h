@@ -34,7 +34,7 @@ public:
     /// Returns the current video source URL that is currently playing (or loading, or attempting to play, etc.)
     QString currentSourceURL() const;
 
-
+    AMSampleCameraBrowser* sampleCameraBrowser();
 
 
 public slots:

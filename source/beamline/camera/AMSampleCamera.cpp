@@ -1309,6 +1309,11 @@ void AMSampleCamera::stopMotors()
     }
 }
 
+void AMSampleCamera::removeSample(AMSample *sample){
+	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
+	if(shapeIndex >= 0)
+		removeItem(shapeIndex);
+}
 
 
 /// tracks motor movement and shifts drawings accordingly
