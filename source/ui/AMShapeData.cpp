@@ -93,12 +93,10 @@ void AMShapeData::setShape(const QPolygonF shape)
 
 void AMShapeData::setName(QString name)
 {
-    qDebug()<<"AMShapeData::setName"<<"Setting name to "<<name;
     if(name_ != name)
     {
-        qDebug()<<"Changing name";
         name_ = name;
-        emit nameChanged(name);
+        emit nameChanged(name_);
     }
 }
 

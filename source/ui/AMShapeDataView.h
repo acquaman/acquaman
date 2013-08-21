@@ -63,6 +63,7 @@ protected:
     void update();
     bool isValid();
     void updateCoordinateLabels();
+    int count();
 protected:
     AMShapeData *shapeModel_;
 //    QLineEdit *nameEdit_;

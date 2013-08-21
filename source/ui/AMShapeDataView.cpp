@@ -281,7 +281,7 @@ void AMShapeDataView::showSampleView()
 void AMShapeDataView::setCoordinate()
 {
     QVector3D newCoordinate;
-    for(int i = 0; i < shapeModel_->count(); i++)
+    for(int i = 0; i < count(); i++)
     {
         newCoordinate.setX(coordinateEdit_[3*i]->text().toDouble());
         newCoordinate.setY(coordinateEdit_[3*i+1]->text().toDouble());
@@ -289,7 +289,7 @@ void AMShapeDataView::setCoordinate()
         shapeModel_->setCoordinate(newCoordinate,i);
         if(i == 0)
         {
-            shapeModel_->setCoordinate(newCoordinate,shapeModel_->count()-1);
+            shapeModel_->setCoordinate(newCoordinate,count());
         }
     }
     emit updateShapes();
@@ -365,7 +365,7 @@ bool AMShapeDataView::isValid()
 
 void AMShapeDataView::updateCoordinateLabels()
 {
-    int points = shapeModel_->count() - 1;// ignore the closing point of the shape
+    int points = count();// ignore the closing point of the shape
     if(points != oldCount_)
     {
 //        layout()->removeWidget(coordinateFrame_);
@@ -440,6 +440,13 @@ void AMShapeDataView::updateCoordinateLabels()
         }
     }
     oldCount_ = points;
+}
+
+int AMShapeDataView::count()
+{
+    if(shapeModel_)
+        return shapeModel_->count()-1;
+    else return 0;
 }
 
 

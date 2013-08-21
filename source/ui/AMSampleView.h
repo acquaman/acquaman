@@ -56,7 +56,7 @@ protected slots:
     /// load a sample from the database
     void loadSample(QString);
     /// change the sample plate associated with this sample
-    void changeSamplePlate(QString);
+//    void changeSamplePlate(QString);
     void onSampleNameChanged(QString);
 
 protected:
@@ -65,7 +65,7 @@ protected:
     /// make the views connections
     void makeConnections();
     /// populate the sample plate combobox
-    void populateSamplePlateLoader();
+//    void populateSamplePlateLoader();
     /// load the sample from the database
     void loadFromDb();
     /// populate the sample combo box.
@@ -101,7 +101,7 @@ private:
     /// text box showing the sample plate name
     QLineEdit* samplePlateName_;
     /// combo box used to load a sample plate from the database
-    QComboBox* samplePlateLoader_;
+//    QComboBox* samplePlateLoader_;
 
     /// combo box used to load a sample from the database
     QComboBox* sampleLoader_;
