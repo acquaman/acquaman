@@ -41,7 +41,6 @@ signals:
 	void sampleAboutToBeRemoved(int index);
 
 protected slots:
-	//void onSampleNameChanged(const QString &name);
 	void onSampleDetailsChanged();
 
 protected:
@@ -58,7 +57,25 @@ protected:
 	QDateTime dateTime_;
 
 	AMOrderedList<AMSample*> samples_;
+};
 
+class AMSamplePlateBrowser : public QAbstractListModel
+{
+Q_OBJECT
+public:
+	AMSamplePlateBrowser(AMDatabase *database, QObject *parent = 0);
+
+	int rowCount(const QModelIndex &parent) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+public slots:
+	void reloadFromDatabase();
+
+protected:
+	AMDatabase *database_;
+	QList<AMSamplePlate*> allSamplePlates_;
 };
 
 #endif // AMSAMPLEPLATE_H

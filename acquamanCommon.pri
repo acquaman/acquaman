@@ -751,7 +751,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/dataman/AMSamplePlate.h \
     source/ui/dataman/AMSamplePlateView.h \
-    source/ui/beamline/AMBeamlineSampleManagementView.h
+    source/ui/beamline/AMBeamlineSampleManagementView.h \
+    source/ui/dataman/AMSamplePlateBrowserView.h
 
 
 # OS-specific files:
@@ -1255,7 +1256,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/dataman/AMSamplePlate.cpp \
     source/ui/dataman/AMSamplePlateView.cpp \
-    source/ui/beamline/AMBeamlineSampleManagementView.cpp
+    source/ui/beamline/AMBeamlineSampleManagementView.cpp \
+    source/ui/dataman/AMSamplePlateBrowserView.cpp
 
 
 # OS-specific files
@@ -1280,6 +1282,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

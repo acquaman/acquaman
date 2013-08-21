@@ -37,6 +37,7 @@ AMBeamline::AMBeamline(const QString& controlName)
 	sampleContainer_ = new AMSampleContainer(this);
 	samplePlate_ = 0; //NULL
 	connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
+	samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
 }
 
 AMBeamline::~AMBeamline()
@@ -71,8 +72,13 @@ AMSamplePlate* AMBeamline::samplePlate(){
 	return samplePlate_;
 }
 
+AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
+	return samplePlateBrowser_;
+}
+
 void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 	samplePlate_ = samplePlate;
+	emit samplePlateChanged(samplePlate_);
 }
 
 void AMBeamline::onSampleContainerSampleAdded(AMSample *sample){
