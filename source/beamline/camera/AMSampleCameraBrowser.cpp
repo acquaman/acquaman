@@ -1,21 +1,22 @@
-#include "AMCameraBrowser.h"
+#include "AMSampleCameraBrowser.h"
 
 #include <QWidget>
-#include "AMShapeDataSetView.h"
-#include "AMShapeDataSet.h"
-#include "AMSampleContainer.h"
+#include "ui/beamline/camera/AMSampleCameraView.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "dataman/AMSampleContainer.h"
+#include "dataman/AMSample.h"
 
 #include "beamline/AMBeamline.h"
 
 #include <QDebug>
 
 
-AMCameraBrowser::AMCameraBrowser(QObject *parent) :
+AMSampleCameraBrowser::AMSampleCameraBrowser(QObject *parent) :
 	QObject(parent)
 {
 	qRegisterMetaType<AMQVector3DVector>();
 
-	shapeDataSet_ = AMShapeDataSet::set();
+    shapeDataSet_ = AMSampleCamera::set();
 	//sampleContainer_ = new AMSampleContainer();
 	sampleContainer_ = AMBeamline::bl()->sampleContainer();
 
@@ -27,27 +28,27 @@ AMCameraBrowser::AMCameraBrowser(QObject *parent) :
 
 
 
-QString AMCameraBrowser::currentURL()
+QString AMSampleCameraBrowser::currentURL()
 {
 	return currentURL_;
 }
 
-AMShapeDataSet *AMCameraBrowser::shapeDataSet()
+AMSampleCamera *AMSampleCameraBrowser::shapeDataSet()
 {
 	return shapeDataSet_;
 }
 
-AMSampleContainer *AMCameraBrowser::sampleContainer()
+AMSampleContainer *AMSampleCameraBrowser::sampleContainer()
 {
 	return sampleContainer_;
 }
 
-void AMCameraBrowser::setCurrentURL(QString currentURL)
+void AMSampleCameraBrowser::setCurrentURL(QString currentURL)
 {
 	currentURL_ = currentURL;
 }
 
-void AMCameraBrowser::sampleIndexChanged(int index)
+void AMSampleCameraBrowser::sampleIndexChanged(int index)
 {
 	int shapeIndex = 0;
 	AMShapeData* shapeData = sampleContainer_->sample(index)->sampleShapePositionData();
@@ -55,7 +56,7 @@ void AMCameraBrowser::sampleIndexChanged(int index)
 	emit indexChanged(shapeIndex);
 }
 
-void AMCameraBrowser::shapeIndexChanged(int index)
+void AMSampleCameraBrowser::shapeIndexChanged(int index)
 {
 	int sampleIndex = -1;
 	if(index >= 0 && shapeDataSet()->isValid(index))

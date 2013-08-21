@@ -1,6 +1,6 @@
 #include "AMSamplePlateWizard.h"
 
-#include "AMBeamConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
 #include <QAbstractButton>
 #include <QSlider>
 #include <QLayout>

@@ -1,8 +1,8 @@
-#include "AMSampleContainer.h"
+#include "dataman/AMSampleContainer.h"
 
-#include "AMSample.h"
-#include "AMShapeDataSet.h"
-#include "AMShapeData.h"
+#include "dataman/AMSample.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "beamline/camera/AMShapeData.h"
 
 AMSampleContainer::AMSampleContainer(QObject* parent)
     :QAbstractListModel(parent)
@@ -182,7 +182,7 @@ void AMSampleContainer::setIndex(int index)
 
 void AMSampleContainer::updateSamples()
 {
-    const QList<AMShapeData*> shapeList = AMShapeDataSet::set()->shapeList();
+    const QList<AMShapeData*> shapeList = AMSampleCamera::set()->shapeList();
     if(shapeList.count() > sampleList().count())
     {
         foreach(AMShapeData* shape, shapeList)

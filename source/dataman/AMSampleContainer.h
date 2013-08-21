@@ -82,7 +82,7 @@ public slots:
 	void setIndex(int index);
 
 	/// updates the sample list to correspond to
-	/// the shapeList in AMShapeDataSet
+    /// the shapeList in AMSampleCamera
 	void updateSamples();
 	/// updates the names of the samples
 	void updateNames();

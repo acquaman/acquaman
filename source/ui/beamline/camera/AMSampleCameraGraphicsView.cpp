@@ -1,16 +1,17 @@
-#include "AMShapeDataSetGraphicsView.h"
+#include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 
 #include <QMouseEvent>
 #include <QGraphicsVideoItem>
+#include <QDebug>
 
-AMShapeDataSetGraphicsView::AMShapeDataSetGraphicsView(QWidget *parent, bool useOpenGlViewport) :
+AMSampleCameraGraphicsView::AMSampleCameraGraphicsView(QWidget *parent, bool useOpenGlViewport) :
     AMOverlayVideoWidget2(parent, useOpenGlViewport)
 {
 
 }
 
 
-void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
+void AMSampleCameraGraphicsView::resizeEvent(QResizeEvent *event)
 {
     AMOverlayVideoWidget2::resizeEvent(event);
 
@@ -18,8 +19,8 @@ void AMShapeDataSetGraphicsView::resizeEvent(QResizeEvent *event)
 
 }
 
-#include <QDebug>
-void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
+
+void AMSampleCameraGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mousePressEvent(event);
 
@@ -32,7 +33,7 @@ void AMShapeDataSetGraphicsView::mousePressEvent(QMouseEvent *event)
         emit mouseRightClicked(mapSceneToVideo(mapToScene(event->pos())));
 }
 
-void AMShapeDataSetGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void AMSampleCameraGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mouseReleaseEvent(event);
 
@@ -42,7 +43,7 @@ void AMShapeDataSetGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         emit mouseRightReleased(mapSceneToVideo(mapToScene(event->pos())));
 }
 
-void AMShapeDataSetGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
+void AMSampleCameraGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mouseDoubleClickEvent(event);
 
@@ -51,7 +52,7 @@ void AMShapeDataSetGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 
 }
 
-void AMShapeDataSetGraphicsView::mouseMoveEvent(QMouseEvent *event)
+void AMSampleCameraGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mouseMoveEvent(event);
 
@@ -59,13 +60,13 @@ void AMShapeDataSetGraphicsView::mouseMoveEvent(QMouseEvent *event)
         emit mouseMoved(mapSceneToVideo(mapToScene(event->pos())));
 }
 
-void AMShapeDataSetGraphicsView::setVideoItem(QGraphicsVideoItem *item)
+void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
 {
     videoItem_ = item;
 }
 
 
-QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordinate) const
+QPointF AMSampleCameraGraphicsView::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
     // for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
     QSizeF viewSize = size();
@@ -84,7 +85,7 @@ QPointF AMShapeDataSetGraphicsView::mapSceneToVideo(const QPointF &sceneCoordina
     return QPointF(xScene, yScene);
 }
 
-void AMShapeDataSetGraphicsView::contextMenuEvent(QContextMenuEvent *event)
+void AMSampleCameraGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 {
     /// do nothing;
 }

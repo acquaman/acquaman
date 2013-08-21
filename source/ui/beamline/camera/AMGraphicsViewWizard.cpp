@@ -1,8 +1,8 @@
 #include "AMGraphicsViewWizard.h"
 
 #include <QPointF>
-#include "AMGraphicsVideoSceneCopier.h"
-#include "AMShapeDataSetGraphicsView.h"
+#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
+#include "AMSampleCameraGraphicsView.h"
 #include <QLayout>
 
 #include <QTimer>
@@ -21,7 +21,7 @@
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     :QWizard(parent)
 {
-    view_ = new AMShapeDataSetGraphicsView();
+    view_ = new AMSampleCameraGraphicsView();
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
@@ -60,7 +60,7 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
     }
 }
 
-AMShapeDataSetGraphicsView *AMGraphicsViewWizard::view() const
+AMSampleCameraGraphicsView *AMGraphicsViewWizard::view() const
 {
     return view_;
 }
@@ -200,7 +200,7 @@ void AMGraphicsViewWizard::checkMotorMovementState()
     emit requestMotorMovementEnabled();
 }
 
-void AMGraphicsViewWizard::setView(AMShapeDataSetGraphicsView *view)
+void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 {
     view_ = view;
     view_->setObjectName("AMGraphicsViewWizard view 1");
@@ -265,7 +265,7 @@ void AMGraphicsViewWizard::addPoint(QPointF position)
     pointList_->append(newPoint);
 }
 
-void AMGraphicsViewWizard::updateScene(AMShapeDataSetGraphicsView *view)
+void AMGraphicsViewWizard::updateScene(AMSampleCameraGraphicsView *view)
 {
     view_->scene()->removeItem(fixItem_);
 
@@ -534,16 +534,16 @@ AMViewPage::AMViewPage(QWidget *parent)
     : AMWizardPage(parent)
 {
     viewFrame_ = new QFrame();
-    view_ = new AMShapeDataSetGraphicsView();
+    view_ = new AMSampleCameraGraphicsView();
 
 }
 
-AMShapeDataSetGraphicsView *AMViewPage::view()
+AMSampleCameraGraphicsView *AMViewPage::view()
 {
     return view_;
 }
 
-void AMViewPage::setView(AMShapeDataSetGraphicsView *view)
+void AMViewPage::setView(AMSampleCameraGraphicsView *view)
 {
     view_ = view;
 }

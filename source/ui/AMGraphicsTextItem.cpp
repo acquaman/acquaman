@@ -1,11 +1,11 @@
-#include "GraphicsTextItem.h"
+#include "AMGraphicsTextItem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
 #include <QCursor>
 #include <QTextCursor>
 #include <QDebug>
 
-GraphicsTextItem::GraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
+AMGraphicsTextItem::AMGraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
     QGraphicsTextItem(parent,scene)
 {
     document_ = document();
@@ -15,23 +15,23 @@ GraphicsTextItem::GraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene)
     setFont(font);
 }
 
-void GraphicsTextItem::setShapeIndex(int index)
+void AMGraphicsTextItem::setShapeIndex(int index)
 {
     shapeIndex_ = index;
 }
 
-int GraphicsTextItem::shapeIndex()
+int AMGraphicsTextItem::shapeIndex()
 {
     return shapeIndex_;
 }
 
-int GraphicsTextItem::type() const
+int AMGraphicsTextItem::type() const
 {
     return Type;
 }
 
 
-void GraphicsTextItem::changingText()
+void AMGraphicsTextItem::changingText()
 {
     QTextCursor oldTextCursor = textCursor();
     int initialPosition = oldTextCursor.position();
@@ -42,7 +42,7 @@ void GraphicsTextItem::changingText()
     }
 }
 
-void GraphicsTextItem::focusInEvent(QFocusEvent *event)
+void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
     QGraphicsTextItem::focusInEvent(event);
     qDebug()<<"GraphicsTextItem::focusInEvent------------------------------------------------------";

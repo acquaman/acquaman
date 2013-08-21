@@ -5,7 +5,6 @@
 #include <QRectF>
 #include <QVector3D>
 #include <QVector>
-#include "AMSample.h"
 
 
 class QString;

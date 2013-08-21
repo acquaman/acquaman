@@ -7,8 +7,8 @@ class QPushButton;
 
 class AMBeamline;
 class AMSamplePlateView;
-class AMCameraBrowserView;
 class AMSamplePlateBrowserView;
+class AMSampleCameraBrowserView;
 
 class AMBeamlineSampleManagementView : public QWidget
 {
@@ -25,7 +25,7 @@ protected:
 
 	AMSamplePlateBrowserView *samplePlateBrowserView_;
 	AMSamplePlateView *samplePlateView_;
-	AMCameraBrowserView *cameraBrowserView_;
+	AMSampleCameraBrowserView *cameraBrowserView_;
 
 	QPushButton *createSamplePlateButton_;
 	QPushButton *loadSamplePlateButton_;

@@ -3,8 +3,8 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
-#include "ui/AMCameraBrowserView.h"
-#include "ui/AMCameraBrowser.h"
+#include "ui/beamline/camera/AMSampleCameraBrowserView.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
 #include "ui/dataman/AMSamplePlateBrowserView.h"
 #include "beamline/AMBeamline.h"
@@ -14,7 +14,8 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 {
 	beamline_ = beamline;
 
-	cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
+
+	cameraBrowserView_ = new AMSampleCameraBrowserView(new AMSampleCameraBrowser());
 	samplePlateBrowserView_ = new AMSamplePlateBrowserView(new AMSamplePlateBrowser(AMDatabase::database("user")));
 	samplePlateView_ = new AMSamplePlateView(beamline_->samplePlate());
 

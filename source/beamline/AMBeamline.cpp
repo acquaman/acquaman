@@ -22,9 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-#include "ui/AMSampleContainer.h"
+#include "dataman/AMSampleContainer.h"
 #include "dataman/AMSamplePlate.h"
-//#include "ui/AMSample.h"
 
 AMBeamline* AMBeamline::instance_ = 0;
 

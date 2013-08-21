@@ -46,7 +46,7 @@ class SGMAdvancedControlsView;
 class AMDetectorSelector;
 class AMDetectorSelectorView;
 
-class AMCameraBrowserView;
+class AMSampleCameraBrowserView;
 class AMSamplePlateView;
 class AMBeamlineSampleManagementView;
 
@@ -138,7 +138,7 @@ protected:
 	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementPre2013Widget *samplePositionView_;
 	/// camera widget
-	AMCameraBrowserView *cameraBrowserView_;
+	AMSampleCameraBrowserView *cameraBrowserView_;
 	AMSamplePlateView *samplePlateView_;
 	AMBeamlineSampleManagementView *sampleManagementView_;
 

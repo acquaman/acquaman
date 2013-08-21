@@ -6,11 +6,11 @@
 #include <QObject>
 #include <QSizeF>
 #include <QMap>
-#include "ui/AMShapeData.h"
+#include "beamline/camera/AMShapeData.h"
 #include <QVector>
 #include <QVector3D>
 
-#include "AMBeamConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
 #include <QPair>
 #include <complex>
 #include <QGenericMatrix>
@@ -33,12 +33,12 @@ class AMCamera;
 
 using namespace Eigen;
 
-class AMShapeDataSet: public QAbstractListModel
+class AMSampleCamera: public QAbstractListModel
 {
     Q_OBJECT
 public:
 
-    static AMShapeDataSet* set();
+    static AMSampleCamera* set();
 
     enum AxisDirection {XAXIS,YAXIS,ZAXIS};
 
@@ -79,7 +79,7 @@ public:
     /// is the crosshair locked?
     bool crosshairLocked() const;
 
-    /// viewSize and scaled_size used for computing coordinates, get values from AMShapeDataSetGraphicsView
+    /// viewSize and scaled_size used for computing coordinates, get values from AMSampleCameraGraphicsView
     QSizeF viewSize() const;
 
     QSizeF scaledSize() const;
@@ -362,7 +362,7 @@ protected slots:
 protected:
 
     /// Constructor
-    explicit AMShapeDataSet(QObject *parent = 0);
+    explicit AMSampleCamera(QObject *parent = 0);
 
 
     /// Manipulations
@@ -487,7 +487,7 @@ protected:
 
     /// Members
 
-    static AMShapeDataSet* set_;
+    static AMSampleCamera* set_;
 
     /// The mapping of all the rectangles, indices go from 0 - index_
     /// for index_+1 rectangles

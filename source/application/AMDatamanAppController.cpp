@@ -102,9 +102,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
-#include "ui/AMCameraConfiguration.h"
-#include "ui/AMBeamConfiguration.h"
-#include "ui/AMSample.h"
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
+#include "dataman/AMSample.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :

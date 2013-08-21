@@ -9,7 +9,7 @@
 class QLabel;
 class QCheckBox;
 class QTimer;
-class AMShapeDataSetGraphicsView;
+class AMSampleCameraGraphicsView;
 class QGraphicsItem;
 class QPointF;
 class QVector3D;

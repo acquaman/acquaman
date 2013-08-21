@@ -7,12 +7,12 @@
 
 class QTimer;
 class QGraphicsLineItem;
-class AMShapeDataSet;
+class AMSampleCamera;
 class AMCameraConfiguration;
 class QCheckBox;
 class AMColorPickerButton2;
 class QSlider;
-class AMShapeDataSetGraphicsView;
+class AMSampleCameraGraphicsView;
 class AMShapeDataView;
 class QPushButton;
 class QLineEdit;
@@ -21,7 +21,7 @@ class AMBeamConfigurationView;
 class QColor;
 class QToolBar;
 class QAction;
-class GraphicsTextItem;
+class AMGraphicsTextItem;
 class QCompleter;
 class QStringListModel;
 class QMediaPlayer;
@@ -40,15 +40,15 @@ For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosi
 
 
 
-class AMShapeDataSetView : public QWidget
+class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-    explicit AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// Destructor
-    ~AMShapeDataSetView();
+    ~AMSampleCameraView();
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
@@ -356,7 +356,7 @@ protected:
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
-    AMShapeDataSetGraphicsView *shapeScene_;
+    AMSampleCameraGraphicsView *shapeScene_;
 
     AMShapeDataView *shapeView_;
 
@@ -375,7 +375,7 @@ protected:
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
     /// The model for all the shapes displayed (except the crosshair)
-    AMShapeDataSet* shapeModel_;
+    AMSampleCamera* shapeModel_;
 
     QGraphicsPolygonItem* groupRectangle_;
 
@@ -439,7 +439,7 @@ protected:
 
     QTimer* pressTimer_;
 
-    QList<GraphicsTextItem*> textItems_;
+    QList<AMGraphicsTextItem*> textItems_;
 
     QToolBar* toolBar_;
     QAction* markAction_;

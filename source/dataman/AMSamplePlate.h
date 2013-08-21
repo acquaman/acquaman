@@ -3,7 +3,7 @@
 
 #include "dataman/database/AMDbObject.h"
 #include "util/AMOrderedSet.h"
-#include "ui/AMSample.h"
+#include "dataman/AMSample.h"
 
 class AMSamplePlate : public AMDbObject
 {
