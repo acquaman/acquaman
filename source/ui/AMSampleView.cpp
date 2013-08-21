@@ -189,43 +189,43 @@ void AMSampleView::loadSample(QString sampleName)
     updateFrames();
 }
 
-void AMSampleView::changeSamplePlate(QString name)
-{
-    AMDatabase* db = AMDatabase::database("user");
-    /// load the sample plate, make sure it's the same one, set it as sample_'s samplePlate_.
-    QList<int> comboBoxList;
-    int dbIndex;
-    for(int i = 0; i < samplePlateLoader_->count(); i++)
-    {
-        if(samplePlateLoader_->itemText(i) == name)
-            comboBoxList<<i;
-    }
-    QList<int> matchIds = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>(),"name", name);
-    if(matchIds.count() < 1)
-    {
-        qDebug()<<"AMSampleEthanView::changeSamplePlate - Error in sample plate selector, no matching sample plate";
-        return;
-    }
-    else if(matchIds.count() > 1)
-    {
-        if(matchIds.count() != comboBoxList.count())
-        {
-            qDebug()<<"AMSampleEthanView::changeSamplePlate - inconsistent count in loader and database";
-            return;
-        }
-        int index = comboBoxList.indexOf(samplePlateLoader_->currentIndex());
-        dbIndex = matchIds.at(index);
-    }
-    else
-    {
-        dbIndex = matchIds.first();
-    }
-    AMSamplePlatePre2013* samplePlate = new AMSamplePlatePre2013();
-    samplePlate->loadFromDb(db,dbIndex);
-    sample_->setSamplePlate(samplePlate);
+//void AMSampleView::changeSamplePlate(QString name)
+//{
+//    AMDatabase* db = AMDatabase::database("user");
+//    /// load the sample plate, make sure it's the same one, set it as sample_'s samplePlate_.
+//    QList<int> comboBoxList;
+//    int dbIndex;
+//    for(int i = 0; i < samplePlateLoader_->count(); i++)
+//    {
+//        if(samplePlateLoader_->itemText(i) == name)
+//            comboBoxList<<i;
+//    }
+//    QList<int> matchIds = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>(),"name", name);
+//    if(matchIds.count() < 1)
+//    {
+//        qDebug()<<"AMSampleEthanView::changeSamplePlate - Error in sample plate selector, no matching sample plate";
+//        return;
+//    }
+//    else if(matchIds.count() > 1)
+//    {
+//        if(matchIds.count() != comboBoxList.count())
+//        {
+//            qDebug()<<"AMSampleEthanView::changeSamplePlate - inconsistent count in loader and database";
+//            return;
+//        }
+//        int index = comboBoxList.indexOf(samplePlateLoader_->currentIndex());
+//        dbIndex = matchIds.at(index);
+//    }
+//    else
+//    {
+//        dbIndex = matchIds.first();
+//    }
+//    AMSamplePlatePre2013* samplePlate = new AMSamplePlatePre2013();
+//    samplePlate->loadFromDb(db,dbIndex);
+//    sample_->setSamplePlate(samplePlate);
 
-    updateFrames();
-}
+//    updateFrames();
+//}
 
 void AMSampleView::onSampleNameChanged(QString name)
 {
@@ -268,7 +268,7 @@ void AMSampleView::setUpGui()
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(samplePlateName_ = new QLineEdit());
     sampleViewLayout->addSpacing(20);
-    sampleViewLayout->addWidget(samplePlateLoader_ = new QComboBox());
+    //    sampleViewLayout->addWidget(samplePlateLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
     sampleViewLayout->addWidget(sampleLoader_ = new QComboBox());
     sampleViewLayout->addSpacing(20);
@@ -297,7 +297,7 @@ void AMSampleView::setUpGui()
 
     updateFrames();
 
-    populateSamplePlateLoader();
+//    populateSamplePlateLoader();
 
     populateSampleLoader();
 
@@ -310,7 +310,7 @@ void AMSampleView::makeConnections()
     connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
     connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
-    connect(samplePlateLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSamplePlate(QString)));
+//    connect(samplePlateLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSamplePlate(QString)));
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
@@ -318,20 +318,20 @@ void AMSampleView::makeConnections()
     connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
 }
 
-void AMSampleView::populateSamplePlateLoader()
-{
-    samplePlateLoader_->blockSignals(true);
-    samplePlateLoader_->clear();
-    samplePlateLoader_->blockSignals(false);
-    AMDatabase* db = AMDatabase::database("user");
-    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>(), "name");
-    foreach(QVariant item, nameList)
-    {
-        samplePlateLoader_->addItem(item.toString());
-    }
+//void AMSampleView::populateSamplePlateLoader()
+//{
+//    samplePlateLoader_->blockSignals(true);
+//    samplePlateLoader_->clear();
+//    samplePlateLoader_->blockSignals(false);
+//    AMDatabase* db = AMDatabase::database("user");
+//    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>(), "name");
+//    foreach(QVariant item, nameList)
+//    {
+//        samplePlateLoader_->addItem(item.toString());
+//    }
 
 
-}
+//}
 
 void AMSampleView::loadFromDb()
 {
