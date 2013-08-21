@@ -23,16 +23,16 @@
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
-    if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
-    init(cameraBrowser);
+	if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
+	init(cameraBrowser);
 
 }
 
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
-    QWidget(parent)
+	QWidget(parent)
 {
-    if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
-    init(new AMSampleCameraBrowser());
+	if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
+	init(new AMSampleCameraBrowser());
 }
 
 
@@ -41,15 +41,15 @@ AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOp
 #include <QApplication>
 void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 {
-    qDebug() << "Here in onSourceComboBoxChanged";
+	qDebug() << "Here in onSourceComboBoxChanged";
 	if(index < 0) {
-        qDebug() << "Index is < 0";
+		qDebug() << "Index is < 0";
 		setWindowTitle("AcquaCam");
-        videoWidget_->setMedia(QMediaContent());
+		videoWidget_->setMedia(QMediaContent());
 	}
 
 	else {
-        qDebug() << "Valid index";
+		qDebug() << "Valid index";
 		QString stringUrl = sourceComboBox_->itemText(index);
 		QUrl url = QUrl::fromUserInput(stringUrl);
 
@@ -57,10 +57,10 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 			if(url.toString() != stringUrl)
 				sourceComboBox_->setItemText(index, url.toString());
 			setWindowTitle(url.toString());
-            videoWidget_->setMedia(url);
-            qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
-	    qDebug() << "Have a QApplication? " << QApplication::applicationName();
-            videoWidget_->play();
+			videoWidget_->setMedia(url);
+			qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
+			qDebug() << "Have a QApplication? " << QApplication::applicationName();
+			videoWidget_->play();
 		}
 		else {
 			QMessageBox::warning(this, "Invalid camera source address", "Sorry! That doesn't look like a valid URL for a camera or media source:\n\n" % stringUrl);
@@ -101,7 +101,7 @@ void AMSampleCameraBrowserView::setPreviousSourceURLs(const QStringList &sourceU
 
 QString AMSampleCameraBrowserView::currentSourceURL() const
 {
-    return cameraBrowser_->currentURL();
+	return cameraBrowser_->currentURL();
 }
 
 void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
@@ -116,9 +116,9 @@ void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 	}
 	else {
 		sourceComboBox_->insertItem(0, sourceURL);
-        sourceComboBox_->setCurrentIndex(0);
+		sourceComboBox_->setCurrentIndex(0);
 	}
-    cameraBrowser_->setCurrentURL(sourceURL);
+	cameraBrowser_->setCurrentURL(sourceURL);
 }
 
 void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
@@ -132,121 +132,130 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 
 void AMSampleCameraBrowserView::setCrosshairColor(QColor crosshairColor)
 {
-    videoWidget_->setCrosshairColor(crosshairColor);
+	videoWidget_->setCrosshairColor(crosshairColor);
 }
 
 void AMSampleCameraBrowserView::setCrosshairLineThickness(int crosshairThickness)
 {
-    videoWidget_->setCrosshairLineThickness(crosshairThickness);
+	videoWidget_->setCrosshairLineThickness(crosshairThickness);
 }
 
 void AMSampleCameraBrowserView::setCrosshairVisible(bool crosshairVisible)
 {
-    videoWidget_->setCrosshairVisible(crosshairVisible);
+	videoWidget_->setCrosshairVisible(crosshairVisible);
 }
 
 void AMSampleCameraBrowserView::setCrosshairLocked(bool crosshairLocked)
 {
-    videoWidget_->setCrosshairLocked(crosshairLocked);
+	videoWidget_->setCrosshairLocked(crosshairLocked);
 }
 
 void AMSampleCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
 {
-    videoWidget_->setCrosshairPosition(crosshairPosition);
+	videoWidget_->setCrosshairPosition(crosshairPosition);
 }
 
 QColor AMSampleCameraBrowserView::crosshairColor() const
 {
-    return videoWidget_->crosshairPen().color();
+	return videoWidget_->crosshairPen().color();
 }
 
 int AMSampleCameraBrowserView::crosshairLineThickness() const
 {
-    return videoWidget_->crosshairPen().width();
+	return videoWidget_->crosshairPen().width();
 }
 
 bool AMSampleCameraBrowserView::crosshairVisible() const
 {
-    return videoWidget_->crosshairVisible();
+	return videoWidget_->crosshairVisible();
 }
 
 QPointF AMSampleCameraBrowserView::crosshairPosition() const
 {
-    return videoWidget_->crosshairPosition();
+	return videoWidget_->crosshairPosition();
 }
 
 bool AMSampleCameraBrowserView::crosshairLocked() const
 {
-    return videoWidget_->crosshairLocked();
+	return videoWidget_->crosshairLocked();
 }
 
 void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 {
-    cameraBrowser_ = cameraBrowser;
-    videoWidget_ = new AMSampleCameraView(cameraBrowser_->shapeDataSet());
-    sampleView_ = new AMSampleContainerView();
-    sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
-    sampleView_->show();
+	cameraBrowser_ = cameraBrowser;
+	videoWidget_ = new AMSampleCameraView(cameraBrowser_->shapeDataSet());
+	sampleView_ = new AMSampleContainerView();
+	sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
+	sampleView_->show();
 
-    //	crosshairLocked_ = false;
+	//	crosshairLocked_ = false;
 
-        setWindowTitle("Video");
+	setWindowTitle("Video");
 
-        // GUI setup:
-        //////////////////////////
-        QVBoxLayout* vl = new QVBoxLayout();
-        vl->setSpacing(0);
-        vl->setContentsMargins(0,0,0,0);
-
-
-        QFrame* sourceFrame = new QFrame();
-        QHBoxLayout* shl = new QHBoxLayout();
-        shl->setContentsMargins(12,4,12,4);
-        shl->addWidget(new QLabel("Video URL:"), 0);
-        shl->addWidget(sourceComboBox_ = new QComboBox(), 2);
-        sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-        sourceFrame->setLayout(shl);
+	// GUI setup:
+	//////////////////////////
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->setSpacing(0);
+	vl->setContentsMargins(0,0,0,0);
 
 
-        vl->addWidget(videoWidget_);
-        vl->addWidget(sourceFrame, 0);
-        setLayout(vl);
-
-        qDebug()<<"setting shape data view";
-
-
-        // configure source combo box
-        ///////////////////////////
-        sourceComboBox_->setEditable(true);
-        sourceComboBox_->setInsertPolicy(QComboBox::InsertAtTop);
-        sourceComboBox_->setMaxCount(20);
+	QFrame* sourceFrame = new QFrame();
+	QHBoxLayout* shl = new QHBoxLayout();
+	shl->setContentsMargins(12,4,12,4);
+	shl->addWidget(new QLabel("Video URL:"), 0);
+	shl->addWidget(sourceComboBox_ = new QComboBox(), 2);
+	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	sourceFrame->setLayout(shl);
 
 
+	vl->addWidget(videoWidget_);
+	vl->addWidget(sourceFrame, 0);
+	setLayout(vl);
 
-        // Make conections:
-        //////////////////////////
+	//	crosshairLocked_ = false;
+/*
+	setWindowTitle("Video");
 
-        connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
-	/*
-<<<<<<< HEAD
-	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
+	// GUI setup:
+	//////////////////////////
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->setSpacing(0);
+	vl->setContentsMargins(0,0,0,0);
 
-=======
+
+	QFrame* sourceFrame = new QFrame();
+	QHBoxLayout* shl = new QHBoxLayout();
+	shl->setContentsMargins(12,4,12,4);
+	shl->addWidget(new QLabel("Video URL:"), 0);
+	shl->addWidget(sourceComboBox_ = new QComboBox(), 2);
+	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	sourceFrame->setLayout(shl);
+
+
+	vl->addWidget(videoWidget_);
+	vl->addWidget(sourceFrame, 0);
+	setLayout(vl);
 */
-        connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
-        connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
-        connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
-        connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
-//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
-	/*
->>>>>>> e99820f2e6cc6199b24e81bb71d7c609c042900e
-*/
+	qDebug()<<"setting shape data view";
+
+
+	// configure source combo box
+	///////////////////////////
+	sourceComboBox_->setEditable(true);
+	sourceComboBox_->setInsertPolicy(QComboBox::InsertAtTop);
+	sourceComboBox_->setMaxCount(20);
 
 
 
+	// Make conections:
+	//////////////////////////
 
+	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 
-
-
+	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+	connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
+	connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
+	connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
+	//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
 }
 

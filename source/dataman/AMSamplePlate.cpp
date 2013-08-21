@@ -73,3 +73,57 @@ void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
 	}
 }
 
+
+AMSamplePlateBrowser::AMSamplePlateBrowser(AMDatabase *database, QObject *parent) :
+	QAbstractListModel(parent)
+{
+	database_ = database;
+}
+
+int AMSamplePlateBrowser::rowCount(const QModelIndex &parent) const
+{
+	if(parent.isValid())
+		return 0;
+	return allSamplePlates_.count();
+}
+
+QVariant AMSamplePlateBrowser::data(const QModelIndex &index, int role) const
+{
+	if(index.parent().isValid() || index.column() > 0)
+		return QVariant();
+
+	switch(role){
+	case Qt::DisplayRole:
+		return allSamplePlates_.at(index.row())->name();
+	default:
+		return QVariant();
+	}
+}
+
+Qt::ItemFlags AMSamplePlateBrowser::flags(const QModelIndex &index) const
+{
+	Q_UNUSED(index)
+	return Qt::ItemIsEnabled;
+}
+
+QVariant AMSamplePlateBrowser::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	Q_UNUSED(section)
+	if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return QString("Sample Plates");
+	else
+		return QVariant();
+}
+
+void AMSamplePlateBrowser::reloadFromDatabase(){
+	allSamplePlates_.clear();
+	if(database_){
+		QList<int> allSamplePlateIds = database_->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>());
+		AMSamplePlate *tempPlate;
+		for(int x = 0; x < allSamplePlateIds.count(); x++){
+			tempPlate = new AMSamplePlate();
+			tempPlate->loadFromDb(database_, allSamplePlateIds.at(x));
+			allSamplePlates_.append(tempPlate);
+		}
+	}
+}

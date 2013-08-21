@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSampleContainer;
 class AMSamplePlate;
 class AMSample;
+class AMSamplePlateBrowser;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -121,11 +122,13 @@ public:
 
 	AMSampleContainer* sampleContainer();
 	AMSamplePlate* samplePlate();
+	AMSamplePlateBrowser* samplePlateBrowser();
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
+	void samplePlateChanged(AMSamplePlate *samplePlate);
 
 protected slots:
 	void onSampleContainerSampleAdded(AMSample *sample);
@@ -146,6 +149,7 @@ protected:
 
 	AMSampleContainer *sampleContainer_;
 	AMSamplePlate *samplePlate_;
+	AMSamplePlateBrowser *samplePlateBrowser_;
 };
 
 #endif /*BEAMLINE_H_*/
