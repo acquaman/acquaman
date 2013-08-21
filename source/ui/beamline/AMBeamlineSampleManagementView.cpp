@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QPushButton>
+#include <QSplitter>
 
 #include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
@@ -34,9 +35,16 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 	samplePlateBrowserView_->hide();
 
+	QSplitter *mainSplitter = new QSplitter();
+	QWidget *leftWidget = new QWidget();
+	QWidget *rightWidget = new QWidget();
+	leftWidget->setLayout(leftVL);
+	rightWidget->setLayout(rightVL);
+	mainSplitter->addWidget(leftWidget);
+	mainSplitter->addWidget(rightWidget);
+
 	QHBoxLayout *mainHL = new QHBoxLayout();
-	mainHL->addLayout(leftVL);
-	mainHL->addLayout(rightVL);
+	mainHL->addWidget(mainSplitter);
 
 	setLayout(mainHL);
 
@@ -51,9 +59,11 @@ void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 
 	if(retVal == QDialog::Accepted){
 		AMSamplePlate *oldSamplePlate = beamline_->samplePlate();
-		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
-		for(int x = oldSamplePlate->sampleCount()-1; x >= 0; x--)
-			sampleCamera->removeSample(oldSamplePlate->sampleAt(x));
+		if(oldSamplePlate){
+			AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
+			for(int x = oldSamplePlate->sampleCount()-1; x >= 0; x--)
+				sampleCamera->removeSample(oldSamplePlate->sampleAt(x));
+		}
 
 		AMSamplePlate *samplePlate = new AMSamplePlate();
 		samplePlate->setName(creationDialog.samplePlateName());

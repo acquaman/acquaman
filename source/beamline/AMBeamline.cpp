@@ -78,6 +78,9 @@ AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
 void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 	samplePlate_ = samplePlate;
 	emit samplePlateChanged(samplePlate_);
+
+	if(samplePlate_)
+		samplePlate_->storeToDb(AMDatabase::database("user"));
 }
 
 void AMBeamline::onSampleContainerSampleAdded(AMSample *sample){

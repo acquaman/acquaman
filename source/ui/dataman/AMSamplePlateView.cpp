@@ -1,5 +1,6 @@
 #include "AMSamplePlateView.h"
 
+#include <QListView>
 #include <QApplication>
 #include <QPainter>
 #include <QVBoxLayout>
@@ -238,7 +239,7 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 }
 
 AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent) :
-	QWidget(parent)
+	QGroupBox("No Sample Plate", parent)
 {
 	samplePlate_ = 0; //NULL
 	samplePlateItemModel_ = 0; //NULL
@@ -272,10 +273,14 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
 	samplePlate_ = samplePlate;
 	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
-	if(samplePlate_)
+	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
-	else
+		setTitle(samplePlate_->name());
+	}
+	else{
 		samplePlateItemModel_ = 0; //NULL
+		setTitle("No Sample Plate");
+	}
 
 	if(!sampleListView_ && samplePlateItemModel_){
 		sampleListView_ = new QListView();
