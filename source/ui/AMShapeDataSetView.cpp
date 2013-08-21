@@ -7,7 +7,7 @@
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
-#include "ui/AMShapeDataSet.h"
+#include "ui/AMSampleCamera.h"
 #include "ui/AMCameraConfiguration.h"
 
 #include <QSlider>
@@ -57,7 +57,7 @@
 
 
 
-AMShapeDataSetView::AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent, bool useOpenGlViewport) :
+AMShapeDataSetView::AMShapeDataSetView(AMSampleCamera *shapeModel, QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
     qDebug()<<"Registering type";

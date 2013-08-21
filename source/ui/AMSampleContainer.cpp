@@ -1,7 +1,7 @@
 #include "AMSampleContainer.h"
 
 #include "AMSample.h"
-#include "AMShapeDataSet.h"
+#include "AMSampleCamera.h"
 #include "AMShapeData.h"
 
 AMSampleContainer::AMSampleContainer(QObject* parent)
@@ -182,7 +182,7 @@ void AMSampleContainer::setIndex(int index)
 
 void AMSampleContainer::updateSamples()
 {
-    const QList<AMShapeData*> shapeList = AMShapeDataSet::set()->shapeList();
+    const QList<AMShapeData*> shapeList = AMSampleCamera::set()->shapeList();
     if(shapeList.count() > sampleList().count())
     {
         foreach(AMShapeData* shape, shapeList)

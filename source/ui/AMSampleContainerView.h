@@ -8,7 +8,7 @@ class AMSampleView;
 
 /// This class is a view for a list of AMSamples
 /// uses index changed and setCurrentSelection to coordinate
-/// selected sample with AMShapeDataSet
+/// selected sample with AMSampleCamera
 class AMSampleContainerView : public QListView
 {
     Q_OBJECT

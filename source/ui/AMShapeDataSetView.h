@@ -7,7 +7,7 @@
 
 class QTimer;
 class QGraphicsLineItem;
-class AMShapeDataSet;
+class AMSampleCamera;
 class AMCameraConfiguration;
 class QCheckBox;
 class AMColorPickerButton2;
@@ -45,7 +45,7 @@ class AMShapeDataSetView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.
-    explicit AMShapeDataSetView(AMShapeDataSet *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMShapeDataSetView(AMSampleCamera *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// Destructor
     ~AMShapeDataSetView();
@@ -375,7 +375,7 @@ protected:
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
     /// The model for all the shapes displayed (except the crosshair)
-    AMShapeDataSet* shapeModel_;
+    AMSampleCamera* shapeModel_;
 
     QGraphicsPolygonItem* groupRectangle_;
 

@@ -726,7 +726,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/AMCameraBrowser.h \
     source/ui/AMCameraBrowserView.h \
     source/ui/AMSampleContainer.h \
-    source/ui/AMShapeDataSet.h \
     source/ui/AMSample.h \
     source/ui/AMShapeData.h \
     source/ui/AMCamera.h \
@@ -751,7 +750,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/dataman/AMSamplePlate.h \
     source/ui/dataman/AMSamplePlateView.h \
-    source/ui/beamline/AMBeamlineSampleManagementView.h
+    source/ui/beamline/AMBeamlineSampleManagementView.h \
+    source/beamline/camera/AMSampleCamera.h
 
 
 # OS-specific files:
@@ -1230,7 +1230,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMCameraBrowser.cpp \
     source/ui/AMCameraBrowserView.cpp \
     source/ui/AMSampleContainer.cpp \
-    source/ui/AMShapeDataSet.cpp \
     source/ui/AMSample.cpp \
     source/ui/AMShapeData.cpp \
     source/ui/AMCamera.cpp \
@@ -1255,7 +1254,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/dataman/AMSamplePlate.cpp \
     source/ui/dataman/AMSamplePlateView.cpp \
-    source/ui/beamline/AMBeamlineSampleManagementView.cpp
+    source/ui/beamline/AMBeamlineSampleManagementView.cpp \
+    source/beamline/camera/AMSampleCamera.cpp
 
 
 # OS-specific files

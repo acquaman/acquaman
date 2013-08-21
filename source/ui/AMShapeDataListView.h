@@ -4,7 +4,7 @@
 #include <QListView>
 
 
-class AMShapeDataSet;
+class AMSampleCamera;
 class AMSampleView;
 
 class AMShapeDataListView : public QListView
@@ -19,7 +19,7 @@ signals:
     void currentIndexChanged();
 
 protected:
-    AMShapeDataSet* shapeModel();
+    AMSampleCamera* shapeModel();
 
 };
 

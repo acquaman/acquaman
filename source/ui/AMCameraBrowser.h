@@ -7,7 +7,7 @@ class QString;
 class QColor;
 class QPointF;
 class QStringList;
-class AMShapeDataSet;
+class AMSampleCamera;
 class AMShapeDataSetView;
 class AMSampleContainer;
 
@@ -19,7 +19,7 @@ public:
 	AMCameraBrowser(QObject *parent = 0);
 	/// Accessors
 	QString currentURL();
-	AMShapeDataSet *shapeDataSet();
+	AMSampleCamera *shapeDataSet();
 	AMSampleContainer* sampleContainer();
 
 	/// Mutators
@@ -32,7 +32,7 @@ signals:
 	void changeSampleIndex(int);
 protected slots:
 protected:
-	AMShapeDataSet *shapeDataSet_;
+	AMSampleCamera *shapeDataSet_;
 
 	AMSampleContainer* sampleContainer_;
 

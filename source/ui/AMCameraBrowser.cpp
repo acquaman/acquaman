@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include "AMShapeDataSetView.h"
-#include "AMShapeDataSet.h"
+#include "AMSampleCamera.h"
 #include "AMSampleContainer.h"
 
 #include "beamline/AMBeamline.h"
@@ -15,7 +15,7 @@ AMCameraBrowser::AMCameraBrowser(QObject *parent) :
 {
 	qRegisterMetaType<AMQVector3DVector>();
 
-	shapeDataSet_ = AMShapeDataSet::set();
+    shapeDataSet_ = AMSampleCamera::set();
 	//sampleContainer_ = new AMSampleContainer();
 	sampleContainer_ = AMBeamline::bl()->sampleContainer();
 
@@ -32,7 +32,7 @@ QString AMCameraBrowser::currentURL()
 	return currentURL_;
 }
 
-AMShapeDataSet *AMCameraBrowser::shapeDataSet()
+AMSampleCamera *AMCameraBrowser::shapeDataSet()
 {
 	return shapeDataSet_;
 }
