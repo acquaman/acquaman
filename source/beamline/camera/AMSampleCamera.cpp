@@ -8,8 +8,8 @@
 #include <QGraphicsVideoItem>
 #include <QDebug>
 #include <math.h>
-#include "ui/AMCameraConfiguration.h"
-#include "ui/AMCamera.h"
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "beamline/camera/AMCamera.h"
 
 
 #include "beamline/AMControl.h"
@@ -20,6 +20,7 @@
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSamplePre2013.h"
+#include "ui/AMSample.h"
 
 #include <QVector4D>
 

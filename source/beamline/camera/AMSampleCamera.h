@@ -6,11 +6,11 @@
 #include <QObject>
 #include <QSizeF>
 #include <QMap>
-#include "ui/AMShapeData.h"
+#include "beamline/camera/AMShapeData.h"
 #include <QVector>
 #include <QVector3D>
 
-#include "ui/AMBeamConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
 #include <QPair>
 #include <complex>
 #include <QGenericMatrix>

@@ -726,10 +726,10 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/AMCameraBrowserView.h \
     source/ui/AMSampleContainer.h \
     source/ui/AMSample.h \
-    source/ui/AMShapeData.h \
-    source/ui/AMCamera.h \
-    source/ui/AMBeamConfiguration.h \
-    source/ui/AMCameraConfiguration.h \
+    source/beamline/camera/AMShapeData.h \
+    source/beamline/camera/AMCamera.h \
+    source/beamline/camera/AMBeamConfiguration.h \
+    source/beamline/camera/AMCameraConfiguration.h \
     source/ui/AMShapeDataSetView.h \
     source/ui/AMSampleContainerView.h \
     source/ui/AMSampleView.h \
@@ -1230,10 +1230,10 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMCameraBrowserView.cpp \
     source/ui/AMSampleContainer.cpp \
     source/ui/AMSample.cpp \
-    source/ui/AMShapeData.cpp \
-    source/ui/AMCamera.cpp \
-    source/ui/AMBeamConfiguration.cpp \
-    source/ui/AMCameraConfiguration.cpp \
+    source/beamline/camera/AMShapeData.cpp \
+    source/beamline/camera/AMCamera.cpp \
+    source/beamline/camera/AMBeamConfiguration.cpp \
+    source/beamline/camera/AMCameraConfiguration.cpp \
     source/ui/AMShapeDataSetView.cpp \
     source/ui/AMSampleContainerView.cpp \
     source/ui/AMSampleView.cpp \

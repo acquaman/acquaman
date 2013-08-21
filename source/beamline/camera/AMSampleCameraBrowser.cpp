@@ -1,9 +1,10 @@
 #include "AMSampleCameraBrowser.h"
 
 #include <QWidget>
-#include "AMShapeDataSetView.h"
+#include "ui/AMShapeDataSetView.h"
 #include "beamline/camera/AMSampleCamera.h"
-#include "AMSampleContainer.h"
+#include "ui/AMSampleContainer.h"
+#include "ui/AMSample.h"
 
 #include "beamline/AMBeamline.h"
 
