@@ -8,8 +8,8 @@
 #include <QGraphicsVideoItem>
 #include <QDebug>
 #include <math.h>
-#include "AMCameraConfiguration.h"
-#include "AMCamera.h"
+#include "ui/AMCameraConfiguration.h"
+#include "ui/AMCamera.h"
 
 
 #include "beamline/AMControl.h"

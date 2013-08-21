@@ -10,7 +10,7 @@
 #include <QVector>
 #include <QVector3D>
 
-#include "AMBeamConfiguration.h"
+#include "ui/AMBeamConfiguration.h"
 #include <QPair>
 #include <complex>
 #include <QGenericMatrix>

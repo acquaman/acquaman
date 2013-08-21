@@ -3,7 +3,7 @@
 #include <QBoxLayout>
 
 #include "ui/AMCameraBrowserView.h"
-#include "ui/AMCameraBrowser.h"
+#include "ui/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
 #include "beamline/AMBeamline.h"
 
@@ -12,7 +12,7 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 {
 	beamline_ = beamline;
 
-	cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
+	cameraBrowserView_ = new AMCameraBrowserView(new AMSampleCameraBrowser());
 	samplePlateView_ = new AMSamplePlateView(beamline_->samplePlate());
 
 	QVBoxLayout *leftVL = new QVBoxLayout();

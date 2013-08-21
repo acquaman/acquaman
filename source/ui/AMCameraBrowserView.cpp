@@ -14,13 +14,13 @@
 #include "ui/AMColorPickerButton2.h"
 #include "ui/AMCameraConfigurationView.h"
 #include "ui/AMShapeDataView.h"
-#include "AMCameraBrowser.h"
+#include "AMSampleCameraBrowser.h"
 #include <QLineEdit>
 #include "AMSampleContainerView.h"
 
 #include <QDebug>
 
-AMCameraBrowserView::AMCameraBrowserView(AMCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
+AMCameraBrowserView::AMCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
     if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
@@ -32,7 +32,7 @@ AMCameraBrowserView::AMCameraBrowserView(QWidget *parent, bool useOpenGlViewport
     QWidget(parent)
 {
     if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
-    init(new AMCameraBrowser());
+    init(new AMSampleCameraBrowser());
 }
 
 
@@ -180,7 +180,7 @@ bool AMCameraBrowserView::crosshairLocked() const
     return videoWidget_->crosshairLocked();
 }
 
-void AMCameraBrowserView::init(AMCameraBrowser *cameraBrowser)
+void AMCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 {
     cameraBrowser_ = cameraBrowser;
     videoWidget_ = new AMShapeDataSetView(cameraBrowser_->shapeDataSet());

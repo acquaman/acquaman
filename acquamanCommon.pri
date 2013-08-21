@@ -723,7 +723,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
-    source/ui/AMCameraBrowser.h \
     source/ui/AMCameraBrowserView.h \
     source/ui/AMSampleContainer.h \
     source/ui/AMSample.h \
@@ -751,7 +750,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/dataman/AMSamplePlate.h \
     source/ui/dataman/AMSamplePlateView.h \
     source/ui/beamline/AMBeamlineSampleManagementView.h \
-    source/beamline/camera/AMSampleCamera.h
+    source/beamline/camera/AMSampleCamera.h \
+    source/beamline/camera/AMSampleCameraBrowser.h
 
 
 # OS-specific files:
@@ -1227,7 +1227,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
-    source/ui/AMCameraBrowser.cpp \
     source/ui/AMCameraBrowserView.cpp \
     source/ui/AMSampleContainer.cpp \
     source/ui/AMSample.cpp \
@@ -1255,7 +1254,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/dataman/AMSamplePlate.cpp \
     source/ui/dataman/AMSamplePlateView.cpp \
     source/ui/beamline/AMBeamlineSampleManagementView.cpp \
-    source/beamline/camera/AMSampleCamera.cpp
+    source/beamline/camera/AMSampleCamera.cpp \
+    source/beamline/camera/AMSampleCameraBrowser.cpp
 
 
 # OS-specific files

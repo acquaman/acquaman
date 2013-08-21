@@ -1,5 +1,5 @@
-#ifndef AMCAMERABROWSER_H
-#define AMCAMERABROWSER_H
+#ifndef AMSAMPLECAMERABROWSER_H
+#define AMSAMPLECAMERABROWSER_H
 
 #include <QObject>
 
@@ -12,11 +12,11 @@ class AMShapeDataSetView;
 class AMSampleContainer;
 
 
-class AMCameraBrowser : public QObject
+class AMSampleCameraBrowser : public QObject
 {
 	Q_OBJECT
 public:
-	AMCameraBrowser(QObject *parent = 0);
+    AMSampleCameraBrowser(QObject *parent = 0);
 	/// Accessors
 	QString currentURL();
 	AMSampleCamera *shapeDataSet();
@@ -43,4 +43,4 @@ protected:
 
 };
 
-#endif // AMCAMERABROWSER_H
+#endif // AMSAMPLECAMERABROWSER_H

@@ -13,7 +13,7 @@ class AMShapeOverlayVideoWidgetView2;
 class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
-class AMCameraBrowser;
+class AMSampleCameraBrowser;
 class AMSampleContainerView;
 
 #include <QMediaPlayer>
@@ -23,7 +23,7 @@ class AMCameraBrowserView : public QWidget
 {
 	Q_OBJECT
 public:
-    explicit AMCameraBrowserView(AMCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
     AMCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// \todo put into model
@@ -62,11 +62,11 @@ public slots:
 
 protected:
     /// initialization
-    void init(AMCameraBrowser *);
+    void init(AMSampleCameraBrowser *);
 
 protected:
 
-    AMCameraBrowser *cameraBrowser_;
+    AMSampleCameraBrowser *cameraBrowser_;
 
     AMShapeDataSetView* videoWidget_;
 
