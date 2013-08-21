@@ -44,8 +44,9 @@ class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
+    enum ViewType {DEBUG, CONDENSED};
 	/// Constructor.
-    explicit AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// Destructor
     ~AMSampleCameraView();
@@ -343,9 +344,9 @@ protected:
 
 //    void setListViewModel();
 
-    void setGUI();
+    void setGUI(ViewType viewType);
 
-    void makeConnections();
+    void makeConnections(ViewType viewType);
 
 
 protected:
@@ -459,7 +460,7 @@ protected:
 
     ViewMode currentView_;
 
-    QLineEdit* autoCompleteBox_;
+//    QLineEdit* autoCompleteBox_;
     QCompleter* autoCompleter_;
     QStringListModel* wordList_;
 
@@ -489,6 +490,9 @@ protected:
     QCheckBox* showBeamOutlineCheckBox_;
 
     bool showBeamOutline_;
+
+    QFrame* advancedWindow_;
+    QPushButton* advancedButton_;
 
 //    AMShapeDataListView* shapeDataListView_;
 
