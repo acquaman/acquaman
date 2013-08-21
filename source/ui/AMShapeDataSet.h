@@ -174,7 +174,9 @@ public slots:
     /// sets whether to use camera matrix for transforms
     void setUseCameraMatrix(bool use);
 
+    void setOverrideMouseSelection(bool overrideMouseSelection);
 
+    void setCurrentShapeIndex(int index);
 
 
 
@@ -207,6 +209,8 @@ public:
     bool motorMovementenabled();
 
      const QList<AMShapeData*> shapeList();
+
+     bool overrideMouseSelection();
 
 
 
@@ -587,6 +591,8 @@ protected:
 
     /// shape used to check camera configuration
     AMShapeData* cameraConfigurationShape_;
+
+    bool overrideMouseSelection_;
 
 
 

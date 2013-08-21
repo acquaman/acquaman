@@ -41,9 +41,15 @@ AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
 
 void AMSampleView::setSample(AMSample *sample)
 {
-    sample_ = sample;
-//    shapeDataView_->setShapeData(sample->sampleShapePositionData());
-    updateFrames();
+    if(sample_ != sample)
+    {
+        sample_ = sample;
+    //    shapeDataView_->setShapeData(sample->sampleShapePositionData());
+    //    connect(sample_, SIGNAL(sampleNameChanged(QString)), nameText_, SLOT(setText(QString)));
+            connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+            connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
+        updateFrames();
+    }
 }
 
 void AMSampleView::setName(QString name)
@@ -221,6 +227,13 @@ void AMSampleView::changeSamplePlate(QString name)
     updateFrames();
 }
 
+void AMSampleView::onSampleNameChanged(QString name)
+{
+    qDebug()<<"AMSampleView::onSampleNameChanged - recieved name changed signal";
+    qDebug()<<"changing sample view name box to "<<name;
+    emit updateName(name);
+}
+
 
 
 
@@ -301,7 +314,8 @@ void AMSampleView::makeConnections()
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
-    connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
+    connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+    connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
 }
 
 void AMSampleView::populateSamplePlateLoader()

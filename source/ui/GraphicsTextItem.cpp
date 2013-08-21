@@ -2,6 +2,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
 #include <QCursor>
+#include <QTextCursor>
+#include <QDebug>
 
 GraphicsTextItem::GraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
     QGraphicsTextItem(parent,scene)
@@ -31,8 +33,16 @@ int GraphicsTextItem::type() const
 
 void GraphicsTextItem::changingText()
 {
-    QCursor oldCursor = cursor();
+//    QCursor oldCursor = cursor();
+    QTextCursor oldTextCursor = textCursor();
     emit textChanged(shapeIndex_);
-    setCursor(oldCursor);
+    setTextCursor(oldTextCursor);
+    //    setCursor(oldCursor);
+}
 
+void GraphicsTextItem::focusInEvent(QFocusEvent *event)
+{
+    QGraphicsTextItem::focusInEvent(event);
+    qDebug()<<"GraphicsTextItem::focusInEvent------------------------------------------------------";
+    emit gotFocus(shapeIndex_);
 }

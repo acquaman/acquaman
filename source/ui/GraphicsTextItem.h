@@ -18,11 +18,13 @@ public:
 
 signals:
     void textChanged(int);
+    void gotFocus(int);
 
 protected slots:
     void changingText();
 
-
+protected:
+    void focusInEvent(QFocusEvent *event);
 protected:
     QTextDocument* document_;
 

@@ -37,6 +37,7 @@ void AMSampleContainerView::currentChanged(const QModelIndex &current, const QMo
 
 void AMSampleContainerView::setCurrentSelection(int rowIndex)
 {
+    qDebug()<<"AMSampleContainerView::setCurrentSelection"<<rowIndex;
     QModelIndex modelIndex = sampleContainer_->index(rowIndex);
     setCurrentIndex(modelIndex);
 }
