@@ -33,13 +33,11 @@ int AMGraphicsTextItem::type() const
 
 void AMGraphicsTextItem::changingText()
 {
-    QTextCursor oldTextCursor = textCursor();
-    int initialPosition = oldTextCursor.position();
+    int initialPosition = textCursor().position();
     emit textChanged(shapeIndex_);
-    if(!(initialPosition == 0 && textCursor().position() == 0))
-    {
-        setTextCursor(oldTextCursor);
-    }
+    QTextCursor newPosition = textCursor();
+    newPosition.setPosition(initialPosition);
+    setTextCursor(newPosition);
 }
 
 void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)

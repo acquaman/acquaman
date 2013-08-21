@@ -70,9 +70,9 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     updateTracker_ = -1;
     samplePlateMovement_ = 0;
 
-    borderColour_ = QColor(Qt::red);
+//    borderColour_ = QColor(Qt::red);
 
-    activeBorderColour_ = QColor(Qt::blue);
+//    activeBorderColour_ = QColor(Qt::blue);
 
     pressTimer_ = new QTimer();
     pressTimer_->setInterval(DELAY);
@@ -98,9 +98,9 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     index_ = 0;
     groupRectangleActive_= false;
 
-    QPen pen(borderColour_);
+    QPen pen(colour(BORDER));
 
-    QBrush brush(QColor(Qt::transparent));
+    QBrush brush(colour(FILL));
 
     crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
     crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
@@ -206,8 +206,8 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
     {
         while(index_ > shapeModel_->shapeListLength()) deleteShape();
 
-        if(shapeModel_->isValid(current_))
-            shapes_[current_]->setPen(QColor(Qt::red));
+        if(isValid(current_))
+            shapes_[current_]->setPen(colour(BORDER));
         current_ = -1;
         shapeModel_->setCurrentIndex(current_);
         emit currentChanged();
@@ -215,39 +215,34 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
 
     for(int i = 0; i < index_+ 1; i++)
     {
-        if(shapes_.contains(i) && shapeModel_->isValid(i))
+        if(shapes_.contains(i) && isValid(i))
         {
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
             shapes_[i]->setVisible(shapeModel_->visible(i));
-//            if(!wordList_->stringList().contains(shapeModel_->otherData(i)))
-//            {
-//                wordList_->insertRow(wordList_->rowCount());
-//                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->otherData(i));
-//            }
 
             if(shapeModel_->isBackwards(i))
             {
-                shapes_[i]->setBrush(QBrush(QColor(Qt::transparent)));
+                shapes_[i]->setBrush(QBrush(colour(BACKWARDSFILL)));
             }
             else
             {
-                shapes_[i]->setBrush(QBrush(QColor(Qt::transparent)));
+                shapes_[i]->setBrush(QBrush(colour(FILL)));
             }
 
 
             if(textItems_.count() < i+1) textItems_<< new AMGraphicsTextItem();
-            if(shapeModel_->isValid(i))
+            if(isValid(i))
             {
                 QPointF point(0,textItems_[i]->boundingRect().height());
                 QPointF first = shapes_[i]->polygon().first();
                 textItems_[i]->setPos(first-point);
-                textItems_[i]->setDefaultTextColor(Qt::red);
+                textItems_[i]->setDefaultTextColor(colour(BORDER));
                 if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
                 if(currentView_ == NAME)
                     textItems_[i]->setPlainText(shapeModel_->name(i));
                 else if(currentView_ == DATA)
-                    textItems_[i]->setPlainText(shapeModel_->otherData(i));
+                    textItems_[i]->setPlainText(shapeModel_->otherDataOne(i));
                 else if(currentView_ == ID)
                     textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
 
@@ -504,17 +499,17 @@ void AMSampleCameraView::changeDrawButtonText()
 
 void AMSampleCameraView::updateItemName(int index)
 {
-    if(shapeModel_->isValid(index))
+    if(isValid(index))
     {
         shapeView_->blockSignals(true);
         if(currentView_ == NAME)
         {
             shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
 //            emit changeSampleName(index,textItems_[index]->document()->toPlainText());
-            if(index == current_)
-            {
-//                shapeView_->setName(textItems_[index]->document()->toPlainText());
-            }
+//            if(index == current_)
+//            {
+////                shapeView_->setName(textItems_[index]->document()->toPlainText());
+//            }
         }
         else if(currentView_ == DATA)
         {
@@ -531,7 +526,7 @@ void AMSampleCameraView::updateItemName(int index)
 
 void AMSampleCameraView::updateCurrentTextItemName()
 {
-    if(shapeModel_->isValid(current_))
+    if(isValid(current_))
     {
         if(currentView_ == NAME)
             textItems_[current_]->setPlainText(currentName());
@@ -646,6 +641,16 @@ void AMSampleCameraView::updateShapeName(QString newName)
             textItems_[currentIndex()]->setPlainText(shapeModel_->name(currentIndex()));
         else
             reviewCrosshairLinePositions();
+    }
+}
+
+void AMSampleCameraView::updateDataOne(QString data)
+{
+    if(currentView_ == DATA)
+    {
+        if(currentIndex() >= 0 && textItems_.count() > currentIndex())
+            textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataOne(currentIndex()));
+        else reviewCrosshairLinePositions();
     }
 }
 
@@ -866,7 +871,7 @@ void AMSampleCameraView::play()
     shapeScene_->mediaPlayer()->play();
 }
 
-QMediaPlayer* AMSampleCameraView::mediaPlayer()
+QMediaPlayer* AMSampleCameraView::mediaPlayer() const
 {
     return shapeScene_->mediaPlayer();
 }
@@ -882,6 +887,11 @@ QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
     newPosition.setY(position.y()*factor.y());
     newPosition += offset;
     return newPosition;
+}
+
+bool AMSampleCameraView::isValid(int index) const
+{
+    return shapeModel_->isValid(index);
 }
 
 void AMSampleCameraView::setCrosshairColor(const QColor &color)
@@ -1050,6 +1060,16 @@ void AMSampleCameraView::moveTestSlot()
     emit moveSucceeded();
 }
 
+void AMSampleCameraView::shapeDrawingFinished()
+{
+    if(mode_ == DRAW)
+    {
+        if(isValid(currentIndex()))
+        {
+            textItems_[currentIndex()]->setFocus();
+        }
+    }
+}
 
 
 void AMSampleCameraView::updateCurrentShape()
@@ -1063,12 +1083,12 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
     intersections_.clear();
     for(int i =0; !shapes.isEmpty(); i++)
     {
-        QPen pen(QColor(Qt::yellow));
-        QBrush brush(QColor(Qt::yellow));
+        QPen pen(colour(INTERSECTION));
+        QBrush brush(colour(INTERSECTION));
         if(!showBeamOutline_)
         {
-         pen.setColor(Qt::transparent);
-         brush.setColor(Qt::transparent);
+            pen.setColor(colour(HIDEINTERSECTION));
+            brush.setColor(colour(HIDEINTERSECTION));
         }
         QPolygonF polygon(QRectF(5,5,20,20));
         intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
@@ -1274,15 +1294,15 @@ void AMSampleCameraView::mouseMoveHandler(QPointF position)
 void AMSampleCameraView::addNewShape()
 {
     index_++;
-    QPen pen(borderColour_);
-    QBrush brush(QColor(Qt::transparent));
+    QPen pen(colour(BORDER));
+    QBrush brush(colour(FILL));
     QPolygonF polygon(QRectF(5,5,20,20));
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
     AMGraphicsTextItem* newItem = new AMGraphicsTextItem();
     shapeScene_->scene()->addItem(newItem);
     textItems_.insert(index_,newItem) ;
     textItems_[index_]->setZValue(1000);
-    textItems_[index_]->setTextInteractionFlags(Qt::TextEditable);
+    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);//(Qt::TextEditable);
     textItems_[index_]->setShapeIndex(index_);
     connect(textItems_[index_], SIGNAL(textChanged(int)), this, SLOT(updateItemName(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), shapeModel_, SLOT(setCurrentShapeIndex(int)));
@@ -1306,8 +1326,8 @@ void AMSampleCameraView::deleteShape()
 /// change the currently selected item, outline it in blue?
 void AMSampleCameraView::currentSelectionChanged()
 {
-    if(shapeModel_->isValid(current_))
-        shapes_[current_]->setPen(borderColour_);
+    if(isValid(current_))
+        shapes_[current_]->setPen(colour(BORDER));
     current_ = shapeModel_->currentIndex();
 
     shapeView_->setShapeData(shapeModel_->currentShape());
@@ -1322,9 +1342,9 @@ void AMSampleCameraView::currentSelectionChanged()
 
 //    autoCompleteBox_->setText(shapeModel_->currentInfo());
 
-    if(shapeModel_->isValid(current_))
+    if(isValid(current_))
     {
-        shapes_[current_]->setPen(activeBorderColour_);
+        shapes_[current_]->setPen(colour(ACTIVEBORDER));
 
     }
 
@@ -1803,7 +1823,28 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
     connect(shapeModel_, SIGNAL(moveSucceeded()), this, SLOT(moveTestSlot()));
     connect(shapeModel_, SIGNAL(shapeNameChanged(QString)), this, SLOT(updateShapeName(QString)));
+    connect(shapeModel_, SIGNAL(otherDataOneChanged(QString)), this, SLOT(updateDataOne(QString)));
 
     connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 
+    connect(shapeModel_, SIGNAL(shapeFinished()), this, SLOT(shapeDrawingFinished()));
+
+}
+
+QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
+{
+    switch(role)
+    {
+    case ACTIVEBORDER:
+        return QColor(Qt::blue);
+    case BORDER:
+        return QColor(Qt::red);
+    case INTERSECTION:
+        return QColor(Qt::yellow);
+    case HIDEINTERSECTION:
+    case BACKWARDSFILL:
+    case FILL:
+    default:
+        return QColor(Qt::transparent);
+    }
 }

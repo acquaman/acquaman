@@ -177,15 +177,15 @@ QString AMSampleCamera::name(int index) const
 /// return the current info
 QString AMSampleCamera::currentInfo() const
 {
-    return otherData(currentIndex_);
+    return otherDataOne(currentIndex_);
 }
 
 /// return the data of the specified index
-QString AMSampleCamera::otherData(int index) const
+QString AMSampleCamera::otherDataOne(int index) const
 {
     if(isValid(index))
     {
-        return shapeList_[index]->otherData();
+        return shapeList_[index]->otherDataFieldOne();
     }
     else
         return "";
@@ -406,7 +406,7 @@ void AMSampleCamera::setOtherData(QString data, int index)
 {
     if(isValid(index))
     {
-        shapeList_[index]->setOtherData(data);
+        shapeList_[index]->setOtherDataFieldOne(data);
     }
 }
 
@@ -685,6 +685,7 @@ void AMSampleCamera::finishRectangle(QPointF position)
     shapeList_[currentIndex_]->setCoordinate(topLeft+topRight+bottomLeft,BOTTOMRIGHT);
     shapeList_[currentIndex_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
     updateShape(currentIndex_);
+    emit shapeFinished();
 
 }
 
@@ -956,6 +957,8 @@ void AMSampleCamera::finishShape()
     updateShape(index_);
     currentPolygon_.clear();
 
+    emit shapeFinished();
+
 }
 
 
@@ -1204,7 +1207,7 @@ void AMSampleCamera::setSamplePlate()
         }
         samplePlateShape_ = shapeList_[currentIndex_];
         samplePlateShape_->setName("Sample Plate");
-        samplePlateShape_->setOtherData("Sample Plate");
+        samplePlateShape_->setOtherDataFieldOne("Sample Plate");
         samplePlateSelected_ = true;
     }
 
@@ -1216,7 +1219,7 @@ void AMSampleCamera::setCameraConfigurationShape()
     {
         cameraConfigurationShape_ = shapeList_[currentIndex_];
         cameraConfigurationShape_->setName("Configuration shape");
-        cameraConfigurationShape_->setOtherData("Config");
+        cameraConfigurationShape_->setOtherDataFieldOne("Config");
     }
 }
 
@@ -1950,6 +1953,7 @@ void AMSampleCamera::insertItem(AMShapeData *item)
     shapeList_<<item;
     endInsertRows();
     connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapeNameChanged(QString)));
+    connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
     updateShape(index_);
     emit shapesChanged();
 }

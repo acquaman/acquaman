@@ -30,6 +30,7 @@ class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
 class AMShapeDataListView;
 
+
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
 /*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video,
  *taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display,
@@ -44,6 +45,7 @@ class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
+    enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION};
     enum ViewType {DEBUG, CONDENSED};
 	/// Constructor.
     explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
@@ -94,9 +96,11 @@ public:
     void setMedia(QMediaContent url);
     void play();
 
-    QMediaPlayer* mediaPlayer();
+    QMediaPlayer* mediaPlayer() const;
 
     QPointF mapPointToVideo(QPointF);
+
+    bool isValid(int index) const;
 
 public slots:
 
@@ -229,6 +233,8 @@ public slots:
 
 //    void setShapeVisible(bool visible);
 
+    void shapeDrawingFinished();
+
 protected slots:
     void updateCurrentShape();
 
@@ -311,11 +317,16 @@ protected slots:
 
     void updateShapeName(QString newName);
 
+    void updateDataOne(QString data);
+
 
 
 
 
 protected:
+
+
+
 
     /// Add and remove shapes from the scene
     void addNewShape();
@@ -348,12 +359,16 @@ protected:
 
     void makeConnections(ViewType viewType);
 
+    QColor colour(ShapeColour role);
+
 
 protected:
 
     enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
 
     enum ViewMode{NAME,DATA,ID,HIDE};
+
+
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 

@@ -96,7 +96,7 @@ public:
     QString currentName() const;
     QString name(int index) const;
     QString currentInfo() const;
-    QString otherData(int index) const;
+    QString otherDataOne(int index) const;
     double idNumber(int index) const;
     bool visible() const;
     bool visible(int index) const;
@@ -351,6 +351,10 @@ signals:
     void currentIndexChanged(int);
 
     void shapeNameChanged(QString newName);
+
+    void shapeFinished();
+
+    void otherDataOneChanged(QString data);
 
 protected slots:
     /// tracks the motor location
