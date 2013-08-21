@@ -31,7 +31,7 @@ AMSample* AMSamplePlate::sampleAt(int index){
 
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
-	connect(sample, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 	return true;
 }
 
@@ -44,8 +44,7 @@ int AMSamplePlate::indexOfSample(AMSample *sample){
 	return -1;
 }
 
-void AMSamplePlate::onSampleNameChanged(const QString &name){
-	qDebug() << "Just heard a name change to " << name;
+void AMSamplePlate::onSampleDetailsChanged(){
 	AMSample *sample = qobject_cast<AMSample*>(QObject::sender());
 	if(sample){
 		qDebug() << "It's a sample, so let's emit sampleChanged";

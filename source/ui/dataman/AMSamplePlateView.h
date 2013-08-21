@@ -8,6 +8,9 @@
 
 #include "dataman/AMSamplePlate.h"
 
+class QVBoxLayout;
+class QLabel;
+
 class AMSamplePlateItemModel : public QAbstractListModel
 {
 Q_OBJECT
@@ -87,10 +90,17 @@ Q_OBJECT
 public:
 	AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent = 0);
 
+public slots:
+	void setSamplePlate(AMSamplePlate *samplePlate);
+
 protected:
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateItemModel *samplePlateItemModel_;
+	AMSamplePlateItemModel *emptyModel_;
 	QListView *sampleListView_;
+
+	QVBoxLayout *vl_;
+	QLabel *noSamplePlateLabel_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

@@ -41,7 +41,8 @@ signals:
 	void sampleAboutToBeRemoved(int index);
 
 protected slots:
-	void onSampleNameChanged(const QString &name);
+	//void onSampleNameChanged(const QString &name);
+	void onSampleDetailsChanged();
 
 protected:
 	/// Set the dateTime for the AMDbObject system

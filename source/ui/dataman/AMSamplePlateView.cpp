@@ -1,42 +1,49 @@
 #include "AMSamplePlateView.h"
 
+#include <QApplication>
+#include <QPainter>
 #include <QVBoxLayout>
+#include <QLabel>
+
+#include "util/AMDateTimeUtils.h"
 
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate *samplePlate, QObject *parent) :
 	QAbstractListModel(parent)
 {
 	samplePlate_ = samplePlate;
 
-	connect(samplePlate_, SIGNAL(sampleAboutToBeAdded(int)), this, SLOT(onSampleAboutToBeAdded(int)));
-	connect(samplePlate_, SIGNAL(sampleAdded(int)), this, SLOT(onSampleAdded(int)));
-	connect(samplePlate_, SIGNAL(sampleAboutToBeRemoved(int)), this, SLOT(onSampleAboutToBeRemoved(int)));
-	connect(samplePlate_, SIGNAL(sampleRemoved(int)), this, SLOT(onSampleRemoved(int)));
-	connect(samplePlate_, SIGNAL(sampleChanged(int)), this, SLOT(onSampleChanged(int)));
+	if(samplePlate_){
+		connect(samplePlate_, SIGNAL(sampleAboutToBeAdded(int)), this, SLOT(onSampleAboutToBeAdded(int)));
+		connect(samplePlate_, SIGNAL(sampleAdded(int)), this, SLOT(onSampleAdded(int)));
+		connect(samplePlate_, SIGNAL(sampleAboutToBeRemoved(int)), this, SLOT(onSampleAboutToBeRemoved(int)));
+		connect(samplePlate_, SIGNAL(sampleRemoved(int)), this, SLOT(onSampleRemoved(int)));
+		connect(samplePlate_, SIGNAL(sampleChanged(int)), this, SLOT(onSampleChanged(int)));
+	}
 }
 
 int AMSamplePlateItemModel::rowCount(const QModelIndex &parent) const
 {
-	if(parent.isValid())
+	if(parent.isValid() || !samplePlate_)
 		return 0;
 	return samplePlate_->sampleCount();
 }
 
 QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
 {
-	if(index.parent().isValid() || index.column() > 0)
+	if(index.parent().isValid() || index.column() > 0 || !samplePlate_)
 		return QVariant();
-	/*
 	switch(role){
 	case Qt::DisplayRole:
 	case Qt::EditRole:
-		return sampleName(index.row());
+		return samplePlate_->sampleAt(index.row())->name();
 	case Qt::DecorationRole:
 		return QApplication::style()->standardIcon(QStyle::SP_FileIcon);	/// \todo implement pictures
 	case AM::DateTimeRole:
-		return sampleDateTime(index.row());
+		return samplePlate_->sampleAt(index.row())->dateTime();
 	case AM::DescriptionRole:
-		return QString("created ") +  AMDateTimeUtils::prettyDateTime(sampleDateTime(index.row()));
+		return QString("created ") +  AMDateTimeUtils::prettyDateTime(samplePlate_->sampleAt(index.row())->dateTime());
 
+		/*
 	case AM::UserRole:
 		return sampleElements(index.row());
 	case AM::UserRole + 1:
@@ -47,13 +54,11 @@ QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
 		/// Returns a pointer to the AMSamplePosition object here. Can access all the additional information directly.
 	case AM::PointerRole:
 		return QVariant::fromValue((QObject*)&(plate_->at(index.row())));
+		*/
 
 	default:
 		return QVariant();
 	}
-	*/
-	qDebug() << "in ::data() going to return the name right now which is " << samplePlate_->sampleAt(index.row())->name();
-	return samplePlate_->sampleAt(index.row())->name();
 }
 
 Qt::ItemFlags AMSamplePlateItemModel::flags(const QModelIndex &index) const
@@ -105,8 +110,6 @@ AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject *parent) :
 AMSamplePlateItemDelegate::~AMSamplePlateItemDelegate(){
 }
 
-#include <QApplication>
-#include <QPainter>
 void AMSamplePlateItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	QString sampleName(index.data(Qt::DisplayRole).toString());
@@ -115,8 +118,7 @@ void AMSamplePlateItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 		elementString.prepend("(");
 		elementString.append(")");
 	}
-	//QString createdString(index.data(AM::DescriptionRole).toString());
-	QString createdString("Any words");
+	QString createdString(index.data(AM::DescriptionRole).toString());
 	QString positionsString(index.data(AM::UserRole+1).toString());
 	if(positionsString.isEmpty()) {
 		positionsString = "[Unknown sample position]";
@@ -238,6 +240,19 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
+	samplePlate_ = 0; //NULL
+	samplePlateItemModel_ = 0; //NULL
+	sampleListView_ = 0; //NULL
+
+	emptyModel_ = new AMSamplePlateItemModel(0);
+	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
+
+	vl_ = new QVBoxLayout();
+	vl_->addWidget(noSamplePlateLabel_);
+	setLayout(vl_);
+
+	setSamplePlate(samplePlate);
+	/*
 	samplePlate_ = samplePlate;
 	samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
 	sampleListView_ = new QListView();
@@ -250,5 +265,41 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	vl->addWidget(sampleListView_);
 
 	setLayout(vl);
+	*/
 }
 
+void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
+
+	samplePlate_ = samplePlate;
+	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
+	if(samplePlate_)
+		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
+	else
+		samplePlateItemModel_ = 0; //NULL
+
+	if(!sampleListView_ && samplePlateItemModel_){
+		sampleListView_ = new QListView();
+		sampleListView_->setAlternatingRowColors(true);
+		AMSamplePlateItemDelegate *listViewDelegate = new AMSamplePlateItemDelegate();
+		sampleListView_->setItemDelegate(listViewDelegate);
+
+		vl_->addWidget(sampleListView_);
+	}
+
+	if(!samplePlate_ && sampleListView_){
+		sampleListView_->hide();
+		noSamplePlateLabel_->show();
+	}
+	if(samplePlate_ && !noSamplePlateLabel_->isHidden())
+		noSamplePlateLabel_->hide();
+	if(samplePlate_ && sampleListView_->isHidden())
+		sampleListView_->show();
+
+	if(samplePlateItemModel_)
+		sampleListView_->setModel(samplePlateItemModel_);
+	else if(sampleListView_)
+		sampleListView_->setModel(emptyModel_);
+
+	if(oldSamplePlateItemModel)
+		oldSamplePlateItemModel->deleteLater();
+}
