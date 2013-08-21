@@ -1,8 +1,8 @@
-#include "AMSample.h"
+#include "dataman/AMSample.h"
 
 #include "util/AMPeriodicTable.h"
 
-#include "AMShapeData.h"
+#include "beamline/camera/AMShapeData.h"
 
 AMSample::AMSample(QObject* parent)
 	: AMDbObject(parent)

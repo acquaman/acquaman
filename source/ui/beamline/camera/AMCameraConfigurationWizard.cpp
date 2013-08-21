@@ -8,7 +8,7 @@
 #include <QTimer>
 #include <QMediaPlayer>
 #include <QGraphicsVideoItem>
-#include "AMShapeDataSetGraphicsView.h"
+#include "AMSampleCameraGraphicsView.h"
 #include <QVideoWidget>
 #include <QGraphicsScene>
 #include <QTextDocument>
@@ -17,7 +17,7 @@
 #include <QPointF>
 #include <QDebug>
 #include <QVector3D>
-#include "AMGraphicsVideoSceneCopier.h"
+#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include <QTimerEvent>
 #include "AMGraphicsViewWizard.h"
 

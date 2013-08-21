@@ -12,19 +12,19 @@
 
 #include <QSlider>
 #include <QCheckBox>
-#include "AMColorPickerButton2.h"
+#include "ui/AMColorPickerButton2.h"
 
 #include <QBoxLayout>
 #include <QLabel>
 
-#include "AMShapeDataSetGraphicsView.h"
+#include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 
-#include "AMShapeDataView.h"
+#include "ui/beamline/camera/AMShapeDataView.h"
 #include <QPushButton>
 #include <QLineEdit>
 
-#include "AMCameraConfigurationView.h"
-#include "AMBeamConfigurationView.h"
+#include "ui/beamline/camera/AMCameraConfigurationView.h"
+#include "ui/beamline/camera/AMBeamConfigurationView.h"
 #include <QColor>
 
 #include <QTimer>
@@ -37,17 +37,17 @@
 #include <QCompleter>
 #include <QStringListModel>
 
-#include "GraphicsTextItem.h"
+#include "ui/AMGraphicsTextItem.h"
 #include <QMediaPlayer>
 #include <QPainterPath>
 
-#include "AMCameraConfigurationWizard.h"
-#include "AMBeamConfigurationWizard.h"
-#include "AMSamplePlateWizard.h"
+#include "ui/beamline/camera/AMCameraConfigurationWizard.h"
+#include "ui/beamline/camera/AMBeamConfigurationWizard.h"
+#include "ui/beamline/camera/AMSamplePlateWizard.h"
 
 #include <limits>
 
-#include "AMShapeDataListView.h"
+//#include "ui/AMShapeDataListView.h"
 
 
 
@@ -63,7 +63,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *pare
     qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
     shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
-    shapeScene_ = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
+    shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
@@ -83,7 +83,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *pare
 
 
     cameraWizard_ = new AMCameraConfigurationWizard();
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(parent, useOpenGlViewport);
+    AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
     view->setScene(shapeScene_->scene());
     cameraWizard_->setView(view);
 
@@ -111,7 +111,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *pare
 
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
 
-    GraphicsTextItem* newItem = new GraphicsTextItem();
+    AMGraphicsTextItem* newItem = new AMGraphicsTextItem();
     shapeScene_->scene()->addItem(newItem);
     textItems_<<newItem;
 
@@ -234,7 +234,7 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
             }
 
 
-            if(textItems_.count() < i+1) textItems_<< new GraphicsTextItem();
+            if(textItems_.count() < i+1) textItems_<< new AMGraphicsTextItem();
             if(shapeModel_->isValid(i))
             {
                 QPointF point(0,textItems_[i]->boundingRect().height());
@@ -591,7 +591,7 @@ void AMSampleCameraView::beamShape(int shapeNumber)
     }
     else
     {
-        AMShapeDataSetGraphicsView* newView = new AMShapeDataSetGraphicsView();
+        AMSampleCameraGraphicsView* newView = new AMSampleCameraGraphicsView();
         newView->setScene(shapeScene_->scene());
         beamWizard_->updateScene(newView);
     }
@@ -614,7 +614,7 @@ void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
     shapeModel_->moveMotorTo(coordinate);
     reviewCrosshairLinePositions();
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
+    AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
     view->setScene(shapeScene_->scene());
     if(beamWizard_->isVisible())
         beamWizard_->updateScene(view);
@@ -972,7 +972,7 @@ void AMSampleCameraView::startCameraWizard()
     connect(cameraWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
     connect(this, SIGNAL(motorMovementEnabled(bool)), cameraWizard_, SLOT(setMotorMovementEnabled(bool)));
     connect(this,SIGNAL(moveSucceeded()), cameraWizard_, SLOT(testMoveSlot()));
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
+    AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     cameraWizard_->setView(view);
@@ -990,7 +990,7 @@ void AMSampleCameraView::startBeamWizard()
     connect(beamWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
     connect(this, SIGNAL(motorMovementEnabled(bool)), beamWizard_, SLOT(setMotorMovementEnabled(bool)));
     connect(this, SIGNAL(moveSucceeded()), beamWizard_, SIGNAL(moveSucceeded()));
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
+    AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     beamWizard_->setView(view);
@@ -1001,7 +1001,7 @@ void AMSampleCameraView::startSampleWizard()
 {
     delete samplePlateWizard_;
     samplePlateWizard_ = new AMSamplePlateWizard();
-    AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
+    AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
     connect(samplePlateWizard_, SIGNAL(movePlate(int)), this, SLOT(moveSamplePlate(int)));
     connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
     connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
@@ -1032,7 +1032,7 @@ void AMSampleCameraView::moveSamplePlate(int movement)
     shapeModel_->moveSamplePlate(relativeMovement);
     reviewCrosshairLinePositions();
     int index = shapeModel_->samplePlateIndex();
-    AMShapeDataSetGraphicsView* view = shapeScene_;
+    AMSampleCameraGraphicsView* view = shapeScene_;
     if(shapeModel_->isValid(index))
         samplePlateWizard_->updateScene(view);
 }
@@ -1276,7 +1276,7 @@ void AMSampleCameraView::addNewShape()
     QBrush brush(QColor(Qt::transparent));
     QPolygonF polygon(QRectF(5,5,20,20));
     shapes_.insert(index_, shapeScene_->scene()->addPolygon(polygon,pen,brush));
-    GraphicsTextItem* newItem = new GraphicsTextItem();
+    AMGraphicsTextItem* newItem = new AMGraphicsTextItem();
     shapeScene_->scene()->addItem(newItem);
     textItems_.insert(index_,newItem) ;
     textItems_[index_]->setZValue(1000);

@@ -1,8 +1,8 @@
-#include "AMSampleContainer.h"
+#include "dataman/AMSampleContainer.h"
 
-#include "AMSample.h"
-#include "AMSampleCamera.h"
-#include "AMShapeData.h"
+#include "dataman/AMSample.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "beamline/camera/AMShapeData.h"
 
 AMSampleContainer::AMSampleContainer(QObject* parent)
     :QAbstractListModel(parent)

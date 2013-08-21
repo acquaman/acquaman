@@ -1,4 +1,4 @@
-#include "AMSampleView.h"
+#include "ui/dataman/AMSampleView.h"
 
 #include <QLineEdit>
 #include <QLayout>
@@ -7,14 +7,14 @@
 #include <QCompleter>
 #include <QStringListModel>
 #include <QTextEdit>
-#include "AMElementListEdit.h"
-#include "util/AMPeriodicTableDialog.h"
+#include "ui/AMElementListEdit.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
-#include "util/AMPeriodicTableView.h"
-#include "AMShapeDataView.h"
+#include "ui/util/AMPeriodicTableView.h"
+#include "ui/beamline/camera/AMShapeDataView.h"
 
-#include "AMSample.h"
-#include "util/AMSamplePeriodicTableDialog.h"
+#include "dataman/AMSample.h"
+#include "ui/util/AMSamplePeriodicTableDialog.h"
 //#include "dataman/AMSamplePlate.h"
 
 

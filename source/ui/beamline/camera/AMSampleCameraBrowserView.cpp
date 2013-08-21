@@ -12,11 +12,11 @@
 
 #include "ui/beamline/camera/AMSampleCameraView.h"
 #include "ui/AMColorPickerButton2.h"
-#include "ui/AMCameraConfigurationView.h"
-#include "ui/AMShapeDataView.h"
+#include "ui/beamline/camera/AMCameraConfigurationView.h"
+#include "ui/beamline/camera/AMShapeDataView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include <QLineEdit>
-#include "ui/AMSampleContainerView.h"
+#include "ui/dataman/AMSampleContainerView.h"
 
 #include <QDebug>
 

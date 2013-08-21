@@ -6,12 +6,12 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
-#include "ui/AMCameraConfiguration.h"
+#include "beamline/camera/AMCameraConfiguration.h"
 #include <QDebug>
 #include <QVector3D>
 #include "dataman/database/AMDbObjectSupport.h"
 #include <QSlider>
-#include "ui/AMBeamConfigurationView.h"
+#include "ui/beamline/camera/AMBeamConfigurationView.h"
 
 
 

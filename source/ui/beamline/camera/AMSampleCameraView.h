@@ -12,7 +12,7 @@ class AMCameraConfiguration;
 class QCheckBox;
 class AMColorPickerButton2;
 class QSlider;
-class AMShapeDataSetGraphicsView;
+class AMSampleCameraGraphicsView;
 class AMShapeDataView;
 class QPushButton;
 class QLineEdit;
@@ -21,7 +21,7 @@ class AMBeamConfigurationView;
 class QColor;
 class QToolBar;
 class QAction;
-class GraphicsTextItem;
+class AMGraphicsTextItem;
 class QCompleter;
 class QStringListModel;
 class QMediaPlayer;
@@ -356,7 +356,7 @@ protected:
 
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
-    AMShapeDataSetGraphicsView *shapeScene_;
+    AMSampleCameraGraphicsView *shapeScene_;
 
     AMShapeDataView *shapeView_;
 
@@ -439,7 +439,7 @@ protected:
 
     QTimer* pressTimer_;
 
-    QList<GraphicsTextItem*> textItems_;
+    QList<AMGraphicsTextItem*> textItems_;
 
     QToolBar* toolBar_;
     QAction* markAction_;

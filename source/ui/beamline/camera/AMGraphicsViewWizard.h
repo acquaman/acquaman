@@ -5,7 +5,7 @@
 #include <QVector3D>
 #include <QMediaPlayer>
 
-class AMShapeDataSetGraphicsView;
+class AMSampleCameraGraphicsView;
 class QPointF;
 class QTimer;
 class QFrame;
@@ -43,7 +43,7 @@ public:
     ~AMGraphicsViewWizard();
 
     /// returns the view held by this wizard
-    AMShapeDataSetGraphicsView* view() const;
+    AMSampleCameraGraphicsView* view() const;
 
     /// returns the scaling of the view
     QPointF scale() const;
@@ -110,7 +110,7 @@ public:
 
 public slots:
     /// sets the view
-    void setView(AMShapeDataSetGraphicsView* view);
+    void setView(AMSampleCameraGraphicsView* view);
 
     /// sets the point in pointList at index to point
     virtual void setPoint(QPointF point, int index);
@@ -132,7 +132,7 @@ public slots:
     virtual void addPoint(QPointF position);
 
     /// updates the scene
-    void updateScene(AMShapeDataSetGraphicsView* view);
+    void updateScene(AMSampleCameraGraphicsView* view);
 
     void updateShape(QGraphicsPolygonItem* item);
 
@@ -154,7 +154,7 @@ protected slots:
     void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
     void mediaPlayerErrorChanged(QMediaPlayer::Error);
 protected:
-    AMShapeDataSetGraphicsView* view_;
+    AMSampleCameraGraphicsView* view_;
     QPointF* scale_;
     int numberOfPoints_;
 
@@ -230,10 +230,10 @@ class AMViewPage : public AMWizardPage
 public:
     AMViewPage(QWidget* parent = 0);
 
-    AMShapeDataSetGraphicsView* view();
+    AMSampleCameraGraphicsView* view();
 
 public slots:
-    void setView(AMShapeDataSetGraphicsView* view);
+    void setView(AMSampleCameraGraphicsView* view);
 
     void initializePage();
     void cleanupPage();
@@ -243,7 +243,7 @@ protected slots:
     void addView();
 
 private:
-    AMShapeDataSetGraphicsView* view_;
+    AMSampleCameraGraphicsView* view_;
 
     QLayout* layout_;
     QFrame* viewFrame_;

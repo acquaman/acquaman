@@ -79,7 +79,7 @@ public:
     /// is the crosshair locked?
     bool crosshairLocked() const;
 
-    /// viewSize and scaled_size used for computing coordinates, get values from AMShapeDataSetGraphicsView
+    /// viewSize and scaled_size used for computing coordinates, get values from AMSampleCameraGraphicsView
     QSizeF viewSize() const;
 
     QSizeF scaledSize() const;

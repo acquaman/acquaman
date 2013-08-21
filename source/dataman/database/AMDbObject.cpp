@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMetaType>
 #include "dataman/AMnDIndex.h"
-#include "ui/AMBeamConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
 #include <QVector3D>
 #include <QtConcurrentRun>
 #include <QStringBuilder>

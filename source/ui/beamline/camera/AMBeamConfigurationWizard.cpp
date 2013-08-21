@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QMessageBox>
-#include "AMShapeDataSetGraphicsView.h"
+#include "AMSampleCameraGraphicsView.h"
 #include <QVector3D>
 
 

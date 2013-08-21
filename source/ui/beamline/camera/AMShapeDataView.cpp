@@ -1,6 +1,6 @@
 #include "AMShapeDataView.h"
 
-#include "AMShapeData.h"
+#include "beamline/camera/AMShapeData.h"
 #include <QBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -11,7 +11,7 @@
 
 #include <QDebug>
 
-#include "AMSampleView.h"
+#include "ui/dataman/AMSampleView.h"
 
 
 AMShapeDataView* AMShapeDataView::instance_;

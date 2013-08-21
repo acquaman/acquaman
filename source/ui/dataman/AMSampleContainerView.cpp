@@ -1,8 +1,8 @@
 #include "AMSampleContainerView.h"
 
-#include "AMSampleContainer.h"
-#include "AMSampleView.h"
-#include "AMSample.h"
+#include "dataman/AMSampleContainer.h"
+#include "ui/dataman/AMSampleView.h"
+#include "dataman/AMSample.h"
 #include <QDebug>
 AMSampleContainerView::AMSampleContainerView(QWidget *parent)
     :QListView(parent)

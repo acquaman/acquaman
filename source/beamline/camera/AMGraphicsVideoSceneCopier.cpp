@@ -5,7 +5,7 @@
 #include <QMediaPlayer>
 #include <QObject>
 #include <QTextDocument>
-#include "GraphicsTextItem.h"
+#include "ui/AMGraphicsTextItem.h"
 #include <QDebug>
 #include <QTimer>
 
@@ -79,12 +79,12 @@ void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene
 
 
         }
-        if(listItem->type() == GraphicsTextItem::Type || listItem->type() == QGraphicsTextItem::Type)
+        if(listItem->type() == AMGraphicsTextItem::Type || listItem->type() == QGraphicsTextItem::Type)
         {
             QGraphicsTextItem* textItem = qgraphicsitem_cast<QGraphicsTextItem*>(listItem);
             if(!textItem)
             {
-                textItem = qgraphicsitem_cast<GraphicsTextItem*>(listItem);
+                textItem = qgraphicsitem_cast<AMGraphicsTextItem*>(listItem);
             }
             QGraphicsPolygonItem* polygonItem = qgraphicsitem_cast<QGraphicsPolygonItem*>(item);
             if(textItem && polygonItem && textItem->defaultTextColor() == polygonItem->pen().color())
@@ -169,7 +169,7 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
     {
         qDebug()<<itemToUpdate->type()<<"!="<<itemToCopy->type();
         bool textTypes;
-        textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == GraphicsTextItem::Type) || (itemToUpdate->type() == GraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
+        textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == AMGraphicsTextItem::Type) || (itemToUpdate->type() == AMGraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
         if(!textTypes)
             return false;
         qDebug()<<"Text is fine";
@@ -292,7 +292,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
         return true;
         break;
     case QGraphicsTextItem::Type:
-    case GraphicsTextItem::Type:
+    case AMGraphicsTextItem::Type:
         textOne = (QGraphicsTextItem*)(itemOne);
         textTwo = (QGraphicsTextItem*)(itemTwo);
         if(!textOne || !textTwo)
@@ -405,11 +405,11 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
         newPathItem->setPen(pathItem->pen());
         newItem = newPathItem;
     }
-    else if(type == GraphicsTextItem::Type)
+    else if(type == AMGraphicsTextItem::Type)
     {
 //        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding graphicsText";
-        GraphicsTextItem* textItem = (GraphicsTextItem*)item;
-        GraphicsTextItem* newTextItem = new GraphicsTextItem();
+        AMGraphicsTextItem* textItem = (AMGraphicsTextItem*)item;
+        AMGraphicsTextItem* newTextItem = new AMGraphicsTextItem();
         newTextItem->setZValue(textItem->zValue());
         newTextItem->setPlainText(textItem->document()->toPlainText());
         newTextItem->setFont(textItem->font());
@@ -526,7 +526,7 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
         pathOne->setBrush(pathTwo->brush());
         return;
     case QGraphicsTextItem::Type:
-    case GraphicsTextItem::Type:
+    case AMGraphicsTextItem::Type:
         textOne = (QGraphicsTextItem*)(itemToUpdate);
         textTwo = (QGraphicsTextItem*)(itemToCopy);
         if(!textOne || !textTwo)

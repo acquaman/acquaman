@@ -723,26 +723,24 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
-    source/ui/AMSampleContainer.h \
-    source/ui/AMSample.h \
+    source/dataman/AMSampleContainer.h \
+    source/dataman/AMSample.h \
     source/beamline/camera/AMShapeData.h \
     source/beamline/camera/AMCamera.h \
     source/beamline/camera/AMBeamConfiguration.h \
     source/beamline/camera/AMCameraConfiguration.h \
-    source/ui/AMSampleContainerView.h \
-    source/ui/AMSampleView.h \
-    source/ui/AMCameraConfigurationView.h \
-    source/ui/AMBeamConfigurationView.h \
-    source/ui/AMShapeDataView.h \
-    source/ui/AMCameraConfigurationWizard.h \
-    source/ui/AMBeamConfigurationWizard.h \
-    source/ui/AMSamplePlateWizard.h \
-    source/ui/AMGraphicsViewWizard.h \
-    source/ui/AMShapeDataSetGraphicsView.h \
-    source/ui/GraphicsTextItem.h \
+    source/ui/dataman/AMSampleContainerView.h \
+    source/ui/dataman/AMSampleView.h \
+    source/ui/beamline/camera/AMCameraConfigurationView.h \
+    source/ui/beamline/camera/AMBeamConfigurationView.h \
+    source/ui/beamline/camera/AMShapeDataView.h \
+    source/ui/beamline/camera/AMCameraConfigurationWizard.h \
+    source/ui/beamline/camera/AMBeamConfigurationWizard.h \
+    source/ui/beamline/camera/AMSamplePlateWizard.h \
+    source/ui/beamline/camera/AMGraphicsViewWizard.h \
     source/ui/AMColorPickerButton2.h \
     source/ui/util/AMSamplePeriodicTableDialog.h \
-    source/ui/AMGraphicsVideoSceneCopier.h \
+    source/beamline/camera/AMGraphicsVideoSceneCopier.h \
     source/ui/AMOverlayVideoWidget2.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/dataman/AMSamplePlate.h \
@@ -751,7 +749,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/beamline/camera/AMSampleCamera.h \
     source/beamline/camera/AMSampleCameraBrowser.h \
     source/ui/beamline/camera/AMSampleCameraView.h \
-    source/ui/beamline/camera/AMSampleCameraBrowserView.h
+    source/ui/beamline/camera/AMSampleCameraBrowserView.h \
+    source/ui/beamline/camera/AMSampleCameraGraphicsView.h \
+    source/ui/AMGraphicsTextItem.h
 
 
 # OS-specific files:
@@ -1227,26 +1227,24 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
-    source/ui/AMSampleContainer.cpp \
-    source/ui/AMSample.cpp \
+    source/dataman/AMSampleContainer.cpp \
+    source/dataman/AMSample.cpp \
     source/beamline/camera/AMShapeData.cpp \
     source/beamline/camera/AMCamera.cpp \
     source/beamline/camera/AMBeamConfiguration.cpp \
     source/beamline/camera/AMCameraConfiguration.cpp \
-    source/ui/AMSampleContainerView.cpp \
-    source/ui/AMSampleView.cpp \
-    source/ui/AMCameraConfigurationView.cpp \
-    source/ui/AMBeamConfigurationView.cpp \
-    source/ui/AMShapeDataView.cpp \
-    source/ui/AMCameraConfigurationWizard.cpp \
-    source/ui/AMBeamConfigurationWizard.cpp \
-    source/ui/AMSamplePlateWizard.cpp \
-    source/ui/AMGraphicsViewWizard.cpp \
-    source/ui/AMShapeDataSetGraphicsView.cpp \
-    source/ui/GraphicsTextItem.cpp \
+    source/ui/dataman/AMSampleContainerView.cpp \
+    source/ui/dataman/AMSampleView.cpp \
+    source/ui/beamline/camera/AMCameraConfigurationView.cpp \
+    source/ui/beamline/camera/AMBeamConfigurationView.cpp \
+    source/ui/beamline/camera/AMShapeDataView.cpp \
+    source/ui/beamline/camera/AMCameraConfigurationWizard.cpp \
+    source/ui/beamline/camera/AMBeamConfigurationWizard.cpp \
+    source/ui/beamline/camera/AMSamplePlateWizard.cpp \
+    source/ui/beamline/camera/AMGraphicsViewWizard.cpp \
     source/ui/AMColorPickerButton2.cpp \
     source/ui/util/AMSamplePeriodicTableDialog.cpp \
-    source/ui/AMGraphicsVideoSceneCopier.cpp \
+    source/beamline/camera/AMGraphicsVideoSceneCopier.cpp \
     source/ui/AMOverlayVideoWidget2.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/dataman/AMSamplePlate.cpp \
@@ -1255,7 +1253,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/beamline/camera/AMSampleCamera.cpp \
     source/beamline/camera/AMSampleCameraBrowser.cpp \
     source/ui/beamline/camera/AMSampleCameraView.cpp \
-    source/ui/beamline/camera/AMSampleCameraBrowserView.cpp
+    source/ui/beamline/camera/AMSampleCameraBrowserView.cpp \
+    source/ui/beamline/camera/AMSampleCameraGraphicsView.cpp \
+    source/ui/AMGraphicsTextItem.cpp
 
 
 # OS-specific files

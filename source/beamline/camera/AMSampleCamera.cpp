@@ -20,7 +20,7 @@
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSamplePre2013.h"
-#include "ui/AMSample.h"
+#include "dataman/AMSample.h"
 
 #include <QVector4D>
 

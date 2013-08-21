@@ -4,12 +4,12 @@
 
 class QTextDocument;
 
-class GraphicsTextItem : public QGraphicsTextItem
+class AMGraphicsTextItem : public QGraphicsTextItem
 {
     Q_OBJECT
 public:
     enum {Type = UserType + 1};
-    GraphicsTextItem(QGraphicsItem* parent = 0, QGraphicsScene* scene = 0);
+    AMGraphicsTextItem(QGraphicsItem* parent = 0, QGraphicsScene* scene = 0);
 
     void setShapeIndex(int index);
     int shapeIndex();

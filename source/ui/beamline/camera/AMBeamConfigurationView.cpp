@@ -8,7 +8,7 @@
 #include <QComboBox>
 #include <QLineEdit>
 
-#include "AMBeamConfiguration.h"
+#include "beamline/camera/AMBeamConfiguration.h"
 #include <QVector>
 #include <QVector3D>
 #include "dataman/database/AMDbObjectSupport.h"

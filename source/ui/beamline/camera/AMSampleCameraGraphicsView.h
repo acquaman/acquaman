@@ -1,14 +1,14 @@
 #ifndef AMSHAPEDATASETGRAPHICSVIEW_H
 #define AMSHAPEDATASETGRAPHICSVIEW_H
 
-#include "AMOverlayVideoWidget2.h"
+#include "ui/AMOverlayVideoWidget2.h"
 
 
-class AMShapeDataSetGraphicsView : public AMOverlayVideoWidget2
+class AMSampleCameraGraphicsView : public AMOverlayVideoWidget2
 {
     Q_OBJECT
 public:
-    explicit AMShapeDataSetGraphicsView(QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMSampleCameraGraphicsView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
     void resizeEvent(QResizeEvent *event);
 
