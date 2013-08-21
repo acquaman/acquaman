@@ -5,7 +5,7 @@
 
 class AMBeamline;
 class AMSamplePlateView;
-class AMCameraBrowserView;
+class AMSampleCameraBrowserView;
 
 class AMBeamlineSampleManagementView : public QWidget
 {
@@ -16,7 +16,7 @@ public:
 protected:
 	AMBeamline *beamline_;
 	AMSamplePlateView *samplePlateView_;
-	AMCameraBrowserView *cameraBrowserView_;
+	AMSampleCameraBrowserView *cameraBrowserView_;
 };
 
 #endif // AMBEAMLINESAMPLEMANAGEMENTVIEW_H

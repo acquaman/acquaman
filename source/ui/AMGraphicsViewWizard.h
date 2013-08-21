@@ -76,7 +76,7 @@ public:
     /// maps a point to the video item, so that point 0,0 is
     /// the top left corner of the image and 1,1 is the bottom left
     /// corner.  Note that this does NOT map directly to
-    /// the view/scene in AMShapeDataSetView. It needs to be
+    /// the view/scene in AMSampleCameraView. It needs to be
     /// remapped from the the video bounding rect to the
     /// video item.
     QPointF mapPointToVideo(QPointF) const;

@@ -85,7 +85,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSelector.h"
 #include "beamline/AMDetectorSet.h"
 
-#include "ui/AMCameraBrowserView.h"
+#include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
 #include "ui/beamline/AMBeamlineSampleManagementView.h"

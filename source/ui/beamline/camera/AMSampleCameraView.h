@@ -40,15 +40,15 @@ For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosi
 
 
 
-class AMShapeDataSetView : public QWidget
+class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-    explicit AMShapeDataSetView(AMSampleCamera *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// Destructor
-    ~AMShapeDataSetView();
+    ~AMSampleCameraView();
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;

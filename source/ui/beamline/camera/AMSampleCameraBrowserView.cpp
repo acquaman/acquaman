@@ -1,4 +1,4 @@
-#include "AMCameraBrowserView.h"
+#include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 
 #include <QComboBox>
 #include <QCheckBox>
@@ -10,17 +10,17 @@
 #include <QMessageBox>
 #include <QStringBuilder>
 
-#include "ui/AMShapeDataSetView.h"
+#include "ui/beamline/camera/AMSampleCameraView.h"
 #include "ui/AMColorPickerButton2.h"
 #include "ui/AMCameraConfigurationView.h"
 #include "ui/AMShapeDataView.h"
-#include "AMSampleCameraBrowser.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
 #include <QLineEdit>
-#include "AMSampleContainerView.h"
+#include "ui/AMSampleContainerView.h"
 
 #include <QDebug>
 
-AMCameraBrowserView::AMCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
+AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
     if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
@@ -28,7 +28,7 @@ AMCameraBrowserView::AMCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, Q
 
 }
 
-AMCameraBrowserView::AMCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
+AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
     if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
@@ -39,7 +39,7 @@ AMCameraBrowserView::AMCameraBrowserView(QWidget *parent, bool useOpenGlViewport
 
 #include <QDebug>
 #include <QApplication>
-void AMCameraBrowserView::onSourceComboBoxChanged(int index)
+void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 {
     qDebug() << "Here in onSourceComboBoxChanged";
 	if(index < 0) {
@@ -69,7 +69,7 @@ void AMCameraBrowserView::onSourceComboBoxChanged(int index)
 	}
 }
 
-QStringList AMCameraBrowserView::previousSourceURLs() const
+QStringList AMSampleCameraBrowserView::previousSourceURLs() const
 {
 	QStringList rv;
 	for(int i=0; i<sourceComboBox_->count(); i++) {
@@ -78,7 +78,7 @@ QStringList AMCameraBrowserView::previousSourceURLs() const
 	return rv;
 }
 
-void AMCameraBrowserView::setPreviousSourceURLs(const QStringList &sourceURLs)
+void AMSampleCameraBrowserView::setPreviousSourceURLs(const QStringList &sourceURLs)
 {
 	QString currentText = sourceComboBox_->currentText();
 	int currentIndex = sourceComboBox_->currentIndex(); // could be -1 if nothing in the list
@@ -99,12 +99,12 @@ void AMCameraBrowserView::setPreviousSourceURLs(const QStringList &sourceURLs)
 
 
 
-QString AMCameraBrowserView::currentSourceURL() const
+QString AMSampleCameraBrowserView::currentSourceURL() const
 {
     return cameraBrowser_->currentURL();
 }
 
-void AMCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
+void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 {
 	if(sourceURL.isEmpty())
 		return;
@@ -121,7 +121,7 @@ void AMCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
     cameraBrowser_->setCurrentURL(sourceURL);
 }
 
-void AMCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
+void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
 	qDebug() << "Error was " << e;
 	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
@@ -130,60 +130,60 @@ void AMCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 }
 
 
-void AMCameraBrowserView::setCrosshairColor(QColor crosshairColor)
+void AMSampleCameraBrowserView::setCrosshairColor(QColor crosshairColor)
 {
     videoWidget_->setCrosshairColor(crosshairColor);
 }
 
-void AMCameraBrowserView::setCrosshairLineThickness(int crosshairThickness)
+void AMSampleCameraBrowserView::setCrosshairLineThickness(int crosshairThickness)
 {
     videoWidget_->setCrosshairLineThickness(crosshairThickness);
 }
 
-void AMCameraBrowserView::setCrosshairVisible(bool crosshairVisible)
+void AMSampleCameraBrowserView::setCrosshairVisible(bool crosshairVisible)
 {
     videoWidget_->setCrosshairVisible(crosshairVisible);
 }
 
-void AMCameraBrowserView::setCrosshairLocked(bool crosshairLocked)
+void AMSampleCameraBrowserView::setCrosshairLocked(bool crosshairLocked)
 {
     videoWidget_->setCrosshairLocked(crosshairLocked);
 }
 
-void AMCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
+void AMSampleCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
 {
     videoWidget_->setCrosshairPosition(crosshairPosition);
 }
 
-QColor AMCameraBrowserView::crosshairColor() const
+QColor AMSampleCameraBrowserView::crosshairColor() const
 {
     return videoWidget_->crosshairPen().color();
 }
 
-int AMCameraBrowserView::crosshairLineThickness() const
+int AMSampleCameraBrowserView::crosshairLineThickness() const
 {
     return videoWidget_->crosshairPen().width();
 }
 
-bool AMCameraBrowserView::crosshairVisible() const
+bool AMSampleCameraBrowserView::crosshairVisible() const
 {
     return videoWidget_->crosshairVisible();
 }
 
-QPointF AMCameraBrowserView::crosshairPosition() const
+QPointF AMSampleCameraBrowserView::crosshairPosition() const
 {
     return videoWidget_->crosshairPosition();
 }
 
-bool AMCameraBrowserView::crosshairLocked() const
+bool AMSampleCameraBrowserView::crosshairLocked() const
 {
     return videoWidget_->crosshairLocked();
 }
 
-void AMCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
+void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 {
     cameraBrowser_ = cameraBrowser;
-    videoWidget_ = new AMShapeDataSetView(cameraBrowser_->shapeDataSet());
+    videoWidget_ = new AMSampleCameraView(cameraBrowser_->shapeDataSet());
     sampleView_ = new AMSampleContainerView();
     sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
     sampleView_->show();

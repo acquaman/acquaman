@@ -1,4 +1,4 @@
-#include "AMShapeDataSetView.h"
+#include "AMSampleCameraView.h"
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
@@ -7,8 +7,8 @@
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
-#include "ui/AMSampleCamera.h"
-#include "ui/AMCameraConfiguration.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "beamline/camera/AMCameraConfiguration.h"
 
 #include <QSlider>
 #include <QCheckBox>
@@ -57,7 +57,7 @@
 
 
 
-AMShapeDataSetView::AMShapeDataSetView(AMSampleCamera *shapeModel, QWidget *parent, bool useOpenGlViewport) :
+AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
     qDebug()<<"Registering type";
@@ -151,7 +151,7 @@ AMShapeDataSetView::AMShapeDataSetView(AMSampleCamera *shapeModel, QWidget *pare
 
 }
 
-AMShapeDataSetView::~AMShapeDataSetView()
+AMSampleCameraView::~AMSampleCameraView()
 {
     delete beamWizard_;
     delete cameraWizard_;
@@ -159,7 +159,7 @@ AMShapeDataSetView::~AMShapeDataSetView()
 }
 
 
-void AMShapeDataSetView::reviewCrosshairLinePositions()
+void AMSampleCameraView::reviewCrosshairLinePositions()
 {
 
     QSizeF viewSize = shapeScene_->size();
@@ -283,34 +283,34 @@ void AMShapeDataSetView::reviewCrosshairLinePositions()
 
 }
 
-void AMShapeDataSetView::setCrosshairPosition(const QPointF &pos)
+void AMSampleCameraView::setCrosshairPosition(const QPointF &pos)
 {
     shapeModel_->setCrosshair(pos);
 }
 
 
-QPen AMShapeDataSetView::crosshairPen() const
+QPen AMSampleCameraView::crosshairPen() const
 {
 	return crosshairXLine_->pen();
 }
 
 
-QPointF AMShapeDataSetView::crosshairPosition() const
+QPointF AMSampleCameraView::crosshairPosition() const
 {
     return shapeModel_->crosshair();
 }
 
-bool AMShapeDataSetView::crosshairVisible() const
+bool AMSampleCameraView::crosshairVisible() const
 {
     return crosshairXLine_->isVisible();
 }
 
-bool AMShapeDataSetView::crosshairLocked()
+bool AMSampleCameraView::crosshairLocked()
 {
     return shapeModel_->crosshairLocked();
 }
 
-void AMShapeDataSetView::setDrawMode()
+void AMSampleCameraView::setDrawMode()
 {
     if(mode_ == DRAW)
     {
@@ -324,46 +324,46 @@ void AMShapeDataSetView::setDrawMode()
     emit modeChange();
 }
 
-void AMShapeDataSetView::setMoveMode()
+void AMSampleCameraView::setMoveMode()
 {
     mode_ = MOVE;
     emit modeChange();
 }
 
-void AMShapeDataSetView::setEditMode()
+void AMSampleCameraView::setEditMode()
 {
     mode_ = EDIT;
     emit modeChange();
 }
 
-void AMShapeDataSetView::setShiftMode()
+void AMSampleCameraView::setShiftMode()
 {
     mode_ = SHIFT;
     emit modeChange();
 
 }
 
-void AMShapeDataSetView::setOperationMode()
+void AMSampleCameraView::setOperationMode()
 {
     mode_ = OPERATION;
     emit modeChange();
 }
 
-void AMShapeDataSetView::setGroupMode()
+void AMSampleCameraView::setGroupMode()
 {
     mode_ = GROUP;
     emit modeChange();
 
 }
 
-void AMShapeDataSetView::setConfigurationMode()
+void AMSampleCameraView::setConfigurationMode()
 {
     mode_ = CONFIGURE;
     emit modeChange();
 
 }
 
-void AMShapeDataSetView::setMultiDrawMode()
+void AMSampleCameraView::setMultiDrawMode()
 {
 //    if(drawButton_->isDown() || )
     mode_ = MULTIDRAW;
@@ -371,7 +371,7 @@ void AMShapeDataSetView::setMultiDrawMode()
     emit enterMultiDraw();
 }
 
-void AMShapeDataSetView::setMotorCoordinatePressed()
+void AMSampleCameraView::setMotorCoordinatePressed()
 {
     double x = (motorXEdit_->text().toDouble());
     double y = (motorYEdit_->text().toDouble());
@@ -380,7 +380,7 @@ void AMShapeDataSetView::setMotorCoordinatePressed()
     setMotorCoordinate(x,y,z,r);
 }
 
-void AMShapeDataSetView::enableMotorMovement(bool isEnabled)
+void AMSampleCameraView::enableMotorMovement(bool isEnabled)
 {
     if(isEnabled != enableMotorMovement_->isChecked())
     {
@@ -392,18 +392,18 @@ void AMShapeDataSetView::enableMotorMovement(bool isEnabled)
 
 }
 
-void AMShapeDataSetView::enableMotorTracking(bool isEnabled)
+void AMSampleCameraView::enableMotorTracking(bool isEnabled)
 {
     shapeModel_->enableMotorTracking(isEnabled);
 }
 
-void AMShapeDataSetView::showConfigurationWindow()
+void AMSampleCameraView::showConfigurationWindow()
 {
     cameraConfigurationWindow_->show();
 }
 
 
-void AMShapeDataSetView::setPoint(QPointF position, int pointToSelect)
+void AMSampleCameraView::setPoint(QPointF position, int pointToSelect)
 {
     pointLineEdit_[pointToSelect*2]->setText(QString::number(position.x()));
     pointLineEdit_[pointToSelect*2 + 1]->setText(QString::number(position.y()));
@@ -415,13 +415,13 @@ void AMShapeDataSetView::setPoint(QPointF position, int pointToSelect)
     }
 }
 
-void AMShapeDataSetView::selectPoint(int point)
+void AMSampleCameraView::selectPoint(int point)
 {
     setConfigurationMode();
     pointToSelect_ = point;
 }
 
-void AMShapeDataSetView::selectPointOne()
+void AMSampleCameraView::selectPointOne()
 {
     setConfigurationMode();
     pointToSelect_ = 0;
@@ -429,37 +429,37 @@ void AMShapeDataSetView::selectPointOne()
 
 
 
-void AMShapeDataSetView::selectPointTwo()
+void AMSampleCameraView::selectPointTwo()
 {
     setConfigurationMode();
     pointToSelect_ = 1;
 }
 
-void AMShapeDataSetView::selectPointThree()
+void AMSampleCameraView::selectPointThree()
 {
     setConfigurationMode();
     pointToSelect_ = 2;
 }
 
-void AMShapeDataSetView::selectPointFour()
+void AMSampleCameraView::selectPointFour()
 {
     setConfigurationMode();
     pointToSelect_ = 3;
 }
 
-void AMShapeDataSetView::selectPointFive()
+void AMSampleCameraView::selectPointFive()
 {
     setConfigurationMode();
     pointToSelect_ = 4;
 }
 
-void AMShapeDataSetView::selectPointSix()
+void AMSampleCameraView::selectPointSix()
 {
     setConfigurationMode();
     pointToSelect_ = 5;
 }
 
-void AMShapeDataSetView::runCameraConfiguration()
+void AMSampleCameraView::runCameraConfiguration()
 {
     QVector3D coordinates [SAMPLEPOINTS];
     QPointF points [SAMPLEPOINTS];
@@ -477,18 +477,18 @@ void AMShapeDataSetView::runCameraConfiguration()
 
 }
 
-void AMShapeDataSetView::deleteCalibrationPoints()
+void AMSampleCameraView::deleteCalibrationPoints()
 {
     shapeModel_->deleteCalibrationPoints();
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::stopTimer()
+void AMSampleCameraView::stopTimer()
 {
     pressTimer_->stop();
 }
 
-void AMShapeDataSetView::changeDrawButtonText()
+void AMSampleCameraView::changeDrawButtonText()
 {
     if(mode_ == MULTIDRAW)
     {
@@ -500,7 +500,7 @@ void AMShapeDataSetView::changeDrawButtonText()
     }
 }
 
-void AMShapeDataSetView::updateItemName(int index)
+void AMSampleCameraView::updateItemName(int index)
 {
     if(shapeModel_->isValid(index))
     {
@@ -527,7 +527,7 @@ void AMShapeDataSetView::updateItemName(int index)
 
 }
 
-void AMShapeDataSetView::updateCurrentTextItemName()
+void AMSampleCameraView::updateCurrentTextItemName()
 {
     if(shapeModel_->isValid(current_))
     {
@@ -536,37 +536,37 @@ void AMShapeDataSetView::updateCurrentTextItemName()
     }
 }
 
-void AMShapeDataSetView::setViewName()
+void AMSampleCameraView::setViewName()
 {
     currentView_ = NAME;
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setViewOtherData()
+void AMSampleCameraView::setViewOtherData()
 {
     currentView_ = DATA;
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setViewIdNumber()
+void AMSampleCameraView::setViewIdNumber()
 {
     currentView_ = ID;
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setViewHidden()
+void AMSampleCameraView::setViewHidden()
 {
     currentView_ = HIDE;
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::autoCompleteEnterPressed()
+void AMSampleCameraView::autoCompleteEnterPressed()
 {
     shapeModel_->setCurrentInfo(autoCompleteBox_->text());
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::beamShape(int shapeNumber)
+void AMSampleCameraView::beamShape(int shapeNumber)
 {
     QList<QPointF*>* points;
     if(beamWizard_ != 0)
@@ -602,7 +602,7 @@ void AMShapeDataSetView::beamShape(int shapeNumber)
 
 }
 
-void AMShapeDataSetView::beamCalibrate()
+void AMSampleCameraView::beamCalibrate()
 {
 
     shapeModel_->beamCalibrate();
@@ -610,10 +610,8 @@ void AMShapeDataSetView::beamCalibrate()
 
 }
 
-void AMShapeDataSetView::moveBeamSamplePlate(QVector3D coordinate)
+void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
-//    shapeModel_->moveSamplePlateTo(coordinate);// change to move motor
-    qDebug()<<"AMShapeDataSetView::moveBeamSamplePlate - moving to coordinate"<<coordinate;
     shapeModel_->moveMotorTo(coordinate);
     reviewCrosshairLinePositions();
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView();
@@ -626,20 +624,19 @@ void AMShapeDataSetView::moveBeamSamplePlate(QVector3D coordinate)
         samplePlateWizard_->updateScene(view);
 }
 
-void AMShapeDataSetView::showBeamMarker(int index)
+void AMSampleCameraView::showBeamMarker(int index)
 {
     shapeModel_->addBeamMarker(index);
     reviewCrosshairLinePositions();
     beamWizard_->updateScene(shapeScene_);
 }
 
-void AMShapeDataSetView::transmitMotorMovementEnabled()
+void AMSampleCameraView::transmitMotorMovementEnabled()
 {
-    qDebug()<<"AMShapeDataSetView::transmitMotorMovementEnabled - returning request";
     emit motorMovementEnabled(shapeModel_->motorMovementenabled());
 }
 
-void AMShapeDataSetView::updateShapeName(QString newName)
+void AMSampleCameraView::updateShapeName(QString newName)
 {
     if(currentView_ == NAME)
     {
@@ -654,86 +651,86 @@ void AMShapeDataSetView::updateShapeName(QString newName)
 
 
 
-void AMShapeDataSetView::setMotorCoordinate(double x, double y, double z, double r)
+void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double r)
 {
     shapeModel_->setMotorCoordinate(x,y,z,r);
     emit currentChanged();
     reviewCrosshairLinePositions();
 }
 
-double AMShapeDataSetView::motorRotation()
+double AMSampleCameraView::motorRotation()
 {
     return (shapeModel_->motorRotation());
 }
 
-double AMShapeDataSetView::motorX()
+double AMSampleCameraView::motorX()
 {
     return shapeModel_->motorX();
 }
 
-double AMShapeDataSetView::motorY()
+double AMSampleCameraView::motorY()
 {
     return shapeModel_->motorY();
 }
 
-double AMShapeDataSetView::motorZ()
+double AMSampleCameraView::motorZ()
 {
     return shapeModel_->motorZ();
 }
 
-QString AMShapeDataSetView::currentName()
+QString AMSampleCameraView::currentName()
 {
     return shapeModel_->currentName();
 }
 
-void AMShapeDataSetView::setCurrentName(QString name)
+void AMSampleCameraView::setCurrentName(QString name)
 {
    shapeModel_->setCurrentName(name);
 }
 
-QString AMShapeDataSetView::currentInfo()
+QString AMSampleCameraView::currentInfo()
 {
     return shapeModel_->currentInfo();
 }
 
-void AMShapeDataSetView::setCurrentInfo(QString info)
+void AMSampleCameraView::setCurrentInfo(QString info)
 {
     shapeModel_->setCurrentInfo(info);
 }
 
-int AMShapeDataSetView::currentIndex()
+int AMSampleCameraView::currentIndex()
 {
     return shapeModel_->currentIndex();
 }
 
-double AMShapeDataSetView::xCoordinate()
+double AMSampleCameraView::xCoordinate()
 {
     double coordinate = shapeModel_->currentCoordinate().x();
     return coordinate;
 }
 
-double AMShapeDataSetView::yCoordinate()
+double AMSampleCameraView::yCoordinate()
 {
     return shapeModel_->currentCoordinate().y();
 }
 
-double AMShapeDataSetView::zCoordinate()
+double AMSampleCameraView::zCoordinate()
 {
 
     return shapeModel_->currentCoordinate().z();
 }
 
-double AMShapeDataSetView::rotation()
+double AMSampleCameraView::rotation()
 {
     return shapeModel_->rotation();
 }
 
-double AMShapeDataSetView::tilt()
+double AMSampleCameraView::tilt()
 {
     return shapeModel_->tilt();
 }
 
-void AMShapeDataSetView::setX(QString x)
+void AMSampleCameraView::setX(QString x)
 {
 
    QVector3D currentCoordinate = shapeModel_->currentCoordinate();
@@ -742,7 +739,7 @@ void AMShapeDataSetView::setX(QString x)
    shapeModel_->setCoordinates(x.toDouble(),y,z);
 }
 
-void AMShapeDataSetView::setY(QString y)
+void AMSampleCameraView::setY(QString y)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double x = currentCoordinate.x();
@@ -750,7 +747,7 @@ void AMShapeDataSetView::setY(QString y)
     shapeModel_->setCoordinates(x,y.toDouble(),z);
 }
 
-void AMShapeDataSetView::setZ(QString z)
+void AMSampleCameraView::setZ(QString z)
 {
     QVector3D currentCoordinate = shapeModel_->currentCoordinate();
     double y = currentCoordinate.y();
@@ -758,12 +755,12 @@ void AMShapeDataSetView::setZ(QString z)
     shapeModel_->setCoordinates(x,y,z.toDouble());
 }
 
-void AMShapeDataSetView::setRotation(QString rotation)
+void AMSampleCameraView::setRotation(QString rotation)
 {
     shapeModel_->setRotation(rotation.toDouble());
 }
 
-void AMShapeDataSetView::motorMoved()
+void AMSampleCameraView::motorMoved()
 {
     motorXEdit_->setText(QString::number(motorX()));
     motorYEdit_->setText(QString::number(motorY()));
@@ -772,41 +769,41 @@ void AMShapeDataSetView::motorMoved()
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setUseMotorCoordinate(bool use)
+void AMSampleCameraView::setUseMotorCoordinate(bool use)
 {
     useMotorCoordinate_ = use;
 }
 
-void AMShapeDataSetView::setUseCameraMatrix(bool use)
+void AMSampleCameraView::setUseCameraMatrix(bool use)
 {
     shapeModel_->setUseCameraMatrix(use);
     shapeModel_->updateAllShapes();
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::showCameraBeamWindow()
+void AMSampleCameraView::showCameraBeamWindow()
 {
     configurationWindow_->show();
     configurationWindow_->adjustSize();
 }
 
-void AMShapeDataSetView::showShapeView()
+void AMSampleCameraView::showShapeView()
 {
     shapeView_->show();
 }
 
-void AMShapeDataSetView::setDrawOnShape()
+void AMSampleCameraView::setDrawOnShape()
 {
     shapeModel_->setDrawOnShape();
 }
 
-void AMShapeDataSetView::setDrawOnShapeEnabled(bool enable)
+void AMSampleCameraView::setDrawOnShapeEnabled(bool enable)
 {
     shapeModel_->setDrawOnShapeEnabled(enable);
     drawOnShapePushButton_->setDisabled(!enable);
 }
 
-void AMShapeDataSetView::reviewCameraConfiguration()
+void AMSampleCameraView::reviewCameraConfiguration()
 {
     bool review = false;
     QList<QPointF*>* pointList = cameraWizard_->pointList();
@@ -840,7 +837,7 @@ void AMShapeDataSetView::reviewCameraConfiguration()
     }
 }
 
-void AMShapeDataSetView::setTilt(QString tilt)
+void AMSampleCameraView::setTilt(QString tilt)
 {
     double newTilt = tilt.toDouble();
     shapeModel_->setTilt(newTilt);
@@ -848,31 +845,31 @@ void AMShapeDataSetView::setTilt(QString tilt)
 
 
 
-void AMShapeDataSetView::toggleDistortion()
+void AMSampleCameraView::toggleDistortion()
 {
     shapeModel_->toggleDistortion();
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setMedia(QMediaContent url)
+void AMSampleCameraView::setMedia(QMediaContent url)
 {
     shapeScene_->mediaPlayer()->setMedia(url);
     qDebug() << "Status? " << shapeScene_->mediaPlayer()->mediaStatus();
 }
 
 #include <QApplication>
-void AMShapeDataSetView::play()
+void AMSampleCameraView::play()
 {
     qDebug()<<"supported"<<QMediaPlayer::supportedMimeTypes();
     shapeScene_->mediaPlayer()->play();
 }
 
-QMediaPlayer* AMShapeDataSetView::mediaPlayer()
+QMediaPlayer* AMSampleCameraView::mediaPlayer()
 {
     return shapeScene_->mediaPlayer();
 }
 
-QPointF AMShapeDataSetView::mapPointToVideo(QPointF position)
+QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 {
     QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
     QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
@@ -885,7 +882,7 @@ QPointF AMShapeDataSetView::mapPointToVideo(QPointF position)
     return newPosition;
 }
 
-void AMShapeDataSetView::setCrosshairColor(const QColor &color)
+void AMSampleCameraView::setCrosshairColor(const QColor &color)
 {
     QPen pen = crosshairPen();
     pen.setColor(color);
@@ -899,7 +896,7 @@ void AMShapeDataSetView::setCrosshairColor(const QColor &color)
     }
 }
 
-void AMShapeDataSetView::setCrosshairLineThickness(int thickness)
+void AMSampleCameraView::setCrosshairLineThickness(int thickness)
 {
         QPen pen = crosshairPen();
         pen.setWidth(thickness);
@@ -914,13 +911,13 @@ void AMShapeDataSetView::setCrosshairLineThickness(int thickness)
 
 }
 
-void AMShapeDataSetView::setCrosshairPen(const QPen &pen)
+void AMSampleCameraView::setCrosshairPen(const QPen &pen)
 {
 	crosshairXLine_->setPen(pen);
 	crosshairYLine_->setPen(pen);
 }
 
-void AMShapeDataSetView::setCrosshairVisible(bool crosshairVisible)
+void AMSampleCameraView::setCrosshairVisible(bool crosshairVisible)
 {
 	crosshairXLine_->setVisible(crosshairVisible);
     crosshairYLine_->setVisible(crosshairVisible);
@@ -933,7 +930,7 @@ void AMShapeDataSetView::setCrosshairVisible(bool crosshairVisible)
 //        }
 }
 
-void AMShapeDataSetView::setCrosshairLocked(bool doLock)
+void AMSampleCameraView::setCrosshairLocked(bool doLock)
 {
         shapeModel_->setCrosshairLocked(doLock);
 
@@ -945,13 +942,13 @@ void AMShapeDataSetView::setCrosshairLocked(bool doLock)
         }
 }
 
-void AMShapeDataSetView::setCameraModel(AMCameraConfiguration *model)
+void AMSampleCameraView::setCameraModel(AMCameraConfiguration *model)
 {
     shapeModel_->setCameraModel(model);
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::intersection()
+void AMSampleCameraView::intersection()
 {
     if(shapeModel_->findIntersections())
     {
@@ -960,33 +957,29 @@ void AMShapeDataSetView::intersection()
     }
 }
 
-void AMShapeDataSetView::hideCameraParameters(bool hide)
+void AMSampleCameraView::hideCameraParameters(bool hide)
 {
     cameraConfiguration_->hideCameraParameters(hide);
     configurationWindow_->adjustSize();
 }
 
-void AMShapeDataSetView::startCameraWizard()
+void AMSampleCameraView::startCameraWizard()
 {
     delete cameraWizard_;
-    qDebug()<<"AMShapeDataSetView::startCameraWizard - creating new wizard";
     cameraWizard_ = new AMCameraConfigurationWizard();
     connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
     connect(cameraWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
     connect(cameraWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
     connect(this, SIGNAL(motorMovementEnabled(bool)), cameraWizard_, SLOT(setMotorMovementEnabled(bool)));
-//    connect(this, SIGNAL(moveSucceeded()), cameraWizard_, SIGNAL(moveSucceeded()));
     connect(this,SIGNAL(moveSucceeded()), cameraWizard_, SLOT(testMoveSlot()));
-    qDebug()<<"AMShapeDataSetView::startCameraWizard - setting view";
     AMShapeDataSetGraphicsView* view = new AMShapeDataSetGraphicsView(0);
     view->setScene(shapeScene_->scene());
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     cameraWizard_->setView(view);
-    qDebug()<<"AMShapeDataSetView::startCameraWizard - showing";
     cameraWizard_->show();
 }
 
-void AMShapeDataSetView::startBeamWizard()
+void AMSampleCameraView::startBeamWizard()
 {
     delete beamWizard_;
     beamWizard_ = new AMBeamConfigurationWizard();
@@ -1004,7 +997,7 @@ void AMShapeDataSetView::startBeamWizard()
     beamWizard_->show();
 }
 
-void AMShapeDataSetView::startSampleWizard()
+void AMSampleCameraView::startSampleWizard()
 {
     delete samplePlateWizard_;
     samplePlateWizard_ = new AMSamplePlateWizard();
@@ -1020,19 +1013,19 @@ void AMShapeDataSetView::startSampleWizard()
     samplePlateWizard_->show();
 }
 
-void AMShapeDataSetView::setSamplePlate()
+void AMSampleCameraView::setSamplePlate()
 {
     shapeModel_->setSamplePlate();
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::setCameraConfigurationShape()
+void AMSampleCameraView::setCameraConfigurationShape()
 {
     shapeModel_->setCameraConfigurationShape();
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::moveSamplePlate(int movement)
+void AMSampleCameraView::moveSamplePlate(int movement)
 {
     int relativeMovement = movement - samplePlateMovement_;
     samplePlateMovement_ = movement;
@@ -1044,34 +1037,26 @@ void AMShapeDataSetView::moveSamplePlate(int movement)
         samplePlateWizard_->updateScene(view);
 }
 
-void AMShapeDataSetView::showBeamOutline(bool show)
+void AMSampleCameraView::showBeamOutline(bool show)
 {
     showBeamOutline_ = show;
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::moveTestSlot()
+void AMSampleCameraView::moveTestSlot()
 {
-    qDebug()<<"AMShapeDataSetView::moveTestSlot - move succeeded signal recieved";
     emit moveSucceeded();
 }
 
-//void AMShapeDataSetView::setShapeVisible(bool visible)
-//{
-//    if(shapeModel_->isValid(current_))
-//    {
-//        shapes_[current_]->setVisible(visible);
-//        reviewCrosshairLinePositions();
-//    }
-//}
 
-void AMShapeDataSetView::updateCurrentShape()
+
+void AMSampleCameraView::updateCurrentShape()
 {
     emit updateShapes(current_);
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
+void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
 {
     intersections_.clear();
     for(int i =0; !shapes.isEmpty(); i++)
@@ -1090,7 +1075,7 @@ void AMShapeDataSetView::createIntersectionShapes(QVector<QPolygonF> shapes)
     }
 }
 
-void AMShapeDataSetView::clearIntersections()
+void AMSampleCameraView::clearIntersections()
 {
     while(!intersections_.isEmpty())
     {
@@ -1099,23 +1084,14 @@ void AMShapeDataSetView::clearIntersections()
     }
 }
 
-
-//void AMShapeDataSetView::setListViewModel()
-//{
-////    shapeDataListView_->setResizeMode(QListView::Adjust);
-////    shapeDataListView_->setModel(shapeModel_);
-//}
-
-
-
-void AMShapeDataSetView::resizeEvent(QResizeEvent *event)
+void AMSampleCameraView::resizeEvent(QResizeEvent *event)
 {
 
     shapeScene_->resizeEvent(event);
 	reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::mousePressHandler(QPointF position)
+void AMSampleCameraView::mousePressHandler(QPointF position)
 {
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
 
@@ -1174,7 +1150,7 @@ void AMShapeDataSetView::mousePressHandler(QPointF position)
     reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
+void AMSampleCameraView::mouseRightClickHandler(QPointF position)
 {
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
 
@@ -1213,7 +1189,7 @@ void AMShapeDataSetView::mouseRightClickHandler(QPointF position)
 
 }
 
-void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
+void AMSampleCameraView::mouseLeftReleaseHandler(QPointF position)
 {
     pressTimer_->stop();
         if(doubleClickInProgress_)
@@ -1240,7 +1216,7 @@ void AMShapeDataSetView::mouseLeftReleaseHandler(QPointF position)
         reviewCrosshairLinePositions();
 }
 
-void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
+void AMSampleCameraView::mouseRightReleaseHandler(QPointF position)
 {
     emit mouseReleased((position));
     disconnect(shapeModel_, SLOT(zoomAllShapes(QPointF)));
@@ -1253,7 +1229,7 @@ void AMShapeDataSetView::mouseRightReleaseHandler(QPointF position)
 
 
 
-void AMShapeDataSetView::mouseDoubleClickHandler(QPointF position)
+void AMSampleCameraView::mouseDoubleClickHandler(QPointF position)
 {
 		doubleClickInProgress_ = true;
         if(mode_ == MULTIDRAW)
@@ -1269,7 +1245,7 @@ void AMShapeDataSetView::mouseDoubleClickHandler(QPointF position)
 
 }
 
-void AMShapeDataSetView::mouseMoveHandler(QPointF position)
+void AMSampleCameraView::mouseMoveHandler(QPointF position)
 {
 
     emit mouseMoved((position));
@@ -1293,7 +1269,7 @@ void AMShapeDataSetView::mouseMoveHandler(QPointF position)
 
 
 /// append a new rectangle to the current list, add it to the scene
-void AMShapeDataSetView::addNewShape()
+void AMSampleCameraView::addNewShape()
 {
     index_++;
     QPen pen(borderColour_);
@@ -1312,7 +1288,7 @@ void AMShapeDataSetView::addNewShape()
 }
 
 /// Remove a rectangle from the scene
-void AMShapeDataSetView::deleteShape()
+void AMSampleCameraView::deleteShape()
 {
     QGraphicsPolygonItem* polygon = shapes_[index_];
     shapeScene_->scene()->removeItem(shapes_[index_]);
@@ -1326,7 +1302,7 @@ void AMShapeDataSetView::deleteShape()
 }
 
 /// change the currently selected item, outline it in blue?
-void AMShapeDataSetView::currentSelectionChanged()
+void AMSampleCameraView::currentSelectionChanged()
 {
     if(shapeModel_->isValid(current_))
         shapes_[current_]->setPen(borderColour_);
@@ -1351,7 +1327,7 @@ void AMShapeDataSetView::currentSelectionChanged()
 }
 
 
-void AMShapeDataSetView::createGroupRectangle()
+void AMSampleCameraView::createGroupRectangle()
 {
     QBrush penBrush(QColor(Qt::magenta));
     QPen pen(penBrush,1,Qt::DotLine);
@@ -1361,14 +1337,14 @@ void AMShapeDataSetView::createGroupRectangle()
 
 }
 
-void AMShapeDataSetView::destroyGroupRectangle()
+void AMSampleCameraView::destroyGroupRectangle()
 {
     shapeScene_->scene()->removeItem(groupRectangle_);
     groupRectangleActive_ = false;
 }
 
 
-void AMShapeDataSetView::setGUI()
+void AMSampleCameraView::setGUI()
 {
 
     ///GUI Setup
@@ -1613,7 +1589,7 @@ void AMShapeDataSetView::setGUI()
 
 }
 
-void AMShapeDataSetView::makeConnections()
+void AMSampleCameraView::makeConnections()
 {
     // mouse signals to be handled
     connect(shapeScene_, SIGNAL(mousePressed(QPointF)), this, SLOT(mousePressHandler(QPointF)));

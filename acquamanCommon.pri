@@ -723,14 +723,12 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
-    source/ui/AMCameraBrowserView.h \
     source/ui/AMSampleContainer.h \
     source/ui/AMSample.h \
     source/beamline/camera/AMShapeData.h \
     source/beamline/camera/AMCamera.h \
     source/beamline/camera/AMBeamConfiguration.h \
     source/beamline/camera/AMCameraConfiguration.h \
-    source/ui/AMShapeDataSetView.h \
     source/ui/AMSampleContainerView.h \
     source/ui/AMSampleView.h \
     source/ui/AMCameraConfigurationView.h \
@@ -751,7 +749,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/dataman/AMSamplePlateView.h \
     source/ui/beamline/AMBeamlineSampleManagementView.h \
     source/beamline/camera/AMSampleCamera.h \
-    source/beamline/camera/AMSampleCameraBrowser.h
+    source/beamline/camera/AMSampleCameraBrowser.h \
+    source/ui/beamline/camera/AMSampleCameraView.h \
+    source/ui/beamline/camera/AMSampleCameraBrowserView.h
 
 
 # OS-specific files:
@@ -1227,14 +1227,12 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
     source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
     source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
-    source/ui/AMCameraBrowserView.cpp \
     source/ui/AMSampleContainer.cpp \
     source/ui/AMSample.cpp \
     source/beamline/camera/AMShapeData.cpp \
     source/beamline/camera/AMCamera.cpp \
     source/beamline/camera/AMBeamConfiguration.cpp \
     source/beamline/camera/AMCameraConfiguration.cpp \
-    source/ui/AMShapeDataSetView.cpp \
     source/ui/AMSampleContainerView.cpp \
     source/ui/AMSampleView.cpp \
     source/ui/AMCameraConfigurationView.cpp \
@@ -1255,7 +1253,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/dataman/AMSamplePlateView.cpp \
     source/ui/beamline/AMBeamlineSampleManagementView.cpp \
     source/beamline/camera/AMSampleCamera.cpp \
-    source/beamline/camera/AMSampleCameraBrowser.cpp
+    source/beamline/camera/AMSampleCameraBrowser.cpp \
+    source/ui/beamline/camera/AMSampleCameraView.cpp \
+    source/ui/beamline/camera/AMSampleCameraBrowserView.cpp
 
 
 # OS-specific files

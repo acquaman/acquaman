@@ -8,7 +8,7 @@ class QColor;
 class QPointF;
 class QStringList;
 class AMSampleCamera;
-class AMShapeDataSetView;
+class AMSampleCameraView;
 class AMSampleContainer;
 
 

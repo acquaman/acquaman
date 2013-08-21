@@ -6,7 +6,7 @@
 class QPushButton;
 class QComboBox;
 class QCheckBox;
-class AMShapeDataSetView;
+class AMSampleCameraView;
 class AMColorPickerButton2;
 class QSlider;
 class AMShapeOverlayVideoWidgetView2;
@@ -19,12 +19,12 @@ class AMSampleContainerView;
 #include <QMediaPlayer>
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
-class AMCameraBrowserView : public QWidget
+class AMSampleCameraBrowserView : public QWidget
 {
 	Q_OBJECT
 public:
-    explicit AMCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
-    AMCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
+    explicit AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
+    AMSampleCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
     /// \todo put into model
     /// Returns a list of the URLs of all the video sources in the history (including the current one)
@@ -68,7 +68,7 @@ protected:
 
     AMSampleCameraBrowser *cameraBrowser_;
 
-    AMShapeDataSetView* videoWidget_;
+    AMSampleCameraView* videoWidget_;
 
     QComboBox* sourceComboBox_;
 
