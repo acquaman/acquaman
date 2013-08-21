@@ -57,7 +57,7 @@
 
 
 
-AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *parent, bool useOpenGlViewport) :
+AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType, QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
     qDebug()<<"Registering type";
@@ -122,17 +122,19 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, QWidget *pare
     path->addPolygon(polygon);
     currentShape_ = shapeScene_->scene()->addPath(*path,pen,brush);
 
-    setGUI();
 
-    QStringList wordList;
-    wordList_ = new QStringListModel(wordList);
-    autoCompleter_ = new QCompleter();
-    autoCompleter_->setModel(wordList_);
-    autoCompleter_->setCaseSensitivity(Qt::CaseInsensitive);
-    autoCompleteBox_->setCompleter(autoCompleter_);
+    setGUI(viewType);
 
 
-    makeConnections();
+//    QStringList wordList;
+//    wordList_ = new QStringListModel(wordList);
+//    autoCompleter_ = new QCompleter();
+//    autoCompleter_->setModel(wordList_);
+//    autoCompleter_->setCaseSensitivity(Qt::CaseInsensitive);
+//    autoCompleteBox_->setCompleter(autoCompleter_);
+
+
+    makeConnections(viewType);
 
 
 
@@ -218,11 +220,11 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
             shapes_[i]->setPolygon(shapeModel_->shape(i));
             shapes_[i]->setToolTip(shapeModel_->name(i));
             shapes_[i]->setVisible(shapeModel_->visible(i));
-            if(!wordList_->stringList().contains(shapeModel_->otherData(i)))
-            {
-                wordList_->insertRow(wordList_->rowCount());
-                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->otherData(i));
-            }
+//            if(!wordList_->stringList().contains(shapeModel_->otherData(i)))
+//            {
+//                wordList_->insertRow(wordList_->rowCount());
+//                wordList_->setData(wordList_->index(wordList_->rowCount()-1),shapeModel_->otherData(i));
+//            }
 
             if(shapeModel_->isBackwards(i))
             {
@@ -562,7 +564,7 @@ void AMSampleCameraView::setViewHidden()
 
 void AMSampleCameraView::autoCompleteEnterPressed()
 {
-    shapeModel_->setCurrentInfo(autoCompleteBox_->text());
+//    shapeModel_->setCurrentInfo(autoCompleteBox_->text());
     reviewCrosshairLinePositions();
 }
 
@@ -1309,12 +1311,16 @@ void AMSampleCameraView::currentSelectionChanged()
     current_ = shapeModel_->currentIndex();
 
     shapeView_->setShapeData(shapeModel_->currentShape());
-    motorREdit_->setText(QString::number(motorRotation()));
-    motorXEdit_->setText(QString::number(motorX()));
-    motorYEdit_->setText(QString::number(motorY()));
-    motorZEdit_->setText(QString::number(motorZ()));
+    if(motorREdit_)
+        motorREdit_->setText(QString::number(motorRotation()));
+    if(motorXEdit_)
+        motorXEdit_->setText(QString::number(motorX()));
+    if(motorYEdit_)
+        motorYEdit_->setText(QString::number(motorY()));
+    if(motorZEdit_)
+        motorZEdit_->setText(QString::number(motorZ()));
 
-    autoCompleteBox_->setText(shapeModel_->currentInfo());
+//    autoCompleteBox_->setText(shapeModel_->currentInfo());
 
     if(shapeModel_->isValid(current_))
     {
@@ -1344,11 +1350,12 @@ void AMSampleCameraView::destroyGroupRectangle()
 }
 
 
-void AMSampleCameraView::setGUI()
+void AMSampleCameraView::setGUI(ViewType viewType)
 {
 
     ///GUI Setup
 
+    advancedButton_ = new QPushButton("Advanced");
 
     QFrame* crosshairFrame = new QFrame();
     QHBoxLayout* chl = new QHBoxLayout();
@@ -1364,15 +1371,23 @@ void AMSampleCameraView::setGUI()
     crosshairThicknessSlider_->setValue(1);
     chl->addSpacing(20);
     chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
-    chl->addSpacing(20);
-    chl->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
-    enableMotorMovement_->setChecked(false);
-    chl->addSpacing(20);
-    chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
-    enableMotorTracking_->setChecked(false);
-    chl->addWidget(configureCameraButton_ = new QPushButton("Calibrate Camera"));
-    chl->addSpacing(20);
-    chl->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
+    if(viewType == DEBUG)
+    {
+        chl->addSpacing(20);
+        chl->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
+        enableMotorMovement_->setChecked(false);
+        chl->addSpacing(20);
+        chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
+        enableMotorTracking_->setChecked(false);
+        chl->addWidget(configureCameraButton_ = new QPushButton("Calibrate Camera"));
+        chl->addSpacing(20);
+        chl->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
+    }
+    else if(viewType == CONDENSED)
+    {
+        chl->addSpacing(20);
+        chl->addWidget(advancedButton_);
+    }
     chl->addStretch();
     crosshairFrame->setLayout(chl);
     showCrosshairCheckBox_->setChecked(true);
@@ -1384,17 +1399,20 @@ void AMSampleCameraView::setGUI()
 
 
     tfl->addWidget(toolBar_ = new QToolBar("Tool Bar"));
-    tfl->addSpacing(20);
-    tfl->addWidget(motorXEdit_ = new QLineEdit());
-    tfl->addSpacing(10);
-    tfl->addWidget(motorYEdit_ = new QLineEdit());
-    tfl->addSpacing(10);
-    tfl->addWidget(motorZEdit_ = new QLineEdit());
-    tfl->addSpacing(10);
-    tfl->addWidget(motorREdit_ = new QLineEdit());
-    tfl->addSpacing(20);
-    tfl->addWidget(setMotorCoordinate_ = new QPushButton("Set"));
-    tfl->addStretch(20);
+    if(viewType == DEBUG)
+    {
+        tfl->addSpacing(20);
+        tfl->addWidget(motorXEdit_ = new QLineEdit());
+        tfl->addSpacing(10);
+        tfl->addWidget(motorYEdit_ = new QLineEdit());
+        tfl->addSpacing(10);
+        tfl->addWidget(motorZEdit_ = new QLineEdit());
+        tfl->addSpacing(10);
+        tfl->addWidget(motorREdit_ = new QLineEdit());
+        tfl->addSpacing(20);
+        tfl->addWidget(setMotorCoordinate_ = new QPushButton("Set"));
+    }
+    tfl->addStretch();
     toolFrame->setLayout(tfl);
 
 
@@ -1403,31 +1421,37 @@ void AMSampleCameraView::setGUI()
     QFrame* shapeFrame = new QFrame();
     QHBoxLayout* shapeHorizontalLayout =  new QHBoxLayout();
     shapeHorizontalLayout->setContentsMargins(12,4,12,4);
-//    shapeHorizontalLayout->addWidget(showShapeView_ = new QPushButton("Show shape"));
-//    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
-    shapeHorizontalLayout->addSpacing(20);
+    if(viewType == DEBUG)
+    {
+        shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
+        shapeHorizontalLayout->addSpacing(20);
+        shapeHorizontalLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
+        shapeHorizontalLayout->addSpacing(20);
+        shapeHorizontalLayout->addWidget(distortionButton_ = new QPushButton("Distortion"));
+        shapeHorizontalLayout->addSpacing(20);
+    }
     shapeHorizontalLayout->addWidget(labelToolBar_ = new QToolBar("Labels"));
     shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
-    shapeHorizontalLayout->addSpacing(20);
-    shapeHorizontalLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Sample Wizard"));
+    if(viewType == DEBUG)
+    {
+//        shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
+//        shapeHorizontalLayout->addSpacing(20);
+        shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
+        shapeHorizontalLayout->addSpacing(20);
+        shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
+        shapeHorizontalLayout->addSpacing(20);
+        shapeHorizontalLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Sample Wizard"));
+    }
     shapeHorizontalLayout->addStretch();
     shapeFrame->setLayout(shapeHorizontalLayout);
 
 
 
-
-    drawOnShapeCheckBox_->setChecked(false);
-    drawOnShapePushButton_->setDisabled(true);
+    if(viewType == DEBUG)
+    {
+        drawOnShapeCheckBox_->setChecked(false);
+        drawOnShapePushButton_->setDisabled(true);
+    }
 
 
     QVBoxLayout *vbl = new QVBoxLayout();
@@ -1543,25 +1567,35 @@ void AMSampleCameraView::setGUI()
 
     QActionGroup* actionGroup = new QActionGroup(this);
     markAction_ = new QAction("Mark",actionGroup);
-    moveAction_ = new QAction("Move", actionGroup);
-    editAction_ = new QAction("Edit", actionGroup);
-    shiftAction_ = new QAction("Shift", actionGroup);
-    operationAction_ = new QAction("Operation", actionGroup);
-    groupAction_ = new QAction("Group", actionGroup);
     markAction_->setCheckable(true);
-    moveAction_->setCheckable(true);
-    editAction_->setCheckable(true);
-    shiftAction_->setCheckable(true);
-    operationAction_->setCheckable(true);
-    groupAction_->setCheckable(true);
     markAction_->setChecked(true);
+    moveAction_ = new QAction("Move", actionGroup);
+    moveAction_->setCheckable(true);
+    editAction_ = new QAction("Edit", actionGroup);
+    editAction_->setCheckable(true);
+    shiftAction_ = new QAction("Shift", actionGroup);
+    shiftAction_->setCheckable(true);
+    operationAction_ = new QAction("Operation", actionGroup);
+    operationAction_->setCheckable(true);
+    groupAction_ = new QAction("Group", actionGroup);
+    groupAction_->setCheckable(true);
+
+
+
+
+
+
+
+
 
     toolBar_->addAction(markAction_);
     toolBar_->addAction(moveAction_);
     toolBar_->addAction(editAction_);
-    toolBar_->addAction(shiftAction_);
+    if(viewType == DEBUG)
+        toolBar_->addAction(shiftAction_);
     toolBar_->addAction(operationAction_);
-    toolBar_->addAction(groupAction_);
+    if(viewType == DEBUG)
+        toolBar_->addAction(groupAction_);
 
     markAction_->setToolTip("Press twice for polygon marking.");
 
@@ -1581,6 +1615,51 @@ void AMSampleCameraView::setGUI()
     labelToolBar_->addAction(viewIdNumber_);
     labelToolBar_->addAction(viewHidden_);
 
+    if(viewType == CONDENSED)
+    {
+        advancedWindow_ = new QFrame();
+        QFrame* topBar = new QFrame();
+        QFrame* bottomBar = new QFrame();
+        QHBoxLayout* topLayout = new QHBoxLayout();
+        topLayout->setContentsMargins(12,4,12,4);
+        topLayout->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
+        topLayout->addSpacing(20);
+        topLayout->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
+        topLayout->addSpacing(20);
+        topLayout->addWidget(configureCameraButton_ = new QPushButton("Calibrate Camera"));
+        topLayout->addSpacing(20);
+        topLayout->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
+        topLayout->addStretch();
+        topBar->setLayout(topLayout);
+
+        QHBoxLayout* bottomLayout = new QHBoxLayout();
+        bottomLayout->setContentsMargins(12,4,12,4);
+        bottomLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on Shape"));
+        bottomLayout->addSpacing(20);
+        bottomLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
+        bottomLayout->addSpacing(20);
+        bottomLayout->addWidget(distortionButton_ = new QPushButton("Toggle Distortion"));
+        bottomLayout->addStretch();
+        bottomBar->setLayout(bottomLayout);
+
+        QVBoxLayout* advancedLayout = new QVBoxLayout();
+        advancedLayout->setContentsMargins(0,0,0,0);
+        advancedLayout->addWidget(topBar);
+        advancedLayout->addWidget(bottomBar);
+        advancedWindow_->setLayout(advancedLayout);
+
+        motorXEdit_ = 0;
+        motorYEdit_ = 0;
+        motorZEdit_ = 0;
+        motorREdit_ = 0;
+
+        drawOnShapeCheckBox_->setChecked(false);
+        drawOnShapePushButton_->setDisabled(true);
+        enableMotorMovement_->setChecked(false);
+        enableMotorTracking_->setChecked(false);
+
+
+    }
 
     bool defaultUseCameraMatrix = true;
     cameraMatrixCheckBox_->setChecked(defaultUseCameraMatrix);
@@ -1589,7 +1668,7 @@ void AMSampleCameraView::setGUI()
 
 }
 
-void AMSampleCameraView::makeConnections()
+void AMSampleCameraView::makeConnections(ViewType viewType)
 {
     // mouse signals to be handled
     connect(shapeScene_, SIGNAL(mousePressed(QPointF)), this, SLOT(mousePressHandler(QPointF)));
@@ -1635,9 +1714,16 @@ void AMSampleCameraView::makeConnections()
 
 
     /// operations bar
-    connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
+    if(viewType == DEBUG)
+    {
+        connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
+        connect(shapeModel_, SIGNAL(motorMoved()), this, SLOT(motorMoved()));
+        connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
+        connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
+        connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));
+    }
 
-    connect(shapeModel_, SIGNAL(motorMoved()), this, SLOT(motorMoved()));
+
 
     /// shape view
     connect(this, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
@@ -1685,9 +1771,7 @@ void AMSampleCameraView::makeConnections()
 
 
     connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
-    connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
-    connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
-    connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));
+
 
 
     /// allows non-rectangle drawing
@@ -1698,7 +1782,7 @@ void AMSampleCameraView::makeConnections()
     connect(shapeView_, SIGNAL(newName()), this, SLOT(updateCurrentTextItemName()));
 
 
-    connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
+//    connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
 
     /// shape list view
 //    connect(shapeDataListView_, SIGNAL(currentIndexChanged()), this, SLOT(currentSelectionChanged()));
@@ -1719,5 +1803,7 @@ void AMSampleCameraView::makeConnections()
 
     connect(shapeModel_, SIGNAL(moveSucceeded()), this, SLOT(moveTestSlot()));
     connect(shapeModel_, SIGNAL(shapeNameChanged(QString)), this, SLOT(updateShapeName(QString)));
+
+    connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 
 }
