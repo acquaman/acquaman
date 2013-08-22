@@ -44,6 +44,7 @@ void AMSampleView::setSample(AMSample *sample)
     if(sample_ != sample)
     {
         sample_ = sample;
+        databaseTags();
         connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
         connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
         connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
@@ -148,7 +149,6 @@ void AMSampleView::updateTags(QStringList tags)
 
 void AMSampleView::updateFrames()
 {
-    qDebug()<<"AMSampleView::updateFrames";
     if(sample_)
     {
         nameText_->setText(sample_->name());
@@ -157,26 +157,7 @@ void AMSampleView::updateFrames()
         notesText_->setText(sample_->notes());
         elementsText_->setText(sample_->elementString());
         samplePlateName_->setText(sample_->samplePlateName());
-    }
-    AMDatabase* db = AMDatabase::database("user");
-    QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "tags");
-    QStringList itemList;
-    foreach(QVariant item, matchIDs)
-    {
-        QStringList subList = item.toString().split(AMDbObjectSupport::stringListSeparator());
-        foreach(QString subString, subList)
-        {
-            if(!itemList.contains(subString))
-                itemList<<subString;
-        }
 
-
-    }
-    wordList_->setStringList(itemList);
-
-    if(sample_)
-    {
-        qDebug()<<"AMSampleView::updateFrames - changing the dropdown tag list.";
         QStringList tagList = sample_->tags();
         QStringListModel* tagListModel = new QStringListModel(tagList);
         tagBox_->setModel(tagListModel);
@@ -324,7 +305,7 @@ void AMSampleView::setUpGui()
 
     tagBox_->setLineEdit(tagText_);
 
-
+    databaseTags();
     updateFrames();
 
 //    populateSamplePlateLoader();
@@ -400,6 +381,25 @@ void AMSampleView::populateSampleLoader()
         qDebug()<<"populateSampleLoader - Samples out of order";
         sampleLoader_->setCurrentIndex(-1);
     }
+}
+
+void AMSampleView::databaseTags()
+{
+    AMDatabase* db = AMDatabase::database("user");
+    QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "tags");
+    QStringList itemList;
+    foreach(QVariant item, matchIDs)
+    {
+        QStringList subList = item.toString().split(AMDbObjectSupport::stringListSeparator());
+        foreach(QString subString, subList)
+        {
+            if(!itemList.contains(subString))
+                itemList<<subString;
+        }
+
+
+    }
+    wordList_->setStringList(itemList);
 }
 
 void AMSampleView::saveToDb()

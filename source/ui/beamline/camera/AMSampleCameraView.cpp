@@ -252,8 +252,8 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
                 }
                 else if(currentView_ == ID)
                 {
-                    textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
-                    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
+                    textItems_[i]->setPlainText(shapeModel_->otherDataTwo(i));
+                    textItems_[index_]->setTextInteractionFlags(Qt::NoTextInteraction);
                 }
 
                 if(currentView_ == HIDE)
@@ -515,20 +515,14 @@ void AMSampleCameraView::updateItemName(int index)
         if(currentView_ == NAME)
         {
             shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
-//            emit changeSampleName(index,textItems_[index]->document()->toPlainText());
-//            if(index == current_)
-//            {
-////                shapeView_->setName(textItems_[index]->document()->toPlainText());
-//            }
         }
         else if(currentView_ == DATA)
         {
-            qDebug()<<"AMSampleCameraView::updateItemName - view = DATA";
-            shapeModel_->setOtherData(textItems_[index]->document()->toPlainText(), index);
+            shapeModel_->setOtherDataOne(textItems_[index]->document()->toPlainText(), index);
         }
         else if(currentView_ == ID)
         {
-            shapeModel_->setIdNumber(textItems_[index]->document()->toPlainText().toDouble(), index);
+            shapeModel_->setOtherDataTwo(textItems_[index]->document()->toPlainText(), index);
         }
         shapeView_->blockSignals(false);
     }
@@ -663,6 +657,19 @@ void AMSampleCameraView::updateDataOne(QString data)
         {
             qDebug()<<"AMSampleCameraView::updateDataOne - attempting to update textbox otherdata";
             textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataOne(currentIndex()));
+        }
+        else reviewCrosshairLinePositions();
+    }
+}
+
+void AMSampleCameraView::updateDataTwo(QString data)
+{
+    if(currentView_ == ID)
+    {
+        if(currentIndex() >= 0 && textItems_.count() > currentIndex())
+        {
+            qDebug()<<"AMSampleCameraView::updateDataTwo - attempting to update textbox otherdatatwo";
+            textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataTwo(currentIndex()));
         }
         else reviewCrosshairLinePositions();
     }
@@ -1843,6 +1850,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(shapeModel_, SIGNAL(moveSucceeded()), this, SLOT(moveTestSlot()));
     connect(shapeModel_, SIGNAL(shapeNameChanged(QString)), this, SLOT(updateShapeName(QString)));
     connect(shapeModel_, SIGNAL(otherDataOneChanged(QString)), this, SLOT(updateDataOne(QString)));
+    connect(shapeModel_, SIGNAL(otherDataTwoChanged(QString)), this, SLOT(updateDataTwo(QString)));
 
     connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 

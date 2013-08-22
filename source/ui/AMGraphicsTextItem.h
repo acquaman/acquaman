@@ -16,6 +16,8 @@ public:
 
     int type() const;
 
+    void setPlainText(const QString &text);
+
 signals:
     void textChanged(int);
     void gotFocus(int);

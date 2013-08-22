@@ -30,6 +30,18 @@ int AMGraphicsTextItem::type() const
     return Type;
 }
 
+void AMGraphicsTextItem::setPlainText(const QString &text)
+{
+    // Setting the text to an empty string may cause a crash
+    // so, set it to a space instead
+    if(text == "")
+    {
+        QGraphicsTextItem::setPlainText(" ");
+    }
+    else
+        QGraphicsTextItem::setPlainText(text);
+}
+
 
 void AMGraphicsTextItem::changingText()
 {

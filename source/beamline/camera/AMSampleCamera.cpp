@@ -191,6 +191,18 @@ QString AMSampleCamera::otherDataOne(int index) const
         return "";
 }
 
+QString AMSampleCamera::otherDataTwo(int index) const
+{
+    if(isValid(index))
+    {
+        return shapeList_[index]->otherDataFieldTwo();
+    }
+    else
+    {
+        return "";
+    }
+}
+
 /// returns the idNumber of the specified index
 double AMSampleCamera::idNumber(int index) const
 {
@@ -369,7 +381,7 @@ void AMSampleCamera::setCurrentName(QString name)
 /// set th current info
 void AMSampleCamera::setCurrentInfo(QString info)
 {
-    setOtherData(info,currentIndex_);
+    setOtherDataOne(info,currentIndex_);
 }
 
 /// sets the rotation for the given index
@@ -402,11 +414,20 @@ void AMSampleCamera::setName(QString name, int index)
 }
 
 /// sets the data of the specifed index
-void AMSampleCamera::setOtherData(QString data, int index)
+void AMSampleCamera::setOtherDataOne(QString data, int index)
 {
     if(isValid(index))
     {
         shapeList_[index]->setOtherDataFieldOne(data);
+    }
+}
+
+void AMSampleCamera::setOtherDataTwo(QString data, int index)
+{
+    if(isValid(index))
+    {
+        qDebug()<<"AMSampleCamera::setOtherDataTwo - setting data to"<<data;
+        shapeList_[index]->setOtherDataFieldTwo(data);
     }
 }
 
@@ -1374,6 +1395,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
     distortion_ = true;
 
+    overrideMouseSelection_ = false;
+
     for(int i= 0; i < SAMPLEPOINTS; i++)
     {
         calibrationPoints_[i] = new AMShapeData();
@@ -1965,6 +1988,7 @@ void AMSampleCamera::insertItem(AMShapeData *item)
     endInsertRows();
     connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapeNameChanged(QString)));
     connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
+    connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
     updateShape(index_);
     emit shapesChanged();
 }

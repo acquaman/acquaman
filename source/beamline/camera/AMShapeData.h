@@ -21,7 +21,7 @@ class AMShapeData : public QObject
 public:
     /// constructors
     AMShapeData(QObject* parent = 0);
-    AMShapeData(QPolygonF shape, QString name = "Name", QString otherDataFieldOne = "", QString otherDataFieldTwo = "",  double idNumber = 0, QObject* parent = 0);
+    AMShapeData(QPolygonF shape, QString name = "Name", QString otherDataFieldOne = " ", QString otherDataFieldTwo = " ",  double idNumber = 0, QObject* parent = 0);
 
     ~AMShapeData();
 

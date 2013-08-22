@@ -98,6 +98,7 @@ public:
     QString name(int index) const;
     QString currentInfo() const;
     QString otherDataOne(int index) const;
+    QString otherDataTwo(int index) const;
     double idNumber(int index) const;
     bool visible() const;
     bool visible(int index) const;
@@ -167,7 +168,8 @@ public slots:
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
     void setName(QString name, int index);
-    void setOtherData(QString data, int index);
+    void setOtherDataOne(QString data, int index);
+    void setOtherDataTwo(QString data, int index);
     void setIdNumber(double number, int index);
     void setVisible(bool visible);
     void setVisible(bool visible, int index);
@@ -356,6 +358,8 @@ signals:
     void shapeFinished();
 
     void otherDataOneChanged(QString data);
+
+    void otherDataTwoChanged(QString data);
 
 protected slots:
     /// tracks the motor location

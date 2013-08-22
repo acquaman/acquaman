@@ -319,6 +319,8 @@ protected slots:
 
     void updateDataOne(QString data);
 
+    void updateDataTwo(QString data);
+
 
 
 

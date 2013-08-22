@@ -13,8 +13,8 @@ AMShapeData::AMShapeData(QObject* parent)
     :QObject(parent)
 {
     shape_ = new QPolygonF();
-    setOtherDataFieldOne("TestString");
-    setOtherDataFieldTwo("");
+    setOtherDataFieldOne(" ");
+    setOtherDataFieldTwo(" ");
     coordinateCount_ = -1;
     visible_ = true;
 }
@@ -112,7 +112,6 @@ void AMShapeData::setOtherDataFieldOne(QString otherData)
 {
     if(otherDataFieldOne_ != otherData)
     {
-        qDebug()<<"AMShapeData::setOtherDataFieldOne - setting otherDataOne";
         otherDataFieldOne_ = otherData;
         emit otherDataFieldOneChanged(otherData);
     }
@@ -120,10 +119,10 @@ void AMShapeData::setOtherDataFieldOne(QString otherData)
 
 void AMShapeData::setOtherDataFieldTwo(QString otherDataFieldTwo)
 {
-    if(otherDataFieldTwo != otherDataFieldTwo)
+    if(otherDataFieldTwo_ != otherDataFieldTwo)
     {
         otherDataFieldTwo_ = otherDataFieldTwo;
-        emit otherDataFieldTwoChanged(otherDataFieldTwo);
+        emit otherDataFieldTwoChanged(otherDataFieldTwo_);
     }
 }
 

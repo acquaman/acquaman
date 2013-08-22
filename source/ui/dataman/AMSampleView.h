@@ -74,6 +74,8 @@ protected:
     void loadFromDb();
     /// populate the sample combo box.
     void populateSampleLoader();
+    /// get the taglist from the database
+    void databaseTags();
 
 
 

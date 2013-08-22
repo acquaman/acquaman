@@ -277,6 +277,8 @@ void AMSample::setElementList(const AMIntList& elements)
 	{
 		addElement(AMPeriodicTable::table()->elementByAtomicNumber(element));
 	}
+    emit sampleDetailsChanged();
+    emit elementsChanged(elementString());
 }
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
@@ -287,6 +289,8 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
         {
             disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
+            disconnect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
+            disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
         sampleShapePositionData_ = sampleShapePositionData;
         if(sampleShapePositionData_)
@@ -296,6 +300,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             // set other Data field one to tags
             connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
             connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
+            connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
     }
 
@@ -368,6 +373,8 @@ void AMSample::addElement(const AMElement *element)
 		elements_.insert(position,element);
 		setModified(true);
 	}
+    emit sampleDetailsChanged();
+    emit elementsChanged(elementString());
 
 }
 
@@ -376,6 +383,8 @@ void AMSample::removeElement(const AMElement *element)
 	/// removes all instances of element from the list
 	int count = elements_.removeAll(element);
 	if(count > 0) setModified(true);
+    emit sampleDetailsChanged();
+    emit elementsChanged(elementString());
 }
 
 void AMSample::toggleElement(const AMElement *element)

@@ -132,10 +132,10 @@ signals:
     void sampleDetailsChanged();
     void requestCurrentTag();
     void currentTagChanged(const QString &tag);
+    void elementsChanged(const QString &elementList);
 
 protected slots:
     void onTagsChanged();
-//    void setSampleName(QString);
 protected:
     /// format string used to format the dateTime
     QString dateTimeFormat() const;
