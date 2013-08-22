@@ -66,7 +66,7 @@ QList<AMScan *> AMSample::scanList() const
 	return scanList_;
 }
 
-QStringList AMSample::tags() const
+const QStringList AMSample::tags() const
 {
 	return tags_;
 }
@@ -295,6 +295,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             // set other Data field one to tags
             connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
+            connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
         }
     }
 
@@ -314,7 +315,12 @@ void AMSample::addTag(const QString tag)
 	/// remove all empty tags
 	int count = tags_.removeAll("");
 	if(count > 0) modified = true;
-	setModified(modified);
+        setModified(modified);
+    if(modified)
+    {
+        emit tagsChanged(tags_);
+        emit sampleDetailsChanged();
+    }
 }
 
 void AMSample::removeTag(const QString tag)
@@ -322,7 +328,12 @@ void AMSample::removeTag(const QString tag)
 	/// remove all instances of tag
 	int count = tags_.removeAll(tag);
 	if(count > 0)
+    {
 		setModified(true);
+        emit tagsChanged(tags_);
+        emit sampleDetailsChanged();
+    }
+
 }
 
 void AMSample::addScan(AMScan *scan)
@@ -387,16 +398,48 @@ void AMSample::setCurrentDateTime()
 void AMSample::setCurrentTag(QString tag)
 {
     currentTag_ = tag;
+    emit currentTagChanged(currentTag_);
 }
 
 void AMSample::getCurrentTag()
 {
-    QString currentTag = currentTag_;
+//    QString currentTag = currentTag_;
     emit requestCurrentTag();
-    if(currentTag_ != currentTag)
+//    if(currentTag_ != currentTag)
+//    {
+//        emit currentTagChanged(currentTag_);
+//    }
+
+}
+
+void AMSample::editCurrentTag(QString tag)
+{
+    QString oldTag = currentTag_;
+    qDebug()<<"AMSample::editCurrentTag - current tag is:"<<oldTag;
+//    currentTag_ = tag;
+    int index = tags_.indexOf(oldTag);
+    if(index == -1)
     {
-        emit currentTagChanged(currentTag_);
+        qDebug()<<"AMSample::editCurrentTag - Cannot edit tag, tag not found.";
+        foreach(QString tag, tags_)
+        {
+            qDebug()<<tag;
+        }
     }
+    else if(index >= 0 && index < tags_.size())
+    {
+//        tags_.replace(index, tag);
+        tags_.removeAt(index);
+        tags_.insert(index, tag);
+        emit tagsChanged(tags_);
+        emit sampleDetailsChanged();
+    }
+    else
+    {
+        qDebug()<<"AMSample::editCurrentTag - index out of range.";
+    }
+
+
 
 }
 
@@ -410,6 +453,7 @@ void AMSample::init(QString name)
 {
     makeConnections();
     sampleShapePositionData_ = 0;
+    samplePlatePosition_ = 0;
     currentTag_ = "";
     setName(name);
     setCurrentDateTime();
@@ -421,5 +465,14 @@ void AMSample::init(QString name)
 void AMSample::makeConnections()
 {
     connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
+    connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(onTagsChanged()));
 }
 
+
+void AMSample::onTagsChanged()
+{
+    foreach(QString tag, tags_)
+    {
+        qDebug()<<tag;
+    }
+}

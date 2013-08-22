@@ -44,11 +44,10 @@ void AMSampleView::setSample(AMSample *sample)
     if(sample_ != sample)
     {
         sample_ = sample;
-    //    shapeDataView_->setShapeData(sample->sampleShapePositionData());
-    //    connect(sample_, SIGNAL(sampleNameChanged(QString)), nameText_, SLOT(setText(QString)));
-            connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
-            connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
-            connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
+        connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
+        connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
+        connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
+
         updateFrames();
     }
 }
@@ -119,13 +118,37 @@ void AMSampleView::updateSampleName(QString name)
 
 void AMSampleView::setCurrentTag()
 {
-    sample_->setCurrentTag(tagText_->text());
+    qDebug()<<"Setting current tag to"<<tagText_->text();
+    QString currentTag = tagText_->text();
+    if(currentTag == "" && !sample_->tags().isEmpty())
+        currentTag = sample_->tags().last();
+
+    sample_->setCurrentTag(currentTag);
+}
+
+void AMSampleView::updateTags(QStringList tags)
+{
+    qDebug()<<"Updating tags";
+//    updateFrames();
+//    QStringListModel* stringModel = qobject_cast<QStringListModel*>(tagBox_->model());
+//    stringModel->setStringList(sample_->tags());
+//    if(stringModel)
+//    {
+//        stringModel->setStringList(tags);
+//        tagBox_->setModel(stringModel);
+//    }
+//    else
+//    {
+//        qDebug()<<"AMSampleView::updateTags - Failed to cast string list";
+//    }
+
 }
 
 
 
 void AMSampleView::updateFrames()
 {
+    qDebug()<<"AMSampleView::updateFrames";
     if(sample_)
     {
         nameText_->setText(sample_->name());
@@ -153,6 +176,7 @@ void AMSampleView::updateFrames()
 
     if(sample_)
     {
+        qDebug()<<"AMSampleView::updateFrames - changing the dropdown tag list.";
         QStringList tagList = sample_->tags();
         QStringListModel* tagListModel = new QStringListModel(tagList);
         tagBox_->setModel(tagListModel);
@@ -314,30 +338,15 @@ void AMSampleView::makeConnections()
     connect(nameText_, SIGNAL(textEdited(QString)), this, SLOT(setName(QString)));
     connect(dateTimeText_, SIGNAL(textEdited(QString)), this, SLOT(setDateTime(QString)));
     connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
+    connect(tagBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentTag()));
     connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
-//    connect(samplePlateLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeSamplePlate(QString)));
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
     connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
-    connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
 }
 
-//void AMSampleView::populateSamplePlateLoader()
-//{
-//    samplePlateLoader_->blockSignals(true);
-//    samplePlateLoader_->clear();
-//    samplePlateLoader_->blockSignals(false);
-//    AMDatabase* db = AMDatabase::database("user");
-//    QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlatePre2013>(), "name");
-//    foreach(QVariant item, nameList)
-//    {
-//        samplePlateLoader_->addItem(item.toString());
-//    }
-
-
-//}
 
 void AMSampleView::loadFromDb()
 {
@@ -387,7 +396,7 @@ void AMSampleView::populateSampleLoader()
     sampleLoader_->setCurrentIndex(currentIndex);
     if(sampleLoader_->itemText(currentIndex) != currentSampleName)
     {
-        // samples are in a different order...
+        // samples are in a different order
         qDebug()<<"populateSampleLoader - Samples out of order";
         sampleLoader_->setCurrentIndex(-1);
     }

@@ -240,11 +240,21 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
                 textItems_[i]->setDefaultTextColor(colour(BORDER));
                 if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
                 if(currentView_ == NAME)
+                {
                     textItems_[i]->setPlainText(shapeModel_->name(i));
+                    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
+                }
                 else if(currentView_ == DATA)
+                {
+                    qDebug()<<shapeModel_->otherDataOne(i);
                     textItems_[i]->setPlainText(shapeModel_->otherDataOne(i));
+                    textItems_[i]->setTextInteractionFlags(Qt::NoTextInteraction);
+                }
                 else if(currentView_ == ID)
+                {
                     textItems_[i]->setPlainText(QString::number(shapeModel_->idNumber(i)));
+                    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
+                }
 
                 if(currentView_ == HIDE)
                     textItems_[i]->hide();
@@ -513,6 +523,7 @@ void AMSampleCameraView::updateItemName(int index)
         }
         else if(currentView_ == DATA)
         {
+            qDebug()<<"AMSampleCameraView::updateItemName - view = DATA";
             shapeModel_->setOtherData(textItems_[index]->document()->toPlainText(), index);
         }
         else if(currentView_ == ID)
@@ -649,7 +660,10 @@ void AMSampleCameraView::updateDataOne(QString data)
     if(currentView_ == DATA)
     {
         if(currentIndex() >= 0 && textItems_.count() > currentIndex())
+        {
+            qDebug()<<"AMSampleCameraView::updateDataOne - attempting to update textbox otherdata";
             textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataOne(currentIndex()));
+        }
         else reviewCrosshairLinePositions();
     }
 }
@@ -891,7 +905,7 @@ QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 
 bool AMSampleCameraView::isValid(int index) const
 {
-    return shapeModel_->isValid(index);
+    return (shapeModel_->isValid(index) && shapes_[index]);
 }
 
 void AMSampleCameraView::setCrosshairColor(const QColor &color)
@@ -1115,6 +1129,11 @@ void AMSampleCameraView::resizeEvent(QResizeEvent *event)
 
 void AMSampleCameraView::mousePressHandler(QPointF position)
 {
+    if(shapeModel_->overrideMouseSelection())
+    {
+        shapeModel_->setOverrideMouseSelection(false);
+        return;
+    }
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
 
     if(mode_ == DRAW)
@@ -1302,7 +1321,7 @@ void AMSampleCameraView::addNewShape()
     shapeScene_->scene()->addItem(newItem);
     textItems_.insert(index_,newItem) ;
     textItems_[index_]->setZValue(1000);
-    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);//(Qt::TextEditable);
+    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
     textItems_[index_]->setShapeIndex(index_);
     connect(textItems_[index_], SIGNAL(textChanged(int)), this, SLOT(updateItemName(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), shapeModel_, SLOT(setCurrentShapeIndex(int)));

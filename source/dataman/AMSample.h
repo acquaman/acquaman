@@ -52,7 +52,7 @@ public:
     QByteArray image() const;
     QList<const AMElement*> elements() const;
     QList<AMScan*> scanList() const;
-    QStringList tags() const;
+    const QStringList tags() const;
     AMSamplePlatePre2013* samplePlate() const;
     AMDbObject* dbGetSamplePlate() const;
     QString samplePlateName() const;
@@ -121,6 +121,7 @@ public slots:
 
     void setCurrentTag(QString tag);
     void getCurrentTag();
+    void editCurrentTag(QString tag);
 
 
 signals:
@@ -132,7 +133,8 @@ signals:
     void requestCurrentTag();
     void currentTagChanged(const QString &tag);
 
-//protected slots:
+protected slots:
+    void onTagsChanged();
 //    void setSampleName(QString);
 protected:
     /// format string used to format the dateTime

@@ -686,6 +686,7 @@ void AMSampleCamera::finishRectangle(QPointF position)
     shapeList_[currentIndex_]->setCoordinate(topLeft + bottomLeft,BOTTOMLEFT);
     updateShape(currentIndex_);
     emit shapeFinished();
+    setOverrideMouseSelection(false);
 
 }
 
@@ -749,8 +750,8 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
     {
        i++;
     }
-    if(!overrideMouseSelection())
-    {
+//    if(!overrideMouseSelection())
+//    {
         if(i <= index_)
         {
 
@@ -762,11 +763,15 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
         {
             setCurrentIndex(index_ + 1);
         }
-    }
-    else
-    {
-        setOverrideMouseSelection(false);
-    }
+//    }
+//    else
+//    {
+//        setOverrideMouseSelection(false);
+//        if(i <= index_)
+//        {
+//            currentVector_ = undistortPoint(position);
+//        }
+//    }
 }
 
 /// moves the currently selected rectangle by position + currentVector_
@@ -958,6 +963,7 @@ void AMSampleCamera::finishShape()
     currentPolygon_.clear();
 
     emit shapeFinished();
+    setOverrideMouseSelection(false);
 
 }
 
