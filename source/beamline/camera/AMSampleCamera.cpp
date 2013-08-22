@@ -1339,6 +1339,18 @@ void AMSampleCamera::stopMotors()
     }
 }
 
+void AMSampleCamera::addSample(AMSample *sample){
+	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
+	qDebug() << "Shapeindex is " << shapeIndex;
+	if(shapeIndex == -1){
+		sample->sampleShapePositionData()->setName(sample->name());
+		for(int x = 0; x < sample->sampleShapePositionData()->count(); x++)
+			qDebug() << "About to request draw for QVector3D as " << sample->sampleShapePositionData()->coordinates().at(x);
+		index_++;
+		insertItem(sample->sampleShapePositionData(), false);
+	}
+}
+
 void AMSampleCamera::removeSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
 	if(shapeIndex >= 0)
@@ -1981,7 +1993,7 @@ QVector3D AMSampleCamera::rightVector() const
     return rightVector;
 }
 
-void AMSampleCamera::insertItem(AMShapeData *item)
+void AMSampleCamera::insertItem(AMShapeData *item, bool emitChanges)
 {
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
@@ -1990,7 +2002,8 @@ void AMSampleCamera::insertItem(AMShapeData *item)
     connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
     connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
     updateShape(index_);
-    emit shapesChanged();
+    //if(emitChanges)
+	    emit shapesChanged();
 }
 
 void AMSampleCamera::removeItem(int index)

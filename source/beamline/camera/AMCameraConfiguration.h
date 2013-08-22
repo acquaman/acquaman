@@ -8,7 +8,7 @@
 #include "dataman/database/AMDbObject.h"
 
 class QVector3D;
-typedef QVector<QVector3D> AMQVector3DVector;
+//typedef QVector<QVector3D> AMQVector3DVector;
 
 
 using namespace Eigen;

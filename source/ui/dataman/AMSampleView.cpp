@@ -329,6 +329,7 @@ void AMSampleView::makeConnections()
 }
 
 
+#include "beamline/camera/AMShapeData.h"
 void AMSampleView::loadFromDb()
 {
 

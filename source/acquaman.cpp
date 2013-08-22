@@ -68,5 +68,6 @@ namespace AM {
 		qRegisterMetaType<AMDbObject*>();
 		qRegisterMetaType<AMHighPrecisionDateTime>();
 		qRegisterMetaType<AMConstDbObject*>();
+		qRegisterMetaType<AMQVector3DVector>();
 	}
 }

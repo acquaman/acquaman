@@ -6,8 +6,8 @@
 #include "dataman/database/AMDbObject.h"
 
 
-typedef QVector<QVector3D> AMQVector3DVector;
-Q_DECLARE_METATYPE(AMQVector3DVector)
+//typedef QVector<QVector3D> AMQVector3DVector;
+//Q_DECLARE_METATYPE(AMQVector3DVector)
 
 
 

@@ -529,6 +529,10 @@ void AMSampleCameraView::updateItemName(int index)
 
 }
 
+void AMSampleCameraView::updateItemReturnPressed(int index){
+	emit shapePropertyUpdated(shapeModel_->shapeList().at(index));
+}
+
 void AMSampleCameraView::updateCurrentTextItemName()
 {
     if(isValid(current_))
@@ -1081,15 +1085,28 @@ void AMSampleCameraView::moveTestSlot()
     emit moveSucceeded();
 }
 
+
+void AMSampleCameraView::requestUpdate(){
+	reviewCrosshairLinePositions();
+}
+
+#include <QTextCursor>
 void AMSampleCameraView::shapeDrawingFinished()
 {
-    if(mode_ == DRAW)
-    {
-        if(isValid(currentIndex()))
-        {
-            textItems_[currentIndex()]->setFocus();
-        }
-    }
+	if(mode_ == DRAW)
+	{
+		if(isValid(currentIndex()))
+		{
+			textItems_[currentIndex()]->setFocus();
+			/*
+			qDebug() << "Set focus, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
+			QTextCursor selectText = textItems_[currentIndex()]->textCursor();
+			selectText.select(QTextCursor::Document);
+			textItems_[currentIndex()]->setTextCursor(selectText);
+			qDebug() << "Tried setting selected, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
+			*/
+		}
+	}
 }
 
 
@@ -1333,6 +1350,7 @@ void AMSampleCameraView::addNewShape()
     connect(textItems_[index_], SIGNAL(textChanged(int)), this, SLOT(updateItemName(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), shapeModel_, SLOT(setCurrentShapeIndex(int)));
     connect(textItems_[index_], SIGNAL(gotFocus(int)), this, SLOT(currentSelectionChanged()));
+    connect(textItems_[index_], SIGNAL(returnPressed(int)), this, SLOT(updateItemReturnPressed(int)));
 }
 
 /// Remove a rectangle from the scene

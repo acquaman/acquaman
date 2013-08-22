@@ -5,6 +5,7 @@
 #include "beamline/camera/AMSampleCamera.h"
 #include "dataman/AMSampleContainer.h"
 #include "dataman/AMSample.h"
+#include "dataman/AMSamplePlate.h"
 
 #include "beamline/AMBeamline.h"
 
@@ -14,15 +15,18 @@
 AMSampleCameraBrowser::AMSampleCameraBrowser(QObject *parent) :
 	QObject(parent)
 {
-	qRegisterMetaType<AMQVector3DVector>();
+	//qRegisterMetaType<AMQVector3DVector>();
 
     shapeDataSet_ = AMSampleCamera::set();
 	//sampleContainer_ = new AMSampleContainer();
 	sampleContainer_ = AMBeamline::bl()->sampleContainer();
+	currentSamplePlate_ = 0; //NULL
+	onSamplePlateChanged(AMBeamline::bl()->samplePlate());
 
-	connect(shapeDataSet_, SIGNAL(shapesChanged()), sampleContainer_, SLOT(updateSamples()));
+	//connect(shapeDataSet_, SIGNAL(shapesChanged()), sampleContainer_, SLOT(updateSamples()));
 	connect(this, SIGNAL(indexChanged(int)), shapeDataSet_, SLOT(setCurrentIndex(int)));
 	connect(shapeDataSet_, SIGNAL(currentIndexChanged(int)), this, SLOT(shapeIndexChanged(int)));
+	connect(AMBeamline::bl(), SIGNAL(samplePlateChanged(AMSamplePlate*)), this, SLOT(onSamplePlateChanged(AMSamplePlate*)));
 }
 
 
@@ -67,4 +71,10 @@ void AMSampleCameraBrowser::shapeIndexChanged(int index)
 	emit changeSampleIndex(sampleIndex);
 }
 
-
+void AMSampleCameraBrowser::onSamplePlateChanged(AMSamplePlate *samplePlate){
+	if(currentSamplePlate_)
+		disconnect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
+	currentSamplePlate_ = samplePlate;
+	if(currentSamplePlate_)
+		connect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
+}

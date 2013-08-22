@@ -474,14 +474,20 @@ void AMSample::init(QString name)
 void AMSample::makeConnections()
 {
     connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
-    connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(onTagsChanged()));
 }
 
 
-void AMSample::onTagsChanged()
-{
-    foreach(QString tag, tags_)
-    {
-        qDebug()<<tag;
-    }
+AMQVector3DVector AMSample::dbReadShapeData() const{
+	if(sampleShapePositionData_)
+		return sampleShapePositionData_->coordinates();
+	return QVector<QVector3D>();
+}
+
+void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
+	sampleShapePositionData_ = new AMShapeData(this);
+	//sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
+	for(int x = 0; x < newShapeData.count(); x++){
+		qDebug() << "Going to add a QVector3D as " << newShapeData.at(x);
+	}
+	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
 }

@@ -72,6 +72,9 @@ QVector3D AMShapeData::coordinate(int index) const
         return QVector3D(0,0,0);
 }
 
+QVector<QVector3D> AMShapeData::coordinates() const{
+	return coordinate_;
+}
 
 double AMShapeData::rotation() const
 {

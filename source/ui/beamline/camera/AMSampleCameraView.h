@@ -29,6 +29,7 @@ class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
 class AMShapeDataListView;
+class AMShapeData;
 
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
@@ -147,54 +148,56 @@ signals:
 	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).
 	void mouseDoubleClicked(const QPointF& position);
 
-    /// Emitted when the mouse moves - in shapeoverlay
-    void mouseMoved(const QPointF& position);
-    /// Emitted when the right mouse button is pressed down
-    void mouseRightClicked(const QPointF& position);
-    /// Emitted when the left mouse is pressed down, in move mode
-    void mouseMovePressed(const QPointF& position);
-    /// Emitted when the right mouse is pressed down, in move mode
-    void mouseMoveRightPressed(const QPointF& position);
-    /// Emitted when the mouse is moved, while in move mode
-    void mouseMovedMoveMode(const QPointF& position);
-    /// Emitted when the currently selected item has changed
-    void currentChanged();
-    /// Emitted when the left mouse button is pressed, in edit mode
-    void mouseEditPressed(const QPointF& position);
-    /// Emitted when the right mouse button is pressed, in edit mode
-    void mouseEditRightPressed(const QPointF& position);
-    /// Emitted when the left mouse button is pressed, in shift mode
-    void mouseShiftPressed(const QPointF& position);
-    /// Emitted when the right mouse button is pressed, in shift mode
-    void mouseShiftRightPressed(const QPointF& position);
-    /// Emitted when the left mouse button is pressed, in operation mode
-    void mouseOperationPressed(const QPointF& position, const QPointF& crossHairPosition);
-    void mouseOperationSelect(const QPointF& position);
-    /// Emitted when the left mouse button is pressed, in group mode
-    void mouseGroupPressed(const QPointF& position);
+	/// Emitted when the mouse moves - in shapeoverlay
+	void mouseMoved(const QPointF& position);
+	/// Emitted when the right mouse button is pressed down
+	void mouseRightClicked(const QPointF& position);
+	/// Emitted when the left mouse is pressed down, in move mode
+	void mouseMovePressed(const QPointF& position);
+	/// Emitted when the right mouse is pressed down, in move mode
+	void mouseMoveRightPressed(const QPointF& position);
+	/// Emitted when the mouse is moved, while in move mode
+	void mouseMovedMoveMode(const QPointF& position);
+	/// Emitted when the currently selected item has changed
+	void currentChanged();
+	/// Emitted when the left mouse button is pressed, in edit mode
+	void mouseEditPressed(const QPointF& position);
+	/// Emitted when the right mouse button is pressed, in edit mode
+	void mouseEditRightPressed(const QPointF& position);
+	/// Emitted when the left mouse button is pressed, in shift mode
+	void mouseShiftPressed(const QPointF& position);
+	/// Emitted when the right mouse button is pressed, in shift mode
+	void mouseShiftRightPressed(const QPointF& position);
+	/// Emitted when the left mouse button is pressed, in operation mode
+	void mouseOperationPressed(const QPointF& position, const QPointF& crossHairPosition);
+	void mouseOperationSelect(const QPointF& position);
+	/// Emitted when the left mouse button is pressed, in group mode
+	void mouseGroupPressed(const QPointF& position);
 
-    void mouseMultiDrawPressed(const QPointF& position);
-    void mouseMultiDrawDoubleClicked(const QPointF& position);
-    void enterMultiDraw();
-    void modeChange();
+	void mouseMultiDrawPressed(const QPointF& position);
+	void mouseMultiDrawDoubleClicked(const QPointF& position);
+	void enterMultiDraw();
+	void modeChange();
 
-    void mouseMove(QPointF);
+	void mouseMove(QPointF);
 
 
 
-    // for beam configuring
-    void oneSelect();
-    void twoSelect();
+	// for beam configuring
+	void oneSelect();
+	void twoSelect();
 
-    void updateShapes(int);
+	void updateShapes(int);
 
-    void applyDistortion();
+	void applyDistortion();
 
-    void motorMovementEnabled(bool enabled);
+	void motorMovementEnabled(bool enabled);
 
-    void moveSucceeded();
+	void moveSucceeded();
 
-    void changeSampleName(int, QString);
+	void changeSampleName(int, QString);
+
+	void shapePropertyUpdated(AMShapeData *shapeData);
 
 
 
@@ -232,6 +235,7 @@ public slots:
     void moveTestSlot();
 
 //    void setShapeVisible(bool visible);
+    void requestUpdate();
 
     void shapeDrawingFinished();
 
@@ -295,6 +299,7 @@ protected slots:
     void changeDrawButtonText();
 
     void updateItemName(int index);
+    void updateItemReturnPressed(int index);
 
     void updateCurrentTextItemName();
 
@@ -331,7 +336,9 @@ protected:
 
 
     /// Add and remove shapes from the scene
+public:
     void addNewShape();
+protected:
     void deleteShape();
 
 

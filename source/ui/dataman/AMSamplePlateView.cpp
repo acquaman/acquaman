@@ -7,6 +7,7 @@
 #include <QLabel>
 
 #include "util/AMDateTimeUtils.h"
+#include "ui/dataman/AMSampleView.h"
 
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate *samplePlate, QObject *parent) :
 	QAbstractListModel(parent)
@@ -245,6 +246,8 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	samplePlateItemModel_ = 0; //NULL
 	sampleListView_ = 0; //NULL
 
+	sampleView_ = new AMSampleView();
+
 	emptyModel_ = new AMSamplePlateItemModel(0);
 	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
 
@@ -253,25 +256,15 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	setLayout(vl_);
 
 	setSamplePlate(samplePlate);
-	/*
-	samplePlate_ = samplePlate;
-	samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
-	sampleListView_ = new QListView();
-	sampleListView_->setModel(samplePlateItemModel_);
-	sampleListView_->setAlternatingRowColors(true);
-	AMSamplePlateItemDelegate *listViewDelegate = new AMSamplePlateItemDelegate();
-	sampleListView_->setItemDelegate(listViewDelegate);
-
-	QVBoxLayout *vl = new QVBoxLayout();
-	vl->addWidget(sampleListView_);
-
-	setLayout(vl);
-	*/
 }
 
 void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
+	if(samplePlate_)
+		disconnect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	samplePlate_ = samplePlate;
+	if(samplePlate_)
+		connect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
 	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
@@ -307,4 +300,9 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
 	if(oldSamplePlateItemModel)
 		oldSamplePlateItemModel->deleteLater();
+}
+
+void AMSamplePlateView::onSampleAddedThroughCamera(AMSample *sample){
+	sampleView_->setSample(sample);
+	//sampleView_->show();
 }
