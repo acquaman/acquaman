@@ -45,6 +45,8 @@ public slots:
 
     void updateSampleName(QString);
 
+    void setCurrentTag();
+
 signals:
     void updateName(QString);
 

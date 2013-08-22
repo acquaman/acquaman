@@ -18,13 +18,14 @@ AMShapeData::AMShapeData(QObject* parent)
 }
 
 /// constructor
-AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherData,  double idNumber, QObject* parent)
+AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherDataFieldOne, QString otherDataFieldTwo, double idNumber, QObject *parent)
     :QObject(parent)
 {
     shape_ = new QPolygonF();
     *shape_ = shape;
     setName(name);
-    setOtherData(otherData);
+    setOtherDataFieldOne(otherDataFieldOne);
+    setOtherDataFieldTwo(otherDataFieldTwo);
     setIdNumber(idNumber);
     coordinateCount_ = -1;
     visible_ = true;
@@ -46,9 +47,14 @@ QString AMShapeData::name() const
     return name_;
 }
 
-QString AMShapeData::otherData() const
+QString AMShapeData::otherDataFieldOne() const
 {
-    return otherData_;
+    return otherDataFieldOne_;
+}
+
+QString AMShapeData::otherDataFieldTwo() const
+{
+    return otherDataFieldTwo_;
 }
 
 double AMShapeData::idNumber() const
@@ -103,9 +109,22 @@ void AMShapeData::setName(QString name)
     }
 }
 
-void AMShapeData::setOtherData(QString otherData)
+void AMShapeData::setOtherDataFieldOne(QString otherData)
 {
-    otherData_ = otherData;
+    if(otherDataFieldOne_ != otherData)
+    {
+        otherDataFieldOne_ = otherData;
+        emit otherDataFieldOneChanged(otherData);
+    }
+}
+
+void AMShapeData::setOtherDataFieldTwo(QString otherDataFieldTwo)
+{
+    if(otherDataFieldTwo != otherDataFieldTwo)
+    {
+        otherDataFieldTwo_ = otherDataFieldTwo;
+        emit otherDataFieldTwoChanged(otherDataFieldTwo);
+    }
 }
 
 void AMShapeData::setIdNumber(double idNumber)
@@ -161,7 +180,7 @@ void AMShapeData::setVisible(bool visible)
 void AMShapeData::copy(const AMShapeData *other)
 {
     setName(other->name());
-    setOtherData(other->otherData());
+    setOtherDataFieldOne(other->otherDataFieldOne());
     setIdNumber(other->idNumber());
     setRotation(other->rotation());
     setTilt(other->tilt());
@@ -243,7 +262,7 @@ bool AMShapeData::isEqual(const AMShapeData &other) const
         return false;
     if(other.idNumber_ != idNumber_)
         return false;
-    if(other.otherData_ != otherData_)
+    if(other.otherDataFieldOne_ != otherDataFieldOne_)
         return false;
     if(other.zAxisRotation_ != zAxisRotation_)
         return false;

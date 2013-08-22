@@ -123,6 +123,9 @@ public slots:
 	/// sets dateTime_ to the current DateTime
 	void setCurrentDateTime();
 
+	void setCurrentTag(QString tag);
+	void getCurrentTag();
+
 
 signals:
 	void sampleNameChanged(const QString &name);
@@ -130,12 +133,18 @@ signals:
 	void notesChanged(const QString &notes);
 	void tagsChanged(const QStringList &tags);
 	void sampleDetailsChanged();
+	void requestCurrentTag();
+	void currentTagChanged(const QString &tag);
 
-	//protected slots:
-	//    void setSampleName(QString);
+
 protected:
 	/// format string used to format the dateTime
 	QString dateTimeFormat() const;
+	/// initialization
+	void init(QString name);
+	/// sets up connections for AMSample
+	void makeConnections();
+	/// attempts to get current tag, otherwise returns first tag in list
 
 	AMQVector3DVector dbReadShapeData() const;
 	void dbLoadShapeData(AMQVector3DVector newShapeData);
@@ -160,6 +169,7 @@ protected:
 	QVector<QVector3D> samplePosition_;
 	AMShapeData* samplePlatePosition_;
 	AMShapeData* sampleShapePositionData_;
+	QString currentTag_;
 
 
 };

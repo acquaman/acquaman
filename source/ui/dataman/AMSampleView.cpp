@@ -47,6 +47,7 @@ void AMSampleView::setSample(AMSample *sample)
     //    shapeDataView_->setShapeData(sample->sampleShapePositionData());
     //    connect(sample_, SIGNAL(sampleNameChanged(QString)), nameText_, SLOT(setText(QString)));
             connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+            connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
             connect(this, SIGNAL(updateName(QString)), nameText_, SLOT(setText(QString)));
         updateFrames();
     }
@@ -114,6 +115,11 @@ void AMSampleView::updateSampleName(QString name)
         qDebug()<<"Sample's name is:"<<sample_->name();
         qDebug()<<"Updated name is:"<<name;
     }
+}
+
+void AMSampleView::setCurrentTag()
+{
+    sample_->setCurrentTag(tagText_->text());
 }
 
 

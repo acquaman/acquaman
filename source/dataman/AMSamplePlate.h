@@ -34,6 +34,7 @@ public:
 
 public slots:
 	void onSampleCameraShapesChanged();
+	void onShapeDataPropertyUpdated(AMShapeData *shapeData);
 
 signals:
 	// The following signals are forwarded from our signalSource().
@@ -49,7 +50,7 @@ protected slots:
 	void onSampleDetailsChanged();
 
 protected:
-	bool hasSampleShape(AMShapeData *shapeData);
+	AMSample* sampleFromShape(AMShapeData *shapeData);
 
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);

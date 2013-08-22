@@ -34,6 +34,7 @@ AMSample* AMSamplePlate::sampleAt(int index){
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+	qDebug() << "Adding sample named " << sample->name() << " and storing to db";
 	storeToDb(database());
 	return true;
 }
@@ -54,7 +55,7 @@ void AMSamplePlate::onSampleCameraShapesChanged(){
 	{
 		foreach(AMShapeData* shape, shapeList)
 		{
-			if(!hasSampleShape(shape))
+			if(!sampleFromShape(shape))
 			{
 				AMSample* newSample = new AMSample();
 				newSample->setSampleShapePositionData(shape);
@@ -78,6 +79,14 @@ void AMSamplePlate::onSampleCameraShapesChanged(){
 	*/
 }
 
+void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
+	AMSample *sample = sampleFromShape(shapeData);
+	if(sample){
+		qDebug() << "The sample said it made an explicit update, so storeToDb";
+		sample->storeToDb(database());
+	}
+}
+
 void AMSamplePlate::onSampleDetailsChanged(){
 	AMSample *sample = qobject_cast<AMSample*>(QObject::sender());
 	if(sample){
@@ -86,11 +95,11 @@ void AMSamplePlate::onSampleDetailsChanged(){
 	}
 }
 
-bool AMSamplePlate::hasSampleShape(AMShapeData *shapeData){
+AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
 	for(int x = 0; x < sampleCount(); x++)
 		if(sampleAt(x)->sampleShapePositionData() == shapeData)
-			return true;
-	return false;
+			return sampleAt(x);
+	return 0; //NULL
 }
 
 void AMSamplePlate::dbLoadDateTime(const QDateTime &newDateTime){

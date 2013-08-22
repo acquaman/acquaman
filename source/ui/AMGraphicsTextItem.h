@@ -19,12 +19,15 @@ public:
 signals:
     void textChanged(int);
     void gotFocus(int);
+    void returnPressed(int);
 
 protected slots:
     void changingText();
 
 protected:
     void focusInEvent(QFocusEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
 protected:
     QTextDocument* document_;
 

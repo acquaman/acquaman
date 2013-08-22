@@ -7,19 +7,15 @@
 AMSample::AMSample(QObject* parent)
 	: AMDbObject(parent)
 {
-	sampleShapePositionData_ = 0;
-	setName("New Sample");
-	setCurrentDateTime();
-	setSamplePlate(new AMSamplePlatePre2013());
+
+    init("New Sample");
 }
 
 AMSample::AMSample(const QString &sampleName, QObject *parent)
 	: AMDbObject(parent)
 {
-	sampleShapePositionData_ = 0;
-	setCurrentDateTime();
-	setName(sampleName);
-	setSamplePlate(new AMSamplePlatePre2013());
+
+    init(sampleName);
 }
 
 AMSample::AMSample(int databaseId, AMDatabase *database, QObject *parent)
@@ -288,12 +284,17 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
     if(sampleShapePositionData_ != sampleShapePositionData)
     {
         if(sampleShapePositionData_)
+        {
             disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+            disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
+        }
         sampleShapePositionData_ = sampleShapePositionData;
         if(sampleShapePositionData_)
         {
             sampleShapePositionData_->setName(name());
             connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+            // set other Data field one to tags
+            connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
         }
     }
 
@@ -380,13 +381,46 @@ void AMSample::setCurrentDateTime()
 	setDateTime(QDateTime::currentDateTime());
 	setModified(true);
 	emit dateTimeChanged(dateTime_);
-	emit sampleDetailsChanged();
+    emit sampleDetailsChanged();
+}
+
+void AMSample::setCurrentTag(QString tag)
+{
+    currentTag_ = tag;
+}
+
+void AMSample::getCurrentTag()
+{
+    QString currentTag = currentTag_;
+    emit requestCurrentTag();
+    if(currentTag_ != currentTag)
+    {
+        emit currentTagChanged(currentTag_);
+    }
+
 }
 
 /// the format used to present dateTime as a string
 QString AMSample::dateTimeFormat() const
 {
-	return QString("MMM d (yyyy)");
+    return QString("MMM d (yyyy)");
+}
+
+void AMSample::init(QString name)
+{
+    makeConnections();
+    sampleShapePositionData_ = 0;
+    currentTag_ = "";
+    setName(name);
+    setCurrentDateTime();
+    setSamplePlate(new AMSamplePlatePre2013());
+
+
+}
+
+void AMSample::makeConnections()
+{
+    connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
 }
 
 AMQVector3DVector AMSample::dbReadShapeData() const{

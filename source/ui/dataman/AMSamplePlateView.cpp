@@ -304,5 +304,5 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
 void AMSamplePlateView::onSampleAddedThroughCamera(AMSample *sample){
 	sampleView_->setSample(sample);
-	sampleView_->show();
+	//sampleView_->show();
 }
