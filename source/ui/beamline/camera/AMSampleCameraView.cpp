@@ -514,15 +514,15 @@ void AMSampleCameraView::updateItemName(int index)
         shapeView_->blockSignals(true);
         if(currentView_ == NAME)
         {
-            shapeModel_->setName(textItems_[index]->document()->toPlainText(), index);
+            shapeModel_->setName(textItems_[index]->toPlainText(), index);
         }
         else if(currentView_ == DATA)
         {
-            shapeModel_->setOtherDataOne(textItems_[index]->document()->toPlainText(), index);
+            shapeModel_->setOtherDataOne(textItems_[index]->toPlainText(), index);
         }
         else if(currentView_ == ID)
         {
-            shapeModel_->setOtherDataTwo(textItems_[index]->document()->toPlainText(), index);
+            shapeModel_->setOtherDataTwo(textItems_[index]->toPlainText(), index);
         }
         shapeView_->blockSignals(false);
     }

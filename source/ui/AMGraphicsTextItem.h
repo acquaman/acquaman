@@ -18,6 +18,9 @@ public:
 
     void setPlainText(const QString &text);
 
+    QString toPlainText() const;
+
+
 signals:
     void textChanged(int);
     void gotFocus(int);

@@ -32,14 +32,30 @@ int AMGraphicsTextItem::type() const
 
 void AMGraphicsTextItem::setPlainText(const QString &text)
 {
-    // Setting the text to an empty string may cause a crash
-    // so, set it to a space instead
-    if(text == "")
+    // Pad text with a space at the end, so
+    // that when it is empty there is no crash
+    QString textToSet = text;
+    if(textToSet.count() > 0 && !textToSet.endsWith(" "))
     {
-        QGraphicsTextItem::setPlainText(" ");
+        textToSet.append(" ");
     }
-    else
-        QGraphicsTextItem::setPlainText(text);
+    else if(textToSet.count() == 0)
+    {
+        textToSet = " ";
+    }
+    QGraphicsTextItem::setPlainText(textToSet);
+}
+
+
+QString AMGraphicsTextItem::toPlainText() const
+{
+    // remove the space at the end for elsewhere
+    QString result = QGraphicsTextItem::toPlainText();
+    if(result.endsWith(" "))
+    {
+        result = result.remove(result.count()-1,1);
+    }
+    return result;
 }
 
 

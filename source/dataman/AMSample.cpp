@@ -168,13 +168,13 @@ QString AMSample::elementString() const
 
 void AMSample::setName(const QString &name)
 {
+    qDebug()<<"AMSample::setName - renaming sample to"<< name;
         AMDbObject::setName(name);
         AMShapeData* samplePosition = sampleShapePositionData();
         if(samplePosition)
         {
             samplePosition->setName(name);
         }
-        emit sampleDetailsChanged();
 }
 
 void AMSample::setDateTime(const QDateTime dateTime)
@@ -474,6 +474,7 @@ void AMSample::init(QString name)
 void AMSample::makeConnections()
 {
     connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
+    connect(this, SIGNAL(nameChanged(QString)), this, SIGNAL(sampleDetailsChanged()));
 }
 
 
