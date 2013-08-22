@@ -10,6 +10,7 @@ class QStringList;
 class AMSampleCamera;
 class AMSampleCameraView;
 class AMSampleContainer;
+class AMSamplePlate;
 
 
 class AMSampleCameraBrowser : public QObject
@@ -30,12 +31,15 @@ public slots:
 signals:
 	void indexChanged(int);
 	void changeSampleIndex(int);
+
 protected slots:
+	void onSamplePlateChanged(AMSamplePlate *samplePlate);
+
 protected:
 	AMSampleCamera *shapeDataSet_;
 
 	AMSampleContainer* sampleContainer_;
-
+	AMSamplePlate *currentSamplePlate_;
 
 
 

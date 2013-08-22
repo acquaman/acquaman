@@ -30,6 +30,7 @@ public:
     QString otherData() const;
     double idNumber() const;
     QVector3D coordinate(int index) const;
+    QVector<QVector3D> coordinates() const;
     double rotation() const;
     double tilt() const;
     double yAxisRotation() const;

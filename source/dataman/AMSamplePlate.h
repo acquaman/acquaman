@@ -32,6 +32,9 @@ public:
 
 	int indexOfSample(AMSample *sample);
 
+public slots:
+	void onSampleCameraShapesChanged();
+
 signals:
 	// The following signals are forwarded from our signalSource().
 	void sampleChanged(int index);
@@ -40,10 +43,14 @@ signals:
 	void sampleAboutToBeAdded(int index);
 	void sampleAboutToBeRemoved(int index);
 
+	void sampleAddedThroughCamera(AMSample *sample);
+
 protected slots:
 	void onSampleDetailsChanged();
 
 protected:
+	bool hasSampleShape(AMShapeData *shapeData);
+
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);
 

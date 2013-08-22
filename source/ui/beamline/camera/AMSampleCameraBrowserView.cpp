@@ -108,6 +108,10 @@ AMSampleCameraBrowser* AMSampleCameraBrowserView::sampleCameraBrowser(){
 	return cameraBrowser_;
 }
 
+AMSampleCameraView* AMSampleCameraBrowserView::sampleCameraView(){
+	return videoWidget_;
+}
+
 void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 {
 	if(sourceURL.isEmpty())

@@ -6,6 +6,7 @@
 class QPushButton;
 
 class AMBeamline;
+class AMSamplePlate;
 class AMSamplePlateView;
 class AMSamplePlateBrowserView;
 class AMSampleCameraBrowserView;
@@ -19,6 +20,10 @@ public:
 protected slots:
 	void onCreateSamplePlateButtonClicked();
 	void onLoadSamplePlateButtonClicked();
+
+	void onBeamlineSamplePlateAboutToChange(AMSamplePlate *lastSamplePlate);
+	void onBeamlineSamplePlateChanged(AMSamplePlate *samplePlate);
+	void onSamplePlateSelected(AMSamplePlate *samplePlate);
 
 protected:
 	AMBeamline *beamline_;

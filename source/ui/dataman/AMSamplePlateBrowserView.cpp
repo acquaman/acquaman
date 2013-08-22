@@ -16,9 +16,30 @@ AMSamplePlateBrowserView::AMSamplePlateBrowserView(AMSamplePlateBrowser *sampleP
 	samplePlatesListView_->setModel(samplePlateBrowser_);
 	samplePlatesListView_->setAlternatingRowColors(true);
 
+	selectButton_ = new QPushButton("Select");
+	cancelButton_ = new QPushButton("Cancel");
+
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(samplePlatesListView_);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(selectButton_);
+	hl->addWidget(cancelButton_);
+	vl->addLayout(hl);
+
 	setLayout(vl);
+
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(close()));
+	connect(selectButton_, SIGNAL(clicked()), this, SLOT(onSelectButtonClicked()));
+}
+
+void AMSamplePlateBrowserView::onSelectButtonClicked(){
+	QModelIndex selectedPlate = samplePlatesListView_->selectionModel()->currentIndex();
+	if(selectedPlate.isValid()){
+		AMSamplePlate *selectedSamplePlate = qobject_cast<AMSamplePlate*>(samplePlateBrowser_->data(selectedPlate, AM::PointerRole).value<QObject*>());
+		if(selectedSamplePlate)
+			emit samplePlateSelected(selectedSamplePlate);
+	}
 }
 
 AMSamplePlateCreationDialog::AMSamplePlateCreationDialog(QWidget *parent) :

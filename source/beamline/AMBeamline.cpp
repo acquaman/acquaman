@@ -76,6 +76,7 @@ AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
 }
 
 void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
+	emit samplePlateAboutToChange(samplePlate_);
 	samplePlate_ = samplePlate;
 	emit samplePlateChanged(samplePlate_);
 
@@ -84,8 +85,10 @@ void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 }
 
 void AMBeamline::onSampleContainerSampleAdded(AMSample *sample){
-	if(samplePlate_)
+	if(samplePlate_){
+		qDebug() << "Heard sample named " << sample->name() << " added from sample container";
 		samplePlate_->addSample(sample);
+	}
 }
 
 bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){

@@ -194,7 +194,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 
 		}
-        else if(columnType == qMetaTypeId<AMIntList>()) {
+		else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
 			QStringList resultString;
 			foreach(int i, intList)
@@ -217,13 +217,14 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
 
-        else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
-            AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
-            QStringList resultString;
-            foreach(QVector3D d, vectorList)
-                resultString << QString("%1%2%3%2%4").arg(d.x()).arg(AMDbObjectSupport::listSeparator()).arg(d.y()).arg(d.z());
-            values << resultString.join(AMDbObjectSupport::vectorSeparator());
-        }
+		else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
+			qDebug() << "Found an AMQVector3DVector";
+			AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
+			QStringList resultString;
+			foreach(QVector3D d, vectorList)
+				resultString << QString("%1%2%3%2%4").arg(d.x()).arg(AMDbObjectSupport::listSeparator()).arg(d.y()).arg(d.z());
+			values << resultString.join(AMDbObjectSupport::vectorSeparator());
+		}
 
 
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
@@ -287,8 +288,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << property(columnName).value<AMHighPrecisionDateTime>().dateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
 		}
 		// everything else
-        else
-            values << property(columnName);
+		else
+			values << property(columnName);
 	}
 	////////////////////////////////////////
 

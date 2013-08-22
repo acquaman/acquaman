@@ -1050,7 +1050,9 @@ void AMSampleCameraView::moveTestSlot()
     emit moveSucceeded();
 }
 
-
+void AMSampleCameraView::requestUpdate(){
+	reviewCrosshairLinePositions();
+}
 
 void AMSampleCameraView::updateCurrentShape()
 {

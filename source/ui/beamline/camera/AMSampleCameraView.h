@@ -228,6 +228,7 @@ public slots:
     void moveTestSlot();
 
 //    void setShapeVisible(bool visible);
+    void requestUpdate();
 
 protected slots:
     void updateCurrentShape();
@@ -318,7 +319,9 @@ protected slots:
 protected:
 
     /// Add and remove shapes from the scene
+public:
     void addNewShape();
+protected:
     void deleteShape();
 
 

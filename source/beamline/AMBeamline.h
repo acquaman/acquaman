@@ -128,6 +128,7 @@ public:
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
+	void samplePlateAboutToChange(AMSamplePlate *lastSamplePlate);
 	void samplePlateChanged(AMSamplePlate *samplePlate);
 
 protected slots:

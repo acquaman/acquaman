@@ -389,3 +389,17 @@ QString AMSample::dateTimeFormat() const
 	return QString("MMM d (yyyy)");
 }
 
+AMQVector3DVector AMSample::dbReadShapeData() const{
+	if(sampleShapePositionData_)
+		return sampleShapePositionData_->coordinates();
+	return QVector<QVector3D>();
+}
+
+void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
+	sampleShapePositionData_ = new AMShapeData(this);
+	//sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
+	for(int x = 0; x < newShapeData.count(); x++){
+		qDebug() << "Going to add a QVector3D as " << newShapeData.at(x);
+	}
+	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
+}

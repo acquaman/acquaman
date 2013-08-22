@@ -35,6 +35,7 @@ public:
     QString currentSourceURL() const;
 
     AMSampleCameraBrowser* sampleCameraBrowser();
+    AMSampleCameraView *sampleCameraView();
 
 
 public slots:

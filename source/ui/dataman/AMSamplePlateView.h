@@ -85,6 +85,8 @@ protected:
 	*/
 };
 
+class AMSampleView;
+
 class AMSamplePlateView : public QGroupBox
 {
 Q_OBJECT
@@ -94,6 +96,9 @@ public:
 public slots:
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
+protected slots:
+	void onSampleAddedThroughCamera(AMSample *sample);
+
 protected:
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateItemModel *samplePlateItemModel_;
@@ -102,6 +107,8 @@ protected:
 
 	QVBoxLayout *vl_;
 	QLabel *noSamplePlateLabel_;
+
+	AMSampleView *sampleView_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H
