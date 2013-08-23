@@ -14,7 +14,6 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMSampleCameraBrowser;
-class AMSampleContainerView;
 
 #include <QMediaPlayer>
 
@@ -23,65 +22,63 @@ class AMSampleCameraBrowserView : public QWidget
 {
 	Q_OBJECT
 public:
-    explicit AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
-    AMSampleCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
+	explicit AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent = 0, bool useOpenGlViewport = true);
+	AMSampleCameraBrowserView(QWidget *parent = 0, bool useOpenGlViewport = true);
 
-    /// \todo put into model
-    /// Returns a list of the URLs of all the video sources in the history (including the current one)
-    QStringList previousSourceURLs() const;
+	/// \todo put into model
+	/// Returns a list of the URLs of all the video sources in the history (including the current one)
+	QStringList previousSourceURLs() const;
 
-    /// \todo put into model
-    /// Returns the current video source URL that is currently playing (or loading, or attempting to play, etc.)
-    QString currentSourceURL() const;
+	/// \todo put into model
+	/// Returns the current video source URL that is currently playing (or loading, or attempting to play, etc.)
+	QString currentSourceURL() const;
 
-    AMSampleCameraBrowser* sampleCameraBrowser();
-    AMSampleCameraView *sampleCameraView();
+	AMSampleCameraBrowser* sampleCameraBrowser();
+	AMSampleCameraView *sampleCameraView();
 
 
 public slots:
 
-    /// Set the history list of previous sources (URLs of cameras or files visited).
-    /*! If there is currently a source playing, it will be left as the most recent item in the new list.*/
-    void setPreviousSourceURLs(const QStringList& sourceURLs);
+	/// Set the history list of previous sources (URLs of cameras or files visited).
+	/*! If there is currently a source playing, it will be left as the most recent item in the new list.*/
+	void setPreviousSourceURLs(const QStringList& sourceURLs);
 
-    /// Add a new video source URL and start playing it, or switch to an existing source URL (if this already exists in the history)
-    void setCurrentSourceURL(const QString& sourceURL);
+	/// Add a new video source URL and start playing it, or switch to an existing source URL (if this already exists in the history)
+	void setCurrentSourceURL(const QString& sourceURL);
 
-    /// for loading crosshair settings
-    void setCrosshairColor(QColor crosshairColor);
-    void setCrosshairLineThickness(int crosshairThickness);
-    void setCrosshairVisible(bool crosshairVisible);
-    void setCrosshairLocked(bool crosshairLocked);
-    void setCrosshairPosition(QPointF crosshairPosition);
+	/// for loading crosshair settings
+	void setCrosshairColor(QColor crosshairColor);
+	void setCrosshairLineThickness(int crosshairThickness);
+	void setCrosshairVisible(bool crosshairVisible);
+	void setCrosshairLocked(bool crosshairLocked);
+	void setCrosshairPosition(QPointF crosshairPosition);
 
-    /// for saving crosshair settings
-    QColor crosshairColor() const;
-    int crosshairLineThickness() const;
-    bool crosshairVisible() const;
-    QPointF crosshairPosition() const;
-    bool crosshairLocked() const;
+	/// for saving crosshair settings
+	QColor crosshairColor() const;
+	int crosshairLineThickness() const;
+	bool crosshairVisible() const;
+	QPointF crosshairPosition() const;
+	bool crosshairLocked() const;
 
 signals:
-    void beamWizardPressed();
-    void cameraWizardPressed();
-    void samplePlateWizardPressed();
+	void beamWizardPressed();
+	void cameraWizardPressed();
+	void samplePlateWizardPressed();
 
-    void beamWizardFinished();
-    void cameraWizardFinished();
-    void samplePlateWizardFinished();
+	void beamWizardFinished();
+	void cameraWizardFinished();
+	void samplePlateWizardFinished();
 protected:
-    /// initialization
-    void init(AMSampleCameraBrowser *);
+	/// initialization
+	void init(AMSampleCameraBrowser *);
 
 protected:
 
-    AMSampleCameraBrowser *cameraBrowser_;
+	AMSampleCameraBrowser *cameraBrowser_;
 
-    AMSampleCameraView* videoWidget_;
+	AMSampleCameraView* videoWidget_;
 
-    QComboBox* sourceComboBox_;
-
-    AMSampleContainerView* sampleView_;
+	QComboBox* sourceComboBox_;
 
 
 

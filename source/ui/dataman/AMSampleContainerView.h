@@ -1,6 +1,7 @@
 #ifndef AMSAMPLECONTAINERVIEW_H
 #define AMSAMPLECONTAINERVIEW_H
 
+/*
 #include <QListView>
 
 class AMSampleContainer;
@@ -42,5 +43,6 @@ protected:
     /// the view for individual samples
     AMSampleView* sampleView_;
 };
+*/
 
 #endif // AMSAMPLECONTAINERVIEW_H

@@ -1,5 +1,7 @@
 #include "dataman/AMSampleContainer.h"
 
+/*
+
 #include "dataman/AMSample.h"
 #include "beamline/camera/AMSampleCamera.h"
 #include "beamline/camera/AMShapeData.h"
@@ -229,3 +231,5 @@ bool AMSampleContainer::hasShape(AMShapeData *shapeData) const
     }
     return has;
 }
+
+*/

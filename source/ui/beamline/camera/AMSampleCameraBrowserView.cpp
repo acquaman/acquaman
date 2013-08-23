@@ -16,7 +16,6 @@
 #include "ui/beamline/camera/AMShapeDataView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include <QLineEdit>
-#include "ui/dataman/AMSampleContainerView.h"
 
 #include <QDebug>
 
@@ -192,11 +191,6 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 {
 	cameraBrowser_ = cameraBrowser;
 	videoWidget_ = new AMSampleCameraView(cameraBrowser_->shapeDataSet());
-	sampleView_ = new AMSampleContainerView();
-	sampleView_->setSampleContainer(cameraBrowser_->sampleContainer());
-	sampleView_->show();
-
-	//	crosshairLocked_ = false;
 
 	setWindowTitle("Video");
 
@@ -219,32 +213,6 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	vl->addWidget(videoWidget_);
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
-
-	//	crosshairLocked_ = false;
-/*
-	setWindowTitle("Video");
-
-	// GUI setup:
-	//////////////////////////
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->setSpacing(0);
-	vl->setContentsMargins(0,0,0,0);
-
-
-	QFrame* sourceFrame = new QFrame();
-	QHBoxLayout* shl = new QHBoxLayout();
-	shl->setContentsMargins(12,4,12,4);
-	shl->addWidget(new QLabel("Video URL:"), 0);
-	shl->addWidget(sourceComboBox_ = new QComboBox(), 2);
-	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	sourceFrame->setLayout(shl);
-
-
-	vl->addWidget(videoWidget_);
-	vl->addWidget(sourceFrame, 0);
-	setLayout(vl);
-*/
-	//qDebug()<<"setting shape data view";
 
 
 	// configure source combo box
@@ -261,16 +229,12 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
-	connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
-	connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
-	connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
-	//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
-    connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
-    connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
-    connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+	connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
+	connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
+	connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
 
-    connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
-    connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
-    connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+	connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
+	connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
+	connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
 }
 

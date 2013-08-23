@@ -20,7 +20,6 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 
 	cameraBrowserView_ = new AMSampleCameraBrowserView(new AMSampleCameraBrowser());
-	//samplePlateBrowserView_ = new AMSamplePlateBrowserView(new AMSamplePlateBrowser(AMDatabase::database("user")));
 	samplePlateBrowserView_ = new AMSamplePlateBrowserView(beamline_->samplePlateBrowser());
 	samplePlateView_ = new AMSamplePlateView(beamline_->samplePlate());
 
