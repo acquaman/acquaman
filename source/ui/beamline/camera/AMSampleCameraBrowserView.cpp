@@ -265,5 +265,12 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
 	connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
 	//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
+    connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
+    connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
+    connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+
+    connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
+    connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
+    connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
 }
 

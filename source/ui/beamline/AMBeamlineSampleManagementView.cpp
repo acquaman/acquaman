@@ -11,6 +11,7 @@
 #include "beamline/AMBeamline.h"
 #include "beamline/camera/AMSampleCamera.h"
 #include "ui/beamline/camera/AMSampleCameraView.h"
+#include "ui/beamline/camera/AMSampleCameraWizardSelector.h"
 
 AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beamline, QWidget *parent) :
 	QWidget(parent)
@@ -26,6 +27,8 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	createSamplePlateButton_ = new QPushButton("Create Sample Plate");
 	loadSamplePlateButton_ = new QPushButton("Load Sample Plate");
 
+	wizardSelectorView_ = new AMSampleCameraWizardSelector();
+
 	QVBoxLayout *leftVL = new QVBoxLayout();
 	QVBoxLayout *rightVL = new QVBoxLayout();
 
@@ -34,6 +37,7 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	rightVL->addWidget(createSamplePlateButton_);
 	rightVL->addWidget(loadSamplePlateButton_);
 	rightVL->addWidget(samplePlateView_);
+	rightVL->addWidget(wizardSelectorView_);
 
 	samplePlateBrowserView_->hide();
 
@@ -55,6 +59,13 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(beamline_, SIGNAL(samplePlateAboutToChange(AMSamplePlate*)), this, SLOT(onBeamlineSamplePlateAboutToChange(AMSamplePlate*)));
 	connect(beamline_, SIGNAL(samplePlateChanged(AMSamplePlate*)), this, SLOT(onBeamlineSamplePlateChanged(AMSamplePlate*)));
 	connect(samplePlateBrowserView_, SIGNAL(samplePlateSelected(AMSamplePlate*)), this, SLOT(onSamplePlateSelected(AMSamplePlate*)));
+
+	connect(wizardSelectorView_, SIGNAL(beamWizardPressed()), cameraBrowserView_, SIGNAL(beamWizardPressed()));
+	connect(wizardSelectorView_, SIGNAL(cameraWizardPressed()), cameraBrowserView_, SIGNAL(cameraWizardPressed()));
+	connect(wizardSelectorView_, SIGNAL(samplePlateWizardPressed()), cameraBrowserView_, SIGNAL(samplePlateWizardPressed()));
+	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
+	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));
+	connect(cameraBrowserView_, SIGNAL(samplePlateWizardFinished()), wizardSelectorView_, SLOT(onSamplePlateWizardFinished()));
 }
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){

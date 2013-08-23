@@ -61,6 +61,14 @@ public slots:
     QPointF crosshairPosition() const;
     bool crosshairLocked() const;
 
+signals:
+    void beamWizardPressed();
+    void cameraWizardPressed();
+    void samplePlateWizardPressed();
+
+    void beamWizardFinished();
+    void cameraWizardFinished();
+    void samplePlateWizardFinished();
 protected:
     /// initialization
     void init(AMSampleCameraBrowser *);
