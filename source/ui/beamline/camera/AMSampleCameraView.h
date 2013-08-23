@@ -199,6 +199,10 @@ signals:
 
 	void shapePropertyUpdated(AMShapeData *shapeData);
 
+    // signal for each wizard finished
+    void beamWizardFinished();
+    void cameraWizardFinished();
+    void samplePlateWizardFinished();
 
 
 public slots:
