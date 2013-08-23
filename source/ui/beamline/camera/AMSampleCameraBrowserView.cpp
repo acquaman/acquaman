@@ -244,7 +244,7 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
 */
-	qDebug()<<"setting shape data view";
+	//qDebug()<<"setting shape data view";
 
 
 	// configure source combo box
@@ -260,7 +260,7 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 
-	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
 	connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
 	connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
 	connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));

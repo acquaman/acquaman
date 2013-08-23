@@ -752,7 +752,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/camera/AMSampleCameraView.h \
 	source/ui/beamline/camera/AMSampleCameraBrowserView.h \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.h \
-	source/ui/AMGraphicsTextItem.h
+	source/ui/AMGraphicsTextItem.h \
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.h
 
 
 # OS-specific files:
@@ -1257,8 +1258,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/camera/AMSampleCameraView.cpp \
 	source/ui/beamline/camera/AMSampleCameraBrowserView.cpp \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.cpp \
-	source/ui/AMGraphicsTextItem.cpp
-
+	source/ui/AMGraphicsTextItem.cpp \
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

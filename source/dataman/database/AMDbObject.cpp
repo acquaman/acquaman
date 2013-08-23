@@ -218,7 +218,6 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		}
 
 		else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
-			qDebug() << "Found an AMQVector3DVector";
 			AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
 			QStringList resultString;
 			foreach(QVector3D d, vectorList)
@@ -244,8 +243,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
 
+				// NBTA David Aug 23, 2013
 				bool constStore = (AMDbObjectSupport::dbPropertyAttribute(metaObject(), columnName, "constStore") == QString("true"));
-				qDebug() << "Looking at columnName: " << columnName << "constStore is " << constStore << "modified is " << obj->modified();
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
 					qDebug() << "obj->modified() is " << obj->modified() << " and obj->id() is " << obj->id() << " for " << obj->name() << obj->dbObjectInfo()->className;

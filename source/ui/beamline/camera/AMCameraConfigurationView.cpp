@@ -350,7 +350,7 @@ void AMCameraConfigurationView::setCameraDistortion(double distortion)
 void AMCameraConfigurationView::setCameraRotation(double rotation)
 {
     cameraModel_->setCameraRotation(rotation);
-    qDebug()<<"Changing camera Rotation Centre";
+    //qDebug()<<"Changing camera Rotation Centre";
     cameraRotationCentre_ = rotation;
     bool block = true;
     block = cameraRotationSlider_->blockSignals(block);
@@ -549,7 +549,7 @@ void AMCameraConfigurationView::populateComboBox(int dbIndex)
 /// updates all the fields in the window
 void AMCameraConfigurationView::updateAll()
 {
-    qDebug()<<"Updating camera window";
+    //qDebug()<<"Updating camera window";
     QVector3D position = cameraModel_->cameraPosition();
     QVector3D center = cameraModel_->cameraCentre();
     QString name = cameraModel_->name();
@@ -586,7 +586,7 @@ void AMCameraConfigurationView::updateAll()
         matrixElement_[4+i]->setText(QString("%1").arg(cameraMatrix.at(i).y()));
         matrixElement_[8+i]->setText(QString("%1").arg(cameraMatrix.at(i).z()));
     }
-    qDebug()<<"Finished updating camera window";
+    //qDebug()<<"Finished updating camera window";
 }
 
 void AMCameraConfigurationView::hideCameraParameters(bool hide)

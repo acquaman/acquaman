@@ -35,8 +35,8 @@ AMBeamline::AMBeamline(const QString& controlName)
 	exposedDetectors_ = new AMDetectorSet(this);
 	sampleContainer_ = new AMSampleContainer(this);
 	samplePlate_ = 0; //NULL
-	connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
-	samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
+	//connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
+	samplePlateBrowser_ = 0;
 }
 
 AMBeamline::~AMBeamline()
@@ -72,16 +72,20 @@ AMSamplePlate* AMBeamline::samplePlate(){
 }
 
 AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
+	if(!samplePlateBrowser_){
+		samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
+		connect(this, SIGNAL(samplePlateChanged(AMSamplePlate*)), samplePlateBrowser_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+	}
 	return samplePlateBrowser_;
 }
 
 void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 	emit samplePlateAboutToChange(samplePlate_);
 	samplePlate_ = samplePlate;
-	emit samplePlateChanged(samplePlate_);
 
 	if(samplePlate_)
 		samplePlate_->storeToDb(AMDatabase::database("user"));
+	emit samplePlateChanged(samplePlate_);
 }
 
 void AMBeamline::onSampleContainerSampleAdded(AMSample *sample){

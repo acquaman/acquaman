@@ -25,12 +25,15 @@ public:
 
 	int sampleCount() const;
 
+	const AMSample* sampleAt(int index) const;
 	AMSample* sampleAt(int index);
 
 	/// Adds a sample and automatically calls append with the name as the key
 	bool addSample(AMSample *sample);
 
 	int indexOfSample(AMSample *sample);
+
+	bool operator==(const AMSamplePlate &other);
 
 public slots:
 	void onSampleCameraShapesChanged();
@@ -78,12 +81,19 @@ public:
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+	bool hasSamplePlate(AMSamplePlate *samplePlate);
+
 public slots:
 	void reloadFromDatabase();
+
+	void addSamplePlate(AMSamplePlate *samplePlate);
+
+	void setCurrentSamplePlate(AMSamplePlate *samplePlate);
 
 protected:
 	AMDatabase *database_;
 	QList<AMSamplePlate*> allSamplePlates_;
+	int currentSamplePlateIndex_;
 };
 
 #endif // AMSAMPLEPLATE_H

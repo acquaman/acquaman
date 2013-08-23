@@ -23,6 +23,14 @@ int AMSamplePlate::sampleCount() const{
 	return samples_.count();
 }
 
+const AMSample* AMSamplePlate::sampleAt(int index) const{
+	if(index == -1)
+		return samples_.at(samples_.count()-1);
+	if(index < 0 || index > sampleCount())
+		return 0; //NULL
+	return samples_.at(index);
+}
+
 AMSample* AMSamplePlate::sampleAt(int index){
 	if(index == -1)
 		return samples_.at(samples_.count()-1);
@@ -34,7 +42,6 @@ AMSample* AMSamplePlate::sampleAt(int index){
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
-	qDebug() << "Adding sample named " << sample->name() << " and storing to db";
 	storeToDb(database());
 	return true;
 }
@@ -46,6 +53,16 @@ int AMSamplePlate::indexOfSample(AMSample *sample){
 		if(samples_.at(x) == sample)
 			return x;
 	return -1;
+}
+
+bool AMSamplePlate::operator ==(const AMSamplePlate &other){
+	if((name() == other.name()) && (sampleCount() == other.sampleCount())){
+		for(int x = 0; x < sampleCount(); x++)
+			if(sampleAt(x)->name() != other.sampleAt(x)->name())
+				return false;
+		return true;
+	}
+	return false;
 }
 
 #include "beamline/camera/AMSampleCamera.h"
@@ -81,18 +98,14 @@ void AMSamplePlate::onSampleCameraShapesChanged(){
 
 void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
 	AMSample *sample = sampleFromShape(shapeData);
-	if(sample){
-		qDebug() << "The sample said it made an explicit update, so storeToDb";
+	if(sample)
 		sample->storeToDb(database());
-	}
 }
 
 void AMSamplePlate::onSampleDetailsChanged(){
 	AMSample *sample = qobject_cast<AMSample*>(QObject::sender());
-	if(sample){
-		qDebug() << "It's a sample, so let's emit sampleChanged";
+	if(sample)
 		emit sampleChanged(indexOfSample(sample));
-	}
 }
 
 AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
@@ -127,6 +140,7 @@ void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
 AMSamplePlateBrowser::AMSamplePlateBrowser(AMDatabase *database, QObject *parent) :
 	QAbstractListModel(parent)
 {
+	currentSamplePlateIndex_ = -1;
 	database_ = database;
 	reloadFromDatabase();
 }
@@ -138,6 +152,8 @@ int AMSamplePlateBrowser::rowCount(const QModelIndex &parent) const
 	return allSamplePlates_.count();
 }
 
+#include <QApplication>
+#include <QStyle>
 QVariant AMSamplePlateBrowser::data(const QModelIndex &index, int role) const
 {
 	if(index.parent().isValid() || index.column() > 0)
@@ -146,6 +162,11 @@ QVariant AMSamplePlateBrowser::data(const QModelIndex &index, int role) const
 	switch(role){
 	case Qt::DisplayRole:
 		return QString("%1 (created %2)").arg(allSamplePlates_.at(index.row())->name()).arg(AMDateTimeUtils::prettyDateTime(allSamplePlates_.at(index.row())->dateTime()));
+	case Qt::DecorationRole:
+		if(index.row() == currentSamplePlateIndex_)
+			return QApplication::style()->standardIcon(QStyle::SP_ArrowRight);
+		else
+			return QVariant();
 	case AM::PointerRole:
 		return QVariant::fromValue((QObject*)(allSamplePlates_.at(index.row())));
 	default:
@@ -168,6 +189,13 @@ QVariant AMSamplePlateBrowser::headerData(int section, Qt::Orientation orientati
 		return QVariant();
 }
 
+bool AMSamplePlateBrowser::hasSamplePlate(AMSamplePlate *samplePlate){
+	for(int x = 0; x < allSamplePlates_.count(); x++)
+		if( (allSamplePlates_.at(x) == samplePlate) || (allSamplePlates_.at(x)->operator ==(*samplePlate)) )
+			return true;
+	return false;
+}
+
 void AMSamplePlateBrowser::reloadFromDatabase(){
 	allSamplePlates_.clear();
 	if(database_){
@@ -176,8 +204,41 @@ void AMSamplePlateBrowser::reloadFromDatabase(){
 		for(int x = 0; x < allSamplePlateIds.count(); x++){
 			tempPlate = new AMSamplePlate();
 			tempPlate->loadFromDb(database_, allSamplePlateIds.at(x));
-			qDebug() << "Reloaded a sample plate named " << tempPlate->name() << " with count " << tempPlate->sampleCount();
 			allSamplePlates_.append(tempPlate);
 		}
+	}
+}
+
+void AMSamplePlateBrowser::addSamplePlate(AMSamplePlate *samplePlate){
+	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
+	allSamplePlates_.append(samplePlate);
+	endInsertRows();
+}
+
+void AMSamplePlateBrowser::setCurrentSamplePlate(AMSamplePlate *samplePlate){
+	int lastSamplePlateIndex = currentSamplePlateIndex_;
+
+	bool foundPlate = false;
+	for(int x = 0; x < allSamplePlates_.count(); x++){
+		if(allSamplePlates_.at(x) == samplePlate){
+			currentSamplePlateIndex_ = x;
+			foundPlate = true;
+		}
+	}
+
+	if(!foundPlate)
+		currentSamplePlateIndex_ = -1;
+
+	if(lastSamplePlateIndex == -1 && currentSamplePlateIndex_ == -1){
+		//do nothing
+	}
+	else{
+		int topLeft = std::min(lastSamplePlateIndex, currentSamplePlateIndex_);
+		int bottomRight = std::max(lastSamplePlateIndex, currentSamplePlateIndex_);
+		if(topLeft == -1)
+			topLeft = bottomRight;
+		QModelIndex topLeftIndex = createIndex(topLeft, 0, allSamplePlates_.at(topLeft));
+		QModelIndex bottomRightIndex = createIndex(bottomRight, 0, allSamplePlates_.at(bottomRight));
+		emit dataChanged(topLeftIndex, bottomRightIndex);
 	}
 }

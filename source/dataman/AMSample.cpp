@@ -168,7 +168,6 @@ QString AMSample::elementString() const
 
 void AMSample::setName(const QString &name)
 {
-    qDebug()<<"AMSample::setName - renaming sample to"<< name;
         AMDbObject::setName(name);
         AMShapeData* samplePosition = sampleShapePositionData();
         if(samplePosition)
@@ -486,9 +485,5 @@ AMQVector3DVector AMSample::dbReadShapeData() const{
 
 void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
 	sampleShapePositionData_ = new AMShapeData(this);
-	//sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
-	for(int x = 0; x < newShapeData.count(); x++){
-		qDebug() << "Going to add a QVector3D as " << newShapeData.at(x);
-	}
 	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
 }

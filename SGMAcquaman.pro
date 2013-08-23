@@ -11,10 +11,6 @@ RESOURCES += \
 
 
 SOURCES += \
-	source/application/SGM/SGMMain.cpp \
-    source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp
-
-HEADERS += \
-    source/ui/beamline/camera/AMSampleCameraWizardSelector.h
+	source/application/SGM/SGMMain.cpp
 
 

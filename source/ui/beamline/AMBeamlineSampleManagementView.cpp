@@ -10,6 +10,7 @@
 #include "ui/dataman/AMSamplePlateBrowserView.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/camera/AMSampleCamera.h"
+#include "ui/beamline/camera/AMSampleCameraView.h"
 #include "ui/beamline/camera/AMSampleCameraWizardSelector.h"
 
 AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beamline, QWidget *parent) :
@@ -19,13 +20,14 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 
 	cameraBrowserView_ = new AMSampleCameraBrowserView(new AMSampleCameraBrowser());
-	samplePlateBrowserView_ = new AMSamplePlateBrowserView(new AMSamplePlateBrowser(AMDatabase::database("user")));
+	//samplePlateBrowserView_ = new AMSamplePlateBrowserView(new AMSamplePlateBrowser(AMDatabase::database("user")));
+	samplePlateBrowserView_ = new AMSamplePlateBrowserView(beamline_->samplePlateBrowser());
 	samplePlateView_ = new AMSamplePlateView(beamline_->samplePlate());
 
 	createSamplePlateButton_ = new QPushButton("Create Sample Plate");
 	loadSamplePlateButton_ = new QPushButton("Load Sample Plate");
 
-    wizardSelectorView_ = new AMSampleCameraWizardSelector();
+	wizardSelectorView_ = new AMSampleCameraWizardSelector();
 
 	QVBoxLayout *leftVL = new QVBoxLayout();
 	QVBoxLayout *rightVL = new QVBoxLayout();
@@ -35,14 +37,14 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	rightVL->addWidget(createSamplePlateButton_);
 	rightVL->addWidget(loadSamplePlateButton_);
 	rightVL->addWidget(samplePlateView_);
-    rightVL->addWidget(wizardSelectorView_);
+	rightVL->addWidget(wizardSelectorView_);
 
 	samplePlateBrowserView_->hide();
 
 	QSplitter *mainSplitter = new QSplitter();
 	QWidget *leftWidget = new QWidget();
 	QWidget *rightWidget = new QWidget();
-    leftWidget->setLayout(leftVL);
+	leftWidget->setLayout(leftVL);
 	rightWidget->setLayout(rightVL);
 	mainSplitter->addWidget(leftWidget);
 	mainSplitter->addWidget(rightWidget);
@@ -58,12 +60,12 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(beamline_, SIGNAL(samplePlateChanged(AMSamplePlate*)), this, SLOT(onBeamlineSamplePlateChanged(AMSamplePlate*)));
 	connect(samplePlateBrowserView_, SIGNAL(samplePlateSelected(AMSamplePlate*)), this, SLOT(onSamplePlateSelected(AMSamplePlate*)));
 
-    connect(wizardSelectorView_, SIGNAL(beamWizardPressed()), cameraBrowserView_, SIGNAL(beamWizardPressed()));
-    connect(wizardSelectorView_, SIGNAL(cameraWizardPressed()), cameraBrowserView_, SIGNAL(cameraWizardPressed()));
-    connect(wizardSelectorView_, SIGNAL(samplePlateWizardPressed()), cameraBrowserView_, SIGNAL(samplePlateWizardPressed()));
-    connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
-    connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));
-    connect(cameraBrowserView_, SIGNAL(samplePlateWizardFinished()), wizardSelectorView_, SLOT(onSamplePlateWizardFinished()));
+	connect(wizardSelectorView_, SIGNAL(beamWizardPressed()), cameraBrowserView_, SIGNAL(beamWizardPressed()));
+	connect(wizardSelectorView_, SIGNAL(cameraWizardPressed()), cameraBrowserView_, SIGNAL(cameraWizardPressed()));
+	connect(wizardSelectorView_, SIGNAL(samplePlateWizardPressed()), cameraBrowserView_, SIGNAL(samplePlateWizardPressed()));
+	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
+	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));
+	connect(cameraBrowserView_, SIGNAL(samplePlateWizardFinished()), wizardSelectorView_, SLOT(onSamplePlateWizardFinished()));
 }
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
@@ -71,18 +73,10 @@ void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 	int retVal = creationDialog.exec();
 
 	if(retVal == QDialog::Accepted){
-		/*
-		AMSamplePlate *oldSamplePlate = beamline_->samplePlate();
-		if(oldSamplePlate){
-			AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
-			for(int x = oldSamplePlate->sampleCount()-1; x >= 0; x--)
-				sampleCamera->removeSample(oldSamplePlate->sampleAt(x));
-		}
-		*/
-
 		AMSamplePlate *samplePlate = new AMSamplePlate();
 		samplePlate->setName(creationDialog.samplePlateName());
 
+		beamline_->samplePlateBrowser()->addSamplePlate(samplePlate);
 		beamline_->setSamplePlate(samplePlate);
 	}
 }
@@ -92,17 +86,15 @@ void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){
 		samplePlateBrowserView_->raise();
 	else
 		samplePlateBrowserView_->show();
+	samplePlateBrowserView_->clearViewSelection();
 }
 
-#include "ui/beamline/camera/AMSampleCameraView.h"
 void AMBeamlineSampleManagementView::onBeamlineSamplePlateAboutToChange(AMSamplePlate *lastSamplePlate){
 	if(lastSamplePlate){
 		disconnect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), lastSamplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
-		for(int x = lastSamplePlate->sampleCount()-1; x >= 0; x--){
-			qDebug() << "About to try to undraw sample " << lastSamplePlate->sampleAt(x)->name();
+		for(int x = lastSamplePlate->sampleCount()-1; x >= 0; x--)
 			sampleCamera->removeSample(lastSamplePlate->sampleAt(x));
-		}
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
 	}
 }
@@ -112,16 +104,13 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateChanged(AMSamplePlate 
 
 	if(samplePlate){
 		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
-		for(int x = samplePlate->sampleCount()-1; x >= 0; x--){
-			qDebug() << "About to try to draw sample " << samplePlate->sampleAt(x)->name();
+		for(int x = samplePlate->sampleCount()-1; x >= 0; x--)
 			sampleCamera->addSample(samplePlate->sampleAt(x));
-		}
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
 		connect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), samplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 	}
 }
 
 void AMBeamlineSampleManagementView::onSamplePlateSelected(AMSamplePlate *samplePlate){
-	qDebug() << "Just heard that a new sample plate was selected with name " << samplePlate->name() << " sample count is " << samplePlate->sampleCount();
 	beamline_->setSamplePlate(samplePlate);
 }

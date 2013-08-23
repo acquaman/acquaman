@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
+#include <QKeyEvent>
 
 #include "dataman/AMSamplePlate.h"
 
@@ -16,11 +17,15 @@ AMSamplePlateBrowserView::AMSamplePlateBrowserView(AMSamplePlateBrowser *sampleP
 	samplePlatesListView_->setModel(samplePlateBrowser_);
 	samplePlatesListView_->setAlternatingRowColors(true);
 
+	selectionLabel_ = new QLabel("No Plate Selected");
 	selectButton_ = new QPushButton("Select");
+	selectButton_->setEnabled(false);
 	cancelButton_ = new QPushButton("Cancel");
 
 	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("Select a Sample Plate"));
 	vl->addWidget(samplePlatesListView_);
+	vl->addWidget(selectionLabel_);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(selectButton_);
@@ -31,15 +36,53 @@ AMSamplePlateBrowserView::AMSamplePlateBrowserView(AMSamplePlateBrowser *sampleP
 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(close()));
 	connect(selectButton_, SIGNAL(clicked()), this, SLOT(onSelectButtonClicked()));
+	connect(samplePlatesListView_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onSelectionModelCurrentChanged(QModelIndex,QModelIndex)));
+	connect(samplePlatesListView_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onSamplePlatesListViewDoubleClicked(QModelIndex)));
+}
+
+void AMSamplePlateBrowserView::clearViewSelection(){
+	samplePlatesListView_->selectionModel()->clearSelection();
+	selectButton_->setEnabled(false);
+	selectionLabel_->setText("No Plate Selected");
 }
 
 void AMSamplePlateBrowserView::onSelectButtonClicked(){
 	QModelIndex selectedPlate = samplePlatesListView_->selectionModel()->currentIndex();
 	if(selectedPlate.isValid()){
 		AMSamplePlate *selectedSamplePlate = qobject_cast<AMSamplePlate*>(samplePlateBrowser_->data(selectedPlate, AM::PointerRole).value<QObject*>());
-		if(selectedSamplePlate)
+		if(selectedSamplePlate){
 			emit samplePlateSelected(selectedSamplePlate);
+			close();
+		}
 	}
+}
+
+void AMSamplePlateBrowserView::onSelectionModelCurrentChanged(const QModelIndex &current, const QModelIndex &previous){
+	if(current == previous)
+		return;
+
+	if(!current.isValid()){
+		selectButton_->setEnabled(false);
+		selectionLabel_->setText("No Plate Selected");
+	}
+	else{
+		selectButton_->setEnabled(true);
+		selectionLabel_->setText(QString("Select %1").arg(samplePlateBrowser_->data(current, Qt::DisplayRole).toString()));
+	}
+}
+
+void AMSamplePlateBrowserView::onSamplePlatesListViewDoubleClicked(const QModelIndex &clicked){
+	Q_UNUSED(clicked)
+	onSelectButtonClicked();
+}
+
+void AMSamplePlateBrowserView::keyPressEvent(QKeyEvent *event){
+	if(event->key() == Qt::Key_Escape){
+		close();
+		event->accept();
+	}
+	else
+		QWidget::keyPressEvent(event);
 }
 
 AMSamplePlateCreationDialog::AMSamplePlateCreationDialog(QWidget *parent) :

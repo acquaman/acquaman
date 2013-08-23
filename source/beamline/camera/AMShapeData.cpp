@@ -17,6 +17,9 @@ AMShapeData::AMShapeData(QObject* parent)
     setOtherDataFieldTwo(" ");
     coordinateCount_ = -1;
     visible_ = true;
+    zAxisRotation_ = 0;
+    xAxisRotation_ = 0;
+    yAxisRotation_ = 0;
 }
 
 /// constructor
@@ -31,6 +34,9 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherDataFieldOn
     setIdNumber(idNumber);
     coordinateCount_ = -1;
     visible_ = true;
+    zAxisRotation_ = 0;
+    xAxisRotation_ = 0;
+    yAxisRotation_ = 0;
 }
 
 

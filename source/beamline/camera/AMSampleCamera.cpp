@@ -1341,11 +1341,8 @@ void AMSampleCamera::stopMotors()
 
 void AMSampleCamera::addSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
-	qDebug() << "Shapeindex is " << shapeIndex;
 	if(shapeIndex == -1){
 		sample->sampleShapePositionData()->setName(sample->name());
-		for(int x = 0; x < sample->sampleShapePositionData()->count(); x++)
-			qDebug() << "About to request draw for QVector3D as " << sample->sampleShapePositionData()->coordinates().at(x);
 		index_++;
 		insertItem(sample->sampleShapePositionData(), false);
 	}

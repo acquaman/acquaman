@@ -148,6 +148,5 @@ void AMGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             setTextCursor(oldCursor);
             dontChangeSelection_ = false;
         }
-
 }
 

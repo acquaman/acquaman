@@ -21,7 +21,7 @@
 AMSampleView::AMSampleView(QWidget* parent)
     : QWidget(parent)
 {
-    qDebug()<<"Creating new AMSampleView 1";
+    //qDebug()<<"Creating new AMSampleView 1";
     sample_ = 0;
     setUpGui();
     makeConnections();
@@ -32,7 +32,7 @@ AMSampleView::AMSampleView(QWidget* parent)
 AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
     : QWidget(parent)
 {
-    qDebug()<<"Creating new AMSampleView 2";
+    //qDebug()<<"Creating new AMSampleView 2";
     sample_ = sample;
     setUpGui();
     makeConnections();
@@ -250,7 +250,7 @@ void AMSampleView::onSampleNameChanged(QString name)
 
 void AMSampleView::setUpGui()
 {
-    qDebug()<<"Called setupgui";
+    //qDebug()<<"Called setupgui";
     shapeDataView_ = AMShapeDataView::shapeView();
 
     QStringList wordList;
@@ -325,7 +325,8 @@ void AMSampleView::makeConnections()
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
-    connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+    if(sample_)
+	    connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
 }
 
 
