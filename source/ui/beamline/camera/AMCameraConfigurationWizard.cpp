@@ -27,7 +27,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 {
     numberOfPoints_ = 6;
     showOptionPage_ = false;
-    qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - adding new pages";
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
     setPage(Page_Final, new AMWizardPage);
@@ -223,11 +222,17 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Introduction Page");
+            return QString(tr("Introduction Page"));
         case Text:
-            return QString(tr("This is the introduction page of the camera configuration wizard."));
+            return QString(tr("On the first page, check to see if the camera appears to line up correctly with the video image.")
+                              + tr("  If it does, check that it is correct and continue.  If it is not lined up correctly")
+                              + tr(" you will have to run through the calibration.  To perform the calibration simply select")
+                              + tr(" the same point on the sample manipulator as it moves around."));
         case Help:
-            return QString("Help message for the intro page");
+            return QString(tr("This is the camera configuration wizard, which is designed to ensure that the camera is properly")
+                           + tr(" calibrated to track the sample plate as it moves around the chamber.  To start the calibration")
+                           + tr(" select next on this page.  The next page will give you the option to skip the calibration, ")
+                           + tr("if it is already correct."));
         case Other:
         case Default:
         default:
@@ -238,13 +243,16 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Check page");
+            return QString(tr("Camera Calibration"));
         case Text:
-             return QString(tr("This is the page where you check to see if the camera is correctly lined up."));
+             return QString(tr("Check to see if the camera is correctly lined up."));
         case Help:
-             return QString("Help message for check page.");
+             return QString(tr("If the camera appears to be correctly lined up, simply make sure that the checkbox at the top of the")
+                            + tr(" page is checked.  If the camera is not lined up, or if you are unsure if it is, make sure that the")
+                            + tr(" checkbox at the top of the page is not checked.  Then select next to continue.  \n For a more detailed")
+                            + tr(" explanation of this wizard, select the button marked Intro."));
         case Other:
-            return QString("Is the camera correct?");
+            return QString(tr("Is the camera correct?"));
         case Default:
             return QString(tr("< &Intro"));
         default:
@@ -260,11 +268,13 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Selection Page %1").arg(relativeId());
+            return QString(tr("Selection Page %1")).arg(relativeId());
         case Text:
-            return QString("Select the point corresponding to the coordinate: %1, %2, %3").arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
+            return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
         case Help:
-            return QString("Help message for selection page");
+            return QString(tr("For each selection you will need to click on the same point on the sample plate.  Upon clicking, the")
+                           + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
+                           + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
         case Other:
         case Default:
         default:
@@ -280,11 +290,14 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Moving to position %1").arg(relativeId());
+            return QString(tr("Moving to position %1")).arg(relativeId());
         case Text:
-             return QString(tr("Please wait until the next page appears."));
+             return QString(tr("Please wait until the manipulator has finished moving."));
         case Help:
-            return QString("Help message for wait page");
+            return QString(tr("The sample manipulator is attempting to move to the next point for calibration.  If")
+                           + tr(" the video does not reappear within a few moments there may be a problem communicating")
+                           + tr(" with the motors.  Please ensure that motor movement is enabled.  You may re-attempt")
+                           + tr(" this movement by selecting back, followed by next."));
         case Other:
         case Default:
         default:
@@ -295,11 +308,13 @@ QString AMCameraConfigurationWizard::message(int messageType)
         switch(messageType)
         {
         case Title:
-            return QString("Final Page");
+            return QString(tr("Calibration Complete"));
         case Text:
-            return QString("This is the final page of the wizard.");
+            return QString(tr("The calibration has been completed.  Select 'Finish' to exit the calibration."));
         case Help:
-            return QString("Help message for final page.");
+            return QString(tr("The calibration has now been completed.  If you would like to reselect any point, simply navigate using 'back'")
+                           + tr(" until you reach the point you wish to reselect.  Any position where you do not click on the screen will")
+                           + tr(" keep the point that you had previously selected."));
         case Other:
         case Default:
         default:
@@ -310,21 +325,26 @@ QString AMCameraConfigurationWizard::message(int messageType)
     switch(messageType)
     {
     case Title:
-        return "Default Title";
+        return QString(tr("Default Title"));
     case Text:
-         return QString("Default message.");
+         return QString(tr("If this text is appearing there is an error.  The wizard is unable to identify the page that it")
+                        + tr(" is currently on."));
     case Help:
-        return QString("Default help message.");
+        return QString(tr("This help message is indicative of an error.  For some reason the current page cannot be identified."));
     case Other:
     case Default:
     default:
-        return "";
+        return QString(tr("Error - unknown page and unknown message type."));
     }
 }
 
 int AMCameraConfigurationWizard::relativeId()
 {
-    qDebug()<<"AMCameraConfigurationWizard::relativeId";
+    // this function relates each page number with an
+    // appropriate integer, used for naming and indexing.
+    // This prevents the need of a unique page type for
+    // each page while simpifying logic for indexing
+    // coordinates.
     switch(currentId())
     {
     case Page_Select_One:
@@ -361,7 +381,8 @@ void AMCameraConfigurationWizard::waitPage()
 
 void AMCameraConfigurationWizard::back()
 {
-    qDebug()<<"AMCameraConfigurationWizard::back";
+    // this makes sure that the motors move to the
+    // correct position upon pressing back.
     int id = currentId();
     switch(id)
     {
@@ -380,13 +401,11 @@ void AMCameraConfigurationWizard::back()
             QWizard::back();
             break;
         case Page_Select_One:
-            while(currentId() != Page_Check)
-            {
-                QWizard::back();
-
-            }
+            while(currentId() != Page_Check) QWizard::back();
             if(currentId() == Page_Check)
             {
+                // page check needs a cleanup or it will attempt to
+                // display everything twice
                 cleanupPage(Page_Check);
                 initializePage(Page_Check);
             }
@@ -450,7 +469,6 @@ void SelectPage::addPoint(QPointF position)
 
 void WaitPage::initializePage()
 {
-    qDebug()<<"WaitPage::initializePage";
     AMWaitPage::initializePage();
     AMWaitPage::startTimer(1000);
 

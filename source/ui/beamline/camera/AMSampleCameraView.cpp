@@ -1024,7 +1024,7 @@ void AMSampleCameraView::startBeamWizard()
     connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
     connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
     connect(beamWizard_, SIGNAL(done()), this, SIGNAL(beamWizardFinished()));
-    connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));/// move to \todo implement for others
+    connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
     connect(beamWizard_, SIGNAL(showBeamMarker(int)), this, SLOT(showBeamMarker(int)));
     connect(beamWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
     connect(this, SIGNAL(motorMovementEnabled(bool)), beamWizard_, SLOT(setMotorMovementEnabled(bool)));
