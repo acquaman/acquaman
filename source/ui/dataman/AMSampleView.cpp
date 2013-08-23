@@ -325,7 +325,8 @@ void AMSampleView::makeConnections()
     connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
     connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
     connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
-    connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+    if(sample_)
+	    connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
 }
 
 

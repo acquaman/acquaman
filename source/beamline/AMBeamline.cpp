@@ -35,8 +35,8 @@ AMBeamline::AMBeamline(const QString& controlName)
 	exposedDetectors_ = new AMDetectorSet(this);
 	sampleContainer_ = new AMSampleContainer(this);
 	samplePlate_ = 0; //NULL
-	connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
-	samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
+	//connect(sampleContainer_, SIGNAL(sampleAdded(AMSample*)), this, SLOT(onSampleContainerSampleAdded(AMSample*)));
+	samplePlateBrowser_ = 0;
 }
 
 AMBeamline::~AMBeamline()
@@ -72,6 +72,8 @@ AMSamplePlate* AMBeamline::samplePlate(){
 }
 
 AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
+	if(!samplePlateBrowser_)
+		samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
 	return samplePlateBrowser_;
 }
 
