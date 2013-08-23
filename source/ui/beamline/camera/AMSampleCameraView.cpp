@@ -1100,6 +1100,7 @@ void AMSampleCameraView::shapeDrawingFinished()
 	{
 		if(isValid(currentIndex()))
 		{
+            textItems_[currentIndex()]->setSelectAll(true);
 			textItems_[currentIndex()]->setFocus();
 			/*
 			qDebug() << "Set focus, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
@@ -1158,7 +1159,7 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
 {
     if(shapeModel_->overrideMouseSelection())
     {
-        shapeModel_->setOverrideMouseSelection(false);
+//        shapeModel_->setOverrideMouseSelection(false);
         return;
     }
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
@@ -1259,6 +1260,11 @@ void AMSampleCameraView::mouseRightClickHandler(QPointF position)
 
 void AMSampleCameraView::mouseLeftReleaseHandler(QPointF position)
 {
+    if(shapeModel_->overrideMouseSelection())
+    {
+        shapeModel_->setOverrideMouseSelection(false);
+        return;
+    }
     pressTimer_->stop();
         if(doubleClickInProgress_)
         {
