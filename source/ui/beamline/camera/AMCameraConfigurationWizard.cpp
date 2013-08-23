@@ -27,7 +27,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 {
     numberOfPoints_ = 6;
     showOptionPage_ = false;
-    qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - adding new pages";
+    //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - adding new pages";
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
     setPage(Page_Final, new AMWizardPage);
@@ -79,7 +79,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     coordinateList_->append(new  QVector3D(-10,2,-8));
     coordinateList_->append(new  QVector3D(0,2,8.5));
 
-    qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
+    //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
 
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()

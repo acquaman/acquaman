@@ -75,14 +75,12 @@ void AMGraphicsTextItem::changingText()
 void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
 	QGraphicsTextItem::focusInEvent(event);
-	qDebug()<<"GraphicsTextItem::focusInEvent------------------------------------------------------";
 	emit gotFocus(shapeIndex_);
 }
 
 #include <QKeyEvent>
 void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){
-		qDebug() << "Heard return pressed, so emit signal";
 		emit returnPressed(shapeIndex_);
 		clearFocus();
 		event->accept();

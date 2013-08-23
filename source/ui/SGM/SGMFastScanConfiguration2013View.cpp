@@ -167,20 +167,13 @@ void SGMFastScanConfiguration2013View::onParametersEndPositionChanged(){
 }
 
 void SGMFastScanConfiguration2013View::onFastScanSettingsChanged(){
-	qDebug() << "In onFastScanSettingsChanged";
-	qDebug() << "fastScanSettingsCopy_->modified() is " << fastScanSettingsCopy_.modified();
-	qDebug() << "cfg_->currentParameters()->modified() is " << cfg_->currentParameters()->modified();
-	qDebug() << "cfg_->currentParameters()->fastScanSettings().modified() is " << cfg_->currentParameters()->fastScanSettings().modified();
 	disconnect(&fastScanSettingsCopy_, 0);
 	disconnect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
-	fastScanSettingsCopy_ = cfg_->currentParameters()->fastScanSettings();
-	qDebug() << "JUST SET THAT";
-	qDebug() << "fastScanSettingsCopy_->modified() is " << fastScanSettingsCopy_.modified();
-	qDebug() << "cfg_->currentParameters()->modified() is " << cfg_->currentParameters()->modified();
-	qDebug() << "cfg_->currentParameters()->fastScanSettings().modified() is " << cfg_->currentParameters()->fastScanSettings().modified();
 
+	fastScanSettingsCopy_ = cfg_->currentParameters()->fastScanSettings();
 	if(fastScanSettingsView_)
 		fastScanSettingsView_->setFastScanSettings(&fastScanSettingsCopy_);
+
 	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
 }
 

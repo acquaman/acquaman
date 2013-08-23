@@ -497,7 +497,6 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 SGMFastScanParameters::SGMFastScanParameters(AMDatabase *db, int id) :
 	AMDbObject(0)
 {
-	qDebug() << "Used OTHER constructor for SGMFastScanParameters";
 	loadFromDb(db, id);
 }
 

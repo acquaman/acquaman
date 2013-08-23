@@ -88,10 +88,8 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateAboutToChange(AMSample
 	if(lastSamplePlate){
 		disconnect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), lastSamplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
-		for(int x = lastSamplePlate->sampleCount()-1; x >= 0; x--){
-			qDebug() << "About to try to undraw sample " << lastSamplePlate->sampleAt(x)->name();
+		for(int x = lastSamplePlate->sampleCount()-1; x >= 0; x--)
 			sampleCamera->removeSample(lastSamplePlate->sampleAt(x));
-		}
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
 	}
 }

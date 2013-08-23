@@ -244,7 +244,7 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
 */
-	qDebug()<<"setting shape data view";
+	//qDebug()<<"setting shape data view";
 
 
 	// configure source combo box

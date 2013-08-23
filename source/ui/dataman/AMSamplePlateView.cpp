@@ -100,7 +100,6 @@ void AMSamplePlateItemModel::onSampleRemoved(int index){
 }
 
 void AMSamplePlateItemModel::onSampleChanged(int index){
-	qDebug() << "Sample at index " << index << " changed";
 	emit dataChanged(createIndex(index, 0, samplePlate_->sampleAt(index)), createIndex(index, 0, samplePlate_->sampleAt(index)));
 }
 

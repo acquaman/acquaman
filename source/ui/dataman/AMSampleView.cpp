@@ -21,7 +21,7 @@
 AMSampleView::AMSampleView(QWidget* parent)
     : QWidget(parent)
 {
-    qDebug()<<"Creating new AMSampleView 1";
+    //qDebug()<<"Creating new AMSampleView 1";
     sample_ = 0;
     setUpGui();
     makeConnections();
@@ -32,7 +32,7 @@ AMSampleView::AMSampleView(QWidget* parent)
 AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
     : QWidget(parent)
 {
-    qDebug()<<"Creating new AMSampleView 2";
+    //qDebug()<<"Creating new AMSampleView 2";
     sample_ = sample;
     setUpGui();
     makeConnections();
@@ -250,7 +250,7 @@ void AMSampleView::onSampleNameChanged(QString name)
 
 void AMSampleView::setUpGui()
 {
-    qDebug()<<"Called setupgui";
+    //qDebug()<<"Called setupgui";
     shapeDataView_ = AMShapeDataView::shapeView();
 
     QStringList wordList;

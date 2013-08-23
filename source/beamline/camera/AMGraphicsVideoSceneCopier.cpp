@@ -426,7 +426,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
         QGraphicsVideoItem* videoItem = dynamic_cast<QGraphicsVideoItem*>(item);
         if(videoItem != 0)
         {
-            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding video";
+	    //qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding video";
             QGraphicsVideoItem* newVideoItem = new QGraphicsVideoItem();
             newVideoItem->setZValue(-1);
             QMediaPlayer* mediaPlayer = new QMediaPlayer();
