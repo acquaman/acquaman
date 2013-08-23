@@ -36,6 +36,7 @@ public:
 
     virtual QString message(int messageType);
 
+    /// used to correlate Page_Wait_x and Page_Select_x with their order
     int relativeId();
 
     void waitPage();

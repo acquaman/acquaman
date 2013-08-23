@@ -1025,7 +1025,7 @@ void AMSampleCameraView::startBeamWizard()
     connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
     connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
     connect(beamWizard_, SIGNAL(done()), this, SIGNAL(beamWizardFinished()));
-    connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));/// move to \todo implement for others
+    connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
     connect(beamWizard_, SIGNAL(showBeamMarker(int)), this, SLOT(showBeamMarker(int)));
     connect(beamWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
     connect(this, SIGNAL(motorMovementEnabled(bool)), beamWizard_, SLOT(setMotorMovementEnabled(bool)));
@@ -1101,6 +1101,7 @@ void AMSampleCameraView::shapeDrawingFinished()
 	{
 		if(isValid(currentIndex()))
 		{
+            textItems_[currentIndex()]->setSelectAll(true);
 			textItems_[currentIndex()]->setFocus();
 			/*
 			qDebug() << "Set focus, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
@@ -1159,7 +1160,7 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
 {
     if(shapeModel_->overrideMouseSelection())
     {
-        shapeModel_->setOverrideMouseSelection(false);
+//        shapeModel_->setOverrideMouseSelection(false);
         return;
     }
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
@@ -1260,6 +1261,11 @@ void AMSampleCameraView::mouseRightClickHandler(QPointF position)
 
 void AMSampleCameraView::mouseLeftReleaseHandler(QPointF position)
 {
+    if(shapeModel_->overrideMouseSelection())
+    {
+        shapeModel_->setOverrideMouseSelection(false);
+        return;
+    }
     pressTimer_->stop();
         if(doubleClickInProgress_)
         {

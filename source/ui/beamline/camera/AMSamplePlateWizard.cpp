@@ -73,69 +73,76 @@ void AMSamplePlateWizard::waitPage()
 
 QString AMSamplePlateWizard::message(int type)
 {
-    if(type == Wizard_Title) return "Sample Plate Wizard";
-    else if(type == Help_Title) return "Help";
+    if(type == Wizard_Title) return QString(tr("Sample Plate Wizard"));
+    else if(type == Help_Title) return QString(tr("Help"));
     switch(currentId())
     {
     case Page_Intro:
         switch(type)
         {
         case Title:
-            return "Sample Plate Wizard Intro Page";
+            return QString(tr("Sample Plate Adjustment"));
         case Text:
-            return "Sample Plate Wizard introduction page text.";
+            return QString(tr("Use this configuration tool to fine tune the position of the sample plate."));
         case Help:
-            return "Sample Plate Wizard introduction page help message";
+            return QString(tr("This configuration simply adjusts the sample plate to account for how tightly it has")
+                              + tr(" been placed in the sample plate holder.  It can be adjusted using a slider to move it left and right.")
+                              + tr("  If the sample plate is significantly out of place, there may be some other error, which will need to be")
+                              + tr(" resolved outside of this tool."));
         case Other:
         case Default:
         default:
-            return "intro default";
+            return QString(tr("Error- Intro default - unknown message type."));
         }
     case Page_Check:
         switch(type)
         {
         case Title:
-            return "Sample Plate Check Page";
+            return QString(tr("Sample Plate Alignment"));
         case Text:
-            return "Sample Plate Check Page text";
+            return QString(tr("Check to see if the sample plate is properly lined up with its outline."));
         case Help:
-            return "Sample Plate Check Page help message";
+            return QString(tr("If the sample plate appears to be lined up with the visible outline, ensure that")
+                              + tr(" the checkbox on this page is checked.  If the sample plate does not line up,")
+                              + tr(" ensure the box is not checked."));
         case Other:
-            return "Does the plate line up with the line?";
+            return QString(tr("Does the sample plate line up with the outline?"));
         case Default:
         default:
-            return "check default";
+            return QString(tr("Error - check page - unknown message type."));
         }
     case Page_Wait:
         switch(type)
         {
         case Title:
-            return "Sample Plate Wait Page";
+            return QString(tr("Please wait"));
         case Text:
-            return "Sample Plate Wait page text";
+            return QString(tr("Wait while the sample plate moves."));
         case Help:
-            return "Sample Plate Wait page help message";
+            return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
+                              + tr(" the motor.  Ensure that motor movement is enabled."));
         case Other:
         case Default:
         default:
-            return "wait default";
+            return QString(tr("Error - Wait page - unknown message type."));
         }
     case Page_Set:
         switch(type)
         {
         case Title:
-            return "Sample Plate Set Page";
+            return QString(tr("Sample Plate Adjustment"));
         case Text:
-            return QString("Sample Plate Set Page text %1").arg(field("adjustmentSlider").toInt());
+            return QString(tr("Move the slider to adjust the position of the sample plate."));
         case Help:
-            return "Sample Plate Set Page help message";
+            return QString(tr("To adjust the position of the sample plate, move the slider left and right.  If the outline cannot be closely")
+                              + tr(" fit to the sample plate, it may require more detailed adjustment."));
         case Other:
         case Default:
         default:
-            return "set default";
+            return QString(tr("Error message - set page - unknown message type."));
         }
     }
-    return "";
+    return QString(tr("Error message - unknown page type."));
 }
 
 void AMSamplePlateWizard::back()

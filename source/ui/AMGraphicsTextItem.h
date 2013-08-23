@@ -18,8 +18,10 @@ public:
 
     void setPlainText(const QString &text);
 
-    QString toPlainText() const;
-
+    bool selectAll();
+public slots:
+    void selectAllText();
+    void setSelectAll(const bool &selectAll);
 
 signals:
     void textChanged(int);
@@ -31,12 +33,17 @@ protected slots:
 
 protected:
     void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 protected:
     QTextDocument* document_;
 
     int shapeIndex_;
+
+    bool dontChangeSelection_;
+    bool selectAll_;
 };
 
 #endif // GRAPHICSTEXTITEM_H

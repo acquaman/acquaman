@@ -157,8 +157,8 @@ void AMBeamConfigurationWizard::next()
 
 QString AMBeamConfigurationWizard::message(int type)
 {
-    if(type == Wizard_Title) return "Beam Configuration Wizard";
-    else if(type == Help_Title) return "Help";
+    if(type == Wizard_Title) return QString(tr("Beam Configuration Wizard"));
+    else if(type == Help_Title) return QString(tr("Help"));
 
     switch(currentId())
     {
@@ -166,16 +166,25 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Beam Configuration Wizard";
+            return QString(tr("Beam Configuration Wizard"));
         case Text:
             return QString(tr("This wizard will help you to configure the beam settings. \n") +
-                           ("The sample plate will be moved to three different locations. ") +
-                    ("If, at any of the three locations, ") +
-                    "the rectangle on screen does not match up well to the location of the beamspot uncheck the checkbox on that " +
-                    "page.  You will then be asked to draw a rectangle around the beamspot in each of the three positions.  For further " +
-                    "explanation, click the \"Help\" button for detailed information for that page.");
+                           tr("The sample plate will be moved to three different locations. ") +
+                    tr("If, at any of the three locations, ") +
+                    tr("the rectangle on screen does not match up well to the location of the beamspot uncheck the checkbox on that ") +
+                    tr("page.  You will then be asked to draw a rectangle around the beamspot in each of the three positions.  For further ") +
+                    tr("explanation, click the \"Help\" button for detailed information for that page."));
         case Help:
-            return "Intro page help";
+            return QString(tr("To start the configuration of the beam, click next on this page.")
+                              + tr("  If all the beamspots correspond to the visible beam, check the boxes")
+                              + tr(" to indicate that the beam is correct.  If the beamspots do not line up, they")
+                              + tr(" can be configured by marking the beam as being incorrect.  If there is no")
+                              + tr(" visible beam, it may be that the visible beam has not been enabled.  If it has")
+                              + tr(" and the beam is still not visible, ensure that the beam is on.  If the beam is on")
+                              + tr(" and is visible, but is not appearing on the sample plate, it may need to be manipulated")
+                              + tr(" until it is under the beam.  This may require a change in sample points.  These can")
+                              + tr(" can be configured in 'options' (on this page).  Changing these values will change where")
+                              + tr(" the sample plate moves to for the beam configuration."));
         case Other:
         case Default:
         default:
@@ -189,16 +198,16 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Confirm Beam";
+            return QString(tr("Confirm Beam"));
         case Text:
-            return QString("Check to see if beam %1 is in the correct configuration.").arg(relativeId());
+            return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId());
         case Help:
-            return QString("Check to see if the rectangle appears around the beamspot.  \n") +
-                           "If the beamspot is not visible, ensure that visible light has been turned on.  \n" +
-                           "If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  " +
-                           "This may require changing of the coordinates on the options page, accessible from the introduction page.  ";
+            return QString(tr("Check to see if the rectangle appears around the beamspot.  \n") +
+                           tr("If the beamspot is not visible, ensure that visible light has been turned on.  \n") +
+                           tr("If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  ") +
+                           tr("This may require changing of the coordinates on the options page, accessible from the introduction page."));
         case Other:
-            return "Is the beam correct?";
+            return QString(tr("Is the beam correct?"));
         case Default:
         default:
             break;
@@ -210,12 +219,12 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Set Beam";
+            return QString(tr("Set Beam"));
         case Text:
-            return QString("Draw a box over beam position %1").arg(relativeId());
+            return QString(tr("Draw a box over beam position %1")).arg(relativeId());
         case Help:
-            return QString("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  ")
-                    + "Try to fit the box to best encompass the whole beamspot.";
+            return QString(tr("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  "))
+                    + tr("Try to fit the box to best encompass the entire beamspot.");
         case Other:
         case Default:
         default:
@@ -228,11 +237,12 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Please Wait";
+            return QString(tr("Please Wait"));
         case Text:
-            return QString("Moving to position %1").arg(relativeId());
+            return QString(tr("Moving to position %1")).arg(relativeId());
         case Help:
-            return "Wait page help";
+            return QString(tr("If the configuration is stuck here please check to make sure that motor movement is enabled.")
+                              + tr(" If movement is enabled there may be a problem communicating with the sample manipulator motors."));
         case Other:
         case Default:
         default:
@@ -243,23 +253,22 @@ QString AMBeamConfigurationWizard::message(int type)
         switch(type)
         {
         case Title:
-            return "Final page Title";
+            return QString(tr("Configuration complete"));
         case Text:
-            return (QString("Check Page %1 has value: %2 \n").arg(Page_Check_One).arg(field(QString("configured%1").arg(Page_Check_One)).toBool())
-                    + QString("Check Page %1 has value: %2 \n").arg(Page_Check_Two).arg(field(QString("configured%1").arg(Page_Check_Two)).toBool())
-                                 + QString("Check Page %1 has value: %2").arg(Page_Check_Three).arg(field(QString("configured%1").arg(Page_Check_Three)).toBool()));
+            return QString(tr("Configuration has been completed.  The beam path has been recalculated."));
         case Help:
-            return "Final page help";
+            return QString(tr("If the beam appears to be in the wrong place, this configuration may be rerun.  If the beam is known to be divergent")
+                              + tr(" it may need to be selected from the main sample camera configuration settings."));
         case Other:
         case Default:
         default:
             break;
         }
     default:
-        return "";
+        return QString(tr("Error - unknown page."));
     }
 
-    return "";
+    return QString(tr("Error - unknown message type."));
 }
 
 

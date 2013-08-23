@@ -1,90 +1,152 @@
 #include "AMGraphicsTextItem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
+#include <QTextDocumentFragment>
 #include <QCursor>
 #include <QTextCursor>
 #include <QDebug>
 
 AMGraphicsTextItem::AMGraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
-	QGraphicsTextItem(parent,scene)
+    QGraphicsTextItem(parent,scene)
 {
-	document_ = document();
-	connect(document_, SIGNAL(contentsChanged()), SLOT(changingText()));
-	QFont font;
-	font.setFamily("Helvitica");
-	setFont(font);
+    document_ = document();
+    connect(document_, SIGNAL(contentsChanged()), SLOT(changingText()));
+    QFont font;
+    font.setFamily("Helvitica");
+    setFont(font);
+    dontChangeSelection_ = false;
+    selectAll_ = false;
 }
 
 void AMGraphicsTextItem::setShapeIndex(int index)
 {
-	shapeIndex_ = index;
+    shapeIndex_ = index;
 }
 
 int AMGraphicsTextItem::shapeIndex()
 {
-	return shapeIndex_;
+    return shapeIndex_;
 }
 
 int AMGraphicsTextItem::type() const
 {
-	return Type;
+    return Type;
 }
 
 void AMGraphicsTextItem::setPlainText(const QString &text)
 {
-    // Pad text with a space at the end, so
-    // that when it is empty there is no crash
+    QTextCursor oldCursor = textCursor();
     QString textToSet = text;
-    if(textToSet.count() > 0 && !textToSet.endsWith(" "))
+    if(textToSet != toPlainText())
+        document()->setPlainText(textToSet);
+    if(selectAll())
     {
-        textToSet.append(" ");
+        selectAllText();
     }
-    else if(textToSet.count() == 0)
+    else
     {
-        textToSet = " ";
+        setTextCursor(oldCursor);
     }
-    QGraphicsTextItem::setPlainText(textToSet);
 }
 
 
-QString AMGraphicsTextItem::toPlainText() const
+
+
+bool AMGraphicsTextItem::selectAll()
 {
-    // remove the space at the end for elsewhere
-    QString result = QGraphicsTextItem::toPlainText();
-    if(result.endsWith(" "))
-    {
-        result = result.remove(result.count()-1,1);
-    }
-    return result;
+    return selectAll_;
+}
+
+void AMGraphicsTextItem::selectAllText()
+{
+    QTextCursor newCursor = textCursor();
+    newCursor.select(QTextCursor::Document);
+    setTextCursor(newCursor);
+}
+
+void AMGraphicsTextItem::setSelectAll(const bool &selectAll)
+{
+    selectAll_ = selectAll;
 }
 
 
 void AMGraphicsTextItem::changingText()
 {
-	int initialPosition = textCursor().position();
-	emit textChanged(shapeIndex_);
-	QTextCursor newPosition = textCursor();
+    int initialPosition = textCursor().position();
+
+    QTextCursor newPosition = textCursor();
+    int anchorPositon = newPosition.anchor();
+
+    if(textCursor().atStart())
+        initialPosition = -2;
+    emit textChanged(shapeIndex_);
     if(initialPosition == -1)
     {
         initialPosition++;
     }
-	newPosition.setPosition(initialPosition);
-	setTextCursor(newPosition);
+    else if (initialPosition == -2)
+    {
+        newPosition.setPosition(0);
+    }
+    else
+        newPosition.setPosition(initialPosition);
+    newPosition.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,newPosition.position() - anchorPositon);
+    setTextCursor(newPosition);
 }
 
 void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
-	QGraphicsTextItem::focusInEvent(event);
-	emit gotFocus(shapeIndex_);
+    QGraphicsTextItem::focusInEvent(event);
+    dontChangeSelection_ = true;
+    emit gotFocus(shapeIndex_);
+    blockSignals(true);
+    selectAllText();
+    blockSignals(false);
+
+}
+
+void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
+{
+    QGraphicsTextItem::focusOutEvent(event);
+    setSelectAll(false);
 }
 
 #include <QKeyEvent>
 void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
-	if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){
-		emit returnPressed(shapeIndex_);
-		clearFocus();
-		event->accept();
-	}
-	else
-		QGraphicsTextItem::keyPressEvent(event);
+    if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){
+        qDebug() << "Heard return pressed, so emit signal";
+        emit returnPressed(shapeIndex_);
+        clearFocus();
+        event->accept();
+    }
+    else if(event->key() == Qt::Key_Delete)
+    {
+        QString docString = toPlainText();
+        if(docString.count() > 0)
+        {
+            int cursorPosition = textCursor().position();
+            if(cursorPosition >= 0)
+            {
+                docString.remove((cursorPosition), 1);
+                setPlainText(docString);
+                QTextCursor newCursor = textCursor();
+                newCursor.setPosition(cursorPosition);
+                setTextCursor(newCursor);
+            }
+        }
+    }
+    else
+        QGraphicsTextItem::keyPressEvent(event);
 }
+
+void AMGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+        QTextCursor oldCursor = textCursor();
+    QGraphicsTextItem::mouseReleaseEvent(event);
+        if(dontChangeSelection_)
+        {
+            setTextCursor(oldCursor);
+            dontChangeSelection_ = false;
+        }
+}
+
