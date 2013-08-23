@@ -65,6 +65,7 @@ void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 		AMSamplePlate *samplePlate = new AMSamplePlate();
 		samplePlate->setName(creationDialog.samplePlateName());
 
+		beamline_->samplePlateBrowser()->addSamplePlate(samplePlate);
 		beamline_->setSamplePlate(samplePlate);
 	}
 }
@@ -74,6 +75,7 @@ void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){
 		samplePlateBrowserView_->raise();
 	else
 		samplePlateBrowserView_->show();
+	samplePlateBrowserView_->clearViewSelection();
 }
 
 void AMBeamlineSampleManagementView::onBeamlineSamplePlateAboutToChange(AMSamplePlate *lastSamplePlate){

@@ -1230,19 +1230,6 @@ bool SGMAppController::setupSGMViews(){
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
-	//cameraBrowserView_ = new AMCameraBrowserView(new AMCameraBrowser());
-	//mw_->addPane(cameraBrowserView_, "Beamline Control", "SGM Camera Browser", ":/system-software-update.png");
-	//AMSamplePlate *testSamplePlate = new AMSamplePlate();
-	/*
-	AMSample *tempSample = new AMSample("David 1");
-	testSamplePlate->addSample(tempSample);
-	tempSample = new AMSample("David 2");
-	testSamplePlate->addSample(tempSample);
-	*/
-	//SGMBeamline::sgm()->setSamplePlate(testSamplePlate);
-	//samplePlateView_ = new AMSamplePlateView(testSamplePlate);
-	//samplePlateView_ = new AMSamplePlateView(0);
-	//mw_->addPane(samplePlateView_, "Beamline Control", "SGM Sample Plate", ":/system-software-update.png");
 	sampleManagementView_ = new AMBeamlineSampleManagementView(SGMBeamline::sgm());
 	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
