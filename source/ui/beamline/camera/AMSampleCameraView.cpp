@@ -62,7 +62,8 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 {
     qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
-    shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
+    //shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
+    shapeView_ = new AMShapeDataView(0);
     shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());

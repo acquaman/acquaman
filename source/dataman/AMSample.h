@@ -45,10 +45,6 @@ public:
 	void destroySample();
 	static void destroySample(AMDatabase* db, int sampleId);
 
-
-
-
-
 	/// accessors
 	QDateTime dateTime() const;
 	/// formatted string for dateTime

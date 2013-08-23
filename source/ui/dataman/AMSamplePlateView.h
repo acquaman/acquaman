@@ -11,6 +11,7 @@
 class QListView;
 class QVBoxLayout;
 class QLabel;
+class QToolButton;
 
 class AMSamplePlateItemModel : public QAbstractListModel
 {
@@ -43,6 +44,27 @@ protected:
 	AMSamplePlate *samplePlate_;
 };
 
+class AMSamplePlateItemEditor : public QWidget
+{
+Q_OBJECT
+public:
+	AMSamplePlateItemEditor(int row, QWidget *parent = 0);
+
+signals:
+	void rowMoveToPressed(int row);
+	void rowMoreInfoPressed(int row);
+
+protected slots:
+	void onMoveToButtonClicked();
+	void onMoreInfoButtonClicked();
+
+protected:
+	int row_;
+
+	QToolButton *moveToButton_;
+	QToolButton *moreInfoButton_;
+};
+
 class AMSamplePlateItemDelegate : public QStyledItemDelegate{
 Q_OBJECT
 public:
@@ -53,36 +75,16 @@ public:
 	////////////////////////
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	//QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const;
 	void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	/// Don't do anything to set back the model data...
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 	///////////////////////////
 
-	/*
 signals:
-	/// Emitted when the "Mark" button is pressed on a specific row in the list
-	void rowMarkPressed(int row);
-	/// Emitted when the "Move To" button is pressed on a specific row in the list
 	void rowMoveToPressed(int row);
-	/// Emitted when the "Remove" button is pressed on a specific row in the list
-	void rowRemovePressed(int row);
-
-	/// Emitted when the custom context menu for "Additional Information" is activated
-	void additionalInformationRequested(int row);
-
-protected:
-	/// disable the editor closing / committing?
-	bool eventFilter(QObject *object, QEvent *event) {
-		// qdebug() << "Event:" << event << "Type:" << event->type();
-
-		if(event->type() == QEvent::FocusOut)
-			return false;
-
-		return QStyledItemDelegate::eventFilter(object, event);
-	}
-	*/
+	void rowMoreInfoPressed(int row);
 };
 
 class AMSampleView;
@@ -97,7 +99,10 @@ public slots:
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
 protected slots:
-	void onSampleAddedThroughCamera(AMSample *sample);
+	//void onSampleAddedThroughCamera(AMSample *sample);
+
+	void onRowMoveToPressed(int row);
+	void onRowMoreInfoPressed(int row);
 
 protected:
 	AMSamplePlate *samplePlate_;
@@ -107,8 +112,6 @@ protected:
 
 	QVBoxLayout *vl_;
 	QLabel *noSamplePlateLabel_;
-
-	AMSampleView *sampleView_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H
