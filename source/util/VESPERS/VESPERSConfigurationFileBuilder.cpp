@@ -87,7 +87,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		// The attocube is significantly slower since it doesn't run through a MaxV card.
 		if (isAttocubeMotor(pvNameAxis1_))
-			moveDelay = 0.5;
+			moveDelay = 0.15;
 
 		else
 			moveDelay = 0.05;
