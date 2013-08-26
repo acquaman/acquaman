@@ -89,11 +89,6 @@ public:
     double tilt();
 
 
-
-
-
-
-
     void setMedia(QMediaContent url);
     void play();
 
@@ -102,6 +97,11 @@ public:
     QPointF mapPointToVideo(QPointF);
 
     bool isValid(int index) const;
+
+    bool loadBeam();
+    bool loadCamera();
+    bool loadSamplePlate();
+
 
 public slots:
 
@@ -205,6 +205,7 @@ signals:
     void samplePlateWizardFinished();
 
 
+
 public slots:
 
 	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
@@ -242,6 +243,12 @@ public slots:
     void requestUpdate();
 
     void shapeDrawingFinished();
+
+
+    // request database loads
+    void requestLoadBeam();
+    void requestLoadCamera();
+    void requestLoadSamplePlate();
 
 protected slots:
     void updateCurrentShape();
@@ -508,6 +515,7 @@ protected:
     int updateTracker_;
 
     QPushButton* samplePlateButton_;
+    QPushButton* saveSamplePlate_;
 
     QPushButton* samplePlateWizardButton_;
     AMSamplePlateWizard* samplePlateWizard_;
@@ -523,6 +531,7 @@ protected:
     QPushButton* advancedButton_;
 
 //    AMShapeDataListView* shapeDataListView_;
+
 
 
 

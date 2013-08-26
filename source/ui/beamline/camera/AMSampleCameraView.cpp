@@ -47,7 +47,8 @@
 
 #include <limits>
 
-//#include "ui/AMShapeDataListView.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/AMSample.h"
 
 
 
@@ -919,6 +920,67 @@ bool AMSampleCameraView::isValid(int index) const
     return (shapeModel_->isValid(index) && shapes_[index]);
 }
 
+bool AMSampleCameraView::loadBeam()
+{
+    AMDatabase* db = AMDatabase::database("user");
+    QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "id");
+
+    if(matchList.count() <= 0)
+        return false;
+
+    bool* success = new bool(true);
+    int id = matchList.last().toInt(success);
+
+    if(!success)
+        return false;
+
+    AMBeamConfiguration* beamToLoad = new AMBeamConfiguration();
+    beamToLoad->loadFromDb(db,id);
+    shapeModel_->setBeamModel(beamToLoad);
+    return true;
+}
+
+bool AMSampleCameraView::loadCamera()
+{
+    AMDatabase* db = AMDatabase::database("user");
+    QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+
+
+    if(matchList.count() <= 0)
+    {
+        return false;
+    }
+
+    AMCameraConfiguration* cameraToLoad = new AMCameraConfiguration();
+    bool* success = new bool(true);
+    int id = matchList.last().toInt(success);
+
+    if(!success)
+    {
+        return false;
+    }
+
+    cameraToLoad->loadFromDb(db,id);
+    shapeModel_->setCameraModel(cameraToLoad);
+    return true;
+}
+
+bool AMSampleCameraView::loadSamplePlate()
+{
+    QString samplePlateName = "Sample Plate";
+    AMDatabase* db = AMDatabase::database("user");
+    QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", samplePlateName);
+
+    if(matchList.count() <= 0)
+        return false;
+
+    AMSample* samplePlate = new AMSample();
+    samplePlate->loadFromDb(db,matchList.last());
+    AMShapeData* samplePlateShape = samplePlate->sampleShapePositionData();
+    shapeModel_->setSamplePlate(samplePlateShape);
+
+}
+
 void AMSampleCameraView::setCrosshairColor(const QColor &color)
 {
     QPen pen = crosshairPen();
@@ -990,7 +1052,7 @@ void AMSampleCameraView::intersection()
     if(shapeModel_->findIntersections())
     {
         if(!intersections_.isEmpty()) clearIntersections();
-        createIntersectionShapes(shapeModel_->intersections());
+            createIntersectionShapes(shapeModel_->intersections());
     }
 }
 
@@ -1110,7 +1172,34 @@ void AMSampleCameraView::shapeDrawingFinished()
 			qDebug() << "Tried setting selected, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
 			*/
 		}
-	}
+    }
+}
+
+void AMSampleCameraView::requestLoadBeam()
+{
+    bool success = loadBeam();
+    if(success)
+    {
+        emit beamWizardFinished();
+    }
+}
+
+void AMSampleCameraView::requestLoadCamera()
+{
+    bool success = loadCamera();
+    if(success)
+    {
+        emit cameraWizardFinished();
+    }
+}
+
+void AMSampleCameraView::requestLoadSamplePlate()
+{
+    bool success = loadSamplePlate();
+    if(success)
+    {
+        emit samplePlateWizardFinished();
+    }
 }
 
 
@@ -1547,6 +1636,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     samplePlateLayout->setContentsMargins(12,4,12,4);
     samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
     samplePlateLayout->addSpacing(20);
+    samplePlateLayout->addWidget(saveSamplePlate_ = new QPushButton("Save Sample Plate"));
+    samplePlateLayout->addSpacing(20);
     samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
     samplePlateLayout->addStretch(20);
     samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
@@ -1834,6 +1925,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(configurationWindowButton_, SIGNAL(clicked()), this, SLOT(showCameraBeamWindow()));
 
     connect(samplePlateButton_, SIGNAL(clicked()), this, SLOT(setSamplePlate()));
+    connect(saveSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(saveSamplePlate()));
 
     connect(cameraConfigurationShapeButton_, SIGNAL(clicked()), this, SLOT(setCameraConfigurationShape()));
 
@@ -1882,6 +1974,9 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 
     connect(shapeModel_, SIGNAL(shapeFinished()), this, SLOT(shapeDrawingFinished()));
+
+
+    connect(shapeModel_, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)), cameraConfiguration_, SLOT(onCameraConfigurationChanged(AMCameraConfiguration*)));
 
 }
 

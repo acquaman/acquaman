@@ -54,11 +54,13 @@ public:
     void setPixelAspectRatio(double pixelAspectRatio);
     void setCentreOffsetX(double centreOffsetX);
     void setCentreOffsetY(double centreOffsetY);
+    void setCameraConfiguration(AMCameraConfiguration* newCameraConfiguration);
 
 public slots:
 
     void updateAll();
     void hideCameraParameters(bool hide);
+    void onCameraConfigurationChanged(AMCameraConfiguration*);
 
 signals:
     void update(AMCameraConfiguration*);

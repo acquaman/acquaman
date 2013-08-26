@@ -65,6 +65,9 @@ signals:
     void beamWizardPressed();
     void cameraWizardPressed();
     void samplePlateWizardPressed();
+    void requestLoadBeam();
+    void requestLoadCamera();
+    void requestLoadSamplePlate();
 
     void beamWizardFinished();
     void cameraWizardFinished();

@@ -306,7 +306,11 @@ void AMSampleCamera::setCameraModel(AMCameraConfiguration *model)
 /// sets the beam model to the given model
 void AMSampleCamera::setBeamModel(AMBeamConfiguration *model)
 {
-    beamModel_ = model;
+    if(beamModel_ != model)
+    {
+        beamModel_ = model;
+        emit beamChanged(beamModel_);
+    }
 }
 
 /// sets the motor coordinate to xyzr
@@ -515,7 +519,6 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
     AMShapeData* shapes[SAMPLEPOINTS];
     for(int i = 0; i < SAMPLEPOINTS; i++)
     {
-        index_++;
         shapes[i] = new AMShapeData();
         QVector<QVector3D> shapeCoordinates;
         shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
@@ -559,8 +562,7 @@ bool AMSampleCamera::findIntersections()
     {
         QVector<QVector3D> intersectionShape = findIntersectionShape(i);
         if(!intersectionShape.isEmpty())
-        intersections_<<intersectionScreenShape(intersectionShape);
-
+            intersections_<<intersectionScreenShape(intersectionShape);
     }
     return true;
 }
@@ -616,7 +618,6 @@ bool AMSampleCamera::overrideMouseSelection()
 void AMSampleCamera::startRectangle(QPointF position)
 {
 
-    index_++;
     position = undistortPoint(position);
     QVector<QVector3D> newShape;
     QVector3D coordinate[RECTANGLE_POINTS];
@@ -654,8 +655,8 @@ void AMSampleCamera::startRectangle(QPointF position)
     }
     AMShapeData* newShapeData = new AMShapeData();
 
-    newShapeData->setName("Shape " + QString::number(index_));
-    newShapeData->setIdNumber(index_ * 13);
+    newShapeData->setName("Shape " + QString::number(index_+1));
+    newShapeData->setIdNumber((index_+1) * 13);
     newShapeData->setRotation(0);
     newShapeData->setTilt(0);
     newShapeData->setYAxisRotation(0);
@@ -953,7 +954,6 @@ void AMSampleCamera::finishShape()
     currentPolygon_<<currentPolygon_.first();
 
     /// add the shape to shapeList_
-    index_++;
     /// undistort all the points
     /// get the depth
     /// get the coordinates
@@ -974,7 +974,7 @@ void AMSampleCamera::finishShape()
 
     AMShapeData* polygon = new AMShapeData();
     polygon->setCoordinateShape(coordinates,coordinates.count());
-    polygon->setName("Shape " + QString::number(index_));
+    polygon->setName("Shape " + QString::number(index_+1));
     polygon->setRotation(0);
     polygon->setTilt(0);
     polygon->setYAxisRotation(0);
@@ -1045,7 +1045,6 @@ void AMSampleCamera::placeGrid(QPointF position)
     {
         for(double j = 0; j < 20.0; j++)
         {
-            index_ += 1;
             QPointF topLeft(i*0.05,j*0.05);
             QPointF bottomRight((i+1)*0.05,(j+1)*0.05);
             insertItem(new AMShapeData(constructRectangle(topLeft,bottomRight)));
@@ -1073,10 +1072,7 @@ void AMSampleCamera::oneSelect()
     {
         QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
         beamModel_->setPositionOne(newBeamPosition);
-
-
         emit beamChanged(beamModel_);
-
     }
     else
     {
@@ -1092,6 +1088,14 @@ void AMSampleCamera::twoSelect()
     {
         QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
         beamModel_->setPositionTwo(newBeamPosition);
+        AMDatabase* db = AMDatabase::database("user");
+        QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name", beamModel_->name());
+        if(matchList.count() != 0)
+        {
+            beamModel_->dissociateFromDb();
+            beamModel_->setName("beam"+QString::number(matchList.last()+1));
+            beamModel_->storeToDb(db);
+        }
         emit beamChanged(beamModel_);
     }
     else
@@ -1240,6 +1244,29 @@ void AMSampleCamera::setSamplePlate()
 
 }
 
+void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
+{
+    insertItem(samplePlate);
+    samplePlateShape_ = samplePlate;
+    if(samplePlateShape_->name() != "Sample Plate")
+    {
+        samplePlateShape_->setName("Sample Plate");
+    }
+    samplePlateShape_->setOtherDataFieldOne("Sample Plate");
+    samplePlateSelected_ = true;
+}
+
+void AMSampleCamera::saveSamplePlate()
+{
+    if(samplePlateSelected_ && samplePlateShape_)
+    {
+        AMSample* samplePlate = new AMSample();
+        samplePlate->setName(samplePlateShape_->name());
+        samplePlate->setSampleShapePositionData(samplePlateShape_);
+        samplePlate->storeToDb(AMDatabase::database("user"));
+    }
+}
+
 void AMSampleCamera::setCameraConfigurationShape()
 {
     if(isValid(currentIndex_))
@@ -1294,7 +1321,6 @@ void AMSampleCamera::addBeamMarker(int index)
             newBeamShape->setYAxisRotation(0);
             insertItem(newBeamShape);
             beamMarkers_[index] = newBeamShape;
-            index_++;
             setCurrentIndex(index_);
             updateShape(currentIndex_);
         }
@@ -1343,8 +1369,7 @@ void AMSampleCamera::addSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
 	if(shapeIndex == -1){
 		sample->sampleShapePositionData()->setName(sample->name());
-		index_++;
-		insertItem(sample->sampleShapePositionData(), false);
+        insertItem(sample->sampleShapePositionData());
 	}
 }
 
@@ -1458,6 +1483,15 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
     else
     {
         beamModel_->loadFromDb(db,matchIDs.first());
+        QVector<QVector3D> positionOne;
+        positionOne<<QVector3D(0.02,0.02,0)<<QVector3D(-0.02,0.02,0)<<QVector3D(-0.02,-0.02,0)<<QVector3D(0.02,-0.02,0)<<QVector3D(0.02,0.02,0);
+        QVector<QVector3D> positionTwo;
+        positionTwo<<QVector3D(0.02,0.02,1)<<QVector3D(-0.02,0.02,1)<<QVector3D(-0.02,-0.02,1)<<QVector3D(0.02,-0.02,1)<<QVector3D(0.02,0.02,1);
+        beamModel_->setPositionOne(positionOne);
+        beamModel_->setPositionTwo(positionTwo);
+        beamModel_->setName("defaultConfiguration");
+        bool success = beamModel_->storeToDb(db);
+        if(!success)qDebug()<<"Failed to store default beam to database, in AMSampleCamera constructor";
     }
 
 
@@ -1493,6 +1527,9 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
     connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
     connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
     connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+
+
+    connect(camera_, SIGNAL(configurationChanged(AMCameraConfiguration*)),this, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)));
 }
 
 
@@ -1921,7 +1958,7 @@ double AMSampleCamera::dot(QVector3D a, QVector3D b) const
 QVector3D AMSampleCamera::getHeightNormal(const AMShapeData* shape) const
 {
     QVector<QVector3D> rotatedShape = rotateShape(shape);
-    QVector3D heightVector = rotatedShape.at(shape->count()-1) - rotatedShape.at(0);
+    QVector3D heightVector = rotatedShape.at(shape->count()-2) - rotatedShape.at(0);
     return heightVector.normalized();
 }
 
@@ -1990,8 +2027,9 @@ QVector3D AMSampleCamera::rightVector() const
     return rightVector;
 }
 
-void AMSampleCamera::insertItem(AMShapeData *item, bool emitChanges)
+void AMSampleCamera::insertItem(AMShapeData *item)
 {
+    index_++;
     beginInsertRows(QModelIndex(),index_,index_);
     shapeList_<<item;
     endInsertRows();
@@ -1999,8 +2037,7 @@ void AMSampleCamera::insertItem(AMShapeData *item, bool emitChanges)
     connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
     connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
     updateShape(index_);
-    //if(emitChanges)
-	    emit shapesChanged();
+    emit shapesChanged();
 }
 
 void AMSampleCamera::removeItem(int index)
@@ -2039,21 +2076,27 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 /// moves the x, y, z motors
 bool AMSampleCamera::moveMotors(double x, double y, double z)
 {
+    qDebug()<<"AMSampleCamera::moveMotors"<<x<<y<<z;
     bool success = false;
     if(motorMovementenabled())
     {
         success = true;
         AMControl::FailureExplanation failure [3];
-//        const double XLIMITPOS = 0;
-//        const double XLIMITNEG = 0;
-//        const double YLIMITPOS = 0;
-//        const double YLIMITNEG = 0;
-//        const double ZLIMITPOS = 0;
-//        const double ZLIMITNEG = 0;
-//        if(x > XLIMITPOS)
-//            x = XLIMIT;
-//        if(x < XLIMITNEG)
-//            x = XLIMITNEG;
+        double xMin = ssaManipulatorX_->minimumValue();
+        qDebug()<<xMin;
+        double xMax = ssaManipulatorX_->maximumValue();
+        qDebug()<<xMax;
+        double yMin = ssaManipulatorY_->minimumValue();
+        double yMax = ssaManipulatorY_->maximumValue();
+        double zMin = ssaManipulatorZ_->minimumValue();
+        double zMax = ssaManipulatorZ_->maximumValue();
+        if(x > xMax) x = xMax;
+        else if(x < xMin) x = xMin;
+        if(y > yMax) y = yMax;
+        else if(y < yMin) y = yMin;
+        if(z > zMax) z = zMax;
+        else if(z < zMin) z = zMin;
+        qDebug()<<"AMSampleCamera::moveMotors"<<x<<y<<z;
         failure[0] = ssaManipulatorX_->move(x);
         failure[1] = ssaManipulatorY_->move(y);
         failure[2] = ssaManipulatorZ_->move(z);

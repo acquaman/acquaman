@@ -373,6 +373,11 @@ void AMCameraConfigurationView::setCentreOffsetY(double centreOffsetY)
     cameraModel_->setImageCentreY(centreOffsetY);
 }
 
+void AMCameraConfigurationView::setCameraConfiguration(AMCameraConfiguration *newCameraConfiguration)
+{
+    cameraModel_ = newCameraConfiguration;
+}
+
 void AMCameraConfigurationView::updatePositionX(QString x)
 {
     bool* conversionOK = new bool(false);
@@ -587,6 +592,7 @@ void AMCameraConfigurationView::updateAll()
         matrixElement_[8+i]->setText(QString("%1").arg(cameraMatrix.at(i).z()));
     }
     //qDebug()<<"Finished updating camera window";
+    qDebug()<<"AMCameraConfigurationView::updateAll - current camera configuration is"<<cameraModel_->name();
 }
 
 void AMCameraConfigurationView::hideCameraParameters(bool hide)
@@ -603,6 +609,13 @@ void AMCameraConfigurationView::hideCameraParameters(bool hide)
         cameraFrame_->show();
     }
 
+}
+
+void AMCameraConfigurationView::onCameraConfigurationChanged(AMCameraConfiguration* cameraConfiguration)
+{
+    qDebug()<<"AMCameraConfigurationView::onCameraConfigurationChanged";
+    setCameraConfiguration(cameraConfiguration);
+    updateAll();
 }
 
 

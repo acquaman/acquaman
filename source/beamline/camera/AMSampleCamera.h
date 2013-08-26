@@ -321,6 +321,8 @@ public slots:
 	void beamCalibrate();
 
 	void setSamplePlate();
+    void setSamplePlate(AMShapeData* samplePlate);
+    void saveSamplePlate();
 
 	void setCameraConfigurationShape();
 
@@ -363,6 +365,9 @@ signals:
     void otherDataOneChanged(QString data);
 
     void otherDataTwoChanged(QString data);
+
+    void cameraConfigurationChanged(AMCameraConfiguration*);
+
 
 protected slots:
 	/// tracks the motor location
@@ -472,7 +477,7 @@ protected:
 
 	/// inserts an item into the shape list - use this rather than inserting
 	/// manually into the list - keeps the model updated
-	void insertItem(AMShapeData* item, bool emitChanges = true);
+    void insertItem(AMShapeData* item);
 
 	/// removes an item from the shape list - use this rather than
 	/// removing items manually - keeps the model updated

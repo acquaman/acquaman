@@ -58,8 +58,8 @@ public:
     /// remove distortion from a point
     QPointF undistortPoint(QPointF point) const;
 
-
-
+signals:
+    void configurationChanged(AMCameraConfiguration*);
 
 protected:
 

@@ -33,6 +33,10 @@ signals:
     void cameraWizardPressed();
     void samplePlateWizardPressed();
 
+    void requestLoadBeamConfiguration();
+    void requestLoadCameraConfiguration();
+    void requestLoadSamplePlate();
+
     void beamCompleteChanged();
     void cameraCompleteChanged();
     void samplePlateCompleteChanged();
@@ -43,6 +47,10 @@ protected:
     QPushButton* beamWizardButton_;
     QPushButton* cameraWizardButton_;
     QPushButton* samplePlateWizardButton_;
+
+    QPushButton* loadBeamConfigurationButton_;
+    QPushButton* loadCameraConfigurationButton_;
+    QPushButton* loadSamplePlateButton_;
 
     bool beamWizardComplete_;
     bool cameraWizardComplete_;
