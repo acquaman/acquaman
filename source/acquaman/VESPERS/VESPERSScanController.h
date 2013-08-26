@@ -26,6 +26,8 @@ public:
 protected:
 	/// Helper method that builds the base initialization actions.
 	void buildBaseInitializationAction(double timeStep);
+	/// Helper method that builds the CCD file path, name, and number for the beginning of a scan.  Requires the detector enum, ccd file name from the configuration, AND must be called after buildInitializationActions() because it assumes the list has already been created.  Returns the name of the CCD name being sent to the detector (can be different from the name passed due to name conflicts).
+	QString buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.
 	void buildCleanupAction(bool usingMono);
 	/// Helper method that cleans up the intializationAction.

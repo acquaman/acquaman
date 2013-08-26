@@ -298,9 +298,10 @@ bool SGMFastScanActionController::event(QEvent *e){
 			int currentEncoderValue = encoderStartValue_;
 			double energyFeedback;
 
-			for(int x = 0; x < allDataMap_.value("NEWEncoderUp").count(); x++){
-				currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);
-				currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
+			
+			for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
+				currentEncoderValue += allDataMap_.value("EncoderUp").at(x);
+				currentEncoderValue -= allDataMap_.value("EncoderDown").at(x);
 				energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
 
 				scan_->rawData()->beginInsertRows(1, -1);
@@ -311,6 +312,21 @@ bool SGMFastScanActionController::event(QEvent *e){
 				scan_->rawData()->endInsertRows();
 				insertionIndex_[0] = insertionIndex_.i()+1;
 			}
+			/*
+			for(int x = 0; x < allDataMap_.value("NEWEncoderUp").count(); x++){
+                                currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);  
+                                currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
+                                energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
+                                
+                                scan_->rawData()->beginInsertRows(1, -1);
+                                scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);  
+                                for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+                                        scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+                                
+                                scan_->rawData()->endInsertRows();
+                                insertionIndex_[0] = insertionIndex_.i()+1;
+                        }
+			*/
 			writeDataToFiles();
 			setFinished();
 

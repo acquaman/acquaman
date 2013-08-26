@@ -371,46 +371,11 @@ void VESPERS3DDacqScanController::addExtraDatasources()
 bool VESPERS3DDacqScanController::initializeImplementation()
 {
 	buildBaseInitializationAction(config_->timeStep());
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	if (config_->ccdDetector() == VESPERS::Roper){
+	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Mar){
-
-		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Pilatus){
-
-		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
+	if (config_->ccdFileName() != ccdName)
+		config_->setCCDFileName(ccdName);
 
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
