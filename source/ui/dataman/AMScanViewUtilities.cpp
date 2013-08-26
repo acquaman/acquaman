@@ -701,7 +701,7 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
 			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize && valuesSuccess; i++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
 
 				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
 
@@ -723,8 +723,8 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
 			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize && valuesSuccess; i++)
-				for (int j = startIndex_.j(), jSize = startIndex_.j() + endIndex_.j()-startIndex_.j()+1; j < jSize && valuesSuccess; j++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
 
 					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
 
