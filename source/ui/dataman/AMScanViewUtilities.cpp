@@ -673,7 +673,7 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 
 		QVector<double> data(source->size(source->rank()-1));
 
-		if (source->values(startIndex_, endIndex_, data.data()))
+		if (!source->values(startIndex_, endIndex_, data.data()))
 			data.fill(0);
 
 		models_.at(id)->setValues(x_, data);
