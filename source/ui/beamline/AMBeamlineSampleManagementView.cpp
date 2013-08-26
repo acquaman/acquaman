@@ -65,6 +65,7 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(samplePlateWizardFinished()), wizardSelectorView_, SLOT(onSamplePlateWizardFinished()));
+	connect(cameraBrowserView_->sampleCameraBrowser()->shapeDataSet(), SIGNAL(sampleShapeDeleted(AMShapeData*)), this, SLOT(onSampleShapeDeleted(AMShapeData*)));
 }
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
@@ -112,4 +113,12 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateChanged(AMSamplePlate 
 
 void AMBeamlineSampleManagementView::onSamplePlateSelected(AMSamplePlate *samplePlate){
 	beamline_->setSamplePlate(samplePlate);
+}
+
+void AMBeamlineSampleManagementView::onSampleShapeDeleted(AMShapeData *sampleShape){
+	if(AMBeamline::bl()->samplePlate()){
+		AMSample *relatedSample = AMBeamline::bl()->samplePlate()->sampleFromShape(sampleShape);
+		if(relatedSample)
+			AMBeamline::bl()->samplePlate()->removeSample(relatedSample);
+	}
 }

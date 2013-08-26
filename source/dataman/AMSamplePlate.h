@@ -34,8 +34,13 @@ public:
 	/// Adds a sample and automatically calls append with the name as the key
 	bool addSample(AMSample *sample);
 
+	bool removeSample(AMSample *sample);
+
 	/// Returns the index of a given sample
 	int indexOfSample(AMSample *sample);
+
+	/// Returns the sample associated with the shapeData. If no sample is associated a null pointer is returned
+	AMSample* sampleFromShape(AMShapeData *shapeData);
 
 	/// Comparison operator for sample plates. Sample plates are considered the same if they have the same name, the same number of samples, and all of the samples are named the same and in the same order
 	bool operator==(const AMSamplePlate &other);
@@ -62,9 +67,6 @@ protected slots:
 	void onSampleDetailsChanged();
 
 protected:
-	/// Returns the sample associated with the shapeData. If no sample is associated a null pointer is returned
-	AMSample* sampleFromShape(AMShapeData *shapeData);
-
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);
 

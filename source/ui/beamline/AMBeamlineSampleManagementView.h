@@ -11,6 +11,7 @@ class AMSamplePlateView;
 class AMSamplePlateBrowserView;
 class AMSampleCameraBrowserView;
 class AMSampleCameraWizardSelector;
+class AMShapeData;
 
 class AMBeamlineSampleManagementView : public QWidget
 {
@@ -31,6 +32,8 @@ protected slots:
 	void onBeamlineSamplePlateChanged(AMSamplePlate *samplePlate);
 	/// Forwards signal from the samplePlateBrowserView to AMBeamline
 	void onSamplePlateSelected(AMSamplePlate *samplePlate);
+
+	void onSampleShapeDeleted(AMShapeData *sampleShape);
 
 protected:
 	/// Pointer to the beamline we're using

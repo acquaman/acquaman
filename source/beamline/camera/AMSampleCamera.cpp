@@ -756,8 +756,7 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 			}
 			if(!deleted)
 			{
-				delete polygon;
-				polygon = 0;
+				emit sampleShapeDeleted(polygon);
 			}
 		}
 	}
@@ -2005,7 +2004,6 @@ void AMSampleCamera::insertItem(AMShapeData *item, bool emitChanges)
 
 void AMSampleCamera::removeItem(int index)
 {
-	qDebug() << "Calling removeItem";
 	index_--;
 	beginRemoveRows(QModelIndex(),index,index);
 	shapeList_.removeAt(index);
@@ -2015,7 +2013,6 @@ void AMSampleCamera::removeItem(int index)
 
 AMShapeData *AMSampleCamera::takeItem(int index)
 {
-	qDebug() << "Calling takeItem";
 	index_--;
 	beginRemoveRows(QModelIndex(),index,index);
 	AMShapeData* oldShape = shapeList_.takeAt(index);

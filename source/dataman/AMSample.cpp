@@ -24,6 +24,13 @@ AMSample::AMSample(int databaseId, AMDatabase *database, QObject *parent)
 	loadFromDb(database, databaseId);
 }
 
+AMSample::~AMSample(){
+	if(samplePlatePosition_){
+		samplePlatePosition_->deleteLater();
+		samplePlatePosition_ = 0;
+	}
+}
+
 void AMSample::destroySample()
 {
 	destroySample(database(),id());

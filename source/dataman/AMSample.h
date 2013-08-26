@@ -40,6 +40,8 @@ public:
 	/// this constructor immediately loads a stored sample from the database.
 	AMSample(int databaseId, AMDatabase *database, QObject *parent = 0);
 
+	virtual ~AMSample();
+
 
 	/// sample management interface
 	void destroySample();

@@ -358,11 +358,13 @@ signals:
 
 	void shapeNameChanged(QString newName);
 
-    void shapeFinished();
+	void shapeFinished();
 
-    void otherDataOneChanged(QString data);
+	void otherDataOneChanged(QString data);
 
-    void otherDataTwoChanged(QString data);
+	void otherDataTwoChanged(QString data);
+
+	void sampleShapeDeleted(AMShapeData *sampleShape);
 
 protected slots:
 	/// tracks the motor location
@@ -487,13 +489,6 @@ protected:
 
 
 	bool moveMotors(double x, double y, double z);
-
-
-
-
-
-
-
 
 protected:
 
