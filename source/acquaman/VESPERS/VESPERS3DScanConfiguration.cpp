@@ -8,8 +8,8 @@
 VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	: AM3DScanConfiguration(parent), VESPERSScanConfiguration()
 {
-	setName("3D Map");
-	setUserScanName("3D Map");
+	setName("3DMap");
+	setUserScanName("3DMap");
 	dbObject_->setParent(this);
 	setXPriority(1);
 	setYPriority(0);

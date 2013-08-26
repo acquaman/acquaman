@@ -68,6 +68,50 @@ void VESPERSScanController::buildBaseInitializationAction(double timeStep)
 	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(timeStep));
 }
 
+QString VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName)
+{
+	QString name = "";
+	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+
+	if (ccdChoice == VESPERS::Roper){
+
+		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
+		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	else if (ccdChoice == VESPERS::Mar){
+
+		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
+		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	else if (ccdChoice == VESPERS::Pilatus){
+
+		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
+		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+
+		QString dataFolder = AMUserSettings::userDataFolder;
+
+		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+	}
+
+	return name;
+}
+
 void VESPERSScanController::buildCleanupAction(bool usingMono)
 {
 	// To cleanup the XAS scan, there is one stage.

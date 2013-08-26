@@ -257,6 +257,16 @@ void VESPERS2DScanConfigurationView::onScanNameEdited()
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
+
+	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+
+		QPalette palette = scanName_->palette();
+		palette.setColor(QPalette::Base, Qt::red);
+		scanName_->setPalette(palette);
+	}
+
+	else
+		scanName_->setPalette(this->palette());
 }
 
 void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) const
@@ -279,7 +289,7 @@ void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 	if (VESPERS::fileNameExists(path, name)){
 
 		ccdHelpText_->show();
-		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
+		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't change the name a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
 	}
 
 	else{
@@ -328,6 +338,7 @@ void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int id)
 		checkCCDFileNames(name);
 	}
 
+	onScanNameEdited();
 	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
 }
