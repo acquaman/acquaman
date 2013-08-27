@@ -53,16 +53,19 @@ public:
 signals:
 	void rowMoveToPressed(int row);
 	void rowMoreInfoPressed(int row);
+	void rowClosedPressed(int row);
 
 protected slots:
 	void onMoveToButtonClicked();
 	void onMoreInfoButtonClicked();
+	void onCloseButtonPressed();
 
 protected:
 	int row_;
 
 	QToolButton *moveToButton_;
 	QToolButton *moreInfoButton_;
+	QToolButton *closeButton_;
 };
 
 class AMSamplePlateItemDelegate : public QStyledItemDelegate{
@@ -85,9 +88,8 @@ public:
 signals:
 	void rowMoveToPressed(int row);
 	void rowMoreInfoPressed(int row);
+	void rowClosedPressed(int row);
 };
-
-class AMSampleView;
 
 class AMSamplePlateView : public QGroupBox
 {
@@ -98,11 +100,13 @@ public:
 public slots:
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
-protected slots:
-	//void onSampleAddedThroughCamera(AMSample *sample);
+signals:
+	void sampleAboutToBeRemoved(int index);
 
+protected slots:
 	void onRowMoveToPressed(int row);
 	void onRowMoreInfoPressed(int row);
+	void onRowClosedPressed(int row);
 
 protected:
 	AMSamplePlate *samplePlate_;

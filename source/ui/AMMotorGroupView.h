@@ -10,6 +10,9 @@
 
 #include "beamline/AMMotorGroup.h"
 
+class QGridLayout;
+class QVBoxLayout;
+
 /// This widget handles building a view for an AMMotorGroupObject.  Builds the view based on all the information provided in the object.
 class AMMotorGroupObjectView : public QWidget
 {
@@ -49,7 +52,7 @@ protected slots:
 	void onThirdControlSetpoint();
 
 	/// Handles changes in the moving flags of the sample stages.
-	void onMovingChanged();
+	virtual void onMovingChanged();
 	/// Handles if the motors time out.
 	void onTimedOut() { setEnabled(false); }
 
@@ -83,6 +86,11 @@ protected:
 	QToolButton *goIn_;
 	/// The jog out button.
 	QToolButton *goOut_;
+
+	QGridLayout *arrowLayout_;
+	QHBoxLayout *motorGroupLayout_;
+	QVBoxLayout *absoluteValueLayout_;
+	QHBoxLayout *jogLayout_;
 };
 
 /// This widget handles all of the AMMotorGroupObjectViews.

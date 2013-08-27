@@ -113,15 +113,19 @@ AMSamplePlateItemEditor::AMSamplePlateItemEditor(int row, QWidget *parent) :
 	moveToButton_->setText("Move To");
 	moreInfoButton_ = new QToolButton();
 	moreInfoButton_->setText("More Info");
+	closeButton_ = new QToolButton();
+	closeButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(moveToButton_);
 	hl->addWidget(moreInfoButton_);
+	hl->addWidget(closeButton_);
 	hl->setContentsMargins(0,0,0,0);
 	setLayout(hl);
 
 	connect(moveToButton_, SIGNAL(pressed()), this, SLOT(onMoveToButtonClicked()));
 	connect(moreInfoButton_, SIGNAL(pressed()), this, SLOT(onMoreInfoButtonClicked()));
+	connect(closeButton_, SIGNAL(pressed()), this, SLOT(onCloseButtonPressed()));
 }
 
 void AMSamplePlateItemEditor::onMoveToButtonClicked(){
@@ -130,6 +134,10 @@ void AMSamplePlateItemEditor::onMoveToButtonClicked(){
 
 void AMSamplePlateItemEditor::onMoreInfoButtonClicked(){
 	emit rowMoreInfoPressed(row_);
+}
+
+void AMSamplePlateItemEditor::onCloseButtonPressed(){
+	emit rowClosedPressed(row_);
 }
 
 AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject *parent) :
@@ -234,6 +242,7 @@ QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOp
 
 	connect(editor, SIGNAL(rowMoveToPressed(int)), this, SIGNAL(rowMoveToPressed(int)));
 	connect(editor, SIGNAL(rowMoreInfoPressed(int)), this, SIGNAL(rowMoreInfoPressed(int)));
+	connect(editor, SIGNAL(rowClosedPressed(int)), this, SIGNAL(rowClosedPressed(int)));
 
 	return editor;
 }
@@ -281,11 +290,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 
 void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
-	//if(samplePlate_)
-	//	disconnect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	samplePlate_ = samplePlate;
-	//if(samplePlate_)
-	//	connect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
 	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
@@ -304,6 +309,7 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
 		connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
 		connect(listViewDelegate, SIGNAL(rowMoreInfoPressed(int)), this, SLOT(onRowMoreInfoPressed(int)));
+		connect(listViewDelegate, SIGNAL(rowClosedPressed(int)), this, SLOT(onRowClosedPressed(int)));
 
 		vl_->addWidget(sampleListView_);
 	}
@@ -326,11 +332,6 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 		oldSamplePlateItemModel->deleteLater();
 }
 
-//void AMSamplePlateView::onSampleAddedThroughCamera(AMSample *sample){
-//	sampleView_->setSample(sample);
-//	//sampleView_->show();
-//}
-
 void AMSamplePlateView::onRowMoveToPressed(int row){
 
 }
@@ -339,4 +340,9 @@ void AMSamplePlateView::onRowMoreInfoPressed(int row){
 	AMSampleView *sampleView = new AMSampleView(samplePlate_->sampleAt(row));
 	connect(sampleView, SIGNAL(aboutToClose()), sampleView, SLOT(deleteLater()));
 	sampleView->show();
+}
+
+void AMSamplePlateView::onRowClosedPressed(int row){
+	emit sampleAboutToBeRemoved(row);
+	samplePlate_->removeSample(samplePlate_->sampleAt(row));
 }

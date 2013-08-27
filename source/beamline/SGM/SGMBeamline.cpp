@@ -36,6 +36,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
+#include "beamline/AMMotorGroup.h"
+#include "beamline/SGM/SGMSampleManipulatorMotorGroup.h"
+
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
@@ -1167,6 +1170,18 @@ void SGMBeamline::setupControls(){
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
+
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+	//motorObject = new AMMotorGroupObject("Manipulator",
+	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
+							       QStringList() << "X" << "Y" << "Z" << "R",
+							       QStringList() << "mm" << "mm" << "mm" << "deg",
+					     QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+					     QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+					     QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+					     this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void SGMBeamline::setupExposedControls(){

@@ -382,11 +382,13 @@ signals:
 	void shapeNameChanged(QString newName);
 
 	/// emitted when a shape has been drawn
-    void shapeFinished();
+	void shapeFinished();
 
-    void otherDataOneChanged(QString data);
+	void otherDataOneChanged(QString data);
 
-    void otherDataTwoChanged(QString data);
+	void otherDataTwoChanged(QString data);
+
+	void sampleShapeDeleted(AMShapeData *sampleShape);
 
 	void cameraConfigurationChanged(AMCameraConfiguration*);
 
@@ -516,13 +518,6 @@ protected:
 
 	/// move the motors
 	bool moveMotors(double x, double y, double z);
-
-
-
-
-
-
-
 
 protected:
 

@@ -49,6 +49,18 @@ bool AMSamplePlate::addSample(AMSample *sample){
 	return true;
 }
 
+bool AMSamplePlate::removeSample(AMSample *sample){
+	int sampleIndex = indexOfSample(sample);
+	if(sampleIndex != -1){
+		samples_.remove(sampleIndex);
+		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+		storeToDb(database());
+		sample->deleteLater();
+		return true;
+	}
+	return false;
+}
+
 int AMSamplePlate::indexOfSample(AMSample *sample){
 	if(!sample)
 		return -1;

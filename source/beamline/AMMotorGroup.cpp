@@ -257,6 +257,11 @@ AMBeamlineActionItem *AMMotorGroupObject::createStopAllAction()
 	return stopAllAction;
 }
 
+#include "ui/AMMotorGroupView.h"
+AMMotorGroupObjectView* AMMotorGroupObject::createMotorGroupObjectView(){
+	return new AMMotorGroupObjectView(this);
+}
+
 // AMMotorGroup
 //////////////////////////////////////////////////
 
