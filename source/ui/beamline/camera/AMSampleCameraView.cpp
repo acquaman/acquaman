@@ -1433,7 +1433,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     QFrame* crosshairFrame = new QFrame();
     QHBoxLayout* chl = new QHBoxLayout();
-    chl->setContentsMargins(12,4,12,4);
+    chl->setContentsMargins(12,0,12,0);
     chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
     chl->addSpacing(20);
     chl->addWidget(new QLabel("Color:"));
@@ -1468,7 +1468,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     QFrame* toolFrame  = new QFrame();
     QHBoxLayout* tfl = new QHBoxLayout();
-    tfl->setContentsMargins(12,4,12,4);
+    tfl->setContentsMargins(12,0,12,0);
 
 
 
@@ -1494,7 +1494,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     QFrame* shapeFrame = new QFrame();
     QHBoxLayout* shapeHorizontalLayout =  new QHBoxLayout();
-    shapeHorizontalLayout->setContentsMargins(12,4,12,4);
+    shapeHorizontalLayout->setContentsMargins(12,0,12,0);
     if(viewType == DEBUG)
     {
         shapeHorizontalLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on shape"));
@@ -1532,8 +1532,13 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     vbl->setContentsMargins(0,0,0,0);
     vbl->addWidget(crosshairFrame);
     vbl->addWidget(shapeScene_);
-    vbl->addWidget(shapeFrame);
-    vbl->addWidget(toolFrame);
+    QHBoxLayout *toolBarHL = new QHBoxLayout();
+    toolBarHL->addWidget(shapeFrame);
+    toolBarHL->addWidget(toolFrame);
+    toolBarHL->setContentsMargins(0,0,0,0);
+    vbl->addLayout(toolBarHL);
+    //vbl->addWidget(shapeFrame);
+    //vbl->addWidget(toolFrame);
     setLayout(vbl);
 
 
@@ -1695,7 +1700,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
         QFrame* topBar = new QFrame();
         QFrame* bottomBar = new QFrame();
         QHBoxLayout* topLayout = new QHBoxLayout();
-        topLayout->setContentsMargins(12,4,12,4);
+	topLayout->setContentsMargins(12,0,12,0);
         topLayout->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
         topLayout->addSpacing(20);
         topLayout->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
@@ -1707,7 +1712,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
         topBar->setLayout(topLayout);
 
         QHBoxLayout* bottomLayout = new QHBoxLayout();
-        bottomLayout->setContentsMargins(12,4,12,4);
+	bottomLayout->setContentsMargins(12,0,12,0);
         bottomLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on Shape"));
         bottomLayout->addSpacing(20);
         bottomLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));

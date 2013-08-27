@@ -72,7 +72,9 @@ HEADERS += \
     source/acquaman/SGM/SGMFastScanActionController.h \
     source/acquaman/SGM/SGMFastScanConfiguration2013.h \
     source/ui/SGM/SGMFastScanConfiguration2013View.h \
-    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h \
+    source/ui/SGM/SGMSampleManipulatorMotorGroupView.h \
+    source/beamline/SGM/SGMSampleManipulatorMotorGroup.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -116,7 +118,13 @@ SOURCES += \
     source/acquaman/SGM/SGMFastScanActionController.cpp \
     source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
     source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
-    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
+    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp \
+    source/ui/SGM/SGMSampleManipulatorMotorGroupView.cpp \
+    source/beamline/SGM/SGMSampleManipulatorMotorGroup.cpp
+
+
+
+
 
 
 

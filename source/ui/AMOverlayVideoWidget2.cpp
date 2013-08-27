@@ -4,7 +4,8 @@
 #include <QGLWidget>
 
 #include <QGraphicsVideoItem>
-
+#include <QLayout>
+#include <QDebug>
 
 AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlViewport) :
 	QGraphicsView(parent)
@@ -44,6 +45,10 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
 
 	delete videoItem_;
 	delete mediaPlayer_;
+}
+
+QSize AMOverlayVideoWidget2::sizeHint() const{
+	return QSize(650, 450);
 }
 
 void AMOverlayVideoWidget2::resizeEvent(QResizeEvent *event)

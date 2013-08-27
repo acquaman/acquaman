@@ -12,13 +12,15 @@ class AMSamplePlateBrowserView;
 class AMSampleCameraBrowserView;
 class AMSampleCameraWizardSelector;
 class AMShapeData;
+class AMMotorGroup;
+class AMMotorGroupView;
 
 class AMBeamlineSampleManagementView : public QWidget
 {
 Q_OBJECT
 public:
 	/// Constructor takes pointer to beamline to operate on (samplePlate and samplePlateBrowser live in AMBeamline)
-	AMBeamlineSampleManagementView(AMBeamline *beamline, QWidget *parent = 0);
+	AMBeamlineSampleManagementView(AMBeamline *beamline, AMMotorGroup *motorGroup, QWidget *parent = 0);
 
 protected slots:
 	/// Handles launching the AMSamplePlateCreationDialog to make a new sample plate. Also, automatically adds the new plate to the samplePlateBrowser and tells the beamline to use this as the current sample plate
@@ -34,6 +36,7 @@ protected slots:
 	void onSamplePlateSelected(AMSamplePlate *samplePlate);
 
 	void onSampleShapeDeleted(AMShapeData *sampleShape);
+	void onSampleAboutToBeRemoved(int index);
 
 protected:
 	/// Pointer to the beamline we're using
@@ -41,6 +44,7 @@ protected:
 
 	/// We instantiate a samplePlateBrowserView in the constructor, we're responsible for showing it when requested
 	AMSamplePlateBrowserView *samplePlateBrowserView_;
+	AMMotorGroupView *motorGroupView_;
 	/// We instantiate a samplePlateView and keep it updated with the right sample plate by listening to the beamline
 	AMSamplePlateView *samplePlateView_;
 	/// We instantiate a cameraBrowserView and a new cameraBrowser

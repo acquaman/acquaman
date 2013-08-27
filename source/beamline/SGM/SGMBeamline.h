@@ -62,6 +62,7 @@ class AMSamplePlatePre2013;
 class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
+class AMMotorGroup;
 
 class SGMBeamline : public AMBeamline
 {
@@ -140,6 +141,9 @@ public:
 	AMControl* masterDwell() const { return masterDwell_;}
 	/// Returns the relative step for the undulator
 	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
+
+	AMMotorGroup *motorGroup() const { return motorGroup_;}
+
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -378,6 +382,8 @@ protected:
 	AMControl *masterDwell_;
 	/// Control for the relative step setpoint on the undulator gap motor
 	AMControl *undulatorRelativeStep_;
+
+	AMMotorGroup *motorGroup_;
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;

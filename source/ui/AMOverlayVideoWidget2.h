@@ -43,6 +43,8 @@ public:
 	  */
 	QGraphicsVideoItem* videoItem() { return videoItem_; }
 
+	virtual QSize sizeHint() const;
+
 signals:
 
 public slots:
