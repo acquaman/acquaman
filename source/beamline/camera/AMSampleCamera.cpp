@@ -903,6 +903,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 		if(moveToBeam())
 			newPosition = beamIntersectionPoint(currentPosition);
+//		newPosition = currentPosition;
 		QVector3D shift = newPosition - currentPosition;
 
 		/// current
@@ -915,6 +916,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			{
 				shiftCoordinates(shift,i);
 			}
+			shiftCoordinates(shift,samplePlateShape_);
 			motorCoordinate_ += shift;
 			inboardOutboard = motorCoordinate_.x();
 			upStreamDownStream = motorCoordinate_.y();
@@ -1551,8 +1553,16 @@ void AMSampleCamera::shiftCoordinates(QVector3D shift, int index)
 {
 	if(isValid(index))
 	{
-		shapeList_[index]->shift(shift);
-		updateShape(index);
+		shiftCoordinates(shift,shapeList_[index]);
+	}
+}
+
+void AMSampleCamera::shiftCoordinates(QVector3D shift, AMShapeData *shape)
+{
+	if(shape)
+	{
+		shape->shift(shift);
+		updateShape(shape);
 	}
 }
 
@@ -2084,6 +2094,10 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	// then find where the beam intersects this plane.
 	double y = samplePoint.y();
 	QVector3D beamSpot(0,0,0);
+	AMShapeData* newShape = new AMShapeData();
+	QVector<QVector3D> coordinateShape;
+	coordinateShape<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0);
+	newShape->setCoordinateShape(coordinateShape,coordinateShape.count());
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
 		// equation for line: x = x0 + at , etc.
@@ -2121,10 +2135,14 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 		double x = x0 + a*beamLength;
 		double z = z0 + c*beamLength;
 		QVector3D beamPoint(x,y,z);
+		newShape->setCoordinate(beamPoint,i);
 		beamSpot+=beamPoint;
 
 
 	}
+//	insertItem(newShape);
+	newShape->setName(QString("Shape %1").arg(index_));
+	updateShape(newShape);
 	// find the center of the point
 	beamSpot /= beamConfiguration()->count()-1;
 	return  beamSpot;

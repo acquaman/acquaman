@@ -409,6 +409,7 @@ protected:
 
 	/// shifts all coordinates by a given amount
 	void shiftCoordinates(QVector3D shift, int index);
+	void shiftCoordinates(QVector3D shift, AMShapeData* shape);
 
 	/// apply the rotation in the given direction by the given angle to the given shape
 	AMShapeData* applySpecifiedRotation(const AMShapeData* shape, QVector3D direction, double angle) const;

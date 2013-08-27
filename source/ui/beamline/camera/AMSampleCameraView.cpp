@@ -692,6 +692,7 @@ void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 void AMSampleCameraView::onSamplePlateWizardFinished()
 {
 	showSamplePlate_->setChecked(false);
+	shapeModel_->saveSamplePlate();
 }
 
 void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double r)
