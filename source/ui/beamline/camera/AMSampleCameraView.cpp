@@ -178,7 +178,7 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
     shapeModel_->setScaledSize(scaledSize);
 	// now, scaledSize will either be:
 		// same as viewSize, if view and video have same aspect ratio, or the video is being stretched with Qt::IgnoreAspectRatio
-        // One dimension the same, other dimension smalmouseShiftPressedler than viewSize, if Qt::KeepAspectRatio
+		// One dimension the same, other dimension smaller than viewSize, if Qt::KeepAspectRatio
 		// or One dimension the same, other dimension LARGER than viewSize, if Qt::KeepAspectRatioByExpanding
 
 	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
@@ -868,7 +868,19 @@ void AMSampleCameraView::reviewCameraConfiguration()
         cameraConfiguration_->updateAll();
         shapeModel_->updateAllShapes();
         reviewCrosshairLinePositions();
-    }
+	}
+}
+
+void AMSampleCameraView::onMoveToBeamToggled(bool checked)
+{
+	qDebug()<<"AMSampleCameraView::onMoveToBeamToggled";
+	if(checked)
+		moveToBeam_->setText("Move to Beam");
+	else
+		moveToBeam_->setText("Move to Crosshair");
+
+	shapeModel_->setMoveToBeam(checked);
+
 }
 
 void AMSampleCameraView::setTilt(QString tilt)
@@ -1599,8 +1611,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     shapeHorizontalLayout->addSpacing(20);
     if(viewType == DEBUG)
     {
-//        shapeHorizontalLayout->addWidget(autoCompleteBox_ = new QLineEdit());
-//        shapeHorizontalLayout->addSpacing(20);
+		shapeHorizontalLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
+		shapeHorizontalLayout->addSpacing(20);
         shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
         shapeHorizontalLayout->addSpacing(20);
         shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
@@ -1615,7 +1627,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     if(viewType == DEBUG)
     {
         drawOnShapeCheckBox_->setChecked(false);
-        drawOnShapePushButton_->setDisabled(true);
+		drawOnShapePushButton_->setDisabled(true);
     }
 
 
@@ -1806,6 +1818,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
         bottomLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
         bottomLayout->addSpacing(20);
         bottomLayout->addWidget(distortionButton_ = new QPushButton("Toggle Distortion"));
+		bottomLayout->addSpacing(20);
+		bottomLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
         bottomLayout->addStretch();
         bottomBar->setLayout(bottomLayout);
 
@@ -1827,6 +1841,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 
     }
+
+	moveToBeam_->setChecked(true);
 
     bool defaultUseCameraMatrix = true;
     cameraMatrixCheckBox_->setChecked(defaultUseCameraMatrix);
@@ -1975,6 +1991,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(shapeModel_, SIGNAL(otherDataTwoChanged(QString)), this, SLOT(updateDataTwo(QString)));
 
     connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
+	connect(moveToBeam_, SIGNAL(toggled(bool)), this, SLOT(onMoveToBeamToggled(bool)));
 
     connect(shapeModel_, SIGNAL(shapeFinished()), this, SLOT(shapeDrawingFinished()));
 

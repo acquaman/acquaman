@@ -158,6 +158,11 @@ QPolygonF AMSampleCamera::currentPolygon() const
 	return screenShape(currentPolygon_);
 }
 
+bool AMSampleCamera::moveToBeam()
+{
+	return moveToBeam_;
+}
+
 /// return the current name
 QString AMSampleCamera::currentName() const
 {
@@ -469,6 +474,11 @@ void AMSampleCamera::setCurrentShapeIndex(int index)
 {
 	setOverrideMouseSelection(true);
 	setCurrentIndex(index);
+}
+
+void AMSampleCamera::setMoveToBeam(bool move)
+{
+	moveToBeam_ = move;
 }
 
 /// checks if an index is valid
@@ -888,8 +898,8 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 		QVector3D oldCoordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
 		QVector3D currentPosition = camera_->transform2Dto3D(position, depth(oldCoordinate));
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
-		newPosition = beamIntersectionPoint(currentPosition);
-//		newPosition = currentPosition;
+		if(moveToBeam())
+			newPosition = beamIntersectionPoint(currentPosition);
 		QVector3D shift = newPosition - currentPosition;
 
 		/// current
@@ -1429,6 +1439,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	distortion_ = true;
 
 	overrideMouseSelection_ = false;
+	moveToBeam_ = true;
 
 	for(int i= 0; i < SAMPLEPOINTS; i++)
 	{
@@ -2060,6 +2071,8 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	QVector3D beamSpot(0,0,0);
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
+		// equation for line: x = x0 + at , etc.
+		// find abc for xyz
 		QVector3D pointOne = beamConfiguration()->ray(i).first();
 		QVector3D pointTwo = beamConfiguration()->ray(i).last();
 		double x0 = pointOne.x();

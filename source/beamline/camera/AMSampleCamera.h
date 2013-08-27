@@ -90,6 +90,8 @@ public:
 
 	QPolygonF currentPolygon() const;
 
+	bool moveToBeam();
+
 	/// ------------------------------------------------------------------------------------------------
 
 
@@ -181,6 +183,8 @@ public slots:
 	void setOverrideMouseSelection(bool overrideMouseSelection);
 
 	void setCurrentShapeIndex(int index);
+
+	void setMoveToBeam(bool move);
 
 
 
@@ -321,8 +325,8 @@ public slots:
 	void beamCalibrate();
 
 	void setSamplePlate();
-    void setSamplePlate(AMShapeData* samplePlate);
-    void saveSamplePlate();
+	void setSamplePlate(AMShapeData* samplePlate);
+	void saveSamplePlate();
 
 	void setCameraConfigurationShape();
 
@@ -366,7 +370,7 @@ signals:
 
     void otherDataTwoChanged(QString data);
 
-    void cameraConfigurationChanged(AMCameraConfiguration*);
+	void cameraConfigurationChanged(AMCameraConfiguration*);
 
 
 protected slots:
@@ -477,7 +481,7 @@ protected:
 
 	/// inserts an item into the shape list - use this rather than inserting
 	/// manually into the list - keeps the model updated
-    void insertItem(AMShapeData* item);
+	void insertItem(AMShapeData* item);
 
 	/// removes an item from the shape list - use this rather than
 	/// removing items manually - keeps the model updated
@@ -610,6 +614,8 @@ protected:
 	AMShapeData* cameraConfigurationShape_;
 
 	bool overrideMouseSelection_;
+
+	bool moveToBeam_;
 
 
 

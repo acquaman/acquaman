@@ -139,6 +139,8 @@ public slots:
 
          void reviewCameraConfiguration();
 
+		 void onMoveToBeamToggled(bool checked);
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -528,6 +530,8 @@ protected:
 
     QFrame* advancedWindow_;
     QPushButton* advancedButton_;
+
+	QCheckBox* moveToBeam_;
 
 };
 
