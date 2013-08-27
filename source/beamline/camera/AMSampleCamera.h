@@ -66,7 +66,6 @@ public:
 	double motorX() const;
 	double motorY() const;
 	double motorZ() const;
-
 	double motorRotation() const;
 
 	/// get a list of all the intersections with the beam
@@ -82,16 +81,18 @@ public:
 
 	/// viewSize and scaled_size used for computing coordinates, get values from AMSampleCameraGraphicsView
 	QSizeF viewSize() const;
-
 	QSizeF scaledSize() const;
 
 	/// true if using cameraMatrix for transforms
 	bool useCameraMatrix() const;
 
+	/// the polygon currently being drawn
 	QPolygonF currentPolygon() const;
 
+	/// true if operation will move to beam, false if it will move to crosshair
 	bool moveToBeam();
 
+	/// the sample plate screen shape
 	QPolygonF samplePlate();
 
 	/// ------------------------------------------------------------------------------------------------
@@ -182,10 +183,13 @@ public slots:
 	/// sets whether to use camera matrix for transforms
 	void setUseCameraMatrix(bool use);
 
+	/// sets if mouse selection should be overridden (to prevent performing other actions)
 	void setOverrideMouseSelection(bool overrideMouseSelection);
 
+	/// sets the current index directly.  Also sets overrideMouseSelection to true
 	void setCurrentShapeIndex(int index);
 
+	/// set to true to move to beam.  Set to false to move to crosshair
 	void setMoveToBeam(bool move);
 
 
@@ -206,6 +210,7 @@ public:
 	/// look for intersections with the current beam
 	bool findIntersections();
 
+	/// deletes the shape with the specified index
 	void deleteShape(int index);
 
 
@@ -213,11 +218,13 @@ public:
 	int rowCount(const QModelIndex &parent) const;
 	QVariant data(const QModelIndex &index, int role) const;
 
+	/// returns true if motor movement is enabled
+	bool motorMovementEnabled();
 
-	bool motorMovementenabled();
-
+	/// the list of sample shapes
 	const QList<AMShapeData*> shapeList();
 
+	/// if true mouse selection will not perform normal actions (but can put focus on text items)
 	bool overrideMouseSelection();
 
 
@@ -337,12 +344,16 @@ public slots:
 	/// move the sample plate by a small amount, proportional to movement
 	void moveSamplePlate(int movement);
 
+	/// adds the beam marker, to mark the beam on the sample plate
 	void addBeamMarker(int index);
 
+	/// updates the view
 	void updateView();
 
+	/// moves the xyz motors to the specified location
 	void moveMotorTo(QVector3D coordinate);
 
+	/// stop the motors
 	void stopMotors();
 
 	/// Takes an AMSample and add the related shapeData if that AMSample is not currently drawn
@@ -358,14 +369,19 @@ signals:
 	/// update coordinates
 	void motorMoved();
 
+	/// emitted upon a successful motor movement
 	void moveSucceeded();
 
+	/// emitted when shapeList_ is changed
 	void shapesChanged();
 
+	/// emitted when the current index changeds
 	void currentIndexChanged(int);
 
+	/// emitted when a shape's name changes
 	void shapeNameChanged(QString newName);
 
+	/// emitted when a shape has been drawn
     void shapeFinished();
 
     void otherDataOneChanged(QString data);
@@ -497,7 +513,7 @@ protected:
 	/// used to find the point to move the plate to, to position beneath the beam
 	QVector3D beamIntersectionPoint(QVector3D samplePoint);
 
-
+	/// move the motors
 	bool moveMotors(double x, double y, double z);
 
 
@@ -616,8 +632,10 @@ protected:
 	/// shape used to check camera configuration
 	AMShapeData* cameraConfigurationShape_;
 
+	/// overrides normal mouse commands; stops text selection from deselecting current item
 	bool overrideMouseSelection_;
 
+	/// if true, operation moves to beam. If false, operation moves to crosshair.
 	bool moveToBeam_;
 
 

@@ -394,7 +394,7 @@ void AMSampleCamera::setCurrentName(QString name)
 	setName(name,currentIndex_);
 }
 
-/// set th current info
+/// set the current info
 void AMSampleCamera::setCurrentInfo(QString info)
 {
 	setOtherDataOne(info,currentIndex_);
@@ -610,7 +610,7 @@ QVariant AMSampleCamera::data(const QModelIndex &index, int role) const
 	}
 }
 
-bool AMSampleCamera::motorMovementenabled()
+bool AMSampleCamera::motorMovementEnabled()
 {
 	return enableMotorMovement_;
 }
@@ -1272,6 +1272,7 @@ void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
     }
     samplePlateShape_->setOtherDataFieldOne("Sample Plate");
     samplePlateSelected_ = true;
+	setDrawOnSamplePlate();
 }
 
 void AMSampleCamera::saveSamplePlate()
@@ -2134,7 +2135,7 @@ bool AMSampleCamera::moveMotors(double x, double y, double z)
 {
 	qDebug()<<"AMSampleCamera::moveMotors"<<x<<y<<z;
 	bool success = false;
-	if(motorMovementenabled())
+	if(motorMovementEnabled())
 	{
 		success = true;
 		AMControl::FailureExplanation failure [3];

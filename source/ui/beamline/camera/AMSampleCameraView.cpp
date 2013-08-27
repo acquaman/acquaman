@@ -123,6 +123,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     QPainterPath* path = new QPainterPath();
     path->addPolygon(polygon);
     currentShape_ = shapeScene_->scene()->addPath(*path,pen,brush);
+	samplePlate_ = 0;
 
 
     setGUI(viewType);
@@ -643,7 +644,7 @@ void AMSampleCameraView::showBeamMarker(int index)
 
 void AMSampleCameraView::transmitMotorMovementEnabled()
 {
-    emit motorMovementEnabled(shapeModel_->motorMovementenabled());
+	emit motorMovementEnabled(shapeModel_->motorMovementEnabled());
 }
 
 void AMSampleCameraView::updateShapeName(QString newName)
@@ -680,12 +681,18 @@ void AMSampleCameraView::updateDataTwo(QString data)
             textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataTwo(currentIndex()));
         }
         else reviewCrosshairLinePositions();
-    }
+	}
 }
 
+void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
+{
+	reviewCrosshairLinePositions();
+}
 
-
-
+void AMSampleCameraView::onSamplePlateWizardFinished()
+{
+	showSamplePlate_->setChecked(false);
+}
 
 void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double r)
 {
@@ -994,7 +1001,9 @@ bool AMSampleCameraView::loadSamplePlate()
     AMSample* samplePlate = new AMSample();
     samplePlate->loadFromDb(db,matchList.last());
     AMShapeData* samplePlateShape = samplePlate->sampleShapePositionData();
-    shapeModel_->setSamplePlate(samplePlateShape);
+	drawOnShapeCheckBox_->setChecked(true);
+	setDrawOnShapeEnabled(true);
+	shapeModel_->setSamplePlate(samplePlateShape);
 	reviewCrosshairLinePositions();
 	return true;
 
@@ -1132,6 +1141,7 @@ void AMSampleCameraView::startSampleWizard()
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     samplePlateWizard_->setView(view);
     samplePlateWizard_->show();
+	showSamplePlate_->setChecked(true);
 }
 
 void AMSampleCameraView::setSamplePlate()
@@ -1654,6 +1664,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
     samplePlateLayout->addSpacing(20);
     samplePlateLayout->addWidget(saveSamplePlate_ = new QPushButton("Save Sample Plate"));
+	samplePlateLayout->addSpacing(20);
+	samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
     samplePlateLayout->addSpacing(20);
     samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
     samplePlateLayout->addStretch(20);
@@ -1663,7 +1675,9 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     cvl->addWidget(samplePlateFrame);
 
-    showBeamOutlineCheckBox_->setChecked(true);
+	showSamplePlate_->setChecked(false);
+
+	showBeamOutlineCheckBox_->setChecked(true);
 
     configurationWindow_->setLayout(cvl);
 
@@ -1947,6 +1961,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
     connect(samplePlateButton_, SIGNAL(clicked()), this, SLOT(setSamplePlate()));
     connect(saveSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(saveSamplePlate()));
+	connect(showSamplePlate_, SIGNAL(toggled(bool)), this, SLOT(onShowSamplePlateStateChanged(bool)));
 
     connect(cameraConfigurationShapeButton_, SIGNAL(clicked()), this, SLOT(setCameraConfigurationShape()));
 
@@ -1999,6 +2014,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 
     connect(shapeModel_, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)), cameraConfiguration_, SLOT(onCameraConfigurationChanged(AMCameraConfiguration*)));
+	connect(this, SIGNAL(samplePlateWizardFinished()), this, SLOT(onSamplePlateWizardFinished()));
 
 }
 
@@ -2027,7 +2043,12 @@ void AMSampleCameraView::drawSamplePlate()
 	QPolygonF samplePlate = shapeModel_->samplePlate();
 	if(!samplePlate.isEmpty())
 	{
-		shapeScene_->scene()->removeItem(samplePlate_);
-		samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
+		if(!(samplePlate_ && samplePlate_->polygon() == samplePlate))
+		{
+			shapeScene_->scene()->removeItem(samplePlate_);
+			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
+		}
 	}
+	if(samplePlate_)
+		samplePlate_->setVisible(showSamplePlate_->isChecked());
 }

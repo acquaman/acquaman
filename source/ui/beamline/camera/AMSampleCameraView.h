@@ -339,6 +339,10 @@ protected slots:
 
     void updateDataTwo(QString data);
 
+	void onShowSamplePlateStateChanged(bool state);
+
+	void onSamplePlateWizardFinished();
+
 
 
 
@@ -536,6 +540,7 @@ protected:
     QPushButton* advancedButton_;
 
 	QCheckBox* moveToBeam_;
+	QCheckBox* showSamplePlate_;
 
 };
 
