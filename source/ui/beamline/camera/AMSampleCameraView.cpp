@@ -99,6 +99,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
     index_ = 0;
     groupRectangleActive_= false;
+	samplePlateSelected_ = false;
 
     QPen pen(colour(BORDER));
 
@@ -893,6 +894,11 @@ void AMSampleCameraView::onMoveToBeamToggled(bool checked)
 
 }
 
+void AMSampleCameraView::samplePlateSelected()
+{
+	samplePlateSelected_ = true;
+}
+
 void AMSampleCameraView::setTilt(QString tilt)
 {
     double newTilt = tilt.toDouble();
@@ -1271,7 +1277,7 @@ void AMSampleCameraView::resizeEvent(QResizeEvent *event)
     shapeScene_->resizeEvent(event);
 	reviewCrosshairLinePositions();
 }
-
+#include <QMessageBox>
 void AMSampleCameraView::mousePressHandler(QPointF position)
 {
     if(shapeModel_->overrideMouseSelection())
@@ -1281,13 +1287,19 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
     }
     connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
 
-    if(mode_ == DRAW)
+	if(mode_ == DRAW && samplePlateSelected_)
     {
         emit mousePressed((position));
         connect(this,SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(finishRectangle(QPointF)));
 
 
     }
+	else if(mode_ == DRAW && !samplePlateSelected_)
+	{
+		QMessageBox* message = new QMessageBox();
+		message->setText("Cannot create sample without first creating or loading a sample plate.");
+		message->exec();
+	}
     else if(mode_ == MOVE)
     {
         emit mouseMovePressed((position));
@@ -1797,8 +1809,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     QActionGroup* labelActionGroup = new QActionGroup(this);
     viewName_ = new QAction("Name", labelActionGroup);
-    viewOtherData_ = new QAction("Data", labelActionGroup);
-    viewIdNumber_ = new QAction("Id", labelActionGroup);
+	viewOtherData_ = new QAction("Tag", labelActionGroup);
+	viewIdNumber_ = new QAction("Elements", labelActionGroup);
     viewHidden_ = new QAction("Hide", labelActionGroup);
     viewName_->setCheckable(true);
     viewOtherData_->setCheckable(true);

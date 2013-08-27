@@ -164,8 +164,8 @@ protected:
 	/// sample plate this sample is associated with
 	AMSamplePlatePre2013* samplePlate_;
 
-	QVector<QVector3D> samplePosition_;
-	AMShapeData* samplePlatePosition_;
+//	QVector<QVector3D> samplePosition_;
+//	AMShapeData* samplePlatePosition_;
 	AMShapeData* sampleShapePositionData_;
 	QString currentTag_;
 

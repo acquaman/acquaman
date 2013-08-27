@@ -111,6 +111,7 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateChanged(AMSamplePlate 
 		for(int x = samplePlate->sampleCount()-1; x >= 0; x--)
 			sampleCamera->addSample(samplePlate->sampleAt(x));
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
+		cameraBrowserView_->setSamplePlateSelected();
 		connect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), samplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 	}
 }

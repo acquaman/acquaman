@@ -162,6 +162,11 @@ void AMSampleCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
 	videoWidget_->setCrosshairPosition(crosshairPosition);
 }
 
+void AMSampleCameraBrowserView::setSamplePlateSelected()
+{
+	emit samplePlateSelected();
+}
+
 QColor AMSampleCameraBrowserView::crosshairColor() const
 {
 	return videoWidget_->crosshairPen().color();
@@ -246,6 +251,8 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
     connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
     connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
     connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+
+	connect(this, SIGNAL(samplePlateSelected()), videoWidget_, SLOT(samplePlateSelected()));
 
 }
 

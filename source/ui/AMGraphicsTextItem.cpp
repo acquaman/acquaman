@@ -66,7 +66,14 @@ void AMGraphicsTextItem::selectAllText()
 
 void AMGraphicsTextItem::setSelectAll(const bool &selectAll)
 {
-    selectAll_ = selectAll;
+	selectAll_ = selectAll;
+}
+
+void AMGraphicsTextItem::clearSelection()
+{
+	QTextCursor newCursor = textCursor();
+	newCursor.setPosition(0);
+	setTextCursor(newCursor);
 }
 
 
@@ -109,6 +116,7 @@ void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
     QGraphicsTextItem::focusOutEvent(event);
     setSelectAll(false);
+	clearSelection();
 }
 
 #include <QKeyEvent>

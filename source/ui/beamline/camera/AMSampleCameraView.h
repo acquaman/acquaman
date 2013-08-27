@@ -141,6 +141,8 @@ public slots:
 
 		 void onMoveToBeamToggled(bool checked);
 
+		 void samplePlateSelected();
+
 
 signals:
 	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
@@ -541,6 +543,8 @@ protected:
 
 	QCheckBox* moveToBeam_;
 	QCheckBox* showSamplePlate_;
+
+	bool samplePlateSelected_;
 
 };
 

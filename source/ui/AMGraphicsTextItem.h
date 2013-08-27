@@ -22,6 +22,7 @@ public:
 public slots:
     void selectAllText();
     void setSelectAll(const bool &selectAll);
+	void clearSelection();
 
 signals:
     void textChanged(int);

@@ -629,6 +629,7 @@ bool AMSampleCamera::overrideMouseSelection()
 /// creates a new rectangle, and initializes its data
 void AMSampleCamera::startRectangle(QPointF position)
 {
+
 	position = undistortPoint(position);
 	QVector<QVector3D> newShape;
 	QVector3D coordinate[RECTANGLE_POINTS];
@@ -916,7 +917,8 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			{
 				shiftCoordinates(shift,i);
 			}
-			shiftCoordinates(shift,samplePlateShape_);
+			if(samplePlateSelected_)
+				shiftCoordinates(shift,samplePlateShape_);
 			motorCoordinate_ += shift;
 			inboardOutboard = motorCoordinate_.x();
 			upStreamDownStream = motorCoordinate_.y();
@@ -1109,12 +1111,14 @@ void AMSampleCamera::twoSelect()
         beamModel_->setPositionTwo(newBeamPosition);
         AMDatabase* db = AMDatabase::database("user");
         QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name", beamModel_->name());
-        if(matchList.count() != 0)
+		if(matchList.count() != 0)
         {
             beamModel_->dissociateFromDb();
-            beamModel_->setName("beam"+QString::number(matchList.last()+1));
-            beamModel_->storeToDb(db);
+			QVariantList beamList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "name");
+			int beamCount = beamList.count();
+			beamModel_->setName("beam"+QString::number(beamCount));
         }
+		beamModel_->storeToDb(db);
         emit beamChanged(beamModel_);
     }
     else
@@ -1755,6 +1759,11 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 	{
 		shiftCoordinates(shift,i);
 		shapeList_[i]->setRotation(rotation);
+	}
+	if(samplePlateSelected_)
+	{
+		shiftCoordinates(shift,samplePlateShape_);
+		samplePlateShape_->setRotation(rotation);
 	}
 
 

@@ -461,7 +461,7 @@ void AMSample::init(QString name)
 {
     makeConnections();
     sampleShapePositionData_ = 0;
-    samplePlatePosition_ = 0;
+//    samplePlatePosition_ = 0;
     currentTag_ = "";
     setName(name);
     setCurrentDateTime();

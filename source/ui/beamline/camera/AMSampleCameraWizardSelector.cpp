@@ -28,17 +28,17 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
     samplePlateWizardLayout->setContentsMargins(0,0,0,0);
 
     beamWizardLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
-    beamWizardLayout->addWidget(loadBeamConfigurationButton_ = new QPushButton("Load from database"));
+	beamWizardLayout->addWidget(loadBeamConfigurationButton_ = new QPushButton("Load"));
     beamWizardLayout->addStretch();
     beamWizardFrame->setLayout(beamWizardLayout);
 
     cameraWizardLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
-    cameraWizardLayout->addWidget(loadCameraConfigurationButton_ = new QPushButton("Load from database"));
+	cameraWizardLayout->addWidget(loadCameraConfigurationButton_ = new QPushButton("Load"));
     cameraWizardLayout->addStretch();
     cameraWizardFrame->setLayout(cameraWizardLayout);
 
     samplePlateWizardLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Sample Plate Wizard"));
-    samplePlateWizardLayout->addWidget(loadSamplePlateButton_ = new QPushButton("Load from database"));
+	samplePlateWizardLayout->addWidget(loadSamplePlateButton_ = new QPushButton("Load"));
     samplePlateWizardLayout->addStretch();
     samplePlateWizardFrame->setLayout(samplePlateWizardLayout);
 
@@ -117,7 +117,6 @@ void AMSampleCameraWizardSelector::onBeamWizardFinished()
 
 void AMSampleCameraWizardSelector::onCameraWizardFinished()
 {
-    qDebug()<<"AMSampleCameraWizardSelector::onCameraWizardFinished";
     setCameraWizardComplete(true);
 }
 
@@ -141,7 +140,6 @@ void AMSampleCameraWizardSelector::onBeamCompleteChanged()
 
 void AMSampleCameraWizardSelector::onCameraCompleteChanged()
 {
-    qDebug()<<"AMSampleCameraWizardSelector::onCameraCompleteChanged";
     if(cameraWizardComplete())
     {
         cameraWizardButton_->setIcon(QIcon(":/22x22/greenLEDOn.png"));
