@@ -163,6 +163,13 @@ bool AMSampleCamera::moveToBeam()
 	return moveToBeam_;
 }
 
+QPolygonF AMSampleCamera::samplePlate()
+{
+	if(samplePlateSelected_)
+		return screenShape(subShape(samplePlateShape_));
+	else return QPolygonF();
+}
+
 /// return the current name
 QString AMSampleCamera::currentName() const
 {
@@ -584,10 +591,6 @@ void AMSampleCamera::deleteShape(int index)
 	}
 }
 
-int AMSampleCamera::samplePlateIndex() const
-{
-	return shapeList_.indexOf(samplePlateShape_);
-}
 
 int AMSampleCamera::rowCount(const QModelIndex &parent) const
 {
@@ -1009,9 +1012,14 @@ void AMSampleCamera::updateShape(int index)
 	/// must set shape based on coordinates
 	if(isValid(index))
 	{
-		shapeList_[index]->setShape(subShape(shapeList_.at(index)));
+		updateShape(shapeList_[index]);
 	}
 
+}
+
+void AMSampleCamera::updateShape(AMShapeData *data)
+{
+	data->setShape(subShape(data));
 }
 
 /// updates all shapes
@@ -1245,17 +1253,18 @@ void AMSampleCamera::setSamplePlate()
 				return;
 			}
 		}
-		samplePlateShape_ = shapeList_[currentIndex_];
+		samplePlateShape_ = takeItem(currentIndex_);
 		samplePlateShape_->setName("Sample Plate");
 		samplePlateShape_->setOtherDataFieldOne("Sample Plate");
 		samplePlateSelected_ = true;
+
 	}
 
 }
 
 void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
 {
-    insertItem(samplePlate);
+//	insertItem(samplePlate);
     samplePlateShape_ = samplePlate;
     if(samplePlateShape_->name() != "Sample Plate")
     {
@@ -1292,7 +1301,8 @@ void AMSampleCamera::moveSamplePlateTo(QVector3D coordinate)
 	{
 
 		samplePlateShape_->shiftTo(coordinate);
-		updateShape(samplePlateIndex());
+		updateShape(samplePlateShape_);
+
 	}
 }
 
@@ -1304,7 +1314,7 @@ void AMSampleCamera::moveSamplePlate(int movement)
 		double shapeWidth = (samplePlateShape_->coordinate(1) - samplePlateShape_->coordinate(0)).length();
 		QVector3D shiftMovement = direction * movement/1000 * shapeWidth;
 		samplePlateShape_->shift(shiftMovement);
-		updateShape(samplePlateIndex());
+		updateShape(samplePlateShape_);
 	}
 }
 
@@ -1317,10 +1327,10 @@ void AMSampleCamera::addBeamMarker(int index)
 	}
 	qDebug()<<"creating new shape";
 	AMShapeData* newBeamShape = new AMShapeData();
-	int sampleIndex = shapeList_.indexOf(samplePlateShape_);
-	if(sampleIndex >= 0)
+
+	if(samplePlateSelected_)
 	{
-		QVector<QVector3D> coordinateShape = findIntersectionShape(shapeList_.indexOf(samplePlateShape_));
+		QVector<QVector3D> coordinateShape = findIntersectionShape(samplePlateShape_);
 		if(!coordinateShape.isEmpty())
 		{
 			newBeamShape->setCoordinateShape(coordinateShape,coordinateShape.count());
@@ -1334,6 +1344,7 @@ void AMSampleCamera::addBeamMarker(int index)
 			updateShape(currentIndex_);
 		}
 	}
+
 }
 
 void AMSampleCamera::updateView()
@@ -1835,12 +1846,17 @@ QVector3D AMSampleCamera::depthVector(QVector3D coordinate) const
 /// finds the intersection between the beam and the shape with given index
 QVector<QVector3D> AMSampleCamera::findIntersectionShape(int index) const
 {
+	return findIntersectionShape(shapeList_[index]);
+}
+
+QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shapeToIntersect) const
+{
 	/// First find the shape on the same plane
-	QVector<QVector3D> rotatedShape = rotateShape(shapeList_[index]);
+	QVector<QVector3D> rotatedShape = rotateShape(shapeToIntersect);
 	QVector<QVector3D> shape;
 	QVector3D topLeft = rotatedShape.at(TOPLEFT);
-	QVector3D hHat = getHeightNormal(shapeList_[index]);
-	QVector3D wHat = getWidthNormal(shapeList_[index]);
+	QVector3D hHat = getHeightNormal(shapeToIntersect);
+	QVector3D wHat = getWidthNormal(shapeToIntersect);
 	QVector3D nHat = QVector3D::normal(wHat,hHat);
 	hHat = QVector3D::normal(nHat,wHat);
 	int count = beamModel_->count();
@@ -1916,8 +1932,6 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(int index) const
 	}
 
 	return intersectionShape;
-
-
 }
 
 /// returns the QPolygonF of a set of QVector3D's that can be directly displayed on the screen

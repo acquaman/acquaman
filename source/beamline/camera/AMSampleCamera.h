@@ -92,6 +92,8 @@ public:
 
 	bool moveToBeam();
 
+	QPolygonF samplePlate();
+
 	/// ------------------------------------------------------------------------------------------------
 
 
@@ -206,8 +208,6 @@ public:
 
 	void deleteShape(int index);
 
-	int samplePlateIndex() const;
-
 
 	/// list model functions
 	int rowCount(const QModelIndex &parent) const;
@@ -283,6 +283,8 @@ public slots:
 
 	/// updates the shape of the given index (it will not change or move until this is called)
 	void updateShape(int index);
+
+	void updateShape(AMShapeData* data);
 
 	/// updates all the shapes
 	void updateAllShapes();
@@ -451,6 +453,7 @@ protected:
 
 	/// finds the intersection of the shape with the beam
 	QVector<QVector3D> findIntersectionShape(int index) const;
+	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape) const;
 
 	/// converts the intersection shape to a shape on the screen
 	QPolygonF intersectionScreenShape(QVector<QVector3D>) const;

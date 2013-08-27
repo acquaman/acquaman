@@ -383,6 +383,8 @@ protected:
 
     QColor colour(ShapeColour role);
 
+	void drawSamplePlate();
+
 
 protected:
 
@@ -412,10 +414,12 @@ protected:
     /// Map of QGraphicsPolygonItem, corresponds to a map of AMShapeData2
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
-    /// The model for all the shapes displayed (except the crosshair)
+	/// The model for all the shapes displayed
     AMSampleCamera* shapeModel_;
 
     QGraphicsPolygonItem* groupRectangle_;
+
+	QGraphicsPolygonItem* samplePlate_;
 
     bool groupRectangleActive_;
 

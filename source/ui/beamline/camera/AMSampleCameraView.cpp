@@ -277,6 +277,8 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
     {
         groupRectangle_->setPolygon(shapeModel_->groupRectangle());
     }
+	// draw the sample plate
+	drawSamplePlate();
 
    // print the intersection shapes
    intersection();
@@ -950,6 +952,7 @@ bool AMSampleCameraView::loadBeam()
     AMBeamConfiguration* beamToLoad = new AMBeamConfiguration();
     beamToLoad->loadFromDb(db,id);
     shapeModel_->setBeamModel(beamToLoad);
+	reviewCrosshairLinePositions();
     return true;
 }
 
@@ -975,6 +978,7 @@ bool AMSampleCameraView::loadCamera()
 
     cameraToLoad->loadFromDb(db,id);
     shapeModel_->setCameraModel(cameraToLoad);
+	reviewCrosshairLinePositions();
     return true;
 }
 
@@ -991,7 +995,7 @@ bool AMSampleCameraView::loadSamplePlate()
     samplePlate->loadFromDb(db,matchList.last());
     AMShapeData* samplePlateShape = samplePlate->sampleShapePositionData();
     shapeModel_->setSamplePlate(samplePlateShape);
-
+	reviewCrosshairLinePositions();
 	return true;
 
 }
@@ -1148,10 +1152,8 @@ void AMSampleCameraView::moveSamplePlate(int movement)
     samplePlateMovement_ = movement;
     shapeModel_->moveSamplePlate(relativeMovement);
     reviewCrosshairLinePositions();
-    int index = shapeModel_->samplePlateIndex();
     AMSampleCameraGraphicsView* view = shapeScene_;
-    if(shapeModel_->isValid(index))
-        samplePlateWizard_->updateScene(view);
+	samplePlateWizard_->updateScene(view);
 }
 
 void AMSampleCameraView::showBeamOutline(bool show)
@@ -2015,5 +2017,17 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
     case FILL:
     default:
         return QColor(Qt::transparent);
-    }
+	}
+}
+
+void AMSampleCameraView::drawSamplePlate()
+{
+	QPen pen(colour(BORDER));
+	QBrush brush(colour(FILL));
+	QPolygonF samplePlate = shapeModel_->samplePlate();
+	if(!samplePlate.isEmpty())
+	{
+		shapeScene_->scene()->removeItem(samplePlate_);
+		samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
+	}
 }
