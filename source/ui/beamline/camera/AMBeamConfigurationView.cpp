@@ -277,11 +277,23 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     buttonLayout->addWidget(intersectionButton_ = new QPushButton("Intersection"));
     buttonFrame->setLayout(buttonLayout);
 
+	QFrame* dbFrame = new QFrame();
+	QHBoxLayout* dbLayout = new QHBoxLayout();
+	dbLayout->setContentsMargins(12,4,12,4);
+	dbLayout->addWidget(beamSelectionBox_ = new QComboBox());
+	dbLayout->addWidget(beamConfigurationName_ = new QLineEdit());
+	dbLayout->addWidget(beamSaveConfiguration_ = new QPushButton("Save Beam Configuration"));
+	dbLayout->addStretch();
+	dbFrame->setLayout(dbLayout);
+
+	beamSelectionBox_->setLineEdit(beamConfigurationName_);
+
     vbl->addWidget(optionFrame);
     vbl->addWidget(oneFrame);
     vbl->addWidget(twoFrame);
     vbl->addStretch();
     vbl->addWidget(buttonFrame);
+	vbl->addWidget(dbFrame);
     setLayout(vbl);
 
 
@@ -294,13 +306,15 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
     connect(twoSelect_, SIGNAL(clicked()), this, SLOT(selectTwo()));
     connect(intersectionButton_, SIGNAL(clicked()), this, SIGNAL(intersection()));
 
+	connect(beamSaveConfiguration_, SIGNAL(clicked()), this, SLOT(saveBeamConfiguration()));
+	connect(beamSelectionBox_, SIGNAL(activated(int)), this, SLOT(loadBeamConfiguration(int)));
+
     updateData();
 
 }
 
 void AMBeamConfigurationView::beamChanged(QObject *newBeam)
 {
-    qDebug()<<"changing beam";
     AMBeamConfiguration *beam = qobject_cast<AMBeamConfiguration*>(newBeam);
     if(beam != 0)
     {
@@ -310,7 +324,23 @@ void AMBeamConfigurationView::beamChanged(QObject *newBeam)
     else
     {
         qDebug()<<"Cannot assign null to beamModel...(AMBeamConfiguration)";
-    }
+	}
+}
+
+void AMBeamConfigurationView::saveBeamConfiguration()
+{
+	beamModel_->storeToDb(AMDatabase::database("user"));
+}
+
+void AMBeamConfigurationView::loadBeamConfiguration(int index)
+{
+	AMDatabase* db = AMDatabase::database("user");
+	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"id",index + 1);
+	if(!matchList.isEmpty())
+	{
+		beamModel_->loadFromDb(db,index + 1);
+		updateData();
+	}
 }
 
 void AMBeamConfigurationView::divergentChecked(int checked)
@@ -325,7 +355,7 @@ void AMBeamConfigurationView::divergentChecked(int checked)
 
 void AMBeamConfigurationView::selectTwo()
 {
-    emit(twoSelect());
+	emit twoSelect();
     if(!divergent_)
     {
         beamModel_->alignPositionTwo();
@@ -381,6 +411,7 @@ void AMBeamConfigurationView::updateData()
             qDebug()<<"invalid second shape";
         }
     }
+	populateBeamSelectionBox();
 
 
 
@@ -472,7 +503,19 @@ void AMBeamConfigurationView::updateTwoFour(QVector3D four)
 
     twoFourX_->setText(x);
     twoFourY_->setText(y);
-    twoFourZ_->setText(z);
+	twoFourZ_->setText(z);
+}
+
+void AMBeamConfigurationView::populateBeamSelectionBox()
+{
+	beamSelectionBox_->clear();
+	AMDatabase* db = AMDatabase::database("user");
+	QList<QVariant> matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name");
+	foreach(QVariant matchItem, matchList)
+	{
+		beamSelectionBox_->addItem(matchItem.toString());
+	}
+
 }
 
 

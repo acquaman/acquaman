@@ -20,6 +20,8 @@ public:
 
 public slots:
     void beamChanged(QObject*);
+    void saveBeamConfiguration();
+    void loadBeamConfiguration(int);
 
 signals:
     void oneSelect();
@@ -72,6 +74,8 @@ protected:
 
     AMBeamConfiguration* beamModel_;
 
+
+
     bool divergent_;
 
 protected slots:
@@ -86,6 +90,7 @@ protected slots:
     void updateTwoTwo(QVector3D);
     void updateTwoThree(QVector3D);
     void updateTwoFour(QVector3D);
+    void populateBeamSelectionBox();
 };
 
 #endif // AMBEAMCONFIGURATION_H

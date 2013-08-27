@@ -36,6 +36,13 @@ public:
 	AMSampleCameraBrowser* sampleCameraBrowser();
 	AMSampleCameraView *sampleCameraView();
 
+	/// for saving crosshair settings
+	QColor crosshairColor() const;
+	int crosshairLineThickness() const;
+	bool crosshairVisible() const;
+	QPointF crosshairPosition() const;
+	bool crosshairLocked() const;
+
 
 public slots:
 
@@ -53,14 +60,16 @@ public slots:
 	void setCrosshairLocked(bool crosshairLocked);
 	void setCrosshairPosition(QPointF crosshairPosition);
 
-	/// for saving crosshair settings
-	QColor crosshairColor() const;
-	int crosshairLineThickness() const;
-	bool crosshairVisible() const;
-	QPointF crosshairPosition() const;
-	bool crosshairLocked() const;
+
+
+	void setSamplePlateSelected();
 
 signals:
+
+    void requestLoadBeam();
+    void requestLoadCamera();
+    void requestLoadSamplePlate();
+
 	void beamWizardPressed();
 	void cameraWizardPressed();
 	void samplePlateWizardPressed();
@@ -68,6 +77,9 @@ signals:
 	void beamWizardFinished();
 	void cameraWizardFinished();
 	void samplePlateWizardFinished();
+
+
+	void samplePlateSelected();
 protected:
 	/// initialization
 	void init(AMSampleCameraBrowser *);

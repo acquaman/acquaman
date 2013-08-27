@@ -162,6 +162,11 @@ void AMSampleCameraBrowserView::setCrosshairPosition(QPointF crosshairPosition)
 	videoWidget_->setCrosshairPosition(crosshairPosition);
 }
 
+void AMSampleCameraBrowserView::setSamplePlateSelected()
+{
+	emit samplePlateSelected();
+}
+
 QColor AMSampleCameraBrowserView::crosshairColor() const
 {
 	return videoWidget_->crosshairPen().color();
@@ -229,12 +234,25 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
-	connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
-	connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
-	connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+//	connect(sampleView_, SIGNAL(indexChanged(int)), cameraBrowser_, SLOT(sampleIndexChanged(int)));
+//	connect(sampleView_, SIGNAL(indexChanged(int)), videoWidget_, SLOT(currentSelectionChanged()));
+//	connect(cameraBrowser_, SIGNAL(changeSampleIndex(int)), sampleView_, SLOT(setCurrentSelection(int)));
+	//        connect(videoWidget_, SIGNAL(changeSampleName(int,QString)), sampleView_, SLOT(updateSampleName(int,QString)));
 
-	connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
-	connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
-	connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+    // wizard signals
+    connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
+    connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
+    connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+
+    connect(this, SIGNAL(requestLoadBeam()), videoWidget_, SLOT(requestLoadBeam()));
+    connect(this, SIGNAL(requestLoadCamera()), videoWidget_, SLOT(requestLoadCamera()));
+    connect(this, SIGNAL(requestLoadSamplePlate()), videoWidget_, SLOT(requestLoadSamplePlate()));
+
+    connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
+    connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
+    connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+
+	connect(this, SIGNAL(samplePlateSelected()), videoWidget_, SLOT(samplePlateSelected()));
+
 }
 

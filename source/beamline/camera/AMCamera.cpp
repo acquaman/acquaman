@@ -22,8 +22,13 @@ AMCameraConfiguration *AMCamera::cameraConfiguration() const
 void AMCamera::setCameraConfiguration(AMCameraConfiguration *cameraConfiguration)
 {
     if(cameraConfiguration_ != cameraConfiguration)
+    {
         cameraConfiguration_ = cameraConfiguration;
-    calibrationRun_ = cameraConfiguration_->hasMatrix();
+        calibrationRun_ = cameraConfiguration_->hasMatrix();
+        emit configurationChanged(cameraConfiguration_);
+
+    }
+
 }
 
 void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
@@ -605,7 +610,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     if(point == QPointF(0.5,0.5))
     {
         isCentred = true;
-        qDebug()<<"AMCamera::transform2Dto3DMatrix - Is centered";
     }
 
     /// translate point to coordinate system

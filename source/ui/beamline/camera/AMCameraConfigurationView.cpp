@@ -370,7 +370,12 @@ void AMCameraConfigurationView::setCentreOffsetX(double centreOffsetX)
 
 void AMCameraConfigurationView::setCentreOffsetY(double centreOffsetY)
 {
-    cameraModel_->setImageCentreY(centreOffsetY);
+	cameraModel_->setImageCentreY(centreOffsetY);
+}
+
+void AMCameraConfigurationView::setCameraConfiguration(AMCameraConfiguration *newCameraConfiguration)
+{
+	cameraModel_ = newCameraConfiguration;
 }
 
 void AMCameraConfigurationView::updatePositionX(QString x)
@@ -549,8 +554,7 @@ void AMCameraConfigurationView::populateComboBox(int dbIndex)
 /// updates all the fields in the window
 void AMCameraConfigurationView::updateAll()
 {
-    //qDebug()<<"Updating camera window";
-    QVector3D position = cameraModel_->cameraPosition();
+	QVector3D position = cameraModel_->cameraPosition();
     QVector3D center = cameraModel_->cameraCentre();
     QString name = cameraModel_->name();
     emit update(cameraModel_);
@@ -586,7 +590,6 @@ void AMCameraConfigurationView::updateAll()
         matrixElement_[4+i]->setText(QString("%1").arg(cameraMatrix.at(i).y()));
         matrixElement_[8+i]->setText(QString("%1").arg(cameraMatrix.at(i).z()));
     }
-    //qDebug()<<"Finished updating camera window";
 }
 
 void AMCameraConfigurationView::hideCameraParameters(bool hide)
@@ -603,6 +606,12 @@ void AMCameraConfigurationView::hideCameraParameters(bool hide)
         cameraFrame_->show();
     }
 
+}
+
+void AMCameraConfigurationView::onCameraConfigurationChanged(AMCameraConfiguration* cameraConfiguration)
+{
+	setCameraConfiguration(cameraConfiguration);
+	updateAll();
 }
 
 

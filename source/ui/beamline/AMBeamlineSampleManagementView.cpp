@@ -66,9 +66,14 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(samplePlateBrowserView_, SIGNAL(samplePlateSelected(AMSamplePlate*)), this, SLOT(onSamplePlateSelected(AMSamplePlate*)));
 	connect(samplePlateView_, SIGNAL(sampleAboutToBeRemoved(int)), this, SLOT(onSampleAboutToBeRemoved(int)));
 
+    // wizard selection buttons
 	connect(wizardSelectorView_, SIGNAL(beamWizardPressed()), cameraBrowserView_, SIGNAL(beamWizardPressed()));
 	connect(wizardSelectorView_, SIGNAL(cameraWizardPressed()), cameraBrowserView_, SIGNAL(cameraWizardPressed()));
 	connect(wizardSelectorView_, SIGNAL(samplePlateWizardPressed()), cameraBrowserView_, SIGNAL(samplePlateWizardPressed()));
+    connect(wizardSelectorView_, SIGNAL(requestLoadBeamConfiguration()), cameraBrowserView_, SIGNAL(requestLoadBeam()));
+    connect(wizardSelectorView_, SIGNAL(requestLoadCameraConfiguration()), cameraBrowserView_, SIGNAL(requestLoadCamera()));
+    connect(wizardSelectorView_, SIGNAL(requestLoadSamplePlate()), cameraBrowserView_, SIGNAL(requestLoadSamplePlate()));
+
 	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(samplePlateWizardFinished()), wizardSelectorView_, SLOT(onSamplePlateWizardFinished()));
@@ -114,6 +119,7 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateChanged(AMSamplePlate 
 		for(int x = samplePlate->sampleCount()-1; x >= 0; x--)
 			sampleCamera->addSample(samplePlate->sampleAt(x));
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
+		cameraBrowserView_->setSamplePlateSelected();
 		connect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), samplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 	}
 }

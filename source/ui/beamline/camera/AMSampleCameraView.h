@@ -89,11 +89,6 @@ public:
     double tilt();
 
 
-
-
-
-
-
     void setMedia(QMediaContent url);
     void play();
 
@@ -102,6 +97,11 @@ public:
     QPointF mapPointToVideo(QPointF);
 
     bool isValid(int index) const;
+
+    bool loadBeam();
+    bool loadCamera();
+    bool loadSamplePlate();
+
 
 public slots:
 
@@ -138,6 +138,10 @@ public slots:
          void setDrawOnShapeEnabled(bool enable);
 
          void reviewCameraConfiguration();
+
+		 void onMoveToBeamToggled(bool checked);
+
+		 void samplePlateSelected();
 
 
 signals:
@@ -205,6 +209,7 @@ signals:
 	void samplePlateWizardFinished();
 
 
+
 public slots:
 
 	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
@@ -242,6 +247,12 @@ public slots:
     void requestUpdate();
 
     void shapeDrawingFinished();
+
+
+    // request database loads
+    void requestLoadBeam();
+    void requestLoadCamera();
+    void requestLoadSamplePlate();
 
 protected slots:
     void updateCurrentShape();
@@ -330,6 +341,10 @@ protected slots:
 
     void updateDataTwo(QString data);
 
+	void onShowSamplePlateStateChanged(bool state);
+
+	void onSamplePlateWizardFinished();
+
 
 
 
@@ -374,6 +389,8 @@ protected:
 
     QColor colour(ShapeColour role);
 
+	void drawSamplePlate();
+
 
 protected:
 
@@ -403,10 +420,12 @@ protected:
     /// Map of QGraphicsPolygonItem, corresponds to a map of AMShapeData2
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
-    /// The model for all the shapes displayed (except the crosshair)
+	/// The model for all the shapes displayed
     AMSampleCamera* shapeModel_;
 
     QGraphicsPolygonItem* groupRectangle_;
+
+	QGraphicsPolygonItem* samplePlate_;
 
     bool groupRectangleActive_;
 
@@ -488,7 +507,6 @@ protected:
 
     ViewMode currentView_;
 
-//    QLineEdit* autoCompleteBox_;
     QCompleter* autoCompleter_;
     QStringListModel* wordList_;
 
@@ -508,6 +526,7 @@ protected:
     int updateTracker_;
 
     QPushButton* samplePlateButton_;
+    QPushButton* saveSamplePlate_;
 
     QPushButton* samplePlateWizardButton_;
     AMSamplePlateWizard* samplePlateWizard_;
@@ -522,11 +541,10 @@ protected:
     QFrame* advancedWindow_;
     QPushButton* advancedButton_;
 
-//    AMShapeDataListView* shapeDataListView_;
+	QCheckBox* moveToBeam_;
+	QCheckBox* showSamplePlate_;
 
-
-
-
+	bool samplePlateSelected_;
 
 };
 

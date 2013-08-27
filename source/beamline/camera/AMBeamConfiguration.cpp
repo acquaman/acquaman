@@ -49,11 +49,9 @@ QList<QVector3D> AMBeamConfiguration::beamTwo() const
     return beam;
 }
 
-#include <QDebug>
 void AMBeamConfiguration::setPositionOne(QVector<QVector3D> positionOne)
 {
     positionOne_ = positionOne;
-//    qDebug()<<(findCenter(positionOne)-QVector3D(0,0,40));
 }
 
 void AMBeamConfiguration::setPositionTwo(QVector<QVector3D> positionTwo)
