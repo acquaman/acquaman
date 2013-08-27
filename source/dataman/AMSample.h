@@ -133,6 +133,7 @@ signals:
 	void requestCurrentTag();
 	void currentTagChanged(const QString &tag);
     void elementsChanged(const QString &elementList);
+	void sampleShapeDataChanged();
 
 
 protected:

@@ -48,6 +48,7 @@ void AMSampleView::setSample(AMSample *sample)
 		connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
 		connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
 		connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
+		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
 
 		updateFrames();
 	}
@@ -143,6 +144,11 @@ void AMSampleView::updateTags(QStringList tags)
 	//        qDebug()<<"AMSampleView::updateTags - Failed to cast string list";
 	//    }
 
+}
+
+void AMSampleView::onSampleShapeDataChanged()
+{
+	shapeDataView_->setShapeData(sample_->sampleShapePositionData());
 }
 
 
@@ -252,6 +258,7 @@ void AMSampleView::setUpGui()
 {
 	//qDebug()<<"Called setupgui";
 	//shapeDataView_ = AMShapeDataView::shapeView();
+
 	shapeDataView_ = new AMShapeDataView(sample_->sampleShapePositionData());
 
 	QStringList wordList;

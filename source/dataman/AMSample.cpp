@@ -301,6 +301,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
             connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
+		emit sampleShapeDataChanged();
     }
 
 }
@@ -486,4 +487,5 @@ AMQVector3DVector AMSample::dbReadShapeData() const{
 void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
 	sampleShapePositionData_ = new AMShapeData(this);
 	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
+	emit sampleShapeDataChanged();
 }

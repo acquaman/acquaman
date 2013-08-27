@@ -49,6 +49,8 @@ public slots:
 
 	void updateTags(QStringList);
 
+	void onSampleShapeDataChanged();
+
 signals:
 	void updateName(QString);
 	void aboutToClose();
@@ -63,6 +65,7 @@ protected slots:
 	/// change the sample plate associated with this sample
 	//    void changeSamplePlate(QString);
 	void onSampleNameChanged(QString);
+
 
 protected:
 	/// set up the ui elements of the view
