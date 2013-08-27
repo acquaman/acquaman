@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMDetectorGroup.h"
 
-class AMSampleContainer;
 class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
@@ -120,7 +119,6 @@ public:
 	/// Call to check for a message on the (in)validity of an action
 	virtual QString validateActionMessage(AMAction3 *action) { Q_UNUSED(action); return QString("Action is Currently Valid"); }
 
-	AMSampleContainer* sampleContainer();
 	AMSamplePlate* samplePlate();
 	AMSamplePlateBrowser* samplePlateBrowser();
 	void setSamplePlate(AMSamplePlate *samplePlate);
@@ -131,8 +129,6 @@ signals:
 	void samplePlateAboutToChange(AMSamplePlate *lastSamplePlate);
 	void samplePlateChanged(AMSamplePlate *samplePlate);
 
-protected slots:
-	void onSampleContainerSampleAdded(AMSample *sample);
 
 protected:
 	/// Singleton classes have a protected constructor; all access is through AMBeamline::bl() or YourBeamline::bl()
@@ -148,7 +144,6 @@ protected:
 
 	QList<AMDetectorGroup*> exposedDetectorGroups_;
 
-	AMSampleContainer *sampleContainer_;
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateBrowser *samplePlateBrowser_;
 };

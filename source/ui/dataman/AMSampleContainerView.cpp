@@ -1,5 +1,6 @@
 #include "AMSampleContainerView.h"
 
+/*
 #include "dataman/AMSampleContainer.h"
 #include "ui/dataman/AMSampleView.h"
 #include "dataman/AMSample.h"
@@ -47,3 +48,4 @@ void AMSampleContainerView::init()
     sampleView_ = new AMSampleView();
 }
 
+*/

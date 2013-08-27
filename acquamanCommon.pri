@@ -723,13 +723,11 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
 	source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
 	source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
-	source/dataman/AMSampleContainer.h \
 	source/dataman/AMSample.h \
 	source/beamline/camera/AMShapeData.h \
 	source/beamline/camera/AMCamera.h \
 	source/beamline/camera/AMBeamConfiguration.h \
 	source/beamline/camera/AMCameraConfiguration.h \
-	source/ui/dataman/AMSampleContainerView.h \
 	source/ui/dataman/AMSampleView.h \
 	source/ui/beamline/camera/AMCameraConfigurationView.h \
 	source/ui/beamline/camera/AMBeamConfigurationView.h \
@@ -1229,13 +1227,11 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
 	source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
 	source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
-	source/dataman/AMSampleContainer.cpp \
 	source/dataman/AMSample.cpp \
 	source/beamline/camera/AMShapeData.cpp \
 	source/beamline/camera/AMCamera.cpp \
 	source/beamline/camera/AMBeamConfiguration.cpp \
 	source/beamline/camera/AMCameraConfiguration.cpp \
-	source/ui/dataman/AMSampleContainerView.cpp \
 	source/ui/dataman/AMSampleView.cpp \
 	source/ui/beamline/camera/AMCameraConfigurationView.cpp \
 	source/ui/beamline/camera/AMBeamConfigurationView.cpp \

@@ -13,7 +13,7 @@
 
 #include "ui/dataman/AMSampleView.h"
 
-
+/*
 AMShapeDataView* AMShapeDataView::instance_;
 
 AMShapeDataView* AMShapeDataView::shapeView()
@@ -22,6 +22,7 @@ AMShapeDataView* AMShapeDataView::shapeView()
         instance_ = new AMShapeDataView();
     return instance_;
 }
+*/
 
 
 AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :

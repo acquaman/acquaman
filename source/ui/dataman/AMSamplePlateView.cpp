@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QToolButton>
 
 #include "util/AMDateTimeUtils.h"
 #include "ui/dataman/AMSampleView.h"
@@ -68,7 +69,7 @@ Qt::ItemFlags AMSamplePlateItemModel::flags(const QModelIndex &index) const
 	Q_UNUSED(index)
 
 	//return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-	return Qt::ItemIsEnabled;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
 QVariant AMSamplePlateItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -101,6 +102,34 @@ void AMSamplePlateItemModel::onSampleRemoved(int index){
 
 void AMSamplePlateItemModel::onSampleChanged(int index){
 	emit dataChanged(createIndex(index, 0, samplePlate_->sampleAt(index)), createIndex(index, 0, samplePlate_->sampleAt(index)));
+}
+
+AMSamplePlateItemEditor::AMSamplePlateItemEditor(int row, QWidget *parent) :
+	QWidget(parent)
+{
+	row_ = row;
+
+	moveToButton_ = new QToolButton();
+	moveToButton_->setText("Move To");
+	moreInfoButton_ = new QToolButton();
+	moreInfoButton_->setText("More Info");
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(moveToButton_);
+	hl->addWidget(moreInfoButton_);
+	hl->setContentsMargins(0,0,0,0);
+	setLayout(hl);
+
+	connect(moveToButton_, SIGNAL(pressed()), this, SLOT(onMoveToButtonClicked()));
+	connect(moreInfoButton_, SIGNAL(pressed()), this, SLOT(onMoreInfoButtonClicked()));
+}
+
+void AMSamplePlateItemEditor::onMoveToButtonClicked(){
+	emit rowMoveToPressed(row_);
+}
+
+void AMSamplePlateItemEditor::onMoreInfoButtonClicked(){
+	emit rowMoreInfoPressed(row_);
 }
 
 AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject *parent) :
@@ -196,23 +225,18 @@ QSize AMSamplePlateItemDelegate::sizeHint(const QStyleOptionViewItem &option, co
 	return original.expandedTo(QSize(10, 66));
 }
 
-/*
+
 // create an editor widget with buttons to mark, move to, and remove this sample.
 QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	Q_UNUSED(option)
+	AMSamplePlateItemEditor *editor = new AMSamplePlateItemEditor(index.row(), parent);
 
-	AMSamplePositionPre2013ViewActionsWidget* editor = new AMSamplePositionPre2013ViewActionsWidget(index.row(), parent);
-
-	connect(editor, SIGNAL(rowMarkPressed(int)), this, SIGNAL(rowMarkPressed(int)));
 	connect(editor, SIGNAL(rowMoveToPressed(int)), this, SIGNAL(rowMoveToPressed(int)));
-	connect(editor, SIGNAL(rowRemovePressed(int)), this, SIGNAL(rowRemovePressed(int)));
-
-	connect(editor, SIGNAL(additionalInformationRequested(int)), this, SIGNAL(additionalInformationRequested(int)));
+	connect(editor, SIGNAL(rowMoreInfoPressed(int)), this, SIGNAL(rowMoreInfoPressed(int)));
 
 	return editor;
 }
-*/
 
 // no editor information is required... We get the row number from the constructor, and that's all we care about.
 void AMSamplePlateItemDelegate::setEditorData(QWidget *iEditor, const QModelIndex &index) const {
@@ -245,8 +269,6 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	samplePlateItemModel_ = 0; //NULL
 	sampleListView_ = 0; //NULL
 
-	sampleView_ = new AMSampleView();
-
 	emptyModel_ = new AMSamplePlateItemModel(0);
 	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
 
@@ -259,11 +281,11 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 
 void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
-	if(samplePlate_)
-		disconnect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
+	//if(samplePlate_)
+	//	disconnect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	samplePlate_ = samplePlate;
-	if(samplePlate_)
-		connect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
+	//if(samplePlate_)
+	//	connect(samplePlate_, SIGNAL(sampleAddedThroughCamera(AMSample*)), this, SLOT(onSampleAddedThroughCamera(AMSample*)));
 	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
 	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
@@ -279,6 +301,9 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 		sampleListView_->setAlternatingRowColors(true);
 		AMSamplePlateItemDelegate *listViewDelegate = new AMSamplePlateItemDelegate();
 		sampleListView_->setItemDelegate(listViewDelegate);
+
+		connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
+		connect(listViewDelegate, SIGNAL(rowMoreInfoPressed(int)), this, SLOT(onRowMoreInfoPressed(int)));
 
 		vl_->addWidget(sampleListView_);
 	}
@@ -301,7 +326,17 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 		oldSamplePlateItemModel->deleteLater();
 }
 
-void AMSamplePlateView::onSampleAddedThroughCamera(AMSample *sample){
-	sampleView_->setSample(sample);
-	//sampleView_->show();
+//void AMSamplePlateView::onSampleAddedThroughCamera(AMSample *sample){
+//	sampleView_->setSample(sample);
+//	//sampleView_->show();
+//}
+
+void AMSamplePlateView::onRowMoveToPressed(int row){
+
+}
+
+void AMSamplePlateView::onRowMoreInfoPressed(int row){
+	AMSampleView *sampleView = new AMSampleView(samplePlate_->sampleAt(row));
+	connect(sampleView, SIGNAL(aboutToClose()), sampleView, SLOT(deleteLater()));
+	sampleView->show();
 }

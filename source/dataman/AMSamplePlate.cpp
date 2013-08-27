@@ -1,5 +1,8 @@
 #include "AMSamplePlate.h"
 
+#include <QApplication>
+#include <QStyle>
+
 #include "util/AMDateTimeUtils.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
@@ -152,8 +155,7 @@ int AMSamplePlateBrowser::rowCount(const QModelIndex &parent) const
 	return allSamplePlates_.count();
 }
 
-#include <QApplication>
-#include <QStyle>
+
 QVariant AMSamplePlateBrowser::data(const QModelIndex &index, int role) const
 {
 	if(index.parent().isValid() || index.column() > 0)

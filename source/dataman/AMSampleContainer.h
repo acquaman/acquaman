@@ -1,6 +1,8 @@
 #ifndef AMSAMPLECONTAINER_H
 #define AMSAMPLECONTAINER_H
 
+/*
+
 #include <QList>
 #include <QAbstractListModel>
 #include <QDateTime>
@@ -104,5 +106,7 @@ protected:
 	/// null sample, for use in initializing displays
 	AMSample* nullSample_;
 };
+
+*/
 
 #endif // AMSAMPLECONTAINER_H

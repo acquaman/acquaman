@@ -199,10 +199,10 @@ signals:
 
 	void shapePropertyUpdated(AMShapeData *shapeData);
 
-    // signal for each wizard finished
-    void beamWizardFinished();
-    void cameraWizardFinished();
-    void samplePlateWizardFinished();
+	// signal for each wizard finished
+	void beamWizardFinished();
+	void cameraWizardFinished();
+	void samplePlateWizardFinished();
 
 
 
@@ -495,7 +495,6 @@ protected:
 
     ViewMode currentView_;
 
-//    QLineEdit* autoCompleteBox_;
     QCompleter* autoCompleter_;
     QStringListModel* wordList_;
 
@@ -529,13 +528,6 @@ protected:
 
     QFrame* advancedWindow_;
     QPushButton* advancedButton_;
-
-//    AMShapeDataListView* shapeDataListView_;
-
-
-
-
-
 
 };
 
