@@ -1022,7 +1022,10 @@ void AMSampleCamera::updateShape(int index)
 
 void AMSampleCamera::updateShape(AMShapeData *data)
 {
+	data->blockSignals(true);
 	data->setShape(subShape(data));
+	data->blockSignals(false);
+	emit shapeDataChanged();
 }
 
 /// updates all shapes
@@ -1434,6 +1437,11 @@ void AMSampleCamera::motorsFinishedMoving()
 			if(!ssaManipulatorZ_->isMoving())
 				if(!ssaManipulatorRot_->isMoving())
 					emit moveSucceeded();
+}
+
+void AMSampleCamera::onShapeDataChanged()
+{
+
 }
 
 /// Constructor
@@ -2070,6 +2078,7 @@ void AMSampleCamera::insertItem(AMShapeData *item)
 	connect(item, SIGNAL(nameChanged(QString)), this, SIGNAL(shapeNameChanged(QString)));
 	connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
 	connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
+	connect(item, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(updateShape(AMShapeData*)));
 	updateShape(index_);
 	emit shapesChanged();
 }

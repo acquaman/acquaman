@@ -64,7 +64,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
     //shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
-    shapeView_ = new AMShapeDataView(0);
+//    shapeView_ = new AMShapeDataView(0);
     shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
@@ -517,7 +517,7 @@ void AMSampleCameraView::updateItemName(int index)
 {
     if(isValid(index))
     {
-        shapeView_->blockSignals(true);
+//        shapeView_->blockSignals(true);
         if(currentView_ == NAME)
         {
             shapeModel_->setName(textItems_[index]->toPlainText(), index);
@@ -530,7 +530,7 @@ void AMSampleCameraView::updateItemName(int index)
         {
             shapeModel_->setOtherDataTwo(textItems_[index]->toPlainText(), index);
         }
-        shapeView_->blockSignals(false);
+//        shapeView_->blockSignals(false);
     }
 
 }
@@ -832,10 +832,10 @@ void AMSampleCameraView::showCameraBeamWindow()
     configurationWindow_->adjustSize();
 }
 
-void AMSampleCameraView::showShapeView()
-{
-    shapeView_->show();
-}
+//void AMSampleCameraView::showShapeView()
+//{
+//    shapeView_->show();
+//}
 
 void AMSampleCameraView::setDrawOnShape()
 {
@@ -1511,8 +1511,8 @@ void AMSampleCameraView::currentSelectionChanged()
     if(isValid(current_))
         shapes_[current_]->setPen(colour(BORDER));
     current_ = shapeModel_->currentIndex();
-
-    shapeView_->setShapeData(shapeModel_->currentShape());
+//	qDebug()<<"AMSampleCameraView::currentSelectionChanged - Setting shape view";
+//    shapeView_->setShapeData(shapeModel_->currentShape());
     if(motorREdit_)
         motorREdit_->setText(QString::number(motorRotation()));
     if(motorXEdit_)
@@ -1949,7 +1949,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(cameraConfiguration_, SIGNAL(update(AMCameraConfiguration*)), this, SLOT(setCameraModel(AMCameraConfiguration*)));
 
 
-    connect(shapeView_, SIGNAL(updateShapes()), this, SLOT(updateCurrentShape()));
+//    connect(shapeView_, SIGNAL(updateShapes()), this, SLOT(updateCurrentShape()));
     connect(this, SIGNAL(updateShapes(int)), shapeModel_, SLOT(updateShape(int)));
 
     cameraConfiguration_->updateAll();
@@ -1998,16 +1998,6 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
     connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
-    connect(shapeView_, SIGNAL(newName()), this, SLOT(updateCurrentTextItemName()));
-
-
-//    connect(autoCompleteBox_, SIGNAL(returnPressed()), this, SLOT(autoCompleteEnterPressed()));
-
-    /// shape list view
-//    connect(shapeDataListView_, SIGNAL(currentIndexChanged()), this, SLOT(currentSelectionChanged()));
-
-//    connect(shapeView_, SIGNAL(shapeVisible(bool)), this, SLOT(setShapeVisible(bool)));
-
     connect(markAction_, SIGNAL(triggered()), this, SLOT(setDrawMode()));
     connect(moveAction_, SIGNAL(triggered()), this, SLOT(setMoveMode()));
     connect(editAction_, SIGNAL(triggered()), this, SLOT(setEditMode()));
@@ -2033,6 +2023,8 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
     connect(shapeModel_, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)), cameraConfiguration_, SLOT(onCameraConfigurationChanged(AMCameraConfiguration*)));
 	connect(this, SIGNAL(samplePlateWizardFinished()), this, SLOT(onSamplePlateWizardFinished()));
+
+	connect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(reviewCrosshairLinePositions()));
 
 }
 

@@ -18,11 +18,8 @@ class AMShapeDataView : public QWidget
 Q_OBJECT
 public:
 	explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
-	//    static AMShapeDataView* shapeView();
-	//    bool showingSample();
 
 public slots:
-	void setName(QString);
 	void setTilt(QString);
 	void setX(QString);
 	void setY(QString);
@@ -51,6 +48,7 @@ public slots:
 	void setCoordinate();
 
 
+
 signals:
 	void updateShapes();
 	void applyDistortion();
@@ -60,14 +58,14 @@ protected slots:
 	void xAxisRotation(int);
 	void yAxisRotation(int);
 	void zAxisRotation(int);
+	void updateAll();
 protected:
-	void update();
+
 	bool isValid();
 	void updateCoordinateLabels();
 	int count();
 protected:
 	AMShapeData *shapeModel_;
-	//    QLineEdit *nameEdit_;
 	QLineEdit *tiltEdit_;
 	QLineEdit *xEdit_;
 	QLineEdit *yEdit_;
@@ -83,15 +81,7 @@ protected:
 	QFrame* coordinateFrame_;
 	QScrollArea* scrollArea_;
 
-	//    AMSampleView* sampleView_;
-	//    QPushButton* showSampleView_;
 	int oldCount_;
-
-	//static AMShapeDataView* instance_;
-
-	//private:
-	//    explicit AMShapeDataView(AMShapeData *shapeModel = 0, QWidget *parent = 0);
-
 };
 
 #endif // AMSHAPEDATAVIEW_H

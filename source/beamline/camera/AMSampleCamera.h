@@ -392,6 +392,8 @@ signals:
 
 	void cameraConfigurationChanged(AMCameraConfiguration*);
 
+	void shapeDataChanged();
+
 
 protected slots:
 	/// tracks the motor location
@@ -399,6 +401,8 @@ protected slots:
 
 	/// checks to see if the motor is finished moving
 	void motorsFinishedMoving();
+
+	void onShapeDataChanged();
 
 protected:
 

@@ -114,25 +114,19 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
     connect(yEdit_, SIGNAL(textEdited(QString)), this, SLOT(yChanged(QString)));
     connect(zEdit_, SIGNAL(textEdited(QString)), this, SLOT(zChanged(QString)));
 
-    connect(xAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(xAxisRotation(int)));
-    connect(yAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(yAxisRotation(int)));
-    connect(zAxisSlider_, SIGNAL(valueChanged(int)), this, SLOT(zAxisRotation(int)));
+	connect(xAxisSlider_, SIGNAL(sliderMoved(int)), this, SLOT(xAxisRotation(int)));
+	connect(yAxisSlider_, SIGNAL(sliderMoved(int)), this, SLOT(yAxisRotation(int)));
+	connect(zAxisSlider_, SIGNAL(sliderMoved(int)), this, SLOT(zAxisRotation(int)));
 
 
     connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
 //    connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
+	connect(shapeModel_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(updateAll()));
+	updateAll();
 
 }
 
-//bool AMShapeDataView::showingSample()
-//{
-////    return sampleView_->isVisible();
-//}
 
-void AMShapeDataView::setName(QString name)
-{
-//    nameEdit_->setText(name);
-}
 
 void AMShapeDataView::setTilt(QString tilt)
 {
@@ -161,9 +155,13 @@ void AMShapeDataView::setRotation(QString rotation)
 
 void AMShapeDataView::setShapeData(AMShapeData *shapeData)
 {
-
-    shapeModel_ = shapeData;
-    update();
+	if(shapeModel_ != shapeData)
+	{
+		disconnect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(updateAll()));
+		shapeModel_ = shapeData;
+		connect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(updateAll()));
+		updateAll();
+	}
 }
 
 void AMShapeDataView::setYAxisRotation(QString rotation)
@@ -293,8 +291,9 @@ void AMShapeDataView::setCoordinate()
             shapeModel_->setCoordinate(newCoordinate,count());
         }
     }
-    emit updateShapes();
+	emit updateShapes();
 }
+
 
 void AMShapeDataView::xAxisRotation(int value)
 {
@@ -331,24 +330,29 @@ void AMShapeDataView::zAxisRotation(int value)
 }
 
 
-void AMShapeDataView::update()
+void AMShapeDataView::updateAll()
 {
     if(isValid())
     {
         updateCoordinateLabels();
-//        nameEdit_->setText(shapeModel_->name());
-        tiltEdit_->setText(QString::number(shapeModel_->tilt()));
+		if(!tiltEdit_->hasFocus())
+			tiltEdit_->setText(QString("%1").arg(shapeModel_->tilt()));
         QVector3D coordinate = shapeModel_->centerCoordinate();
-        xEdit_->setText(QString::number(coordinate.x()));
-        yEdit_->setText(QString::number(coordinate.y()));
-        zEdit_->setText(QString::number(coordinate.z()));
-        rotationEdit_->setText(QString::number(shapeModel_->rotation()));
-        yRotationEdit_->setText(QString::number(shapeModel_->yAxisRotation()));
-        emit updateShapes();
+		if(!xEdit_->hasFocus())
+			xEdit_->setText(QString::number(coordinate.x()));
+		if(!yEdit_->hasFocus())
+			yEdit_->setText(QString::number(coordinate.y()));
+		if(!zEdit_->hasFocus())
+			zEdit_->setText(QString::number(coordinate.z()));
+		if(!rotationEdit_->hasFocus())
+			rotationEdit_->setText(QString::number(shapeModel_->rotation()));
+		if(!yRotationEdit_->hasFocus())
+			yRotationEdit_->setText(QString::number(shapeModel_->yAxisRotation()));
+//        emit updateShapes();
     }
     else
     {
-//        nameEdit_->setText("None selected");
+		qDebug()<<"Failed to update, is not valid";
     }
 
 }
@@ -423,7 +427,7 @@ void AMShapeDataView::updateCoordinateLabels()
             pointFrame[i]->setLayout(pointLayout[i]);
             verticalLayout->addWidget(pointFrame[i]);
             for(int n = 0; n < 3; n++)
-                connect(coordinateEdit_[3*i+n], SIGNAL(textEdited(QString)), this, SLOT(setCoordinate()));
+				connect(coordinateEdit_[3*i+n], SIGNAL(textEdited(QString)), this, SLOT(setCoordinate()));
         }
         verticalLayout->addStretch();
         coordinateFrame_->setLayout(verticalLayout);
@@ -435,9 +439,12 @@ void AMShapeDataView::updateCoordinateLabels()
     {
         for(int i = 0; i < points; i ++)
         {
-            coordinateEdit_[3*i]->setText(QString("%1").arg(shapeModel_->coordinate(i).x()));
-            coordinateEdit_[3*i+1]->setText(QString("%1").arg(shapeModel_->coordinate(i).y()));
-            coordinateEdit_[3*i+2]->setText(QString("%1").arg(shapeModel_->coordinate(i).z()));
+			if(!coordinateEdit_[3*i]->hasFocus())
+				coordinateEdit_[3*i]->setText(QString("%1").arg(shapeModel_->coordinate(i).x()));
+			if(!coordinateEdit_[3*i+1]->hasFocus())
+				coordinateEdit_[3*i+1]->setText(QString("%1").arg(shapeModel_->coordinate(i).y()));
+			if(!coordinateEdit_[3*i+2]->hasFocus())
+				coordinateEdit_[3*i+2]->setText(QString("%1").arg(shapeModel_->coordinate(i).z()));
         }
     }
     oldCount_ = points;

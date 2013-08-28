@@ -105,7 +105,11 @@ bool AMShapeData::visible() const
 
 void AMShapeData::setShape(const QPolygonF shape)
 {
-    *shape_ = shape;
+	if(*shape_ != shape)
+	{
+		*shape_ = shape;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::setName(QString name)
@@ -114,6 +118,7 @@ void AMShapeData::setName(QString name)
     {
         name_ = name;
         emit nameChanged(name_);
+		emit shapeDataChanged(this);
     }
 }
 
@@ -123,6 +128,7 @@ void AMShapeData::setOtherDataFieldOne(QString otherData)
     {
         otherDataFieldOne_ = otherData;
         emit otherDataFieldOneChanged(otherData);
+		emit shapeDataChanged(this);
     }
 }
 
@@ -132,25 +138,32 @@ void AMShapeData::setOtherDataFieldTwo(QString otherDataFieldTwo)
     {
         otherDataFieldTwo_ = otherDataFieldTwo;
         emit otherDataFieldTwoChanged(otherDataFieldTwo_);
+		emit shapeDataChanged(this);
     }
 }
 
 void AMShapeData::setIdNumber(double idNumber)
 {
-    idNumber_ = idNumber;
+	if(idNumber_ != idNumber)
+	{
+		idNumber_ = idNumber;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::setCoordinate(QVector3D coordinate, int index)
 {
-    if(validIndex(index))
+	if(validIndex(index) && coordinate_[index] != coordinate)
     {
         coordinate_[index] = coordinate;
+		emit shapeDataChanged(this);
     }
 }
 
 void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
 {
     if(coordinates.isEmpty()) return;
+	if(coordinates == coordinate_) return;
     coordinate_.clear();
     for(int i = 0; i < count; i++)
     {
@@ -162,31 +175,49 @@ void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
         if(coordinateCount_ < coordinate_.count())
             coordinateCount_ = coordinate_.count();
     }
+	emit shapeDataChanged(this);
 }
 
 
 void AMShapeData::setRotation(double zAxisRotation)
 {
-    zAxisRotation_ = zAxisRotation;
+	if(zAxisRotation_ != zAxisRotation)
+	{
+		zAxisRotation_ = zAxisRotation;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::setTilt(double xAxisRotation)
 {
-    xAxisRotation_ = xAxisRotation;
+	if(xAxisRotation_ != xAxisRotation)
+	{
+		xAxisRotation_ = xAxisRotation;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::setYAxisRotation(double yAxisRotation)
 {
-    yAxisRotation_ = yAxisRotation;
+	if(yAxisRotation_ != yAxisRotation)
+	{
+		yAxisRotation_ = yAxisRotation;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::setVisible(bool visible)
 {
-    visible_ = visible;
+	if(visible_ != visible)
+	{
+		visible_ = visible;
+		emit shapeDataChanged(this);
+	}
 }
 
 void AMShapeData::copy(const AMShapeData *other)
 {
+	blockSignals(true);
     setName(other->name());
     setOtherDataFieldOne(other->otherDataFieldOne());
     setIdNumber(other->idNumber());
@@ -206,10 +237,12 @@ void AMShapeData::copy(const AMShapeData *other)
         setCoordinate(other->coordinate(i),i);
 
     }
+	blockSignals(false);
     if(count() != other->count())
     {
         qDebug()<<"AMShapeData::copy - counts not equal";
     }
+	emit shapeDataChanged(this);
 }
 
 /// finds the center of the shape - must be rectangular
@@ -226,20 +259,21 @@ QVector3D AMShapeData::centerCoordinate() const
 /// shifts the shape by the given amount
 void AMShapeData::shift(QVector3D shift)
 {
-    for(int i = 0; i < count(); i++)
-    {
-        setCoordinate(coordinate_[i] +  shift,i);
-    }
+	if(shift != QVector3D(0,0,0))
+	{
+		for(int i = 0; i < count(); i++)
+		{
+			setCoordinate(coordinate_[i] +  shift,i);
+		}
+		emit shapeDataChanged(this);
+	}
 }
 
 /// shifts the shape to the given location
-void AMShapeData::shiftTo(QVector3D shift)
+void AMShapeData::shiftTo(QVector3D shiftTo)
 {
-    shift -= centerCoordinate();
-    for(int i = 0; i < count(); i++)
-    {
-        setCoordinate(coordinate_[i] +  shift,i);
-    }
+	shiftTo -= centerCoordinate();
+	shift(shiftTo);
 }
 
 /// returns a count of the number of coordinates
@@ -249,7 +283,7 @@ int AMShapeData::count() const
 }
 
 /// checks to see if the shape is backwards
-bool AMShapeData::backwards()
+bool AMShapeData::backwards() const
 {
     if(count() < 3)return false;
     QVector3D points [3];
@@ -295,3 +329,4 @@ bool AMShapeData::validIndex(int index) const
 {
     return (index >= 0 && index <= coordinateCount_);
 }
+

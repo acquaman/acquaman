@@ -49,6 +49,7 @@ void AMSampleView::setSample(AMSample *sample)
 		connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
 		connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
 		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
+//		connect(sample_, SIGNAL(sampleDetailsChanged()), shapeDataView_, SLOT(updateAll()));
 
 		updateFrames();
 	}
@@ -148,6 +149,7 @@ void AMSampleView::updateTags(QStringList tags)
 
 void AMSampleView::onSampleShapeDataChanged()
 {
+	qDebug()<<"AMSampleView::onSampleShapeDataChanged";
 	shapeDataView_->setShapeData(sample_->sampleShapePositionData());
 }
 
@@ -256,7 +258,7 @@ void AMSampleView::onSampleNameChanged(QString name)
 
 void AMSampleView::setUpGui()
 {
-	//qDebug()<<"Called setupgui";
+	qDebug()<<"Called setupgui";
 	//shapeDataView_ = AMShapeDataView::shapeView();
 
 	shapeDataView_ = new AMShapeDataView(sample_->sampleShapePositionData());

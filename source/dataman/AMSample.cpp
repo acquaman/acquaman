@@ -289,7 +289,6 @@ void AMSample::setElementList(const AMIntList& elements)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
-<<<<<<< HEAD
     if(sampleShapePositionData_ != sampleShapePositionData)
     {
         if(sampleShapePositionData_)
@@ -311,29 +310,6 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
         }
 		emit sampleShapeDataChanged();
     }
-=======
-	if(sampleShapePositionData_ != sampleShapePositionData)
-	{
-		if(sampleShapePositionData_)
-		{
-			disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
-			disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-			disconnect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
-			disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
-		}
-		sampleShapePositionData_ = sampleShapePositionData;
-		if(sampleShapePositionData_)
-		{
-			sampleShapePositionData_->setName(name());
-			connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
-			// set other Data field one to tags
-			connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-			connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
-			connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
-		}
-	}
->>>>>>> ed9db8908b69d9355b9c4b134dcf1d0413c0ba65
-
 }
 
 

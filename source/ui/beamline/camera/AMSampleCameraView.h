@@ -132,8 +132,6 @@ public slots:
 
          void showCameraBeamWindow();
 
-         void showShapeView();
-
          void setDrawOnShape();
          void setDrawOnShapeEnabled(bool enable);
 
@@ -243,7 +241,6 @@ public slots:
 
     void moveTestSlot();
 
-//    void setShapeVisible(bool visible);
     void requestUpdate();
 
     void shapeDrawingFinished();
@@ -303,7 +300,7 @@ protected slots:
     void selectPointThree();
     void selectPointFour();
     void selectPointFive();
-    void selectPointSix();//    void moveCurrentToCoordinate();
+	void selectPointSix();
 
     void runCameraConfiguration();
 
@@ -381,8 +378,6 @@ protected:
 
     void clearIntersections();
 
-//    void setListViewModel();
-
     void setGUI(ViewType viewType);
 
     void makeConnections(ViewType viewType);
@@ -403,8 +398,6 @@ protected:
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
     AMSampleCameraGraphicsView *shapeScene_;
-
-    AMShapeDataView *shapeView_;
 
     QFrame *configurationWindow_;
 

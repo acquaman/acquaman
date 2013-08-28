@@ -53,7 +53,7 @@ public:
     int count() const;
 
     /// checks the direction
-    bool backwards();
+	bool backwards() const;
 
     bool isEqual(const AMShapeData& other) const;
 
@@ -77,6 +77,10 @@ signals:
     void otherDataFieldOneChanged(QString data);
     void otherDataFieldTwoChanged(QString data);
     void idNumberChanged(double idNumber);
+	void shapeDataChanged(AMShapeData* shape);
+
+protected slots:
+
 
 protected:
     /// the 2D shape to store
