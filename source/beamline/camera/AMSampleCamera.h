@@ -499,6 +499,9 @@ protected:
 	QVector3D getNormal(const AMShapeData* shape) const;
 	/// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
 	QVector3D getPointOnShape(QPointF position,QVector3D normal) const;
+	/// returns the 3D point that lies under position and on the plane defined by shape
+	QVector3D getPointOnShape(AMShapeData* shape, QPointF position,QVector3D normal) const;
+	QVector3D getPointOnShape(const AMShapeData* &shape, const QPointF &position) const;
 
 	/// returns the unit vector in the direction of the top of the screen to the bottom
 	QVector3D downVector() const;

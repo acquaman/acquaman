@@ -899,7 +899,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	if(isValid(currentIndex_))
 	{
 		QVector3D oldCoordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
-		QVector3D currentPosition = camera_->transform2Dto3D(position, depth(oldCoordinate));
+		QVector3D currentPosition = getPointOnShape(shapeList_[currentIndex_], position, getNormal(shapeList_[currentIndex_]));
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 		if(moveToBeam())
 			newPosition = beamIntersectionPoint(currentPosition);
@@ -2025,12 +2025,17 @@ QVector3D AMSampleCamera::getNormal(const AMShapeData* shape) const
 
 QVector3D AMSampleCamera::getPointOnShape(QPointF position, QVector3D nHat) const
 {
+	return getPointOnShape(drawOnShape_, position, nHat);
+}
+
+QVector3D AMSampleCamera::getPointOnShape(AMShapeData *shape, QPointF position, QVector3D nHat) const
+{
 	/// figure out line
 	/// pick a depth to use, doesn't really matter what it is
 	double depth = camera_->focalLength();
 	QVector3D l0 = camera_->transform2Dto3D(position,depth);
 	QVector3D lVector = camera_->transform2Dto3D(position,2*depth) - l0;
-	QVector<QVector3D> rotatedShape = rotateShape(drawOnShape_);
+	QVector<QVector3D> rotatedShape = rotateShape(shape);
 	double numerator = dot((rotatedShape.at(TOPLEFT) - l0), nHat);
 	double denominator = dot(lVector,nHat);
 	double distance = 0;
@@ -2051,6 +2056,12 @@ QVector3D AMSampleCamera::getPointOnShape(QPointF position, QVector3D nHat) cons
 	}
 	QVector3D pointOnShape = l0 + distance*lVector;
 	return pointOnShape;
+}
+
+QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *&shape, const QPointF &position) const
+{
+	/// \todo
+	qDebug()<<"Does nothing";
 }
 
 QVector3D AMSampleCamera::downVector() const
@@ -2108,6 +2119,7 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	// this will be an x-z plane with constant y (as it will only move with x,z motors)
 	// then find where the beam intersects this plane.
 	double y = samplePoint.y();
+	qDebug()<<"AMSampleCamera::beamIntersectionPoint - y value is"<<y;
 	QVector3D beamSpot(0,0,0);
 	AMShapeData* newShape = new AMShapeData();
 	QVector<QVector3D> coordinateShape;
