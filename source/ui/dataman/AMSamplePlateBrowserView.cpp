@@ -111,6 +111,7 @@ AMSamplePlateCreationDialog::AMSamplePlateCreationDialog(QWidget *parent) :
 	samplePlateNameLineEdit_->setFocus();
 
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(close()));
 	connect(samplePlateNameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(onSamplePlateNameLineEditTextChanged(QString)));
 }
 
@@ -123,4 +124,10 @@ void AMSamplePlateCreationDialog::onSamplePlateNameLineEditTextChanged(const QSt
 		okButton_->setEnabled(true);
 	else
 		okButton_->setEnabled(false);
+}
+
+void AMSamplePlateCreationDialog::keyPressEvent(QKeyEvent *event){
+	if(event->key() == Qt::Key_Escape)
+		close();
+	QDialog::keyPressEvent(event);
 }

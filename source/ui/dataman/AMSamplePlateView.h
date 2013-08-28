@@ -10,8 +10,10 @@
 
 class QListView;
 class QVBoxLayout;
+class QHBoxLayout;
 class QLabel;
 class QToolButton;
+class QPushButton;
 
 class AMSamplePlateItemModel : public QAbstractListModel
 {
@@ -108,6 +110,9 @@ protected slots:
 	void onRowMoreInfoPressed(int row);
 	void onRowClosedPressed(int row);
 
+	void onSamplePlateModifiedChanged(bool isModified);
+	void onSaveSamplePlateButtonClicked();
+
 protected:
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateItemModel *samplePlateItemModel_;
@@ -116,6 +121,9 @@ protected:
 
 	QVBoxLayout *vl_;
 	QLabel *noSamplePlateLabel_;
+	QHBoxLayout *samplePlateModifiedHL_;
+	QLabel *samplePlateModifiedLabel_;
+	QPushButton *saveSamplePlateButton_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

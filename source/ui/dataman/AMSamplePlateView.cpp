@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QToolButton>
+#include <QPushButton>
 
 #include "util/AMDateTimeUtils.h"
 #include "ui/dataman/AMSampleView.h"
@@ -44,7 +45,10 @@ QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
 	case AM::DateTimeRole:
 		return samplePlate_->sampleAt(index.row())->dateTime();
 	case AM::DescriptionRole:
-		return QString("created ") +  AMDateTimeUtils::prettyDateTime(samplePlate_->sampleAt(index.row())->dateTime());
+		if(samplePlate_->sampleAt(index.row())->modified())
+			return QString("MODIFIED");
+		else
+			return QString("created ") +  AMDateTimeUtils::prettyDateTime(samplePlate_->sampleAt(index.row())->dateTime());
 
 		/*
 	case AM::UserRole:
@@ -280,6 +284,17 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 
 	emptyModel_ = new AMSamplePlateItemModel(0);
 	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
+	samplePlateModifiedLabel_ = new QLabel("Sample Plate Modified");
+	QFont samplePlateModifiedLabelFont = samplePlateModifiedLabel_->font();
+	samplePlateModifiedLabelFont.setBold(true);
+	samplePlateModifiedLabelFont.setItalic(true);
+	samplePlateModifiedLabelFont.setPointSize(samplePlateModifiedLabelFont.pointSize()+2);
+	samplePlateModifiedLabel_->setFont(samplePlateModifiedLabelFont);
+	saveSamplePlateButton_ = new QPushButton("Save Plate");
+	connect(saveSamplePlateButton_, SIGNAL(clicked()), this, SLOT(onSaveSamplePlateButtonClicked()));
+	samplePlateModifiedHL_ = new QHBoxLayout();
+	samplePlateModifiedHL_->addWidget(samplePlateModifiedLabel_);
+	samplePlateModifiedHL_->addWidget(saveSamplePlateButton_);
 
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(noSamplePlateLabel_);
@@ -295,6 +310,7 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
 		setTitle(samplePlate_->name());
+		connect(samplePlate_, SIGNAL(modifiedChanged(bool)), this, SLOT(onSamplePlateModifiedChanged(bool)));
 	}
 	else{
 		samplePlateItemModel_ = 0; //NULL
@@ -312,6 +328,9 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 		connect(listViewDelegate, SIGNAL(rowClosedPressed(int)), this, SLOT(onRowClosedPressed(int)));
 
 		vl_->addWidget(sampleListView_);
+		vl_->addLayout(samplePlateModifiedHL_);
+		samplePlateModifiedLabel_->hide();
+		saveSamplePlateButton_->hide();
 	}
 
 	if(!samplePlate_ && sampleListView_){
@@ -345,4 +364,20 @@ void AMSamplePlateView::onRowMoreInfoPressed(int row){
 void AMSamplePlateView::onRowClosedPressed(int row){
 	emit sampleAboutToBeRemoved(row);
 	samplePlate_->removeSample(samplePlate_->sampleAt(row));
+}
+
+void AMSamplePlateView::onSamplePlateModifiedChanged(bool isModified){
+	if(isModified){
+		samplePlateModifiedLabel_->show();
+		saveSamplePlateButton_->show();
+	}
+	else{
+		samplePlateModifiedLabel_->hide();
+		saveSamplePlateButton_->hide();
+	}
+}
+
+void AMSamplePlateView::onSaveSamplePlateButtonClicked(){
+	if(samplePlate_)
+		samplePlate_->storeToDb(samplePlate_->database());
 }

@@ -181,6 +181,7 @@ void AMSample::setName(const QString &name)
 	{
 		samplePosition->setName(name);
 	}
+	emit sampleDetailsChanged();
 }
 
 void AMSample::setDateTime(const QDateTime dateTime)
