@@ -126,6 +126,7 @@ public slots:
 	void getCurrentTag();
 	void editCurrentTag(QString tag);
 
+
 signals:
 	void sampleNameChanged(const QString &name);
 	void dateTimeChanged(const QDateTime &dateTime);
@@ -137,6 +138,8 @@ signals:
 	void sampleShapeDataChanged();
 
 	void sampleDetailsChanged();
+
+
 
 
 protected:
@@ -168,8 +171,6 @@ protected:
 	/// sample plate this sample is associated with
 	AMSamplePlatePre2013* samplePlate_;
 
-//	QVector<QVector3D> samplePosition_;
-//	AMShapeData* samplePlatePosition_;
 	AMShapeData* sampleShapePositionData_;
 	QString currentTag_;
 

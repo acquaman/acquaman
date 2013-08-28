@@ -305,11 +305,14 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             sampleShapePositionData_->setName(name());
             connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             // set other Data field one to tags
+			qDebug()<<"Connecting currentTagChanged to setOtherDataFieldOne for"<<sampleShapePositionData->name();
             connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
             connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
             connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
 		emit sampleShapeDataChanged();
+		emit currentTagChanged(currentTag_);
+		emit elementsChanged(elementString());
     }
 }
 
@@ -413,19 +416,18 @@ void AMSample::setCurrentDateTime()
 
 void AMSample::setCurrentTag(QString tag)
 {
+
 	currentTag_ = tag;
+	qDebug()<<"Emitting current tag changed to"<<currentTag_;
+	qDebug()<<"For sample "<<sampleShapePositionData_->name();
+	sampleShapePositionData()->setOtherDataFieldOne(QString("AMSample::setCurrentTag %1").arg(sampleShapePositionData()->name()));
 	emit currentTagChanged(currentTag_);
+	qDebug()<<"Finished emitting currentTagChanged(currentTag_)";
 }
 
 void AMSample::getCurrentTag()
 {
-	//    QString currentTag = currentTag_;
 	emit requestCurrentTag();
-	//    if(currentTag_ != currentTag)
-	//    {
-	//        emit currentTagChanged(currentTag_);
-	//    }
-
 }
 
 void AMSample::editCurrentTag(QString tag)
@@ -458,6 +460,7 @@ void AMSample::editCurrentTag(QString tag)
 
 
 }
+
 
 /// the format used to present dateTime as a string
 QString AMSample::dateTimeFormat() const
@@ -492,7 +495,8 @@ AMQVector3DVector AMSample::dbReadShapeData() const{
 }
 
 void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
-	sampleShapePositionData_ = new AMShapeData(this);
+	AMShapeData* shapeData = new AMShapeData(this);
+	setSampleShapePositionData(shapeData);
 	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
 	emit sampleShapeDataChanged();
 }

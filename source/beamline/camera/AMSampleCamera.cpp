@@ -845,8 +845,6 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 	{
 		i++;
 	}
-	//    if(!overrideMouseSelection())
-	//    {
 	if(i <= index_)
 	{
 
@@ -858,15 +856,6 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 	{
 		setCurrentIndex(index_ + 1);
 	}
-	//    }
-	//    else
-	//    {
-	//        setOverrideMouseSelection(false);
-	//        if(i <= index_)
-	//        {
-	//            currentVector_ = undistortPoint(position);
-	//        }
-	//    }
 }
 
 /// moves the currently selected rectangle by position + currentVector_
