@@ -163,6 +163,11 @@ bool AMSampleCamera::moveToBeam()
 	return moveToBeam_;
 }
 
+bool AMSampleCamera::moveOnShape()
+{
+	return moveOnShape_;
+}
+
 QPolygonF AMSampleCamera::samplePlate()
 {
 	if(samplePlateSelected_)
@@ -488,6 +493,11 @@ void AMSampleCamera::setMoveToBeam(bool move)
 	moveToBeam_ = move;
 }
 
+void AMSampleCamera::setMoveOnShape(bool moveOnShape)
+{
+	moveOnShape_ = moveOnShape;
+}
+
 /// checks if an index is valid
 bool AMSampleCamera::isValid(int index) const
 {
@@ -625,11 +635,63 @@ bool AMSampleCamera::overrideMouseSelection()
 	return overrideMouseSelection_;
 }
 
+QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points) const
+{
+	int dimension = 3;
+	// first find the centroid
+	QVector3D centre(0,0,0);
+	foreach(QVector3D point, points)
+	{
+		qDebug()<<point;
+		centre += point;
+	}
+	centre /= points.count();
+
+	//	generate the distance matrix
+	MatrixXd mMatrix(points.count(), dimension);
+	for(int i = 0; i < points.count(); i++)
+	{
+		QVector3D point = points.at(i) - centre;
+		mMatrix(i,0) = point.x();
+		mMatrix(i,1) = point.y();
+		mMatrix(i,2) = point.z();
+	}
+
+	JacobiSVD<MatrixXd> svd(mMatrix,ComputeThinV|ComputeThinU);
+	svd.compute(mMatrix,ComputeThinU|ComputeThinV);
+	// solution is first column of V matrix - solution for maximum singular value of m
+	MatrixXd vMatrix = svd.matrixV();
+	MatrixXd solution = vMatrix.col(0);
+	for(int i = 0; i < solution.rows(); i++)
+	{
+		qDebug()<<solution(i,0);
+	}
+	QVector3D unitVector(0,0,0);
+	if(solution.rows() == 3)
+	{
+		unitVector.setX(solution(0,0));
+		unitVector.setY(solution(1,0));
+		unitVector.setZ(solution(2,0));
+	}
+
+	double t = 1;
+
+	QVector3D linePoints;
+
+	linePoints = centre+unitVector*t;
+
+	QVector<QVector3D> line;
+	line<<centre<<linePoints;
+
+	return line;
+
+
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMSampleCamera::startRectangle(QPointF position)
 {
-
 	position = undistortPoint(position);
 	QVector<QVector3D> newShape;
 	QVector3D coordinate[RECTANGLE_POINTS];
@@ -815,11 +877,23 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 	if(index == -1) index = currentIndex_;
 	if(index <= index_ && isValid(index))
 	{
-		QVector3D coordinate = shapeList_[index]->coordinate(TOPLEFT);
-		double distance = depth(coordinate);
-		QVector3D newPosition = camera_->transform2Dto3D(position,distance);
-		QVector3D oldPosition = camera_->transform2Dto3D(currentVector_,distance);
-		QVector3D shift = newPosition - oldPosition;
+		QVector3D newPosition;
+		QVector3D oldPosition;
+		QVector3D shift;
+		if(moveOnShape())
+		{
+			newPosition = getPointOnShape(samplePlateShape_,position);
+			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
+			shift = newPosition - oldPosition;
+		}
+		else
+		{
+			QVector3D coordinate = shapeList_[index]->coordinate(TOPLEFT);
+			double distance = depth(coordinate);
+			newPosition = camera_->transform2Dto3D(position,distance);
+			oldPosition = camera_->transform2Dto3D(currentVector_,distance);
+			shift = newPosition - oldPosition;
+		}
 		shiftCoordinates(shift,index);
 	}
 	currentVector_ = (position);
@@ -899,7 +973,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	if(isValid(currentIndex_))
 	{
 		QVector3D oldCoordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
-		QVector3D currentPosition = getPointOnShape(shapeList_[currentIndex_], position, getNormal(shapeList_[currentIndex_]));
+		QVector3D currentPosition = getPointOnShape(shapeList_[currentIndex_], position);
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 		if(moveToBeam())
 			newPosition = beamIntersectionPoint(currentPosition);
@@ -1111,16 +1185,7 @@ void AMSampleCamera::twoSelect()
     {
         QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
         beamModel_->setPositionTwo(newBeamPosition);
-        AMDatabase* db = AMDatabase::database("user");
-        QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name", beamModel_->name());
-		if(matchList.count() != 0)
-        {
-            beamModel_->dissociateFromDb();
-			QVariantList beamList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "name");
-			int beamCount = beamList.count();
-			beamModel_->setName("beam"+QString::number(beamCount));
-        }
-		beamModel_->storeToDb(db);
+
         emit beamChanged(beamModel_);
     }
     else
@@ -1220,11 +1285,31 @@ void AMSampleCamera::updateBeamMarker(QPointF position, int index)
 
 void AMSampleCamera::beamCalibrate()
 {
+	const int NUMBEROFRAYS = 4;
+	const int NUMBEROFMARKERS = 3;
+	QList<QVector3D> ray [NUMBEROFRAYS];
+	QVector<QVector3D> line [NUMBEROFRAYS];
+	for(int i = 0; i < NUMBEROFRAYS; i++)
+	{
+		for(int j = 0; j < NUMBEROFMARKERS; j++)
+		{
+			ray[i]<<beamMarkers_[j]->coordinate(i);
+		}
+		line[i] = lineOfBestFit(ray[i]);
+		foreach(QVector3D point, line[i])
+		{
+			qDebug()<<point;
+		}
+		beamModel_->setRay(line[i],i);
 
-	setCurrentIndex(shapeList_.indexOf(beamMarkers_[0]));
-	oneSelect();
-	setCurrentIndex(shapeList_.indexOf(beamMarkers_[2]));
-	twoSelect();
+	}
+
+	beamModel_->alignPositionTwo();
+	saveBeam();
+//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[0]));
+//	oneSelect();
+//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[2]));
+//	twoSelect();
 	if(shapeList_.isEmpty()) return;
 	for(int i = 0; i < 3; i++)
 	{
@@ -1444,6 +1529,20 @@ void AMSampleCamera::onShapeDataChanged()
 
 }
 
+void AMSampleCamera::saveBeam()
+{
+	AMDatabase* db = AMDatabase::database("user");
+	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name", beamModel_->name());
+	if(matchList.count() != 0)
+	{
+		beamModel_->dissociateFromDb();
+		QVariantList beamList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "name");
+		int beamCount = beamList.count();
+		beamModel_->setName("beam"+QString::number(beamCount));
+	}
+	beamModel_->storeToDb(db);
+}
+
 /// Constructor
 AMSampleCamera::AMSampleCamera(QObject *parent) :
 	QAbstractListModel(parent)
@@ -1465,6 +1564,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	overrideMouseSelection_ = false;
 	moveToBeam_ = true;
+	moveOnShape_ = true;
 
 	for(int i= 0; i < SAMPLEPOINTS; i++)
 	{
@@ -1764,8 +1864,11 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 
 	for(int i = 0; i <= index_; i++)
 	{
-		shiftCoordinates(shift,i);
-		shapeList_[i]->setRotation(rotation);
+		if(shapeList_[i] != beamMarkers_[0] && shapeList_[i] != beamMarkers_[1] && shapeList_[i] != beamMarkers_[2])
+		{
+			shiftCoordinates(shift,i);
+			shapeList_[i]->setRotation(rotation);
+		}
 	}
 	if(samplePlateSelected_)
 	{
@@ -2023,12 +2126,12 @@ QVector3D AMSampleCamera::getNormal(const AMShapeData* shape) const
 	return getNormal(getHeightNormal(shape),getWidthNormal(shape));
 }
 
-QVector3D AMSampleCamera::getPointOnShape(QPointF position, QVector3D nHat) const
+QVector3D AMSampleCamera::getPointOnShape(const QPointF &position, const QVector3D &nHat) const
 {
 	return getPointOnShape(drawOnShape_, position, nHat);
 }
 
-QVector3D AMSampleCamera::getPointOnShape(AMShapeData *shape, QPointF position, QVector3D nHat) const
+QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPointF &position, const QVector3D &nHat) const
 {
 	/// figure out line
 	/// pick a depth to use, doesn't really matter what it is
@@ -2058,10 +2161,9 @@ QVector3D AMSampleCamera::getPointOnShape(AMShapeData *shape, QPointF position, 
 	return pointOnShape;
 }
 
-QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *&shape, const QPointF &position) const
+QVector3D AMSampleCamera::getPointOnShape(const AMShapeData* shape, const QPointF &position) const
 {
-	/// \todo
-	qDebug()<<"Does nothing";
+	return getPointOnShape(shape,position,getNormal(shape));
 }
 
 QVector3D AMSampleCamera::downVector() const

@@ -618,12 +618,17 @@ void AMSampleCameraView::beamCalibrate()
 {
 
     shapeModel_->beamCalibrate();
-    reviewCrosshairLinePositions();
+	showSamplePlate_->setChecked(false);
+	reviewCrosshairLinePositions();
 
 }
 
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
+	if(!shapeModel_->motorMovementEnabled())
+	{
+		shapeModel_->setMotorCoordinate(coordinate.x(),coordinate.y(),coordinate.z(),0);
+	}
     shapeModel_->moveMotorTo(coordinate);
     reviewCrosshairLinePositions();
     AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
@@ -894,6 +899,19 @@ void AMSampleCameraView::onMoveToBeamToggled(bool checked)
 
 }
 
+void AMSampleCameraView::onMoveOnSamplePlateToggled(bool checked)
+{
+	if(checked)
+	{
+		moveOnSamplePlate_->setText("Movement on Sample Plate");
+	}
+	else
+	{
+		moveOnSamplePlate_->setText("Movement on Screen Plane");
+	}
+	shapeModel_->setMoveOnShape(checked);
+}
+
 void AMSampleCameraView::samplePlateSelected()
 {
 	samplePlateSelected_ = true;
@@ -1131,6 +1149,7 @@ void AMSampleCameraView::startBeamWizard()
     view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
     beamWizard_->setView(view);
     beamWizard_->show();
+	showSamplePlate_->setChecked(true);
 }
 
 void AMSampleCameraView::startSampleWizard()
@@ -1638,6 +1657,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     {
 		shapeHorizontalLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
 		shapeHorizontalLayout->addSpacing(20);
+		shapeHorizontalLayout->addWidget(moveOnSamplePlate_ = new QCheckBox("Move on sample Plate"));
+		shapeHorizontalLayout->addSpacing(20);
         shapeHorizontalLayout->addWidget(cameraWizardButton_ = new QPushButton("Camera Wizard"));
         shapeHorizontalLayout->addSpacing(20);
         shapeHorizontalLayout->addWidget(beamWizardButton_ = new QPushButton("Beam Wizard"));
@@ -1854,6 +1875,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
         bottomLayout->addWidget(distortionButton_ = new QPushButton("Toggle Distortion"));
 		bottomLayout->addSpacing(20);
 		bottomLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
+		bottomLayout->addSpacing(20);
+		bottomLayout->addWidget(moveOnSamplePlate_ = new QCheckBox("Move on Sample Plate"));
         bottomLayout->addStretch();
         bottomBar->setLayout(bottomLayout);
 
@@ -1874,9 +1897,11 @@ void AMSampleCameraView::setGUI(ViewType viewType)
         enableMotorTracking_->setChecked(false);
 
 
+
     }
 
 	moveToBeam_->setChecked(true);
+	moveOnSamplePlate_->setChecked(true);
 
     bool defaultUseCameraMatrix = true;
     cameraMatrixCheckBox_->setChecked(defaultUseCameraMatrix);
@@ -2017,6 +2042,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
     connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 	connect(moveToBeam_, SIGNAL(toggled(bool)), this, SLOT(onMoveToBeamToggled(bool)));
+	connect(moveOnSamplePlate_, SIGNAL(toggled(bool)), this, SLOT(onMoveOnSamplePlateToggled(bool)));
 
     connect(shapeModel_, SIGNAL(shapeFinished()), this, SLOT(shapeDrawingFinished()));
 

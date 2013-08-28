@@ -139,6 +139,8 @@ public slots:
 
 		 void onMoveToBeamToggled(bool checked);
 
+		 void onMoveOnSamplePlateToggled(bool checked);
+
 		 void samplePlateSelected();
 
 
@@ -535,6 +537,7 @@ protected:
     QPushButton* advancedButton_;
 
 	QCheckBox* moveToBeam_;
+	QCheckBox* moveOnSamplePlate_;
 	QCheckBox* showSamplePlate_;
 
 	bool samplePlateSelected_;

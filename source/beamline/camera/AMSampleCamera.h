@@ -92,6 +92,8 @@ public:
 	/// true if operation will move to beam, false if it will move to crosshair
 	bool moveToBeam();
 
+	bool moveOnShape();
+
 	/// the sample plate screen shape
 	QPolygonF samplePlate();
 
@@ -192,6 +194,8 @@ public slots:
 	/// set to true to move to beam.  Set to false to move to crosshair
 	void setMoveToBeam(bool move);
 
+	void setMoveOnShape(bool moveOnShape);
+
 
 
 public:
@@ -226,6 +230,8 @@ public:
 
 	/// if true mouse selection will not perform normal actions (but can put focus on text items)
 	bool overrideMouseSelection();
+
+	QVector<QVector3D> lineOfBestFit(const QList<QVector3D> &points) const;
 
 
 
@@ -333,6 +339,7 @@ public slots:
 
 	void beamCalibrate();
 
+
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
 	void saveSamplePlate();
@@ -403,6 +410,8 @@ protected slots:
 	void motorsFinishedMoving();
 
 	void onShapeDataChanged();
+
+	void saveBeam();
 
 protected:
 
@@ -498,10 +507,10 @@ protected:
 	/// returns the vector normal to the given shape
 	QVector3D getNormal(const AMShapeData* shape) const;
 	/// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
-	QVector3D getPointOnShape(QPointF position,QVector3D normal) const;
+	QVector3D getPointOnShape(const QPointF &position, const QVector3D &normal) const;
 	/// returns the 3D point that lies under position and on the plane defined by shape
-	QVector3D getPointOnShape(AMShapeData* shape, QPointF position,QVector3D normal) const;
-	QVector3D getPointOnShape(const AMShapeData* &shape, const QPointF &position) const;
+	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position, const QVector3D &normal) const;
+	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position) const;
 
 	/// returns the unit vector in the direction of the top of the screen to the bottom
 	QVector3D downVector() const;
@@ -640,6 +649,8 @@ protected:
 
 	/// if true, operation moves to beam. If false, operation moves to crosshair.
 	bool moveToBeam_;
+
+	bool moveOnShape_;
 
 
 
