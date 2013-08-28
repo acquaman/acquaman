@@ -66,6 +66,8 @@ protected slots:
 	/// Handles changes to the sample details and causes updates in the related models by emitting sampleChanged
 	void onSampleDetailsChanged();
 
+	void onSampleModified(bool isModified);
+
 protected:
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);

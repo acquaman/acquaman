@@ -39,6 +39,9 @@ protected slots:
 	void onSampleAboutToBeRemoved(int index);
 
 protected:
+	bool checkSamplePlateModifiedHelper();
+
+protected:
 	/// Pointer to the beamline we're using
 	AMBeamline *beamline_;
 

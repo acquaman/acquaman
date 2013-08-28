@@ -70,6 +70,9 @@ protected slots:
 	void onSamplePlateNameLineEditTextChanged(const QString &name);
 
 protected:
+	virtual void keyPressEvent(QKeyEvent *event);
+
+protected:
 	/// Where the sample plate name is typed
 	QLineEdit *samplePlateNameLineEdit_;
 	/// Accept the dialog

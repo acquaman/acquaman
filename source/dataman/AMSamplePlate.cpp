@@ -45,6 +45,7 @@ AMSample* AMSamplePlate::sampleAt(int index){
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+	connect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
 	storeToDb(database());
 	return true;
 }
@@ -54,6 +55,7 @@ bool AMSamplePlate::removeSample(AMSample *sample){
 	if(sampleIndex != -1){
 		samples_.remove(sampleIndex);
 		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+		disconnect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
 		storeToDb(database());
 		sample->deleteLater();
 		return true;
@@ -123,6 +125,16 @@ void AMSamplePlate::onSampleDetailsChanged(){
 		emit sampleChanged(indexOfSample(sample));
 }
 
+void AMSamplePlate::onSampleModified(bool isModified){
+	bool modifiedBefore = modified();
+	bool modifiedNow = false;
+	for(int x = 0; x < sampleCount(); x++)
+		modifiedNow |= sampleAt(x)->modified();
+
+	if(modifiedNow != modifiedBefore)
+		setModified(modifiedNow);
+}
+
 AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
 	for(int x = 0; x < sampleCount(); x++)
 		if(sampleAt(x)->sampleShapePositionData() == shapeData)
@@ -146,8 +158,11 @@ void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
 
 	for(int x = 0; x < newSamples.count(); x++){
 		AMSample *newSample = qobject_cast<AMSample*>(newSamples.at(x));
-		if(newSample)
+		if(newSample){
 			samples_.append(newSample);
+			connect(newSample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+			connect(newSample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+		}
 	}
 }
 

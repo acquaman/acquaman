@@ -124,18 +124,19 @@ public slots:
 
 	void setCurrentTag(QString tag);
 	void getCurrentTag();
-    void editCurrentTag(QString tag);
+	void editCurrentTag(QString tag);
 
 signals:
 	void sampleNameChanged(const QString &name);
 	void dateTimeChanged(const QDateTime &dateTime);
 	void notesChanged(const QString &notes);
 	void tagsChanged(const QStringList &tags);
-	void sampleDetailsChanged();
 	void requestCurrentTag();
 	void currentTagChanged(const QString &tag);
-    void elementsChanged(const QString &elementList);
+	void elementsChanged(const QString &elementList);
 	void sampleShapeDataChanged();
+
+	void sampleDetailsChanged();
 
 
 protected:

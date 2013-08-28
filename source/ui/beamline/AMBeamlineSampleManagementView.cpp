@@ -3,6 +3,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QSplitter>
+#include <QMessageBox>
 
 #include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
@@ -81,6 +82,9 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 }
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
+	if(!checkSamplePlateModifiedHelper())
+		return;
+
 	AMSamplePlateCreationDialog creationDialog;
 	int retVal = creationDialog.exec();
 
@@ -94,6 +98,9 @@ void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
 }
 
 void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){
+	if(!checkSamplePlateModifiedHelper())
+		return;
+
 	if(!samplePlateBrowserView_->isHidden())
 		samplePlateBrowserView_->raise();
 	else
@@ -143,4 +150,20 @@ void AMBeamlineSampleManagementView::onSampleAboutToBeRemoved(int index){
 		cameraBrowserView_->sampleCameraBrowser()->shapeDataSet()->removeSample(sample);
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
 	}
+}
+
+bool AMBeamlineSampleManagementView::checkSamplePlateModifiedHelper(){
+	if(beamline_->samplePlate() && beamline_->samplePlate()->modified()){
+		QMessageBox messageBox;
+		messageBox.setText("The current sample plate has been modified.");
+		messageBox.setInformativeText("Do you want to save your changes?");
+		messageBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		messageBox.setDefaultButton(QMessageBox::Save);
+		int ret = messageBox.exec();
+		if(ret == QMessageBox::Save)
+			return beamline_->samplePlate()->storeToDb(beamline_->samplePlate()->database());
+		else if(ret == QMessageBox::Cancel)
+			return false;
+	}
+	return true;
 }
