@@ -311,6 +311,7 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
 		setTitle(samplePlate_->name());
 		connect(samplePlate_, SIGNAL(modifiedChanged(bool)), this, SLOT(onSamplePlateModifiedChanged(bool)));
+		connect(samplePlate_, SIGNAL(sampleAdded(int)), this, SLOT(onSampleAdded()));
 	}
 	else{
 		samplePlateItemModel_ = 0; //NULL
@@ -380,4 +381,9 @@ void AMSamplePlateView::onSamplePlateModifiedChanged(bool isModified){
 void AMSamplePlateView::onSaveSamplePlateButtonClicked(){
 	if(samplePlate_)
 		samplePlate_->storeToDb(samplePlate_->database());
+}
+
+void AMSamplePlateView::onSampleAdded()
+{
+	onSamplePlateModifiedChanged(true);
 }

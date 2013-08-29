@@ -542,6 +542,10 @@ protected:
 
 	bool samplePlateSelected_;
 
+	QPushButton* loadDefaultBeam_;
+	QPushButton* loadDefaultCamera_;
+	QPushButton* loadDefaultSamplePlate_;
+
 };
 
 #endif // AMCROSSHAIROVERLAYVIDEOWIDGET2_H

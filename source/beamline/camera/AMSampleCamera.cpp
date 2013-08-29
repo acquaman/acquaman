@@ -869,7 +869,7 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		QVector3D newPosition;
 		QVector3D oldPosition;
 		QVector3D shift;
-		if(moveOnShape())
+		if(moveOnShape() && samplePlateSelected_)
 		{
 			newPosition = getPointOnShape(samplePlateShape_,position);
 			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
@@ -1490,6 +1490,7 @@ void AMSampleCamera::loadDefaultBeam()
 	beamTwo<<QVector3D(9.6,0,-9.96)<<QVector3D(10.6,0,-9.96)<<QVector3D(10.6,0,-10.06)<<QVector3D(9.6,0,-10.06)<<QVector3D(9.6,0,-9.96);
 	beamModel_->setPositionOne(beamOne);
 	beamModel_->setPositionTwo(beamTwo);
+	saveBeam();
 }
 
 void AMSampleCamera::loadDefaultCamera()
@@ -1505,6 +1506,8 @@ void AMSampleCamera::loadDefaultCamera()
 	defaultConfiguration->setCameraFOV(0.387);
 	defaultConfiguration->setPixelAspectRatio(1);
 	camera_->setCameraConfiguration(defaultConfiguration);
+	saveCamera();
+
 }
 
 void AMSampleCamera::loadDefaultSamplePlate()
@@ -1514,6 +1517,7 @@ void AMSampleCamera::loadDefaultSamplePlate()
 	samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
 	samplePlate->setCoordinateShape(samplePlateShape);
 	setSamplePlate(samplePlate);
+	saveSamplePlate();
 }
 
 
@@ -1564,6 +1568,14 @@ void AMSampleCamera::saveBeam()
 		beamModel_->setName("beam"+QString::number(beamCount));
 	}
 	beamModel_->storeToDb(db);
+}
+
+void AMSampleCamera::saveCamera()
+{
+	AMCameraConfiguration* cameraConfiguration = camera_->cameraConfiguration();
+	AMDatabase* db = AMDatabase::database("user");
+//	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", cameraConfiguration->name());
+	cameraConfiguration->storeToDb(db);
 }
 
 /// Constructor

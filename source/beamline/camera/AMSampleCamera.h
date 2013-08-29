@@ -416,6 +416,7 @@ protected slots:
 	void onShapeDataChanged();
 
 	void saveBeam();
+	void saveCamera();
 
 protected:
 
