@@ -30,6 +30,7 @@ class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
 class AMShapeDataListView;
 class AMShapeData;
+class AMSamplePlate;
 
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
@@ -231,6 +232,9 @@ signals:
 	void cameraWizardFinished();
 	void samplePlateWizardFinished();
 
+	void samplePlateSelected(AMSamplePlate*);
+
+
 
 
 public slots:
@@ -281,7 +285,7 @@ protected slots:
 
 
 	/// Updates all shapes
-    void reviewCrosshairLinePositions();
+	void refreshSceneView();
 
     /// handles mouse events on the graphics view
     void mousePressHandler(QPointF position);

@@ -31,6 +31,7 @@ class AMCameraConfiguration;
 class AMControl;
 class AMCamera;
 class AMSample;
+class AMSamplePlate;
 
 using namespace Eigen;
 
@@ -195,6 +196,8 @@ public slots:
 	void setMoveToBeam(bool move);
 
 	void setMoveOnShape(bool moveOnShape);
+
+	void onSamplePlateLoaded(AMSamplePlate* plate);
 
 
 
@@ -405,6 +408,8 @@ signals:
 	void cameraConfigurationChanged(AMCameraConfiguration*);
 
 	void shapeDataChanged();
+
+	void motorCoordinateChanged(QVector3D);
 
 
 protected slots:

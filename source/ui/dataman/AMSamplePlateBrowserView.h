@@ -28,6 +28,7 @@ signals:
 	/// Emitted when we've selected a valid sample plate
 	void samplePlateSelected(AMSamplePlate *samplePlate);
 
+
 protected slots:
 	/// Handles the select button being clicked
 	void onSelectButtonClicked();

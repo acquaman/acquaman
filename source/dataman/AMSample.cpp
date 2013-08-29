@@ -297,6 +297,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
             disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
+			disconnect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
         }
         sampleShapePositionData_ = sampleShapePositionData;
         if(sampleShapePositionData_)
@@ -308,6 +309,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
             // set other Data field one to tags
             connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
             connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
+			connect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
         }
 
 		emit sampleShapeDataChanged();
@@ -454,6 +456,11 @@ void AMSample::editCurrentTag(QString tag)
 void AMSample::removeSample()
 {
 	emit sampleAboutToBeRemoved();
+}
+
+void AMSample::onShapeDataChanged()
+{
+	setModified(true);
 }
 
 

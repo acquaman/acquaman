@@ -79,7 +79,6 @@ void AMGraphicsTextItem::clearSelection()
 
 void AMGraphicsTextItem::changingText()
 {
-	qDebug()<<"AMGraphicsTextItem::changingText";
 	int initialPosition = textCursor().position();
 
 	QTextCursor newPosition = textCursor();
@@ -105,7 +104,6 @@ void AMGraphicsTextItem::changingText()
 
 void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
-	qDebug()<<"AMGraphicsTextItem::focusInEvent";
 	QGraphicsTextItem::focusInEvent(event);
 	dontChangeSelection_ = true;
 	emit gotFocus(shapeIndex_);
@@ -117,7 +115,6 @@ void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 
 void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
-	qDebug()<<"AMGraphicsTextItem::focusOutEvent";
 	QGraphicsTextItem::focusOutEvent(event);
 	setSelectAll(false);
 	clearSelection();

@@ -302,15 +302,17 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 
 	setSamplePlate(samplePlate);
 }
-
+#include "beamline/camera/AMSampleCamera.h"
 void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
+	if(samplePlate_) disconnect(AMSampleCamera::set(), SIGNAL(motorCoordinateChanged(QVector3D)), samplePlate_, SLOT(setPlatePosition(QVector3D)));
 	samplePlate_ = samplePlate;
 	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
 	if(samplePlate_){
 		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
 		setTitle(samplePlate_->name());
 		connect(samplePlate_, SIGNAL(modifiedChanged(bool)), this, SLOT(onSamplePlateModifiedChanged(bool)));
+		connect(AMSampleCamera::set(), SIGNAL(motorCoordinateChanged(QVector3D)), samplePlate_, SLOT(setPlatePosition(QVector3D)));
 	}
 	else{
 		samplePlateItemModel_ = 0; //NULL

@@ -148,7 +148,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     textFixItem->setPos(-1*textFixItem->boundingRect().width(), -1*textFixItem->boundingRect().height());
     shapeScene_->scene()->addItem(textFixItem);
 
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 
 
 
@@ -162,10 +162,9 @@ AMSampleCameraView::~AMSampleCameraView()
 }
 
 
-void AMSampleCameraView::reviewCrosshairLinePositions()
+void AMSampleCameraView::refreshSceneView()
 {
 
-	qDebug()<<"AMSampleCameraView::reviewCrosshairLinePositions";
     QSizeF viewSize = shapeScene_->size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
     QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
@@ -244,7 +243,7 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
                 if(currentView_ == NAME)
                 {
                     textItems_[i]->setPlainText(shapeModel_->name(i));
-                    textItems_[index_]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
+					textItems_[i]->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextEditable);
                 }
                 else if(currentView_ == DATA)
                 {
@@ -255,7 +254,7 @@ void AMSampleCameraView::reviewCrosshairLinePositions()
                 else if(currentView_ == ID)
                 {
                     textItems_[i]->setPlainText(shapeModel_->otherDataTwo(i));
-                    textItems_[index_]->setTextInteractionFlags(Qt::NoTextInteraction);
+					textItems_[i]->setTextInteractionFlags(Qt::NoTextInteraction);
                 }
 
                 if(currentView_ == HIDE)
@@ -482,7 +481,7 @@ void AMSampleCameraView::runCameraConfiguration()
 
     shapeModel_->findCamera(points,coordinates);
     cameraConfiguration_->updateAll();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 
 
 
@@ -491,7 +490,7 @@ void AMSampleCameraView::runCameraConfiguration()
 void AMSampleCameraView::deleteCalibrationPoints()
 {
     shapeModel_->deleteCalibrationPoints();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::stopTimer()
@@ -549,31 +548,31 @@ void AMSampleCameraView::updateCurrentTextItemName()
 void AMSampleCameraView::setViewName()
 {
     currentView_ = NAME;
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setViewOtherData()
 {
     currentView_ = DATA;
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setViewIdNumber()
 {
     currentView_ = ID;
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setViewHidden()
 {
     currentView_ = HIDE;
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::autoCompleteEnterPressed()
 {
 //    shapeModel_->setCurrentInfo(autoCompleteBox_->text());
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::beamShape(int shapeNumber)
@@ -593,7 +592,7 @@ void AMSampleCameraView::beamShape(int shapeNumber)
     shapeModel_->updateBeamMarker(bottomRight, shapeNumber);
     currentChanged();
 
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 
     if(updateTracker_ == shapeNumber)
     {
@@ -617,7 +616,7 @@ void AMSampleCameraView::beamCalibrate()
 
     shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(false);
-	reviewCrosshairLinePositions();
+	refreshSceneView();
 
 }
 
@@ -628,7 +627,7 @@ void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 		shapeModel_->setMotorCoordinate(coordinate.x(),coordinate.y(),coordinate.z(),0);
 	}
     shapeModel_->moveMotorTo(coordinate);
-    reviewCrosshairLinePositions();
+	refreshSceneView();
     AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
     view->setScene(shapeScene_->scene());
     if(beamWizard_->isVisible())
@@ -642,7 +641,7 @@ void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 void AMSampleCameraView::showBeamMarker(int index)
 {
     shapeModel_->addBeamMarker(index);
-    reviewCrosshairLinePositions();
+	refreshSceneView();
     beamWizard_->updateScene(shapeScene_);
 }
 
@@ -658,7 +657,7 @@ void AMSampleCameraView::updateShapeName(QString newName)
         if(currentIndex() >= 0 && textItems_.count() > currentIndex())
             textItems_[currentIndex()]->setPlainText(shapeModel_->name(currentIndex()));
         else
-            reviewCrosshairLinePositions();
+			refreshSceneView();
     }
 }
 
@@ -671,7 +670,7 @@ void AMSampleCameraView::updateDataOne(QString data)
             qDebug()<<"AMSampleCameraView::updateDataOne - attempting to update textbox otherdata";
             textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataOne(currentIndex()));
         }
-        else reviewCrosshairLinePositions();
+		else refreshSceneView();
     }
 }
 
@@ -684,13 +683,13 @@ void AMSampleCameraView::updateDataTwo(QString data)
             qDebug()<<"AMSampleCameraView::updateDataTwo - attempting to update textbox otherdatatwo";
             textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataTwo(currentIndex()));
         }
-        else reviewCrosshairLinePositions();
+		else refreshSceneView();
 	}
 }
 
 void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 {
-	reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::onSamplePlateWizardFinished()
@@ -703,7 +702,7 @@ void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double
 {
     shapeModel_->setMotorCoordinate(x,y,z,r);
     emit currentChanged();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 double AMSampleCameraView::motorRotation() const
@@ -814,7 +813,7 @@ void AMSampleCameraView::onMotorMoved()
     motorYEdit_->setText(QString::number(motorY()));
     motorZEdit_->setText(QString::number(motorZ()));
     motorREdit_->setText(QString::number(motorRotation()));
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setUseMotorCoordinate(bool use)
@@ -826,7 +825,7 @@ void AMSampleCameraView::setUseCameraMatrix(bool use)
 {
     shapeModel_->setUseCameraMatrix(use);
     shapeModel_->updateAllShapes();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::showCameraBeamWindow()
@@ -870,7 +869,7 @@ void AMSampleCameraView::reviewCameraConfiguration()
         shapeModel_->findCamera(positions,coordinates);
         cameraConfiguration_->updateAll();
         shapeModel_->updateAllShapes();
-        reviewCrosshairLinePositions();
+		refreshSceneView();
 	}
 }
 
@@ -915,7 +914,7 @@ void AMSampleCameraView::setTilt(QString tilt)
 void AMSampleCameraView::toggleDistortion()
 {
     shapeModel_->toggleDistortion();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setMedia(QMediaContent url)
@@ -971,7 +970,7 @@ bool AMSampleCameraView::loadBeam()
     AMBeamConfiguration* beamToLoad = new AMBeamConfiguration();
     beamToLoad->loadFromDb(db,id);
     shapeModel_->setBeamModel(beamToLoad);
-	reviewCrosshairLinePositions();
+	refreshSceneView();
     return true;
 }
 
@@ -997,7 +996,7 @@ bool AMSampleCameraView::loadCamera()
 
     cameraToLoad->loadFromDb(db,id);
     shapeModel_->setCameraModel(cameraToLoad);
-	reviewCrosshairLinePositions();
+	refreshSceneView();
     return true;
 }
 
@@ -1016,7 +1015,7 @@ bool AMSampleCameraView::loadSamplePlate()
 	drawOnShapeCheckBox_->setChecked(true);
 	setDrawOnShapeEnabled(true);
 	shapeModel_->setSamplePlate(samplePlateShape);
-	reviewCrosshairLinePositions();
+	refreshSceneView();
 	return true;
 
 }
@@ -1084,7 +1083,7 @@ void AMSampleCameraView::setCrosshairLocked(bool doLock)
 void AMSampleCameraView::setCameraModel(AMCameraConfiguration *model)
 {
     shapeModel_->setCameraModel(model);
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::intersection()
@@ -1160,13 +1159,13 @@ void AMSampleCameraView::startSampleWizard()
 void AMSampleCameraView::setSamplePlate()
 {
     shapeModel_->setSamplePlate();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setCameraConfigurationShape()
 {
     shapeModel_->setCameraConfigurationShape();
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::moveSamplePlate(int movement)
@@ -1174,7 +1173,7 @@ void AMSampleCameraView::moveSamplePlate(int movement)
     int relativeMovement = movement - samplePlateMovement_;
     samplePlateMovement_ = movement;
     shapeModel_->moveSamplePlate(relativeMovement);
-    reviewCrosshairLinePositions();
+	refreshSceneView();
     AMSampleCameraGraphicsView* view = shapeScene_;
 	samplePlateWizard_->updateScene(view);
 }
@@ -1182,7 +1181,7 @@ void AMSampleCameraView::moveSamplePlate(int movement)
 void AMSampleCameraView::showBeamOutline(bool show)
 {
     showBeamOutline_ = show;
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::moveTestSlot()
@@ -1192,7 +1191,7 @@ void AMSampleCameraView::moveTestSlot()
 
 
 void AMSampleCameraView::requestUpdate(){
-	reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 #include <QTextCursor>
@@ -1261,7 +1260,7 @@ void AMSampleCameraView::requestLoadSamplePlate()
 void AMSampleCameraView::updateCurrentShape()
 {
     emit updateShapes(current_);
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
@@ -1297,7 +1296,7 @@ void AMSampleCameraView::resizeEvent(QResizeEvent *event)
 {
 
     shapeScene_->resizeEvent(event);
-	reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 #include <QMessageBox>
 void AMSampleCameraView::mousePressHandler(QPointF position)
@@ -1367,7 +1366,7 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
     {
         emit mouseMultiDrawPressed((position));
     }
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 void AMSampleCameraView::mouseRightClickHandler(QPointF position)
@@ -1400,12 +1399,12 @@ void AMSampleCameraView::mouseRightClickHandler(QPointF position)
         else if ( mode_ == GROUP)
         {
             shapeModel_->placeGrid((position));
-            reviewCrosshairLinePositions();
+			refreshSceneView();
             currentSelectionChanged();
 
         }
         else emit mouseRightClicked((position));
-        reviewCrosshairLinePositions();
+		refreshSceneView();
 
 }
 
@@ -1438,7 +1437,7 @@ void AMSampleCameraView::mouseLeftReleaseHandler(QPointF position)
         {
             destroyGroupRectangle();
         }
-        reviewCrosshairLinePositions();
+		refreshSceneView();
 }
 
 void AMSampleCameraView::mouseRightReleaseHandler(QPointF position)
@@ -1449,7 +1448,7 @@ void AMSampleCameraView::mouseRightReleaseHandler(QPointF position)
     disconnect(shapeModel_, SLOT(rotateRectangle(QPointF)));
     disconnect(shapeModel_, SLOT(zoomShape(QPointF)));
     disconnect(this, SLOT(mouseMoveHandler(QPointF)));
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 }
 
 
@@ -1460,7 +1459,7 @@ void AMSampleCameraView::mouseDoubleClickHandler(QPointF position)
         if(mode_ == MULTIDRAW)
         {
             emit mouseMultiDrawDoubleClicked(position);
-            reviewCrosshairLinePositions();
+			refreshSceneView();
             emit currentChanged();
         }
         else if(!crosshairLocked())
@@ -1552,7 +1551,7 @@ void AMSampleCameraView::currentSelectionChanged()
 
     }
 
-    reviewCrosshairLinePositions();
+	refreshSceneView();
 
 }
 
@@ -2069,11 +2068,13 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(shapeModel_, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)), cameraConfiguration_, SLOT(onCameraConfigurationChanged(AMCameraConfiguration*)));
 	connect(this, SIGNAL(samplePlateWizardFinished()), this, SLOT(onSamplePlateWizardFinished()));
 
-	connect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(reviewCrosshairLinePositions()));
+	connect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(refreshSceneView()));
 
 	connect(loadDefaultBeam_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultBeam()));
 	connect(loadDefaultCamera_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultCamera()));
 	connect(loadDefaultSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultSamplePlate()));
+
+	connect(this, SIGNAL(samplePlateSelected(AMSamplePlate*)), shapeModel_, SLOT(onSamplePlateLoaded(AMSamplePlate*)));
 
 }
 

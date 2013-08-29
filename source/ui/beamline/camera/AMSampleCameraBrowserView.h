@@ -2,6 +2,7 @@
 #define AMBEAMLINECAMERABROWSER2_H
 
 #include <QWidget>
+#include <QVector3D>
 
 class QPushButton;
 class QComboBox;
@@ -14,6 +15,8 @@ class QLineEdit;
 class AMCameraConfigurationView;
 class AMShapeDataView;
 class AMSampleCameraBrowser;
+class AMSamplePlate;
+class QVector3D;
 
 #include <QMediaPlayer>
 
@@ -78,7 +81,7 @@ signals:
 	void cameraWizardFinished();
 	void samplePlateWizardFinished();
 
-
+	void samplePlateLoaded(AMSamplePlate*);
 	void samplePlateSelected();
 protected:
 	/// initialization

@@ -498,6 +498,26 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 	moveOnShape_ = moveOnShape;
 }
 
+#include "dataman/AMSamplePlate.h"
+void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
+{
+	/// sample plate has been loaded out of the database, must correct the positions
+	// get the shift and rotation
+	QVector3D platePosition = plate->platePosition();
+	qDebug()<<"AMSampleCamera::onSamplePlateLoaded - plate position was"<<platePosition;
+	QVector3D currentPosition = motorCoordinate_;
+	QVector3D shiftAmount = currentPosition - platePosition;
+	qDebug()<<"AMSampleCamera::onSamplePlateLoaded -Shifting by"<<shiftAmount;
+	foreach(AMShapeData* shape, shapeList_)
+	{
+		shape->shift(shiftAmount);
+	}
+	if(samplePlateSelected_ && samplePlateShape_)
+	{
+		samplePlateShape_->shift(shiftAmount);
+	}
+}
+
 /// checks if an index is valid
 bool AMSampleCamera::isValid(int index) const
 {
@@ -990,6 +1010,8 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			moveMotors(inboardOutboard, upStreamDownStream, upDown);
 
 		}
+		qDebug()<<"AMSampleCamera::shiftToPoint"<<motorCoordinate_;
+		emit motorCoordinateChanged(motorCoordinate_);
 
 	}
 }
@@ -2246,7 +2268,6 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	// this will be an x-z plane with constant y (as it will only move with x,z motors)
 	// then find where the beam intersects this plane.
 	double y = samplePoint.y();
-	qDebug()<<"AMSampleCamera::beamIntersectionPoint - y value is"<<y;
 	QVector3D beamSpot(0,0,0);
 	AMShapeData* newShape = new AMShapeData();
 	QVector<QVector3D> coordinateShape;

@@ -130,6 +130,8 @@ public slots:
 
 	void removeSample();
 
+	void onShapeDataChanged();
+
 
 signals:
 	void sampleNameChanged(const QString &name);

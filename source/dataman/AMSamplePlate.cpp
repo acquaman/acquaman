@@ -42,6 +42,16 @@ AMSample* AMSamplePlate::sampleAt(int index){
 	return samples_.at(index);
 }
 
+QVector3D AMSamplePlate::platePosition()
+{
+	return platePosition_;
+}
+
+double AMSamplePlate::plateRotation()
+{
+	return plateRotation_;
+}
+
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
@@ -117,6 +127,25 @@ void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
 	AMSample *sample = sampleFromShape(shapeData);
 	if(sample)
 		sample->storeToDb(database());
+}
+
+void AMSamplePlate::setPlatePosition(QVector3D position)
+{
+	qDebug()<<"AMSamplePlate::setPlatePosition for sample plate"<<name();
+	if(position != platePosition_)
+	{
+		platePosition_ = position;
+		setModified(true);
+	}
+}
+
+void AMSamplePlate::setPlateRotation(double rotation)
+{
+	if(rotation != plateRotation_)
+	{
+		plateRotation_ = rotation;
+		setModified(true);
+	}
 }
 
 void AMSamplePlate::onSampleDetailsChanged(){
