@@ -296,21 +296,22 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
         {
             disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-            disconnect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
             disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
         sampleShapePositionData_ = sampleShapePositionData;
         if(sampleShapePositionData_)
         {
             sampleShapePositionData_->setName(name());
+			if(!tags_.isEmpty())
+				setCurrentTag(tags_.first());
             connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
             // set other Data field one to tags
-			qDebug()<<"Connecting currentTagChanged to setOtherDataFieldOne for"<<sampleShapePositionData->name();
             connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-            connect(sampleShapePositionData_, SIGNAL(otherDataFieldOneChanged(QString)), this, SLOT(editCurrentTag(QString)));
             connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
         }
+
 		emit sampleShapeDataChanged();
+		emit requestCurrentTag();
 		emit currentTagChanged(currentTag_);
 		emit elementsChanged(elementString());
     }
@@ -418,11 +419,7 @@ void AMSample::setCurrentTag(QString tag)
 {
 
 	currentTag_ = tag;
-	qDebug()<<"Emitting current tag changed to"<<currentTag_;
-	qDebug()<<"For sample "<<sampleShapePositionData_->name();
-	sampleShapePositionData()->setOtherDataFieldOne(QString("AMSample::setCurrentTag %1").arg(sampleShapePositionData()->name()));
 	emit currentTagChanged(currentTag_);
-	qDebug()<<"Finished emitting currentTagChanged(currentTag_)";
 }
 
 void AMSample::getCurrentTag()
@@ -433,20 +430,13 @@ void AMSample::getCurrentTag()
 void AMSample::editCurrentTag(QString tag)
 {
 	QString oldTag = currentTag_;
-	qDebug()<<"AMSample::editCurrentTag - current tag is:"<<oldTag;
-	//    currentTag_ = tag;
 	int index = tags_.indexOf(oldTag);
 	if(index == -1)
 	{
 		qDebug()<<"AMSample::editCurrentTag - Cannot edit tag, tag not found.";
-		foreach(QString tag, tags_)
-		{
-			qDebug()<<tag;
-		}
 	}
 	else if(index >= 0 && index < tags_.size())
 	{
-		//        tags_.replace(index, tag);
 		tags_.removeAt(index);
 		tags_.insert(index, tag);
 		emit tagsChanged(tags_);
@@ -461,6 +451,11 @@ void AMSample::editCurrentTag(QString tag)
 
 }
 
+void AMSample::removeSample()
+{
+	emit sampleAboutToBeRemoved();
+}
+
 
 /// the format used to present dateTime as a string
 QString AMSample::dateTimeFormat() const
@@ -472,7 +467,6 @@ void AMSample::init(QString name)
 {
 	makeConnections();
 	sampleShapePositionData_ = 0;
-	//    samplePlatePosition_ = 0;
 	currentTag_ = "";
 	setName(name);
 	setCurrentDateTime();
@@ -497,6 +491,6 @@ AMQVector3DVector AMSample::dbReadShapeData() const{
 void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
 	AMShapeData* shapeData = new AMShapeData(this);
 	setSampleShapePositionData(shapeData);
-	sampleShapePositionData_->setCoordinateShape(newShapeData, newShapeData.count());
+	sampleShapePositionData_->setCoordinateShape(newShapeData);
 	emit sampleShapeDataChanged();
 }

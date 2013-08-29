@@ -51,6 +51,8 @@ public slots:
 
 	void onSampleShapeDataChanged();
 
+	void onSampleAboutToBeRemoved();
+
 signals:
 	void updateName(QString);
 	void aboutToClose();

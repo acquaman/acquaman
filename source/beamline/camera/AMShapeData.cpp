@@ -160,8 +160,9 @@ void AMShapeData::setCoordinate(QVector3D coordinate, int index)
     }
 }
 
-void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
+void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates)
 {
+	int count = coordinates.count();
     if(coordinates.isEmpty()) return;
 	if(coordinates == coordinate_) return;
     coordinate_.clear();
@@ -231,7 +232,7 @@ void AMShapeData::copy(const AMShapeData *other)
     {
         nullShape.append(QVector3D(0,0,0));
     }
-    setCoordinateShape(nullShape,other->count());
+	setCoordinateShape(nullShape);
     for(int i = 0; i < other->count(); i++)
     {
         setCoordinate(other->coordinate(i),i);

@@ -122,9 +122,13 @@ public slots:
 	/// sets dateTime_ to the current DateTime
 	void setCurrentDateTime();
 
+	/// set the current tag
 	void setCurrentTag(QString tag);
 	void getCurrentTag();
+	/// replaces the text of the current tag with the specified text
 	void editCurrentTag(QString tag);
+
+	void removeSample();
 
 
 signals:
@@ -132,12 +136,15 @@ signals:
 	void dateTimeChanged(const QDateTime &dateTime);
 	void notesChanged(const QString &notes);
 	void tagsChanged(const QStringList &tags);
+	/// request for an update to current tag
 	void requestCurrentTag();
 	void currentTagChanged(const QString &tag);
 	void elementsChanged(const QString &elementList);
 	void sampleShapeDataChanged();
 
 	void sampleDetailsChanged();
+
+	void sampleAboutToBeRemoved();
 
 
 

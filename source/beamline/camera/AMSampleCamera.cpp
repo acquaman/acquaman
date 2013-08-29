@@ -548,7 +548,7 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 		shapes[i] = new AMShapeData();
 		QVector<QVector3D> shapeCoordinates;
 		shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
-		shapes[i]->setCoordinateShape(shapeCoordinates,5);
+		shapes[i]->setCoordinateShape(shapeCoordinates);
 		shapes[i]->shiftTo(coordinates[i]);
 		shapes[i]->setTilt(0);
 		shapes[i]->setRotation(0);
@@ -735,7 +735,7 @@ void AMSampleCamera::startRectangle(QPointF position)
 	newShapeData->setTilt(0);
 	newShapeData->setYAxisRotation(0);
 
-	newShapeData->setCoordinateShape(newShape,5);
+	newShapeData->setCoordinateShape(newShape);
 	insertItem(newShapeData);
 //    updateShape(index_);
 
@@ -1052,7 +1052,7 @@ void AMSampleCamera::finishShape()
 	}
 
 	AMShapeData* polygon = new AMShapeData();
-	polygon->setCoordinateShape(coordinates,coordinates.count());
+	polygon->setCoordinateShape(coordinates);
 	polygon->setName("Shape " + QString::number(index_+1));
 	polygon->setRotation(0);
 	polygon->setTilt(0);
@@ -1139,7 +1139,7 @@ void AMSampleCamera::placeGrid(QPointF position)
 			{
 				shape<<camera_->transform2Dto3D(shapeList_[index_]->shape()->at(k),camera_->focalLength());
 			}
-			shapeList_[index_]->setCoordinateShape(shape,5);
+			shapeList_[index_]->setCoordinateShape(shape);
 			shapeList_[index_]->setIdNumber(position.x());
 			shapeList_[index_]->setTilt(0);
 			shapeList_[index_]->setRotation(0);
@@ -1416,7 +1416,7 @@ void AMSampleCamera::addBeamMarker(int index)
 		QVector<QVector3D> coordinateShape = findIntersectionShape(samplePlateShape_);
 		if(!coordinateShape.isEmpty())
 		{
-			newBeamShape->setCoordinateShape(coordinateShape,coordinateShape.count());
+			newBeamShape->setCoordinateShape(coordinateShape);
 			newBeamShape->setName(QString("Beam Marker %1").arg(index));
 			newBeamShape->setRotation(0);
 			newBeamShape->setTilt(0);
@@ -1480,6 +1480,40 @@ void AMSampleCamera::removeSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
 	if(shapeIndex >= 0)
 		removeItem(shapeIndex);
+}
+
+void AMSampleCamera::loadDefaultBeam()
+{
+	QVector<QVector3D> beamOne;
+	QVector<QVector3D> beamTwo;
+	beamOne<<QVector3D(9.6,2,-9.96)<<QVector3D(10.6,2,-9.96)<<QVector3D(10.6,2,-10.06)<<QVector3D(9.6,2,-10.06)<<QVector3D(9.6,2,-9.96);
+	beamTwo<<QVector3D(9.6,0,-9.96)<<QVector3D(10.6,0,-9.96)<<QVector3D(10.6,0,-10.06)<<QVector3D(9.6,0,-10.06)<<QVector3D(9.6,0,-9.96);
+	beamModel_->setPositionOne(beamOne);
+	beamModel_->setPositionTwo(beamTwo);
+}
+
+void AMSampleCamera::loadDefaultCamera()
+{
+	AMCameraConfiguration* defaultConfiguration = new AMCameraConfiguration();
+	QVector<QVector3D> cameraMatrix;
+	cameraMatrix<<QVector3D(0.0194118,-0.000294812,-0.00117781)<<QVector3D(0.00245398,0.00826314,0.000605619)
+			   <<QVector3D(0.000514431,-0.0221707,3.75237e-05)<<QVector3D(-0.185726,-0.243429,0.951474);
+	defaultConfiguration->setCameraMatrix(cameraMatrix);
+	defaultConfiguration->setName("Default Camera Configuration");
+	defaultConfiguration->setCameraDistortion(-0.09);
+	defaultConfiguration->setCameraFocalLength(0.41);
+	defaultConfiguration->setCameraFOV(0.387);
+	defaultConfiguration->setPixelAspectRatio(1);
+	camera_->setCameraConfiguration(defaultConfiguration);
+}
+
+void AMSampleCamera::loadDefaultSamplePlate()
+{
+	AMShapeData* samplePlate = new AMShapeData();
+	QVector<QVector3D> samplePlateShape;
+	samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
+	samplePlate->setCoordinateShape(samplePlateShape);
+	setSamplePlate(samplePlate);
 }
 
 
@@ -2058,7 +2092,7 @@ QPolygonF AMSampleCamera::intersectionScreenShape(QVector<QVector3D> shape3D) co
 {
 
 	AMShapeData* newShape = new AMShapeData();
-	newShape->setCoordinateShape(shape3D,shape3D.count());
+	newShape->setCoordinateShape(shape3D);
 	newShape->setRotation(0);
 	newShape->setTilt(0);
 	newShape->setYAxisRotation(0);
@@ -2215,7 +2249,7 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	AMShapeData* newShape = new AMShapeData();
 	QVector<QVector3D> coordinateShape;
 	coordinateShape<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0);
-	newShape->setCoordinateShape(coordinateShape,coordinateShape.count());
+	newShape->setCoordinateShape(coordinateShape);
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
 		// equation for line: x = x0 + at , etc.

@@ -66,7 +66,7 @@ public slots:
     void setOtherDataFieldTwo(QString otherDataFieldTwo);
     void setIdNumber(double idNumber);
     void setCoordinate(QVector3D coordinate, int index);
-    void setCoordinateShape(QVector<QVector3D> coordinates, int count);
+	void setCoordinateShape(QVector<QVector3D> coordinates);
     void setRotation(double zAxisRotation);
     void setTilt(double xAxisRotation);
     void setYAxisRotation(double yAxisRotation);

@@ -978,7 +978,7 @@ bool AMSampleCameraView::loadBeam()
     bool* success = new bool(true);
     int id = matchList.last().toInt(success);
 
-    if(!success)
+	if(!(*success))
         return false;
 
     AMBeamConfiguration* beamToLoad = new AMBeamConfiguration();
@@ -1235,6 +1235,11 @@ void AMSampleCameraView::requestLoadBeam()
     {
         emit beamWizardFinished();
     }
+	else
+	{
+		qDebug()<<"Loading default beam configuration.";
+		shapeModel_->loadDefaultBeam();
+	}
 }
 
 void AMSampleCameraView::requestLoadCamera()
@@ -1244,6 +1249,11 @@ void AMSampleCameraView::requestLoadCamera()
     {
         emit cameraWizardFinished();
     }
+	else
+	{
+		qDebug()<<"Loading default camera configuration";
+		shapeModel_->loadDefaultCamera();
+	}
 }
 
 void AMSampleCameraView::requestLoadSamplePlate()
@@ -1253,6 +1263,11 @@ void AMSampleCameraView::requestLoadSamplePlate()
     {
         emit samplePlateWizardFinished();
     }
+	else
+	{
+		qDebug()<<"Loading default sample plate";
+		shapeModel_->loadDefaultSamplePlate();
+	}
 }
 
 
@@ -1375,7 +1390,7 @@ void AMSampleCameraView::mouseRightClickHandler(QPointF position)
         {
             emit mouseMoveRightPressed(position);
             currentSelectionChanged();
-            connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(rotateRectangle(QPointF)));
+			connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomShape(QPointF)));
             connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
         }
 
@@ -1383,7 +1398,7 @@ void AMSampleCameraView::mouseRightClickHandler(QPointF position)
         {
             emit mouseEditRightPressed(position);
             currentSelectionChanged();
-            connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(zoomShape(QPointF)));
+			connect(this, SIGNAL(mouseMoved(QPointF)), shapeModel_, SLOT(rotateRectangle(QPointF)));
             connect(this, SIGNAL(mouseMoved(QPointF)), this, SIGNAL(currentChanged()));
         }
 
@@ -1928,8 +1943,8 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
     connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
+	connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
     connect(this, SIGNAL(mouseEditPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
-    connect(this, SIGNAL(mouseEditRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
     connect(this, SIGNAL(mouseEditRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
     connect(this, SIGNAL(mouseShiftPressed(QPointF)), shapeModel_, SLOT(setShapeVectors(QPointF)));
     connect(this, SIGNAL(mouseShiftRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));

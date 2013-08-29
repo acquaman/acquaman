@@ -368,6 +368,10 @@ public slots:
 	/// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
 	void removeSample(AMSample *sample);
 
+	void loadDefaultBeam();
+	void loadDefaultCamera();
+	void loadDefaultSamplePlate();
+
 
 signals:
 	/// used to change the beam
@@ -594,19 +598,15 @@ protected:
 	/// motor manipulators
 
 	/// X motor
-	//SGMMAXvMotor *ssaManipulatorX_;
 	AMControl *ssaManipulatorX_;
 
 	/// Y motor
-	//SGMMAXvMotor *ssaManipulatorY_;
 	AMControl *ssaManipulatorY_;
 
 	/// Z motor
-	//SGMMAXvMotor *ssaManipulatorZ_;
 	AMControl *ssaManipulatorZ_;
 
 	/// rotation motor
-	//SGMMAXvMotor *ssaManipulatorRot_;
 	AMControl *ssaManipulatorRot_;
 
 	/// enables or disables motor movement
