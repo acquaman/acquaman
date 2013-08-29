@@ -400,7 +400,7 @@ void AMSampleCamera::setCurrentName(QString name)
 }
 
 /// set the current info
-void AMSampleCamera::setCurrentInfo(QString info)
+void AMSampleCamera::setCurrentInfo(const QString &info)
 {
 	setOtherDataOne(info,currentIndex_);
 }
@@ -435,7 +435,7 @@ void AMSampleCamera::setName(QString name, int index)
 }
 
 /// sets the data of the specifed index
-void AMSampleCamera::setOtherDataOne(QString data, int index)
+void AMSampleCamera::setOtherDataOne(const QString &data, int index)
 {
 	if(isValid(index))
 	{
@@ -501,14 +501,7 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 /// checks if an index is valid
 bool AMSampleCamera::isValid(int index) const
 {
-	if(index <= index_ && index >= 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (index <= index_ && index >= 0);
 }
 
 /// checks to see if a shape is backwards
@@ -620,17 +613,17 @@ QVariant AMSampleCamera::data(const QModelIndex &index, int role) const
 	}
 }
 
-bool AMSampleCamera::motorMovementEnabled()
+bool AMSampleCamera::motorMovementEnabled() const
 {
 	return enableMotorMovement_;
 }
 
-const QList<AMShapeData *> AMSampleCamera::shapeList()
+const QList<AMShapeData *> AMSampleCamera::shapeList() const
 {
 	return shapeList_;
 }
 
-bool AMSampleCamera::overrideMouseSelection()
+bool AMSampleCamera::overrideMouseSelection() const
 {
 	return overrideMouseSelection_;
 }
@@ -1125,7 +1118,7 @@ void AMSampleCamera::setCoordinates(double x, double y, double z, int index)
 }
 
 /// places a grid
-void AMSampleCamera::placeGrid(QPointF position)
+void AMSampleCamera::placeGrid(const QPointF &position)
 {
 	for(double i = 0; i < 20.0; i++)
 	{
@@ -1292,13 +1285,10 @@ void AMSampleCamera::beamCalibrate()
 		beamModel_->setRay(line[i],i);
 
 	}
-
 	beamModel_->alignPositionTwo();
 	saveBeam();
-//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[0]));
-//	oneSelect();
-//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[2]));
-//	twoSelect();
+
+
 	if(shapeList_.isEmpty()) return;
 	for(int i = 0; i < 3; i++)
 	{
@@ -1378,7 +1368,7 @@ void AMSampleCamera::setCameraConfigurationShape()
 	}
 }
 
-void AMSampleCamera::moveSamplePlateTo(QVector3D coordinate)
+void AMSampleCamera::moveSamplePlateTo(const QVector3D &coordinate)
 {
 	if(samplePlateSelected_)
 	{
@@ -2047,7 +2037,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 		}
 		shape<<l0[i]+lHat[i]*distance[i];
 	}
-	shape<<shape.first();
+//	shape<<shape.first();
 
 	/// need to find if the two shapes have any overlap
 	/// transpose to h,w,n coordinates, and throw away the n part, to get two polygons

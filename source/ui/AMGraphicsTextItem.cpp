@@ -79,6 +79,7 @@ void AMGraphicsTextItem::clearSelection()
 
 void AMGraphicsTextItem::changingText()
 {
+	qDebug()<<"AMGraphicsTextItem::changingText";
 	int initialPosition = textCursor().position();
 
 	QTextCursor newPosition = textCursor();
@@ -99,21 +100,24 @@ void AMGraphicsTextItem::changingText()
 		newPosition.setPosition(initialPosition);
 	newPosition.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,newPosition.position() - anchorPositon);
 	setTextCursor(newPosition);
+	setSelectAll(false);
 }
 
 void AMGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
+	qDebug()<<"AMGraphicsTextItem::focusInEvent";
 	QGraphicsTextItem::focusInEvent(event);
 	dontChangeSelection_ = true;
 	emit gotFocus(shapeIndex_);
-	blockSignals(true);
+	bool oldValue = blockSignals(true);
 	selectAllText();
-	blockSignals(false);
+	blockSignals(oldValue);
 
 }
 
 void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
+	qDebug()<<"AMGraphicsTextItem::focusOutEvent";
 	QGraphicsTextItem::focusOutEvent(event);
 	setSelectAll(false);
 	clearSelection();

@@ -45,9 +45,9 @@ public:
     QVector3D centerCoordinate() const;
 
     /// shifts the shape by shift
-    void shift(QVector3D shift);
+	void shift(const QVector3D &shift);
     /// shifts the shape to shift
-    void shiftTo(QVector3D shift);
+	void shiftTo(const QVector3D &shift);
 
     /// number of coordinates
     int count() const;
@@ -62,7 +62,7 @@ public slots:
     /// mutators
     void setShape(const QPolygonF shape);
     void setName(QString name);
-    void setOtherDataFieldOne(QString otherDataFieldOne);
+	void setOtherDataFieldOne(const QString &otherDataFieldOne);
     void setOtherDataFieldTwo(QString otherDataFieldTwo);
     void setIdNumber(double idNumber);
     void setCoordinate(QVector3D coordinate, int index);

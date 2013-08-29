@@ -61,10 +61,7 @@
 AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType, QWidget *parent, bool useOpenGlViewport) :
     QWidget(parent)
 {
-    qDebug()<<"Registering type";
     shapeModel_ = shapeModel;
-    //shapeView_ = AMShapeDataView::shapeView();// start with no shape data, as none has been drawn yet
-//    shapeView_ = new AMShapeDataView(0);
     shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
@@ -168,6 +165,7 @@ AMSampleCameraView::~AMSampleCameraView()
 void AMSampleCameraView::reviewCrosshairLinePositions()
 {
 
+	qDebug()<<"AMSampleCameraView::reviewCrosshairLinePositions";
     QSizeF viewSize = shapeScene_->size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
     QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
@@ -318,7 +316,7 @@ bool AMSampleCameraView::crosshairVisible() const
     return crosshairXLine_->isVisible();
 }
 
-bool AMSampleCameraView::crosshairLocked()
+bool AMSampleCameraView::crosshairLocked() const
 {
     return shapeModel_->crosshairLocked();
 }
@@ -708,27 +706,27 @@ void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double
     reviewCrosshairLinePositions();
 }
 
-double AMSampleCameraView::motorRotation()
+double AMSampleCameraView::motorRotation() const
 {
     return (shapeModel_->motorRotation());
 }
 
-double AMSampleCameraView::motorX()
+double AMSampleCameraView::motorX() const
 {
     return shapeModel_->motorX();
 }
 
-double AMSampleCameraView::motorY()
+double AMSampleCameraView::motorY() const
 {
     return shapeModel_->motorY();
 }
 
-double AMSampleCameraView::motorZ()
+double AMSampleCameraView::motorZ() const
 {
     return shapeModel_->motorZ();
 }
 
-QString AMSampleCameraView::currentName()
+QString AMSampleCameraView::currentName() const
 {
     return shapeModel_->currentName();
 }
@@ -738,12 +736,12 @@ void AMSampleCameraView::setCurrentName(QString name)
    shapeModel_->setCurrentName(name);
 }
 
-QString AMSampleCameraView::currentInfo()
+QString AMSampleCameraView::currentInfo() const
 {
     return shapeModel_->currentInfo();
 }
 
-void AMSampleCameraView::setCurrentInfo(QString info)
+void AMSampleCameraView::setCurrentInfo(const QString &info)
 {
     shapeModel_->setCurrentInfo(info);
 }
@@ -810,7 +808,7 @@ void AMSampleCameraView::setRotation(QString rotation)
     shapeModel_->setRotation(rotation.toDouble());
 }
 
-void AMSampleCameraView::motorMoved()
+void AMSampleCameraView::onMotorMoved()
 {
     motorXEdit_->setText(QString::number(motorX()));
     motorYEdit_->setText(QString::number(motorY()));
@@ -837,10 +835,6 @@ void AMSampleCameraView::showCameraBeamWindow()
     configurationWindow_->adjustSize();
 }
 
-//void AMSampleCameraView::showShapeView()
-//{
-//    shapeView_->show();
-//}
 
 void AMSampleCameraView::setDrawOnShape()
 {
@@ -864,10 +858,6 @@ void AMSampleCameraView::reviewCameraConfiguration()
     }
 
     QList<QVector3D*>* coordinateList = cameraWizard_->coordinateList();
-//    QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
-//    QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
-//    QPointF factor = bottomRight - topLeft;
-//    QPointF offset = topLeft;
     QPointF positions[SAMPLEPOINTS];
     QVector3D coordinates[SAMPLEPOINTS];
     if(review)
@@ -875,9 +865,6 @@ void AMSampleCameraView::reviewCameraConfiguration()
         for(int i = 0; i < SAMPLEPOINTS; i++)
         {
             positions[i] = mapPointToVideo(*pointList->at(i));
-//            positions[i].setX(positions[i].x()*(factor.x()));
-//            positions[i].setY(positions[i].y()*(factor.y()));
-//            positions[i] += offset;
             coordinates[i] = *coordinateList->at(i);
         }
         shapeModel_->findCamera(positions,coordinates);
@@ -1292,7 +1279,8 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
         QPolygonF polygon(QRectF(5,5,20,20));
         intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
         intersections_[i]->setPolygon(shapes.first());
-        shapes.remove(0);
+
+		shapes.remove(0);
     }
 }
 
@@ -1990,7 +1978,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
     if(viewType == DEBUG)
     {
         connect(setMotorCoordinate_, SIGNAL(clicked()), this, SLOT(setMotorCoordinatePressed()));
-        connect(shapeModel_, SIGNAL(motorMoved()), this, SLOT(motorMoved()));
+		connect(shapeModel_, SIGNAL(onMotorMoved()), this, SLOT(onMotorMoved()));
         connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(startCameraWizard()));
         connect(beamWizardButton_, SIGNAL(clicked()), this, SLOT(startBeamWizard()));
         connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SLOT(startSampleWizard()));

@@ -62,86 +62,109 @@ public:
 	bool crosshairVisible() const;
 
     /// returns whether the crosshair is locked
-    bool crosshairLocked();
+	bool crosshairLocked() const;
 
 
 
     /// Set the current motor coordinates
     void setMotorCoordinate(double x, double y, double z, double r);
-    double motorRotation();
-    double motorX();
-    double motorY();
-    double motorZ();
+	double motorRotation() const;
+	double motorX() const;
+	double motorY() const;
+	double motorZ() const;
 
-    /// Functions for modifying object information
-    QString currentName();
+	/// current shape's name
+	QString currentName() const;
 
-    QString currentInfo();
-    void setCurrentInfo(QString);
+	/// current shape's info
+	QString currentInfo() const;
+	/// set the current shape's info
+	void setCurrentInfo(const QString &info);
 
     /// Get the index of the currently selected object
     int currentIndex();
 
+	/// current shape's coordinates and rotation
     double xCoordinate();
     double yCoordinate();
     double zCoordinate();
     double rotation();
     double tilt();
 
-
+	/// set the media to play
     void setMedia(QMediaContent url);
+	/// start playing the current media
     void play();
 
+	/// the media player
     QMediaPlayer* mediaPlayer() const;
 
+	/// maps from other videos to this one
     QPointF mapPointToVideo(QPointF);
 
+	/// checks for valid index
     bool isValid(int index) const;
 
+	/// load last beam
     bool loadBeam();
+	/// load last camera
     bool loadCamera();
+	/// load last sample plate
     bool loadSamplePlate();
 
 
 public slots:
 
-        /// Set the crosshair color
-        void setCrosshairColor(const QColor& color);
+	/// Set the crosshair color
+	void setCrosshairColor(const QColor& color);
 
-        /// Set the crosshair line thickness
-        void setCrosshairLineThickness(int thickness);
+	/// Set the crosshair line thickness
+	void setCrosshairLineThickness(int thickness);
 
 
 
-        /// Disable the capability to move the cross-hair by double-clicking
-        void setCrosshairLocked(bool doLock = true);
+	/// Disable the capability to move the cross-hair by double-clicking
+	void setCrosshairLocked(bool doLock = true);
 
-        void setCurrentName(QString);
-         void setTilt(QString tilt);
+	/// set the current shape's name
+	void setCurrentName(QString);
+	/// set the current shape's x-axis rotation
+	void setTilt(QString tilt);
 
-         void setX(QString x);
-         void setY(QString y);
-         void setZ(QString z);
-         void setRotation(QString rotation);
+	/// set coordinates and rotation for the current shape
+	void setX(QString x);
+	void setY(QString y);
+	void setZ(QString z);
+	void setRotation(QString rotation);
 
-         void motorMoved();
+	/// update after motorMovement
+	void onMotorMoved();
 
-         void setUseMotorCoordinate(bool);
+	/// sets whether to use the current motor coordinate for calibration
+	void setUseMotorCoordinate(bool);
 
-         void setUseCameraMatrix(bool);
+	/// sets whether to use the camera matrix for visualization
+	void setUseCameraMatrix(bool);
 
-         void showCameraBeamWindow();
+	/// shows the camera/beam configuration window
+	void showCameraBeamWindow();
 
-         void setDrawOnShape();
-         void setDrawOnShapeEnabled(bool enable);
+	/// sets the shape to draw on
+	void setDrawOnShape();
+	/// enable or disable drawing on shape
+	void setDrawOnShapeEnabled(bool enable);
 
-         void reviewCameraConfiguration();
+	/// update the camera configuration
+	void reviewCameraConfiguration();
 
-		 void onMoveToBeamToggled(bool checked);
+	/// switches between move to beam or move to crosshair
+	void onMoveToBeamToggled(bool checked);
 
-		 void onMoveOnSamplePlateToggled(bool checked);
+	/// switches between movement on sample plate and movement along the image plane
+	void onMoveOnSamplePlateToggled(bool checked);
 
-		 void samplePlateSelected();
+	/// sets the sample plate selected
+	void samplePlateSelected();
 
 
 signals:
@@ -257,7 +280,7 @@ protected slots:
     void updateCurrentShape();
 
 
-    /// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved
+	/// Updates all shapes
     void reviewCrosshairLinePositions();
 
     /// handles mouse events on the graphics view
@@ -390,29 +413,35 @@ protected:
 
 
 protected:
-
+	/// selectMode used to determine what actions should be performed by  mouse events
     enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
 
+	/// ViewMode used to determine what each text item displays
     enum ViewMode{NAME,DATA,ID,HIDE};
 
 
-
+	/// crosshair lines
     QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
+	/// the graphics view that visualizes all the shapes
     AMSampleCameraGraphicsView *shapeScene_;
 
+	/// window for beam and camera settings
     QFrame *configurationWindow_;
 
+	/// camera settings window
     AMCameraConfigurationView *cameraConfiguration_;
 
+	/// beam settings window
     AMBeamConfigurationView *beamConfiguration_;
 
-    QColor borderColour_;
-    QColor activeBorderColour_;
+
+//    QColor borderColour_;
+//    QColor activeBorderColour_;
 
 
 
-    /// Map of QGraphicsPolygonItem, corresponds to a map of AMShapeData2
+	/// Map of QGraphicsPolygonItem, corresponds to list in AMSampleCamera - should probably just be changed to a list
     QMap<int,QGraphicsPolygonItem*> shapes_;
 
 	/// The model for all the shapes displayed

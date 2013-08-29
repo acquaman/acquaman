@@ -112,7 +112,6 @@ protected slots:
 
 	void onSamplePlateModifiedChanged(bool isModified);
 	void onSaveSamplePlateButtonClicked();
-	void onSampleAdded();
 
 protected:
 	AMSamplePlate *samplePlate_;
