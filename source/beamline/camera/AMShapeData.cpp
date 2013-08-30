@@ -122,7 +122,7 @@ void AMShapeData::setName(QString name)
     }
 }
 
-void AMShapeData::setOtherDataFieldOne(QString otherData)
+void AMShapeData::setOtherDataFieldOne(const QString &otherData)
 {
     if(otherDataFieldOne_ != otherData)
     {
@@ -160,8 +160,9 @@ void AMShapeData::setCoordinate(QVector3D coordinate, int index)
     }
 }
 
-void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates, int count)
+void AMShapeData::setCoordinateShape(QVector<QVector3D> coordinates)
 {
+	int count = coordinates.count();
     if(coordinates.isEmpty()) return;
 	if(coordinates == coordinate_) return;
     coordinate_.clear();
@@ -231,7 +232,7 @@ void AMShapeData::copy(const AMShapeData *other)
     {
         nullShape.append(QVector3D(0,0,0));
     }
-    setCoordinateShape(nullShape,other->count());
+	setCoordinateShape(nullShape);
     for(int i = 0; i < other->count(); i++)
     {
         setCoordinate(other->coordinate(i),i);
@@ -257,7 +258,7 @@ QVector3D AMShapeData::centerCoordinate() const
 }
 
 /// shifts the shape by the given amount
-void AMShapeData::shift(QVector3D shift)
+void AMShapeData::shift(const QVector3D &shift)
 {
 	if(shift != QVector3D(0,0,0))
 	{
@@ -270,10 +271,10 @@ void AMShapeData::shift(QVector3D shift)
 }
 
 /// shifts the shape to the given location
-void AMShapeData::shiftTo(QVector3D shiftTo)
+void AMShapeData::shiftTo(const QVector3D &shiftTo)
 {
-	shiftTo -= centerCoordinate();
-	shift(shiftTo);
+	QVector3D shiftPoint = shiftTo - centerCoordinate();
+	shift(shiftPoint);
 }
 
 /// returns a count of the number of coordinates
@@ -285,8 +286,9 @@ int AMShapeData::count() const
 /// checks to see if the shape is backwards
 bool AMShapeData::backwards() const
 {
-    if(count() < 3)return false;
-    QVector3D points [3];
+	if(count() < 3) return false;
+
+	QVector3D points [3];
     for(int i = 0; i < 3 ; i++)
     {
         points[i] = QVector3D(shape_->at(i));
@@ -294,7 +296,8 @@ bool AMShapeData::backwards() const
     QVector3D rayOne = points[1] - points[0];
     QVector3D rayTwo = points[2] - points[1];
     QVector3D normal = QVector3D::normal(rayOne,rayTwo);
-    // normal should be either positive or negative 1;
+
+	// normal should be either positive or negative 1;
     return(normal.z() < 0);
 }
 

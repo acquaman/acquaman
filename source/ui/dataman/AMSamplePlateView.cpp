@@ -381,3 +381,4 @@ void AMSamplePlateView::onSaveSamplePlateButtonClicked(){
 	if(samplePlate_)
 		samplePlate_->storeToDb(samplePlate_->database());
 }
+

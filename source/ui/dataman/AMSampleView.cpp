@@ -22,7 +22,7 @@ AMSampleView::AMSampleView(QWidget* parent)
 	: QWidget(parent)
 {
 	//qDebug()<<"Creating new AMSampleView 1";
-	sample_ = 0;
+	setSample(0);
 	setUpGui();
 	makeConnections();
 	loadFromDb();
@@ -41,22 +41,39 @@ AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
 
 void AMSampleView::setSample(AMSample *sample)
 {
-	if(sample_ != sample)
+	if(sample && sample_ != sample)
 	{
+		if(sample_)
+		{
+			disconnect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
+			disconnect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
+			disconnect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
+			disconnect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
+			disconnect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
+		}
 		sample_ = sample;
 		databaseTags();
-		connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
-		connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
-		connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
-		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
-//		connect(sample_, SIGNAL(sampleDetailsChanged()), shapeDataView_, SLOT(updateAll()));
+		if(sample_)
+		{
+			connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
+			connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
+			connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
+			connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
+			connect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
+	//		connect(sample_, SIGNAL(sampleDetailsChanged()), shapeDataView_, SLOT(updateAll()));
+		}
 
 		updateFrames();
+	}
+	else if(!sample)
+	{
+		sample_ = 0;
 	}
 }
 
 void AMSampleView::setName(QString name)
 {
+
 	sample_->setName(name);
 }
 
@@ -151,6 +168,12 @@ void AMSampleView::onSampleShapeDataChanged()
 {
 	qDebug()<<"AMSampleView::onSampleShapeDataChanged";
 	shapeDataView_->setShapeData(sample_->sampleShapePositionData());
+}
+
+void AMSampleView::onSampleAboutToBeRemoved()
+{
+	close();
+	deleteLater();
 }
 
 
@@ -336,7 +359,13 @@ void AMSampleView::makeConnections()
 	connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
 	connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
 	if(sample_)
-		connect(sample_, SIGNAL(nameChanged(QString)), this, SLOT(onSampleNameChanged(QString)));
+	{
+		connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
+		connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
+		connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
+		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
+		connect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
+	}
 }
 
 
@@ -352,18 +381,20 @@ void AMSampleView::loadFromDb()
 		QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", defaultName);
 		if(matchIDs.count() == 0)
 		{
-			sample_ = new AMSample();
-			sample_->setName(defaultName);
-			sample_->setCurrentDateTime();
-			sample_->setNotes("Default Notes");
+			AMSample* sample = new AMSample();
+			sample->setName(defaultName);
+			sample->setCurrentDateTime();
+			sample->setNotes("Default Notes");
+			setSample(sample);
 			bool success = sample_->storeToDb(db);
 			if(!success)qDebug()<<"AMSampleEthanView::loadFromDb - failed to store new item in database";
 		}
 		else
 		{
-			sample_ = new AMSample();
-			bool success = sample_->loadFromDb(db,matchIDs.first());
+			AMSample* sample = new AMSample();
+			bool success = sample->loadFromDb(db,matchIDs.first());
 			if(!success) qDebug()<<"AMSampleEthanView::loadFromDb - failed to load item from database";
+			setSample(sample);
 		}
 	}
 	else

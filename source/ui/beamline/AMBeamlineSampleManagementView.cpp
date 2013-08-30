@@ -149,6 +149,7 @@ void AMBeamlineSampleManagementView::onSampleAboutToBeRemoved(int index){
 	if(sampleShapeData){
 		cameraBrowserView_->sampleCameraBrowser()->shapeDataSet()->removeSample(sample);
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
+		sample->removeSample();
 	}
 }
 

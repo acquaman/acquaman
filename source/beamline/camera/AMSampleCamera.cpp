@@ -400,7 +400,7 @@ void AMSampleCamera::setCurrentName(QString name)
 }
 
 /// set the current info
-void AMSampleCamera::setCurrentInfo(QString info)
+void AMSampleCamera::setCurrentInfo(const QString &info)
 {
 	setOtherDataOne(info,currentIndex_);
 }
@@ -435,7 +435,7 @@ void AMSampleCamera::setName(QString name, int index)
 }
 
 /// sets the data of the specifed index
-void AMSampleCamera::setOtherDataOne(QString data, int index)
+void AMSampleCamera::setOtherDataOne(const QString &data, int index)
 {
 	if(isValid(index))
 	{
@@ -501,14 +501,7 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 /// checks if an index is valid
 bool AMSampleCamera::isValid(int index) const
 {
-	if(index <= index_ && index >= 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (index <= index_ && index >= 0);
 }
 
 /// checks to see if a shape is backwards
@@ -548,7 +541,7 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 		shapes[i] = new AMShapeData();
 		QVector<QVector3D> shapeCoordinates;
 		shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
-		shapes[i]->setCoordinateShape(shapeCoordinates,5);
+		shapes[i]->setCoordinateShape(shapeCoordinates);
 		shapes[i]->shiftTo(coordinates[i]);
 		shapes[i]->setTilt(0);
 		shapes[i]->setRotation(0);
@@ -620,17 +613,17 @@ QVariant AMSampleCamera::data(const QModelIndex &index, int role) const
 	}
 }
 
-bool AMSampleCamera::motorMovementEnabled()
+bool AMSampleCamera::motorMovementEnabled() const
 {
 	return enableMotorMovement_;
 }
 
-const QList<AMShapeData *> AMSampleCamera::shapeList()
+const QList<AMShapeData *> AMSampleCamera::shapeList() const
 {
 	return shapeList_;
 }
 
-bool AMSampleCamera::overrideMouseSelection()
+bool AMSampleCamera::overrideMouseSelection() const
 {
 	return overrideMouseSelection_;
 }
@@ -735,7 +728,7 @@ void AMSampleCamera::startRectangle(QPointF position)
 	newShapeData->setTilt(0);
 	newShapeData->setYAxisRotation(0);
 
-	newShapeData->setCoordinateShape(newShape,5);
+	newShapeData->setCoordinateShape(newShape);
 	insertItem(newShapeData);
 //    updateShape(index_);
 
@@ -869,7 +862,7 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		QVector3D newPosition;
 		QVector3D oldPosition;
 		QVector3D shift;
-		if(moveOnShape())
+		if(moveOnShape() && samplePlateSelected_)
 		{
 			newPosition = getPointOnShape(samplePlateShape_,position);
 			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
@@ -1052,7 +1045,7 @@ void AMSampleCamera::finishShape()
 	}
 
 	AMShapeData* polygon = new AMShapeData();
-	polygon->setCoordinateShape(coordinates,coordinates.count());
+	polygon->setCoordinateShape(coordinates);
 	polygon->setName("Shape " + QString::number(index_+1));
 	polygon->setRotation(0);
 	polygon->setTilt(0);
@@ -1125,7 +1118,7 @@ void AMSampleCamera::setCoordinates(double x, double y, double z, int index)
 }
 
 /// places a grid
-void AMSampleCamera::placeGrid(QPointF position)
+void AMSampleCamera::placeGrid(const QPointF &position)
 {
 	for(double i = 0; i < 20.0; i++)
 	{
@@ -1139,7 +1132,7 @@ void AMSampleCamera::placeGrid(QPointF position)
 			{
 				shape<<camera_->transform2Dto3D(shapeList_[index_]->shape()->at(k),camera_->focalLength());
 			}
-			shapeList_[index_]->setCoordinateShape(shape,5);
+			shapeList_[index_]->setCoordinateShape(shape);
 			shapeList_[index_]->setIdNumber(position.x());
 			shapeList_[index_]->setTilt(0);
 			shapeList_[index_]->setRotation(0);
@@ -1292,13 +1285,10 @@ void AMSampleCamera::beamCalibrate()
 		beamModel_->setRay(line[i],i);
 
 	}
-
 	beamModel_->alignPositionTwo();
 	saveBeam();
-//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[0]));
-//	oneSelect();
-//	setCurrentIndex(shapeList_.indexOf(beamMarkers_[2]));
-//	twoSelect();
+
+
 	if(shapeList_.isEmpty()) return;
 	for(int i = 0; i < 3; i++)
 	{
@@ -1378,7 +1368,7 @@ void AMSampleCamera::setCameraConfigurationShape()
 	}
 }
 
-void AMSampleCamera::moveSamplePlateTo(QVector3D coordinate)
+void AMSampleCamera::moveSamplePlateTo(const QVector3D &coordinate)
 {
 	if(samplePlateSelected_)
 	{
@@ -1416,7 +1406,7 @@ void AMSampleCamera::addBeamMarker(int index)
 		QVector<QVector3D> coordinateShape = findIntersectionShape(samplePlateShape_);
 		if(!coordinateShape.isEmpty())
 		{
-			newBeamShape->setCoordinateShape(coordinateShape,coordinateShape.count());
+			newBeamShape->setCoordinateShape(coordinateShape);
 			newBeamShape->setName(QString("Beam Marker %1").arg(index));
 			newBeamShape->setRotation(0);
 			newBeamShape->setTilt(0);
@@ -1482,6 +1472,44 @@ void AMSampleCamera::removeSample(AMSample *sample){
 		removeItem(shapeIndex);
 }
 
+void AMSampleCamera::loadDefaultBeam()
+{
+	QVector<QVector3D> beamOne;
+	QVector<QVector3D> beamTwo;
+	beamOne<<QVector3D(9.6,2,-9.96)<<QVector3D(10.6,2,-9.96)<<QVector3D(10.6,2,-10.06)<<QVector3D(9.6,2,-10.06)<<QVector3D(9.6,2,-9.96);
+	beamTwo<<QVector3D(9.6,0,-9.96)<<QVector3D(10.6,0,-9.96)<<QVector3D(10.6,0,-10.06)<<QVector3D(9.6,0,-10.06)<<QVector3D(9.6,0,-9.96);
+	beamModel_->setPositionOne(beamOne);
+	beamModel_->setPositionTwo(beamTwo);
+	saveBeam();
+}
+
+void AMSampleCamera::loadDefaultCamera()
+{
+	AMCameraConfiguration* defaultConfiguration = new AMCameraConfiguration();
+	QVector<QVector3D> cameraMatrix;
+	cameraMatrix<<QVector3D(0.0194118,-0.000294812,-0.00117781)<<QVector3D(0.00245398,0.00826314,0.000605619)
+			   <<QVector3D(0.000514431,-0.0221707,3.75237e-05)<<QVector3D(-0.185726,-0.243429,0.951474);
+	defaultConfiguration->setCameraMatrix(cameraMatrix);
+	defaultConfiguration->setName("Default Camera Configuration");
+	defaultConfiguration->setCameraDistortion(-0.09);
+	defaultConfiguration->setCameraFocalLength(0.41);
+	defaultConfiguration->setCameraFOV(0.387);
+	defaultConfiguration->setPixelAspectRatio(1);
+	camera_->setCameraConfiguration(defaultConfiguration);
+	saveCamera();
+
+}
+
+void AMSampleCamera::loadDefaultSamplePlate()
+{
+	AMShapeData* samplePlate = new AMShapeData();
+	QVector<QVector3D> samplePlateShape;
+	samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
+	samplePlate->setCoordinateShape(samplePlateShape);
+	setSamplePlate(samplePlate);
+	saveSamplePlate();
+}
+
 
 /// tracks motor movement and shifts drawings accordingly
 void AMSampleCamera::motorTracking(double)
@@ -1530,6 +1558,14 @@ void AMSampleCamera::saveBeam()
 		beamModel_->setName("beam"+QString::number(beamCount));
 	}
 	beamModel_->storeToDb(db);
+}
+
+void AMSampleCamera::saveCamera()
+{
+	AMCameraConfiguration* cameraConfiguration = camera_->cameraConfiguration();
+	AMDatabase* db = AMDatabase::database("user");
+//	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", cameraConfiguration->name());
+	cameraConfiguration->storeToDb(db);
 }
 
 /// Constructor
@@ -2001,7 +2037,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 		}
 		shape<<l0[i]+lHat[i]*distance[i];
 	}
-	shape<<shape.first();
+//	shape<<shape.first();
 
 	/// need to find if the two shapes have any overlap
 	/// transpose to h,w,n coordinates, and throw away the n part, to get two polygons
@@ -2058,7 +2094,7 @@ QPolygonF AMSampleCamera::intersectionScreenShape(QVector<QVector3D> shape3D) co
 {
 
 	AMShapeData* newShape = new AMShapeData();
-	newShape->setCoordinateShape(shape3D,shape3D.count());
+	newShape->setCoordinateShape(shape3D);
 	newShape->setRotation(0);
 	newShape->setTilt(0);
 	newShape->setYAxisRotation(0);
@@ -2215,7 +2251,7 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint)
 	AMShapeData* newShape = new AMShapeData();
 	QVector<QVector3D> coordinateShape;
 	coordinateShape<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0);
-	newShape->setCoordinateShape(coordinateShape,coordinateShape.count());
+	newShape->setCoordinateShape(coordinateShape);
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
 		// equation for line: x = x0 + at , etc.

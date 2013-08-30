@@ -171,11 +171,11 @@ public slots:
 
     /// setters for shape elements
     void setCurrentName(QString name);
-    void setCurrentInfo(QString info);
+	void setCurrentInfo(const QString &info);
     void setRotation(double rotation, int index = -1);
     void setTilt(double tilt, int index = -1);
     void setName(QString name, int index);
-    void setOtherDataOne(QString data, int index);
+	void setOtherDataOne(const QString &data, int index);
     void setOtherDataTwo(QString data, int index);
     void setIdNumber(double number, int index);
     void setVisible(bool visible);
@@ -208,6 +208,7 @@ public:
 	bool isBackwards(int index) const;
 	bool isBackwards() const;
 
+
 	/// finds camera parameters
 	void findCamera(QPointF points [SAMPLEPOINTS], QVector3D coordinates[SAMPLEPOINTS]);
 
@@ -223,13 +224,13 @@ public:
 	QVariant data(const QModelIndex &index, int role) const;
 
 	/// returns true if motor movement is enabled
-	bool motorMovementEnabled();
+	bool motorMovementEnabled() const;
 
 	/// the list of sample shapes
-	const QList<AMShapeData*> shapeList();
+	const QList<AMShapeData*> shapeList() const;
 
 	/// if true mouse selection will not perform normal actions (but can put focus on text items)
-	bool overrideMouseSelection();
+	bool overrideMouseSelection() const;
 
 	QVector<QVector3D> lineOfBestFit(const QList<QVector3D> &points) const;
 
@@ -309,7 +310,7 @@ public slots:
 	void setCoordinates(double x, double y, double z, int index = -1);
 
 	/// places a grid (for distortion calibration)
-	void placeGrid(QPointF position);
+	void placeGrid(const QPointF &position);
 
 	/// selects one of the beam shapes
 	void oneSelect();
@@ -346,7 +347,7 @@ public slots:
 
 	void setCameraConfigurationShape();
 
-	void moveSamplePlateTo(QVector3D coordinate);
+	void moveSamplePlateTo(const QVector3D &coordinate);
 
 	/// move the sample plate by a small amount, proportional to movement
 	void moveSamplePlate(int movement);
@@ -367,6 +368,10 @@ public slots:
 	void addSample(AMSample *sample);
 	/// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
 	void removeSample(AMSample *sample);
+
+	void loadDefaultBeam();
+	void loadDefaultCamera();
+	void loadDefaultSamplePlate();
 
 
 signals:
@@ -412,6 +417,7 @@ protected slots:
 	void onShapeDataChanged();
 
 	void saveBeam();
+	void saveCamera();
 
 protected:
 
@@ -594,19 +600,15 @@ protected:
 	/// motor manipulators
 
 	/// X motor
-	//SGMMAXvMotor *ssaManipulatorX_;
 	AMControl *ssaManipulatorX_;
 
 	/// Y motor
-	//SGMMAXvMotor *ssaManipulatorY_;
 	AMControl *ssaManipulatorY_;
 
 	/// Z motor
-	//SGMMAXvMotor *ssaManipulatorZ_;
 	AMControl *ssaManipulatorZ_;
 
 	/// rotation motor
-	//SGMMAXvMotor *ssaManipulatorRot_;
 	AMControl *ssaManipulatorRot_;
 
 	/// enables or disables motor movement
