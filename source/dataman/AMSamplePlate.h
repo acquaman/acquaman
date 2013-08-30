@@ -10,6 +10,8 @@ class AMSamplePlate : public AMDbObject
 Q_OBJECT
 Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
 Q_PROPERTY(AMDbObjectList samples READ dbGetSamples WRITE dbLoadSamples)
+	Q_PROPERTY(QVector3D platePosition READ platePosition WRITE setPlatePosition)
+	Q_PROPERTY(double plateRotation READ plateRotation WRITE setPlateRotation)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples on a Sample Plate")
 Q_CLASSINFO("dateTime", "createIndex=true")
@@ -32,6 +34,10 @@ public:
 	AMSample* sampleAt(int index);
 
 	QList<AMSample*> allSamples();
+	/// Returns the position of the plate
+	QVector3D platePosition();
+	/// Returns the rotation of the plate
+	double plateRotation();
 
 	/// Adds a sample and automatically calls append with the name as the key
 	bool addSample(AMSample *sample);
@@ -52,6 +58,9 @@ public slots:
 	void onSampleCameraShapesChanged();
 	/// Called when a shapeData claims to update properties definitely. We call storeToDb() on the associated sample.
 	void onShapeDataPropertyUpdated(AMShapeData *shapeData);
+
+	void setPlatePosition(QVector3D position);
+	void setPlateRotation(double rotation);
 
 signals:
 	// The following signals are forwarded from our signalSource().
@@ -85,6 +94,12 @@ protected:
 
 	/// Holds the list of samples
 	AMOrderedList<AMSample*> samples_;
+
+	/// position of the sample plate
+	QVector3D platePosition_;
+
+	/// rotation of sample plate
+	double plateRotation_;
 };
 
 class AMSamplePlateBrowser : public QAbstractListModel

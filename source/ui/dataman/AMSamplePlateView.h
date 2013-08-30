@@ -105,6 +105,7 @@ public slots:
 signals:
 	void sampleAboutToBeRemoved(int index);
 
+
 protected slots:
 	void onRowMoveToPressed(int row);
 	void onRowMoreInfoPressed(int row);
