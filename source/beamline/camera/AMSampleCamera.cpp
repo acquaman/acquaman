@@ -504,18 +504,13 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	/// sample plate has been loaded out of the database, must correct the positions
 	// get the shift and rotation
 	QVector3D platePosition = plate->platePosition();
-	qDebug()<<"AMSampleCamera::onSamplePlateLoaded - plate position was"<<platePosition;
 	QVector3D currentPosition = motorCoordinate_;
 	QVector3D shiftAmount = currentPosition - platePosition;
-	qDebug()<<"AMSampleCamera::onSamplePlateLoaded -Shifting by"<<shiftAmount;
 	foreach(AMShapeData* shape, shapeList_)
 	{
 		shape->shift(shiftAmount);
 	}
-	if(samplePlateSelected_ && samplePlateShape_)
-	{
-		samplePlateShape_->shift(shiftAmount);
-	}
+	emit motorCoordinateChanged(motorCoordinate_);
 }
 
 /// checks if an index is valid
@@ -1010,7 +1005,6 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			moveMotors(inboardOutboard, upStreamDownStream, upDown);
 
 		}
-		qDebug()<<"AMSampleCamera::shiftToPoint"<<motorCoordinate_;
 		emit motorCoordinateChanged(motorCoordinate_);
 
 	}

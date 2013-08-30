@@ -2074,7 +2074,6 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(loadDefaultCamera_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultCamera()));
 	connect(loadDefaultSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultSamplePlate()));
 
-	connect(this, SIGNAL(samplePlateSelected(AMSamplePlate*)), shapeModel_, SLOT(onSamplePlateLoaded(AMSamplePlate*)));
 
 }
 

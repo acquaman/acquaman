@@ -131,7 +131,6 @@ void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
 
 void AMSamplePlate::setPlatePosition(QVector3D position)
 {
-	qDebug()<<"AMSamplePlate::setPlatePosition for sample plate"<<name();
 	if(position != platePosition_)
 	{
 		platePosition_ = position;
