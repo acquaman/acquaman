@@ -149,6 +149,9 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.h \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.h \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
+		$$AM_INCLUDE_DIR/dataman/AMSample.h \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.h \
 		$$AM_INCLUDE_DIR/util/AMSettings.h \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.h \
@@ -186,6 +189,9 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.cpp \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.cpp \
 		$$AM_INCLUDE_DIR/util/AMSettings.cpp \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.cpp \

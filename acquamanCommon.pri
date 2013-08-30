@@ -751,7 +751,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/camera/AMSampleCameraBrowserView.h \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.h \
 	source/ui/AMGraphicsTextItem.h \
-	source/ui/beamline/camera/AMSampleCameraWizardSelector.h
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.h \
+    source/ui/dataman/AMSampleEditor.h
 
 
 # OS-specific files:
@@ -1255,7 +1256,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/camera/AMSampleCameraBrowserView.cpp \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.cpp \
 	source/ui/AMGraphicsTextItem.cpp \
-	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp \
+    source/ui/dataman/AMSampleEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1279,6 +1281,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

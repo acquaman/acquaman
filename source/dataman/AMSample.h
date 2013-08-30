@@ -6,7 +6,7 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "source/acquaman.h"
+#include "acquaman.h"
 #include <QVector3D>
 #include <QVector>
 

@@ -31,6 +31,8 @@ public:
 	/// Returns a pointer to the sample at a given index
 	AMSample* sampleAt(int index);
 
+	QList<AMSample*> allSamples();
+
 	/// Adds a sample and automatically calls append with the name as the key
 	bool addSample(AMSample *sample);
 
@@ -103,6 +105,8 @@ public:
 
 	/// Returns whether or not a samplePlate is in the model
 	bool hasSamplePlate(AMSamplePlate *samplePlate);
+
+	QList<AMSample*> allSamples();
 
 public slots:
 	/// Goes to the database to reload all sample plates

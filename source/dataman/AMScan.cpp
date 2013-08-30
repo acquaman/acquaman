@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMSamplePre2013.h"
+#include "dataman/AMSample.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
@@ -42,7 +43,7 @@ AMScan::AMScan(QObject *parent)
 	dateTime_ = QDateTime::currentDateTime();
 	endDateTime_ = QDateTime();
 	runId_ = -1;
-	//sampleId_ = -1;
+	samplePre2013_ = 0; //NULL
 	sample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
@@ -157,13 +158,22 @@ double AMScan::elapsedTime() const
 }
 
 int AMScan::sampleId() const{
-	if(sample_ && sample_->object())
-		return sample_->object()->id();
+	//if(samplePre2013_ && samplePre2013_->object())
+	//	return samplePre2013_->object()->id();
+	const AMDbObject *sampleObject = sampleHelper();
+	if(sampleObject)
+		return sampleObject->id();
 	return -1;
 }
 
-const AMSamplePre2013* AMScan::sample() const{
-	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sample_->object());
+const AMSamplePre2013* AMScan::samplePre2013() const{
+	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sampleHelper());
+	//const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(samplePre2013_->object());
+	return retVal;
+}
+
+const AMSample* AMScan::sample() const{
+	const AMSample *retVal = qobject_cast<const AMSample*>(sampleHelper());
 	return retVal;
 }
 
@@ -179,46 +189,105 @@ void AMScan::setRunId(int newRunId) {
 
 
 // Sets name of sample
-void AMScan::setSampleId(int newSampleId) {
-	if(!sample_ || !sample_->object() || (sample_->object()->id() != newSampleId) ){
-		//sampleNameLoaded_ = false;	// invalidate the sample name cache
-		if(newSampleId <= 0)
+void AMScan::setSampleId(int newSampleId, const QString &databaseTableName){
+	QString newDatabaseTableName;
+	if(databaseTableName.isEmpty())
+		newDatabaseTableName = AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>();
+	else
+		newDatabaseTableName = databaseTableName;
+
+	if(newSampleId == sampleId()){
+		if(sample_ && newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSample>())
+			return;
+		if(samplePre2013_ && newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>())
+			return;
+	}
+
+	if(newSampleId <= 0){
+		if(sample_)
 			sample_ = 0; //NULL
+		if(samplePre2013_)
+			samplePre2013_ = 0; //NULL
+	}
+	else if(newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSample>()){
+		if(samplePre2013_)
+			samplePre2013_ = 0; //NULL
+		AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+		if(!sample_)
+			sample_ = new AMConstDbObject(newSample, this);
+		else
+			sample_->setObject(newSample);
+	}
+	else if(newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>()){
+		if(sample_)
+			sample_ = 0; //NULL
+		AMDbObject *newSamplePre2013 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
+		if(!samplePre2013_)
+			samplePre2013_ = new AMConstDbObject(newSamplePre2013, this);
+		else
+			samplePre2013_->setObject(newSamplePre2013);
+	}
+	setModified(true);
+	emit sampleIdChanged(newSampleId);
+
+	/*
+	if(!samplePre2013_ || !samplePre2013_->object() || (samplePre2013_->object()->id() != newSampleId) ){
+		if(newSampleId <= 0)
+			samplePre2013_ = 0; //NULL
 		else{
 			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
-			if(!sample_)
-				sample_ = new AMConstDbObject(newSample, this);
+			if(!samplePre2013_)
+				samplePre2013_ = new AMConstDbObject(newSample, this);
 			else
-				sample_->setObject(newSample);
+				samplePre2013_->setObject(newSample);
 		}
 		setModified(true);
 		emit sampleIdChanged(newSampleId);
-	}
-	/*
-	if(sampleId_ != newSampleId){
-		sampleNameLoaded_ = false;	// invalidate the sample name cache
-		if(newSampleId <= 0)
-			sampleId_ = -1;
-		else
-			sampleId_ = newSampleId;
-
-		setModified(true);
-		emit sampleIdChanged(sampleId_);
 	}
 	*/
 }
 
 
-void AMScan::setSample(const AMSamplePre2013 *sample){
-	if(!sample_->object() && !sample)
+void AMScan::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
+	if(!samplePre2013_ && !samplePre2013)
 		return;
-	if( (!sample_->object() && sample) || (sample_->object() && !sample) || (sample_->object()->id() != sample->id()) ){
-		if(!sample_)
-			sample_ = new AMConstDbObject(sample, this);
+
+	if(sample_){
+		sample_ = 0; //NULL memory leaking
+	}
+	if(!samplePre2013_ && samplePre2013){
+		samplePre2013_ = new AMConstDbObject(samplePre2013, this);
+	}
+	else
+		samplePre2013_->setObject(samplePre2013);
+	setModified(true);
+
+	/*
+	if(!samplePre2013_->object() && !sample)
+		return;
+	if( (!samplePre2013_->object() && sample) || (samplePre2013_->object() && !sample) || (samplePre2013_->object()->id() != sample->id()) ){
+		if(!samplePre2013_)
+			samplePre2013_ = new AMConstDbObject(sample, this);
 		else
-			sample_->setObject(sample);
+			samplePre2013_->setObject(sample);
 		setModified(true);
 	}
+	*/
+}
+
+void AMScan::setSample(const AMSample *sample){
+	if(!sample_ && !sample)
+		return;
+
+	if(samplePre2013_){
+		samplePre2013_ = 0; //NULL memory leaking
+	}
+	if(!sample_ && sample){
+		sample_ = new AMConstDbObject(sample, this);
+	}
+	else
+		sample_->setObject(sample);
+	setModified(true);
 }
 
 QString AMScan::unEvaluatedName() const{
@@ -231,9 +300,9 @@ QString AMScan::unEvaluatedName() const{
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
-	if(sample_ && sample_->object())
-		return sample_->object()->name();
-	return "[no sample]";
+	if(!sampleHelper())
+		return "[no sample]";
+	return sampleHelper()->name();
 }
 
 
@@ -456,6 +525,14 @@ AMConstDbObject* AMScan::dbReadSample() const{
 
 void AMScan::dbWriteSample(AMConstDbObject *newSample){
 	sample_ = newSample;
+}
+
+AMConstDbObject* AMScan::dbReadSamplePre2013() const{
+	return samplePre2013_;
+}
+
+void AMScan::dbWriteSamplePre2013(AMConstDbObject *newSample){
+	samplePre2013_ = newSample;
 }
 
 // Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
@@ -892,4 +969,12 @@ void AMScan::onDataSourceModified(bool isModified)
 {
 	if(isModified)
 		setModified(true);
+}
+
+const AMDbObject* AMScan::sampleHelper() const{
+	if(sample_ && sample_->object())
+		return sample_->object();
+	else if(samplePre2013_ && samplePre2013_->object())
+		return samplePre2013_->object();
+	return 0; //NULL
 }

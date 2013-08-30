@@ -64,15 +64,15 @@ bool AMDbUpgrade1Pt3::upgradeNecessary() const{
 bool AMDbUpgrade1Pt3::upgradeImplementation(){
 	bool success = true;
 
-	// Change sampleId to sample (AMConstDbObject*) in AMScan and AMSamplePosition
-	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMScan_table", "sampleId", "sample", "AMSample_table");
+	// Change sampleId to samplePre2013 and sample (AMConstDbObject*) in AMScan and AMSamplePosition
+	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMScan_table", "sampleId", "samplePre2013", "AMSample_table");
 	success &= AMDbUpgradeSupport::idColumnToConstDbObjectColumn(databaseToUpgrade_, "AMSamplePosition_table", "sampleId", "sample", "AMSample_table");
 
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 
 	// Change AMSample to AMSamplePre2013 and update in AMScan and AMSamplePosition
-	parentTablesToColumnsNames.insert("AMScan_table", "sample");
+	parentTablesToColumnsNames.insert("AMScan_table", "samplePre2013");
 	parentTablesToColumnsNames.insert("AMSamplePosition_table", "sample");
 	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMSample", "AMSamplePre2013", parentTablesToColumnsNames, indexTablesToIndexSide);
 

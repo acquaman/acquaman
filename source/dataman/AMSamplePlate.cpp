@@ -42,6 +42,10 @@ AMSample* AMSamplePlate::sampleAt(int index){
 	return samples_.at(index);
 }
 
+QList<AMSample*> AMSamplePlate::allSamples(){
+	return samples_.toList();
+}
+
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
@@ -223,6 +227,13 @@ bool AMSamplePlateBrowser::hasSamplePlate(AMSamplePlate *samplePlate){
 		if( (allSamplePlates_.at(x) == samplePlate) || (allSamplePlates_.at(x)->operator ==(*samplePlate)) )
 			return true;
 	return false;
+}
+
+QList<AMSample*> AMSamplePlateBrowser::allSamples(){
+	QList<AMSample*> retVal;
+	for(int x = 0; x < allSamplePlates_.count(); x++)
+		retVal.append(allSamplePlates_.at(x)->allSamples());
+	return retVal;
 }
 
 void AMSamplePlateBrowser::reloadFromDatabase(){
