@@ -167,7 +167,7 @@ public slots:
 
 	void setViewSize(QSizeF viewSize);
 
-	void setScaledSize(QSizeF scaledSize);
+	void setScaledSize(QSizeF scaledSize, double videoTop);
 
 
     /// setters for shape elements
@@ -437,6 +437,12 @@ protected:
 	void shiftCoordinates(QVector3D shift, int index);
 	void shiftCoordinates(QVector3D shift, AMShapeData* shape);
 
+	/// apply motor rotation to the shape
+	AMShapeData* applyMotorRotation(AMShapeData* shape, double rotation) const;
+	AMShapeData* applyMotorRotation(int index, double rotation) const;
+	/// apply the rotation in the given direction by the given angle with the given centre to the give shape
+	AMShapeData* applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, QVector3D centre, double angle) const;
+
 	/// apply the rotation in the given direction by the given angle to the given shape
 	AMShapeData* applySpecifiedRotation(const AMShapeData* shape, QVector3D direction, double angle) const;
 
@@ -658,6 +664,8 @@ protected:
 	bool moveToBeam_;
 
 	bool moveOnShape_;
+
+	double videoTop_;
 
 
 

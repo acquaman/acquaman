@@ -44,6 +44,7 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	mediaPlayer_ = new QMediaPlayer();
 	mediaPlayer_->setVideoOutput(videoItem_);
 
+
 	scene()->addItem(videoItem_);
 	resize(size());
 
@@ -66,7 +67,14 @@ AMOverlayVideoWidget::~AMOverlayVideoWidget() {
 	delete mediaPlayer_;
 }
 
-void AMOverlayVideoWidget::resizeEvent(QResizeEvent *event)
+void AMOverlayVideoWidget::
+
+
+
+
+
+
+resizeEvent(QResizeEvent *event)
 {
 	if (scene()) {
 		scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));

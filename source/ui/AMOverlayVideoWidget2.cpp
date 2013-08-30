@@ -24,6 +24,7 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	videoItem_ = new QGraphicsVideoItem();
 	mediaPlayer_ = new QMediaPlayer();
 	mediaPlayer_->setVideoOutput(videoItem_);
+	videoItem_->setAspectRatioMode(Qt::KeepAspectRatio);
 
 	scene()->addItem(videoItem_);
 	resize(size());
@@ -48,14 +49,16 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
 }
 
 QSize AMOverlayVideoWidget2::sizeHint() const{
-	return QSize(650, 450);
+	return QSize(640, 512);
 }
 
 void AMOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
 {
 	if (scene()) {
+		qDebug()<<event->size();
 		scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
-		videoItem_->setSize(event->size());
+			videoItem_->setSize(event->size());
+//			videoItem_->scale(event->size().width(), event->size().height());
 	}
 	QGraphicsView::resizeEvent(event);
 }

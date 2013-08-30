@@ -69,12 +69,13 @@ void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
 QPointF AMSampleCameraGraphicsView::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
     // for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
-    QSizeF viewSize = size();
+    QSizeF viewSize = sceneRect().size();
     QSizeF scaledSize = videoItem_->nativeSize();
     scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+    double videoTop = videoItem_->boundingRect().topLeft().y();
 
-    QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
-                                       (viewSize.height()-scaledSize.height())/2),
+    QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2, videoTop),
+//                                       (viewSize.height()-scaledSize.height())/2),
                                scaledSize);
 
     // activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]

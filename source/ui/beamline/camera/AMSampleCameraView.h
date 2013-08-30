@@ -579,6 +579,8 @@ protected:
 	QPushButton* loadDefaultCamera_;
 	QPushButton* loadDefaultSamplePlate_;
 
+	QGraphicsRectItem* videoBorderItem_;
+
 };
 
 #endif // AMCROSSHAIROVERLAYVIDEOWIDGET2_H

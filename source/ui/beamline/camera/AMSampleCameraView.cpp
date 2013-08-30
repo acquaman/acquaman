@@ -63,11 +63,16 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 {
     shapeModel_ = shapeModel;
     shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
+    shapeScene_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    shapeScene_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    shapeScene_->videoItem()->setAspectRatioMode(Qt::KeepAspectRatio);
     cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
     beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
     updateTracker_ = -1;
     samplePlateMovement_ = 0;
+
+
 
 //    borderColour_ = QColor(Qt::red);
 
@@ -114,6 +119,9 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
     AMGraphicsTextItem* newItem = new AMGraphicsTextItem();
     shapeScene_->scene()->addItem(newItem);
     textItems_<<newItem;
+
+    videoBorderItem_ = new QGraphicsRectItem(QRectF(5,5,0,0));
+    shapeScene_->scene()->addItem(videoBorderItem_);
 
 
     doubleClickInProgress_ = false;
@@ -165,30 +173,34 @@ AMSampleCameraView::~AMSampleCameraView()
 void AMSampleCameraView::refreshSceneView()
 {
 
-    QSizeF viewSize = shapeScene_->size();
+    QSizeF viewSize = shapeScene_->sceneRect().size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
     QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
+    double videoTop = shapeScene_->videoItem()->boundingRect().topLeft().y();
 
     // scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
     scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
 
     shapeModel_->setViewSize(viewSize);
-    shapeModel_->setScaledSize(scaledSize);
+    shapeModel_->setScaledSize(scaledSize, videoTop);
 	// now, scaledSize will either be:
 		// same as viewSize, if view and video have same aspect ratio, or the video is being stretched with Qt::IgnoreAspectRatio
 		// One dimension the same, other dimension smaller than viewSize, if Qt::KeepAspectRatio
 		// or One dimension the same, other dimension LARGER than viewSize, if Qt::KeepAspectRatioByExpanding
 
-	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
-                                       (viewSize.height()-scaledSize.height())/2),
-                                        scaledSize);
+	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,videoTop),
+//                                       (viewSize.height()-scaledSize.height())/2),
+					scaledSize);
+
 
     // activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
 
     qreal xSceneCoord = activeRect.left() + shapeModel_->crosshairX()*activeRect.width();
     qreal ySceneCoord = activeRect.top() + shapeModel_->crosshairY()*activeRect.height();
 
+
+	videoBorderItem_->setRect(activeRect);
 
 
 
@@ -875,7 +887,6 @@ void AMSampleCameraView::reviewCameraConfiguration()
 
 void AMSampleCameraView::onMoveToBeamToggled(bool checked)
 {
-	qDebug()<<"AMSampleCameraView::onMoveToBeamToggled";
 	if(checked)
 		moveToBeam_->setText("Move to Beam");
 	else

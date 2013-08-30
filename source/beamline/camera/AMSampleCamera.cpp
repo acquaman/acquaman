@@ -388,9 +388,10 @@ void AMSampleCamera::setViewSize(QSizeF viewSize)
 }
 
 /// set the scaled size
-void AMSampleCamera::setScaledSize(QSizeF scaledSize)
+void AMSampleCamera::setScaledSize(QSizeF scaledSize, double videoTop)
 {
 	camera_->setScaledSize(scaledSize);
+	videoTop_ = videoTop;
 }
 
 /// set the current name
@@ -1205,11 +1206,16 @@ void AMSampleCamera::enableMotorTracking(bool isEnabled)
 	if(isEnabled)
 	{
 		connect(ssaManipulatorX_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		connect(ssaManipulatorY_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		connect(ssaManipulatorZ_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		connect(ssaManipulatorRot_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
 	}
 	else
 	{
-		disconnect(ssaManipulatorX_,SIGNAL(valueChanged(double)),this,SLOT(motorTracking(double)));
-	}
+		disconnect(ssaManipulatorX_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		disconnect(ssaManipulatorY_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		disconnect(ssaManipulatorZ_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+		disconnect(ssaManipulatorRot_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));	}
 }
 
 /// deletes all the shapes drawn in the camera calibration process
@@ -1536,10 +1542,13 @@ void AMSampleCamera::motorTracking(double)
 	double motorZ = ssaManipulatorZ_->value();
 	double motorY = ssaManipulatorY_->value();
 	double motorRotation = ssaManipulatorRot_->value();
-	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance)
+	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance && fabs(motorRotation-motorRotation_) < tolerance)
 	{
 		return;
 	}
+	qDebug()<<"Motor rotation new"<<motorRotation;
+	qDebug()<<"Motor rotation old"<<motorRotation_;
+
 
 	emit motorMoved();
 
@@ -1706,6 +1715,7 @@ void AMSampleCamera::shiftCoordinates(QVector3D shift, int index)
 	if(isValid(index))
 	{
 		shiftCoordinates(shift,shapeList_[index]);
+		qDebug()<<"Shifting for shape"<<shapeList_[index]->name();
 	}
 }
 
@@ -1718,17 +1728,36 @@ void AMSampleCamera::shiftCoordinates(QVector3D shift, AMShapeData *shape)
 	}
 }
 
-
-AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, double angle) const
+AMShapeData* AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
 {
+	AMShapeData* newShape = applySpecifiedRotation(shape,directionOfRotation_, centerOfRotation_, rotation);
+	qDebug()<<"AMSampleCamera::applyMotorRotation - rotation is"<<rotation;
+	return newShape;
+}
+
+AMShapeData* AMSampleCamera::applyMotorRotation(int index, double rotation) const
+{
+	if(isValid(index))
+		return applyMotorRotation(shapeList_[index], rotation);
+}
+
+
+AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, QVector3D centre, double angle) const
+{
+	qDebug()<<"AMSampleCamera::applySpecifiedRotation"<<angle;
 	AMShapeData* newShape = new AMShapeData();
 	newShape->copy(shape);
-	QVector3D centre = newShape->centerCoordinate();
 	for(int i = 0; i < newShape->count(); i++)
 	{
 		newShape->setCoordinate(rotateCoordinate(newShape->coordinate(i),centre,direction,angle),i);
 	}
 	return newShape;
+}
+
+AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, double angle) const
+{
+	QVector3D centre = shape->centerCoordinate();
+	return applySpecifiedRotation(shape,centre,direction,angle);
 }
 
 AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AMSampleCamera::AxisDirection direction) const
@@ -1847,6 +1876,12 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
 	}
 
+	if(motorRotation_ != 0)
+	{
+		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
+	}
+
+
 	QPolygonF newShape;
 	for(int i = 0; i < rotatedShape->count(); i++)
 	{
@@ -1893,28 +1928,35 @@ QPointF AMSampleCamera::undistortPoint(QPointF point) const
 /// moves all the shapes based on change in motor movement
 void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 {
-	QVector3D rotationalOffset = QVector3D(-0.5,0,-0.35);
+	QVector3D rotationalOffset = QVector3D(10,2,0);
+//	QVector3D centerPlatePlane = samplePlateShape_->centerCoordinate();
+//	rotationalOffset += centerPlatePlane;
 	QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
 	QVector3D centerOfRotation = newPosition + rotationalOffset;
+	qDebug()<<"AMSampleCamera::motorMovement - centre of rotation is "<<centerOfRotation;
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
 	directionOfRotation_ = directionOfRotation;
 	double rotation = r/180*M_PI;
 
 
+
 	for(int i = 0; i <= index_; i++)
 	{
+		qDebug()<<"AMSampleCamera::motorMovement - Rotation is "<<rotation;
 		if(shapeList_[i] != beamMarkers_[0] && shapeList_[i] != beamMarkers_[1] && shapeList_[i] != beamMarkers_[2])
 		{
 			shiftCoordinates(shift,i);
-			shapeList_[i]->setRotation(rotation);
+//			applyMotorRotation(i, rotation);
+
+
 		}
 	}
 	if(samplePlateSelected_)
 	{
 		shiftCoordinates(shift,samplePlateShape_);
-		samplePlateShape_->setRotation(rotation);
+//		applyMotorRotation(samplePlateShape_, rotation);
 	}
 
 
@@ -1941,8 +1983,8 @@ QVector<QVector3D> AMSampleCamera::rotateShape(const AMShapeData *shape) const
 QPointF AMSampleCamera::coordinateTransform(QPointF coordinate) const
 {
 
-	QRectF activeRect = QRectF(QPointF((viewSize().width()-scaledSize().width())/2,
-					   (viewSize().height()-scaledSize().height())/2),
+	QRectF activeRect = QRectF(QPointF((viewSize().width()-scaledSize().width())/2,videoTop_),
+//					   (viewSize().height()-scaledSize().height())/2),
 				   scaledSize());
 
 	QPointF fixedCoordinate;
@@ -2355,6 +2397,7 @@ bool AMSampleCamera::moveMotors(double x, double y, double z)
 	}
 	return success;
 }
+
 
 
 
