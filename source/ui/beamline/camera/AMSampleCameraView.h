@@ -47,7 +47,7 @@ class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
-    enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION};
+    enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION};
     enum ViewType {DEBUG, CONDENSED};
 	/// Constructor.
     explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
@@ -279,6 +279,12 @@ public slots:
     void requestLoadBeam();
     void requestLoadCamera();
     void requestLoadSamplePlate();
+
+    void setRotationOffsetX(QString offset);
+    void setRotationOffsetY(QString offset);
+    void setRotationOffsetZ(QString offset);
+
+    void onRotationalOffsetChanged(QVector3D);
 
 protected slots:
     void updateCurrentShape();
@@ -580,6 +586,8 @@ protected:
 	QPushButton* loadDefaultSamplePlate_;
 
 	QGraphicsRectItem* videoBorderItem_;
+
+	QLineEdit* rotationalOffset_ [3];
 
 };
 

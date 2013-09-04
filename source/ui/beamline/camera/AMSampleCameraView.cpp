@@ -1281,6 +1281,12 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
     {
         QPen pen(colour(INTERSECTION));
         QBrush brush(colour(INTERSECTION));
+	if(shapes.first() == shapes.last())
+	{
+		brush.setColor(colour(SAMPLEPLATEINTERSECTION));
+		pen.setColor(colour(SAMPLEPLATEINTERSECTION));
+	}
+
         if(!showBeamOutline_)
         {
             pen.setColor(colour(HIDEINTERSECTION));
@@ -1289,6 +1295,10 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
         QPolygonF polygon(QRectF(5,5,20,20));
         intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
         intersections_[i]->setPolygon(shapes.first());
+	if(shapes.first() == shapes.last())
+	{
+		///do stuff
+	}
 
 		shapes.remove(0);
     }
@@ -1870,48 +1880,61 @@ void AMSampleCameraView::setGUI(ViewType viewType)
     {
         advancedWindow_ = new QFrame();
         QFrame* topBar = new QFrame();
-		QFrame* middleBar = new QFrame();
+	QFrame* middleBar = new QFrame();
+	QFrame* rotationalBar = new QFrame();
         QFrame* bottomBar = new QFrame();
+
         QHBoxLayout* topLayout = new QHBoxLayout();
-		topLayout->setContentsMargins(itemMargins);
+	topLayout->setContentsMargins(itemMargins);
         topLayout->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
-		topLayout->addSpacing(space);
+	topLayout->addSpacing(space);
         topLayout->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
-		topLayout->addSpacing(space);
+	topLayout->addSpacing(space);
         topLayout->addWidget(configureCameraButton_ = new QPushButton("Calibrate Camera"));
-		topLayout->addSpacing(space);
+	topLayout->addSpacing(space);
         topLayout->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
         topLayout->addStretch();
         topBar->setLayout(topLayout);
 
         QHBoxLayout* bottomLayout = new QHBoxLayout();
-		bottomLayout->setContentsMargins(itemMargins);
+	bottomLayout->setContentsMargins(itemMargins);
         bottomLayout->addWidget(drawOnShapeCheckBox_ = new QCheckBox("Draw on Shape"));
-		bottomLayout->addSpacing(space);
+	bottomLayout->addSpacing(space);
         bottomLayout->addWidget(drawOnShapePushButton_ = new QPushButton("Select Shape"));
-		bottomLayout->addSpacing(space);
+	bottomLayout->addSpacing(space);
         bottomLayout->addWidget(distortionButton_ = new QPushButton("Toggle Distortion"));
-		bottomLayout->addSpacing(space);
-		bottomLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
-		bottomLayout->addSpacing(space);
-		bottomLayout->addWidget(moveOnSamplePlate_ = new QCheckBox("Move on Sample Plate"));
+	bottomLayout->addSpacing(space);
+	bottomLayout->addWidget(moveToBeam_ = new QCheckBox("Move to Beam"));
+	bottomLayout->addSpacing(space);
+	bottomLayout->addWidget(moveOnSamplePlate_ = new QCheckBox("Move on Sample Plate"));
         bottomLayout->addStretch();
         bottomBar->setLayout(bottomLayout);
 
-		QHBoxLayout* middleLayout = new QHBoxLayout();
-		middleLayout->setContentsMargins(itemMargins);
-		middleLayout->addWidget(loadDefaultBeam_ = new QPushButton("Load Default Beam"));
-		middleLayout->addSpacing(space);
-		middleLayout->addWidget(loadDefaultCamera_ = new QPushButton("Load Default Camera"));
-		middleLayout->addSpacing(space);
-		middleLayout->addWidget(loadDefaultSamplePlate_ = new QPushButton("Load Default Sample Plate"));
-		middleLayout->addStretch();
-		middleBar->setLayout(middleLayout);
+	QHBoxLayout* middleLayout = new QHBoxLayout();
+	middleLayout->setContentsMargins(itemMargins);
+	middleLayout->addWidget(loadDefaultBeam_ = new QPushButton("Load Default Beam"));
+	middleLayout->addSpacing(space);
+	middleLayout->addWidget(loadDefaultCamera_ = new QPushButton("Load Default Camera"));
+	middleLayout->addSpacing(space);
+	middleLayout->addWidget(loadDefaultSamplePlate_ = new QPushButton("Load Default Sample Plate"));
+	middleLayout->addStretch();
+	middleBar->setLayout(middleLayout);
+
+	QHBoxLayout* rotationalLayout = new QHBoxLayout();
+	rotationalLayout->setContentsMargins(itemMargins);
+	for(int i = 0; i < 3; i++)
+	{
+		rotationalLayout->addWidget(rotationalOffset_[i] = new QLineEdit());
+		rotationalLayout->addSpacing(space);
+	}
+	rotationalLayout->addStretch();
+	rotationalBar->setLayout(rotationalLayout);
 
         QVBoxLayout* advancedLayout = new QVBoxLayout();
-		advancedLayout->setContentsMargins(frameMargins);
+	advancedLayout->setContentsMargins(frameMargins);
         advancedLayout->addWidget(topBar);
-		advancedLayout->addWidget(middleBar);
+	advancedLayout->addWidget(middleBar);
+	advancedLayout->addWidget(rotationalBar);
         advancedLayout->addWidget(bottomBar);
         advancedWindow_->setLayout(advancedLayout);
 
@@ -2085,6 +2108,16 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(loadDefaultCamera_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultCamera()));
 	connect(loadDefaultSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultSamplePlate()));
 
+	if(viewType == CONDENSED)
+	{
+		connect(rotationalOffset_[0], SIGNAL(textEdited(QString)), this, SLOT(setRotationOffsetX(QString)));
+		connect(rotationalOffset_[1], SIGNAL(textEdited(QString)), this, SLOT(setRotationOffsetY(QString)));
+		connect(rotationalOffset_[2], SIGNAL(textEdited(QString)), this, SLOT(setRotationOffsetZ(QString)));
+		connect(shapeModel_, SIGNAL(rotationalOffsetChanged(QVector3D)), this, SLOT(onRotationalOffsetChanged(QVector3D)));
+	}
+
+	onRotationalOffsetChanged(shapeModel_->rotationalOffset());
+
 
 }
 
@@ -2098,6 +2131,8 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
         return QColor(Qt::red);
     case INTERSECTION:
         return QColor(Qt::yellow);
+    case SAMPLEPLATEINTERSECTION:
+	    return QColor(Qt::green);
     case HIDEINTERSECTION:
     case BACKWARDSFILL:
     case FILL:
@@ -2122,3 +2157,35 @@ void AMSampleCameraView::drawSamplePlate()
 	if(samplePlate_)
 		samplePlate_->setVisible(showSamplePlate_->isChecked());
 }
+
+void AMSampleCameraView::setRotationOffsetX(QString offset)
+{
+	shapeModel_->setRotationalOffsetX(offset.toDouble());
+}
+
+void AMSampleCameraView::setRotationOffsetY(QString offset)
+{
+	shapeModel_->setRotationalOffsetY(offset.toDouble());
+}
+
+void AMSampleCameraView::setRotationOffsetZ(QString offset)
+{
+	shapeModel_->setRotationalOffsetZ(offset.toDouble());
+}
+
+void AMSampleCameraView::onRotationalOffsetChanged(QVector3D offset)
+{
+	QString x = QString("%1").arg(offset.x());
+	QString y = QString("%1").arg(offset.y());
+	QString z = QString("%1").arg(offset.z());
+	if(rotationalOffset_[0]->text() != x && !rotationalOffset_[0]->hasFocus())
+		rotationalOffset_[0]->setText(x);
+	if(rotationalOffset_[1]->text() != y && !rotationalOffset_[1]->hasFocus())
+		rotationalOffset_[1]->setText(y);
+	if(rotationalOffset_[2]->text() != z && !rotationalOffset_[2]->hasFocus())
+		rotationalOffset_[2]->setText(z);
+
+	refreshSceneView();
+}
+
+

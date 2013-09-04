@@ -306,6 +306,27 @@ QVector3D AMSampleCamera::currentCoordinate() const
 	return coordinate(currentIndex_);
 }
 
+QVector3D AMSampleCamera::rotationalOffset() const
+{
+	return rotationalOffset_;
+}
+
+double AMSampleCamera::rotationalOffsetX() const
+{
+	return rotationalOffset().x();
+}
+
+double AMSampleCamera::rotationalOffsetY() const
+{
+	return rotationalOffset().y();
+}
+
+double AMSampleCamera::rotationalOffsetZ() const
+{
+	return rotationalOffset().z();
+}
+
+
 /// set the current index
 void AMSampleCamera::setCurrentIndex(int current)
 {
@@ -499,6 +520,33 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 	moveOnShape_ = moveOnShape;
 }
 
+void AMSampleCamera::setRotationalOffset(const QVector3D &offset)
+{
+	rotationalOffset_ = offset;
+	centerOfRotation_ = motorCoordinate_ + rotationalOffset_;
+	emit rotationalOffsetChanged(rotationalOffset_);
+}
+
+void AMSampleCamera::setRotationalOffsetX(const double &xCoordinate)
+{
+	QVector3D newOffset(xCoordinate,rotationalOffsetY(), rotationalOffsetZ());
+	setRotationalOffset(newOffset);
+}
+
+void AMSampleCamera::setRotationalOffsetY(const double &yCoordinate)
+{
+	QVector3D newOffset(rotationalOffsetX(),yCoordinate, rotationalOffsetZ());
+	setRotationalOffset(newOffset);
+}
+
+void AMSampleCamera::setRotationalOffsetZ(const double &zCoordinate)
+{
+	QVector3D newOffset(rotationalOffsetX(),rotationalOffsetY(), zCoordinate);
+	setRotationalOffset(newOffset);
+}
+
+
+
 #include "dataman/AMSamplePlate.h"
 void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 {
@@ -507,6 +555,7 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	QVector3D platePosition = plate->platePosition();
 	QVector3D currentPosition = motorCoordinate_;
 	QVector3D shiftAmount = currentPosition - platePosition;
+	oldRotation_ = plate->plateRotation();
 	foreach(AMShapeData* shape, shapeList_)
 	{
 		shape->shift(shiftAmount);
@@ -599,7 +648,14 @@ bool AMSampleCamera::findIntersections()
 		if(!intersectionShape.isEmpty())
 			intersections_<<intersectionScreenShape(intersectionShape);
 	}
-	return true;
+
+	if(samplePlateSelected_)
+	{
+		QVector<QVector3D> intersectionShape = findIntersectionShape(samplePlateShape_, false);
+		if(!intersectionShape.isEmpty())
+			intersections_<<intersectionScreenShape(intersectionShape);
+	}
+		return true;
 }
 
 void AMSampleCamera::deleteShape(int index)
@@ -1616,6 +1672,13 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	moveToBeam_ = true;
 	moveOnShape_ = true;
 
+	rotationalOffset_ = QVector3D(10.5,2.35,0);
+
+	emit rotationalOffsetChanged(rotationalOffset_);
+
+	oldRotation_ = 0;
+
+
 	for(int i= 0; i < SAMPLEPOINTS; i++)
 	{
 		calibrationPoints_[i] = new AMShapeData();
@@ -1728,17 +1791,19 @@ void AMSampleCamera::shiftCoordinates(QVector3D shift, AMShapeData *shape)
 	}
 }
 
-AMShapeData* AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
-{
-	AMShapeData* newShape = applySpecifiedRotation(shape,directionOfRotation_, centerOfRotation_, rotation);
-	qDebug()<<"AMSampleCamera::applyMotorRotation - rotation is"<<rotation;
-	return newShape;
-}
 
-AMShapeData* AMSampleCamera::applyMotorRotation(int index, double rotation) const
+
+void AMSampleCamera::applyMotorRotation(int index, double rotation)
 {
 	if(isValid(index))
-		return applyMotorRotation(shapeList_[index], rotation);
+	{
+		shapeList_[index] = applyMotorRotation(shapeList_[index],rotation);
+	}
+}
+
+AMShapeData* AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
+{
+	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_);
 }
 
 
@@ -1876,10 +1941,10 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
 	}
 
-	if(motorRotation_ != 0)
-	{
-		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
-	}
+//	if(motorRotation_ != 0)
+//	{
+//		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
+//	}
 
 
 	QPolygonF newShape;
@@ -1928,12 +1993,12 @@ QPointF AMSampleCamera::undistortPoint(QPointF point) const
 /// moves all the shapes based on change in motor movement
 void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 {
-	QVector3D rotationalOffset = QVector3D(10,2,0);
+
 //	QVector3D centerPlatePlane = samplePlateShape_->centerCoordinate();
 //	rotationalOffset += centerPlatePlane;
 	QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
-	QVector3D centerOfRotation = newPosition + rotationalOffset;
+	QVector3D centerOfRotation = newPosition + rotationalOffset_;
 	qDebug()<<"AMSampleCamera::motorMovement - centre of rotation is "<<centerOfRotation;
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
@@ -1944,21 +2009,21 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 
 	for(int i = 0; i <= index_; i++)
 	{
-		qDebug()<<"AMSampleCamera::motorMovement - Rotation is "<<rotation;
 		if(shapeList_[i] != beamMarkers_[0] && shapeList_[i] != beamMarkers_[1] && shapeList_[i] != beamMarkers_[2])
 		{
 			shiftCoordinates(shift,i);
-//			applyMotorRotation(i, rotation);
-
-
+			applyMotorRotation(i, rotation);
+			updateShape(i);
 		}
 	}
 	if(samplePlateSelected_)
 	{
 		shiftCoordinates(shift,samplePlateShape_);
-//		applyMotorRotation(samplePlateShape_, rotation);
+		samplePlateShape_ = applyMotorRotation(samplePlateShape_, rotation);
+		updateShape(samplePlateShape_);
 	}
 
+	oldRotation_ = rotation;
 
 
 }
@@ -2062,7 +2127,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(int index) const
 	return findIntersectionShape(shapeList_[index]);
 }
 
-QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shapeToIntersect) const
+QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shapeToIntersect, bool boundIntersection) const
 {
 	/// First find the shape on the same plane
 	QVector<QVector3D> rotatedShape = rotateShape(shapeToIntersect);
@@ -2130,7 +2195,11 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 		}
 	}
 
-	QPolygonF intersection = originalShape.intersected(beamShape);
+	QPolygonF intersection;
+	if(boundIntersection)
+		intersection = originalShape.intersected(beamShape);
+	else
+		intersection = beamShape;
 	if(intersection.isEmpty()) return QVector<QVector3D>();
 
 	QVector3D point;
@@ -2397,6 +2466,20 @@ bool AMSampleCamera::moveMotors(double x, double y, double z)
 	}
 	return success;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
