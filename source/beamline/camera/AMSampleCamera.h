@@ -424,6 +424,9 @@ signals:
 
 	void rotationalOffsetChanged(QVector3D);
 
+	void enableMotorMovementChanged(bool enabled);
+	void enableMotorTrackingChanged(bool enabled);
+
 
 protected slots:
 	/// tracks the motor location
