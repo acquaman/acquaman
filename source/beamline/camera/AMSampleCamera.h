@@ -134,6 +134,12 @@ public:
 	/// returns the coordinate of the current index
 	QVector3D currentCoordinate() const;
 
+	QVector3D rotationalOffset() const;
+
+	double rotationalOffsetX() const;
+	double rotationalOffsetY() const;
+	double rotationalOffsetZ() const;
+
 	/// -----------------------------------------------------------------------------------
 
 
@@ -196,6 +202,11 @@ public slots:
 	void setMoveToBeam(bool move);
 
 	void setMoveOnShape(bool moveOnShape);
+
+	void setRotationalOffset(const QVector3D &offset);
+	void setRotationalOffsetX(const double &xCoordinate);
+	void setRotationalOffsetY(const double &yCoordinate);
+	void setRotationalOffsetZ(const double &zCoordinate);
 
 	void onSamplePlateLoaded(AMSamplePlate* plate);
 
@@ -411,6 +422,8 @@ signals:
 
 	void motorCoordinateChanged(QVector3D);
 
+	void rotationalOffsetChanged(QVector3D);
+
 
 protected slots:
 	/// tracks the motor location
@@ -438,8 +451,8 @@ protected:
 	void shiftCoordinates(QVector3D shift, AMShapeData* shape);
 
 	/// apply motor rotation to the shape
-	AMShapeData* applyMotorRotation(AMShapeData* shape, double rotation) const;
-	AMShapeData* applyMotorRotation(int index, double rotation) const;
+	void applyMotorRotation(int index, double rotation);
+	AMShapeData*  applyMotorRotation(AMShapeData* shape, double rotation) const;
 	/// apply the rotation in the given direction by the given angle with the given centre to the give shape
 	AMShapeData* applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, QVector3D centre, double angle) const;
 
@@ -502,7 +515,7 @@ protected:
 
 	/// finds the intersection of the shape with the beam
 	QVector<QVector3D> findIntersectionShape(int index) const;
-	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape) const;
+	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape, bool boundIntersection = true) const;
 
 	/// converts the intersection shape to a shape on the screen
 	QPolygonF intersectionScreenShape(QVector<QVector3D>) const;
@@ -627,6 +640,7 @@ protected:
 
 	/// center and direction of rotation
 	QVector3D centerOfRotation_;
+	QVector3D rotationalOffset_;
 	QVector3D directionOfRotation_;
 
 	/// list of points used in camera calibration
@@ -666,6 +680,8 @@ protected:
 	bool moveOnShape_;
 
 	double videoTop_;
+
+	double oldRotation_;
 
 
 
