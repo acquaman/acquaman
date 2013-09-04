@@ -627,7 +627,7 @@ void AMSampleCameraView::beamCalibrate()
 {
 
     shapeModel_->beamCalibrate();
-	showSamplePlate_->setChecked(false);
+	showSamplePlate_->setChecked(true);
 	refreshSceneView();
 
 }
@@ -706,7 +706,7 @@ void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 
 void AMSampleCameraView::onSamplePlateWizardFinished()
 {
-	showSamplePlate_->setChecked(false);
+	showSamplePlate_->setChecked(true);
 	shapeModel_->saveSamplePlate();
 }
 
@@ -1277,30 +1277,30 @@ void AMSampleCameraView::updateCurrentShape()
 void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
 {
     intersections_.clear();
-    for(int i =0; !shapes.isEmpty(); i++)
+    QPen pen(colour(SAMPLEPLATEINTERSECTION));
+    QBrush brush(colour(SAMPLEPLATEINTERSECTION));
+    QPolygonF polygon(QRectF(5,5,20,20));
+    if(!shapes.isEmpty())
     {
-        QPen pen(colour(INTERSECTION));
-        QBrush brush(colour(INTERSECTION));
-	if(shapes.first() == shapes.last())
+	if(!showBeamOutline_)
 	{
-		brush.setColor(colour(SAMPLEPLATEINTERSECTION));
-		pen.setColor(colour(SAMPLEPLATEINTERSECTION));
+		pen.setColor(colour(HIDEINTERSECTION));
+		brush.setColor(colour(HIDEINTERSECTION));
 	}
-
-        if(!showBeamOutline_)
-        {
-            pen.setColor(colour(HIDEINTERSECTION));
-            brush.setColor(colour(HIDEINTERSECTION));
-        }
-        QPolygonF polygon(QRectF(5,5,20,20));
-        intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
-        intersections_[i]->setPolygon(shapes.first());
-	if(shapes.first() == shapes.last())
+	intersections_<<shapeScene_->scene()->addPolygon(polygon, pen, brush);
+	intersections_[0]->setPolygon(shapes.last());
+	shapes.remove(shapes.indexOf(shapes.last()));
+	if(showBeamOutline_)
 	{
-		///do stuff
+		pen.setColor(colour(INTERSECTION));
+		brush.setColor(colour(INTERSECTION));
 	}
-
+	for(int i = 1; !shapes.isEmpty(); i++)
+	{
+		intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
+		intersections_[i]->setPolygon(shapes.first());
 		shapes.remove(0);
+	}
     }
 }
 
@@ -1741,7 +1741,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
     cvl->addWidget(samplePlateFrame);
 
-	showSamplePlate_->setChecked(false);
+	showSamplePlate_->setChecked(true);
 
 	showBeamOutlineCheckBox_->setChecked(true);
 

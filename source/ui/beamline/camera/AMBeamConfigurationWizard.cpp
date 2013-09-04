@@ -55,11 +55,11 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 
     coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,0,-0.5));
-    coordinateList_->append(new QVector3D(0,0,0.5));
+    coordinateList_->append(new QVector3D(0,-1,0));
+    coordinateList_->append(new QVector3D(0,1,0));
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,0,-0.5));
-    coordinateList_->append(new QVector3D(0,0,0.5));
+    coordinateList_->append(new QVector3D(0,-1,0));
+    coordinateList_->append(new QVector3D(0,1,0));
 
 
     addOptionPage(Page_Intro);
@@ -264,6 +264,22 @@ QString AMBeamConfigurationWizard::message(int type)
         default:
             break;
         }
+    case Page_Option:
+	    switch(type)
+	    {
+	    case Title:
+		    return QString(tr("Movement Configuration"));
+	    case Text:
+		    return QString(tr("Set the points to move the motor to here.  These may need to be changed if something")
+				   + tr(" has been moved inside the end station."));
+	    case Help:
+		    return QString(tr("Set the coordinates that will be moved to in the wizard here.  For the Beam Configuration, all points must have different y values"));
+	    case Other:
+	    case Default:
+	    default:
+		    break;
+	    }
+
     default:
         return QString(tr("Error - unknown page."));
     }

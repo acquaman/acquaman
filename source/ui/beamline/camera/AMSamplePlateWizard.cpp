@@ -141,6 +141,21 @@ QString AMSamplePlateWizard::message(int type)
         default:
             return QString(tr("Error message - set page - unknown message type."));
         }
+    case Page_Option:
+	    switch(type)
+	    {
+	    case Title:
+		    return QString(tr("Coordinate Set Up"));
+	    case Text:
+		    return QString(tr("Set the coordinates to move to from here."));
+	    case Help:
+		    return QString(tr("Set the motor coordinates that will be moved to")
+				   + tr(" during the sample plate setup from this page."));
+	    case Other:
+	    case Default:
+	    default:
+		    return QString(tr("Error message - option page - unknown message type."));
+	    }
     }
     return QString(tr("Error message - unknown page type."));
 }

@@ -362,6 +362,22 @@ void AMSampleCamera::setMotorCoordinate(double x, double y, double z, double r)
 	motorRotation_ = r;
 }
 
+/// sets the motor coordinate to xyzr
+void AMSampleCamera::setMotorCoordinate()
+{
+	double x = ssaManipulatorX_->value();
+	double y = ssaManipulatorY_->value();
+	double z = ssaManipulatorZ_->value();
+	double r = ssaManipulatorRot_->value();
+	motorMovement(x,y,z,r);
+	motorCoordinate_.setX(x);
+	motorCoordinate_.setY(y);
+	motorCoordinate_.setZ(z);
+
+	motorRotation_ = r;
+}
+
+
 /// toggles distortion on or off
 void AMSampleCamera::toggleDistortion()
 {
@@ -555,12 +571,17 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	QVector3D platePosition = plate->platePosition();
 	QVector3D currentPosition = motorCoordinate_;
 	QVector3D shiftAmount = currentPosition - platePosition;
-	oldRotation_ = plate->plateRotation();
+	oldRotation_ = plate->plateRotation()/180*M_PI;
+	qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_;
+	double rotation = motorRotation()/180*M_PI;
 	foreach(AMShapeData* shape, shapeList_)
 	{
 		shape->shift(shiftAmount);
+		shape->setCoordinateShape(applyMotorRotation(shape, rotation));
 	}
+	oldRotation_ = rotation;
 	emit motorCoordinateChanged(motorCoordinate_);
+	emit motorRotationChanged(motorRotation_);
 }
 
 /// checks if an index is valid
@@ -707,7 +728,6 @@ QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points)
 	QVector3D centre(0,0,0);
 	foreach(QVector3D point, points)
 	{
-		qDebug()<<point;
 		centre += point;
 	}
 	centre /= points.count();
@@ -727,10 +747,6 @@ QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points)
 	// solution is first column of V matrix - solution for maximum singular value of m
 	MatrixXd vMatrix = svd.matrixV();
 	MatrixXd solution = vMatrix.col(0);
-	for(int i = 0; i < solution.rows(); i++)
-	{
-		qDebug()<<solution(i,0);
-	}
 	QVector3D unitVector(0,0,0);
 	if(solution.rows() == 3)
 	{
@@ -1024,10 +1040,18 @@ void AMSampleCamera::zoomShape(QPointF position)
 void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
 	position = undistortPoint(position);
+	AMShapeData* shape;
 	if(isValid(currentIndex_))
 	{
-		QVector3D oldCoordinate = shapeList_[currentIndex_]->coordinate(TOPLEFT);
-		QVector3D currentPosition = getPointOnShape(shapeList_[currentIndex_], position);
+		shape = shapeList_[currentIndex_];
+	}
+	else if(samplePlateSelected_)
+	{
+		shape = samplePlateShape_;
+	}
+	else return;
+		QVector3D oldCoordinate = shape->coordinate(TOPLEFT);
+		QVector3D currentPosition = getPointOnShape(shape, position);
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 		if(moveToBeam())
 			newPosition = beamIntersectionPoint(currentPosition);
@@ -1063,8 +1087,9 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 
 		}
 		emit motorCoordinateChanged(motorCoordinate_);
+		emit motorRotationChanged(motorRotation_);
 
-	}
+
 }
 
 /// finishes the grouping rectangle
@@ -1356,10 +1381,6 @@ void AMSampleCamera::beamCalibrate()
 			ray[i]<<beamMarkers_[j]->coordinate(i);
 		}
 		line[i] = lineOfBestFit(ray[i]);
-		foreach(QVector3D point, line[i])
-		{
-			qDebug()<<point;
-		}
 		beamModel_->setRay(line[i],i);
 
 	}
@@ -1602,13 +1623,12 @@ void AMSampleCamera::motorTracking(double)
 	{
 		return;
 	}
-	qDebug()<<"Motor rotation new"<<motorRotation;
-	qDebug()<<"Motor rotation old"<<motorRotation_;
 
 
 	emit motorMoved();
 
-	setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
+//	setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
+	motorUpdateDeferredFunction_.schedule();
 
 
 }
@@ -1760,6 +1780,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	//ssaManipulatorRot_->setContextKnownDescription("R");
 
 
+	connect(&motorUpdateDeferredFunction_, SIGNAL(executed()), this, SLOT(setMotorCoordinate()));//(double,double,double,double)));
+
 
 	connect(camera_, SIGNAL(configurationChanged(AMCameraConfiguration*)),this, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)));
 
@@ -1778,7 +1800,6 @@ void AMSampleCamera::shiftCoordinates(QVector3D shift, int index)
 	if(isValid(index))
 	{
 		shiftCoordinates(shift,shapeList_[index]);
-		qDebug()<<"Shifting for shape"<<shapeList_[index]->name();
 	}
 }
 
@@ -1797,19 +1818,18 @@ void AMSampleCamera::applyMotorRotation(int index, double rotation)
 {
 	if(isValid(index))
 	{
-		shapeList_[index] = applyMotorRotation(shapeList_[index],rotation);
+		shapeList_[index]->setCoordinateShape(applyMotorRotation(shapeList_[index],rotation));
 	}
 }
 
-AMShapeData* AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
+QVector<QVector3D> AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
 {
-	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_);
+	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_)->coordinates();
 }
 
 
 AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, QVector3D centre, double angle) const
 {
-	qDebug()<<"AMSampleCamera::applySpecifiedRotation"<<angle;
 	AMShapeData* newShape = new AMShapeData();
 	newShape->copy(shape);
 	for(int i = 0; i < newShape->count(); i++)
@@ -1842,6 +1862,12 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 	}
 	else if(direction == ZAXIS)
 	{
+		angle = shape->rotation();
+		axis = QVector3D(0,0,1);
+	}
+	else
+	{
+		qDebug()<<"Unknown axis - defaulting to z axis";
 		angle = shape->rotation();
 		axis = QVector3D(0,0,1);
 	}
@@ -1996,10 +2022,10 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 
 //	QVector3D centerPlatePlane = samplePlateShape_->centerCoordinate();
 //	rotationalOffset += centerPlatePlane;
+	qDebug()<<"AMSampleCamera::motorMovement"<<x<<y<<z<<r;
 	QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
 	QVector3D centerOfRotation = newPosition + rotationalOffset_;
-	qDebug()<<"AMSampleCamera::motorMovement - centre of rotation is "<<centerOfRotation;
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
 	directionOfRotation_ = directionOfRotation;
@@ -2019,7 +2045,7 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 	if(samplePlateSelected_)
 	{
 		shiftCoordinates(shift,samplePlateShape_);
-		samplePlateShape_ = applyMotorRotation(samplePlateShape_, rotation);
+		samplePlateShape_->setCoordinateShape(applyMotorRotation(samplePlateShape_, rotation));
 		updateShape(samplePlateShape_);
 	}
 

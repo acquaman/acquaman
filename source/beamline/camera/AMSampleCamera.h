@@ -20,6 +20,8 @@
 #include <Eigen/Dense>
 #include <Eigen/LU>
 
+#include "util/AMDeferredFunctionCall.h"
+
 #define SAMPLEPOINTS 6
 
 class AMShapeData;
@@ -160,6 +162,7 @@ public slots:
 
 	/// sets the motor cooridinates
 	void setMotorCoordinate(double x, double y, double z, double r);
+	void setMotorCoordinate();
 
 	/// toggles distortion on or off
 	void toggleDistortion();
@@ -421,6 +424,7 @@ signals:
 	void shapeDataChanged();
 
 	void motorCoordinateChanged(QVector3D);
+	void motorRotationChanged(double);
 
 	void rotationalOffsetChanged(QVector3D);
 
@@ -452,7 +456,7 @@ protected:
 
 	/// apply motor rotation to the shape
 	void applyMotorRotation(int index, double rotation);
-	AMShapeData*  applyMotorRotation(AMShapeData* shape, double rotation) const;
+	QVector<QVector3D>  applyMotorRotation(AMShapeData* shape, double rotation) const;
 	/// apply the rotation in the given direction by the given angle with the given centre to the give shape
 	AMShapeData* applySpecifiedRotation(const AMShapeData *shape, QVector3D direction, QVector3D centre, double angle) const;
 
@@ -529,7 +533,7 @@ protected:
 	/// returns the unit vector in the direction of the last line in the shape.
 	/// for a rectangle this is the "upward" direction
 	QVector3D getHeightNormal(const AMShapeData* shape) const;
-	/// returns the unit vector in the direction of the first line in the shape
+	/// returns the unit vector in the direction of the first line in the shapeAMShapeData
 	/// for a rectangle this is the "right" direction
 	QVector3D getWidthNormal(const AMShapeData* shape) const;
 	/// returns the vector normal to heightVector and widthVector
@@ -682,6 +686,8 @@ protected:
 	double videoTop_;
 
 	double oldRotation_;
+
+	AMDeferredFunctionCall motorUpdateDeferredFunction_;
 
 
 
