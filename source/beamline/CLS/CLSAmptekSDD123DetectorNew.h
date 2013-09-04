@@ -14,15 +14,6 @@ public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
 	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
 
-	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
-	virtual int rank() const { return 1; }
-	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 1024.
-	virtual AMnDIndex size() const { return AMnDIndex(1024); }
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const;
-	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
-	virtual QList<AMAxisInfo> axes() const;
-
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -97,10 +88,10 @@ protected slots:
 	void onControlsTimedOut();
 
 	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged(double newValue);
+	void onSpectrumControlChanged();
 
 	/// Handles changes in the status control
-	void onStatusControlChanged(double value);
+	void onStatusControlChanged();
 
 protected:
 	bool initializeImplementation();
@@ -112,21 +103,21 @@ protected:
 	bool wasConnected_;
 
 	/// The status control
-	AMControl *statusControl_;
+	AMReadOnlyPVControl *statusControl_;
 	/// The number of channels control
-	AMControl *mcaChannelsControl_;
+	AMReadOnlyPVControl *mcaChannelsControl_;
 	/// The integration time control
-	AMControl *integrationTimeControl_;
+	AMPVControl *integrationTimeControl_;
 	/// The detector temperature control
-	AMControl *detectorTemperatureControl_;
+	AMReadOnlyPVControl *detectorTemperatureControl_;
 	/// The detector start control
-	AMControl *startAcquisitionControl_;
+	AMPVControl *startAcquisitionControl_;
 	/// The detector spectrum control
-	AMControl *spectrumControl_;
+	AMReadOnlyPVControl *spectrumControl_;
 	/// A binned version of the detector spectrum control
-	AMControl *binnedSpectrumControl_;
+	AMReadOnlyPVControl *binnedSpectrumControl_;
 	/// The enable/disable state for this amptek in the array
-	AMControl *isRequestedControl_;
+	AMPVControl *isRequestedControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;
@@ -138,7 +129,7 @@ protected:
 	QString baseName_;
 
 	/// Memory storage for values (used mainly for the data call).
-	double *data_;
+	QVector<double> data_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

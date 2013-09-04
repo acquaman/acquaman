@@ -83,6 +83,24 @@ QString AMDetector::cleanupStateDescription(AMDetector::CleanupState state){
 	}
 }
 
+AMnDIndex AMDetector::size() const
+{
+	AMnDIndex index = AMnDIndex(axes_.size(), AMnDIndex::DoNotInit);
+
+	for (int i = 0, size = index.rank(); i < size; i++)
+		index[i] = axes_.at(i).size;
+
+	return index;
+}
+
+int AMDetector::size(int axisNumber) const
+{
+	if (axisNumber < 0 || axisNumber >= axes_.size())
+		return -1;
+
+	return axes_.at(axisNumber).size;
+}
+
 bool AMDetector::currentlySynchronizedDwell() const{
 	if(AMBeamline::bl()->synchronizedDwellTime()){
 		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
@@ -111,6 +129,19 @@ bool AMDetector::reading1D(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	if(!checkValid(startIndex, endIndex))
 		return false;
 
+	if (endIndex.i() < startIndex.i())
+		return false;
+
+	for (int i = startIndex.i(); i <= endIndex.i(); i++){
+
+		AMNumber retVal = reading(i);
+
+		if(!retVal.isValid())
+			return false;
+
+		outputValues[i] = double(retVal);
+	}
+
 	return true;
 }
 
@@ -118,11 +149,29 @@ bool AMDetector::reading2D(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	if(!checkValid(startIndex, endIndex))
 		return false;
 
+	if (endIndex.i() < startIndex.i() || endIndex.j() < startIndex.j())
+		return false;
+
+	int iSize = size(0);
+
+	for (int j = startIndex.j(); j <= endIndex.j(); j++){
+
+		for (int i = startIndex.i(); i <= endIndex.i(); i++){
+
+			AMNumber retVal = reading(AMnDIndex(i, j));
+
+			if(!retVal.isValid())
+				return false;
+
+			outputValues[i+j*iSize] = double(retVal);
+		}
+	}
+
 	return true;
 }
 
-bool AMDetector::readingND(int dimensionality, const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const{
-	switch(dimensionality) {
+bool AMDetector::readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const{
+	switch(startIndex.rank()) {
 	case 0:
 		return reading0D(startIndex, endIndex, outputValues);
 	case 1:
@@ -330,7 +379,7 @@ void AMDetector::setPowered(bool isPowered){
 bool AMDetector::checkValid(const AMnDIndex &startIndex, const AMnDIndex &endIndex) const{
 	int detectorRank = rank();
 
-	if(startIndex.rank() != detectorRank || endIndex.rank() != detectorRank || startIndex.rank() != endIndex.rank())
+	if(startIndex.rank() != detectorRank || startIndex.rank() != endIndex.rank())
 		return false;
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
