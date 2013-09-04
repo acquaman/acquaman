@@ -44,6 +44,7 @@ public:
 	void setCurrentURL(QString currentURL);
 
 	void addURL(const QString &urlString);
+	void removeURL(const QString &urlString);
 
 	QList<AMSampleCameraURL*> urls();
 

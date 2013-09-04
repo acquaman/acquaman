@@ -140,6 +140,7 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 	qDebug() << "Error was " << e;
 	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
+	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
 

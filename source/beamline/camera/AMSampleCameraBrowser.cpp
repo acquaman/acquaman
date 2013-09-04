@@ -68,6 +68,19 @@ void AMSampleCameraBrowser::addURL(const QString &urlString){
 	urls_.append(newURL);
 }
 
+void AMSampleCameraBrowser::removeURL(const QString &urlString){
+	qDebug() << "Going to remove url " << urlString;
+	AMSampleCameraURL *removeURL = 0;
+	for(int x = 0; x < urls_.count(); x++)
+		if(urls_.at(x)->urlString() == urlString)
+			removeURL = urls_.at(x);
+
+	if(removeURL){
+		urls_.removeAll(removeURL);
+		AMDatabase::database("user")->deleteRow(removeURL->id(), AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>());
+	}
+}
+
 QList<AMSampleCameraURL*> AMSampleCameraBrowser::urls(){
 	return urls_;
 }
