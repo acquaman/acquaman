@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QVector3D>
+#include <QModelIndex>
 
 class QPushButton;
 class QComboBox;
@@ -63,15 +64,12 @@ public slots:
 	void setCrosshairLocked(bool crosshairLocked);
 	void setCrosshairPosition(QPointF crosshairPosition);
 
-
-
 	void setSamplePlateSelected();
 
 signals:
-
-    void requestLoadBeam();
-    void requestLoadCamera();
-    void requestLoadSamplePlate();
+	void requestLoadBeam();
+	void requestLoadCamera();
+	void requestLoadSamplePlate();
 
 	void beamWizardPressed();
 	void cameraWizardPressed();
@@ -83,26 +81,22 @@ signals:
 
 	void samplePlateLoaded(AMSamplePlate*);
 	void samplePlateSelected();
+
 protected:
 	/// initialization
 	void init(AMSampleCameraBrowser *);
 
 protected:
-
 	AMSampleCameraBrowser *cameraBrowser_;
-
 	AMSampleCameraView* videoWidget_;
-
 	QComboBox* sourceComboBox_;
-
-
-
 
 protected slots:
 
 	/// called when the user selects a different source from the combobox
 	void onSourceComboBoxChanged(int index);
 
+	void onRowsInserted(const QModelIndex &index, int start, int end);
 
 
 	/// Called when the media player has an error (ex: invalid URL specified)
