@@ -144,7 +144,6 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
 
-
 void AMSampleCameraBrowserView::setCrosshairColor(QColor crosshairColor)
 {
 	videoWidget_->setCrosshairColor(crosshairColor);
