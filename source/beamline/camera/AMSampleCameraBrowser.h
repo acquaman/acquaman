@@ -11,6 +11,25 @@ class AMSampleCamera;
 class AMSampleCameraView;
 class AMSamplePlate;
 
+#include "dataman/database/AMDbObject.h"
+
+class AMSampleCameraURL : public AMDbObject
+{
+Q_OBJECT
+
+Q_PROPERTY(QString urlString READ urlString WRITE setURLString)
+
+public:
+	Q_INVOKABLE AMSampleCameraURL(const QString &urlString = QString(), QObject *parent = 0);
+
+	QString urlString() const;
+
+public slots:
+	void setURLString(const QString &urlString);
+
+protected:
+	QString urlString_;
+};
 
 class AMSampleCameraBrowser : public QObject
 {
@@ -24,6 +43,11 @@ public:
 	/// Mutators
 	void setCurrentURL(QString currentURL);
 
+	void addURL(const QString &urlString);
+	void removeURL(const QString &urlString);
+
+	QList<AMSampleCameraURL*> urls();
+
 protected slots:
 	void onSamplePlateChanged(AMSamplePlate *samplePlate);
 
@@ -32,6 +56,7 @@ protected:
 	AMSamplePlate *currentSamplePlate_;
 
 	QString currentURL_;
+	QList<AMSampleCameraURL*> urls_;
 };
 
 #endif // AMSAMPLECAMERABROWSER_H

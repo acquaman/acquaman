@@ -1279,6 +1279,7 @@ void AMSampleCamera::twoSelect()
 void AMSampleCamera::enableMotorMovement(bool isEnabled)
 {
 	enableMotorMovement_ = isEnabled;
+	emit enableMotorMovementChanged(enableMotorMovement_);
 }
 
 /// starts or stops motor tracking
@@ -1296,7 +1297,9 @@ void AMSampleCamera::enableMotorTracking(bool isEnabled)
 		disconnect(ssaManipulatorX_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
 		disconnect(ssaManipulatorY_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
 		disconnect(ssaManipulatorZ_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
-		disconnect(ssaManipulatorRot_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));	}
+		disconnect(ssaManipulatorRot_, SIGNAL(valueChanged(double)), this, SLOT(motorTracking(double)));
+	}
+	emit enableMotorTrackingChanged(isEnabled);
 }
 
 /// deletes all the shapes drawn in the camera calibration process

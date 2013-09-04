@@ -29,6 +29,8 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	createSamplePlateButton_ = new QPushButton("Create Sample Plate");
 	loadSamplePlateButton_ = new QPushButton("Load Sample Plate");
 
+	cameraBrowserView_->sampleCameraView()->sampleCamera()->enableMotorTracking(true);
+
 	wizardSelectorView_ = new AMSampleCameraWizardSelector();
 
 	QVBoxLayout *leftVL = new QVBoxLayout();
@@ -71,9 +73,9 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(wizardSelectorView_, SIGNAL(beamWizardPressed()), cameraBrowserView_, SIGNAL(beamWizardPressed()));
 	connect(wizardSelectorView_, SIGNAL(cameraWizardPressed()), cameraBrowserView_, SIGNAL(cameraWizardPressed()));
 	connect(wizardSelectorView_, SIGNAL(samplePlateWizardPressed()), cameraBrowserView_, SIGNAL(samplePlateWizardPressed()));
-    connect(wizardSelectorView_, SIGNAL(requestLoadBeamConfiguration()), cameraBrowserView_, SIGNAL(requestLoadBeam()));
-    connect(wizardSelectorView_, SIGNAL(requestLoadCameraConfiguration()), cameraBrowserView_, SIGNAL(requestLoadCamera()));
-    connect(wizardSelectorView_, SIGNAL(requestLoadSamplePlate()), cameraBrowserView_, SIGNAL(requestLoadSamplePlate()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadBeamConfiguration()), cameraBrowserView_, SIGNAL(requestLoadBeam()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadCameraConfiguration()), cameraBrowserView_, SIGNAL(requestLoadCamera()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadSamplePlate()), cameraBrowserView_, SIGNAL(requestLoadSamplePlate()));
 
 	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));

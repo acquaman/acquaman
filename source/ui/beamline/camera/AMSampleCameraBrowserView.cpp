@@ -48,13 +48,15 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 	}
 
 	else {
-		qDebug() << "Valid index";
+		qDebug() << "Valid index as " << index << " current count " << sourceComboBox_->model()->rowCount();
 		QString stringUrl = sourceComboBox_->itemText(index);
 		QUrl url = QUrl::fromUserInput(stringUrl);
 
 		if(url.isValid()) {
-			if(url.toString() != stringUrl)
+			if(url.toString() != stringUrl){
+				qDebug() << "Apparently diong a setItemText";
 				sourceComboBox_->setItemText(index, url.toString());
+			}
 			setWindowTitle(url.toString());
 			videoWidget_->setMedia(url);
 			qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
@@ -66,6 +68,11 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 			sourceComboBox_->removeItem(index);
 		}
 	}
+}
+
+void AMSampleCameraBrowserView::onRowsInserted(const QModelIndex &index, int start, int end){
+	qDebug() << "Heard that combo box had a new row inserted " << sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index));
+	cameraBrowser_->addURL(sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index)).toString());
 }
 
 QStringList AMSampleCameraBrowserView::previousSourceURLs() const
@@ -133,9 +140,9 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 	qDebug() << "Error was " << e;
 	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
+	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
-
 
 void AMSampleCameraBrowserView::setCrosshairColor(QColor crosshairColor)
 {
@@ -226,27 +233,33 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	sourceComboBox_->setInsertPolicy(QComboBox::InsertAtTop);
 	sourceComboBox_->setMaxCount(20);
 
-
+	QList<AMSampleCameraURL*> urls = cameraBrowser_->urls();
+	QStringList urlStrings;
+	for(int x = 0; x < urls.count(); x++)
+		urlStrings << urls.at(x)->urlString();
+	setPreviousSourceURLs(urlStrings);
+	sourceComboBox_->setCurrentIndex(-1);
 
 	// Make conections:
 	//////////////////////////
 
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
+	connect(sourceComboBox_->model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
 
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
 
-    // wizard signals
-    connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
-    connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
-    connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+	// wizard signals
+	connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
+	connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
+	connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
 
-    connect(this, SIGNAL(requestLoadBeam()), videoWidget_, SLOT(requestLoadBeam()));
-    connect(this, SIGNAL(requestLoadCamera()), videoWidget_, SLOT(requestLoadCamera()));
-    connect(this, SIGNAL(requestLoadSamplePlate()), videoWidget_, SLOT(requestLoadSamplePlate()));
+	connect(this, SIGNAL(requestLoadBeam()), videoWidget_, SLOT(requestLoadBeam()));
+	connect(this, SIGNAL(requestLoadCamera()), videoWidget_, SLOT(requestLoadCamera()));
+	connect(this, SIGNAL(requestLoadSamplePlate()), videoWidget_, SLOT(requestLoadSamplePlate()));
 
-    connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
-    connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
-    connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+	connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
+	connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
+	connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
 
 	connect(this, SIGNAL(samplePlateSelected()), videoWidget_, SLOT(samplePlateSelected()));
 }

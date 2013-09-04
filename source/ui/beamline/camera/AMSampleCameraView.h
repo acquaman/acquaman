@@ -47,28 +47,28 @@ class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
-    enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION};
-    enum ViewType {DEBUG, CONDENSED};
+	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION};
+	enum ViewType {DEBUG, CONDENSED};
 	/// Constructor.
-    explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
+	explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
 
-    /// Destructor
-    ~AMSampleCameraView();
+	/// Destructor
+	~AMSampleCameraView();
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
 	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
-    QPointF crosshairPosition() const;
+	QPointF crosshairPosition() const;
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
-    /// returns whether the crosshair is locked
+	/// returns whether the crosshair is locked
 	bool crosshairLocked() const;
 
 
 
-    /// Set the current motor coordinates
-    void setMotorCoordinate(double x, double y, double z, double r);
+	/// Set the current motor coordinates
+	void setMotorCoordinate(double x, double y, double z, double r);
 	double motorRotation() const;
 	double motorX() const;
 	double motorY() const;
@@ -82,37 +82,38 @@ public:
 	/// set the current shape's info
 	void setCurrentInfo(const QString &info);
 
-    /// Get the index of the currently selected object
-    int currentIndex();
+	/// Get the index of the currently selected object
+	int currentIndex();
 
 	/// current shape's coordinates and rotation
-    double xCoordinate();
-    double yCoordinate();
-    double zCoordinate();
-    double rotation();
-    double tilt();
+	double xCoordinate();
+	double yCoordinate();
+	double zCoordinate();
+	double rotation();
+	double tilt();
 
 	/// set the media to play
-    void setMedia(QMediaContent url);
+	void setMedia(QMediaContent url);
 	/// start playing the current media
-    void play();
+	void play();
 
 	/// the media player
-    QMediaPlayer* mediaPlayer() const;
+	QMediaPlayer* mediaPlayer() const;
 
 	/// maps from other videos to this one
-    QPointF mapPointToVideo(QPointF);
+	QPointF mapPointToVideo(QPointF);
 
 	/// checks for valid index
-    bool isValid(int index) const;
+	bool isValid(int index) const;
 
 	/// load last beam
-    bool loadBeam();
+	bool loadBeam();
 	/// load last camera
-    bool loadCamera();
+	bool loadCamera();
 	/// load last sample plate
-    bool loadSamplePlate();
+	bool loadSamplePlate();
 
+	AMSampleCamera* sampleCamera();
 
 public slots:
 
@@ -240,7 +241,7 @@ signals:
 public slots:
 
 	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
-    void setCrosshairPosition(const QPointF& pos);
+	void setCrosshairPosition(const QPointF& pos);
 
 	/// Set the pen used to draw the crosshair lines
 	void setCrosshairPen(const QPen& pen);
@@ -248,155 +249,153 @@ public slots:
 	/// Enable or disable the crosshair
 	void setCrosshairVisible(bool crosshairVisible = true);
 
-    void setCameraModel(AMCameraConfiguration*);
+	void setCameraModel(AMCameraConfiguration*);
 
-    void intersection();
+	void intersection();
 
-    void hideCameraParameters(bool hide);
+	void hideCameraParameters(bool hide);
 
-    void startCameraWizard();
+	void startCameraWizard();
 
-    void startBeamWizard();
+	void startBeamWizard();
 
-    void startSampleWizard();
+	void startSampleWizard();
 
-    void setSamplePlate();
+	void setSamplePlate();
 
-    void setCameraConfigurationShape();
+	void setCameraConfigurationShape();
 
-    void moveSamplePlate(int movement);
+	void moveSamplePlate(int movement);
 
-    void showBeamOutline(bool show);
+	void showBeamOutline(bool show);
 
-    void moveTestSlot();
+	void moveTestSlot();
 
-    void requestUpdate();
+	void requestUpdate();
 
-    void shapeDrawingFinished();
+	void shapeDrawingFinished();
 
 
-    // request database loads
-    void requestLoadBeam();
-    void requestLoadCamera();
-    void requestLoadSamplePlate();
+	// request database loads
+	void requestLoadBeam();
+	void requestLoadCamera();
+	void requestLoadSamplePlate();
 
-    void setRotationOffsetX(QString offset);
-    void setRotationOffsetY(QString offset);
-    void setRotationOffsetZ(QString offset);
+	void setRotationOffsetX(QString offset);
+	void setRotationOffsetY(QString offset);
+	void setRotationOffsetZ(QString offset);
 
-    void onRotationalOffsetChanged(QVector3D);
+	void onRotationalOffsetChanged(QVector3D);
 
 protected slots:
-    void updateCurrentShape();
+	void updateCurrentShape();
 
 
 	/// Updates all shapes
 	void refreshSceneView();
 
-    /// handles mouse events on the graphics view
-    void mousePressHandler(QPointF position);
-    void mouseRightClickHandler(QPointF position);
-    void mouseLeftReleaseHandler(QPointF position);
-    void mouseRightReleaseHandler(QPointF position);
-    void mouseDoubleClickHandler(QPointF position);
+	/// handles mouse events on the graphics view
+	void mousePressHandler(QPointF position);
+	void mouseRightClickHandler(QPointF position);
+	void mouseLeftReleaseHandler(QPointF position);
+	void mouseRightReleaseHandler(QPointF position);
+	void mouseDoubleClickHandler(QPointF position);
 
-     void toggleDistortion();
+	void toggleDistortion();
 
-     /// manages changing the selection
-     void currentSelectionChanged();
+	/// manages changing the selection
+	void currentSelectionChanged();
 
-    /// added mouse move event
-    void mouseMoveHandler(QPointF position);
+	/// added mouse move event
+	void mouseMoveHandler(QPointF position);
 
 
-    /// Used to set the current mode selected on the toolbar
+	/// Used to set the current mode selected on the toolbar
 
-    void setDrawMode();
-    void setMoveMode();
-    void setEditMode();
-    void setShiftMode();
-    void setOperationMode();
-    void setGroupMode();
-    void setConfigurationMode();
-    void setMultiDrawMode();
+	void setDrawMode();
+	void setMoveMode();
+	void setEditMode();
+	void setShiftMode();
+	void setOperationMode();
+	void setGroupMode();
+	void setConfigurationMode();
+	void setMultiDrawMode();
 
-    void setMotorCoordinatePressed();
+	void setMotorCoordinatePressed();
 
-    void enableMotorMovement(bool isEnabled);
+	void showConfigurationWindow();
 
-    void enableMotorTracking(bool isEnabled);
-
-    void showConfigurationWindow();
-
-    void setPoint(QPointF position, int point);
-    void selectPoint(int);
-    void selectPointOne();
-    void selectPointTwo();
-    void selectPointThree();
-    void selectPointFour();
-    void selectPointFive();
+	void setPoint(QPointF position, int point);
+	void selectPoint(int);
+	void selectPointOne();
+	void selectPointTwo();
+	void selectPointThree();
+	void selectPointFour();
+	void selectPointFive();
 	void selectPointSix();
 
-    void runCameraConfiguration();
+	void runCameraConfiguration();
 
-    void deleteCalibrationPoints();
+	void deleteCalibrationPoints();
 
-    void stopTimer();
+	void stopTimer();
 
-    void changeDrawButtonText();
+	void changeDrawButtonText();
 
-    void updateItemName(int index);
-    void updateItemReturnPressed(int index);
+	void updateItemName(int index);
+	void updateItemReturnPressed(int index);
 
-    void updateCurrentTextItemName();
+	void updateCurrentTextItemName();
 
-    void setViewName();
-    void setViewOtherData();
-    void setViewIdNumber();
-    void setViewHidden();
+	void setViewName();
+	void setViewOtherData();
+	void setViewIdNumber();
+	void setViewHidden();
 
-    void autoCompleteEnterPressed();
+	void autoCompleteEnterPressed();
 
-    void beamShape(int);
+	void beamShape(int);
 
-    void beamCalibrate();
+	void beamCalibrate();
 
-    void moveBeamSamplePlate(QVector3D);
+	void moveBeamSamplePlate(QVector3D);
 
-    void showBeamMarker(int);
+	void showBeamMarker(int);
 
-    void transmitMotorMovementEnabled();
+	void transmitMotorMovementEnabled();
 
-    void updateShapeName(QString newName);
+	void updateShapeName(QString newName);
 
-    void updateDataOne(QString data);
+	void updateDataOne(QString data);
 
-    void updateDataTwo(QString data);
+	void updateDataTwo(QString data);
 
 	void onShowSamplePlateStateChanged(bool state);
 
 	void onSamplePlateWizardFinished();
 
+	void enableMotorMovement(bool isEnabled);
+	void enableMotorTracking(bool isEnabled);
 
-
-
+	void onEnableMotorMovementChanged(bool isEnabled);
+	void onEnableMotorTrackingChanged(bool isEnabled);
 
 protected:
 
 
 
 
-    /// Add and remove shapes from the scene
+	/// Add and remove shapes from the scene
 public:
-    void addNewShape();
+	void addNewShape();
 protected:
-    void deleteShape();
+	void deleteShape();
 
 
 
-    void createGroupRectangle();
+	void createGroupRectangle();
 
-    void destroyGroupRectangle();
+	void destroyGroupRectangle();
 
 
 
@@ -409,171 +408,171 @@ protected:
 	void resizeEvent(QResizeEvent *event);
 
 
-    void createIntersectionShapes(QVector<QPolygonF>);
+	void createIntersectionShapes(QVector<QPolygonF>);
 
-    void clearIntersections();
+	void clearIntersections();
 
-    void setGUI(ViewType viewType);
+	void setGUI(ViewType viewType);
 
-    void makeConnections(ViewType viewType);
+	void makeConnections(ViewType viewType);
 
-    QColor colour(ShapeColour role);
+	QColor colour(ShapeColour role);
 
 	void drawSamplePlate();
 
 
 protected:
 	/// selectMode used to determine what actions should be performed by  mouse events
-    enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
+	enum selectMode{DRAW, MOVE, EDIT, SHIFT, OPERATION, GROUP, CONFIGURE, MULTIDRAW};
 
 	/// ViewMode used to determine what each text item displays
-    enum ViewMode{NAME,DATA,ID,HIDE};
+	enum ViewMode{NAME,DATA,ID,HIDE};
 
 
 	/// crosshair lines
-    QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
+	QGraphicsLineItem* crosshairXLine_, *crosshairYLine_;
 
 	/// the graphics view that visualizes all the shapes
-    AMSampleCameraGraphicsView *shapeScene_;
+	AMSampleCameraGraphicsView *shapeScene_;
 
 	/// window for beam and camera settings
-    QFrame *configurationWindow_;
+	QFrame *configurationWindow_;
 
 	/// camera settings window
-    AMCameraConfigurationView *cameraConfiguration_;
+	AMCameraConfigurationView *cameraConfiguration_;
 
 	/// beam settings window
-    AMBeamConfigurationView *beamConfiguration_;
+	AMBeamConfigurationView *beamConfiguration_;
 
 
-//    QColor borderColour_;
-//    QColor activeBorderColour_;
+	//    QColor borderColour_;
+	//    QColor activeBorderColour_;
 
 
 
 	/// Map of QGraphicsPolygonItem, corresponds to list in AMSampleCamera - should probably just be changed to a list
-    QMap<int,QGraphicsPolygonItem*> shapes_;
+	QMap<int,QGraphicsPolygonItem*> shapes_;
 
 	/// The model for all the shapes displayed
-    AMSampleCamera* shapeModel_;
+	AMSampleCamera* shapeModel_;
 
-    QGraphicsPolygonItem* groupRectangle_;
+	QGraphicsPolygonItem* groupRectangle_;
 
 	QGraphicsPolygonItem* samplePlate_;
 
-    bool groupRectangleActive_;
+	bool groupRectangleActive_;
 
-    /// the max index in use (number of rectangles - 1)
-    int index_;
-    /// current mode selected by toolbar
-    selectMode mode_;
-    /// the index of the currently selected item
-    int current_;
+	/// the max index in use (number of rectangles - 1)
+	int index_;
+	/// current mode selected by toolbar
+	selectMode mode_;
+	/// the index of the currently selected item
+	int current_;
 
-    /// Indicates that the second press of a double-click has happened
-    bool doubleClickInProgress_;
+	/// Indicates that the second press of a double-click has happened
+	bool doubleClickInProgress_;
 
-    QVector<QGraphicsPolygonItem*> intersections_;
+	QVector<QGraphicsPolygonItem*> intersections_;
 
 
-    /// crosshair control bar
+	/// crosshair control bar
 
-    QCheckBox *lockCrosshairCheckBox_;
-    QCheckBox *showCrosshairCheckBox_;
-    AMColorPickerButton2* crosshairColorPicker_;
-    QSlider* crosshairThicknessSlider_;
+	QCheckBox *lockCrosshairCheckBox_;
+	QCheckBox *showCrosshairCheckBox_;
+	AMColorPickerButton2* crosshairColorPicker_;
+	QSlider* crosshairThicknessSlider_;
 
-    /// Motor coordinate control
-    QLineEdit* motorXEdit_;
-    QLineEdit* motorYEdit_;
-    QLineEdit* motorZEdit_;
-    QLineEdit* motorREdit_;
-    /// Motor coordinate set button
-    QPushButton* setMotorCoordinate_;
+	/// Motor coordinate control
+	QLineEdit* motorXEdit_;
+	QLineEdit* motorYEdit_;
+	QLineEdit* motorZEdit_;
+	QLineEdit* motorREdit_;
+	/// Motor coordinate set button
+	QPushButton* setMotorCoordinate_;
 
-    /// Motor move enable
-    QCheckBox* enableMotorMovement_;
+	/// Motor move enable
+	QCheckBox* enableMotorMovement_;
 
-    /// motor tracking enable
-    QCheckBox* enableMotorTracking_;
+	/// motor tracking enable
+	QCheckBox* enableMotorTracking_;
 
-    /// camera configuration button
-    QPushButton* configureCameraButton_;
-    /// camera configuration window items
-    QLineEdit* pointLineEdit_[12];
-    QLineEdit* coordinateLineEdit_[18];
-    QPushButton* pointPushButton_[6];
-    QFrame* cameraConfigurationWindow_;
-    QPushButton* startCameraConfiguration_;
-    QCheckBox* motorCoordinateCheckBox_;
-    QPushButton* deleteCalibrationPoints_;
-    QCheckBox* cameraMatrixCheckBox_;
+	/// camera configuration button
+	QPushButton* configureCameraButton_;
+	/// camera configuration window items
+	QLineEdit* pointLineEdit_[12];
+	QLineEdit* coordinateLineEdit_[18];
+	QPushButton* pointPushButton_[6];
+	QFrame* cameraConfigurationWindow_;
+	QPushButton* startCameraConfiguration_;
+	QCheckBox* motorCoordinateCheckBox_;
+	QPushButton* deleteCalibrationPoints_;
+	QCheckBox* cameraMatrixCheckBox_;
 
-    QPushButton* configurationWindowButton_;
+	QPushButton* configurationWindowButton_;
 
-    int pointToSelect_;
-    bool useMotorCoordinate_;
-    bool useCameraMatrix_;
+	int pointToSelect_;
+	bool useMotorCoordinate_;
+	bool useCameraMatrix_;
 
-    QPushButton* drawOnShapePushButton_;
-    QCheckBox* drawOnShapeCheckBox_;
-    QPushButton* showShapeView_;
+	QPushButton* drawOnShapePushButton_;
+	QCheckBox* drawOnShapeCheckBox_;
+	QPushButton* showShapeView_;
 
-    QTimer* pressTimer_;
+	QTimer* pressTimer_;
 
-    QList<AMGraphicsTextItem*> textItems_;
+	QList<AMGraphicsTextItem*> textItems_;
 
-    QToolBar* toolBar_;
-    QAction* markAction_;
-    QAction* moveAction_;
-    QAction* editAction_;
-    QAction* shiftAction_;
-    QAction* operationAction_;
-    QAction* groupAction_;
+	QToolBar* toolBar_;
+	QAction* markAction_;
+	QAction* moveAction_;
+	QAction* editAction_;
+	QAction* shiftAction_;
+	QAction* operationAction_;
+	QAction* groupAction_;
 
-    QToolBar* labelToolBar_;
-    QAction* viewName_;
-    QAction* viewOtherData_;
-    QAction* viewIdNumber_;
-    QAction* viewHidden_;
+	QToolBar* labelToolBar_;
+	QAction* viewName_;
+	QAction* viewOtherData_;
+	QAction* viewIdNumber_;
+	QAction* viewHidden_;
 
-    QPushButton* distortionButton_;
+	QPushButton* distortionButton_;
 
-    ViewMode currentView_;
+	ViewMode currentView_;
 
-    QCompleter* autoCompleter_;
-    QStringListModel* wordList_;
+	QCompleter* autoCompleter_;
+	QStringListModel* wordList_;
 
-    QFrame* viewPortWindow_;
-    QGraphicsView* viewPortView_;
-    QMediaPlayer* viewMediaPlayer_;
+	QFrame* viewPortWindow_;
+	QGraphicsView* viewPortView_;
+	QMediaPlayer* viewMediaPlayer_;
 
-    QGraphicsPathItem* currentShape_;
+	QGraphicsPathItem* currentShape_;
 
-    QPushButton* cameraWizardButton_;
-    AMCameraConfigurationWizard* cameraWizard_;
+	QPushButton* cameraWizardButton_;
+	AMCameraConfigurationWizard* cameraWizard_;
 
-    QPushButton* beamWizardButton_;
-    AMBeamConfigurationWizard* beamWizard_;
+	QPushButton* beamWizardButton_;
+	AMBeamConfigurationWizard* beamWizard_;
 
-    QList<QGraphicsPolygonItem*> beamList_;
-    int updateTracker_;
+	QList<QGraphicsPolygonItem*> beamList_;
+	int updateTracker_;
 
-    QPushButton* samplePlateButton_;
-    QPushButton* saveSamplePlate_;
+	QPushButton* samplePlateButton_;
+	QPushButton* saveSamplePlate_;
 
-    QPushButton* samplePlateWizardButton_;
-    AMSamplePlateWizard* samplePlateWizard_;
-    int samplePlateMovement_;
+	QPushButton* samplePlateWizardButton_;
+	AMSamplePlateWizard* samplePlateWizard_;
+	int samplePlateMovement_;
 
-    QPushButton* cameraConfigurationShapeButton_;
+	QPushButton* cameraConfigurationShapeButton_;
 
-    QCheckBox* showBeamOutlineCheckBox_;
+	QCheckBox* showBeamOutlineCheckBox_;
 
-    bool showBeamOutline_;
+	bool showBeamOutline_;
 
-    QFrame* advancedWindow_;
-    QPushButton* advancedButton_;
+	QFrame* advancedWindow_;
+	QPushButton* advancedButton_;
 
 	QCheckBox* moveToBeam_;
 	QCheckBox* moveOnSamplePlate_;
