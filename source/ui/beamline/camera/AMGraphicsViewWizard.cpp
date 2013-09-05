@@ -168,8 +168,12 @@ bool AMGraphicsViewWizard::checked(int page) const
     return field(QString("configured%1").arg(page)).toBool();
 }
 
+/// call this function to make the option page accessible from
+/// page with page number id.
 void AMGraphicsViewWizard::addOptionPage(int id)
 {
+	// to access the "option" page, return the desired page
+	// for the condition showOptionsPage().
     setOption(HaveCustomButton1);
     setButtonText(CustomButton1,"Options");
     connect(this, SIGNAL(customButtonClicked(int)), this, SLOT(showOptions(int)));

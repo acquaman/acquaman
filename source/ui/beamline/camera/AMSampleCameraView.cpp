@@ -1968,6 +1968,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 		QHBoxLayout* rotationalLayout = new QHBoxLayout();
 		rotationalLayout->setContentsMargins(itemMargins);
+		rotationalLayout->addWidget(new QLabel("Motor Rotation Offset"));
 		for(int i = 0; i < 3; i++)
 		{
 			rotationalLayout->addWidget(rotationalOffset_[i] = new QLineEdit());
