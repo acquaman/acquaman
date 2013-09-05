@@ -322,6 +322,21 @@ QString AMCameraConfigurationWizard::message(int messageType)
             break;
         }
         break;
+	case Page_Option:
+		switch(messageType)
+		{
+		case Title:
+			return QString(tr("Motor movement coordinates"));
+		case Text:
+			return QString(tr("Set the coordinates to move to for this configuration."));
+		case Help:
+			return QString(tr("Changing the values on this page will set the motor coordinates to be moved to for the camera configuration."));
+		case Other:
+		case Default:
+		default:
+			break;
+		}
+		break;
     }
     switch(messageType)
     {
