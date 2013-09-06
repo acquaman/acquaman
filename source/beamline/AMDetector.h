@@ -337,6 +337,9 @@ signals:
 	void acquisitionTimeChanged(double seconds);
 	void newValuesAvailable();
 
+	/// Indicates that the axis values have changed.  This would affect things like size() and axes().
+	void axisValuesChanged();
+
 protected slots:
 	///
 	void setInitializing();

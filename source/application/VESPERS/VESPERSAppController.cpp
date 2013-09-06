@@ -77,6 +77,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMRun.h"
 
+
+#include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
+#include "ui/beamline/AMXRFBaseDetectorView.h"
+
+
 // For database registration:
 #include "dataman/VESPERS/XRFDetectorInfo.h"
 
@@ -151,6 +156,10 @@ bool VESPERSAppController::startup() {
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
+
+		VESPERSSingleElementVortexDetector *test = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element", this);
+		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
+		testView->show();
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);

@@ -76,7 +76,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/beamline/VESPERS/VESPERSPilatusCCDDetector.h \
     source/ui/VESPERS/VESPERSPilatusCCDDetectorView.h \
     source/util/VESPERS/VESPERSAttoCubeHack.h \
-    source/dataman/export/VESPERS/VESPERSExporter3DAscii.h
+    source/dataman/export/VESPERS/VESPERSExporter3DAscii.h \
+    source/beamline/VESPERS/VESPERSSingleElementVortexDetector.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -150,10 +151,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/VESPERSPilatusCCDDetector.cpp \
     source/ui/VESPERS/VESPERSPilatusCCDDetectorView.cpp \
     source/util/VESPERS/VESPERSAttoCubeHack.cpp \
-    source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp
+    source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp \
+    source/beamline/VESPERS/VESPERSSingleElementVortexDetector.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 
