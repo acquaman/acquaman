@@ -59,6 +59,9 @@ public:
 
 	double detectorTemperature() const;
 
+	/// The ampteks do not support elapsed time.
+	virtual bool supportsElapsedTime() const { return false; }
+
 public slots:
 
 	/// The read mode cannot be changed for Amptek detectors

@@ -14,8 +14,8 @@ public:
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	/// Cancelling is not implemented for the Vortex detectors
-	virtual bool canCancel() const { return false; }
+	/// Cancelling is implemented for the Vortex detectors
+	virtual bool canCancel() const { return true; }
 	/// Clearing is not currently supported for the Vortex detectors
 	virtual bool canClear() const { return false; }
 
@@ -44,6 +44,9 @@ public:
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual const double* data() const;
+
+	/// The vortex detectors support elapsed time.
+	virtual bool supportsElapsedTime() const { return true; }
 
 public slots:
 

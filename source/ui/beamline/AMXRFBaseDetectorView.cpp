@@ -11,12 +11,66 @@ AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *p
 {
 	detector_ = detector;
 
+	topLayout_ = new QHBoxLayout;
+	bottomLayout_ = new QHBoxLayout;
+	leftLayout_ = new QVBoxLayout;
+	rightLayout_ = new QVBoxLayout;
+	plotLayout_ = new QHBoxLayout;
+	masterLayout_ = new QVBoxLayout;
+
 	setupPlot();
+	buildDetectorView();
 
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(view_);
+	plotLayout_->addLayout(leftLayout_);
+	plotLayout_->addWidget(view_);
+	plotLayout_->addLayout(rightLayout_);
 
-	setLayout(layout);
+	masterLayout_->addLayout(topLayout_);
+	masterLayout_->addLayout(plotLayout_);
+	masterLayout_->addLayout(bottomLayout_);
+
+	setLayout(masterLayout_);
+}
+
+void AMXRFBaseDetectorView::buildDetectorView()
+{
+	acquireButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Acquire");
+	connect(acquireButton_, SIGNAL(clicked()), detector_, SLOT(acquire()));
+
+	cancelButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+	connect(cancelButton_, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
+	cancelButton_->setVisible(detector_->canCancel());
+
+	statusLabel_ = new QLabel;
+	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+
+	QHBoxLayout *startLayout = new QHBoxLayout;
+	startLayout->addWidget(statusLabel_);
+	startLayout->addWidget(acquireButton_);
+	startLayout->addWidget(cancelButton_);
+
+	acquireTimeSpinBox_ = new QDoubleSpinBox;
+	acquireTimeSpinBox_->setRange(0, 1e6);
+	acquireTimeSpinBox_->setSuffix(" s");
+	acquireTimeSpinBox_->setPrefix("Time: ");
+	acquireTimeSpinBox_->setDecimals(2);
+	acquireTimeSpinBox_->setSingleStep(1.0);
+	acquireTimeSpinBox_->setAlignment(Qt::AlignCenter);
+	connect(acquireTimeSpinBox_, SIGNAL(editingFinished()), this, SLOT(onNewAcquisitionTimeSetpoint()));
+	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), acquireTimeSpinBox_, SLOT(setValue(double)));
+
+	elapsedTimeLabel_ = new QLabel;
+	elapsedTimeLabel_->setVisible(detector_->supportsElapsedTime());
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeChanged(double)));
+
+	QHBoxLayout *timeLayout = new QHBoxLayout;
+	timeLayout->addWidget(acquireTimeSpinBox_);
+	timeLayout->addWidget(elapsedTimeLabel_);
+
+	rightLayout_->addLayout(startLayout);
+	rightLayout_->addLayout(timeLayout);
+	rightLayout_->addStretch();
 }
 
 void AMXRFBaseDetectorView::setupPlot()
@@ -57,6 +111,7 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->addTool(new MPlotWheelZoomerTool());
 	view_->setPlot(plot_);
 	view_->setMinimumHeight(450);
+	view_->setMinimumWidth(600);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
@@ -66,4 +121,21 @@ void AMXRFBaseDetectorView::setupPlot()
 
 	// Set the autoscale constraints.
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+}
+
+void AMXRFBaseDetectorView::onAcquisitionStateChanged(AMDetector::AcqusitionState state)
+{
+	bool isAcquiring = state == AMDetector::Acquiring;
+	acquireButton_->setDisabled(isAcquiring);
+	statusLabel_->setPixmap(QIcon(isAcquiring ? ":/ON.png" : ":/OFF.png").pixmap(22));
+}
+
+void AMXRFBaseDetectorView::onNewAcquisitionTimeSetpoint()
+{
+	detector_->setAcquisitionTime(acquireTimeSpinBox_->value());
+}
+
+void AMXRFBaseDetectorView::onElapsedTimeChanged(double time)
+{
+	elapsedTimeLabel_->setText(QString("%1 s").arg(time, 0, 'f', 2));
 }

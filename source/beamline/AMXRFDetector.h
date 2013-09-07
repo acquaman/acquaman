@@ -57,10 +57,16 @@ public:
 	/// Returns all of the spectrum data sources, raw sources come first.
 	QList<AMDataSource *> allSpectrumSources() const { return QList<AMDataSource *>() << rawSpectraSources_ << analyzedSpectraSources_; }
 
+	/// Although common, not all implementations will have an elapsed time.  If your particular implementation doesn't then make sure this is false.
+	virtual bool supportsElapsedTime() const = 0;
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+
+signals:
+	/// Notifier that the elapsed time has updated.
+	void elapsedTimeChanged(double time);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -79,6 +85,8 @@ protected:
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 	/// Basic initialization implemenation for an XRF detector.  Subclass for more specific behaviour.
 	bool cleanupImplementation();
+	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
+	virtual bool cancelAcquisitionImplementation();
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.

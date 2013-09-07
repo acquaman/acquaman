@@ -18,9 +18,11 @@ AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QO
 void AMXRFDetector::allControlsCreated()
 {
 	allControls_->addControl(acquireTimeControl_);
-	allControls_->addControl(elapsedTimeControl_);
 	allControls_->addControl(acquisitionStatusControl_);
 	allControls_->addControl(acquireControl_);
+
+	if (supportsElapsedTime())
+		allControls_->addControl(elapsedTimeControl_);
 
 	for (int i = 0, size = spectraControls_.size(); i < size; i++)
 		allControls_->addControl(spectraControls_.at(i));
@@ -56,6 +58,7 @@ void AMXRFDetector::allControlsCreated()
 
 	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
+	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 }
 
 void AMXRFDetector::buildSpectrumDataSources()
@@ -172,6 +175,13 @@ bool AMXRFDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMo
 bool AMXRFDetector::cleanupImplementation()
 {
 	setCleanedUp();
+	return true;
+}
+
+bool AMXRFDetector::cancelAcquisitionImplementation()
+{
+	acquireControl_->stop();	// This is safe because this will only be called if canCancel() returns true.
+	setAcquisitionCancelled();
 	return true;
 }
 
