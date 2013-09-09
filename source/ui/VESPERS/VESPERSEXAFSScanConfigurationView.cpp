@@ -288,15 +288,15 @@ void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
 	if (!el)
 		return;
 
-	QPair<QString, QString> edge;
+	AMAbsorptionEdge edge;
 	lineChoice_->clear();
 
 	for (int i = 0; i < el->edges().size(); i++){
 
 		edge = el->edges().at(i);
 
-		if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
-			lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
+		if (edge.energy() <= 30000 && edge.energy() >= 6700)
+			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());
 	}
 
 	lineChoice_->setCurrentIndex(-1);

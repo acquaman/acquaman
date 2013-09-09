@@ -717,8 +717,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
@@ -751,8 +751,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
@@ -785,8 +785,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1600);
@@ -819,8 +819,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -853,8 +853,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -887,8 +887,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -921,8 +921,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -955,8 +955,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		//SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -989,8 +989,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -1023,8 +1023,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 3000, 5.0, 200, 1000);
@@ -1057,8 +1057,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 6000, 5.0, 200, 3500);
@@ -1091,8 +1091,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1125,8 +1125,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1159,8 +1159,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1193,8 +1193,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);

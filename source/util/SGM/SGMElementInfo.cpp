@@ -158,6 +158,19 @@ SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAnd
 	setEnd(end);
 }
 
+SGMScanInfo::SGMScanInfo(const QString &scanName, AMAbsorptionEdge edge, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent)
+	: AMDbObject(parent)
+{
+	setName(scanName);
+	setScanName(scanName);
+	hasEdge_ = !edge.isNull();
+	edge_ = edge.edgeName();
+	energy_ = edge.energy();
+	setStart(start);
+	setMiddle(middle);
+	setEnd(end);
+}
+
 QString SGMScanInfo::scanName() const {
 	return scanName_;
 }
