@@ -303,7 +303,7 @@ SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGM
 	}
 
 	elementsComboBox_ = new QComboBox();
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	SGMElementInfo *tempElementInfo;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);

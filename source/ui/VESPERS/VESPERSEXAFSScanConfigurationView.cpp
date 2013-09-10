@@ -273,7 +273,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 {
-	const AMElement *el = AMPeriodicTableDialog::getElement(this);
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 
@@ -283,7 +283,7 @@ void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 	}
 }
 
-void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
+void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(AMElement *el)
 {
 	if (!el)
 		return;

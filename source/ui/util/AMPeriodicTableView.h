@@ -45,14 +45,12 @@ public:
 	QToolButton *button(int atomicNumber) { return qobject_cast<QToolButton *>(elementMapper_->mapping(atomicNumber)); }
 	/// Returns the mapped QToolButton for a given element.
 	QToolButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
-	/// Returns the mapped QToolButton for a given element.
-	QToolButton *button(const AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// Mapped signal that passes the atomic number of an element.
 	void clicked(int);
 	/// When an element is clicked on, this signal will be emitted carrying a pointer to the element.
-	void elementSelected(const AMElement *);
+	void elementSelected(AMElement *);
 
 protected slots:
 	/// Slot that emits a signal carrying a pointer to the particular Element.
@@ -60,7 +58,7 @@ protected slots:
 
 protected:
 	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
-	QToolButton *mapElement(const AMElement *element)
+	QToolButton *mapElement(AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
 		button->setFont(QFont("Times New Roman", 12));

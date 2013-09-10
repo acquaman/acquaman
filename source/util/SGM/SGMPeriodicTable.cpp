@@ -39,7 +39,7 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	for(int x = 0; x < allDatabases.count(); x++){
 		tempDatabase = AMDatabase::database(allDatabases.at(x));
 		if(tempDatabase){
-			AMOrderedSet<const AMElement*, SGMElementInfo*> *thisDatabaseMapping = new AMOrderedSet<const AMElement*, SGMElementInfo*>();
+			AMOrderedSet<AMElement*, SGMElementInfo*> *thisDatabaseMapping = new AMOrderedSet<AMElement*, SGMElementInfo*>();
 			// Grab all the ids in this table (search for AMDbObjectType == SGMElementInfo should return everything)
 			matchIDs = tempDatabase->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "AMDbObjectType", "SGMElementInfo");
 			for(int y = 0; y < matchIDs.count(); y++){

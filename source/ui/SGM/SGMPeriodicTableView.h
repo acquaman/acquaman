@@ -325,14 +325,14 @@ public:
 		EditEnergyPositionsPage = 7,
 		EditFastScanSettingsPage = 8,
 		CopyConfirmationPage = 9
-	     };
+		 };
 
 	enum CopyDestination{ CopySameSame = 0,
 		CopySameNew = 1,
 		CopyNewSame = 2,
 		CopyNewNew = 3,
 		CopyInvalidDestination = 4
-	     };
+		 };
 
 	SGMFastScanParametersModificationWizard(QWidget *parent = 0);
 
@@ -340,7 +340,7 @@ public:
 	SGMFastScanParameters* newFastScanParameters();
 
 	AMDatabase* newDatabase();
-	const AMElement* newElement();
+	AMElement* newElement();
 	SGMElementInfo* newElementInfo();
 	SGMScanInfo* newScanInfo();
 
@@ -348,7 +348,7 @@ public:
 
 public slots:
 	void setOriginatingFastScanIndex(int indexOfFastScan);
-	void copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element);
+	void copyOriginalFastScanParametersToNew(AMDatabase *database, AMElement *element);
 	void createNewElementInfo();
 	void createNewScanInfo();
 
@@ -359,7 +359,7 @@ protected:
 	SGMFastScanParameters *originatingFastScanParameters_;
 	SGMFastScanParameters *newFastScanParameters_;
 	AMDatabase *newDatabase_;
-	const AMElement *newElement_;
+	AMElement *newElement_;
 	SGMElementInfo *newElementInfo_;
 	SGMScanInfo *newScanInfo_;
 

@@ -316,7 +316,7 @@ QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
 	foreach(QString s, elements) {
 		s = s.toLower();
 		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
-		const AMElement* element;
+		AMElement* element;
 		if((element = AMPeriodicTable::table()->elementByName(s)))
 			rv << element->atomicNumber();
 		else if((element = AMPeriodicTable::table()->elementBySymbol(s)))

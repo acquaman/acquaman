@@ -35,15 +35,15 @@ public:
 	/////////////////////////////////////////
 
 	/// Returns the list of elements.
-	QList<const AMElement *> elements() const { return AMPeriodicTable::table()->elements(); }
+	QList<AMElement *> elements() const { return AMPeriodicTable::table()->elements(); }
 	/// Returns the number of elements in the periodic table.
 	int numberOfElements() const { return AMPeriodicTable::table()->numberOfElements(); }
 	/// Returns the element specified by the given \em name.  Returns 0 if \em name doesn't exist.
-	const AMElement *elementByName(QString name) const { return AMPeriodicTable::table()->elementByName(name); }
+	AMElement *elementByName(QString name) const { return AMPeriodicTable::table()->elementByName(name); }
 	/// Returns the element specified by the given \em symbol.  Returns 0 if \em symbol doesn't exist.
-	const AMElement *elementBySymbol(QString symbol) const { return AMPeriodicTable::table()->elementBySymbol(symbol); }
+	AMElement *elementBySymbol(QString symbol) const { return AMPeriodicTable::table()->elementBySymbol(symbol); }
 	/// Returns the element specified by the given atomic number.  The number must be a valid atomic number between 1 <= atomicNumber <= 109.
-	const AMElement *elementByAtomicNumber(int number) const { return AMPeriodicTable::table()->elementByAtomicNumber(number); }
+	AMElement *elementByAtomicNumber(int number) const { return AMPeriodicTable::table()->elementByAtomicNumber(number); }
 
 	// Added features.
 	///////////////////////////////////////

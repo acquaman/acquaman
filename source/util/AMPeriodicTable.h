@@ -41,12 +41,12 @@ public:
 	}
 
 	/// Returns the list of elements.
-	QList<const AMElement *> elements() const { return periodicTable_; }
+	QList<AMElement *> elements() const { return periodicTable_; }
 	/// Returns the number of elements in the periodic table.
 	int numberOfElements() const { return periodicTable_.size(); }
 
 	/// Returns the element specified by the given \em name.  Returns 0 if \em name doesn't exist.
-	const AMElement *elementByName(QString name) const
+	AMElement *elementByName(QString name) const
 	{
 		for (int i = 0; i < periodicTable_.size(); i++)
 			if (QString::compare(periodicTable_.at(i)->name(), name) == 0)
@@ -56,7 +56,7 @@ public:
 	}
 
 	/// Returns the element specified by the given \em symbol.  Returns 0 if \em symbol doesn't exist.
-	const AMElement *elementBySymbol(QString symbol) const
+	AMElement *elementBySymbol(QString symbol) const
 	{
 		for (int i = 0; i < periodicTable_.size(); i++)
 			if (QString::compare(periodicTable_.at(i)->symbol(), symbol) == 0)
@@ -66,7 +66,7 @@ public:
 	}
 
 	/// Returns the element specified by the given atomic number.  The number must be a valid atomic number between 1 <= atomicNumber <= 109.
-	const AMElement *elementByAtomicNumber(int number) const { return periodicTable_.at(number-1); }
+	AMElement *elementByAtomicNumber(int number) const { return periodicTable_.at(number-1); }
 
 signals:
 	/// Signal emitted if the the periodic table fails to load.  The parameters passed are the file name and error message.
@@ -76,8 +76,8 @@ public slots:
 
 protected:
 	// Member variables.
-	// The periodic table.  In all its glory.
-	QList<const AMElement *> periodicTable_;
+	/// The periodic table.  In all its glory.  Stores all AMElement *'s in a list.
+	QList<AMElement *> periodicTable_;
 
 	/// Singleton instance variable
 	static AMPeriodicTable* instance_;

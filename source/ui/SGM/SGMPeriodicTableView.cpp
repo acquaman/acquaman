@@ -48,7 +48,7 @@ SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, Q
 
 	availableScansMenu_ = 0;
 
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);
 		periodicTableView_->button(tempElement)->setEnabled(false);
@@ -560,7 +560,7 @@ void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::initia
 		}
 	}
 
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);
 		if( (tempElement->KEdge().energy() > 200 && tempElement->KEdge().energy() < 2000) || (tempElement->L2Edge().energy() > 200 && tempElement->L2Edge().energy() < 2000) || (tempElement->M3Edge().energy() > 200 && tempElement->M3Edge().energy() < 2000) )
@@ -1044,7 +1044,7 @@ AMDatabase* SGMFastScanParametersModificationWizard::newDatabase(){
 	return newDatabase_;
 }
 
-const AMElement* SGMFastScanParametersModificationWizard::newElement(){
+AMElement* SGMFastScanParametersModificationWizard::newElement(){
 	return newElement_;
 }
 
@@ -1065,7 +1065,7 @@ void SGMFastScanParametersModificationWizard::setOriginatingFastScanIndex(int in
 	originatingFastScanParameters_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName()).at(indexOfOriginatingFastScan_);
 }
 
-void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element){
+void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNew(AMDatabase *database, AMElement *element){
 	newDatabase_ = database;
 	newElement_ = element;
 

@@ -45,7 +45,7 @@ void AMSelectablePeriodicTableView::onClicked(int id)
 void AMSelectablePeriodicTableView::setRange(double low, double high)
 {
 	range_ = qMakePair(low, high);
-	const AMElement *temp;
+	AMElement *temp;
 
 	if (rangeIsValid()){
 

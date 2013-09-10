@@ -307,14 +307,14 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId) {
 	}
 }
 
-SGMElementInfo::SGMElementInfo(const QString &name, const AMElement *element, QObject *parent) :
+SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	element_ = element;
 }
 
-const AMElement* SGMElementInfo::element() const{
+AMElement* SGMElementInfo::element() const{
 	return element_;
 }
 

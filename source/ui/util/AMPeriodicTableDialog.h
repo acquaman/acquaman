@@ -35,7 +35,7 @@ public:
 	explicit AMPeriodicTableDialog(QWidget *parent = 0);
 
 	/// Static member.  Builds a dialog and returns an AMElement *.  If the dialog is cancelled then the dialog returns 0.
-	static const AMElement *getElement(QWidget *parent = 0);
+	static AMElement *getElement(QWidget *parent = 0);
 
 signals:
 
@@ -43,14 +43,14 @@ public slots:
 
 protected slots:
 	/// Handles the element passing from the periodic table view.
-	void onElementSelected(const AMElement *el);
+	void onElementSelected(AMElement *el);
 
 protected:
 	/// Returns the current state of element pointed to by this dialog.
-	const AMElement *element() const { return element_; }
+	AMElement *element() const { return element_; }
 
 	/// Pointer to the element this dialog is meant to provide.  Defaults to 0.
-	const AMElement *element_;
+	AMElement *element_;
 };
 
 #endif // AMPERIODICTABLEDIALOG_H
