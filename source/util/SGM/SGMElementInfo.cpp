@@ -164,7 +164,7 @@ SGMScanInfo::SGMScanInfo(const QString &scanName, AMAbsorptionEdge edge, SGMEner
 	setName(scanName);
 	setScanName(scanName);
 	hasEdge_ = !edge.isNull();
-	edge_ = edge.edgeName();
+	edge_ = edge.edgeName().left(1);
 	energy_ = edge.energy();
 	setStart(start);
 	setMiddle(middle);
