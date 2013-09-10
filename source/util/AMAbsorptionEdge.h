@@ -13,7 +13,7 @@ public:
 	AMAbsorptionEdge(const QString &name, const QString &energy);
 	/// Copy constructor.
 	AMAbsorptionEdge(const AMAbsorptionEdge &original);
-	/// Null constructor.  Creates a null AMAbsorptionEdge.  This can never be modified.
+	/// Null constructor.  Creates a null AMAbsorptionEdge.
 	AMAbsorptionEdge();
 
 	/// Returns the name of the edge.

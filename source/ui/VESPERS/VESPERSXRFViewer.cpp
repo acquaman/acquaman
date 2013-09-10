@@ -184,20 +184,18 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 
 void VESPERSXRFViewer::onElementSelected(int atomicNumber)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
-	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QList<AMEmissionLine> lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
 	MPlotPoint *newLine;
-	QPair<QString, QString> line;
 
-	foreach(line, lines){
+	foreach(AMEmissionLine line, lines){
 
-		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
-				&& line.first.contains("1") && line.first.compare("-"))	{
+		if (line.energy() >= range_.first && line.energy() <= range_.second
+				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
-			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine = new MPlotPoint(QPointF(line.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(symbol % " " % line.first);
+			newLine->setDescription(line.greekName());
 			plot_->addItem(newLine);
 		}
 	}

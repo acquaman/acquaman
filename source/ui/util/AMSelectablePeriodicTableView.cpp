@@ -52,13 +52,9 @@ void AMSelectablePeriodicTableView::setRange(double low, double high)
 		for (int i = 1; i <= table_->numberOfElements(); i++){
 
 			temp = table_->elementByAtomicNumber(i);
-
-			if (temp->Kalpha().second.toDouble() < low
-					|| (temp->Kalpha().second.toDouble() > high && temp->Lalpha().second.toDouble() < low)
-					|| temp->emissionLines().isEmpty())
-				button(i)->setEnabled(false);
-			else
-				button(i)->setEnabled(true);
+			button(i)->setDisabled((temp->Kalpha().energy() < low)
+								   || ((temp->Kalpha().energy() > high && temp->Lalpha().energy() < low))
+								   || (temp->emissionLines().isEmpty()));
 		}
 	}
 

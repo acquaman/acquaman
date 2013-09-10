@@ -59,14 +59,14 @@ AMElement::AMElement(QString name, QString symbol, QString atomicNumber, QString
 	}
 
 	switch(emissionLineSize_){
-	case 9: emissionLines_.prepend(qMakePair(QString::fromUtf8("Mα1"), emissionLineList.at(8)));
-	case 8: emissionLines_.prepend(qMakePair(QString::fromUtf8("Lγ1"), emissionLineList.at(7)));
-	case 7: emissionLines_.prepend(qMakePair(QString::fromUtf8("Lβ2"), emissionLineList.at(6)));
-	case 6: emissionLines_.prepend(qMakePair(QString::fromUtf8("Lβ1"), emissionLineList.at(5)));
-	case 5: emissionLines_.prepend(qMakePair(QString::fromUtf8("Lα2"), emissionLineList.at(4)));
-	case 4: emissionLines_.prepend(qMakePair(QString::fromUtf8("Lα1"), emissionLineList.at(3)));
-	case 3: emissionLines_.prepend(qMakePair(QString::fromUtf8("Kβ1"), emissionLineList.at(2)));
-	case 2: emissionLines_.prepend(qMakePair(QString::fromUtf8("Kα2"), emissionLineList.at(1)));
-	case 1: emissionLines_.prepend(qMakePair(QString::fromUtf8("Kα1"), emissionLineList.at(0)));
+	case 9: emissionLines_.prepend(AMEmissionLine(symbol % " Ma1", emissionLineList.at(8)));
+	case 8: emissionLines_.prepend(AMEmissionLine(symbol % " Lg1", emissionLineList.at(7)));
+	case 7: emissionLines_.prepend(AMEmissionLine(symbol % " Lb2", emissionLineList.at(6)));
+	case 6: emissionLines_.prepend(AMEmissionLine(symbol % " Lb1", emissionLineList.at(5)));
+	case 5: emissionLines_.prepend(AMEmissionLine(symbol % " La2", emissionLineList.at(4)));
+	case 4: emissionLines_.prepend(AMEmissionLine(symbol % " La1", emissionLineList.at(3)));
+	case 3: emissionLines_.prepend(AMEmissionLine(symbol % " Kb1", emissionLineList.at(2)));
+	case 2: emissionLines_.prepend(AMEmissionLine(symbol % " Ka2", emissionLineList.at(1)));
+	case 1: emissionLines_.prepend(AMEmissionLine(symbol % " Ka1", emissionLineList.at(0)));
 	}
 }

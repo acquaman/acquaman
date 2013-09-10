@@ -55,89 +55,89 @@ public:
 	/// Returns the entire list of edges.
 	QList<AMAbsorptionEdge> edges() const { return edges_; }
 	/// Returns the entire list of emission lines.
-	QList<QPair<QString, QString> > emissionLines() const { return emissionLines_; }
+	QList<AMEmissionLine> emissionLines() const { return emissionLines_; }
 
 	// Helper functions that give access directly to a particular edge.
-	/// Returns the K-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the K-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge KEdge() const { return (0 < edgeSize_) ? edges_.at(0) : AMAbsorptionEdge(); }
-	/// Returns the L1-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the L1-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge L1Edge() const { return (1 < edgeSize_) ? edges_.at(1) : AMAbsorptionEdge(); }
-	/// Returns the L2-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the L2-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge L2Edge() const { return (2 < edgeSize_) ? edges_.at(2) : AMAbsorptionEdge(); }
-	/// Returns the L3-edge.  RReturns a pair of null strings if the edge doesn't exist.
+	/// Returns the L3-edge.  RReturns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge L3Edge() const { return (3 < edgeSize_) ? edges_.at(3) : AMAbsorptionEdge(); }
-	/// Returns the M1-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the M1-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge M1Edge() const { return (4 < edgeSize_) ? edges_.at(4) : AMAbsorptionEdge(); }
-	/// Returns the M2-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the M2-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge M2Edge() const { return (5 < edgeSize_) ? edges_.at(5) : AMAbsorptionEdge(); }
-	/// Returns the M3-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the M3-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge M3Edge() const { return (6 < edgeSize_) ? edges_.at(6) : AMAbsorptionEdge(); }
-	/// Returns the M4-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the M4-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge M4Edge() const { return (7 < edgeSize_) ? edges_.at(7) : AMAbsorptionEdge(); }
-	/// Returns the M5-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the M5-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge M5Edge() const { return (8 < edgeSize_) ? edges_.at(8) : AMAbsorptionEdge(); }
-	/// Returns the N1-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N1-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N1Edge() const { return (9 < edgeSize_) ? edges_.at(9) : AMAbsorptionEdge(); }
-	/// Returns the N2-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N2-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N2Edge() const { return (10 < edgeSize_) ? edges_.at(10) : AMAbsorptionEdge(); }
-	/// Returns the N3-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N3-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N3Edge() const { return (11 < edgeSize_) ? edges_.at(11) : AMAbsorptionEdge(); }
-	/// Returns the N4-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N4-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N4Edge() const { return (12 < edgeSize_) ? edges_.at(12) : AMAbsorptionEdge(); }
-	/// Returns the N5-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N5-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N5Edge() const { return (13 < edgeSize_) ? edges_.at(13) : AMAbsorptionEdge(); }
-	/// Returns the N6-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N6-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N6Edge() const { return (14 < edgeSize_) ? edges_.at(14) : AMAbsorptionEdge(); }
-	/// Returns the N7-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the N7-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge N7Edge() const { return (15 < edgeSize_) ? edges_.at(15) : AMAbsorptionEdge(); }
-	/// Returns the O1-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the O1-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge O1Edge() const { return (16 < edgeSize_) ? edges_.at(16) : AMAbsorptionEdge(); }
-	/// Returns the O2-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the O2-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge O2Edge() const { return (17 < edgeSize_) ? edges_.at(17) : AMAbsorptionEdge(); }
-	/// Returns the O3-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the O3-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge O3Edge() const { return (18 < edgeSize_) ? edges_.at(18) : AMAbsorptionEdge(); }
-	/// Returns the O4-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the O4-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge O4Edge() const { return (19 < edgeSize_) ? edges_.at(19) : AMAbsorptionEdge(); }
-	/// Returns the O5-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the O5-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge O5Edge() const { return (20 < edgeSize_) ? edges_.at(20) : AMAbsorptionEdge(); }
-	/// Returns the P1-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the P1-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge P1Edge() const { return (21 < edgeSize_) ? edges_.at(21) : AMAbsorptionEdge(); }
-	/// Returns the P2-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the P2-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge P2Edge() const { return (22 < edgeSize_) ? edges_.at(22) : AMAbsorptionEdge(); }
-	/// Returns the P3-edge.  Returns a pair of null strings if the edge doesn't exist.
+	/// Returns the P3-edge.  Returns a null AMAbsorptionEdge if the edge doesn't exist.
 	AMAbsorptionEdge P3Edge() const { return (23 < edgeSize_) ? edges_.at(23) : AMAbsorptionEdge(); }
 
 	// Helper functions that give access directly to a particular edge.
-	/// Returns the K-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Kalpha1() const { if (0 < emissionLineSize_) return emissionLines_.at(0);  return qMakePair(QString(), QString()); }
-	/// Returns the K-alpha2 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Kalpha2() const { if (1 < emissionLineSize_) return emissionLines_.at(1);  return qMakePair(QString(), QString()); }
-	/// Returns the K-beta1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Kbeta1() const { if (2 < emissionLineSize_) return emissionLines_.at(2);  return qMakePair(QString(), QString()); }
-	/// Returns the L-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lalpha1() const { if (3 < emissionLineSize_) return emissionLines_.at(3);  return qMakePair(QString(), QString()); }
-	/// Returns the L-alpha2 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lalpha2() const { if (4 < emissionLineSize_) return emissionLines_.at(4);  return qMakePair(QString(), QString()); }
-	/// Returns the L-beta1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lbeta1() const { if (5 < emissionLineSize_) return emissionLines_.at(5);  return qMakePair(QString(), QString()); }
-	/// Returns the L-beta2 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lbeta2() const { if (6 < emissionLineSize_) return emissionLines_.at(6);  return qMakePair(QString(), QString()); }
-	/// Returns the L-gamma1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lgamma1() const { if (7 < emissionLineSize_) return emissionLines_.at(7);  return qMakePair(QString(), QString()); }
-	/// Returns the M-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Malpha1() const { if (8 < emissionLineSize_) return emissionLines_.at(8);  return qMakePair(QString(), QString()); }
-	/// Returns the K-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Kalpha() const { return Kalpha1(); }
-	/// Returns the K-beta1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Kbeta() const { return Kbeta1(); }
-	/// Returns the L-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lalpha() const { return Lalpha1(); }
-	/// Returns the L-beta1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lbeta() const { return Lbeta1(); }
-	/// Returns the L-gamma1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Lgamma() const { return Lgamma1(); }
-	/// Returns the M-alpha1 emission line.  Returns a pair of null strings if the emission line doesn't exist.
-	QPair<QString, QString> Malpha() const { return Malpha1(); }
+	/// Returns the K-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Kalpha1() const { return (0 < emissionLineSize_) ? emissionLines_.at(0) : AMEmissionLine(); }
+	/// Returns the K-alpha2 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Kalpha2() const { return (1 < emissionLineSize_) ? emissionLines_.at(1) : AMEmissionLine(); }
+	/// Returns the K-beta1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Kbeta1() const { return (2 < emissionLineSize_) ? emissionLines_.at(2) : AMEmissionLine(); }
+	/// Returns the L-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lalpha1() const { return (3 < emissionLineSize_) ? emissionLines_.at(3) : AMEmissionLine(); }
+	/// Returns the L-alpha2 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lalpha2() const { return (4 < emissionLineSize_) ? emissionLines_.at(4) : AMEmissionLine(); }
+	/// Returns the L-beta1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lbeta1() const { return (5 < emissionLineSize_) ? emissionLines_.at(5) : AMEmissionLine(); }
+	/// Returns the L-beta2 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lbeta2() const { return (6 < emissionLineSize_) ? emissionLines_.at(6) : AMEmissionLine(); }
+	/// Returns the L-gamma1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lgamma1() const { return (7 < emissionLineSize_) ? emissionLines_.at(7) : AMEmissionLine(); }
+	/// Returns the M-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Malpha1() const { return (8 < emissionLineSize_) ? emissionLines_.at(8) : AMEmissionLine(); }
+	/// Returns the K-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Kalpha() const { return Kalpha1(); }
+	/// Returns the K-beta1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Kbeta() const { return Kbeta1(); }
+	/// Returns the L-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lalpha() const { return Lalpha1(); }
+	/// Returns the L-beta1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lbeta() const { return Lbeta1(); }
+	/// Returns the L-gamma1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Lgamma() const { return Lgamma1(); }
+	/// Returns the M-alpha1 emission line.  Returns a null AMEmissionLine if the emission line doesn't exist.
+	AMEmissionLine Malpha() const { return Malpha1(); }
 
 signals:
 
@@ -154,7 +154,7 @@ private:
 	/// A list of all of the edges.  Pairs of <Name, Energy>.
 	QList<AMAbsorptionEdge> edges_;
 	/// A list of all of the emission lines.  Pairs of <Name, Energy>.
-	QList<QPair<QString, QString> > emissionLines_;
+	QList<AMEmissionLine> emissionLines_;
 
 	/// Cached sizes of the edge list for quick access.
 	int edgeSize_;

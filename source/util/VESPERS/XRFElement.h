@@ -60,6 +60,7 @@ private:
 	// This turns the list that AMElements make into a string list so I can use the constructor.
 	QStringList toStringList(QList<QPair<QString, QString> > list);
 	QStringList interimEdgeList(QList<AMAbsorptionEdge> list);
+	QStringList interimLineList(QList<AMEmissionLine> list);
 };
 
 #endif // XRFELEMENT_H
