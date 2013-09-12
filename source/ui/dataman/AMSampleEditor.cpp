@@ -316,11 +316,11 @@ QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
 	foreach(QString s, elements) {
 		s = s.toLower();
 		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
-		AMElement* element;
-		if((element = AMPeriodicTable::table()->elementByName(s)))
-			rv << element->atomicNumber();
-		else if((element = AMPeriodicTable::table()->elementBySymbol(s)))
-			rv << element->atomicNumber();
+		AMElement element;
+		if(!(element = AMPeriodicTable::table()->elementByName(s)).isNull())
+			rv << element.atomicNumber();
+		else if(!(element = AMPeriodicTable::table()->elementBySymbol(s)).isNull())
+			rv << element.atomicNumber();
 	}
 
 	return rv;

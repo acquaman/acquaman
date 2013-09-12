@@ -70,3 +70,54 @@ AMElement::AMElement(QString name, QString symbol, QString atomicNumber, QString
 	case 1: emissionLines_.prepend(AMEmissionLine(symbol % " Ka1", emissionLineList.at(0)));
 	}
 }
+
+AMElement::AMElement(const AMElement &original)
+	: QObject()
+{
+	name_ = original.name();
+	symbol_ = original.symbol();
+	atomicNumber_ = original.atomicNumber();
+	edgeSize_ = original.edges().size();
+	emissionLineSize_ = original.emissionLines().size();
+	edges_ = original.edges();
+	emissionLines_ = original.emissionLines();
+}
+
+AMElement::AMElement(QObject *parent)
+	:QObject(parent)
+{
+	name_ = QString();
+	symbol_ = QString();
+	atomicNumber_ = -1;
+	edgeSize_ = -1;
+	emissionLineSize_ = -1;
+	edges_ = QList<AMAbsorptionEdge>();
+	emissionLines_ = QList<AMEmissionLine>();
+}
+
+AMElement &AMElement::operator =(const AMElement &other)
+{
+	name_ = other.name();
+	symbol_ = other.symbol();
+	atomicNumber_ = other.atomicNumber();
+	edgeSize_ = other.edges().size();
+	emissionLineSize_ = other.emissionLines().size();
+	edges_ = other.edges();
+	emissionLines_ = other.emissionLines();
+
+	return *this;
+}
+
+bool AMElement::operator ==(const AMElement &other)
+{
+	return (name_ == other.name())
+			&& (symbol_ == other.symbol())
+			&& (atomicNumber_ == other.atomicNumber())
+			&& (edges_ == other.edges())
+			&& (emissionLines_ == other.emissionLines());
+}
+
+bool AMElement::operator !=(const AMElement &other)
+{
+	return !(this->operator ==(other));
+}

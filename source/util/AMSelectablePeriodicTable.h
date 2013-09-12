@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSELECTABLEPERIODICTABLE_H
 
 #include <QObject>
-#include "util/AMPeriodicTable.h"
+
+#include "util/AMSelectableElement.h"
 
 ///	This class encapsulates the periodic table and extends it's functionality slightly by offering a "memory" of selected elements.
 class AMSelectablePeriodicTable : public QObject
@@ -35,15 +36,15 @@ public:
 	/////////////////////////////////////////
 
 	/// Returns the list of elements.
-	QList<AMElement *> elements() const { return AMPeriodicTable::table()->elements(); }
+	QList<AMSelectableElement *> elements() const { return periodicTable_; }
 	/// Returns the number of elements in the periodic table.
-	int numberOfElements() const { return AMPeriodicTable::table()->numberOfElements(); }
+	int numberOfElements() const { return periodicTable_.size(); }
 	/// Returns the element specified by the given \em name.  Returns 0 if \em name doesn't exist.
-	AMElement *elementByName(QString name) const { return AMPeriodicTable::table()->elementByName(name); }
+	AMSelectableElement *elementByName(QString name) const;
 	/// Returns the element specified by the given \em symbol.  Returns 0 if \em symbol doesn't exist.
-	AMElement *elementBySymbol(QString symbol) const { return AMPeriodicTable::table()->elementBySymbol(symbol); }
+	AMSelectableElement *elementBySymbol(QString symbol) const;
 	/// Returns the element specified by the given atomic number.  The number must be a valid atomic number between 1 <= atomicNumber <= 109.
-	AMElement *elementByAtomicNumber(int number) const { return AMPeriodicTable::table()->elementByAtomicNumber(number); }
+	AMSelectableElement *elementByAtomicNumber(int number) const;
 
 	// Added features.
 	///////////////////////////////////////
@@ -71,6 +72,8 @@ public slots:
 protected:
 	/// List of atomic numbers that have been saved.
 	QList<int> savedElements_;
+	/// The selectable peridic table model.  Contains its own full list of AMSelectableElement's.
+	QList<AMSelectableElement *> periodicTable_;
 };
 
 #endif // AMSELECTABLEPERIODICTABLE_H

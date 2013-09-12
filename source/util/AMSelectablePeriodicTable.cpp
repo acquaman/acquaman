@@ -19,9 +19,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSelectablePeriodicTable.h"
 
+#include "util/AMPeriodicTable.h"
+
 AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent) :
 	QObject(parent)
 {
+	for (int i = 0, size = AMPeriodicTable::table()->numberOfElements(); i < size; i++)
+		periodicTable_ << new AMSelectableElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1)->name());
 }
 
 void AMSelectablePeriodicTable::selectElement(int atomicNumber)
@@ -40,4 +44,27 @@ void AMSelectablePeriodicTable::clearList()
 {
 	savedElements_.clear();
 	emit listCleared();
+}
+
+AMSelectableElement *AMSelectablePeriodicTable::elementByName(QString name) const
+{
+	for (int i = 0, size = periodicTable_.size(); i < size; i++)
+		if (periodicTable_.at(i)->name() == name)
+			return periodicTable_.at(i);
+
+	return 0;
+}
+
+AMSelectableElement *AMSelectablePeriodicTable::elementBySymbol(QString symbol) const
+{
+	for (int i = 0, size = periodicTable_.size(); i < size; i++)
+		if (periodicTable_.at(i)->symbol() == symbol)
+			return periodicTable_.at(i);
+
+	return 0;
+}
+
+AMSelectableElement *AMSelectablePeriodicTable::elementByAtomicNumber(int number) const
+{
+	return periodicTable_.at(number-1);
 }

@@ -29,9 +29,9 @@ public:
 	/// Returns whether the AMAbsorptionEdge is null or not.
 	bool isNull() const { return name_.isNull(); }
 
-	/// The equals operator.  Sets the name and energy to the same as the provided AMAbsorptionEdge.
+	/// The equals operator.  Sets all parameters to the same as the provided AMAbsorptionEdge.
 	AMAbsorptionEdge &operator =(const AMAbsorptionEdge &other);
-	/// The equivalent operator.  Checks the name and energy of the provided AMAbsorptionEdge.
+	/// The equivalent operator.  Checks all of the parameters of the provided AMAbsorptionEdge.
 	bool operator ==(const AMAbsorptionEdge &other);
 	/// The not-equivalent operator.  Logical not of the equivalent operator.
 	bool operator !=(const AMAbsorptionEdge &other);

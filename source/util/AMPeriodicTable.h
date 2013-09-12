@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PERIODICTABLE_H
-#define PERIODICTABLE_H
+#ifndef AMPERIODICTABLE_H
+#define AMPERIODICTABLE_H
 
 #include <QObject>
 #include <QList>
@@ -86,4 +86,4 @@ protected:
 	explicit AMPeriodicTable(QObject *parent = 0);
 };
 
-#endif // PERIODICTABLE_H
+#endif // AMPERIODICTABLE_H

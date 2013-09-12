@@ -43,6 +43,20 @@ public:
 
 	/// Constructor for the element.  For the edgeList and emissionLineList, the edges and lines energy values \em must be in order (ie: edges { K, L1, L2, L3, ... }, lines { Ka1, Ka2, ... }.
 	explicit AMElement(QString name, QString symbol, QString atomicNumber, QStringList edgeList, QStringList emissionLineList, QObject *parent = 0);
+	/// Copy constructor.
+	AMElement(const AMElement &original);
+	/// Null constructor.
+	AMElement(QObject *parent = 0);
+
+	/// The equals operator.  Sets all of the parameters of the provided AMElement other.
+	AMElement &operator =(const AMElement &other);
+	/// The equivalent operator.  Checks all of the parameters provided by AMElement other.
+	bool operator ==(const AMElement &other);
+	/// The not-equivalent operator.  Logical not of the equivalent operator.
+	bool operator !=(const AMElement &other);
+
+	/// Returns whether or not this element is null.  If it is null then there is no valid data within it.
+	bool isNull() const { return atomicNumber_ == -1; }
 
 	/// Returns the name of the element.
 	QString name() const { return name_; }
