@@ -56,7 +56,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources(), false, false);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources(), false, false, config_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
@@ -464,52 +464,13 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 {
 	buildBaseInitializationAction(config_->time());
+
+	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
+
+	if (config_->ccdFileName() != ccdName)
+		config_->setCCDFileName(ccdName);
+
 	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
-
-	if (config_->ccdDetector() == VESPERS::Roper){
-
-		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Mar){
-
-		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Pilatus){
-
-		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-
-		QString dataFolder = AMUserSettings::userDataFolder;
-
-		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
-
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
 
 	if (config_->hasOtherPosition()){
 

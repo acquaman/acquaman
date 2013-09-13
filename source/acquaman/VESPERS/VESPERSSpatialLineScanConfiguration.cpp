@@ -41,6 +41,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setCCDFileName("");
 	setRoiInfoList(AMROIInfoList());
 	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
 	setOtherPosition(-123456789.0);
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
@@ -356,4 +357,12 @@ QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor mot
 	}
 
 	return string;
+}
+
+void VESPERSSpatialLineScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }

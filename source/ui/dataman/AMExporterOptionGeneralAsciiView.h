@@ -84,6 +84,10 @@ protected slots:
 	/// Grab the most recent text from the section header and store in option
 	void onSectionHeaderTextChanged();
 
+	/// Handles setting the option for higher dimensions being written in columns.
+	void onHigherDimensionsInRowsToggled(bool checked);
+
+private slots:
 };
 
 #endif // AMEXPORTEROPTIONGENERALASCIIVIEW_H

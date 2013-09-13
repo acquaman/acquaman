@@ -78,6 +78,8 @@ public:
 
 	/// Returns whether we are going to export the spectra data sources or not.
 	bool exportSpectraSources() const { return exportSpectraSources_; }
+	/// Returns whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows() const { return exportSpectraInRows_; }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
@@ -136,6 +138,8 @@ public slots:
 
 	/// Sets whether we export the scan with the spectra included or not.
 	void setExportSpectraSources(bool exportSpectra);
+	/// Sets whether we are exporting the spectra in rows or columns.
+	void setExportSpectraInRows(bool exportInRows);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -147,6 +151,8 @@ protected:
 
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
+	/// Flag holding whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows_;
 	/// Variable that holds the position of the 'other' coordinate.  An example would be: if scanning the H motor, the other motor would be V.  Without this information the line scan can not be used in the workflow.
 	double otherPosition_;
 };

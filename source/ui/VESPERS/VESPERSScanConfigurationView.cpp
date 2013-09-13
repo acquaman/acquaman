@@ -428,7 +428,7 @@ QGroupBox *VESPERSScanConfigurationView::addTimeOffsetLabel(double time)
 	return timeOffsetBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list, bool exportSpectra)
+QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list, bool exportSpectra, bool exportSpectraInRows)
 {
 	QRadioButton *autoExportButton;
 	QVBoxLayout *autoExportLayout = new QVBoxLayout;
@@ -444,6 +444,10 @@ QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list
 	autoExportSpectra_ = new QCheckBox("Export Spectra");
 	autoExportSpectra_->setChecked(exportSpectra);
 	autoExportLayout->addWidget(autoExportSpectra_);
+
+	exportSpectraInRows_ = new QCheckBox("Export spectra in columns instead of rows.");
+	exportSpectraInRows_->setChecked(!exportSpectraInRows);
+	autoExportLayout->addWidget(exportSpectraInRows_);
 
 	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
 	autoExportGroupBox->setLayout(autoExportLayout);

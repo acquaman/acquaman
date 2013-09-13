@@ -168,6 +168,16 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
+
+	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+
+		QPalette palette = scanName_->palette();
+		palette.setColor(QPalette::Base, Qt::red);
+		scanName_->setPalette(palette);
+	}
+
+	else
+		scanName_->setPalette(this->palette());
 }
 
 void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) const
@@ -219,6 +229,7 @@ void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 	config_->setCCDFileName(name);
 	ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 	checkCCDFileNames(name);
+	onScanNameEdited();
 }
 
 void VESPERSEnergyScanConfigurationView::onMotorsUpdated(int id)

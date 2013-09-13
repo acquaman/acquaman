@@ -88,6 +88,8 @@ protected slots:
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
+	/// Helper slot that sets whether we export spectra in rows or columns.
+	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.

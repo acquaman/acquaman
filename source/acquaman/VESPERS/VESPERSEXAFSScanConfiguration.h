@@ -78,6 +78,8 @@ public:
 
 	/// Returns whether we are going to export the spectra data sources or not.
 	bool exportSpectraSources() const { return exportSpectraSources_; }
+	/// Returns whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows() const { return exportSpectraInRows_; }
 
 	/// Returns the name of the current edge.
 	QString edge() const { return edge_; }
@@ -150,6 +152,8 @@ public slots:
 
 	/// Sets whether we export the scan with the spectra included or not.
 	void setExportSpectraSources(bool exportSpectra);
+	/// Sets whether we are exporting the spectra in rows or columns.
+	void setExportSpectraInRows(bool exportInRows);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -175,6 +179,8 @@ protected:
 	int numberOfScans_;
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
+	/// Flag holding whether we are exporting the spectra in rows or columns.
+	bool exportSpectraInRows_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATION_H

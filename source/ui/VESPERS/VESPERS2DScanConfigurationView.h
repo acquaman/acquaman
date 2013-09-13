@@ -97,7 +97,9 @@ protected slots:
 	void updateYStep(double val) { vStep_->setValue(val*1000); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
-	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0 ? true : false); }
+	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0); exportSpectraInRows_->setEnabled(useAscii == 0); }
+	/// Helper slot that sets whether we export spectra in rows or columns.
+	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
