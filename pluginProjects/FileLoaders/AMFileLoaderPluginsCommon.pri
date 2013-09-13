@@ -1,3 +1,5 @@
+USERNAME = $$system(whoami)
+
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
@@ -114,9 +116,18 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 LIBS +=	$$CDF_LIB \
 		-L$$MPLOT_LIB_DIR -lMPlot
 
-#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
-#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
-QMAKE_LFLAGS_RPATH += "$$MPLOT_LIB_DIR"
+contains(USERNAME, helfrij){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
 
 HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
