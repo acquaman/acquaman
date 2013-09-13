@@ -49,10 +49,10 @@ protected slots:
 
 protected:
 	/// Helper method that returns whether a range is valid or not.
-	bool rangeIsValid() const { return range_.first < 0 || range_.second < 0 ? false : true; }
+	bool rangeIsValid() const { return !(range_.first < 0 || range_.second < range_.first); }
+
 	/// Holds a pointer to the selectable table model for this view.
 	AMSelectablePeriodicTable *table_;
-
 	/// Pair that holds the acceptable range that should be considered.
 	QPair<double, double> range_;
 };

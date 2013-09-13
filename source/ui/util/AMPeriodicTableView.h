@@ -30,10 +30,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
 
+/*!
+	This class builds a view for the periodic table made to look like the stereotypical view used by every scientist.  When an element is clicked, it emits a signal containing the pointer to that element.
+  */
 class AMPeriodicTableView : public QWidget
 {
-	/*! This function builds a view for the periodic table made to look like the stereotypical view used by every scientist.  When an element is clicked, it emits a signal containing the pointer to that element.
-	  */
 	Q_OBJECT
 
 public:
@@ -54,7 +55,7 @@ signals:
 
 protected slots:
 	/// Slot that emits a signal carrying a pointer to the particular Element.
-	void showElement(int number);
+	void onElementClicked(int number);
 
 protected:
 	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
@@ -64,15 +65,17 @@ protected:
 		button->setFont(QFont("Times New Roman", 12));
 		button->setText(element->symbol());
 		button->setFixedSize(30, 25);
+
 		if (element->emissionLines().isEmpty() && element->edges().isEmpty())
 			button->setEnabled(false);
+
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 		elementMapper_->setMapping(button, element->atomicNumber());
+
 		return button;
 	}
 
-	// Member variables.
-	// The signal mapper.
+	/// The signal mapper that maps a button to an element.
 	QSignalMapper *elementMapper_;
 };
 

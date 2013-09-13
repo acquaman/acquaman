@@ -17,6 +17,49 @@ public:
 	AMSelectableElement(const AMSelectableElement &original);
 	/// Null constructor.
 	AMSelectableElement();
+
+	/// Returns whether there are any selected absorption edges or any selected emission lines.
+	bool hasSelectedItems() const { return !(selectedAbsorptionEdges_.isEmpty() && selectedEmissionLines_.isEmpty()); }
+	/// Returns whether there are any selected absorption edges.
+	bool hasSelectedAbsorptionEdges() const { return !selectedAbsorptionEdges_.isEmpty(); }
+	/// Returns whether there are any selected emission lines.
+	bool hasSelectedEmissionLines() const { return !selectedEmissionLines_.isEmpty(); }
+
+	/// Returns the list of selected absorption edges.
+	QList<AMAbsorptionEdge> selectedAbsorptionEdges() const { return selectedAbsorptionEdges_; }
+	/// Returns the list of selected emission lines.
+	QList<AMEmissionLine> selectedEmissionLines() const { return selectedEmissionLines_; }
+
+	/// Returns the index of the given absorption edge, if it has been selected.
+	int indexOfSelectedAbsorptionEdge(const AMAbsorptionEdge &edge) const { return selectedAbsorptionEdges_.indexOf(edge); }
+	/// Returns the index of the given emission line, if it has been selected.
+	int indexOfSelectedEmissionLine(const AMEmissionLine &line) const { return selectedEmissionLines_.indexOf(line); }
+	/// Returns whether the given absorption edge has been selected.
+	bool absorptionEdgeSelected(const AMAbsorptionEdge &edge) const { return selectedAbsorptionEdges_.contains(edge); }
+	/// Returns whether the given emission line has been selected.
+	bool emissionLineSelected(const AMEmissionLine &line) const { return selectedEmissionLines_.contains(line); }
+
+public slots:
+	/// Adds a selected absorption edge.
+	bool selectAbsorptionEdge(const AMAbsorptionEdge &edge);
+	/// Removes a selected absorption edge.
+	bool deselectAbsorptionEdge(const AMAbsorptionEdge &edge);
+	/// Adds a selected emission line.
+	bool selectEmissionLine(const AMEmissionLine &line);
+	/// Removes a selected emission line.
+	bool deselectEmissionLine(const AMEmissionLine &line);
+	/// Remove all absorption edges from the selected absorption edge list.
+	void removeAllAbsorptionEdges();
+	/// Remove all emission lines from the selected emission line list.
+	void removeAllEmissionLines();
+	/// Remove all selected items for the element.
+	void removeAllSelectedItems();
+
+protected:
+	/// List of selected absorption edges.
+	QList<AMAbsorptionEdge> selectedAbsorptionEdges_;
+	/// List of selected emission lines.
+	QList<AMEmissionLine> selectedEmissionLines_;
 };
 
 #endif // AMSELECTABLEELEMENT_H
