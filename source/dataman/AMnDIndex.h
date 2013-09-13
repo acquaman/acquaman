@@ -258,8 +258,8 @@ public:
 		case 4: {
 			rv = i()*fullSize.at(1)*fullSize.at(2)*fullSize.at(3)
 					+ j()*fullSize.at(2)*fullSize.at(3)
-					+ k()*fullSize.at(3);
-			+ l();
+                    + k()*fullSize.at(3)
+                    + l();
 			break; }
 
 		default: {
