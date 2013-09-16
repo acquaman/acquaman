@@ -20,26 +20,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSelectablePeriodicTableView.h"
 
 AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent)
-	: AMPeriodicTableView(parent)
+	: AMCustomizablePeriodicTableView(table, parent)
 {
-	table_ = table;
-	connect(this, SIGNAL(clicked(int)), this, SLOT(onClicked(int)));
+	selectablePeriodicTable_ = table;
+	connect(this, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
 	// Go through every button and make it checkable.
-	for (int i = 1; i <= table_->numberOfElements(); i++)
+	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 		button(i)->setCheckable(true);
 
 	range_ = qMakePair(-1.0, -1.0);
 }
 
-void AMSelectablePeriodicTableView::onClicked(int id)
+void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
 {
-	QToolButton *clicked = button(id);
+	QAbstractButton *clicked = button(element->atomicNumber());
 
 	if (clicked->isChecked())
-		table_->selectElement(id);
+		selectablePeriodicTable_->selectElement(element->atomicNumber());
 	else
-		table_->deselectElement(id);
+		selectablePeriodicTable_->deselectElement(element->atomicNumber());
 }
 
 void AMSelectablePeriodicTableView::setRange(double low, double high)
@@ -49,9 +49,9 @@ void AMSelectablePeriodicTableView::setRange(double low, double high)
 
 	if (rangeIsValid()){
 
-		for (int i = 1; i <= table_->numberOfElements(); i++){
+		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++){
 
-			temp = table_->elementByAtomicNumber(i);
+			temp = periodicTable_->elementByAtomicNumber(i);
 			button(i)->setDisabled((temp->Kalpha().energy() < low)
 								   || ((temp->Kalpha().energy() > high && temp->Lalpha().energy() < low))
 								   || (temp->emissionLines().isEmpty()));
@@ -60,7 +60,7 @@ void AMSelectablePeriodicTableView::setRange(double low, double high)
 
 	else {
 
-		for (int i = 1; i <= table_->numberOfElements(); i++)
+		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 			button(i)->setEnabled(true);
 	}
 }

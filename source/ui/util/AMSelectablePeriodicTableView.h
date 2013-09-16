@@ -20,11 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSELECTABLEPERIODICTABLEVIEW_H
 #define AMSELECTABLEPERIODICTABLEVIEW_H
 
-#include "ui/util/AMPeriodicTableView.h"
+#include "ui/util/AMCustomizablePeriodicTableView.h"
 #include "util/AMSelectablePeriodicTable.h"
 
 /// This class extends the periodic table view to offer toggle-able buttons based on button clicks.
-class AMSelectablePeriodicTableView : public AMPeriodicTableView
+class AMSelectablePeriodicTableView : public AMCustomizablePeriodicTableView
 {
 	Q_OBJECT
 
@@ -45,16 +45,16 @@ public slots:
 
 protected slots:
 	/// Handles passing on information to the model that the button has been clicked.
-	void onClicked(int id);
+	void onElementClicked(AMElement *element);
 
 protected:
 	/// Helper method that returns whether a range is valid or not.
 	bool rangeIsValid() const { return !(range_.first < 0 || range_.second < range_.first); }
 
-	/// Holds a pointer to the selectable table model for this view.
-	AMSelectablePeriodicTable *table_;
 	/// Pair that holds the acceptable range that should be considered.
 	QPair<double, double> range_;
+	/// A pointer for the selectable periodic table.  To minimize having to use qobject_cast for routine operations.
+	AMSelectablePeriodicTable *selectablePeriodicTable_;
 };
 
 #endif // AMSELECTABLEPERIODICTABLEVIEW_H

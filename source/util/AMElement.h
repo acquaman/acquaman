@@ -31,9 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEmissionLine.h"
 
 /*! The Element class is meant as a consolidated container for all the information of an element.  You do not need to provide the edges or emission lines if they are not known.
-  If the particular element does not have the required attribute then pass in an empty string.  For simplicity, many of the items come as QPairs.
-  This is particularly noticeable with absorption edges.  They come as a QPair< edge name, energy >.  This way you will always know what this particular
-  energy is associated with what edge.
+  If the particular element does not have the required attribute then pass in an empty string.
   */
 class AMElement : public QObject
 {

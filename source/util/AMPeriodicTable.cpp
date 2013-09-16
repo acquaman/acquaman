@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMPeriodicTable.h"
 
 #include <QFile>
-#include <QMessageBox>
 #include <QTextStream>
 
 #include "util/AMErrorMonitor.h"

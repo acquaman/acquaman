@@ -697,7 +697,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/beamline/AMXRFBaseDetectorView.h \
     source/util/AMAbsorptionEdge.h \
     source/util/AMEmissionLine.h \
-    source/util/AMSelectableElement.h
+    source/util/AMSelectableElement.h \
+    source/util/AMCustomizablePeriodicTable.h \
+    source/ui/util/AMCustomizablePeriodicTableView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1179,7 +1181,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/beamline/AMXRFBaseDetectorView.cpp \
     source/util/AMAbsorptionEdge.cpp \
     source/util/AMEmissionLine.cpp \
-    source/util/AMSelectableElement.cpp
+    source/util/AMSelectableElement.cpp \
+    source/util/AMCustomizablePeriodicTable.cpp \
+    source/ui/util/AMCustomizablePeriodicTableView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1203,6 +1207,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 
