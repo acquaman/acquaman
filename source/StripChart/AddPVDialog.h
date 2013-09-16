@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QtGui>
 
-#include "/Users/helfrij/dev/acquaman/source/beamline/AMPVControl.h"
+#include "source/beamline/AMPVControl.h"
 
 //class AddPVDialog : public QWidget
 class AddPVDialog : public QDialog

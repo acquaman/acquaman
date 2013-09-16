@@ -1,4 +1,4 @@
-#include "addpvdialog.h"
+#include "StripChart/AddPVDialog.h"
 
 AddPVDialog::AddPVDialog(QWidget *parent) :
     QDialog(parent)

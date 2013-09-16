@@ -1,4 +1,4 @@
-#include "striptool.h"
+#include "StripChart/StripTool.h"
 
 StripTool::StripTool(QWidget *parent)
     : QMainWindow(parent)

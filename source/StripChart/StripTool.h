@@ -3,7 +3,7 @@
 
 #include <QtGui>
 
-#include "addpvdialog.h"
+#include "StripChart/AddPVDialog.h"
 
 #include "/Users/helfrij/dev/MPlot/src/MPlot/MPlotWidget.h"
 #include "/Users/helfrij/dev/acquaman/source/beamline/AMPVControl.h"
