@@ -27,6 +27,7 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 	setObjectName("AMControlButton");
 
 	control_ = control;
+	wasConnected_ = false;
 	downValue_ = 1;
 	upValue_ = 0;
 	programaticToggle_ = false;
@@ -36,20 +37,23 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 		else
 			setText(control_->name());
 	}
-	setHappy(false);
+	//setHappy(false);
 
 	// Make connections:
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+		//connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onClicked()));
 	connect(this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
 
 	if(control_ && control_->isConnected()){
-		programaticToggle_ = true;
-		onValueChanged(control_->value());
-		setHappy(control_->isConnected());
+		onConnected(control_->isConnected());
+//		programaticToggle_ = true;
+//		onValueChanged(control_->value());
+		//setHappy(control_->isConnected());
+//		onConnected(control_->isConnected());
 	}
 }
 
@@ -97,7 +101,15 @@ void AMControlButton::onToggled(bool toggled){
 		control_->move(upValue_);
 }
 
-void AMControlButton::setHappy(bool happy) {
-	Q_UNUSED(happy)
+void AMControlButton::onConnected(bool connected){
+	if(!wasConnected_ && connected){
+		programaticToggle_ = true;
+		onValueChanged(control_->value());
+		wasConnected_ = true;
+	}
 }
+
+//void AMControlButton::setHappy(bool happy) {
+//	Q_UNUSED(happy)
+//}
 
