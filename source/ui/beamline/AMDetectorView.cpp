@@ -175,18 +175,14 @@ void AMDetectorGeneralDetailedView::onConnectedChanged(bool connected){
 	}
 }
 
-#include <QDebug>
 void AMDetectorGeneralDetailedView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
 	if(acquisitionState == AMDetector::ReadyForAcquisition)
 		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
 		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
 
-	qDebug() << "Detector state is now " << acquisitionState;
-	if(acquisitionState != AMDetector::Acquiring){
-		qDebug() << "That's not acquiring, so go ahead and call singleReading";
+	if(acquisitionState != AMDetector::Acquiring)
 		singleReadingDSB_->setValue(detector_->singleReading());
-	}
 }
 
 void AMDetectorGeneralDetailedView::onAcquisitionTimeChanged(double integrationTime){
