@@ -5,8 +5,8 @@
 
 #include "StripChart/AddPVDialog.h"
 
-#include "/MPlot/src/MPlot/MPlotWidget.h"
-#include "/beamline/AMPVControl.h"
+#include "MPlot/MPlotWidget.h"
+#include "beamline/AMPVControl.h"
 
 class StripTool : public QMainWindow
 {
