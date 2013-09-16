@@ -3,10 +3,10 @@
 
 #include <QtGui>
 
-#include "addpvdialog.h"
+#include "AddPVDialog.h"
 
-#include "/Users/helfrij/dev/MPlot/src/MPlot/MPlotWidget.h"
-#include "/Users/helfrij/dev/acquaman/source/beamline/AMPVControl.h"
+#include "/MPlot/MPlotWidget.h"
+#include "/beamline/AMPVControl.h"
 
 class StripTool : public QMainWindow
 {

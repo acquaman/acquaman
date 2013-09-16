@@ -181,7 +181,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
-	criticalDetectorsSet_->addDetector(pgtDetector_);
+	// PGT looks broken, so don't include it as a critical detector any more
+	//criticalDetectorsSet_->addDetector(pgtDetector_);
 	rawDetectorsSet_->addDetector(pgtDetector_);
 
 	oos65000Detector_ = new CLSOceanOptics65000Detector("OLDoos65000", "SA0000-03", AMOldDetector::WaitRead, this);
