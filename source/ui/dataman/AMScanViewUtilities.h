@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
+#include "util/AMRange.h"
 
 /// This file contains some common classes that are used with AMScanView classes.
 
@@ -285,7 +286,7 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// Double spin box that holds the minimum energy of the range.
 	QDoubleSpinBox *minimum_;
 	/// Double spin box that holds the maximum energy of the range.

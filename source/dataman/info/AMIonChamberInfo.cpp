@@ -23,12 +23,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMIonChamberInfo::AMIonChamberInfo(const QString &name, const QString &description, QObject *parent)
 	: AMOldDetectorInfo(name, description, parent)
 {
+	voltageRange_ = AMRange();
 }
 
 AMIonChamberInfo::AMIonChamberInfo(const AMIonChamberInfo &original)
 	: AMOldDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
@@ -36,8 +36,7 @@ AMIonChamberInfo& AMIonChamberInfo::operator =(const AMIonChamberInfo &other)
 {
 	if(this != &other){
 		AMOldDetectorInfo::operator =(other);
-		setMinimumVoltage(other.minimumVoltage());
-		setMaximumVoltage(other.maximumVoltage());
+		setVoltagRange(other.voltageRange());
 	}
 	return *this;
 }

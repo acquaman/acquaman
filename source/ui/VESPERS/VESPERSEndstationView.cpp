@@ -187,12 +187,12 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 		return;
 
 	QString name(control->name());
-	QPair<double, double> pair(endstation_->getLimits(control));
+	AMRange range(endstation_->getLimits(control));
 
 	if (name == "CCD motor" || name == "1-Element Vortex motor" || name == "4-Element Vortex motor")
-		window_->setControl(control, pair.first, pair.second);
+		window_->setControl(control, range.minimum(), range.maximum());
 	else if (name == "Microscope motor")
-		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);
+		window_->setControl(control, range.minimum(), range.maximum(), endstation_->microscopeNames().first, endstation_->microscopeNames().second);
 }
 
 void VESPERSEndstationView::laserPowerUpdate()

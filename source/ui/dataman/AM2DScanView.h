@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMScanViewUtilities.h"
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
+#include "util/AMRange.h"
 
 class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
@@ -59,11 +60,11 @@ public:
 	/// Returns the value.
 	double value() const { return value_; }
 	/// Returns the minimum value of the range.
-	double mininum() const { return range_.first; }
+	double mininum() const { return range_.minimum(); }
 	/// Returns the maximum value of the range.
-	double maximum() const { return range_.second; }
+	double maximum() const { return range_.maximum(); }
 	/// Returns the range.
-	QPair<double, double> range() const { return range_; }
+	AMRange range() const { return range_; }
 	/// Returns the selected rectangle.
 	QRectF selectedRect() const { return rect_; }
 	/// Changes the enabled state of the show spectra check box.  If there is no source to view, then this option should not be available.
@@ -89,7 +90,7 @@ public slots:
 	/// Sets the value of the current position.
 	void setValue(double value);
 	/// Sets the range of data for the current data source.
-	void setRange(QPair<double, double> range);
+	void setRange(const AMRange &range);
 	/// Sets the minimum value of the range for the current data source.
 	void setMinimum(double min);
 	/// Sets the maximum value of the range for the current data source.
@@ -113,7 +114,7 @@ protected:
 	/// The data value at the current position.
 	double value_;
 	/// The data range for the current data source.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// The current selected rectangle.
 	QRectF rect_;
 	/// The show spectra check box.
@@ -198,7 +199,7 @@ protected:
 	/// Helper method that returns the AMnDIndex for a given QPoint of data coordinates.
 	AMnDIndex getIndex(const QPointF &point) const;
 	/// Helper method that returns the minimum and maximum value for the current data source.  If no start and end values are given then the entire data source will be searched.
-	QPair<double, double> getCurrentExclusiveDataSourceRange(const AMnDIndex &start = AMnDIndex(), const AMnDIndex &end = AMnDIndex()) const;
+	AMRange getCurrentExclusiveDataSourceRange(const AMnDIndex &start = AMnDIndex(), const AMnDIndex &end = AMnDIndex()) const;
 
 	/// The scans set model.
 	AMScanSetModel* scansModel_;

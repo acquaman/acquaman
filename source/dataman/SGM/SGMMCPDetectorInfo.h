@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMMCPDETECTORINFO_H
 
 #include "dataman/info/AMOldDetectorInfo.h"
+#include "util/AMRange.h"
 
 class SGMMCPDetectorInfo : public AMOldDetectorInfo
 {
@@ -46,7 +47,7 @@ public:
 	double hvSetpoint() const;
 	double hvSetpointRangeMin() const;
 	double hvSetpointRangeMax() const;
-	QPair<double, double> hvSetpointRange() const;
+	AMRange hvSetpointRange() const;
 
 	QDebug qDebugPrint(QDebug &d) const;
 
@@ -63,7 +64,7 @@ public slots:
 	void setHVSetpoint(double hvSetpoint);
 	void setHVSetpointRangeMin(double min);
 	void setHVSetpointRangeMax(double max);
-	void setHVSetpointRange(QPair<double, double> range);
+	void setHVSetpointRange(const AMRange &range);
 
 protected:
 	double hvSetpointRangeMin_, hvSetpointRangeMax_, hvSetpoint_;

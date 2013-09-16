@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 
 #include "beamline/AMPVControl.h"
+#include "util/AMRange.h"
 
 class VESPERSEndstation : public QObject
 {
@@ -53,7 +54,7 @@ public:
 	/// Returns a control based on the name.  Returns 0 if invalid.
 	AMControl *control(QString name) const;
 	/// Returns the soft limits for the given control (if any) as a QPair<double, double>.
-	QPair<double, double> getLimits(AMControl *control) const { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
+	AMRange getLimits(AMControl *control) const { return softLimits_.value(control); }
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
@@ -146,7 +147,7 @@ protected:
 	bool wasConnected_;
 
 	// Control map to soft limits.
-	QMap<AMControl *, QPair<double, double> > softLimits_;
+	QMap<AMControl *, AMRange> softLimits_;
 	// Names of microscope positions.
 	QPair<QString, QString> microscopeNames_;
 	/// Flag holding whether or not the helium buffer is attached to the CCD or not.

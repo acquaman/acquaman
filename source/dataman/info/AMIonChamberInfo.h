@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/info/AMOldDetectorInfo.h"
 
-#include <QPair>
+#include "util/AMRange.h"
 
 /*!
   This class incapuslates the information contained in a general ion chamber.  Things that are important to
@@ -49,25 +49,25 @@ public:
 	AMIonChamberInfo& operator=(const AMIonChamberInfo &other);
 
 	/// Returns the minimum voltage range for the ion chamber.
-	double minimumVoltage() const { return voltageRange_.first; }
+	double minimumVoltage() const { return voltageRange_.minimum(); }
 	/// Returns the maximum voltage range for the ion chamber.
-	double maximumVoltage() const { return voltageRange_.second; }
+	double maximumVoltage() const { return voltageRange_.maximum(); }
 	/// Returns the voltage range for the ion chamber.
-	QPair<double, double> voltageRange() const { return voltageRange_; }
+	AMRange voltageRange() const { return voltageRange_; }
 
 public slots:
 	/// Sets the minimum voltage for the linear range for the detector.
-	void setMinimumVoltage(double min) { voltageRange_.first = min; setModified(true); }
+	void setMinimumVoltage(double min) { voltageRange_.setMinimum(min); setModified(true); }
 	/// Sets the maximum voltage for the linear range for the detector.
-	void setMaximumVoltage(double max) { voltageRange_.second = max; setModified(true); }
+	void setMaximumVoltage(double max) { voltageRange_.setMaximum(max); setModified(true); }
 	/// Sets the linear voltage range.
-	void setVoltagRange(QPair<double, double> range) { setMinimumVoltage(range.first); setMaximumVoltage(range.second); }
+	void setVoltagRange(const AMRange &range) { setMinimumVoltage(range.minimum()); setMaximumVoltage(range.maximum()); }
 	/// Overloaded.  Sets the linear voltage range.
-	void setVoltagRange(double min, double max) { setVoltagRange(qMakePair(min, max)); }
+	void setVoltagRange(double min, double max) { setVoltagRange(AMRange(min, max)); }
 
 protected:
 	/// The linear voltage range of the detector.
-	QPair<double, double> voltageRange_;
+	AMRange voltageRange_;
 };
 
 #endif // AMIONCHAMBERINFO_H

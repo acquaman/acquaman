@@ -62,8 +62,8 @@ double CLSPGTDetectorInfo::hvSetpointRangeMax() const {
 	return hvSetpointRangeMax_;
 }
 
-QPair<double, double> CLSPGTDetectorInfo::hvSetpointRange() const {
-	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
+AMRange CLSPGTDetectorInfo::hvSetpointRange() const {
+	return AMRange(hvSetpointRangeMin_, hvSetpointRangeMax_);
 }
 
 QDebug CLSPGTDetectorInfo::qDebugPrint(QDebug &d) const{
@@ -92,8 +92,8 @@ void CLSPGTDetectorInfo::setHVSetpointRangeMax(double max) {
 	setModified(true);
 }
 
-void CLSPGTDetectorInfo::setHVSetpointRange(QPair<double, double> range){
-	hvSetpointRangeMin_ = range.first;
-	hvSetpointRangeMax_ = range.second;
+void CLSPGTDetectorInfo::setHVSetpointRange(const AMRange &range){
+	hvSetpointRangeMin_ = range.minimum();
+	hvSetpointRangeMax_ = range.maximum();
 	setModified(true);
 }

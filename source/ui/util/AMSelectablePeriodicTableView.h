@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/util/AMCustomizablePeriodicTableView.h"
 #include "util/AMSelectablePeriodicTable.h"
+#include "util/AMRange.h"
 
 /// This class extends the periodic table view to offer toggle-able buttons based on button clicks.
 class AMSelectablePeriodicTableView : public AMCustomizablePeriodicTableView
@@ -33,11 +34,11 @@ public:
 	AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent = 0);
 
 	/// Returns the energy range that is acceptable for the periodic table.
-	QPair<double, double> range() const { return range_; }
+	AMRange range() const { return range_; }
 	/// Returns the lower bound for the acceptable range.
-	double lowerBound() const { return range_.first; }
+	double lowerBound() const { return range_.minimum(); }
 	/// Returns the upper bound for the acceptable range.
-	double upperBound() const { return range_.second; }
+	double upperBound() const { return range_.maximum(); }
 
 public slots:
 	/// Sets the acceptable range used for elements to be enabled.  If either low or high are negative it assumes that all elements are valid.
@@ -49,10 +50,10 @@ protected slots:
 
 protected:
 	/// Helper method that returns whether a range is valid or not.
-	bool rangeIsValid() const { return !(range_.first < 0 || range_.second < range_.first); }
+	bool rangeIsValid() const { return range_.minimum() >= 0 || range_.isValid(); }
 
 	/// Pair that holds the acceptable range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// A pointer for the selectable periodic table.  To minimize having to use qobject_cast for routine operations.
 	AMSelectablePeriodicTable *selectablePeriodicTable_;
 };

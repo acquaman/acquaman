@@ -29,7 +29,7 @@ AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodi
 	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 		button(i)->setCheckable(true);
 
-	range_ = qMakePair(-1.0, -1.0);
+	range_ = AMRange(-1.0, -1.0);
 }
 
 void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
@@ -44,7 +44,7 @@ void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
 
 void AMSelectablePeriodicTableView::setRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
+	range_ = AMRange(low, high);
 	AMElement *temp;
 
 	if (rangeIsValid()){
@@ -52,8 +52,8 @@ void AMSelectablePeriodicTableView::setRange(double low, double high)
 		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++){
 
 			temp = periodicTable_->elementByAtomicNumber(i);
-			button(i)->setDisabled((temp->Kalpha().energy() < low)
-								   || ((temp->Kalpha().energy() > high && temp->Lalpha().energy() < low))
+			button(i)->setDisabled((temp->Kalpha().energy() < range_.minimum())
+								   || ((temp->Kalpha().energy() > range_.maximum() && temp->Lalpha().energy() < range_.minimum()))
 								   || (temp->emissionLines().isEmpty()));
 		}
 	}

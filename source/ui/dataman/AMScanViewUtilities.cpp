@@ -464,7 +464,7 @@ void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
 
 	foreach(AMEmissionLine line, lines){
 
-		if (line.energy() >= range_.first && line.energy() <= range_.second
+		if (range_.withinRange(line.energy())
 				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
 			newLine = new MPlotPoint(QPointF(line.energy(), 0));
@@ -507,7 +507,7 @@ void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 
 void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
+	range_ = AMRange(low, high);
 	tableView_->setRange(low, high);
 
 	if (low != minimum_->value()){
@@ -533,12 +533,12 @@ void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
-	setPlotRange(minimum_->value(), range_.second);
+	setPlotRange(minimum_->value(), range_.maximum());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
-	setPlotRange(range_.first, maximum_->value());
+	setPlotRange(range_.minimum(), maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)

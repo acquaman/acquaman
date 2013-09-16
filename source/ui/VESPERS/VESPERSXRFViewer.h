@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include "util/AMSelectablePeriodicTable.h"
 #include "ui/util/AMSelectablePeriodicTableView.h"
+#include "util/AMRange.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -126,7 +127,7 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// Spin box holding the minimum value for the range.
 	QDoubleSpinBox *minimum_;
 	/// Spin box holding the maximum value for the range.

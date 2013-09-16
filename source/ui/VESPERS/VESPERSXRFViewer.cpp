@@ -190,7 +190,7 @@ void VESPERSXRFViewer::onElementSelected(int atomicNumber)
 
 	foreach(AMEmissionLine line, lines){
 
-		if (line.energy() >= range_.first && line.energy() <= range_.second
+		if (range_.withinRange(line.energy())
 				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
 			newLine = new MPlotPoint(QPointF(line.energy(), 0));
@@ -215,7 +215,7 @@ void VESPERSXRFViewer::onElementDeselected(int atomicNumber)
 
 void VESPERSXRFViewer::setPlotRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
+	range_ = AMRange(low, high);
 	tableView_->setRange(low, high);
 
 	foreach(int atomicNumber, table_->selectedElements())
@@ -227,12 +227,12 @@ void VESPERSXRFViewer::setPlotRange(double low, double high)
 
 void VESPERSXRFViewer::setMinimum(double min)
 {
-	setPlotRange(min*1000, range_.second);
+	setPlotRange(min*1000, range_.maximum());
 }
 
 void VESPERSXRFViewer::setMaximum(double max)
 {
-	setPlotRange(range_.first, max*1000);
+	setPlotRange(range_.minimum(), max*1000);
 }
 
 void VESPERSXRFViewer::setupPlot()
