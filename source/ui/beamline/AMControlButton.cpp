@@ -37,23 +37,24 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 		else
 			setText(control_->name());
 	}
-	//setHappy(false);
 
 	// Make connections:
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-		//connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onClicked()));
 	connect(this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
 
-	if(control_ && control_->isConnected()){
+	if(control_ && control_->isConnected())
 		onConnected(control_->isConnected());
-//		programaticToggle_ = true;
-//		onValueChanged(control_->value());
-		//setHappy(control_->isConnected());
-//		onConnected(control_->isConnected());
+
+	if(isCheckable()){
+		QPalette newPalette = palette();
+		QColor newTextColor = QColor(Qt::red);
+		newPalette.setColor(QPalette::WindowText, newTextColor);
+		newPalette.setColor(QPalette::ButtonText, newTextColor);
+		setPalette(newPalette);
 	}
 }
 
@@ -77,10 +78,19 @@ void AMControlButton::setCheckable(bool checkable){
 void AMControlButton::onValueChanged(double newVal) {
 	Q_UNUSED(newVal)
 	if(isCheckable()){
-		if(control_->value() == downValue_)
+		QPalette newPalette = palette();
+		QColor newTextColor;
+		if(control_->value() == downValue_){
 			setChecked(true);
-		else if(control_->value() == upValue_)
+			newTextColor = QColor(Qt::black);
+		}
+		else if(control_->value() == upValue_){
 			setChecked(false);
+			newTextColor = QColor(Qt::red);
+		}
+		newPalette.setColor(QPalette::WindowText, newTextColor);
+		newPalette.setColor(QPalette::ButtonText, newTextColor);
+		setPalette(newPalette);
 	}
 }
 
@@ -95,6 +105,7 @@ void AMControlButton::onToggled(bool toggled){
 		programaticToggle_ = false;
 		return;
 	}
+
 	if(toggled && !control_->withinTolerance(downValue_))
 		control_->move(downValue_);
 	else if(!toggled && !control_->withinTolerance(upValue_))
@@ -103,13 +114,11 @@ void AMControlButton::onToggled(bool toggled){
 
 void AMControlButton::onConnected(bool connected){
 	if(!wasConnected_ && connected){
-		programaticToggle_ = true;
-		onValueChanged(control_->value());
+		if(control_->withinTolerance(downValue_)){
+			programaticToggle_ = true;
+			onValueChanged(control_->value());
+		}
 		wasConnected_ = true;
 	}
 }
-
-//void AMControlButton::setHappy(bool happy) {
-//	Q_UNUSED(happy)
-//}
 

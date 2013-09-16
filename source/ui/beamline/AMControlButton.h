@@ -43,9 +43,6 @@ public slots:
 protected slots:
 	void onConnected(bool connected);
 
-	//void setHappy(bool happy = true);
-	//void setUnhappy() { setHappy(false); }
-
 	void onValueChanged(double newVal);
 	void onClicked();
 	void onToggled(bool toggled);

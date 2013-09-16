@@ -1,4 +1,4 @@
-#include "striptool.h"
+#include "StripChart/StripTool.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
