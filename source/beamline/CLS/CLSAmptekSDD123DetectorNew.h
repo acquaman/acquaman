@@ -101,6 +101,7 @@ protected slots:
 
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
+	void onStatusControlChangedHelper();
 
 protected:
 	bool initializeImplementation();
