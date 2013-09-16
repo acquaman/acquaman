@@ -184,8 +184,8 @@ QString VESPERSScanController::buildNotes()
 		break;
 	}
 
-	if (config_->ccdDetector() == VESPERS::Roper)
-		notes.append(QString("\nRoper CCD distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
+	if (config_->ccdDetector() == VESPERS::Pilatus)
+		notes.append(QString("\nPilatus distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToCCD(), 0, 'f', 1));
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
 

@@ -10,6 +10,8 @@ CONFIG += mobility
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
 # CONFIG += debug
 
+USERNAME = $$system(whoami)
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -26,7 +28,7 @@ macx {
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+                                $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
@@ -225,12 +227,22 @@ QMAKE_CXXFLAGS += -Wextra
 # For Qt 4.7.1 and earlier, need to use this instead:
 								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+
+contains(USERNAME, helfrij){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
-
 
 # Source Files (Acquaman Framework Common)
 #######################

@@ -668,10 +668,14 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 {
 	AMDataSource *source = sources_.at(id);
 
+	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
 	if (!addMultipleSpectra_){
 
 		QVector<double> data(source->size(source->rank()-1));
-		source->values(startIndex_, endIndex_, data.data());
+
+		if (!source->values(startIndex_, endIndex_, data.data()))
+			data.fill(0);
+
 		models_.at(id)->setValues(x_, data);
 	}
 
@@ -682,12 +686,9 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 		case 1:{	// 1D data source.  0D scan rank.
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
 
-			source->values(AMnDIndex(0), AMnDIndex(output.size()-1), data.data());
-
-			for (int i = 0, iSize = output.size(); i < iSize; i++)
-				output[i] = data.at(i);
+			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
@@ -698,14 +699,18 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize; i++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
 
-				source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
+				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
 
-				for (int j = 0, jSize = output.size(); j < jSize; j++)
+				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
 					output[j] += data.at(j);
 			}
+
+			if (!valuesSuccess)
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
@@ -716,15 +721,19 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize; i++)
-				for (int j = startIndex_.j(), jSize = startIndex_.j() + endIndex_.j()-startIndex_.j()+1; j < jSize; j++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
 
-					source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
+					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
 
-					for (int k = 0, kSize = output.size(); k < kSize; k++)
+					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
 						output[k] += data.at(k);
 				}
+
+			if (!valuesSuccess)
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
