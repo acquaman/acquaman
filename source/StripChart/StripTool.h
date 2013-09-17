@@ -20,23 +20,29 @@ protected:
     QAction *quitAction_;
     QAction *addPVAction_;
 
-    QMenu *fileMenu;
-    QMenu *plotMenu;
-    QMenu *viewMenu;
+    QMenu *fileMenu_;
+    QMenu *plotMenu_;
+    QMenu *viewMenu_;
 
-    QList<QString> *activePVList;
+    QList<QPair<QString, QString> > *activePVList_;
 
-    QPushButton *addPVButton;
-    QPushButton *quitButton;
+    QPushButton *addPVButton_;
+    QPushButton *quitButton_;
+
+    AddPVDialog *addPVDialog_;
 
 protected:
+    void createFileMenu();
+    void createPlotMenu();
+    void createViewMenu();
 
 protected slots:
-    void createActions();
-    void createMenus();
-    //void onAddPVAction();
-    QList<QString> *getActivePVList();
-    void addToActivePVList(const QString);
+    QList<QPair<QString, QString> > *getActivePVList();
+    void onAddPVAction();
+    void addToActivePVList(const QPair<QString, QString>);
+    void onNewPVAccepted(const QPair<QString, QString>);
+    void onNewPVCancelled();
+
 
 };
 
