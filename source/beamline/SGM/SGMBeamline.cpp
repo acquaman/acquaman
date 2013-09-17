@@ -685,7 +685,7 @@ CLSSIS3820Scaler* SGMBeamline::rawScaler(){
 	return scaler_;
 }
 
-bool SGMBeamline::isBeamlineScanning(){
+bool SGMBeamline::isBeamlineScanning() const{
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
 		return true;
 	return false;

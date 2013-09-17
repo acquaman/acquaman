@@ -73,7 +73,7 @@ public:
 
 	bool isConnected() const;
 	bool isReady() const;
-	bool isBeamlineScanning();
+    bool isBeamlineScanning() const;
 	bool isVisibleLightOn() const;
 
 	QStringList unconnectedCriticals() const;
@@ -144,7 +144,7 @@ public:
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
-	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return synchronizedDwellTime_;}
+    virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
 	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.

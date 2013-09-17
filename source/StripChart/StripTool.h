@@ -6,6 +6,8 @@
 #include "StripChart/AddPVDialog.h"
 
 #include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotSeriesData.h"
 #include "beamline/AMPVControl.h"
 
 class StripTool : public QMainWindow
@@ -17,14 +19,23 @@ public:
     ~StripTool();
 
 protected:
+    QMenu *fileMenu_;
     QAction *quitAction_;
+
+    QMenu *plotMenu_;
     QAction *addPVAction_;
 
-    QMenu *fileMenu_;
-    QMenu *plotMenu_;
     QMenu *viewMenu_;
 
+//    int updateNumber;
+    QLabel *pvsAdded;
+    QPair<QString, QString> newPVInfo;
     QList<QPair<QString, QString> > *activePVList_;
+    QListView *activePVListView_;
+
+    MPlot *plot;
+    MPlotSeriesBasic *newSeries;
+    MPlotRealtimeModel *newModel;
 
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
@@ -35,6 +46,7 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
+    int activePVCount();
 
 protected slots:
     QList<QPair<QString, QString> > *getActivePVList();
@@ -42,6 +54,8 @@ protected slots:
     void addToActivePVList(const QPair<QString, QString>);
     void onNewPVAccepted(const QPair<QString, QString>);
     void onNewPVCancelled();
+    void onNewPVConnected(bool);
+    void onNewPVUpdate(double);
 
 
 };

@@ -69,7 +69,7 @@ public:
 	SGMFastScanParametersModificationWizardPeriodicTablePage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+    virtual bool isComplete() const;
 	virtual void initializePage();
 
 protected slots:
@@ -120,7 +120,7 @@ public:
 	SGMFastScanParametersModificationWizardEditPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+    virtual bool isComplete() const;
 	virtual void initializePage();
 
 protected slots:
@@ -150,7 +150,7 @@ public:
 	SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+    virtual bool isComplete() const;
 	virtual void initializePage();
 	virtual int nextId() const;
 
@@ -232,7 +232,7 @@ public:
 	SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+    virtual bool isComplete() const;
 	virtual void initializePage();
 	virtual int nextId() const;
 
@@ -254,7 +254,7 @@ public:
 	SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+    virtual bool isComplete() const;
 	virtual void initializePage();
 	virtual int nextId() const;
 

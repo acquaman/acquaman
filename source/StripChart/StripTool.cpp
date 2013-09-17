@@ -8,12 +8,24 @@ StripTool::StripTool(QWidget *parent)
     createPlotMenu();
     createViewMenu();
 
-    //  initialize variables that will contain pv names and descriptions.
-    activePVList_ = new QList<QPair<QString, QString> >();
-
     //  begin building window widgets.
-    MPlotWidget *plotWidget = new MPlotWidget();
+    //  initialize variables that will contain pv names and descriptions.
+    pvsAdded = new QLabel("PVs added : ");
+    activePVList_ = new QList<QPair<QString, QString> >();
+    activePVListView_ = new QListWidget(this);
+//    activePVListView_->setModel(activePVList_);
 
+    QHBoxLayout *pvsAddedLayout = new QHBoxLayout();
+    pvsAddedLayout->addWidget(pvsAdded);
+    pvsAddedLayout->addWidget(activePVListView_);
+
+    //  now create the MPlot that will display info for all added pvs.
+    plot = new MPlot();
+
+    MPlotWidget *plotWidget = new MPlotWidget();
+    plotWidget->setPlot(plot);
+
+    //  we can add a new pv or close the application using buttons.
     addPVButton_ = new QPushButton();
     addPVButton_->setText("Add PV");
     connect( addPVButton_, SIGNAL(clicked()), addPVAction_, SLOT(trigger()) );
@@ -27,6 +39,7 @@ StripTool::StripTool(QWidget *parent)
     buttonLayout->addWidget(quitButton_);
 
     QVBoxLayout *windowLayout = new QVBoxLayout();
+    windowLayout->addLayout(pvsAddedLayout);
     windowLayout->addWidget(plotWidget);
     windowLayout->addLayout(buttonLayout);
 
@@ -102,10 +115,30 @@ void StripTool::onAddPVAction()
 
 void StripTool::onNewPVAccepted(const QPair<QString, QString> newPVInfo)
 {
-    //  add new pv to the plot.
 
-    //  add new pv info to the list of currently active pvs.
-    addToActivePVList(newPVInfo);
+    //  connect to the new pv and add it to this plot window.
+    //  think about maybe using a separate class to handle connecting to PVs and managing their properties?
+    if (newPVInfo.first == "PCT1402-01:mA:fbk")
+    {
+        AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVInfo.first, newPVInfo.first, this, newPVInfo.second);
+        connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
+        connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
+
+        //  add new pv info to the list of currently active pvs.
+        addToActivePVList(newPVInfo);
+    }
+}
+
+
+void StripTool::onNewPVConnected(bool isConnected)
+{
+    Q_UNUSED(isConnected);
+}
+
+
+void StripTool::onNewPVUpdate(double newValue)
+{
+    Q_UNUSED(newValue);
 }
 
 void StripTool::addToActivePVList(const QPair<QString, QString> newPVInfo)
@@ -117,6 +150,11 @@ void StripTool::addToActivePVList(const QPair<QString, QString> newPVInfo)
 QList<QPair<QString, QString> >* StripTool::getActivePVList()
 {
     return activePVList_;
+}
+
+int StripTool::activePVCount()
+{
+    return activePVList_->count();
 }
 
 

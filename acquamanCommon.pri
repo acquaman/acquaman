@@ -234,8 +234,8 @@ contains(USERNAME, helfrij){
 	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 
-	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
