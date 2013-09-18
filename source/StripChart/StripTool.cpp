@@ -96,6 +96,7 @@ void StripTool::createViewMenu()
 void StripTool::createPVDock()
 {
     pvList_ = new QListWidget();
+//    pvList_->setBaseSize(200, 400);
 
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
     pvDockLayout->addWidget(pvList_);
@@ -126,7 +127,7 @@ void StripTool::onAddPVAction()
 }
 
 
-void StripTool::onNewPVAccepted(const QString newPVName, const QString newPVDescription)
+void StripTool::onNewPVAccepted(const QString &newPVName, const QString &newPVDescription)
 {
 
     //  connect to the new pv and add it to this plot window.
@@ -135,28 +136,30 @@ void StripTool::onNewPVAccepted(const QString newPVName, const QString newPVDesc
     connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
 
     //  add new pv info to the list of currently active pvs.
-    addToActivePVList(newPVName, newPVDescription);
+    addToPVList(newPVName, newPVDescription);
 }
 
 
-void StripTool::onNewPVConnected(const bool isConnected)
+void StripTool::onNewPVConnected(bool isConnected)
 {
     Q_UNUSED(isConnected);
     //  do something special when the pv is initially connected?
 }
 
 
-void StripTool::onNewPVUpdate(const double newValue)
+void StripTool::onNewPVUpdate(double newValue)
 {
     Q_UNUSED(newValue);
     //  update the model tracking the specific pv?
 }
 
-void StripTool::addToActivePVList(const QString newPVName, const QString newPVDescription)
+void StripTool::addToPVList(const QString &newPVName, const QString &newPVDescription)
 {
-    Q_UNUSED(newPVDescription);
+    QListWidgetItem *pvEntry = new QListWidgetItem(newPVDescription);
+    pvEntry->setWhatsThis(newPVName);
+    pvEntry->setCheckState(Qt::Checked);
 
-    pvList_->addItem(newPVName);
+    pvList_->addItem(pvEntry);
 }
 
 

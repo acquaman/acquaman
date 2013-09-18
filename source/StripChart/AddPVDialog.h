@@ -13,12 +13,12 @@ public:
     explicit AddPVDialog(QWidget *parent = 0);
 
 signals:
-    void enableAcceptButton(const bool isEnabled);
-    void enableCancelButton(const bool isEnabled);
-    void enablePVName(const bool isEnabled);
-    void enablePVDescription(const bool isEnabled);
+    void enableAcceptButton(bool isEnabled);
+    void enableCancelButton(bool isEnabled);
+    void enablePVName(bool isEnabled);
+    void enablePVDescription(bool isEnabled);
     void newPVIsValid();
-    void newPVAccepted(const QString, const QString);
+    void newPVAccepted(const QString &pvName, const QString &pvDescription);
 
 protected:
 
@@ -42,7 +42,7 @@ protected:
 
 protected slots:
     void onPVNameEntered();
-    void onPVConnected(const bool isConnected);
+    void onPVConnected(bool isConnected);
     void onAcceptButtonClicked();
     void onCancelButtonClicked();
     void onNewPVIsValid();

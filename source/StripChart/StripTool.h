@@ -49,11 +49,11 @@ protected slots:
     void onAddPVAction();
     void onShowPVListAction();
     void onHidePVListAction();
-    void addToActivePVList(const QString newPVName, const QString newPVDescription);
-    void onNewPVAccepted(const QString newPVName, const QString newPVDescription);
+    void addToPVList(const QString &newPVName, const QString &newPVDescription);
+    void onNewPVAccepted(const QString &newPVName, const QString &newPVDescription);
     void onNewPVCancelled();
-    void onNewPVConnected(const bool isConnected);
-    void onNewPVUpdate(const double newValue);
+    void onNewPVConnected(bool isConnected);
+    void onNewPVUpdate(double newValue);
 
 };
 
