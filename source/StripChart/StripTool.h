@@ -9,6 +9,8 @@
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "beamline/AMPVControl.h"
+#include "MPlot/MPlotTools.h"
+
 
 class StripTool : public QMainWindow
 {
@@ -29,9 +31,16 @@ protected:
     QAction *showPVListAction_;
     QAction *hidePVListAction_;
 
+    int updateNumber_;
+    int maxPointsDisplayed_;
+    QVector<double> updateNumbers_;
+    QVector<double> pvValues_;
+
     QListWidget *pvList_;
     QDockWidget *pvDock_;
 
+    MPlotVectorSeriesData *pvSeriesData_;
+    MPlotSeriesBasic *pvSeries_;
     MPlot *plot;
 
     QPushButton *addPVButton_;

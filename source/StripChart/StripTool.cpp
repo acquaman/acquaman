@@ -3,6 +3,9 @@
 StripTool::StripTool(QWidget *parent)
     : QMainWindow(parent)
 {
+    //  set some basic parameters for how the plot looks. These may be defined by the user later.
+    maxPointsDisplayed_ = 10;
+
     //  create the menu bar items for this application.
     createFileMenu();
     createPlotMenu();
@@ -12,7 +15,12 @@ StripTool::StripTool(QWidget *parent)
     createPVDock();
 
     //  now create the MPlot that will display info for all added pvs.
+
+    //  eventually, I'd like the selector to dictate the axis labels displayed on the plot.
+    MPlotPlotSelectorTool *selector = new MPlotPlotSelectorTool();
+
     plot = new MPlot();
+    plot->addTool(selector);
 
     MPlotWidget *plotWidget = new MPlotWidget();
     plotWidget->setPlot(plot);
@@ -83,7 +91,7 @@ void StripTool::createViewMenu()
     hidePVListAction_ = new QAction("Hide active PVs", this);
     connect( showPVListAction_, SIGNAL(triggered()), this, SLOT(onHidePVListAction()) );
 
-    //  but we can still create view menu and populate it with daydreams.
+    //  create the view menu and add its actions!
     viewMenu_ = menuBar()->addMenu("&View");
     viewMenu_->addAction("Plot palette"); //show options for changing plot colors.
     viewMenu_->addAction("Line palette"); //show options for changing line colors, weights, markers, etc.
@@ -129,35 +137,81 @@ void StripTool::onAddPVAction()
 
 void StripTool::onNewPVAccepted(const QString &newPVName, const QString &newPVDescription)
 {
+    //  right now, only interested in the ring current pv!
+    //      - it is a single value that updates regularly.
+    //      - only want to look at adding one pv for now.
+    //  eventually, these restrictions will be lifted.
 
-    //  connect to the new pv and add it to this plot window.
-    AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVName, newPVName, this, newPVDescription);
-    connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
-    connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
+    if (newPVName == "PCT1402-01:mA:fbk")
+    {
+        updateNumber_ = 0;
+        updateNumbers_ = QVector<double>(0);
+        pvValues_ = QVector<double>(0);
 
-    //  add new pv info to the list of currently active pvs.
-    addToPVList(newPVName, newPVDescription);
+        //  connect to the new pv and add it to this plot window.
+        AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVName, newPVName, this, newPVDescription);
+        connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
+        connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
+
+        //  add new pv info to the list of currently active pvs.
+        addToPVList(newPVName, newPVDescription);
+
+        //  create the necessary objects to add the updating pv values to the plot.
+        pvSeriesData_ = new MPlotVectorSeriesData();
+
+        pvSeries_ = new MPlotSeriesBasic();
+        pvSeries_->setDescription(newPVDescription);
+
+        pvSeries_->setModel(pvSeriesData_);
+
+        plot->addItem(pvSeries_);
+    }
 }
 
 
 void StripTool::onNewPVConnected(bool isConnected)
 {
     Q_UNUSED(isConnected);
-    //  do something special when the pv is initially connected?
+    //  do something special when the pv is initially connected.
+    //  maybe enable the pv list item? List item is disabled when pv is not connected?
 }
 
 
 void StripTool::onNewPVUpdate(double newValue)
 {
-    Q_UNUSED(newValue);
-    //  update the model tracking the specific pv?
+    //  update the model tracking all of the pv's values.
+    updateNumbers_.append(updateNumber_);
+    pvValues_.append(newValue);
+
+    //  initialize the vectors containing the x values and the y values to be displayed.
+    QVector<double> updateNumbersDisplayed;
+    QVector<double> pvValuesDisplayed;
+
+    //  update the values displayed on the plot.
+    if (updateNumber_ < maxPointsDisplayed_) {
+        updateNumbersDisplayed = updateNumbers_;
+        pvValuesDisplayed = pvValues_;
+
+    } else {
+        updateNumbersDisplayed = updateNumbers_.mid(updateNumber_ - maxPointsDisplayed_);
+        pvValuesDisplayed = pvValues_.mid(updateNumber_ - maxPointsDisplayed_);
+
+    }
+
+    //  update the vector series data.
+    pvSeriesData_->setValues(updateNumbersDisplayed, pvValuesDisplayed);
+
+    //  increment the updateNumber to prepare for the next value update.
+    updateNumber_++;
 }
+
 
 void StripTool::addToPVList(const QString &newPVName, const QString &newPVDescription)
 {
     QListWidgetItem *pvEntry = new QListWidgetItem(newPVDescription);
-    pvEntry->setWhatsThis(newPVName);
-    pvEntry->setCheckState(Qt::Checked);
+    pvEntry->setCheckState(Qt::Checked); // pv should be hidden on the graph if it is unchecked.
+    pvEntry->setToolTip(newPVName);
+//    pvEntry->setFlags(Qt::ItemIsEditable); // I want to be able to edit the pv description after it is added.
 
     pvList_->addItem(pvEntry);
 }
@@ -171,13 +225,13 @@ void StripTool::onNewPVCancelled()
 
 void StripTool::onShowPVListAction()
 {
-    //  this will show the toolbar we've created, that lists all pvs added!
+    //  this will show the dock we've created, that lists all pvs added!
     //pvDock_->show();
 }
 
 
 void StripTool::onHidePVListAction()
 {
-    //  this will hide the pvs toolbar.
+    //  this will hide the pvs dock.
     //pvDock_->hide();
 }
