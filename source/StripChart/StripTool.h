@@ -27,15 +27,12 @@ protected:
 
     QMenu *viewMenu_;
 
-//    int updateNumber;
     QLabel *pvsAdded;
-    QPair<QString, QString> newPVInfo;
-    QList<QPair<QString, QString> > *activePVList_;
-    QListView *activePVListView_;
+//    QList<QString> *activePVList_;
+//    QListView *activePVListView_;
+    QListWidget *activePVList_;
 
     MPlot *plot;
-    MPlotSeriesBasic *newSeries;
-    MPlotRealtimeModel *newModel;
 
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
@@ -46,17 +43,14 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
-    int activePVCount();
 
 protected slots:
-    QList<QPair<QString, QString> > *getActivePVList();
     void onAddPVAction();
-    void addToActivePVList(const QPair<QString, QString>);
-    void onNewPVAccepted(const QPair<QString, QString>);
+    void addToActivePVList(QString, QString);
+    void onNewPVAccepted(QString, QString);
     void onNewPVCancelled();
     void onNewPVConnected(bool);
     void onNewPVUpdate(double);
-
 
 };
 

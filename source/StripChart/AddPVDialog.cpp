@@ -10,14 +10,12 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
     //  begin building dialog widgets.
     pvNamePrompt_ = new QLabel("PV name : ");
     pvNameLineEdit_ = new QLineEdit();
-    pvNamePrompt_->setBuddy(pvNameLineEdit_);
     connect( pvNameLineEdit_, SIGNAL(editingFinished()), this, SLOT(onPVNameEntered()) );
-    connect( this, SIGNAL(enablePVName(bool)), this, SLOT(onPVNameEnabled(bool)) );
+    connect( this, SIGNAL(enablePVName(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
 
     pvDescriptionPrompt_ = new QLabel("Description : ");
     pvDescriptionLineEdit_ = new QLineEdit();
-    pvDescriptionPrompt_->setBuddy(pvDescriptionLineEdit_);
-    connect( this, SIGNAL(enablePVDescription(bool)), this, SLOT(onPVDescriptionEnabled(bool)) );
+    connect( this, SIGNAL(enablePVDescription(bool)), pvDescriptionLineEdit_, SLOT(setEnabled(bool)) );
 
     pvValidLabel_ = new QLabel();
 
@@ -30,12 +28,12 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
 
     acceptButton_ = new QPushButton("Accept");
     acceptButton_->setEnabled(false);
-    connect( this, SIGNAL(enableAcceptButton(bool)), this, SLOT(onAcceptButtonEnabled(bool)) );
+    connect( this, SIGNAL(enableAcceptButton(bool)), acceptButton_, SLOT(setEnabled(bool)) );
     connect( acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptButtonClicked()) );
 
     cancelButton_ = new QPushButton("Cancel");
     cancelButton_->setEnabled(true);
-    connect( this, SIGNAL(enableCancelButton(bool)), this, SLOT(onCancelButtonEnabled(bool)) );
+    connect( this, SIGNAL(enableCancelButton(bool)), cancelButton_, SLOT(setEnabled(bool)) );
     connect( cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()) );
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -65,36 +63,11 @@ void AddPVDialog::onPVNameEntered()
     pvValidLabel_->setText("");
 
     //  check that the user entered all the information!
-    if (pvNameEntered_.isEmpty() | pvDescriptionEntered_.isEmpty())
+    if (pvNameEntered_.isEmpty() || pvDescriptionEntered_.isEmpty())
         emit enableAcceptButton(false);
     else
         emit enableAcceptButton(true);
 }
-
-
-void AddPVDialog::onAcceptButtonEnabled(bool isEnabled)
-{
-    acceptButton_->setEnabled(isEnabled);
-}
-
-
-void AddPVDialog::onCancelButtonEnabled(bool isEnabled)
-{
-    cancelButton_->setEnabled(isEnabled);
-}
-
-
-void AddPVDialog::onPVNameEnabled(bool isEnabled)
-{
-    pvNameLineEdit_->setEnabled(isEnabled);
-}
-
-
-void AddPVDialog::onPVDescriptionEnabled(bool isEnabled)
-{
-    pvDescriptionLineEdit_->setEnabled(isEnabled);
-}
-
 
 void AddPVDialog::onAcceptButtonClicked()
 {
@@ -132,7 +105,7 @@ void AddPVDialog::onNewPVIsValid()
     acceptedPVName_ = pvNameEntered_;
     acceptedPVDescription_ = pvDescriptionEntered_;
 
-    //emit newPVAccepted(QPair<QString, QString>(acceptedPVName_, acceptedPVDescription_));
+    emit newPVAccepted(acceptedPVName_, acceptedPVDescription_);
     emit accept();
 }
 

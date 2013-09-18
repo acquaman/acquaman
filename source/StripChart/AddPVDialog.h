@@ -18,7 +18,7 @@ signals:
     void enablePVName(bool);
     void enablePVDescription(bool);
     void newPVIsValid();
-    void newPVAccepted(const QPair<QString, QString>);
+    void newPVAccepted(QString, QString);
 
 protected:
 
@@ -42,10 +42,6 @@ protected:
 
 protected slots:
     void onPVNameEntered();
-    void onAcceptButtonEnabled(bool);
-    void onCancelButtonEnabled(bool);
-    void onPVNameEnabled(bool);
-    void onPVDescriptionEnabled(bool);
     void onPVConnected(bool);
     void onAcceptButtonClicked();
     void onCancelButtonClicked();

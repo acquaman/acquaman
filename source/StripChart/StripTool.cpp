@@ -11,13 +11,11 @@ StripTool::StripTool(QWidget *parent)
     //  begin building window widgets.
     //  initialize variables that will contain pv names and descriptions.
     pvsAdded = new QLabel("PVs added : ");
-    activePVList_ = new QList<QPair<QString, QString> >();
-    activePVListView_ = new QListWidget(this);
-//    activePVListView_->setModel(activePVList_);
+    activePVList_ = new QListWidget(this);
 
     QHBoxLayout *pvsAddedLayout = new QHBoxLayout();
     pvsAddedLayout->addWidget(pvsAdded);
-    pvsAddedLayout->addWidget(activePVListView_);
+    pvsAddedLayout->addWidget(activePVList_);
 
     //  now create the MPlot that will display info for all added pvs.
     plot = new MPlot();
@@ -48,7 +46,7 @@ StripTool::StripTool(QWidget *parent)
 
     setCentralWidget(windowContents);
     setWindowTitle("Strip Chart Tool");
-    resize(500, 500);
+//    resize(500, 500);
 }
 
 
@@ -106,55 +104,44 @@ StripTool::~StripTool()
 void StripTool::onAddPVAction()
 {
     addPVDialog_ = new AddPVDialog(this);
-    connect( addPVDialog_, SIGNAL(newPVAccepted(QPair<QString, QString>)), this, SLOT(onNewPVAccepted(QPair<QString, QString>)) );
+    connect( addPVDialog_, SIGNAL(newPVAccepted(QString, QString)), this, SLOT(onNewPVAccepted(QString, QString)) );
     connect( addPVDialog_, SIGNAL(rejected()), this, SLOT(onNewPVCancelled()) );
-
     addPVDialog_->exec();
 }
 
 
-void StripTool::onNewPVAccepted(const QPair<QString, QString> newPVInfo)
+void StripTool::onNewPVAccepted(QString newPVName, QString newPVDescription)
 {
 
     //  connect to the new pv and add it to this plot window.
-    //  think about maybe using a separate class to handle connecting to PVs and managing their properties?
-    if (newPVInfo.first == "PCT1402-01:mA:fbk")
-    {
-        AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVInfo.first, newPVInfo.first, this, newPVInfo.second);
-        connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
-        connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
 
-        //  add new pv info to the list of currently active pvs.
-        addToActivePVList(newPVInfo);
-    }
+    AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVName, newPVName, this, newPVDescription);
+    connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
+    connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
+
+    //  add new pv info to the list of currently active pvs.
+    addToActivePVList(newPVName, newPVDescription);
 }
 
 
 void StripTool::onNewPVConnected(bool isConnected)
 {
     Q_UNUSED(isConnected);
+    //  do stuff.
 }
 
 
 void StripTool::onNewPVUpdate(double newValue)
 {
     Q_UNUSED(newValue);
+    //  do things.
 }
 
-void StripTool::addToActivePVList(const QPair<QString, QString> newPVInfo)
+void StripTool::addToActivePVList(QString newPVName, QString newPVDescription)
 {
-    getActivePVList()->append(newPVInfo);
-}
+    Q_UNUSED(newPVDescription);
 
-
-QList<QPair<QString, QString> >* StripTool::getActivePVList()
-{
-    return activePVList_;
-}
-
-int StripTool::activePVCount()
-{
-    return activePVList_->count();
+    activePVList_->addItem(newPVName);
 }
 
 
