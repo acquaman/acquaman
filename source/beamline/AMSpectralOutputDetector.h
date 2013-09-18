@@ -32,9 +32,9 @@ public:
 	~AMSpectralOutputDetector();
 
 	const QMetaObject* getMetaObject();
-	AMOldDetectorInfo toInfo();
+    AMOldDetectorInfo *toInfo() const;
 
-	bool setFromInfo(const AMOldDetectorInfo &info);
+    bool setFromInfo(const AMOldDetectorInfo *info);
 
 public slots:
 	virtual bool setControls(AMSpectralOutputDetectorInfo *detectorSettings);

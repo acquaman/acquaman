@@ -6,7 +6,6 @@
 
 #include "beamline/AMPVControl.h"
 
-//class AddPVDialog : public QWidget
 class AddPVDialog : public QDialog
 {
     Q_OBJECT
@@ -14,31 +13,39 @@ public:
     explicit AddPVDialog(QWidget *parent = 0);
 
 signals:
-    void closeDialog();
+    void enableAcceptButton(bool isEnabled);
+    void enableCancelButton(bool isEnabled);
+    void enablePVName(bool isEnabled);
+    void enablePVDescription(bool isEnabled);
+    void newPVIsValid();
+    void newPVAccepted(const QString &pvName, const QString &pvDescription);
 
 protected:
-//    int pvValidValue;
 
-    QDialog *addPVDialog_;
+    QString acceptedPVName_;
+    QString acceptedPVDescription_;
+
     QLabel *pvNamePrompt_;
     QLineEdit *pvNameLineEdit_;
-    QLabel *pvValidLabel_;
-
     QString pvNameEntered_;
-    QString newActivePVName_;
+
+    QLabel *pvDescriptionPrompt_;
+    QLineEdit *pvDescriptionLineEdit_;
+    QString pvDescriptionEntered_;
+
+    QLabel *pvValidLabel_;
 
     QPushButton *acceptButton_;
     QPushButton *cancelButton_;
 
     AMReadOnlyPVControl *pvControl_;
 
-
 protected slots:
-    void onPVConnected(bool);
+    void onPVNameEntered();
+    void onPVConnected(bool isConnected);
     void onAcceptButtonClicked();
     void onCancelButtonClicked();
-    void enableAcceptButton();
-    void onCloseDialogEmitted();
+    void onNewPVIsValid();
     
 };
 

@@ -3,28 +3,37 @@
 AddPVDialog::AddPVDialog(QWidget *parent) :
     QDialog(parent)
 {
-    addPVDialog_ = new QDialog(this);
-    connect( addPVDialog_, SIGNAL(closeDialog()), this, SLOT(onCloseDialogEmitted()) );
+    //  initialize the strings that will contain accepted pv info!
+    acceptedPVName_ = "";
+    acceptedPVDescription_ = "";
 
+    //  begin building dialog widgets.
     pvNamePrompt_ = new QLabel("PV name : ");
     pvNameLineEdit_ = new QLineEdit();
-    pvNamePrompt_->setBuddy(pvNameLineEdit_);
-    connect( pvNameLineEdit_, SIGNAL(editingFinished()), this, SLOT(enableAcceptButton()) );
+    connect( pvNameLineEdit_, SIGNAL(editingFinished()), this, SLOT(onPVNameEntered()) );
+    connect( this, SIGNAL(enablePVName(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
+
+    pvDescriptionPrompt_ = new QLabel("Description : ");
+    pvDescriptionLineEdit_ = new QLineEdit();
+    connect( this, SIGNAL(enablePVDescription(bool)), pvDescriptionLineEdit_, SLOT(setEnabled(bool)) );
 
     pvValidLabel_ = new QLabel();
-    pvValidLabel_->setFont(QFont("Arial", 8));
 
-    QGridLayout *pvNameEntry = new QGridLayout();
-    pvNameEntry->addWidget(pvNamePrompt_, 0, 0);
-    pvNameEntry->addWidget(pvNameLineEdit_, 0, 1);
-    pvNameEntry->addWidget(pvValidLabel_, 1, 1);
+    QGridLayout *pvEntryLayout = new QGridLayout();
+    pvEntryLayout->addWidget(pvNamePrompt_, 0, 0);
+    pvEntryLayout->addWidget(pvNameLineEdit_, 0, 1);
+    pvEntryLayout->addWidget(pvDescriptionPrompt_, 1, 0);
+    pvEntryLayout->addWidget(pvDescriptionLineEdit_, 1, 1);
+    pvEntryLayout->addWidget(pvValidLabel_, 2, 1);
 
     acceptButton_ = new QPushButton("Accept");
     acceptButton_->setEnabled(false);
+    connect( this, SIGNAL(enableAcceptButton(bool)), acceptButton_, SLOT(setEnabled(bool)) );
     connect( acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptButtonClicked()) );
 
     cancelButton_ = new QPushButton("Cancel");
     cancelButton_->setEnabled(true);
+    connect( this, SIGNAL(enableCancelButton(bool)), cancelButton_, SLOT(setEnabled(bool)) );
     connect( cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()) );
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -32,33 +41,44 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
     buttonLayout->addWidget(cancelButton_);
 
     QVBoxLayout *windowLayout = new QVBoxLayout();
-    windowLayout->addLayout(pvNameEntry);
+    windowLayout->addLayout(pvEntryLayout);
     windowLayout->addLayout(buttonLayout);
 
-    addPVDialog_->setModal(true);
-    addPVDialog_->setLayout(windowLayout);
-    addPVDialog_->setWindowTitle("Add PV to Plot");
-    addPVDialog_->show();
+    connect(this, SIGNAL(newPVIsValid()), this, SLOT(onNewPVIsValid()) );
+
+    setModal(true);
+    setLayout(windowLayout);
+    setWindowTitle("Add PV to Plot");
+    resize(350, 100);
+
 }
 
 
-void AddPVDialog::enableAcceptButton()
+void AddPVDialog::onPVNameEntered()
 {
-    //  save the pv name entered.
+    //  extract new text entered by user, and reset the pv validity warning.
     pvNameEntered_ = pvNameLineEdit_->text();
+    pvDescriptionEntered_ = pvDescriptionLineEdit_->text();
 
-    //  the pv name entered can only be accepted if the field is not empty!
-    if (pvNameEntered_.isEmpty())
-        acceptButton_->setEnabled(false);
+    pvValidLabel_->setText("");
+
+    //  check that the user entered all the information!
+    if (pvNameEntered_.isEmpty() || pvDescriptionEntered_.isEmpty())
+        emit enableAcceptButton(false);
     else
-        acceptButton_->setEnabled(true);
+        emit enableAcceptButton(true);
 }
-
 
 void AddPVDialog::onAcceptButtonClicked()
 {
-    //  attempt to connect to the given pv.
-    pvControl_ = new AMReadOnlyPVControl(pvNameEntered_, pvNameEntered_, this);
+    //  disable buttons and fields while we wait to see if pv is valid.
+    emit enablePVName(false);
+    emit enablePVDescription(false);
+    emit enableAcceptButton(false);
+    emit enableCancelButton(false);
+
+    //  attempt to connect to the given pv to test for validity.
+    pvControl_ = new AMReadOnlyPVControl(pvDescriptionEntered_, pvNameEntered_, this);
     connect( pvControl_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 }
 
@@ -66,25 +86,33 @@ void AddPVDialog::onAcceptButtonClicked()
 void AddPVDialog::onPVConnected(bool isConnected)
 {
     //  if the pv can be connected to, it's valid! Yay! Else, let user know.
-    if(isConnected)
-    {
-        newActivePVName_ = pvNameEntered_;
-        emit closeDialog();
+    if(isConnected) {
+        emit newPVIsValid();
 
     } else {
-        pvValidLabel_->setText("PV not found.");
+        pvValidLabel_->setText("PV name not found.");
+
+        emit enablePVName(true);
+        emit enablePVDescription(true);
+        emit enableAcceptButton(false);
+        emit enableCancelButton(true);
     }
+}
+
+
+void AddPVDialog::onNewPVIsValid()
+{
+    acceptedPVName_ = pvNameEntered_;
+    acceptedPVDescription_ = pvDescriptionEntered_;
+
+    emit newPVAccepted(acceptedPVName_, acceptedPVDescription_);
+    emit accept();
 }
 
 
 void AddPVDialog::onCancelButtonClicked()
 {
-    emit closeDialog();
-}
-
-void AddPVDialog::onCloseDialogEmitted()
-{
-    close();
+    emit reject();
 }
 
 

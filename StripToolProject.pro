@@ -13,4 +13,4 @@ SOURCES += source/StripChart/main.cpp \
 
 HEADERS  += \
 	source/StripChart/AddPVDialog.h \
-    source/StripChart/StripTool.h
+	source/StripChart/StripTool.h

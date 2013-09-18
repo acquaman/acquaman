@@ -6,6 +6,8 @@
 #include "StripChart/AddPVDialog.h"
 
 #include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotSeriesData.h"
 #include "beamline/AMPVControl.h"
 
 class StripTool : public QMainWindow
@@ -17,26 +19,41 @@ public:
     ~StripTool();
 
 protected:
+    QMenu *fileMenu_;
     QAction *quitAction_;
+
+    QMenu *plotMenu_;
     QAction *addPVAction_;
 
-    QMenu *fileMenu;
-    QMenu *plotMenu;
-    QMenu *viewMenu;
+    QMenu *viewMenu_;
+    QAction *showPVListAction_;
+    QAction *hidePVListAction_;
 
-    QList<QString> *activePVList;
+    QListWidget *pvList_;
+    QDockWidget *pvDock_;
 
-    QPushButton *addPVButton;
-    QPushButton *quitButton;
+    MPlot *plot;
+
+    QPushButton *addPVButton_;
+    QPushButton *quitButton_;
+
+    AddPVDialog *addPVDialog_;
 
 protected:
+    void createFileMenu();
+    void createPlotMenu();
+    void createViewMenu();
+    void createPVDock();
 
 protected slots:
-    void createActions();
-    void createMenus();
-    //void onAddPVAction();
-    QList<QString> *getActivePVList();
-    void addToActivePVList(const QString);
+    void onAddPVAction();
+    void onShowPVListAction();
+    void onHidePVListAction();
+    void addToPVList(const QString &newPVName, const QString &newPVDescription);
+    void onNewPVAccepted(const QString &newPVName, const QString &newPVDescription);
+    void onNewPVCancelled();
+    void onNewPVConnected(bool isConnected);
+    void onNewPVUpdate(double newValue);
 
 };
 
