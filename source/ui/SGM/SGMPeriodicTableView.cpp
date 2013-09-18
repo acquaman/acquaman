@@ -136,7 +136,7 @@ bool SGMFastScanParametersModificationWizardPeriodicTablePage::validatePage(){
 	return true;
 }
 
-bool SGMFastScanParametersModificationWizardPeriodicTablePage::isComplete(){
+bool SGMFastScanParametersModificationWizardPeriodicTablePage::isComplete() const{
 	bool retVal = true;
 	if(indexOfFastScan_ < 0)
 		retVal = false;
@@ -340,7 +340,7 @@ bool SGMFastScanParametersModificationWizardEditPage::validatePage(){
 	return false;
 }
 
-bool SGMFastScanParametersModificationWizardEditPage::isComplete(){
+bool SGMFastScanParametersModificationWizardEditPage::isComplete() const{
 	fastScanWizard_->button(QWizard::FinishButton)->setEnabled(hasUnsavedChanges_);
 	return !hasUnsavedChanges_;
 }
@@ -517,7 +517,7 @@ bool SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::valida
 	return true;
 }
 
-bool SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::isComplete(){
+bool SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::isComplete() const{
 	return true;
 }
 
@@ -725,7 +725,7 @@ bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::validatePage()
 	return false;
 }
 
-bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::isComplete(){
+bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::isComplete() const{
 	return true;
 }
 
@@ -873,7 +873,7 @@ bool SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::validat
 	return true;
 }
 
-bool SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::isComplete(){
+bool SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::isComplete() const{
 	return true;
 }
 

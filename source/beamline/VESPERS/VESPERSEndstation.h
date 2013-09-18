@@ -61,8 +61,8 @@ public:
 	double distanceToSingleElementVortex() const { return singleElControl_->value(); }
 	/// Returns the current distance of the four element vortex from the sample.
 	double distanceToFourElementVortex() const { return fourElControl_->value(); }
-	/// Returns the current distancce of the Roper CCD to the sample.
-	double distanceToRoperCCD() const { return ccdControl_->value(); }
+	/// Returns the current distancce of the CCD to the sample.
+	double distanceToCCD() const { return ccdControl_->value(); }
 	/// Returns the current thickness of the filters in um.
 	int filterThickness() const { return filterThickness_; }
 	/// Returns the current value of the laser sensor.

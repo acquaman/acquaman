@@ -173,7 +173,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	experimentReadyLayout->addWidget(experimentReady_);
 	experimentReadyLayout->addWidget(experimentReadyLabel);
 	experimentReadyLayout->setSpacing(10);
-	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
+	experimentReadyLayout->setContentsMargins(15, 0, 11, 0);
 	experimentReadyLayout->addStretch();
 
 	// Endstation shutter control.
@@ -252,6 +252,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
 
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
@@ -264,7 +265,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(waterLabel_, 1, 2);
 	statusLayout->addWidget(valvesStatus_, 1, 3);
 	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
-	statusLayout->setContentsMargins(15, 7, 11, 7);
+	statusLayout->setContentsMargins(15, 0, 11, 0);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
@@ -290,9 +291,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	//setFixedSize(325, 1000);
 	setFixedSize(325, 900);
-//    setFixedSize(325, 800);
 }
 
 #include <QMenu>
