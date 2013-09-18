@@ -8,14 +8,8 @@ StripTool::StripTool(QWidget *parent)
     createPlotMenu();
     createViewMenu();
 
-    //  begin building window widgets.
-    //  initialize variables that will contain pv names and descriptions.
-    pvsAdded = new QLabel("PVs added : ");
-    activePVList_ = new QListWidget(this);
-
-    QHBoxLayout *pvsAddedLayout = new QHBoxLayout();
-    pvsAddedLayout->addWidget(pvsAdded);
-    pvsAddedLayout->addWidget(activePVList_);
+    //  create the "active pvs" toolbar widget.
+    createPVDock();
 
     //  now create the MPlot that will display info for all added pvs.
     plot = new MPlot();
@@ -37,7 +31,6 @@ StripTool::StripTool(QWidget *parent)
     buttonLayout->addWidget(quitButton_);
 
     QVBoxLayout *windowLayout = new QVBoxLayout();
-    windowLayout->addLayout(pvsAddedLayout);
     windowLayout->addWidget(plotWidget);
     windowLayout->addLayout(buttonLayout);
 
@@ -46,7 +39,7 @@ StripTool::StripTool(QWidget *parent)
 
     setCentralWidget(windowContents);
     setWindowTitle("Strip Chart Tool");
-//    resize(500, 500);
+    resize(700, 500);
 }
 
 
@@ -83,15 +76,38 @@ void StripTool::createPlotMenu()
 
 void StripTool::createViewMenu()
 {
-    //  no view actions defined yet!
+    //  create the actions used in the plot menu.
+    showPVListAction_ = new QAction("Show active PVs", this);
+    connect( showPVListAction_, SIGNAL(triggered()), this, SLOT(onShowPVListAction()) );
+
+    hidePVListAction_ = new QAction("Hide active PVs", this);
+    connect( showPVListAction_, SIGNAL(triggered()), this, SLOT(onHidePVListAction()) );
 
     //  but we can still create view menu and populate it with daydreams.
     viewMenu_ = menuBar()->addMenu("&View");
-    viewMenu_->addAction("Plot palette");
-    viewMenu_->addAction("Line palette");
+    viewMenu_->addAction("Plot palette"); //show options for changing plot colors.
+    viewMenu_->addAction("Line palette"); //show options for changing line colors, weights, markers, etc.
     viewMenu_->addSeparator();
-    viewMenu_->addAction("Show active PVs");
-    viewMenu_->addAction("Hide active PVs");
+    viewMenu_->addAction(showPVListAction_); //should be disabled initially (eventually).
+    viewMenu_->addAction(hidePVListAction_); //should be enabled initially (eventually).
+}
+
+
+void StripTool::createPVDock()
+{
+    pvList_ = new QListWidget();
+
+    QVBoxLayout *pvDockLayout = new QVBoxLayout();
+    pvDockLayout->addWidget(pvList_);
+
+    QGroupBox *pvDockGroup = new QGroupBox();
+    pvDockGroup->setLayout(pvDockLayout);
+
+    pvDock_ = new QDockWidget("Active PVs", this);
+    pvDock_->setAllowedAreas(Qt::RightDockWidgetArea);
+    pvDock_->setWidget(pvDockGroup);
+
+    addDockWidget(Qt::RightDockWidgetArea, pvDock_);
 }
 
 
@@ -110,11 +126,10 @@ void StripTool::onAddPVAction()
 }
 
 
-void StripTool::onNewPVAccepted(QString newPVName, QString newPVDescription)
+void StripTool::onNewPVAccepted(const QString newPVName, const QString newPVDescription)
 {
 
     //  connect to the new pv and add it to this plot window.
-
     AMReadOnlyPVControl *newPV = new AMReadOnlyPVControl(newPVName, newPVName, this, newPVDescription);
     connect( newPV, SIGNAL(connected(bool)), this, SLOT(onNewPVConnected(bool)) );
     connect( newPV, SIGNAL(valueChanged(double)), this, SLOT(onNewPVUpdate(double)) );
@@ -124,28 +139,42 @@ void StripTool::onNewPVAccepted(QString newPVName, QString newPVDescription)
 }
 
 
-void StripTool::onNewPVConnected(bool isConnected)
+void StripTool::onNewPVConnected(const bool isConnected)
 {
     Q_UNUSED(isConnected);
-    //  do stuff.
+    //  do something special when the pv is initially connected?
 }
 
 
-void StripTool::onNewPVUpdate(double newValue)
+void StripTool::onNewPVUpdate(const double newValue)
 {
     Q_UNUSED(newValue);
-    //  do things.
+    //  update the model tracking the specific pv?
 }
 
-void StripTool::addToActivePVList(QString newPVName, QString newPVDescription)
+void StripTool::addToActivePVList(const QString newPVName, const QString newPVDescription)
 {
     Q_UNUSED(newPVDescription);
 
-    activePVList_->addItem(newPVName);
+    pvList_->addItem(newPVName);
 }
 
 
 void StripTool::onNewPVCancelled()
 {
+    //  maybe display confirmation message, or something?
+}
 
+
+void StripTool::onShowPVListAction()
+{
+    //  this will show the toolbar we've created, that lists all pvs added!
+    //pvDock_->show();
+}
+
+
+void StripTool::onHidePVListAction()
+{
+    //  this will hide the pvs toolbar.
+    //pvDock_->hide();
 }

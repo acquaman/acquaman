@@ -83,7 +83,7 @@ void AddPVDialog::onAcceptButtonClicked()
 }
 
 
-void AddPVDialog::onPVConnected(bool isConnected)
+void AddPVDialog::onPVConnected(const bool isConnected)
 {
     //  if the pv can be connected to, it's valid! Yay! Else, let user know.
     if(isConnected) {

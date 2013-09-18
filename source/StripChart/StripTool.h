@@ -26,11 +26,11 @@ protected:
     QAction *addPVAction_;
 
     QMenu *viewMenu_;
+    QAction *showPVListAction_;
+    QAction *hidePVListAction_;
 
-    QLabel *pvsAdded;
-//    QList<QString> *activePVList_;
-//    QListView *activePVListView_;
-    QListWidget *activePVList_;
+    QListWidget *pvList_;
+    QDockWidget *pvDock_;
 
     MPlot *plot;
 
@@ -43,14 +43,17 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
+    void createPVDock();
 
 protected slots:
     void onAddPVAction();
-    void addToActivePVList(QString, QString);
-    void onNewPVAccepted(QString, QString);
+    void onShowPVListAction();
+    void onHidePVListAction();
+    void addToActivePVList(const QString newPVName, const QString newPVDescription);
+    void onNewPVAccepted(const QString newPVName, const QString newPVDescription);
     void onNewPVCancelled();
-    void onNewPVConnected(bool);
-    void onNewPVUpdate(double);
+    void onNewPVConnected(const bool isConnected);
+    void onNewPVUpdate(const double newValue);
 
 };
 
