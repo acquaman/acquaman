@@ -9,10 +9,10 @@ TEMPLATE = app
 
 SOURCES += source/StripChart/main.cpp \
 	source/StripChart/StripTool.cpp \
-	source/StripChart/AddPVDialog.cpp \
-    source/StripChart/StripToolItem.cpp
+	source/StripChart/AddPVDialog.cpp #\
+#    source/StripChart/StripToolItem.cpp
 
 HEADERS  += \
 	source/StripChart/AddPVDialog.h \
-	source/StripChart/StripTool.h \
-    source/StripChart/StripToolItem.h
+	source/StripChart/StripTool.h #\
+#    source/StripChart/StripToolItem.h
