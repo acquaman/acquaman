@@ -63,6 +63,7 @@ protected slots:
     void onNewPVCancelled();
     void onNewPVConnected(bool isConnected);
     void onNewPVUpdate(double newValue);
+    void onDockVisibilityChanged(bool isVisible);
 
 };
 

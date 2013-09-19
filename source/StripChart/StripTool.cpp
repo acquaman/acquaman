@@ -96,8 +96,8 @@ void StripTool::createViewMenu()
     viewMenu_->addAction("Plot palette"); //show options for changing plot colors.
     viewMenu_->addAction("Line palette"); //show options for changing line colors, weights, markers, etc.
     viewMenu_->addSeparator();
-    viewMenu_->addAction(showPVListAction_); //should be disabled initially (eventually).
-    viewMenu_->addAction(hidePVListAction_); //should be enabled initially (eventually).
+    viewMenu_->addAction(showPVListAction_);
+    viewMenu_->addAction(hidePVListAction_);
 }
 
 
@@ -115,6 +115,8 @@ void StripTool::createPVDock()
     pvDock_ = new QDockWidget("Active PVs", this);
     pvDock_->setAllowedAreas(Qt::RightDockWidgetArea);
     pvDock_->setWidget(pvDockGroup);
+
+    connect( pvDock_, SIGNAL(visibilityChanged(bool)), this, SLOT(onDockVisibilityChanged(bool)) );
 
     addDockWidget(Qt::RightDockWidgetArea, pvDock_);
 }
@@ -226,12 +228,26 @@ void StripTool::onNewPVCancelled()
 void StripTool::onShowPVListAction()
 {
     //  this will show the dock we've created, that lists all pvs added!
-    //pvDock_->show();
+    pvDock_->setVisible(true);
 }
 
 
 void StripTool::onHidePVListAction()
 {
     //  this will hide the pvs dock.
-    //pvDock_->hide();
+    pvDock_->setVisible(false);
+}
+
+
+void StripTool::onDockVisibilityChanged(bool isVisible)
+{
+    if (isVisible)
+    {
+        showPVListAction_->setEnabled(false);
+        hidePVListAction_->setEnabled(true);
+    } else {
+        showPVListAction_->setEnabled(true);
+        hidePVListAction_->setEnabled(false);
+    }
+
 }
