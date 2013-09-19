@@ -236,9 +236,9 @@ protected slots:
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
 	void updatePlot(int id);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
+	void onElementSelected(AMElement *element);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
+	void onElementDeselected(AMElement *element);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.

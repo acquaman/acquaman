@@ -26,16 +26,16 @@ AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent)
 {
 }
 
-void AMSelectablePeriodicTable::selectElement(int atomicNumber)
+void AMSelectablePeriodicTable::selectElement(AMElement *element)
 {
-	savedElements_.append(atomicNumber);
-	emit elementSelected(atomicNumber);
+	savedElements_.append(element);
+	emit elementSelected(element);
 }
 
-void AMSelectablePeriodicTable::deselectElement(int atomicNumber)
+void AMSelectablePeriodicTable::deselectElement(AMElement *element)
 {
-	savedElements_.removeOne(atomicNumber);
-	emit elementDeselected(atomicNumber);
+	savedElements_.removeOne(element);
+	emit elementDeselected(element);
 }
 
 void AMSelectablePeriodicTable::clearList()

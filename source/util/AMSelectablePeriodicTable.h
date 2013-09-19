@@ -36,20 +36,20 @@ public:
 	///////////////////////////////////////
 
 	/// Adds a selected element to the end of the list.
-	void selectElement(int atomicNumber);
+	void selectElement(AMElement *element);
 	/// Removes a selected element from the list.
-	void deselectElement(int atomicNumber);
+	void deselectElement(AMElement *element);
 	/// Returns the list of selected elements.
-	QList<int> selectedElements() const { return savedElements_; }
+	QList<AMElement *> selectedElements() const { return savedElements_; }
 
 	/// Clear the list.
 	void clearList();
 
 signals:
-	/// Notifier that an element has been selected.  Passes the atomic number.
-	void elementSelected(int);
-	/// Notifier that an element has been deselected.  Passes the atomic number.
-	void elementDeselected(int);
+	/// Notifier that an element has been selected.  Passes the element.
+	void elementSelected(AMElement *);
+	/// Notifier that an element has been deselected.  Passes the element.
+	void elementDeselected(AMElement *);
 	/// Notifier that all of the elments have been removed.
 	void listCleared();
 
@@ -59,8 +59,8 @@ protected:
 	/// Reimplemented to use AMSelectableElement instead of the base class AMElement.
 	virtual void buildPeriodicTable(const QStringList &list);
 
-	/// List of atomic numbers that have been saved.
-	QList<int> savedElements_;
+	/// List of elements that have been saved.
+	QList<AMElement *> savedElements_;
 };
 
 #endif // AMSELECTABLEPERIODICTABLE_H

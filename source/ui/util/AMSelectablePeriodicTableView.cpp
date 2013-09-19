@@ -37,9 +37,9 @@ void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
 	QAbstractButton *clicked = button(element->atomicNumber());
 
 	if (clicked->isChecked())
-		selectablePeriodicTable_->selectElement(element->atomicNumber());
+		selectablePeriodicTable_->selectElement(element);
 	else
-		selectablePeriodicTable_->deselectElement(element->atomicNumber());
+		selectablePeriodicTable_->deselectElement(element);
 }
 
 void AMSelectablePeriodicTableView::setRange(double low, double high)

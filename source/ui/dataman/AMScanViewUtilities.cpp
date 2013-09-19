@@ -382,8 +382,8 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	table_ = new AMSelectablePeriodicTable(this);
-	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
-	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
 
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -456,9 +456,9 @@ void AMScanViewSingleSpectrumView::setupPlot()
 	plot_->plot()->addTool(new MPlotWheelZoomerTool());
 }
 
-void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
 {
-	QList<AMEmissionLine> lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QList<AMEmissionLine> lines = element->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
 	MPlotPoint *newLine;
 
@@ -475,9 +475,9 @@ void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
 	}
 }
 
-void AMScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QString symbol = element->symbol();
 	MPlot *plot = plot_->plot();
 
 	foreach(MPlotItem *item, plot->plotItems()){
@@ -524,11 +524,11 @@ void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 		maximum_->blockSignals(false);
 	}
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementDeselected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementSelected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementSelected(element);
 }
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()

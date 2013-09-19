@@ -57,9 +57,9 @@ protected slots:
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val) { plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0))); }
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
+	void onElementSelected(AMElement *element);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
+	void onElementDeselected(AMElement *element);
 	/// Sets the plot range used for placing markers inside the plot.
 	void setPlotRange(double low, double high);
 	/// Sets the minimim for the plot range used for placing markers inside the plot.
