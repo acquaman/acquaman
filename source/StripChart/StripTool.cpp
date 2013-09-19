@@ -6,13 +6,13 @@ StripTool::StripTool(QWidget *parent)
     //  set some basic parameters for how the plot looks. These may be defined by the user later.
     maxPointsDisplayed_ = 10;
 
+    //  create the "active pvs" toolbar widget.
+    createPVDock();
+
     //  create the menu bar items for this application.
     createFileMenu();
     createPlotMenu();
     createViewMenu();
-
-    //  create the "active pvs" toolbar widget.
-    createPVDock();
 
     //  now create the MPlot that will display info for all added pvs.
 
@@ -85,19 +85,14 @@ void StripTool::createPlotMenu()
 void StripTool::createViewMenu()
 {
     //  create the actions used in the plot menu.
-    showPVListAction_ = new QAction("Show active PVs", this);
-    connect( showPVListAction_, SIGNAL(triggered()), this, SLOT(onShowPVListAction()) );
-
-    hidePVListAction_ = new QAction("Hide active PVs", this);
-    connect( showPVListAction_, SIGNAL(triggered()), this, SLOT(onHidePVListAction()) );
+    togglePVListAction_ = pvDock_->toggleViewAction();
 
     //  create the view menu and add its actions!
     viewMenu_ = menuBar()->addMenu("&View");
     viewMenu_->addAction("Plot palette"); //show options for changing plot colors.
     viewMenu_->addAction("Line palette"); //show options for changing line colors, weights, markers, etc.
     viewMenu_->addSeparator();
-    viewMenu_->addAction(showPVListAction_);
-    viewMenu_->addAction(hidePVListAction_);
+    viewMenu_->addAction(togglePVListAction_);
 }
 
 
@@ -115,8 +110,6 @@ void StripTool::createPVDock()
     pvDock_ = new QDockWidget("Active PVs", this);
     pvDock_->setAllowedAreas(Qt::RightDockWidgetArea);
     pvDock_->setWidget(pvDockGroup);
-
-    connect( pvDock_, SIGNAL(visibilityChanged(bool)), this, SLOT(onDockVisibilityChanged(bool)) );
 
     addDockWidget(Qt::RightDockWidgetArea, pvDock_);
 }
@@ -222,32 +215,4 @@ void StripTool::addToPVList(const QString &newPVName, const QString &newPVDescri
 void StripTool::onNewPVCancelled()
 {
     //  maybe display confirmation message, or something?
-}
-
-
-void StripTool::onShowPVListAction()
-{
-    //  this will show the dock we've created, that lists all pvs added!
-    pvDock_->setVisible(true);
-}
-
-
-void StripTool::onHidePVListAction()
-{
-    //  this will hide the pvs dock.
-    pvDock_->setVisible(false);
-}
-
-
-void StripTool::onDockVisibilityChanged(bool isVisible)
-{
-    if (isVisible)
-    {
-        showPVListAction_->setEnabled(false);
-        hidePVListAction_->setEnabled(true);
-    } else {
-        showPVListAction_->setEnabled(true);
-        hidePVListAction_->setEnabled(false);
-    }
-
 }

@@ -28,8 +28,7 @@ protected:
     QAction *addPVAction_;
 
     QMenu *viewMenu_;
-    QAction *showPVListAction_;
-    QAction *hidePVListAction_;
+    QAction *togglePVListAction_;
 
     int updateNumber_;
     int maxPointsDisplayed_;
@@ -56,15 +55,11 @@ protected:
 
 protected slots:
     void onAddPVAction();
-    void onShowPVListAction();
-    void onHidePVListAction();
     void addToPVList(const QString &newPVName, const QString &newPVDescription);
     void onNewPVAccepted(const QString &newPVName, const QString &newPVDescription);
     void onNewPVCancelled();
     void onNewPVConnected(bool isConnected);
     void onNewPVUpdate(double newValue);
-    void onDockVisibilityChanged(bool isVisible);
-
 };
 
 #endif // STRIPTOOL_H
