@@ -1,6 +1,6 @@
-#include "StripChart/StripTool.h"
+#include "StripChart/StripToolView.h"
 
-StripTool::StripTool(QWidget *parent)
+StripToolView::StripToolView(QWidget *parent)
     : QMainWindow(parent)
 {
     //  set some basic parameters for how the plot looks. These may be defined by the user later.
@@ -51,7 +51,7 @@ StripTool::StripTool(QWidget *parent)
 }
 
 
-void StripTool::createFileMenu()
+void StripToolView::createFileMenu()
 {
     //  create the actions used in the file menu.
     newPlotAction_ = new QAction("New plot", this);
@@ -82,7 +82,7 @@ void StripTool::createFileMenu()
 }
 
 
-void StripTool::createPlotMenu()
+void StripToolView::createPlotMenu()
 {
     //  create the actions used in the plot menu.
     addPVAction_ = new QAction("Add PV", this);
@@ -94,7 +94,7 @@ void StripTool::createPlotMenu()
 }
 
 
-void StripTool::createViewMenu()
+void StripToolView::createViewMenu()
 {
     //  create the actions used in the plot menu.
     togglePlotPaletteAction_ = new QAction("Plot palette", this);
@@ -114,7 +114,7 @@ void StripTool::createViewMenu()
 }
 
 
-void StripTool::createPVDock()
+void StripToolView::createPVDock()
 {
     pvList_ = new QListWidget();
     pvList_->setEditTriggers(QAbstractItemView::DoubleClicked);
@@ -137,13 +137,13 @@ void StripTool::createPVDock()
 }
 
 
-StripTool::~StripTool()
+StripToolView::~StripToolView()
 {
     
 }
 
 
-void StripTool::onAddPVAction()
+void StripToolView::onAddPVAction()
 {
     addPVDialog_ = new AddPVDialog(this);
     connect( addPVDialog_, SIGNAL(newPVAccepted(QString, QString)), this, SLOT(onNewPVAccepted(QString, QString)) );
@@ -152,7 +152,7 @@ void StripTool::onAddPVAction()
 }
 
 
-void StripTool::onNewPVAccepted(const QString &newPVName, const QString &newPVDescription)
+void StripToolView::onNewPVAccepted(const QString &newPVName, const QString &newPVDescription)
 {
     //  right now, only interested in the ring current pv!
     //      - it is a single value that updates regularly.
@@ -186,7 +186,7 @@ void StripTool::onNewPVAccepted(const QString &newPVName, const QString &newPVDe
 }
 
 
-void StripTool::onNewPVConnected(bool isConnected)
+void StripToolView::onNewPVConnected(bool isConnected)
 {
     Q_UNUSED(isConnected);
     //  do something special when the pv is initially connected.
@@ -194,7 +194,7 @@ void StripTool::onNewPVConnected(bool isConnected)
 }
 
 
-void StripTool::onNewPVUpdate(double newValue)
+void StripToolView::onNewPVUpdate(double newValue)
 {
     //  update the model tracking all of the pv's values.
     updateNumbers_.append(updateNumber_);
@@ -218,22 +218,22 @@ void StripTool::onNewPVUpdate(double newValue)
     //  update the vector series data.
     pvSeriesData_->setValues(updateNumbersDisplayed, pvValuesDisplayed);
 
-    //  increment the updateNumber to prepare for the next value update.
+    //  increment the updateNumber to prepare for the next single value update.
     updateNumber_++;
 }
 
 
-void StripTool::addToPVList(const QString &newPVName, const QString &newPVDescription)
+void StripToolView::addToPVList(const QString &newPVName, const QString &newPVDescription)
 {
     QListWidgetItem *pvEntry = new QListWidgetItem(newPVDescription);
     pvEntry->setCheckState(Qt::Checked); // pv should be hidden on the graph if it is unchecked.
     pvEntry->setToolTip(newPVName);
-    pvEntry->setFlags(pvEntry->flags() | Qt::ItemIsEditable); // I want to be able to edit the pv description after it is added.
+    pvEntry->setFlags(pvEntry->flags() | Qt::ItemIsEditable); // pv description can be edited after it is added.
     pvList_->addItem(pvEntry);
 }
 
 
-void StripTool::toTogglePVVisibility(const QListWidgetItem &itemClicked)
+void StripToolView::toTogglePVVisibility(const QListWidgetItem &itemClicked)
 {
     Qt::CheckState itemCheckState = itemClicked.checkState();
 
@@ -244,13 +244,13 @@ void StripTool::toTogglePVVisibility(const QListWidgetItem &itemClicked)
 }
 
 
-void StripTool::onNewPVCancelled()
+void StripToolView::onNewPVCancelled()
 {
     //  maybe display confirmation message, or something?
 }
 
 
-void StripTool::toEditPVDescription(const QListWidgetItem &itemDoubleClicked)
+void StripToolView::toEditPVDescription(const QListWidgetItem &itemDoubleClicked)
 {
     Q_UNUSED(itemDoubleClicked);
 }

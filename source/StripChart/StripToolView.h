@@ -1,5 +1,5 @@
-#ifndef STRIPTOOL_H
-#define STRIPTOOL_H
+#ifndef STRIPTOOLVIEW_H
+#define STRIPTOOLVIEW_H
 
 #include <QtGui>
 
@@ -12,13 +12,13 @@
 #include "MPlot/MPlotTools.h"
 
 
-class StripTool : public QMainWindow
+class StripToolView : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    StripTool(QWidget *parent = 0);
-    ~StripTool();
+    StripToolView(QWidget *parent = 0);
+    ~StripToolView();
 
 signals:
     void hidePV(const QListWidgetItem &itemClicked);
