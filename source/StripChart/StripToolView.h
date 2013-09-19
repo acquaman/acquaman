@@ -20,14 +20,24 @@ public:
     StripTool(QWidget *parent = 0);
     ~StripTool();
 
+signals:
+    void hidePV(const QListWidgetItem &itemClicked);
+    void showPV(const QListWidgetItem &itemClicked);
+
 protected:
     QMenu *fileMenu_;
+    QAction *newPlotAction_;
+    QAction *openPlotAction_;
+    QAction *saveDataAction_;
+    QAction *savePlotAction_;
     QAction *quitAction_;
 
     QMenu *plotMenu_;
     QAction *addPVAction_;
 
     QMenu *viewMenu_;
+    QAction *togglePlotPaletteAction_;
+    QAction *toggleLinePaletteAction_;
     QAction *togglePVListAction_;
 
     int updateNumber_;
@@ -60,6 +70,8 @@ protected slots:
     void onNewPVCancelled();
     void onNewPVConnected(bool isConnected);
     void onNewPVUpdate(double newValue);
+    void toTogglePVVisibility(const QListWidgetItem &itemClicked);
+    void toEditPVDescription(const QListWidgetItem &itemDoubleClicked);
 };
 
 #endif // STRIPTOOL_H

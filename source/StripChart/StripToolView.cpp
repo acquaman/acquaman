@@ -54,17 +54,29 @@ StripTool::StripTool(QWidget *parent)
 void StripTool::createFileMenu()
 {
     //  create the actions used in the file menu.
+    newPlotAction_ = new QAction("New plot", this);
+    newPlotAction_->setEnabled(false);
+
+    openPlotAction_ = new QAction("Open plot", this);
+    openPlotAction_->setEnabled(false);
+
+    saveDataAction_ = new QAction("Save data", this);
+    saveDataAction_->setEnabled(false);
+
+    savePlotAction_ = new QAction("Save plot", this);
+    savePlotAction_->setEnabled(false);
+
     quitAction_ = new QAction("Quit", this);
     connect( quitAction_, SIGNAL(triggered()), qApp, SLOT(quit()) );
 
     //  create the file menu and add its actions.
     fileMenu_ = menuBar()->addMenu(tr("&File"));
-    fileMenu_->addAction("New plot");
+    fileMenu_->addAction(newPlotAction_);
     fileMenu_->addSeparator();
-    fileMenu_->addAction("Open plot");
+    fileMenu_->addAction(openPlotAction_);
     fileMenu_->addSeparator();
-    fileMenu_->addAction("Save data");
-    fileMenu_->addAction("Save plot");
+    fileMenu_->addAction(saveDataAction_);
+    fileMenu_->addAction(savePlotAction_);
     fileMenu_->addSeparator();
     fileMenu_->addAction(quitAction_);
 }
@@ -85,12 +97,18 @@ void StripTool::createPlotMenu()
 void StripTool::createViewMenu()
 {
     //  create the actions used in the plot menu.
+    togglePlotPaletteAction_ = new QAction("Plot palette", this);
+    togglePlotPaletteAction_->setEnabled(false);
+
+    toggleLinePaletteAction_ = new QAction("Line palette", this);
+    toggleLinePaletteAction_->setEnabled(false);
+
     togglePVListAction_ = pvDock_->toggleViewAction();
 
     //  create the view menu and add its actions!
     viewMenu_ = menuBar()->addMenu("&View");
-    viewMenu_->addAction("Plot palette"); //show options for changing plot colors.
-    viewMenu_->addAction("Line palette"); //show options for changing line colors, weights, markers, etc.
+    viewMenu_->addAction(togglePlotPaletteAction_); //show options for changing plot colors.
+    viewMenu_->addAction(toggleLinePaletteAction_); //show options for changing line colors, weights, markers, etc.
     viewMenu_->addSeparator();
     viewMenu_->addAction(togglePVListAction_);
 }
@@ -99,7 +117,10 @@ void StripTool::createViewMenu()
 void StripTool::createPVDock()
 {
     pvList_ = new QListWidget();
+    pvList_->setEditTriggers(QAbstractItemView::DoubleClicked);
 //    pvList_->setBaseSize(200, 400);
+    connect( pvList_, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(toTogglePVVisibility(QListWidgetItem *)) );
+    connect( pvList_, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(toEditPVDescription(QListWidgetItem *)) );
 
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
     pvDockLayout->addWidget(pvList_);
@@ -110,6 +131,7 @@ void StripTool::createPVDock()
     pvDock_ = new QDockWidget("Active PVs", this);
     pvDock_->setAllowedAreas(Qt::RightDockWidgetArea);
     pvDock_->setWidget(pvDockGroup);
+
 
     addDockWidget(Qt::RightDockWidgetArea, pvDock_);
 }
@@ -206,13 +228,29 @@ void StripTool::addToPVList(const QString &newPVName, const QString &newPVDescri
     QListWidgetItem *pvEntry = new QListWidgetItem(newPVDescription);
     pvEntry->setCheckState(Qt::Checked); // pv should be hidden on the graph if it is unchecked.
     pvEntry->setToolTip(newPVName);
-//    pvEntry->setFlags(Qt::ItemIsEditable); // I want to be able to edit the pv description after it is added.
-
+    pvEntry->setFlags(pvEntry->flags() | Qt::ItemIsEditable); // I want to be able to edit the pv description after it is added.
     pvList_->addItem(pvEntry);
+}
+
+
+void StripTool::toTogglePVVisibility(const QListWidgetItem &itemClicked)
+{
+    Qt::CheckState itemCheckState = itemClicked.checkState();
+
+    if (itemCheckState == Qt::Unchecked)
+        emit hidePV(itemClicked);
+    else
+        emit showPV(itemClicked);
 }
 
 
 void StripTool::onNewPVCancelled()
 {
     //  maybe display confirmation message, or something?
+}
+
+
+void StripTool::toEditPVDescription(const QListWidgetItem &itemDoubleClicked)
+{
+    Q_UNUSED(itemDoubleClicked);
 }
