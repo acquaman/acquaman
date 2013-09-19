@@ -2,7 +2,9 @@
 
 StripToolView::StripToolView(QWidget *parent)
     : QMainWindow(parent)
-{
+{    
+    model = new StripTool(this);
+
     //  set some basic parameters for how the plot looks. These may be defined by the user later.
     maxPointsDisplayed_ = 10;
 
@@ -116,14 +118,17 @@ void StripToolView::createViewMenu()
 
 void StripToolView::createPVDock()
 {
-    pvList_ = new QListWidget();
-    pvList_->setEditTriggers(QAbstractItemView::DoubleClicked);
-//    pvList_->setBaseSize(200, 400);
-    connect( pvList_, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(toTogglePVVisibility(QListWidgetItem *)) );
-    connect( pvList_, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(toEditPVDescription(QListWidgetItem *)) );
+//    pvList_ = new QListWidget();
+//    pvList_->setEditTriggers(QAbstractItemView::DoubleClicked);
+//    connect( pvList_, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(toTogglePVVisibility(QListWidgetItem *)) );
+//    connect( pvList_, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(toEditPVDescription(QListWidgetItem *)) );
+
+    pvListView_ = new QListView(this);
+    pvListView_->setModel(model->getActivePVNames());
 
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
-    pvDockLayout->addWidget(pvList_);
+    //pvDockLayout->addWidget(pvList_);
+    pvDockLayout->addWidget(pvListView_);
 
     QGroupBox *pvDockGroup = new QGroupBox();
     pvDockGroup->setLayout(pvDockLayout);
@@ -181,7 +186,7 @@ void StripToolView::onNewPVAccepted(const QString &newPVName, const QString &new
 
         pvSeries_->setModel(pvSeriesData_);
 
-        plot->addItem(pvSeries_);
+        //plot->addItem(pvSeries_);
     }
 }
 
@@ -229,7 +234,9 @@ void StripToolView::addToPVList(const QString &newPVName, const QString &newPVDe
     pvEntry->setCheckState(Qt::Checked); // pv should be hidden on the graph if it is unchecked.
     pvEntry->setToolTip(newPVName);
     pvEntry->setFlags(pvEntry->flags() | Qt::ItemIsEditable); // pv description can be edited after it is added.
-    pvList_->addItem(pvEntry);
+
+    model->addToActivePVs(newPVName, newPVDescription);
+    //pvList_->addItem(pvEntry);
 }
 
 

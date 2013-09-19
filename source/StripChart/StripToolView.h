@@ -4,6 +4,7 @@
 #include <QtGui>
 
 #include "StripChart/AddPVDialog.h"
+#include "StripChart/StripTool.h"
 
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
@@ -25,6 +26,8 @@ signals:
     void showPV(const QListWidgetItem &itemClicked);
 
 protected:
+    StripTool *model;
+
     QMenu *fileMenu_;
     QAction *newPlotAction_;
     QAction *openPlotAction_;
@@ -45,7 +48,8 @@ protected:
     QVector<double> updateNumbers_;
     QVector<double> pvValues_;
 
-    QListWidget *pvList_;
+    //QListWidget *pvList_;
+    QListView *pvListView_;
     QDockWidget *pvDock_;
 
     MPlotVectorSeriesData *pvSeriesData_;
