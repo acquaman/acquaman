@@ -163,9 +163,9 @@ private:
 	QString symbol_;
 	/// The atomic number of the element, stored as an int.
 	int atomicNumber_;
-	/// A list of all of the edges.  Pairs of <Name, Energy>.
+	/// A list of all of the edges.
 	QList<AMAbsorptionEdge> edges_;
-	/// A list of all of the emission lines.  Pairs of <Name, Energy>.
+	/// A list of all of the emission lines.
 	QList<AMEmissionLine> emissionLines_;
 
 	/// Cached sizes of the edge list for quick access.
