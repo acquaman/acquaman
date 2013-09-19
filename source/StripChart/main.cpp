@@ -1,10 +1,10 @@
-#include "StripChart/StripTool.h"
+#include "StripChart/StripToolView.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    StripTool s;
+    StripToolView s;
     s.show();
     
     return app.exec();

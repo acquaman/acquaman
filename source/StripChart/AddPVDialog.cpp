@@ -9,11 +9,13 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
 
     //  begin building dialog widgets.
     pvNamePrompt_ = new QLabel("PV name : ");
+    pvNamePrompt_->setToolTip("Enter the EPICS read PV name for the values you wish to view.");
     pvNameLineEdit_ = new QLineEdit();
     connect( pvNameLineEdit_, SIGNAL(editingFinished()), this, SLOT(onPVNameEntered()) );
     connect( this, SIGNAL(enablePVName(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
 
     pvDescriptionPrompt_ = new QLabel("Description : ");
+    pvDescriptionPrompt_->setToolTip("Enter the name that will be used to identify this PV on the graph.");
     pvDescriptionLineEdit_ = new QLineEdit();
     connect( this, SIGNAL(enablePVDescription(bool)), pvDescriptionLineEdit_, SLOT(setEnabled(bool)) );
 

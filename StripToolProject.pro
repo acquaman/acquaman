@@ -8,9 +8,12 @@ TARGET = StripToolProject
 TEMPLATE = app
 
 SOURCES += source/StripChart/main.cpp \
-	source/StripChart/StripTool.cpp \
-	source/StripChart/AddPVDialog.cpp
+	source/StripChart/AddPVDialog.cpp \ #\
+    source/StripChart/StripToolView.cpp
+#    source/StripChart/StripToolItem.cpp
 
 HEADERS  += \
 	source/StripChart/AddPVDialog.h \
-	source/StripChart/StripTool.h
+    source/StripChart/StripToolView.h
+ # source/StripChart/StripTool.h #\
+#    source/StripChart/StripToolItem.h
