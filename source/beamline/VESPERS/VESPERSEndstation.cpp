@@ -339,7 +339,7 @@ bool VESPERSEndstation::ccdInSafePosition(double value) const
 		return value > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
 
 	else
-		return controlWithinTolerance(ccdControl_, value, softLimits_.value(ccdControl_).second);
+		return value > softLimits_.value(ccdControl_).second || controlWithinTolerance(ccdControl_, value, softLimits_.value(ccdControl_).second);
 }
 
 bool VESPERSEndstation::ccdInSafePosition() const
@@ -351,5 +351,5 @@ bool VESPERSEndstation::ccdInSafePosition() const
 		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
 
 	else
-		return controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).second);
+		return ccdControl_->value() > softLimits_.value(ccdControl_).second || controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).second);
 }
