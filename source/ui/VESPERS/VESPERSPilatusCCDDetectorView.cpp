@@ -19,6 +19,9 @@ VESPERSPilatusCCDDetectorView::VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDe
 	connect(detector, SIGNAL(fileSystemInfoUpdated()), this, SLOT(onFileSystemInfoUpdate()));
 
 	detectorLayout_->insertWidget(1, diskUsageBox);
+
+	triggerMode_->hide();
+	imageMode_->hide();
 }
 
 void VESPERSPilatusCCDDetectorView::onFileSystemInfoUpdate()
