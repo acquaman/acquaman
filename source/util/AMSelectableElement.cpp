@@ -32,6 +32,7 @@ bool AMSelectableElement::selectAbsorptionEdge(const AMAbsorptionEdge &edge)
 	if (edges().contains(edge) && !selectedAbsorptionEdges_.contains(edge)){
 
 		selectedAbsorptionEdges_ << edge;
+		emit absorptionEdgeSelected(edge);
 		return true;
 	}
 
@@ -40,7 +41,13 @@ bool AMSelectableElement::selectAbsorptionEdge(const AMAbsorptionEdge &edge)
 
 bool AMSelectableElement::deselectAbsorptionEdge(const AMAbsorptionEdge &edge)
 {
-	return selectedAbsorptionEdges_.removeOne(edge);
+	if (selectedAbsorptionEdges_.removeOne(edge)){
+
+		emit absorptionEdgeDeselected(edge);
+		return true;
+	}
+
+	return false;
 }
 
 bool AMSelectableElement::selectEmissionLine(const AMEmissionLine &line)
@@ -49,6 +56,7 @@ bool AMSelectableElement::selectEmissionLine(const AMEmissionLine &line)
 	if (emissionLines().contains(line) && !selectedEmissionLines_.contains(line)){
 
 		selectedEmissionLines_ << line;
+		emit emissionLineSelected(line);
 		return true;
 	}
 
@@ -57,17 +65,25 @@ bool AMSelectableElement::selectEmissionLine(const AMEmissionLine &line)
 
 bool AMSelectableElement::deselectEmissionLine(const AMEmissionLine &line)
 {
-	return selectedEmissionLines_.removeOne(line);
+	if (selectedEmissionLines_.removeOne(line)){
+
+		emit emissionLineDeselected(line);
+		return true;
+	}
+
+	return false;
 }
 
 void AMSelectableElement::removeAllAbsorptionEdges()
 {
 	selectedAbsorptionEdges_.clear();
+	emit allAbsorptionEdgesDeselected();
 }
 
 void AMSelectableElement::removeAllEmissionLines()
 {
 	selectedEmissionLines_.clear();
+	emit allEmissionLinesDeselected();
 }
 
 void AMSelectableElement::removeAllSelectedItems()

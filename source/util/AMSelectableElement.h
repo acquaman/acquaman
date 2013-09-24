@@ -35,9 +35,23 @@ public:
 	/// Returns the index of the given emission line, if it has been selected.
 	int indexOfSelectedEmissionLine(const AMEmissionLine &line) const { return selectedEmissionLines_.indexOf(line); }
 	/// Returns whether the given absorption edge has been selected.
-	bool absorptionEdgeSelected(const AMAbsorptionEdge &edge) const { return selectedAbsorptionEdges_.contains(edge); }
+	bool isSelected(const AMAbsorptionEdge &edge) const { return selectedAbsorptionEdges_.contains(edge); }
 	/// Returns whether the given emission line has been selected.
-	bool emissionLineSelected(const AMEmissionLine &line) const { return selectedEmissionLines_.contains(line); }
+	bool isSelected(const AMEmissionLine &line) const { return selectedEmissionLines_.contains(line); }
+
+signals:
+	/// Notifies that an edge has been selected.
+	void absorptionEdgeSelected(const AMAbsorptionEdge &);
+	/// Notifies that an edge has been deselected.
+	void absorptionEdgeDeselected(const AMAbsorptionEdge &);
+	/// Notifies that an emission line has been selected.
+	void emissionLineSelected(const AMEmissionLine &);
+	/// Notifies that an emission line has been deselected.
+	void emissionLineDeselected(const AMEmissionLine &);
+	/// Notifies that all edges were deselected.
+	void allAbsorptionEdgesDeselected();
+	/// Notifies that all emission lines were deselected.
+	void allEmissionLinesDeselected();
 
 public slots:
 	/// Adds a selected absorption edge.
