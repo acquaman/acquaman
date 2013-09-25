@@ -66,7 +66,7 @@ protected:
 		button->setText(element->symbol());
 		button->setFixedSize(30, 25);
 
-		if (element->emissionLines().isEmpty() && element->edges().isEmpty())
+		if (element->emissionLines().isEmpty() && element->absorptionEdges().isEmpty())
 			button->setEnabled(false);
 
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));

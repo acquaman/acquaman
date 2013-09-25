@@ -77,9 +77,9 @@ AMElement::AMElement(const AMElement &original)
 	name_ = original.name();
 	symbol_ = original.symbol();
 	atomicNumber_ = original.atomicNumber();
-	edgeSize_ = original.edges().size();
+	edgeSize_ = original.absorptionEdges().size();
 	emissionLineSize_ = original.emissionLines().size();
-	edges_ = original.edges();
+	edges_ = original.absorptionEdges();
 	emissionLines_ = original.emissionLines();
 }
 
@@ -100,9 +100,9 @@ AMElement &AMElement::operator =(const AMElement &other)
 	name_ = other.name();
 	symbol_ = other.symbol();
 	atomicNumber_ = other.atomicNumber();
-	edgeSize_ = other.edges().size();
+	edgeSize_ = other.absorptionEdges().size();
 	emissionLineSize_ = other.emissionLines().size();
-	edges_ = other.edges();
+	edges_ = other.absorptionEdges();
 	emissionLines_ = other.emissionLines();
 
 	return *this;
@@ -113,7 +113,7 @@ bool AMElement::operator ==(const AMElement &other)
 	return (name_ == other.name())
 			&& (symbol_ == other.symbol())
 			&& (atomicNumber_ == other.atomicNumber())
-			&& (edges_ == other.edges())
+			&& (edges_ == other.absorptionEdges())
 			&& (emissionLines_ == other.emissionLines());
 }
 

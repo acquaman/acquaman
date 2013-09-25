@@ -38,5 +38,5 @@ void AMSelectableItemView::setText(const QString &text)
 
 void AMSelectableItemView::setSelected(bool isSelected)
 {
-	checkBox_->setCheched(isSelected);
+	checkBox_->setChecked(isSelected);
 }

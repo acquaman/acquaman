@@ -29,7 +29,7 @@ AMSelectableElement::AMSelectableElement()
 bool AMSelectableElement::selectAbsorptionEdge(const AMAbsorptionEdge &edge)
 {
 	// Only add edges if they are a part of this element and only if they aren't already selected.
-	if (edges().contains(edge) && !selectedAbsorptionEdges_.contains(edge)){
+	if (absorptionEdges().contains(edge) && !selectedAbsorptionEdges_.contains(edge)){
 
 		selectedAbsorptionEdges_ << edge;
 		emit absorptionEdgeSelected(edge);

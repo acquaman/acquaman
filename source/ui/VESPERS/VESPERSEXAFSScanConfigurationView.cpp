@@ -291,9 +291,9 @@ void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(AMElement *el)
 	AMAbsorptionEdge edge;
 	lineChoice_->clear();
 
-	for (int i = 0; i < el->edges().size(); i++){
+	for (int i = 0; i < el->absorptionEdges().size(); i++){
 
-		edge = el->edges().at(i);
+		edge = el->absorptionEdges().at(i);
 
 		if (edge.energy() <= 30000 && edge.energy() >= 6700)
 			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());

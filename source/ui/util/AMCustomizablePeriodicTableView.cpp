@@ -32,7 +32,7 @@ QAbstractButton *AMCustomizablePeriodicTableView::mapElement(AMElement *element)
 	button->setText(element->symbol());
 	button->setFixedSize(30, 25);
 	button->setDisabled(element->emissionLines().isEmpty()
-						&& element->edges().isEmpty());
+						&& element->absorptionEdges().isEmpty());
 
 	connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 	elementMapper_->setMapping(button, element->atomicNumber());

@@ -64,8 +64,8 @@ public:
 	int atomicNumber() const { return atomicNumber_; }
 	/// Returns the atomic number as a string
 	QString atomicNumberString() const { return QString("%1").arg(atomicNumber_); }
-	/// Returns the entire list of edges.
-	QList<AMAbsorptionEdge> edges() const { return edges_; }
+	/// Returns the entire list of absorption edges.
+	QList<AMAbsorptionEdge> absorptionEdges() const { return edges_; }
 	/// Returns the entire list of emission lines.
 	QList<AMEmissionLine> emissionLines() const { return emissionLines_; }
 

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFElement.h"
 
 XRFElement::XRFElement(AMElement *el, QObject *parent)
-	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), interimEdgeList(el->edges()), interimLineList(el->emissionLines()), parent)
+	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), interimEdgeList(el->absorptionEdges()), interimLineList(el->emissionLines()), parent)
 {
 	for (int i = 0; i < el->emissionLines().size(); i++)
 		lineMap_.insert(el->emissionLines().at(i).greekLineName(), el->emissionLines().at(i).energy());
