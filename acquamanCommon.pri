@@ -702,7 +702,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/util/AMCustomizablePeriodicTableView.h \
     source/util/AMRange.h \
     source/ui/util/AMSelectableElementView.h \
-    source/ui/util/AMSelectableItemView.h
+    source/ui/util/AMSelectableItemView.h \
+    source/ui/beamline/AMXRFDetailedDetectorView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1189,7 +1190,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/util/AMCustomizablePeriodicTableView.cpp \
     source/util/AMRange.cpp \
     source/ui/util/AMSelectableElementView.cpp \
-    source/ui/util/AMSelectableItemView.cpp
+    source/ui/util/AMSelectableItemView.cpp \
+    source/ui/beamline/AMXRFDetailedDetectorView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1213,6 +1215,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

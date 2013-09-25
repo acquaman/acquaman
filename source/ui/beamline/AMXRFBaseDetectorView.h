@@ -8,8 +8,6 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
-#include "MPlot/MPlotPoint.h"
-#include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
