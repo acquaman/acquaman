@@ -3,7 +3,7 @@
 #include "util/AMPeriodicTable.h"
 
 AMSelectableElement::AMSelectableElement(const QString &elementName, QObject *parent)
-	: AMElement(AMPeriodicTable::table()->elementByName(elementName))
+	: AMElement(*AMPeriodicTable::table()->elementByName(elementName))
 {
 	setParent(parent);
 }

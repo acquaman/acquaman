@@ -17,6 +17,9 @@ public:
 	/// Constructor.  Builds the periodic table from a file and creates a list of elements.
 	explicit AMCustomizablePeriodicTable(QObject *parent = 0);
 
+	/// Builds the periodic table model.  Must be called after the table has been created.  Subclasses should reimplement if more sophisticated subclasses of AMElement are required.
+	virtual void buildPeriodicTable();
+
 	/// Returns the list of elements.
 	QList<AMElement *> elements() const { return periodicTable_; }
 	/// Returns the number of elements in the periodic table.
@@ -34,18 +37,6 @@ signals:
 public slots:
 
 protected:
-	/// Internal method used in the constructor that builds the appropriate elements.  This is to enable subclasses to use their own subclass of AMElement as the list.  It takes a string list of elemental information.
-	/*!
-		The format of each line is a comma separated sections.  The order the strings in each line are:
-
-		- element name
-		- element symbol
-		- atomic number
-		- all of the edge energies, in order, as a single string that is space separated.  This may be empty.
-		- all of the emission lines, in order, as a single string that is space separated.  This may be empty.
-	  */
-	virtual void buildPeriodicTable(const QStringList &list);
-
 	/// The periodic table.  In all its glory.  Stores all AMElement *'s in a list.
 	QList<AMElement *> periodicTable_;
 };

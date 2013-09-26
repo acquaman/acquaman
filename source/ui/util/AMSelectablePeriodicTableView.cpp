@@ -25,11 +25,16 @@ AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodi
 	selectablePeriodicTable_ = table;
 	connect(this, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
+	range_ = AMRange(-1.0, -1.0);
+}
+
+void AMSelectablePeriodicTableView::buildPeriodicTableView()
+{
+	AMCustomizablePeriodicTableView::buildPeriodicTableView();
+
 	// Go through every button and make it checkable.
 	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 		button(i)->setCheckable(true);
-
-	range_ = AMRange(-1.0, -1.0);
 }
 
 void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)

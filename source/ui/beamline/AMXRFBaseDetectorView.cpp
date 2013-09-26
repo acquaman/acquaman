@@ -4,8 +4,6 @@
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
-#include <QVBoxLayout>
-
 AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: QWidget(parent)
 {
@@ -16,24 +14,23 @@ AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *p
 	leftLayout_ = new QVBoxLayout;
 	rightLayout_ = new QVBoxLayout;
 	plotLayout_ = new QHBoxLayout;
-	masterLayout_ = new QVBoxLayout;
+	masterLayout_ = new QGridLayout;
 
-	setupPlot();
-	buildDetectorView();
-
-	plotLayout_->addLayout(leftLayout_);
-	plotLayout_->addWidget(view_);
-	plotLayout_->addLayout(rightLayout_);
-
-	masterLayout_->addLayout(topLayout_);
-	masterLayout_->addLayout(plotLayout_);
-	masterLayout_->addLayout(bottomLayout_);
+	masterLayout_->addLayout(topLayout_, 0, 1);
+	masterLayout_->addLayout(leftLayout_, 1, 0);
+	masterLayout_->addLayout(plotLayout_, 1, 1);
+	masterLayout_->addLayout(rightLayout_, 1, 2);
+	masterLayout_->addLayout(bottomLayout_, 2, 1);
 
 	setLayout(masterLayout_);
 }
 
 void AMXRFBaseDetectorView::buildDetectorView()
 {
+	setupPlot();
+
+	plotLayout_->addWidget(plotView_);
+
 	acquireButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Acquire");
 	connect(acquireButton_, SIGNAL(clicked()), detector_, SLOT(acquire()));
 
@@ -76,8 +73,8 @@ void AMXRFBaseDetectorView::buildDetectorView()
 void AMXRFBaseDetectorView::setupPlot()
 {
 	// Create the plot window.
-	view_ = new MPlotWidget;
-	view_->enableAntiAliasing(true);
+	plotView_ = new MPlotWidget;
+	plotView_->enableAntiAliasing(true);
 
 	// Create the plot and setup all the axes.
 	plot_ = new MPlot;
@@ -109,9 +106,9 @@ void AMXRFBaseDetectorView::setupPlot()
 	// Enable some convenient zoom tools.
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
-	view_->setPlot(plot_);
-	view_->setMinimumHeight(450);
-	view_->setMinimumWidth(600);
+	plotView_->setPlot(plot_);
+	plotView_->setMinimumHeight(450);
+	plotView_->setMinimumWidth(600);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);

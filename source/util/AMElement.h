@@ -57,9 +57,9 @@ public:
 	bool isNull() const { return atomicNumber_ == -1; }
 
 	/// Returns the name of the element.
-	QString name() const { return name_; }
+	const QString &name() const { return name_; }
 	/// Returns the symbol of the element.
-	QString symbol() const { return symbol_; }
+	const QString &symbol() const { return symbol_; }
 	/// Returns the atomic number.
 	int atomicNumber() const { return atomicNumber_; }
 	/// Returns the atomic number as a string

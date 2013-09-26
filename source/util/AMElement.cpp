@@ -84,7 +84,7 @@ AMElement::AMElement(const AMElement &original)
 }
 
 AMElement::AMElement(QObject *parent)
-	:QObject(parent)
+	: QObject(parent)
 {
 	name_ = QString();
 	symbol_ = QString();

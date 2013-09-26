@@ -143,9 +143,11 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	minMaxLayout->addStretch();
 
 	table_ = new AMSelectablePeriodicTable(this);
+	table_->buildPeriodicTable();
 	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
 
 	setPlotRange(3110, 20480);
 

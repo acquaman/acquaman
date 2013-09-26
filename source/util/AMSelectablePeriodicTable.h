@@ -32,6 +32,9 @@ public:
 	/// Constructor.
 	explicit AMSelectablePeriodicTable(QObject *parent = 0);
 
+	/// Reimplemented to use AMSelectableElement instead of the base class AMElement.
+	virtual void buildPeriodicTable();
+
 	// Added features.
 	///////////////////////////////////////
 
@@ -56,9 +59,6 @@ signals:
 public slots:
 
 protected:
-	/// Reimplemented to use AMSelectableElement instead of the base class AMElement.
-	virtual void buildPeriodicTable(const QStringList &list);
-
 	/// List of elements that have been saved.
 	QList<AMElement *> savedElements_;
 };

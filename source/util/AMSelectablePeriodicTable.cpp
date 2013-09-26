@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSelectablePeriodicTable.h"
 
 #include "util/AMSelectableElement.h"
+#include "util/AMPeriodicTable.h"
 
 AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent)
 	: AMCustomizablePeriodicTable(parent)
@@ -44,8 +45,10 @@ void AMSelectablePeriodicTable::clearList()
 	emit listCleared();
 }
 
-void AMSelectablePeriodicTable::buildPeriodicTable(const QStringList &list)
+void AMSelectablePeriodicTable::buildPeriodicTable()
 {
-	foreach (QString element, list)
-		periodicTable_ << new AMSelectableElement(element.split(",").first());
+	QList<AMElement *> elements = AMPeriodicTable::table()->elements();
+
+	foreach (AMElement *element, elements)
+		periodicTable_ << new AMSelectableElement(element->name());
 }

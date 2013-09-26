@@ -10,13 +10,8 @@ AMCustomizablePeriodicTableView::AMCustomizablePeriodicTableView(AMCustomizableP
 
 	// Initialize the signal mapper.
 	elementMapper_ = new QSignalMapper(this);
-
-	// Build the periodic table.
-	QLayout *tableLayout = buildPeriodicTableView();
-
 	connect(elementMapper_, SIGNAL(mapped(int)), this, SLOT(onElementClicked(int)));
 
-	setLayout(tableLayout);
 	setMaximumSize(750, 300);
 }
 
@@ -40,7 +35,7 @@ QAbstractButton *AMCustomizablePeriodicTableView::mapElement(AMElement *element)
 	return button;
 }
 
-QLayout *AMCustomizablePeriodicTableView::buildPeriodicTableView()
+void AMCustomizablePeriodicTableView::buildPeriodicTableView()
 {
 	QGridLayout *tableLayout = new QGridLayout;
 	tableLayout->setSpacing(0);
@@ -76,5 +71,5 @@ QLayout *AMCustomizablePeriodicTableView::buildPeriodicTableView()
 	for (int i = 90; i <= 103; i++)
 		tableLayout->addWidget(mapElement(periodicTable_->elementByAtomicNumber(i)), 8, i-87);
 
-	return tableLayout;
+	setLayout(tableLayout);
 }

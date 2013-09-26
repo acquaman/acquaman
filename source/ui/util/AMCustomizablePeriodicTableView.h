@@ -17,10 +17,13 @@ public:
 	/// Constructor.  Requires a customizable periodic table model to view.
 	explicit AMCustomizablePeriodicTableView(AMCustomizablePeriodicTable *table, QWidget *parent = 0);
 
+	/// This is an internal method that builds the periodic table view and returns a pointer to the layout it generates.  It can be overwritten by subclasses.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
+	virtual void buildPeriodicTableView();
+
 	/// Returns the mapped QToolButton for a given atomic number.
-	QAbstractButton *button(int atomicNumber) { return qobject_cast<QToolButton *>(elementMapper_->mapping(atomicNumber)); }
+	QAbstractButton *button(int atomicNumber) { return qobject_cast<QAbstractButton *>(elementMapper_->mapping(atomicNumber)); }
 	/// Returns the mapped QToolButton for a given element.
-	QAbstractButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
+	QAbstractButton *button(AMElement *el) { return qobject_cast<QAbstractButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// When an element is clicked on, this signal will be emitted carrying a pointer to the element.
@@ -31,8 +34,6 @@ protected slots:
 	void onElementClicked(int number);
 
 protected:
-	/// This is an internal method that builds the periodic table view and returns a pointer to the layout it generates.  It can be overwritten by subclasses.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
-	virtual QLayout *buildPeriodicTableView();
 	/// This is a convenience function that takes an AMElement and returns a mapped QAbstractButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.  Can be reimplemented for customized views with different buttons, element subclasses, or other general behaviour.
 	virtual QAbstractButton *mapElement(AMElement *element);
 

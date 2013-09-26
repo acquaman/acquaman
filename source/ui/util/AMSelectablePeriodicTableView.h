@@ -33,8 +33,11 @@ public:
 	/// Constructor.
 	AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent = 0);
 
+	/// This is an internal method that builds the periodic table view and returns a pointer to the layout it generates.  It can be overwritten by subclasses.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
+	virtual void buildPeriodicTableView();
+
 	/// Returns the energy range that is acceptable for the periodic table.
-	AMRange range() const { return range_; }
+	const AMRange &range() const { return range_; }
 	/// Returns the lower bound for the acceptable range.
 	double lowerBound() const { return range_.minimum(); }
 	/// Returns the upper bound for the acceptable range.

@@ -80,6 +80,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 
 // For database registration:
@@ -158,7 +159,9 @@ bool VESPERSAppController::startup() {
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
 		VESPERSSingleElementVortexDetector *test = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element", this);
-		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
+//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
+		AMXRFDetailedDetectorView *testView = new AMXRFDetailedDetectorView(test);
+		testView->buildDetectorView();
 		testView->show();
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.

@@ -123,6 +123,10 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 	setLayout(mainLayout);
 
 	setMaximumSize(300, 300);
+
+	// Initialize the view if the element is valid.
+	if (element_)
+		setElement(element_);
 }
 
 void AMSelectableElementView::addAbsorptionEdgeNameFilter(const QString &newNameFilter)

@@ -382,9 +382,11 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	table_ = new AMSelectablePeriodicTable(this);
+	table_->buildPeriodicTable();
 	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(plot_);
