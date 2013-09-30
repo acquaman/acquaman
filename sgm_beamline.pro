@@ -10,4 +10,5 @@ SUBDIRS += \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
 	SGMSSAAcquaman.pro \
+	AMCrashReporter.pro \
         SGMAcquaman.pro
