@@ -218,7 +218,7 @@ void VESPERSXRFViewer::onElementDeselected(AMElement *element)
 void VESPERSXRFViewer::setPlotRange(double low, double high)
 {
 	range_ = AMRange(low, high);
-	tableView_->setRange(low, high);
+	tableView_->setEnergyRange(low, high);
 
 	foreach(AMElement *element, table_->selectedElements())
 		onElementDeselected(element);

@@ -510,7 +510,7 @@ void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 {
 	range_ = AMRange(low, high);
-	tableView_->setRange(low, high);
+	tableView_->setEnergyRange(low, high);
 
 	if (low != minimum_->value()){
 

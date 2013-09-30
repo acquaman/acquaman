@@ -25,7 +25,7 @@ AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodi
 	selectablePeriodicTable_ = table;
 	connect(this, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-	range_ = AMRange(-1.0, -1.0);
+	energyRange_ = AMRange();
 }
 
 void AMSelectablePeriodicTableView::buildPeriodicTableView()
@@ -47,18 +47,47 @@ void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
 		selectablePeriodicTable_->deselectElement(element);
 }
 
-void AMSelectablePeriodicTableView::setRange(double low, double high)
+void AMSelectablePeriodicTableView::setEnergyRange(double low, double high)
 {
-	range_ = AMRange(low, high);
-	AMElement *temp;
+	setEnergyRange(AMRange(low, high));
+}
 
+void AMSelectablePeriodicTableView::setEnergyRange(const AMRange &range)
+{
+	if (energyRange_ != range){
+
+		energyRange_ = range;
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::setMinimumEnergy(double newMinimum)
+{
+	if (energyRange_.minimum() != newMinimum){
+
+		energyRange_.setMinimum(newMinimum);
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::setMaximumEnergy(double newMaximum)
+{
+	if (energyRange_.maximum() != newMaximum){
+
+		energyRange_.setMaximum(newMaximum);
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::updateTableView()
+{
 	if (rangeIsValid()){
 
 		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++){
 
-			temp = periodicTable_->elementByAtomicNumber(i);
-			button(i)->setDisabled((temp->Kalpha().energy() < range_.minimum())
-								   || ((temp->Kalpha().energy() > range_.maximum() && temp->Lalpha().energy() < range_.minimum()))
+			AMElement *temp = periodicTable_->elementByAtomicNumber(i);
+			button(i)->setDisabled((temp->Kalpha().energy() < energyRange_.minimum())
+								   || ((temp->Kalpha().energy() > energyRange_.maximum() && temp->Lalpha().energy() < energyRange_.minimum()))
 								   || (temp->emissionLines().isEmpty()));
 		}
 	}

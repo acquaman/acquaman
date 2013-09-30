@@ -5,7 +5,10 @@
 
 #include "ui/util/AMSelectableItemView.h"
 #include "util/AMSelectableElement.h"
-#include "util/AMRange.h"
+#include "util/AMNameAndRangeValidator.h"
+
+#include <QGroupBox>
+#include <QScrollArea>
 
 /// Sbuclass of the AMSelectableItemView for some specific AMAbsorptionEdge additions.
 class AMSelectableAbsorptionEdgeView : public AMSelectableItemView
@@ -85,16 +88,21 @@ public:
 	/// Returns the current element that this view is representing.
 	AMSelectableElement *element() const { return element_; }
 	/// Returns the energy range used for filtering.  If no range has been provided the range is null.
-	const AMRange &energyRange() const { return energyRange_; }
+	const AMRange &energyRange() const { return absorptionEdgeValidator_->range(); }
 	/// Returns the minimum energy in the energy range filter.
-	double minimumEnergy() const { return energyRange_.minimum(); }
+	double minimumEnergy() const { return absorptionEdgeValidator_->minimum(); }
 	/// Returns the maximum energy in the energy range filter.
-	double maximumEnergy() const { return energyRange_.maximum(); }
+	double maximumEnergy() const { return absorptionEdgeValidator_->maximum(); }
+
+	/// Changes the visibility of the emission line view.
+	void setEmissionLineVisibility(bool visible);
+	/// Changes the visibility of the absorption edge view.
+	void setAbsorptionEdgeVisibility(bool visible);
 
 	/// Returns the list of absorption edge name filters that have been provided to the element view.
-	QStringList absorptionEdgeNameFilters() const { return absorptionEdgeNameFilters_; }
+	QStringList absorptionEdgeNameFilters() const { return absorptionEdgeValidator_->nameFilters(); }
 	/// Returns the absorption edge name filter at a given index.
-	const QString &absorptionEdgeNameFilterAt(int index) const { return absorptionEdgeNameFilters_.at(index); }
+	const QString &absorptionEdgeNameFilterAt(int index) const { return absorptionEdgeValidator_->nameFilterAt(index); }
 	/// Removes the absorption edge name filter at the given index.  Returns whether the removal was successful.
 	bool removeAbsorptionEdgeNameFilter(int index);
 	/// Removes the absorption edge name filter with the given name filter.  Returns whether the removal was successful.
@@ -103,9 +111,9 @@ public:
 	void addAbsorptionEdgeNameFilter(const QString &newNameFilter);
 
 	/// Returns the list of emission line name filters that have provided to the element view.
-	QStringList emissionLinenameFilters() const { return emissionLineNameFilters_; }
+	QStringList emissionLinenameFilters() const { return emissionLineValidator_->nameFilters(); }
 	/// Returns the emission line name filter at a given index.
-	const QString &emissionLineNameFilterAt(int index) const { return emissionLineNameFilters_.at(index); }
+	const QString &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
 	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
 	bool removeEmissionLineNameFilter(int index);
 	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
@@ -120,6 +128,8 @@ public slots:
 	void setElement(AMSelectableElement *element);
 	/// Sets the energy range filter for this view.
 	void setEnergyRange(const AMRange &newRange);
+	/// Sets the energy range filter for this view.
+	void setEnergyRange(double minimum, double maximum);
 	/// Sets a new minimum value for the energy range.
 	void setMinimumEnergy(double newMinimum);
 	/// Sets a new maximum value for the energy range.
@@ -136,11 +146,6 @@ protected slots:
 	void updateEmissionLineViewList();
 
 protected:
-	/// Helper method that returns whether the name of an absorption edge is valid or not based on the current filters.
-	bool isAbsorptionEdgeValid(const QString &name) const;
-	/// Helper method that retursn whether the name of an emission line is valid or not based on the current filters.
-	bool isEmissionLineValid(const QString &name) const;
-
 	/// The label for the name of the element.
 	QLabel *elementName_;
 	/// The label for the symbol of the element.
@@ -149,9 +154,22 @@ protected:
 	QList<AMSelectableAbsorptionEdgeView *> absorptionEdgeViews_;
 	/// The list of the emission line views.
 	QList<AMSelectableEmissionLineView *> emissionLineViews_;
+	/// The emission line group box.
+	QGroupBox *emissionLineGroupBox_;
+	/// The emission line scroll area.
+	QScrollArea *emissionLineScrollArea_;
+	/// The absorption edge group box.
+	QGroupBox *absorptionEdgeGroupBox_;
+	/// The absorption edge scroll area.
+	QScrollArea *absorptionEdgeScrollArea_;
 
 	/// The pointer to the element we are representing.
 	AMSelectableElement *element_;
+	/// The absorption edge validator.
+	AMNameAndRangeValidator *absorptionEdgeValidator_;
+	/// The emission line validator.
+	AMNameAndRangeValidator *emissionLineValidator_;
+
 	/// The energy range filter.
 	AMRange energyRange_;
 	/// The list of name filters used for knowing what absorption edges to show.

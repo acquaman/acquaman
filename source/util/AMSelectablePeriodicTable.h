@@ -38,6 +38,8 @@ public:
 	// Added features.
 	///////////////////////////////////////
 
+	/// Returns whether there are any selected elements in this periodic table.
+	bool hasSelectedElements() const { return !savedElements_.isEmpty(); }
 	/// Adds a selected element to the end of the list.
 	void selectElement(AMElement *element);
 	/// Removes a selected element from the list.
@@ -56,7 +58,26 @@ signals:
 	/// Notifier that all of the elments have been removed.
 	void listCleared();
 
+	/// Notifier that an absorption edge was selected.  Passes the element and the edge.
+	void absorptionEdgeSelected(AMElement *, const AMAbsorptionEdge &);
+	/// Notifier that an absorption edge was deselected.  Passes the element and the edge.
+	void absorptionEdgeDeselected(AMElement *, const AMAbsorptionEdge &);
+	/// Notifier that an emission line was selected.  Passes the element and emission line.
+	void emissionLineSelected(AMElement *, const AMEmissionLine &);
+	/// Notifier that an emission line was deselected.  Passes the element and emission line.
+	void emissionLineDeselected(AMElement *, const AMEmissionLine &);
+
 public slots:
+
+protected slots:
+	/// Handles passing on the signal that an absorption edge has been selected.
+	void onAbsorptionEdgeSelected(const AMAbsorptionEdge &edge);
+	/// Handles passing on the signal that an absorption edge has been deselected.
+	void onAbsorptionEdgeDeselected(const AMAbsorptionEdge &edge);
+	/// Handles passing on the signal that an emission line has been selected.
+	void onEmissionLineSelected(const AMEmissionLine &line);
+	/// Handles passing on the signal that an emission line has been deselected.
+	void onEmissionLineDeselected(const AMEmissionLine &line);
 
 protected:
 	/// List of elements that have been saved.

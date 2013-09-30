@@ -1,8 +1,6 @@
 #include "AMSelectableElementView.h"
 
 #include <QStringBuilder>
-#include <QGroupBox>
-#include <QScrollArea>
 
 // AMSelectableAbsorptionEdgeView
 ////////////////////////////////////////////////
@@ -57,7 +55,7 @@ void AMSelectableEmissionLineView::setEmissionLine(const AMEmissionLine &line, b
 	emissionLine_ = line;
 	setVisible(!emissionLine_.isNull());
 	checkBox_->setChecked(alreadySelected);
-	checkBox_->setText(emissionLine_.name() % ": " % emissionLine_.energyString() % " eV");
+	checkBox_->setText(emissionLine_.greekName() % ": " % emissionLine_.energyString() % " eV");
 	blockSignals(false);
 }
 
@@ -73,7 +71,11 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 	: QWidget(parent)
 {
 	element_ = element;
-	energyRange_ = AMRange();
+
+	absorptionEdgeValidator_ = new AMNameAndRangeValidator(this);
+	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+	connect(absorptionEdgeValidator_, SIGNAL(validatorChanged()), this, SLOT(updateAbsorptionEdgeViewList()));
+	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineViewList()));
 
 	elementName_ = new QLabel;
 	elementName_->setFont(QFont("Times New Roman", 16));
@@ -81,10 +83,15 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 	elementSymbol_->setFont(QFont("Times New Roman", 45, 10));
 
 	QVBoxLayout *emissionLineGroupBoxLayout = new QVBoxLayout;
-	QGroupBox *emissionLineGroupBox = new QGroupBox;
-	emissionLineGroupBox->setLayout(emissionLineGroupBoxLayout);
-	QScrollArea *emissionLineScrollArea = new QScrollArea;
-	emissionLineScrollArea->setWidget(emissionLineGroupBox);
+	emissionLineGroupBoxLayout->setContentsMargins(0,0,0,0);
+	emissionLineGroupBoxLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	emissionLineGroupBox_ = new QGroupBox;
+	emissionLineGroupBox_->setFlat(true);
+	emissionLineGroupBox_->setLayout(emissionLineGroupBoxLayout);
+	emissionLineScrollArea_ = new QScrollArea;
+	emissionLineScrollArea_->setWidget(emissionLineGroupBox_);
+	emissionLineScrollArea_->setFrameShape(QFrame::NoFrame);
+	emissionLineScrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	for (int i = 0; i < 9; i++){
 
@@ -94,11 +101,16 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 		emissionLineGroupBoxLayout->addWidget(lineView);
 	}
 
+	emissionLineGroupBoxLayout->addStretch();
+
 	QVBoxLayout *absorptionEdgeGroupBoxLayout = new QVBoxLayout;
-	QGroupBox *absorptionEdgeGroupBox = new QGroupBox;
-	absorptionEdgeGroupBox->setLayout(absorptionEdgeGroupBoxLayout);
-	QScrollArea *absorptionEdgeScrollArea = new QScrollArea;
-	absorptionEdgeScrollArea->setWidget(absorptionEdgeGroupBox);
+	absorptionEdgeGroupBox_ = new QGroupBox;
+	absorptionEdgeGroupBox_->setFlat(true);
+	absorptionEdgeGroupBox_->setLayout(absorptionEdgeGroupBoxLayout);
+	absorptionEdgeScrollArea_ = new QScrollArea;
+	absorptionEdgeScrollArea_->setWidget(absorptionEdgeGroupBox_);
+	absorptionEdgeScrollArea_->setFrameShape(QFrame::NoFrame);
+	absorptionEdgeScrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	for (int i = 0; i < 24; i++){
 
@@ -108,13 +120,15 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 		absorptionEdgeGroupBoxLayout->addWidget(edgeView);
 	}
 
+	absorptionEdgeGroupBoxLayout->addStretch();
+
 	QHBoxLayout *titleLayout = new QHBoxLayout;
 	titleLayout->addWidget(elementName_);
 	titleLayout->addWidget(elementSymbol_);
 
 	QHBoxLayout *lineAndEdgeLayout = new QHBoxLayout;
-	lineAndEdgeLayout->addWidget(emissionLineScrollArea);
-	lineAndEdgeLayout->addWidget(absorptionEdgeScrollArea);
+	lineAndEdgeLayout->addWidget(emissionLineScrollArea_);
+	lineAndEdgeLayout->addWidget(absorptionEdgeScrollArea_);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(titleLayout);
@@ -122,7 +136,7 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 
 	setLayout(mainLayout);
 
-	setMaximumSize(300, 300);
+	setMinimumWidth(220);
 
 	// Initialize the view if the element is valid.
 	if (element_)
@@ -131,66 +145,32 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 
 void AMSelectableElementView::addAbsorptionEdgeNameFilter(const QString &newNameFilter)
 {
-	if (!absorptionEdgeNameFilters_.contains(newNameFilter)){
-
-		absorptionEdgeNameFilters_ << newNameFilter;
-		updateAbsorptionEdgeViewList();
-	}
+	absorptionEdgeValidator_->addNameFilter(newNameFilter);
 }
 
 bool AMSelectableElementView::removeAbsorptionEdgeNameFilter(int index)
 {
-	bool successfullyRemoved = (index >= 0) && (index < absorptionEdgeNameFilters_.size());
-
-	if (successfullyRemoved){
-
-		absorptionEdgeNameFilters_.removeAt(index);
-		updateAbsorptionEdgeViewList();
-	}
-
-	return successfullyRemoved;
+	return absorptionEdgeValidator_->removeNameFilter(index);
 }
 
 bool AMSelectableElementView::removeAbsorptionEdgeNameFilter(const QString &filter)
 {
-	bool successfullyRemoved = absorptionEdgeNameFilters_.removeOne(filter);
-
-	if (successfullyRemoved)
-		updateAbsorptionEdgeViewList();
-
-	return successfullyRemoved;
+	return absorptionEdgeValidator_->removeNameFilter(filter);
 }
 
 void AMSelectableElementView::addEmissionLineNameFilter(const QString &newNameFilter)
 {
-	if (!emissionLineNameFilters_.contains(newNameFilter)){
-
-		emissionLineNameFilters_ << newNameFilter;
-		updateEmissionLineViewList();
-	}
+	emissionLineValidator_->addNameFilter(newNameFilter);
 }
 
 bool AMSelectableElementView::removeEmissionLineNameFilter(int index)
 {
-	bool successfullyRemoved = (index >= 0) && (index < emissionLineNameFilters_.size());
-
-	if (successfullyRemoved){
-
-		emissionLineNameFilters_.removeAt(index);
-		updateAbsorptionEdgeViewList();
-	}
-
-	return successfullyRemoved;
+	return emissionLineValidator_->removeNameFilter(index);
 }
 
 bool AMSelectableElementView::removeEmissionLineNameFilter(const QString &filter)
 {
-	bool successfullyRemoved = emissionLineNameFilters_.removeOne(filter);
-
-	if (successfullyRemoved)
-		updateAbsorptionEdgeViewList();
-
-	return successfullyRemoved;
+	return emissionLineValidator_->removeNameFilter(filter);
 }
 
 void AMSelectableElementView::setElement(AMSelectableElement *element)
@@ -207,34 +187,43 @@ void AMSelectableElementView::setElement(AMSelectableElement *element)
 	updateEmissionLineViewList();
 }
 
+void AMSelectableElementView::setEmissionLineVisibility(bool visible)
+{
+	emissionLineScrollArea_->setVisible(visible);
+
+	if (visible)
+		updateEmissionLineViewList();
+}
+
+void AMSelectableElementView::setAbsorptionEdgeVisibility(bool visible)
+{
+	absorptionEdgeScrollArea_->setVisible(visible);
+
+	if (visible)
+		updateAbsorptionEdgeViewList();
+}
+
 void AMSelectableElementView::setEnergyRange(const AMRange &newRange)
 {
-	if (energyRange_ != newRange){
+	absorptionEdgeValidator_->setRange(newRange);
+	emissionLineValidator_->setRange(newRange);
+}
 
-		energyRange_ = newRange;
-		updateAbsorptionEdgeViewList();
-		updateEmissionLineViewList();
-	}
+void AMSelectableElementView::setEnergyRange(double minimum, double maximum)
+{
+	setEnergyRange(AMRange(minimum, maximum));
 }
 
 void AMSelectableElementView::setMinimumEnergy(double newMinimum)
 {
-	if (energyRange_.minimum() != newMinimum){
-
-		energyRange_.setMinimum(newMinimum);
-		updateAbsorptionEdgeViewList();
-		updateEmissionLineViewList();
-	}
+	absorptionEdgeValidator_->setMinimum(newMinimum);
+	emissionLineValidator_->setMinimum(newMinimum);
 }
 
 void AMSelectableElementView::setMaximumEnergy(double newMaximum)
 {
-	if (energyRange_.maximum() != newMaximum){
-
-		energyRange_.setMaximum(newMaximum);
-		updateAbsorptionEdgeViewList();
-		updateEmissionLineViewList();
-	}
+	absorptionEdgeValidator_->setMaximum(newMaximum);
+	emissionLineValidator_->setMaximum(newMaximum);
 }
 
 void AMSelectableElementView::updateAbsorptionEdgeViewList()
@@ -242,13 +231,9 @@ void AMSelectableElementView::updateAbsorptionEdgeViewList()
 	QList<AMAbsorptionEdge> edges(element_->absorptionEdges());
 	int viewIterator = 0;
 
-	for (int i = 0, size = edges.size(); i < size; i++){
-
-		AMAbsorptionEdge edge = edges.at(i);
-
-		if (isAbsorptionEdgeValid(edge.name()) && energyRange_.withinRange(edge.energy()))
+	foreach (AMAbsorptionEdge edge, edges)
+		if (absorptionEdgeValidator_->isValid(edge.name(), edge.energy()))
 			absorptionEdgeViews_.at(viewIterator++)->setAbsorptionEdge(edge, element_->isSelected(edge));
-	}
 
 	// Then hide the rest.
 	for (int listSize = absorptionEdgeViews_.size(); viewIterator < listSize; viewIterator++)
@@ -260,37 +245,13 @@ void AMSelectableElementView::updateEmissionLineViewList()
 	QList<AMEmissionLine> lines(element_->emissionLines());
 	int viewIterator = 0;
 
-	for (int i = 0, size = lines.size(); i < size; i++){
-
-		AMEmissionLine line = lines.at(i);
-
-		if (isEmissionLineValid(line.name()) && energyRange_.withinRange(line.energy()))
+	foreach (AMEmissionLine line, lines)
+		if (emissionLineValidator_->isValid(line.name(), line.energy()))
 			emissionLineViews_.at(viewIterator++)->setEmissionLine(line, element_->isSelected(line));
-	}
 
 	// Then hide the rest.
 	for (int listSize = emissionLineViews_.size(); viewIterator < listSize; viewIterator++)
 		emissionLineViews_.at(viewIterator)->setEmissionLine(AMEmissionLine());
-}
-
-bool AMSelectableElementView::isAbsorptionEdgeValid(const QString &name) const
-{
-	bool isValid = true;
-
-	foreach (QString nameFilter, absorptionEdgeNameFilters_)
-		isValid = isValid && name.contains(nameFilter);
-
-	return isValid;
-}
-
-bool AMSelectableElementView::isEmissionLineValid(const QString &name) const
-{
-	bool isValid = true;
-
-	foreach (QString nameFilter, emissionLineNameFilters_)
-		isValid = isValid && name.contains(nameFilter);
-
-	return isValid;
 }
 
 void AMSelectableElementView::onAbsorptionEdgeSelected(bool isSelected, const AMAbsorptionEdge &edge)

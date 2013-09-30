@@ -17,7 +17,7 @@ public:
 	/// Constructor.  Requires a customizable periodic table model to view.
 	explicit AMCustomizablePeriodicTableView(AMCustomizablePeriodicTable *table, QWidget *parent = 0);
 
-	/// This is an internal method that builds the periodic table view and returns a pointer to the layout it generates.  It can be overwritten by subclasses.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
+	/// This method actually builds all of the GUI elements for the periodic table view.  It can be reimplemented by subclasses for specific looks.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
 	virtual void buildPeriodicTableView();
 
 	/// Returns the mapped QToolButton for a given atomic number.

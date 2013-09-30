@@ -15,13 +15,13 @@ public:
 	/// Returns whether the range is null.
 	bool isNull() const { return isNull_; }
 	/// Returns whether the range is invalid.  If range is null, it is also invalid.
-	bool isValid() const { return (maximum_ < minimum_) && !isNull_; }
+	bool isValid() const { return (minimum_ < maximum_) && !isNull_; }
 	/// Returns the minimum value of the range.
 	double minimum() const { return minimum_; }
 	/// Returns the maximum value of the range.
 	double maximum() const { return maximum_; }
 	/// Returns whether the provided value falls within the limits defined by this range.
-	bool withinRange(double value) { return value >= minimum_ && value <= maximum_; }
+	bool withinRange(double value) const { return value >= minimum_ && value <= maximum_; }
 
 	/// Sets the minimum value to \param newValue.
 	void setMinimum(double newValue);

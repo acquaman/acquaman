@@ -162,6 +162,8 @@ bool VESPERSAppController::startup() {
 //		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
 		AMXRFDetailedDetectorView *testView = new AMXRFDetailedDetectorView(test);
 		testView->buildDetectorView();
+		testView->setEnergyRange(3000, 20000);
+		testView->addEmissionLineNameFilter("1");
 		testView->show();
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.

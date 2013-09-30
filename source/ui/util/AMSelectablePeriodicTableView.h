@@ -33,30 +33,38 @@ public:
 	/// Constructor.
 	AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent = 0);
 
-	/// This is an internal method that builds the periodic table view and returns a pointer to the layout it generates.  It can be overwritten by subclasses.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.
+	/// Re-implemented.  Uses AMCustomizeablePeriodicTableView, but then makes every button checkable.
 	virtual void buildPeriodicTableView();
 
 	/// Returns the energy range that is acceptable for the periodic table.
-	const AMRange &range() const { return range_; }
+	const AMRange &range() const { return energyRange_; }
 	/// Returns the lower bound for the acceptable range.
-	double lowerBound() const { return range_.minimum(); }
+	double lowerBound() const { return energyRange_.minimum(); }
 	/// Returns the upper bound for the acceptable range.
-	double upperBound() const { return range_.maximum(); }
+	double upperBound() const { return energyRange_.maximum(); }
 
 public slots:
-	/// Sets the acceptable range used for elements to be enabled.  If either low or high are negative it assumes that all elements are valid.
-	void setRange(double low, double high);
+	/// Sets the acceptable range used for elements to be enabled.
+	void setEnergyRange(double low, double high);
+	/// Sets the acceptable range used for elements to be enabled.
+	void setEnergyRange(const AMRange &range);
+	/// Sets the minimum of the energy range.
+	void setMinimumEnergy(double newMinimum);
+	/// Sets the maximum of the energy range.
+	void setMaximumEnergy(double newMaximum);
 
 protected slots:
 	/// Handles passing on information to the model that the button has been clicked.
 	void onElementClicked(AMElement *element);
 
 protected:
-	/// Helper method that returns whether a range is valid or not.
-	bool rangeIsValid() const { return range_.minimum() >= 0 || range_.isValid(); }
+	/// Method that updates the disabled look of the buttons based on the energy range.
+	void updateTableView();
+	/// Helper method that returns whether a range is valid or not.  This is more strict than AMRange::isValid() because energies cannot be less than 0.
+	bool rangeIsValid() const { return energyRange_.minimum() >= 0 || energyRange_.isValid(); }
 
 	/// Pair that holds the acceptable range that should be considered.
-	AMRange range_;
+	AMRange energyRange_;
 	/// A pointer for the selectable periodic table.  To minimize having to use qobject_cast for routine operations.
 	AMSelectablePeriodicTable *selectablePeriodicTable_;
 };
