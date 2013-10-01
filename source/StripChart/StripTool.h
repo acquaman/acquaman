@@ -1,46 +1,74 @@
 #ifndef STRIPTOOL_H
 #define STRIPTOOL_H
 
-#include <QObject>
-#include <QStringListModel>
+#include <QtGui>
 
-#include "MPlot/MPlot.h"
+#include "StripChart/AddPVDialog.h"
 
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotSeriesData.h"
 #include "beamline/AMPVControl.h"
+#include "MPlot/MPlotTools.h"
 
-class StripTool : public QObject
+
+class StripTool : public QMainWindow
 {
     Q_OBJECT
-
+    
 public:
-    explicit StripTool(QObject *parent = 0);
+    StripTool(QWidget *parent = 0);
+    ~StripTool();
 
-    friend class StripToolView;
-    
 signals:
-    void pvAlreadyVisible();
+    void hidePV(const QListWidgetItem &itemClicked);
+    void showPV(const QListWidgetItem &itemClicked);
 
 protected:
-    QStringList activePVNamesList_;
-    QStringListModel *activePVNames_;
+    QStandardItemModel *pvListModel_;
+    QListView *pvListView_;
+    QTableView *pvTableView_;
+    QDockWidget *pvDock_;
 
-    QStringList activePVDescriptionsList_;
-    QStringListModel *activePVDescriptions_;
+    QMenu *fileMenu_;
+    QAction *newPlotAction_;
+    QAction *openPlotAction_;
+    QAction *saveDataAction_;
+    QAction *savePlotAction_;
+    QAction *quitAction_;
 
-    QStringList visiblePVNamesList_;
-    QStringListModel *visiblePVNames_;
+    QMenu *plotMenu_;
+    QAction *addPVAction_;
+
+    QMenu *viewMenu_;
+    QAction *togglePlotPaletteAction_;
+    QAction *toggleLinePaletteAction_;
+    QAction *togglePVListAction_;
+
+    int updateNumber_;
+    int maxPointsDisplayed_;
+    QVector<double> updateNumbers_;
+    QVector<double> pvValues_;
+
+    MPlotVectorSeriesData *pvSeriesData_;
+    MPlotSeriesBasic *pvSeries_;
+    MPlot *plot;
+
+    QPushButton *addPVButton_;
+    QPushButton *quitButton_;
+
+    AddPVDialog *addPVDialog_;
 
 protected:
-    void addToActivePVs(const QString &pvName, const QString &pvDescription);
-    void removeFromActivePVs(const QString &pvName);
-    void addToVisiblePVs(const QString &pvName);
-    void removeFromVisiblePVs(const QString &pvName);
-    QStringListModel* getActivePVNames();
-//    QStringListModel getActivePVDescriptions();
+    void createPVListModel();
+    void createPVDock();
+    void createFileMenu();
+    void createPlotMenu();
+    void createViewMenu();
 
-
-public slots:
-    
+protected slots:
+    void onAddPVAction();
+    void addToPVListModel(const QString &newPVName, const QString &newPVDescription);
 };
 
 #endif // STRIPTOOL_H
