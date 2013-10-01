@@ -62,13 +62,15 @@ StripTool::~StripTool()
 void StripTool::createPVListModel()
 {
     pvListModel_ = new QStandardItemModel(this);
+//    pvListModel_->setHeaderData(1, Qt::Horizontal, QVariant("PV Name"));
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
 
-    pvTableView_ = new QTableView(this);
-    pvTableView_->setModel(pvListModel_);
-    pvTableView_->setShowGrid(false);
+//    pvTableView_ = new QTableView(this);
+//    pvTableView_->setModel(pvListModel_);
+//    pvTableView_->setShowGrid(false);
+//    pvTableView_->setHorizontalHeader(new QHeaderView(Qt::Horizontal, this));
 }
 
 
@@ -143,7 +145,7 @@ void StripTool::createPVDock()
 {
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
     pvDockLayout->addWidget(pvListView_);
-    pvDockLayout->addWidget(pvTableView_);
+//    pvDockLayout->addWidget(pvTableView_);
 
     QGroupBox *pvDockGroup = new QGroupBox();
     pvDockGroup->setLayout(pvDockLayout);
@@ -168,21 +170,17 @@ void StripTool::onAddPVAction()
 
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
 {
+    Q_UNUSED(newPVDescription);
+
     //  update the model storing the pv names and descriptions.
-    QStandardItem *nameItem = new QStandardItem(newPVName);
-    QStandardItem *descriptionItem = new QStandardItem(newPVDescription);
-    QList<QStandardItem *> newPVData;
-    newPVData << nameItem << descriptionItem;
+//    QStandardItem *nameItem = new QStandardItem(newPVName);
+//    QStandardItem *descriptionItem = new QStandardItem(newPVDescription);
+//    QList<QStandardItem *> newPVData;
+//    newPVData << nameItem << descriptionItem;
 
     QStandardItem *newPVEntry = new QStandardItem(newPVName);
-    newPVEntry->appendColumn(new QStandardItem(newPVDescription));
     newPVEntry->setCheckable(true);
-//    newPVEntry->appendColumn(newPVData);
-
-//    QStandardItem *newDescription = new QStandardItem(newPVDescription);
-
-//    QList<QStandardItem *> newPVEntry;
-//    newPVEntry << newName << newDescription;
+    newPVEntry->setCheckState(Qt::Checked);
 
     pvListModel_->appendRow(newPVEntry);
 }
