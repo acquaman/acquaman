@@ -68,7 +68,7 @@ void StripTool::createPVListModel()
 
     pvTableView_ = new QTableView(this);
     pvTableView_->setModel(pvListModel_);
-    pvTableView_->showGrid();
+    pvTableView_->setShowGrid(false);
 }
 
 
@@ -169,11 +169,20 @@ void StripTool::onAddPVAction()
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
 {
     //  update the model storing the pv names and descriptions.
-    QStandardItem *newName = new QStandardItem(newPVName);
-    QStandardItem *newDescription = new QStandardItem(newPVDescription);
+    QStandardItem *nameItem = new QStandardItem(newPVName);
+    QStandardItem *descriptionItem = new QStandardItem(newPVDescription);
+    QList<QStandardItem *> newPVData;
+    newPVData << nameItem << descriptionItem;
 
-    QList<QStandardItem *> newPVEntry;
-    newPVEntry << newName << newDescription;
+    QStandardItem *newPVEntry = new QStandardItem(newPVName);
+    newPVEntry->appendColumn(new QStandardItem(newPVDescription));
+    newPVEntry->setCheckable(true);
+//    newPVEntry->appendColumn(newPVData);
+
+//    QStandardItem *newDescription = new QStandardItem(newPVDescription);
+
+//    QList<QStandardItem *> newPVEntry;
+//    newPVEntry << newName << newDescription;
 
     pvListModel_->appendRow(newPVEntry);
 }
