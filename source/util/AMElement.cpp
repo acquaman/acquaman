@@ -97,13 +97,16 @@ AMElement::AMElement(QObject *parent)
 
 AMElement &AMElement::operator =(const AMElement &other)
 {
-	name_ = other.name();
-	symbol_ = other.symbol();
-	atomicNumber_ = other.atomicNumber();
-	edgeSize_ = other.absorptionEdges().size();
-	emissionLineSize_ = other.emissionLines().size();
-	edges_ = other.absorptionEdges();
-	emissionLines_ = other.emissionLines();
+	if (this != &other){
+
+		name_ = other.name();
+		symbol_ = other.symbol();
+		atomicNumber_ = other.atomicNumber();
+		edgeSize_ = other.absorptionEdges().size();
+		emissionLineSize_ = other.emissionLines().size();
+		edges_ = other.absorptionEdges();
+		emissionLines_ = other.emissionLines();
+	}
 
 	return *this;
 }

@@ -62,10 +62,13 @@ AMAbsorptionEdge::AMAbsorptionEdge()
 
 AMAbsorptionEdge &AMAbsorptionEdge::operator =(const AMAbsorptionEdge &other)
 {
-	name_ = other.name();
-	energy_ = other.energy();
-	symbol_ = other.elementSymbol();
-	edge_ = other.edgeName();
+	if (this != &other){
+
+		name_ = other.name();
+		energy_ = other.energy();
+		symbol_ = other.elementSymbol();
+		edge_ = other.edgeName();
+	}
 
 	return *this;
 }

@@ -79,12 +79,15 @@ AMEmissionLine::AMEmissionLine()
 
 AMEmissionLine &AMEmissionLine::operator =(const AMEmissionLine &other)
 {
-	name_ = other.name();
-	energy_ = other.energy();
-	symbol_ = other.elementSymbol();
-	lineName_ = other.lineName();
-	greekName_ = other.greekName();
-	greekLineName_ = other.greekLineName();
+	if (this != &other){
+
+		name_ = other.name();
+		energy_ = other.energy();
+		symbol_ = other.elementSymbol();
+		lineName_ = other.lineName();
+		greekName_ = other.greekName();
+		greekLineName_ = other.greekLineName();
+	}
 
 	return *this;
 }
