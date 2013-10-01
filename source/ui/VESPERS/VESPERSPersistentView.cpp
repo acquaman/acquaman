@@ -88,7 +88,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
 	experimentReadyLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Gain Setup");
 	ionChamberLabel->setFont(font);
 
 	// Shutter layout.

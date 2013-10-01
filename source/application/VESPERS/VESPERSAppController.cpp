@@ -270,14 +270,14 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
-	pilatusCCDView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
+	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
-//	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
-//	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
-	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
+//	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
+//	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
+	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
@@ -324,7 +324,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -359,8 +359,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 	else if (detector == "Mar CCD")
 		mw_->setCurrentPane(marCCDView_);
-	else if (detector == "Pilatus CCD")
-		mw_->setCurrentPane(pilatusCCDView_);
+	else if (detector == "Pilatus")
+		mw_->setCurrentPane(pilatusView_);
 }
 
 void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

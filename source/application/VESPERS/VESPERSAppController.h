@@ -158,7 +158,7 @@ protected:
 	/// Mar CCD detector view.
 	VESPERSCCDDetectorView *marCCDView_;
 	/// Pilatus CCD detector view.
-	VESPERSPilatusCCDDetectorView *pilatusCCDView_;
+	VESPERSPilatusCCDDetectorView *pilatusView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;

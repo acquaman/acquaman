@@ -97,7 +97,13 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 		if (!dir.contains("CCD Images")){
 
 			QDir makeNewDir(dir);
-			makeNewDir.mkdir("CCD Images");
+			makeNewDir.rename("CCD Images", "XRD Images");
+		}
+
+		if (!dir.contains("XRD Images")){
+
+			QDir makeNewDir(dir);
+			makeNewDir.mkdir("XRD Images");
 		}
 
 		if (!dir.contains("userData")){
