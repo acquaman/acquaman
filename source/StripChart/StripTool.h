@@ -4,6 +4,7 @@
 #include <QtGui>
 
 #include "StripChart/AddPVDialog.h"
+#include "StripChart/StripToolItem.h"
 
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
@@ -26,9 +27,14 @@ signals:
 
 protected:
     QStandardItemModel *pvListModel_;
+
+    QList<StripToolItem *> itemList_;
+
     QListView *pvListView_;
     QTableView *pvTableView_;
     QDockWidget *pvDock_;
+
+    QStandardItemModel *pvDataModel_;
 
     QMenu *fileMenu_;
     QAction *newPlotAction_;
@@ -39,6 +45,7 @@ protected:
 
     QMenu *plotMenu_;
     QAction *addPVAction_;
+    QAction *removePVAction_;
 
     QMenu *viewMenu_;
     QAction *togglePlotPaletteAction_;
@@ -69,6 +76,8 @@ protected:
 protected slots:
     void onAddPVAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription);
+    void onPVValueChanged(double);
+    void toTogglePVVisibility(QStandardItem *changedItem);
 };
 
 #endif // STRIPTOOL_H

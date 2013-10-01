@@ -2,7 +2,7 @@
 
 StripTool::StripTool(QWidget *parent)
     : QMainWindow(parent)
-{    
+{        
     //  set some basic parameters for how the plot looks. These may be defined by the user later.
     maxPointsDisplayed_ = 10;
 
@@ -10,13 +10,16 @@ StripTool::StripTool(QWidget *parent)
     createPVListModel();
     createPVDock();
 
+    //  set up the model containing the pv data as it updates.
+    pvDataModel_ = new QStandardItemModel(this);
+
     //  create the menu bar items for this application.
     createFileMenu();
     createPlotMenu();
     createViewMenu();
 
     //  now create the MPlot that will display info for all added pvs.
-    //  eventually, I'd like the selector to dictate the axis labels displayed on the plot.
+    //  eventually, I'd like the selector to dictate the axis labels/units displayed on the plot.
     MPlotPlotSelectorTool *selector = new MPlotPlotSelectorTool();
 
     plot = new MPlot();
@@ -62,7 +65,7 @@ StripTool::~StripTool()
 void StripTool::createPVListModel()
 {
     pvListModel_ = new QStandardItemModel(this);
-//    pvListModel_->setHeaderData(1, Qt::Horizontal, QVariant("PV Name"));
+    connect( pvListModel_, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(toTogglePVVisibility(QStandardItem*)) );
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
@@ -70,7 +73,6 @@ void StripTool::createPVListModel()
 //    pvTableView_ = new QTableView(this);
 //    pvTableView_->setModel(pvListModel_);
 //    pvTableView_->setShowGrid(false);
-//    pvTableView_->setHorizontalHeader(new QHeaderView(Qt::Horizontal, this));
 }
 
 
@@ -113,9 +115,13 @@ void StripTool::createPlotMenu()
     addPVAction_ = new QAction("Add PV", this);
     connect( addPVAction_, SIGNAL(triggered()), this, SLOT(onAddPVAction()) );
 
+    removePVAction_ = new QAction("Remove PV", this);
+    removePVAction_->setEnabled(false);
+
     //  create the plot menu and add the appropriate actions.
     plotMenu_ = menuBar()->addMenu("&Plot");
     plotMenu_->addAction(addPVAction_);
+    plotMenu_->addAction("Remove PV");
 }
 
 
@@ -170,17 +176,34 @@ void StripTool::onAddPVAction()
 
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
 {
-    Q_UNUSED(newPVDescription);
-
-    //  update the model storing the pv names and descriptions.
-//    QStandardItem *nameItem = new QStandardItem(newPVName);
-//    QStandardItem *descriptionItem = new QStandardItem(newPVDescription);
-//    QList<QStandardItem *> newPVData;
-//    newPVData << nameItem << descriptionItem;
-
     QStandardItem *newPVEntry = new QStandardItem(newPVName);
     newPVEntry->setCheckable(true);
     newPVEntry->setCheckState(Qt::Checked);
 
     pvListModel_->appendRow(newPVEntry);
+
+    AMReadOnlyPVControl *newControl = new AMReadOnlyPVControl(newPVName, newPVName, this);
+    connect( newControl, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
+
+    StripToolItem *item = new StripToolItem(newPVName, newPVDescription, this);
+
+    itemList_.append(item);
 }
+
+
+
+void StripTool::onPVValueChanged(double newValue)
+{
+    Q_UNUSED(newValue);
+}
+
+
+
+void StripTool::toTogglePVVisibility(QStandardItem *changedItem)
+{
+    pvListModel_->indexFromItem(changedItem);
+}
+
+
+
+
