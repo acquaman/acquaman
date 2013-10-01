@@ -5,6 +5,7 @@
 
 #include "StripChart/AddPVDialog.h"
 #include "StripChart/StripToolItem.h"
+#include "StripChart/StripToolContainer.h"
 
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
@@ -27,14 +28,13 @@ signals:
 
 protected:
     QStandardItemModel *pvListModel_;
-
     QList<StripToolItem *> itemList_;
+    StripToolContainer *itemContainer;
+    QMap<QString, MPlotVectorSeriesData *> pvNameToDataMap;
+    QMap<QString, MPlotSeriesBasic *> pvNameToSeriesMap;
 
     QListView *pvListView_;
-    QTableView *pvTableView_;
     QDockWidget *pvDock_;
-
-    QStandardItemModel *pvDataModel_;
 
     QMenu *fileMenu_;
     QAction *newPlotAction_;
@@ -52,13 +52,8 @@ protected:
     QAction *toggleLinePaletteAction_;
     QAction *togglePVListAction_;
 
-    int updateNumber_;
     int maxPointsDisplayed_;
-    QVector<double> updateNumbers_;
-    QVector<double> pvValues_;
 
-    MPlotVectorSeriesData *pvSeriesData_;
-    MPlotSeriesBasic *pvSeries_;
     MPlot *plot;
 
     QPushButton *addPVButton_;
@@ -72,12 +67,12 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
+    void addNewPVToPlot();
 
 protected slots:
     void onAddPVAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription);
-    void onPVValueChanged(double);
-    void toTogglePVVisibility(QStandardItem *changedItem);
+    void updatePVData(const QString &pvName, QVector<double> xValues, QVector<double> yValues);
 };
 
 #endif // STRIPTOOL_H

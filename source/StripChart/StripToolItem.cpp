@@ -4,6 +4,7 @@ StripToolItem::StripToolItem(QString pvName, QString pvDescription, QObject *par
     QObject(parent)
 {
     updateIndex_ = 0;
+    valuesDisplayed_ = 25;
     pvName_ = pvName;
     pvDescription_ = pvDescription;
 
@@ -39,6 +40,12 @@ QVector<double> StripToolItem::getPVData()
 }
 
 
+void StripToolItem::setValuesDisplayed(const int newValuesDisplayed)
+{
+    valuesDisplayed_ = newValuesDisplayed;
+}
+
+
 void StripToolItem::onPVValueChanged(double newValue)
 {
     pvUpdateIndex_.append(updateIndex_);
@@ -46,5 +53,19 @@ void StripToolItem::onPVValueChanged(double newValue)
 
     updateIndex_++;
 
-    emit pvDataUpdate();
+    QVector<double> xValues, yValues;
+
+    if (updateIndex_ <= valuesDisplayed_)
+    {
+        xValues = pvUpdateIndex_;
+        yValues = pvData_;
+
+    } else {
+
+        xValues = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_);
+        yValues = pvData_.mid(updateIndex_ - valuesDisplayed_);
+    }
+
+
+    emit pvDataUpdate(getPVName(), xValues, yValues);
 }

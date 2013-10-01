@@ -10,9 +10,6 @@ StripTool::StripTool(QWidget *parent)
     createPVListModel();
     createPVDock();
 
-    //  set up the model containing the pv data as it updates.
-    pvDataModel_ = new QStandardItemModel(this);
-
     //  create the menu bar items for this application.
     createFileMenu();
     createPlotMenu();
@@ -65,14 +62,14 @@ StripTool::~StripTool()
 void StripTool::createPVListModel()
 {
     pvListModel_ = new QStandardItemModel(this);
-    connect( pvListModel_, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(toTogglePVVisibility(QStandardItem*)) );
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
 
-//    pvTableView_ = new QTableView(this);
-//    pvTableView_->setModel(pvListModel_);
-//    pvTableView_->setShowGrid(false);
+    //  working on eventually replacing (?) the above with this:
+
+    itemContainer = new StripToolContainer(this);
+    connect( itemContainer, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(updatePVData(QString, QVector<double>,QVector<double>)) );
 }
 
 
@@ -151,7 +148,6 @@ void StripTool::createPVDock()
 {
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
     pvDockLayout->addWidget(pvListView_);
-//    pvDockLayout->addWidget(pvTableView_);
 
     QGroupBox *pvDockGroup = new QGroupBox();
     pvDockGroup->setLayout(pvDockLayout);
@@ -177,31 +173,34 @@ void StripTool::onAddPVAction()
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
 {
     QStandardItem *newPVEntry = new QStandardItem(newPVName);
-    newPVEntry->setCheckable(true);
-    newPVEntry->setCheckState(Qt::Checked);
-
     pvListModel_->appendRow(newPVEntry);
 
-    AMReadOnlyPVControl *newControl = new AMReadOnlyPVControl(newPVName, newPVName, this);
-    connect( newControl, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
+    //  perhaps these maps should be hidden away in StripToolContainer!
 
-    StripToolItem *item = new StripToolItem(newPVName, newPVDescription, this);
+    MPlotVectorSeriesData *pvDataToPlot = new MPlotVectorSeriesData();
+    pvNameToDataMap[newPVName] = pvDataToPlot;
 
-    itemList_.append(item);
+    MPlotSeriesBasic *pvSeries = new MPlotSeriesBasic();
+    pvSeries->setModel(pvDataToPlot);
+    pvNameToSeriesMap[newPVName] = pvSeries;
+
+    itemContainer->addItem(newPVName, newPVDescription);
+
 }
 
 
-
-void StripTool::onPVValueChanged(double newValue)
+void StripTool::updatePVData(const QString &pvName, QVector<double> xValues, QVector<double> yValues)
 {
-    Q_UNUSED(newValue);
+    MPlotVectorSeriesData *plotItemData = pvNameToDataMap[pvName];
+    plotItemData->setValues(xValues, yValues);
 }
 
 
-
-void StripTool::toTogglePVVisibility(QStandardItem *changedItem)
+void StripTool::addNewPVToPlot()
 {
-    pvListModel_->indexFromItem(changedItem);
+
+//    MPlotSeriesBasic *newSeries;
+
 }
 
 
