@@ -44,11 +44,11 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	if (!detector)
 		return false;
 
-	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - Roper CCD"));
-	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+
+	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - %1").arg(detector_->name()));
+	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));

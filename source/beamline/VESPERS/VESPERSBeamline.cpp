@@ -346,7 +346,7 @@ void VESPERSBeamline::setupDetectors()
 
 	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
 	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
-	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
+	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus", "Pilatus 1M Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()
