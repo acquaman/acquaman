@@ -15,6 +15,12 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
     connect( pvDescriptionLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onPVDescriptionEntered(QString)) );
     connect( this, SIGNAL(enablePVDescription(bool)), pvDescriptionLineEdit_, SLOT(setEnabled(bool)) );
 
+    QLabel *pvUnitsPrompt = new QLabel("Units : ");
+    pvUnitsPrompt->setToolTip("Enter the units of this PV.");
+    QLineEdit *pvUnitsLineEdit_ = new QLineEdit();
+    connect( pvUnitsLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onPVUnitsEntered(QString)) );
+    connect( this, SIGNAL(enablePVUnits(bool)), pvUnitsLineEdit_, SLOT(setEnabled(bool)) );
+
     pvValidMessage_ = new QLabel();
 
     QGridLayout *pvEntryLayout = new QGridLayout();
@@ -22,7 +28,9 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
     pvEntryLayout->addWidget(pvNameLineEdit_, 0, 1);
     pvEntryLayout->addWidget(pvDescriptionPrompt, 1, 0);
     pvEntryLayout->addWidget(pvDescriptionLineEdit_, 1, 1);
-    pvEntryLayout->addWidget(pvValidMessage_, 2, 1);
+    pvEntryLayout->addWidget(pvUnitsPrompt, 2, 0);
+    pvEntryLayout->addWidget(pvUnitsLineEdit_, 2, 1);
+    pvEntryLayout->addWidget(pvValidMessage_, 3, 1);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect( this, SIGNAL(enableButtonBox(bool)), buttonBox, SLOT(setEnabled(bool)) );
@@ -56,12 +64,19 @@ void AddPVDialog::onPVDescriptionEntered(const QString description)
     pvDescription_ = description;
 }
 
+
+void AddPVDialog::onPVUnitsEntered(const QString units)
+{
+    pvUnits_ = units;
+}
+
 void AddPVDialog::onAcceptButtonClicked()
 {
     //  disable buttons and fields while we wait to see if pv is valid.
     emit enablePVName(false);
     emit enablePVDescription(false);
     emit enableButtonBox(false);
+    emit enablePVUnits(false);
 
     //  attempt to connect to the given pv to test for validity.
     AMReadOnlyPVControl *pvControl = new AMReadOnlyPVControl(pvDescription_, pvName_, this);
@@ -76,20 +91,23 @@ void AddPVDialog::onPVConnected(bool isConnected)
         emit newPVIsValid();
 
     } else {
+
         pvValidMessage_->setText("Invalid PV name.");
         pvName_ = "";
         pvDescription_ = "";
+        pvUnits_ = "";
 
         emit enablePVName(true);
         emit enablePVDescription(true);
         emit enableButtonBox(true);
+        emit enablePVUnits(true);
     }
 }
 
 
 void AddPVDialog::onNewPVIsValid()
 {
-    emit newPVAccepted(pvName_, pvDescription_);
+    emit newPVAccepted(pvName_, pvDescription_, pvUnits_);
     emit accept();
 }
 

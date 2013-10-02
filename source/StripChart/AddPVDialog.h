@@ -16,18 +16,21 @@ signals:
     void enableButtonBox(bool isEnabled);
     void enablePVName(bool isEnabled);
     void enablePVDescription(bool isEnabled);
+    void enablePVUnits(bool isEnabled);
     void newPVIsValid();
-    void newPVAccepted(const QString &pvName, const QString &pvDescription);
+    void newPVAccepted(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
 
 protected:
 
     QString pvName_;
     QString pvDescription_;
+    QString pvUnits_;
     QLabel *pvValidMessage_;
 
 protected slots:
     void onPVNameEntered(const QString name);
     void onPVDescriptionEntered(const QString description);
+    void onPVUnitsEntered(const QString units);
     void onPVConnected(bool isConnected);
     void onAcceptButtonClicked();
     void onNewPVIsValid();

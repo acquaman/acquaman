@@ -7,10 +7,11 @@ StripToolContainer::StripToolContainer(QObject *parent) :
 }
 
 
-void StripToolContainer::addItem(const QString &pvName, const QString &pvDescription)
+void StripToolContainer::addItem(const QString &pvName, const QString &pvDescription, const QString &pvUnits)
 {
-    StripToolItem *newPVItem = new StripToolItem(pvName, pvDescription, this);
-    connect(newPVItem, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(onPVDataUpdate(QString, QVector<double>, QVector<double>)) );
+    StripToolItem *newPVItem = new StripToolItem(pvName, pvDescription, pvUnits, this);
+    connect( newPVItem, SIGNAL(pvConnected(QString)), this, SLOT(updateSeriesInfo(QString)) );
+    connect( newPVItem, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(onPVDataUpdate(QString, QVector<double>, QVector<double>)) );
     pvNameToItemMap[pvName] = newPVItem;
 
     MPlotVectorSeriesData *newPVData = new MPlotVectorSeriesData();
@@ -19,6 +20,7 @@ void StripToolContainer::addItem(const QString &pvName, const QString &pvDescrip
     MPlotSeriesBasic *newPVSeries = new MPlotSeriesBasic();
     newPVSeries->setDescription(" ");
     newPVSeries->setModel(newPVData);
+
     pvNameToSeriesMap[pvName] = newPVSeries;
 
     itemCount_++;
@@ -55,7 +57,23 @@ void StripToolContainer::onPVDataUpdate(const QString &pvName, QVector<double> x
 }
 
 
-MPlotSeriesBasic *StripToolContainer::getSeries(const QString &pvName)
+MPlotItem *StripToolContainer::getSeries(const QString &pvName)
 {
     return pvNameToSeriesMap[pvName];
+}
+
+
+QString StripToolContainer::getAxisLeft(MPlotItem *plotSelection)
+{
+    QString pvName = pvNameToSeriesMap.key(plotSelection);
+    StripToolItem *pvItem = pvNameToItemMap[pvName];
+    return pvItem->getYUnits();
+}
+
+
+QString StripToolContainer::getAxisBottom(MPlotItem *plotSelection)
+{
+    QString pvName = pvNameToSeriesMap.key(plotSelection);
+    StripToolItem *pvItem = pvNameToItemMap[pvName];
+    return pvItem->getXUnits();
 }

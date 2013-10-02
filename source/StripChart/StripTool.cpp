@@ -13,8 +13,8 @@ StripTool::StripTool(QWidget *parent)
     createViewMenu();
 
     //  now create the MPlot that will display info for all added pvs.
-    //  eventually, I'd like the selector to dictate the axis labels/units displayed on the plot.
     MPlotPlotSelectorTool *selector = new MPlotPlotSelectorTool();
+    connect( selector, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(showItemInfo(MPlotItem*)) );
 
     plot_ = new MPlot();
     plot_->addTool(selector);
@@ -160,20 +160,20 @@ void StripTool::createPVDock()
 void StripTool::onAddPVAction()
 {
     addPVDialog_ = new AddPVDialog(this);
-    connect( addPVDialog_, SIGNAL(newPVAccepted(QString, QString)), this, SLOT(addToPVListModel(QString, QString)) );
+    connect( addPVDialog_, SIGNAL(newPVAccepted(QString, QString, QString)), this, SLOT(addToPVListModel(QString, QString, QString)) );
     addPVDialog_->exec();
 }
 
 
 
-void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
+void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits)
 {
     QStandardItem *newPVEntry = new QStandardItem(newPVName);
     newPVEntry->setCheckable(true);
     newPVEntry->setCheckState(Qt::Checked);
     pvListModel_->appendRow(newPVEntry);
 
-    itemContainer->addItem(newPVName, newPVDescription);
+    itemContainer->addItem(newPVName, newPVDescription, newPVUnits);
 
     addPVToPlot(newPVName);
 
@@ -207,6 +207,24 @@ void StripTool::togglePVVisibility(QStandardItem* entryChanged)
         addPVToPlot(pvName);
     else if (checkState == Qt::Unchecked)
         removePVFromPlot(pvName);
+}
+
+
+void StripTool::showItemInfo(MPlotItem* plotSelection)
+{
+    updatePlotAxes(plotSelection);
+}
+
+
+void StripTool::updatePlotAxes(MPlotItem* plotSelection)
+{
+    QString axisLeftLabel = itemContainer->getAxisLeft(plotSelection);
+    plot_->axisLeft()->setAxisName(axisLeftLabel);
+    plot_->axisLeft()->showAxisName(true);
+
+    QString axisBottomLabel = itemContainer->getAxisBottom(plotSelection);
+    plot_->axisBottom()->setAxisName(axisBottomLabel);
+    plot_->axisBottom()->showAxisName(true);
 }
 
 

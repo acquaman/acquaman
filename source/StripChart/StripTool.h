@@ -63,11 +63,13 @@ protected:
     void addPVToPlot(const QString &pvName);
     void removePVFromPlot(const QString &pvName);
     void deletePV(const QString &pvName);
+    void updatePlotAxes(MPlotItem* plotSelection);
 
 protected slots:
     void onAddPVAction();
-    void addToPVListModel(const QString &newPVName, const QString &newPVDescription);
+    void addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits);
     void togglePVVisibility(QStandardItem*entryChanged);
+    void showItemInfo(MPlotItem* plotSelection);
 };
 
 #endif // STRIPTOOL_H

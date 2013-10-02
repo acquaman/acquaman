@@ -19,14 +19,16 @@ protected:
     int itemCount_;
     QMap<QString, StripToolItem *> pvNameToItemMap;
     QMap<QString, MPlotVectorSeriesData *> pvNameToDataMap;
-    QMap<QString, MPlotSeriesBasic *> pvNameToSeriesMap;
+    QMap<QString, MPlotItem *> pvNameToSeriesMap;
 
 protected:
-    void addItem(const QString &pvName, const QString &pvDescription);
+    void addItem(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
     void removeItem(const QString &pvName);
     bool contains(const QString &pvName);
     void setValuesDisplayed(const QString &pvName, const int newValuesDisplayed);
-    MPlotSeriesBasic* getSeries(const QString &pvName);
+    MPlotItem* getSeries(const QString &pvName);
+    QString getAxisLeft(MPlotItem *plotSelection);
+    QString getAxisBottom(MPlotItem *plotSelection);
     
 public slots:
     void onPVDataUpdate(const QString &pvName, QVector<double> xValues, QVector<double> yValues);
