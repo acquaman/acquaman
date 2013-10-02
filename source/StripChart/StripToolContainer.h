@@ -14,18 +14,19 @@ public:
     friend class StripTool;
     
 signals:
-    void pvDataUpdate(const QString &pvName, QVector<double> xValues, QVector<double> yValues);
 
 protected:
     int itemCount_;
-//    QList<StripToolItem *> items_;
     QMap<QString, StripToolItem *> pvNameToItemMap;
+    QMap<QString, MPlotVectorSeriesData *> pvNameToDataMap;
+    QMap<QString, MPlotSeriesBasic *> pvNameToSeriesMap;
 
 protected:
     void addItem(const QString &pvName, const QString &pvDescription);
     void removeItem(const QString &pvName);
     bool contains(const QString &pvName);
     void setValuesDisplayed(const QString &pvName, const int newValuesDisplayed);
+    MPlotSeriesBasic* getSeries(const QString &pvName);
     
 public slots:
     void onPVDataUpdate(const QString &pvName, QVector<double> xValues, QVector<double> yValues);

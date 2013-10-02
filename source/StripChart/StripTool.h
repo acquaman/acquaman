@@ -23,18 +23,12 @@ public:
     ~StripTool();
 
 signals:
-    void hidePV(const QListWidgetItem &itemClicked);
-    void showPV(const QListWidgetItem &itemClicked);
 
 protected:
     QStandardItemModel *pvListModel_;
-    QList<StripToolItem *> itemList_;
-    StripToolContainer *itemContainer;
-    QMap<QString, MPlotVectorSeriesData *> pvNameToDataMap;
-    QMap<QString, MPlotSeriesBasic *> pvNameToSeriesMap;
-
     QListView *pvListView_;
-    QDockWidget *pvDock_;
+
+    StripToolContainer *itemContainer;
 
     QMenu *fileMenu_;
     QAction *newPlotAction_;
@@ -52,9 +46,8 @@ protected:
     QAction *toggleLinePaletteAction_;
     QAction *togglePVListAction_;
 
-    int maxPointsDisplayed_;
-
-    MPlot *plot;
+    MPlot *plot_;
+    QDockWidget *pvDock_;
 
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
@@ -67,12 +60,14 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
-    void addNewPVToPlot();
+    void addPVToPlot(const QString &pvName);
+    void removePVFromPlot(const QString &pvName);
+    void deletePV(const QString &pvName);
 
 protected slots:
     void onAddPVAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription);
-    void updatePVData(const QString &pvName, QVector<double> xValues, QVector<double> yValues);
+    void togglePVVisibility(QStandardItem*entryChanged);
 };
 
 #endif // STRIPTOOL_H

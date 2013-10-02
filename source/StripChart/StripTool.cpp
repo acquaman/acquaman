@@ -2,10 +2,7 @@
 
 StripTool::StripTool(QWidget *parent)
     : QMainWindow(parent)
-{        
-    //  set some basic parameters for how the plot looks. These may be defined by the user later.
-    maxPointsDisplayed_ = 10;
-
+{
     //  set up the model for how pv information is stored and accessed, and the view.
     createPVListModel();
     createPVDock();
@@ -62,11 +59,10 @@ StripTool::~StripTool()
 void StripTool::createPVListModel()
 {
     pvListModel_ = new QStandardItemModel(this);
+    connect(pvListModel_, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(togglePVVisibility(QStandardItem*)) );
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
-
-    //  working on eventually replacing (?) the above with this:
 
     itemContainer = new StripToolContainer(this);
     connect( itemContainer, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(updatePVData(QString, QVector<double>,QVector<double>)) );
@@ -177,15 +173,6 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
     newPVEntry->setCheckState(Qt::Checked);
     pvListModel_->appendRow(newPVEntry);
 
-    //  perhaps these maps should be hidden away in StripToolContainer!
-
-    MPlotVectorSeriesData *pvDataToPlot = new MPlotVectorSeriesData();
-    pvNameToDataMap[newPVName] = pvDataToPlot;
-
-    MPlotSeriesBasic *pvSeries = new MPlotSeriesBasic();
-    pvSeries->setModel(pvDataToPlot);
-    pvNameToSeriesMap[newPVName] = pvSeries;
-
     itemContainer->addItem(newPVName, newPVDescription);
 
     addPVToPlot(newPVName);
@@ -193,20 +180,34 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
 }
 
 
-void StripTool::updatePVData(const QString &pvName, QVector<double> xValues, QVector<double> yValues)
-{
-    MPlotVectorSeriesData *plotItemData = pvNameToDataMap[pvName];
-    plotItemData->setValues(xValues, yValues);
-}
-
-
 void StripTool::addPVToPlot(const QString &pvName)
 {
-    MPlotSeriesBasic *pvSeries = pvNameToSeriesMap[pvName];
-    pvSeries->setDescription(" ");
-    plot_->addItem(pvSeries);
+    plot_->addItem(itemContainer->getSeries(pvName));
 }
 
+
+void StripTool::removePVFromPlot(const QString &pvName)
+{
+    plot_->removeItem(itemContainer->getSeries(pvName));
+}
+
+
+void StripTool::deletePV(const QString &pvName)
+{
+    itemContainer->removeItem(pvName);
+}
+
+
+void StripTool::togglePVVisibility(QStandardItem* entryChanged)
+{
+    int checkState = entryChanged->checkState();
+    QString pvName = entryChanged->text();
+
+    if (checkState == Qt::Checked)
+        addPVToPlot(pvName);
+    else if (checkState == Qt::Unchecked)
+        removePVFromPlot(pvName);
+}
 
 
 
