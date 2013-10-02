@@ -59,10 +59,14 @@ protected slots:
 	void onElementDeselected(AMElement *element);
 	/// Updates the emission line list after the energy range or name filter has been changed.
 	void updateEmissionLineMarkers();
+	/// Handles passing on the information when an emission line has been selected.
+	void onEmissionLineSelected(const AMEmissionLine &emissionLine);
+	/// Handles passing on the information when an emission line has been deselected.
+	void onEmissionLineDeselected(const AMEmissionLine &emissionLine);
 
 protected:
-	/// Helper method that returns whether the name of an emission line is valid or not based on the current filters.
-	bool isEmissionLineValid(const QString &name) const;
+	/// Method that highlights the region of interest of the current element (if it has been selected).
+	void highlightCurrentElementRegionOfInterest(AMElement *element);
 
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;
@@ -73,6 +77,10 @@ protected:
 
 	/// The validator for the range and emission line names.
 	AMNameAndRangeValidator *emissionLineValidator_;
+	/// The list of emission line markers.
+	QList<MPlotItem *> emissionLineMarkers_;
+	/// A mapping of emission lines to region of interest markers.
+	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

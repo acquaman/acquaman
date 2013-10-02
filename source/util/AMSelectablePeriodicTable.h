@@ -58,26 +58,18 @@ signals:
 	/// Notifier that all of the elments have been removed.
 	void listCleared();
 
-	/// Notifier that an absorption edge was selected.  Passes the element and the edge.
-	void absorptionEdgeSelected(AMElement *, const AMAbsorptionEdge &);
-	/// Notifier that an absorption edge was deselected.  Passes the element and the edge.
-	void absorptionEdgeDeselected(AMElement *, const AMAbsorptionEdge &);
-	/// Notifier that an emission line was selected.  Passes the element and emission line.
-	void emissionLineSelected(AMElement *, const AMEmissionLine &);
-	/// Notifier that an emission line was deselected.  Passes the element and emission line.
-	void emissionLineDeselected(AMElement *, const AMEmissionLine &);
+	/// Notifier that an absorption edge was selected.  Passes the edge.
+	void absorptionEdgeSelected(const AMAbsorptionEdge &);
+	/// Notifier that an absorption edge was deselected.  Passes the edge.
+	void absorptionEdgeDeselected(const AMAbsorptionEdge &);
+	/// Notifier that an emission line was selected.  Passes the emission line.
+	void emissionLineSelected(const AMEmissionLine &);
+	/// Notifier that an emission line was deselected.  Passes the emission line.
+	void emissionLineDeselected(const AMEmissionLine &);
 
 public slots:
 
 protected slots:
-	/// Handles passing on the signal that an absorption edge has been selected.
-	void onAbsorptionEdgeSelected(const AMAbsorptionEdge &edge);
-	/// Handles passing on the signal that an absorption edge has been deselected.
-	void onAbsorptionEdgeDeselected(const AMAbsorptionEdge &edge);
-	/// Handles passing on the signal that an emission line has been selected.
-	void onEmissionLineSelected(const AMEmissionLine &line);
-	/// Handles passing on the signal that an emission line has been deselected.
-	void onEmissionLineDeselected(const AMEmissionLine &line);
 
 protected:
 	/// List of elements that have been saved.

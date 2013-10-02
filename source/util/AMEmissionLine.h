@@ -36,9 +36,17 @@ public:
 	/// The equals operator.  Sets the name and energy to the same as the provided AMEmissionLine.
 	AMEmissionLine &operator =(const AMEmissionLine &other);
 	/// The equivalent operator.  Checks the name and energy of the provided AMEmissionLine.
-	bool operator ==(const AMEmissionLine &other);
+	bool operator ==(const AMEmissionLine &other) const;
 	/// The not-equivalent operator.  Logical not of the equivalent operator.
-	bool operator !=(const AMEmissionLine &other);
+	bool operator !=(const AMEmissionLine &other) const;
+	/// The less-than operator.  Returns true if energy of this emission line is less than other's.
+	bool operator <(const AMEmissionLine &other) const;
+	/// The greater-than operator.  Returns true if the energy of this emission line is greater than other's.
+	bool operator >(const AMEmissionLine &other) const;
+	/// The less-than-or-equal-to operator.  Returns true if the energy of this emission line is less than or equal to other's.
+	bool operator <=(const AMEmissionLine &other) const;
+	/// The greater-than-or-equal-to operator.  Returns true if the energy of this emission line is greater than or equal to other's.
+	bool operator >=(const AMEmissionLine &other) const;
 
 protected:
 	/// The full name of the emission line.

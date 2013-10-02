@@ -92,7 +92,7 @@ AMEmissionLine &AMEmissionLine::operator =(const AMEmissionLine &other)
 	return *this;
 }
 
-bool AMEmissionLine::operator ==(const AMEmissionLine &other)
+bool AMEmissionLine::operator ==(const AMEmissionLine &other) const
 {
 	return (name_ == other.name())
 			&& (energy_ == other.energy())
@@ -102,7 +102,27 @@ bool AMEmissionLine::operator ==(const AMEmissionLine &other)
 			&& (greekLineName_ == other.greekLineName());
 }
 
-bool AMEmissionLine::operator !=(const AMEmissionLine &other)
+bool AMEmissionLine::operator !=(const AMEmissionLine &other) const
 {
 	return !(this->operator ==(other));
+}
+
+bool AMEmissionLine::operator <(const AMEmissionLine &other) const
+{
+	return energy_ < other.energy();
+}
+
+bool AMEmissionLine::operator <=(const AMEmissionLine &other) const
+{
+	return energy_ <= other.energy();
+}
+
+bool AMEmissionLine::operator >(const AMEmissionLine &other) const
+{
+	return energy_ > other.energy();
+}
+
+bool AMEmissionLine::operator >=(const AMEmissionLine &other) const
+{
+	return energy_ >= other.energy();
 }

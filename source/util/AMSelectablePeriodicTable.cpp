@@ -54,29 +54,9 @@ void AMSelectablePeriodicTable::buildPeriodicTable()
 		AMSelectableElement *newElement = new AMSelectableElement(element->name());
 		periodicTable_ << newElement;
 
-		connect(newElement, SIGNAL(absorptionEdgeSelected(AMAbsorptionEdge)), this, SLOT(onAbsorptionEdgeSelected(AMAbsorptionEdge)));
-		connect(newElement, SIGNAL(absorptionEdgeDeselected(AMAbsorptionEdge)), this, SLOT(onAbsorptionEdgeDeselected(AMAbsorptionEdge)));
-		connect(newElement, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
-		connect(newElement, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
+		connect(newElement, SIGNAL(absorptionEdgeSelected(AMAbsorptionEdge)), this, SIGNAL(absorptionEdgeSelected(AMAbsorptionEdge)));
+		connect(newElement, SIGNAL(absorptionEdgeDeselected(AMAbsorptionEdge)), this, SIGNAL(absorptionEdgeDeselected(AMAbsorptionEdge)));
+		connect(newElement, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SIGNAL(emissionLineSelected(AMEmissionLine)));
+		connect(newElement, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SIGNAL(emissionLineDeselected(AMEmissionLine)));
 	}
-}
-
-void AMSelectablePeriodicTable::onAbsorptionEdgeSelected(const AMAbsorptionEdge &edge)
-{
-	emit absorptionEdgeSelected(elementBySymbol(edge.elementSymbol()), edge);
-}
-
-void AMSelectablePeriodicTable::onAbsorptionEdgeDeselected(const AMAbsorptionEdge &edge)
-{
-	emit absorptionEdgeDeselected(elementBySymbol(edge.elementSymbol()), edge);
-}
-
-void AMSelectablePeriodicTable::onEmissionLineSelected(const AMEmissionLine &line)
-{
-	emit emissionLineSelected(elementBySymbol(line.elementSymbol()), line);
-}
-
-void AMSelectablePeriodicTable::onEmissionLineDeselected(const AMEmissionLine &line)
-{
-	emit emissionLineDeselected(elementBySymbol(line.elementSymbol()), line);
 }

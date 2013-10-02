@@ -34,6 +34,8 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	connect(periodicTable_, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
+	connect(periodicTable_, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 }
 
@@ -41,6 +43,7 @@ void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
 {
 	// This is always safe because we know the periodic table is an AMSelectablePeriodicTable.
 	elementView_->setElement(qobject_cast<AMSelectableElement *>(element));
+	highlightCurrentElementRegionOfInterest(element);
 }
 
 void AMXRFDetailedDetectorView::onElementSelected(AMElement *element)
@@ -55,6 +58,7 @@ void AMXRFDetailedDetectorView::onElementSelected(AMElement *element)
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
 			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
 			plot_->addItem(newLine);
+			emissionLineMarkers_ << newLine;
 		}
 	}
 }
@@ -63,11 +67,14 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 {
 	QString symbol = element->symbol();
 
-	foreach(MPlotItem *item, plot_->plotItems()){
+	foreach(MPlotItem *item, emissionLineMarkers_){
 
 		if (item->description().contains(QRegExp(symbol % " (K|L|M)")))
-			if (plot_->removeItem(item))
+			if (plot_->removeItem(item)){
+
+				emissionLineMarkers_.removeOne(item);
 				delete item;
+			}
 	}
 }
 
@@ -120,4 +127,34 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	emissionLineValidator_->setMaximum(newMaximum);
 	periodicTableView_->setMaximumEnergy(newMaximum);
 	elementView_->setMaximumEnergy(newMaximum);
+}
+
+void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
+{
+	detector_->addRegionOfInterest(emissionLine);
+	AMRegionOfInterest *newRegion = detector_->regionOfInterest(emissionLine);
+
+	MPlotMarkerTransparentVerticalRectangle *newMarker = new MPlotMarkerTransparentVerticalRectangle(newRegion->name(), newRegion->energy(), newRegion->lowerBound(), newRegion->upperBound());
+	plot_->insertItem(newMarker);
+	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
+	regionOfInterestMarkers_.insert(emissionLine, newMarker);
+}
+
+void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &emissionLine)
+{
+	detector_->removeRegionOfInterest(emissionLine);
+	MPlotItem *itemToBeRemoved = regionOfInterestMarkers_.value(emissionLine);
+
+	if (itemToBeRemoved){
+
+		plot_->removeItem(itemToBeRemoved);
+		regionOfInterestMarkers_.remove(emissionLine);
+		delete itemToBeRemoved;
+	}
+}
+
+void AMXRFDetailedDetectorView::highlightCurrentElementRegionOfInterest(AMElement *element)
+{
+	foreach (MPlotMarkerTransparentVerticalRectangle *marker, regionOfInterestMarkers_)
+		marker->setHighlighted(marker->description().contains(QRegExp(element->symbol() % " (K|L|M)")));
 }

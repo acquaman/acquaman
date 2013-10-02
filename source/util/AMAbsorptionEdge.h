@@ -32,9 +32,17 @@ public:
 	/// The equals operator.  Sets all parameters to the same as the provided AMAbsorptionEdge.
 	AMAbsorptionEdge &operator =(const AMAbsorptionEdge &other);
 	/// The equivalent operator.  Checks all of the parameters of the provided AMAbsorptionEdge.
-	bool operator ==(const AMAbsorptionEdge &other);
+	bool operator ==(const AMAbsorptionEdge &other) const;
 	/// The not-equivalent operator.  Logical not of the equivalent operator.
-	bool operator !=(const AMAbsorptionEdge &other);
+	bool operator !=(const AMAbsorptionEdge &other) const;
+	/// The less-than operator.  Returns true if energy of this absorption edge is less than other's.
+	bool operator <(const AMAbsorptionEdge &other) const;
+	/// The greater-than operator.  Returns true if the energy of this absorption edge is greater than other's.
+	bool operator >(const AMAbsorptionEdge &other) const;
+	/// The less-than-or-equal-to operator.  Returns true if the energy of this absorption edge is less than or equal to other's.
+	bool operator <=(const AMAbsorptionEdge &other) const;
+	/// The greater-than-or-equal-to operator.  Returns true if the energy of this absorption edge is greater than or equal to other's.
+	bool operator >=(const AMAbsorptionEdge &other) const;
 
 protected:
 	/// The name of the edge.

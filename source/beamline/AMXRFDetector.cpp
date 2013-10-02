@@ -229,3 +229,38 @@ void AMXRFDetector::onStatusControlChanged()
 			setReadyForAcquisition();
 	}
 }
+
+void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
+{
+	double energy = emissionLine.energy();
+	double halfWidth = (2.75/2)*sqrt(energy)/energy;
+	AMRegionOfInterest *region = new AMRegionOfInterest(emissionLine.name(), energy, AMRange(energy*(1-halfWidth), energy*(1+halfWidth)), this);
+
+	addRegionOfInterest(region);
+}
+
+void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
+{
+	regionsOfInterest_.append(newRegionOfInterest);
+}
+
+void AMXRFDetector::removeRegionOfInterest(const AMEmissionLine &emissionLine)
+{
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		if (emissionLine.name() == region->name())
+			removeRegionOfInterest(region);
+}
+
+void AMXRFDetector::removeRegionOfInterest(AMRegionOfInterest *regionOfInterest)
+{
+	regionsOfInterest_.removeOne(regionOfInterest);
+}
+
+AMRegionOfInterest *AMXRFDetector::regionOfInterest(const AMEmissionLine &emissionLine) const
+{
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		if (region->name() == emissionLine.name())
+			return region;
+
+	return 0;
+}

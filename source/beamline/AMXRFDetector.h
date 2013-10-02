@@ -5,6 +5,8 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
+#include "dataman/AMRegionOfInterest.h"
+#include "util/AMEmissionLine.h"
 
 #define AMXRFDETECTOR_SPECTRUMSIZE_DEADTIMESIZE_MISMATCH 678000
 
@@ -60,9 +62,27 @@ public:
 	/// Although common, not all implementations will have an elapsed time.  If your particular implementation doesn't then make sure this is false.
 	virtual bool supportsElapsedTime() const = 0;
 
+	/// Returns the number of regions of interest.
+	int regionsOfInterestCount() const { return regionsOfInterest_.size(); }
+	/// Returns the list of regions of interest that have been set on this detector.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
+	/// Returns the region of interest at a given index.
+	AMRegionOfInterest *regionsOfInterestAt(int index) const { return regionsOfInterest_.at(index); }
+	/// Returns the region of interest using the provided AMEmissionLine.
+	AMRegionOfInterest *regionOfInterest(const AMEmissionLine &emissionLine) const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+
+	/// Adds a region of interest.  Does the work of creating the region and the data source associated with it.  Builds the region off of an AMEmissionLine.
+	void addRegionOfInterest(const AMEmissionLine &emissionLine);
+	/// Overloaded.  Adds a region of interest.  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
+	void addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest);
+	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.  Knows which region to remove based on the provided AMEmissionLine.
+	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
+	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.
+	void removeRegionOfInterest(AMRegionOfInterest *regionOfInterest);
 
 signals:
 	/// Notifier that the elapsed time has updated.
@@ -107,7 +127,7 @@ protected:
 	/// The master set of controls
 	AMControlSet *allControls_;
 
-	// Data sources.
+	// Spectrum related data sources.
 	/// List of all the spectrum data sources.
 	QList<AMDataSource *> rawSpectraSources_;
 	/// List of all the ICR data sources.
@@ -118,6 +138,10 @@ protected:
 	QList<AMDataSource *> analyzedSpectraSources_;
 	/// The primary spectrum data source.  This is the data source that will be returned by AMDataSource::dataSource().
 	AMDataSource *primarySpectrumDataSource_;
+
+	// Regions of interest and their data sources.
+	/// List of all the regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest_;
 
 	// Extras
 	/// Flag that holds whether the detector will do dead time corrections or not.
