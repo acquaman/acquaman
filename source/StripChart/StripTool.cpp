@@ -19,11 +19,11 @@ StripTool::StripTool(QWidget *parent)
     //  eventually, I'd like the selector to dictate the axis labels/units displayed on the plot.
     MPlotPlotSelectorTool *selector = new MPlotPlotSelectorTool();
 
-    plot = new MPlot();
-    plot->addTool(selector);
+    plot_ = new MPlot();
+    plot_->addTool(selector);
 
     MPlotWidget *plotWidget = new MPlotWidget();
-    plotWidget->setPlot(plot);
+    plotWidget->setPlot(plot_);
 
     //  we can add a new pv or close the application using buttons.
     addPVButton_ = new QPushButton();
@@ -173,6 +173,8 @@ void StripTool::onAddPVAction()
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription)
 {
     QStandardItem *newPVEntry = new QStandardItem(newPVName);
+    newPVEntry->setCheckable(true);
+    newPVEntry->setCheckState(Qt::Checked);
     pvListModel_->appendRow(newPVEntry);
 
     //  perhaps these maps should be hidden away in StripToolContainer!
@@ -186,6 +188,8 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
 
     itemContainer->addItem(newPVName, newPVDescription);
 
+    addPVToPlot(newPVName);
+
 }
 
 
@@ -196,11 +200,11 @@ void StripTool::updatePVData(const QString &pvName, QVector<double> xValues, QVe
 }
 
 
-void StripTool::addNewPVToPlot()
+void StripTool::addPVToPlot(const QString &pvName)
 {
-
-//    MPlotSeriesBasic *newSeries;
-
+    MPlotSeriesBasic *pvSeries = pvNameToSeriesMap[pvName];
+    pvSeries->setDescription(" ");
+    plot_->addItem(pvSeries);
 }
 
 
