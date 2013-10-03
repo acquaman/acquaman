@@ -62,9 +62,9 @@ void StripTool::createPVListModel()
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
+    //pvListView_->setEditTriggers(QAbstractItemView::SelectedClicked);
 
     itemContainer = new StripToolContainer(this);
-    connect( itemContainer, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(updatePVData(QString, QVector<double>,QVector<double>)) );
 }
 
 
@@ -110,10 +110,15 @@ void StripTool::createPlotMenu()
     removePVAction_ = new QAction("Remove PV", this);
     removePVAction_->setEnabled(false);
 
+    addSR1CurrentAction_ = new QAction("Add SR1 Current", this);
+    connect( addSR1CurrentAction_, SIGNAL(triggered()), this, SLOT(onAddSR1CurrentAction()) );
+
     //  create the plot menu and add the appropriate actions.
     plotMenu_ = menuBar()->addMenu("&Plot");
     plotMenu_->addAction(addPVAction_);
     plotMenu_->addAction(removePVAction_);
+    plotMenu_->addSeparator();
+    plotMenu_->addAction(addSR1CurrentAction_);
 }
 
 
@@ -164,41 +169,67 @@ void StripTool::onAddPVAction()
 
 
 
+void StripTool::onAddSR1CurrentAction()
+{
+    addToPVListModel("PCT1402-01:mA:fbk", "SR1 Current", "mA");
+}
+
+
+
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits)
 {
-    QStandardItem *newPVEntry = new QStandardItem(newPVName);
-    newPVEntry->setCheckable(true);
-    newPVEntry->setCheckState(Qt::Checked);
-    pvListModel_->appendRow(newPVEntry);
+    if (!pvNameToDescriptionMap_.contains(newPVName))
+    {
+        pvNameToDescriptionMap_[newPVName] = newPVDescription;
 
-    itemContainer->addItem(newPVName, newPVDescription, newPVUnits);
+        QStandardItem *newPVEntry;
 
-    addPVToPlot(newPVName);
+        if (newPVDescription != "")
+            newPVEntry = new QStandardItem(newPVDescription);
+        else
+            newPVEntry = new QStandardItem(newPVName);
+
+        newPVEntry->setCheckable(true);
+        newPVEntry->setCheckState(Qt::Checked);
+        newPVEntry->setEditable(true);  // want to be able to edit descriptions later. (not totally working yet).
+
+        pvListModel_->appendRow(newPVEntry);
+
+        itemContainer->addItem(newPVName, newPVDescription, newPVUnits);
+
+        addPVToPlot(newPVName);
+    }
+
+    //  if the pv has already been added and it is unchecked, maybe make it checked?
 }
 
 
 void StripTool::addPVToPlot(const QString &pvName)
 {
-    plot_->addItem(itemContainer->getSeries(pvName));
+    if (itemContainer->contains(pvName))
+        plot_->addItem(itemContainer->getSeries(pvName));
 }
 
 
 void StripTool::removePVFromPlot(const QString &pvName)
 {
-    plot_->removeItem(itemContainer->getSeries(pvName));
+    if (itemContainer->contains(pvName))
+        plot_->removeItem(itemContainer->getSeries(pvName));
 }
 
 
 void StripTool::deletePV(const QString &pvName)
 {
-    itemContainer->deleteItem(pvName);
+    //  must also delete from the list model in this class lol!
+    if (itemContainer->contains(pvName))
+            itemContainer->deleteItem(pvName);
 }
 
 
-void StripTool::togglePVVisibility(QStandardItem* entryChanged)
+void StripTool::togglePVVisibility(QStandardItem *entryChanged)
 {
     int checkState = entryChanged->checkState();
-    QString pvName = entryChanged->text();
+    QString pvName = pvNameToDescriptionMap_.key(entryChanged->text());
 
     if (checkState == Qt::Checked)
         addPVToPlot(pvName);

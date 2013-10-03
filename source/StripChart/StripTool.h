@@ -28,6 +28,7 @@ signals:
 
 protected:
     QStandardItemModel *pvListModel_;
+    QMap<QString, QString> pvNameToDescriptionMap_;
     QListView *pvListView_;
 
     StripToolContainer *itemContainer;
@@ -42,6 +43,7 @@ protected:
     QMenu *plotMenu_;
     QAction *addPVAction_;
     QAction *removePVAction_;
+    QAction *addSR1CurrentAction_;
 
     QMenu *viewMenu_;
     QAction *togglePlotPaletteAction_;
@@ -69,6 +71,7 @@ protected:
 
 protected slots:
     void onAddPVAction();
+    void onAddSR1CurrentAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits);
     void togglePVVisibility(QStandardItem *entryChanged);
     void showItemInfo(MPlotItem* plotSelection);
