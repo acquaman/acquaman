@@ -59,8 +59,10 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Current Action");
 	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
+	headerTitle_->setMaximumWidth(600);
 	headerSubTitle_ = new QLabel("No action running.");
 	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
+	headerSubTitle_->setMaximumWidth(600);
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
 	hl->addLayout(vl2);

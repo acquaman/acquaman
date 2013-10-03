@@ -44,6 +44,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_, SIGNAL(calibrationChanged()), this, SLOT(populateGratingComboBox()));
 	connect(spectrometer_, SIGNAL(gratingChanged(int)), this, SLOT(updateCurrentGratingStatus()));
 	connect(spectrometer_, SIGNAL(movingChanged(bool)), this, SLOT(updateCurrentGratingStatus()));
+	connect(spectrometer_->gratingMask(), SIGNAL(valueChanged(double)), this, SLOT(updateMaskPosition()));
 
 	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
 	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
@@ -108,6 +109,11 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 	}
 }
 
+void REIXSXESSpectrometerControlEditor::updateMaskPosition()
+{
+	ui_->maskFeedbackLabel->setText(QString("Currently: %1").arg(spectrometer_->gratingMask()->value()));
+}
+
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus() {
 	updateCurrentEnergyStatus(spectrometer_->value());
 }
@@ -145,5 +151,23 @@ void REIXSXESSpectrometerControlEditor::onSpectrometerMoveFailed(int reason)
 void REIXSXESSpectrometerControlEditor::onStopButtonClicked()
 {
 	spectrometer_->stop();
+}
+
+
+
+void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(const QString &arg1)
+{
+	if (arg1 == "Pin Hole")
+		spectrometer_->gratingMask()->move(8.5);
+	else if (arg1 == "LEG")
+		spectrometer_->gratingMask()->move(12.9);
+	else if (arg1 == "Impurity")
+		spectrometer_->gratingMask()->move(12.9);
+	else if (arg1 == "MEG")
+		spectrometer_->gratingMask()->move(12.8);
+	else if (arg1 == "HRMEG")
+		spectrometer_->gratingMask()->move(12.6);
+	else if (arg1 == "OUT")
+		spectrometer_->gratingMask()->move(1.0);
 }
 

@@ -31,7 +31,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
 	// removed: detectorOrientation_ = 0;
-	shouldStartFromCurrentPosition_ = false;
+	shouldStartFromCurrentPosition_ = true;
 	doNotClearExistingCounts_ = false;
 
 

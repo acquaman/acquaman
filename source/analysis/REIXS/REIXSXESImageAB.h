@@ -121,11 +121,6 @@ protected:
 	void releaseFittingStructures();
 };
 
-
-
-
-
-
 /// Custom analysis block to shift and sum an XES detector image into a 1D spectrum, taking into account the possible curvature of the image. This version shifts each row by an arbitrary amount when summing columns.  It also has the capability to guess/determine the curvature using a correlation algorithm, where each row is correlated with the center row to determine the optimal shift.
 class REIXSXESImageAB : public AMStandardAnalysisBlock
 {
@@ -134,11 +129,13 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int sumRangeMaxY READ sumRangeMaxY WRITE setSumRangeMaxY)
 	Q_PROPERTY(int sumRangeMinX READ sumRangeMinX WRITE setSumRangeMinX)
 	Q_PROPERTY(int sumRangeMaxX READ sumRangeMaxX WRITE setSumRangeMaxX)
+	Q_PROPERTY(double rangeRound READ rangeRound WRITE setRangeRound)
 
 	Q_PROPERTY(AMIntList shiftValues READ shiftValues WRITE setShiftValues)
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
 	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double tiltCalibrationOffset READ tiltCalibrationOffset WRITE setTiltCalibrationOffset)
@@ -148,7 +145,7 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing };
+	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing};
 
 	/// Constructor. \c outputName is the name() for the output data source.
 	REIXSXESImageAB(const QString& outputName, QObject* parent = 0);
@@ -215,7 +212,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlationHalfWidth() const{ return correlationHalfWidth_; }
 	/// The type of smoothing to apply to the shift curve generated using correlation. One of ShiftCurveSmoothing.
-	int correlationSmoothing() const { return correlationSmoothing_; }
+
+	int correlationSmoothing() const {return correlationSmoothing_;}
+
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation() const { return liveCorrelation_; }
 
@@ -251,6 +250,7 @@ public slots:
 	void setCorrelationHalfWidth(int width);
 	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
 	void setCorrelationSmoothing(int type);
+
 	/// Enable (or disable) automatically running the correlation routine every time the data changes
 	void enableLiveCorrelation(bool enabled);
 
@@ -314,7 +314,9 @@ protected:
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlationHalfWidth_;
 	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
+
 	int correlationSmoothing_;
+
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
 	/// The shift values used to offset each row of the image when summing

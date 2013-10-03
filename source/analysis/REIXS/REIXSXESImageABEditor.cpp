@@ -83,7 +83,6 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	rangeRoundControl_->setSingleStep(0.05);
 	rangeRoundControl_->setMinimum(0.0);
 	rangeRoundControl_->setMaximum(1.0);
-	rangeRoundControl_->setValue(0.0);
 	
 	correlationCenterBox_ = new QSpinBox();
 	correlationCenterBox_->setSingleStep(1);
@@ -249,7 +248,9 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	hl2->addWidget(new QLabel("#"));
 	hl2->addWidget(correlationPointsBox_);
 	fl->addRow("C. center:", hl2);
+
 	fl->addRow("C. smooth:", correlationSmoothingBox_);
+
 	QHBoxLayout* hl5 = new QHBoxLayout();
 	hl5->addWidget(liveCorrelationCheckBox_);
 	hl5->addWidget(correlateNowButton_);
@@ -291,9 +292,16 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	connect(liveCorrelationCheckBox_, SIGNAL(toggled(bool)), analysisBlock_, SLOT(enableLiveCorrelation(bool)));
 	connect(energyCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setEnergyCalibrationOffset(double)));
 	connect(tiltCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setTiltCalibrationOffset(double)));
+
+
 	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), analysisBlock_, SLOT(setCorrelationSmoothing(int)));
 
+	//connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBoxChanged()));
+
+
 	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
+
+
 }
 
 REIXSXESImageABEditor::~REIXSXESImageABEditor() {
@@ -315,6 +323,7 @@ void REIXSXESImageABEditor::onRangeMinYControlChanged(int newRangeMinY)
 	ellipseData_->rangeValuesChanged();
 	
 }
+
 
 void REIXSXESImageABEditor::onRangeMaxYControlChanged(int newRangeMaxY)
 {
@@ -387,6 +396,8 @@ void REIXSXESImageABEditor::onCorrelationCenterBoxChanged(int center)
 	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 }
 
+
+
 void REIXSXESImageABEditor::onCorrelationPointsBoxChanged(int points)
 {
 	int halfWidth = points/2;
@@ -417,6 +428,7 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		rangeMaxYControl_->setEnabled(true);
 		rangeMinXControl_->setEnabled(true);
 		rangeMaxXControl_->setEnabled(true);
+		rangeRoundControl_->setEnabled(true);
 
 		correlationCenterBox_->setEnabled(true);
 		correlationPointsBox_->setEnabled(true);
@@ -455,6 +467,12 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		rangeMaxXControl_->setMaximum(inputSource->size(0) - 1);
 		rangeMaxXControl_->setValue(analysisBlock_->sumRangeMaxX());
 		rangeMaxXControl_->blockSignals(false);		
+
+		rangeRoundControl_->blockSignals(true);
+		rangeRoundControl_->setMaximum(1.0);
+		rangeRoundControl_->setMinimum(0.0);
+		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
+		rangeRoundControl_->blockSignals(false);
 		
 		correlationCenterBox_->blockSignals(true);
 		correlationCenterBox_->setMaximum(inputSource->size(0) - 1);
@@ -493,6 +511,7 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		rangeMaxYControl_->setEnabled(false);
 		rangeMinXControl_->setEnabled(false);
 		rangeMaxXControl_->setEnabled(false);
+		rangeRoundControl_->setEnabled(false);
 
 		correlationCenterBox_->setEnabled(false);
 		correlationPointsBox_->setEnabled(false);

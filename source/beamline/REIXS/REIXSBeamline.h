@@ -54,9 +54,11 @@ public:
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
+	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
+	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_; //DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
 
 };
@@ -233,6 +235,7 @@ public:
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
 	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
+	AMControl* gratingMask() { return gratingMask_; } //DAVID ADDED 005
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
@@ -246,7 +249,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
+	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_, *gratingMask_;  //DAVID ADDED 001, 005
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration2 calibration_;
@@ -318,7 +321,7 @@ class REIXSBrokenMonoControl : public AMControl {
 	Q_OBJECT
 public:
 	/// Construct with the AMPVwStatusControl to wrap \c control, the threshold to trigger multiple sub-moves, the number of sub-move attempts, the move settling time after each sub-move, the low energy threshold, and the low energy step size. We take ownership of the control.
-	REIXSBrokenMonoControl(AMPVwStatusControl* underlyingControl, double repeatMoveThreshold = 1.05, int repeatMoveAttempts = 3, double repeatMoveSettlingTime = 0.3, double singleMoveSettlingTime = 0.05, double lowEnergyThreshold = 100, double lowEnergyStepSize = 1.0, double actualTolerance = 0.1, QObject* parent = 0);
+	REIXSBrokenMonoControl(AMPVwStatusControl* underlyingControl, double repeatMoveThreshold = 1.05, int repeatMoveAttempts = 3, double repeatMoveSettlingTime = 0.3, double singleMoveSettlingTime = 0.05, double lowEnergyThreshold = 150, double lowEnergyStepSize = 1.0, double actualTolerance = 0.1, QObject* parent = 0);
 
 	/// Destructor: deletes the underlying control.
 	virtual ~REIXSBrokenMonoControl();

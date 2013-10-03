@@ -27,11 +27,11 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 
 	curveSmoother_ = 0;
 
-	sumRangeMinY_ = 5;
-	sumRangeMaxY_ = 58;
-	sumRangeMinX_ = 0;
-	sumRangeMaxX_ = 1023;
-	rangeRound_ = 0.0;
+	sumRangeMinY_ = 3;
+	sumRangeMaxY_ = 60;
+	sumRangeMinX_ = 50;
+	sumRangeMaxX_ = 950;
+	rangeRound_ = 1.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 	correlationSmoothing_ = -1;
@@ -63,11 +63,11 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 {
 	curveSmoother_ = 0;
 
-	sumRangeMinY_ = 5;
-	sumRangeMaxY_ = 58;
-	sumRangeMinX_ = 0;
-	sumRangeMaxX_ = 1023;
-	rangeRound_ = 0.0;
+	sumRangeMinY_ = 3;
+	sumRangeMaxY_ = 60;
+	sumRangeMinX_ = 50;
+	sumRangeMaxX_ = 950;
+	rangeRound_ = 1.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 	correlationSmoothing_ = -1;
@@ -743,7 +743,6 @@ void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
 	setModified(true);
 }
 
-
 void REIXSXESImageAB::setCorrelationSmoothing(int type)
 {
 	if(type == correlationSmoothing_)
@@ -768,13 +767,12 @@ void REIXSXESImageAB::setCorrelationSmoothing(int type)
 		break;
 	}
 
+
 	if(liveCorrelation())
 			callCorrelation_.schedule();
 
 	setModified(true);
 }
-
-
 
 
 

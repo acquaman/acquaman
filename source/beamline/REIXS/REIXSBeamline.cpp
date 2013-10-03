@@ -91,7 +91,10 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(sampleChamber()->y());
 	allControlsSet_->addControl(sampleChamber()->z());
 	allControlsSet_->addControl(sampleChamber()->r());
-	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
+	allControlsSet_->addControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
+	allControlsSet_->addControl(photonSource()->M5Pitch());   //DAVID ADDED 003
+	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
 
 	samplePlate_ = new AMSamplePlate(this);
@@ -112,11 +115,17 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 100, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
 	monoSlit_->setDescription("Mono Slit Width");
+
+	M5Pitch_ = new AMPVwStatusControl("M5Pitch", "SMTR1610-4-I20-02:mm:fbk", "SMTR1610-4-I20-02:mm","SMTR1610-4-I20-02:status","SMTR1610-4-I20-02:stop",this,0.5); //DAVID ADDED
+	M5Pitch_->setDescription("M5 Mirror Pitch"); //DAVID ADDED
+
+	M5Yaw_ = new AMPVwStatusControl("M5Yaw", "SMTR1610-4-I20-04:mm:fbk", "SMTR1610-4-I20-04:mm","SMTR1610-4-I20-04:status","SMTR1610-4-I20-04:stop",this,0.5); //DAVID ADDED
+	M5Yaw_->setDescription("M5 Mirror Yaw"); //DAVID ADDED
 
 	monoGratingTranslation_ = new AMPVwStatusControl("monoGratingTranslation", "MONO1610-I20-01:grating:trans:mm:fbk", "MONO1610-I20-01:grating:trans:mm", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 0.05);
 	monoGratingTranslation_->setDescription("Mono Grating Translation");
@@ -346,6 +355,15 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	endstationTranslation_->setDescription("Endstation Translation");
 	endstationTranslation_->setSettlingTime(0.2);
 
+	gratingMask_ = new AMPVwStatusControl("gratingMask",
+										  "SMTR1610-4-I21-03:mm:sp",
+										  "SMTR1610-4-I21-03:mm",
+										  "SMTR1610-4-I21-03:status",
+										  "SMTR1610-4-I21-03:stop",this,0.01); //DAVID ADDED 005
+	gratingMask_->setDescription("Grating Mask Position");
+	gratingMask_->setSettlingTime(0.2);
+
+
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
@@ -353,6 +371,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	addChildControl(detectorTiltDrive_);
 	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
+	addChildControl(gratingMask_);  //DAVID ADDED 005
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
 	currentFocusOffset_ = 0; specifiedFocusOffset_ = 0;
@@ -630,14 +649,74 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 	// n-step sub moves
 	if(fabs(value() - setpoint_) > repeatMoveThreshold_) {
-		control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
-		for(int i=0; i<repeatMoveAttempts_; ++i) {
-			moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
-		}
+			control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
+			double movePoint_ = value();
+
+			if(setpoint_ > lowEnergyThreshold_ && value() < lowEnergyThreshold_) { //below lowEnergySetpoint moving up
+
+				while(movePoint_ < lowEnergyThreshold_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
+				}
+
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() > lowEnergyThreshold_) {   //above lowEnergySetpoint moving into
+
+				movePoint_ = lowEnergyThreshold_;
+
+				for(int i=0; i<repeatMoveAttempts_; ++i) {
+							moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					}
+					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
+
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
+				}
+
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ > value() ) {   //below lowEnergySetpoint moving up within
+
+
+				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
+				}
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ < value() ) {   //below lowEnergySetpoint moving down within
+
+
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
+				}
+
+			}
+
+			//Fall though or finalize move:
+
+			for(int i=0; i<repeatMoveAttempts_; ++i) {
+						moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+						qDebug() << "Fallthrough " << setpoint_;
+				}
+
+
+
 	}
 	else {
 		control_->setSettlingTime(singleMoveSettlingTime_);
 		moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+		qDebug() << "Small move " << setpoint_;
 	}
 
 	/// \todo Low-energy moves
@@ -714,7 +793,7 @@ REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
 {
 	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
+	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
 	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
 	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
 

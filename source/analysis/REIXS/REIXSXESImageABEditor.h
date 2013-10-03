@@ -126,6 +126,9 @@ public:
 	/// Destructor
 	~REIXSXESImageABEditor();
 
+	/// Enum describing the options for smoothing the auto-correlated shift curve.
+	//enum smoothBoxType { None, Poly, Median, Average };
+
 
 signals:
 
@@ -148,6 +151,8 @@ public slots:
 	/// Called when the correlation settings are changed
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
+
+
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
 	/// Called to apply same shift curve to many XES scans. Shows the dialog to choose which scans.
