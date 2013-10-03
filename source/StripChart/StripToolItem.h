@@ -14,24 +14,24 @@ class StripToolItem : public QObject
 
 public:
     explicit StripToolItem(QString pvName, QString pvDescription = "", QString pvUnits = "", QObject *parent = 0);
+    ~StripToolItem();
     friend class StripToolContainer;
     
 signals:
-    void pvConnected(const QString &pvName);
-    void pvDataUpdate(const QString &pvName, QVector<double>, QVector<double>);
 
 protected:
     int updateIndex_;
+    int valuesDisplayed_;
+    int dataVectorSize_;
     QString pvName_;
     QString pvDescription_;
     QString xUnits_;
     QString yUnits_;
-    int valuesDisplayed_;
+    QVector<double> pvUpdateIndex_;
+    QVector<double> pvDataTotal_;
     AMReadOnlyPVControl *pvControl_;
     MPlotVectorSeriesData *pvDataDisplay_;
     MPlotSeriesBasic *pvSeries_;
-    QVector<double> pvUpdateIndex_;
-    QVector<double> pvDataTotal_;
 
 protected:
     QString pvName();

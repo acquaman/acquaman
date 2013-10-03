@@ -41,13 +41,16 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
     windowLayout->addLayout(pvEntryLayout);
     windowLayout->addWidget(buttonBox);
 
-    connect(this, SIGNAL(newPVIsValid()), this, SLOT(onNewPVIsValid()) );
-
     setModal(true);
     setLayout(windowLayout);
     setWindowTitle("Add PV to Plot");
     resize(350, 100);
 
+}
+
+
+AddPVDialog::~AddPVDialog()
+{
 }
 
 

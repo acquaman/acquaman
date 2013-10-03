@@ -10,8 +10,10 @@
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotSeriesData.h"
-#include "beamline/AMPVControl.h"
 #include "MPlot/MPlotTools.h"
+
+#include "beamline/AMPVControl.h"
+
 
 
 class StripTool : public QMainWindow
@@ -52,7 +54,7 @@ protected:
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
 
-    AddPVDialog *dialog_;
+    AddPVDialog dialog_;
 
 protected:
     void createPVListModel();
@@ -68,7 +70,7 @@ protected:
 protected slots:
     void onAddPVAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits);
-    void togglePVVisibility(QStandardItem*entryChanged);
+    void togglePVVisibility(QStandardItem *entryChanged);
     void showItemInfo(MPlotItem* plotSelection);
 };
 

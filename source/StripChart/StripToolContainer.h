@@ -14,6 +14,7 @@ class StripToolContainer : public QObject
 
 public:
     explicit StripToolContainer(QObject *parent = 0);
+    ~StripToolContainer();
     friend class StripTool;
     
 signals:

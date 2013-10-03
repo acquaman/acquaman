@@ -51,7 +51,6 @@ StripTool::StripTool(QWidget *parent)
 
 StripTool::~StripTool()
 {
-
 }
 
 
@@ -159,10 +158,8 @@ void StripTool::createPVDock()
 
 void StripTool::onAddPVAction()
 {
-    dialog_ = new AddPVDialog(this);
-
-    if (dialog_->exec() == QDialog::Accepted)
-        addToPVListModel(dialog_->pvName(), dialog_->pvDescription(), dialog_->pvUnits());
+    if (dialog_.exec() == QDialog::Accepted)
+        addToPVListModel(dialog_.pvName(), dialog_.pvDescription(), dialog_.pvUnits());
 }
 
 

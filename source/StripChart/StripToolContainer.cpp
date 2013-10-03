@@ -7,6 +7,11 @@ StripToolContainer::StripToolContainer(QObject *parent) :
 }
 
 
+StripToolContainer::~StripToolContainer()
+{
+}
+
+
 void StripToolContainer::addItem(const QString &pvName, const QString &pvDescription, const QString &pvUnits)
 {
     StripToolItem *newItem = new StripToolItem(pvName, pvDescription, pvUnits);
@@ -18,7 +23,7 @@ void StripToolContainer::addItem(const QString &pvName, const QString &pvDescrip
 void StripToolContainer::deleteItem(const QString &pvName)
 {
     StripToolItem *itemToDelete = pvNameToItemMap[pvName];
-    itemToDelete->~StripToolItem();
+    delete itemToDelete;
     pvNameToItemMap.remove(pvName);
     itemCount_--;
 }

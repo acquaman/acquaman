@@ -9,8 +9,10 @@
 class AddPVDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     explicit AddPVDialog(QWidget *parent = 0);
+    ~AddPVDialog();
     friend class StripTool;
 
 signals:
