@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/AMFontSizes.h"
 
@@ -65,8 +66,31 @@ REIXSXESSpectrometerControlEditor::~REIXSXESSpectrometerControlEditor()
 }
 
 
+//void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
+//{
+//	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
+//	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
+//	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
+
+//	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
+//	if(failureExplanation != AMControl::NoFailure)
+//		onSpectrometerMoveFailed(failureExplanation);
+//}  DM UPDATE CODE TO VERIFY GRATING CHANGE FOLLOWS:
+
 void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 {
+	int confirm = QMessageBox::Yes;
+	if (spectrometer_->grating() != ui_->gratingSelectorBox->currentIndex())
+		{
+			QMessageBox confirmBox;
+			confirmBox.setText("A new grating has been selected.");
+			confirmBox.setInformativeText("Do you want to change gratings?");
+			confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+			confirm = confirmBox.exec();
+		}
+
+	if (confirm == QMessageBox::Yes)
+	{
 	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
 	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
 	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
@@ -74,6 +98,8 @@ void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
 	if(failureExplanation != AMControl::NoFailure)
 		onSpectrometerMoveFailed(failureExplanation);
+	}
+	else ui_->gratingSelectorBox->setCurrentIndex(spectrometer_->grating());
 }
 
 void REIXSXESSpectrometerControlEditor::onGratingComboBoxActivated(int grating)
