@@ -158,14 +158,6 @@ bool VESPERSAppController::startup() {
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
-		VESPERSSingleElementVortexDetector *test = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element", this);
-//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
-		AMXRFDetailedDetectorView *testView = new AMXRFDetailedDetectorView(test);
-		testView->buildDetectorView();
-		testView->setEnergyRange(3000, 20000);
-		testView->addEmissionLineNameFilter("1");
-		testView->show();
-
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper);
@@ -292,6 +284,14 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
 //	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
+
+	VESPERSSingleElementVortexDetector *test = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element", this);
+//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
+	AMXRFDetailedDetectorView *testView = new AMXRFDetailedDetectorView(test);
+	testView->buildDetectorView();
+	testView->setEnergyRange(3000, 20000);
+	testView->addEmissionLineNameFilter("1");
+	mw_->addPane(testView, "Detectors", "New XRF Detector", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();

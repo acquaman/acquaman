@@ -12,6 +12,11 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 
 	periodicTable_ = new AMSelectablePeriodicTable(this);
 	periodicTable_->buildPeriodicTable();
+
+	emissionLineLegendColors_.insert("K", QColor(0, 255, 0));
+	emissionLineLegendColors_.insert("L", QColor(255, 255, 0));
+	emissionLineLegendColors_.insert("M", QColor(0, 255, 255));
+	emissionLineLegendColors_.insert("Default", palette().button().color());
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -25,7 +30,30 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	elementView_ = new AMSelectableElementView(qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol("Fe")));
 	elementView_->setAbsorptionEdgeVisibility(false);
 
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *legend = new QLabel(QString("Legend"));
+	legend->setFont(font);
+	QLabel *kLines = new QLabel(QString("K-lines"));
+	kLines->setFont(font);
+	kLines->setStyleSheet(QString("QLabel { background-color: rgb(%1,%2,%3) ; border-width: 2px ; border-style: solid }").arg(emissionLineLegendColors_.value("K").red()).arg(emissionLineLegendColors_.value("K").green()).arg(emissionLineLegendColors_.value("K").blue()));
+	QLabel *lLines = new QLabel(QString("L-lines"));
+	lLines->setFont(font);
+	lLines->setStyleSheet(QString("QLabel { background-color: rgb(%1,%2,%3) ; border-width: 2px ; border-style: solid }").arg(emissionLineLegendColors_.value("L").red()).arg(emissionLineLegendColors_.value("L").green()).arg(emissionLineLegendColors_.value("L").blue()));
+	QLabel *mLines = new QLabel(QString("M-lines"));
+	mLines->setFont(font);
+	mLines->setStyleSheet(QString("QLabel { background-color: rgb(%1,%2,%3) ; border-width: 2px ; border-style: solid }").arg(emissionLineLegendColors_.value("M").red()).arg(emissionLineLegendColors_.value("M").green()).arg(emissionLineLegendColors_.value("M").blue()));
+
+	QVBoxLayout *legendLayout = new QVBoxLayout;
+	legendLayout->addWidget(legend);
+	legendLayout->addWidget(kLines);
+	legendLayout->addWidget(lLines);
+	legendLayout->addWidget(mLines);
+	legendLayout->addStretch();
+
 	QHBoxLayout *periodicTableAndElementViewLayout = new QHBoxLayout;
+	periodicTableAndElementViewLayout->addLayout(legendLayout);
 	periodicTableAndElementViewLayout->addWidget(periodicTableView_);
 	periodicTableAndElementViewLayout->addWidget(elementView_);
 
@@ -138,18 +166,54 @@ void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emi
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	regionOfInterestMarkers_.insert(emissionLine, newMarker);
+
+	updatePeriodicTableButtonColors(emissionLine);
 }
 
 void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &emissionLine)
 {
-	detector_->removeRegionOfInterest(emissionLine);
 	MPlotItem *itemToBeRemoved = regionOfInterestMarkers_.value(emissionLine);
 
 	if (itemToBeRemoved){
 
+		detector_->removeRegionOfInterest(emissionLine);
 		plot_->removeItem(itemToBeRemoved);
 		regionOfInterestMarkers_.remove(emissionLine);
 		delete itemToBeRemoved;
+
+		updatePeriodicTableButtonColors(emissionLine);
+	}
+}
+
+void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmissionLine &line)
+{
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(line.elementSymbol()));
+
+	if (element){
+
+		if (element->hasSelectedEmissionLines()){
+
+			QColor color;
+
+			foreach (AMEmissionLine line, element->selectedEmissionLines()){
+
+				if (line.lineName().contains("K"))
+					color = emissionLineLegendColors_.value("K");
+
+				else if (line.lineName().contains("L"))
+					color = emissionLineLegendColors_.value("L");
+
+				if (line.lineName().contains("M"))
+					color = emissionLineLegendColors_.value("M");
+			}
+			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue()));
+		}
+
+		else{
+
+			QColor color = emissionLineLegendColors_.value("Default");
+			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue()));
+		}
 	}
 }
 
@@ -157,4 +221,37 @@ void AMXRFDetailedDetectorView::highlightCurrentElementRegionOfInterest(AMElemen
 {
 	foreach (MPlotMarkerTransparentVerticalRectangle *marker, regionOfInterestMarkers_)
 		marker->setHighlighted(marker->description().contains(QRegExp(element->symbol() % " (K|L|M)")));
+}
+
+void AMXRFDetailedDetectorView::setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor)
+{
+	emissionLineLegendColors_.clear();
+	emissionLineLegendColors_.insert("K", kColor);
+	emissionLineLegendColors_.insert("L", lColor);
+	emissionLineLegendColors_.insert("M", mColor);
+	emissionLineLegendColors_.insert("Default", defaultColor);
+}
+
+void AMXRFDetailedDetectorView::setKEmissionLineColor(const QColor &color)
+{
+	emissionLineLegendColors_.remove("K");
+	emissionLineLegendColors_.insert("K", color);
+}
+
+void AMXRFDetailedDetectorView::setLEmissionLineColor(const QColor &color)
+{
+	emissionLineLegendColors_.remove("L");
+	emissionLineLegendColors_.insert("L", color);
+}
+
+void AMXRFDetailedDetectorView::setMEmissionLineColor(const QColor &color)
+{
+	emissionLineLegendColors_.remove("M");
+	emissionLineLegendColors_.insert("M", color);
+}
+
+void AMXRFDetailedDetectorView::setDefaultEmissionLineColor(const QColor &color)
+{
+	emissionLineLegendColors_.remove("Default");
+	emissionLineLegendColors_.insert("Default", color);
 }

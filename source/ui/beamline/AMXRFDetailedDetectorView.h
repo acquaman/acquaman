@@ -40,6 +40,27 @@ public:
 	/// Adds a new emission line name filter to the list of name filters.
 	void addEmissionLineNameFilter(const QString &newNameFilter);
 
+	/// Sets the colors for each of the emission lines.
+	void setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor);
+	/// Sets the K emission line color.
+	void setKEmissionLineColor(const QColor &color);
+	/// Sets the L emission line color.
+	void setLEmissionLineColor(const QColor &color);
+	/// Sets the M emission line color.
+	void setMEmissionLineColor(const QColor &color);
+	/// Sets the default button color.
+	void setDefaultEmissionLineColor(const QColor &color);
+	/// Returns the map of names to colors for the emission lines.
+	const QMap<QString, QColor> &lineColorMap() const { return emissionLineLegendColors_; }
+	/// Returns the K emission line color.
+	const QColor kEmissionLineColor() const { return emissionLineLegendColors_.value("K"); }
+	/// Returns the L emission line color.
+	const QColor lEmissionLineColor() const { return emissionLineLegendColors_.value("L"); }
+	/// Returns the M emission line color.
+	const QColor mEmissionLineColor() const { return emissionLineLegendColors_.value("M"); }
+	/// Returns the default emission line color.
+	const QColor defaultEmissionLineColor() const { return emissionLineLegendColors_.value("Default"); }
+
 public slots:
 	/// Sets the energy range filter for this view.
 	void setEnergyRange(const AMRange &newRange);
@@ -67,6 +88,8 @@ protected slots:
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
 	void highlightCurrentElementRegionOfInterest(AMElement *element);
+	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the emission line for appropriate lookups.
+	void updatePeriodicTableButtonColors(const AMEmissionLine &line);
 
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;
@@ -81,6 +104,8 @@ protected:
 	QList<MPlotItem *> emissionLineMarkers_;
 	/// A mapping of emission lines to region of interest markers.
 	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
+	/// A simple map for the line colors.
+	QMap<QString, QColor> emissionLineLegendColors_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

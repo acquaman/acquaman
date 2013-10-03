@@ -8,6 +8,7 @@ AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *p
 	: QWidget(parent)
 {
 	detector_ = detector;
+	topFrame_ = new AMTopFrame(detector_->description(), QIcon(":/utilities-system-monitor.png"));
 
 	topLayout_ = new QHBoxLayout;
 	bottomLayout_ = new QHBoxLayout;
@@ -22,7 +23,11 @@ AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *p
 	masterLayout_->addLayout(rightLayout_, 1, 2);
 	masterLayout_->addLayout(bottomLayout_, 2, 1);
 
-	setLayout(masterLayout_);
+	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	detectorLayout->addWidget(topFrame_);
+	detectorLayout->addLayout(masterLayout_);
+
+	setLayout(detectorLayout);
 }
 
 void AMXRFBaseDetectorView::buildDetectorView()
@@ -32,9 +37,11 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	plotLayout_->addWidget(plotView_);
 
 	acquireButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Acquire");
+	acquireButton_->setMaximumHeight(25);
 	connect(acquireButton_, SIGNAL(clicked()), detector_, SLOT(acquire()));
 
 	cancelButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+	cancelButton_->setMaximumHeight(25);
 	connect(cancelButton_, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
 	cancelButton_->setVisible(detector_->canCancel());
 
@@ -135,4 +142,25 @@ void AMXRFBaseDetectorView::onNewAcquisitionTimeSetpoint()
 void AMXRFBaseDetectorView::onElapsedTimeChanged(double time)
 {
 	elapsedTimeLabel_->setText(QString("%1 s").arg(time, 0, 'f', 2));
+}
+
+void AMXRFBaseDetectorView::setTitleBar(const QString &title, const QIcon &icon)
+{
+	topFrame_->setTitle(title);
+	topFrame_->setIcon(icon);
+}
+
+void AMXRFBaseDetectorView::setTitleBarText(const QString &title)
+{
+	topFrame_->setTitle(title);
+}
+
+void AMXRFBaseDetectorView::setTitleBarIcon(const QIcon &icon)
+{
+	topFrame_->setIcon(icon);
+}
+
+void AMXRFBaseDetectorView::setTitleBarVisibility(bool isVisible)
+{
+	topFrame_->setVisible(isVisible);
 }

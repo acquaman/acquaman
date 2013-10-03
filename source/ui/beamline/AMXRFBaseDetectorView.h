@@ -8,6 +8,7 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "ui/AMTopFrame.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -27,6 +28,21 @@ public:
 
 	/// Builds the for the detector and must be called after the view has been constructed.  All building of the GUI should be done inside of this method.  Reimplement this method when you want to customize the entire look and feel of the detector view.
 	virtual void buildDetectorView();
+
+	/// Sets the title bar.  Sets the name and icon for the bar.
+	void setTitleBar(const QString &title, const QIcon &icon);
+	/// Sets the title bar text.
+	void setTitleBarText(const QString &title);
+	/// Sets the title bar icon.
+	void setTitleBarIcon(const QIcon &icon);
+	/// Sets the visibility of the tital bar.  Default to visible.
+	void setTitleBarVisibility(bool isVisible);
+	/// Returns the title bar text.
+	const QString title() const { return topFrame_->title(); }
+	/// Returns the title bar visibility.
+	bool titleBarIsVisible() const { return topFrame_->isVisible(); }
+	/// Returns the title bar icon.
+	const QIcon titleIcon() const { return topFrame_->icon(); }
 
 signals:
 
@@ -51,6 +67,9 @@ protected:
 	MPlotWidget *plotView_;
 	/// This is the plot itself.
 	MPlot *plot_;
+
+	/// The top frame title bar.
+	AMTopFrame *topFrame_;
 
 	// The GUI elements for basic AMXRFDetectors.
 	/// The acquire button.
