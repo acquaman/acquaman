@@ -11,6 +11,7 @@ class AddPVDialog : public QDialog
     Q_OBJECT
 public:
     explicit AddPVDialog(QWidget *parent = 0);
+    friend class StripTool;
 
 signals:
     void enableButtonBox(bool isEnabled);
@@ -18,23 +19,24 @@ signals:
     void enablePVDescription(bool isEnabled);
     void enablePVUnits(bool isEnabled);
     void newPVIsValid();
-    void newPVAccepted(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
 
 protected:
-
     QString pvName_;
     QString pvDescription_;
     QString pvUnits_;
     QLabel *pvValidMessage_;
 
+protected:
+    QString pvName();
+    QString pvDescription();
+    QString pvUnits();
+
 protected slots:
     void onPVNameEntered(const QString name);
     void onPVDescriptionEntered(const QString description);
     void onPVUnitsEntered(const QString units);
-    void onPVConnected(bool isConnected);
     void onAcceptButtonClicked();
-    void onNewPVIsValid();
-    
+    void pvIsValid(bool isValid);
 };
 
 #endif // ADDPVDIALOG_H

@@ -9,30 +9,17 @@ StripToolContainer::StripToolContainer(QObject *parent) :
 
 void StripToolContainer::addItem(const QString &pvName, const QString &pvDescription, const QString &pvUnits)
 {
-    StripToolItem *newPVItem = new StripToolItem(pvName, pvDescription, pvUnits, this);
-    connect( newPVItem, SIGNAL(pvConnected(QString)), this, SLOT(updateSeriesInfo(QString)) );
-    connect( newPVItem, SIGNAL(pvDataUpdate(QString,QVector<double>,QVector<double>)), this, SLOT(onPVDataUpdate(QString, QVector<double>, QVector<double>)) );
-    pvNameToItemMap[pvName] = newPVItem;
-
-    MPlotVectorSeriesData *newPVData = new MPlotVectorSeriesData();
-    pvNameToDataMap[pvName] = newPVData;
-
-    MPlotSeriesBasic *newPVSeries = new MPlotSeriesBasic();
-    newPVSeries->setDescription(" ");
-    newPVSeries->setModel(newPVData);
-
-    pvNameToSeriesMap[pvName] = newPVSeries;
-
+    StripToolItem *newItem = new StripToolItem(pvName, pvDescription, pvUnits);
+    pvNameToItemMap[pvName] = newItem;
     itemCount_++;
 }
 
 
-void StripToolContainer::removeItem(const QString &pvName)
+void StripToolContainer::deleteItem(const QString &pvName)
 {
+    StripToolItem *itemToDelete = pvNameToItemMap[pvName];
+    itemToDelete->~StripToolItem();
     pvNameToItemMap.remove(pvName);
-    pvNameToDataMap.remove(pvName);
-    pvNameToSeriesMap.remove(pvName);
-
     itemCount_--;
 }
 
@@ -50,30 +37,23 @@ void StripToolContainer::setValuesDisplayed(const QString &pvName, const int new
 }
 
 
-void StripToolContainer::onPVDataUpdate(const QString &pvName, QVector<double> xValues, QVector<double> yValues)
-{    
-    MPlotVectorSeriesData *pvData = pvNameToDataMap[pvName];
-    pvData->setValues(xValues, yValues);
-}
-
-
 MPlotItem *StripToolContainer::getSeries(const QString &pvName)
 {
-    return pvNameToSeriesMap[pvName];
+    return pvNameToItemMap[pvName]->series();
 }
 
 
 QString StripToolContainer::getAxisLeft(MPlotItem *plotSelection)
 {
-    QString pvName = pvNameToSeriesMap.key(plotSelection);
+    QString pvName = plotSelection->description();
     StripToolItem *pvItem = pvNameToItemMap[pvName];
-    return pvItem->getYUnits();
+    return pvItem->yUnits();
 }
 
 
 QString StripToolContainer::getAxisBottom(MPlotItem *plotSelection)
 {
-    QString pvName = pvNameToSeriesMap.key(plotSelection);
+    QString pvName = plotSelection->description();
     StripToolItem *pvItem = pvNameToItemMap[pvName];
-    return pvItem->getXUnits();
+    return pvItem->xUnits();
 }

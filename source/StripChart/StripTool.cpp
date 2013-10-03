@@ -114,7 +114,7 @@ void StripTool::createPlotMenu()
     //  create the plot menu and add the appropriate actions.
     plotMenu_ = menuBar()->addMenu("&Plot");
     plotMenu_->addAction(addPVAction_);
-    plotMenu_->addAction("Remove PV");
+    plotMenu_->addAction(removePVAction_);
 }
 
 
@@ -159,9 +159,10 @@ void StripTool::createPVDock()
 
 void StripTool::onAddPVAction()
 {
-    addPVDialog_ = new AddPVDialog(this);
-    connect( addPVDialog_, SIGNAL(newPVAccepted(QString, QString, QString)), this, SLOT(addToPVListModel(QString, QString, QString)) );
-    addPVDialog_->exec();
+    dialog_ = new AddPVDialog(this);
+
+    if (dialog_->exec() == QDialog::Accepted)
+        addToPVListModel(dialog_->pvName(), dialog_->pvDescription(), dialog_->pvUnits());
 }
 
 
@@ -176,7 +177,6 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
     itemContainer->addItem(newPVName, newPVDescription, newPVUnits);
 
     addPVToPlot(newPVName);
-
 }
 
 
@@ -194,7 +194,7 @@ void StripTool::removePVFromPlot(const QString &pvName)
 
 void StripTool::deletePV(const QString &pvName)
 {
-    itemContainer->removeItem(pvName);
+    itemContainer->deleteItem(pvName);
 }
 
 

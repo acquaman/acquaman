@@ -28,18 +28,19 @@ protected:
     QString yUnits_;
     int valuesDisplayed_;
     AMReadOnlyPVControl *pvControl_;
+    MPlotVectorSeriesData *pvDataDisplay_;
+    MPlotSeriesBasic *pvSeries_;
     QVector<double> pvUpdateIndex_;
-    QVector<double> pvData_;
+    QVector<double> pvDataTotal_;
 
 protected:
-    QString getPVName();
-    QString getPVDescription();
-    QVector<double> getPVUpdateIndices();
-    QVector<double> getPVData();
+    QString pvName();
+    QString pvDescription();
+    QString xUnits();
+    QString yUnits();
+    MPlotItem* series();
     void setValuesDisplayed(const int newValuesDisplayed);
-    QString getXUnits();
-    QString getYUnits();
-    
+
 protected slots:
     void onPVValueChanged(double newValue);
     

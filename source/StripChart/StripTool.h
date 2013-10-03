@@ -52,7 +52,7 @@ protected:
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
 
-    AddPVDialog *addPVDialog_;
+    AddPVDialog *dialog_;
 
 protected:
     void createPVListModel();

@@ -12,50 +12,49 @@ StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUn
     xUnits_ = "Update number";
     yUnits_ = pvUnits;
 
-    pvControl_ = new AMReadOnlyPVControl(pvName, pvName, this);
+    pvDataDisplay_ = new MPlotVectorSeriesData();
+
+    pvSeries_ = new MPlotSeriesBasic();
+    pvSeries_->setDescription(pvName_);
+    pvSeries_->setModel(pvDataDisplay_);
+
+    pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
 }
 
 
 
-QString StripToolItem::getPVName()
+QString StripToolItem::pvName()
 {
     return pvName_;
 }
 
 
 
-QString StripToolItem::getPVDescription()
+QString StripToolItem::pvDescription()
 {
     return pvDescription_;
 }
 
 
 
-QVector<double> StripToolItem::getPVUpdateIndices()
-{
-    return pvUpdateIndex_;
-}
-
-
-
-QVector<double> StripToolItem::getPVData()
-{
-    return pvData_;
-}
-
-
-
-QString StripToolItem::getXUnits()
+QString StripToolItem::xUnits()
 {
     return xUnits_;
 }
 
 
 
-QString StripToolItem::getYUnits()
+QString StripToolItem::yUnits()
 {
     return yUnits_;
+}
+
+
+
+MPlotItem* StripToolItem::series()
+{
+    return pvSeries_;
 }
 
 
@@ -69,23 +68,25 @@ void StripToolItem::setValuesDisplayed(const int newValuesDisplayed)
 
 void StripToolItem::onPVValueChanged(double newValue)
 {
+    //  update the vectors containing all pv data, and increment the update counter.
     pvUpdateIndex_.append(updateIndex_);
-    pvData_.append(newValue);
-
+    pvDataTotal_.append(newValue);
     updateIndex_++;
 
+    //  create new vectors containing the values to be displayed.
     QVector<double> xValues, yValues;
 
     if (updateIndex_ < valuesDisplayed_)
     {
         xValues = pvUpdateIndex_;
-        yValues = pvData_;
+        yValues = pvDataTotal_;
 
     } else {
 
         xValues = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_);
-        yValues = pvData_.mid(updateIndex_ - valuesDisplayed_);
+        yValues = pvDataTotal_.mid(updateIndex_ - valuesDisplayed_);
     }
 
-    emit pvDataUpdate(getPVName(), xValues, yValues);
+    //  update the displayed data with the new vectors.
+    pvDataDisplay_->setValues(xValues, yValues);
 }
