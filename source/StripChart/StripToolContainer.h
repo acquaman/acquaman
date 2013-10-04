@@ -28,7 +28,10 @@ protected:
     void deleteItem(const QString &pvName);
     bool contains(const QString &pvName);
     void setValuesDisplayed(const QString &pvName, const int newValuesDisplayed);
-    MPlotItem* getSeries(const QString &pvName);
+    MPlotItem* series(const QString &pvName);
+    QString description(const QString &pvName);
+    QString xUnits(const QString &pvName);
+    QString yUnits(const QString &pvName);
     QString getAxisLeft(MPlotItem *plotSelection);
     QString getAxisBottom(MPlotItem *plotSelection);
 };

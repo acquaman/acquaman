@@ -42,23 +42,47 @@ void StripToolContainer::setValuesDisplayed(const QString &pvName, const int new
 }
 
 
-MPlotItem *StripToolContainer::getSeries(const QString &pvName)
+MPlotItem *StripToolContainer::series(const QString &pvName)
 {
     return pvNameToItemMap[pvName]->series();
 }
 
 
+
+QString StripToolContainer::description(const QString &pvName)
+{
+    return pvNameToItemMap[pvName]->pvDescription();
+}
+
+
+QString StripToolContainer::xUnits(const QString &pvName)
+{
+    return pvNameToItemMap[pvName]->xUnits();
+}
+
+
+QString StripToolContainer::yUnits(const QString &pvName)
+{
+    return pvNameToItemMap[pvName]->yUnits();
+}
+
+
 QString StripToolContainer::getAxisLeft(MPlotItem *plotSelection)
 {
-    QString pvName = plotSelection->description();
-    StripToolItem *pvItem = pvNameToItemMap[pvName];
-    return pvItem->yUnits();
+    Q_UNUSED(plotSelection);
+//    QString pvName = plotSelection->description();
+
+//    StripToolItem *pvItem = pvNameToItemMap[pvName];
+//    return pvItem->yUnits();
+    return "This is broken right now!";
 }
 
 
 QString StripToolContainer::getAxisBottom(MPlotItem *plotSelection)
 {
-    QString pvName = plotSelection->description();
-    StripToolItem *pvItem = pvNameToItemMap[pvName];
-    return pvItem->xUnits();
+    Q_UNUSED(plotSelection);
+//    QString pvName = plotSelection->description();
+//    StripToolItem *pvItem = pvNameToItemMap[pvName];
+//    return pvItem->xUnits();
+    return "This is broke too. :(";
 }

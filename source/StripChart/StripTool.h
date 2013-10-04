@@ -28,8 +28,9 @@ signals:
 
 protected:
     QStandardItemModel *pvListModel_;
-    QMap<QString, QString> pvNameToDescriptionMap_;
     QListView *pvListView_;
+    QList<QString> visiblePVNames_; //temporary, hopefully.
+    QList<QString> allPVNames_; //temporary, hopefully.
 
     StripToolContainer *itemContainer;
 
@@ -72,7 +73,7 @@ protected:
     void addPVToPlot(const QString &pvName);
     void removePVFromPlot(const QString &pvName);
     void deletePV(const QString &pvName);
-    void updatePlotAxes(MPlotItem* plotSelection);
+    void updatePlotAxesLabels(MPlotItem *plotSelection);
 
 protected slots:
     void onAddPVAction();

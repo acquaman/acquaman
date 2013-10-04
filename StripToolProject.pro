@@ -18,3 +18,6 @@ HEADERS  += \
     source/StripChart/StripTool.h \
     source/StripChart/StripToolItem.h \
     source/StripChart/StripToolContainer.h
+
+OTHER_FILES += \
+    source/StripChart/pvGroupInfo.txt

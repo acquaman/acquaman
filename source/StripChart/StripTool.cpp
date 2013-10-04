@@ -63,7 +63,7 @@ void StripTool::createPVListModel()
 
     pvListView_ = new QListView(this);
     pvListView_->setModel(pvListModel_);
-    //pvListView_->setEditTriggers(QAbstractItemView::SelectedClicked);
+    pvListView_->setEditTriggers(QAbstractItemView::SelectedClicked);
 
     itemContainer = new StripToolContainer(this);
 }
@@ -154,7 +154,6 @@ void StripTool::createViewMenu()
 void StripTool::createSettingsMenu()
 {
     setPVGroupAction_ = new QAction("Set PV Group", this);
-    setPVGroupAction_->setEnabled(false);
     connect( setPVGroupAction_, SIGNAL(triggered()), this, SLOT(onSetPVGroupAction()) );
 
     settingsMenu_ = menuBar()->addMenu("&Settings");
@@ -198,13 +197,36 @@ void StripTool::onAddSR1CurrentAction()
 
 void StripTool::onAddPVGroupAction()
 {
-
+    //  look for a file containing the pv names, descriptions, and units for the pv group, and load them automatically!
 }
 
 
 
 void StripTool::onSetPVGroupAction()
 {
+    //  go through the model containing currently active pvs and select all pvs that are checked.
+    //QList<QStandardItem *> pvGroup = pvListModel_->findItems("*", Qt::CheckState = Qt::Checked);
+
+    //  having trouble figuring that out. Temporary solution is to keep lists of visible/all pv names.
+    QList<QList<QString> > pvsToSave;
+    int count = visiblePVNames_.size();
+
+    for (int i = 0; i < count; i++) {
+        QString pvName = visiblePVNames_.at(i);
+        QString pvDescription = itemContainer->description(pvName);
+        QString pvUnits = itemContainer->yUnits(pvName);
+
+        QList<QString> pvInfo;
+        pvInfo << pvName << pvDescription << pvUnits;
+
+        pvsToSave << pvInfo;
+    }
+
+    //  open a file to save the pv group in.
+    QString filename = "/Users/helfrij/dev/acquaman/source/StripChart/pvGroupInfo.txt";
+    QFile pvGroupFile(filename);
+    QDataStream out(&pvGroupFile);
+    out << pvsToSave;
 
 }
 
@@ -212,20 +234,26 @@ void StripTool::onSetPVGroupAction()
 
 void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits)
 {
-    if (!pvNameToDescriptionMap_.contains(newPVName))
+    if (allPVNames_.contains(newPVName))
     {
-        pvNameToDescriptionMap_[newPVName] = newPVDescription;
+        // warn the user!
+        //  if the pv has already been added and it is unchecked, maybe make it checked?
 
-        QStandardItem *newPVEntry;
+    } else {
 
-        if (newPVDescription != "")
-            newPVEntry = new QStandardItem(newPVDescription);
+        QStandardItem *newPVEntry = new QStandardItem();
+        if (newPVDescription == "")
+            newPVEntry->setText(newPVName);
         else
-            newPVEntry = new QStandardItem(newPVName);
+            newPVEntry->setText(newPVDescription);
+
+        newPVEntry->setColumnCount(1);
+        newPVEntry->setChild(0, new QStandardItem(newPVName));
 
         newPVEntry->setCheckable(true);
         newPVEntry->setCheckState(Qt::Checked);
-        newPVEntry->setEditable(true);  // want to be able to edit descriptions later. (not totally working yet).
+        newPVEntry->setToolTip(newPVName);
+        newPVEntry->setEditable(true);
 
         pvListModel_->appendRow(newPVEntry);
 
@@ -233,37 +261,49 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
 
         addPVToPlot(newPVName);
     }
-
-    //  if the pv has already been added and it is unchecked, maybe make it checked?
 }
 
 
 void StripTool::addPVToPlot(const QString &pvName)
 {
     if (itemContainer->contains(pvName))
-        plot_->addItem(itemContainer->getSeries(pvName));
+    {
+        plot_->addItem(itemContainer->series(pvName));
+        visiblePVNames_.append(pvName);
+        allPVNames_.append(pvName);
+    }
 }
 
 
 void StripTool::removePVFromPlot(const QString &pvName)
 {
+    //  remove the pv's instances in the plot and visible pvs list.
     if (itemContainer->contains(pvName))
-        plot_->removeItem(itemContainer->getSeries(pvName));
+    {
+        plot_->removeItem(itemContainer->series(pvName));
+        visiblePVNames_.removeAll(pvName);
+    }
 }
 
 
 void StripTool::deletePV(const QString &pvName)
-{
-    //  must also delete from the list model in this class lol!
+{    
+    // remove the pv from the plot, pvListModel, itemContainer, all pvs, and visible pvs.
     if (itemContainer->contains(pvName))
-            itemContainer->deleteItem(pvName);
+    {
+        //  also, delete from list model.
+        itemContainer->deleteItem(pvName);
+        removePVFromPlot(pvName);
+        allPVNames_.removeAll(pvName);
+    }
 }
 
 
 void StripTool::togglePVVisibility(QStandardItem *entryChanged)
 {
+    //  access the entry's pv name, and remove it from the plot and list of visible pvs.
     int checkState = entryChanged->checkState();
-    QString pvName = pvNameToDescriptionMap_.key(entryChanged->text());
+    QString pvName = entryChanged->child(0, 0)->text();
 
     if (checkState == Qt::Checked)
         addPVToPlot(pvName);
@@ -274,11 +314,12 @@ void StripTool::togglePVVisibility(QStandardItem *entryChanged)
 
 void StripTool::showItemInfo(MPlotItem* plotSelection)
 {
-    updatePlotAxes(plotSelection);
+
+    updatePlotAxesLabels(plotSelection);
 }
 
 
-void StripTool::updatePlotAxes(MPlotItem* plotSelection)
+void StripTool::updatePlotAxesLabels(MPlotItem *plotSelection)
 {
     QString axisLeftLabel = itemContainer->getAxisLeft(plotSelection);
     plot_->axisLeft()->setAxisName(axisLeftLabel);

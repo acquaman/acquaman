@@ -20,7 +20,7 @@ StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUn
     pvDataDisplay_ = new MPlotVectorSeriesData();
 
     pvSeries_ = new MPlotSeriesBasic();
-    pvSeries_->setDescription(pvName_);
+    pvSeries_->setDescription(" ");
     pvSeries_->setModel(pvDataDisplay_);
 
     pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
