@@ -171,7 +171,7 @@ void StripTool::createPVDock()
     QGroupBox *pvDockGroup = new QGroupBox();
     pvDockGroup->setLayout(pvDockLayout);
 
-    pvDock_ = new QDockWidget("Process Variables", this);
+    pvDock_ = new QDockWidget("Process Variable Tools", this);
     pvDock_->setAllowedAreas(Qt::RightDockWidgetArea);
     pvDock_->setWidget(pvDockGroup);
 
@@ -197,36 +197,81 @@ void StripTool::onAddSR1CurrentAction()
 
 void StripTool::onAddPVGroupAction()
 {
+    QList<QList<QString> > *pvGroupInfo = new QList<QList<QString> >();
+
     //  look for a file containing the pv names, descriptions, and units for the pv group, and load them automatically!
+    QString filename = QFileDialog::getOpenFileName(this, "Open pv group", "", "PV Group (*.txt);;All Files (*)");
+    QFile file(filename);
+
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QDataStream in(&file);
+        in.setVersion(QDataStream ::Qt_4_5);
+        in >> *pvGroupInfo;
+
+    } else {
+        QMessageBox::information(this, "Unable to open file", file.errorString());
+    }
+
+    while(!pvGroupInfo->isEmpty())
+    {
+        QList<QString> newPVInfo = pvGroupInfo->takeFirst();
+        QString pvName = newPVInfo.at(0);
+        QString pvDescription = newPVInfo.at(1);
+        QString pvUnits = newPVInfo.at(2);
+
+        addToPVListModel(pvName, pvDescription, pvUnits);
+    }
+}
+
+
+
+QList<QList<QString> > StripTool::getActivePVList()
+{
+    //  go through the model containing currently active pvs and select all pvs that are checked.
+    //QList<QStandardItem *> pvGroup = pvListModel_->findItems("*", Qt::CheckState = Qt::Checked);
+
+    //  having trouble figuring that out. Temporary solution is to keep lists of visible/all pv names.
+    int count = visiblePVNames_.size();
+    QList<QList<QString> > pvGroupInfo_;
+    pvGroupInfo_.reserve(count);
+
+    QList<QString> pvInfo_;
+    pvInfo_.reserve(3);
+
+    for (int i = 0; i < count; i++) {
+        QString pvName = visiblePVNames_.at(i);
+        pvInfo_.append(pvName);
+        pvInfo_.append(itemContainer->description(pvName));
+        pvInfo_.append(itemContainer->yUnits(pvName));
+
+        pvGroupInfo_.append(pvInfo_);
+    }
+
+    return pvGroupInfo_;
 }
 
 
 
 void StripTool::onSetPVGroupAction()
 {
-    //  go through the model containing currently active pvs and select all pvs that are checked.
-    //QList<QStandardItem *> pvGroup = pvListModel_->findItems("*", Qt::CheckState = Qt::Checked);
-
-    //  having trouble figuring that out. Temporary solution is to keep lists of visible/all pv names.
-    QList<QList<QString> > pvsToSave;
-    int count = visiblePVNames_.size();
-
-    for (int i = 0; i < count; i++) {
-        QString pvName = visiblePVNames_.at(i);
-        QString pvDescription = itemContainer->description(pvName);
-        QString pvUnits = itemContainer->yUnits(pvName);
-
-        QList<QString> pvInfo;
-        pvInfo << pvName << pvDescription << pvUnits;
-
-        pvsToSave << pvInfo;
-    }
+    QList<QList<QString> > pvsToSave = getActivePVList();
 
     //  open a file to save the pv group in.
-    QString filename = "/Users/helfrij/dev/acquaman/source/StripChart/pvGroupInfo.txt";
-    QFile pvGroupFile(filename);
-    QDataStream out(&pvGroupFile);
-    out << pvsToSave;
+    QString filename = QFileDialog::getSaveFileName(this, "Save pv group", "/Users/helfrij/dev/acquaman/source/StripChart/", "PV Group (*.txt);;All Files (*)");
+    QFile file(filename);
+
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QDataStream out(&file);
+        out.setVersion(QDataStream ::Qt_4_5);
+        out << pvsToSave;
+
+    } else {
+
+        QMessageBox::information(this, "Unable to open file", file.errorString());
+    }
+
 
 }
 
@@ -236,7 +281,7 @@ void StripTool::addToPVListModel(const QString &newPVName, const QString &newPVD
 {
     if (allPVNames_.contains(newPVName))
     {
-        // warn the user!
+        QMessageBox::information(this, "Unable to add pv", "A PV with that name is already plotted!");
         //  if the pv has already been added and it is unchecked, maybe make it checked?
 
     } else {

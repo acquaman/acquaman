@@ -21,3 +21,5 @@ HEADERS  += \
 
 OTHER_FILES += \
     source/StripChart/pvGroupInfo.txt
+
+PATH_TO_ST = $$PATH_TO_AM/source/StripChart

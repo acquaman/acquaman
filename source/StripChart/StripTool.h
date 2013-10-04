@@ -63,6 +63,9 @@ protected:
 
     AddPVDialog addPVDialog_;
 
+//    QList<QList<QString> > pvGroupInfo_;
+//    QList<QString> pvInfo_;
+
 protected:
     void createPVListModel();
     void createPVDock();
@@ -70,6 +73,7 @@ protected:
     void createPlotMenu();
     void createViewMenu();
     void createSettingsMenu();
+    QList<QList<QString> > getActivePVList();
     void addPVToPlot(const QString &pvName);
     void removePVFromPlot(const QString &pvName);
     void deletePV(const QString &pvName);
