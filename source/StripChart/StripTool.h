@@ -38,17 +38,21 @@ protected:
     QAction *openPlotAction_;
     QAction *saveDataAction_;
     QAction *savePlotAction_;
+    QAction *setPVGroupAction_;
     QAction *quitAction_;
 
     QMenu *plotMenu_;
     QAction *addPVAction_;
     QAction *removePVAction_;
     QAction *addSR1CurrentAction_;
+    QAction *addPVGroupAction_;
 
     QMenu *viewMenu_;
     QAction *togglePlotPaletteAction_;
     QAction *toggleLinePaletteAction_;
     QAction *togglePVListAction_;
+
+    QMenu *settingsMenu_;
 
     MPlot *plot_;
     QDockWidget *pvDock_;
@@ -56,7 +60,7 @@ protected:
     QPushButton *addPVButton_;
     QPushButton *quitButton_;
 
-    AddPVDialog dialog_;
+    AddPVDialog addPVDialog_;
 
 protected:
     void createPVListModel();
@@ -64,6 +68,7 @@ protected:
     void createFileMenu();
     void createPlotMenu();
     void createViewMenu();
+    void createSettingsMenu();
     void addPVToPlot(const QString &pvName);
     void removePVFromPlot(const QString &pvName);
     void deletePV(const QString &pvName);
@@ -72,6 +77,8 @@ protected:
 protected slots:
     void onAddPVAction();
     void onAddSR1CurrentAction();
+    void onAddPVGroupAction();
+    void onSetPVGroupAction();
     void addToPVListModel(const QString &newPVName, const QString &newPVDescription, const QString &newPVUnits);
     void togglePVVisibility(QStandardItem *entryChanged);
     void showItemInfo(MPlotItem* plotSelection);

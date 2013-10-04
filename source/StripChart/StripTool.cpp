@@ -11,6 +11,7 @@ StripTool::StripTool(QWidget *parent)
     createFileMenu();
     createPlotMenu();
     createViewMenu();
+    createSettingsMenu();
 
     //  now create the MPlot that will display info for all added pvs.
     MPlotPlotSelectorTool *selector = new MPlotPlotSelectorTool();
@@ -113,12 +114,18 @@ void StripTool::createPlotMenu()
     addSR1CurrentAction_ = new QAction("Add SR1 Current", this);
     connect( addSR1CurrentAction_, SIGNAL(triggered()), this, SLOT(onAddSR1CurrentAction()) );
 
+    addPVGroupAction_ = new QAction("Add PV Group", this);
+    addPVGroupAction_->setEnabled(false);
+    connect( addPVGroupAction_, SIGNAL(triggered()), this, SLOT(onAddPVGroupAction()) );
+
     //  create the plot menu and add the appropriate actions.
     plotMenu_ = menuBar()->addMenu("&Plot");
     plotMenu_->addAction(addPVAction_);
     plotMenu_->addAction(removePVAction_);
     plotMenu_->addSeparator();
     plotMenu_->addAction(addSR1CurrentAction_);
+    plotMenu_->addSeparator();
+    plotMenu_->addAction(addPVGroupAction_);
 }
 
 
@@ -144,6 +151,19 @@ void StripTool::createViewMenu()
 
 
 
+void StripTool::createSettingsMenu()
+{
+    setPVGroupAction_ = new QAction("Set PV Group", this);
+    setPVGroupAction_->setEnabled(false);
+    connect( setPVGroupAction_, SIGNAL(triggered()), this, SLOT(onSetPVGroupAction()) );
+
+    settingsMenu_ = menuBar()->addMenu("&Settings");
+    settingsMenu_->addAction(setPVGroupAction_);
+
+}
+
+
+
 void StripTool::createPVDock()
 {
     QVBoxLayout *pvDockLayout = new QVBoxLayout();
@@ -163,8 +183,8 @@ void StripTool::createPVDock()
 
 void StripTool::onAddPVAction()
 {
-    if (dialog_.exec() == QDialog::Accepted)
-        addToPVListModel(dialog_.pvName(), dialog_.pvDescription(), dialog_.pvUnits());
+    if (addPVDialog_.exec() == QDialog::Accepted)
+        addToPVListModel(addPVDialog_.pvName(), addPVDialog_.pvDescription(), addPVDialog_.pvUnits());
 }
 
 
@@ -172,6 +192,20 @@ void StripTool::onAddPVAction()
 void StripTool::onAddSR1CurrentAction()
 {
     addToPVListModel("PCT1402-01:mA:fbk", "SR1 Current", "mA");
+}
+
+
+
+void StripTool::onAddPVGroupAction()
+{
+
+}
+
+
+
+void StripTool::onSetPVGroupAction()
+{
+
 }
 
 
