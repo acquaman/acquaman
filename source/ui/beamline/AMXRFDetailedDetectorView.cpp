@@ -15,7 +15,7 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 
 	emissionLineLegendColors_.insert("K", QColor(0, 255, 0));
 	emissionLineLegendColors_.insert("L", QColor(255, 255, 0));
-	emissionLineLegendColors_.insert("M", QColor(0, 255, 255));
+	emissionLineLegendColors_.insert("M", QColor(255, 0, 0));
 	emissionLineLegendColors_.insert("Default", palette().button().color());
 }
 
@@ -185,6 +185,16 @@ void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &e
 	}
 }
 
+void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
+{
+
+}
+
+void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()
+{
+
+}
+
 void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmissionLine &line)
 {
 	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(line.elementSymbol()));
@@ -193,28 +203,40 @@ void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmission
 
 		if (element->hasSelectedEmissionLines()){
 
-			QColor color;
+			QStringList keyString;
 
-			foreach (AMEmissionLine line, element->selectedEmissionLines()){
+			foreach (AMEmissionLine line, element->selectedEmissionLines())
+				keyString << line.lineName().left(1);
 
-				if (line.lineName().contains("K"))
-					color = emissionLineLegendColors_.value("K");
-
-				else if (line.lineName().contains("L"))
-					color = emissionLineLegendColors_.value("L");
-
-				if (line.lineName().contains("M"))
-					color = emissionLineLegendColors_.value("M");
-			}
-			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue()));
+			keyString.removeDuplicates();
+			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(buildStyleSheet(keyString.join("")));
 		}
 
 		else{
 
-			QColor color = emissionLineLegendColors_.value("Default");
-			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue()));
+			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(buildStyleSheet("Default"));
 		}
 	}
+}
+
+const QString AMXRFDetailedDetectorView::buildStyleSheet(const QString &colorMapKey) const
+{
+	QString styleSheet;
+
+	// Default is unselected.  It can only have one value in the key.
+	if (colorMapKey.contains("Default")){
+
+		QColor color = emissionLineLegendColors_.value(colorMapKey);
+		styleSheet = QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue());
+	}
+
+	else {
+
+		QColor color = emissionLineLegendColors_.value(colorMapKey.left(1));
+		styleSheet = QString("QToolButton { background-color: rgb(%1,%2,%3); }").arg(color.red()).arg(color.green()).arg(color.blue());
+	}
+
+	return styleSheet;
 }
 
 void AMXRFDetailedDetectorView::highlightCurrentElementRegionOfInterest(AMElement *element)

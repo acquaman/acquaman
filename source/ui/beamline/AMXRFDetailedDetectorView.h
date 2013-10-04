@@ -84,12 +84,18 @@ protected slots:
 	void onEmissionLineSelected(const AMEmissionLine &emissionLine);
 	/// Handles passing on the information when an emission line has been deselected.
 	void onEmissionLineDeselected(const AMEmissionLine &emissionLine);
+	/// Removes all of the emission line markers and deselects all of the elements.
+	void removeAllEmissionLineMarkers();
+	/// Removes all regions of interest.
+	void removeAllRegionsOfInterest();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
 	void highlightCurrentElementRegionOfInterest(AMElement *element);
 	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the emission line for appropriate lookups.
 	void updatePeriodicTableButtonColors(const AMEmissionLine &line);
+	/// Method that builds the style sheet for the regions of interest color.  The key is a string that can have any of the keys mashed together (eg: "KL").  If multiple lines exist then it will make a linear gradient of multiple colors.  Subclasses can re-implement for different stylesheets.
+	virtual const QString buildStyleSheet(const QString &colorMapKey) const;
 
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;
