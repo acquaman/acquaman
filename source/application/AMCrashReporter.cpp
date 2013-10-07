@@ -87,7 +87,7 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, int watchingPI
 }
 
 void AMCrashMonitor::onSiguser1Detected(){
-	//qDebug() << "Detected SIGUSR1 in AMCrashMonitor, need to launch AMCrashReporter";
+	qDebug() << "Detected SIGUSR1 in AMCrashMonitor, need to launch AMCrashReporter";
 
 	QStringList arguments;
 	arguments << executableFullPath_;
@@ -114,7 +114,7 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, int watching
 	connect(unixSignalHandler_, SIGNAL(sigusr1Detected()), this, SLOT(onSiguser1Detected()));
 
 
-	titleLabel_ = new QLabel("This is embarassing, it looks like Acquaman has crashed");
+	titleLabel_ = new QLabel("This is embarassing, it looks like \nAcquaman has crashed");
 	QFont titleFont = titleLabel_->font();
 	titleFont.setBold(true);
 	titleFont.setPointSizeF(titleFont.pointSizeF()*1.5);
@@ -151,13 +151,13 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, int watching
 void AMCrashReporter::onSiguser1Detected(){
 	//qDebug() << "Detected SIGUSR1 in AMCrashReporter, need to check on PID " << watchingPID_;
 
-	//qDebug() << "Does the error file exist?" << QFile::exists("/tmp/ErrorFile.txt");
+	//qDebug() << "Does the error file exist?" << QFile::exists(QString("/tmp/ErrorFile%1.txt").arg(watchingPID_));
 
 	QString errorString;
 	QString executableString;
 	QString addressString;
 	AMCrashReporterStackTraceSymbol *oneSymbol;
-	QFile errorFile("/tmp/ErrorFile.txt");
+	QFile errorFile(QString("/tmp/ErrorFile%1.txt").arg(watchingPID_));
 	if(errorFile.open(QIODevice::ReadOnly | QIODevice::Text)){
 		while(!errorFile.atEnd()){
 			errorString = errorFile.readLine();
@@ -218,7 +218,7 @@ void AMCrashReporter::onOneSymbolProcessed(){
 
 void AMCrashReporter::onAllSymbolsProcessed(){
 	//qDebug() << "Processed as: ";
-	QFile reportFile(QString("/home/acquaman/AcquamanApplicationCrashReports/report_%1_%2_%3.txt").arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
+	QFile reportFile(QString("/home/acquaman/AcquamanApplicationCrashReports/report_%1_%2_%3_%4.txt").arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){

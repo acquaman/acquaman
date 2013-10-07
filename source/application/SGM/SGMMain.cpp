@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 {
 	signal(SIGSEGV, handle_signal);
 
-	QFile localErrorFile("/tmp/ErrorFile.txt");
+	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
 	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
 	errorFile = &localErrorFile;
 
