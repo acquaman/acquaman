@@ -24,6 +24,7 @@ AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodi
 {
 	selectablePeriodicTable_ = table;
 	connect(this, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+	connect(selectablePeriodicTable_, SIGNAL(allElementsDeselected()), this, SLOT(onAllElementsDeselected()));
 
 	energyRange_ = AMRange();
 }
@@ -97,4 +98,10 @@ void AMSelectablePeriodicTableView::updateTableView()
 		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 			button(i)->setEnabled(true);
 	}
+}
+
+void AMSelectablePeriodicTableView::onAllElementsDeselected()
+{
+	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
+		button(i)->setChecked(false);
 }

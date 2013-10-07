@@ -242,6 +242,7 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
 {
 	regionsOfInterest_.append(newRegionOfInterest);
+	addRegionOfInterestImplementation(newRegionOfInterest);
 }
 
 void AMXRFDetector::removeRegionOfInterest(const AMEmissionLine &emissionLine)
@@ -253,7 +254,17 @@ void AMXRFDetector::removeRegionOfInterest(const AMEmissionLine &emissionLine)
 
 void AMXRFDetector::removeRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
-	regionsOfInterest_.removeOne(regionOfInterest);
+	if (regionsOfInterest_.removeOne(regionOfInterest)){
+
+		removeRegionOfInterestImplementation(regionOfInterest);
+		delete regionOfInterest;
+	}
+}
+
+void AMXRFDetector::removeAllRegionsOfInterest()
+{
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		removeRegionOfInterest(region);
 }
 
 AMRegionOfInterest *AMXRFDetector::regionOfInterest(const AMEmissionLine &emissionLine) const
@@ -263,4 +274,16 @@ AMRegionOfInterest *AMXRFDetector::regionOfInterest(const AMEmissionLine &emissi
 			return region;
 
 	return 0;
+}
+
+void AMXRFDetector::addRegionOfInterestImplementation(AMRegionOfInterest *newRegionOfInterest)
+{
+	// Base class does nothing extra.
+	Q_UNUSED(newRegionOfInterest);
+}
+
+void AMXRFDetector::removeRegionOfInterestImplementation(AMRegionOfInterest *regionOfInterest)
+{
+	// Base class does nothing extra.
+	Q_UNUSED(regionOfInterest);
 }

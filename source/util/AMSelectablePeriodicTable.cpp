@@ -39,10 +39,10 @@ void AMSelectablePeriodicTable::deselectElement(AMElement *element)
 	emit elementDeselected(element);
 }
 
-void AMSelectablePeriodicTable::clearList()
+void AMSelectablePeriodicTable::deselectAllElements()
 {
 	savedElements_.clear();
-	emit listCleared();
+	emit allElementsDeselected();
 }
 
 void AMSelectablePeriodicTable::buildPeriodicTable()

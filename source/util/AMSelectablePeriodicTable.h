@@ -44,11 +44,11 @@ public:
 	void selectElement(AMElement *element);
 	/// Removes a selected element from the list.
 	void deselectElement(AMElement *element);
+	/// Clear the list.
+	void deselectAllElements();
+
 	/// Returns the list of selected elements.
 	QList<AMElement *> selectedElements() const { return savedElements_; }
-
-	/// Clear the list.
-	void clearList();
 
 signals:
 	/// Notifier that an element has been selected.  Passes the element.
@@ -56,7 +56,7 @@ signals:
 	/// Notifier that an element has been deselected.  Passes the element.
 	void elementDeselected(AMElement *);
 	/// Notifier that all of the elments have been removed.
-	void listCleared();
+	void allElementsDeselected();
 
 	/// Notifier that an absorption edge was selected.  Passes the edge.
 	void absorptionEdgeSelected(const AMAbsorptionEdge &);

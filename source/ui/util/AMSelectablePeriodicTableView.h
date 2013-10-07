@@ -56,6 +56,8 @@ public slots:
 protected slots:
 	/// Handles passing on information to the model that the button has been clicked.
 	void onElementClicked(AMElement *element);
+	/// Handles reseting the look of the table when all the elements are removed at once.
+	void onAllElementsDeselected();
 
 protected:
 	/// Method that updates the disabled look of the buttons based on the energy range.

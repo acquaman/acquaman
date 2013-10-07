@@ -57,7 +57,21 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	periodicTableAndElementViewLayout->addWidget(periodicTableView_);
 	periodicTableAndElementViewLayout->addWidget(elementView_);
 
-	bottomLayout_->addLayout(periodicTableAndElementViewLayout);
+	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+	removeAllEmissionLinesButton->setMaximumHeight(25);
+	QPushButton *removeAllRegionsOfInterestButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Regions Of Interest");
+	removeAllRegionsOfInterestButton->setMaximumHeight(25);
+
+	QHBoxLayout *removeButtonsLayout = new QHBoxLayout;
+	removeButtonsLayout->addWidget(removeAllEmissionLinesButton);
+	removeButtonsLayout->addWidget(removeAllRegionsOfInterestButton);
+	removeButtonsLayout->addStretch();
+
+	QVBoxLayout *completeBottomLayout = new QVBoxLayout;
+	completeBottomLayout->addLayout(removeButtonsLayout);
+	completeBottomLayout->addLayout(periodicTableAndElementViewLayout);
+
+	bottomLayout_->addLayout(completeBottomLayout);
 
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
@@ -65,6 +79,8 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	connect(periodicTable_, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
 	connect(periodicTable_, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
 }
 
 void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
@@ -187,12 +203,24 @@ void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &e
 
 void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
 {
+	foreach (MPlotItem *item, emissionLineMarkers_)
+		if (plot_->removeItem(item))
+			delete item;
 
+	emissionLineMarkers_.clear();
+	periodicTable_->deselectAllElements();
 }
 
 void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()
 {
+	foreach (MPlotMarkerTransparentVerticalRectangle *item, regionOfInterestMarkers_){
 
+		AMEmissionLine line = regionOfInterestMarkers_.key(item);
+		AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(line.elementSymbol()));
+		element->deselectEmissionLine(line);
+	}
+
+	elementView_->setElement(elementView_->element());
 }
 
 void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmissionLine &line)

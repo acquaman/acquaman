@@ -83,6 +83,8 @@ public slots:
 	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.
 	void removeRegionOfInterest(AMRegionOfInterest *regionOfInterest);
+	/// Removes all regions of interest.
+	void removeAllRegionsOfInterest();
 
 signals:
 	/// Notifier that the elapsed time has updated.
@@ -100,13 +102,17 @@ protected:
 	/// A helper method that adds all of this classes controls to the allControls_ control set.  This is required because we don't know in advance how many elements/spectra will be in the detector.  It also builds all of the spectra data sources and creates analysis blocks if necessary.
 	void allControlsCreated();
 	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
-	bool initializeImplementation();
+	virtual bool initializeImplementation();
 	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
-	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 	/// Basic initialization implemenation for an XRF detector.  Subclass for more specific behaviour.
-	bool cleanupImplementation();
+	virtual bool cleanupImplementation();
 	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
 	virtual bool cancelAcquisitionImplementation();
+	/// This function is called if there is anything extra you need to do when adding regions of interest.  Default behaviour does nothing extra.
+	virtual void addRegionOfInterestImplementation(AMRegionOfInterest *newRegionOfInterest);
+	/// This function is callled if there is anythign extra you need to do when removing regions of interest.  Default behaviour does nothing extra.
+	virtual void removeRegionOfInterestImplementation(AMRegionOfInterest *regionOfInterest);
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
