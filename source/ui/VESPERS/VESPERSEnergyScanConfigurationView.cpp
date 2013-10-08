@@ -178,6 +178,23 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 
 	else
 		scanName_->setPalette(this->palette());
+
+	double n = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+	}
+
+	config_->setNormalPosition(n);
 }
 
 void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) const

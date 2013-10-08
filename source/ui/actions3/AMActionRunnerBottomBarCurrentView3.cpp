@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QTimer>
 #include <QMenu>
+#include <QCheckBox>
 
 AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	: QWidget(parent)
@@ -15,6 +16,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	actionRunner_ = actionRunner;
 	whatIsRunning_ = "";
 	rootLoopAction_ = 0;
+	showCancelPrompt_ = true;
 
 	QHBoxLayout* hl = new QHBoxLayout;
 	hl->setSpacing(0);
@@ -91,7 +93,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	setLayout(hl);
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
-	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 	connect(increaseIterations_, SIGNAL(clicked()), this, SLOT(onIncreaseLoopIterationsClicked()));
@@ -245,6 +247,36 @@ void AMActionRunnerBottomBarCurrentView3::onSkipButtonClicked()
 					listAction->currentSubAction()->skip(action->text());
 			}
 		}
+	}
+}
+
+void AMActionRunnerBottomBarCurrentView3::onCancelButtonClicked()
+{
+	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+
+		QMessageBox cancelPrompt;
+		cancelPrompt.setWindowTitle("Cancel Action");
+		cancelPrompt.setIcon(QMessageBox::Question);
+		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use \"skip\" instead.  Be warned that cancelling the scan stops the workflow as well.");
+		cancelPrompt.addButton(QMessageBox::Ok);
+		cancelPrompt.addButton(QMessageBox::Cancel);
+		cancelPrompt.setDefaultButton(QMessageBox::Ok);
+		cancelPrompt.setEscapeButton(QMessageBox::Cancel);
+		QCheckBox *warnAgain = new QCheckBox("Do not warn me again.");
+		cancelPrompt.addButton(warnAgain, QMessageBox::NoRole);
+
+		cancelPrompt.exec();
+
+		showCancelPrompt_ = !warnAgain->isChecked();
+
+		if (cancelPrompt.result() == QMessageBox::Ok)
+			actionRunner_->cancelCurrentAction();
+	}
+
+	else {
+
+		// if no prompt, then just cancel.
+		actionRunner_->cancelCurrentAction();
 	}
 }
 

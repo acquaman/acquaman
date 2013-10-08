@@ -20,14 +20,21 @@ public:
 	/// Constructor.  For now, include AMActionRunner::s() for \c actionRunner.
 	AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
+	/// Sets whether the cancel prompt should be shown.
+	void setCancelPromptVisibility(bool showPrompt) { showCancelPrompt_ = showPrompt; }
+	/// Returns whether the cancel prompt will be shown.
+	bool showCancelPrompt() const { return showCancelPrompt_; }
+
 protected slots:
 	/// When the current action in the AMActionRunner changes.
 	void onCurrentActionChanged(AMAction3 *action);
 
-	/// When the pause butto is clicked for the current action.
+	/// When the pause button is clicked for the current action.
 	void onPauseButtonClicked();
 	/// When the skip button is pressed, it handles telling the action to skip.
 	void onSkipButtonClicked();
+	/// Handles when the cancel button is clicked.  Prompts the user if this was actually what they wanted to do.
+	void onCancelButtonClicked();
 
 	// Signals from the current action, forwarded through the Action Runner.
 	/// When the action's status text changes.
@@ -83,6 +90,9 @@ protected:
 	AMActionRunner3 *actionRunner_;
 	/// Pointer to the root loop action (if it exists).
 	AMLoopAction3 *rootLoopAction_;
+
+	/// The flag for determinining whether the cancel prompt should be displayed.
+	bool showCancelPrompt_;
 };
 
 #endif // AMACTIONRUNNERBOTOMBARCURRENTVIEW3_H

@@ -40,12 +40,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QPixmapCache>
 #include <QMenu>
+#include <QMessageBox>
+#include <QCheckBox>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
 	actionRunner_ = actionRunner;
 	whatIsRunning_ = "";
+	showCancelPrompt_ = true;
 
 	// setup UI
 	QFrame* topFrame = new QFrame();
@@ -115,7 +118,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setItemDelegate(new AMActionRunnerCurrentItemDelegate3(this));
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
-	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 
@@ -347,6 +350,36 @@ void AMActionRunnerCurrentView3::onSkipButtonClicked()
 					listAction->currentSubAction()->skip(action->text());
 			}
 		}
+	}
+}
+
+void AMActionRunnerCurrentView3::onCancelButtonClicked()
+{
+	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+
+		QMessageBox cancelPrompt;
+		cancelPrompt.setWindowTitle("Cancel Action");
+		cancelPrompt.setIcon(QMessageBox::Question);
+		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use \"skip\" instead.");
+		cancelPrompt.addButton(QMessageBox::Ok);
+		cancelPrompt.addButton(QMessageBox::Cancel);
+		cancelPrompt.setDefaultButton(QMessageBox::Ok);
+		cancelPrompt.setEscapeButton(QMessageBox::Cancel);
+		QCheckBox *warnAgain = new QCheckBox("Do not warn me again.");
+		cancelPrompt.addButton(warnAgain, QMessageBox::NoRole);
+
+		cancelPrompt.exec();
+
+		showCancelPrompt_ = !warnAgain->isChecked();
+
+		if (cancelPrompt.result() == QMessageBox::Ok)
+			actionRunner_->cancelCurrentAction();
+	}
+
+	else {
+
+		// if no prompt, then just cancel.
+		actionRunner_->cancelCurrentAction();
 	}
 }
 

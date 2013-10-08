@@ -28,7 +28,7 @@ macx {
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-                                $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
@@ -700,11 +700,11 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
-    source/analysis/AM1DDeadTimeAB.h \
-    source/analysis/AM2DDeadTimeCorrectionAB.h \
-    source/analysis/AM3DDeadTimeCorrectionAB.h \
-    source/ui/CLS/CLSPGTDetectorV2View.h \
-    source/ui/CLS/CLSAmptekSDD123DetectorNewView.h
+	source/analysis/AM1DDeadTimeAB.h \
+	source/analysis/AM2DDeadTimeCorrectionAB.h \
+	source/analysis/AM3DDeadTimeCorrectionAB.h \
+	source/ui/CLS/CLSPGTDetectorV2View.h \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1177,11 +1177,11 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
-    source/analysis/AM1DDeadTimeAB.cpp \
-    source/analysis/AM2DDeadTimeCorrectionAB.cpp \
-    source/analysis/AM3DDeadTimeCorrectionAB.cpp \
-    source/ui/CLS/CLSPGTDetectorV2View.cpp \
-    source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp
+	source/analysis/AM1DDeadTimeAB.cpp \
+	source/analysis/AM2DDeadTimeCorrectionAB.cpp \
+	source/analysis/AM3DDeadTimeCorrectionAB.cpp \
+	source/ui/CLS/CLSPGTDetectorV2View.cpp \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1205,13 +1205,4 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
 
