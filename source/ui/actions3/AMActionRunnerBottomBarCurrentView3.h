@@ -8,6 +8,7 @@
 #include <QToolButton>
 #include <QProgressBar>
 
+#include "ui/actions3/AMCancelActionPrompt.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMLoopAction3.h"
 

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/editors/AMLiveLoopActionEditor3.h"
+#include "ui/actions3/AMCancelActionPrompt.h"
 
 #include "util/AMFontSizes.h"
 #include "util/AMErrorMonitor.h"
@@ -357,22 +358,15 @@ void AMActionRunnerCurrentView3::onCancelButtonClicked()
 {
 	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
 
-		QMessageBox cancelPrompt;
-		cancelPrompt.setWindowTitle("Cancel Action");
-		cancelPrompt.setIcon(QMessageBox::Question);
-		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use \"skip\" instead.");
-		cancelPrompt.addButton(QMessageBox::Ok);
-		cancelPrompt.addButton(QMessageBox::Cancel);
-		cancelPrompt.setDefaultButton(QMessageBox::Ok);
-		cancelPrompt.setEscapeButton(QMessageBox::Cancel);
-		QCheckBox *warnAgain = new QCheckBox("Do not warn me again.");
-		cancelPrompt.addButton(warnAgain, QMessageBox::NoRole);
+		AMCancelActionPrompt cancelPrompt;
+		cancelPrompt.setWindowTitle("Cancel Scan");
+		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use <img src=:/media-seek-forward.png width=25 height=25> skip instead.  Be warned that cancelling the scan stops the workflow as well.");
 
 		cancelPrompt.exec();
 
-		showCancelPrompt_ = !warnAgain->isChecked();
+		showCancelPrompt_ = cancelPrompt.shouldWarn();
 
-		if (cancelPrompt.result() == QMessageBox::Ok)
+		if (cancelPrompt.result() == QDialog::Accepted)
 			actionRunner_->cancelCurrentAction();
 	}
 

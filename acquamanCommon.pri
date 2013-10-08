@@ -704,7 +704,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/analysis/AM2DDeadTimeCorrectionAB.h \
 	source/analysis/AM3DDeadTimeCorrectionAB.h \
 	source/ui/CLS/CLSPGTDetectorV2View.h \
-	source/ui/CLS/CLSAmptekSDD123DetectorNewView.h
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.h \
+    source/ui/actions3/AMCancelActionPrompt.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1181,7 +1182,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM2DDeadTimeCorrectionAB.cpp \
 	source/analysis/AM3DDeadTimeCorrectionAB.cpp \
 	source/ui/CLS/CLSPGTDetectorV2View.cpp \
-	source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp \
+    source/ui/actions3/AMCancelActionPrompt.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1205,4 +1207,6 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
