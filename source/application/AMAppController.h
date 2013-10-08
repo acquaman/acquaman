@@ -110,6 +110,8 @@ protected:
 	void setAutomaticBringScanEditorToFront(bool flag) { automaticBringScanEditorToFrontWithRunningScans_ = flag; }
 	/// Returns the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
 	bool automaticBringScanEditorToFrontWithRunningScans() const { return automaticBringScanEditorToFrontWithRunningScans_; }
+	/// Set whether the action runner cancel prompt should be shown.
+	void setActionRunnerCancelPromptVisibility(bool showPrompt);
 
 	/// Top-level panes in the main window
 	AMWorkflowView3* workflowView_;

@@ -397,11 +397,13 @@ void VESPERS3DScanConfigurationView::onSetStartPosition()
 {
 	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 
 	config_->setXStart(h);
 	hStart_->setValue(h);
 	config_->setYStart(v);
 	vStart_->setValue(v);
+	config_->setNormalPosition(n);
 	updateMapInfo();
 	axesAcceptable();
 }

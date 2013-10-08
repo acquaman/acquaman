@@ -14,6 +14,9 @@ public:
 	/// Constructor.  Passes in the action runner to appropriately build the mini-workflow view.
 	AMAppBottomPanel(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
+	/// Returns the bottom bar view that is encapuslated.
+	AMActionRunnerBottomBarCurrentView3 *workFlowView() const { return workflowView_; }
+
 protected:
 	/// The current workflow view.
 	AMActionRunnerBottomBarCurrentView3 *workflowView_;

@@ -421,3 +421,11 @@ bool AMAppController::startupInstallActions()
 		return false;
 }
 
+void AMAppController::setActionRunnerCancelPromptVisibility(bool showPrompt)
+{
+	workflowView_->currentView()->setCancelPromptVisibility(showPrompt);
+	AMAppBottomPanel *bottom = qobject_cast<AMAppBottomPanel *>(bottomPanel_);
+
+	if (bottom)
+		bottom->workFlowView()->setCancelPromptVisibility(showPrompt);
+}

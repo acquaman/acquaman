@@ -405,6 +405,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 {
 	double h = 0;
 	double v = 0;
+	double n = 0;
 
 	switch(int(config_->motor())){
 
@@ -412,24 +413,28 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::AttoH | VESPERS::AttoV:
 
 		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
 		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
 		break;
 
 	case VESPERS::AttoX | VESPERS::AttoZ:
 
 		h = VESPERSBeamline::vespers()->attoStageX()->value();
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 	}
 
@@ -437,6 +442,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 	hStart_->setValue(h);
 	config_->setYStart(v);
 	vStart_->setValue(v);
+	config_->setNormalPosition(n);
 	updateMapInfo();
 	axesAcceptable();
 }

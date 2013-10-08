@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/editors/AMLiveLoopActionEditor3.h"
+#include "ui/actions3/AMCancelActionPrompt.h"
 
 #include "util/AMFontSizes.h"
 #include "util/AMErrorMonitor.h"
@@ -40,12 +41,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QPixmapCache>
 #include <QMenu>
+#include <QMessageBox>
+#include <QCheckBox>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
 	actionRunner_ = actionRunner;
 	whatIsRunning_ = "";
+	showCancelPrompt_ = true;
 
 	// setup UI
 	QFrame* topFrame = new QFrame();
@@ -115,7 +119,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setItemDelegate(new AMActionRunnerCurrentItemDelegate3(this));
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
-	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 
@@ -347,6 +351,29 @@ void AMActionRunnerCurrentView3::onSkipButtonClicked()
 					listAction->currentSubAction()->skip(action->text());
 			}
 		}
+	}
+}
+
+void AMActionRunnerCurrentView3::onCancelButtonClicked()
+{
+	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+
+		AMCancelActionPrompt cancelPrompt;
+		cancelPrompt.setWindowTitle("Cancel Scan");
+		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use <img src=:/media-seek-forward.png width=25 height=25> skip instead.  Be warned that cancelling the scan stops the workflow as well.");
+
+		cancelPrompt.exec();
+
+		showCancelPrompt_ = cancelPrompt.shouldWarn();
+
+		if (cancelPrompt.result() == QDialog::Accepted)
+			actionRunner_->cancelCurrentAction();
+	}
+
+	else {
+
+		// if no prompt, then just cancel.
+		actionRunner_->cancelCurrentAction();
 	}
 }
 

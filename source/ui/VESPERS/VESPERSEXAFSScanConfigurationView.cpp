@@ -235,6 +235,29 @@ void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	updateRoiText();
 }
 
+void VESPERSEXAFSScanConfigurationView::onScanNameEdited()
+{
+	config_->setName(scanName_->text());
+	config_->setUserScanName(scanName_->text());
+
+	double n = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+	}
+
+	config_->setNormalPosition(n);
+}
+
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
 	switch((int)config_->fluorescenceDetector()){
