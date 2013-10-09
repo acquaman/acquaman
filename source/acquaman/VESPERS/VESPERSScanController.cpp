@@ -493,6 +493,9 @@ QString VESPERSScanController::getUniqueCCDName(const QString &path, const QStri
 		newPath.replace('\\', '/');
 	}
 
+	else if (config_->ccdDetector() == VESPERS::Pilatus)
+		newPath.replace("/ramdisk/", "/nas/pilatus/500_500/");
+
 	if (!VESPERS::fileNameExists(newPath, name))
 		return name;
 
