@@ -17,8 +17,12 @@ VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QSt
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "IOC1607-004:mca1.ACQG", this);
 	acquireTimeControl_ = new AMPVControl("IntegrationTime", "IOC1607-004:mca1.PRTM", "IOC1607-004:mca1.PRTM", QString() , this, 0.05);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("ElapsedTime", "IOC1607-004:mca1.ERTM", this);
-	AMReadOnlyPVControl *spectrumControl = new AMReadOnlyPVControl("Spectrum", "IOC1607-004:mca1", this);
 
+	AMReadOnlyPVControl *inputCountsControl = new AMReadOnlyPVControl("Input Counts", "IOC1607-004:dxp1.ICR", this, "The input counts for the single element.");
+	icrControls_.append(inputCountsControl);
+	AMReadOnlyPVControl *outputCountsControl = new AMReadOnlyPVControl("Output Counts", "IOC1607-004:dxp1.OCR", this, "The output counts for the single element.");
+	ocrControls_.append(outputCountsControl);
+	AMReadOnlyPVControl *spectrumControl = new AMReadOnlyPVControl("Raw Spectrum", "IOC1607-004:mca1", this);
 	spectraControls_.append(spectrumControl);
 
 	allControlsCreated();
@@ -26,7 +30,7 @@ VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QSt
 
 QString VESPERSSingleElementVortexDetector::synchronizedDwellKey() const
 {
-	return "amptek:sdd:all:spectrum:startAcquisitio";
+	return "IOC1607-004:mca1EraseStart";
 }
 
 bool VESPERSSingleElementVortexDetector::sharesDetectorTriggerSource()

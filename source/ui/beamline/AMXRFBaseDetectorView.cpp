@@ -98,14 +98,16 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->setMarginRight(2);
 	plot_->setMarginTop(2);
 
-	MPlotSeriesBasic *test = new MPlotSeriesBasic;
-	test->setModel(new AMDataSourceSeriesData(detector_->dataSource()), true);
-	test->setMarker(MPlotMarkerShape::None);
-	test->setDescription(detector_->dataSource()->name());
-	test->setLinePen(QPen(Qt::red));
-	plot_->addItem(test);
+	// Assumes that the dataSource() contains the spectrum most desired to view.
+	MPlotSeriesBasic *defaultSpectrum = new MPlotSeriesBasic;
+	defaultSpectrum->setModel(new AMDataSourceSeriesData(detector_->dataSource()), true);
+	defaultSpectrum->setMarker(MPlotMarkerShape::None);
+	defaultSpectrum->setDescription(detector_->dataSource()->name());
+	defaultSpectrum->setLinePen(QPen(Qt::red));
+	spectraPlotItems_ << defaultSpectrum;
+	plot_->addItem(defaultSpectrum);
 
-	((AM1DProcessVariableDataSource *)detector_->dataSource())->setScale(detector_->axes().at(0).increment);
+//	((AM1DProcessVariableDataSource *)detector_->dataSource())->setScale(detector_->axes().at(0).increment);
 	// Enable autoscaling of both axes.
 	plot_->axisScaleLeft()->setAutoScaleEnabled();
 	plot_->axisScaleBottom()->setAutoScaleEnabled();

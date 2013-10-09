@@ -88,6 +88,10 @@ protected slots:
 	void removeAllEmissionLineMarkers();
 	/// Removes all regions of interest.
 	void removeAllRegionsOfInterest();
+	/// Handles switching which spectrum is displayed in the plot when the combo box index changes.
+	void onSpectrumComboBoxIndexChanged(int index);
+	/// Handles figuring out which spectra to plot in a waterfall.
+	void onShowMultipleSpectraButtonClicked();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
@@ -96,6 +100,8 @@ protected:
 	void updatePeriodicTableButtonColors(const AMEmissionLine &line);
 	/// Method that builds the style sheet for the regions of interest color.  The key is a string that can have any of the keys mashed together (eg: "KL").  If multiple lines exist then it will make a linear gradient of multiple colors.  Subclasses can re-implement for different stylesheets.
 	virtual const QString buildStyleSheet(const QString &colorMapKey) const;
+	/// Method that builds the periodic table view and element view and adds it to the detector layout.
+	void buildPeriodicTableViewAndElementView();
 
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;

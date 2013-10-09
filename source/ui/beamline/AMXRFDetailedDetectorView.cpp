@@ -2,8 +2,10 @@
 
 #include <QHBoxLayout>
 #include <QStringBuilder>
+#include <QComboBox>
 
 #include "util/AMDataSourcePlotSettings.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
@@ -24,6 +26,31 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	// This is going to extend the base view, so we will simply call it's build method too.
 	AMXRFBaseDetectorView::buildDetectorView();
 
+	buildPeriodicTableViewAndElementView();
+
+	QComboBox *spectraComboBox = new QComboBox;
+
+	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
+
+		AMDataSource *source = detector_->allSpectrumSources().at(i);
+		spectraComboBox->insertItem(i, source->name());
+	}
+
+	QPushButton *showMultipleSpectraButton = new QPushButton("Show Multiple Spectra");
+
+	QHBoxLayout *showSpectraLayout = new QHBoxLayout;
+	showSpectraLayout->addStretch();
+	showSpectraLayout->addWidget(spectraComboBox);
+	showSpectraLayout->addWidget(showMultipleSpectraButton);
+
+	topLayout_->addLayout(showSpectraLayout);
+
+	connect(spectraComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
+	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
+}
+
+void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
+{
 	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
 	periodicTableView_->buildPeriodicTableView();
 
@@ -304,4 +331,25 @@ void AMXRFDetailedDetectorView::setDefaultEmissionLineColor(const QColor &color)
 {
 	emissionLineLegendColors_.remove("Default");
 	emissionLineLegendColors_.insert("Default", color);
+}
+
+void AMXRFDetailedDetectorView::onSpectrumComboBoxIndexChanged(int index)
+{
+	foreach (MPlotItem *spectrum, spectraPlotItems_)
+		if (plot_->removeItem(spectrum))
+			delete spectrum;
+
+	AMDataSource *source = detector_->allSpectrumSources().at(index);
+	MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
+	newSpectrum->setModel(new AMDataSourceSeriesData(source), true);
+	newSpectrum->setMarker(MPlotMarkerShape::None);
+	newSpectrum->setDescription(source->name());
+	newSpectrum->setLinePen(QPen(Qt::red));
+	spectraPlotItems_ << newSpectrum;
+	plot_->insertItem(newSpectrum, 0);
+}
+
+void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
+{
+
 }

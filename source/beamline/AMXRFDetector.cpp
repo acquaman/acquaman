@@ -2,6 +2,7 @@
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DSummingAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
@@ -80,17 +81,24 @@ void AMXRFDetector::buildAllAnalysisBlocks()
 {
 	if (doDeadTimeCorrection_){
 
-		// This is temporary until I build the new N-d dead time correction analysis block.
-		if (rawSpectraSources_.size() == 1)
-			primarySpectrumDataSource_ = rawSpectraSources_.first();
+		for (int i = 0, size = rawSpectraSources_.size(); i < size; i++){
 
-		else {
-
-			AM1DSummingAB *spectraSum = new AM1DSummingAB("Spectra Sum", this);
-			spectraSum->setInputDataSources(rawSpectraSources_);
-			primarySpectrumDataSource_ = spectraSum;
-			analyzedSpectraSources_.append(spectraSum);
+			AMnDDeadTimeAB *newDeadTimeAnalysisBlock = new AMnDDeadTimeAB(QString("Corrected %1").arg(rawSpectraSources_.at(i)->name()), this);
+			newDeadTimeAnalysisBlock->setInputDataSources(QList<AMDataSource *>() << rawSpectraSources_.at(i) << icrSources_.at(i) << ocrSources_.at(i));
+			analyzedSpectraSources_.append(newDeadTimeAnalysisBlock);
 		}
+
+		if (analyzedSpectraSources_.size() > 1){
+
+			AM1DSummingAB *spectraSum = new AM1DSummingAB("Summed Spectrum", this);
+			spectraSum->setInputDataSources(analyzedSpectraSources_);
+			analyzedSpectraSources_.append(spectraSum);
+
+			primarySpectrumDataSource_ = spectraSum;
+		}
+
+		else
+			primarySpectrumDataSource_ = analyzedSpectraSources_.first();
 	}
 
 	else {
@@ -100,10 +108,11 @@ void AMXRFDetector::buildAllAnalysisBlocks()
 
 		else {
 
-			AM1DSummingAB *spectraSum = new AM1DSummingAB("Spectra Sum", this);
+			AM1DSummingAB *spectraSum = new AM1DSummingAB("Summed Spectrum", this);
 			spectraSum->setInputDataSources(rawSpectraSources_);
-			primarySpectrumDataSource_ = spectraSum;
 			analyzedSpectraSources_.append(spectraSum);
+
+			primarySpectrumDataSource_ = spectraSum;
 		}
 	}
 }
