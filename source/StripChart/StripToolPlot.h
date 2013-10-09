@@ -1,13 +1,15 @@
 #ifndef STRIPTOOLPLOT_H
 #define STRIPTOOLPLOT_H
 
-#include <QObject>
+#include <QtGui>
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotItem.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotTools.h"
+
+#include "StripChart/StripToolSeries.h"
 
 class StripToolPlot : public QObject
 {
@@ -19,23 +21,28 @@ public:
     friend class StripTool;
     
 signals:
-    void showItemValuesDisplayed(const QString pvName);
 
-private:
+protected:
     MPlot *basePlot_;
     MPlotPlotSelectorTool *selector_;
-    QMap<QString, MPlotItem*> pvNameToItemMap_;
+    QMap<QString, MPlotItem*> pvNameToSeriesMap_; //temporary, hopefully.
 
-private:
+protected:
     MPlot* plot();
-    void addItem(const QString &pvName, MPlotItem *newItem);
-    void removeItem(const QString &pvName, MPlotItem *removeItem);
-    void showItemInfo(MPlotItem *selectedItem);
+    QList<QString> getActivePVList();
+    bool contains(const QString &pvName);
+    void addSeries(const QString &pvName, const QString &pvUnits, MPlotVectorSeriesData *pvData);
+    void showSeries(const QString &pvName);
+    void hideSeries(const QString &pvName);
+    void deleteSeries(const QString &pvName);
     void updatePlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
-    void updatePlotAxesScale(MPlotItem *plotSelection);
+    void updatePlotAxesScale(StripToolSeries *plotSelection);
     
-private slots:
-    
+protected slots:
+    void toShowCheckedPV(const QString &pvName);
+    void toRemoveUncheckedPV(const QString &pvName);
+    void showItemInfo(MPlotItem *selectedItem);
+
 };
 
 #endif // STRIPTOOLPLOT_H

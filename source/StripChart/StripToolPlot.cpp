@@ -7,6 +7,7 @@ StripToolPlot::StripToolPlot(QObject *parent) : QObject(parent)
 
     basePlot_ = new MPlot();
     basePlot_->addTool(selector_);
+    basePlot_->setAcceptDrops(true);
 }
 
 
@@ -24,36 +25,76 @@ MPlot* StripToolPlot::plot()
 
 
 
-void StripToolPlot::addItem(const QString &pvName, MPlotVectorSeriesData *pvData)
+QList<QString> StripToolPlot::getActivePVList()
 {
-    MPlotSeriesBasic *newItem = new MPlotSeriesBasic();
-    newItem->setDescription(" ");
-    newItem->setModel(pvData);
-
-    basePlot_->addItem(newItem);
-    pvNameToItemMap_[pvName] = newItem;
+    return pvNameToSeriesMap_.keys();
 }
 
 
 
-void StripToolPlot::removeItem(const QString &pvName, MPlotItem *removeItem)
+bool StripToolPlot::contains(const QString &pvName)
 {
-    //  remove the item from the plot and from any data structures it may be saved in.
-    basePlot_->removeItem(removeItem);
-    pvNameToItemMap_.remove(pvName);
+    return pvNameToSeriesMap_.contains(pvName);
+}
+
+
+
+void StripToolPlot::addSeries(const QString &pvName, const QString &pvUnits, MPlotVectorSeriesData* pvData)
+{
+    if (!contains(pvName))
+    {
+        StripToolSeries *newSeries = new StripToolSeries();
+        newSeries->setPVName(pvName);
+        newSeries->setPVUnits(pvUnits);
+        newSeries->setDescription(" ");
+        newSeries->setModel(pvData);
+
+        basePlot_->addItem(newSeries);
+        pvNameToSeriesMap_[pvName] = newSeries;
+    }
+}
+
+
+
+void StripToolPlot::showSeries(const QString &pvName)
+{
+    Q_UNUSED(pvName);
+}
+
+
+
+void StripToolPlot::hideSeries(const QString &pvName)
+{
+    Q_UNUSED(pvName);
+}
+
+
+
+void StripToolPlot::deleteSeries(const QString &pvName)
+{
+    if (contains(pvName))
+    {
+        MPlotItem *toDelete = pvNameToSeriesMap_[pvName];
+        basePlot_->removeItem(toDelete);
+        delete toDelete;
+
+        pvNameToSeriesMap_.remove(pvName);
+    }
 }
 
 
 
 void StripToolPlot::showItemInfo(MPlotItem* plotSelection)
 {
-    QString axisLeftLabel = "This is broken!";
-    QString axisBottomLabel = "This is broke too. :(";
+    //  use the plot selection provided to determine the properties to display.
+
+    StripToolSeries *seriesSelection = (StripToolSeries*) plotSelection;
+
+    QString axisLeftLabel = seriesSelection->pvUnits();
+    QString axisBottomLabel = "Update number";
 
     updatePlotAxesLabels(axisLeftLabel, axisBottomLabel);
-    updatePlotAxesScale(plotSelection);
-
-    emit showItemValuesDisplayed(pvNameToItemMap_.key(plotSelection));
+    updatePlotAxesScale(seriesSelection);
 }
 
 
@@ -69,7 +110,21 @@ void StripToolPlot::updatePlotAxesLabels(const QString &axisLeftLabel, const QSt
 
 
 
-void StripToolPlot::updatePlotAxesScale(MPlotItem* plotSelection)
+void StripToolPlot::updatePlotAxesScale(StripToolSeries* plotSelection)
 {
     Q_UNUSED(plotSelection);
+}
+
+
+
+void StripToolPlot::toShowCheckedPV(const QString &pvName)
+{
+    showSeries(pvName);
+}
+
+
+
+void StripToolPlot::toRemoveUncheckedPV(const QString &pvName)
+{
+    hideSeries(pvName);
 }

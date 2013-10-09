@@ -1,13 +1,11 @@
 #include "StripToolItem.h"
 
-
-
-StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUnits, QObject *parent) :
-    QObject(parent)
+StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUnits, QObject *parent) : QObject(parent)
 {
     updateIndex_ = 0;
     valuesDisplayed_ = 10;
     dataVectorSize_ = 100;
+    isUpdating_ = true;
 
     pvName_ = pvName;
     pvDescription_ = pvDescription;
@@ -17,11 +15,9 @@ StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUn
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
 
-    pvDataDisplay_ = new MPlotVectorSeriesData();
+    setValuesDisplayed(valuesDisplayed_);
 
-    pvSeries_ = new MPlotSeriesBasic();
-    pvSeries_->setDescription(" ");
-    pvSeries_->setModel(pvDataDisplay_);
+    pvData_ = new MPlotVectorSeriesData();
 
     pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
@@ -63,9 +59,16 @@ QString StripToolItem::yUnits()
 
 
 
-MPlotItem* StripToolItem::series()
+MPlotVectorSeriesData* StripToolItem::data()
 {
-    return pvSeries_;
+    return pvData_;
+}
+
+
+
+int StripToolItem::valuesDisplayed()
+{
+    return valuesDisplayed_;
 }
 
 
@@ -73,13 +76,22 @@ MPlotItem* StripToolItem::series()
 void StripToolItem::setValuesDisplayed(const int newValuesDisplayed)
 {
     valuesDisplayed_ = newValuesDisplayed;
+    xValuesDisplayed_ = QVector<double>(valuesDisplayed_);
+    yValuesDisplayed_ = QVector<double>(valuesDisplayed_);
+}
+
+
+
+void StripToolItem::setPVUpdating(bool isUpdating)
+{
+    isUpdating_ = isUpdating;
 }
 
 
 
 void StripToolItem::onPVValueChanged(double newValue)
 {
-//  check to see if the size of the data vectors allows for a new addition.
+    //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)
     {
         dataVectorSize_ += 100;
@@ -87,28 +99,28 @@ void StripToolItem::onPVValueChanged(double newValue)
         pvDataTotal_.resize(dataVectorSize_);
     }
 
-//  vectors are now the correct size, add the new data.
+    //  vectors are now the correct size, add the new data.
     pvUpdateIndex_[updateIndex_] = updateIndex_;
     pvDataTotal_[updateIndex_] = newValue;
 
-//  define the vectors containing the information to be displayed.
-    QVector<double> xValues;
-    QVector<double> yValues;
-
-    //  if we haven't collected a lot of points yet, display all we've got.
-    if (updateIndex_ < valuesDisplayed_)
+    //  if the pv is updating on the plot, display the correct updated information.
+    if (isUpdating_)
     {
-        xValues = pvUpdateIndex_.mid(0, updateIndex_);
-        yValues = pvDataTotal_.mid(0, updateIndex_);
+        //  if we haven't collected a lot of points yet, display all we've got.
+        if (updateIndex_ < valuesDisplayed_)
+        {
+            xValuesDisplayed_ = pvUpdateIndex_.mid(0, updateIndex_);
+            yValuesDisplayed_ = pvDataTotal_.mid(0, updateIndex_);
 
-    //  otherwise, show the latest "valuesDisplayed" points.
-    } else {
+        //  otherwise, show the latest "valuesDisplayed" points.
+        } else {
 
-        xValues = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
-        yValues = pvDataTotal_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
+            xValuesDisplayed_ = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
+            yValuesDisplayed_ = pvDataTotal_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
+        }
     }
 
     //  update the displayed data with the new vectors and increment update counter.
-    pvDataDisplay_->setValues(xValues, yValues);
+    pvData_->setValues(xValuesDisplayed_, yValuesDisplayed_);
     updateIndex_++;
 }
