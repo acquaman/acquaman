@@ -25,6 +25,7 @@ signals:
 protected:
     MPlot *basePlot_;
     MPlotPlotSelectorTool *selector_;
+    StripToolSeries *selectedItem_;
     QMap<QString, MPlotItem*> namesToShownSeries_;
     QMap<QString, MPlotItem*> namesToHiddenSeries_;
 
@@ -38,13 +39,17 @@ protected:
     void showSeries(const QString &pvName);
     void hideSeries(const QString &pvName);
     void deleteSeries(const QString &pvName);
-    void updatePlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
-    void updatePlotAxesScale(StripToolSeries *plotSelection);
+    void showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
+    void showPlotAxesScale(StripToolSeries *plotSelection);
+    void showSeriesDescription(StripToolSeries *selectedItem);
+    void hidePlotAxesLabels();
+    void hideSeriesDescription(StripToolSeries *deselectedItem);
     
 protected slots:
     void toShowCheckedPV(const QString &pvName);
     void toRemoveUncheckedPV(const QString &pvName);
     void showItemInfo(MPlotItem *selectedItem);
+    void hideItemInfo();
 
 };
 

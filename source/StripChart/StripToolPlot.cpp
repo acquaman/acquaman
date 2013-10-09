@@ -4,6 +4,7 @@ StripToolPlot::StripToolPlot(QObject *parent) : QObject(parent)
 {
     selector_ = new MPlotPlotSelectorTool();
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(showItemInfo(MPlotItem*)) );
+    connect( selector_, SIGNAL(deselected()), this, SLOT(hideItemInfo()) );
 
     basePlot_ = new MPlot();
     basePlot_->addTool(selector_);
@@ -125,18 +126,19 @@ void StripToolPlot::showItemInfo(MPlotItem* plotSelection)
 {
     //  use the plot selection provided to determine the properties to display.
 
-    StripToolSeries *seriesSelection = (StripToolSeries*) plotSelection;
+    selectedItem_ = (StripToolSeries*) plotSelection;
 
-    QString axisLeftLabel = seriesSelection->pvUnits();
+    QString axisLeftLabel = selectedItem_->pvUnits();
     QString axisBottomLabel = "Update number";
 
-    updatePlotAxesLabels(axisLeftLabel, axisBottomLabel);
-    updatePlotAxesScale(seriesSelection);
+    showPlotAxesLabels(axisLeftLabel, axisBottomLabel);
+    showSeriesDescription(selectedItem_);
+    showPlotAxesScale(selectedItem_);
 }
 
 
 
-void StripToolPlot::updatePlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel)
+void StripToolPlot::showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel)
 {
     basePlot_->axisLeft()->setAxisName(axisLeftLabel);
     basePlot_->axisLeft()->showAxisName(true);
@@ -147,9 +149,41 @@ void StripToolPlot::updatePlotAxesLabels(const QString &axisLeftLabel, const QSt
 
 
 
-void StripToolPlot::updatePlotAxesScale(StripToolSeries* plotSelection)
+void StripToolPlot::showPlotAxesScale(StripToolSeries* plotSelection)
 {
     Q_UNUSED(plotSelection);
+}
+
+
+
+void StripToolPlot::showSeriesDescription(StripToolSeries* plotSelection)
+{
+    plotSelection->setDescription(plotSelection->pvName());
+}
+
+
+
+void StripToolPlot::hideItemInfo()
+{
+    hidePlotAxesLabels();
+    hideSeriesDescription(selectedItem_);
+
+    selectedItem_ = 0;
+}
+
+
+
+void StripToolPlot::hidePlotAxesLabels()
+{
+    basePlot_->axisLeft()->showAxisName(false);
+    basePlot_->axisBottom()->showAxisName(false);
+}
+
+
+
+void StripToolPlot::hideSeriesDescription(StripToolSeries *series)
+{
+    series->setDescription(" ");
 }
 
 
