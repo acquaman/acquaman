@@ -27,14 +27,28 @@ MPlot* StripToolPlot::plot()
 
 QList<QString> StripToolPlot::getActivePVList()
 {
-    return pvNameToSeriesMap_.keys();
+    return namesToShownSeries_.keys();
 }
 
 
 
 bool StripToolPlot::contains(const QString &pvName)
 {
-    return pvNameToSeriesMap_.contains(pvName);
+    return pvShown(pvName) || pvHidden(pvName);
+}
+
+
+
+bool StripToolPlot::pvShown(const QString &pvName)
+{
+    return namesToShownSeries_.contains(pvName);
+}
+
+
+
+bool StripToolPlot::pvHidden(const QString &pvName)
+{
+    return namesToHiddenSeries_.contains(pvName);
 }
 
 
@@ -50,7 +64,7 @@ void StripToolPlot::addSeries(const QString &pvName, const QString &pvUnits, MPl
         newSeries->setModel(pvData);
 
         basePlot_->addItem(newSeries);
-        pvNameToSeriesMap_[pvName] = newSeries;
+        namesToShownSeries_[pvName] = newSeries;
     }
 }
 
@@ -58,14 +72,26 @@ void StripToolPlot::addSeries(const QString &pvName, const QString &pvUnits, MPl
 
 void StripToolPlot::showSeries(const QString &pvName)
 {
-    Q_UNUSED(pvName);
+    if (!pvShown(pvName) && pvHidden(pvName))
+    {
+        MPlotItem *toShow = namesToHiddenSeries_[pvName];
+        basePlot_->addItem(toShow);
+        namesToShownSeries_[pvName] = toShow;
+        namesToHiddenSeries_.remove(pvName);
+    }
 }
 
 
 
 void StripToolPlot::hideSeries(const QString &pvName)
 {
-    Q_UNUSED(pvName);
+    if (pvShown(pvName) && !pvHidden(pvName))
+    {
+        MPlotItem *toHide = namesToShownSeries_[pvName];
+        basePlot_->removeItem(toHide);
+        namesToShownSeries_.remove(pvName);
+        namesToHiddenSeries_[pvName] = toHide;
+    }
 }
 
 
@@ -74,11 +100,22 @@ void StripToolPlot::deleteSeries(const QString &pvName)
 {
     if (contains(pvName))
     {
-        MPlotItem *toDelete = pvNameToSeriesMap_[pvName];
-        basePlot_->removeItem(toDelete);
-        delete toDelete;
+        MPlotItem *toDelete;
 
-        pvNameToSeriesMap_.remove(pvName);
+        if (pvShown(pvName))
+        {
+            toDelete = namesToShownSeries_[pvName];
+            basePlot_->removeItem(toDelete);
+            namesToShownSeries_.remove(pvName);
+            delete toDelete;
+
+        } else if (pvHidden(pvName))
+        {
+            toDelete = namesToHiddenSeries_[pvName];
+            basePlot_->removeItem(toDelete);
+            namesToHiddenSeries_.remove(pvName);
+            delete toDelete;
+        }
     }
 }
 

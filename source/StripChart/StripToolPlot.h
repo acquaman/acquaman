@@ -25,12 +25,15 @@ signals:
 protected:
     MPlot *basePlot_;
     MPlotPlotSelectorTool *selector_;
-    QMap<QString, MPlotItem*> pvNameToSeriesMap_; //temporary, hopefully.
+    QMap<QString, MPlotItem*> namesToShownSeries_;
+    QMap<QString, MPlotItem*> namesToHiddenSeries_;
 
 protected:
     MPlot* plot();
     QList<QString> getActivePVList();
     bool contains(const QString &pvName);
+    bool pvShown(const QString &pvName);
+    bool pvHidden(const QString &pvName);
     void addSeries(const QString &pvName, const QString &pvUnits, MPlotVectorSeriesData *pvData);
     void showSeries(const QString &pvName);
     void hideSeries(const QString &pvName);
