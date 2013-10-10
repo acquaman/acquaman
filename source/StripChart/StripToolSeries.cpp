@@ -3,7 +3,6 @@
 StripToolSeries::StripToolSeries(const MPlotAbstractSeriesData *data) :
     MPlotSeriesBasic()
 {
-    setDefaults();
     setModel(data);
 }
 

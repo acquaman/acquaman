@@ -9,6 +9,8 @@ StripToolPlot::StripToolPlot(QObject *parent) : QObject(parent)
     basePlot_ = new MPlot();
     basePlot_->addTool(selector_);
     basePlot_->setAcceptDrops(true);
+    basePlot_->axisLeft()->showAxisName(false);
+    basePlot_->axisBottom()->showAxisName(false);
 }
 
 
