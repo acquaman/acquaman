@@ -71,10 +71,10 @@ void AMXRFDetector::buildSpectrumDataSources()
 void AMXRFDetector::buildDeadTimeDataSources()
 {
 	foreach (AMReadOnlyPVControl *icr, icrControls_)
-		icrSources_.append(new AM1DProcessVariableDataSource(icr->readPV(), icr->name(), this));
+		icrSources_.append(new AM0DProcessVariableDataSource(icr->readPV(), icr->name(), this));
 
 	foreach (AMReadOnlyPVControl *ocr, ocrControls_)
-		ocrSources_.append(new AM1DProcessVariableDataSource(ocr->readPV(), ocr->name(), this));
+		ocrSources_.append(new AM0DProcessVariableDataSource(ocr->readPV(), ocr->name(), this));
 }
 
 void AMXRFDetector::buildAllAnalysisBlocks()

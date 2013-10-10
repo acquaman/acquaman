@@ -47,6 +47,8 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 
 	connect(spectraComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
+
+	spectraComboBox->setCurrentIndex(detector_->allSpectrumSources().size()-1);
 }
 
 void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()

@@ -230,7 +230,7 @@ public:
 
 public slots:
 	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double scale) { scale_ = scale; axes_[0].increment = scale; emitValuesChanged(); }
+	void setScale(double scale) { scale_ = scale; axes_[0].increment = scale; emitValuesChanged(); emitAxisInfoChanged(); }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.

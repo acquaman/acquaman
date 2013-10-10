@@ -48,6 +48,17 @@ public:
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
+	/// Returns the maximum energy for this detector.  Result returned in keV.
+	double maximumEnergy() const { return maximumEnergyControl_->value(); }
+	/// Returns the peaking time for this detector.  Result returned in us.
+	double peakingTime() const { return peakingTimeControl_->value(); }
+
+signals:
+	/// Notifier that the maximum energy has changed.  Value passed in keV.
+	void maximumEnergyChanged(double);
+	/// Notifier that the peaking time has changed.  Value passed in us.
+	void peakingTimeChanged(double);
+
 public slots:
 
 	/// The read mode cannot be changed for Amptek detectors
@@ -55,6 +66,21 @@ public slots:
 
 	/// Amptek detectors do not support clearing
 	virtual bool clear() { return false; }
+
+	/// Sets the maximum energy.  Expects \param energy in keV.
+	void setMaximumEnergy(double energy);
+	/// Sets the peaking time.  Expects \param time in us.
+	void setPeakingTime(double time);
+
+protected slots:
+	/// Handles changing the scale for the raw spectra sources when the maximum energy changes.
+	void onMaximumEnergyChanged(double newMaximum);
+
+protected:
+	/// The maximum energy control.
+	AMPVControl *maximumEnergyControl_;
+	/// The peaking time control.
+	AMPVControl *peakingTimeControl_;
 };
 
 #endif // VESPERSSINGLEELEMENTVORTEXDETECTOR_H

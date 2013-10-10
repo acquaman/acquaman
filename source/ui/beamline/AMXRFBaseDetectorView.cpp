@@ -107,7 +107,6 @@ void AMXRFBaseDetectorView::setupPlot()
 	spectraPlotItems_ << defaultSpectrum;
 	plot_->addItem(defaultSpectrum);
 
-//	((AM1DProcessVariableDataSource *)detector_->dataSource())->setScale(detector_->axes().at(0).increment);
 	// Enable autoscaling of both axes.
 	plot_->axisScaleLeft()->setAutoScaleEnabled();
 	plot_->axisScaleBottom()->setAutoScaleEnabled();
