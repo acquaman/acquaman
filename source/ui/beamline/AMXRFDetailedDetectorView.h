@@ -92,6 +92,8 @@ protected slots:
 	void onSpectrumComboBoxIndexChanged(int index);
 	/// Handles figuring out which spectra to plot in a waterfall.
 	void onShowMultipleSpectraButtonClicked();
+	/// Handles updating the waterfall offset.
+	void onWaterfallUpdateRequired();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).

@@ -6,6 +6,7 @@
 
 #include "util/AMDataSourcePlotSettings.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "ui/AMSelectionDialog.h"
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
@@ -337,9 +338,17 @@ void AMXRFDetailedDetectorView::setDefaultEmissionLineColor(const QColor &color)
 
 void AMXRFDetailedDetectorView::onSpectrumComboBoxIndexChanged(int index)
 {
+
 	foreach (MPlotItem *spectrum, spectraPlotItems_)
-		if (plot_->removeItem(spectrum))
+		if (plot_->removeItem(spectrum)){
+
+			spectrum->signalSource()->disconnect();
 			delete spectrum;
+		}
+
+	spectraPlotItems_.clear();
+
+	plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 
 	AMDataSource *source = detector_->allSpectrumSources().at(index);
 	MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
@@ -347,11 +356,59 @@ void AMXRFDetailedDetectorView::onSpectrumComboBoxIndexChanged(int index)
 	newSpectrum->setMarker(MPlotMarkerShape::None);
 	newSpectrum->setDescription(source->name());
 	newSpectrum->setLinePen(QPen(Qt::red));
+
 	spectraPlotItems_ << newSpectrum;
 	plot_->insertItem(newSpectrum, 0);
 }
 
 void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 {
+	QStringList spectraNames;
 
+	foreach (AMDataSource *source, detector_->allSpectrumSources())
+		spectraNames << source->name();
+
+
+	AMSelectionDialog dialog("Choose Spectra", spectraNames);
+
+	if (dialog.exec()){
+
+		foreach (MPlotItem *spectrum, spectraPlotItems_)
+			if (plot_->removeItem(spectrum)){
+
+				spectrum->signalSource()->disconnect();
+				delete spectrum;
+			}
+
+		spectraPlotItems_.clear();
+
+		spectraNames = dialog.selectedItems();
+
+		// These will still be in order.
+		int spectraNamesIterator = 0;
+		AMDataSourcePlotSettings colorSelector;
+
+		foreach (AMDataSource *source, detector_->allSpectrumSources()){
+
+			if (source->name() == spectraNames.at(spectraNamesIterator)){
+
+				MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
+				newSpectrum->setModel(new AMDataSourceSeriesData(source), true);
+				newSpectrum->setMarker(MPlotMarkerShape::None);
+				newSpectrum->setDescription(source->name());
+				newSpectrum->setLinePen(QPen(colorSelector.nextColor()));
+
+				spectraPlotItems_ << newSpectrum;
+				plot_->insertItem(newSpectrum, spectraNamesIterator++);
+			}
+		}
+
+		connect(detector_->dataSource()->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onWaterfallUpdateRequired()));
+		onWaterfallUpdateRequired();
+	}
+}
+
+void AMXRFDetailedDetectorView::onWaterfallUpdateRequired()
+{
+	plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
 }
