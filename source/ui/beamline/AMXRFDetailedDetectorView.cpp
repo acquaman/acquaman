@@ -7,11 +7,14 @@
 #include "util/AMDataSourcePlotSettings.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "ui/AMSelectionDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
 	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
 	periodicTable_ = new AMSelectablePeriodicTable(this);
 	periodicTable_->buildPeriodicTable();
@@ -20,6 +23,9 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	emissionLineLegendColors_.insert("L", QColor(255, 255, 0));
 	emissionLineLegendColors_.insert("M", QColor(255, 0, 0));
 	emissionLineLegendColors_.insert("Default", palette().button().color());
+
+	currentElement_ = periodicTable_->elementBySymbol("Fe");
+	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -28,7 +34,35 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	AMXRFBaseDetectorView::buildDetectorView();
 
 	buildPeriodicTableViewAndElementView();
+	buildShowSpectraButtons();
 
+	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
+	showPileUpPeaksButton_->setMaximumHeight(25);
+	showPileUpPeaksButton_->setCheckable(true);
+	showPileUpPeaksButton_->setEnabled(false);
+	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
+	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
+	showCombinationPileUpPeaksButton_->setCheckable(true);
+	showCombinationPileUpPeaksButton_->setEnabled(false);
+	combinationChoiceButton_ = new QToolButton;
+	combinationChoiceButton_->setMaximumHeight(25);
+	combinationChoiceButton_->setText("Ca");
+	combinationChoiceButton_->setEnabled(false);
+
+	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
+	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
+	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+
+	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
+	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
+	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+}
+
+void AMXRFDetailedDetectorView::buildShowSpectraButtons()
+{
 	QComboBox *spectraComboBox = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
@@ -92,13 +126,13 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	QPushButton *removeAllRegionsOfInterestButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Regions Of Interest");
 	removeAllRegionsOfInterestButton->setMaximumHeight(25);
 
-	QHBoxLayout *removeButtonsLayout = new QHBoxLayout;
-	removeButtonsLayout->addWidget(removeAllEmissionLinesButton);
-	removeButtonsLayout->addWidget(removeAllRegionsOfInterestButton);
-	removeButtonsLayout->addStretch();
+	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+	rowAbovePeriodicTableLayout_->addWidget(removeAllRegionsOfInterestButton);
+	rowAbovePeriodicTableLayout_->addStretch();
 
 	QVBoxLayout *completeBottomLayout = new QVBoxLayout;
-	completeBottomLayout->addLayout(removeButtonsLayout);
+	completeBottomLayout->addLayout(rowAbovePeriodicTableLayout_);
 	completeBottomLayout->addLayout(periodicTableAndElementViewLayout);
 
 	bottomLayout_->addLayout(completeBottomLayout);
@@ -117,7 +151,10 @@ void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
 {
 	// This is always safe because we know the periodic table is an AMSelectablePeriodicTable.
 	elementView_->setElement(qobject_cast<AMSelectableElement *>(element));
-	highlightCurrentElementRegionOfInterest(element);
+	currentElement_ = element;
+	highlightCurrentElementRegionOfInterest();
+	updatePileUpPeaksButtonText();
+	updatePileUpPeaks();
 }
 
 void AMXRFDetailedDetectorView::onElementSelected(AMElement *element)
@@ -135,6 +172,8 @@ void AMXRFDetailedDetectorView::onElementSelected(AMElement *element)
 			emissionLineMarkers_ << newLine;
 		}
 	}
+
+	showPileUpPeaksButton_->setEnabled(true);
 }
 
 void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
@@ -150,6 +189,8 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 				delete item;
 			}
 	}
+
+	showPileUpPeaksButton_->setEnabled(periodicTable_->selectedElements().size() > 0);
 }
 
 void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
@@ -161,7 +202,7 @@ void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
 		onElementSelected(element);
 }
 
-void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QString &newNameFilter)
+void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
 {
 	emissionLineValidator_->addNameFilter(newNameFilter);
 	elementView_->addEmissionLineNameFilter(newNameFilter);
@@ -169,17 +210,49 @@ void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QString &newName
 
 bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(int index)
 {
-	return emissionLineValidator_->removeNameFilter(index) && elementView_->removeEmissionLineNameFilter(index);;
+	return emissionLineValidator_->removeNameFilter(index) && elementView_->removeEmissionLineNameFilter(index);
 }
 
-bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(const QString &filter)
+bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(const QRegExp &filter)
 {
 	return emissionLineValidator_->removeNameFilter(filter) && elementView_->removeEmissionLineNameFilter(filter);
+}
+
+void AMXRFDetailedDetectorView::addPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	pileUpPeakValidator_->addNameFilter(newNameFilter);
+}
+
+bool AMXRFDetailedDetectorView::removePileUpPeakNameFilter(int index)
+{
+	return pileUpPeakValidator_->removeNameFilter(index);
+}
+
+bool AMXRFDetailedDetectorView::removePileUpPeakNameFilter(const QRegExp &filter)
+{
+	return pileUpPeakValidator_->removeNameFilter(filter);
+}
+
+void AMXRFDetailedDetectorView::addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	combinationPileUpPeakValidator_->addNameFilter(newNameFilter);
+}
+
+bool AMXRFDetailedDetectorView::removeCombinationPileUpPeakNameFilter(int index)
+{
+	return combinationPileUpPeakValidator_->removeNameFilter(index);
+}
+
+bool AMXRFDetailedDetectorView::removeCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	return combinationPileUpPeakValidator_->removeNameFilter(filter);
 }
 
 void AMXRFDetailedDetectorView::setEnergyRange(const AMRange &newRange)
 {
 	emissionLineValidator_->setRange(newRange);
+	pileUpPeakValidator_->setRange(newRange);
+	combinationPileUpPeakValidator_->setRange(newRange);
 	periodicTableView_->setEnergyRange(newRange);
 	elementView_->setEnergyRange(newRange);
 }
@@ -297,10 +370,10 @@ const QString AMXRFDetailedDetectorView::buildStyleSheet(const QString &colorMap
 	return styleSheet;
 }
 
-void AMXRFDetailedDetectorView::highlightCurrentElementRegionOfInterest(AMElement *element)
+void AMXRFDetailedDetectorView::highlightCurrentElementRegionOfInterest()
 {
 	foreach (MPlotMarkerTransparentVerticalRectangle *marker, regionOfInterestMarkers_)
-		marker->setHighlighted(marker->description().contains(QRegExp(element->symbol() % " (K|L|M)")));
+		marker->setHighlighted(marker->description().contains(QRegExp(currentElement_->symbol() % " (K|L|M)")));
 }
 
 void AMXRFDetailedDetectorView::setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor)
@@ -338,16 +411,7 @@ void AMXRFDetailedDetectorView::setDefaultEmissionLineColor(const QColor &color)
 
 void AMXRFDetailedDetectorView::onSpectrumComboBoxIndexChanged(int index)
 {
-
-	foreach (MPlotItem *spectrum, spectraPlotItems_)
-		if (plot_->removeItem(spectrum)){
-
-			spectrum->signalSource()->disconnect();
-			delete spectrum;
-		}
-
-	spectraPlotItems_.clear();
-
+	removeAllPlotItems(spectraPlotItems_);
 	plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 
 	AMDataSource *source = detector_->allSpectrumSources().at(index);
@@ -368,25 +432,15 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 	foreach (AMDataSource *source, detector_->allSpectrumSources())
 		spectraNames << source->name();
 
-
 	AMSelectionDialog dialog("Choose Spectra", spectraNames);
 
 	if (dialog.exec()){
 
-		foreach (MPlotItem *spectrum, spectraPlotItems_)
-			if (plot_->removeItem(spectrum)){
-
-				spectrum->signalSource()->disconnect();
-				delete spectrum;
-			}
-
-		spectraPlotItems_.clear();
-
+		removeAllPlotItems(spectraPlotItems_);
 		spectraNames = dialog.selectedItems();
 
 		// These will still be in order.
 		int spectraNamesIterator = 0;
-		AMDataSourcePlotSettings colorSelector;
 
 		foreach (AMDataSource *source, detector_->allSpectrumSources()){
 
@@ -396,7 +450,7 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 				newSpectrum->setModel(new AMDataSourceSeriesData(source), true);
 				newSpectrum->setMarker(MPlotMarkerShape::None);
 				newSpectrum->setDescription(source->name());
-				newSpectrum->setLinePen(QPen(colorSelector.nextColor()));
+				newSpectrum->setLinePen(QPen(AMDataSourcePlotSettings::nextColor()));
 
 				spectraPlotItems_ << newSpectrum;
 				plot_->insertItem(newSpectrum, spectraNamesIterator++);
@@ -411,4 +465,107 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 void AMXRFDetailedDetectorView::onWaterfallUpdateRequired()
 {
 	plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
+}
+
+void AMXRFDetailedDetectorView::removeAllPlotItems(QList<MPlotItem *> &items)
+{
+	foreach (MPlotItem *item, items)
+		if (plot_->removeItem(item)){
+
+			item->signalSource()->disconnect();
+			delete item;
+		}
+
+	items.clear();
+}
+
+void AMXRFDetailedDetectorView::updatePileUpPeaksButtonText()
+{
+	showPileUpPeaksButton_->setText(QString("%1 %2 Pile Up Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show").arg(currentElement_->symbol()));
+}
+
+void AMXRFDetailedDetectorView::updateCombinationPileUpPeaksButtonText()
+{
+	showCombinationPileUpPeaksButton_->setText(QString("%1 Combination Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show"));
+}
+
+void AMXRFDetailedDetectorView::updatePileUpPeaks()
+{
+	removeAllPlotItems(pileUpPeakMarkers_);
+
+	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && periodicTable_->isSelected(currentElement_)){
+
+		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
+			for (int j = i; j < size; j++)
+				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
+	}
+
+	updateCombinationPileUpPeaks();
+}
+
+void AMXRFDetailedDetectorView::updateCombinationPileUpPeaks()
+{
+	removeAllPlotItems(combinationPileUpPeakMarkers_);
+
+	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
+
+		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
+			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
+				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
+	}
+}
+
+void AMXRFDetailedDetectorView::addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine)
+{
+	// You can't have pile up if the original line is below your threshold.
+	if (!emissionLineValidator_->isValid(firstLine.name(), firstLine.energy()))
+		return;
+
+	AMNameAndRangeValidator *validator;
+	QColor markerColor;
+
+	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
+
+		validator = pileUpPeakValidator_;
+		markerColor = QColor(42, 149, 77);
+	}
+
+	else{
+
+		validator = combinationPileUpPeakValidator_;
+		markerColor = QColor(24, 116, 205);
+	}
+
+	double energy = firstLine.energy() + secondLine.energy();
+
+	if (validator->isValid(firstLine.name(), firstLine.energy())
+			&& validator->isValid(secondLine.name(), secondLine.energy())
+			&& validator->isValid(energy)){
+
+		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
+		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
+		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
+		plot_->addItem(newMarker);
+
+		if (firstLine.elementSymbol() == secondLine.elementSymbol())
+			pileUpPeakMarkers_ << newMarker;
+
+		else
+			combinationPileUpPeakMarkers_ << newMarker;
+	}
+}
+
+void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
+{
+//	AMElement *el = AMPeriodicTableDialog::getElement();
+
+//	AMPeriodicTableDialog dialog(this);
+//	dialog.exec();
+
+//	if (el){
+
+//		combinationChoiceButton_->setText(el->symbol());
+//		combinationElement_ = el;
+//		updateCombinationPileUpPeaks();
+//	}
 }

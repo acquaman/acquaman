@@ -60,3 +60,14 @@ void AMSelectablePeriodicTable::buildPeriodicTable()
 		connect(newElement, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SIGNAL(emissionLineDeselected(AMEmissionLine)));
 	}
 }
+
+bool AMSelectablePeriodicTable::isSelected(AMElement *element) const
+{
+	bool selected = false;
+
+	foreach (AMElement *selectedElement, savedElements_)
+		if (selectedElement->name() == element->name())
+			selected = true;
+
+	return selected;
+}

@@ -38,6 +38,9 @@ public:
 	// Added features.
 	///////////////////////////////////////
 
+	/// Returns whether the element is selected.
+	bool isSelected(AMElement *element) const;
+
 	/// Returns whether there are any selected elements in this periodic table.
 	bool hasSelectedElements() const { return !savedElements_.isEmpty(); }
 	/// Adds a selected element to the end of the list.

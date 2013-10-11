@@ -20,8 +20,12 @@ public:
 	AMNameAndRangeValidator(const AMRange &range, QObject *parent = 0);
 	/// Builds a validator with the provided list of name filters.
 	AMNameAndRangeValidator(const QStringList &filters, QObject *parent = 0);
+	/// Builds a validator with the provided list of name filters.
+	AMNameAndRangeValidator(const QList<QRegExp> &filters, QObject *parent = 0);
 	/// Builds a validator with the provided list of name filters and provided range.
 	AMNameAndRangeValidator(const QStringList &filters, const AMRange &range, QObject *parent = 0);
+	/// Builds a validator with the provided list of name filters and provided range.
+	AMNameAndRangeValidator(const QList<QRegExp> &filters, const AMRange &range, QObject *parent = 0);
 
 	/// Returns whether the string is valid.
 	bool isValid(const QString &name) const;
@@ -37,15 +41,19 @@ public:
 	/// Returns the maximum energy in the energy range filter.
 	double maximum() const { return range_.maximum(); }
 
-	/// Returns the list of absorption edge name filters that have been provided to the element view.
-	QStringList nameFilters() const { return nameFilters_; }
-	/// Returns the absorption edge name filter at a given index.
-	const QString &nameFilterAt(int index) const { return nameFilters_.at(index); }
-	/// Removes the absorption edge name filter at the given index.  Returns whether the removal was successful.
+	/// Returns the list of name filters.
+	const QList<QRegExp> &nameFilters() const { return nameFilters_; }
+	/// Returns the name filter at a given index.
+	const QRegExp &nameFilterAt(int index) const { return nameFilters_.at(index); }
+	/// Removes the name filter at the given index.  Returns whether the removal was successful.
 	bool removeNameFilter(int index);
-	/// Removes the absorption edge name filter with the given name filter.  Returns whether the removal was successful.
+	/// Removes the name filter with the given name filter.  Returns whether the removal was successful.
+	bool removeNameFilter(const QRegExp &filter);
+	/// Removes the name filter with the given name filter.  Returns whether the removal was successful.
 	bool removeNameFilter(const QString &filter);
-	/// Adds a new absorption edge name filter to the list of name filters.
+	/// Adds a new name filter to the list of name filters.
+	void addNameFilter(const QRegExp &newNameFilter);
+	/// Adds a new name filter to the list of name filters.
 	void addNameFilter(const QString &newNameFilter);
 
 signals:
@@ -66,7 +74,7 @@ protected:
 	/// The value range filter.
 	AMRange range_;
 	/// The list of name filters.
-	QStringList nameFilters_;
+	QList<QRegExp> nameFilters_;
 };
 
 #endif // AMNAMEANDRANGEVALIDATOR_H

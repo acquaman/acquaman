@@ -100,26 +100,26 @@ public:
 	void setAbsorptionEdgeVisibility(bool visible);
 
 	/// Returns the list of absorption edge name filters that have been provided to the element view.
-	QStringList absorptionEdgeNameFilters() const { return absorptionEdgeValidator_->nameFilters(); }
+	QList<QRegExp> absorptionEdgeNameFilters() const { return absorptionEdgeValidator_->nameFilters(); }
 	/// Returns the absorption edge name filter at a given index.
-	const QString &absorptionEdgeNameFilterAt(int index) const { return absorptionEdgeValidator_->nameFilterAt(index); }
+	const QRegExp &absorptionEdgeNameFilterAt(int index) const { return absorptionEdgeValidator_->nameFilterAt(index); }
 	/// Removes the absorption edge name filter at the given index.  Returns whether the removal was successful.
 	bool removeAbsorptionEdgeNameFilter(int index);
 	/// Removes the absorption edge name filter with the given name filter.  Returns whether the removal was successful.
-	bool removeAbsorptionEdgeNameFilter(const QString &filter);
+	bool removeAbsorptionEdgeNameFilter(const QRegExp &filter);
 	/// Adds a new absorption edge name filter to the list of name filters.
-	void addAbsorptionEdgeNameFilter(const QString &newNameFilter);
+	void addAbsorptionEdgeNameFilter(const QRegExp &newNameFilter);
 
 	/// Returns the list of emission line name filters that have provided to the element view.
-	QStringList emissionLinenameFilters() const { return emissionLineValidator_->nameFilters(); }
+	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
 	/// Returns the emission line name filter at a given index.
-	const QString &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
+	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
 	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
 	bool removeEmissionLineNameFilter(int index);
 	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(const QString &filter);
+	bool removeEmissionLineNameFilter(const QRegExp &filter);
 	/// Adds a new emission line name filter to the list of name filters.
-	void addEmissionLineNameFilter(const QString &newNameFilter);
+	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
 
 signals:
 

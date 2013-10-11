@@ -16,10 +16,28 @@ AMNameAndRangeValidator::AMNameAndRangeValidator(const QStringList &filters, QOb
 	: QObject(parent)
 {
 	range_ = AMRange();
+
+	foreach (QString filter, filters)
+		nameFilters_ << QRegExp(filter);
+}
+
+AMNameAndRangeValidator::AMNameAndRangeValidator(const QList<QRegExp> &filters, QObject *parent)
+	: QObject(parent)
+{
 	nameFilters_ = filters;
+	range_ = AMRange();
 }
 
 AMNameAndRangeValidator::AMNameAndRangeValidator(const QStringList &filters, const AMRange &range, QObject *parent)
+	: QObject(parent)
+{
+	range_ = range;
+
+	foreach (QString filter, filters)
+		nameFilters_ << QRegExp(filter);
+}
+
+AMNameAndRangeValidator::AMNameAndRangeValidator(const QList<QRegExp> &filters, const AMRange &range, QObject *parent)
 	: QObject(parent)
 {
 	range_ = range;
@@ -30,7 +48,7 @@ bool AMNameAndRangeValidator::isValid(const QString &name) const
 {
 	bool isValid = true;
 
-	foreach (QString nameFilter, nameFilters_)
+	foreach (QRegExp nameFilter, nameFilters_)
 		isValid = isValid && name.contains(nameFilter);
 
 	return isValid;
@@ -44,15 +62,7 @@ bool AMNameAndRangeValidator::isValid(double value) const
 
 bool AMNameAndRangeValidator::isValid(const QString &name, double value) const
 {
-	bool isValid = true;
-
-	foreach (QString nameFilter, nameFilters_)
-		isValid = isValid && name.contains(nameFilter);
-
-	isValid = isValid && (!range_.isValid()
-						  || (range_.isValid() && range_.withinRange(value)));
-
-	return isValid;
+	return isValid(name) && isValid(value);
 }
 
 void AMNameAndRangeValidator::setRange(const AMRange &newRange)
@@ -89,6 +99,11 @@ void AMNameAndRangeValidator::setMaximum(double newMaximum)
 
 void AMNameAndRangeValidator::addNameFilter(const QString &newNameFilter)
 {
+	addNameFilter(QRegExp(newNameFilter));
+}
+
+void AMNameAndRangeValidator::addNameFilter(const QRegExp &newNameFilter)
+{
 	if (!nameFilters_.contains(newNameFilter)){
 
 		nameFilters_ << newNameFilter;
@@ -110,6 +125,11 @@ bool AMNameAndRangeValidator::removeNameFilter(int index)
 }
 
 bool AMNameAndRangeValidator::removeNameFilter(const QString &filter)
+{
+	return removeNameFilter(QRegExp(filter));
+}
+
+bool AMNameAndRangeValidator::removeNameFilter(const QRegExp &filter)
 {
 	bool successfullyRemoved = nameFilters_.removeOne(filter);
 

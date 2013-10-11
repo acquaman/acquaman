@@ -143,7 +143,7 @@ AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, Q
 		setElement(element_);
 }
 
-void AMSelectableElementView::addAbsorptionEdgeNameFilter(const QString &newNameFilter)
+void AMSelectableElementView::addAbsorptionEdgeNameFilter(const QRegExp &newNameFilter)
 {
 	absorptionEdgeValidator_->addNameFilter(newNameFilter);
 }
@@ -153,12 +153,12 @@ bool AMSelectableElementView::removeAbsorptionEdgeNameFilter(int index)
 	return absorptionEdgeValidator_->removeNameFilter(index);
 }
 
-bool AMSelectableElementView::removeAbsorptionEdgeNameFilter(const QString &filter)
+bool AMSelectableElementView::removeAbsorptionEdgeNameFilter(const QRegExp &filter)
 {
 	return absorptionEdgeValidator_->removeNameFilter(filter);
 }
 
-void AMSelectableElementView::addEmissionLineNameFilter(const QString &newNameFilter)
+void AMSelectableElementView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
 {
 	emissionLineValidator_->addNameFilter(newNameFilter);
 }
@@ -168,7 +168,7 @@ bool AMSelectableElementView::removeEmissionLineNameFilter(int index)
 	return emissionLineValidator_->removeNameFilter(index);
 }
 
-bool AMSelectableElementView::removeEmissionLineNameFilter(const QString &filter)
+bool AMSelectableElementView::removeEmissionLineNameFilter(const QRegExp &filter)
 {
 	return emissionLineValidator_->removeNameFilter(filter);
 }

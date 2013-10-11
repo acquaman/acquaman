@@ -30,15 +30,37 @@ public:
 	double maximumEnergy() const { return emissionLineValidator_->maximum(); }
 
 	/// Returns the list of emission line name filters that have provided to the element view.
-	QStringList emissionLinenameFilters() const { return emissionLineValidator_->nameFilters(); }
+	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
 	/// Returns the emission line name filter at a given index.
-	const QString &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
+	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
 	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
 	bool removeEmissionLineNameFilter(int index);
 	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(const QString &filter);
+	bool removeEmissionLineNameFilter(const QRegExp &filter);
 	/// Adds a new emission line name filter to the list of name filters.
-	void addEmissionLineNameFilter(const QString &newNameFilter);
+	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
+
+	/// Returns the list of pile up peak name filters that have provided to the element view.
+	QList<QRegExp> pileUpPeakNameFilters() const { return pileUpPeakValidator_->nameFilters(); }
+	/// Returns the pile up peak name filter at a given index.
+	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
+	/// Removes the pile up peak name filter at the given index.  Returns whether the removal was successful.
+	bool removePileUpPeakNameFilter(int index);
+	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
+	bool removePileUpPeakNameFilter(const QRegExp &filter);
+	/// Adds a new pile up peak name filter to the list of name filters.
+	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
+
+	/// Returns the list of combination pile up peak name filters that have provided to the element view.
+	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
+	/// Returns the combination pile up peak name filter at a given index.
+	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
+	/// Removes the combination pile up peak name filter at the given index.  Returns whether the removal was successful.
+	bool removeCombinationPileUpPeakNameFilter(int index);
+	/// Removes the combination pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
+	bool removeCombinationPileUpPeakNameFilter(const QRegExp &filter);
+	/// Adds a new combination pile up peak name filter to the list of name filters.
+	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
 
 	/// Sets the colors for each of the emission lines.
 	void setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor);
@@ -94,16 +116,32 @@ protected slots:
 	void onShowMultipleSpectraButtonClicked();
 	/// Handles updating the waterfall offset.
 	void onWaterfallUpdateRequired();
+	/// Handles updating the text for the pile up peaks button.
+	void updatePileUpPeaksButtonText();
+	/// Handles updating the text for the combination pile up peaks button.
+	void updateCombinationPileUpPeaksButtonText();
+	/// Handles showing the pile up peaks.
+	void updatePileUpPeaks();
+	/// Handles showing the combination pile up peaks.
+	void updateCombinationPileUpPeaks();
+	/// Handles updating the combination element by popping up a dialog.
+	void onCombinationChoiceButtonClicked();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
-	void highlightCurrentElementRegionOfInterest(AMElement *element);
+	void highlightCurrentElementRegionOfInterest();
 	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the emission line for appropriate lookups.
 	void updatePeriodicTableButtonColors(const AMEmissionLine &line);
 	/// Method that builds the style sheet for the regions of interest color.  The key is a string that can have any of the keys mashed together (eg: "KL").  If multiple lines exist then it will make a linear gradient of multiple colors.  Subclasses can re-implement for different stylesheets.
 	virtual const QString buildStyleSheet(const QString &colorMapKey) const;
 	/// Method that builds the periodic table view and element view and adds it to the detector layout.
 	void buildPeriodicTableViewAndElementView();
+	/// Method that builds the show spectra and show multiple spectra buttons.
+	void buildShowSpectraButtons();
+	/// Helper method that removes all of the plot items from the provided list.
+	void removeAllPlotItems(QList<MPlotItem *> &items);
+	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
+	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;
@@ -114,12 +152,34 @@ protected:
 
 	/// The validator for the range and emission line names.
 	AMNameAndRangeValidator *emissionLineValidator_;
+	/// The validator for the range and emission line names for the pile up peaks.
+	AMNameAndRangeValidator *pileUpPeakValidator_;
+	/// The validator for the range and emission line names for the combination pile up peaks.
+	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
 	/// The list of emission line markers.
 	QList<MPlotItem *> emissionLineMarkers_;
 	/// A mapping of emission lines to region of interest markers.
 	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
 	/// A simple map for the line colors.
 	QMap<QString, QColor> emissionLineLegendColors_;
+
+	/// Holds the reference AMElement that was last clicked.
+	AMElement *currentElement_;
+	/// Holds the reference AMElement used for the combination pile up peaks.
+	AMElement *combinationElement_;
+
+	/// The layout for the row above the periodic table view.
+	QHBoxLayout *rowAbovePeriodicTableLayout_;
+	/// The button for showing the pile up peaks.
+	QPushButton *showPileUpPeaksButton_;
+	/// The button for showing the combination pile up peaks.
+	QPushButton *showCombinationPileUpPeaksButton_;
+	/// The button for choosing the second element for combination pile up peaks.
+	QToolButton *combinationChoiceButton_;
+	/// The list of pile up peaks markers.
+	QList<MPlotItem *> pileUpPeakMarkers_;
+	/// The list of the combination pile up peaks markers.
+	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

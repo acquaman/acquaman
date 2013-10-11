@@ -68,7 +68,7 @@ protected:
 	/// This is the plot itself.
 	MPlot *plot_;
 	/// A list of plot items that are spectra currently being displayed in the plot.
-	QList<MPlotSeriesBasic *> spectraPlotItems_;
+	QList<MPlotItem *> spectraPlotItems_;
 
 	/// The top frame title bar.
 	AMTopFrame *topFrame_;
