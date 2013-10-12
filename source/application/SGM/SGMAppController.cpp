@@ -87,6 +87,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSPGTDetectorV2View.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorNewView.h"
 
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/SGM/SGMAxis2000Exporter.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -628,6 +631,8 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
+	AMExportController::registerExporter<SGMAxis2000Exporter>();
+
 	bool success = true;
 
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
