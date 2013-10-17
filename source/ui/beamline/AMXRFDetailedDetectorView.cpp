@@ -59,6 +59,7 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
 	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
 	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
 }
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
@@ -557,15 +558,12 @@ void AMXRFDetailedDetectorView::addPileUpMarker(const AMEmissionLine &firstLine,
 
 void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 {
-//	AMElement *el = AMPeriodicTableDialog::getElement();
+	AMElement *el = AMPeriodicTableDialog::getElement();
 
-//	AMPeriodicTableDialog dialog(this);
-//	dialog.exec();
+	if (el){
 
-//	if (el){
-
-//		combinationChoiceButton_->setText(el->symbol());
-//		combinationElement_ = el;
-//		updateCombinationPileUpPeaks();
-//	}
+		combinationChoiceButton_->setText(el->symbol());
+		combinationElement_ = el;
+		updateCombinationPileUpPeaks();
+	}
 }
