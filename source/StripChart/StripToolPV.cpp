@@ -1,23 +1,28 @@
-#include "StripToolItem.h"
+#include "StripToolPV.h"
 
-StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUnits, QObject *parent) : QObject(parent)
+StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits, QObject *parent)
+    : QObject(parent)
 {
     updateIndex_ = 0;
     valuesDisplayed_ = 10;
     dataVectorSize_ = 100;
-    isUpdating_ = true;
 
     pvName_ = pvName;
     pvDescription_ = pvDescription;
     xUnits_ = "Update number";
     yUnits_ = pvUnits;
+    isUpdating_ = true;
+    checkState_ = Qt::Checked;
 
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
 
-    setValuesDisplayed(valuesDisplayed_);
-
     pvData_ = new MPlotVectorSeriesData();
+
+    pvSeries_ = new MPlotSeriesBasic();
+    pvSeries_->setModel(pvData_);
+    pvSeries_->setDescription(" ");
+    pvSeries_->setMarker(MPlotMarkerShape::None);
 
     pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
@@ -25,55 +30,90 @@ StripToolItem::StripToolItem(QString pvName, QString pvDescription, QString pvUn
 
 
 
-StripToolItem::~StripToolItem()
+StripToolPV::~StripToolPV()
 {
 }
 
 
 
-QString StripToolItem::pvName()
+QString StripToolPV::pvName()
 {
     return pvName_;
 }
 
 
 
-QString StripToolItem::pvDescription()
+QString StripToolPV::pvDescription()
 {
     return pvDescription_;
 }
 
 
 
-QString StripToolItem::xUnits()
+QString StripToolPV::xUnits()
 {
     return xUnits_;
 }
 
 
 
-QString StripToolItem::yUnits()
+QString StripToolPV::yUnits()
 {
     return yUnits_;
 }
 
 
 
-MPlotVectorSeriesData* StripToolItem::data()
+Qt::CheckState StripToolPV::checkState()
+{
+    return checkState_;
+}
+
+
+
+MPlotVectorSeriesData* StripToolPV::data()
 {
     return pvData_;
 }
 
 
 
-int StripToolItem::valuesDisplayed()
+MPlotSeriesBasic* StripToolPV::series()
+{
+    return pvSeries_;
+}
+
+
+
+int StripToolPV::valuesDisplayed()
 {
     return valuesDisplayed_;
 }
 
 
 
-void StripToolItem::setValuesDisplayed(const int newValuesDisplayed)
+void StripToolPV::setDescription(const QString &newDescription)
+{
+    pvDescription_ = newDescription;
+}
+
+
+
+void StripToolPV::setUnits(const QString &newUnits)
+{
+    yUnits_ = newUnits;
+}
+
+
+
+void StripToolPV::setPVUpdating(bool isUpdating)
+{
+    isUpdating_ = isUpdating;
+}
+
+
+
+void StripToolPV::setValuesDisplayed(int newValuesDisplayed)
 {
     valuesDisplayed_ = newValuesDisplayed;
     xValuesDisplayed_ = QVector<double>(valuesDisplayed_);
@@ -82,14 +122,14 @@ void StripToolItem::setValuesDisplayed(const int newValuesDisplayed)
 
 
 
-void StripToolItem::setPVUpdating(bool isUpdating)
+void StripToolPV::setCheckState(Qt::CheckState isChecked)
 {
-    isUpdating_ = isUpdating;
+    checkState_ = isChecked;
 }
 
 
 
-void StripToolItem::onPVValueChanged(double newValue)
+void StripToolPV::onPVValueChanged(double newValue)
 {
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)
