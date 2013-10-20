@@ -96,10 +96,6 @@ void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 
 }
 
-#include "actions2/AMActionRunner.h"
-#include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
-#include <QMessageBox>
-
 void REIXSSidebar::onBeamOnButtonClicked()
 {
 	AMAction3 *beamOn = REIXSBeamline::bl()->buildBeamStateChangeAction(true);
