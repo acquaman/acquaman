@@ -186,5 +186,11 @@
         <file>22x22/media-playback-pause-light.png</file>
         <file>22x22/media-playback-start-light.png</file>
         <file>22x22/media-playback-stop-light.png</file>
+        <file>32x32/format-line-spacing-triple.png</file>
+        <file>32x32/media-seek-forward-6.png</file>
+        <file>32x32/format-list-ordered.png</file>
+        <file>Yellow.png</file>
+        <file>go-in.png</file>
+        <file>go-out.png</file>
     </qresource>
 </RCC>

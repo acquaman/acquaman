@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#define VESPERS201SPATIALLINESCANFILELOADERPLUGIN_CANNOT_OPEN_FILE 627101
+#define VESPERS201SPATIALLINESCANFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE 627102
+
 #include "dataman/AMFileLoaderInterface.h"
 
 /*!
@@ -34,12 +37,12 @@ class VESPERS2012SpatialLineScanFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespers2012LineScanXRF1El, vespers2012LineScanXRF1ElXRD, vespers2012LineScanXRF4El, and vespers2012LineScanXRF4ElXRD.
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012Energy"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012LineScan1Eln4El" << "vespers2012LineScan1Eln4ElXRD" << "vespers2012Energy"; }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 };
 
 class VESPERS2012SpatialLineScanFileLoaderFactory : public QObject, AMFileLoaderFactory
@@ -49,7 +52,7 @@ class VESPERS2012SpatialLineScanFileLoaderFactory : public QObject, AMFileLoader
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012Energy"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012LineScan1Eln4El" << "vespers2012LineScan1Eln4ElXRD" << "vespers2012Energy"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 

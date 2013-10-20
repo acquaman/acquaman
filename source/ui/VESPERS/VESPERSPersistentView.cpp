@@ -19,12 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSPersistentView.h"
-#include "ui/VESPERS/VESPERSSampleStageView.h"
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
-
 #include "ui/beamline/AMIonChamberView.h"
 
 #include <QHBoxLayout>
@@ -32,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
+#include <QMenu>
+#include <QAction>
 
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
@@ -46,22 +46,13 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
-	// Sample stage widget.
-	pseudoMotors_ = new VESPERSSampleStageView(VESPERSBeamline::vespers()->pseudoSampleStage());
-	pseudoMotors_->setTitle("H & V");
-	pseudoMotors_->setHorizontalTitle("H");
-	pseudoMotors_->setVerticalTitle("V");
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
+	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 
-	realMotors_ = new VESPERSSampleStageView(VESPERSBeamline::vespers()->realSampleStage());
-	realMotors_->setTitle("X & Z");
-	realMotors_->setHorizontalTitle("X");
-	realMotors_->setVerticalTitle("Z");
-	realMotors_->hide();
-
-	// PID control view widget.
-	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
-	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), pseudoMotors_, SLOT(setEnabled(bool)));
-	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), realMotors_, SLOT(setEnabled(bool)));
+	// PID control view widgets.
+	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidWireStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->wireStagePID());
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -96,7 +87,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLabel->setFont(font);
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
-	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	experimentReadyLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Gain Setup");
 	ionChamberLabel->setFont(font);
 
 	// Shutter layout.
@@ -110,7 +102,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// Beam selection and mono energy setting.
 	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
-	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERSBeamline::Beam)), this, SLOT(onBeamChanged(VESPERSBeamline::Beam)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERS::Beam)), this, SLOT(onBeamChanged(VESPERS::Beam)));
 
 	// Energy (Eo) selection
 	energySetpoint_ = new QDoubleSpinBox;
@@ -163,13 +155,17 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
 	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
+	experimentReady_->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(experimentReady_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
+	connect(experimentReadyLabel, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(poeStatusChanged(bool)), this, SLOT(onExperimentStatusChanged()));
+	connect(VESPERSBeamline::vespers(), SIGNAL(poeStatusEnableChanged()), this, SLOT(onExperimentStatusChanged()));
 
 	QHBoxLayout *experimentReadyLayout = new QHBoxLayout;
 	experimentReadyLayout->addWidget(experimentReady_);
 	experimentReadyLayout->addWidget(experimentReadyLabel);
 	experimentReadyLayout->setSpacing(10);
-	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
+	experimentReadyLayout->setContentsMargins(15, 0, 11, 0);
 	experimentReadyLayout->addStretch();
 
 	// Endstation shutter control.
@@ -248,6 +244,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
 
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
@@ -260,19 +257,16 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(waterLabel_, 1, 2);
 	statusLayout->addWidget(valvesStatus_, 1, 3);
 	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
-	statusLayout->setContentsMargins(15, 7, 11, 7);
-
-	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
-	sampleStageLayout->addWidget(pseudoMotors_);
-	sampleStageLayout->addWidget(realMotors_);
+	statusLayout->setContentsMargins(15, 0, 11, 0);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
-	persistentLayout->addLayout(sampleStageLayout);
-	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(motorGroupView_, 0, Qt::AlignLeft);
+	persistentLayout->addWidget(pidSampleStageView);
+	persistentLayout->addWidget(pidWireStageView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
@@ -289,23 +283,21 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	//setFixedSize(325, 1000);
 	setFixedSize(325, 900);
-//    setFixedSize(325, 800);
 }
 
-void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
+void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)
 {
 	switch(beam){
 
-	case VESPERSBeamline::None:
-	case VESPERSBeamline::Pink:
+	case VESPERS::NoBeam:
+	case VESPERS::Pink:
 		energySetpoint_->setEnabled(false);
 		break;
 
-	case VESPERSBeamline::TenPercent:
-	case VESPERSBeamline::OnePointSixPercent:
-	case VESPERSBeamline::Si:
+	case VESPERS::TenPercent:
+	case VESPERS::OnePointSixPercent:
+	case VESPERS::Si:
 		energySetpoint_->setEnabled(true);
 		break;
 	}
@@ -318,11 +310,34 @@ void VESPERSPersistentView::onShutterStateChanged(bool state)
 		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
 		filterLowerButton_->setText("Close Shutter");
 	}
+
 	else{
 
 		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
 		filterLowerButton_->setText("Open Shutter");
 	}
+}
+
+void VESPERSPersistentView::onExperimentStatusChanged()
+{
+	if (VESPERSBeamline::vespers()->poeStatusEnable())
+		experimentReady_->setPixmap(QIcon(VESPERSBeamline::vespers()->poeStatus() ? ":/ON.png" : ":/RED.png").pixmap(25));
+
+	else
+		experimentReady_->setPixmap(QIcon(":/Yellow.png").pixmap(25));
+}
+
+void VESPERSPersistentView::onPOEStatusEnablePopupMenuRequested(const QPoint &point)
+{
+	QMenu popup(experimentReady_);
+	QAction *temp = popup.addAction("Enable POE Status");
+	temp->setCheckable(true);
+	temp->setChecked(VESPERSBeamline::vespers()->poeStatusEnable());
+
+	temp = popup.exec(experimentReady_->mapToGlobal(point));
+
+	if (temp)
+		VESPERSBeamline::vespers()->setPOEStatusEnable(!VESPERSBeamline::vespers()->poeStatusEnable());
 }
 
 void VESPERSPersistentView::toggleShutterState()
@@ -437,10 +452,4 @@ void VESPERSPersistentView::onSSH2Clicked()
 
 	else if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 1)
 		VESPERSBeamline::vespers()->closeSafetyShutter2();
-}
-
-void VESPERSPersistentView::setSampleStage(bool sampleStage)
-{
-	pseudoMotors_->setVisible(sampleStage);
-	realMotors_->setVisible(!sampleStage);
 }

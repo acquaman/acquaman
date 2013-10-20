@@ -123,7 +123,7 @@ protected:
 	QFormLayout *fl_;
 };
 
-class AMDetector;
+class AMOldDetector;
 class SGMDetectorsMasterView : public QGroupBox
 {
 Q_OBJECT
@@ -147,7 +147,7 @@ protected slots:
 	/// Slot connected to each QCheckBox to determine if changes have been made
 	void onCheckBoxesChanged(bool toggled);
 	/// Slot connected to each detector to determine the connectivity state
-	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
 	/// Show event is reimplemented to save the initial state to check against future changes

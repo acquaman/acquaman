@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMENERGYPOSITIONVIEW_H
 
 #include <QGroupBox>
+#include <QDialog>
 #include "util/SGM/SGMElementInfo.h"
 
 class QDoubleSpinBox;
@@ -28,7 +29,11 @@ class QSpinBox;
 class QComboBox;
 class QPushButton;
 class QLabel;
+class QCheckBox;
+class QLineEdit;
+class QDialogButtonBox;
 class QVBoxLayout;
+class QHBoxLayout;
 
 class SGMEnergyPositionView : public QGroupBox
 {
@@ -74,6 +79,7 @@ protected:
 	QPushButton *alternateViewModeButton_;
 
 	QVBoxLayout *vl2_;
+	QHBoxLayout *hl_;
 };
 
 class SGMEnergyPositionWBeamlineView : public SGMEnergyPositionView
@@ -87,6 +93,50 @@ protected slots:
 
 protected:
 	QPushButton *setFromBeamlineButton_;
+};
+
+class SGMEnergyPositionDisassociateFromDbDialog : public QDialog
+{
+Q_OBJECT
+public:
+	SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent);
+
+public slots:
+	virtual void accept();
+
+protected slots:
+	void onNewNameLineEditTextEdited(const QString &text);
+
+protected:
+	SGMEnergyPosition *energyPosition_;
+
+	QLineEdit *newNameLineEdit_;
+	QDialogButtonBox *buttonBox_;
+
+	QStringList takenNames_;
+};
+
+class SGMEnergyPositionWBeamlineAndDatabaseView : public SGMEnergyPositionWBeamlineView
+{
+Q_OBJECT
+public:
+	SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
+
+	QStringList alsoUsedByList() const;
+
+protected slots:
+	void onDisassociateButtonClicked();
+	void onUnlockDisassociateCheckBoxToggled(bool toggled);
+
+protected:
+	void setUsedByLabelHelper();
+
+protected:
+	QLabel *databaseUsedByLabel_;
+	QPushButton *disassociateButton_;
+	QCheckBox *unlockDisassociateCheckBox_;
+
+	QStringList alsoUsedByList_;
 };
 
 #endif // SGMENERGYPOSITIONVIEW_H

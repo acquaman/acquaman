@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRFDETECTORVIEW_H
 #define XRFDETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/VESPERS/XRFElement.h"
 #include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QPushButton>
 
-class XRFBriefDetectorView : public AMBriefDetectorView
+class XRFBriefDetectorView : public AMBriefOldDetectorView
 {
 	/// This class builds a very brief view for the XRF detector.  Its primary function is to show that the detector is working and if you want to use it, enables you to build a more detailed view.
 
@@ -46,7 +46,7 @@ public:
 	Q_INVOKABLE explicit XRFBriefDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
-	AMDetector *detector() { return detector_; }
+	AMOldDetector *detector() { return detector_; }
 
 signals:
 
@@ -63,7 +63,7 @@ protected:
 
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
@@ -73,7 +73,7 @@ protected:
 
 };
 
-class XRFDetailedDetectorView : public AMDetailedDetectorView
+class XRFDetailedDetectorView : public AMDetailedOldDetectorView
 {
 	/// This class builds the detailed view for viewing XRF detector data.  It should be able to read in an XRFDetector object and build a view based on the data contained within it.
 
@@ -84,7 +84,7 @@ public:
 	Q_INVOKABLE explicit XRFDetailedDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
-	AMDetector *detector() { return detector_; }
+	AMOldDetector *detector() { return detector_; }
 	/// Returns a pointer to the plot.
 	MPlot *plot() const { return plot_; }
 
@@ -187,7 +187,7 @@ protected:
 
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();

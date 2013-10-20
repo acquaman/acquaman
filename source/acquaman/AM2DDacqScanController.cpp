@@ -18,6 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM2DDacqScanController.h"
+#include "dataman/datastore/AMCDFDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 
 #include <QDir>
 
@@ -30,7 +32,6 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	fastAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
 	stopAtEndOfLine_ = false;
-	duplicateColumnsDetected_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()
@@ -88,14 +89,49 @@ bool AM2DDacqScanController::startImplementation()
 		abop->setProperty( "File Template", file.toStdString());
 		abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 
-		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-		if(usingSpectraDotDatFile_){
-			// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
-			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+		// If using AMCDFDataStore then this will already have been set properly.
+		if (qobject_cast<AMInMemoryDataStore *>(scan_->rawData())){
+
+			QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+
+			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+			if(usingSpectraDotDatFile_){
+				// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+			}
+			else {
+				// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+			}
 		}
-		else {
-			// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+
+		// Synchronizing the .dat and _spectra.dat to match the cdf name.
+		else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
+
+			QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+			flushToDiskTimer_.setInterval(300000);
+			connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+			connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+			flushToDiskTimer_.start();
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -109,9 +145,6 @@ bool AM2DDacqScanController::startImplementation()
 		return false;
 	}
 }
-
-/// Hackish for now.
-#include <QMessageBox>
 
 bool AM2DDacqScanController::event(QEvent *e)
 {
@@ -138,32 +171,33 @@ bool AM2DDacqScanController::event(QEvent *e)
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
 			++i;
 
-			QList<double> temp = aeData.values();
-
-			// This is too sensitive at the moment.
-//			if (temp.size() > 5 && !duplicateColumnsDetected_)
-//				for (int x = 5; x < temp.size(); x++)
-//					if (temp.at(x) == temp.at(x-1)){
-
-//						duplicateColumnsDetected_ = true;
-//						AMErrorMon::alert(this, AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED, QString("Duplicate columns detected at %1 and %2").arg(x).arg(x-1));
-//						QMessageBox::warning(0, "Duplicate Columns Detected", "An error has occurred within the scan engine where data is not being saved correctly.  Please contact Darren at 290-5418.");
-//					}
-
 			while(i != aeData.constEnd()){
 				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
 				++i;
 			}
 
+//			while(j != aeSpectra.constEnd()){
+//				for(int x = 0; x < j.value().count(); x++)
+//					scan_->rawData()->setValue(insertIndex, j.key()-2, AMnDIndex(x), j.value().at(x));
+//				++j;
+//			}
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count(); x++)
-					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+
+				QVector<double> data = j.value().toVector();
+				scan_->rawData()->setValue(insertIndex, j.key()-2, data.constData());
 				++j;
 			}
 
 			scan_->rawData()->endInsertRows();
 
-			if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+			if (stopImmediately_){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
+
+			else if (stopAtEndOfLine_ && atEndOfLine(aeData)){
 
 				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
 				dacqCancelled_ = false;
@@ -292,8 +326,17 @@ void AM2DDacqScanController::prefillScanPoints()
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+					for (int di = 0; di < scan_->rawDataSourceCount(); di++){
+
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
 
@@ -340,8 +383,17 @@ void AM2DDacqScanController::prefillScanPoints()
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+					for (int di = 0; di < scan_->dataSourceCount(); di++){
+
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
 

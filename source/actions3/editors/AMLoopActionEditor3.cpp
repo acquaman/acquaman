@@ -40,9 +40,17 @@ AMLoopActionEditor3::AMLoopActionEditor3(AMLoopActionInfo3 *info, QWidget *paren
 
 	spinBox_->setValue(info_->loopCount());
 	connect(spinBox_, SIGNAL(editingFinished()), this, SLOT(onSpinBoxEditingFinished()));
+	connect(info_, SIGNAL(loopCountChanged(int)), this, SLOT(onLoopCountChanged(int)));
 }
 
 void AMLoopActionEditor3::onSpinBoxEditingFinished()
 {
 	info_->setLoopCount(spinBox_->value());
+}
+
+void AMLoopActionEditor3::onLoopCountChanged(int val)
+{
+	spinBox_->blockSignals(true);
+	spinBox_->setValue(val);
+	spinBox_->blockSignals(false);
 }

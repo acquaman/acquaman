@@ -26,10 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 
 #include "ui/beamline/AMControlButton.h"
-
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
@@ -111,10 +111,84 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
 
+	i0CheckBox_ = new QCheckBox("I0");
+	teyCheckBox_ = new QCheckBox("TEY");
+	tfyCheckBox_ = new QCheckBox("TFY");
+	pdCheckBox_ = new QCheckBox("PD");
+	fpd1CheckBox_ = new QCheckBox("FPD1");
+	fpd2CheckBox_ = new QCheckBox("FPD2");
+	fpd3CheckBox_ = new QCheckBox("FPD3");
+	fpd4CheckBox_ = new QCheckBox("FPD4");
+
 	// create UI elements
 	imageView_ = new MPlotWidget();
 	imageView_->setMinimumHeight(200);
 	imagePlot_ = new MPlot();
+
+	QHBoxLayout *checkBoxHL1 = new QHBoxLayout();
+	checkBoxHL1->addWidget(i0CheckBox_);
+	checkBoxHL1->addWidget(teyCheckBox_);
+	checkBoxHL1->addWidget(tfyCheckBox_);
+	checkBoxHL1->addWidget(pdCheckBox_);
+	checkBoxHL1->setContentsMargins(0, 0, 0, 0);
+
+	QHBoxLayout *checkBoxHL2 = new QHBoxLayout();
+	checkBoxHL2->addWidget(fpd1CheckBox_);
+	checkBoxHL2->addWidget(fpd2CheckBox_);
+	checkBoxHL2->addWidget(fpd3CheckBox_);
+	checkBoxHL2->addWidget(fpd4CheckBox_);
+	checkBoxHL2->setContentsMargins(0, 0, 0, 0);
+
+	QVBoxLayout *checkBoxVL = new QVBoxLayout();
+	checkBoxVL->addLayout(checkBoxHL1);
+	checkBoxVL->addLayout(checkBoxHL2);
+	checkBoxVL->setContentsMargins(1, 1, 1, 1);
+
+	autoScaleCheckBox_ = new QCheckBox("Auto");
+	logCheckBox_ = new QCheckBox("Log");
+	QVBoxLayout *autoLogVL = new QVBoxLayout();
+	autoLogVL->addWidget(autoScaleCheckBox_);
+	autoLogVL->addWidget(logCheckBox_);
+	autoLogVL->setContentsMargins(0, 0, 0, 0);
+
+	QHBoxLayout *masterCheckBoxHL = new QHBoxLayout();
+	masterCheckBoxHL->addLayout(checkBoxVL);
+	masterCheckBoxHL->addLayout(autoLogVL);
+	masterCheckBoxHL->setContentsMargins(0, 0, 0, 0);
+
+	plotLeftAxisMinimum_ = 0;
+	plotLeftAxisMaximum_ = 1000000;
+	minSpinBox_ = new QDoubleSpinBox();
+	minSpinBox_->setRange(0, 1100000);
+	minSpinBox_->setValue(plotLeftAxisMinimum_);
+	maxSpinBox_ = new QDoubleSpinBox();
+	maxSpinBox_->setRange(1, 1100001);
+	maxSpinBox_->setValue(plotLeftAxisMaximum_);
+	minLabel_ = new QLabel("Min");
+	maxLabel_ = new QLabel("Max");
+
+	QHBoxLayout *minHL = new QHBoxLayout();
+	minHL->addWidget(minLabel_);
+	minHL->addWidget(minSpinBox_);
+	minHL->setContentsMargins(0, 0, 0, 0);
+	QHBoxLayout *maxHL = new QHBoxLayout();
+	maxHL->addWidget(maxLabel_);
+	maxHL->addWidget(maxSpinBox_);
+	maxHL->setContentsMargins(0, 0, 0, 0);
+	QHBoxLayout *rangeHL = new QHBoxLayout();
+	rangeHL->addLayout(minHL);
+	rangeHL->addLayout(maxHL);
+	rangeHL->setContentsMargins(0, 0, 0, 0);
+
+	QVBoxLayout *plotOptionsVL = new QVBoxLayout();
+	plotOptionsVL->addLayout(masterCheckBoxHL);
+	plotOptionsVL->addLayout(rangeHL);
+	plotOptionsVL->setContentsMargins(0, 0, 0, 0);
+
+	plotLayout_ = new QVBoxLayout();
+	plotLayout_->addWidget(imageView_);
+	plotLayout_->addLayout(plotOptionsVL);
+	plotLayout_->setContentsMargins(1, 1, 1, 1);
 
 	// ATTENTION DAVE: New special axis scale on bottom of strip tool plot:
 	stripToolSpecialAxisScale_ = new MPlotAxisScale(Qt::Horizontal);
@@ -123,13 +197,20 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	imagePlot_->axisBottom()->setAxisScale(stripToolSpecialAxisScale_);	// have the bottom (visible) axis display this axisScale instead
 	/////////////////
 
+	MPlotAxisRange leftRange;
+	leftRange.setRange(plotLeftAxisMinimum_, plotLeftAxisMaximum_);
+
+
 	imageView_->setPlot(imagePlot_);
-	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
+
+	imagePlot_->axisScaleLeft()->setAutoScaleEnabled(false);
+	imagePlot_->axisScaleLeft()->setDataRange(leftRange);
+
 	imagePlot_->axisScaleLeft()->setPadding(2);
 	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
 	imagePlot_->axisScaleBottom()->setPadding(2);
 	imagePlot_->setMarginBottom(10);
-	imagePlot_->setMarginLeft(10);
+	imagePlot_->setMarginLeft(15);
 	imagePlot_->setMarginRight(5);
 	imagePlot_->setMarginTop(5);
 	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
@@ -143,6 +224,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	teyModel_ = new MPlotRealtimeModel(this);
 	tfyModel_ = new MPlotRealtimeModel(this);
 	pdModel_ = new MPlotRealtimeModel(this);
+	fpd1Model_ = new MPlotRealtimeModel(this);
+	fpd2Model_ = new MPlotRealtimeModel(this);
+	fpd3Model_ = new MPlotRealtimeModel(this);
+	fpd4Model_ = new MPlotRealtimeModel(this);
 
 	i0Series_ = new MPlotSeriesBasic(i0Model_);
 	i0Series_->setDescription("I0");
@@ -161,7 +246,39 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setLinePen(QPen(QColor(255, 0, 255)));
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
+	fpd1Series_ = new MPlotSeriesBasic(fpd1Model_);
+	fpd1Series_->setDescription("FPD1");
+	fpd1Series_->setLinePen(QPen(QColor(255, 255, 0)));
+	fpd1Series_->setMarker(MPlotMarkerShape::None);
+	fpd2Series_ = new MPlotSeriesBasic(fpd2Model_);
+	fpd2Series_->setDescription("FPD2");
+	fpd2Series_->setLinePen(QPen(QColor(0, 255, 255)));
+	fpd2Series_->setMarker(MPlotMarkerShape::None);
+	fpd3Series_ = new MPlotSeriesBasic(fpd3Model_);
+	fpd3Series_->setDescription("FPD3");
+	fpd3Series_->setLinePen(QPen(QColor(255, 127, 127)));
+	fpd3Series_->setMarker(MPlotMarkerShape::None);
+	fpd4Series_ = new MPlotSeriesBasic(fpd4Model_);
+	fpd4Series_->setDescription("FPD4");
+	fpd4Series_->setLinePen(QPen(QColor(127, 255, 127)));
+	fpd4Series_->setMarker(MPlotMarkerShape::None);
+
 	imagePlot_->addItem(i0Series_);
+	i0CheckBox_->setChecked(true);
+
+	connect(i0CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onI0CheckBoxToggled(bool)));
+	connect(teyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onTEYCheckBoxToggled(bool)));
+	connect(tfyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onTFYCheckBoxToggled(bool)));
+	connect(pdCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onPDCheckBoxToggled(bool)));
+	connect(fpd1CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD1CheckBoxToggled(bool)));
+	connect(fpd2CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD2CheckBoxToggled(bool)));
+	connect(fpd3CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD3CheckBoxToggled(bool)));
+	connect(fpd4CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD4CheckBoxToggled(bool)));
+
+	connect(minSpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinSpinBoxEditingFinished()));
+	connect(maxSpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaxSpinBoxEditingFinished()));
+	connect(autoScaleCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onAutoScaleCheckBoxToggled(bool)));
+	connect(logCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onLogCheckBoxToggled(bool)));
 
 	stripToolCounter_ = 0;
 	stripToolTimer_ = new QTimer(this);
@@ -193,9 +310,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
 	onBeamlineWarnings("");
-
-	//CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
-	//synchronizedDwellTimeView->show();
 }
 
 SGMSidebar::~SGMSidebar() {
@@ -278,10 +392,14 @@ void SGMSidebar::onStripToolTimerTimeout(){
 		teyModel_->removePointFront();
 		tfyModel_->removePointFront();
 		pdModel_->removePointFront();
+		fpd1Model_->removePointFront();
+		fpd2Model_->removePointFront();
+		fpd3Model_->removePointFront();
+		fpd4Model_->removePointFront();
 	}
 
 	// inserted to prevent crashes before SGM detectors connected
-	double i0Reading = 0, teyReading = 0, tfyReading = 0, pdReading = 0;
+	double i0Reading = 0, teyReading = 0, tfyReading = 0, pdReading = 0, fpd1Reading = 0, fpd2Reading = 0, fpd3Reading = 0, fpd4Reading = 0;
 	if(SGMBeamline::sgm()->i0Detector())
 		i0Reading = SGMBeamline::sgm()->i0Detector()->reading();
 	if(SGMBeamline::sgm()->teyDetector())
@@ -290,7 +408,27 @@ void SGMSidebar::onStripToolTimerTimeout(){
 		tfyReading = SGMBeamline::sgm()->tfyDetector()->reading();
 	if(SGMBeamline::sgm()->photodiodeDetector())
 		pdReading = SGMBeamline::sgm()->photodiodeDetector()->reading();
+	if(SGMBeamline::sgm()->filterPD1ScalarDetector())
+		fpd1Reading = SGMBeamline::sgm()->filterPD1ScalarDetector()->reading();
+	if(SGMBeamline::sgm()->filterPD2ScalarDetector())
+		fpd2Reading = SGMBeamline::sgm()->filterPD2ScalarDetector()->reading();
+	if(SGMBeamline::sgm()->filterPD3ScalarDetector())
+		fpd3Reading = SGMBeamline::sgm()->filterPD3ScalarDetector()->reading();
+	if(SGMBeamline::sgm()->filterPD4ScalarDetector())
+		fpd4Reading = SGMBeamline::sgm()->filterPD4ScalarDetector()->reading();
+
 	///////////////
+
+	if(logCheckBox_->isChecked()){
+		i0Reading++;
+		teyReading++;
+		tfyReading++;
+		pdReading++;
+		fpd1Reading++;
+		fpd2Reading++;
+		fpd3Reading++;
+		fpd4Reading++;
+	}
 
 	i0Series_->setDescription(QString("I0 %1").arg(i0Reading, 0, 'e', 2));
 	i0Model_->insertPointBack(stripToolCounter_, i0Reading);
@@ -300,19 +438,177 @@ void SGMSidebar::onStripToolTimerTimeout(){
 	tfyModel_->insertPointBack(stripToolCounter_, tfyReading);
 	pdSeries_->setDescription(QString("PD %1").arg(pdReading, 0, 'e', 2));
 	pdModel_->insertPointBack(stripToolCounter_, pdReading);
+	fpd1Series_->setDescription(QString("FPD1 %1").arg(fpd1Reading, 0, 'e', 2));
+	fpd1Model_->insertPointBack(stripToolCounter_, fpd1Reading);
+	fpd2Series_->setDescription(QString("FPD2 %1").arg(fpd2Reading, 0, 'e', 2));
+	fpd2Model_->insertPointBack(stripToolCounter_, fpd2Reading);
+	fpd3Series_->setDescription(QString("FPD3 %1").arg(fpd3Reading, 0, 'e', 2));
+	fpd3Model_->insertPointBack(stripToolCounter_, fpd3Reading);
+	fpd4Series_->setDescription(QString("FPD4 %1").arg(fpd4Reading, 0, 'e', 2));
+	fpd4Model_->insertPointBack(stripToolCounter_, fpd4Reading);
 	stripToolCounter_++;
+}
+
+void SGMSidebar::onI0CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(i0Series_);
+	else
+		imagePlot_->removeItem(i0Series_);
+}
+
+void SGMSidebar::onTEYCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(teySeries_);
+	else
+		imagePlot_->removeItem(teySeries_);
+}
+
+void SGMSidebar::onTFYCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(tfySeries_);
+	else
+		imagePlot_->removeItem(tfySeries_);
+}
+
+void SGMSidebar::onPDCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(pdSeries_);
+	else
+		imagePlot_->removeItem(pdSeries_);
+}
+
+void SGMSidebar::onFPD1CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd1Series_);
+	else
+		imagePlot_->removeItem(fpd1Series_);
+}
+
+void SGMSidebar::onFPD2CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd2Series_);
+	else
+		imagePlot_->removeItem(fpd2Series_);
+}
+
+void SGMSidebar::onFPD3CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd3Series_);
+	else
+		imagePlot_->removeItem(fpd3Series_);
+}
+
+void SGMSidebar::onFPD4CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd4Series_);
+	else
+		imagePlot_->removeItem(fpd4Series_);
+}
+
+void SGMSidebar::onMinSpinBoxEditingFinished(){
+	plotLeftAxisMinimum_ = minSpinBox_->value();
+	if(plotLeftAxisMaximum_ < plotLeftAxisMinimum_){
+		plotLeftAxisMaximum_ = plotLeftAxisMinimum_+1;
+		maxSpinBox_->setValue(plotLeftAxisMaximum_);
+	}
+	MPlotAxisRange leftRange;
+	leftRange.setRange(plotLeftAxisMinimum_, plotLeftAxisMaximum_);
+
+	imagePlot_->axisScaleLeft()->setDataRange(leftRange);
+}
+
+void SGMSidebar::onMaxSpinBoxEditingFinished(){
+	plotLeftAxisMaximum_ = maxSpinBox_->value();
+	if(plotLeftAxisMinimum_ > plotLeftAxisMaximum_){
+		plotLeftAxisMinimum_ = plotLeftAxisMaximum_-1;
+		minSpinBox_->setValue(plotLeftAxisMinimum_);
+	}
+	MPlotAxisRange leftRange;
+	leftRange.setRange(plotLeftAxisMinimum_, plotLeftAxisMaximum_);
+
+	imagePlot_->axisScaleLeft()->setDataRange(leftRange);
+}
+
+void SGMSidebar::onAutoScaleCheckBoxToggled(bool toggled){
+	imagePlot_->axisScaleLeft()->setAutoScaleEnabled(toggled);
+	minSpinBox_->setEnabled(!toggled);
+	maxSpinBox_->setEnabled(!toggled);
+	if(!toggled)
+		onMinSpinBoxEditingFinished();
+}
+
+void SGMSidebar::onLogCheckBoxToggled(bool toggled){
+	if(toggled && plotLeftAxisMinimum_ < 1){
+		minSpinBox_->setValue(1);
+		onMinSpinBoxEditingFinished();
+	}
+	else if(!toggled && plotLeftAxisMinimum_ == 1){
+		minSpinBox_->setValue(0);
+		onMinSpinBoxEditingFinished();
+	}
+
+	int alterBy = 0;
+	if(toggled)
+		alterBy = 1;
+	else
+		alterBy = -1;
+
+	for(int x = 0; x < i0Model_->count(); x++){
+		QModelIndex nextI0Index = i0Model_->index(x, 1);
+		i0Model_->setData(nextI0Index, i0Model_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextTEYIndex = teyModel_->index(x, 1);
+		teyModel_->setData(nextTEYIndex, teyModel_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextTFYIndex = tfyModel_->index(x, 1);
+		tfyModel_->setData(nextTFYIndex, tfyModel_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextPDIndex = pdModel_->index(x, 1);
+		pdModel_->setData(nextPDIndex, pdModel_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextFPD1Index = fpd1Model_->index(x, 1);
+		fpd1Model_->setData(nextFPD1Index, fpd1Model_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextFPD2Index = fpd2Model_->index(x, 1);
+		fpd2Model_->setData(nextFPD2Index, fpd2Model_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextFPD3Index = fpd3Model_->index(x, 1);
+		fpd3Model_->setData(nextFPD3Index, fpd3Model_->y(x)+alterBy, Qt::EditRole);
+		QModelIndex nextFPD4Index = fpd4Model_->index(x, 1);
+		fpd4Model_->setData(nextFPD4Index, fpd4Model_->y(x)+alterBy, Qt::EditRole);
+	}
+
+	imagePlot_->axisScaleLeft()->setLogScaleEnabled(toggled);
 }
 
 void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
 		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->hide();
-		warningAndPlotHL_->addWidget(imageView_);
+		warningAndPlotHL_->addLayout(plotLayout_);
 		imageView_->show();
+		i0CheckBox_->show();
+		teyCheckBox_->show();
+		tfyCheckBox_->show();
+		pdCheckBox_->show();
+		fpd1CheckBox_->show();
+		fpd2CheckBox_->show();
+		fpd3CheckBox_->show();
+		fpd4CheckBox_->show();
+		minSpinBox_->show();
+		maxSpinBox_->show();
+		minLabel_->show();
+		maxLabel_->show();
 	}
-	else if(!newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == imageView_){
-		warningAndPlotHL_->removeWidget(imageView_);
+	else if(!newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->layout() == plotLayout_){
+		warningAndPlotHL_->removeItem(plotLayout_);
 		imageView_->hide();
+		i0CheckBox_->hide();
+		teyCheckBox_->hide();
+		tfyCheckBox_->hide();
+		pdCheckBox_->hide();
+		fpd1CheckBox_->hide();
+		fpd2CheckBox_->hide();
+		fpd3CheckBox_->hide();
+		fpd4CheckBox_->hide();
+		minSpinBox_->hide();
+		maxSpinBox_->hide();
+		minLabel_->hide();
+		maxLabel_->hide();
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}

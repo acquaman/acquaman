@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMBottomBar.h"
+#include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMDataViewWithActionButtons.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -66,6 +67,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
+#include <dataman/info/AMOldDetectorInfoSet.h>
 #include <dataman/info/AMDetectorInfoSet.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
@@ -80,8 +82,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/AM2DScan.h"
+#include "dataman/AM3DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
+#include "analysis/AM3DAdditionAB.h"
+#include "analysis/AM3DBinningAB.h"
+#include "analysis/AM2DDeadTimeAB.h"
+#include "analysis/AM3DDeadTimeAB.h"
+#include "analysis/AMOrderReductionAB.h"
+#include "analysis/AM1DDeadTimeAB.h"
+#include "analysis/AM2DDeadTimeCorrectionAB.h"
+#include "analysis/AM3DDeadTimeCorrectionAB.h"
+
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -96,12 +111,21 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isStarting_ = true;
 	isShuttingDown_ = false;
 
+	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
 	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
 	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
 	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
+
+	// Prepend the AM upgrade 1.1 to the list for the user database
+	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
+	prependDatabaseUpgrade(am1Pt1UserDb);
+
+	// Append the AM upgrade 1.2 to the list for the user database
+	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
+	appendDatabaseUpgrade(am1Pt2UserDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -180,6 +204,15 @@ bool AMDatamanAppController::startupLoadSettings()
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
+	if(AMUserSettings::userSettingsStartupError)
+		AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_USER_SETTINGS_STARTUP_ERROR, "Acquaman encountered a problem reading the user settings file, maybe the permissions are set incorrectly.");
+
+	QString userDatabaseFolder = AMUserSettings::userDataFolder;
+	if(userDatabaseFolder.endsWith('/'))
+		userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
+	if(userDatabaseFolder == QDir::homePath())
+		isBadDatabaseDirectory_ = true;
+
 	return true;
 }
 
@@ -223,39 +256,115 @@ bool AMDatamanAppController::startupIsFirstTime()
 
 bool AMDatamanAppController::startupOnFirstTime()
 {
-	AMFirstTimeWizard ftw;
-
-	// We're pretty forceful here... The user needs to accept this dialog.
-	if(ftw.exec() != QDialog::Accepted)
-		return false;
-
-	AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
-	if(!AMUserSettings::userDataFolder.endsWith('/'))
-		AMUserSettings::userDataFolder.append("/");
-
-	AMUserSettings::save();
-
-	// Attempt to create user's data folder, only if it doesn't exist:
-	QDir userDataDir(AMUserSettings::userDataFolder);
-	if(!userDataDir.exists()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
-		if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+	if(AMUserSettings::userSettingsStartupError){
+		QMessageBox msgBox;
+		msgBox.setText("Sorry! A serious error was detected on startup.");
+		msgBox.setInformativeText("Acquaman saves some configuration information in a .ini file. Yours cannot be read. Please inform the beamline staff of this error.");
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		if(msgBox.exec() == QDialog::Accepted)
 			return false;
-		}
 	}
+	else{
+		AMFirstTimeWizard ftw;
 
-	// Find out the user's name:
-	AMUser::user()->setName( ftw.field("userName").toString() );
+		// We're pretty forceful here... The user needs to accept this dialog.
+		if(ftw.exec() != QDialog::Accepted)
+			return false;
 
+		AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+		if(!AMUserSettings::userDataFolder.endsWith('/'))
+			AMUserSettings::userDataFolder.append("/");
+
+		AMUserSettings::save();
+
+		// Attempt to create user's data folder, only if it doesn't exist:
+		QDir userDataDir(AMUserSettings::userDataFolder);
+		if(!userDataDir.exists()) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
+			if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+				return false;
+			}
+		}
+
+		// Find out the user's name:
+		AMUser::user()->setName( ftw.field("userName").toString() );
+
+		if(!startupCreateDatabases())
+			return false;
+
+		// check for and run any database upgrades we require...
+		if(!startupDatabaseUpgrades())
+			return false;
+
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
+		qApp->processEvents();
+	}
+	return true;
+}
+
+bool AMDatamanAppController::startupOnEveryTime()
+{
 	if(!startupCreateDatabases())
 		return false;
 
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades())
+		return false;
+
+	qApp->processEvents();
+
+	return true;
+}
+
+bool AMDatamanAppController::startupCreateDatabases()
+{
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	return true;
+}
+
+bool AMDatamanAppController::startupDatabaseUpgrades()
+{
+	QList<AMDbUpgrade *> firstTimeDbUpgrades;
+	QList<AMDbUpgrade *> everyTimeDbUpgrades;
+
+	for (int i = 0, size = databaseUpgradeCount(); i < size; i++){
+
+		if (AMDatabase::database(databaseUpgradeAt(i)->databaseNameToUpgrade())->isEmpty())
+			firstTimeDbUpgrades.append(databaseUpgradeAt(i));
+
+		else
+			everyTimeDbUpgrades.append(databaseUpgradeAt(i));
+	}
+
+	if (!onFirstTimeDatabaseUpgrade(firstTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRST_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to new databases failed.");
+		return false;
+	}
+
+	if (!onEveryTimeDatabaseUpgrade(everyTimeDbUpgrades)){
+
+		AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED, "At least one of the upgrades that were applied to existing databases failed.");
+		return false;
+	}
+
+	return true;
+}
+
+bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
+{
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
-		upgrade = databaseUpgrades_.at(x);
+
+	for(int x = 0; x < upgrades.size(); x++){
+		upgrade = upgrades.at(x);
 		if(!upgrade->loadDatabaseFromName()){
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
@@ -281,34 +390,10 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 	}
 
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
-	qApp->processEvents();
 	return true;
 }
 
-bool AMDatamanAppController::startupOnEveryTime()
-{
-	if(!startupCreateDatabases())
-		return false;
-
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades()) return false;
-	qApp->processEvents();
-
-	return true;
-}
-
-bool AMDatamanAppController::startupCreateDatabases()
-{
-	// create the "user" database connection.
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
-	if(!db)
-		return false;
-
-	return true;
-}
-
-bool AMDatamanAppController::startupDatabaseUpgrades()
+bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
 	bool success = true;
 	bool atLeastOneDatabaseAccessible = false;
@@ -322,10 +407,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	int lastErrorCode;
 
 	// Loop over the database upgrades and apply them if necessary
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
+	for(int x = 0; x < upgrades.size(); x++){
 		upgradeIsNecessary = false;
 		databaseIsEmpty = false;
-		upgrade = databaseUpgrades_.at(x);
+		upgrade = upgrades.at(x);
 		QString pathToDatabase;
 		QString databaseName;
 
@@ -355,7 +440,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 			if(!databaseBackupDir.cd(".BACKUPS")){
 				databaseBackupDir.mkdir(".BACKUPS");
 				if(!databaseBackupDir.cd(".BACKUPS")){
-					lastErrorString = QString("Failure to create or find backup directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Failure to create or find backup directory for upgrade %1 in database %2").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade());
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND;
 					success = false;
 				}
@@ -363,7 +448,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 			if(success && !databaseBackupDir.cd(backupsSubFolder)){
 				databaseBackupDir.mkdir(backupsSubFolder);
 				if(!databaseBackupDir.cd(backupsSubFolder)){
-					lastErrorString = QString("Failure to create or find backup sub directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Failure to create or find backup sub directory for upgrade %1 in database %2 as %3").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade()).arg(backupsSubFolder);
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_SUBDIRECTORY_NOT_FOUND;
 					success = false;
 				}
@@ -420,6 +505,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
 	else
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
+
 	return true;
 }
 
@@ -432,53 +518,65 @@ bool AMDatamanAppController::startupRegisterDatabases()
 		return false;
 	}
 
-	AMDbObjectSupport::s()->registerDatabase(db);
+	bool success = true;
+
+	success &= AMDbObjectSupport::s()->registerDatabase(db);
 
 
-	AMDbObjectSupport::s()->registerClass<AMDbObject>();
-	AMDbObjectSupport::s()->registerClass<AMScan>();
-	AMDbObjectSupport::s()->registerClass<AMXASScan>();
-	AMDbObjectSupport::s()->registerClass<AMFastScan>();
-	AMDbObjectSupport::s()->registerClass<AMXESScan>();
-	AMDbObjectSupport::s()->registerClass<AM2DScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDbObject>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXASScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMFastScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
 
-	AMDbObjectSupport::s()->registerClass<AMRun>();
-	AMDbObjectSupport::s()->registerClass<AMExperiment>();
-	AMDbObjectSupport::s()->registerClass<AMSample>();
-	AMDbObjectSupport::s()->registerClass<AMFacility>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMFacility>();
 
-	AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
-	AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
-	AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
-	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
-	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
-	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
-	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
+	success &= AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 
-	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
-	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
+	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 
-	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
-	AMDbObjectSupport::s()->registerClass<AMUser>();
+	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
+	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
+	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
-
-	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
-
-	return true;
+	return success;
 }
 
 bool AMDatamanAppController::startupPopulateNewDatabase()
@@ -539,11 +637,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	mw_->installEventFilter(this);
 
-	bottomBar_ = new AMBottomBar();
-	mw_->addBottomWidget(bottomBar_);
-	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
-	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
+	addBottomPanel();
+	mw_->addBottomWidget(bottomPanel_);
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -584,6 +679,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+	connect(dataView_, SIGNAL(fixCDF(QUrl)), this, SLOT(fixCDF(QUrl)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -598,6 +694,13 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	mw_->show();
 
 	return true;
+}
+
+void AMDatamanAppController::addBottomPanel()
+{
+	AMDatamanAppBottomPanel *panel = new AMDatamanAppBottomPanel;
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }
 
 bool AMDatamanAppController::startupInstallActions()
@@ -699,8 +802,14 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
+#include "dataman/AMScanEditorModelItem.h"
+
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 {
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (pane == scanEditorScanMapping_.at(i).second)
+			((AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(pane))))->editorWasClicked();
+
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
 }
@@ -739,12 +848,7 @@ void AMDatamanAppController::onAddButtonClicked() {
 	}
 }
 
-void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
-	bottomBar_->updateScanProgress(elapsed, total);
-}
-
-#include "dataman/AMScanEditorModelItem.h"
-
+//#include "dataman/AMScanEditorModelItem.h"
 void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
 	dropScanURLs(itemUrls);
@@ -805,6 +909,30 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	view->show();
 }
 
+void AMDatamanAppController::fixCDF(const QUrl &url)
+{
+	Q_UNUSED(url)
+	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
+}
+
+AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (editor == scanEditorScanMapping_.at(i).second)
+			return scanEditorScanMapping_.at(i).first;
+
+	return 0;
+}
+
+AMGenericScanEditor *AMDatamanAppController::editorFromScan(AMScan *scan) const
+{
+	for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+		if (scan == scanEditorScanMapping_.at(i).first)
+			return scanEditorScanMapping_.at(i).second;
+
+	return 0;
+}
+
 #include "dataman/AMRunExperimentItems.h"
 
 void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
@@ -812,7 +940,22 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	// is this a scan editor to be deleted?
 	/////////////////////////////////
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+
 		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
+
+		if (editor){
+
+			int index = -1;
+
+			for (int i = 0, size = scanEditorScanMapping_.size(); i < size; i++)
+				if (editor == scanEditorScanMapping_.at(i).second)
+					index = i;
+
+			// This must be valid if it isn't -1, no need to check against the size.
+			if (index >= 0)
+				scanEditorScanMapping_.removeAt(index);
+		}
+
 		closeScanEditor(editor);
 	}
 
@@ -899,18 +1042,10 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 	}
 }
 
-AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
-{
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
-	emit scanEditorCreated(editor);
-	return editor;
-}
-
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
 	emit scanEditorCreated(editor);
 	return editor;
 }
@@ -992,33 +1127,62 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 		return false;
 
 	bool accepted = false;
-	bool madeNewEditor = false;
 
-	// where are they going?
-	if(openInIndividualEditors) {
-		editor = 0;	// create new one for each
+	AMScan *scan = 0;
+	AMGenericScanEditor *temp2D = 0;
+
+	// Just make a new scan editor as you need it, in the way you need it.
+	if (openInIndividualEditors){
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				bool use2DScanView = (scan->scanRank() == 2 || scan->scanRank() == 3);
+				editor = createNewScanEditor(use2DScanView);
+				editor->addScan(scan);
+				accepted = true;
+			}
+		}
 	}
+
+	// If the editor wasn't passed in, make one when you need it.  Either way, always make a new one if the editor needs to use the 2D scan view.
 	else {
-		if(!editor) {
-			editor = createNewScanEditor();
-			madeNewEditor = true;
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				if (scan->scanRank() == 2 || scan->scanRank() == 3){
+
+					temp2D = createNewScanEditor(true);
+					temp2D->addScan(scan);
+				}
+
+				else{
+
+					if (!editor)
+						editor = createNewScanEditor();
+
+					editor->addScan(scan);
+				}
+
+				accepted = true;
+			}
 		}
 	}
 
-	// loop through all URLs
-	foreach(QUrl url, urls) {
-		if(dropScanURL(url, editor))
-			accepted = true;
-	}
+	if (editor)
+		mw_->setCurrentPane(editor);
 
-	if(madeNewEditor) {	// if we made a single new editor for these...
-		if(accepted) {
-			mw_->setCurrentPane(editor);
-		}
-		else {
-			mw_->deletePane(editor);	// no need for this guy; he's empty.
-		}
-	}
+	else if (temp2D)
+		mw_->setCurrentPane(temp2D);
 
 	return accepted;
 }
@@ -1028,32 +1192,32 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 #include "actions3/AMListAction3.h"
 #include <QListView>
 #include <QStringListModel>
-bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
+AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 {
 	// scheme correct?
 	if(url.scheme() != "amd") {
-		return false;
+		return 0;
 	}
 
 	// Can we connect to the database?
 	AMDatabase* db = AMDatabase::database(url.host());
 	if(!db)
-		return false;
+		return 0;
 	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)
-		return false;
+		return 0;
 
 	QString tableName = path.at(0);
 	bool idOkay;
 	int id = path.at(1).toInt(&idOkay);
 	if(!idOkay || id < 1)
-		return false;
+		return 0;
 
 	// Only open scans for now (ie: things in the scans table)
 	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return false;
+		return 0;
 
 	// Flag used to determine if the scan needs to overwrite the currently scanning status.
 	bool overwriteNecessary = false;
@@ -1061,7 +1225,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
 	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
 	if(!isScanning.isValid())
-		return false;
+		return 0;
 	if(isScanning.toBool()) {
 		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
 		QMessageBox stillScanningEnquiry;
@@ -1080,7 +1244,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			if(otherEditor)
 				mw_->setCurrentPane(otherEditor);
 
-			return false;
+			return 0;
 		}
 		// If this option is chosen, it will set currently scanning to false, and then allow regular opening of the scan.
 		else if (stillScanningEnquiry.clickedButton() == overwriteCurrentlyScanningButton){
@@ -1088,7 +1252,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			overwriteNecessary = true;
 		}
 		else
-			return false;
+			return 0;
 	}
 
 	// Check if this scan is already open
@@ -1112,63 +1276,48 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 		}
 		else if(alreadyOpenEnquiry.clickedButton() == showMeNowButton) {
 			mw_->setCurrentPane(otherEditor);
-			return false;
+			return 0;
 		}
 		else {
 			// user chose to cancel.
-			return false;
+			return 0;
 		}
 	}
 
 	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
 	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 	if(!dbo)
-		return false;
+		return 0;
 
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
 		delete dbo;
-		return false;
+		return 0;
 	}
 
 	// Change the scan in the database if necessary and then reload it.
 	if (overwriteNecessary){
 
 		scan->setScanController(0);
-		scan->storeToDb(AMDatabase::database("user"), true);
+		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
 		delete dbo;
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
-			return false;
+			return 0;
 
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
 			delete dbo;
-			return false;
+			return 0;
 		}
 	}
 
-	// success!
-	if (scan->scanRank() == 2){
-
-		if (editor)
-			closeScanEditor(editor);
-
-		editor = createNewScanEditor(true);
-	}
-
-	else if(!editor) {
-		editor = createNewScanEditor();
-	}
-
-	editor->addScan(scan);
-
-	return true;
+	return scan;
 }
 
 #include "dataman/import/AMScanDatabaseImportController.h"

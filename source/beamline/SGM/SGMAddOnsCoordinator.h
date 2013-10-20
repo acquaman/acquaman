@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef SGMADDONSCOORDINATOR_H
 #define SGMADDONSCOORDINATOR_H
 
@@ -27,6 +46,8 @@ protected slots:
 	void onAddOnsExitSlitGapControlChanged(double addOnsExitSlitGap);
 	/// Handles changes coming from the SGM exit slit gap status and propograting those (almost always) to the AddOns version
 	void onSGMExitSlitGapStatusControlChanged(double sgmExitSlitGapStatus);
+	/// Handles changes in the AddOnsGapMoving
+	void onAddOnsExitSlitGapAddOnsMoving(double addOnsExitSlotGapAddOnsMoving);
 
 	/// Handles the backlash correction and monitors when the exit slit gap hits fully open
 	void onSGMGratingControlFullyOpened(double sgmExitSlitGap);
@@ -81,6 +102,8 @@ protected:
 	AMControl *SGMExitSlitGapFeedbackControl_;
 	/// Holds whether or not we're doing the backlash double movement
 	bool movingAddOnsExitSlitGap_;
+	/// Provides EPICS access to the above boolean
+	AMControl *AddOnsExitSlitGapAddOnsMoving_;
 
 	/// Holds whether or not the move was initiated by the old SGM exit slit gap PV
 	bool sgmInitiatedMovement_;

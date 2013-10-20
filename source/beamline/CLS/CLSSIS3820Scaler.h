@@ -24,7 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
+class AMAction3;
 class AMControl;
+class AMDetectorTriggerSource;
+class AMDetectorDwellTimeSource;
+
+#include "dataman/info/AMDetectorInfo.h"
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -54,22 +59,40 @@ public:
 	int totalScans() const;
 	/// Returns a vector of all of the readings for the scaler.
 	QVector<int> reading() const;
+	/// Returns the number of channels that are currently enabled
+	int enabledChannelCount() const;
 
 	/// Returns the individual scaler channel provided by \param index.
 	CLSSIS3820ScalerChannel* channelAt(int index);
 	/// Returns the list of all the channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> channels();
 
+	/// Returns the trigger source for the scaler.
+	AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the scaler
+	AMDetectorDwellTimeSource* dwellTimeSource();
+	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
+
 	/// Creates an action to start the scaler to \param setScanning.
 	AMBeamlineActionItem* createStartAction(bool setScanning);
+	AMAction3* createStartAction3(bool setScanning);
+
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
+	AMAction3* createContinuousEnableAction3(bool enableContinuous);
+
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
 	AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
+	AMAction3* createDwellTimeAction3(double dwellTime);
+
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
 	AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
+	AMAction3* createScansPerBufferAction3(int scansPerBuffer);
+
 	/// Creates an action that sets the total number of scans to \param totalScans.
 	AMBeamlineActionItem* createTotalScansAction(int totalScans);
+	AMAction3* createTotalScansAction3(int totalScans);
+
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -113,6 +136,18 @@ protected slots:
 	/// Helper slot that handles emitting the connectivity of the scaler.
 	void onConnectedChanged();
 
+	/// Handles requests for triggering from the AMDetectorTriggerSource
+	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	void ensureCorrectReadModeForTriggerSource();
+	void onModeSwitchSignal();
+	bool triggerScalerAcquisition(bool isContinuous);
+	void onReadingChanged(double value);
+
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+
+protected:
+	AMDetectorDefinitions::ReadMode readModeFromSettings();
+
 protected:
 	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> scalerChannels_;
@@ -135,6 +170,15 @@ protected:
 
 	/// Flag that holds whether the scaler has ever been connected to the beamline.
 	bool connectedOnce_;
+
+	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMDetectorTriggerSource *triggerSource_;
+	AMDetectorDefinitions::ReadMode readModeForTriggerSource_;
+	bool switchingReadModes_;
+
+	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMDetectorDwellTimeSource *dwellTimeSource_;
+	QString synchronizedDwellKey_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.
@@ -158,6 +202,8 @@ public:
 
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
 	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+	/// Creates an action that will enable/disable the channel based on \param setEnabled.
+	AMAction3* createEnableAction3(bool setEnabled);
 
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }

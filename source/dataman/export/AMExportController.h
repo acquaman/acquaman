@@ -199,7 +199,7 @@ public slots:
 	void searchForAvailableDataSources();
 
 	/// Call to start the export process.  Will return false if either chooseExporter() or setOption() haven't been called yet, or if an export has already been started.
-	bool start();
+	bool start(bool autoExport = false);
 
 	/// Call to cancel an export in progress. Will return false if the export is not currently in the Exporting or Paused state(). If successfully cancelled, the state() will become Cancelled.
 	bool cancel();

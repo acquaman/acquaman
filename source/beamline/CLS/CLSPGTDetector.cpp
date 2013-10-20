@@ -20,8 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetector.h"
 
-CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-	CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+	CLSPGTDetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	baseName_ = baseName;
 	toggleOnAction_ = toggleOnAction;
@@ -105,7 +105,7 @@ QStringList CLSPGTDetector::dacqMove() const{
 
 QStringList CLSPGTDetector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":StartAcquisition.PROC").arg("1");
+//	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":StartAcquisition.PROC").arg("1");
 	return retVal;
 }
 
@@ -125,7 +125,7 @@ double CLSPGTDetector::reading() const{
 		return -1;
 }
 
-AMDetectorInfo* CLSPGTDetector::toInfo() const{
+AMOldDetectorInfo* CLSPGTDetector::toInfo() const{
 	return new CLSPGTDetectorInfo(*this);
 }
 
@@ -133,7 +133,7 @@ CLSPGTDetectorInfo CLSPGTDetector::toPGTInfo() const{
 	return CLSPGTDetectorInfo(*this);
 }
 
-bool CLSPGTDetector::setFromInfo(const AMDetectorInfo *info){
+bool CLSPGTDetector::setFromInfo(const AMOldDetectorInfo *info){
 	const CLSPGTDetectorInfo *di = qobject_cast<const CLSPGTDetectorInfo*>(info);
 	if(!di)
 		return false;
@@ -222,7 +222,7 @@ bool CLSPGTDetector::settingsMatchFbk(CLSPGTDetectorInfo *settings){
 }
 
 QString CLSPGTDetector::description() const{
-	return AMDetectorInfo::description();
+	return AMOldDetectorInfo::description();
 }
 
 QVector<int> CLSPGTDetector::spectraValues()
@@ -242,7 +242,7 @@ AMDataSource* CLSPGTDetector::spectrumDataSource() const{
 }
 
 void CLSPGTDetector::setDescription(const QString &description){
-	AMDetectorInfo::setDescription(description);
+	AMOldDetectorInfo::setDescription(description);
 }
 
 bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){

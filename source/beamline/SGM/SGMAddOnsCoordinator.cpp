@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMAddOnsCoordinator.h"
 
 #include "beamline/AMPVControl.h"
@@ -20,6 +39,7 @@ SGMAddOnsCoordinator::SGMAddOnsCoordinator(QObject *parent) :
 	AddOnsExitSlitGapControl_ = new AMPVControl("SGMAddOnsExitSlitGap", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", QString(), this, 0.5);
 	SGMExitSlitGapFeedbackControl_ = new AMReadOnlyPVControl("SGMExitSlitGapFeedback", "PSL16114I1004:Y:mm:fbk", this);
 	SGMExitSlitGapFeedbackControl_->setTolerance(0.5);
+	AddOnsExitSlitGapAddOnsMoving_ = new AMPVControl("SGMAddOnsExitSlitGapAddOnsMoving", "BL1611-ID-1:AddOns:ExitSlitGap:AddOnsMovingGap", "BL1611-ID-1:AddOns:ExitSlitGap:AddOnsMovingGap", QString(), this, 0.5);
 
 	SGMExitSlitGapStatusControl_ = new AMPVControl("SGMOldExitSlitGapStatus", "SMTR16114I1017:status", "SMTR16114I1017:status", QString(), this, 0.1);
 	AddOnsExitSlitGapStatusControl_ = new AMPVControl("AddOnsExitSlitGapStatus", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", QString(), this, 0.1);
@@ -59,6 +79,7 @@ SGMAddOnsCoordinator::SGMAddOnsCoordinator(QObject *parent) :
 	connect(SGMExitSlitGapControl_, SIGNAL(valueChanged(double)), this, SLOT(onSGMExitSlitGapControlChanged(double)));
 	connect(AddOnsExitSlitGapControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsExitSlitGapControlChanged(double)));
 	connect(SGMExitSlitGapStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onSGMExitSlitGapStatusControlChanged(double)));
+	connect(AddOnsExitSlitGapAddOnsMoving_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsExitSlitGapAddOnsMoving(double)));
 
 	connect(AddOnsErrorCheckControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsErrorCheckValueChanged(double)));
 
@@ -227,6 +248,7 @@ void SGMAddOnsCoordinator::onAddOnsExitSlitGapControlChanged(double addOnsExitSl
 		else{
 			qDebug() << "Needs two step exit slit gap process";
 			movingAddOnsExitSlitGap_ = true;
+			AddOnsExitSlitGapAddOnsMoving_->move(1);
 			connect(SGMExitSlitGapFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onSGMGratingControlFullyOpened(double)));
 			SGMExitSlitGapControl_->move(AddOnsExitSlitGapFullyOpenValueControl_->value());
 		}
@@ -244,6 +266,10 @@ void SGMAddOnsCoordinator::onSGMExitSlitGapStatusControlChanged(double sgmExitSl
 		qDebug() << "Detected OLD exit slit gap status change to MOVE DONE (0), might change AddOns to MOVE DONE (0)";
 		if(!movingAddOnsExitSlitGap_)
 			AddOnsExitSlitGapStatusControl_->move(0);
+		else{
+			qDebug() << "Found a situation where we might want to double check the two step process";
+			onSGMGratingControlFullyOpened(SGMExitSlitGapFeedbackControl_->value());
+		}
 		break;
 	case 1:
 		if(!AddOnsExitSlitGapStatusControl_->withinTolerance(1)){
@@ -278,6 +304,17 @@ void SGMAddOnsCoordinator::onSGMExitSlitGapStatusControlChanged(double sgmExitSl
 	checkErrors();
 }
 
+void SGMAddOnsCoordinator::onAddOnsExitSlitGapAddOnsMoving(double addOnsExitSlotGapAddOnsMoving){
+	Q_UNUSED(addOnsExitSlotGapAddOnsMoving)
+	if(!connectedOnce_)
+		return;
+
+	if(AddOnsExitSlitGapAddOnsMoving_->withinTolerance(0) && movingAddOnsExitSlitGap_)
+		movingAddOnsExitSlitGap_ = false;
+	else if(AddOnsExitSlitGapAddOnsMoving_->withinTolerance(1) && !movingAddOnsExitSlitGap_)
+		movingAddOnsExitSlitGap_ = true;
+}
+
 void SGMAddOnsCoordinator::onSGMGratingControlFullyOpened(double sgmExitSlitGap){
 	qDebug() << "Listening to the exit slit gap feedback as " << sgmExitSlitGap << movingAddOnsExitSlitGap_ << SGMExitSlitGapStatusControl_->withinTolerance(0) << SGMExitSlitGapFeedbackControl_->withinTolerance(AddOnsExitSlitGapFullyOpenValueControl_->value());
 	if(movingAddOnsExitSlitGap_ && SGMExitSlitGapStatusControl_->withinTolerance(0) && SGMExitSlitGapFeedbackControl_->withinTolerance(AddOnsExitSlitGapFullyOpenValueControl_->value())){
@@ -285,7 +322,7 @@ void SGMAddOnsCoordinator::onSGMGratingControlFullyOpened(double sgmExitSlitGap)
 		disconnect(SGMExitSlitGapFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onSGMGratingControlFullyOpened(double)));
 		SGMExitSlitGapControl_->move(AddOnsExitSlitGapControl_->value());
 		movingAddOnsExitSlitGap_ = false;
-
+		AddOnsExitSlitGapAddOnsMoving_->move(0);
 	}
 }
 

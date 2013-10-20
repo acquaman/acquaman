@@ -25,9 +25,10 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 {
 
 	includeAllDataSources_ = true;
+	includeHigherDimensionSources_ = true;
 	firstColumnOnly_ = false;
 	separateHigherDimensionalSources_ = false;
-
+	higherDimensionsInRows_ = true;
 	headerText_ =	"Scan: $name #$number\n"
 					"Date: $dateTime\n"
 					"Sample: $sample\n"

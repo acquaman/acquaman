@@ -38,6 +38,7 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 {
 
 	analysisBlock_ = analysisBlock;
+	qDebug() << "Analyzed name is " << analysisBlock_->analyzedName();
 
 	names_ = new QComboBox;
 	populateComboBox();
@@ -108,8 +109,15 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	onAnalysisBlockInputDataSourcesChanged();
 
 	// This needs to be called last because it requires all of the pointers to be valid.  All of dem.
-	if (analysisBlock_->inputDataSourceCount() > 0)
-		onNameChoiceChanged(0);
+	if (analysisBlock_->inputDataSourceCount() > 0){
+		if(analysisBlock_->analyzedName().isEmpty())
+			onNameChoiceChanged(0);
+		else{
+			for(int x = 0; x < names_->count(); x++)
+				if(names_->itemData(x).toString() == analysisBlock_->analyzedName())
+					names_->setCurrentIndex(x);
+		}
+	}
 
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));

@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "acquaman/VESPERS/XRFFreeRun.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "actions/AMBeamlineScanAction.h"
 
 class VESPERSXRFFreeRunView : public QWidget
@@ -38,15 +37,12 @@ class VESPERSXRFFreeRunView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent = 0);
+	explicit VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent = 0);
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
 	void onStartClicked()
 	{
-		if (workflow_->isRunning())
-			return;
-
 		start_->setDisabled(true);
 		detector_->setTime(integrationTime_->value());
 		AMBeamlineScanAction *action = new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy());
@@ -80,9 +76,6 @@ protected slots:
 	/// Handles getting the combination element for combination pile up peak calculation.
 	void getCombinationElement();
 
-	/// Handles copying the ROI list to the other vortex detector.
-	void onCopyROIsClicked();
-
 protected:
 
 	/// Pointer to the XRFPeriodicTable inside configuration.
@@ -95,8 +88,6 @@ protected:
 	VESPERSCustomizeRegionsOfInterest *customize_;
 	/// The pointer to the xrf free run model.
 	XRFFreeRun *xrfFreeRun_;
-	/// The pointer to the workflow.
-	AMWorkflowManagerView *workflow_;
 
 	/// The start button.
 	QToolButton *start_;

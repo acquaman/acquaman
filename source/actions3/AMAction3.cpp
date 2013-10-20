@@ -38,6 +38,8 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 
 	failureResponseInActionRunner_ = MoveOnResponse;
 	failureResponseAsSubAction_ = MoveOnResponse;
+
+	generateScanActionMessages_ = false;
 }
 
 // Copy constructor. Takes care of making copies of the info and prerequisites.
@@ -54,6 +56,7 @@ AMAction3::AMAction3(const AMAction3& other)
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
 
 	info_ = other.info()->createCopy();
+	generateScanActionMessages_ = other.generateScanActionMessages();
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
 }
 
@@ -124,6 +127,29 @@ bool AMAction3::resume()
 
 	AMErrorMon::debug(this, AMACTION3_CANNOT_RESUME_NOT_CURRENTLY_PAUSED, "You can not resume this action because it is not paused.");
 	return false;	// cannot resume from any other states except Pause.
+}
+
+bool AMAction3::skip(const QString &command)
+{
+	if (!canSkip()){
+
+		AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_POSSIBLE, "Tried to skip an action that doesn't support skipping.");
+		return false;
+	}
+
+	if (canChangeState(Skipping)){
+
+		setState(Skipping);
+		skipImplementation(command);
+		return true;
+	}
+
+	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, "Could not skip this action because it was not running to begin with.");
+	return false;
+}
+
+void AMAction3::scheduleForDeletion(){
+	deleteLater();
 }
 
 void AMAction3::setStarted()
@@ -201,6 +227,11 @@ void AMAction3::setCancelled()
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_CANCELLED_BUT_NOT_YET_POSSIBLE, "An action notified us it was cancelled before we could possibly cancel it.");
 }
 
+void AMAction3::setSkipped()
+{
+	setSucceeded();
+}
+
 #include <QMessageBox>
 #include <QStringBuilder>
 #include <QPushButton>
@@ -228,6 +259,8 @@ QString AMAction3::stateDescription(AMAction3::State state)
 		return "Succeeded";
 	case Failed:
 		return "Failed";
+	case Skipping:
+		return "Skipping";
 	default:
 		return "Invalid State";
 	}
@@ -289,13 +322,18 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Succeeded:
-		if (state_ == Running || state_ == Starting)
+		if (state_ == Running || state_ == Starting || state_ == Skipping)
 			canTransition = true;
 		break;
 
 	case Failed:
 		if (state_ == Starting || state_ == Running || state_ == Pausing
-				|| state_ == Paused || state_ == Resuming || state_ == Cancelling)
+				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || Skipping)
+			canTransition = true;
+		break;
+
+	case Skipping:
+		if (canSkip() && state_ == Running)
 			canTransition = true;
 		break;
 	}

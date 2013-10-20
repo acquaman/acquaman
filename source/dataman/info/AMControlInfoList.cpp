@@ -67,6 +67,10 @@ bool AMControlInfoList::operator ==(const AMControlInfoList &other) const {
 	return true;
 }
 
+bool AMControlInfoList::operator !=(const AMControlInfoList &other) const{
+	return !operator ==(other);
+}
+
 bool AMControlInfoList::compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const {
 	if( (count() != other.count()) || (count() != tolerances.count()) )
 		return false;

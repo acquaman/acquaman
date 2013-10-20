@@ -7,5 +7,7 @@ SUBDIRS += \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \
+	SGMAmptekCoordinator.pro \
+	SGMLookupTableCoordinator.pro \
 	SGMSSAAcquaman.pro \
         SGMAcquaman.pro

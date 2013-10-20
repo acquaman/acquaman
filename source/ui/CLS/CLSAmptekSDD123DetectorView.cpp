@@ -25,17 +25,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSAmptekSDD123BriefDetectorView::CLSAmptekSDD123BriefDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123BriefDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123BriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -58,18 +58,18 @@ bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool co
 }
 
 CLSAmptekSDD123DetailedDetectorView::CLSAmptekSDD123DetailedDetectorView(CLSAmptekSDD123Detector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -77,7 +77,7 @@ MPlot* CLSAmptekSDD123DetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -102,7 +102,6 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	integrationTimeDSB_ = new QDoubleSpinBox();
 	integrationTimeDSB_->setMinimum(0.1);
 	integrationTimeDSB_->setMaximum(10);
-	integrationTimeDSB_->setEnabled(false);
 	totalCountsDSB_ = new QDoubleSpinBox();
 	totalCountsDSB_->setMinimum(0);
 	totalCountsDSB_->setMaximum(500000);
@@ -111,7 +110,8 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	mcaChannelLabel_ = new QLabel();
 	startAcquisitionButton_ = new QPushButton("Start");
 	startAcquisitionButton_->setEnabled(false);
-	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
+	enabledCheckBox_ = new QCheckBox("Enabled");
+
 
 	if(detector_->isConnected()){
 		integrationTimeDSB_->setValue(detector_->integrationTime());
@@ -119,11 +119,17 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 		mcaChannelLabel_->setText(QString("%1").arg(detector_->channels()));
 		startAcquisitionButton_->setEnabled(true);
 		totalCountsDSB_->setValue(detector_->spectraTotalCounts());
+		enabledCheckBox_->setChecked(detector_->isEnabled());
 	}
 	else{
 		detectorTemperatureLabel_->setText("?");
 		mcaChannelLabel_->setText("?");
 	}
+
+	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
+	connect(integrationTimeDSB_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeDSBEditingFinished()));
+	connect(enabledCheckBox_, SIGNAL(toggled(bool)), detector_, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(enabledChanged(bool)), enabledCheckBox_, SLOT(setChecked(bool)));
 
 	// Create the plot window.
 	view_ = new MPlotWidget;
@@ -173,12 +179,27 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	QHBoxLayout *mainHL = new QHBoxLayout();
 
+	QVBoxLayout *tmpVL;
+
 	mainHL->addWidget(startAcquisitionButton_);
-	mainHL->addWidget(integrationTimeDSB_);
-	mainHL->addWidget(totalCountsDSB_);
-	mainHL->addWidget(detectorTemperatureLabel_);
-	mainHL->addWidget(mcaChannelLabel_);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Dwell"));
+	tmpVL->addWidget(integrationTimeDSB_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Counts"));
+	tmpVL->addWidget(totalCountsDSB_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Temp"));
+	tmpVL->addWidget(detectorTemperatureLabel_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Channels"));
+	tmpVL->addWidget(mcaChannelLabel_);
+	mainHL->addLayout(tmpVL);
 	mainHL->addWidget(statusLabel_);
+	mainHL->addWidget(enabledCheckBox_);
 
 	mainVL->addLayout(mainHL);
 	mainVL->addWidget(view_);
@@ -224,4 +245,8 @@ void CLSAmptekSDD123DetailedDetectorView::onTotalCountsChanged(double totalCount
 
 void CLSAmptekSDD123DetailedDetectorView::onStartAcquisitionButtonClicked(){
 	detector_->start();
+}
+
+void CLSAmptekSDD123DetailedDetectorView::onIntegrationTimeDSBEditingFinished(){
+	detector_->setIntegrationTime(integrationTimeDSB_->value());
 }

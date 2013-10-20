@@ -33,11 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
-VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
+VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	: QWidget(parent)
 {
 	xrfFreeRun_ = xrfFreeRun;
-	workflow_ = workflow;
 	detector_ = xrfFreeRun_->detector();
 	xrfTable_ = xrfFreeRun_->table();
 
@@ -96,7 +95,7 @@ VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowM
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(raise()));
 
 	QPushButton *copyROIsButton = new QPushButton(QIcon(":/22x22/preferences-desktop-theme.png"), "Copy ROIs");
-	connect(copyROIsButton, SIGNAL(clicked()), this, SLOT(onCopyROIsClicked()));
+	connect(copyROIsButton, SIGNAL(clicked()), xrfFreeRun_, SLOT(onCopyRoisRequested()));
 
 	// Control options for the detector.
 	start_ = new QToolButton;
@@ -303,12 +302,4 @@ void VESPERSXRFFreeRunView::getCombinationElement()
 		combinationPileUpChoiceButton_->setText(el->symbol());
 		view_->setSecondaryElement(xrfTable_->elementByAtomicNumber(el->atomicNumber()));
 	}
-}
-
-void VESPERSXRFFreeRunView::onCopyROIsClicked()
-{
-	if (detector_->elements() == 1)
-		VESPERSBeamline::vespers()->vortexXRF4E()->copyFromROIList(detector_->roiInfoList());
-	else if (detector_->elements() == 4)
-		VESPERSBeamline::vespers()->vortexXRF1E()->copyFromROIList(detector_->roiInfoList());
 }

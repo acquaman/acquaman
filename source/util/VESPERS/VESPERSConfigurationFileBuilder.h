@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSCONFIGURATIONFILEBUILDER_H
 #define VESPERSCONFIGURATIONFILEBUILDER_H
 
@@ -33,10 +52,16 @@ public:
 	void setFourElement(bool use) { fourElement_ = use; }
 	/// Sets whether the Roper CCD should be included.
 	void setRoperCCD(bool use) { roperCCD_ = use; }
+	/// Sets whether the Mar CCD should be included.
+	void setMarCCD(bool use) { marCCD_ = use; }
+	/// Sets whether the Pilatus CCD should be included.
+	void setPilatusCCD(bool use) { pilatusCCD_ = use; }
 	/// Sets the first scan axis PV name.
 	void setPvNameAxis1(const QString &name) { pvNameAxis1_ = name; }
 	/// Sets the second scan axis PV name.
 	void setPvNameAxis2(const QString &name) { pvNameAxis2_ = name; }
+	/// Sets the third scan axis PV name.
+	void setPvNameAxis3(const QString &name) { pvNameAxis3_ = name; }
 
 	/// Returns the number of dimensions.
 	int dimensions() const { return dimensions_; }
@@ -46,16 +71,24 @@ public:
 	bool fourElement() const { return fourElement_; }
 	/// Returns whether the Roper CCD is included.
 	bool roperCCD() const { return roperCCD_; }
+	/// Returns whether the Mar CCD is included.
+	bool marCCD() const { return marCCD_; }
+	/// Returns whether the Pilatus CCD is included.
+	bool pilatusCCD() const { return pilatusCCD_; }
 	/// Returns the first scan axis PV name.
 	QString pvNameAxis1() const { return pvNameAxis1_; }
 	/// Returns the second scan axis PV name.
 	QString pvNameAxis2() const { return pvNameAxis2_; }
+	/// Returns the third scan axis PV name.
+	QString pvNameAxis3() const { return pvNameAxis3_; }
 
 signals:
 
 public slots:
 
 protected:
+	/// Returns whether the given PV name is an attocube motor or not.
+	bool isAttocubeMotor(const QString &pv) const;
 
 	/// The number of dimensions.
 	int dimensions_;
@@ -65,10 +98,16 @@ protected:
 	bool fourElement_;
 	/// Flag whether or not the Roper CCD is being used.
 	bool roperCCD_;
+	/// Flag whether or not the Mar CCD is being used.
+	bool marCCD_;
+	/// Flag whether or not the Pilatus CCD is being used.
+	bool pilatusCCD_;
 	/// String holding the first (or only) scan axis PV name.
 	QString pvNameAxis1_;
 	/// String holding the second (if applicable) scan axis PV name.
 	QString pvNameAxis2_;
+	/// String holding the third (if applicable) scan axis PV name.
+	QString pvNameAxis3_;
 };
 
 #endif // VESPERSCONFIGURATIONFILEBUILDER_H

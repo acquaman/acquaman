@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSPGTBriefDetectorView::CLSPGTBriefDetectorView(CLSPGTDetector *detector, bool configureOnly, QWidget *parent) :
-	AMBriefDetectorView(configureOnly, parent)
+	AMBriefOldDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
 	readingCE_ = 0;
@@ -39,7 +39,7 @@ CLSPGTBriefDetectorView::CLSPGTBriefDetectorView(CLSPGTDetector *detector, bool 
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* CLSPGTBriefDetectorView::detector(){
+AMOldDetector* CLSPGTBriefDetectorView::detector(){
 	return detector_;
 }
 
@@ -50,7 +50,7 @@ void CLSPGTBriefDetectorView::onPoweredOnChanged(bool poweredOn){
 		powerState_->setIcon(powerOffState_);
 }
 
-bool CLSPGTBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSPGTBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(detector_)
 		disconnect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));
 	if(!detector)
@@ -168,18 +168,18 @@ bool CLSPGTBriefDetectorView::setDetector(AMDetector *detector, bool configureOn
 //}
 
 CLSPGTDetailedDetectorView::CLSPGTDetailedDetectorView(CLSPGTDetector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSPGTDetailedDetectorView::detector(){
+AMOldDetector* CLSPGTDetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSPGTDetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSPGTDetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -187,7 +187,7 @@ MPlot* CLSPGTDetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSPGTDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSPGTDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -274,7 +274,11 @@ bool CLSPGTDetailedDetectorView::setDetector(AMDetector *detector, bool configur
 	mainHL->addWidget(startAcquisitionButton_);
 	mainHL->addWidget(integrationTimeCE_);
 	mainHL->addWidget(integrationModeCE_);
-	mainHL->addWidget(totalCountsDSB_);
+	QVBoxLayout *tempVL = new QVBoxLayout();
+	tempVL->addWidget(new QLabel("Counts"));
+	tempVL->addWidget(totalCountsDSB_);
+	mainHL->addLayout(tempVL);
+//	mainHL->addWidget(totalCountsDSB_);
 	mainHL->addWidget(statusLabel_);
 
 	mainVL->addLayout(mainHL);

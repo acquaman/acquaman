@@ -21,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSPECTRALOUTPUTDETECTOR_H
 #define AMSPECTRALOUTPUTDETECTOR_H
 
-#include "AMDetector.h"
+#include "AMOldDetector.h"
 #include "dataman/info/AMSpectralOutputDetectorInfo.h"
 
-class AMSpectralOutputDetector : public AMSpectralOutputDetectorInfo, public AMDetector
+class AMSpectralOutputDetector : public AMSpectralOutputDetectorInfo, public AMOldDetector
 {
 Q_OBJECT
 public:
@@ -32,9 +32,9 @@ public:
 	~AMSpectralOutputDetector();
 
 	const QMetaObject* getMetaObject();
-	AMDetectorInfo toInfo();
+    AMOldDetectorInfo *toInfo() const;
 
-	bool setFromInfo(const AMDetectorInfo &info);
+    bool setFromInfo(const AMOldDetectorInfo *info);
 
 public slots:
 	virtual bool setControls(AMSpectralOutputDetectorInfo *detectorSettings);

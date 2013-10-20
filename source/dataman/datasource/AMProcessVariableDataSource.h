@@ -173,6 +173,41 @@ public:
 
 		return data_->lastValue(indexes.i());
 	}
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+	\code
+	int outputSize = indexStart.totalPointsTo(indexEnd);
+	\endcode
+	*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const
+	{
+		if (!data_->isConnected())
+			return false;
+
+		if (indexStart.rank() != 1 || indexEnd.rank() != 1)
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexStart.i() >= data_->count() || indexStart.i() > indexEnd.i())
+			return false;
+#endif
+
+		if (data_->dataType() == PVDataType::FloatingPoint)
+			memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+
+		else{
+
+			int totalSize = indexStart.totalPointsTo(indexEnd);
+			QVector<double> val = QVector<double>(totalSize);
+			for (int i = 0; i < totalSize; i++)
+				val[i] = double(data_->lastIntegerValues().at(i));
+
+			memcpy(outputValues, val.constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		}
+		return true;
+	}
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
 	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
@@ -251,7 +286,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
 	virtual AMnDIndex size() const { return AMnDIndex(length_, int(data_->count()/length_)); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be be 0 or 1.
-	virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : data_->count()/length_; }
+    virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : int(data_->count())/length_; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and 1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { axes_[0].size = length_; axes_[1].size = data_->count()/length_; return axes_.at(axisNumber); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
@@ -282,6 +317,31 @@ public:
 
 		return data_->lastValue(indexes.i() + indexes.j()*length_);	/// \todo Acquaman normally uses the opposite convention: the first index varies the slowest while iterating through a flat array.
 	}
+
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+	\code
+	int outputSize = indexStart.totalPointsTo(indexEnd);
+	\endcode
+	*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const
+	{
+		if (!data_->isConnected())
+			return false;
+
+		if (indexStart.rank() != 2 || indexEnd.rank() != 2)
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexStart.totalPointsTo(indexEnd) >= data_->count() || indexStart.i() > indexEnd.i() || indexStart.j() > indexEnd.j())
+			return false;
+#endif
+
+		memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		return true;
+	}
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns an invalid AMNumber if not a valid selection.
 	virtual AMNumber axisValue(int axisNumber, int index) const
 	{

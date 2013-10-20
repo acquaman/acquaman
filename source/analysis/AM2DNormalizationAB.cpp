@@ -256,8 +256,17 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	data_->values(indexStart, indexEnd, data.data());
 	normalizer_->values(indexStart, indexEnd, normalizer.data());
 
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = (normalizer.at(i) != 0) ? data.at(i)/normalizer.at(i) : 0;
+	for (int i = 0; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			outputValues[i] = 0;
+
+		else if (normalizer.at(i) < 0)
+			outputValues[i] = -1;
+
+		else
+			outputValues[i] = data.at(i)/normalizer.at(i);
+	}
 
 	return true;
 }
@@ -298,10 +307,9 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM2DNormalizationAB::reviewState(){

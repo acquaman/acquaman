@@ -20,8 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSOceanOptics65000Detector.h"
 
-CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
-	CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+	CLSOceanOptics65000DetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	baseName_ = baseName;
 	allControls_ = new AMControlSet();
@@ -76,7 +76,7 @@ QString CLSOceanOptics65000Detector::dacqName() const{
 
 QStringList CLSOceanOptics65000Detector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
+//	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
 	return retVal;
 }
 
@@ -87,7 +87,7 @@ double CLSOceanOptics65000Detector::reading() const{
 		return -1;
 }
 
-AMDetectorInfo* CLSOceanOptics65000Detector::toInfo() const{
+AMOldDetectorInfo* CLSOceanOptics65000Detector::toInfo() const{
 	return new CLSOceanOptics65000DetectorInfo(*this);
 }
 
@@ -95,7 +95,7 @@ CLSOceanOptics65000DetectorInfo CLSOceanOptics65000Detector::toOceanOptics65000I
 	return CLSOceanOptics65000DetectorInfo(*this);
 }
 
-bool CLSOceanOptics65000Detector::setFromInfo(const AMDetectorInfo *info){
+bool CLSOceanOptics65000Detector::setFromInfo(const AMOldDetectorInfo *info){
 	const CLSOceanOptics65000DetectorInfo *di = qobject_cast<const CLSOceanOptics65000DetectorInfo*>(info);
 	if(!di)
 		return false;
@@ -133,7 +133,7 @@ bool CLSOceanOptics65000Detector::settingsMatchFbk(CLSOceanOptics65000DetectorIn
 }
 
 QString CLSOceanOptics65000Detector::description() const{
-	return AMDetectorInfo::description().replace(' ', '\n');
+	return AMOldDetectorInfo::description().replace(' ', '\n');
 }
 
 bool CLSOceanOptics65000Detector::status() const{
@@ -159,7 +159,7 @@ AMDataSource* CLSOceanOptics65000Detector::spectrumDataSource() const{
 }
 
 void CLSOceanOptics65000Detector::setDescription(const QString &description){
-	AMDetectorInfo::setDescription(description);
+	AMOldDetectorInfo::setDescription(description);
 }
 
 bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *settings){

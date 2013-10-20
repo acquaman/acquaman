@@ -21,20 +21,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSAMPTEKSDD123DETECTOR_H
 
 #include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
 /// This class represents a single Amptek SDD 123 Detector
-class CLSAmptekSDD123Detector : public CLSAmptekSDD123DetectorInfo, public AMDetector
+class CLSAmptekSDD123Detector : public CLSAmptekSDD123DetectorInfo, public AMOldDetector
 {
 Q_OBJECT
 
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
-	CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 
 	~CLSAmptekSDD123Detector();
 
@@ -53,16 +53,19 @@ public:
 	virtual QString description() const;
 
 	/// Transforms current settings into a detector into. Returns a new instance-- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const;
+	virtual AMOldDetectorInfo *toInfo() const;
 	/// Transforms current settings into a detector info.
 	CLSAmptekSDD123DetectorInfo toCLSAmptekSDD123Info() const;
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromCLSAmptekSDD123Info(const CLSAmptekSDD123DetectorInfo &info);
 
 	/// Holds whether the detector was connected previously.  Primarily useful at startup.
 	bool wasConnected() const;
+
+	/// Holds whether the detector is enabled in the array
+	bool isEnabled() const;
 
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
@@ -86,14 +89,20 @@ public:
 
 	virtual QDebug qDebugPrint(QDebug &d) const;
 
+	/// Creates an action to enable or disable this amptek for in the array.
+	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
 	void start();
 
-	/*
+	/// Sets the enabled state in the overall array
+	void setEnabled(bool isEnabled);
+
 	/// Set the accumulation time.
 	void setIntegrationTime(double time);
+	/*
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
 
@@ -119,6 +128,8 @@ signals:
 	void mcaChannelsChanged(double);
 	/// Notifies that the total counts in the spectrum has changed
 	void totalCountsChanged(double);
+	/// Notifies that the enabled state changed
+	void enabledChanged(bool);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -127,6 +138,10 @@ protected slots:
 	void onControlsTimedOut();
 	/// Emits the statusChanged signal.
 	void onStatusChanged(double status);
+	/// Emits the enabledChanged signal
+	void onEnabledChanged(double enabled);
+	/// Coordinates the integration time value
+	void onIntegrationTimeControlValueChanged(double integrationTime);
 
 protected:
 	/// Bool handling whether the detector was connected.
@@ -146,6 +161,8 @@ protected:
 	AMControl *spectrumControl_;
 	/// A binned version of the detector spectrum control
 	AMControl *binnedSpectrumControl_;
+	/// The enable/disable state for this amptek in the array
+	AMControl *isRequestedControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;

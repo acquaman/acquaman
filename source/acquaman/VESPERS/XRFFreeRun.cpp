@@ -76,6 +76,48 @@ void XRFFreeRun::onRoisHaveValues()
 	}
 }
 
+void XRFFreeRun::setFromXRFFreeRun(const XRFFreeRun *freeRun)
+{
+	xrfTable_->removeAll();
+	other_ = freeRun;
+	QTimer::singleShot(500, this, SLOT(copyRoiHelper()));
+}
+
+void XRFFreeRun::copyRoiHelper()
+{
+	XRFElement *current = xrfTable_->currentElement();
+
+	// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
+	QString name;
+
+	for (int i = 0, count = other_->detector()->roiList().count(); i < count; i++){
+
+		name = other_->detector()->roiList().at(i)->name();
+
+		// If the name is empty then we've reached the end of the road for preset regions of interest.
+		if (name.isEmpty()){
+
+			if (current)
+				xrfTable_->setCurrentElement(current);
+			else
+				xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+
+			return;
+		}
+
+		addRegionOfInterestToTable(name);
+	}
+
+	XRFDetector *copyTo = other_->detector()->elements() == 1 ? VESPERSBeamline::vespers()->vortexXRF4E() : VESPERSBeamline::vespers()->vortexXRF1E();
+
+	// Now that all the regions are the same, we need to make sure that the customized low and high values were copied properly.
+	for (int i = 0, count = other_->detector()->roiList().count(); i < count; i++){
+
+		copyTo->roiList().at(i)->setLow(other_->detector()->roiList().at(i)->low());
+		copyTo->roiList().at(i)->setHigh(other_->detector()->roiList().at(i)->high());
+	}
+}
+
 void XRFFreeRun::onExternalRegionsOfInterestChanged()
 {
 	onRoisHaveValues();

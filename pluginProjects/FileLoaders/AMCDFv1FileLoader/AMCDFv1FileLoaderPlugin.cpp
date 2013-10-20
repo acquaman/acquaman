@@ -10,7 +10,7 @@ bool AMCDFv1FileLoaderPlugin::accepts(AMScan *scan){
 	return (scan->fileFormat() == "amCDFv1");
 }
 
-bool AMCDFv1FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool AMCDFv1FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 
 	if(!scan)
 		return false;
@@ -24,13 +24,13 @@ bool AMCDFv1FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
 	AMCDFDataStore* ds = new AMCDFDataStore(sourceFileInfo.filePath(), false, true);
 	if(!ds->isValid()) {
 		delete ds;
-		AMErrorMon::alert(0, -501, QString("Could not open the CDF file at '%1'. It's possible that the file has been moved, or is corrupted.").arg(sourceFileInfo.filePath()));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMCDFV1FILELOADERPLUGIN_CANNOT_OPEN_FILE, QString("Could not open the CDF file at '%1'. It's possible that the file has been moved, or is corrupted.").arg(sourceFileInfo.filePath())));
 		return false;
 	}
 
 	if(!scan->replaceRawDataStore(ds)) {
 		delete ds;
-		AMErrorMon::alert(0, -502, QString("Could not use the CDF file at '%1' for the scan '%2': it does not contain the correct measurements for the data sources that should exist in this scan.").arg(sourceFileInfo.filePath()).arg(scan->fullName()));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMCDFV1FILELOADERPLUGIN_CANNOT_USE_FILE, QString("Could not use the CDF file at '%1' for the scan '%2': it does not contain the correct measurements for the data sources that should exist in this scan.").arg(sourceFileInfo.filePath()).arg(scan->fullName())));
 		return false;
 	}
 

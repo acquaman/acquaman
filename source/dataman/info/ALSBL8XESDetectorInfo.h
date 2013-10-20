@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ALSBL8XESDETECTORINFO_H
 #define ALSBL8XESDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
-class ALSBL8XESDetectorInfo : public AMDetectorInfo
+class ALSBL8XESDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 

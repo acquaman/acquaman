@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/info/AMDetectorInfoSet.h"
 
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
@@ -60,7 +61,9 @@ class AMScanConfiguration : public AMDbObject
 {
 Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
+Q_PROPERTY(AMDbObject* detectorConfigurations READ dbReadDetectorConfigurations WRITE dbLoadDetectorConfigurations)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
 	/// Default Constructor
@@ -98,6 +101,9 @@ public:
 	/// Returns the useful string version for enum convertable properites. Will return [??] if the property cannot be converted by this scan configuration.
 	virtual QString enumConvert(const QString &enumName, int enumValue) const;
 
+	/// Returns the expected duration of the scan in seconds.
+	double expectedDuration() const { return expectedDuration_; }
+
 	// Virtual functions which must be re-implemented:
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const = 0;
@@ -109,6 +115,9 @@ public:
 	virtual AMScanConfigurationView* createView(){
 		return 0;
 	}
+
+	/// Returns the set of detector infos that we wish to use in this scan
+	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_; }
 
 	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
 	virtual QString dbLoadWarnings() const { return QString(); }
@@ -123,6 +132,12 @@ public slots:
 	/// Sets whether or not this scan configuration expects to be automatically exported
 	void setAutoExportEnabled(bool autoExportEnabled);
 
+	/// Sets the expected duration of the scan.  Input is expected in seconds.
+	void setExpectedDuration(double duration);
+
+	/// Sets the full list of detector infos
+	void setDetectorConfigurations(const AMDetectorInfoSet detectorConfigurations);
+
 signals:
 	/// General signal that something about the configuration has changed
 	void configurationChanged();
@@ -132,6 +147,16 @@ signals:
 	void userExportNameChanged(const QString &userExportName);
 	/// Signal that the autoExport flag has been changed
 	void autoExportEnabledChanged(bool autoExportEnabled);
+	/// Notifier that the expected duration has changed.
+	void expectedDurationChanged(double);
+	/// Notifier that the detector configuration list has changed (the list has changed, not the internal states of the items)
+	void detectorConfigurationsChanged();
+
+protected:
+	/// Used to write the detector configurations to the database
+	AMDbObject* dbReadDetectorConfigurations() { return &detectorConfigurations_;}
+	/// For database loading (never called)
+	void dbLoadDetectorConfigurations(AMDbObject*) {} //Never called, detectorConfigurations_ is always valid
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
@@ -141,6 +166,11 @@ protected:
 
 	/// Defines whether of not this configuration expects to be automatically exported when run (true by default)
 	bool autoExportEnabled_;
+	/// The expected duration.
+	double expectedDuration_;
+
+	/// A set of detector infos for this scan configuration (acts as both the detectors we wish to use and their configurations)
+	AMDetectorInfoSet detectorConfigurations_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

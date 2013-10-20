@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include <util/AMSettings.h>
 #include <ui/AMFolderPathLineEdit.h>
@@ -75,6 +76,28 @@ class AMFirstTimeWizardPage : public QWizardPage
 protected slots:
 	void onBrowseButtonClicked() {
 		userDataFolder->setText(QFileDialog::getExistingDirectory(this, "Acquaman Data Folder", userDataFolder->text()));
+	}
+
+protected:
+	virtual bool validatePage(){
+		QString userDatabaseFolder = userDataFolder->text();
+		if(userDatabaseFolder.endsWith('/'))
+			userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
+		if(userDatabaseFolder == QDir::homePath()){
+			QMessageBox badDatbaseFolderChoice;
+			badDatbaseFolderChoice.setText(QString("This may be a bad place to save your data"));
+			badDatbaseFolderChoice.setInformativeText(QString("Your home folder is not the best place to save your data.\nYou can select Ok to proceed, but you really should make a folder to put your data in."));
+			badDatbaseFolderChoice.setIcon(QMessageBox::Question);
+			badDatbaseFolderChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+			badDatbaseFolderChoice.setDefaultButton(QMessageBox::Ok);
+			badDatbaseFolderChoice.setEscapeButton(QMessageBox::Cancel);
+
+			if(badDatbaseFolderChoice.exec() == QMessageBox::Ok)
+				return true;
+			else
+				return false;
+		}
+		return true;
 	}
 
  private:

@@ -22,42 +22,45 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
+#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
+#include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
+#include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
+#define VESPERSBEAMLINE_VALVES_CLOSED 67801
+#define VESPERSBEAMLINE_TEMPERATURE_TOO_HIGH 67802
+#define VESPERSBEAMLINE_WATER_FLOW_SWITCH_TRIP 67803
+#define VESPERSBEAMLINE_WATER_FLOW_TOO_LOW 67804
+#define VESPERSBEAMLINE_ION_PUMP_TRIP 67805
+#define VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED 67806
+#define VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED 67807
+#define VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED 67808
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
-
-	/// Enum for the different beams.
-	/*!
-		- Pink is not monochromatized and contains all the energies from the bending magnet.
-		- TenPercent (10%) is a broad band pass filter.
-		- OnePointSixPercent (1.6%) is a narrow band pass filter.
-		- Si is the monochromator with 0.01% band pass.
-	  */
-	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
 
 	/// Returns the instance of the beamline that has been created.
 	static VESPERSBeamline* vespers() {
@@ -70,7 +73,7 @@ public:
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
-	Beam currentBeam() const { return beam_; }
+	VESPERS::Beam currentBeam() const { return beam_; }
 
 	// Helper functions.
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
@@ -79,37 +82,45 @@ public:
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMDetector *vortexAM1E() const { return vortex1E_; }
+	AMOldDetector *vortexAM1E() const { return vortex1E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
 	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMDetector *vortexAM4E() const { return vortex4E_; }
+	AMOldDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMDetector *roperCCDDetector() const { return roperCCD_; }
+	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	/// Returns a general AMDetector pointer of the Mar CCD.
+	AMOldDetector *marCCDDetector() const { return marCCD_; }
+	/// Returns the specific pointer to the Mar CCD.
+	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+	/// Returns a general AMDetector pointer of the Pilatus CCD.
+	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	/// Returns the specific pointer to the Pilatus CCD.
+	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplitDetector() const { return iSplit_; }
+	AMOldDetector *iSplitDetector() const { return iSplit_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMiniDetector() const { return iMini_; }
+	AMOldDetector *iMiniDetector() const { return iMini_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPostDetector() const { return iPost_; }
+	AMOldDetector *iPostDetector() const { return iPost_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
 	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
-	AMDetectorSet *ionChambers() const { return ionChambers_; }
+	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
 
@@ -128,6 +139,12 @@ public:
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	/// Returns the synchronized dwell time configuration info's list.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
+	/// Returns a synchronized dwell time configuration info from the index provided.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationAt(int index) const { return synchronizedDwellTimeConfigurations_.at(index); }
+	/// Returns the synchronized dwell time configuration info based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationByName(const QString &name) const;
 
 	// End of synchronized dwell time.
 
@@ -182,13 +199,17 @@ public:
 	/// Returns the control for the beam selection motor.
 	AMControl *beamSelectionMotor() const { return beamSelectionMotor_; }
 
-	// The experiment configuration.
-	/// Returns the experiment configuration model.
-	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
-
-	// The endstation configuration.
-	/// Returns the endstation configuration model.
-	VESPERSEndstationConfiguration *endstationConfiguration() const { return endstationConfiguration_; }
+	// POE status and enable.
+	/// Returns the POE status control.
+	AMControl *poeStatusControl() const { return poeBeamStatus_; }
+	/// Returns the POE status enable control.
+	AMControl *poeStatusEnableControl() const { return poeBeamStatusEnable_; }
+	/// Sets the POE status enable to \param enabled.
+	void setPOEStatusEnable(bool enabled);
+	/// Returns the POE beam status enable.
+	bool poeStatusEnable() const { return int(poeBeamStatusEnable_->value()) == 0; }
+	/// Returns the POE beam status.
+	bool poeStatus() const { return int(poeBeamStatus_->value()) == 1; }
 
 	// The helper controls for changing the dwell time for each region.
 	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
@@ -406,6 +427,12 @@ public:
 	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
 	/// Returns the normal motor control.
 	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
+	/// Returns the horizontal wire stage control.
+	AMControl *wireStageHorizontal() const { return wireStageHorizontal_; }
+	/// Returns the vertical wire stage control.
+	AMControl *wireStageVertical() const { return wireStageVertical_; }
+	/// Returns the normal wire motor control.
+	AMControl *wireStageNormal() const { return wireStageNormal_; }
 
 	// Real motors.
 	/// Returns the sample stage motor in the x-direction.
@@ -415,11 +442,55 @@ public:
 	/// Returns the sample stage motor in the z-direction.
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
 
-	// The sample stage.
-	/// Returns the sample stage control built with the pseudo-motors.
-	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
-	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
-	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
+	// Attocube motors.
+	/// Returns the horizontal attocube control.
+	AMControl *attoStageHorizontal() const { return attoStageHorizontal_; }
+	/// Returns the vertical attocube control.
+	AMControl *attoStageVertical() const { return attoStageVertical_; }
+	/// Returns the normal attocube control.
+	AMControl *attoStageNormal() const { return attoStageNormal_; }
+	/// Returns the x-direction attocube control.
+	AMControl *attoStageX() const { return attoStageX_; }
+	/// Returns the z-direction attocube control.
+	AMControl *attoStageZ() const { return attoStageZ_; }
+	/// Returns the y-direction attocube control.
+	AMControl *attoStageY() const { return attoStageY_; }
+	/// Returns the phi rotation attocube control.
+	AMControl *attoStageRz() const { return attoStageRz_; }
+	/// Returns the theta tilt attocube control.
+	AMControl *attoStageRy() const { return attoStageRy_; }
+	/// Returns the psi tilt attocube control.
+	AMControl *attoStageRx() const { return attoStageRx_; }
+
+	// The motor group and specific motor group object getters.
+	/// Returns the CLSPseudoMotorGroup pointer.
+	CLSPseudoMotorGroup *motorGroup() const { return motorGroup_; }
+	/// Returns the pseudo sample stage motor group object.
+	AMMotorGroupObject *pseudoSampleStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Stage - H, V, N"); }
+	/// Returns the real sample stage motor group object.
+	AMMotorGroupObject *realSampleStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Stage - X, Z, Y"); }
+	/// Returns the pseudo wire stage motor group object.
+	AMMotorGroupObject *pseudoWireStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Wire Stage - H, V, N"); }
+	/// Returns the pseudo attocube stage motor group object.
+	AMMotorGroupObject *pseudoAttocubeStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - H, V, N"); }
+	/// Returns the real attocube stage motor group object.
+	AMMotorGroupObject *realAttocubeStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - X, Z, Y"); }
+	/// Returns the Rx rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRxMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rx"); }
+	/// Returns the Ry rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRyMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Ry"); }
+	/// Returns the Rz rotation attocube motor group object.
+	AMMotorGroupObject *attocubeRzMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rz"); }
+
+	// The reset controls for the pseudo motors.
+	/// Returns the pseudo sample stage reset control.
+	AMControl *pseudoSampleStageResetControl() const { return pseudoSampleStageResetControl_; }
+	/// Returns the real sample stage reset control.
+	AMControl *realSampleStageResetControl() const { return realSampleStageResetControl_; }
+	/// Returns the pseudo attocube stage reset control.
+	AMControl *pseudoAttoStageResetControl() const { return pseudoAttoStageResetControl_; }
+	/// Returns the real attocube stage reset control.
+	AMControl *realAttoStageResetControl() const { return realAttoStageResetControl_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -431,6 +502,17 @@ public:
 
 	/// Returns the sample stage PID control.
 	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+
+	// Wire stage PID controls.
+	/// Returns the PID control for the x-direction of the wire stage.
+	AMControl *wireStagePidX() const { return wireStagePidX_; }
+	/// Returns the PID control for the y-direction of the wire stage.
+	AMControl *wireStagePidY() const { return wireStagePidY_; }
+	/// Returns the PID control for the z-direction of the wire stage.
+	AMControl *wireStagPidZ() const { return wireStagePidZ_; }
+
+	/// Returns the wire stage PID control.
+	VESPERSPIDLoopControl *wireStagePID() const { return wireStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -462,14 +544,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
 
 signals:
 	/// Notifier that the beam has been changed.
-	void currentBeamChanged(VESPERSBeamline::Beam);
+	void currentBeamChanged(VESPERS::Beam);
 	/// Notifier that passes on that the beam has gone down.
 	void beamDumped();
 	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
@@ -484,6 +566,10 @@ signals:
 	void flowSwitchStatus(bool);
 	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
 	void flowTransducerStatus(bool);
+	/// Notifier that the POE status has changed.  Passes the new state.
+	void poeStatusChanged(bool);
+	/// Notifier that the POE status enable has changed.
+	void poeStatusEnableChanged();
 
 public slots:
 	/// Class that opens all the valves on the beamline in sequence.
@@ -527,13 +613,20 @@ protected slots:
 	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
+	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
+	void synchronizedDwellTimeConnected(bool connected);
+	/// Determines whether the beam has dumped or not.
+	void onPOEStatusChanged();
 
 	/// Helper slot that handles opening the next valve.
 	void openAllValvesHelper();
 	/// Helper slot that handles closing the next valve.
 	void closeAllValvesHelper();
 
+
 protected:
+	/// Sets up the synchronized dwell time.
+	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -546,29 +639,31 @@ protected:
 	void setupSampleStage();
 	/// Sets up mono settings.
 	void setupMono();
-	/// Sets up the experiment status.
-	void setupExperimentStatus();
 	/// Sets up various beamline components.
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the motor group for the various sample stages.
+	void setupMotorGroup();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
 	// Detectors.
-	AMDetector *vortex1E_;
-	AMDetector *vortex4E_;
-	AMDetector *roperCCD_;
-	AMDetector *iSplit_;
-	AMDetector *iPreKB_;
-	AMDetector *iMini_;
-	AMDetector *iPost_;
+	AMOldDetector *vortex1E_;
+	AMOldDetector *vortex4E_;
+	AMOldDetector *roperCCD_;
+	AMOldDetector *marCCD_;
+	AMOldDetector *pilatusCCD_;
+	AMOldDetector *iSplit_;
+	AMOldDetector *iPreKB_;
+	AMOldDetector *iMini_;
+	AMOldDetector *iPost_;
 
 	// End detectors.
 
 	// Detector sets.
-	AMDetectorSet *ionChambers_;
+	AMOldDetectorSet *ionChambers_;
 
 	// End detector sets.
 
@@ -580,12 +675,20 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+	// List of all the various synchronized dwell time configurations.
+	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations_;
 
 	// Variable integration time.
 	CLSVariableIntegrationTime *variableIntegrationTime_;
 
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;
+
+	// POE status and enable.
+	// The POE beam status control.
+	AMControl *poeBeamStatus_;
+	// The POE beam status enable.
+	AMControl *poeBeamStatusEnable_;
 
 	// The shutters.
 	AMControl *psh1_;
@@ -596,22 +699,17 @@ protected:
 	// Endstation
 	VESPERSEndstation *endstation_;
 
-	// Experiment Configuration
-	VESPERSExperimentConfiguration *experimentConfiguration_;
-	// Endstation Configuration
-	VESPERSEndstationConfiguration *endstationConfiguration_;
-
 	// Dwell time control helper functions for the dwell time.
 	AMControl *dwellTimeTrigger_;
 	AMControl *dwellTimeConfirmed_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
-	Beam beam_;
+	VESPERS::Beam beam_;
 	// Pointer to the motor that controls which beam makes it down the beamline.
 	AMControl *beamSelectionMotor_;
 	// Look up table with the beam and its position.
-	QHash<Beam, double> beamPositions_;
+	QHash<VESPERS::Beam, double> beamPositions_;
 
 	// End of Beam selection members.
 
@@ -740,21 +838,45 @@ protected:
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
 
+	AMControl *wireStageHorizontal_;
+	AMControl *wireStageVertical_;
+	AMControl *wireStageNormal_;
+
 	// Physical motors.
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
 	AMControl *sampleStageZ_;
 
-	// The sample stage encapsulation.
-	VESPERSSampleStageControl *pseudoSampleStage_;
-	VESPERSSampleStageControl *realSampleStage_;
+	// Atto cube motors.
+	AMControl *attoStageHorizontal_;
+	AMControl *attoStageVertical_;
+	AMControl *attoStageNormal_;
+	AMControl *attoStageX_;
+	AMControl *attoStageZ_;
+	AMControl *attoStageY_;
+	AMControl *attoStageRz_;
+	AMControl *attoStageRy_;
+	AMControl *attoStageRx_;
+
+	// The reset controls for each sample stage.
+	AMControl *pseudoSampleStageResetControl_;
+	AMControl *realSampleStageResetControl_;
+	AMControl *pseudoAttoStageResetControl_;
+	AMControl *realAttoStageResetControl_;
+
+	// Motor group.  Binds all the motors for scanning together.
+	CLSPseudoMotorGroup *motorGroup_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
+	AMControl *wireStagePidX_;
+	AMControl *wireStagePidY_;
+	AMControl *wireStagePidZ_;
 
 	VESPERSPIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *wireStagePID_;
 
 	// End sample stage controls.
 

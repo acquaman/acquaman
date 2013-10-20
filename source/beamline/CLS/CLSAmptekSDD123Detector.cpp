@@ -19,8 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSAmptekSDD123Detector.h"
 
-CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
-	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
+#include "actions/AMBeamlineControlMoveAction.h"
+
+CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+	CLSAmptekSDD123DetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	baseName_ = baseName;
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
@@ -33,10 +35,12 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	startAcquisitionControl_->setAllowsMovesWhileMoving(true);
 	statusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:state", this);
 	mcaChannelsControl_ = new AMReadOnlyPVControl(name+"MCAChannels", baseName+":parameters:MCAChannels", this);
-	integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);
+	//integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);
+	integrationTimeControl_ = new AMPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", baseName+":parameters:PresetTime", QString() , this, 0.05);
 	detectorTemperatureControl_ = new AMReadOnlyPVControl(name+"DetectorTemperature", baseName+":parameters:DetectorTemperature", this);
 	spectrumControl_ = new AMReadOnlyPVControl(name+"Spectrum", baseName+":spectrum", this);
 	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
+	isRequestedControl_ = new AMPVControl(name+"IsRequested", baseName+":isRequested", baseName+":isRequested", QString(), this, 0.5);
 
 	allControls_->addControl(startAcquisitionControl_);
 	allControls_->addControl(statusControl_);
@@ -45,6 +49,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	allControls_->addControl(detectorTemperatureControl_);
 	allControls_->addControl(spectrumControl_);
 	allControls_->addControl(binnedSpectrumControl_);
+	allControls_->addControl(isRequestedControl_);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
@@ -59,6 +64,8 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SLOT(setDetectorTemperature(double)));
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorTemperatureChanged(double)));
 	connect(binnedSpectrumControl_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
+	connect(isRequestedControl_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeControlValueChanged(double)));
 }
 
 CLSAmptekSDD123Detector::~CLSAmptekSDD123Detector()
@@ -86,7 +93,7 @@ QStringList CLSAmptekSDD123Detector::dacqMove() const{
 
 QStringList CLSAmptekSDD123Detector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
+	//retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
 	return retVal;
 }
 
@@ -94,7 +101,7 @@ QString CLSAmptekSDD123Detector::description() const{
 	return CLSAmptekSDD123DetectorInfo::description();
 }
 
-AMDetectorInfo* CLSAmptekSDD123Detector::toInfo() const{
+AMOldDetectorInfo* CLSAmptekSDD123Detector::toInfo() const{
 	return new CLSAmptekSDD123DetectorInfo(*this);
 }
 
@@ -102,7 +109,7 @@ CLSAmptekSDD123DetectorInfo CLSAmptekSDD123Detector::toCLSAmptekSDD123Info() con
 	return CLSAmptekSDD123DetectorInfo(*this);
 }
 
-bool CLSAmptekSDD123Detector::setFromInfo(const AMDetectorInfo *info)
+bool CLSAmptekSDD123Detector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const CLSAmptekSDD123DetectorInfo *detectorInfo = qobject_cast<const CLSAmptekSDD123DetectorInfo *>(info);
 
@@ -120,6 +127,13 @@ void CLSAmptekSDD123Detector::fromCLSAmptekSDD123Info(const CLSAmptekSDD123Detec
 
 bool CLSAmptekSDD123Detector::wasConnected() const{
 	return wasConnected_;
+}
+
+bool CLSAmptekSDD123Detector::isEnabled() const{
+	if(!allControls_->isConnected() || isRequestedControl_->withinTolerance(0))
+		return false;
+
+	return true;
 }
 
 bool CLSAmptekSDD123Detector::status() const{
@@ -149,8 +163,42 @@ QDebug CLSAmptekSDD123Detector::qDebugPrint(QDebug &d) const{
 	return d;
 }
 
+AMBeamlineActionItem* CLSAmptekSDD123Detector::createEnableAction(bool setEnabled) {
+
+	if(!allControls_->isConnected())
+		return 0; //NULL
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(isRequestedControl_);
+
+	if(!action)
+		return 0; //NULL
+
+	action->setSetpoint(setEnabled == true ? 1 : 0);
+
+	return action;
+}
+
 void CLSAmptekSDD123Detector::start(){
 	startAcquisitionControl_->move(1);
+}
+
+void CLSAmptekSDD123Detector::setEnabled(bool isEnabled){
+	if(!allControls_->isConnected())
+		return;
+
+	if(isEnabled)
+		isRequestedControl_->move(1);
+	else
+		isRequestedControl_->move(0);
+}
+
+void CLSAmptekSDD123Detector::setIntegrationTime(double time){
+	if(!allControls_->isConnected())
+		return;
+
+	CLSAmptekSDD123DetectorInfo::setIntegrationTime(time);
+	if(!integrationTimeControl_->withinTolerance(time))
+		integrationTimeControl_->move(time);
 }
 
 void CLSAmptekSDD123Detector::setDescription(const QString &description){
@@ -172,4 +220,16 @@ void CLSAmptekSDD123Detector::onStatusChanged(double status){
 		emit statusChanged(true);
 	else
 		emit statusChanged(false);
+}
+
+void CLSAmptekSDD123Detector::onEnabledChanged(double enabled){
+	Q_UNUSED(enabled)
+	if(isRequestedControl_->withinTolerance(1))
+		emit enabledChanged(true);
+	else
+		emit enabledChanged(false);
+}
+
+void CLSAmptekSDD123Detector::onIntegrationTimeControlValueChanged(double integrationTime){
+	CLSAmptekSDD123DetectorInfo::setIntegrationTime(integrationTime);
 }

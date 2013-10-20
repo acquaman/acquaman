@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
+	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -35,7 +36,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDetectors();
 	setupControlSets();
 	setupMono();
-	setupExperimentStatus();
+	setupMotorGroup();
 	setupExposedControls();
 }
 
@@ -70,15 +71,25 @@ void VESPERSBeamline::setupDiagnostics()
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
 	vvrFE1_ = new AMReadOnlyPVwStatusControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:state", this, new AMControlStatusCheckerDefault(4));
 	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrFE2_->setAllowsMovesWhileMoving(true);
 	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM1_->setAllowsMovesWhileMoving(true);
 	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM2_->setAllowsMovesWhileMoving(true);
 	vvrBPM1_ = new CLSBiStateControl("Valve Control BPM1", "Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM1_->setAllowsMovesWhileMoving(true);
 	vvrMono_ = new CLSBiStateControl("Valve Control Mono", "Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrMono_->setAllowsMovesWhileMoving(true);
 	vvrExitSlits_ = new CLSBiStateControl("Valve Control Exit Slits", "Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrExitSlits_->setAllowsMovesWhileMoving(true);
 	vvrStraightSection_ = new CLSBiStateControl("Valve Control Straight Section", "Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrStraightSection_->setAllowsMovesWhileMoving(true);
 	vvrBPM3_ = new CLSBiStateControl("Valve Control BPM3", "Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM3_->setAllowsMovesWhileMoving(true);
 	vvrSSH_ = new CLSBiStateControl("Valve Control SSH", "Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrSSH_->setAllowsMovesWhileMoving(true);
 	vvrBeamTransfer_ = new CLSBiStateControl("Valve Control Beam Transfer", "Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBeamTransfer_->setAllowsMovesWhileMoving(true);
 
 	// Index used for opening and closing all the valves.
 	valveIndex_ = -1;
@@ -155,27 +166,22 @@ void VESPERSBeamline::setupDiagnostics()
 
 void VESPERSBeamline::setupSampleStage()
 {
-	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	// Currently, the wire stage and sample stage have been flipped due to hardware problems with the sample stage.
+	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
 
-//	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
-//	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
-//	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
 
-	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
 
-	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
-	pseudoSampleStage_->setXRange(-700000, 700000);
-	pseudoSampleStage_->setYRange(-200000, 200000);
-	pseudoSampleStage_->setZRange(-200000, 200000);
-
-	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageZ_, sampleStageY_, this);
-	realSampleStage_->setXRange(-700000, 700000);
-	realSampleStage_->setYRange(-200000, 200000);
-	realSampleStage_->setZRange(-200000, 200000);
+	((AMPVwStatusControl *)sampleStageX_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageY_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageZ_)->setMoveStartTolerance(0.0001);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -187,16 +193,120 @@ void VESPERSBeamline::setupSampleStage()
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
 
-	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
-	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
-	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
+	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-05:hold:sp", "SVM1607-2-B21-05:hold", QString(), this);
+	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-06:hold:sp", "SVM1607-2-B21-06:hold", QString(), this);
+	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-04:hold:sp", "SVM1607-2-B21-04:hold", QString(), this);
 
 	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+
+	wireStagePidX_ = new AMPVControl("Wire Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
+	wireStagePidY_ = new AMPVControl("Wire Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
+	wireStagePidZ_ = new AMPVControl("Wire Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
+
+	wireStagePID_ = new VESPERSPIDLoopControl("PID - Wire Stage", wireStagePidX_, wireStagePidY_, wireStagePidZ_, this);
+
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
+	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+
+	// attocube
+	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageHorizontal_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageVertical_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageNormal_)->setMoveStartTolerance(0.00001);
+
+	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageX_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageZ_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageY_)->setMoveStartTolerance(0.00001);
+
+	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)attoStageRz_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
+	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
+
+	// Reset signals.
+	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
+	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
+	pseudoAttoStageResetControl_ = new AMSinglePVControl("Pseudo Atto Stage Reset Control", "TS1607-2-B21-07:HNV:loadOffsets.PROC", this, 0.1);
+	realAttoStageResetControl_ = new AMSinglePVControl("Real Atto Stage Reset Control", "TS1607-2-B21-07:XYZ:loadOffsets.PROC", this, 0.1);
+}
+
+void VESPERSBeamline::setupMotorGroup()
+{
+	// This is an AMMotorGroupObject because the CLSPseudoMotorGroupObject isn't used for all the motor group objects.
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new CLSPseudoMotorGroup(this);
+
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N",
+										 QStringList() << "H" << "V" << "N",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << sampleStageHorizontal_ << sampleStageVertical_ << sampleStageNormal_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 pseudoSampleStageResetControl_,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y",
+										 QStringList() << "X" << "Z" << "Y",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << sampleStageX_ << sampleStageZ_ << sampleStageY_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 realSampleStageResetControl_,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new CLSPseudoMotorGroupObject("Wire Stage - H, V, N",
+										 QStringList() << "H" << "V" << "N",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << wireStageHorizontal_ << wireStageVertical_ << wireStageNormal_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 pseudoSampleStageResetControl_,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
+										 QStringList() << "H" << "V" << "N",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << attoStageHorizontal_ << attoStageVertical_ << attoStageNormal_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 pseudoAttoStageResetControl_,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y",
+										 QStringList() << "X" << "Z" << "Y",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << attoStageX_ << attoStageZ_ << attoStageY_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 realAttoStageResetControl_,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void VESPERSBeamline::setupEndstation()
 {
-	endstation_ = new VESPERSEndstation(sampleStageNormal_, sampleStageY_, this);
+	endstation_ = new VESPERSEndstation(this);
 }
 
 void VESPERSBeamline::setupDetectors()
@@ -206,7 +316,7 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_ = new AMOldDetectorSet(this);
 
 	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
 	tempSplit->setVoltagRange(1.0, 4.5);
@@ -234,7 +344,9 @@ void VESPERSBeamline::setupDetectors()
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
-	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Camera", this);
+	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
+	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
+	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus", "Pilatus 1M Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -371,7 +483,7 @@ void VESPERSBeamline::setupMono()
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
 }
 
-void VESPERSBeamline::setupComponents()
+void VESPERSBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1607-B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
@@ -379,15 +491,208 @@ void VESPERSBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+	synchronizedDwellTime_->addElement(5);
+	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(synchronizedDwellTimeConnected(bool)));
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
 	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
-	beamPositions_.insert(Pink, 0);
-	beamPositions_.insert(TenPercent, -12.5);
-	beamPositions_.insert(Si, -17.5);
-	beamPositions_.insert(OnePointSixPercent, -22.5);
+	// Setting up all of the configurations for the synchronized dwell time.
+	// The scaler.
+	CLSSynchronizedDwellTimeConfigurationInfo *temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Scaler");
+	temp->setDwellTimePV("BL1607-B2-1:mcs:delay PP NMS");
+	temp->setScale("1000");
+	temp->setOffset("0");
+	temp->setUnits("ms");
+	temp->setModePV("BL1607-B2-1:mcs:continuous PP NMS");
+	temp->setSingleShot("0");
+	temp->setContinuous("1");
+	temp->setTriggerPV("BL1607-B2-1:mcs:startScan NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("BL1607-B2-1:mcs:startScan CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The single element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("1-El Vortex");
+	temp->setDwellTimePV("IOC1607-004:mca1.PRTM PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("IOC1607-004:mca1Read.SCAN PP NMS");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("IOC1607-004:mca1EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("IOC1607-004:mca1.ACQG CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Roper CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Roper CCD");
+	temp->setDwellTimePV("IOC1607-003:det1.AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("DIO1607-01:CCD:ExtSync NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("CCD1607-001:extTrig:status CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The picoammeters.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Picoammeters");
+	temp->setDwellTimePV("A2607:integ_interval PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("A2607:configure");
+	temp->setSingleShot("1");
+	temp->setContinuous("2");
+	temp->setTriggerPV("A2607:start_read NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("A2607:start_read CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(5);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The four element vortex detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("4-El Vortex");
+	temp->setDwellTimePV("dxp1607-B21-04:PresetReal PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("dxp1607-B21-04:EraseStart NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("dxp1607-B21-04:Acquiring CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Mar CCD detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Mar CCD");
+	temp->setDwellTimePV("ccd1607-002:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("ccd1607-002:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("ccd1607-002:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+
+	// The Pilatus pixel array detector.
+	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
+	temp->setName("Pilatus CCD");
+	temp->setDwellTimePV("PAD1607-B21-05:cam1:AcquireTime PP NMS");
+	temp->setScale("1");
+	temp->setOffset("0");
+	temp->setUnits("s");
+	temp->setModePV("");
+	temp->setSingleShot("1");
+	temp->setContinuous("0");
+	temp->setTriggerPV("PAD1607-B21-05:cam1:Acquire NPP NMS");
+	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
+	temp->setPreTrigger(0.0);
+	temp->setDwellHold(0.0);
+	temp->setStatusPV("PAD1607-B21-05:cam1:Acquire CP NMS");
+	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
+	temp->setDelay(0);
+	temp->setWaitPV("");
+	temp->setWaitValue("");
+
+	synchronizedDwellTimeConfigurations_.append(temp);
+}
+
+void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
+{
+	if (connected){
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Scaler")
+			synchronizedDwellTime()->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "1-El Vortex")
+			synchronizedDwellTime()->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Roper CCD")
+			synchronizedDwellTime()->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Pilatus CCD")
+			synchronizedDwellTime()->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "4-El Vortex")
+			synchronizedDwellTime()->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
+
+		if (synchronizedDwellTime()->elementAt(0)->name() != "Mar CCD")
+			synchronizedDwellTime()->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
+	}
+}
+
+CLSSynchronizedDwellTimeConfigurationInfo *VESPERSBeamline::synchronizedDwellTimeConfigurationByName(const QString &name) const
+{
+	for (int i = 0, size = synchronizedDwellTimeConfigurations_.size(); i < size; i++)
+		if (synchronizedDwellTimeConfigurations_.at(i)->name() == name)
+			return synchronizedDwellTimeConfigurations_.at(i);
+
+	return 0;
+}
+
+void VESPERSBeamline::setupComponents()
+{
+	beamPositions_.insert(VESPERS::Pink, 0);
+	beamPositions_.insert(VESPERS::TenPercent, -12.5);
+	beamPositions_.insert(VESPERS::Si, -17.5);
+	beamPositions_.insert(VESPERS::OnePointSixPercent, -22.5);
 
 	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
@@ -396,23 +701,38 @@ void VESPERSBeamline::setupComponents()
 	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
+
+	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
+	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
+	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(onPOEStatusChanged()));
+	connect(poeBeamStatusEnable_, SIGNAL(valueChanged(double)), this, SIGNAL(poeStatusEnableChanged()));
 }
 
-void VESPERSBeamline::setupExperimentStatus()
+void VESPERSBeamline::onPOEStatusChanged()
 {
-	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
-	connect(experimentConfiguration_, SIGNAL(beamDumped()), this, SIGNAL(beamDumped()));
+	bool beamStatus = poeStatus();
+	emit poeStatusChanged(beamStatus);
 
-	endstationConfiguration_ = new VESPERSEndstationConfiguration(this);
+	if (poeStatusEnable() && !beamStatus)
+		emit beamDumped();
+}
+
+void VESPERSBeamline::setPOEStatusEnable(bool enabled)
+{
+	poeBeamStatusEnable_->move(enabled ? 0 : 1);
 }
 
 void VESPERSBeamline::setupExposedControls()
 {
-	addExposedControl(pseudoSampleStage()->horiz());
-	addExposedControl(pseudoSampleStage()->vert());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalControl());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->verticalControl());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->normalControl());
+	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
+	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
+	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
 }
 
-AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 {
 	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
 	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
@@ -435,7 +755,7 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 	moveBeamAction->setSetpoint(beamPositions_.value(beam));
 	changeBeamActionsList->appendAction(1, moveBeamAction);
 
-	if (beam != Pink){
+	if (beam != VESPERS::Pink){
 
 		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
@@ -446,18 +766,18 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 
 void VESPERSBeamline::determineBeam()
 {
-	Beam temp;
+	VESPERS::Beam temp;
 
-	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
-		temp = Pink;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
-		temp = TenPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
-		temp = OnePointSixPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
-		temp = Si;
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Pink)))
+		temp = VESPERS::Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::TenPercent)))
+		temp = VESPERS::TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::OnePointSixPercent)))
+		temp = VESPERS::OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Si)))
+		temp = VESPERS::Si;
 	else
-		temp = None;
+		temp = VESPERS::NoBeam;
 
 	if (temp != beam_){
 
@@ -539,13 +859,13 @@ void VESPERSBeamline::pressureError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2) %3 %4\n").arg(current->name(), current->readPVName(), QString::number(current->value(), 'e', 3), current->units());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following pressure readings are at a critical level:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_PRESSURE_TOO_HIGH, error);
 	}
 
 	emit pressureStatus(error.isEmpty());
@@ -566,7 +886,7 @@ void VESPERSBeamline::valveError()
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
 			if (first->isMoving()) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(first->name(), first->movingPVName());
+				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
 		else {
@@ -574,14 +894,14 @@ void VESPERSBeamline::valveError()
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
 			if (current->state() == 0) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(current->name(), current->statePVName());
+				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following valves are closed:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_VALVES_CLOSED, error);
 	}
 
 	emit valveStatus(error.isEmpty());
@@ -600,13 +920,13 @@ void VESPERSBeamline::ionPumpError()
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
 		if (!current->value())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_ION_PUMP_TRIP, error);
 	}
 
 	emit ionPumpStatus(error.isEmpty());
@@ -625,13 +945,13 @@ void VESPERSBeamline::temperatureError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following temperature sensors are reading too high:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_TEMPERATURE_TOO_HIGH, error);
 	}
 
 	emit temperatureStatus(error.isEmpty());
@@ -650,13 +970,13 @@ void VESPERSBeamline::flowSwitchError()
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
 		if (!current->value())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow switches have tripped:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_WATER_FLOW_SWITCH_TRIP, error);
 	}
 
 	emit flowSwitchStatus(error.isEmpty());
@@ -675,13 +995,13 @@ void VESPERSBeamline::flowTransducerError()
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
 		if (current->isMoving())
-			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow transducers are measuring too low:\n");
-		AMErrorMon::error(this, 0, error);
+		AMErrorMon::error(this, VESPERSBEAMLINE_WATER_FLOW_TOO_LOW, error);
 	}
 
 	emit flowTransducerStatus(error.isEmpty());
@@ -690,19 +1010,19 @@ void VESPERSBeamline::flowTransducerError()
 void VESPERSBeamline::singleElVortexError(bool isConnected)
 {
 	if (vortexXRF1E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, 0, "The single element vortex detector is no longer connected.");
+		AMErrorMon::error(this, VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED, "The single element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::fourElVortexError(bool isConnected)
 {
 	if (vortexXRF4E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, 0, "The four element vortex detector is no longer connected.");
+		AMErrorMon::error(this, VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED, "The four element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::sampleStageError()
 {
 	if (!sampleStageMotorSet()->isConnected())
-		AMErrorMon::alert(this, 0, "The sample stage is no longer connected.");
+		AMErrorMon::alert(this, VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED, "The sample stage is no longer connected.");
 }
 
 VESPERSBeamline::~VESPERSBeamline()
@@ -721,14 +1041,24 @@ bool VESPERSBeamline::allValvesOpen() const
 
 void VESPERSBeamline::openValve(int index)
 {
-	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 0)
-		valveSet_->at(index)->move(1);
+	if (index >= 0 && index < valveSet_->count()){
+
+		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+
+		if (control && control->isClosed())
+			control->open();
+	}
 }
 
 void VESPERSBeamline::closeValve(int index)
 {
-	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 1)
-		valveSet_->at(index)->move(0);
+	if (index >= 0 && index < valveSet_->count()){
+
+		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+
+		if (control && control->isOpen())
+			control->close();
+	}
 }
 
 void VESPERSBeamline::openAllValves()

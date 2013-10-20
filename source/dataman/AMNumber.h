@@ -114,6 +114,14 @@ public:
 		return state_ == Valid && double(*this) == d;
 	}
 
+	bool operator!=(const AMNumber &other) const{
+		return !operator==(other);
+	}
+
+	bool operator!=(double d) const{
+		return !operator==(d);
+	}
+
 	/// Print as a string
 	QString toString() {
 		if(!isValid()) return "[X]";

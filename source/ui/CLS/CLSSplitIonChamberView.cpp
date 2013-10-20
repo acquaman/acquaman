@@ -78,20 +78,22 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 
 void CLSSplitIonChamberView::onValueChanged(int value)
 {
-	setValueComboBox(value_, value);
+	if (isLocked_){
 
-	onValueAChanged(value);
-	if (isLocked_)
+		setValueComboBox(value_, value);
+		onValueAChanged(value);
 		onValueBChanged(value);
+	}
 }
 
 void CLSSplitIonChamberView::onUnitsChanged(QString units)
 {
-	setUnitsComboBox(units_, units);
+	if (isLocked_){
 
-	onUnitsAChanged(units);
-	if (isLocked_)
+		setUnitsComboBox(units_, units);
+		onUnitsAChanged(units);
 		onUnitsBChanged(units);
+	}
 }
 
 void CLSSplitIonChamberView::onModeViewChanged()
@@ -116,6 +118,8 @@ void CLSSplitIonChamberView::onModeViewChanged()
 
 		plus_->show();
 		minus_->show();
+		state_ = Status;
+		onReadingsChanged();
 	}
 	else if (isBasic_ && !isLocked_){
 
@@ -123,19 +127,24 @@ void CLSSplitIonChamberView::onModeViewChanged()
 		plusA_->show();
 		minusB_->show();
 		plusB_->show();
+		state_ = Status;
+		onReadingsChanged();
 	}
 	else if (!isBasic_ && isLocked_){
 
 		value_->show();
 		units_->show();
-
+		state_ = Voltage;
+		onReadingsChanged();
 	}
-	else{
+	else if (!isBasic_ && !isLocked_){
 
 		valueA_->show();
 		unitsA_->show();
 		valueB_->show();
 		unitsB_->show();
+		state_ = Voltage;
+		onReadingsChanged();
 	}
 }
 
@@ -144,26 +153,22 @@ void CLSSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 	QMenu popup(this);
 
 	QAction *temp = popup.addAction("Basic View");
-	if (isBasic_)
-		temp->setDisabled(true);
+	temp->setDisabled(isBasic_);
 
 	temp = popup.addAction("Advanced View");
-	if (!isBasic_)
-		temp->setDisabled(true);
+	temp->setDisabled(!isBasic_);
 
 	popup.addSeparator();
 
 	temp = popup.addAction("Status View");
-	if (state_ == Status)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Status);
 
 	temp = popup.addAction("Counts View");
-	if (state_ == Counts)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Counts);
 
 	temp = popup.addAction("Voltage View");
-	if (state_ == Voltage)
-		temp->setDisabled(true);
+	temp->setDisabled(state_ == Voltage);
+
 
 	popup.addSeparator();
 

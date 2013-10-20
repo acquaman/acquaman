@@ -162,6 +162,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 		scanSetModel_ = scanView2D_->model();
 
 		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
+		ui_.openScanButton->setEnabled(false);
 	}
 
 	else {
@@ -260,16 +261,32 @@ QRectF AMGenericScanEditor::selectedRect() const
 
 	return QRectF();
 }
+
 void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
-	if (scanView2D_)
+	if (scanView_)
+		scanView_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
+
+	else if (scanView2D_)
 		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
 }
 
 void AMGenericScanEditor::setPlotRange(double low, double high)
 {
-	if (scanView2D_)
+	if (scanView_)
+		scanView_->setPlotRange(low, high);
+
+	else if (scanView2D_)
 		scanView2D_->setPlotRange(low, high);
+}
+
+void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)
+{
+	if (scanView_)
+		scanView_->setSingleSpectrumDataSource(name);
+
+	else if (scanView2D_)
+		scanView2D_->setSingleSpectrumDataSource(name);
 }
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
@@ -282,6 +299,7 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
 	}
 
+	emit scanAdded(this, newScan);
 	refreshWindowTitle();
 }
 
@@ -699,11 +717,37 @@ void AMGenericScanEditor::onOneSecondTimer()
 #include <QFileDialog>
 void AMGenericScanEditor::exportGraphicsToFile()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, QFileDialog::DontConfirmOverwrite);
+	QString filters = QString("%1;;%2;;%3;;%4;;%5;;%6").arg("PDF Files (*.pdf)")
+			.arg("JPEG Files (*.jpg *.jpeg)")
+			.arg("PNG Files (*.png)")
+			.arg("TIFF Files (*.tiff)")
+			.arg("PPM Files (*.ppm)")
+			.arg("BMP Files (*.bmp)");
+
+	QFileDialog dialog(this, "Save Graphics As...", QString(), filters);
+	dialog.setAcceptMode(QFileDialog::AcceptSave);
+	dialog.exec();
+	QString fileName = dialog.selectedFiles().first();
 
 	if(!fileName.isEmpty()) {
-		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+
+		if(dialog.selectedNameFilter().contains("PDF") && !fileName.endsWith(".pdf", Qt::CaseInsensitive))
 			fileName.append(".pdf");
+
+		else if(dialog.selectedNameFilter().contains("JPEG") && !fileName.endsWith(".jpg", Qt::CaseInsensitive))
+			fileName.append(".jpg");
+
+		else if(dialog.selectedNameFilter().contains("PNG") && !fileName.endsWith(".png", Qt::CaseInsensitive))
+			fileName.append(".png");
+
+		else if(dialog.selectedNameFilter().contains("TIFF") && !fileName.endsWith(".tiff", Qt::CaseInsensitive))
+			fileName.append(".tiff");
+
+		else if(dialog.selectedNameFilter().contains("PPM") && !fileName.endsWith(".ppm", Qt::CaseInsensitive))
+			fileName.append(".ppm");
+
+		else if(dialog.selectedNameFilter().contains("BMP") && !fileName.endsWith(".bmp", Qt::CaseInsensitive))
+			fileName.append(".bmp");
 
 		QFileInfo info(fileName);
 		if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,

@@ -21,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSpectralOutputDetector.h"
 
 AMSpectralOutputDetector::AMSpectralOutputDetector(const QString& name, AMControl *control, int numSpectrumBins, QString xElementName, QStringList yElementNames, QObject *parent) :
-		AMSpectralOutputDetectorInfo(name, name, numSpectrumBins, xElementName, yElementNames, parent), AMDetector(name)
+		AMSpectralOutputDetectorInfo(name, name, numSpectrumBins, xElementName, yElementNames, parent), AMOldDetector(name)
 {
 	control_ = control;
-	connect(control_, SIGNAL(connected(bool)), AMDetector::signalSource(), SIGNAL(ready(bool)));
+	connect(control_, SIGNAL(connected(bool)), AMOldDetector::signalSource(), SIGNAL(ready(bool)));
 }
 
 AMSpectralOutputDetector::~AMSpectralOutputDetector() {
@@ -35,8 +35,8 @@ const QMetaObject* AMSpectralOutputDetector::getMetaObject() {
 	return metaObject();
 }
 
-AMDetectorInfo AMSpectralOutputDetector::toInfo(){
-	return *AMDetectorInfo::toNewInfo();
+AMOldDetectorInfo *AMSpectralOutputDetector::toInfo() const{
+    return AMOldDetectorInfo::toNewInfo();
 }
 
 bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detectorSettings){
@@ -44,7 +44,7 @@ bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detecto
 	return false;
 }
 
-bool AMSpectralOutputDetector::setFromInfo(const AMDetectorInfo &info){
+bool AMSpectralOutputDetector::setFromInfo(const AMOldDetectorInfo *info){
 	Q_UNUSED(info)
 	return false;
 }

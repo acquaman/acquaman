@@ -132,18 +132,18 @@ void AMBeamlineControlMoveAction::onStarted(){
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONSUCCEEDED_MESSAGE, QString("%1 %2 SUCCEEDED").arg((intptr_t)this).arg(control_->description()));
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONSUCCEEDED_MESSAGE, QString("%1 %2 SUCCEEDED").arg(control_->name()).arg(control_->description()));
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFAILED_MESSAGE, QString("%1 FAILED as %2 with %3. Position: %4 Setpoint: %5 Tolerance: %6").arg((intptr_t)this).arg(control_->description()).arg(explanation).arg(control_->value()).arg(control_->setpoint()).arg(control_->tolerance()) );
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFAILED_MESSAGE, QString("%1 FAILED as %2 with %3. Position: %4 Setpoint: %5 Tolerance: %6").arg(control_->name()).arg(control_->description()).arg(explanation).arg(control_->value()).arg(control_->setpoint()).arg(control_->tolerance()) );
 	setFailed(true, explanation);
 }
 
 void AMBeamlineControlMoveAction::onFinished(){
-	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFINISHED_MESSAGE, QString("%1 %2 FINISHED").arg((intptr_t)this).arg(control_->description()));
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFINISHED_MESSAGE, QString("%1 %2 FINISHED").arg(control_->name()).arg(control_->description()));
 	progressTimer_.stop();
 	emit progress(1, 1);
 }

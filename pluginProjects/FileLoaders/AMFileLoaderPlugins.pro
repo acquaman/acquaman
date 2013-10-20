@@ -9,4 +9,6 @@ SUBDIRS += AMCDFv1FileLoader \
 	REIXSXESRawFileLoader \
 	ALSBL8XASFileLoader \
 	VESPERS20122DFileLoader \
-	VESPERS2012SpatialLineScanFileLoader
+	VESPERS2012SpatialLineScanFileLoader \
+	SGM2013XASFileLoader \
+	SGM2013FastFileLoader

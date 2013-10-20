@@ -46,10 +46,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	// The endstation model.
 	endstation_ = endstation;
 
-	// The button for the pseudo-motor reset.
-	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
-	connect(resetPseudoMotorsButton, SIGNAL(clicked()), endstation_, SLOT(resetPseudoMotors()));
-
 	// Setup the buttons used in the picture.
 	ccdButton_ = new QToolButton;
 	connect(ccdButton_, SIGNAL(clicked()), this, SLOT(ccdClicked()));
@@ -63,15 +59,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(endstation_, SIGNAL(singleElFbkChanged(double)), this, SLOT(singleElUpdate(double)));
-	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
-	normalFocusButton_ = new QToolButton;
-	connect(normalFocusButton_, SIGNAL(clicked()), this, SLOT(normalFocusClicked()));
-	connect(endstation_, SIGNAL(focusNormalFbkChanged(double)), this, SLOT(normalFocusUpdate(double)));
-
-	yFocusButton_ = new QToolButton;
-	yFocusButton_->hide();
-	connect(yFocusButton_, SIGNAL(clicked()), this, SLOT(yFocusClicked()));
-	connect(endstation_, SIGNAL(focusYFbkChanged(double)), this, SLOT(yFocusUpdate(double)));
 
 	// Setup the microscope light.  Tracking needs to be off!  Otherwise, the program might get into an infinite signal slot loop.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -102,8 +89,14 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	laserPowerButton_ = new QToolButton;
 	laserPowerButton_->setIcon(QIcon(":/red-laser.png"));
 	laserPowerButton_->setCheckable(true);
+	laserPowerButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	QFont font(this->font());
+	font.setBold(true);
+	laserPowerButton_->setFont(font);
 	connect(laserPowerButton_, SIGNAL(clicked()), endstation_, SLOT(toggleLaserPower()));
 	connect(endstation_, SIGNAL(laserPoweredChanged()), this, SLOT(laserPowerUpdate()));
+	connect(endstation_, SIGNAL(laserPositionChanged(double)), this, SLOT(onLaserDistanceChanged()));
+	connect(endstation_, SIGNAL(laserPositionValidityChanged(bool)), this, SLOT(onLaserDistanceChanged()));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
@@ -120,12 +113,10 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	controlGBLayout->addWidget(microscopeButton_, 9, 10, 2, 3);
 	controlGBLayout->addWidget(singleElButton_, 15, 5, 2, 3);
 	controlGBLayout->addWidget(fourElButton_, 16, 11, 2, 3);
-	controlGBLayout->addWidget(normalFocusButton_, 12, 11, 2, 3);
-	controlGBLayout->addWidget(yFocusButton_, 12, 11, 2, 3);	// This shares the same position as normalFocusButton.
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
-	controlGBLayout->addWidget(laserPowerButton_, 9, 15, 2, 1);
+	controlGBLayout->addWidget(laserPowerButton_, 10, 13, 2, 5);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);
@@ -137,23 +128,12 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
-	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
-
-	QVBoxLayout *extrasGroupBoxLayout = new QVBoxLayout;
-	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
-	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
-
-	QGroupBox *extrasGroupBox = new QGroupBox("Extras");
-	extrasGroupBox->setLayout(extrasGroupBoxLayout);
-
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
-	endstationLayout->addWidget(dwellTimeView, 2, 3);
-	endstationLayout->addWidget(extrasGroupBox, 1, 3);
+	endstationLayout->addWidget(dwellTimeView, 1, 3);
 
 	QHBoxLayout *squishLayout = new QHBoxLayout;
 	squishLayout->addStretch();
@@ -175,19 +155,30 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
-void VESPERSEndstationView::setUsingNormalMotor(bool use)
+void VESPERSEndstationView::onLaserDistanceChanged()
 {
-	usingNormal_ = use;
-	normalFocusButton_->setVisible(usingNormal_);
-	yFocusButton_->setVisible(!usingNormal_);
+	QPalette palette(this->palette());
 
-	bool isNormalMotor = endstation_->current()->name().contains("normal", Qt::CaseInsensitive);
+	if (endstation_->laserPowered() && endstation_->laserPositionValid()){
 
-	if (isNormalMotor && usingNormal_)
-		normalFocusClicked();
+		palette.setBrush(QPalette::ButtonText, Qt::darkGreen);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText(QString("%1 mm").arg(endstation_->laserPosition(), 0, 'f', 3));
+	}
 
-	else if (isNormalMotor && !usingNormal_)
-		yFocusClicked();
+	else if (endstation_->laserPowered()){
+
+		palette.setBrush(QPalette::ButtonText, Qt::red);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText("-FFFFFF");
+	}
+
+	else {
+
+		palette.setBrush(QPalette::ButtonText, Qt::black);
+		laserPowerButton_->setPalette(palette);
+		laserPowerButton_->setText("OFF");
+	}
 }
 
 void VESPERSEndstationView::setWindow(AMControl *control)
@@ -198,11 +189,9 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 	QString name(control->name());
 	QPair<double, double> pair(endstation_->getLimits(control));
 
-	if (name.compare("CCD motor") == 0 || name.compare("1-Element Vortex motor") == 0 || name.compare("4-Element Vortex motor") == 0)
+	if (name == "CCD motor" || name == "1-Element Vortex motor" || name == "4-Element Vortex motor")
 		window_->setControl(control, pair.first, pair.second);
-	else if (name.compare("Normal Sample Stage") == 0 || name.compare("Y (normal) motor") == 0)
-		window_->setControl(control);
-	else if (name.compare("Microscope motor") == 0)
+	else if (name == "Microscope motor")
 		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);
 }
 
@@ -222,6 +211,7 @@ void VESPERSEndstationView::laserPowerUpdate()
 	}
 
 	laserPowerButton_->blockSignals(false);
+	onLaserDistanceChanged();
 }
 
 void VESPERSEndstationView::lightBulbToggled(bool pressed)
@@ -269,6 +259,10 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	vortex4HighLimit_ = new QLineEdit;
 	vortex4HomePosition_ = new QLineEdit;
 
+	ccdBufferSafePosition_ = new QLineEdit;
+	usingBuffer_ = new QCheckBox;
+	at90Deg_ = new QCheckBox;
+
 	// Aligning.
 	ccdLowLimit_->setAlignment(Qt::AlignCenter);
 	ccdHighLimit_->setAlignment(Qt::AlignCenter);
@@ -287,6 +281,10 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	vortex4HighLimit_->setAlignment(Qt::AlignCenter);
 	vortex4HomePosition_->setAlignment(Qt::AlignCenter);
 
+	ccdBufferSafePosition_->setAlignment(Qt::AlignCenter);
+	usingBuffer_->setText("Helium Buffer");
+	at90Deg_->setText("CCD at 90 deg");
+
 	// Setting up the group box layouts.
 	QGroupBox *ccdGB = new QGroupBox("CCD Setup");
 	QGridLayout *ccdLowLayout = new QGridLayout;
@@ -298,11 +296,16 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	QGridLayout *ccdHomeLayout = new QGridLayout;
 	ccdHomeLayout->addWidget(ccdHomePosition_, 0, 0, 1, 3);
 	ccdHomeLayout->addWidget(new QLabel(tr("mm")), 0, 2);
+	QGridLayout *ccdBufferSafeLayout = new QGridLayout;
+	ccdBufferSafeLayout->addWidget(ccdBufferSafePosition_, 0, 0, 1, 3);
+	ccdBufferSafeLayout->addWidget(new QLabel(tr("mm")), 0, 2);
 
 	QFormLayout *ccdLayout = new QFormLayout;
 	ccdLayout->addRow("Low Limit", ccdLowLayout);
 	ccdLayout->addRow("High Limit", ccdHighLayout);
-	ccdLayout->addRow("Home Position", ccdHomeLayout);
+	ccdLayout->addRow("Safe Position", ccdHomeLayout);
+	ccdLayout->addRow("Buffer Position", ccdBufferSafeLayout);
+	ccdLayout->addRow(usingBuffer_, at90Deg_);
 	ccdGB->setLayout(ccdLayout);
 
 	QGroupBox *microscopeGB = new QGroupBox("Microscope Setup");
@@ -404,6 +407,10 @@ void VESPERSEndstationLimitsView::saveFile()
 	out << microscopeOutPosition_->text() + "\n";
 	out << microscopeInStatus_->text() + "\n";
 	out << microscopeOutStatus_->text() + "\n";
+	out << "CCD Extras\n";
+	out << ccdBufferSafePosition_->text() + "\n";
+	out << (usingBuffer_->isChecked() ? "YES\n" : "NO\n");
+	out << (at90Deg_->isChecked() ? "YES\n" : "NO\n");
 
 	file.close();
 
@@ -416,29 +423,33 @@ void VESPERSEndstationLimitsView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
-		// If there is no configuration file, then it creates a file with some default values.
-		if (!file.open(QFile::ReadOnly | QFile::Text)){
+	// If there is no configuration file, then it creates a file with some default values.
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
 
-			ccdLowLimit_->setText(QString::number(35, 'f', 1));
-			ccdHighLimit_->setText(QString::number(190, 'f', 1));
-			ccdHomePosition_->setText(QString::number(190, 'f', 1));
+		ccdLowLimit_->setText(QString::number(100, 'f', 1));
+		ccdHighLimit_->setText(QString::number(230, 'f', 1));
+		ccdHomePosition_->setText(QString::number(230, 'f', 1));
 
-			vortexLowLimit_->setText(QString::number(60, 'f', 1));
-			vortexHighLimit_->setText(QString::number(180, 'f', 1));
-			vortexHomePosition_->setText(QString::number(180, 'f', 1));
+		vortexLowLimit_->setText(QString::number(60, 'f', 1));
+		vortexHighLimit_->setText(QString::number(180, 'f', 1));
+		vortexHomePosition_->setText(QString::number(180, 'f', 1));
 
-			vortex4LowLimit_->setText(QString::number(60, 'f', 1));
-			vortex4HighLimit_->setText(QString::number(180, 'f', 1));
-			vortex4HomePosition_->setText(QString::number(180, 'f', 1));
+		vortex4LowLimit_->setText(QString::number(60, 'f', 1));
+		vortex4HighLimit_->setText(QString::number(180, 'f', 1));
+		vortex4HomePosition_->setText(QString::number(180, 'f', 1));
 
-			microscopeInPosition_->setText(QString::number(90, 'f', 1));
-			microscopeOutPosition_->setText(QString::number(190, 'f', 1));
-			microscopeInStatus_->setText("In");
-			microscopeOutStatus_->setText("Out");
+		microscopeInPosition_->setText(QString::number(90, 'f', 1));
+		microscopeOutPosition_->setText(QString::number(190, 'f', 1));
+		microscopeInStatus_->setText("In");
+		microscopeOutStatus_->setText("Out");
 
-			saveFile();
+		ccdBufferSafePosition_->setText(QString::number(350, 'f', 1));
+		usingBuffer_->setChecked(true);
+		at90Deg_->setChecked(true);
 
-			return;
+		saveFile();
+
+		return;
 	}
 
 	QTextStream in(&file);
@@ -465,4 +476,8 @@ void VESPERSEndstationLimitsView::loadFile()
 	microscopeOutPosition_->setText(contents.at(15));
 	microscopeInStatus_->setText(contents.at(16));
 	microscopeOutStatus_->setText(contents.at(17));
+
+	ccdBufferSafePosition_->setText(contents.at(19));
+	usingBuffer_->setChecked(contents.at(20) == "YES");
+	at90Deg_->setChecked(contents.at(21) == "YES");
 }

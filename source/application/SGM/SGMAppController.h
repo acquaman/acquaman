@@ -23,21 +23,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
-class AMDetectorView;
+class CLSSynchronizedDwellTimeView;
+class AMOldDetectorView;
+class AMDetectorGeneralDetailedView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
+class SGMXASScanConfiguration2013View;
+class SGMFastScanConfiguration2013View;
+class AMScanController;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
-class AMDetector;
+class AMOldDetector;
 class AMScanAction;
 class CLSProcServManager;
 class CLSProcServManagerView;
 class SGMAdvancedControlsView;
+
+class AMDetectorSelector;
+class AMDetectorSelectorView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -61,10 +68,12 @@ public slots:
 
 	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
 	virtual bool startupRegisterDatabases();
-	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	/// Re-implemented to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
 	virtual bool startupPopulateNewDatabase();
-	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	/// Re-implemented to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
 	virtual bool startupLoadFromExistingDatabase();
+	/// Re-implemented to catch bad database directories and throw out a warning message
+	virtual bool startupAfterEverything();
 
 protected slots:
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
@@ -74,25 +83,25 @@ protected slots:
 
 	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
+
 	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);
-	/// When the SGM's PGT Sahara SDD connects the view is created and added as a pane to the main window.
-	void onSGMPGTSDDConnected(bool connected);
-	/// When the SGM's OceanOptics Optical Spectrometer connects the view is created and added as a pane to the main window
-	void onSGMOceanOpticsSpectrometerConnected(bool connected);
-	/// When the SGM's first amptek SDD connects the view is created and added as a pane to the main window.
-	void onSGMAmptekSDD1Connected(bool connected);
-	/// When the SGM's second amptek SDD connects the view is created and added as a pane to the main window.
-	void onSGMAmptekSDD2Connected(bool connected);
+	/// When the SGM's synchronized dwell time app connects the view is created and added as a pane to the main window
+	void onSGMSynchronizedDwellTimeConnected(bool connected);
+
+	/// When the SGM's first (new) amptek SDD connects the view is created adn added as a pane to the main window.
+	void onSGMNewAmptekSDD1Connected(bool connected);
+	void onSGMNewAmptekSDD2Connected(bool connected);
+	void onSGMNewAmptekSDD3Connected(bool connected);
+	void onSGMNewAmptekSDD4Connected(bool connected);
+	void onSGMNewPGTDetectorConnected(bool connected);
+	void onSGMNewQE65000DetectorConnected(bool connected);
+	void onSGMNewTEYDetectorConnected(bool connected);
 
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerCreated();
 	/// CURRENTLY UNUSED
 	void onCurrentScanControllerDestroyed();
-	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
-	void onCurrentScanControllerStarted(AMScanAction *action);
-	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
-	void onCurrentScanControllerFinished(AMScanAction *action);
 
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
@@ -100,9 +109,13 @@ protected slots:
 	void onActionProcServManager();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
+	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
 	/// Grabs the dacq configuration file locations
@@ -118,28 +131,34 @@ protected:
 	bool setupSGMViews();
 
 protected:
-	/// View to manage transfer of samples (NOT IN USE CURRENTLY)
-	SGMSampleTransferView *sampleTransferView_;
 	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementWidget *samplePositionView_;
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
-	/// View for controlling the PGT Sahara SDD
-	AMDetectorView *pgtSDDView_;
-	/// View for controlling the Ocean Optics Optical Spectrometer
-	AMDetectorView *oceanOpticsSpectrometerView_;
-	/// View for controlling the first SGM amptek SDD
-	AMDetectorView *amptekSDD1View_;
-	/// View for controlling the second SGM amptek SDD
-	AMDetectorView *amptekSDD2View_;
+	/// View for controlling the synchronized dwell time application
+	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
+
+	/// View for controlling the new SGM amptek SDD (first)
+	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
+	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
+	AMDetectorGeneralDetailedView *newPGTDetectorView_;
+	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
+	AMDetectorGeneralDetailedView *newTEYDetectorView_;
+
 	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
+	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
+	AMDetectorSelector *xasDetectorSelector_;
+	AMDetectorSelector *fastDetectorSelector_;
 	/// View holder for XAS
-	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *xasScanConfiguration2013Holder3_;
 	/// View holder for Fast scans
-	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *fastScanConfiguration2013Holder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls
@@ -155,6 +174,9 @@ protected:
 
 	/// Updating list of detectors we have been waiting for on startup
 	QString lastWaitingDetectors_;
+
+	/// Tracks whether a check has been done regarding bad startup settings
+	bool checkedBadStartupSettings_;
 };
 
 #endif // SGMAPPCONTROLLER_H

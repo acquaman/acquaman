@@ -281,6 +281,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM3DBinningAB.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -313,6 +314,7 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	AMScan* scan = model_->scanAt(si);
 	QList<AMDataSource*> singleDimDataSources;
 	QList<AMDataSource *> twoDimDataSources;
+	QList<AMDataSource *> threeDimDataSources;
 	AMAnalysisBlock *newAnalysisBlock = 0;
 	AMDataSource *tempSource = 0;
 
@@ -329,6 +331,9 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 		else if(tempSource->rank() == 2)
 			twoDimDataSources << tempSource;
+
+		else if (tempSource->rank() == 3)
+			threeDimDataSources << tempSource;
 	}
 
 	if (nameOfAnalysisBlockToBeAdded_ == "Derivative"){
@@ -365,6 +370,12 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 		newAnalysisBlock = new AM2DNormalizationAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "3D Binning"){
+
+		newAnalysisBlock = new AM3DBinningAB(chName);
+		newAnalysisBlock->setInputDataSources(threeDimDataSources);
 	}
 
 	// This should always happen.  But just to be safe.

@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
 CLSOceanOptics65000BriefDetectorView::CLSOceanOptics65000BriefDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
-		AMBriefDetectorView(configureOnly, parent)
+		AMBriefOldDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
 	readingCE_ = 0;
@@ -34,11 +34,11 @@ CLSOceanOptics65000BriefDetectorView::CLSOceanOptics65000BriefDetectorView(CLSOc
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* CLSOceanOptics65000BriefDetectorView::detector(){
+AMOldDetector* CLSOceanOptics65000BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool CLSOceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000BriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	detector_ = static_cast<CLSOceanOptics65000Detector*>(detector);
@@ -119,18 +119,18 @@ bool CLSOceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, boo
 //}
 
 CLSOceanOptics65000DetailedDetectorView::CLSOceanOptics65000DetailedDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
-	AMDetailedDetectorView(configureOnly, parent)
+	AMDetailedOldDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
 	configurationSettings_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSOceanOptics65000DetailedDetectorView::detector(){
+AMOldDetector* CLSOceanOptics65000DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSOceanOptics65000DetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSOceanOptics65000DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -138,7 +138,7 @@ MPlot* CLSOceanOptics65000DetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -221,7 +221,11 @@ bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, 
 
 	mainHL->addWidget(startAcquisitionButton_);
 	mainHL->addWidget(integrationTimeCE_);
-	mainHL->addWidget(totalCountsDSB_);
+	QVBoxLayout *tempVL = new QVBoxLayout();
+	tempVL->addWidget(new QLabel("Counts"));
+	tempVL->addWidget(totalCountsDSB_);
+	mainHL->addLayout(tempVL);
+	//mainHL->addWidget(totalCountsDSB_);
 	mainHL->addWidget(statusLabel_);
 
 	mainVL->addLayout(mainHL);
@@ -248,7 +252,6 @@ void CLSOceanOptics65000DetailedDetectorView::onStatusChanged(bool status){
 }
 
 void CLSOceanOptics65000DetailedDetectorView::onTotalCountsChanged(double totalCounts){
-	qDebug() << "Heard that the QE65000's total counts changed to " << totalCounts;
 	totalCountsDSB_->setValue(totalCounts);
 }
 

@@ -28,18 +28,16 @@ CLSAmptekSDD123DetectorInfo::CLSAmptekSDD123DetectorInfo(const QString &name, co
 CLSAmptekSDD123DetectorInfo::CLSAmptekSDD123DetectorInfo(const CLSAmptekSDD123DetectorInfo &original) :
 	AMBasicXRFDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo* CLSAmptekSDD123DetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* CLSAmptekSDD123DetectorInfo::toNewInfo() const{
 	return new CLSAmptekSDD123DetectorInfo(*this);
 }
 
 CLSAmptekSDD123DetectorInfo& CLSAmptekSDD123DetectorInfo::operator =(const CLSAmptekSDD123DetectorInfo &other)
 {
 	if(this != &other){
-//		retreiveAndSetProperties(other);
 		AMBasicXRFDetectorInfo::operator =(other);
 		setUnits(other.units());
 		setDetectorTemperature(other.detectorTemperature());

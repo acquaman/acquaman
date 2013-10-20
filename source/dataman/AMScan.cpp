@@ -572,6 +572,28 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		}
 
 		break; }
+
+	case 3: {
+
+		if (scanRank() == 3){
+
+			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+			image->setDefaultValue(-1);
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		else{
+
+			MPlotImageBasic* image = new MPlotImageBasic();
+			image->setModel(new AMDataSourceImageData(dataSource), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		break;
+	}
 	default: {
 		// what?
 		break; }
@@ -598,7 +620,7 @@ bool AMScan::loadData()
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
-			success = fileLoader->load(this, AMUserSettings::userDataFolder);
+			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());
 			break;
 		}
 

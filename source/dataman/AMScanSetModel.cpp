@@ -286,7 +286,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 			ps.colorMap.setGamma(1);
 		}
 
-		else if (newScan->scanRank() == 2){
+		else if (newScan->scanRank() == 2 || newScan->scanRank() == 3){
 
 			ps.colorMap.setContrast(1);
 			ps.colorMap.setBrightness(0);
@@ -305,6 +305,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 
 	endInsertRows();
 
+	emit scanAdded(newScan);
 	/// \todo this is a hack; should not be needed... But we do need it to keep QTreeViews from getting messed up. Why?
 	emit layoutChanged();
 }
@@ -325,6 +326,7 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 
 		removeMe->release(this);	// remove our interest in this scan.
 
+		emit scanRemoved();
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
 		emit layoutChanged();
 		return true;
@@ -413,7 +415,7 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 		ps.colorMap.setGamma(1);
 	}
 
-	else if (scan->scanRank() == 2){
+	else if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 		ps.colorMap.setContrast(1);
 		ps.colorMap.setBrightness(0);

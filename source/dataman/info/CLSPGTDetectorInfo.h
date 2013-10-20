@@ -38,7 +38,7 @@ public:
 	CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	CLSPGTDetectorInfo& operator=(const CLSPGTDetectorInfo& other);
 

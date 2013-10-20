@@ -21,18 +21,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTORVIEW_H
 #define SGMMCPDETECTORVIEW_H
 
-#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMOldDetectorView.h"
 #include "beamline/SGM/SGMMCPDetector.h"
 
 class QToolButton;
 
-class SGMMCPBriefDetectorView : public AMBriefDetectorView
+class SGMMCPBriefDetectorView : public AMBriefOldDetectorView
 {
 Q_OBJECT
 public:
 	Q_INVOKABLE explicit SGMMCPBriefDetectorView(SGMMCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
-	AMDetector* detector();
+	AMOldDetector* detector();
 
 protected slots:
 	void onPoweredOnChanged(bool poweredOn);
@@ -45,10 +45,10 @@ protected:
 	SGMMCPDetector *detector_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector, bool configureOnly = false);
+	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
-class SGMMCPDetailedDetectorView : public AMDetailedDetectorView
+class SGMMCPDetailedDetectorView : public AMDetailedOldDetectorView
 {
 Q_OBJECT
 public:
@@ -58,10 +58,10 @@ public:
 	   Needs a destructor for configurationSettings_
 	   */
 
-	AMDetector* detector();
+	AMOldDetector* detector();
 
 	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
-	AMDetectorInfo* configurationSettings() const;
+	AMOldDetectorInfo* configurationSettings() const;
 
 protected slots:
 	void onControlSetpointRequested();
@@ -74,7 +74,7 @@ protected:
 	SGMMCPDetectorInfo *configurationSettings_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector, bool configureOnly = false);
+	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
 #endif // SGMMCPDETECTORVIEW_H

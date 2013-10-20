@@ -60,3 +60,5 @@ tar -zxf cdf34_0.tar.gz
 echo "Please install the CDF library using the installer package."
 open CDF3400ub.pkg
 
+# 6: You may have to compile Qt, if so
+	*** NOTE: Make sure you configure Qt with support for OpenSSL, other github features won't work***
