@@ -431,9 +431,10 @@ public:
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate() { return samplePlate_; }
-	int currentSamplePlateId() const;
+	virtual int currentSamplePlateId() const;
 	/// Returns the id of the sample on the current plate that is in position.
 	int currentSampleId();
+	virtual AMControlSet* currentSamplePositioner() { return sampleManipulatorSet_; }
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
