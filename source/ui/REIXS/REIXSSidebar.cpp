@@ -103,19 +103,19 @@ void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 void REIXSSidebar::onBeamOnButtonClicked()
 {
 	AMAction3 *beamOn = REIXSBeamline::bl()->buildBeamStateChangeAction(true);
-	beamOn->start();
 	connect(beamOn, SIGNAL(succeeded()), beamOn, SLOT(deleteLater()));
 	connect(beamOn, SIGNAL(cancelled()), beamOn, SLOT(deleteLater()));
 	connect(beamOn, SIGNAL(failed()), beamOn, SLOT(deleteLater()));
+	beamOn->start();
 }
 
 void REIXSSidebar::onBeamOffButtonClicked()
 {
 	AMAction3 *beamOff = REIXSBeamline::bl()->buildBeamStateChangeAction(false);
-	beamOff->start();
 	connect(beamOff, SIGNAL(succeeded()), beamOff, SLOT(deleteLater()));
 	connect(beamOff, SIGNAL(cancelled()), beamOff, SLOT(deleteLater()));
 	connect(beamOff, SIGNAL(failed()), beamOff, SLOT(deleteLater()));
+	beamOff->start();
 }
 
 void REIXSSidebar::onBeamOnChanged(bool isOn)
