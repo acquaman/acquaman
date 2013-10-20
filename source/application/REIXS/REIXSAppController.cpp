@@ -51,15 +51,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/AMActionRegistry.h"
 
 #include "actions2/actions/REIXS/REIXSControlMoveAction.h"
-#include "actions2/actions/REIXS/REIXSXESScanAction.h"
+//#include "actions2/actions/REIXS/REIXSXESScanAction.h"
 //#include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
 #include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
 #include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
-#include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
+//#include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 #include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
 //#include "actions2/editors/REIXS/REIXSSampleMoveActionEditor.h"
-#include "actions2/actions/REIXS/REIXSXASScanAction.h"
+//#include "actions2/actions/REIXS/REIXSXASScanAction.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
 
@@ -102,8 +102,8 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 
 	AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
 	//AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
 
@@ -112,14 +112,14 @@ bool REIXSAppController::startupRegisterDatabases() {
 
 	/// \todo Move common ones to main app controller.
 	AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
 	//AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample", "This action moves the REIXS sample manipulator to a defined position, or switches between samples on the current sample plate.", ":/32x32/gnome-display-properties.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move to Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action turns the beam on or off.");
 
 
-	AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
+	//AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
 	/// \todo Editor for XAS Scan actions...
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
