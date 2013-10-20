@@ -79,9 +79,11 @@ AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 }
 
 #include "acquaman/REIXS/REIXSXASScanController.h"
+#include "acquaman/REIXS/REIXSXASScanActionController.h"
 AMScanController * REIXSXASScanConfiguration::createController()
 {
-	return new REIXSXASScanController(this);
+	//return new REIXSXASScanController(this);
+	return new REIXSXASScanActionController(this);
 }
 
 #include "ui/dataman/AMRegionScanConfigurationView.h"

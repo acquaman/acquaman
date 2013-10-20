@@ -45,7 +45,9 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXASScanController.h \
 	source/actions2/actions/REIXS/REIXSXASScanActionInfo.h \
 	source/actions2/actions/REIXS/REIXSXASScanAction.h \
-    source/ui/REIXS/REIXSXASScanConfigurationView.h
+    source/ui/REIXS/REIXSXASScanConfigurationView.h \
+    source/acquaman/REIXS/REIXSXASScanActionController.h \
+	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -83,7 +85,11 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/acquaman/REIXS/REIXSXASScanConfiguration.cpp \
 	source/acquaman/REIXS/REIXSXASScanController.cpp \
 	source/actions2/actions/REIXS/REIXSXASScanActionInfo.cpp \
-    source/ui/REIXS/REIXSXASScanConfigurationView.cpp
+    source/ui/REIXS/REIXSXASScanConfigurationView.cpp \
+    source/acquaman/REIXS/REIXSXASScanActionController.cpp \
+	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
+
+
 
 
 

@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class AMSADetector;
+class AMDetector;
+class CLSSIS3820Scaler;
 
 class AMSamplePlate;
 
@@ -448,6 +450,7 @@ public:
 	AMControlSet* allControlsSet() { return 0; }
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
+	CLSSIS3820Scaler *scaler() { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
@@ -465,6 +468,7 @@ protected:
 	REIXSBeamline();
 
 	void setupExposedControls();
+	void setupExposedDetectors();
 
 protected:
 
@@ -495,6 +499,12 @@ protected:
 	/// List of detectors used in XAS scans
 	REIXSXASDetectors* xasDetectors_;
 
+	CLSSIS3820Scaler *scaler_;
+
+	AMDetector* i0Detector_;
+	AMDetector* teyDetector_;
+	AMDetector* tfyDetector_;
+	AMDetector* pfyDetector_;
 };
 
 #endif // REIXSBEAMLINE_H

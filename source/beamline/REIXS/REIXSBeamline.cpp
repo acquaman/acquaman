@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include <QApplication>
 
@@ -71,6 +73,16 @@ REIXSBeamline::REIXSBeamline() :
 	// MCP detector
 	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "CPD1610-01", this);
 
+	scaler_ = new CLSSIS3820Scaler("BL1610-ID-2:mcs", this);
+	scaler_->channelAt(3)->setCustomChannelName("PFY");
+	scaler_->channelAt(4)->setCustomChannelName("TFY");
+	scaler_->channelAt(18)->setCustomChannelName("TEY");
+	scaler_->channelAt(16)->setCustomChannelName("I0");
+
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0", "I0", scaler_, 16, this);
+	teyDetector_ = new CLSBasicScalerChannelDetector("TEY", "TEY", scaler_, 18, this);
+	tfyDetector_ = new CLSBasicScalerChannelDetector("TFY", "TFY", scaler_, 4, this);
+	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
 	// Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
 //	allControlsSet_ = new AMControlSet(this);
@@ -101,6 +113,7 @@ REIXSBeamline::REIXSBeamline() :
 //	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
 	setupExposedControls();
+	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlate(this);
 
@@ -139,6 +152,13 @@ void REIXSBeamline::setupExposedControls(){
 		addExposedControl(photonSource()->M5Pitch());   //DAVID ADDED 003
 		addExposedControl(photonSource()->M5Yaw());   //DAVID ADDED 003
 	}
+}
+
+void REIXSBeamline::setupExposedDetectors(){
+	addExposedDetector(i0Detector_);
+	addExposedDetector(teyDetector_);
+	addExposedDetector(tfyDetector_);
+	addExposedDetector(pfyDetector_);
 }
 
 AMAction3 *REIXSBeamline::buildShutterStateChangeAction(AMControl *shutter, double value) const
