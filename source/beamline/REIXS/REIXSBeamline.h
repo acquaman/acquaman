@@ -447,6 +447,8 @@ public:
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 
+	/// Build a list of actions that opens/closes necessary shutters.
+	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
 
 signals:
 
@@ -456,8 +458,6 @@ public slots:
 protected:
 	/// Helper method that builds a control move action for the shutters.  Assumes a valid control is provided.
 	AMAction3 *buildShutterStateChangeAction(AMControl *shutter, double value) const;
-	/// Build a list of actions that opens/closes necessary shutters.
-	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
 
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
