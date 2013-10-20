@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 
 #include "actions2/actions/AMWaitAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMListAction3.h"
 
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 
@@ -106,6 +108,35 @@ REIXSBeamline::REIXSBeamline() :
 REIXSBeamline::~REIXSBeamline() {
 }
 
+AMAction3 *REIXSBeamline::buildShutterStateChangeAction(AMControl *shutter, double value) const
+{
+	AMControl *shutter = shutter;
+	AMControlInfo shutterInfo = shutter->toInfo();
+	shutterInfo.setValue(value);
+	AMControlMoveActionInfo3 *shutterActionInfo = new AMControlMoveActionInfo3(shutterInfo);
+	AMControlMoveAction3 *shutterAction = new AMControlMoveAction3(shutterActionInfo, shutter);
+	return shutterAction;
+}
+
+AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
+{
+	AMListAction3 *onList = new AMListAction3(new AMListActionInfo3("REIXS Beam On", "REIXS Beam Off"));
+
+	if (beamOn){
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->ssh1()->value() != 1.0)
+			onList->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->ssh1(), 1.0));
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->psh2()->value() != 1.0)
+			onList->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh2(), 1.0));
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 1.0)
+			onList->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+	}
+
+	else if (!beamOn && REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 0.0)
+		onList->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+}
 
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")

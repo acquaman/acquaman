@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/REIXS/REIXSActionBasedControlEditor.h"
 
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	QWidget(parent),
@@ -99,24 +102,20 @@ void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 
 void REIXSSidebar::onBeamOnButtonClicked()
 {
-	if(AMActionRunner::s()->actionRunning()) {
-		if(QMessageBox::question(this, "Really turn the beam on?", "Actions are currently running in the workflow. Are you sure you want to turn the beam on?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
-			AMActionRunner::s()->runActionImmediately(new REIXSBeamOnOffAction(true));	// runs in background.
-	}
-	else {
-		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(true));
-	}
+	AMAction3 *beamOn = REIXSBeamline::bl()->buildBeamStateChangeAction(true);
+	beamOn->start();
+	connect(beamOn, SIGNAL(succeeded()), beamOn, SLOT(deleteLater()));
+	connect(beamOn, SIGNAL(cancelled()), beamOn, SLOT(deleteLater()));
+	connect(beamOn, SIGNAL(failed()), beamOn, SLOT(deleteLater()));
 }
 
 void REIXSSidebar::onBeamOffButtonClicked()
 {
-	if(AMActionRunner::s()->actionRunning()) {
-		if(QMessageBox::question(this, "Really turn the beam off?", "Actions are currently running in the workflow. Are you sure you want to turn the beam off?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
-			AMActionRunner::s()->runActionImmediately(new REIXSBeamOnOffAction(false));	// runs in background.
-	}
-	else {
-		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(false));
-	}
+	AMAction3 *beamOff = REIXSBeamline::bl()->buildBeamStateChangeAction(false);
+	beamOff->start();
+	connect(beamOff, SIGNAL(succeeded()), beamOff, SLOT(deleteLater()));
+	connect(beamOff, SIGNAL(cancelled()), beamOff, SLOT(deleteLater()));
+	connect(beamOff, SIGNAL(failed()), beamOff, SLOT(deleteLater()));
 }
 
 void REIXSSidebar::onBeamOnChanged(bool isOn)
