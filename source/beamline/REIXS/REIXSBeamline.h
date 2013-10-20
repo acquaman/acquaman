@@ -155,7 +155,7 @@ protected:
 
 };
 
-class AMListAction;
+class AMListAction3;
 
 /// The REIXSSpectrometer control is a high-level abstraction for controlling the spectrometer energy.  It's also a container for the set of (low-level, physical) controls which make up the spectrometer:
 /*!
@@ -262,7 +262,7 @@ protected:
 	double specifiedEV_;
 
 	/// It takes lots of steps to move the detector into position. This is the action we use to run a detector move. Valid if a move is in progress, and 0 otherwise.
-	AMListAction* moveAction_;
+	AMListAction3 *moveAction_;
 
 	/// Holds the values for all the motors we need to move, to reach an energy position.
 	AMControlInfoList moveSetpoint_;
@@ -394,7 +394,7 @@ protected:
 	bool stopInProgress_;
 
 	/// Used to run the steps of a move. 0 if one of our special moves is not in progress.
-	AMListAction* moveAction_;
+	AMListAction3 *moveAction_;
 
 	/// Used for change detection of isMoving()
 	bool wasMoving_;
@@ -458,9 +458,6 @@ public slots:
 
 
 protected:
-	/// Helper method that builds a control move action for the shutters.  Assumes a valid control is provided.
-	AMAction3 *buildShutterStateChangeAction(AMControl *shutter, double value) const;
-
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
 

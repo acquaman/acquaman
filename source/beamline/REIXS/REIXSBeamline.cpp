@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/AMSamplePlate.h"
 
-#include "actions2/actions/AMWaitAction.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 
@@ -141,15 +141,6 @@ void REIXSBeamline::setupExposedControls(){
 	}
 }
 
-AMAction3 *REIXSBeamline::buildShutterStateChangeAction(AMControl *shutter, double value) const
-{
-	AMControlInfo shutterInfo = shutter->toInfo();
-	shutterInfo.setValue(value);
-	AMControlMoveActionInfo3 *shutterActionInfo = new AMControlMoveActionInfo3(shutterInfo);
-	AMControlMoveAction3 *shutterAction = new AMControlMoveAction3(shutterActionInfo, shutter);
-	return shutterAction;
-}
-
 AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 {
 	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("REIXS Beam On", "REIXS Beam Off"));
@@ -157,17 +148,17 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	if (beamOn){
 
 		if (REIXSBeamline::bl()->valvesAndShutters()->ssh1()->value() != 1.0)
-			list->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->ssh1(), 1.0));
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->ssh1(), 1.0));
 
 		if (REIXSBeamline::bl()->valvesAndShutters()->psh2()->value() != 1.0)
-			list->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh2(), 1.0));
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh2(), 1.0));
 
 		if (REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 1.0)
-			list->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
 	}
 
 	else if (!beamOn && REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 0.0)
-		list->addSubAction(buildShutterStateChangeAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
 
 	return list;
 }
@@ -460,15 +451,6 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 }
 
-
-
-
-
-
-
-#include "actions2/AMListAction.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
-
 AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 {
 	if(!isConnected()) {
@@ -494,44 +476,44 @@ AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 	moveSetpoint_ = calibration_.computeSpectrometerPosition(specifiedGrating_, specifiedEV_, currentFocusOffset_, currentDetectorTiltOffset_);
 
 	// build the move action (With sub-actions to run in parallel)
-	moveAction_ = new AMListAction(new AMActionInfo("spectrometer eV move"), AMListAction::ParallelMode, this);
+	moveAction_ = new AMListAction3(new AMListActionInfo3("spectrometer eV move", "spectrometer eV move"), AMListAction3::Parallel, this);
 	// if we need to move the grating into position, add actions for that:
 	if(!gratingInPosition()) {
 		// make a sequential action for the grating moves
-		AMListAction* gratingAction = new AMListAction(new AMActionInfo("grating move"));	// sequential by default.
+		AMListAction3* gratingAction = new AMListAction3(new AMListActionInfo3("grating move", "grating move"));	// sequential by default.
 		// first, move Z to 0
-		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), 0));
+		gratingAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->z(), 0));
 		// then move U,V,W to 0
-		AMListAction* uvw0Action = new AMListAction(new AMActionInfo("grating UVW move to 0"), AMListAction::ParallelMode);
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), 0));
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), 0));
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), 0));
+		AMListAction3* uvw0Action = new AMListAction3(new AMListActionInfo3("grating UVW move to 0"), AMListAction3::Parallel);
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->u(), 0));
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->v(), 0));
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->w(), 0));
 		gratingAction->addSubAction(uvw0Action);
 		// then move R,S,T into position (Can do simultaneously with parallel action)
-		AMListAction* rstAction = new AMListAction(new AMActionInfo("grating RST move"), AMListAction::ParallelMode);
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
+		AMListAction3* rstAction = new AMListAction3(new AMListActionInfo3("grating RST move"), AMListAction3::Parallel);
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
 		gratingAction->addSubAction(rstAction);
 		// move U,V,W to actual position
-		AMListAction* uvwAction = new AMListAction(new AMActionInfo("grating UVW move"), AMListAction::ParallelMode);
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), moveSetpoint_.controlNamed("hexapodV").value()));
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), moveSetpoint_.controlNamed("hexapodW").value()));
+		AMListAction3* uvwAction = new AMListAction3(new AMListActionInfo3("grating UVW move"), AMListAction3::Parallel);
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->v(), moveSetpoint_.controlNamed("hexapodV").value()));
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->w(), moveSetpoint_.controlNamed("hexapodW").value()));
 		gratingAction->addSubAction(uvwAction);
 		// then move X,Y,Z into position (can do simultaneously with parallel action)
-		AMListAction* xyzAction = new AMListAction(new AMActionInfo("grating XYZ move"), AMListAction::ParallelMode);
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->y(), moveSetpoint_.controlNamed("hexapodY").value()));
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), moveSetpoint_.controlNamed("hexapodZ").value()));
+		AMListAction3* xyzAction = new AMListAction3(new AMListActionInfo3("grating XYZ move"), AMListAction3::Parallel);
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->y(), moveSetpoint_.controlNamed("hexapodY").value()));
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->z(), moveSetpoint_.controlNamed("hexapodZ").value()));
 		gratingAction->addSubAction(xyzAction);
 
 		moveAction_->addSubAction(gratingAction);
 	}
 	// add Lift, Tilt, and Translation
-	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
-	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
-	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
 	// Disabled for now: moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
 
 	// Watch the move action: succeeded or failed (or cancelled)
@@ -642,14 +624,14 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 {
 	Q_UNUSED(previousState)
 
-	if(state == AMAction::Succeeded || state == AMAction::Failed || state == AMAction::Cancelled) {
+	if(state == AMAction3::Succeeded || state == AMAction3::Failed || state == AMAction3::Cancelled) {
 		moveAction_->deleteLater();	// cannot delete right away, because we might still be executing inside the moveAction_'s code.
 		moveAction_ = 0;
-		if(state == AMAction::Succeeded) {
+		if(state == AMAction3::Succeeded) {
 			emit moveSucceeded();
 //			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(value())));
 		}
-		else if(state == AMAction::Failed) {
+		else if(state == AMAction3::Failed) {
 			emit moveFailed(AMControl::OtherFailure);
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMControl::OtherFailure, "Spectrometer Move Failed."));
 		}
@@ -708,9 +690,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 	setpoint_ = setpoint;
 	stopInProgress_ = false;
-	moveAction_ = new AMListAction(new AMActionInfo("REIXS mono move"));
-
-
+	moveAction_ = new AMListAction3(new AMListActionInfo3("REIXS mono move", "REIXS mono move"));
 
 	// n-step sub moves
 	if(fabs(value() - setpoint_) > repeatMoveThreshold_) {
@@ -721,7 +701,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 				while(movePoint_ < lowEnergyThreshold_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
-					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
 				}
 
@@ -733,13 +713,13 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				movePoint_ = lowEnergyThreshold_;
 
 				for(int i=0; i<repeatMoveAttempts_; ++i) {
-							moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+							moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					}
 					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
 
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
-					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
 				}
 
@@ -751,7 +731,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
-					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
 				}
 
@@ -762,7 +742,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
-					moveAction_->addSubAction(new AMInternalControlMoveAction(control_, movePoint_));
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
 				}
 
@@ -771,7 +751,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 			//Fall though or finalize move:
 
 			for(int i=0; i<repeatMoveAttempts_; ++i) {
-						moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+						moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
 						qDebug() << "Fallthrough " << setpoint_;
 				}
 
@@ -780,7 +760,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	}
 	else {
 		control_->setSettlingTime(singleMoveSettlingTime_);
-		moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
 		qDebug() << "Small move " << setpoint_;
 	}
 
