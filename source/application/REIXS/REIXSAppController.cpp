@@ -25,10 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
-#include "ui/REIXS/REIXSScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
-
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
 
 #include "util/AMErrorMonitor.h"
@@ -138,16 +137,16 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	mw_->insertHeading("Experiment Setup", 1);
 	//////////
-	REIXSScanConfigurationViewHolder* scanConfigurationHolder;
+	AMScanConfigurationViewHolder3* scanConfigurationHolder;
 
 	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView();
-	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xasConfigView);
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
@@ -264,7 +263,7 @@ void REIXSAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	REIXSScanConfigurationViewHolder* holder = new REIXSScanConfigurationViewHolder(view);
+	AMScanConfigurationViewHolder3* holder = new AMScanConfigurationViewHolder3(view);
 	holder->setAttribute(Qt::WA_DeleteOnClose, true);
 	holder->show();
 }
