@@ -73,13 +73,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 REIXSAppController::REIXSAppController(QObject *parent) :
-	AMAppControllerForActions2(parent)
+	AMAppController(parent)
 {
 }
 
 // Re-implemented to create the REIXSBeamline object
 bool REIXSAppController::startupBeforeAnything() {
-	if(!AMAppControllerForActions2::startupBeforeAnything()) return false;
+	if(!AMAppController::startupBeforeAnything()) return false;
 
 	// If a command-line option has been specified to choose a new userDataFolder:
 	if(qApp->arguments().contains("--ChooseUserDataFolder"))
@@ -93,7 +93,7 @@ bool REIXSAppController::startupBeforeAnything() {
 
 // Re-implemented to register REIXS-specific database classes
 bool REIXSAppController::startupRegisterDatabases() {
-	if(!AMAppControllerForActions2::startupRegisterDatabases()) return false;
+	if(!AMAppController::startupRegisterDatabases()) return false;
 
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -130,7 +130,7 @@ bool REIXSAppController::startupRegisterDatabases() {
 
 // Re-implemented to add REIXS-specific user interfaces
 bool REIXSAppController::startupCreateUserInterface() {
-	if(!AMAppControllerForActions2::startupCreateUserInterface()) return false;
+	if(!AMAppController::startupCreateUserInterface()) return false;
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -208,7 +208,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 
 bool REIXSAppController::startupAfterEverything() {
-	if(!AMAppControllerForActions2::startupAfterEverything()) return false;
+	if(!AMAppController::startupAfterEverything()) return false;
 
 	// Checking for and making the first run in the database, if there isn't one already.
 	////////////////////////////////////////
@@ -224,9 +224,9 @@ bool REIXSAppController::startupAfterEverything() {
 
 void REIXSAppController::shutdown() {
 
-    // Make sure we release/clean-up the beamline interface
-    AMBeamline::releaseBl();
-	AMAppControllerForActions2::shutdown();
+	// Make sure we release/clean-up the beamline interface
+	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 #include "dataman/AMScan.h"

@@ -21,12 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSAPPCONTROLLER_H
 #define REIXSAPPCONTROLLER_H
 
-#include "application/AMAppControllerForActions2.h"
+#include "application/AMAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
 class AMWorkflowView;
 
-class REIXSAppController : public AMAppControllerForActions2 {
+class REIXSAppController : public AMAppController {
 	Q_OBJECT
 
 public:
