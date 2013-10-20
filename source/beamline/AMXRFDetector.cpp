@@ -70,11 +70,19 @@ void AMXRFDetector::buildSpectrumDataSources()
 
 void AMXRFDetector::buildDeadTimeDataSources()
 {
-	foreach (AMReadOnlyPVControl *icr, icrControls_)
-		icrSources_.append(new AM0DProcessVariableDataSource(icr->readPV(), icr->name(), this));
+	foreach (AMReadOnlyPVControl *icr, icrControls_){
 
-	foreach (AMReadOnlyPVControl *ocr, ocrControls_)
-		ocrSources_.append(new AM0DProcessVariableDataSource(ocr->readPV(), ocr->name(), this));
+		AMDataSource *source = new AM0DProcessVariableDataSource(icr->readPV(), icr->name(), this);
+		icrSources_.append(source);
+		connect(source->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SIGNAL(deadTimeChanged()));
+	}
+
+	foreach (AMReadOnlyPVControl *ocr, ocrControls_){
+
+		AMDataSource *source = new AM0DProcessVariableDataSource(ocr->readPV(), ocr->name(), this);
+		ocrSources_.append(source);
+		connect(source->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SIGNAL(deadTimeChanged()));
+	}
 }
 
 void AMXRFDetector::buildAllAnalysisBlocks()
@@ -131,6 +139,28 @@ double AMXRFDetector::elapsedTime() const
 		return elapsedTimeControl_->value();
 
 	return -1;
+}
+
+double AMXRFDetector::deadTime() const
+{
+	double maximumDeadTime = deadTimeAt(0);
+
+	for (int i = 1, size = icrSources_.size(); i < size; i++)
+		if (maximumDeadTime < deadTimeAt(i))
+			maximumDeadTime = deadTimeAt(i);
+
+	return maximumDeadTime;
+}
+
+double AMXRFDetector::deadTimeAt(int index) const
+{
+	double inputCounts = icrSources_.at(index)->value(AMnDIndex());
+	double outputCounts = ocrSources_.at(index)->value(AMnDIndex());
+
+	if (inputCounts == 0 || outputCounts == 0 || inputCounts < outputCounts)
+		return 0;
+
+	return 1 - outputCounts/inputCounts;
 }
 
 AMNumber AMXRFDetector::reading(const AMnDIndex &indexes) const
@@ -252,6 +282,7 @@ void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
 {
 	regionsOfInterest_.append(newRegionOfInterest);
 	addRegionOfInterestImplementation(newRegionOfInterest);
+	emit addedRegionOfInterest(newRegionOfInterest);
 }
 
 void AMXRFDetector::removeRegionOfInterest(const AMEmissionLine &emissionLine)
@@ -266,6 +297,7 @@ void AMXRFDetector::removeRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 	if (regionsOfInterest_.removeOne(regionOfInterest)){
 
 		removeRegionOfInterestImplementation(regionOfInterest);
+		emit removedRegionOfInterest(regionOfInterest);
 		delete regionOfInterest;
 	}
 }

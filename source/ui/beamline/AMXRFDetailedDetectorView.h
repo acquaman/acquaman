@@ -83,6 +83,15 @@ public:
 	/// Returns the default emission line color.
 	const QColor defaultEmissionLineColor() const { return emissionLineLegendColors_.value("Default"); }
 
+	/// Sets the pile up peak color.
+	void setPileUpPeakColor(const QColor &color);
+	/// Returns pile up peak color.
+	const QColor pileUpPeakColor() const { return pileUpPeakColor_; }
+	/// Sets the combination pile up peak color.
+	void setCombinationPileUpPeakColor(const QColor &color);
+	/// Returns combination pile up peak color.
+	const QColor combinationPileUpPeakColor() const { return combinationPileUpPeakColor_; }
+
 public slots:
 	/// Sets the energy range filter for this view.
 	void setEnergyRange(const AMRange &newRange);
@@ -126,6 +135,8 @@ protected slots:
 	void updateCombinationPileUpPeaks();
 	/// Handles updating the combination element by popping up a dialog.
 	void onCombinationChoiceButtonClicked();
+	/// Handles updating the dead time label.
+	void onDeadTimeChanged();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
@@ -138,6 +149,10 @@ protected:
 	void buildPeriodicTableViewAndElementView();
 	/// Method that builds the show spectra and show multiple spectra buttons.
 	void buildShowSpectraButtons();
+	/// Method that builds the pile up peak buttons.
+	void buildPileUpPeakButtons();
+	/// Method that builds the dead time GUI elements.
+	void buildDeadTimeView();
 	/// Helper method that removes all of the plot items from the provided list.
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
@@ -162,6 +177,10 @@ protected:
 	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
 	/// A simple map for the line colors.
 	QMap<QString, QColor> emissionLineLegendColors_;
+	/// The pile up peak color.
+	QColor pileUpPeakColor_;
+	/// The combination pile up peak color.
+	QColor combinationPileUpPeakColor_;
 
 	/// Holds the reference AMElement that was last clicked.
 	AMElement *currentElement_;
@@ -180,6 +199,9 @@ protected:
 	QList<MPlotItem *> pileUpPeakMarkers_;
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
+
+	/// The dead time label.
+	QLabel *deadTimeLabel_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

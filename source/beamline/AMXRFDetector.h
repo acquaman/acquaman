@@ -49,6 +49,12 @@ public:
 	virtual AMNumber singleReading() const;
 	/// Re-implementing for optimizing the access speed.
 	virtual bool reading1D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+	/// Returns whether this detector does dead time correction.
+	virtual bool hasDeadTimeCorrection() const { return doDeadTimeCorrection_; }
+	/// Returns the dead time as a percentage.  If there are multiple dead times (for many elements) then it returns the worst.
+	virtual double deadTime() const;
+	/// Returns a specific dead time as a percentage.
+	virtual double deadTimeAt(int index) const;
 
 	/// Returns the primary data source for viewing the detector's output.
 	virtual AMDataSource *dataSource() const { return primarySpectrumDataSource_; }
@@ -89,6 +95,12 @@ public slots:
 signals:
 	/// Notifier that the elapsed time has updated.
 	void elapsedTimeChanged(double time);
+	/// Notifier that a region of interest was added.  Passes the new region.
+	void addedRegionOfInterest(AMRegionOfInterest *);
+	/// Notifier that a region of interest was removed.  Passes the removed region.
+	void removedRegionOfInterest(AMRegionOfInterest *);
+	/// Notifier that the dead time has updated.
+	void deadTimeChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

@@ -23,6 +23,8 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	emissionLineLegendColors_.insert("L", QColor(255, 255, 0));
 	emissionLineLegendColors_.insert("M", QColor(255, 0, 0));
 	emissionLineLegendColors_.insert("Default", palette().button().color());
+	pileUpPeakColor_ = QColor(42, 149, 77);
+	combinationPileUpPeakColor_ = QColor(42, 149, 77);
 
 	currentElement_ = periodicTable_->elementBySymbol("Fe");
 	combinationElement_ = periodicTable_->elementBySymbol("Ca");
@@ -35,7 +37,29 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 
 	buildPeriodicTableViewAndElementView();
 	buildShowSpectraButtons();
+	buildPileUpPeakButtons();
+	buildDeadTimeView();
+}
 
+void AMXRFDetailedDetectorView::buildDeadTimeView()
+{
+	bool deadTimeEnabled = detector_->hasDeadTimeCorrection();
+
+	deadTimeLabel_ = new QLabel("Dead Time: 0%");
+	deadTimeLabel_->setVisible(deadTimeEnabled);
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
+
+	QVBoxLayout *deadTimeLayout = new QVBoxLayout;
+	deadTimeLayout->addWidget(deadTimeLabel_);
+
+	// Remove the "addStretch" from the basic layout before adding the new elements.
+	rightLayout_->removeItem(rightLayout_->itemAt(rightLayout_->count()-1));
+	rightLayout_->addLayout(deadTimeLayout);
+	rightLayout_->addStretch();
+}
+
+void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
+{
 	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
 	showPileUpPeaksButton_->setMaximumHeight(25);
 	showPileUpPeaksButton_->setCheckable(true);
@@ -410,6 +434,16 @@ void AMXRFDetailedDetectorView::setDefaultEmissionLineColor(const QColor &color)
 	emissionLineLegendColors_.insert("Default", color);
 }
 
+void AMXRFDetailedDetectorView::setPileUpPeakColor(const QColor &color)
+{
+	pileUpPeakColor_ = color;
+}
+
+void AMXRFDetailedDetectorView::setCombinationPileUpPeakColor(const QColor &color)
+{
+	combinationPileUpPeakColor_ = color;
+}
+
 void AMXRFDetailedDetectorView::onSpectrumComboBoxIndexChanged(int index)
 {
 	removeAllPlotItems(spectraPlotItems_);
@@ -566,4 +600,9 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 		combinationElement_ = el;
 		updateCombinationPileUpPeaks();
 	}
+}
+
+void AMXRFDetailedDetectorView::onDeadTimeChanged()
+{
+	deadTimeLabel_->setText(QString("Dead Time: %1%").arg(detector_->deadTime()));
 }
