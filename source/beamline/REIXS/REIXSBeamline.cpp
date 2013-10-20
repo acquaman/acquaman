@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 
+#include <QApplication>
+
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
@@ -69,41 +71,72 @@ REIXSBeamline::REIXSBeamline() :
 
 
 	// Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
-	allControlsSet_ = new AMControlSet(this);
-	allControlsSet_->addControl(photonSource()->energy());
-	allControlsSet_->addControl(photonSource()->monoGratingSelector());
-	allControlsSet_->addControl(photonSource()->monoMirrorSelector());
-	allControlsSet_->addControl(photonSource()->monoSlit());
-	allControlsSet_->addControl(spectrometer());
-	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
-	allControlsSet_->addControl(spectrometer()->detectorTranslation());
-	allControlsSet_->addControl(spectrometer()->detectorTiltDrive());
-	allControlsSet_->addControl(spectrometer()->hexapod()->x());
-	allControlsSet_->addControl(spectrometer()->hexapod()->y());
-	allControlsSet_->addControl(spectrometer()->hexapod()->z());
-	allControlsSet_->addControl(spectrometer()->hexapod()->u());
-	allControlsSet_->addControl(spectrometer()->hexapod()->v());
-	allControlsSet_->addControl(spectrometer()->hexapod()->w());
-	allControlsSet_->addControl(spectrometer()->hexapod()->r());
-	allControlsSet_->addControl(spectrometer()->hexapod()->s());
-	allControlsSet_->addControl(spectrometer()->hexapod()->t());
-	allControlsSet_->addControl(sampleChamber()->x());
-	allControlsSet_->addControl(sampleChamber()->y());
-	allControlsSet_->addControl(sampleChamber()->z());
-	allControlsSet_->addControl(sampleChamber()->r());
-	allControlsSet_->addControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
-	allControlsSet_->addControl(photonSource()->M5Pitch());   //DAVID ADDED 003
-	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
-	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+//	allControlsSet_ = new AMControlSet(this);
+//	allControlsSet_->addControl(photonSource()->energy());
+//	allControlsSet_->addControl(photonSource()->monoGratingSelector());
+//	allControlsSet_->addControl(photonSource()->monoMirrorSelector());
+//	allControlsSet_->addControl(photonSource()->monoSlit());
+//	allControlsSet_->addControl(spectrometer());
+//	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
+//	allControlsSet_->addControl(spectrometer()->detectorTranslation());
+//	allControlsSet_->addControl(spectrometer()->detectorTiltDrive());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->x());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->y());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->z());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->u());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->v());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->w());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->r());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->s());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->t());
+//	allControlsSet_->addControl(sampleChamber()->x());
+//	allControlsSet_->addControl(sampleChamber()->y());
+//	allControlsSet_->addControl(sampleChamber()->z());
+//	allControlsSet_->addControl(sampleChamber()->r());
+//	allControlsSet_->addControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
+//	allControlsSet_->addControl(photonSource()->M5Pitch());   //DAVID ADDED 003
+//	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+//	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
+	setupExposedControls();
 
 	samplePlate_ = new AMSamplePlate(this);
 
 	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
-
 REIXSBeamline::~REIXSBeamline() {
+}
+
+void REIXSBeamline::setupExposedControls(){
+	addExposedControl(photonSource()->energy());
+	addExposedControl(photonSource()->monoGratingSelector());
+	addExposedControl(photonSource()->monoMirrorSelector());
+	addExposedControl(photonSource()->monoSlit());
+	addExposedControl(spectrometer());
+	addExposedControl(spectrometer()->detectorTiltDrive());
+	addExposedControl(sampleChamber()->x());
+	addExposedControl(sampleChamber()->y());
+	addExposedControl(sampleChamber()->z());
+	addExposedControl(sampleChamber()->r());
+	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+
+	if(QApplication::instance()->arguments().contains("--admin")){
+		addExposedControl(spectrometer()->spectrometerRotationDrive());
+		addExposedControl(spectrometer()->detectorTranslation());
+		addExposedControl(spectrometer()->hexapod()->x());
+		addExposedControl(spectrometer()->hexapod()->y());
+		addExposedControl(spectrometer()->hexapod()->z());
+		addExposedControl(spectrometer()->hexapod()->u());
+		addExposedControl(spectrometer()->hexapod()->v());
+		addExposedControl(spectrometer()->hexapod()->w());
+		addExposedControl(spectrometer()->hexapod()->r());
+		addExposedControl(spectrometer()->hexapod()->s());
+		addExposedControl(spectrometer()->hexapod()->t());
+		addExposedControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
+		addExposedControl(photonSource()->M5Pitch());   //DAVID ADDED 003
+		addExposedControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+	}
 }
 
 

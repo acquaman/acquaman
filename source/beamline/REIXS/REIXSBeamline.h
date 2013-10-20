@@ -444,7 +444,8 @@ public:
 	/// All the controls for positioning the Spectrometer
 	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	AMControlSet* allControlsSet() { return allControlsSet_; }
+	//AMControlSet* allControlsSet() { return allControlsSet_; }
+	AMControlSet* allControlsSet() { return 0; }
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 
@@ -457,6 +458,10 @@ public slots:
 protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
+
+	void setupExposedControls();
+
+protected:
 
 	/// A group of controls making up the EPU and mono
 	REIXSPhotonSource* photonSource_;
@@ -476,7 +481,7 @@ protected:
 	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
 	AMControlSet* spectrometerPositionSet_;
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	AMControlSet* allControlsSet_;
+	//AMControlSet* allControlsSet_;
 
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
