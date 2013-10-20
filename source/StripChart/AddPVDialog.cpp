@@ -1,7 +1,6 @@
 #include "StripChart/AddPVDialog.h"
 
-AddPVDialog::AddPVDialog(QWidget *parent) :
-    QDialog(parent)
+AddPVDialog::AddPVDialog(QWidget *parent) : QDialog(parent)
 {
     QLabel *pvNamePrompt = new QLabel("PV name : ");
     pvNamePrompt->setToolTip("Enter the EPICS read PV name.");
@@ -49,9 +48,11 @@ AddPVDialog::AddPVDialog(QWidget *parent) :
 }
 
 
+
 AddPVDialog::~AddPVDialog()
 {
 }
+
 
 
 void AddPVDialog::onPVNameEntered(const QString name)
@@ -62,10 +63,12 @@ void AddPVDialog::onPVNameEntered(const QString name)
 }
 
 
+
 void AddPVDialog::onPVDescriptionEntered(const QString description)
 {
     pvDescription_ = description;
 }
+
 
 
 void AddPVDialog::onPVUnitsEntered(const QString units)
@@ -74,10 +77,12 @@ void AddPVDialog::onPVUnitsEntered(const QString units)
 }
 
 
+
 QString AddPVDialog::pvName()
 {
     return pvName_;
 }
+
 
 
 QString AddPVDialog::pvDescription()
@@ -86,10 +91,13 @@ QString AddPVDialog::pvDescription()
 }
 
 
+
 QString AddPVDialog::pvUnits()
 {
     return pvUnits_;
 }
+
+
 
 void AddPVDialog::onAcceptButtonClicked()
 {
@@ -103,6 +111,7 @@ void AddPVDialog::onAcceptButtonClicked()
     AMReadOnlyPVControl *pvControl = new AMReadOnlyPVControl(pvName_, pvName_, this);
     connect( pvControl, SIGNAL(connected(bool)), this, SLOT(pvIsValid(bool)) );
 }
+
 
 
 void AddPVDialog::pvIsValid(bool isValid)

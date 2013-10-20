@@ -1,12 +1,8 @@
 #ifndef STRIPTOOLITEM_H
 #define STRIPTOOLITEM_H
 
-#include <QObject>
-
 #include "beamline/AMPVControl.h"
 #include "MPlot/MPlotSeriesData.h"
-#include "MPlot/MPlotSeries.h"
-#include "MPlot/MPlotMarker.h"
 
 class StripToolItem : public QObject
 {
@@ -23,23 +19,27 @@ protected:
     int updateIndex_;
     int valuesDisplayed_;
     int dataVectorSize_;
+    bool isUpdating_;
     QString pvName_;
     QString pvDescription_;
     QString xUnits_;
     QString yUnits_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
+    QVector<double> xValuesDisplayed_;
+    QVector<double> yValuesDisplayed_;
     AMReadOnlyPVControl *pvControl_;
-    MPlotVectorSeriesData *pvDataDisplay_;
-    MPlotSeriesBasic *pvSeries_;
+    MPlotVectorSeriesData *pvData_;
 
 protected:
     QString pvName();
     QString pvDescription();
     QString xUnits();
     QString yUnits();
-    MPlotItem* series();
+    MPlotVectorSeriesData* data();
+    int valuesDisplayed();
     void setValuesDisplayed(const int newValuesDisplayed);
+    void setPVUpdating(bool isUpdating);
 
 protected slots:
     void onPVValueChanged(double newValue);

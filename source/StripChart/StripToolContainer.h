@@ -1,8 +1,6 @@
 #ifndef STRIPTOOLCONTAINER_H
 #define STRIPTOOLCONTAINER_H
 
-#include <QObject>
-
 #include "StripChart/StripToolItem.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotItem.h"
@@ -20,20 +18,20 @@ public:
 signals:
 
 protected:
-    int itemCount_;
     QMap<QString, StripToolItem *> pvNameToItemMap;
 
 protected:
+    bool contains(const QString &pvName);
     void addItem(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
     void deleteItem(const QString &pvName);
-    bool contains(const QString &pvName);
+    int valuesDisplayed(const QString &pvName);
     void setValuesDisplayed(const QString &pvName, const int newValuesDisplayed);
-    MPlotItem* series(const QString &pvName);
+    void setPVUpdating(const QString &pvName, bool isUpdating);
+    MPlotVectorSeriesData* data(const QString &pvName);
     QString description(const QString &pvName);
     QString xUnits(const QString &pvName);
     QString yUnits(const QString &pvName);
-    QString getAxisLeft(MPlotItem *plotSelection);
-    QString getAxisBottom(MPlotItem *plotSelection);
+    QList<QString> getPVList();
 };
 
 #endif // STRIPTOOLCONTAINER_H
