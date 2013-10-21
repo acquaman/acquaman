@@ -467,9 +467,6 @@ protected:
 	void setupExposedControls();
 	void setupExposedDetectors();
 
-	/// Helper method that builds a control move action for the shutters.  Assumes a valid control is provided.
-	AMAction3 *buildShutterStateChangeAction(AMControl *shutter, double value) const;
-
 protected:
 
 	/// A group of controls making up the EPU and mono
