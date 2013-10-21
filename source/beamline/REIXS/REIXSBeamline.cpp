@@ -161,15 +161,6 @@ void REIXSBeamline::setupExposedDetectors(){
 	addExposedDetector(pfyDetector_);
 }
 
-AMAction3 *REIXSBeamline::buildShutterStateChangeAction(AMControl *shutter, double value) const
-{
-	AMControlInfo shutterInfo = shutter->toInfo();
-	shutterInfo.setValue(value);
-	AMControlMoveActionInfo3 *shutterActionInfo = new AMControlMoveActionInfo3(shutterInfo);
-	AMControlMoveAction3 *shutterAction = new AMControlMoveAction3(shutterActionInfo, shutter);
-	return shutterAction;
-}
-
 AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 {
 	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("REIXS Beam On", "REIXS Beam Off"));
