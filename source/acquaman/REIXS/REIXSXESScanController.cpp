@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
@@ -36,7 +35,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMScanController(configuration, parent)
 {
 	config_ = configuration;
-	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
+//	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
 
 	/////////////////////////
 
@@ -135,14 +134,14 @@ bool REIXSXESScanController::initializeImplementation() {
 		//if(initialMoveAction_->isRunning())
 		//	initialMoveAction_->cancel();
 
-		if(!initialMoveAction_->setSetpoint(config_->centerEV())) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
-			return false;
-		}
+//		if(!initialMoveAction_->setSetpoint(config_->centerEV())) {
+//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
+//			return false;
+//		}
 
-		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
-		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
-		initialMoveAction_->start();
+//		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
+//		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
+//		initialMoveAction_->start();
 
 		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
@@ -152,13 +151,13 @@ bool REIXSXESScanController::initializeImplementation() {
 
 void REIXSXESScanController::onInitialSetupMoveFailed() {
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 13, "Could not move the spectrometer into position before starting a scan."));
-	disconnect(initialMoveAction_, 0, this, 0);
+//	disconnect(initialMoveAction_, 0, this, 0);
 	setFailed();
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 
-	disconnect(initialMoveAction_, 0, this, 0);
+//	disconnect(initialMoveAction_, 0, this, 0);
 
 	// remember the state of the beamline at the beginning of the scan.
 	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());

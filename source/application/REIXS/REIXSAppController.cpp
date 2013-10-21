@@ -47,19 +47,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 
-#include "actions2/AMActionRegistry.h"
-
-//#include "actions2/actions/REIXS/REIXSControlMoveAction.h"
-//#include "actions2/actions/REIXS/REIXSXESScanAction.h"
-//#include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
-//#include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
-//#include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
-//#include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
-//#include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
-//#include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
-//#include "actions2/editors/REIXS/REIXSSampleMoveActionEditor.h"
-//#include "actions2/actions/REIXS/REIXSXASScanAction.h"
-
 #include "analysis/REIXS/REIXSXESImageAB.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
@@ -147,7 +134,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
-	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView();
+	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));

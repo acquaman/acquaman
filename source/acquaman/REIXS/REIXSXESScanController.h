@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDateTime>
 
-class AMInternalControlMoveAction;
+//class AMInternalControlMoveAction;
 
 
 /// This is the implementation of AMScanController that executes a REIXS XES Scan, based on the parameters in a given REIXSXESScanConfiguration.
@@ -77,7 +77,7 @@ protected:
 
 
 	/// This move action is used to implement the initial move of the spectrometer into position
-	AMInternalControlMoveAction* initialMoveAction_;
+//	AMInternalControlMoveAction* initialMoveAction_;
 
 
 private:
