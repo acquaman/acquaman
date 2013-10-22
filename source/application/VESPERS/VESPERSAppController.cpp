@@ -293,7 +293,7 @@ void VESPERSAppController::setupUserInterface()
 	testView->addEmissionLineNameFilter(QRegExp("1"));
 	testView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	testView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(testView, "Detectors", "New XRF Detector", ":/system-search.png");
+	mw_->addPane(testView, "Detectors", "New 1-el Vortex", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();

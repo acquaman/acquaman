@@ -56,6 +56,16 @@ public:
 	/// Returns a specific dead time as a percentage.
 	virtual double deadTimeAt(int index) const;
 
+	// The dead time data sources.  Dead time corrections are input/output and to get the percentage, 1 - output/input.
+	/// Returns the input count data sources.
+	QList<AMDataSource *> inputCountSources() const { return icrSources_; }
+	/// Returns the input count data source at the given index.
+	AMDataSource *inputCountSourceAt(int index) const { return icrSources_.at(index); }
+	/// Returns the output count data sources.
+	QList<AMDataSource *> outputCountSources() const { return ocrSources_; }
+	/// Returns the output count data source at the given index.
+	AMDataSource *outputCountSourceAt(int index) const { return ocrSources_.at(index); }
+
 	/// Returns the primary data source for viewing the detector's output.
 	virtual AMDataSource *dataSource() const { return primarySpectrumDataSource_; }
 	/// Returns all of the raw spectrum data sources.

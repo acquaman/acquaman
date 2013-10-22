@@ -137,6 +137,8 @@ protected slots:
 	void onCombinationChoiceButtonClicked();
 	/// Handles updating the dead time label.
 	void onDeadTimeChanged();
+	/// Handles changing the data sources used for the corrected sum PV.
+	void onDeadTimeButtonClicked();
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
@@ -200,8 +202,13 @@ protected:
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 
+	/// The check box that holds whether multiple spectra should be shown as a waterfall plot or not.
+	QCheckBox *showWaterfall_;
+
 	/// The dead time label.
 	QLabel *deadTimeLabel_;
+	/// The button group that holds the dead time buttons.
+	QButtonGroup *deadTimeButtons_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

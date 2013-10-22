@@ -8,6 +8,8 @@
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "ui/AMSelectionDialog.h"
 #include "ui/util/AMPeriodicTableDialog.h"
+#include "ui/beamline/AMDeadTimeButton.h"
+#include "dataman/AMAnalysisBlock.h"
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
@@ -49,8 +51,24 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeLabel_->setVisible(deadTimeEnabled);
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
 
+	deadTimeButtons_ = new QButtonGroup(this);
+	deadTimeButtons_->setExclusive(false);
+	QGridLayout *deadTimeButtonLayout = new QGridLayout;
+
+	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements; i++){
+
+		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
+		deadTimeButton->setCheckable(true);
+		deadTimeButton->setFixedSize(20, 20);
+		deadTimeButtonLayout->addWidget(deadTimeButton, int(i/factor), i%factor);
+		deadTimeButtons_->addButton(deadTimeButton, i);
+	}
+
+	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+
 	QVBoxLayout *deadTimeLayout = new QVBoxLayout;
 	deadTimeLayout->addWidget(deadTimeLabel_);
+	deadTimeLayout->addLayout(deadTimeButtonLayout);
 
 	// Remove the "addStretch" from the basic layout before adding the new elements.
 	rightLayout_->removeItem(rightLayout_->itemAt(rightLayout_->count()-1));
@@ -97,16 +115,20 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	}
 
 	QPushButton *showMultipleSpectraButton = new QPushButton("Show Multiple Spectra");
+	showWaterfall_ = new QCheckBox("Waterfall");
+	showWaterfall_->setChecked(true);
 
 	QHBoxLayout *showSpectraLayout = new QHBoxLayout;
 	showSpectraLayout->addStretch();
-	showSpectraLayout->addWidget(spectraComboBox);
+	showSpectraLayout->addWidget(showWaterfall_);
 	showSpectraLayout->addWidget(showMultipleSpectraButton);
+	showSpectraLayout->addWidget(spectraComboBox);
 
 	topLayout_->addLayout(showSpectraLayout);
 
 	connect(spectraComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
+	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
 
 	spectraComboBox->setCurrentIndex(detector_->allSpectrumSources().size()-1);
 }
@@ -499,7 +521,11 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 
 void AMXRFDetailedDetectorView::onWaterfallUpdateRequired()
 {
-	plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
+	if (showWaterfall_->isChecked())
+		plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
+
+	else
+		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 }
 
 void AMXRFDetailedDetectorView::removeAllPlotItems(QList<MPlotItem *> &items)
@@ -605,4 +631,18 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
 	deadTimeLabel_->setText(QString("Dead Time: %1%").arg(detector_->deadTime()));
+}
+
+void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
+{
+	if (detector_->elements() > 1){
+
+		QList<AMDataSource *> newSum;
+
+		for (int i = 0, size = deadTimeButtons_->buttons().size(); i < size; i++)
+			if (!deadTimeButtons_->button(i)->isChecked())
+				newSum << (detector_->hasDeadTimeCorrection() ? detector_->analyzedSpectrumSources().at(i) : detector_->rawSpectrumSources().at(i));
+
+		((AMAnalysisBlock *)detector_->dataSource())->setInputDataSources(newSum);
+	}
 }
