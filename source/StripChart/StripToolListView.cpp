@@ -31,7 +31,7 @@ void StripToolListView::setPVModel(StripToolModel *model)
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(deletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
-    connect( this, SIGNAL(setAllValuesDisplayed(QModelIndex)), model_, SLOT(setAllValuesDisplayed(QModelIndex)) );
+//    connect( this, SIGNAL(setAllValuesDisplayed(QModelIndex)), model_, SLOT(setAllValuesDisplayed(QModelIndex)) );
 }
 
 
@@ -50,13 +50,13 @@ void StripToolListView::createActions()
     showMore_ = new QAction("Show More", this);
     connect( showMore_, SIGNAL(triggered()), this, SLOT(showMoreSelection()) );
 
-    showAll_ = new QAction("Show All", this);
-    connect( showMore_, SIGNAL(triggered()), this, SLOT(showAllSelection()) );
+//    showAll_ = new QAction("Show All", this);
+//    connect( showMore_, SIGNAL(triggered()), this, SLOT(showAllSelection()) );
 
-    pause_ = new QAction("Pause PV", this);
+    pause_ = new QAction("Pause", this);
     connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
 
-    resume_ = new QAction("Restart PV", this);
+    resume_ = new QAction("Restart", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
 }
 
@@ -71,7 +71,7 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addSeparator();
     menu.addAction(showLess_);
     menu.addAction(showMore_);
-    menu.addAction(showAll_);
+//    menu.addAction(showAll_);
     menu.addSeparator();
     menu.addAction(pause_);
     menu.addAction(resume_);
@@ -121,13 +121,13 @@ void StripToolListView::showMoreSelection()
 
 
 
-void StripToolListView::showAllSelection()
-{
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit setAllValuesDisplayed(index);
-    }
-}
+//void StripToolListView::showAllSelection()
+//{
+////    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+////    {
+////        emit setAllValuesDisplayed(index);
+////    }
+//}
 
 
 

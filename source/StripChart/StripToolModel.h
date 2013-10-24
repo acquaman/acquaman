@@ -39,7 +39,7 @@ protected slots:
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void setValuesDisplayed(const QModelIndex &index, int points);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
-    void setAllValuesDisplayed(const QModelIndex &index);
+//    void setAllValuesDisplayed(const QModelIndex &index);
 };
 
 #endif // STRIPTOOLMODEL_H

@@ -20,7 +20,7 @@ signals:
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
-    void setAllValuesDisplayed(const QModelIndex &index);
+//    void setAllValuesDisplayed(const QModelIndex &index);
 
 protected:
     StripToolModel *model_;
@@ -29,7 +29,7 @@ protected:
     QAction *delete_;
     QAction *showLess_;
     QAction *showMore_;
-    QAction *showAll_;
+//    QAction *showAll_;
     QAction *pause_;
     QAction *resume_;
 
@@ -45,7 +45,7 @@ protected slots:
     void deleteSelection();
     void showLessSelection();
     void showMoreSelection();
-    void showAllSelection();
+//    void showAllSelection();
     void pauseSelection();
     void resumeSelection();
 };

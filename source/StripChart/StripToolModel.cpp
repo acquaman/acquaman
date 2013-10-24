@@ -254,12 +254,12 @@ void StripToolModel::incrementValuesDisplayed(const QModelIndex &index, int diff
 
 
 
-void StripToolModel::setAllValuesDisplayed(const QModelIndex &index)
-{
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        StripToolPV *toChange = pvList_.at(index.row());
-        toChange->setAllValuesDisplayed(true);
-    }
-}
+//void StripToolModel::setAllValuesDisplayed(const QModelIndex &index)
+//{
+//    if (index.isValid() && index.row() < pvList_.size())
+//    {
+//        StripToolPV *toChange = pvList_.at(index.row());
+//        toChange->setAllValuesDisplayed(true);
+//    }
+//}
 

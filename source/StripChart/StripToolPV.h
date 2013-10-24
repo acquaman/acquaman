@@ -30,7 +30,7 @@ protected:
     QString yUnits_;
     bool isUpdating_;
     Qt::CheckState checkState_;
-    bool displayAll_;
+//    bool displayAll_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
@@ -54,7 +54,7 @@ protected:
     void setPVUpdating(bool isUpdating);
     void setValuesDisplayed(int points);
     void incrementValuesDisplayed(int diff);
-    void setAllValuesDisplayed(bool displayAll);
+//    void setAllValuesDisplayed(bool displayAll);
     void setCheckState(Qt::CheckState isChecked);
 
 protected slots:
