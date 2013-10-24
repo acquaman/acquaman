@@ -4,7 +4,8 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     : QObject(parent)
 {
     updateIndex_ = 0;
-    valuesDisplayed_ = 10;
+    defaultValuesDisplayed_ = 10;
+    valuesDisplayed_ = defaultValuesDisplayed_;
     dataVectorSize_ = 100;
 
     pvName_ = pvName;
@@ -13,6 +14,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     yUnits_ = pvUnits;
     isUpdating_ = true;
     checkState_ = Qt::Checked;
+    displayAll_ = false;
 
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
@@ -113,11 +115,36 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 
 
 
-void StripToolPV::setValuesDisplayed(int newValuesDisplayed)
+void StripToolPV::setValuesDisplayed(int points)
 {
-    valuesDisplayed_ = newValuesDisplayed;
-    xValuesDisplayed_ = QVector<double>(valuesDisplayed_);
-    yValuesDisplayed_ = QVector<double>(valuesDisplayed_);
+    if (points <= 0)
+    {
+        // do nothing?
+        // I don't want to be able to hide a pv this way.
+
+    } else {
+        valuesDisplayed_ = points;
+    }
+}
+
+
+
+void StripToolPV::incrementValuesDisplayed(int diff)
+{
+    int newPoints = valuesDisplayed_ + diff;
+
+    setAllValuesDisplayed(false);
+    setValuesDisplayed(newPoints);
+}
+
+
+
+void StripToolPV::setAllValuesDisplayed(bool displayAll)
+{
+    displayAll_ = displayAll;
+
+    if (displayAll)
+        setValuesDisplayed(updateIndex_);
 }
 
 
@@ -131,6 +158,9 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 
 void StripToolPV::onPVValueChanged(double newValue)
 {
+    //  if we want to display all of the data collected, we must update valuesDisplayed.
+    setAllValuesDisplayed(displayAll_);
+
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)
     {
@@ -146,21 +176,24 @@ void StripToolPV::onPVValueChanged(double newValue)
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_)
     {
-        //  if we haven't collected a lot of points yet, display all we've got.
+        //  if we want to display more points than exist yet, display all we've got.
         if (updateIndex_ < valuesDisplayed_)
         {
             xValuesDisplayed_ = pvUpdateIndex_.mid(0, updateIndex_);
             yValuesDisplayed_ = pvDataTotal_.mid(0, updateIndex_);
 
-        //  otherwise, show the latest "valuesDisplayed" points.
-        } else {
+        }
 
+        //  otherwise, show the latest "valuesDisplayed" points.
+        else {
             xValuesDisplayed_ = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
             yValuesDisplayed_ = pvDataTotal_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
         }
     }
 
-    //  update the displayed data with the new vectors and increment update counter.
+    //  update the displayed data with the new vectors.
     pvData_->setValues(xValuesDisplayed_, yValuesDisplayed_);
+
+    // increment the update counter.
     updateIndex_++;
 }

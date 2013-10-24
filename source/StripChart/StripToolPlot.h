@@ -23,7 +23,6 @@ protected:
     MPlotPlotSelectorTool *selector_;
 
 protected:
-    MPlot* plot();
     bool contains(MPlotItem *series);
     void addSeriesToPlot(MPlotItem *newSeries);
     void removeSeriesFromPlot(MPlotItem *toRemove);

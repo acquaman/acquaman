@@ -28,20 +28,23 @@ QVariant StripToolModel::data(const QModelIndex &index, int role) const
     if (index.row() > pvList_.size())
         return QVariant();
 
+    StripToolPV *toDisplay = pvList_.at(index.row());
+
     if (role == Qt::DisplayRole)
-        return QVariant(pvList_.at(index.row())->pvDescription());
+    {
+        if (toDisplay->pvDescription() == "")
+            return QVariant(toDisplay->pvName());
+        else
+            return QVariant(toDisplay->pvDescription());
+    }
 
     if (role == Qt::ToolTipRole)
-        return QVariant(pvList_.at(index.row())->pvName());
+        return QVariant(toDisplay->pvName());
 
     if (role == Qt::CheckStateRole)
-        return QVariant(pvList_.at(index.row())->checkState());
+        return QVariant(toDisplay->checkState());
 
-//    if (role == Qt::SizeHintRole)
-//        return QVariant();
-
-    else
-        return QVariant();
+    return QVariant();
 }
 
 
@@ -52,8 +55,7 @@ bool StripToolModel::contains(const QString &nameToFind)
 
     foreach (StripToolPV *pv, pvList_)
     {
-        QString pvName = pv->pvName();
-        if (pvName == nameToFind)
+        if (pv->pvName() == nameToFind)
             itemFound = true;
     }
 
@@ -136,20 +138,66 @@ bool StripToolModel::setData(const QModelIndex &index, const QVariant &value, in
 
 
 
+void StripToolModel::checkStateChanged(const QModelIndex &index, Qt::CheckState checked)
+{
+    if (index.isValid() && index.row() < pvList_.size())
+    {
+        StripToolPV *toChange = pvList_.at(index.row());
+        toChange->setCheckState(checked);
+
+        emit seriesChanged(checked, toChange->series());
+        emit dataChanged(index, index);
+    }
+}
+
+
+
+void StripToolModel::descriptionChanged(const QModelIndex &index, const QString &newDescription)
+{
+    StripToolPV *toChange = pvList_.at(index.row());
+    toChange->setDescription(newDescription);
+    emit dataChanged(index, index);
+}
+
+
+
 void StripToolModel::addPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits)
 {
     int position = pvList_.size() - 1; // we insert new pvs at the end of the model.
     int count = 1; // insert one pv at a time.
 
-    //  create new pv object and notify subscribers that it has been added to the model.
-    StripToolPV *newPV = new StripToolPV(pvName, pvDescription, pvUnits);
-    emit seriesChanged(Qt::Checked, newPV->series());   //  notify plot.
+    //  create new pv object and notify views.
+    StripToolPV *newPV = new StripToolPV(pvName, pvDescription, pvUnits, this);
 
     beginInsertRows(QModelIndex(), position, position + count - 1); //  notify model view.
-
     pvList_.insert(position, newPV); // add the new pv to the model.
-
     endInsertRows();
+
+    emit seriesChanged(Qt::Checked, newPV->series());   //  notify plot.
+}
+
+
+
+void StripToolModel::editPV(const QModelIndex &index)
+{
+    if (index.isValid() && index.row() < pvList_.size())
+    {
+        StripToolPV *toEdit = pvList_.at(index.row());
+        EditPVDialog editDialog(toEdit->pvName());
+
+        if (editDialog.exec())
+        {
+            QString newDescription = editDialog.description();
+            QString newUnits = editDialog.units();
+            int newPoints = editDialog.points();
+
+            toEdit->setDescription(newDescription);
+            toEdit->setUnits(newUnits);
+            toEdit->setValuesDisplayed(newPoints);
+
+            emit dataChanged(index, index);
+        }
+    }
 }
 
 
@@ -161,30 +209,13 @@ void StripToolModel::deletePV(const QModelIndex &index)
         int position = index.row(); // we use the index to identify which pv to remove.
         int count = 1; // we delete pvs one at a time.
 
-        //  identify pv entry to be deleted and notify subscribers that it will be removed.
         StripToolPV *toDelete = pvList_.at(position);
+
         emit seriesChanged(Qt::Unchecked, toDelete->series());  //  notify plot.
 
         beginRemoveRows(QModelIndex(), position, position + count - 1); //  notify model view.
-
         pvList_.removeAt(position); //  remove pv from model.
-        delete toDelete;    // delete the pv object.
-
         endRemoveRows();
-    }
-}
-
-
-
-void StripToolModel::setValuesDisplayed(const QModelIndex &index, int valuesDisplayed)
-{
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        StripToolPV *toChange = pvList_.at(index.row());
-        connect( this, SIGNAL(updateValuesDisplayed(int)), toChange, SLOT(setValuesDisplayed(int)) );
-
-        emit updateValuesDisplayed(valuesDisplayed);
-        emit dataChanged(index, index);
     }
 }
 
@@ -195,38 +226,40 @@ void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
     if (index.isValid() && index.row() < pvList_.size())
     {
         StripToolPV *toChange = pvList_.at(index.row());
-        connect( this, SIGNAL(updateUpdating(bool)), toChange, SLOT(setPVUpdating(bool)) );
-
-        emit updateUpdating(isUpdating);
-        emit dataChanged(index, index);
+        toChange->setPVUpdating(isUpdating);
     }
 }
 
 
 
-void StripToolModel::checkStateChanged(const QModelIndex &index, Qt::CheckState checked)
+void StripToolModel::setValuesDisplayed(const QModelIndex &index, int points)
 {
     if (index.isValid() && index.row() < pvList_.size())
     {
-        //  1. edit pv information
         StripToolPV *toChange = pvList_.at(index.row());
-        connect( this, SIGNAL(updateCheckState(Qt::CheckState)), toChange, SLOT(setCheckState(Qt::CheckState)));
-
-        //  2. let subscribers know (pv, plot, view)
-        emit updateCheckState(checked);
-        emit seriesChanged(checked, toChange->series());
-        emit dataChanged(index, index);
+        toChange->setValuesDisplayed(points);
     }
 }
 
 
 
-void StripToolModel::descriptionChanged(const QModelIndex &index, const QString &newDescription)
+void StripToolModel::incrementValuesDisplayed(const QModelIndex &index, int difference)
 {
-    StripToolPV *toChange = pvList_.at(index.row());
-    connect( this, SIGNAL(updateDescription(QString)), toChange, SLOT(setDescription(QString)) );
+    if (index.isValid() && index.row() < pvList_.size())
+    {
+        StripToolPV *toChange = pvList_.at(index.row());
+        toChange->incrementValuesDisplayed(difference);
+    }
+}
 
-    emit updateDescription(newDescription);
-    emit dataChanged(index, index);
+
+
+void StripToolModel::setAllValuesDisplayed(const QModelIndex &index)
+{
+    if (index.isValid() && index.row() < pvList_.size())
+    {
+        StripToolPV *toChange = pvList_.at(index.row());
+        toChange->setAllValuesDisplayed(true);
+    }
 }
 

@@ -16,7 +16,7 @@ public:
     
 protected:
     StripToolModel *model_;
-    StripToolView *view_;
+    StripToolView *mainView_;
     
 };
 

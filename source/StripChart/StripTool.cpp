@@ -3,12 +3,13 @@
 StripTool::StripTool(QWidget *parent) : QWidget(parent)
 {
     model_ = new StripToolModel(this);
-    view_ = new StripToolView(this, model_);
+    mainView_ = new StripToolView(this, model_);
 
     QVBoxLayout *windowLayout = new QVBoxLayout();
-    windowLayout->addWidget(view_);
+    windowLayout->addWidget(mainView_);
 
     setLayout(windowLayout);
+    resize(500, 500);
 }
 
 
