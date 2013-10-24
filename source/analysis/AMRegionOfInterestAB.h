@@ -1,32 +1,37 @@
-#ifndef AMNDDEADTIMEAB_H
-#define AMNDDEADTIMEAB_H
+#ifndef AMREGIONOFINTERESTAB_H
+#define AMREGIONOFINTERESTAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
+#include "util/AMRange.h"
 
-/*! This analysis block takes a spectrum data source (rank() >= 1) and
-	the input count (rate) and output count (rate) data sources (rank() >= n-1).
-	The output has the same rank as the spectrum data source.*/
-class AMnDDeadTimeAB : public AMStandardAnalysisBlock
+/// This analysis block takes a spectrum data source and sums down over a defined range.  It is specifically tailored to doing a region of interest.
+class AMRegionOfInterestAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Spectrum Dead Time Correction Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Region of Interest Block")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AMnDDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AMRegionOfInterestAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Returns the description of the analysis block.
 	virtual QString infoDescription() const { return QString(); }
 
+	/// Returns the binning range.
+	const AMRange &binningRange() const { return binningRange_; }
+	/// Returns the binning range's upper bound.
+	double binningRangeUpperBound() const { return binningRange_.maximum(); }
+	/// Returns the binning range's lower bound.
+	double binningRangeLowerBound() const { return binningRange_.minimum(); }
+
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-	/*! - there must be three data sources
-		- the highest rank() defines the spectrum and the other two must be rank()-1
-		- since the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
+	/*!
+		- there must be one data source
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
-	/// Set the data source inputs.  Requires three data sources and the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
+	/// Set the data source inputs.  Requires one data source.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
@@ -45,6 +50,14 @@ public:
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
 	bool loadFromDb(AMDatabase *db, int id);
 
+public slots:
+	/// Sets the binning range.
+	void setBinningRange(const AMRange &newRange);
+	/// Sets the upper bound of the binning range.
+	void setBinningRangeUpperBound(double upperBound);
+	/// Sets the lower bound of the binning range.
+	void setBinningRangeLowerBound(double lowerBound);
+
 protected slots:
 	/// Connected to be called when the values of the input data source change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
@@ -58,12 +71,10 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 
-	/// Holds the nD spectrum data source.
+	/// Holds the 1D spectrum data source.
 	AMDataSource *spectrum_;
-	/// Holds the (n-1)D input count rate data source.
-	AMDataSource *inputCounts_;
-	/// Holds the (n-1)D output count rate data source.
-	AMDataSource *outputCounts_;
+	/// Holds the range that should be binned down.
+	AMRange binningRange_;
 };
 
-#endif // AMNDDEADTIMEAB_H
+#endif // AMREGIONOFINTERESTAB_H

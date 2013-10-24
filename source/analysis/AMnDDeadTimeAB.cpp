@@ -74,6 +74,7 @@ void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		setDescription(QString("Corrected %1").arg(spectrum_->description()));
 
 		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
@@ -310,11 +311,8 @@ void AMnDDeadTimeAB::onInputSourceSizeChanged()
 {
 	for (int i = 0, size = rank(); i < size; i++){
 
-		if (axes_.at(i).size != spectrum_->size(i)){
-
-			axes_[i].size = spectrum_->size(i);
+			axes_[i] = spectrum_->axisInfoAt(i);
 			emitSizeChanged(i);
-		}
 	}
 }
 

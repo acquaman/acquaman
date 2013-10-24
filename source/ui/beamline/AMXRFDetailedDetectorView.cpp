@@ -10,6 +10,7 @@
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "ui/beamline/AMDeadTimeButton.h"
 #include "dataman/AMAnalysisBlock.h"
+#include "ui/beamline/AMRegionOfInterestView.h"
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
@@ -30,6 +31,9 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 
 	currentElement_ = periodicTable_->elementBySymbol("Fe");
 	combinationElement_ = periodicTable_->elementBySymbol("Ca");
+
+	regionOfInterestMapper_ = new QSignalMapper(this);
+	connect(regionOfInterestMapper_, SIGNAL(mapped(int)), this, SLOT(onRegionOfInterestBoundsChanged(int)));
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -41,6 +45,21 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	buildShowSpectraButtons();
 	buildPileUpPeakButtons();
 	buildDeadTimeView();
+	buildRegionOfInterestViews();
+}
+
+void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
+{
+	AMRegionOfInterestView *view = new AMRegionOfInterestView(detector_->regionsOfInterest());
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), view, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), view, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+
+	editRegionsOfInterestButton_ = new QPushButton("Edit ROIs");
+	editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
+	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(show()));
+	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(raise()));
+
+	rightLayout_->addWidget(editRegionsOfInterestButton_);
 }
 
 void AMXRFDetailedDetectorView::buildDeadTimeView()
@@ -64,11 +83,16 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 		deadTimeButtons_->addButton(deadTimeButton, i);
 	}
 
-	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked()));
+
+	QHBoxLayout *squeezedDeadTimeButtonsLayout = new QHBoxLayout;
+	squeezedDeadTimeButtonsLayout->addStretch();
+	squeezedDeadTimeButtonsLayout->addLayout(deadTimeButtonLayout);
+	squeezedDeadTimeButtonsLayout->addStretch();
 
 	QVBoxLayout *deadTimeLayout = new QVBoxLayout;
 	deadTimeLayout->addWidget(deadTimeLabel_);
-	deadTimeLayout->addLayout(deadTimeButtonLayout);
+	deadTimeLayout->addLayout(squeezedDeadTimeButtonsLayout);
 
 	// Remove the "addStretch" from the basic layout before adding the new elements.
 	rightLayout_->removeItem(rightLayout_->itemAt(rightLayout_->count()-1));
@@ -327,6 +351,8 @@ void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emi
 {
 	detector_->addRegionOfInterest(emissionLine);
 	AMRegionOfInterest *newRegion = detector_->regionOfInterest(emissionLine);
+	regionOfInterestMapper_->setMapping(newRegion, regionOfInterestMarkers_.size());
+	connect(newRegion, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestMapper_, SLOT(map()));
 
 	MPlotMarkerTransparentVerticalRectangle *newMarker = new MPlotMarkerTransparentVerticalRectangle(newRegion->name(), newRegion->energy(), newRegion->lowerBound(), newRegion->upperBound());
 	plot_->insertItem(newMarker);
@@ -334,6 +360,7 @@ void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emi
 	regionOfInterestMarkers_.insert(emissionLine, newMarker);
 
 	updatePeriodicTableButtonColors(emissionLine);
+	editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
 }
 
 void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &emissionLine)
@@ -342,12 +369,14 @@ void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &e
 
 	if (itemToBeRemoved){
 
+		regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
 		detector_->removeRegionOfInterest(emissionLine);
 		plot_->removeItem(itemToBeRemoved);
 		regionOfInterestMarkers_.remove(emissionLine);
 		delete itemToBeRemoved;
 
 		updatePeriodicTableButtonColors(emissionLine);
+		editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
 	}
 }
 
@@ -630,7 +659,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-	deadTimeLabel_->setText(QString("Dead Time: %1%").arg(detector_->deadTime()));
+	deadTimeLabel_->setText(QString("Dead Time: %1%").arg(detector_->deadTime(), 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
@@ -645,4 +674,11 @@ void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
 
 		((AMAnalysisBlock *)detector_->dataSource())->setInputDataSources(newSum);
 	}
+}
+
+void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(int id)
+{
+	AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(regionOfInterestMapper_->mapping(id));
+	regionOfInterestMarkers_.values().at(id)->setLowEnd(region->lowerBound());
+	regionOfInterestMarkers_.values().at(id)->setHighEnd(region->upperBound());
 }

@@ -11,6 +11,8 @@
 #include "ui/util/AMSelectableElementView.h"
 #include "util/AMNameAndRangeValidator.h"
 
+#include <QSignalMapper>
+
 class AMXRFDetailedDetectorView : public AMXRFBaseDetectorView
 {
 	Q_OBJECT
@@ -139,6 +141,8 @@ protected slots:
 	void onDeadTimeChanged();
 	/// Handles changing the data sources used for the corrected sum PV.
 	void onDeadTimeButtonClicked();
+	/// Handles updating the region of interest markers using the signal mapper.
+	void onRegionOfInterestBoundsChanged(int id);
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
@@ -155,6 +159,8 @@ protected:
 	void buildPileUpPeakButtons();
 	/// Method that builds the dead time GUI elements.
 	void buildDeadTimeView();
+	/// Method that builds the region of interest views and associated things.
+	void buildRegionOfInterestViews();
 	/// Helper method that removes all of the plot items from the provided list.
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
@@ -177,6 +183,8 @@ protected:
 	QList<MPlotItem *> emissionLineMarkers_;
 	/// A mapping of emission lines to region of interest markers.
 	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
+	/// A signal mapper that maps the MPlotItems to the regions they represent.  Allows easy manipulation of the item's shape.
+	QSignalMapper *regionOfInterestMapper_;
 	/// A simple map for the line colors.
 	QMap<QString, QColor> emissionLineLegendColors_;
 	/// The pile up peak color.
@@ -209,6 +217,8 @@ protected:
 	QLabel *deadTimeLabel_;
 	/// The button group that holds the dead time buttons.
 	QButtonGroup *deadTimeButtons_;
+	/// The button for showing the regions of interest edit widget.
+	QPushButton *editRegionsOfInterestButton_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

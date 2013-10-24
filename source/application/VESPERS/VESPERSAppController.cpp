@@ -79,6 +79,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
+#include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
@@ -285,15 +286,25 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
 
-	VESPERSSingleElementVortexDetector *test = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element", this);
+	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
 //		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
-	AMXRFDetailedDetectorView *testView = new AMXRFDetailedDetectorView(test);
-	testView->buildDetectorView();
-	testView->setEnergyRange(3000, 20000);
-	testView->addEmissionLineNameFilter(QRegExp("1"));
-	testView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	testView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(testView, "Detectors", "New 1-el Vortex", ":/system-search.png");
+	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(test1);
+	testView1->buildDetectorView();
+	testView1->setEnergyRange(3000, 20000);
+	testView1->addEmissionLineNameFilter(QRegExp("1"));
+	testView1->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	testView1->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(testView1, "Detectors", "New 1-el Vortex", ":/system-search.png");
+
+	VESPERSFourElementVortexDetector *test4 = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
+//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
+	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(test4);
+	testView4->buildDetectorView();
+	testView4->setEnergyRange(3000, 20000);
+	testView4->addEmissionLineNameFilter(QRegExp("1"));
+	testView4->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	testView4->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(testView4, "Detectors", "New 4-el Vortex", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();

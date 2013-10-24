@@ -1,16 +1,16 @@
-#ifndef VESPERSSINGLEELEMENTVORTEXDETECTOR_H
-#define VESPERSSINGLEELEMENTVORTEXDETECTOR_H
+#ifndef VESPERSFOURELEMENTVORTEXDETECTOR_H
+#define VESPERSFOURELEMENTVORTEXDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
 
 /// Implentation of AMXRFDetector for the single element vortex detector used on VESPERS.
-class VESPERSSingleElementVortexDetector : public AMXRFDetector
+class VESPERSFourElementVortexDetector : public AMXRFDetector
 {
 	Q_OBJECT
 
 public:
 	/// Default constructor. Requires the name and description of the detector. It builds all the PV's and connects them accordingly.
-	VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
+	VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
@@ -84,4 +84,4 @@ protected:
 	AMPVControl *peakingTimeControl_;
 };
 
-#endif // VESPERSSINGLEELEMENTVORTEXDETECTOR_H
+#endif // VESPERSFOURELEMENTVORTEXDETECTOR_H

@@ -64,8 +64,11 @@ void AMXRFDetector::allControlsCreated()
 
 void AMXRFDetector::buildSpectrumDataSources()
 {
-	foreach (AMReadOnlyPVControl *spectrum, spectraControls_)
+	foreach (AMReadOnlyPVControl *spectrum, spectraControls_){
+
 		rawSpectraSources_.append(new AM1DProcessVariableDataSource(spectrum->readPV(), spectrum->name(), this));
+		rawSpectraSources_.last()->setDescription(rawSpectraSources_.last()->name());
+	}
 }
 
 void AMXRFDetector::buildDeadTimeDataSources()
@@ -281,6 +284,7 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
 {
 	regionsOfInterest_.append(newRegionOfInterest);
+	newRegionOfInterest->setSpectrumSource(primarySpectrumDataSource_);
 	addRegionOfInterestImplementation(newRegionOfInterest);
 	emit addedRegionOfInterest(newRegionOfInterest);
 }

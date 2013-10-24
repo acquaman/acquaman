@@ -3,6 +3,7 @@
 
 #include "dataman/database/AMDbObject.h"
 #include "util/AMRange.h"
+#include "analysis/AMRegionOfInterestAB.h"
 
 /// Holds the essential information for a region of interest.  This would be the name, energy, and range around the energy.
 class AMRegionOfInterest : public AMDbObject
@@ -40,6 +41,11 @@ public:
 	/// Returns the maximum value of the range.
 	double upperBound() const { return boundingRange_.maximum(); }
 
+	/// Returns the value of the region of interest.
+	double value() const { return value_->value(AMnDIndex()); }
+	/// Returns the value data source.
+	AMDataSource *valueSource() const { return value_; }
+
 signals:
 	/// Notifier that the energy of the region of interest has changed.  Passes the new energy.
 	void energyChanged(double);
@@ -49,6 +55,8 @@ signals:
 	void lowerBoundChanged(double);
 	/// Notifier that the upper bound has changed.  Passes the new upper bound.
 	void upperBoundChanged(double);
+	/// Notifier that the value of the region has changed.
+	void valueChanged(double);
 
 public slots:
 	/// Set the energy for the region of interest.
@@ -61,12 +69,20 @@ public slots:
 	void setLowerBound(double lowerBound);
 	/// Sets the upper bound value of the regionn of interest.
 	void setUpperBound(double upperBound);
+	/// Sets the spectrum data source for the region of interest.
+	void setSpectrumSource(AMDataSource *source);
+
+protected slots:
+	/// Handles passing on the value changed on.
+	void onValueChanged() const;
 
 protected:
 	/// The energy of the region of interest.
 	double energy_;
 	/// The range that defines the width of the region of interest.
 	AMRange boundingRange_;
+	/// The analysis block that determines the value of the region of interest.
+	AMRegionOfInterestAB *value_;
 };
 
 #endif // AMREGIONOFINTEREST_H
