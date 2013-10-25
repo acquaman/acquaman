@@ -34,7 +34,8 @@ protected:
 
 protected slots:
     void addPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
-    void editPV(const QModelIndex &index);
+//    void editPV(const QModelIndex &index);
+    void editPV(QList<QModelIndex> indicesToEdit);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void setValuesDisplayed(const QModelIndex &index, int points);

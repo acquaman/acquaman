@@ -27,7 +27,7 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     setModel(model_);
 
-    connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
+    connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(deletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
@@ -93,8 +93,7 @@ void StripToolListView::deleteSelection()
 
 void StripToolListView::editSelection()
 {
-    // only want to edit pvs one at a time right now.
-    emit editPV(selectionModel()->selectedIndexes().at(0));
+    emit editPV(selectionModel()->selectedIndexes());
 }
 
 

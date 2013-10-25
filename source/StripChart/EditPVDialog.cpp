@@ -1,12 +1,19 @@
 #include "EditPVDialog.h"
 
-EditPVDialog::EditPVDialog(const QString &pvName, QWidget *parent) :
+EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
     QDialog(parent)
 {
+    Q_UNUSED(pvNames);
+
     points_ = 0;
 
+    QStringListModel *pvNamesModel = new QStringListModel(this);
+    pvNamesModel->setStringList(pvNames);
+
     QLabel *nameLabel = new QLabel("Name : ");
-    QLabel *nameEntry_ = new QLabel(pvName);
+    nameList_ = new QListView(this);
+    nameList_->setModel(pvNamesModel);
+    nameList_->setMaximumHeight(50);
 
     QLabel *descriptionLabel = new QLabel("Description : ");
     descriptionEntry_ = new QLineEdit();
@@ -25,7 +32,7 @@ EditPVDialog::EditPVDialog(const QString &pvName, QWidget *parent) :
 
     QGridLayout *entryLayout = new QGridLayout();
     entryLayout->addWidget(nameLabel, 0, 0);
-    entryLayout->addWidget(nameEntry_, 0, 1);
+    entryLayout->addWidget(nameList_, 0, 1);
     entryLayout->addWidget(descriptionLabel, 1, 0);
     entryLayout->addWidget(descriptionEntry_, 1, 1);
     entryLayout->addWidget(unitsLabel, 2, 0);

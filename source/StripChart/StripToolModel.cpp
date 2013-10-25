@@ -178,24 +178,69 @@ void StripToolModel::addPV(const QString &pvName, const QString &pvDescription, 
 
 
 
-void StripToolModel::editPV(const QModelIndex &index)
-{
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        StripToolPV *toEdit = pvList_.at(index.row());
-        EditPVDialog editDialog(toEdit->pvName());
+//void StripToolModel::editPV(const QModelIndex &index)
+//{
+//    if (index.isValid() && index.row() < pvList_.size())
+//    {
+//        StripToolPV *toEdit = pvList_.at(index.row());
+//        EditPVDialog editDialog(toEdit->pvName());
 
+//        if (editDialog.exec())
+//        {
+//            QString newDescription = editDialog.description();
+//            QString newUnits = editDialog.units();
+//            int newPoints = editDialog.points();
+
+//            toEdit->setDescription(newDescription);
+//            toEdit->setUnits(newUnits);
+//            toEdit->setValuesDisplayed(newPoints);
+
+//            emit dataChanged(index, index);
+//        }
+//    }
+//}
+
+
+
+void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
+{
+    QList<QModelIndex> okIndices;
+    QStringList okNames;
+
+    foreach(const QModelIndex &index, indicesToEdit)
+    {
+        if (index.isValid() && index.row() < pvList_.size())
+        {
+            okIndices.append(index);
+            //okNames << pvList_.at(index.row())->pvName();
+            okNames << data(index, Qt::DisplayRole).toString();
+        }
+    }
+
+    if (okNames.length() > 0)
+    {
+        EditPVDialog editDialog(okNames);
         if (editDialog.exec())
         {
             QString newDescription = editDialog.description();
             QString newUnits = editDialog.units();
             int newPoints = editDialog.points();
 
-            toEdit->setDescription(newDescription);
-            toEdit->setUnits(newUnits);
-            toEdit->setValuesDisplayed(newPoints);
+            foreach(const QModelIndex &index, okIndices)
+            {
+                StripToolPV *toEdit = pvList_.at(index.row());
 
-            emit dataChanged(index, index);
+                if (newDescription != "")
+                    toEdit->setDescription(newDescription);
+
+                if (newUnits != "")
+                    toEdit->setUnits(newUnits);
+
+                if (newPoints >= 0)
+                    toEdit->setValuesDisplayed(newPoints);
+
+                emit dataChanged(index, index);
+            }
         }
     }
 }

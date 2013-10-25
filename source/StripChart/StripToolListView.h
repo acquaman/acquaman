@@ -16,7 +16,7 @@ public:
     friend class StripToolView;
     
 signals:
-    void editPV(const QModelIndex &index);
+    void editPV(QList<QModelIndex> indicesToEdit);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
