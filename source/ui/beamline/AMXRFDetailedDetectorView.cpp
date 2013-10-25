@@ -91,7 +91,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	squeezedDeadTimeButtonsLayout->addStretch();
 
 	QVBoxLayout *deadTimeLayout = new QVBoxLayout;
-	deadTimeLayout->addWidget(deadTimeLabel_);
+	deadTimeLayout->addWidget(deadTimeLabel_, 0, Qt::AlignCenter);
 	deadTimeLayout->addLayout(squeezedDeadTimeButtonsLayout);
 
 	// Remove the "addStretch" from the basic layout before adding the new elements.
@@ -142,8 +142,12 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	showWaterfall_ = new QCheckBox("Waterfall");
 	showWaterfall_->setChecked(true);
 
+	logScaleButton_ = new QPushButton("Log scale");
+	logScaleButton_->setCheckable(true);
+
 	QHBoxLayout *showSpectraLayout = new QHBoxLayout;
 	showSpectraLayout->addStretch();
+	showSpectraLayout->addWidget(logScaleButton_);
 	showSpectraLayout->addWidget(showWaterfall_);
 	showSpectraLayout->addWidget(showMultipleSpectraButton);
 	showSpectraLayout->addWidget(spectraComboBox);
@@ -153,6 +157,8 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	connect(spectraComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
 	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
+	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleClicked(bool)));
+	connect(logScaleButton_, SIGNAL(toggled(bool)), showWaterfall_, SLOT(setDisabled(bool)));
 
 	spectraComboBox->setCurrentIndex(detector_->allSpectrumSources().size()-1);
 }
@@ -550,7 +556,7 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 
 void AMXRFDetailedDetectorView::onWaterfallUpdateRequired()
 {
-	if (showWaterfall_->isChecked())
+	if (showWaterfall_->isChecked() && !logScaleButton_->isChecked())
 		plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
 
 	else
@@ -659,7 +665,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-	deadTimeLabel_->setText(QString("Dead Time: %1%").arg(detector_->deadTime(), 0, 'f', 0));
+	deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime(), 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
@@ -681,4 +687,22 @@ void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(int id)
 	AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(regionOfInterestMapper_->mapping(id));
 	regionOfInterestMarkers_.values().at(id)->setLowEnd(region->lowerBound());
 	regionOfInterestMarkers_.values().at(id)->setHighEnd(region->upperBound());
+}
+
+void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
+{
+	if (logScale){
+
+		logScaleButton_->setText("Linear scale");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	}
+
+	else {
+
+		logScaleButton_->setText("Log scale");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+	}
+
+	plot_->axisScaleLeft()->setLogScaleEnabled(logScale);
+	onWaterfallUpdateRequired();
 }

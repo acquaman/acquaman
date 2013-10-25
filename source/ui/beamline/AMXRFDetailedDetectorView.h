@@ -143,6 +143,8 @@ protected slots:
 	void onDeadTimeButtonClicked();
 	/// Handles updating the region of interest markers using the signal mapper.
 	void onRegionOfInterestBoundsChanged(int id);
+	/// Handles changing the scale of the axis to logarithmic or linear.
+	void onLogScaleClicked(bool logScale);
 
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
@@ -212,6 +214,8 @@ protected:
 
 	/// The check box that holds whether multiple spectra should be shown as a waterfall plot or not.
 	QCheckBox *showWaterfall_;
+	/// The button that controls whether the plot is log scale or not.
+	QPushButton *logScaleButton_;
 
 	/// The dead time label.
 	QLabel *deadTimeLabel_;
