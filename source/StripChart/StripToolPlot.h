@@ -17,21 +17,23 @@ public:
     ~StripToolPlot();
     
 signals:
+    void seriesSelected(MPlotItem *plotSelection, bool isSelected);
 
 protected:
     MPlot *plot_;
     MPlotPlotSelectorTool *selector_;
+    MPlotItem *plotSelection_;
 
 protected:
     bool contains(MPlotItem *series);
     void addSeriesToPlot(MPlotItem *newSeries);
     void removeSeriesFromPlot(MPlotItem *toRemove);
-    void showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
     void hidePlotAxesLabels();
     
 protected slots:
     void onSeriesSelected(MPlotItem* plotSelection);
     void onSeriesDeselected();
+    void showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
     void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
 
 };

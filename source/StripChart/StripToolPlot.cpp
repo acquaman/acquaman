@@ -50,13 +50,13 @@ void StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 
 
 
-void StripToolPlot::showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel)
+void StripToolPlot::showPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
 {
-    plot_->axisLeft()->setAxisName(axisLeftLabel);
-    plot_->axisLeft()->showAxisName(true);
-
-    plot_->axisBottom()->setAxisName(axisBottomLabel);
+    plot_->axisBottom()->setAxisName(bottomLabel);
     plot_->axisBottom()->showAxisName(true);
+
+    plot_->axisLeft()->setAxisName(leftLabel);
+    plot_->axisLeft()->showAxisName(true);
 }
 
 
@@ -71,14 +71,16 @@ void StripToolPlot::hidePlotAxesLabels()
 
 void StripToolPlot::onSeriesSelected(MPlotItem *plotSelection)
 {
-    Q_UNUSED(plotSelection);
+    plotSelection_ = plotSelection;
+    emit seriesSelected(plotSelection_, true);
 }
 
 
 
 void StripToolPlot::onSeriesDeselected()
 {
-
+    emit seriesSelected(plotSelection_, false);
+    plotSelection_ = 0;
 }
 
 

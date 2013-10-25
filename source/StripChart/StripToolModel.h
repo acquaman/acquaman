@@ -17,9 +17,13 @@ public:
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState, MPlotItem*);
+    void modelSelectionChange();
+    void setPlotSelection(MPlotItem* newSelection);
+    void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
 
 protected:
     QList<StripToolPV*> pvList_;
+    StripToolPV *selectedPV_;
 
 protected:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -41,6 +45,8 @@ protected slots:
     void setValuesDisplayed(const QModelIndex &index, int points);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
 //    void setAllValuesDisplayed(const QModelIndex &index);
+    void seriesSelected(MPlotItem *plotSelection, bool isSelected);
+    void onModelSelectionChange();
 };
 
 #endif // STRIPTOOLMODEL_H

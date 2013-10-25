@@ -2,6 +2,7 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
+    connect( this, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
 }
 
 
@@ -212,7 +213,6 @@ void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
         if (index.isValid() && index.row() < pvList_.size())
         {
             okIndices.append(index);
-            //okNames << pvList_.at(index.row())->pvName();
             okNames << data(index, Qt::DisplayRole).toString();
         }
     }
@@ -231,15 +231,16 @@ void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
                 StripToolPV *toEdit = pvList_.at(index.row());
 
                 if (newDescription != "")
+                {
                     toEdit->setDescription(newDescription);
+                    emit dataChanged(index, index);
+                }
 
                 if (newUnits != "")
                     toEdit->setUnits(newUnits);
 
                 if (newPoints >= 0)
                     toEdit->setValuesDisplayed(newPoints);
-
-                emit dataChanged(index, index);
             }
         }
     }
@@ -307,4 +308,41 @@ void StripToolModel::incrementValuesDisplayed(const QModelIndex &index, int diff
 //        toChange->setAllValuesDisplayed(true);
 //    }
 //}
+
+
+
+void StripToolModel::seriesSelected(MPlotItem *plotSelection, bool isSelected)
+{
+    if (!isSelected)
+    {
+        selectedPV_ = 0;
+
+    } else {
+
+        foreach(StripToolPV *pv, pvList_)
+        {
+            if (pv->series() == plotSelection)
+                selectedPV_ = pv;
+        }
+    }
+
+    emit modelSelectionChange();
+}
+
+
+
+void StripToolModel::onModelSelectionChange()
+{
+    if (selectedPV_ == 0)
+    {
+        emit setPlotAxesLabels("", "");
+
+    } else {
+
+        //  first, tell the plot what it should now be displaying.
+        emit setPlotAxesLabels(selectedPV_->xUnits(), selectedPV_->yUnits());
+
+        //  next, communicate the change to the list view.
+    }
+}
 
