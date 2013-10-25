@@ -31,9 +31,10 @@ protected:
     void hidePlotAxesLabels();
     
 protected slots:
-    void onSeriesSelected(MPlotItem* plotSelection);
+    void setSeriesSelection(MPlotItem *modelSelection);
+    void onSeriesSelected(MPlotItem *plotSelection);
     void onSeriesDeselected();
-    void showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
+    void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
     void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
 
 };

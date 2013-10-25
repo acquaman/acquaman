@@ -8,6 +8,8 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent, StripToolModel *
 
     listView_ = new StripToolListView(this);
     listView_->setPVModel(model_);
+    connect( listView_, SIGNAL(clicked(QModelIndex)), model_, SLOT(itemSelected(QModelIndex)) );
+    connect( model_, SIGNAL(setItemSelected(QModelIndex)), listView_, SLOT(setItemSelected(QModelIndex)) );
 
     pvNameLineEdit_ = new QLineEdit();
     connect( pvNameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(clearMessage()) );

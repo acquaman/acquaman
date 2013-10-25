@@ -179,30 +179,6 @@ void StripToolModel::addPV(const QString &pvName, const QString &pvDescription, 
 
 
 
-//void StripToolModel::editPV(const QModelIndex &index)
-//{
-//    if (index.isValid() && index.row() < pvList_.size())
-//    {
-//        StripToolPV *toEdit = pvList_.at(index.row());
-//        EditPVDialog editDialog(toEdit->pvName());
-
-//        if (editDialog.exec())
-//        {
-//            QString newDescription = editDialog.description();
-//            QString newUnits = editDialog.units();
-//            int newPoints = editDialog.points();
-
-//            toEdit->setDescription(newDescription);
-//            toEdit->setUnits(newUnits);
-//            toEdit->setValuesDisplayed(newPoints);
-
-//            emit dataChanged(index, index);
-//        }
-//    }
-//}
-
-
-
 void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
 {
     QList<QModelIndex> okIndices;
@@ -300,32 +276,49 @@ void StripToolModel::incrementValuesDisplayed(const QModelIndex &index, int diff
 
 
 
-//void StripToolModel::setAllValuesDisplayed(const QModelIndex &index)
-//{
-//    if (index.isValid() && index.row() < pvList_.size())
-//    {
-//        StripToolPV *toChange = pvList_.at(index.row());
-//        toChange->setAllValuesDisplayed(true);
-//    }
-//}
-
-
-
 void StripToolModel::seriesSelected(MPlotItem *plotSelection, bool isSelected)
 {
+    Q_UNUSED(plotSelection);
+
     if (!isSelected)
     {
         selectedPV_ = 0;
 
     } else {
 
-        foreach(StripToolPV *pv, pvList_)
-        {
-            if (pv->series() == plotSelection)
-                selectedPV_ = pv;
-        }
+//        foreach( const QModelIndex &item, itemList_)
+//        {
+//            StripToolPV *pv = item.child(1);
+
+//            if (pv->series() == plotSelection)
+//            {
+//                selectedIndex_ = item;
+//                selectedPV_ = pvList_.at(selectedIndex_.row());
+//                break;
+//            }
+//        }
+
+//        for(int i = 0; i < pvList_.size(); i++)
+//        {
+//            StripToolPV *pv = pvList_.at(i);
+
+//            if (pv->series() == plotSelection)
+//            {
+//                selectedPV_ = pv;
+//                break;
+//            }
+//        }
     }
 
+    emit modelSelectionChange();
+}
+
+
+
+void StripToolModel::itemSelected(const QModelIndex &index)
+{
+    selectedIndex_ = index;
+    selectedPV_ = pvList_.at(selectedIndex_.row());
     emit modelSelectionChange();
 }
 
@@ -335,14 +328,17 @@ void StripToolModel::onModelSelectionChange()
 {
     if (selectedPV_ == 0)
     {
+        //selectedIndex_ = QVariant();
         emit setPlotAxesLabels("", "");
 
     } else {
 
         //  first, tell the plot what it should now be displaying.
         emit setPlotAxesLabels(selectedPV_->xUnits(), selectedPV_->yUnits());
+        emit setSeriesSelected(selectedPV_->series());
 
         //  next, communicate the change to the list view.
+        emit setItemSelected(selectedIndex_);
     }
 }
 

@@ -3,7 +3,6 @@
 StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
-
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setMaximumWidth(200);
 
@@ -27,11 +26,13 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     setModel(model_);
 
+    connect( model_, SIGNAL(setItemSelected(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
+
+    connect( this, SIGNAL(clicked(QModelIndex)), model_, SLOT(itemSelected(QModelIndex)) );
     connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(deletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
-//    connect( this, SIGNAL(setAllValuesDisplayed(QModelIndex)), model_, SLOT(setAllValuesDisplayed(QModelIndex)) );
 }
 
 
@@ -68,10 +69,9 @@ void StripToolListView::updateContextMenu(const QPoint &position)
 
     menu.addAction(edit_);
     menu.addAction(delete_);
-    menu.addSeparator();
-    menu.addAction(showLess_);
-    menu.addAction(showMore_);
-//    menu.addAction(showAll_);
+//    menu.addSeparator();
+//    menu.addAction(showLess_);
+//    menu.addAction(showMore_);
     menu.addSeparator();
     menu.addAction(pause_);
     menu.addAction(resume_);
@@ -117,17 +117,6 @@ void StripToolListView::showMoreSelection()
         emit incrementValuesDisplayed(index, diff);
     }
 }
-
-
-
-//void StripToolListView::showAllSelection()
-//{
-////    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-////    {
-////        emit setAllValuesDisplayed(index);
-////    }
-//}
-
 
 
 

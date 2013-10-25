@@ -30,6 +30,16 @@ bool StripToolPlot::contains(MPlotItem *series)
 
 
 
+void StripToolPlot::setSeriesSelection(MPlotItem *modelSelection)
+{
+    if (contains(modelSelection))
+    {
+
+    }
+}
+
+
+
 void StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 {
     if (contains(newSeries))
@@ -50,21 +60,13 @@ void StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 
 
 
-void StripToolPlot::showPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
+void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
 {
     plot_->axisBottom()->setAxisName(bottomLabel);
     plot_->axisBottom()->showAxisName(true);
 
     plot_->axisLeft()->setAxisName(leftLabel);
     plot_->axisLeft()->showAxisName(true);
-}
-
-
-
-void StripToolPlot::hidePlotAxesLabels()
-{
-    plot_->axisLeft()->showAxisName(false);
-    plot_->axisBottom()->showAxisName(false);
 }
 
 

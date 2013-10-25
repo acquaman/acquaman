@@ -18,12 +18,15 @@ signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState, MPlotItem*);
     void modelSelectionChange();
-    void setPlotSelection(MPlotItem* newSelection);
     void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
+    void setSeriesSelected(MPlotItem *series);
+    void setItemSelected(const QModelIndex &index);
 
 protected:
     QList<StripToolPV*> pvList_;
+    QList<QModelIndex> itemList_;
     StripToolPV *selectedPV_;
+    QModelIndex selectedIndex_;
 
 protected:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -38,14 +41,13 @@ protected:
 
 protected slots:
     void addPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
-//    void editPV(const QModelIndex &index);
     void editPV(QList<QModelIndex> indicesToEdit);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void setValuesDisplayed(const QModelIndex &index, int points);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
-//    void setAllValuesDisplayed(const QModelIndex &index);
     void seriesSelected(MPlotItem *plotSelection, bool isSelected);
+    void itemSelected(const QModelIndex &index);
     void onModelSelectionChange();
 };
 
