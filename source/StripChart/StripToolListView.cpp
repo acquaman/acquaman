@@ -3,13 +3,17 @@
 StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
+    modelSelection_ = 0;
+
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setMaximumWidth(200);
 
     createActions();
     setContextMenuPolicy(Qt::CustomContextMenu);
-
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
+
+    QMessageBox reloadDialog;
+    reloadDialog.setText("");
 }
 
 
@@ -26,13 +30,21 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     setModel(model_);
 
-    connect( model_, SIGNAL(setItemSelected(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
+    connect( model_, SIGNAL(setItemSelected(QModelIndex)), this, SLOT(toSetSelection(QModelIndex)) );
+    connect( this, SIGNAL(newSelection(QModelIndex, QItemSelectionModel::SelectionFlags)), this->selectionModel(), SLOT(select(QModelIndex,QItemSelectionModel::SelectionFlags)) );
 
-    connect( this, SIGNAL(clicked(QModelIndex)), model_, SLOT(itemSelected(QModelIndex)) );
     connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(deletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
+    connect( this, SIGNAL(save(QModelIndex)), model_, SLOT(savePV(QModelIndex)) );
+}
+
+
+
+void StripToolListView::toSetSelection(const QModelIndex &index)
+{
+    emit newSelection(index, QItemSelectionModel::ClearAndSelect);
 }
 
 
@@ -51,14 +63,14 @@ void StripToolListView::createActions()
     showMore_ = new QAction("Show More", this);
     connect( showMore_, SIGNAL(triggered()), this, SLOT(showMoreSelection()) );
 
-//    showAll_ = new QAction("Show All", this);
-//    connect( showMore_, SIGNAL(triggered()), this, SLOT(showAllSelection()) );
-
     pause_ = new QAction("Pause", this);
     connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
 
     resume_ = new QAction("Restart", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
+
+    save_ = new QAction("Save", this);
+    connect( save_, SIGNAL(triggered()), this, SLOT(saveSelection()) );
 }
 
 
@@ -75,6 +87,8 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addSeparator();
     menu.addAction(pause_);
     menu.addAction(resume_);
+    menu.addSeparator();
+    menu.addAction(save_);
 
     menu.exec(mapToGlobal(position));
 }
@@ -135,5 +149,15 @@ void StripToolListView::resumeSelection()
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
     {
           emit setPVUpdating(index, true);
+    }
+}
+
+
+
+void StripToolListView::saveSelection()
+{
+    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
+    {
+        emit save(index);
     }
 }

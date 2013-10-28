@@ -2,6 +2,7 @@
 #define STRIPTOOLMODEL_H
 
 #include <QAbstractListModel>
+#include <QDebug>
 
 #include "StripChart/EditPVDialog.h"
 #include "StripChart/StripToolPV.h"
@@ -21,21 +22,31 @@ signals:
     void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
     void setSeriesSelected(MPlotItem *series);
     void setItemSelected(const QModelIndex &index);
+    void updateActivePVs();
 
 protected:
+    QList<QVariant> headerData_;
     QList<StripToolPV*> pvList_;
-    QList<QModelIndex> itemList_;
     StripToolPV *selectedPV_;
     QModelIndex selectedIndex_;
+    QDir saveDirectory_;
+    QString pvFilename_;
+    QStringList activeNames_;
+
+public:
+    void setSaveDirectory(QDir &newDir);
+    void setPVFilename(const QString &pvFilename);
 
 protected:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    bool contains(const QString &nameToFind);
-    bool insertRows(int row, int count, const QModelIndex &parent);
-    bool removeRows(int row, int count, const QModelIndex &parent);
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
+    bool hasChildren(const QModelIndex &parent) const;
+
+    bool contains(const QString &nameToFind);
     void checkStateChanged(const QModelIndex &index, Qt::CheckState checked);
     void descriptionChanged(const QModelIndex &index, const QString &newDescription);
 
@@ -46,9 +57,12 @@ protected slots:
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void setValuesDisplayed(const QModelIndex &index, int points);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
+    void savePV(const QModelIndex &index);
+
     void seriesSelected(MPlotItem *plotSelection, bool isSelected);
     void itemSelected(const QModelIndex &index);
     void onModelSelectionChange();
+    void saveActivePVs();
 };
 
 #endif // STRIPTOOLMODEL_H

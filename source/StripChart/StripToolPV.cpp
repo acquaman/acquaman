@@ -14,7 +14,6 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     yUnits_ = pvUnits;
     isUpdating_ = true;
     checkState_ = Qt::Checked;
-//    displayAll_ = false;
 
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
@@ -94,6 +93,13 @@ int StripToolPV::valuesDisplayed()
 
 
 
+QVector<double> StripToolPV::saveData()
+{
+    return pvDataTotal_;
+}
+
+
+
 void StripToolPV::setDescription(const QString &newDescription)
 {
     pvDescription_ = newDescription;
@@ -132,20 +138,8 @@ void StripToolPV::setValuesDisplayed(int points)
 void StripToolPV::incrementValuesDisplayed(int diff)
 {
     int newPoints = valuesDisplayed_ + diff;
-
-//    setAllValuesDisplayed(false);
     setValuesDisplayed(newPoints);
 }
-
-
-
-//void StripToolPV::setAllValuesDisplayed(bool displayAll)
-//{
-//    displayAll_ = displayAll;
-
-//    if (displayAll)
-//        setValuesDisplayed(updateIndex_);
-//}
 
 
 
@@ -158,8 +152,8 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 
 void StripToolPV::onPVValueChanged(double newValue)
 {
-    //  if we want to display all of the data collected, we must update valuesDisplayed.
-//    setAllValuesDisplayed(displayAll_);
+    if (dataVectorSize_ % 10 == 0)
+        emit savePV();
 
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)

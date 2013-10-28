@@ -18,6 +18,7 @@ public:
     friend class StripToolModel;
 
 signals:
+    void savePV();
 
 protected:
     int updateIndex_;
@@ -30,7 +31,6 @@ protected:
     QString yUnits_;
     bool isUpdating_;
     Qt::CheckState checkState_;
-//    bool displayAll_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
@@ -48,6 +48,7 @@ protected:
     MPlotVectorSeriesData* data();
     MPlotSeriesBasic* series();
     int valuesDisplayed();
+    QVector<double> saveData();
 
     void setDescription(const QString &newDescription);
     void setUnits(const QString &newUnits);

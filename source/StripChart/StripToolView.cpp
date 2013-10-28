@@ -2,10 +2,18 @@
 
 StripToolView::StripToolView(QWidget *parent, StripToolModel *model) : QWidget(parent)
 {
+    saveDirectory_ = QDir("/Users/helfrij/Desktop");
+    previousPVs_ = saveDirectory_.filePath("activePVs.txt");
+
     model_ = model;
+    model_->setSaveDirectory(saveDirectory_);
+    model_->setPVFilename(previousPVs_);
+
+    connect( this, SIGNAL(addPV(QString, QString, QString)), model_, SLOT(addPV(QString,QString,QString)) );
 
     createActions();
     buildUI();
+    //reloadCheck();
 }
 
 
@@ -60,6 +68,29 @@ void StripToolView::buildUI()
 
 
 
+void StripToolView::reloadCheck()
+{
+    int dialogVal = 0;
+
+    QFile file(previousPVs_);
+    if (file.exists())
+    {
+        QMessageBox reloadDialog;
+        reloadDialog.setText("Previous PVs Detected");
+        reloadDialog.setInformativeText("Do you want to reload previous pvs?");
+//        reloadDialog.setDetailedText(""); // show list of pvs?
+        reloadDialog.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        reloadDialog.setDefaultButton(QMessageBox::Ok);
+
+        dialogVal = reloadDialog.exec();
+    }
+
+    if (dialogVal == QMessageBox::Ok)
+        reloadPVs();
+}
+
+
+
 void StripToolView::toggleControls(int checkState)
 {
     if (checkState == 0)
@@ -73,4 +104,25 @@ void StripToolView::toggleControls(int checkState)
 void StripToolView::toggleLegend(int checkState)
 {
     Q_UNUSED(checkState);
+}
+
+
+
+void StripToolView::reloadPVs()
+{
+    QFile file(previousPVs_);
+
+    if (!file.open(QIODevice::ReadOnly))
+        qDebug() << previousPVs_ + " : " + file.errorString();
+
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_4_5);
+
+    QStringList reloadedPVs;
+    in >> reloadedPVs;
+
+    foreach(const QString &pvName, reloadedPVs)
+    {
+        emit addPV(pvName, "", "");
+    }
 }

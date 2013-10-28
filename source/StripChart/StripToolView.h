@@ -17,13 +17,14 @@ public:
     ~StripToolView();
 
 signals:
-    void addNewPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
-    void editPV();
-
+    void addPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits);
 protected:
     StripToolModel *model_;
     StripToolPlot *plotView_;
     StripToolQuickControls *quickControls_;
+
+    QDir saveDirectory_;
+    QString previousPVs_;
 
     QAction *newPlotAction_;
     QAction *saveDataAction_;
@@ -32,6 +33,8 @@ protected:
 protected:
     void createActions();
     void buildUI();
+    void reloadCheck();
+    void reloadPVs();
 
 protected slots:
     void toggleControls(int checkState);
