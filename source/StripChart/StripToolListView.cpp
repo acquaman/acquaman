@@ -58,10 +58,6 @@ void StripToolListView::createActions()
 
     resume_ = new QAction("Restart", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
-
-    save_ = new QAction("Save", this);
-    save_->setEnabled(false);
-    connect( save_, SIGNAL(triggered()), this, SLOT(saveSelection()) );
 }
 
 
@@ -80,8 +76,8 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addAction(pause_);
     menu.addAction(resume_);
     menu.addSeparator();
-    menu.addAction(save_);
-    menu.addSeparator();
+//    menu.addAction(save_);
+//    menu.addSeparator();
     menu.addMenu(plotMenu);
 
     menu.exec(mapToGlobal(position));
@@ -143,16 +139,6 @@ void StripToolListView::resumeSelection()
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
     {
           emit setPVUpdating(index, true);
-    }
-}
-
-
-
-void StripToolListView::saveSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit save(index);
     }
 }
 

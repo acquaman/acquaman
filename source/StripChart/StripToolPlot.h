@@ -8,6 +8,8 @@
 #include "MPlot/MPlotTools.h"
 #include "MPlot/MPlotWidget.h"
 
+/// This class displays pv information as a plot. A series may be added or removed from the plot, and displays the units of a series when it's selected.
+
 class StripToolPlot : public MPlotWidget
 {
     Q_OBJECT
@@ -25,16 +27,23 @@ protected:
     MPlotItem *plotSelection_;
 
 protected:
+    /// Returns true if a given series is in the plot, false otherwise.
     bool contains(MPlotItem *series);
+    /// Adds a given series to the plot, if it hasn't been added already.
     void addSeriesToPlot(MPlotItem *newSeries);
+    /// Removes a given series from the plot, if it is contained in the plot.
     void removeSeriesFromPlot(MPlotItem *toRemove);
-    void hidePlotAxesLabels();
     
 protected slots:
+    /// An attempt at uniform selection--not fully implemented. The model's selectedPV_ becomes the selected series on the plot.
     void setSeriesSelection(MPlotItem *modelSelection);
+    /// Informs the model that a series has been selected.
     void onSeriesSelected(MPlotItem *plotSelection);
+    /// Informs the model that a series has been deselected.
     void onSeriesDeselected();
+    /// Causes the string arguments to become the labels on the plot.
     void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
+    /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
     void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
 
 };

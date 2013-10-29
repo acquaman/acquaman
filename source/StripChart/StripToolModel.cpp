@@ -430,7 +430,7 @@ void StripToolModel::reloadPVs(bool reload)
 {
     QFile file(pvFilename_);
 
-    if (reload)
+    if (reload && file.exists())
     {
         qDebug() << "reloading pvs...";
 

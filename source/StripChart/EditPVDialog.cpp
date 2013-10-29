@@ -13,7 +13,7 @@ EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
     QLabel *nameLabel = new QLabel("Name : ");
     nameList_ = new QListView(this);
     nameList_->setModel(pvNamesModel);
-    nameList_->setMaximumHeight(50);
+//    nameList_->setMaximumHeight(50);
 
     QLabel *descriptionLabel = new QLabel("Description : ");
     descriptionEntry_ = new QLineEdit();

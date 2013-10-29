@@ -8,6 +8,8 @@
 #include "StripChart/StripToolModel.h"
 #include "StripChart/StripToolListView.h"
 
+/// This class is a sort of optional sidebar that provides a number of ways for the user to interact with an added pv, as well as a quick way to add a new one.
+
 class StripToolQuickControls : public QWidget
 {
     Q_OBJECT
@@ -30,12 +32,19 @@ private:
     QLabel *message_;
     
 protected slots:
+    /// Enables/disables information entry.
     void onControlsEnabled(bool);
+    /// Clears the pv valid feedback information.
     void clearMessage();
+    /// If the pv name entered is not valid, an error message is displayed. No message if valid.
     void displayMessage(bool isValid);
+    /// When the add button is clicked, information entry is disabled while we test to see if the entered pv name is valid.
     void addClicked();
+    /// Attempts to connect to the pv with the entered name.
     void testValidity(const QString &pvName);
+    /// If the connection is successful, add the pv to the model.
     void onPVConnected(bool isConnected);
+    /// If the connection is unsuccessful, cause a message to be displayed.
     void onPVError(int errorNum);
 };
 
