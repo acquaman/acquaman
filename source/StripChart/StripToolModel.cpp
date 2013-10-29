@@ -411,13 +411,13 @@ void StripToolModel::saveActivePVs()
     QDataStream out(&file);
     out.setVersion(QDataStream::Qt_4_5);
 
-    QStringList pvs;
+    QList<QStringList> pvs;
 
     foreach(StripToolPV *pv, pvList_)
     {
         QStringList pvEntry;
-//        pvEntry << pv->pvName() << pv->pvDescription() << pv->yUnits();
-        pvEntry << pv->pvName();
+        pvEntry << pv->pvName() << pv->pvDescription() << pv->yUnits();
+//        pvEntry << pv->pvName();
         pvs << pvEntry;
     }
 
@@ -440,21 +440,20 @@ void StripToolModel::reloadPVs(bool reload)
         QDataStream in(&file);
         in.setVersion(QDataStream::Qt_4_5);
 
-        QStringList pvs;
+        QList<QStringList> pvs;
         in >> pvs;
 
         qDebug() << pvs;
 
-        foreach(QString pvName, pvs)
+        foreach(QStringList pvEntry, pvs)
         {
-            emit addPV(pvName, "", "");
+            emit addPV(pvEntry.at(0), pvEntry.at(1), pvEntry.at(2));
         }
 
     } else {
 
         if (file.exists())
             file.remove();
-
     }
 }
 

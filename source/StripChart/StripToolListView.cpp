@@ -162,7 +162,3 @@ void StripToolListView::toSetSelection(const QModelIndex &index)
 {
     emit newSelection(index, QItemSelectionModel::ClearAndSelect);
 }
-
-
-
-
