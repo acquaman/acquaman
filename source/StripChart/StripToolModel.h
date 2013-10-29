@@ -87,6 +87,8 @@ protected slots:
     void saveActivePVs();
     /// Reads the pv names, descriptons, and units from file and causes them to be reloaded back into the model.
     void reloadPVs(bool reload);
+    /// An attempt to implement super basic color selection for pv.
+    void colorPV(const QModelIndex &index, const QColor &color);
 };
 
 #endif // STRIPTOOLMODEL_H

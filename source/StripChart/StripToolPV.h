@@ -74,6 +74,8 @@ protected:
     void incrementValuesDisplayed(int diff);
     /// The list view will allow the user to un/check a pv, and the most recent update for a pv's check state is set here.
     void setCheckState(Qt::CheckState isChecked);
+    /// The user can change the color that the pv appears in on the plot.
+    void setSeriesColor(const QColor &color);
 
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.

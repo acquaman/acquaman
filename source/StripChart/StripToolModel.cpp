@@ -457,3 +457,14 @@ void StripToolModel::reloadPVs(bool reload)
     }
 }
 
+
+
+void StripToolModel::colorPV(const QModelIndex &index, const QColor &color)
+{
+    if (index.isValid() && index.row() < pvList_.size())
+    {
+        StripToolPV *toEdit = pvList_.at(index.row());
+        toEdit->setSeriesColor(color);
+    }
+}
+

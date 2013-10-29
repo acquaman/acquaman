@@ -150,6 +150,13 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 
 
 
+void StripToolPV::setSeriesColor(const QColor &color)
+{
+    pvSeries_->setLinePen( QPen(color) );
+}
+
+
+
 void StripToolPV::onPVValueChanged(double newValue)
 {
     if (dataVectorSize_ % 10 == 0)

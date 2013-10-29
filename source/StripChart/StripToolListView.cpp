@@ -35,6 +35,8 @@ void StripToolListView::setPVModel(StripToolModel *model)
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
     connect( this, SIGNAL(save(QModelIndex)), model_, SLOT(savePV(QModelIndex)) );
+
+    connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
 }
 
 
@@ -58,6 +60,18 @@ void StripToolListView::createActions()
 
     resume_ = new QAction("Restart", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
+
+    blackLine_ = new QAction("Black", this);
+    connect( blackLine_, SIGNAL(triggered()), this, SLOT(colorBlack()) );
+
+    redLine_ = new QAction("Red", this);
+    connect( redLine_, SIGNAL(triggered()), this, SLOT(colorRed()) );
+
+    blueLine_ = new QAction("Blue", this);
+    connect( blueLine_, SIGNAL(triggered()), this, SLOT(colorBlue()) );
+
+    greenLine_ = new QAction("Green", this);
+    connect( greenLine_, SIGNAL(triggered()), this, SLOT(colorGreen()) );
 }
 
 
@@ -67,8 +81,11 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     QMenu menu(this);
 
     QMenu *plotMenu = new QMenu();
-    plotMenu->setTitle("Color and Markers");
-    plotMenu->setEnabled(false);
+    plotMenu->setTitle("Line color");
+    plotMenu->addAction(blackLine_);
+    plotMenu->addAction(redLine_);
+    plotMenu->addAction(blueLine_);
+    plotMenu->addAction(greenLine_);
 
     menu.addAction(edit_);
     menu.addAction(delete_);
@@ -76,8 +93,6 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addAction(pause_);
     menu.addAction(resume_);
     menu.addSeparator();
-//    menu.addAction(save_);
-//    menu.addSeparator();
     menu.addMenu(plotMenu);
 
     menu.exec(mapToGlobal(position));
@@ -147,4 +162,44 @@ void StripToolListView::resumeSelection()
 void StripToolListView::toSetSelection(const QModelIndex &index)
 {
     emit newSelection(index, QItemSelectionModel::ClearAndSelect);
+}
+
+
+
+void StripToolListView::colorBlack()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+    {
+        emit colorPV(index, QColor(Qt::black));
+    }
+}
+
+
+
+void StripToolListView::colorRed()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+    {
+        emit colorPV(index, QColor(Qt::red));
+    }
+}
+
+
+
+void StripToolListView::colorBlue()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+    {
+        emit colorPV(index, QColor(Qt::blue));
+    }
+}
+
+
+
+void StripToolListView::colorGreen()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+    {
+        emit colorPV(index, QColor(Qt::green));
+    }
 }

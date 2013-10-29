@@ -23,6 +23,7 @@ signals:
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void incrementValuesDisplayed(const QModelIndex &index, int difference);
+    void colorPV(const QModelIndex &index, const QColor &color);
 
 protected:
     StripToolModel *model_;
@@ -34,7 +35,11 @@ protected:
     QAction *showMore_;
     QAction *pause_;
     QAction *resume_;
-//    QAction *save_;
+
+    QAction *blackLine_;
+    QAction *redLine_;
+    QAction *blueLine_;
+    QAction *greenLine_;
 
 public:
     /// This function sets the view's model and makes sure all the connections are correct.
@@ -61,7 +66,11 @@ protected slots:
     void resumeSelection();
     /// An attempt to get the plot's selection to dictate which pv is selected in the view--not fully implemented.
     void toSetSelection(const QModelIndex &index);
-
+    /// An attempt to implement ultra basic color selection.
+    void colorBlack();
+    void colorRed();
+    void colorBlue();
+    void colorGreen();
 };
 
 #endif // STRIPTOOLLISTVIEW_H
