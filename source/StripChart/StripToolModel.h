@@ -31,7 +31,6 @@ protected:
     QModelIndex selectedIndex_;
     QDir saveDirectory_;
     QString pvFilename_;
-    QStringList activeNames_;
 
 public:
     void setSaveDirectory(QDir &newDir);
@@ -63,6 +62,7 @@ protected slots:
     void itemSelected(const QModelIndex &index);
     void onModelSelectionChange();
     void saveActivePVs();
+    void reloadPVs(bool reload);
 };
 
 #endif // STRIPTOOLMODEL_H

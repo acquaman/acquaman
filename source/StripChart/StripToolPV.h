@@ -55,7 +55,6 @@ protected:
     void setPVUpdating(bool isUpdating);
     void setValuesDisplayed(int points);
     void incrementValuesDisplayed(int diff);
-//    void setAllValuesDisplayed(bool displayAll);
     void setCheckState(Qt::CheckState isChecked);
 
 protected slots:

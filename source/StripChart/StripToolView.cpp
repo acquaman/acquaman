@@ -8,12 +8,11 @@ StripToolView::StripToolView(QWidget *parent, StripToolModel *model) : QWidget(p
     model_ = model;
     model_->setSaveDirectory(saveDirectory_);
     model_->setPVFilename(previousPVs_);
-
-    connect( this, SIGNAL(addPV(QString, QString, QString)), model_, SLOT(addPV(QString,QString,QString)) );
+    connect( this, SIGNAL(reloadPVs(bool)), model_, SLOT(reloadPVs(bool)) );
 
     createActions();
     buildUI();
-    //reloadCheck();
+    reloadCheck();
 }
 
 
@@ -47,13 +46,12 @@ void StripToolView::buildUI()
 
     QCheckBox *controlsToggle = new QCheckBox("Show controls", this);
 
-    QCheckBox *legendToggle = new QCheckBox("Show legend", this);
-    legendToggle->setEnabled(false);
+//    QCheckBox *legendToggle = new QCheckBox("Show legend", this);
+//    legendToggle->setEnabled(false);
 
     QVBoxLayout *plotLayout = new QVBoxLayout();
     plotLayout->addWidget(plotView_);
     plotLayout->addWidget(controlsToggle);
-    plotLayout->addWidget(legendToggle);
 
     quickControls_ = new StripToolQuickControls(this, model_);
     quickControls_->hide();
@@ -83,10 +81,13 @@ void StripToolView::reloadCheck()
         reloadDialog.setDefaultButton(QMessageBox::Ok);
 
         dialogVal = reloadDialog.exec();
-    }
 
-    if (dialogVal == QMessageBox::Ok)
-        reloadPVs();
+        if (dialogVal == QMessageBox::Ok)
+            emit reloadPVs(true);
+
+        else
+            emit reloadPVs(false);
+    }
 }
 
 
@@ -104,25 +105,4 @@ void StripToolView::toggleControls(int checkState)
 void StripToolView::toggleLegend(int checkState)
 {
     Q_UNUSED(checkState);
-}
-
-
-
-void StripToolView::reloadPVs()
-{
-    QFile file(previousPVs_);
-
-    if (!file.open(QIODevice::ReadOnly))
-        qDebug() << previousPVs_ + " : " + file.errorString();
-
-    QDataStream in(&file);
-    in.setVersion(QDataStream::Qt_4_5);
-
-    QStringList reloadedPVs;
-    in >> reloadedPVs;
-
-    foreach(const QString &pvName, reloadedPVs)
-    {
-        emit addPV(pvName, "", "");
-    }
 }

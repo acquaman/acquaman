@@ -155,10 +155,18 @@ bool StripToolModel::hasChildren(const QModelIndex &parent) const
 
 bool StripToolModel::contains(const QString &nameToFind)
 {    
-    if (activeNames_.contains(nameToFind))
-        return true;
-    else
-        return false;
+    bool found = false;
+    int count = 0;
+
+    while(!found && count < pvList_.size())
+    {
+        if(pvList_.at(count)->pvName() == nameToFind)
+            found = true;
+
+        count++;
+    }
+
+    return found;
 }
 
 
@@ -193,14 +201,14 @@ void StripToolModel::addPV(const QString &pvName, const QString &pvDescription, 
 
     //  create new pv object and notify views.
     StripToolPV *newPV = new StripToolPV(pvName, pvDescription, pvUnits, this);
-    activeNames_.append(newPV->pvName());
-    emit updateActivePVs();
 
     beginInsertRows(QModelIndex(), position, position + count - 1); //  notify model view.
     pvList_.insert(position, newPV); // add the new pv to the model.
     endInsertRows();
 
     emit seriesChanged(Qt::Checked, newPV->series());   //  notify plot.
+
+    emit updateActivePVs();
 }
 
 
@@ -244,6 +252,8 @@ void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
                 if (newPoints > 0)
                     toEdit->setValuesDisplayed(newPoints);
             }
+
+            emit updateActivePVs();
         }
     }
 }
@@ -258,14 +268,14 @@ void StripToolModel::deletePV(const QModelIndex &index)
         int count = 1; // we delete pvs one at a time.
 
         StripToolPV *toDelete = pvList_.at(position);
-        activeNames_.takeAt(position);
-        emit updateActivePVs();
 
         beginRemoveRows(QModelIndex(), position, position + count - 1); //  notify model view.
         delete pvList_.takeAt(position); //remove pv from model and delete.
         endRemoveRows();
 
         emit seriesChanged(Qt::Unchecked, toDelete->series());  //  notify plot.
+
+        emit updateActivePVs();
     }
 }
 
@@ -306,25 +316,27 @@ void StripToolModel::incrementValuesDisplayed(const QModelIndex &index, int diff
 
 void StripToolModel::savePV(const QModelIndex &index)
 {
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        StripToolPV *toSave = pvList_.at(index.row());
-        QVector<double> dataToSave = toSave->saveData();
+    Q_UNUSED(index);
 
-        QString filename = saveDirectory_.filePath(toSave->pvName() + ".txt");
+//    if (index.isValid() && index.row() < pvList_.size())
+//    {
+//        StripToolPV *toSave = pvList_.at(index.row());
+//        QVector<double> dataToSave = toSave->saveData();
 
-        QFile file(filename);
+//        QString filename = saveDirectory_.filePath(toSave->pvName() + ".txt");
 
-        if (!file.open(QIODevice::WriteOnly))
-        {
-            qDebug() << file.errorString();
-            return;
-        }
+//        QFile file(filename);
 
-        QDataStream out(&file);
-        out.setVersion(QDataStream::Qt_4_5);
-        out << dataToSave;
-    }
+//        if (!file.open(QIODevice::WriteOnly))
+//        {
+//            qDebug() << file.errorString();
+//            return;
+//        }
+
+//        QDataStream out(&file);
+//        out.setVersion(QDataStream::Qt_4_5);
+//        out << dataToSave;
+//    }
 }
 
 
@@ -371,6 +383,7 @@ void StripToolModel::onModelSelectionChange()
     if (selectedPV_ == 0)
     {
         emit setPlotAxesLabels("", "");
+        qDebug() << "Selected PV : none";
 
     } else {
 
@@ -378,8 +391,10 @@ void StripToolModel::onModelSelectionChange()
         emit setPlotAxesLabels(selectedPV_->xUnits(), selectedPV_->yUnits());
         emit setSeriesSelected(selectedPV_->series());
 
+        qDebug() << "Selected PV : " + selectedPV_->pvName();
+
         //  next, communicate the change to the list view.
-//        emit setItemSelected(selectedIndex_);
+        emit setItemSelected(selectedIndex_);
     }
 }
 
@@ -390,11 +405,56 @@ void StripToolModel::saveActivePVs()
     //  write the updated collection to file.
     QFile file(pvFilename_);
 
-    if (!file.open(QIODevice::ReadWrite))
+    if (!file.open(QIODevice::WriteOnly))
         qDebug() << pvFilename_ + " : " + file.errorString();
 
     QDataStream out(&file);
     out.setVersion(QDataStream::Qt_4_5);
-    out << activeNames_;
+
+    QStringList pvs;
+
+    foreach(StripToolPV *pv, pvList_)
+    {
+        QStringList pvEntry;
+//        pvEntry << pv->pvName() << pv->pvDescription() << pv->yUnits();
+        pvEntry << pv->pvName();
+        pvs << pvEntry;
+    }
+
+    out << pvs;
+}
+
+
+
+void StripToolModel::reloadPVs(bool reload)
+{
+    QFile file(pvFilename_);
+
+    if (reload)
+    {
+        qDebug() << "reloading pvs...";
+
+        if (!file.open(QIODevice::ReadOnly))
+            qDebug() << pvFilename_ + " : " + file.errorString();
+
+        QDataStream in(&file);
+        in.setVersion(QDataStream::Qt_4_5);
+
+        QStringList pvs;
+        in >> pvs;
+
+        qDebug() << pvs;
+
+        foreach(QString pvName, pvs)
+        {
+            emit addPV(pvName, "", "");
+        }
+
+    } else {
+
+        if (file.exists())
+            file.remove();
+
+    }
 }
 
