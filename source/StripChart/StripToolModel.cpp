@@ -208,7 +208,7 @@ void StripToolModel::addPV(const QString &pvName, const QString &pvDescription, 
 
     emit seriesChanged(Qt::Checked, newPV->series());   //  notify plot.
 
-    emit updateActivePVs();
+    emit updateActivePVs(); // update the information on active pvs that's saved to file.
 }
 
 
@@ -417,7 +417,6 @@ void StripToolModel::saveActivePVs()
     {
         QStringList pvEntry;
         pvEntry << pv->pvName() << pv->pvDescription() << pv->yUnits();
-//        pvEntry << pv->pvName();
         pvs << pvEntry;
     }
 

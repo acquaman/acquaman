@@ -8,11 +8,17 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     plot_ = new MPlot();
     plot_->addTool(selector_);
-    plot_->setAcceptDrops(true);
+//    plot_->setAcceptDrops(true);
     plot_->axisLeft()->showAxisName(false);
     plot_->axisBottom()->showAxisName(false);
 
+//    plot_->axisLeft()->setEnabled(false);
+//    plot_->axisLeft()->hide();
+//    plot_->axisLeft()->setVisible(false);
+//    plot_->axisScaleLeft()->set;
+
     setPlot(plot_);
+    enableAntiAliasing(true);
 }
 
 
@@ -93,7 +99,6 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, MPlotItem *pvSeries
     if (contains(pvSeries) && newState == Qt::Unchecked)
     {
         removeSeriesFromPlot(pvSeries);
-
     }
 
     //  if the series is NOT plotted and the new state indicates it should be shown, add it!

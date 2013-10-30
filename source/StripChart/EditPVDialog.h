@@ -21,7 +21,6 @@ private:
     QString description_;
     QString units_;
     int points_;
-    QListView *nameList_;
     QLineEdit *descriptionEntry_;
     QLineEdit *unitsEntry_;
     QLineEdit *pointsEntry_;

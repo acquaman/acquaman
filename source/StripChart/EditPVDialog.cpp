@@ -11,9 +11,13 @@ EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
     pvNamesModel->setStringList(pvNames);
 
     QLabel *nameLabel = new QLabel("Name : ");
-    nameList_ = new QListView(this);
-    nameList_->setModel(pvNamesModel);
-//    nameList_->setMaximumHeight(50);
+    QVBoxLayout *namesLayout = new QVBoxLayout();
+
+    foreach(const QString &name, pvNames)
+    {
+        QLabel *nameEntry = new QLabel(name);
+        namesLayout->addWidget(nameEntry);
+    }
 
     QLabel *descriptionLabel = new QLabel("Description : ");
     descriptionEntry_ = new QLineEdit();
@@ -32,7 +36,7 @@ EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
 
     QGridLayout *entryLayout = new QGridLayout();
     entryLayout->addWidget(nameLabel, 0, 0);
-    entryLayout->addWidget(nameList_, 0, 1);
+    entryLayout->addLayout(namesLayout, 0, 1);
     entryLayout->addWidget(descriptionLabel, 1, 0);
     entryLayout->addWidget(descriptionEntry_, 1, 1);
     entryLayout->addWidget(unitsLabel, 2, 0);

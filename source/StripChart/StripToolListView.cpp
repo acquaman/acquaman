@@ -61,17 +61,8 @@ void StripToolListView::createActions()
     resume_ = new QAction("Restart", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
 
-    blackLine_ = new QAction("Black", this);
-    connect( blackLine_, SIGNAL(triggered()), this, SLOT(colorBlack()) );
-
-    redLine_ = new QAction("Red", this);
-    connect( redLine_, SIGNAL(triggered()), this, SLOT(colorRed()) );
-
-    blueLine_ = new QAction("Blue", this);
-    connect( blueLine_, SIGNAL(triggered()), this, SLOT(colorBlue()) );
-
-    greenLine_ = new QAction("Green", this);
-    connect( greenLine_, SIGNAL(triggered()), this, SLOT(colorGreen()) );
+    setColor_ = new QAction("Line color", this);
+    connect( setColor_, SIGNAL(triggered()), this, SLOT(toSetPVColor()) );
 }
 
 
@@ -80,20 +71,13 @@ void StripToolListView::updateContextMenu(const QPoint &position)
 {
     QMenu menu(this);
 
-    QMenu *plotMenu = new QMenu();
-    plotMenu->setTitle("Line color");
-    plotMenu->addAction(blackLine_);
-    plotMenu->addAction(redLine_);
-    plotMenu->addAction(blueLine_);
-    plotMenu->addAction(greenLine_);
-
     menu.addAction(edit_);
     menu.addAction(delete_);
     menu.addSeparator();
     menu.addAction(pause_);
     menu.addAction(resume_);
     menu.addSeparator();
-    menu.addMenu(plotMenu);
+    menu.addAction(setColor_);
 
     menu.exec(mapToGlobal(position));
 }
@@ -166,40 +150,21 @@ void StripToolListView::toSetSelection(const QModelIndex &index)
 
 
 
-void StripToolListView::colorBlack()
+QColor StripToolListView::colorPicker()
 {
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit colorPV(index, QColor(Qt::black));
-    }
+    QColorDialog colors;
+    QColor color = colors.getColor();
+    return color;
 }
 
 
 
-void StripToolListView::colorRed()
+void StripToolListView::toSetPVColor()
 {
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+    QColor newColor = colorPicker();
+
+    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
     {
-        emit colorPV(index, QColor(Qt::red));
-    }
-}
-
-
-
-void StripToolListView::colorBlue()
-{
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit colorPV(index, QColor(Qt::blue));
-    }
-}
-
-
-
-void StripToolListView::colorGreen()
-{
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit colorPV(index, QColor(Qt::green));
+        emit colorPV(index, newColor);
     }
 }

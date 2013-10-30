@@ -14,6 +14,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     yUnits_ = pvUnits;
     isUpdating_ = true;
     checkState_ = Qt::Checked;
+    pvColor_ = QColor(Qt::red);
 
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
@@ -24,6 +25,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvSeries_->setModel(pvData_);
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
+    pvSeries_->setLinePen(QPen(pvColor_));
 
     pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
@@ -68,6 +70,13 @@ QString StripToolPV::yUnits()
 Qt::CheckState StripToolPV::checkState()
 {
     return checkState_;
+}
+
+
+
+QColor StripToolPV::color()
+{
+    return pvColor_;
 }
 
 
@@ -152,7 +161,8 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 
 void StripToolPV::setSeriesColor(const QColor &color)
 {
-    pvSeries_->setLinePen( QPen(color) );
+    pvColor_ = color;
+    pvSeries_->setLinePen( QPen(pvColor_) );
 }
 
 

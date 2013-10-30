@@ -34,6 +34,7 @@ protected:
     QString yUnits_;
     bool isUpdating_;
     Qt::CheckState checkState_;
+    QColor pvColor_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
@@ -53,6 +54,8 @@ protected:
     QString yUnits();
     /// Returns the checkstate for this pv : checked indicates it should appear on the plot, unchecked that it should be hidden.
     Qt::CheckState checkState();
+    /// Returns the color set for this pv's series.
+    QColor color();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.

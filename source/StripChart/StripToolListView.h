@@ -35,11 +35,7 @@ protected:
     QAction *showMore_;
     QAction *pause_;
     QAction *resume_;
-
-    QAction *blackLine_;
-    QAction *redLine_;
-    QAction *blueLine_;
-    QAction *greenLine_;
+    QAction *setColor_;
 
 public:
     /// This function sets the view's model and makes sure all the connections are correct.
@@ -48,6 +44,8 @@ public:
 protected:
     /// Creates the actions that a user can use to manipulate a pv: edit, delete, show less, show more, pause, resume.
     void createActions();
+    /// To view a color picker.
+    QColor colorPicker();
 
 protected slots:
     /// Creates the menu that appears when a user right-clicks on a pv, displays the available actions.
@@ -66,11 +64,9 @@ protected slots:
     void resumeSelection();
     /// An attempt to get the plot's selection to dictate which pv is selected in the view--not fully implemented.
     void toSetSelection(const QModelIndex &index);
-    /// An attempt to implement ultra basic color selection.
-    void colorBlack();
-    void colorRed();
-    void colorBlue();
-    void colorGreen();
+    /// Sets the series color for all of the selected pvs, using the color selected from color picker.
+    void toSetPVColor();
+
 };
 
 #endif // STRIPTOOLLISTVIEW_H
