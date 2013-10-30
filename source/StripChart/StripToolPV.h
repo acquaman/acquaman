@@ -35,6 +35,8 @@ protected:
     bool isUpdating_;
     Qt::CheckState checkState_;
     QColor pvColor_;
+    int minData_;
+    int maxData_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
@@ -64,6 +66,8 @@ protected:
     int valuesDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time but isn't fully implemented.
     QVector<double> saveData();
+    /// Returns the bottom axis range for the values displayed for this pv.
+    MPlotAxisRange axisBottomRange() const;
 
     /// If the user wants to set a new description for the pv, this is where it happens.
     void setDescription(const QString &newDescription);

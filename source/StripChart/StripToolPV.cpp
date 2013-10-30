@@ -19,6 +19,9 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
 
+    minData_ = 0;
+    maxData_ = 0;
+
     pvData_ = new MPlotVectorSeriesData();
 
     pvSeries_ = new MPlotSeriesBasic();
@@ -109,6 +112,25 @@ QVector<double> StripToolPV::saveData()
 
 
 
+//MPlotAxisRange* StripToolPV::axisRangeLeft()
+//{
+//    qreal min = ;
+//    qreal max;
+//    return new MPlotAxisRange(min, max);
+//}
+
+
+
+MPlotAxisRange StripToolPV::axisBottomRange() const
+{
+    qreal min = pvUpdateIndex_.at(updateIndex_ - valuesDisplayed_ - 1);
+    qreal max = pvUpdateIndex_.at(updateIndex_ - 1);
+
+    return MPlotAxisRange(min, max);
+}
+
+
+
 void StripToolPV::setDescription(const QString &newDescription)
 {
     pvDescription_ = newDescription;
@@ -169,8 +191,8 @@ void StripToolPV::setSeriesColor(const QColor &color)
 
 void StripToolPV::onPVValueChanged(double newValue)
 {
-    if (dataVectorSize_ % 10 == 0)
-        emit savePV();
+//    if (dataVectorSize_ % 10 == 0)
+//        emit savePV();
 
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)

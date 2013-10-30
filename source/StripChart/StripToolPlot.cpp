@@ -12,10 +12,8 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->axisLeft()->showAxisName(false);
     plot_->axisBottom()->showAxisName(false);
 
-//    plot_->axisLeft()->setEnabled(false);
-//    plot_->axisLeft()->hide();
-//    plot_->axisLeft()->setVisible(false);
-//    plot_->axisScaleLeft()->set;
+    plot_->axisLeft()->showTickLabels(false);
+    plot_->axisBottom()->showTickLabels(false);
 
     setPlot(plot_);
     enableAntiAliasing(true);
@@ -25,6 +23,20 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
 StripToolPlot::~StripToolPlot()
 {
+}
+
+
+
+void StripToolPlot::setModel(StripToolModel *model)
+{
+    model_ = model;
+
+    connect( this, SIGNAL(seriesSelected(MPlotItem*,bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
+    connect( model_, SIGNAL(seriesChanged(Qt::CheckState, MPlotItem*)), this, SLOT(onSeriesChanged(Qt::CheckState, MPlotItem*)) );
+    connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
+
+    connect( model_, SIGNAL(setPlotAxesRanges(MPlotAxisRange)), this, SLOT(setPlotAxesRanges(MPlotAxisRange)) );
+    connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
 }
 
 
@@ -73,6 +85,21 @@ void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString 
 
     plot_->axisLeft()->setAxisName(leftLabel);
     plot_->axisLeft()->showAxisName(true);
+}
+
+
+
+void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
+{
+    plot_->axisScaleBottom()->setDataRange(axisBottom);
+}
+
+
+
+void StripToolPlot::setTicksVisible(bool isShown)
+{
+    plot_->axisLeft()->showTickLabels(isShown);
+    plot_->axisBottom()->showTickLabels(isShown);
 }
 
 

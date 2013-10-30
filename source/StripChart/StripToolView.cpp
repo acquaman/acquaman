@@ -40,9 +40,8 @@ void StripToolView::createActions()
 void StripToolView::buildUI()
 {
     plotView_ = new StripToolPlot(this);
-    connect( plotView_, SIGNAL(seriesSelected(MPlotItem*,bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
-    connect( model_, SIGNAL(seriesChanged(Qt::CheckState, MPlotItem*)), plotView_, SLOT(onSeriesChanged(Qt::CheckState, MPlotItem*)) );
-    connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), plotView_, SLOT(setPlotAxesLabels(QString, QString)) );
+    plotView_->setModel(model_);
+
 
     QCheckBox *controlsToggle = new QCheckBox("Show controls", this);
 

@@ -383,12 +383,16 @@ void StripToolModel::onModelSelectionChange()
     if (selectedPV_ == 0)
     {
         emit setPlotAxesLabels("", "");
+//        emit setPlotAxesRanges(MPlotAxisRange(0, 0));
+        emit setPlotTicksVisible(false);
         qDebug() << "Selected PV : none";
 
     } else {
 
         //  first, tell the plot what it should now be displaying.
         emit setPlotAxesLabels(selectedPV_->xUnits(), selectedPV_->yUnits());
+//        emit setPlotAxesRanges(selectedPV_->axisBottomRange());
+        emit setPlotTicksVisible(true);
         emit setSeriesSelected(selectedPV_->series());
 
         qDebug() << "Selected PV : " + selectedPV_->pvName();

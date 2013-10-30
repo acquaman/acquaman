@@ -22,6 +22,8 @@ signals:
     void seriesChanged(Qt::CheckState, MPlotItem*);
     void modelSelectionChange();
     void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
+    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
+    void setPlotTicksVisible(bool isShown);
     void setSeriesSelected(MPlotItem *series);
     void setItemSelected(const QModelIndex &index);
     void updateActivePVs();
