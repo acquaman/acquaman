@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "acquaman/VESPERS/VESPERSXASScanActionController.h"
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	: AMEXAFSScanConfiguration(parent), VESPERSScanConfiguration()
@@ -104,7 +105,7 @@ AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
 
 AMScanController *VESPERSEXAFSScanConfiguration::createController()
 {
-	return new VESPERSEXAFSDacqScanController(this);
+	return new VESPERSXASScanActionController(this);
 }
 
 AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()

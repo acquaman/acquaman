@@ -38,6 +38,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupMono();
 	setupMotorGroup();
 	setupExposedControls();
+	setupExposedDetectors();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -347,6 +348,14 @@ void VESPERSBeamline::setupDetectors()
 	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
 	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
 	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
+
+//	splitIonChamber_ = new CLSBasicScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, );
+	preKBIonChamber_ = new CLSBasicScalerChannelDetector("PreKBIonChamber", "Pre KB Ion Chamber", scaler_, 7, this);
+	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
+	postIonChamber_  = new CLSBasicScalerChannelDetector("PostIonChamber", "Post Ion Chamber", scaler_, 9, this);
+
+	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
+	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -474,8 +483,10 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 20, 2.0, new AMControlStatusCheckerDefault(0), 1);
-	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
+	energy_ = new AMPVwStatusControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 20, 2.0, new AMControlStatusCheckerDefault(1), 1);
+	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(1), 1);
+	((AMPVwStatusControl *)energyRelative_)->setMoveStartTimeout(10.0);
+	((AMPVwStatusControl *)energyRelative_)->setMoveStartTolerance(0.1);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this, 0.1);
 	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);
 
@@ -658,23 +669,23 @@ void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
 {
 	if (connected){
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Scaler")
-			synchronizedDwellTime()->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Scaler")
+			synchronizedDwellTime_->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "1-El Vortex")
-			synchronizedDwellTime()->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "1-El Vortex")
+			synchronizedDwellTime_->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Roper CCD")
-			synchronizedDwellTime()->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Roper CCD")
+			synchronizedDwellTime_->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Pilatus CCD")
-			synchronizedDwellTime()->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Pilatus CCD")
+			synchronizedDwellTime_->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "4-El Vortex")
-			synchronizedDwellTime()->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "4-El Vortex")
+			synchronizedDwellTime_->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Mar CCD")
-			synchronizedDwellTime()->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Mar CCD")
+			synchronizedDwellTime_->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
 	}
 }
 
@@ -730,6 +741,16 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
+	addExposedControl(energyRelative_);
+}
+
+void VESPERSBeamline::setupExposedDetectors()
+{
+	addExposedDetector(singleElementVortexDetector_);
+	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(preKBIonChamber_);
+	addExposedDetector(miniIonChamber_);
+	addExposedDetector(postIonChamber_);
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

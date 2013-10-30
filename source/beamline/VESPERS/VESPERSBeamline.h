@@ -46,6 +46,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
+#include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+
 #define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
 #define VESPERSBEAMLINE_VALVES_CLOSED 67801
 #define VESPERSBEAMLINE_TEMPERATURE_TOO_HIGH 67802
@@ -122,6 +126,15 @@ public:
 	/// Returns the ion chamber detector set.
 	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
+	/// Returns the single element vortex detector.
+	AMDetector *singleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the single element vortex detector as its full type.
+	VESPERSSingleElementVortexDetector *vespersSingleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the four element vortex detector.
+	AMDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+	/// Returns the four element vortex detector as its full type.
+	VESPERSFourElementVortexDetector *vespersFourElementVortexDetector() const { return fourElementVortexDetector_; }
+
 	// Accessing control elements:
 
 	// The monochromator abstraction.
@@ -138,7 +151,7 @@ public:
 
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
-	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 	/// Returns the synchronized dwell time configuration info's list.
 	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
 	/// Returns a synchronized dwell time configuration info from the index provided.
@@ -643,6 +656,8 @@ protected:
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the exposed detectors.
+	void setupExposedDetectors();
 	/// Sets up the motor group for the various sample stages.
 	void setupMotorGroup();
 
@@ -659,6 +674,13 @@ protected:
 	AMOldDetector *iPreKB_;
 	AMOldDetector *iMini_;
 	AMOldDetector *iPost_;
+
+//	CLSBasicScalerChannelDetector *splitIonChamber_;
+	CLSBasicScalerChannelDetector *preKBIonChamber_;
+	CLSBasicScalerChannelDetector *miniIonChamber_;
+	CLSBasicScalerChannelDetector *postIonChamber_;
+	VESPERSSingleElementVortexDetector *singleElementVortexDetector_;
+	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
 
 	// End detectors.
 

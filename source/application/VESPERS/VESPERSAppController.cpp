@@ -286,9 +286,9 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
 
-	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
+//	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
 //		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
-	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(test1);
+	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	testView1->buildDetectorView();
 	testView1->setEnergyRange(3000, 20000);
 	testView1->addEmissionLineNameFilter(QRegExp("1"));
@@ -296,9 +296,9 @@ void VESPERSAppController::setupUserInterface()
 	testView1->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(testView1, "Detectors", "New 1-el Vortex", ":/system-search.png");
 
-	VESPERSFourElementVortexDetector *test4 = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
+//	VESPERSFourElementVortexDetector *test4 = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
 //		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
-	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(test4);
+	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	testView4->buildDetectorView();
 	testView4->setEnergyRange(3000, 20000);
 	testView4->addEmissionLineNameFilter(QRegExp("1"));

@@ -128,7 +128,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
+	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(qobject_cast<CLSSynchronizedDwellTime *>(VESPERSBeamline::vespers()->synchronizedDwellTime()));
 
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);

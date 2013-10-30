@@ -71,13 +71,15 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.h \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
 	source/acquaman/VESPERS/VESPERS3DDacqScanController.h \
-    source/beamline/VESPERS/VESPERSPilatusCCDDetector.h \
-    source/ui/VESPERS/VESPERSPilatusCCDDetectorView.h \
-    source/util/VESPERS/VESPERSAttoCubeHack.h \
-    source/dataman/export/VESPERS/VESPERSExporter3DAscii.h \
-    source/beamline/VESPERS/VESPERSSingleElementVortexDetector.h \
-    source/util/VESPERS/GeneralUtilities.h \
-    source/beamline/VESPERS/VESPERSFourElementVortexDetector.h
+	source/beamline/VESPERS/VESPERSPilatusCCDDetector.h \
+	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.h \
+	source/util/VESPERS/VESPERSAttoCubeHack.h \
+	source/dataman/export/VESPERS/VESPERSExporter3DAscii.h \
+	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.h \
+	source/util/VESPERS/GeneralUtilities.h \
+	source/beamline/VESPERS/VESPERSFourElementVortexDetector.h \
+	source/acquaman/VESPERS/VESPERSXASScanActionController.h \
+	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -146,16 +148,20 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.cpp \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
 	source/acquaman/VESPERS/VESPERS3DDacqScanController.cpp \
-    source/beamline/VESPERS/VESPERSPilatusCCDDetector.cpp \
-    source/ui/VESPERS/VESPERSPilatusCCDDetectorView.cpp \
-    source/util/VESPERS/VESPERSAttoCubeHack.cpp \
-    source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp \
-    source/beamline/VESPERS/VESPERSSingleElementVortexDetector.cpp \
-    source/util/VESPERS/GeneralUtilities.cpp \
-    source/beamline/VESPERS/VESPERSFourElementVortexDetector.cpp
+	source/beamline/VESPERS/VESPERSPilatusCCDDetector.cpp \
+	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.cpp \
+	source/util/VESPERS/VESPERSAttoCubeHack.cpp \
+	source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp \
+	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.cpp \
+	source/util/VESPERS/GeneralUtilities.cpp \
+	source/beamline/VESPERS/VESPERSFourElementVortexDetector.cpp \
+	source/acquaman/VESPERS/VESPERSXASScanActionController.cpp \
+	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

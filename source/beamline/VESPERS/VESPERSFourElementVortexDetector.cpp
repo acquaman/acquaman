@@ -75,10 +75,10 @@ bool VESPERSFourElementVortexDetector::setReadMode(AMDetectorDefinitions::ReadMo
 	return false;
 }
 
-const double *VESPERSFourElementVortexDetector::data() const
-{
-	return 0;
-}
+//const double *VESPERSFourElementVortexDetector::data() const
+//{
+//	return 0;
+//}
 
 void VESPERSFourElementVortexDetector::setMaximumEnergy(double energy)
 {

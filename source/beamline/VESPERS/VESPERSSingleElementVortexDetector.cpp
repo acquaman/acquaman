@@ -33,7 +33,7 @@ VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QSt
 
 QString VESPERSSingleElementVortexDetector::synchronizedDwellKey() const
 {
-	return "IOC1607-004:mca1EraseStart";
+	return "IOC1607-004:mca1EraseStart NPP NMS";
 }
 
 bool VESPERSSingleElementVortexDetector::sharesDetectorTriggerSource()
@@ -72,10 +72,10 @@ bool VESPERSSingleElementVortexDetector::setReadMode(AMDetectorDefinitions::Read
 	return false;
 }
 
-const double *VESPERSSingleElementVortexDetector::data() const
-{
-	return 0;
-}
+//const double *VESPERSSingleElementVortexDetector::data() const
+//{
+//	return 0;
+//}
 
 void VESPERSSingleElementVortexDetector::setMaximumEnergy(double energy)
 {

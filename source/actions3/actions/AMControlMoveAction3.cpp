@@ -131,12 +131,13 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	// error message with reason
 	AMErrorMon::alert(this,
 					  13000+reason,
-					  QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Reason: %6. Please report this problem to the beamline staff.")
+					  QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Tolerance %6. Reason: %7. Please report this problem to the beamline staff.")
 					  .arg(control_->name())
 					  .arg(control_->setpoint())
 					  .arg(control_->units())
 					  .arg(control_->value())
 					  .arg(control_->units())
+					  .arg(control_->tolerance())
 					  .arg(AMControl::failureExplanation(reason)));
 	setFailed();
 }

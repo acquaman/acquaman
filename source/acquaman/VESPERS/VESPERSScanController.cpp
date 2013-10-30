@@ -27,45 +27,47 @@ void VESPERSScanController::buildBaseInitializationAction(double timeStep)
 
 	initializationAction_ = new AMBeamlineListAction(setupActionsList);
 
+	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+
 	// First stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	// Scalar
-	setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Scaler")->createEnableAction(true));
+	setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Scaler")->createEnableAction(true));
 	// Single element vortex
 	if ((config_->fluorescenceDetector() == VESPERS::SingleElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(true));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("1-El Vortex")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(false));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("1-El Vortex")->createEnableAction(false));
 	// Roper CCD
 	if (config_->ccdDetector() == VESPERS::Roper)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(true));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Roper CCD")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(false));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Roper CCD")->createEnableAction(false));
 
 	// Pilatus CCD
 	if (config_->ccdDetector() == VESPERS::Pilatus)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(true));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Pilatus CCD")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(false));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Pilatus CCD")->createEnableAction(false));
 
 	// Four element vortex
 	if ((config_->fluorescenceDetector() == VESPERS::FourElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(true));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("4-El Vortex")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(false));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("4-El Vortex")->createEnableAction(false));
 	// Mar CCD
 	if (config_->ccdDetector() == VESPERS::Mar)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(true));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Mar CCD")->createEnableAction(true));
 	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(false));
+		setupActionsList->appendAction(0, synchronizedDwellTime->elementByName("Mar CCD")->createEnableAction(false));
 
 	// Second stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
 	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
 	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(timeStep));
+	setupActionsList->appendAction(1, synchronizedDwellTime->createModeAction(CLSSynchronizedDwellTime::SingleShot));
+	setupActionsList->appendAction(1, synchronizedDwellTime->createMasterTimeAction(timeStep));
 }
 
 QString VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName)
@@ -127,25 +129,27 @@ void VESPERSScanController::buildCleanupAction(bool usingMono)
 
 	cleanupAction_ = new AMBeamlineListAction(cleanupActionsList);
 
+	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+
 	// First stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	// Scalar
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(0)->createEnableAction(true));
 	// Single element vortex
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(1)->createEnableAction(false));
 	// CCD
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(3)->createEnableAction(false));
 	// Four element vortex
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(4)->createEnableAction(false));
 	// Mar CCD
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
+	cleanupActionsList->appendAction(0, synchronizedDwellTime->elementAt(5)->createEnableAction(false));
 
 	// Second stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	// Synchronized dwell time.
-	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+	cleanupActionsList->appendAction(1, synchronizedDwellTime->createMasterTimeAction(1.0));
 
 	if (usingMono){
 		// Variable integration time.
@@ -157,7 +161,7 @@ void VESPERSScanController::buildCleanupAction(bool usingMono)
 	// Third stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	// Start the synchronized dwell time.
-	cleanupActionsList->appendAction(2, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	cleanupActionsList->appendAction(2, synchronizedDwellTime->createModeAction(CLSSynchronizedDwellTime::Continuous));
 }
 
 QString VESPERSScanController::buildNotes()
