@@ -11,8 +11,8 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
-#include "acquaman/SGM/SGMXASScanActionControllerFileWriter.h"
-Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
+#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
 
 #define VESPERSXASSCANACTIONCONTROLLER_CANNOT_INTIALIZE 272001
 #define VESPERSXASSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 272002
@@ -44,7 +44,7 @@ protected slots:
 	void onCleanupActionsListFailed();
 
 	void onActionTreeGenerated(AMAction3 *actionTree);
-	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
 	void onFileWriterIsBusy(bool isBusy);
 
 protected:

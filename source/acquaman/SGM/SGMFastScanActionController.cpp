@@ -58,10 +58,10 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 	fileWriterThread_ = new QThread();
 
-	qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
-	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
+	qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+	AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
 	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
+	connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
 	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 	fileWriter->moveToThread(fileWriterThread_);
@@ -122,15 +122,15 @@ void SGMFastScanActionController::onCleanupActionsListFailed(){
 }
 
 #include "ui/util/AMMessageBoxWTimeout.h"
-void SGMFastScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+void SGMFastScanActionController::onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error){
 	qDebug() << "Got a file writer error in Fast Scan" << error;
 	QString userErrorString;
 	switch(error){
-	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+	case AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError:
 		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM Fast Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
-	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+	case AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM Fast Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
@@ -298,7 +298,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 			int currentEncoderValue = encoderStartValue_;
 			double energyFeedback;
 
-			
+
 			for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
 				currentEncoderValue += allDataMap_.value("EncoderUp").at(x);
 				currentEncoderValue -= allDataMap_.value("EncoderDown").at(x);
@@ -314,18 +314,18 @@ bool SGMFastScanActionController::event(QEvent *e){
 			}
 			/*
 			for(int x = 0; x < allDataMap_.value("NEWEncoderUp").count(); x++){
-                                currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);  
-                                currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
-                                energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
-                                
-                                scan_->rawData()->beginInsertRows(1, -1);
-                                scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);  
-                                for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
-                                        scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
-                                
-                                scan_->rawData()->endInsertRows();
-                                insertionIndex_[0] = insertionIndex_.i()+1;
-                        }
+								currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);
+								currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
+								energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
+
+								scan_->rawData()->beginInsertRows(1, -1);
+								scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);
+								for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+										scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+
+								scan_->rawData()->endInsertRows();
+								insertionIndex_[0] = insertionIndex_.i()+1;
+						}
 			*/
 			writeDataToFiles();
 			setFinished();
@@ -386,7 +386,7 @@ void SGMFastScanActionController::writeHeaderToFile(){
 	rank1String.append(QString("SParam: %1\n").arg(SGMBeamline::sgm()->energySParam()->value()));
 	rank1String.append(QString("ThetaParam: %1\n").arg(SGMBeamline::sgm()->energyThetaParam()->value()));
 	rank1String.append("End Info\n");
-	emit requestWriteToFile(1, rank1String);
+	emit requestWriteToFile(0, rank1String);
 }
 
 void SGMFastScanActionController::writeDataToFiles(){
@@ -415,7 +415,7 @@ void SGMFastScanActionController::writeDataToFiles(){
 		qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 		*/
 
-		emit requestWriteToFile(1, rank1String);
+		emit requestWriteToFile(0, rank1String);
 		requestIndex[0] = requestIndex.i()+1;
 	}
 }

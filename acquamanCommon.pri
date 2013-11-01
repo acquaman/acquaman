@@ -711,7 +711,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/util/AMPeriodicTableDialog.h \
     source/ui/beamline/AMDeadTimeButton.h \
     source/analysis/AMRegionOfInterestAB.h \
-    source/ui/beamline/AMRegionOfInterestView.h
+    source/ui/beamline/AMRegionOfInterestView.h \
+    source/acquaman/AMRegionScanActionControllerBasicFileWriter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1207,7 +1208,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/util/AMPeriodicTableDialog.cpp \
     source/ui/beamline/AMDeadTimeButton.cpp \
     source/analysis/AMRegionOfInterestAB.cpp \
-    source/ui/beamline/AMRegionOfInterestView.cpp
+    source/ui/beamline/AMRegionOfInterestView.cpp \
+    source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1231,6 +1233,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

@@ -62,17 +62,16 @@ HEADERS += \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
-    source/ui/util/SGM/SGMFastScanParametersView.h \
-    source/acquaman/SGM/SGMXASScanActionController.h \
-    source/acquaman/SGM/SGMScanConfiguration2013.h \
-    source/acquaman/SGM/SGMSScanConfigurationDbObject.h \
-    source/acquaman/SGM/SGMXASScanConfiguration2013.h \
-    source/ui/SGM/SGMXASScanConfiguration2013View.h \
-    source/ui/SGM/SGMFluxResolutionPickerView.h \
-    source/acquaman/SGM/SGMFastScanActionController.h \
-    source/acquaman/SGM/SGMFastScanConfiguration2013.h \
-    source/ui/SGM/SGMFastScanConfiguration2013View.h \
-    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h
+	source/ui/util/SGM/SGMFastScanParametersView.h \
+	source/acquaman/SGM/SGMXASScanActionController.h \
+	source/acquaman/SGM/SGMScanConfiguration2013.h \
+	source/acquaman/SGM/SGMSScanConfigurationDbObject.h \
+	source/acquaman/SGM/SGMXASScanConfiguration2013.h \
+	source/ui/SGM/SGMXASScanConfiguration2013View.h \
+	source/ui/SGM/SGMFluxResolutionPickerView.h \
+	source/acquaman/SGM/SGMFastScanActionController.h \
+	source/acquaman/SGM/SGMFastScanConfiguration2013.h \
+	source/ui/SGM/SGMFastScanConfiguration2013View.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -106,17 +105,22 @@ SOURCES += \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
-    source/ui/util/SGM/SGMFastScanParametersView.cpp \
-    source/acquaman/SGM/SGMXASScanActionController.cpp \
-    source/acquaman/SGM/SGMScanConfiguration2013.cpp \
-    source/acquaman/SGM/SGMSScanConfigurationDbObject.cpp \
-    source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
-    source/ui/SGM/SGMXASScanConfiguration2013View.cpp \
-    source/ui/SGM/SGMFluxResolutionPickerView.cpp \
-    source/acquaman/SGM/SGMFastScanActionController.cpp \
-    source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
-    source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
-    source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp
+	source/ui/util/SGM/SGMFastScanParametersView.cpp \
+	source/acquaman/SGM/SGMXASScanActionController.cpp \
+	source/acquaman/SGM/SGMScanConfiguration2013.cpp \
+	source/acquaman/SGM/SGMSScanConfigurationDbObject.cpp \
+	source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
+	source/ui/SGM/SGMXASScanConfiguration2013View.cpp \
+	source/ui/SGM/SGMFluxResolutionPickerView.cpp \
+	source/acquaman/SGM/SGMFastScanActionController.cpp \
+	source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
+	source/ui/SGM/SGMFastScanConfiguration2013View.cpp
+
+
+
+
+
+
 
 
 

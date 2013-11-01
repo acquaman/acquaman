@@ -73,10 +73,10 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 		fileWriterThread_ = new QThread();
 
-		qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
-		SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
+		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
 		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-		connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
+		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
 		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 		fileWriter->moveToThread(fileWriterThread_);
@@ -156,15 +156,15 @@ void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
 }
 
 #include "ui/util/AMMessageBoxWTimeout.h"
-void SGMXASScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+void SGMXASScanActionController::onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error){
 	qDebug() << "Got a file writer error " << error;
 	QString userErrorString;
 	switch(error){
-	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+	case AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError:
 		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM XAS Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
-	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+	case AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM XAS Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
@@ -303,7 +303,7 @@ void SGMXASScanActionController::writeHeaderToFile(){
 		rank1String.append("\n");
 	}
 	rank1String.append("End Info\n");
-	emit requestWriteToFile(1, rank1String);
+	emit requestWriteToFile(0, rank1String);
 }
 
 void SGMXASScanActionController::writeDataToFiles(){
@@ -338,8 +338,8 @@ void SGMXASScanActionController::writeDataToFiles(){
 	qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 	*/
 
-	emit requestWriteToFile(1, rank1String);
-	emit requestWriteToFile(2, rank2String);
+	emit requestWriteToFile(0, rank1String);
+	emit requestWriteToFile(1, rank2String);
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){

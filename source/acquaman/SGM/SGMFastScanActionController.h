@@ -7,8 +7,9 @@
 #include "actions3/AMAction3.h"
 
 #include <QThread>
-#include "acquaman/SGM/SGMXASScanActionControllerFileWriter.h"
-Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
+
+#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
 
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
@@ -35,7 +36,7 @@ protected slots:
 	void onCleanupActionsListSucceeded();
 	void onCleanupActionsListFailed();
 
-	void onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error);
+	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
 	void onFileWriterIsBusy(bool isBusy);
 
 protected:
