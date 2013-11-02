@@ -173,6 +173,7 @@ QPolygonF AMSampleCamera::samplePlate()
 	if(samplePlateSelected_)
 		return screenShape(subShape(samplePlateShape_));
 	else return QPolygonF();
+
 }
 
 /// return the current name
@@ -921,6 +922,7 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 /// selects a rectangle which is under the cursor
 void AMSampleCamera::selectCurrentShape(QPointF position)
 {
+    qDebug()<<"AMSampleCamera::selectCurrentShape";
 	int i = 0;
 	while(isValid(i) && !contains(position,i))
 	{
@@ -937,11 +939,13 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 	{
 		setCurrentIndex(index_ + 1);
 	}
+        qDebug()<<"AMSampleCamera::selectCurrentShape - exiting";
 }
 
 /// moves the currently selected rectangle by position + currentVector_
 void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 {
+    qDebug()<<"AMSampleCamera::moveCurrentShape";
 	/// \todo store oldPosition as a vector?
 	position = undistortPoint(position);
 	if(index == -1) index = currentIndex_;
@@ -967,6 +971,7 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		shiftCoordinates(shift,index);
 	}
 	currentVector_ = (position);
+        qDebug()<<"AMSampleCamera::moveCurrentShape - leaving";
 }
 
 /// moves all rectangles by position + rectangleVector_[index]
@@ -1414,6 +1419,9 @@ void AMSampleCamera::beamCalibrate()
 
 }
 
+/// Sets the sample plate (shape) to be the currently selected sample.  Removes the
+/// sample from the sample plate (class) and uses the sample's shape for the shape of the sample plate.
+#include "source/beamline/AMBeamline.h"
 void AMSampleCamera::setSamplePlate()
 {
 	if(isValid(currentIndex_))
@@ -1427,10 +1435,32 @@ void AMSampleCamera::setSamplePlate()
 				return;
 			}
 		}
-		samplePlateShape_ = takeItem(currentIndex_);
+                // Make sure to delete the old shape if there is one.
+                if(samplePlateShape_)
+                {
+                    delete(samplePlateShape_);
+                }
+                // remove from the list of samples.
+                samplePlateShape_ = new AMShapeData();
+                samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
+                int oldindex = currentIndex_;
+
+                AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
+                AMSample *currentSample = currentPlate->sampleFromShape(currentShape(oldindex));
+                removeItem(currentIndex_);
+                if(currentSample)
+                {
+                    currentPlate->removeSample(currentSample);
+                }
+
 		samplePlateShape_->setName("Sample Plate");
+                qDebug()<<"AMSampleCamera::setSamplePlate - getting name";
+                qDebug()<<"AMSampleCamera::setSamplePlate - sample plate name is "<<samplePlateShape_->name();
 		samplePlateShape_->setOtherDataFieldOne("Sample Plate");
-		samplePlateSelected_ = true;
+                samplePlateSelected_ = true;
+                setDrawOnSamplePlate();
+
+
 
 	}
 
@@ -1446,7 +1476,7 @@ void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
     }
     samplePlateShape_->setOtherDataFieldOne("Sample Plate");
     samplePlateSelected_ = true;
-	setDrawOnSamplePlate();
+    setDrawOnSamplePlate();
 }
 
 void AMSampleCamera::saveSamplePlate()
@@ -1602,12 +1632,17 @@ void AMSampleCamera::loadDefaultCamera()
 
 }
 
+/// Loads the default Sample plate shape.
+/// This is a sample plate of 20mmx20mm, set back 2mm.
 void AMSampleCamera::loadDefaultSamplePlate()
 {
 	AMShapeData* samplePlate = new AMShapeData();
 	QVector<QVector3D> samplePlateShape;
-	samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
+        samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
 	samplePlate->setCoordinateShape(samplePlateShape);
+        qDebug()<<"AMSampleCamera::loadDefaultSamplePlate - Sample Plate original position is"<<samplePlate->centerCoordinate();
+//        samplePlate->shift(motorCoordinate_);
+        qDebug()<<"AMSampleCamera::loadDefaultSamplePlate - Sample Plate position is"<<samplePlate->centerCoordinate();
 	setSamplePlate(samplePlate);
 	saveSamplePlate();
 }
@@ -1953,9 +1988,12 @@ QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D cente
 /// applies rotation, tilt, and distortion to the shape
 QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 {
+    if(!(shape))
+    {
+        qDebug()<<"AMSampleCamera::subShape - shape is null";
+    }
 	AMShapeData* rotatedShape = new AMShapeData();
 	rotatedShape->copy(shape);
-
 
 	if(rotatedShape->rotation() != 0)
 	{
@@ -1975,7 +2013,6 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 //		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
 //	}
 
-
 	QPolygonF newShape;
 	for(int i = 0; i < rotatedShape->count(); i++)
 	{
@@ -1986,7 +2023,6 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 	{
 		newShape = applyDistortion(newShape);
 	}
-
 
 	return newShape;
 }
@@ -2092,12 +2128,13 @@ QPointF AMSampleCamera::coordinateTransform(QPointF coordinate) const
 
 QPolygonF AMSampleCamera::screenShape(QPolygonF shape) const
 {
+    qDebug()<<"AMSampleCamera::screenShape";
 	QPolygonF newShape;
 	for(int i = 0; i < shape.count(); i++)
 	{
 		newShape<<coordinateTransform(shape.at(i));
 	}
-
+        qDebug()<<"AMSampleCamera::screenShape - exiting";
 	return newShape;
 }
 

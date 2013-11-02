@@ -47,11 +47,24 @@ AMShapeData::~AMShapeData()
 
 QPolygonF* AMShapeData::shape() const
 {
+    qDebug()<<"AMShapeData::shape";
+    if(!(shape_))
+    {
+        qDebug()<<"AMShapeData::shape - shape is null";
+    }
     return shape_;
 }
 
 QString AMShapeData::name() const
 {
+    qDebug()<<"AMShapeData::name";
+    qDebug()<<"AMShapeData::name - otherdata is "<<otherDataFieldOne();
+    if(name_.isNull())
+    {
+        qDebug()<<"AMShapeData::name - Name is null through .isNull";
+    }
+    qDebug()<<"AMShapeData::name - name not null?";
+    qDebug()<<"AMShapeData::name - name is "<<name_;
     return name_;
 }
 
@@ -114,11 +127,19 @@ void AMShapeData::setShape(const QPolygonF shape)
 
 void AMShapeData::setName(QString name)
 {
+
+    qDebug()<<"AMShapeData::setName";
     if(name_ != name)
     {
+        qDebug()<<"AMShapeData::setName - Changing name to "<<name;
+        qDebug()<<"AMShapeData::setName - changing name from"<<name_;
+        qDebug()<<"AMShapeData::setName  - OtherDataFieldOne is"<<otherDataFieldOne_;
         name_ = name;
+        qDebug()<<"AMShapeData::setName - About to emit nameChanged";
         emit nameChanged(name_);
-		emit shapeDataChanged(this);
+        qDebug()<<"AMShapeData::setName - About to emit shapeDataChanged";
+        emit shapeDataChanged(this);
+        qDebug()<<"AMShapeData::setName - done emitting";
     }
 }
 
@@ -218,6 +239,10 @@ void AMShapeData::setVisible(bool visible)
 
 void AMShapeData::copy(const AMShapeData *other)
 {
+    if(!(other))
+    {
+        qDebug()<<"Other is null";
+    }
 	blockSignals(true);
     setName(other->name());
     setOtherDataFieldOne(other->otherDataFieldOne());
@@ -226,6 +251,7 @@ void AMShapeData::copy(const AMShapeData *other)
     setTilt(other->tilt());
     setYAxisRotation(other->yAxisRotation());
     setVisible(other->visible());
+    qDebug()<<"AMShapeData::copy - getting shape";
     setShape(*other->shape());
     QVector<QVector3D> nullShape;
     for(int i = 0; i < other->count(); i++)
@@ -238,6 +264,7 @@ void AMShapeData::copy(const AMShapeData *other)
         setCoordinate(other->coordinate(i),i);
 
     }
+    qDebug()<<"AMShapeData::copy - coordintates set";
 	blockSignals(false);
     if(count() != other->count())
     {
@@ -246,15 +273,16 @@ void AMShapeData::copy(const AMShapeData *other)
 	emit shapeDataChanged(this);
 }
 
-/// finds the center of the shape - must be rectangular
+/// finds the center of the shape
+/// Shape should have a repeated start/end point
 QVector3D AMShapeData::centerCoordinate() const
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < (coordinateCount_); i++)// dont want the last point
+    for(int i = 0; i < (coordinateCount_ - 1); i++)// dont want the last point
     {
         center += coordinate(i);
     }
-    return center/(double)(coordinateCount_ );
+    return center/(double)(coordinateCount_ - 1);
 }
 
 /// shifts the shape by the given amount
@@ -278,6 +306,7 @@ void AMShapeData::shiftTo(const QVector3D &shiftTo)
 }
 
 /// returns a count of the number of coordinates
+/// Should be one more than the number or vertices (start/end is repeated)
 int AMShapeData::count() const
 {
     return coordinateCount_;

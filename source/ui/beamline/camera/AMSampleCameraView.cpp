@@ -1,4 +1,4 @@
-#include "AMSampleCameraView.h"
+ #include "AMSampleCameraView.h"
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
@@ -225,7 +225,6 @@ void AMSampleCameraView::refreshSceneView()
 		shapeModel_->setCurrentIndex(current_);
 		emit currentChanged();
 	}
-
 	for(int i = 0; i < index_+ 1; i++)
 	{
 		if(shapes_.contains(i) && isValid(i))
@@ -283,14 +282,12 @@ void AMSampleCameraView::refreshSceneView()
 		else
 			qDebug()<<"Missing shape"<<i;
 	}
-
 	if(groupRectangleActive_)
 	{
 		groupRectangle_->setPolygon(shapeModel_->groupRectangle());
 	}
 	// draw the sample plate
 	drawSamplePlate();
-
 	// print the intersection shapes
 	intersection();
 
@@ -888,6 +885,7 @@ void AMSampleCameraView::reviewCameraConfiguration()
 			coordinates[i] = *coordinateList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
+                shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
@@ -1539,6 +1537,7 @@ void AMSampleCameraView::mouseDoubleClickHandler(QPointF position)
 void AMSampleCameraView::mouseMoveHandler(QPointF position)
 {
 
+    qDebug()<<"AMSampleCameraView::mouseMoveHandler";
 	emit mouseMoved((position));
 	if(mode_ == MOVE)
 	{
@@ -1548,7 +1547,7 @@ void AMSampleCameraView::mouseMoveHandler(QPointF position)
 	{
 		currentSelectionChanged();
 	}
-
+    qDebug()<<"AMSampleCameraView::mouseMoveHandler -exiting";
 	//    reviewCrosshairLinePositions();
 
 
@@ -1593,11 +1592,15 @@ void AMSampleCameraView::deleteShape()
 	delete text;
 }
 
-/// change the currently selected item, outline it in blue?
+/// change the currently selected item, outline it in blue
 void AMSampleCameraView::currentSelectionChanged()
 {
+    qDebug()<<"AMSampleCameraView::currentSelectionChanged";
 	if(isValid(current_))
+        {
+            qDebug()<<"setting pen colour";
 		shapes_[current_]->setPen(colour(BORDER));
+        }
 	current_ = shapeModel_->currentIndex();
 	//	qDebug()<<"AMSampleCameraView::currentSelectionChanged - Setting shape view";
 	//    shapeView_->setShapeData(shapeModel_->currentShape());
@@ -1617,8 +1620,9 @@ void AMSampleCameraView::currentSelectionChanged()
 		shapes_[current_]->setPen(colour(ACTIVEBORDER));
 
 	}
-
+        qDebug()<<"Calling refresh SceneView";
 	refreshSceneView();
+        qDebug()<<"AMSampleCameraView::currentSelectionChanged - exiting";
 
 }
 
@@ -2189,19 +2193,28 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 
 void AMSampleCameraView::drawSamplePlate()
 {
+    qDebug()<<"AMSampleCameraView::drawSamplePlate";
 	QPen pen(colour(BORDER));
 	QBrush brush(colour(FILL));
+        qDebug()<<"AMSampleCameraView::drawSamplePlate - getting sample plate shape";
 	QPolygonF samplePlate = shapeModel_->samplePlate();
+        qDebug()<<"AMSampleCameraView::drawSamplePlate - got sample plate shape";
 	if(!samplePlate.isEmpty())
 	{
+
 		if(!(samplePlate_ && samplePlate_->polygon() == samplePlate))
 		{
+                    if(!samplePlate_)
+                    {
+                        qDebug()<<"AMSampleCameraView::drawSamplePlate - samplePlate_ is null";
+                    }
 			shapeScene_->scene()->removeItem(samplePlate_);
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
 		}
 	}
 	if(samplePlate_)
 		samplePlate_->setVisible(showSamplePlate_->isChecked());
+        qDebug()<<"AMSampleCameraView::drawSamplePlate - exiting";
 }
 
 void AMSampleCameraView::setRotationOffsetX(QString offset)
