@@ -2193,12 +2193,9 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 
 void AMSampleCameraView::drawSamplePlate()
 {
-    qDebug()<<"AMSampleCameraView::drawSamplePlate";
 	QPen pen(colour(BORDER));
 	QBrush brush(colour(FILL));
-        qDebug()<<"AMSampleCameraView::drawSamplePlate - getting sample plate shape";
 	QPolygonF samplePlate = shapeModel_->samplePlate();
-        qDebug()<<"AMSampleCameraView::drawSamplePlate - got sample plate shape";
 	if(!samplePlate.isEmpty())
 	{
 
@@ -2214,7 +2211,6 @@ void AMSampleCameraView::drawSamplePlate()
 	}
 	if(samplePlate_)
 		samplePlate_->setVisible(showSamplePlate_->isChecked());
-        qDebug()<<"AMSampleCameraView::drawSamplePlate - exiting";
 }
 
 void AMSampleCameraView::setRotationOffsetX(QString offset)

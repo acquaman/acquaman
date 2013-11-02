@@ -2128,13 +2128,11 @@ QPointF AMSampleCamera::coordinateTransform(QPointF coordinate) const
 
 QPolygonF AMSampleCamera::screenShape(QPolygonF shape) const
 {
-    qDebug()<<"AMSampleCamera::screenShape";
 	QPolygonF newShape;
 	for(int i = 0; i < shape.count(); i++)
 	{
 		newShape<<coordinateTransform(shape.at(i));
 	}
-        qDebug()<<"AMSampleCamera::screenShape - exiting";
 	return newShape;
 }
 

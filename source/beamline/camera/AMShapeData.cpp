@@ -47,7 +47,6 @@ AMShapeData::~AMShapeData()
 
 QPolygonF* AMShapeData::shape() const
 {
-    qDebug()<<"AMShapeData::shape";
     if(!(shape_))
     {
         qDebug()<<"AMShapeData::shape - shape is null";
@@ -57,14 +56,6 @@ QPolygonF* AMShapeData::shape() const
 
 QString AMShapeData::name() const
 {
-    qDebug()<<"AMShapeData::name";
-    qDebug()<<"AMShapeData::name - otherdata is "<<otherDataFieldOne();
-    if(name_.isNull())
-    {
-        qDebug()<<"AMShapeData::name - Name is null through .isNull";
-    }
-    qDebug()<<"AMShapeData::name - name not null?";
-    qDebug()<<"AMShapeData::name - name is "<<name_;
     return name_;
 }
 
@@ -128,18 +119,11 @@ void AMShapeData::setShape(const QPolygonF shape)
 void AMShapeData::setName(QString name)
 {
 
-    qDebug()<<"AMShapeData::setName";
     if(name_ != name)
     {
-        qDebug()<<"AMShapeData::setName - Changing name to "<<name;
-        qDebug()<<"AMShapeData::setName - changing name from"<<name_;
-        qDebug()<<"AMShapeData::setName  - OtherDataFieldOne is"<<otherDataFieldOne_;
         name_ = name;
-        qDebug()<<"AMShapeData::setName - About to emit nameChanged";
         emit nameChanged(name_);
-        qDebug()<<"AMShapeData::setName - About to emit shapeDataChanged";
         emit shapeDataChanged(this);
-        qDebug()<<"AMShapeData::setName - done emitting";
     }
 }
 
@@ -251,7 +235,6 @@ void AMShapeData::copy(const AMShapeData *other)
     setTilt(other->tilt());
     setYAxisRotation(other->yAxisRotation());
     setVisible(other->visible());
-    qDebug()<<"AMShapeData::copy - getting shape";
     setShape(*other->shape());
     QVector<QVector3D> nullShape;
     for(int i = 0; i < other->count(); i++)
@@ -264,7 +247,6 @@ void AMShapeData::copy(const AMShapeData *other)
         setCoordinate(other->coordinate(i),i);
 
     }
-    qDebug()<<"AMShapeData::copy - coordintates set";
 	blockSignals(false);
     if(count() != other->count())
     {
