@@ -26,9 +26,10 @@ Q_OBJECT
 public:
 	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
 
-	AMAction3* actionsTree();
+	AMAction3* scanningActions();
 
 	virtual bool isReadyForDeletion() const;
+	virtual void buildScanController() {}
 
 signals:
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
@@ -59,15 +60,17 @@ protected:
 	AMAction3* createInitializationActions();
 	AMAction3* createCleanupActions();
 
+	virtual void buildScanControllerImplementation() {}
+
 protected:
-	AMAction3 *actionTree_;
-	bool actionTreeSucceeded_;
-	AMListAction3 *xasActionsInitializationList_;
-	AMListAction3 *xasActionsCleanupList_;
+	AMAction3 *scanningActions_;
+	bool scanningActionsSucceeded_;
+	AMListAction3 *initializationActions_;
+	AMListAction3 *cleanupActions_;
 	AMScanActionControllerScanAssembler *newScanAssembler_;
 	SGMXASScanConfiguration2013 *configuration_;
 
-	AMnDIndex insertionIndex_;
+	AMnDIndex currentAxisValueIndex_;
 	double currentAxisValue_;
 
 	QThread *fileWriterThread_;

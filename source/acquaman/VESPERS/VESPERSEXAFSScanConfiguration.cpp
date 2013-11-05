@@ -105,7 +105,10 @@ AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
 
 AMScanController *VESPERSEXAFSScanConfiguration::createController()
 {
-	return new VESPERSXASScanActionController(this);
+	AMScanActionController *controller = new VESPERSXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()

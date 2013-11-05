@@ -24,6 +24,8 @@ Q_OBJECT
 public:
 	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 
+	virtual void buildScanController() {}
+
 signals:
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
 	void finishWritingToFile();
@@ -51,6 +53,8 @@ protected:
 
 	AMAction3* createInitializationActions();
 	AMAction3* createCleanupActions();
+
+	virtual void buildScanControllerImplementation() {}
 
 protected:
 	SGMFastScanConfiguration2013 *configuration_;

@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include "dataman/AMTextStream.h"
 
-#include "acquaman/AMXASScanConfigurationConverter.h"
+#include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "actions3/AMActionRunner3.h"
 #include "application/AMAppControllerSupport.h"
 #include "actions3/AMListAction3.h"
@@ -45,12 +45,12 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
 
-	insertionIndex_ = AMnDIndex(0);
+	currentAxisValueIndex_ = AMnDIndex(0);
 
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
-	AMXASScanConfigurationConverter xasScanConfigurationConverter(newScanAssembler_, cfg, this);
+	AMRegionScanConfigurationConverter regionScanConfigurationConverter(newScanAssembler_, cfg, this);
 
-	if(xasScanConfigurationConverter.convert()){
+	if(regionScanConfigurationConverter.convert()){
 		bool has1DDetectors = false;
 		AMDetector *oneDetector;
 		for(int x = 0; x < cfg->detectorConfigurations().count(); x++){
@@ -86,8 +86,8 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		AMErrorMon::alert(this, SGMXASSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION, "Error, SGM XAS Scan Action Controller failed to convert the configuration into a scan action tree. This is a serious problem, please contact the SGM Acquaman developers.");
 }
 
-AMAction3* SGMXASScanActionController::actionsTree(){
-	return actionTree_;
+AMAction3* SGMXASScanActionController::scanningActions(){
+	return scanningActions_;
 }
 
 bool SGMXASScanActionController::isReadyForDeletion() const{
@@ -95,63 +95,63 @@ bool SGMXASScanActionController::isReadyForDeletion() const{
 }
 
 void SGMXASScanActionController::onInitializationActionsListSucceeded(){
-	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	disconnect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	disconnect(initializationActions_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
 	setInitialized();
 }
 
 void SGMXASScanActionController::onInitializationActionsListFailed(){
-	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	disconnect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	disconnect(initializationActions_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
-	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 }
 
 void SGMXASScanActionController::onActionsTreeSucceeded(){
-	actionTreeSucceeded_ = true;
-	disconnect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	disconnect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	scanningActionsSucceeded_ = true;
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
 
-	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 }
 
 void SGMXASScanActionController::onActionsTreeFailed(){
-	disconnect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	disconnect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
 
-	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
+	connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 }
 
 void SGMXASScanActionController::onCleanupActionsListSucceeded(){
-	disconnect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	if(actionTreeSucceeded_)
+	disconnect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	if(scanningActionsSucceeded_)
 		setFinished();
 	else
 		setFailed();
 }
 
 void SGMXASScanActionController::onCleanupActionsListFailed(){
-	disconnect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+	disconnect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
+	disconnect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 	setFailed();
 }
 
 void SGMXASScanActionController::onActionTreeGenerated(AMAction3 *actionTree){
-	actionTree_ = actionTree;
+	scanningActions_ = actionTree;
 
-	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), actionTree_);
-	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), actionTree_))
+	AMAppControllerSupport::optimize(AMAppControllerSupport::principleOptimizersCopy(), scanningActions_);
+	if(!AMAppControllerSupport::validate(AMAppControllerSupport::principleValidatorsCopy(), scanningActions_))
 		return;
 }
 
@@ -197,15 +197,15 @@ void SGMXASScanActionController::onFileWriterIsBusy(bool isBusy){
 bool SGMXASScanActionController::initializeImplementation(){
 	AMAction3 *cleanupActions = createCleanupActions();
 	if(qobject_cast<AMListAction3*>(cleanupActions))
-		xasActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
+		cleanupActions_ = qobject_cast<AMListAction3*>(cleanupActions);
 
 	AMAction3 *initializationActions = createInitializationActions();
 	if(qobject_cast<AMListAction3*>(initializationActions))
-		xasActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
+		initializationActions_ = qobject_cast<AMListAction3*>(initializationActions);
 
-	connect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	connect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsInitializationList_);
+	connect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	connect(initializationActions_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(initializationActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 
 	return true;
@@ -219,9 +219,9 @@ bool SGMXASScanActionController::startImplementation(){
 				"Error, SGM XAS Scan Action Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
 		return false;
 	}
-	AMActionRunner3::scanActionRunner()->addActionToQueue(actionTree_);
-	connect(actionTree_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	connect(actionTree_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
 	return AMScanActionController::startImplementation();
 }
 
@@ -248,13 +248,13 @@ bool SGMXASScanActionController::event(QEvent *e){
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
-			insertionIndex_[0] = insertionIndex_.i()+1;
+			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
 
 			break;
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-			if(insertionIndex_.i() >= scan_->rawData()->scanSize(0)){
-				scan_->rawData()->beginInsertRows(insertionIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), currentAxisValue_);
+			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
+				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValue_);
 			}
 
 			QVector<double> localDetectorData;
@@ -262,7 +262,7 @@ bool SGMXASScanActionController::event(QEvent *e){
 			for(int x = 0; x < detectorDataValues.count(); x++)
 				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
 			break;}
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
 			if(message.value("ControlMovementType") == "Absolute")
@@ -314,17 +314,17 @@ void SGMXASScanActionController::writeDataToFiles(){
 	QTime startTime  = QTime::currentTime();
 	*/
 
-	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, insertionIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i())));
 	AMRawDataSource *oneRawDataSource;
 	for(int x = 0; x < scan_->rawDataSourceCount(); x++){
 		oneRawDataSource = scan_->rawDataSources()->at(x);
 		if(oneRawDataSource->rank() == 1)
-			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(insertionIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
 		if(oneRawDataSource->rank() == 2){
 			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
 			double outputValues[dataSourceSize];
-			AMnDIndex startIndex = AMnDIndex(insertionIndex_.i(), 0);
-			AMnDIndex endIndex = AMnDIndex(insertionIndex_.i(), dataSourceSize-1);
+			AMnDIndex startIndex = AMnDIndex(currentAxisValueIndex_.i(), 0);
+			AMnDIndex endIndex = AMnDIndex(currentAxisValueIndex_.i(), dataSourceSize-1);
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
 			for(int y = 0; y < dataSourceSize; y++)
 				rank2String.append(QString("%1 ").arg(outputValues[y]));

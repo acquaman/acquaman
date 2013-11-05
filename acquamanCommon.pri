@@ -661,7 +661,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMScanActionTreeSupport.h \
 	source/acquaman/AMNestedAxisTypeValidator.h \
 	source/acquaman/AMScanActionControllerScanConfigurationConverter.h \
-	source/acquaman/AMXASScanConfigurationConverter.h \
 	source/acquaman/AM3DDacqScanController.h \
 	source/acquaman/AM3DScanConfiguration.h \
 	source/dataman/AM3DScan.h \
@@ -712,7 +711,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/beamline/AMDeadTimeButton.h \
     source/analysis/AMRegionOfInterestAB.h \
     source/ui/beamline/AMRegionOfInterestView.h \
-    source/acquaman/AMRegionScanActionControllerBasicFileWriter.h
+    source/acquaman/AMRegionScanActionControllerBasicFileWriter.h \
+    source/acquaman/AMRegionScanConfigurationConverter.h \
+    source/acquaman/AMRegionScanActionController.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1158,7 +1159,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMScanActionTreeSupport.cpp \
 	source/acquaman/AMNestedAxisTypeValidator.cpp \
 	source/acquaman/AMScanActionControllerScanConfigurationConverter.cpp \
-	source/acquaman/AMXASScanConfigurationConverter.cpp \
 	source/acquaman/AM3DDacqScanController.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
 	source/dataman/AM3DScan.cpp \
@@ -1209,7 +1209,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/beamline/AMDeadTimeButton.cpp \
     source/analysis/AMRegionOfInterestAB.cpp \
     source/ui/beamline/AMRegionOfInterestView.cpp \
-    source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp
+    source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp \
+    source/acquaman/AMRegionScanConfigurationConverter.cpp \
+    source/acquaman/AMRegionScanActionController.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1233,6 +1235,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 
