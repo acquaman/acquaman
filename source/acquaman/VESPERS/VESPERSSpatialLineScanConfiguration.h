@@ -144,6 +144,8 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Sets the default control based on motor choice changes.
+	void onMotorChoiceChanged(VESPERS::Motor motor);
 
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.

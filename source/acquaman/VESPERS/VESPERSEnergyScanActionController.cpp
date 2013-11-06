@@ -1,10 +1,10 @@
-#include "VESPERSXASScanActionController.h"
+#include "VESPERSEnergyScanActionController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
 
-VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
+VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
@@ -24,22 +24,6 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(3)->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(4)->toInfo());
 
-	switch ((int)configuration_->fluorescenceDetector()){
-
-	case VESPERS::SingleElement:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(0)->toInfo());
-		break;
-
-	case VESPERS::FourElement:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(1)->toInfo());
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(0)->toInfo());
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(1)->toInfo());
-		break;
-	}
-
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
@@ -54,7 +38,7 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
-AMAction3* VESPERSXASScanActionController::createInitializationActions()
+AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
 
@@ -84,7 +68,7 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 	return stage1;
 }
 
-AMAction3* VESPERSXASScanActionController::createCleanupActions()
+AMAction3* VESPERSEnergyScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "VESPERS Cleanup Stage 1"), AMListAction3::Parallel);
@@ -105,7 +89,7 @@ AMAction3* VESPERSXASScanActionController::createCleanupActions()
 	return cleanup;
 }
 
-void VESPERSXASScanActionController::onScanTimerUpdate()
+void VESPERSEnergyScanActionController::onScanTimerUpdate()
 {
 	if (elapsedTime_.isActive()){
 

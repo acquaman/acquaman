@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "acquaman/VESPERS/VESPERSEnergyScanActionController.h"
 
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	: AMXASScanConfiguration(parent), VESPERSScanConfiguration()
@@ -71,7 +72,10 @@ AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
 
 AMScanController *VESPERSEnergyScanConfiguration::createController()
 {
-	return new VESPERSEnergyDacqScanController(this);
+	AMScanActionController *controller = new VESPERSEnergyScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERSEnergyScanConfiguration::createView()

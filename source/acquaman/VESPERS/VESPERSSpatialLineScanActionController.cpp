@@ -1,23 +1,31 @@
-#include "VESPERSXASScanActionController.h"
+#include "VESPERSSpatialLineScanActionController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/AMXASScan.h"
+#include "dataman/AMLineScan.h"
 #include "actions3/AMListAction3.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 
-VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
+VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(VESPERSSpatialLineScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
 
-	scan_ = new AMXASScan();
-	scan_->setName(configuration_->name());
-	scan_->setScanConfiguration(configuration_);
+	scan_ = new AMLineScan();
+	scan_->setName(regionsConfiguration_->name());
+	scan_->setScanConfiguration(regionsConfiguration_);
 	scan_->setFileFormat("sgm2013XAS");
 	scan_->setRunId(AMUser::user()->currentRunId());
 //	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
 //	scan_->setNotes(buildNotes());
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(2)->toInfo());
@@ -54,7 +62,7 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
-AMAction3* VESPERSXASScanActionController::createInitializationActions()
+AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 {
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
 
@@ -84,7 +92,7 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 	return stage1;
 }
 
-AMAction3* VESPERSXASScanActionController::createCleanupActions()
+AMAction3* VESPERSSpatialLineScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "VESPERS Cleanup Stage 1"), AMListAction3::Parallel);
@@ -105,7 +113,7 @@ AMAction3* VESPERSXASScanActionController::createCleanupActions()
 	return cleanup;
 }
 
-void VESPERSXASScanActionController::onScanTimerUpdate()
+void VESPERSSpatialLineScanActionController::onScanTimerUpdate()
 {
 	if (elapsedTime_.isActive()){
 

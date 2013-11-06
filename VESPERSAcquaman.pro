@@ -78,7 +78,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/beamline/VESPERS/VESPERSFourElementVortexDetector.h \
-	source/acquaman/VESPERS/VESPERSXASScanActionController.h
+	source/acquaman/VESPERS/VESPERSXASScanActionController.h \
+    source/acquaman/VESPERS/VESPERSSpatialLineScanActionController.h \
+    source/acquaman/VESPERS/VESPERSEnergyScanActionController.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -154,10 +156,16 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/beamline/VESPERS/VESPERSFourElementVortexDetector.cpp \
-	source/acquaman/VESPERS/VESPERSXASScanActionController.cpp
+	source/acquaman/VESPERS/VESPERSXASScanActionController.cpp \
+    source/acquaman/VESPERS/VESPERSSpatialLineScanActionController.cpp \
+    source/acquaman/VESPERS/VESPERSEnergyScanActionController.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
 
 
 
