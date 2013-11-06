@@ -202,7 +202,7 @@ void AMRegionScanActionController::writeHeaderToFile()
 	QString separator = "|!|!|";
 	QString rank1String;
 	rank1String.append("Start Info\n");
-	rank1String.append("Version: SGM Generic 0.1\n");
+	rank1String.append("Version: Acquaman Generic Linear Step 0.1\n");
 	rank1String.append(QString("-1%1eV\n").arg(separator));
 
 	for (int x = 0; x < scan_->rawData()->measurementCount(); x++){

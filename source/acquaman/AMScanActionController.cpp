@@ -17,15 +17,6 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
 }
 
-AMScanActionController::~AMScanActionController()
-{
-	if (initializationActions_)
-		delete initializationActions_;
-
-	if (cleanupActions_)
-		delete cleanupActions_;
-}
-
 void AMScanActionController::skip(const QString &command)
 {
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();

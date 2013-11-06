@@ -315,7 +315,7 @@ void AMActionRunnerBottomBarCurrentView3::onTimeUpdateTimer()
 
 		double elapsed = 0;
 
-		if (qobject_cast<AMListAction3 *>(currentAction))
+		if (qobject_cast<AMListAction3 *>(currentAction) && ((AMListAction3 *)currentAction)->currentSubAction())
 			elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
 		else
 			elapsed = currentAction->runningTime();
