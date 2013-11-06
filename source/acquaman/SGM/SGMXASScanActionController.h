@@ -1,80 +1,30 @@
 #ifndef SGMXASSCANACTIONCONTROLLER_H
 #define SGMXASSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMScanActionController.h"
+#include "acquaman/AMRegionScanActionController.h"
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
-#include "dataman/AMUser.h"
-#include "actions3/AMAction3.h"
 
-#include <QThread>
-
-class AMScanActionControllerScanAssembler;
-class AMListAction3;
-
-#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
-Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
-
-#define SGMXASSCANACTIONCONTROLLER_CANNOT_INTIALIZE 272001
-#define SGMXASSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 272002
-#define SGMXASSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 272003
-#define SGMXASSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 272004
-#define SGMXASSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 272005
-
-class SGMXASScanActionController : public AMScanActionController
+/// SGM specific subclass for X-ray Absorption Spectroscopy.
+class SGMXASScanActionController : public AMRegionScanActionController
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
+	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
 	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
 
-	AMAction3* scanningActions();
-
-	virtual bool isReadyForDeletion() const;
-	virtual void buildScanController() {}
-
-signals:
-	void requestWriteToFile(int fileRank, const QString &textToWrite);
-	void finishWritingToFile();
-
-protected slots:
-	void onInitializationActionsListSucceeded();
-	void onInitializationActionsListFailed();
-	void onActionsTreeSucceeded();
-	void onActionsTreeFailed();
-	void onCleanupActionsListSucceeded();
-	void onCleanupActionsListFailed();
-
-	void onActionTreeGenerated(AMAction3 *actionTree);
-	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
-	void onFileWriterIsBusy(bool isBusy);
-
 protected:
-	virtual bool initializeImplementation();
-	virtual bool startImplementation();
-	virtual void cancelImplementation();
-
-	bool event(QEvent *e);
-
-	void writeHeaderToFile();
-	void writeDataToFiles();
-
+	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
+	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
 
+	/// Adds anything extra.
 	virtual void buildScanControllerImplementation() {}
 
 protected:
-	AMAction3 *scanningActions_;
-	bool scanningActionsSucceeded_;
-	AMListAction3 *initializationActions_;
-	AMListAction3 *cleanupActions_;
-	AMScanActionControllerScanAssembler *newScanAssembler_;
+	/// Specific scan configuration with all the SGM specific information inside.
 	SGMXASScanConfiguration2013 *configuration_;
-
-	AMnDIndex currentAxisValueIndex_;
-	double currentAxisValue_;
-
-	QThread *fileWriterThread_;
-	bool fileWriterIsBusy_;
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H
