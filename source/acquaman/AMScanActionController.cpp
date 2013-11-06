@@ -90,8 +90,8 @@ bool AMScanActionController::startImplementation()
 	}
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
-	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 
@@ -183,12 +183,12 @@ void AMScanActionController::onInitializationActionsListFailed()
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 }
 
-void AMScanActionController::onActionsTreeSucceeded()
+void AMScanActionController::onScanningActionsSucceeded()
 {
 	scanningActionsSucceeded_ = true;
 
-	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 
 	if (cleanupActions_){
 
@@ -203,10 +203,10 @@ void AMScanActionController::onActionsTreeSucceeded()
 		setFinished();
 }
 
-void AMScanActionController::onActionsTreeFailed()
+void AMScanActionController::onScanningActionsFailed()
 {
-	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onActionsTreeSucceeded()));
-	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onActionsTreeFailed()));
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 
 	if (cleanupActions_){
 

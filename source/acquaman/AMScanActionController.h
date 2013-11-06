@@ -43,9 +43,9 @@ protected slots:
 	/// Handles the cleanup after the cleanup actions fail.  Can be reimplemented for more specific behaviour.
 	virtual void onCleanupActionsListFailed();
 	/// Handles starting the cleanup actions list after the scan controller actions tree completed successfully.  Can be reimplemented for more specific behaviour.
-	virtual void onActionsTreeSucceeded();
+	virtual void onScanningActionsSucceeded();
 	/// Handles starting the cleanup actions list after the scan controller actions tree failed.  Can be reimplemented for more specific behaviour.
-	virtual void onActionsTreeFailed();
+	virtual void onScanningActionsFailed();
 
 protected:
 	/// Method that does all the subclass specific additions, such as analysis blocks.

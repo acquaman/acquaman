@@ -20,7 +20,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 {
 	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
-	masterListSucceeded_ = false;
+	insertionIndex_ = AMnDIndex(0);
 
 	scan_ = new AMFastScan();
 	scan_->rawData()->addScanAxis(AMAxisInfo("ev", 0, "Incident Energy", "eV"));
@@ -46,9 +46,15 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+}
 
-	insertionIndex_ = AMnDIndex(0);
+SGMFastScanActionController::~SGMFastScanActionController()
+{
+	delete fileWriterThread_;
+}
 
+void SGMFastScanActionController::buildScanController()
+{
 	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++)
 		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))))))
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
@@ -66,59 +72,6 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
-}
-
-void SGMFastScanActionController::onInitializationActionsListSucceeded(){
-	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-
-	setInitialized();
-}
-
-void SGMFastScanActionController::onInitializationActionsListFailed(){
-	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onMasterActionsListSucceeded(){
-	masterListSucceeded_ = true;
-	disconnect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	disconnect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onMasterActionsListFailed(){
-	disconnect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	disconnect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onCleanupActionsListSucceeded(){
-	disconnect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	if(masterListSucceeded_)
-		setFinished();
-	else
-		setFailed();
-}
-
-void SGMFastScanActionController::onCleanupActionsListFailed(){
-	disconnect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	setFailed();
 }
 
 #include "ui/util/AMMessageBoxWTimeout.h"
@@ -160,24 +113,6 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
-bool SGMFastScanActionController::initializeImplementation(){
-	AMAction3 *cleanupActions = createCleanupActions();
-	if(qobject_cast<AMListAction3*>(cleanupActions))
-		fastActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
-
-	AMAction3 *initializationActions = createInitializationActions();
-	if(qobject_cast<AMListAction3*>(initializationActions))
-		fastActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
-
-
-	connect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	connect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsInitializationList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-
-	return true;
-}
-
 bool SGMFastScanActionController::startImplementation(){
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
@@ -194,7 +129,7 @@ bool SGMFastScanActionController::startImplementation(){
 	// MASTER LIST ///
 	/////////////////
 
-	fastActionsMasterList_ = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
+	AMListAction3 *masterFastScanActionList = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
 
 	// Undulator Trigger Propogate to 1
 	tmpControl = SGMBeamline::sgm()->undulatorFastTrackingTrigger();
@@ -202,20 +137,20 @@ bool SGMFastScanActionController::startImplementation(){
 	undulatorFastTrackingTriggerSetpoint.setValue(1);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorFastTrackingTriggerSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsMasterList_->addSubAction(moveAction);
+	masterFastScanActionList->addSubAction(moveAction);
 
 	// Read grating encoder start point
 	AMAction3 *readAction;
 	readAction = SGMBeamline::sgm()->gratingEncoderDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
-	fastActionsMasterList_->addSubAction(readAction);
+	masterFastScanActionList->addSubAction(readAction);
 
 	// Start Axis
 	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("SGM Fast Axis"), AMScanAxis::ContinuousMoveAxis));
-	fastActionsMasterList_->addSubAction(axisStartAction);
+	masterFastScanActionList->addSubAction(axisStartAction);
 
 	// Wait 1.0 seconds
-	fastActionsMasterList_->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	masterFastScanActionList->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
 
 	// Energy and Scaler:
 	// Energy to end energy
@@ -228,7 +163,7 @@ bool SGMFastScanActionController::startImplementation(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsEnergyAndScaler->addSubAction(moveAction);
 	fastActionsEnergyAndScaler->addSubAction(SGMBeamline::sgm()->newTEYDetector()->createTriggerAction(AMDetectorDefinitions::ContinuousRead));
-	fastActionsMasterList_->addSubAction(fastActionsEnergyAndScaler);
+	masterFastScanActionList->addSubAction(fastActionsEnergyAndScaler);
 	// End Energy and Scaler
 
 	// Read Detectors:
@@ -247,21 +182,22 @@ bool SGMFastScanActionController::startImplementation(){
 	readAction = SGMBeamline::sgm()->newEncoderDownDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	fastActionsReadDetectors->addSubAction(readAction);
-	fastActionsMasterList_->addSubAction(fastActionsReadDetectors);
+	masterFastScanActionList->addSubAction(fastActionsReadDetectors);
 	// End Read Detectors
 
 	// Finish Axis
 	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("SGM Fast Axis")));
-	fastActionsMasterList_->addSubAction(axisFinishAction);
+	masterFastScanActionList->addSubAction(axisFinishAction);
 
 	///////////////////////
 	// END MASTER LIST ///
 	/////////////////////
 
-	connect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	connect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
+	scanningActions_ = masterFastScanActionList;
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
 
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsMasterList_);
+	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	setStarted();
