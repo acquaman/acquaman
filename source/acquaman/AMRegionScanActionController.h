@@ -13,10 +13,10 @@ class AMListAction3;
 #include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
 Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
 
-#define AMREGIONSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 272002
-#define AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 272003
-#define AMREGIONSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 272004
-#define AMREGIONSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 272005
+#define AMREGIONSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 263002
+#define AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 263003
+#define AMREGIONSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 263004
+#define AMREGIONSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 263005
 
 /// This class does most of the work of setting up a simple scan controller for scans using the AMRegionScanConfiguration.  Handles building the raw data sources and measurements and handles the file writing.
 class AMRegionScanActionController : public AMScanActionController

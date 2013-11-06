@@ -5,7 +5,7 @@
 
 #include "actions3/AMAction3.h"
 
-#define AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE 272001
+#define AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE 262001
 
 /// This class provides a simple extension to AMScanController to expose it to some of the AMAction API and AMAgnosticData API.
 class AMScanActionController : public AMScanController

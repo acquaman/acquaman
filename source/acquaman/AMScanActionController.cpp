@@ -82,10 +82,9 @@ bool AMScanActionController::startImplementation()
 {
 	if(AMBeamline::bl()->isBeamlineScanning()){
 
-		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
+		AMErrorMon::alert(this,
 				AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE,
-				"Error, SGM XAS Scan Action Controller failed to start (SGM is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning."));
+				"Error, the Scan Action Controller failed to start (the beamline is already scanning). Either another scan is currently running or the scanning flag is stuck at Scanning.");
 
 		return false;
 	}
