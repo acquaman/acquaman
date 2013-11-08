@@ -1537,7 +1537,6 @@ void AMSampleCameraView::mouseDoubleClickHandler(QPointF position)
 void AMSampleCameraView::mouseMoveHandler(QPointF position)
 {
 
-    qDebug()<<"AMSampleCameraView::mouseMoveHandler";
 	emit mouseMoved((position));
 	if(mode_ == MOVE)
 	{
@@ -1547,8 +1546,6 @@ void AMSampleCameraView::mouseMoveHandler(QPointF position)
 	{
 		currentSelectionChanged();
 	}
-    qDebug()<<"AMSampleCameraView::mouseMoveHandler -exiting";
-	//    reviewCrosshairLinePositions();
 
 
 }
@@ -1595,15 +1592,11 @@ void AMSampleCameraView::deleteShape()
 /// change the currently selected item, outline it in blue
 void AMSampleCameraView::currentSelectionChanged()
 {
-    qDebug()<<"AMSampleCameraView::currentSelectionChanged";
 	if(isValid(current_))
         {
-            qDebug()<<"setting pen colour";
 		shapes_[current_]->setPen(colour(BORDER));
         }
 	current_ = shapeModel_->currentIndex();
-	//	qDebug()<<"AMSampleCameraView::currentSelectionChanged - Setting shape view";
-	//    shapeView_->setShapeData(shapeModel_->currentShape());
 	if(motorREdit_)
 		motorREdit_->setText(QString::number(motorRotation()));
 	if(motorXEdit_)
@@ -1613,16 +1606,13 @@ void AMSampleCameraView::currentSelectionChanged()
 	if(motorZEdit_)
 		motorZEdit_->setText(QString::number(motorZ()));
 
-	//    autoCompleteBox_->setText(shapeModel_->currentInfo());
 
 	if(isValid(current_))
 	{
 		shapes_[current_]->setPen(colour(ACTIVEBORDER));
 
 	}
-        qDebug()<<"Calling refresh SceneView";
 	refreshSceneView();
-        qDebug()<<"AMSampleCameraView::currentSelectionChanged - exiting";
 
 }
 

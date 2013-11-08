@@ -100,6 +100,7 @@ public slots:
 	void setElementList(const QList<int>& elements);
 
 	void setSampleShapePositionData(AMShapeData* sampleShapePositionData);
+        void removeSampleShapePositionData();
 
 	/// adds a tag to the stringList, if it is not already in it
 	void addTag(const QString tag);

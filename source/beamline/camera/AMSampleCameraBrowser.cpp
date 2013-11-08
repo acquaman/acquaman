@@ -85,10 +85,21 @@ QList<AMSampleCameraURL*> AMSampleCameraBrowser::urls(){
 	return urls_;
 }
 
+/// Manage drawing of the new sample plate
 void AMSampleCameraBrowser::onSamplePlateChanged(AMSamplePlate *samplePlate){
+        // disconnect all shapes from the old sample.
 	if(currentSamplePlate_)
 		disconnect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
+        // set the new sample plate
 	currentSamplePlate_ = samplePlate;
-	if(currentSamplePlate_)
-		connect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
+        // Add all the shapes from the database
+        if(currentSamplePlate_)
+        {
+            foreach (AMSample* sample, currentSamplePlate_->allSamples())
+            {
+                shapeDataSet()->addSample(sample);
+            }
+            // connect new shapes to the sample plate
+            connect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
+         }
 }

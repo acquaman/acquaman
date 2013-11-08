@@ -338,9 +338,17 @@ bool AMShapeData::isEqual(const AMShapeData &other) const
     return true;
 }
 
+bool AMShapeData::removeShape()
+{
+    qDebug()<<"AMShapeData::removeShape";
+    emit shapeDataRemoved(this);
+}
+
 /// checks for a valid coordinate index
 bool AMShapeData::validIndex(int index) const
 {
     return (index >= 0 && index <= coordinateCount_);
 }
+
+
 

@@ -24,6 +24,8 @@
 
 #include <QVector4D>
 
+#include "dataman/AMSamplePlate.h"
+
 
 
 #define TOPLEFT 0
@@ -564,7 +566,7 @@ void AMSampleCamera::setRotationalOffsetZ(const double &zCoordinate)
 
 
 
-#include "dataman/AMSamplePlate.h"
+
 void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 {
 	/// sample plate has been loaded out of the database, must correct the positions
@@ -684,10 +686,34 @@ void AMSampleCamera::deleteShape(int index)
 {
 	if(isValid(index))
 	{
-		removeItem(index);
+                AMShapeData* shape = takeItem(index);
+                shape->deleteLater();
 	}
 }
 
+void AMSampleCamera::removeShapeData(AMShapeData *shape)
+{
+    AMShapeData *shapeToDelete;
+    if(!shape)
+    {
+        qDebug()<<"AMSampleCamera::removeShapeData - Shape is null, operation failed";
+        return;
+    }
+    if(shapeList_.contains(shape))
+    {
+        shapeToDelete = takeItem(shapeList_.indexOf(shape));
+        if(shape != shapeToDelete)
+        {
+            qDebug()<<"AMSampleCamera::removeShapeData - failed to remove shape";
+            insertItem(shapeToDelete);
+        }
+        else
+        {
+            shape->deleteLater();
+            shape = 0;
+        }
+    }
+}
 
 int AMSampleCamera::rowCount(const QModelIndex &parent) const
 {
@@ -922,7 +948,6 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 /// selects a rectangle which is under the cursor
 void AMSampleCamera::selectCurrentShape(QPointF position)
 {
-    qDebug()<<"AMSampleCamera::selectCurrentShape";
 	int i = 0;
 	while(isValid(i) && !contains(position,i))
 	{
@@ -939,13 +964,11 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 	{
 		setCurrentIndex(index_ + 1);
 	}
-        qDebug()<<"AMSampleCamera::selectCurrentShape - exiting";
 }
 
 /// moves the currently selected rectangle by position + currentVector_
 void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 {
-    qDebug()<<"AMSampleCamera::moveCurrentShape";
 	/// \todo store oldPosition as a vector?
 	position = undistortPoint(position);
 	if(index == -1) index = currentIndex_;
@@ -971,7 +994,6 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		shiftCoordinates(shift,index);
 	}
 	currentVector_ = (position);
-        qDebug()<<"AMSampleCamera::moveCurrentShape - leaving";
 }
 
 /// moves all rectangles by position + rectangleVector_[index]
@@ -1312,6 +1334,7 @@ void AMSampleCamera::deleteCalibrationPoints()
 {
 	/// delete the calibration squares
 	int index;
+        AMShapeData *shapeToDelete;
 	for(int i = 0; i < SAMPLEPOINTS; i++)
 	{
 		if(index_ >= 0)
@@ -1321,9 +1344,15 @@ void AMSampleCamera::deleteCalibrationPoints()
 				index = shapeList_.indexOf(calibrationPoints_[i]);
 				if(isValid(index))
 				{
-					removeItem(index);
+                                    shapeToDelete = takeItem(index);
+                                    shapeToDelete->deleteLater();
 				}
-				delete calibrationPoints_[i];
+                                // if the calibration point is not in the list, make
+                                // sure it is still deleted.
+                                else
+                                {
+                                    calibrationPoints_[i]->deleteLater();
+                                }
 				calibrationPoints_[i] = 0;
 			}
 		}
@@ -1350,18 +1379,22 @@ void AMSampleCamera::setDrawOnSamplePlate()
 	}
 }
 
+/// Sets whether to draw on the plane of a shape.
 void AMSampleCamera::setDrawOnShapeEnabled(bool enable)
 {
 	drawOnShapeEnabled_ = enable;
 }
 
+/// Adds a new beam marker at the specified position.  Deletes the old one.
 void AMSampleCamera::setBeamMarker(QPointF position, int index)
 {
 
 	int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
-	if(removalIndex >= 0)
+        AMShapeData* shapeToDelete;
+        if(isValid(removalIndex))
 	{
-		removeItem(removalIndex);
+                shapeToDelete = takeItem(removalIndex);
+                shapeToDelete->deleteLater();
 	}
 
 	startRectangle(position);
@@ -1376,6 +1409,7 @@ void AMSampleCamera::updateBeamMarker(QPointF position, int index)
 	finishRectangle(position);
 }
 
+/// Sets the beam shape
 void AMSampleCamera::beamCalibrate()
 {
 	const int NUMBEROFRAYS = 4;
@@ -1405,9 +1439,10 @@ void AMSampleCamera::beamCalibrate()
 			AMShapeData* polygon = takeItem(index);
 			if(polygon == beamMarkers_[i])
 			{
-				delete beamMarkers_[i];
+                                beamMarkers_[i]->deleteLater();
 				beamMarkers_[i] = 0;
 				polygon = 0;
+                                // deleted the actual markers, now need to remove them from the sample plate.
 			}
 			else
 			{
@@ -1443,11 +1478,12 @@ void AMSampleCamera::setSamplePlate()
                 // remove from the list of samples.
                 samplePlateShape_ = new AMShapeData();
                 samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
-                int oldindex = currentIndex_;
+
 
                 AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
-                AMSample *currentSample = currentPlate->sampleFromShape(currentShape(oldindex));
-                removeItem(currentIndex_);
+                AMSample *currentSample = currentPlate->sampleFromShape(currentShape(currentIndex_));
+                AMShapeData* currentShape = takeItem(currentIndex_);
+                currentShape->deleteLater();
                 if(currentSample)
                 {
                     currentPlate->removeSample(currentSample);
@@ -1598,10 +1634,22 @@ void AMSampleCamera::addSample(AMSample *sample){
 	}
 }
 
+
+/// Removes the sample from the list but does not delete it.  It is still referenced by
+/// the AMSample. Used for cleaning up the camera on sample plate change.
 void AMSampleCamera::removeSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
+        AMShapeData* shapeRetrieved;
 	if(shapeIndex >= 0)
-		removeItem(shapeIndex);
+        {
+               bool blockState = blockSignals(true);
+               shapeRetrieved = takeItem(shapeIndex);
+               blockSignals(blockState);
+               if(shapeRetrieved != sample->sampleShapePositionData())
+               {
+                   qDebug()<<"AMSampleCamera::removeSample failed";
+               }
+        }
 }
 
 void AMSampleCamera::loadDefaultBeam()
@@ -2408,18 +2456,19 @@ void AMSampleCamera::insertItem(AMShapeData *item)
 	connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
 	connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
 	connect(item, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(updateShape(AMShapeData*)));
+        connect(item, SIGNAL(shapeDataRemoved(AMShapeData*)), this, SLOT(removeShapeData(AMShapeData*)));
 	updateShape(index_);
 	emit shapesChanged();
 }
 
-void AMSampleCamera::removeItem(int index)
-{
-	index_--;
-	beginRemoveRows(QModelIndex(),index,index);
-	shapeList_.removeAt(index);
-	endRemoveRows();
-	emit shapesChanged();
-}
+//void AMSampleCamera::removeItem(int index)
+//{
+//	index_--;
+//	beginRemoveRows(QModelIndex(),index,index);
+//	shapeList_.removeAt(index);
+//	endRemoveRows();
+//	emit shapesChanged();
+//}
 
 AMShapeData *AMSampleCamera::takeItem(int index)
 {
@@ -2528,8 +2577,10 @@ bool AMSampleCamera::moveMotors(double x, double y, double z)
 			}
 		}
 	}
-	return success;
+        return success;
 }
+
+
 
 
 

@@ -38,10 +38,10 @@ public:
     double yAxisRotation() const;
     bool visible() const;
 
-
+    /// copies all the data from other to this AMShapeData
     void copy(const AMShapeData* other);
 
-    /// returns the center
+    /// returns the center of the 3D shape
     QVector3D centerCoordinate() const;
 
     /// shifts the shape by shift
@@ -56,6 +56,9 @@ public:
 	bool backwards() const;
 
     bool isEqual(const AMShapeData& other) const;
+
+    /// causes the shape to be removed from the camera view
+    bool removeShape();
 
 public slots:
 
@@ -77,7 +80,8 @@ signals:
     void otherDataFieldOneChanged(QString data);
     void otherDataFieldTwoChanged(QString data);
     void idNumberChanged(double idNumber);
-	void shapeDataChanged(AMShapeData* shape);
+    void shapeDataChanged(AMShapeData* shape);
+    void shapeDataRemoved(AMShapeData* shape);
 
 protected slots:
 

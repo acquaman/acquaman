@@ -117,7 +117,10 @@ void AMBeamlineSampleManagementView::onBeamlineSamplePlateAboutToChange(AMSample
 		disconnect(cameraBrowserView_->sampleCameraView(), SIGNAL(shapePropertyUpdated(AMShapeData*)), lastSamplePlate, SLOT(onShapeDataPropertyUpdated(AMShapeData*)));
 		AMSampleCamera *sampleCamera = cameraBrowserView_->sampleCameraBrowser()->shapeDataSet();
 		for(int x = lastSamplePlate->sampleCount()-1; x >= 0; x--)
-			sampleCamera->removeSample(lastSamplePlate->sampleAt(x));
+                {
+                    sampleCamera->removeSample(lastSamplePlate->sampleAt(x));
+
+                }
 		cameraBrowserView_->sampleCameraView()->requestUpdate();
 	}
 }
@@ -151,9 +154,10 @@ void AMBeamlineSampleManagementView::onSampleAboutToBeRemoved(int index){
 	AMSample *sample = AMBeamline::bl()->samplePlate()->sampleAt(index);
 	AMShapeData *sampleShapeData = sample->sampleShapePositionData();
 	if(sampleShapeData){
-		cameraBrowserView_->sampleCameraBrowser()->shapeDataSet()->removeSample(sample);
-		cameraBrowserView_->sampleCameraView()->requestUpdate();
+//                cameraBrowserView_->sampleCameraBrowser()->shapeDataSet()->removeSample(sample);
 		sample->removeSample();
+                cameraBrowserView_->sampleCameraView()->requestUpdate();
+
 	}
 }
 
