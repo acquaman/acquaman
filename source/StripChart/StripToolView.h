@@ -39,14 +39,12 @@ protected:
     void createActions();
     /// Creates instances of StripToolPlot and StripToolQuickControls, and a checkbox that toggles STQC's visibility.
     void buildUI();
-    /// Searches for "activePVs.txt", which stores basic pv information. Asks the user if they'd like to reload past pvs if the file is found.
-    void reloadCheck();
 
 protected slots:
     /// Causes the StripToolsQuickControls to dis/appear as needed.
     void toggleControls(int checkState);
-    /// Thought about including an optional legend for the plot, but this isn't implemented.
-    void toggleLegend(int checkState);
+    /// Asks the user if they'd like to reload past pvs.
+    void reloadDialog();
 
 };
 

@@ -19,8 +19,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvUpdateIndex_ = QVector<double>(dataVectorSize_);
     pvDataTotal_ = QVector<double>(dataVectorSize_);
 
-    minData_ = 0;
-    maxData_ = 0;
+    pvControl_ = 0;
 
     pvData_ = new MPlotVectorSeriesData();
 
@@ -29,9 +28,6 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
-
-    pvControl_ = new AMReadOnlyPVControl(pvName_, pvName_, this);
-    connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
 }
 
 
@@ -42,7 +38,7 @@ StripToolPV::~StripToolPV()
 
 
 
-QString StripToolPV::pvName()
+QString StripToolPV::pvName() const
 {
     return pvName_;
 }
@@ -131,6 +127,15 @@ MPlotAxisRange StripToolPV::axisBottomRange() const
 
 
 
+void StripToolPV::setControl(AMControl *newPV)
+{
+    pvControl_ = newPV;
+    pvControl_->setParent(this);
+    connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
+}
+
+
+
 void StripToolPV::setDescription(const QString &newDescription)
 {
     pvDescription_ = newDescription;
@@ -185,6 +190,13 @@ void StripToolPV::setSeriesColor(const QColor &color)
 {
     pvColor_ = color;
     pvSeries_->setLinePen( QPen(pvColor_) );
+}
+
+
+
+bool StripToolPV::operator== (const StripToolPV &anotherPV)
+{
+    return (this->pvName() == anotherPV.pvName());
 }
 
 

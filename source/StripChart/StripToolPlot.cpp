@@ -2,6 +2,8 @@
 
 StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 {
+    plotSelection_ = 0;
+
     selector_ = new MPlotPlotSelectorTool();
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onSeriesSelected(MPlotItem*)) );
     connect( selector_, SIGNAL(deselected()), this, SLOT(onSeriesDeselected()) );
@@ -17,6 +19,8 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     setPlot(plot_);
     enableAntiAliasing(true);
+
+    connect( this, SIGNAL(updatePlotSelection(MPlotItem*)), this, SLOT(toUpdatePlotSelection(MPlotItem*)) );
 }
 
 
@@ -31,11 +35,11 @@ void StripToolPlot::setModel(StripToolModel *model)
 {
     model_ = model;
 
-    connect( this, SIGNAL(seriesSelected(MPlotItem*,bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
+//    connect( this, SIGNAL(seriesSelected(MPlotItem*, bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
+
+//    connect( model_, SIGNAL(setPlotSelection(MPlotItem*)), this, SLOT(toSetPlotSelection(MPlotItem*)) );
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, MPlotItem*)), this, SLOT(onSeriesChanged(Qt::CheckState, MPlotItem*)) );
     connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
-
-    connect( model_, SIGNAL(setPlotAxesRanges(MPlotAxisRange)), this, SLOT(setPlotAxesRanges(MPlotAxisRange)) );
     connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
 }
 
@@ -48,11 +52,18 @@ bool StripToolPlot::contains(MPlotItem *series)
 
 
 
-void StripToolPlot::setSeriesSelection(MPlotItem *modelSelection)
+void StripToolPlot::toSetPlotSelection(MPlotItem *modelSelection)
 {
-    if (contains(modelSelection))
+    if (modelSelection != 0)
     {
-
+        foreach(MPlotItem *series, plot_->plotItems())
+        {
+            if (series == modelSelection)
+            {
+                emit updatePlotSelection(series);
+                break;
+            }
+        }
     }
 }
 
@@ -133,6 +144,14 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, MPlotItem *pvSeries
     {
         addSeriesToPlot(pvSeries);
     }
+}
+
+
+
+void StripToolPlot::toUpdatePlotSelection(MPlotItem *newSelection)
+{
+    plotSelection_ = newSelection;
+    plotSelection_->setSelected();
 }
 
 

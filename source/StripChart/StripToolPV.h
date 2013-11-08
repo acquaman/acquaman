@@ -35,19 +35,17 @@ protected:
     bool isUpdating_;
     Qt::CheckState checkState_;
     QColor pvColor_;
-    int minData_;
-    int maxData_;
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
     QVector<double> yValuesDisplayed_;
     MPlotVectorSeriesData *pvData_;
     MPlotSeriesBasic *pvSeries_;
-    AMReadOnlyPVControl *pvControl_;
+    AMControl *pvControl_;
 
 protected:
     /// Returns the epics pv name for this pv.
-    QString pvName();
+    QString pvName() const;
     /// Returns the description for this pv, if the user has provided one.
     QString pvDescription();
     /// The x units are the same for all pvs right now--"Update number"--but if they were different, they could be found here.
@@ -69,6 +67,8 @@ protected:
     /// Returns the bottom axis range for the values displayed for this pv.
     MPlotAxisRange axisBottomRange() const;
 
+    /// Sets the PV control and reparents for this pv.
+    void setControl(AMControl *newPV);
     /// If the user wants to set a new description for the pv, this is where it happens.
     void setDescription(const QString &newDescription);
     /// If the user provides units for a pv, this is where that entry is stored.
@@ -83,6 +83,8 @@ protected:
     void setCheckState(Qt::CheckState isChecked);
     /// The user can change the color that the pv appears in on the plot.
     void setSeriesColor(const QColor &color);
+
+    bool operator== (const StripToolPV &anotherPV);
 
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.

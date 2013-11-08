@@ -1,27 +1,31 @@
 #include "StripToolQuickControls.h"
 
-StripToolQuickControls::StripToolQuickControls(QWidget *parent, StripToolModel *newModel) :
+StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     QWidget(parent)
 {
-    model_ = newModel;
-    connect( this, SIGNAL(addPV(QString, QString, QString)), model_, SLOT(addPV(QString, QString, QString)) );
+    model_ = 0;
 
     listView_ = new StripToolListView(this);
-    listView_->setPVModel(model_);
 
     pvNameLineEdit_ = new QLineEdit();
-    connect( pvNameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(clearMessage()) );
+    pvNameLineEdit_->setFocus();
+    connect( this, SIGNAL(nameEntryEnabled(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
+    connect( this, SIGNAL(nameEntryFocus()), pvNameLineEdit_, SLOT(setFocus()) );
+    connect( this, SIGNAL(clearName()), pvNameLineEdit_, SLOT(clear()) );
     connect( pvNameLineEdit_, SIGNAL(returnPressed()), this, SLOT(addClicked()) );
+    connect( pvNameLineEdit_, SIGNAL(textEdited(QString)), this, SIGNAL(clearMessage()) );
 
     addButton_ = new QPushButton("Add");
     connect( addButton_, SIGNAL(clicked()), this, SLOT(addClicked()) );
+    connect( this, SIGNAL(buttonEnabled(bool)), addButton_, SLOT(setEnabled(bool)) );
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(pvNameLineEdit_);
     buttonLayout->addWidget(addButton_);
 
     message_ = new QLabel("");
-    connect(this, SIGNAL(isValid(bool)), this, SLOT(displayMessage(bool)) );
+    connect( this, SIGNAL(clearMessage()), message_, SLOT(clear()) );
+    connect( this, SIGNAL(error(QString)), this, SLOT(displayMessage(QString)) );
 
     QVBoxLayout *controlsLayout = new QVBoxLayout();
     controlsLayout->addWidget(listView_);
@@ -30,79 +34,58 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent, StripToolModel *
 
     setLayout(controlsLayout);
     setMaximumWidth(200);
+
+    connect( this, SIGNAL(pvConnected(bool)), this, SLOT(onPVConnected(bool)) );
+    connect( this, SIGNAL(reset()), this, SLOT(resetControls()) );
 }
 
 
 
-void StripToolQuickControls::onControlsEnabled(bool enabled)
+void StripToolQuickControls::setModel(StripToolModel *newModel)
 {
-    pvNameLineEdit_->setEnabled(enabled);
-    addButton_->setEnabled(enabled);
+    model_ = newModel;
+
+    connect( this, SIGNAL(addPV(QString)), model_, SLOT(toAddPV(QString)) );
+
+    connect( model_, SIGNAL(pvValid(bool)), this, SLOT(resetControls()) );
+    connect( model_, SIGNAL(errorMessage(QString)), this, SLOT(displayMessage(QString)) );
+
+    listView_->setPVModel(model_);
 }
 
 
 
-void StripToolQuickControls::clearMessage()
+void StripToolQuickControls::resetControls()
 {
-    message_->setText("");
+    emit clearName();
+    emit buttonEnabled(true);
+    emit nameEntryEnabled(true);
+    emit nameEntryFocus();
 }
 
 
 
-void StripToolQuickControls::displayMessage(bool isValid)
+void StripToolQuickControls::displayMessage(const QString &text)
 {
-    if (isValid)
-        emit clearMessage();
-    else
-        message_->setText("Invalid pv name entered.");
-
-    emit controlsEnabled(true);
+    message_->setText(text);
+    emit reset();
 }
 
 
 
 void StripToolQuickControls::addClicked()
 {
-    emit controlsEnabled(false);
+    emit buttonEnabled(false);
+    emit nameEntryEnabled(false);
 
-    pvName_ = pvNameLineEdit_->text();
+    QString pvName = pvNameLineEdit_->text();
 
-    if (pvName_ == "")
-        emit isValid(false);
-    else
-        testValidity(pvName_);
-}
-
-
-
-void StripToolQuickControls::testValidity(const QString &pvName)
-{
-    pvControl_ = new AMReadOnlyPVControl(pvName, pvName, this);
-    connect( pvControl_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
-    connect( pvControl_, SIGNAL(error(int)), this, SLOT(onPVError(int)) );
-}
-
-
-
-void StripToolQuickControls::onPVConnected(bool isConnected)
-{
-    if (isConnected)
+    if (pvName == "")
     {
-        emit isValid(true);
-        emit addPV(pvName_, "", "");
-        pvNameLineEdit_->clear();
+        error("PV name cannot be blank.");
 
     } else {
-        emit isValid(false);
+
+        emit addPV(pvName);
     }
-}
-
-
-
-void StripToolQuickControls::onPVError(int errorNum)
-{
-    if (errorNum == 1)
-        emit isValid(false);
-    else
-        emit isValid(false);
 }

@@ -15,10 +15,17 @@ class StripTool : public QWidget
 public:
     explicit StripTool(QWidget *parent = 0);
     ~StripTool();
+
+public:
+    QDir saveDirectory_;
+    QString pvFileName_;
     
 protected:
     StripToolModel *model_;
     StripToolView *mainView_;
+
+protected:
+    QDir saveDirectory();
     
 };
 

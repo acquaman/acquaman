@@ -22,6 +22,7 @@ public:
     
 signals:
     void seriesSelected(MPlotItem *plotSelection, bool isSelected);
+    void updatePlotSelection(MPlotItem *newSelection);
 
 protected:
     StripToolModel *model_;
@@ -42,7 +43,7 @@ protected:
     
 protected slots:
     /// An attempt at uniform selection--not fully implemented. The model's selectedPV_ becomes the selected series on the plot.
-    void setSeriesSelection(MPlotItem *modelSelection);
+    void toSetPlotSelection(MPlotItem *modelSelection);
     /// Informs the model that a series has been selected.
     void onSeriesSelected(MPlotItem *plotSelection);
     /// Informs the model that a series has been deselected.
@@ -53,6 +54,8 @@ protected slots:
     void setTicksVisible(bool isShown);
     /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
     void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
+
+    void toUpdatePlotSelection(MPlotItem *newSelection);
 
 };
 

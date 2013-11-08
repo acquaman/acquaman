@@ -15,10 +15,10 @@ class StripToolListView : public QListView
 public:
     explicit StripToolListView(QWidget *parent = 0);
     ~StripToolListView();
-    friend class StripToolView;
     
 signals:
-    void newSelection(const QModelIndex, QItemSelectionModel::SelectionFlags);
+    void setSelected(QItemSelection, QItemSelectionModel::SelectionFlags);
+    void setDeselected(QModelIndex, QItemSelectionModel::SelectionFlags);
     void editPV(QList<QModelIndex> indicesToEdit);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
@@ -27,7 +27,7 @@ signals:
 
 protected:
     StripToolModel *model_;
-    QModelIndex *modelSelection_;
+    QModelIndex modelSelection_;
 
     QAction *edit_;
     QAction *delete_;
@@ -63,7 +63,7 @@ protected slots:
     /// Emits the setPVUpdating(QModelIndex, true) signal, letting the model know that the given pv's series should be updating.
     void resumeSelection();
     /// An attempt to get the plot's selection to dictate which pv is selected in the view--not fully implemented.
-    void toSetSelection(const QModelIndex &index);
+    void setViewSelection();
     /// Sets the series color for all of the selected pvs, using the color selected from color picker.
     void toSetPVColor();
 

@@ -3,7 +3,8 @@
 StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
-    modelSelection_ = 0;
+    model_ = 0;
+    modelSelection_ = QModelIndex();
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setMaximumWidth(200);
@@ -27,15 +28,10 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     setModel(model_);
 
-
-    connect( this, SIGNAL(clicked(QModelIndex)), model_, SLOT(itemSelected(QModelIndex)) );
-//    connect( this, SIGNAL(newSelection(QModelIndex, QItemSelectionModel::SelectionFlags)), this->selectionModel(), SLOT(select(QModelIndex,QItemSelectionModel::SelectionFlags)) );
     connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
-    connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(deletePV(QModelIndex)) );
+    connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(incrementValuesDisplayed(QModelIndex, int)), model_, SLOT(incrementValuesDisplayed(QModelIndex, int)) );
-    connect( this, SIGNAL(save(QModelIndex)), model_, SLOT(savePV(QModelIndex)) );
-
     connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
 }
 
@@ -80,6 +76,24 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addAction(setColor_);
 
     menu.exec(mapToGlobal(position));
+}
+
+
+
+void StripToolListView::setViewSelection()
+{
+    QModelIndex modelSelection = model_->selectedIndex();
+
+    if (modelSelection == QModelIndex())
+    {
+        emit setDeselected(modelSelection_, QItemSelectionModel::Deselect);
+
+    } else {
+        QItemSelection *items = new QItemSelection(modelSelection, modelSelection);
+        emit setSelected(*items, QItemSelectionModel::ClearAndSelect);
+    }
+
+    modelSelection_ = modelSelection;
 }
 
 
@@ -139,13 +153,6 @@ void StripToolListView::resumeSelection()
     {
           emit setPVUpdating(index, true);
     }
-}
-
-
-
-void StripToolListView::toSetSelection(const QModelIndex &index)
-{
-    emit newSelection(index, QItemSelectionModel::ClearAndSelect);
 }
 
 
