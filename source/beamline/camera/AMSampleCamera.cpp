@@ -395,16 +395,17 @@ void AMSampleCamera::setMotorCoordinate()
 /// toggles distortion on or off
 void AMSampleCamera::toggleDistortion()
 {
-	if(distortion_)
-	{
-		qDebug()<<"True";
-	}
-	if(!distortion_)
-	{
-		qDebug()<<"False";
-	}
+
 	bool newValue = !distortion_;
 	distortion_ = newValue;
+        if(distortion_)
+        {
+                qDebug()<<"Distortion on";
+        }
+        if(!distortion_)
+        {
+                qDebug()<<"Distortion off";
+        }
 	updateAllShapes();
 }
 
