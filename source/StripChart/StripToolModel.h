@@ -29,12 +29,14 @@ signals:
     void pvValid(bool isValid);
 
 protected:
-    QList<QVariant> headerData_;
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
     QModelIndex selectedIndex_;
+
     QDir saveDirectory_;
     QString pvFilename_;
+
+    QSignalMapper *mapper_;
 
 public:
     QModelIndex selectedIndex() const;
@@ -66,9 +68,13 @@ protected:
     /// Creates a new StripToolPV object and sets its control to pvControl.
     bool addPV(AMControl *pvControl);
 
+    StripToolPV* findItem(MPlotItem* series);
+    StripToolPV* findItem(const QString &pvName);
+
 protected slots:
     void toAddPV(const QString &pvName);
-    void onPVConnected(bool isConnected);
+//    void onPVConnected(bool isConnected);
+    void onPVConnected(QObject *itemConnected);
     void toDeletePV(const QModelIndex &index);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
@@ -85,6 +91,9 @@ protected slots:
     void reloadPVs(bool reload);
     /// Basic color selection for pv.
     void colorPV(const QModelIndex &index, const QColor &color);
+
+    void toChangeModelSelection(MPlotItem* item, bool isSelected);
+    void toChangeModelSelection(const QModelIndex &index, bool isSelected);
 
     void onModelSelectionChange();
 

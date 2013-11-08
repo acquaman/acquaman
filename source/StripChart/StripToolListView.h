@@ -31,8 +31,6 @@ protected:
 
     QAction *edit_;
     QAction *delete_;
-    QAction *showLess_;
-    QAction *showMore_;
     QAction *pause_;
     QAction *resume_;
     QAction *setColor_;
@@ -54,10 +52,6 @@ protected slots:
     void editSelection();
     /// Emits the deletePV(QModelIndex) signal, letting the model know that this pv needs to be removed.
     void deleteSelection();
-    /// Emits the incrementValuesDisplayed(QModelIndex, int) signal, letting the model know that the number of values displayed for a given pv should be decreased by a given amount.
-    void showLessSelection();
-    /// Emits the incrementValuesDisplayed(QModelIndex, int) signal, letting the model know that the number of values displayed for a given pv should be increased by a given amount.
-    void showMoreSelection();
     /// Emits the setPVUpdating(QModelIndex, false) signal, letting the model know that the given pv's series should not be updated.
     void pauseSelection();
     /// Emits the setPVUpdating(QModelIndex, true) signal, letting the model know that the given pv's series should be updating.

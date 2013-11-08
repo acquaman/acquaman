@@ -3,14 +3,18 @@
 StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 {
     plotSelection_ = 0;
+    model_ = 0;
 
     selector_ = new MPlotPlotSelectorTool();
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onSeriesSelected(MPlotItem*)) );
     connect( selector_, SIGNAL(deselected()), this, SLOT(onSeriesDeselected()) );
 
     plot_ = new MPlot();
+
     plot_->addTool(selector_);
+
 //    plot_->setAcceptDrops(true);
+
     plot_->axisLeft()->showAxisName(false);
     plot_->axisBottom()->showAxisName(false);
 
@@ -35,7 +39,7 @@ void StripToolPlot::setModel(StripToolModel *model)
 {
     model_ = model;
 
-//    connect( this, SIGNAL(seriesSelected(MPlotItem*, bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
+    connect( this, SIGNAL(seriesSelected(MPlotItem*, bool)), model_, SLOT(toChangeModelSelection(MPlotItem*,bool)) );
 
 //    connect( model_, SIGNAL(setPlotSelection(MPlotItem*)), this, SLOT(toSetPlotSelection(MPlotItem*)) );
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, MPlotItem*)), this, SLOT(onSeriesChanged(Qt::CheckState, MPlotItem*)) );
@@ -54,17 +58,17 @@ bool StripToolPlot::contains(MPlotItem *series)
 
 void StripToolPlot::toSetPlotSelection(MPlotItem *modelSelection)
 {
-    if (modelSelection != 0)
-    {
-        foreach(MPlotItem *series, plot_->plotItems())
-        {
-            if (series == modelSelection)
-            {
-                emit updatePlotSelection(series);
-                break;
-            }
-        }
-    }
+//    if (modelSelection != 0)
+//    {
+//        foreach(MPlotItem *series, plot_->plotItems())
+//        {
+//            if (series == modelSelection)
+//            {
+//                emit updatePlotSelection(series);
+//                break;
+//            }
+//        }
+//    }
 }
 
 

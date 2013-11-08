@@ -6,6 +6,7 @@ StripToolListView::StripToolListView(QWidget *parent) :
     model_ = 0;
     modelSelection_ = QModelIndex();
 
+
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setMaximumWidth(200);
 
@@ -45,16 +46,10 @@ void StripToolListView::createActions()
     delete_ = new QAction("Delete", this);
     connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
 
-    showLess_ = new QAction("Show Less", this);
-    connect( showLess_, SIGNAL(triggered()), this, SLOT(showLessSelection()) );
-
-    showMore_ = new QAction("Show More", this);
-    connect( showMore_, SIGNAL(triggered()), this, SLOT(showMoreSelection()) );
-
     pause_ = new QAction("Pause", this);
     connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
 
-    resume_ = new QAction("Restart", this);
+    resume_ = new QAction("Resume", this);
     connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
 
     setColor_ = new QAction("Line color", this);
@@ -111,28 +106,6 @@ void StripToolListView::deleteSelection()
 void StripToolListView::editSelection()
 {
     emit editPV(selectionModel()->selectedIndexes());
-}
-
-
-
-void StripToolListView::showLessSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        int diff = -5;
-        emit incrementValuesDisplayed(index, diff);
-    }
-}
-
-
-
-void StripToolListView::showMoreSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        int diff = 5;
-        emit incrementValuesDisplayed(index, diff);
-    }
 }
 
 
