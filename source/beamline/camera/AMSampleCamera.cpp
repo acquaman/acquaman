@@ -25,6 +25,7 @@
 #include <QVector4D>
 
 #include "dataman/AMSamplePlate.h"
+#include "source/beamline/AMBeamline.h"
 
 
 
@@ -377,7 +378,17 @@ void AMSampleCamera::setMotorCoordinate()
 	motorCoordinate_.setY(y);
 	motorCoordinate_.setZ(z);
 
+
+
 	motorRotation_ = r;
+
+        // update the sample plate
+        AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
+        if(currentPlate)
+        {
+            currentPlate->setPlatePosition(motorCoordinate_);
+            currentPlate->setPlateRotation(motorRotation_);
+        }
 }
 
 
@@ -575,6 +586,8 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	QVector3D currentPosition = motorCoordinate_;
 	QVector3D shiftAmount = currentPosition - platePosition;
 	oldRotation_ = plate->plateRotation()/180*M_PI;
+        qDebug()<<"AMSampleCamera::onSamplePlateLoaded - old position"<<platePosition;
+        qDebug()<<"AMSampleCamera::onSamplePlateLoaded - cur position"<<currentPosition;
 	qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_;
 	double rotation = motorRotation()/180*M_PI;
 	foreach(AMShapeData* shape, shapeList_)
@@ -1456,7 +1469,6 @@ void AMSampleCamera::beamCalibrate()
 
 /// Sets the sample plate (shape) to be the currently selected sample.  Removes the
 /// sample from the sample plate (class) and uses the sample's shape for the shape of the sample plate.
-#include "source/beamline/AMBeamline.h"
 void AMSampleCamera::setSamplePlate()
 {
 	if(isValid(currentIndex_))
