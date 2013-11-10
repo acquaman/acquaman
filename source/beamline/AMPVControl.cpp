@@ -314,8 +314,6 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
 	// Initialize:
-	moveStartTolerance_ = 0;
-	moveTimeoutTolerance_ = 0;
 	moveInProgress_ = false;
 	stopInProgress_ = false;
 	startInProgress_ = false;
@@ -403,21 +401,11 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		// This is our new target:
 		setpoint_ = Setpoint;
 
-		// Special case: "null move" should complete immediately. Use only if moveStartTolerance() is non-zero, and the move distance is within moveStartTolerance().
-		if(moveStartTolerance() != 0 && fabs(setpoint()-value()) < moveStartTolerance()) {
-			startInProgress_ = false;
-			moveInProgress_ = true;
-			emit moveStarted();
-			moveInProgress_ = false;
-			emit moveSucceeded();
-		}
 		// Normal move:
-		else {
-			// Issue the move command:
-			writePV_->setValue(setpoint_);
-			// start the timer to check if our move failed to start:
-			moveStartTimer_.start(int(moveStartTimeout_*1000.0));
-		}
+		// Issue the move command:
+		writePV_->setValue(setpoint_);
+		// start the timer to check if our move failed to start:
+		moveStartTimer_.start(int(moveStartTimeout_*1000.0));
 	}
 
 	return NoFailure;
@@ -445,30 +433,6 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
 			AMErrorMon::debug(this, AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR, QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode));
-		}
-	}
-}
-
-// This is used to handle the timeout of a move start:
-void AMPVwStatusControl::onMoveStartTimeout() {
-
-	moveStartTimer_.stop();
-
-	// This is only meaningful if one of our moves is in progress.
-	if(startInProgress_) {
-		// give up on this move:
-		startInProgress_ = false;
-
-		// Special case: only applies if moveTimeoutTolerance_ != 0 AND we've gotten within moveTimeoutTolerance_ of the setpoint.
-		if(moveTimeoutTolerance() != 0.0 && fabs(setpoint() - value()) < moveTimeoutTolerance_) {
-			moveInProgress_ = true;
-			emit moveStarted();
-			moveInProgress_ = false;
-			emit moveSucceeded();
-		}
-		else {
-			// The move didn't start within our allowed start period. That counts as a move failed.
-			emit moveFailed(AMControl::TimeoutFailure);
 		}
 	}
 }
