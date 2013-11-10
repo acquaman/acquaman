@@ -681,6 +681,7 @@ protected:
 	CLSBasicScalerChannelDetector *postIonChamber_;
 	VESPERSSingleElementVortexDetector *singleElementVortexDetector_;
 	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
+	VESPERSPilatusCCDDetector *pilatusAreaDetector_;
 
 	// End detectors.
 

@@ -1,8 +1,17 @@
 #include "VESPERSPilatusCCDDetector.h"
 
 VESPERSPilatusCCDDetector::VESPERSPilatusCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSCCDDetector(name, description, "PAD1607-B21-05:cam1", AMnDIndex(981, 1043), parent)
+	: VESPERSCCDDetector(name, description, parent)
 {
+	acquireControl_ = new AMPVControl("Acquisition", "PAD1607-B21-05:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", this, 0.1, 10.0, 0);
+	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "PAD1607-B21-05:cam1:AcquireTime", this, 0.1);
+	acquisitionStatusControl_ = new AMSinglePVControl("Detector Status", "PAD1607-B21-05:cam1:Acquire", this, 0.1);
+	ccdFilePathControl_ = new AMSinglePVControl("File Path", "PAD1607-B21-05:cam1:FilePath", this);
+	ccdFileBaseNameControl_ = new AMSinglePVControl("File Base Name", "PAD1607-B21-05:cam1:FileName", this);
+	ccdFileNumberControl_ = new AMSinglePVControl("File Number","PAD1607-B21-05:cam1:FileNumber", this);
+
+	allControlsCreated();
+
 	dfProcess_ = new QProcess;
 	connect(dfProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(readOutProcess(int,QProcess::ExitStatus)));
 	connect(this, SIGNAL(connected(bool)), this, SLOT(updateAuroraSize()));
@@ -22,4 +31,9 @@ void VESPERSPilatusCCDDetector::readOutProcess(int exitCode, QProcess::ExitStatu
 		occupiedAuroraSize_ = output.at(8).toDouble()/1e9;
 		emit fileSystemInfoUpdated();
 	}
+}
+
+QString VESPERSPilatusCCDDetector::synchronizedDwellKey() const
+{
+	return "PAD1607-B21-05:cam1:Acquire NPP NMS";
 }

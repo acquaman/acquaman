@@ -20,6 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSMarCCDDetector.h"
 
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSCCDDetector(name, description, "ccd1607-002:cam1", AMnDIndex(2048, 2048), parent)
+	: VESPERSCCDDetector(name, description, parent)
 {
+}
+
+QString VESPERSMarCCDDetector::synchronizedDwellKey() const
+{
+	return "ccd1607-002:cam1:Acquire NPP NMS";
 }

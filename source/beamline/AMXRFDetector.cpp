@@ -222,9 +222,9 @@ bool AMXRFDetector::cleanupImplementation()
 
 bool AMXRFDetector::cancelAcquisitionImplementation()
 {
-	acquireControl_->stop();	// This is safe because this will only be called if canCancel() returns true.
+	bool stopSuccessful = acquireControl_->stop();	// This is safe because this will only be called if canCancel() returns true.
 	setAcquisitionCancelled();
-	return true;
+	return stopSuccessful;
 }
 
 bool AMXRFDetector::setAcquisitionTime(double seconds)

@@ -29,13 +29,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
-	: AMDetailedOldDetectorView(configureOnly, parent)
+	: QWidget(parent)
 {
 	detector_ = 0;
 	setDetector(detector, configureOnly);
 }
 
-bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
+bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)
@@ -171,118 +171,6 @@ bool VESPERSCCDDetectorView::setDetector(AMOldDetector *detector, bool configure
 	return true;
 }
 
-void VESPERSCCDDetectorView::onTriggerModeChanged(VESPERSCCDDetector::TriggerMode mode)
-{
-	triggerMode_->setCurrentIndex((int)mode);
-}
-
-void VESPERSCCDDetectorView::setTriggerMode(int newMode)
-{
-	if (newMode == (int)detector_->triggerMode())
-		return;
-
-	switch(newMode){
-
-	case 0:
-		detector_->setTriggerMode(VESPERSCCDDetector::FreeRun);
-		break;
-
-	case 1:
-		detector_->setTriggerMode(VESPERSCCDDetector::ExtSync);
-		break;
-	}
-}
-
-void VESPERSCCDDetectorView::onImageModeChanged(VESPERSCCDDetector::ImageMode mode)
-{
-	if (mode == VESPERSCCDDetector::Focus)
-		imageMode_->setCurrentIndex(1);
-	else
-		imageMode_->setCurrentIndex(0);
-}
-
-void VESPERSCCDDetectorView::setImageMode(int newMode)
-{
-	switch(newMode){
-
-	case 0:
-		if (detector_->imageMode() != VESPERSCCDDetector::Normal)
-			detector_->setImageMode(VESPERSCCDDetector::Normal);
-
-		break;
-
-	case 1:
-		if (detector_->imageMode() != VESPERSCCDDetector::Focus )
-			detector_->setImageMode(VESPERSCCDDetector::Focus);
-
-		break;
-	}
-}
-
-void VESPERSCCDDetectorView::onStateChanged(VESPERSCCDDetector::State newState)
-{
-	switch(newState){
-
-	case VESPERSCCDDetector::Idle:
-		state_->setText("Idle");
-		break;
-
-	case VESPERSCCDDetector::Acquire:
-		state_->setText("Acquire");
-		break;
-
-	case VESPERSCCDDetector::Readout:
-		state_->setText("Readout");
-		break;
-
-	case VESPERSCCDDetector::Correct:
-		state_->setText("Correct");
-		break;
-
-	case VESPERSCCDDetector::Saving:
-		state_->setText("Saving");
-		break;
-
-	case VESPERSCCDDetector::Aborting:
-		state_->setText("Aborting");
-		break;
-
-	case VESPERSCCDDetector::Error:
-		state_->setText("Error");
-		break;
-
-	case VESPERSCCDDetector::Waiting:
-		state_->setText("Waiting");
-		break;
-	}
-}
-
-void VESPERSCCDDetectorView::onAutoSaveChanged(bool autoSave)
-{
-	if (autoSave)
-		autoSaveComboBox_->setCurrentIndex(1);
-	else
-		autoSaveComboBox_->setCurrentIndex(0);
-}
-
-void VESPERSCCDDetectorView::setAutoSave(int autoSave)
-{
-	switch(autoSave){
-
-	case 0:
-		if (detector_->autoSaveEnabled())
-			detector_->setAutoSaveEnabled(false);
-
-		break;
-
-	case 1:
-		if (!detector_->autoSaveEnabled())
-			detector_->setAutoSaveEnabled(true);
-
-		break;
-	}
-}
-
 void VESPERSCCDDetectorView::ccdPathEdited()
 {
 	if (detector_->name() == "Roper CCD" && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
@@ -291,7 +179,7 @@ void VESPERSCCDDetectorView::ccdPathEdited()
 	else if ((detector_->name() == "Mar CCD" || detector_->name() == "Pilatus CCD") && filePathEdit_->text().at(filePathEdit_->text().size()-1) != '/')
 		filePathEdit_->setText(filePathEdit_->text()+"/");
 
-	detector_->setCCDPath(filePathEdit_->text());
+	detector_->setCCDFilePath(filePathEdit_->text());
 }
 
 void VESPERSCCDDetectorView::onIsAcquiringChanged(bool isAcquiring)
@@ -301,19 +189,19 @@ void VESPERSCCDDetectorView::onIsAcquiringChanged(bool isAcquiring)
 
 void VESPERSCCDDetectorView::setAcquireTime(double time)
 {
-	if (time != detector_->acquireTime())
-		detector_->setAcquireTime(time);
+//	if (time != detector_->acquireTime())
+//		detector_->setAcquireTime(time);
 }
 
 void VESPERSCCDDetectorView::setAcquireTime()
 {
-	if (acquireTime_->value() != detector_->acquireTime())
-		detector_->setAcquireTime(acquireTime_->value());
+//	if (acquireTime_->value() != detector_->acquireTime())
+//		detector_->setAcquireTime(acquireTime_->value());
 }
 
 void VESPERSCCDDetectorView::ccdFileEdited()
 {
-	detector_->setCCDName(fileNameEdit_->text());
+	detector_->setCCDFileBaseName(fileNameEdit_->text());
 }
 
 void VESPERSCCDDetectorView::ccdNumberEdited()
@@ -329,7 +217,7 @@ void VESPERSCCDDetectorView::ccdNumberUpdate(int val)
 void VESPERSCCDDetectorView::onStartClicked()
 {
 	QString fullPath = detector_->ccdFilePath();
-	QString name = detector_->ccdFileName();
+	QString name = detector_->ccdFileBaseName();
 
 	if (detector_->name().contains("Roper"))
 		name.append(QString("_%1.spe").arg(detector_->ccdFileNumber()));
@@ -346,18 +234,18 @@ void VESPERSCCDDetectorView::onStartClicked()
 	fullPath.append(name);
 	QFileInfo fileInfo = QFileInfo(fullPath);
 
-	if (fileInfo.exists()){
+//	if (fileInfo.exists()){
 
-		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
-																							 "File already exists!",
-																							 QString("The file \"%1\" already exists.  Do you want to overwrite?").arg(name),
-																							 QMessageBox::Ok,
-																							 QMessageBox::Cancel));
+//		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
+//																							 "File already exists!",
+//																							 QString("The file \"%1\" already exists.  Do you want to overwrite?").arg(name),
+//																							 QMessageBox::Ok,
+//																							 QMessageBox::Cancel));
 
-		if (button == QMessageBox::Ok)
-			detector_->start();
-	}
+//		if (button == QMessageBox::Ok)
+//			detector_->start();
+//	}
 
-	else
-		detector_->start();
+//	else
+//		detector_->start();
 }

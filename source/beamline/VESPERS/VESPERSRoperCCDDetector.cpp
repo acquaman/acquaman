@@ -22,6 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutexLocker>
 
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSCCDDetector(name, description, "IOC1607-003:det1", AMnDIndex(2084, 2084), parent)
+	: VESPERSCCDDetector(name, description, parent)
 {
+}
+
+QString VESPERSRoperCCDDetector::synchronizedDwellKey() const
+{
+	return "DIO1607-01:CCD:ExtSync NPP NMS";
 }

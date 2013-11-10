@@ -1,5 +1,7 @@
 #include "VESPERSSingleElementVortexDetector.h"
 
+#include "beamline/AMBeamline.h"
+
 VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
@@ -41,7 +43,6 @@ bool VESPERSSingleElementVortexDetector::sharesDetectorTriggerSource()
 	return currentlySynchronizedDwell();
 }
 
-#include "beamline/AMBeamline.h"
 AMDetectorTriggerSource* VESPERSSingleElementVortexDetector::detectorTriggerSource()
 {
 	if(currentlySynchronizedDwell())

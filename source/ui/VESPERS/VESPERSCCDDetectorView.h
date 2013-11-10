@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 
 
-class VESPERSCCDDetectorView : public AMDetailedOldDetectorView
+class VESPERSCCDDetectorView : public QWidget
 {
 	Q_OBJECT
 
@@ -37,32 +37,18 @@ public:
 	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
 	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
-	/// Returns a pointer to the detector being viewed.
-	AMOldDetector *detector() { return detector_; }
+//	/// Returns a pointer to the detector being viewed.
+//	AMOldDetector *detector() { return detector_; }
 
 protected slots:
 	/// Slot that handles when the start button is clicked.  It checks to see if a file with the current name and number exists and, if yes, prompts the user for input.
 	void onStartClicked();
 	/// Slot used to switch the icon on the currently acquiring indicator.
 	void onIsAcquiringChanged(bool isAcquiring);
-	/// Slot used to update the state label.
-	void onStateChanged(VESPERSCCDDetector::State newState);
 	/// Slot used to set the acquire time on the detector.
 	void setAcquireTime(double time);
 	/// Overloaded.  Slot used to set the acquire time on the detector.
 	void setAcquireTime();
-	/// Slot used to update the trigger mode combo box.
-	void onTriggerModeChanged(VESPERSCCDDetector::TriggerMode mode);
-	/// Slot used to set the trigger mode on the detector.
-	void setTriggerMode(int newMode);
-	/// Slot used to update the image mode combo box.
-	void onImageModeChanged(VESPERSCCDDetector::ImageMode mode);
-	/// Slot used to set the image mode on the detector.
-	void setImageMode(int newMode);
-	/// Slot used to set the autosave setting on the detector.
-	void setAutoSave(int autoSave);
-	/// Slot used to update the autosave combo box.
-	void onAutoSaveChanged(bool autoSave);
 	/// Used to set the CCD Path when it changes from the program.
 	void ccdPathEdited();
 	/// Used to set the CCD File name when it changes from the program.
@@ -75,7 +61,7 @@ protected slots:
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMOldDetector *detector, bool configureOnly);
+	bool setDetector(AMDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector.
 	VESPERSCCDDetector *detector_;

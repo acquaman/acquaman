@@ -62,7 +62,7 @@ signals:
 
 public slots:
 
-	/// The read mode cannot be changed for Amptek detectors
+	/// The read mode cannot be changed for Vortex detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Vortex detectors do not support clearing

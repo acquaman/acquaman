@@ -345,9 +345,9 @@ void VESPERSBeamline::setupDetectors()
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
-	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
-	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
-	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
+//	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
+//	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
+//	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus CCD", "Pilatus 1M Pixel Array Detector", this);
 
 //	splitIonChamber_ = new CLSBasicScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, );
 	preKBIonChamber_ = new CLSBasicScalerChannelDetector("PreKBIonChamber", "Pre KB Ion Chamber", scaler_, 7, this);
@@ -356,6 +356,8 @@ void VESPERSBeamline::setupDetectors()
 
 	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
 	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
+
+	pilatusAreaDetector_ = new VESPERSPilatusCCDDetector("PilatusPixelArrayDetector", "Pilatus Pixel Array Detector", this);
 }
 
 void VESPERSBeamline::setupControlSets()
