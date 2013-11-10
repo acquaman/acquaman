@@ -85,10 +85,11 @@ chtype AMProcessVariable::serverType2StatusType(chtype serverType)
 }
 
 
-
+#include <QDebug>
 AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObject *parent, int connectionTimeoutMs) :
 	QObject(parent)
 {
+	qDebug() << "In AMProcessVariable constructor";
 	setObjectName("AMProcessVariable_" + pvName);
 	shouldBeMonitoring_ = monitor;
 

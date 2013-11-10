@@ -1,14 +1,26 @@
 #include "StripToolPlot.h"
 
-StripToolPlot::StripToolPlot(QObject *parent) : QObject(parent)
+StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 {
-    selector_ = new MPlotPlotSelectorTool();
-    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(showItemInfo(MPlotItem*)) );
-    connect( selector_, SIGNAL(deselected()), this, SLOT(hideItemInfo()) );
+    plotSelection_ = 0;
 
-    basePlot_ = new MPlot();
-    basePlot_->addTool(selector_);
-    basePlot_->setAcceptDrops(true);
+    selector_ = new MPlotPlotSelectorTool();
+    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onSeriesSelected(MPlotItem*)) );
+    connect( selector_, SIGNAL(deselected()), this, SLOT(onSeriesDeselected()) );
+
+    plot_ = new MPlot();
+    plot_->addTool(selector_);
+//    plot_->setAcceptDrops(true);
+    plot_->axisLeft()->showAxisName(false);
+    plot_->axisBottom()->showAxisName(false);
+
+    plot_->axisLeft()->showTickLabels(false);
+    plot_->axisBottom()->showTickLabels(false);
+
+    setPlot(plot_);
+    enableAntiAliasing(true);
+
+    connect( this, SIGNAL(updatePlotSelection(MPlotItem*)), this, SLOT(toUpdatePlotSelection(MPlotItem*)) );
 }
 
 
@@ -19,183 +31,127 @@ StripToolPlot::~StripToolPlot()
 
 
 
-MPlot* StripToolPlot::plot()
+void StripToolPlot::setModel(StripToolModel *model)
 {
-    return basePlot_;
+    model_ = model;
+
+//    connect( this, SIGNAL(seriesSelected(MPlotItem*, bool)), model_, SLOT(seriesSelected(MPlotItem*, bool)) );
+
+//    connect( model_, SIGNAL(setPlotSelection(MPlotItem*)), this, SLOT(toSetPlotSelection(MPlotItem*)) );
+    connect( model_, SIGNAL(seriesChanged(Qt::CheckState, MPlotItem*)), this, SLOT(onSeriesChanged(Qt::CheckState, MPlotItem*)) );
+    connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
+    connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
 }
 
 
 
-QList<QString> StripToolPlot::getActivePVList()
+bool StripToolPlot::contains(MPlotItem *series)
 {
-    return namesToShownSeries_.keys();
+    return plot_->plotItems().contains(series);
 }
 
 
 
-bool StripToolPlot::contains(const QString &pvName)
+void StripToolPlot::toSetPlotSelection(MPlotItem *modelSelection)
 {
-    return pvShown(pvName) || pvHidden(pvName);
-}
-
-
-
-bool StripToolPlot::pvShown(const QString &pvName)
-{
-    return namesToShownSeries_.contains(pvName);
-}
-
-
-
-bool StripToolPlot::pvHidden(const QString &pvName)
-{
-    return namesToHiddenSeries_.contains(pvName);
-}
-
-
-
-void StripToolPlot::addSeries(const QString &pvName, const QString &pvUnits, MPlotVectorSeriesData* pvData)
-{
-    if (!contains(pvName))
+    if (modelSelection != 0)
     {
-        StripToolSeries *newSeries = new StripToolSeries();
-        newSeries->setPVName(pvName);
-        newSeries->setPVUnits(pvUnits);
-        newSeries->setDescription(" ");
-        newSeries->setModel(pvData);
-
-        basePlot_->addItem(newSeries);
-        namesToShownSeries_[pvName] = newSeries;
-    }
-}
-
-
-
-void StripToolPlot::showSeries(const QString &pvName)
-{
-    if (!pvShown(pvName) && pvHidden(pvName))
-    {
-        MPlotItem *toShow = namesToHiddenSeries_[pvName];
-        basePlot_->addItem(toShow);
-        namesToShownSeries_[pvName] = toShow;
-        namesToHiddenSeries_.remove(pvName);
-    }
-}
-
-
-
-void StripToolPlot::hideSeries(const QString &pvName)
-{
-    if (pvShown(pvName) && !pvHidden(pvName))
-    {
-        MPlotItem *toHide = namesToShownSeries_[pvName];
-        basePlot_->removeItem(toHide);
-        namesToShownSeries_.remove(pvName);
-        namesToHiddenSeries_[pvName] = toHide;
-    }
-}
-
-
-
-void StripToolPlot::deleteSeries(const QString &pvName)
-{
-    if (contains(pvName))
-    {
-        MPlotItem *toDelete;
-
-        if (pvShown(pvName))
+        foreach(MPlotItem *series, plot_->plotItems())
         {
-            toDelete = namesToShownSeries_[pvName];
-            basePlot_->removeItem(toDelete);
-            namesToShownSeries_.remove(pvName);
-            delete toDelete;
-
-        } else if (pvHidden(pvName))
-        {
-            toDelete = namesToHiddenSeries_[pvName];
-            basePlot_->removeItem(toDelete);
-            namesToHiddenSeries_.remove(pvName);
-            delete toDelete;
+            if (series == modelSelection)
+            {
+                emit updatePlotSelection(series);
+                break;
+            }
         }
     }
 }
 
 
 
-void StripToolPlot::showItemInfo(MPlotItem* plotSelection)
+void StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 {
-    //  use the plot selection provided to determine the properties to display.
-
-    selectedItem_ = (StripToolSeries*) plotSelection;
-
-    QString axisLeftLabel = selectedItem_->pvUnits();
-    QString axisBottomLabel = "Update number";
-
-    showPlotAxesLabels(axisLeftLabel, axisBottomLabel);
-    showSeriesDescription(selectedItem_);
-    showPlotAxesScale(selectedItem_);
+    if (contains(newSeries))
+    {
+        //warn user that this is a duplicate series?
+    } else {
+        plot_->addItem(newSeries);
+    }
 }
 
 
 
-void StripToolPlot::showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel)
+void StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 {
-    basePlot_->axisLeft()->setAxisName(axisLeftLabel);
-    basePlot_->axisLeft()->showAxisName(true);
-
-    basePlot_->axisBottom()->setAxisName(axisBottomLabel);
-    basePlot_->axisBottom()->showAxisName(true);
+    if (contains(toRemove))
+        plot_->removeItem(toRemove);
 }
 
 
 
-void StripToolPlot::showPlotAxesScale(StripToolSeries* plotSelection)
+void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
 {
-    Q_UNUSED(plotSelection);
+    plot_->axisBottom()->setAxisName(bottomLabel);
+    plot_->axisBottom()->showAxisName(true);
+
+    plot_->axisLeft()->setAxisName(leftLabel);
+    plot_->axisLeft()->showAxisName(true);
 }
 
 
 
-void StripToolPlot::showSeriesDescription(StripToolSeries* plotSelection)
+void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
 {
-    plotSelection->setDescription(plotSelection->pvName());
+    plot_->axisScaleBottom()->setDataRange(axisBottom);
 }
 
 
 
-void StripToolPlot::hideItemInfo()
+void StripToolPlot::setTicksVisible(bool isShown)
 {
-    hidePlotAxesLabels();
-    hideSeriesDescription(selectedItem_);
-
-    selectedItem_ = 0;
+    plot_->axisLeft()->showTickLabels(isShown);
+    plot_->axisBottom()->showTickLabels(isShown);
 }
 
 
 
-void StripToolPlot::hidePlotAxesLabels()
+void StripToolPlot::onSeriesSelected(MPlotItem *plotSelection)
 {
-    basePlot_->axisLeft()->showAxisName(false);
-    basePlot_->axisBottom()->showAxisName(false);
+    plotSelection_ = plotSelection;
+    emit seriesSelected(plotSelection_, true);
 }
 
 
 
-void StripToolPlot::hideSeriesDescription(StripToolSeries *series)
+void StripToolPlot::onSeriesDeselected()
 {
-    series->setDescription(" ");
+    emit seriesSelected(plotSelection_, false);
+    plotSelection_ = 0;
 }
 
 
 
-void StripToolPlot::toShowCheckedPV(const QString &pvName)
+void StripToolPlot::onSeriesChanged(Qt::CheckState newState, MPlotItem *pvSeries)
 {
-    showSeries(pvName);
+    //  if the series is already plotted and the new state indicates it should be hidden, remove it!
+    if (contains(pvSeries) && newState == Qt::Unchecked)
+    {
+        removeSeriesFromPlot(pvSeries);
+    }
+
+    //  if the series is NOT plotted and the new state indicates it should be shown, add it!
+    else if (!contains(pvSeries) && newState == Qt::Checked)
+    {
+        addSeriesToPlot(pvSeries);
+    }
 }
 
 
 
-void StripToolPlot::toRemoveUncheckedPV(const QString &pvName)
+void StripToolPlot::toUpdatePlotSelection(MPlotItem *newSelection)
 {
-    hideSeries(pvName);
+    plotSelection_ = newSelection;
+    plotSelection_->setSelected();
 }
+
+

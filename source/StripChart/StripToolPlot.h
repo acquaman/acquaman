@@ -5,51 +5,57 @@
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotItem.h"
-#include "MPlot/MPlotSeries.h"
-#include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotTools.h"
+#include "MPlot/MPlotWidget.h"
 
-#include "StripChart/StripToolSeries.h"
+#include "StripChart/StripToolModel.h"
 
-class StripToolPlot : public QObject
+/// This class displays pv information as a plot. A series may be added or removed from the plot, and displays the units of a series when it's selected.
+
+class StripToolPlot : public MPlotWidget
 {
     Q_OBJECT
 
 public:
-    explicit StripToolPlot(QObject *parent = 0);
+    explicit StripToolPlot(QWidget *parent = 0);
     ~StripToolPlot();
-    friend class StripTool;
     
 signals:
+    void seriesSelected(MPlotItem *plotSelection, bool isSelected);
+    void updatePlotSelection(MPlotItem *newSelection);
 
 protected:
-    MPlot *basePlot_;
+    StripToolModel *model_;
+    MPlot *plot_;
     MPlotPlotSelectorTool *selector_;
-    StripToolSeries *selectedItem_;
-    QMap<QString, MPlotItem*> namesToShownSeries_;
-    QMap<QString, MPlotItem*> namesToHiddenSeries_;
+    MPlotItem *plotSelection_;
+
+public:
+    void setModel(StripToolModel *model);
 
 protected:
-    MPlot* plot();
-    QList<QString> getActivePVList();
-    bool contains(const QString &pvName);
-    bool pvShown(const QString &pvName);
-    bool pvHidden(const QString &pvName);
-    void addSeries(const QString &pvName, const QString &pvUnits, MPlotVectorSeriesData *pvData);
-    void showSeries(const QString &pvName);
-    void hideSeries(const QString &pvName);
-    void deleteSeries(const QString &pvName);
-    void showPlotAxesLabels(const QString &axisLeftLabel, const QString &axisBottomLabel);
-    void showPlotAxesScale(StripToolSeries *plotSelection);
-    void showSeriesDescription(StripToolSeries *selectedItem);
-    void hidePlotAxesLabels();
-    void hideSeriesDescription(StripToolSeries *deselectedItem);
+    /// Returns true if a given series is in the plot, false otherwise.
+    bool contains(MPlotItem *series);
+    /// Adds a given series to the plot, if it hasn't been added already.
+    void addSeriesToPlot(MPlotItem *newSeries);
+    /// Removes a given series from the plot, if it is contained in the plot.
+    void removeSeriesFromPlot(MPlotItem *toRemove);
     
 protected slots:
-    void toShowCheckedPV(const QString &pvName);
-    void toRemoveUncheckedPV(const QString &pvName);
-    void showItemInfo(MPlotItem *selectedItem);
-    void hideItemInfo();
+    /// An attempt at uniform selection--not fully implemented. The model's selectedPV_ becomes the selected series on the plot.
+    void toSetPlotSelection(MPlotItem *modelSelection);
+    /// Informs the model that a series has been selected.
+    void onSeriesSelected(MPlotItem *plotSelection);
+    /// Informs the model that a series has been deselected.
+    void onSeriesDeselected();
+    /// Causes the string arguments to become the labels on the plot.
+    void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
+    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
+    void setTicksVisible(bool isShown);
+    /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
+    void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
+
+    void toUpdatePlotSelection(MPlotItem *newSelection);
 
 };
 

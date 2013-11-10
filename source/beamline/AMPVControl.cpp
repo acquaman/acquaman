@@ -29,6 +29,7 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 	: AMControl(name, "?", parent, description)  {
 
 	wasConnected_ = false;
+	qDebug() << "About to new readPV_";
 	readPV_ = new AMProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));

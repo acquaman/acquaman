@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <stdio.h>
 
+#include <QDebug>
+
 
 ///////////////////////////////
 // AMProcessVariableSupport
@@ -62,6 +64,10 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 // standard singleton-pattern get-instance method.
 AMProcessVariableSupport* AMProcessVariableSupport::s() {
 
+	if(instance_ == 0)
+		qDebug() << "Instance is 0";
+	else
+		qDebug() << "Instance has value of " << (intptr_t)(instance_);
 	if (instance_ == 0)  { // is it the first call?
 		instance_ = new AMProcessVariableSupport(); // create sole instance
 	}
@@ -72,10 +78,19 @@ AMProcessVariableSupport* AMProcessVariableSupport::s() {
 // the implementation of AMProcessVariableSupport::removePV():
 void AMProcessVariableSupport::removePVImplementation(chid c) {
 
+	qDebug() << "In removePVImplementation, count chid2Private " << chid2Private_.count() << ", count pvName2Private " << pvName2Private_.count();
+
 	// unregister this channel:
+	AMProcessVariablePrivate * onePrivate = chid2Private_.value(qint64(c));
 	chid2Private_.remove(qint64(c));
 
+	QString pvName = pvName2Private_.key(onePrivate);
+	pvName2Private_.remove(pvName);
+
+	qDebug() << "In removePVImplementation, count chid2Private " << chid2Private_.count() << ", count pvName2Private " << pvName2Private_.count();
+
 	// if that was the last one out, tear down Channel Access:
+	/*
 	if(chid2Private_.count() == 0) {
 
 		AMErrorMon::alert(this, AMPROCESSVARIABLESUPPORT_SHUTTING_DOWN_CHANNEL_ACCESS_MESSAGE, "AMProcessVariableSupport: Shutting down channel access...");
@@ -85,10 +100,13 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 		instance_ = 0;					// We are no more...
 		deleteLater();					// We're gone.
 	}
+	*/
 }
 
 AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)
 {
+	qDebug() << "In getPrivateForPVNameImplementation, count chid2Private " << chid2Private_.count() << ", count pvName2Private " << pvName2Private_.count();
+
 	QHash<QString, AMProcessVariablePrivate*>::const_iterator i = pvName2Private_.find(pvName);
 	if(i != pvName2Private_.constEnd())
 		return i.value();	// have one already!

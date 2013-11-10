@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
+#include <QDebug>
 
 #include "util/AMDeferredFunctionCall.h"
 
@@ -111,7 +112,7 @@ public:
 	static void removePV(chid c) { s()->removePVImplementation(c); }
 
 	/// AMProcessVariable calls this to retrieve the AMProcessVariablePrivate for its connection instance. If there is no such connection yet, it will be created.
-	static AMProcessVariablePrivate* getPrivateForPVName(const QString& pvName) { return s()->getPrivateForPVNameImplementation(pvName); }
+	static AMProcessVariablePrivate* getPrivateForPVName(const QString& pvName) { qDebug() << "Calling s()"; return s()->getPrivateForPVNameImplementation(pvName); }
 
 	/// This is the global epics channel-access exception handler:
 	static void PVExceptionCB(struct exception_handler_args args);
