@@ -583,20 +583,6 @@ public:
 	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
 	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 
-	/// A non-zero moveStartTolerance() allows "null moves" (moves with setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. (By default, this is 0 and has no effect.)
-	/*! A "null move" is a move to the current position (or something very very close to it).  Some controls may not change their move status on a null move; in this case, the move would appear to fail, even though the control "reached" its target. This provides an optional work-around: if moveStartTolerance() is non-zero, and the current feedback value() is within moveStartTolerance() of the setpoint, a move() command will start and succeed immediately without any physical motion.  Note that the hardware is NOT told to move in this mode. (It if was, any move status change might be interpreted as the end of a subsequent move.)
-
-	By default, moveStartTolerance_ is 0 and has no effect.
-*/
-	double moveStartTolerance() const { return moveStartTolerance_; }
-
-	/// A non-zero moveTimeoutTolerance() allows short moves to succeed after the moveStartTimeout() EVEN IF THE MOVING STATUS HAS NOT CHANGED, but the value() has entered within moveTimeoutTolerance() of the setpoint.  This is necessary for controls that may not change their move status at all during short moves, even though the move actually takes place. (ex: serial-connected devices that are polled, etc.)
-	/*! Unlike a "null-move" to the current position, this setting applies to real moves that are simply too short for the driver to update the moving status.  When enabled, if the moving status has not changed after moveStartTimeout() seconds, if the current position is within moveTimeoutTolerance() of the setpoint, the move will succeed; otherwise it will fail with a TimeoutFailure.
-
-	  By default, moveTimeoutTolerance() is 0 and has no effect; the moving status MUST CHANGE to avoid a TimeoutFailure.
-	  */
-	double moveTimeoutTolerance() const { return moveTimeoutTolerance_; }
-
 	/// The settling time that is allowed after the hardware reports "move done", in seconds, before checking the feedback and tolerance.
 	/*! EPICS channel access provides no guarantee on the order in which channel access monitors from different PVs are received. Therefore, it's highly likely that the status PV may receive the "Move Done" notification before the latest feedback value() is received from the read PV.  This can cause two problems: (1) depending on the tolerance and the monitoring rate, a physically-successful move may incorrectly report a tolerance failure, because the within-tolerance feedback value has not yet been received by the end of a move, and (2) the feedback value() read immediately after a move finishes may not actually be accurate. [In both cases, the true feedback value will probably be arriving a few ms later].
 
@@ -617,12 +603,6 @@ public slots:
 
 	/// set the completion timeout:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
-
-	/// Set a non-zero moveStartTolerance() to allow "null moves" (setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. \see moveStartTolerance().
-	void setMoveStartTolerance(double moveStartTolerance) { moveStartTolerance_ = moveStartTolerance; }
-
-	/// Set a non-zero moveTimeoutTolerance() to allow short moves to succeed even if the moving status has not changed after moveStartTimeout(). This is necessary for controls that may not change the moving status for short moves. \see moveTimeoutTolerance().
-	void setMoveTimeoutTolerance(double moveTimeoutTolerance) { moveTimeoutTolerance_ = moveTimeoutTolerance; }
 
 	/// Set the settling time that is allowed after the hardware reports "move done", in seconds. \see settlingTime().
 	void setSettlingTime(double seconds) { settlingTime_ = seconds; }
@@ -645,11 +625,6 @@ protected:
 	QTimer moveStartTimer_;
 	/// Used to detect moveStart timeouts: timeout in seconds
 	double moveStartTimeout_;
-
-	/// If non-zero, reports moveSucceeded() immediately for move() requests that are within moveStartTolerance_ of the setpoint.  By default, this is zero and has no effect. \see moveStartTolerance()
-	double moveStartTolerance_;
-	/// If non-zero, allows moves to succeed if the position is within moveTimeoutTolerance_, even if the moving status has not changed after moveStartTimeout_ seconds. \see moveTimeoutTolerance()
-	double moveTimeoutTolerance_;
 
 	/// used internally to track whether we're waiting for a physical control to actually start moving, after we've told it to.
 	bool startInProgress_;
@@ -680,9 +655,6 @@ protected slots:
 
 	/// This is called when there is a Status PV channel error:
 	void onWritePVError(int errorCode);
-
-	/// This is used to handle the timeout of a move start:
-	void onMoveStartTimeout();
 
 	/// Re-implemented: This is used to handle when the movingPV_ changes.
 	virtual void onMovingChanged(int isMovingValue);
