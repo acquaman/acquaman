@@ -48,11 +48,12 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 	return new REIXSXESScanConfiguration(*this);	// can use the default auto-generated copy-constructor.
 }
 
-#include "acquaman/REIXS/REIXSXESScanController.h"
-
+//#include "acquaman/REIXS/REIXSXESScanController.h"
+#include "acquaman/REIXS/REIXSXESScanActionController.h"
 // Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 AMScanController* REIXSXESScanConfiguration::createController() {
-	return new REIXSXESScanController(this);
+	//return new REIXSXESScanController(this);
+	return new REIXSXESScanActionController(this);
 }
 
 QString REIXSXESScanConfiguration::description() const

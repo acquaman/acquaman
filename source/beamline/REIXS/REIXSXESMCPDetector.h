@@ -140,6 +140,8 @@ protected:
 
 	void setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions);
 
+	void acquisitionSucceededHelper();
+
 protected:
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;

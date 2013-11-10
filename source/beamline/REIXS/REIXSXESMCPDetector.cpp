@@ -200,7 +200,7 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 		dwellTimeTimer_->deleteLater();
 		dwellTimeTimer_ = 0;
 	}
-	setAcquisitionSucceeded();
+	acquisitionSucceededHelper();
 }
 
 void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
@@ -213,12 +213,7 @@ void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
 			dwellTimeTimer_ = 0;
 		}
 
-		setAcquisitionSucceeded();
-
-		if(!isConnected() && !isNotReadyForAcquisition())
-			setNotReadyForAcquisition();
-		else if(isConnected() && !isReadyForAcquisition())
-			setReadyForAcquisition();
+		acquisitionSucceededHelper();
 	}
 }
 
@@ -262,4 +257,15 @@ bool REIXSXESMCPDetector::clearImplementation(){
 void REIXSXESMCPDetector::setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions){
 	if(finishedConditions_ != finishedConditions)
 		finishedConditions_ = finishedConditions;
+}
+
+void REIXSXESMCPDetector::acquisitionSucceededHelper(){
+	setAcquisitionSucceeded();
+
+	if(!isConnected() && !isNotReadyForAcquisition())
+		setNotReadyForAcquisition();
+	else if(isConnected() && !isReadyForAcquisition())
+		setReadyForAcquisition();
+
+	emit imageDataChanged();
 }
