@@ -134,8 +134,6 @@ bool AMAppController::startupCreateUserInterface() {
 		AMAppControllerSupport::addActionRunnerGroup(AMActionRunner3::workflow()->loggingDatabase()->connectionName(), AMActionRunner3::workflow(), workflowView_->historyView()->model());
 		AMAppControllerSupport::addActionRunnerGroup(AMActionRunner3::scanActionRunner()->loggingDatabase()->connectionName(), AMActionRunner3::scanActionRunner(), scanActionRunnerView_->historyView()->model());
 
-
-
 		return true;
 	}
 

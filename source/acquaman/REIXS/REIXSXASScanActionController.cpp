@@ -61,7 +61,9 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	insertionIndex_ = AMnDIndex(0);
 
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	//cfg->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
 	AMXASScanConfigurationConverter xasScanConfigurationConverter(newScanAssembler_, cfg, this);
+	qDebug() << "\n\nCurrent cfg says default control: " << cfg->regions()->defaultControl()->name();
 
 	AMDetectorInfoSet reixsDetectors;
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("I0")->toInfo());
@@ -114,27 +116,18 @@ void REIXSXASScanActionController::onInitializationActionsListSucceeded(){
 	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
 	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
-	qDebug() << "Initialization actions succeeded, going to fail now";
-	AMAction3 *failAction = 0;
-	failAction->canSkip();
-	/*
 	setInitialized();
-	*/
 }
 
 void REIXSXASScanActionController::onInitializationActionsListFailed(){
 	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
 	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
-	qDebug() << "Initialization actions failed, going to fail now";
-	AMAction3 *failAction = 0;
-	failAction->canSkip();
-	/*
+
 	connect(xasActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 	connect(xasActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsCleanupList_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-	*/
 }
 
 void REIXSXASScanActionController::onActionsTreeSucceeded(){

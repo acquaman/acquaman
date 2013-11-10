@@ -56,6 +56,8 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	for(int x = 0; x < other.regionCount(); x++)
 		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x), other.regionTime(x));
 
+	regions_->setDefaultControl(other.regions()->defaultControl());
+
 	scanNumber_ = other.scanNumber_;
 	sampleId_ = other.sampleId_;
 	namedAutomatically_ = other.namedAutomatically_;
