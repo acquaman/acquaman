@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "acquaman/REIXS/REIXSXESMCPDetectorPre2013.h"	///< \todo Move this to beamline, not acquaman.
+#include "beamline/REIXS/REIXSXESMCPDetector.h"
 #include "dataman/REIXS/REIXSXESCalibration2.h"
 #include "beamline/AMCompositeControl.h"
 #include "beamline/CLS/CLSMDriveMotorControl.h"
@@ -428,7 +429,8 @@ public:
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
-	REIXSXESMCPDetectorPre2013* mcpDetector() { return mcpDetector_; }
+	//REIXSXESMCPDetectorPre2013* mcpDetector() { return mcpDetector_; }
+	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
@@ -476,7 +478,8 @@ protected:
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
-	REIXSXESMCPDetectorPre2013* mcpDetector_;
+	//REIXSXESMCPDetectorPre2013* mcpDetector_;
+	REIXSXESMCPDetector* mcpDetector_;
 	/// A group of valve and shutter controls
 	REIXSValvesAndShutters* valvesAndShutters_;
 

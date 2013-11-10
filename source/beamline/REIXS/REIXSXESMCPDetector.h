@@ -6,6 +6,7 @@
 
 class QTimer;
 
+class AMControl;
 class AMReadOnlyPVControl;
 class AMSinglePVControl;
 class AMControlSet;
@@ -83,6 +84,9 @@ public:
 	/// Access a data source corresponding to the detector's real-time (persist-delay) image
 	AMDataSource* instantaneousImage() const { return instantaneousImage_; }
 
+	QVector<int> imageData() const;
+	QVector<int> instantaneousImageData() const;
+
 	/// Read the total counts in the image:
 	double totalCounts() const;
 	/// Access the counts per second at this instant in time
@@ -92,12 +96,27 @@ public:
 	bool clearOnStart() const;
 	int totalCountTarget() const;
 
+	/// Sets the read mode for this detector (if possible, check with canContinuousAcquire)
+	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
+
+	/// Set the acquisition dwell time for triggered (RequestRead) detectors
+	virtual bool setAcquisitionTime(double seconds);
+
+	AMControl* averagingPeriodControl();
+	AMControl* persistDurationControl();
+
 public slots:
 	void setFinishedConditionTotalTime();
 	void setFinishedConditionTotalCounts();
 	void setFinishedConditionTotalTimeOrTotalCounts();
 	void setClearOnStart(bool clearOnStart);
 	void setTotalCountTarget(int totalCountTarget);
+
+signals:
+	/// Emitted when the image and imageData() changes (ie: has new values)
+	void imageDataChanged();
+	/// Emitted when the instantaneousImage() and instantaneousImageData() changes (ie: has new values)
+	void instantaneousImageDataChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

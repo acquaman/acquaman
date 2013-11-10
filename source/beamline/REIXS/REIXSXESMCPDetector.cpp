@@ -53,6 +53,9 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlConnectedChanged(bool,AMControl*)), this, SLOT(onControlsTimedOut()));
+
+	connect(imageControl_->readPV(), SIGNAL(valueChanged()), this, SIGNAL(imageDataChanged()));
+	connect(instantaneousImageControl_->readPV(), SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
 }
 
 double REIXSXESMCPDetector::acquisitionTime() const{
@@ -88,6 +91,14 @@ const double* REIXSXESMCPDetector::data() const{
 	return retVal.constData();
 }
 
+QVector<int> REIXSXESMCPDetector::imageData() const{
+	return imageControl_->readPV()->lastIntegerValues();
+}
+
+QVector<int> REIXSXESMCPDetector::instantaneousImageData() const{
+	return instantaneousImageControl_->readPV()->lastIntegerValues();
+}
+
 double REIXSXESMCPDetector::totalCounts() const{
 	return totalCountsControl_->value();
 }
@@ -106,6 +117,28 @@ bool REIXSXESMCPDetector::clearOnStart() const{
 
 int REIXSXESMCPDetector::totalCountTarget() const{
 	return totalCountTarget_;
+}
+
+bool REIXSXESMCPDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
+	if(readMode != AMDetectorDefinitions::SingleRead)
+		return false;
+
+	return true;
+}
+
+bool REIXSXESMCPDetector::setAcquisitionTime(double seconds){
+	if(seconds < 0.1)
+		return false;
+	dwellTime_ = seconds;
+	return true;
+}
+
+AMControl* REIXSXESMCPDetector::averagingPeriodControl(){
+	return averagingPeriodSecsControl_;
+}
+
+AMControl* REIXSXESMCPDetector::persistDurationControl(){
+	return persistTimeSecsControl_;
 }
 
 void REIXSXESMCPDetector::setFinishedConditionTotalTime(){

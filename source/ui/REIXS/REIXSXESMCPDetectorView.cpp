@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESMCPDetectorView.h"
 
-#include "acquaman/REIXS/REIXSXESMCPDetector.h"	/// \todo Move detector into beamline
+#include "acquaman/REIXS/REIXSXESMCPDetectorPre2013.h"	/// \todo Move detector into beamline
+#include "beamline/REIXS/REIXSXESMCPDetector.h"
 
 #include "QBoxLayout"
 
@@ -30,7 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "ui/dataman/AMImagePropertyEditor.h"
 
-REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
+//REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
+REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, QWidget *parent) :
 	QWidget(parent)
 {
 	detector_ = detector;
@@ -142,9 +144,10 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* det
 	//////////////////////
 
 	// hookup signals:
-	connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clearImage()));
-	connect(imageSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onImageSelectorChanged(int)));
-	connect(detector_, SIGNAL(countsPerSecondChanged(double)), this, SLOT(onCountsPerSecondChanged(double)));
+	//connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clearImage()));
+	connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clear()));
+	//connect(imageSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onImageSelectorChanged(int)));
+	//connect(detector_, SIGNAL(countsPerSecondChanged(double)), this, SLOT(onCountsPerSecondChanged(double)));
 
 	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
 

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef REIXSXESMCPDETECTOR_H
-#define REIXSXESMCPDETECTOR_H
+#ifndef REIXSXESMCPDETECTORPRE2013_H
+#define REIXSXESMCPDETECTORPRE2013_H
 
 #include <QObject>
 #include "beamline/AMPVControl.h"
@@ -291,4 +291,4 @@ protected:
 
 };
 
-#endif // REIXSXESMCPDETECTOR_H
+#endif // REIXSXESMCPDETECTORPRE2013_H
