@@ -113,6 +113,10 @@ public slots:
 	void setTotalCountTarget(int totalCountTarget);
 
 signals:
+	/// Emitted whenever the countsPerSecond changes
+	void countsPerSecondChanged(double);
+	/// Emitted whenever the total number of counts changes
+	void totalCountsChanged(double);
 	/// Emitted when the image and imageData() changes (ie: has new values)
 	void imageDataChanged();
 	/// Emitted when the instantaneousImage() and instantaneousImageData() changes (ie: has new values)
