@@ -56,6 +56,8 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 
 	connect(imageControl_->readPV(), SIGNAL(valueChanged()), this, SIGNAL(imageDataChanged()));
 	connect(instantaneousImageControl_->readPV(), SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
+	connect(countsPerSecondControl_, SIGNAL(valueChanged(double)), this, SIGNAL(countsPerSecondChanged(double)));
+	connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 }
 
 double REIXSXESMCPDetector::acquisitionTime() const{

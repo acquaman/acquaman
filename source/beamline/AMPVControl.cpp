@@ -437,6 +437,21 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	}
 }
 
+// This is used to handle the timeout of a move start:
+void AMPVwStatusControl::onMoveStartTimeout() {
+
+	moveStartTimer_.stop();
+
+	// This is only meaningful if one of our moves is in progress.
+	if(startInProgress_) {
+		// give up on this move:
+		startInProgress_ = false;
+
+		// The move didn't start within our allowed start period. That counts as a move failed.
+		emit moveFailed(AMControl::TimeoutFailure);
+	}
+}
+
 // Re-implemented from AMReadOnlyPVwStatusControl:
 void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
 	bool nowMoving = (*statusChecker_)(isMovingValue);	// according to the hardware.  For checking moveSucceeded/moveStarted/moveFailed, use the value delivered in the signal argument, instead of re-checking the PV, in case we respond late and the hardware has already changed again.
