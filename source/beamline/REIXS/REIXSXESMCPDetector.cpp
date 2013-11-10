@@ -196,6 +196,7 @@ void REIXSXESMCPDetector::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 }
 
 void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
+	qDebug() << "Heard that dwell time is done";
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 		disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
@@ -206,7 +207,9 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 }
 
 void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
+	qDebug() << "More counts";
 	if(totalCounts >= totalCountTarget_){
+		qDebug() << "Reached the end of counts";
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 			disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
@@ -231,13 +234,18 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 	if(clearOnStart_)
 		clear();
 
+	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts)){
+		connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
+		qDebug() << "Looking for " << totalCountTarget_ << " counts";
+	}
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
 		dwellTimeTimer_ = new QTimer();
 		dwellTimeTimer_->setSingleShot(true);
 		dwellTimeTimer_->setInterval(dwellTime_*1000);
+		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
+		dwellTimeTimer_->start();
+		qDebug() << "Trying to set timer to " << dwellTime_;
 	}
-	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
-		connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 
 	setAcquiring();
 	return true;

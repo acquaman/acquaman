@@ -54,6 +54,7 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	updateTimer_->stop();
 	saveRawData();
+	setFinished();
 }
 
 void REIXSXESScanActionController::onNewImageValues(){
@@ -89,6 +90,7 @@ bool REIXSXESScanActionController::startImplementation(){
 	updateTimer_->setInterval(5000);
 	connect(updateTimer_, SIGNAL(timeout()), this, SLOT(saveRawData()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
+	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionSucceeded()), this, SLOT(onDetectorAcquisitionSucceeded()));
 	return true;
 }
 

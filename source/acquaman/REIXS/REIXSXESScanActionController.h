@@ -12,6 +12,7 @@ class REIXSXESScanConfiguration;
 
 class REIXSXESScanActionController : public AMScanActionController
 {
+Q_OBJECT
 public:
 	REIXSXESScanActionController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
