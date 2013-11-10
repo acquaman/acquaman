@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
+#include "acquaman/REIXS/REIXSXESMCPDetectorPre2013.h"	///< \todo Move this to beamline, not acquaman.
 #include "dataman/REIXS/REIXSXESCalibration2.h"
 #include "beamline/AMCompositeControl.h"
 #include "beamline/CLS/CLSMDriveMotorControl.h"
