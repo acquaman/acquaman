@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include "ui/AMTopFrame2.h"
 
-REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetector* detector, QWidget *parent) :
+REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
 	basicConfigurationView_ = new REIXSXESScanConfigurationView();

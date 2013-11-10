@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "REIXSXESMCPDetector.h"
+#include "REIXSXESMCPDetectorPre2013.h"
 
 #include <cmath>
 #include "util/AMErrorMonitor.h"
 
-REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent) :
+REIXSXESMCPDetectorPre2013::REIXSXESMCPDetectorPre2013(const QString& name, const QString& basePVName, QObject *parent) :
 	QObject(parent)
 {
 	name_ = name;
@@ -42,9 +42,9 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 	averagingPeriodSecsControl_ = new AMPVControl("mcpAveragingPeriod", basePVName_+":averagingPeriodSecs", basePVName_+":averagingPeriodSecs", QString(), this, 0.1);
 	persistTimeSecsControl_ = new AMPVControl("mcpPersistDuration", basePVName_+":persistTimeSecs", basePVName_+":persistTimeSecs", QString(), this, 0.1);
 
-	image_ = new REIXSXESMCPDataSource("xesImage", imagePV_, resolutionXPV_, resolutionYPV_, this);
+	image_ = new REIXSXESMCPDataSourcePre2013("xesImage", imagePV_, resolutionXPV_, resolutionYPV_, this);
 	image_->setDescription("Accumulated Detector Image");
-	instantaneousImage_ = new REIXSXESMCPDataSource("xesRealtimeImage", instantaneousImagePV_, resolutionXPV_, resolutionYPV_, this);
+	instantaneousImage_ = new REIXSXESMCPDataSourcePre2013("xesRealtimeImage", instantaneousImagePV_, resolutionXPV_, resolutionYPV_, this);
 	instantaneousImage_->setDescription("Instantaneous Detector Image");
 
 	connect(totalCountsPV_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
@@ -53,13 +53,13 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 	connect(instantaneousImagePV_, SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
 }
 
-REIXSXESMCPDetector::~REIXSXESMCPDetector() {
+REIXSXESMCPDetectorPre2013::~REIXSXESMCPDetectorPre2013() {
 	delete image_;
 	delete instantaneousImage_;
 }
 
 
-REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMProcessVariable *imagePV, AMProcessVariable *resolutionXPV, AMProcessVariable *resolutionYPV, QObject *parent)
+REIXSXESMCPDataSourcePre2013::REIXSXESMCPDataSourcePre2013(const QString &name, AMProcessVariable *imagePV, AMProcessVariable *resolutionXPV, AMProcessVariable *resolutionYPV, QObject *parent)
 	: QObject(parent), AMDataSource(name) {
 
 	setDescription("XES Detector Image");
@@ -93,7 +93,7 @@ REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMProcessVaria
 }
 
 // Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
-void REIXSXESMCPDataSource::onConnectionStateChanged() {
+void REIXSXESMCPDataSourcePre2013::onConnectionStateChanged() {
 	bool wasConnected = isConnected_;
 
 	isConnected_ = imagePV_->isConnected() &&
@@ -124,6 +124,6 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 }
 
 // Called when the image PV changes. emits valuesChanged().
-void REIXSXESMCPDataSource::onImageValuesChanged() {
+void REIXSXESMCPDataSourcePre2013::onImageValuesChanged() {
 	emitValuesChanged();
 }

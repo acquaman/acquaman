@@ -428,7 +428,7 @@ public:
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
-	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
+	REIXSXESMCPDetectorPre2013* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
@@ -476,7 +476,7 @@ protected:
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
-	REIXSXESMCPDetector* mcpDetector_;
+	REIXSXESMCPDetectorPre2013* mcpDetector_;
 	/// A group of valve and shutter controls
 	REIXSValvesAndShutters* valvesAndShutters_;
 

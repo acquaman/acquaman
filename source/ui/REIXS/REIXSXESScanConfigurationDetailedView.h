@@ -28,7 +28,7 @@ class REIXSXESScanConfigurationDetailedView : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
-	explicit REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetector* detector, QWidget *parent = 0);
+	explicit REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent = 0);
 
 	virtual const AMScanConfiguration* configuration() const { return basicConfigurationView_->configuration(); }
 

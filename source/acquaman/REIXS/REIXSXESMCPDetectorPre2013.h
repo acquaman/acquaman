@@ -28,11 +28,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 /// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector. The first (0) axis is the energy axis, and the second (1) axis is the vertical detector axis.
 /*! \todo Should there be an abstract class above this one, that doesn't tie this to an EPICS PV implementation? */
-class REIXSXESMCPDataSource : public QObject, public AMDataSource {
+class REIXSXESMCPDataSourcePre2013 : public QObject, public AMDataSource {
 	Q_OBJECT
 public:
 	/// Constructor. \c name is the AMDataSource::name() for this source, and imagePV is the process variable containing the image data. We also need the PVs which describe the
-	REIXSXESMCPDataSource(const QString& name, AMProcessVariable* imagePV, AMProcessVariable* resolutionXPV, AMProcessVariable* resolutionYPV, QObject* parent = 0);
+	REIXSXESMCPDataSourcePre2013(const QString& name, AMProcessVariable* imagePV, AMProcessVariable* resolutionXPV, AMProcessVariable* resolutionYPV, QObject* parent = 0);
 
 	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
 	virtual QString typeDescription() const { return "XES Imaging Detector"; }
@@ -129,14 +129,14 @@ protected:
 
 /// This object is a "live" link that can be used to control the MCP detector in the REIXS spectrometer, and access its real-time data.  It exposes the accumulated image, and the instantaneous image on the detector, as AMDataSources. It also provides methods to clear the accumulated image.
 /*! This implementation is tied to the usb2401 Epics Driver and digital interface module from the MCP position analyzer. \todo Re-implement an abstract version of an imaging detector interface that can be used by general scan controllers? */
-class REIXSXESMCPDetector : public QObject
+class REIXSXESMCPDetectorPre2013 : public QObject
 {
 	Q_OBJECT
 public:
 	/// Construct a new detector object.   \c name is an abitrary name, that will be used for the data sources. \c basePVName is the base of the Process Variable names we use to read and control the detector (ex: [basePVName]:image, [basePVName]:clear, etc.)
-	REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent = 0);
+	REIXSXESMCPDetectorPre2013(const QString& name, const QString& basePVName, QObject *parent = 0);
 
-	virtual ~REIXSXESMCPDetector();
+	virtual ~REIXSXESMCPDetectorPre2013();
 
 	QString name() const { return name_; }
 	QString description() const { return description_; }
@@ -282,7 +282,7 @@ protected:
 	AMPVControl* averagingPeriodSecsControl_;
 	AMPVControl* persistTimeSecsControl_;
 
-	REIXSXESMCPDataSource* image_, *instantaneousImage_;
+	REIXSXESMCPDataSourcePre2013* image_, *instantaneousImage_;
 
 	QString basePVName_;
 	QString name_, description_;

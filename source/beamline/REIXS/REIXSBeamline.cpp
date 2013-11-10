@@ -71,7 +71,7 @@ REIXSBeamline::REIXSBeamline() :
 	sampleManipulatorSet_->addControl(sampleChamber()->r());
 
 	// MCP detector
-	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "CPD1610-01", this);
+	mcpDetector_ = new REIXSXESMCPDetectorPre2013("xesImage", "CPD1610-01", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1610-ID-2:mcs", this);
 	scaler_->channelAt(3)->setCustomChannelName("PFY");

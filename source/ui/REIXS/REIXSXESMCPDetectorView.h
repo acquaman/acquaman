@@ -35,13 +35,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QDialog;
 
-class REIXSXESMCPDetector;
+class REIXSXESMCPDetectorPre2013;
 
 class REIXSXESMCPDetectorView : public QWidget
 {
 	Q_OBJECT
 public:
-	REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, QWidget *parent = 0);
+	REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent = 0);
 
 signals:
 
@@ -60,7 +60,7 @@ protected slots:
 
 protected:
 	/// The detector we provide a view for
-	REIXSXESMCPDetector* detector_;
+	REIXSXESMCPDetectorPre2013* detector_;
 
 	/// UI components:
 	MPlotWidget* imageView_;
