@@ -51,6 +51,11 @@ class AMGenericScanEditor;
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
+// Helper classes that technically shouldn't need to exist.
+#include "util/VESPERS/ROIHelper.h"
+#include "util/VESPERS/VESPERSAttoCubeHack.h"
+
+
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
 
@@ -209,6 +214,10 @@ protected:
 	bool marCCDStartup_;
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
+
+
+	ROIHelper *roiHelper_;
+	VESPERSAttoCubeHack *attoHack_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H
