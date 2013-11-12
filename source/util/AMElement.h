@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ELEMENT_H
-#define ELEMENT_H
+#ifndef AMELEMENT_H
+#define AMELEMENT_H
 
 #include <QObject>
 #include <QString>
@@ -174,4 +174,4 @@ private:
 	int emissionLineSize_;
 };
 
-#endif // ELEMENT_H
+#endif // AMELEMENT_H

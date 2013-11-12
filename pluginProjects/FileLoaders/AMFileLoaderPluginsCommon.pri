@@ -148,6 +148,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.h \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
+		$$AM_INCLUDE_DIR/util/AMEmissionLine.h \
+		$$AM_INCLUDE_DIR/util/AMAbsorptionEdge.h \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
@@ -184,6 +186,8 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.cpp \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
+		$$AM_INCLUDE_DIR/util/AMEmissionLine.cpp \
+		$$AM_INCLUDE_DIR/util/AMAbsorptionEdge.cpp \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \
