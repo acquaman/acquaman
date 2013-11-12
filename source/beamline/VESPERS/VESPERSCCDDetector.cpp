@@ -184,13 +184,13 @@ double VESPERSCCDDetector::acquisitionTime() const
 
 QString VESPERSCCDDetector::ccdFilePath() const
 {
-	AMProcessVariable *pv = ccdFilePathControl_->readPV();
+	const AMProcessVariable *pv = ccdFilePathControl_->readPV();
 	return VESPERS::pvToString(pv);
 }
 
 QString VESPERSCCDDetector::ccdFileBaseName() const
 {
-	AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
+	const AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
 	return VESPERS::pvToString(pv);
 }
 
@@ -201,13 +201,13 @@ int VESPERSCCDDetector::ccdFileNumber() const
 
 void VESPERSCCDDetector::onCCDFilePathChanged()
 {
-	AMProcessVariable *pv = ccdFilePathControl_->readPV();
+	const AMProcessVariable *pv = ccdFilePathControl_->readPV();
 	emit ccdPathChanged(VESPERS::pvToString(pv));
 }
 
 void VESPERSCCDDetector::onCCDFileBaseNameChanged()
 {
-	AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
+	const AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
 	emit ccdNameChanged(VESPERS::pvToString(pv));
 }
 
@@ -224,7 +224,7 @@ void VESPERSCCDDetector::setCCDFilePath(QString path)
 
 void VESPERSCCDDetector::setCCDFileBaseName(QString name)
 {
-	const AMProcessVariable *pv = ccdFileBaseNameControl_->writePV();
+	AMProcessVariable *pv = ccdFileBaseNameControl_->writePV();
 	VESPERS::stringToPV(pv, name);
 }
 

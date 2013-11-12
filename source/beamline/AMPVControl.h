@@ -226,8 +226,8 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but possible abberant behivour is possibles.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
 	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts.  The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
@@ -576,8 +576,8 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	virtual double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but abberant behaviour could be the result.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
 	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
