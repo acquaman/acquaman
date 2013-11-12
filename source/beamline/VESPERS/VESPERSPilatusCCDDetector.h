@@ -20,7 +20,7 @@ public:
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;
 
-	/// Copies the images from location \param path and copies them into "CCD Images".  \warning This might take a LONG time.  \note It might be worthwhile to make this it's own thread.
+	/// Copies the images from location \param path and copies them into "XRD Images".  \warning This might take a LONG time.  \note It might be worthwhile to make this it's own thread.
 	bool copyImages(const QString &path);
 
 	/// Returns the occupied space on aurora.

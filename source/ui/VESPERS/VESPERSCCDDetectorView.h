@@ -57,6 +57,8 @@ protected slots:
 	void ccdNumberEdited();
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val);
+	/// Used to update the elapsed time label.
+	void onElapsedTimerTimeout();
 
 protected:
 	/*! Sets up the view based with the given detector.
@@ -78,6 +80,12 @@ protected:
 	QLabel *state_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
+	/// The QTime for keeping track of the elapsed time.
+	QTime elapsedTime_;
+	/// The timer used for updating the elapsed time.
+	QTimer elapsedTimer_;
+	/// The label holding the elapsed time.
+	QLabel *elapsedTimeLabel_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

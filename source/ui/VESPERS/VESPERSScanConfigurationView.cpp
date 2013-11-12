@@ -77,7 +77,7 @@ QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
 		break;
 
 	case VESPERS::Pilatus:
-		string = "Pilatus CCD";
+		string = "Pilatus";
 		break;
 	}
 
@@ -256,7 +256,7 @@ QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
 	ccdButtonGroup_->addButton(tempButton, 4);
 	ccdDetectorLayout->addWidget(tempButton);
 
-	QGroupBox *ccdDetectorGroupBox = new QGroupBox("CCD Detector");
+	QGroupBox *ccdDetectorGroupBox = new QGroupBox("Area Detector");
 	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
 
 	return ccdDetectorGroupBox;

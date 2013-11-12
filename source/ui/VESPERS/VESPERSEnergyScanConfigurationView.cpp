@@ -87,7 +87,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	onMotorsUpdated(config_->motor());
 
-	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
+	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
@@ -178,6 +178,23 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 
 	else
 		scanName_->setPalette(this->palette());
+
+	double n = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+	}
+
+	config_->setNormalPosition(n);
 }
 
 void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) const

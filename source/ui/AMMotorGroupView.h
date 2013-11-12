@@ -138,8 +138,8 @@ public:
 signals:
 	/// Notifier that the current motor group object view has changed.  Passes the name of the object.  Only emitted when using the exclusive view.
 	void currentMotorGroupObjectViewChanged(const QString &name);
-	/// Notifier that the list of motor group object views has changed.  Only emitted when using the multiple view.
-	void motorGroupVisibilityChanged();
+	/// Notifier that the list of motor group object views has changed.  Passes the name of the object that was recently changed or is empty in the case of multiple objects being changed simultaneously (such as a view mode change).  Only emitted when using the multiple view.
+	void motorGroupVisibilityChanged(const QString &name);
 
 public slots:
 	/// Sets the view associated with a given name.  This is a virtual method because this is likely the method that would be overloaded in subclasses.
@@ -165,7 +165,7 @@ protected:
 	QMap<QString, AMMotorGroupObjectView *> motorGroupViews_;
 
 	/// Holds the current motor group object view and name as a QPair.
-	QPair<QString, AMMotorGroupObjectView *> currentMotorGroupObject_;
+	AMMotorGroupObjectView *currentMotorGroupObjectView_;
 	/// The combo box used to switch between available motor group objects when using the Exclusive view mode.
 	QComboBox *availableMotorGroupObjects_;
 	/// Holds the current list visible motor group objects and their visibility.  Used only for Multiple view.

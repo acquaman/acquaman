@@ -44,11 +44,11 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	if (!detector)
 		return false;
 
-	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - Roper CCD"));
-	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	detector_ = static_cast<VESPERSCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+
+	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - %1").arg(detector_->name()));
+	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -64,6 +64,9 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	acquireTime_->setAlignment(Qt::AlignCenter);
 	connect(detector_, SIGNAL(acquireTimeChanged(double)), acquireTime_, SLOT(setValue(double)));
 	connect(acquireTime_, SIGNAL(editingFinished()), this, SLOT(setAcquireTime()));
+
+	elapsedTimeLabel_ = new QLabel("0.0 s");
+	connect(&elapsedTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimerTimeout()));
 
 	QToolButton *startButton = new QToolButton;
 	startButton->setIcon(QIcon(":/play_button_green.png"));
@@ -117,10 +120,10 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	statusLayout->addWidget(stopButton);
 
 	QHBoxLayout *modeLayout = new QHBoxLayout;
-	modeLayout->addWidget(acquireTime_);
+	modeLayout->addWidget(acquireTime_, 0, Qt::AlignCenter);
+	modeLayout->addWidget(elapsedTimeLabel_, 0, Qt::AlignCenter);
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
-
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
@@ -185,6 +188,9 @@ void VESPERSCCDDetectorView::ccdPathEdited()
 void VESPERSCCDDetectorView::onIsAcquiringChanged(bool isAcquiring)
 {
 	isAcquiring_->setPixmap(QIcon(isAcquiring ? ":/ON.png" : ":/OFF.png").pixmap(25));
+
+	if (!isAcquiring)
+		elapsedTimer_.stop();
 }
 
 void VESPERSCCDDetectorView::setAcquireTime(double time)
@@ -242,10 +248,25 @@ void VESPERSCCDDetectorView::onStartClicked()
 //																							 QMessageBox::Ok,
 //																							 QMessageBox::Cancel));
 
-//		if (button == QMessageBox::Ok)
+//		if (button == QMessageBox::Ok){
+
 //			detector_->start();
+
+//			elapsedTimer_.start();
+//			elapsedTime_.restart();
+//		}
 //	}
 
-//	else
+//	else{
+
 //		detector_->start();
+
+//		elapsedTimer_.start(100);
+//		elapsedTime_.restart();
+//	}
+}
+
+void VESPERSCCDDetectorView::onElapsedTimerTimeout()
+{
+	elapsedTimeLabel_->setText(QString("%1 s").arg(double(elapsedTime_.elapsed())/1000.0, 0, 'f', 1));
 }

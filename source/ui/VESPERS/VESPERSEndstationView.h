@@ -132,7 +132,13 @@ protected slots:
 		if (!endstation_->ccdInSafePosition()){
 
 			AMControl *control = endstation_->control("CCD motor");
-			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).maximum()).arg(control->units()));
+
+			if (endstation_->heliumBufferAttached())
+				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->ccdSafePositionwHeliumBuffer()).arg(control->units()));
+
+			else
+				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).maximum()).arg(control->units()));
+
 			return;
 		}
 

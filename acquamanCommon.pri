@@ -10,6 +10,8 @@ CONFIG += mobility
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
 # CONFIG += debug
 
+USERNAME = $$system(whoami)
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -26,7 +28,7 @@ macx {
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
@@ -225,12 +227,22 @@ QMAKE_CXXFLAGS += -Wextra
 # For Qt 4.7.1 and earlier, need to use this instead:
 								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+
+contains(USERNAME, helfrij){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
-
 
 # Source Files (Acquaman Framework Common)
 #######################
@@ -687,33 +699,35 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
-    source/analysis/AM1DDeadTimeAB.h \
-    source/analysis/AM2DDeadTimeCorrectionAB.h \
-    source/analysis/AM3DDeadTimeCorrectionAB.h \
-    source/ui/CLS/CLSPGTDetectorV2View.h \
-    source/ui/CLS/CLSAmptekSDD123DetectorNewView.h \
-    source/beamline/AMXRFDetector.h \
-    source/ui/beamline/AMXRFBaseDetectorView.h \
-    source/util/AMAbsorptionEdge.h \
-    source/util/AMEmissionLine.h \
-    source/util/AMSelectableElement.h \
-    source/util/AMCustomizablePeriodicTable.h \
-    source/ui/util/AMCustomizablePeriodicTableView.h \
-    source/util/AMRange.h \
-    source/ui/util/AMSelectableElementView.h \
-    source/ui/util/AMSelectableItemView.h \
-    source/ui/beamline/AMXRFDetailedDetectorView.h \
-    source/util/AMNameAndRangeValidator.h \
-    source/dataman/AMRegionOfInterest.h \
-    source/analysis/AMnDDeadTimeAB.h \
-    source/ui/AMSelectionDialog.h \
-    source/ui/util/AMPeriodicTableDialog.h \
-    source/ui/beamline/AMDeadTimeButton.h \
-    source/analysis/AMRegionOfInterestAB.h \
-    source/ui/beamline/AMRegionOfInterestView.h \
-    source/acquaman/AMRegionScanActionControllerBasicFileWriter.h \
-    source/acquaman/AMRegionScanConfigurationConverter.h \
-    source/acquaman/AMRegionScanActionController.h
+	source/analysis/AM1DDeadTimeAB.h \
+	source/analysis/AM2DDeadTimeCorrectionAB.h \
+	source/analysis/AM3DDeadTimeCorrectionAB.h \
+	source/ui/CLS/CLSPGTDetectorV2View.h \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.h \
+	source/beamline/AMXRFDetector.h \
+	source/ui/beamline/AMXRFBaseDetectorView.h \
+	source/util/AMAbsorptionEdge.h \
+	source/util/AMEmissionLine.h \
+	source/util/AMSelectableElement.h \
+	source/util/AMCustomizablePeriodicTable.h \
+	source/ui/util/AMCustomizablePeriodicTableView.h \
+	source/util/AMRange.h \
+	source/ui/util/AMSelectableElementView.h \
+	source/ui/util/AMSelectableItemView.h \
+	source/ui/beamline/AMXRFDetailedDetectorView.h \
+	source/util/AMNameAndRangeValidator.h \
+	source/dataman/AMRegionOfInterest.h \
+	source/analysis/AMnDDeadTimeAB.h \
+	source/ui/AMSelectionDialog.h \
+	source/ui/util/AMPeriodicTableDialog.h \
+	source/ui/beamline/AMDeadTimeButton.h \
+	source/analysis/AMRegionOfInterestAB.h \
+	source/ui/beamline/AMRegionOfInterestView.h \
+	source/acquaman/AMRegionScanActionControllerBasicFileWriter.h \
+	source/acquaman/AMRegionScanConfigurationConverter.h \
+	source/acquaman/AMRegionScanActionController.h \
+	source/ui/actions3/AMCancelActionPrompt.h \
+	source/dataman/export/SGM/SGMAxis2000Exporter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1185,33 +1199,35 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
-    source/analysis/AM1DDeadTimeAB.cpp \
-    source/analysis/AM2DDeadTimeCorrectionAB.cpp \
-    source/analysis/AM3DDeadTimeCorrectionAB.cpp \
-    source/ui/CLS/CLSPGTDetectorV2View.cpp \
-    source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp \
-    source/beamline/AMXRFDetector.cpp \
-    source/ui/beamline/AMXRFBaseDetectorView.cpp \
-    source/util/AMAbsorptionEdge.cpp \
-    source/util/AMEmissionLine.cpp \
-    source/util/AMSelectableElement.cpp \
-    source/util/AMCustomizablePeriodicTable.cpp \
-    source/ui/util/AMCustomizablePeriodicTableView.cpp \
-    source/util/AMRange.cpp \
-    source/ui/util/AMSelectableElementView.cpp \
-    source/ui/util/AMSelectableItemView.cpp \
-    source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-    source/util/AMNameAndRangeValidator.cpp \
-    source/dataman/AMRegionOfInterest.cpp \
-    source/analysis/AMnDDeadTimeAB.cpp \
-    source/ui/AMSelectionDialog.cpp \
-    source/ui/util/AMPeriodicTableDialog.cpp \
-    source/ui/beamline/AMDeadTimeButton.cpp \
-    source/analysis/AMRegionOfInterestAB.cpp \
-    source/ui/beamline/AMRegionOfInterestView.cpp \
-    source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp \
-    source/acquaman/AMRegionScanConfigurationConverter.cpp \
-    source/acquaman/AMRegionScanActionController.cpp
+	source/analysis/AM1DDeadTimeAB.cpp \
+	source/analysis/AM2DDeadTimeCorrectionAB.cpp \
+	source/analysis/AM3DDeadTimeCorrectionAB.cpp \
+	source/ui/CLS/CLSPGTDetectorV2View.cpp \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp \
+	source/beamline/AMXRFDetector.cpp \
+	source/ui/beamline/AMXRFBaseDetectorView.cpp \
+	source/util/AMAbsorptionEdge.cpp \
+	source/util/AMEmissionLine.cpp \
+	source/util/AMSelectableElement.cpp \
+	source/util/AMCustomizablePeriodicTable.cpp \
+	source/ui/util/AMCustomizablePeriodicTableView.cpp \
+	source/util/AMRange.cpp \
+	source/ui/util/AMSelectableElementView.cpp \
+	source/ui/util/AMSelectableItemView.cpp \
+	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+	source/util/AMNameAndRangeValidator.cpp \
+	source/dataman/AMRegionOfInterest.cpp \
+	source/analysis/AMnDDeadTimeAB.cpp \
+	source/ui/AMSelectionDialog.cpp \
+	source/ui/util/AMPeriodicTableDialog.cpp \
+	source/ui/beamline/AMDeadTimeButton.cpp \
+	source/analysis/AMRegionOfInterestAB.cpp \
+	source/ui/beamline/AMRegionOfInterestView.cpp \
+	source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp \
+	source/acquaman/AMRegionScanConfigurationConverter.cpp \
+	source/acquaman/AMRegionScanActionController.cpp \
+	source/ui/actions3/AMCancelActionPrompt.cpp \
+	source/dataman/export/SGM/SGMAxis2000Exporter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1235,67 +1251,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

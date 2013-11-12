@@ -171,11 +171,17 @@ void CLSQE65000Detector::onControlsTimedOut(){
 void CLSQE65000Detector::onSpectrumControlChanged(double newValue){
 	Q_UNUSED(newValue)
 
-	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
+	if(isConnected()){
+		AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 
-	QVector<int> values = tmpControl->readPV()->lastIntegerValues();
-	for(int x = 0; x < values.count(); x++)
-		data_[x] = values.at(x);
+		memcpy(data_, tmpControl->readPV()->lastFloatingPointValues().constData(), 1024*sizeof(double));
+		/*
+		QVector<int> values = tmpControl->readPV()->lastIntegerValues();
+		//QVector<double> values = tmpControl->readPV()->lastFloatingPointValues();
+		for(int x = 0; x < values.count(); x++)
+			data_[x] = values.at(x);
+		*/
+	}
 }
 
 void CLSQE65000Detector::onStatusControlChanged(double value){

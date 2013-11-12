@@ -7,6 +7,11 @@
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
 {
+	acquireTimeControl_ = 0; //NULL
+	elapsedTimeControl_ = 0; //NULL
+	acquisitionStatusControl_ = 0; //NULL
+	acquireControl_ = 0; //NULL
+
 	doDeadTimeCorrection_ = false;
 	units_ = "Counts";
 

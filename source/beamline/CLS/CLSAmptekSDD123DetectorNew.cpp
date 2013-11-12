@@ -65,10 +65,26 @@ const double* CLSAmptekSDD123DetectorNew::data() const{
 }
 
 AMNumber CLSAmptekSDD123DetectorNew::singleReading() const{
+	/**/
 	if(!isConnected())
 		return AMNumber(AMNumber::Null);
 
+//<<<<<<< HEAD
 	return binnedSpectrumControl_->value();
+//=======
+//	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(binnedSpectrumControl_);
+//	return tmpControl->value();
+	/**/
+
+//	if(!isConnected())
+//		return AMNumber(AMNumber::Null);
+//	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
+//	QVector<int> lastIntegerValues = tmpControl->readPV()->lastIntegerValues();
+//	int retVal = 0;
+//	for(int x = 0; x < 1024; x++)
+//		retVal += lastIntegerValues.at(x);
+//	return retVal;
+//>>>>>>> master
 }
 
 bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
@@ -116,3 +132,14 @@ void CLSAmptekSDD123DetectorNew::onSpectrumControlChanged(){
 
 	dataSource()->values(0, data_.size()-1, data_.data());
 }
+
+/*
+void CLSAmptekSDD123DetectorNew::onStatusControlChangedHelper(){
+	setAcquisitionSucceeded();
+
+	if(!isConnected() && !isNotReadyForAcquisition())
+		setNotReadyForAcquisition();
+	else if(isConnected() && !isReadyForAcquisition())
+		setReadyForAcquisition();
+}
+*/

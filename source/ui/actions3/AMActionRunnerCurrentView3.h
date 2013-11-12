@@ -115,6 +115,11 @@ public:
 	/// Constructor. Should pass in AMActionRunner::s() for \c actionRunner
 	AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
 
+	/// Sets whether the cancel prompt should be shown.
+	void setCancelPromptVisibility(bool showPrompt) { showCancelPrompt_ = showPrompt; }
+	/// Returns whether the cancel prompt will be shown.
+	bool showCancelPrompt() const { return showCancelPrompt_; }
+
 signals:
 
 public slots:
@@ -127,6 +132,8 @@ protected slots:
 	void onPauseButtonClicked();
 	/// When the skip button is pressed, it handles telling the action to skip.
 	void onSkipButtonClicked();
+	/// Handles when the cancel button is clicked.  Prompts the user if this was actually what they wanted to do.
+	void onCancelButtonClicked();
 
 	// Signals from the current action, forwarded through the Action Runner
 	/// When the action's status text changes
@@ -158,6 +165,8 @@ protected:
 
 	/// This string holds a small message that states what is currently running.  This is used when someone might be interested on what is "hanging up" the current action, or if they are just curious where they are.
 	QString whatIsRunning_;
+	/// The flag for determinining whether the cancel prompt should be displayed.
+	bool showCancelPrompt_;
 };
 
 #endif // AMACTIONRUNNERCURRENTVIEW3_H

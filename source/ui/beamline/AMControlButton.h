@@ -41,8 +41,7 @@ public slots:
 	void setCheckable(bool);
 
 protected slots:
-	void setHappy(bool happy = true);
-	void setUnhappy() { setHappy(false); }
+	void onConnected(bool connected);
 
 	void onValueChanged(double newVal);
 	void onClicked();
@@ -53,6 +52,9 @@ protected:
 	double downValue_;
 	double upValue_;
 	bool programaticToggle_;
+
+	/// Bool handling whether the detector was connected.
+	bool wasConnected_;
 };
 
 

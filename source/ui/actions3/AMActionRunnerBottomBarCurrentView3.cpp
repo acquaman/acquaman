@@ -3,11 +3,11 @@
 #include "util/AMFontSizes.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QMessageBox>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QTimer>
 #include <QMenu>
+#include <QMessageBox>
 
 AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	: QWidget(parent)
@@ -15,6 +15,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	actionRunner_ = actionRunner;
 	whatIsRunning_ = "";
 	rootLoopAction_ = 0;
+	showCancelPrompt_ = true;
 
 	QHBoxLayout* hl = new QHBoxLayout;
 	hl->setSpacing(0);
@@ -91,7 +92,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	setLayout(hl);
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
-	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 	connect(increaseIterations_, SIGNAL(clicked()), this, SLOT(onIncreaseLoopIterationsClicked()));
@@ -248,6 +249,29 @@ void AMActionRunnerBottomBarCurrentView3::onSkipButtonClicked()
 	}
 }
 
+void AMActionRunnerBottomBarCurrentView3::onCancelButtonClicked()
+{
+	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+
+		AMCancelActionPrompt cancelPrompt;
+		cancelPrompt.setWindowTitle("Cancel Scan");
+		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use <img src=:/media-seek-forward.png width=25 height=25> skip instead.  Be warned that cancelling the scan stops the workflow as well.");
+
+		cancelPrompt.exec();
+
+		showCancelPrompt_ = cancelPrompt.shouldWarn();
+
+		if (cancelPrompt.result() == QDialog::Accepted)
+			actionRunner_->cancelCurrentAction();
+	}
+
+	else {
+
+		// if no prompt, then just cancel.
+		actionRunner_->cancelCurrentAction();
+	}
+}
+
 void AMActionRunnerBottomBarCurrentView3::onStatusTextChanged()
 {
 	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
@@ -263,7 +287,7 @@ void AMActionRunnerBottomBarCurrentView3::onExpectedDurationChanged(double total
 	AMAction3 *currentAction = actionRunner_->currentAction();
 	double elapsed = 0;
 
-	if (qobject_cast<AMListAction3 *>(currentAction))
+	if (qobject_cast<AMListAction3 *>(currentAction) && ((AMListAction3 *)currentAction)->currentSubAction())
 		elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
 	else
 		elapsed = currentAction->runningTime();

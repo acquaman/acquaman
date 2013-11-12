@@ -484,7 +484,7 @@ void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, plot->plotItems()){
 
-		if (item->description().contains(symbol))
+		if (item->description().contains(symbol % " "))
 			if (plot->removeItem(item))
 				delete item;
 	}

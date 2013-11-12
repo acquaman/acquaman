@@ -104,6 +104,12 @@ QString  VESPERS3DScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(zStart()).arg(zEnd()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(zStep()));
 
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
+
 	return header;
 }
 

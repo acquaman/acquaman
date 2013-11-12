@@ -51,10 +51,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-// Helper classes that technically shouldn't need to exist.
-#include "util/VESPERS/ROIHelper.h"
-#include "util/VESPERS/VESPERSAttoCubeHack.h"
-
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
@@ -160,10 +156,8 @@ bool VESPERSAppController::startup() {
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
-		ROIHelper *roiHelper = new ROIHelper(this);
-		Q_UNUSED(roiHelper);
-		VESPERSAttoCubeHack *attoHack = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz(), this);
-		Q_UNUSED(attoHack);
+		roiHelper_ = new ROIHelper;
+		attoHack_ = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz());
 
 		return true;
 	}
@@ -202,6 +196,8 @@ bool VESPERSAppController::ensureProgramStructure()
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
+	delete roiHelper_;
+	delete attoHack_;
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }
@@ -277,14 +273,14 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
-	pilatusCCDView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
+	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
-//	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
-//	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
-	mw_->addPane(pilatusCCDView_, "Detectors", "CCD - Pilatus", ":/system-search.png");
+//	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
+//	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
+	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
 //	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
 //		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
@@ -351,7 +347,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -386,8 +382,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 	else if (detector == "Mar CCD")
 		mw_->setCurrentPane(marCCDView_);
-	else if (detector == "Pilatus CCD")
-		mw_->setCurrentPane(pilatusCCDView_);
+	else if (detector == "Pilatus")
+		mw_->setCurrentPane(pilatusView_);
 }
 
 void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
