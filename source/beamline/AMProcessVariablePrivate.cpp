@@ -59,6 +59,18 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 }
 
+AMProcessVariableSupport::~AMProcessVariableSupport()
+{
+	ca_add_exception_event(0, 0);	// return the default exception handler
+	ca_context_destroy();			// shut down Channel Access
+}
+
+void AMProcessVariableSupport::shutdownChannelAccess()
+{
+	delete instance_;
+	instance_ = 0;
+}
+
 // standard singleton-pattern get-instance method.
 AMProcessVariableSupport* AMProcessVariableSupport::s() {
 
@@ -72,19 +84,26 @@ AMProcessVariableSupport* AMProcessVariableSupport::s() {
 // the implementation of AMProcessVariableSupport::removePV():
 void AMProcessVariableSupport::removePVImplementation(chid c) {
 
+	// Grab processvariableprivate
+	AMProcessVariablePrivate * onePrivate = chid2Private_.value(qint64(c));
+
 	// unregister this channel:
 	chid2Private_.remove(qint64(c));
 
-	// if that was the last one out, tear down Channel Access:
-	if(chid2Private_.count() == 0) {
+	// grab pv name
+	QString pvName = pvName2Private_.key(onePrivate);
+	pvName2Private_.remove(pvName);
 
-		AMErrorMon::alert(this, AMPROCESSVARIABLESUPPORT_SHUTTING_DOWN_CHANNEL_ACCESS_MESSAGE, "AMProcessVariableSupport: Shutting down channel access...");
-		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
-		ca_add_exception_event(0, 0);	// return the default exception handler
-		ca_context_destroy();			// shut down Channel Access
-		instance_ = 0;					// We are no more...
-		deleteLater();					// We're gone.
-	}
+	// if that was the last one out, tear down Channel Access:
+//	if(chid2Private_.count() == 0) {
+
+//		AMErrorMon::alert(this, AMPROCESSVARIABLESUPPORT_SHUTTING_DOWN_CHANNEL_ACCESS_MESSAGE, "AMProcessVariableSupport: Shutting down channel access...");
+//		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
+//		ca_add_exception_event(0, 0);	// return the default exception handler
+//		ca_context_destroy();			// shut down Channel Access
+//		instance_ = 0;					// We are no more...
+//		deleteLater();					// We're gone.
+//	}
 }
 
 AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)
@@ -234,7 +253,6 @@ AMProcessVariablePrivate::~AMProcessVariablePrivate() {
 		// deregister ourself from the support class:
 		AMProcessVariableSupport::removePV(chid_);
 	}
-
 }
 
 void AMProcessVariablePrivate::attachProcessVariable(AMProcessVariable *pv)

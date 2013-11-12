@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
+#include <QDebug>
 
 #include "util/AMDeferredFunctionCall.h"
 
@@ -126,6 +127,9 @@ public:
 	/// Call this function to report that a timeout occured and AMProcessVariableSupport will schedule a deferred call to broadcast the error monitor
 	static void reportTimeoutError(QString pvName);
 
+	/// Destroys the namespace by ensuring the channel access is shut down properly.
+	static void shutdownChannelAccess();
+
 protected slots:
 	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
 	void executeFlushIO() {
@@ -139,6 +143,8 @@ protected:
 
 	/// constructor: sets up the channel access environement and installs us as the global exception handler.
 	AMProcessVariableSupport();
+	/// Destructor.  Shuts down channel access.
+	~AMProcessVariableSupport();
 
 	/// singleton class. Use the s() method to access.
 	static AMProcessVariableSupport* s();

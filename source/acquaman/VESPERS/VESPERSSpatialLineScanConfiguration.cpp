@@ -118,6 +118,12 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(start()).arg(end()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(step()));
 
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
+
 	if (hasOtherPosition())
 		header.append(QString("%1 position: %2 mm\n").arg(otherMotorString(motor())).arg(otherPosition()));
 

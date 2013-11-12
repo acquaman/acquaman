@@ -10,6 +10,7 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	motor_ = VESPERS::NoMotor;
 	roiInfoList_ = AMROIInfoList();
 	ccdFileName_ = "";
+	normalPosition_ = 888888.88;
 }
 
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERSScanConfigurationDbObject &original)
@@ -22,6 +23,7 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	motor_ = original.motor();
 	roiInfoList_ = original.roiList();
 	ccdFileName_ = original.ccdFileName();
+	normalPosition_ = original.normalPosition();
 }
 
 void VESPERSScanConfigurationDbObject::setIncomingChoice(VESPERS::IonChamber I0)
@@ -90,4 +92,14 @@ void VESPERSScanConfigurationDbObject::setRoiInfoList(const AMROIInfoList &list)
 {
 	roiInfoList_ = list;
 	setModified(true);
+}
+
+void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
+{
+	if (normalPosition_ != newPosition){
+
+		normalPosition_ = newPosition;
+		emit normalPositionChanged(newPosition);
+		setModified(true);
+	}
 }

@@ -74,6 +74,8 @@ public:
 	bool heliumBufferAttached() const { return heliumBufferAttached_; }
 	/// Returns whether the CCD is at 90 degrees or not.
 	bool ccdAt90Degrees() const { return ccdAt90Degrees_; }
+	/// Returns the safe position for the CCD when the buffer is attached.
+	double ccdSafePositionwHeliumBuffer() const { return upperCcdSoftLimitwHeliumBuffer_; }
 
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.

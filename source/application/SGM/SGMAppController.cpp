@@ -87,6 +87,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSPGTDetectorV2View.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorNewView.h"
 
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/SGM/SGMAxis2000Exporter.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -98,7 +101,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes") )
+    if( !(userName == "sgm" || userName == "fawkes" || userName == "helfrij") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 
@@ -628,6 +631,8 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
+	AMExportController::registerExporter<SGMAxis2000Exporter>();
+
 	bool success = true;
 
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");

@@ -202,7 +202,7 @@ namespace VESPERS {
 			QStringList files = dir.entryList();
 
 			foreach (QString file, files)
-				if (file.mid(0, file.lastIndexOf("_")) == name)
+				if (file.startsWith(name))
 					return true;
 		}
 

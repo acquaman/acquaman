@@ -44,6 +44,8 @@ public:
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return dbObject_->roiList(); }
+	/// Returns the normal position.
+	double normalPosition() const { return dbObject_->normalPosition(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -79,6 +81,8 @@ public:
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { dbObject_->setRoiInfoList(list); }
+	/// Sets the normal position.
+	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }

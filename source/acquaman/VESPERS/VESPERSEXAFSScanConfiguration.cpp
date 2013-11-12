@@ -138,6 +138,12 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
 	}
 
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
+
 	header.append(regionOfInterestHeaderString(roiList()));
 	header.append("\n");
 	header.append("Regions Scanned\n");

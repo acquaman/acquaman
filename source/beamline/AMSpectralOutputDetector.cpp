@@ -35,8 +35,8 @@ const QMetaObject* AMSpectralOutputDetector::getMetaObject() {
 	return metaObject();
 }
 
-AMOldDetectorInfo AMSpectralOutputDetector::toInfo(){
-	return *AMOldDetectorInfo::toNewInfo();
+AMOldDetectorInfo *AMSpectralOutputDetector::toInfo() const{
+    return AMOldDetectorInfo::toNewInfo();
 }
 
 bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detectorSettings){
@@ -44,7 +44,7 @@ bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detecto
 	return false;
 }
 
-bool AMSpectralOutputDetector::setFromInfo(const AMOldDetectorInfo &info){
+bool AMSpectralOutputDetector::setFromInfo(const AMOldDetectorInfo *info){
 	Q_UNUSED(info)
 	return false;
 }

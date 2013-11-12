@@ -107,7 +107,7 @@ bool VESPERSEndstation::loadConfiguration()
 
 	softLimits_.clear();
 
-	softLimits_.insert(ccdControl_, AMRange(((QString)contents.at(2)).toDouble(), ((QString)contents.at(3)).toDouble()));
+	softLimits_.insert(ccdControl_, AMRange(((QString)contents.at(2)).toDouble(), ((QString)contents.at(4)).toDouble()));
 	softLimits_.insert(singleElControl_, AMRange(((QString)contents.at(6)).toDouble(), ((QString)contents.at(7)).toDouble()));
 	softLimits_.insert(fourElControl_, AMRange(((QString)contents.at(10)).toDouble(), ((QString)contents.at(11)).toDouble()));
 	softLimits_.insert(microscopeControl_, AMRange(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
@@ -336,10 +336,10 @@ bool VESPERSEndstation::ccdInSafePosition(double value) const
 		return true;
 
 	else if (heliumBufferAttached_)
-		return value > upperCcdSoftLimitwHeliumBuffer_;
+		return value > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
 
 	else
-		return value > softLimits_.value(ccdControl_).maximum();
+		return value > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, value, softLimits_.value(ccdControl_).maximum());
 }
 
 bool VESPERSEndstation::ccdInSafePosition() const
@@ -348,8 +348,8 @@ bool VESPERSEndstation::ccdInSafePosition() const
 		return true;
 
 	else if (heliumBufferAttached_)
-		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
 
 	else
-		return ccdControl_->value() > softLimits_.value(ccdControl_).maximum();
+		return ccdControl_->value() > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).maximum());
 }

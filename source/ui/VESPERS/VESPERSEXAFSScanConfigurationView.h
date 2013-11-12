@@ -54,7 +54,7 @@ public slots:
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text()); }
+	void onScanNameEdited();
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
