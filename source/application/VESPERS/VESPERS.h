@@ -228,7 +228,7 @@ namespace VESPERS {
 	}
 
 	/// Converts the bizarre string output of the pv to a real QString.
-	inline QString pvToString(AMProcessVariable *pv)
+	inline QString pvToString(const AMProcessVariable *pv)
 	{
 		int current;
 		QString name;
