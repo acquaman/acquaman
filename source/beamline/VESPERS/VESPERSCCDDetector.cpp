@@ -1,7 +1,7 @@
 #include "VESPERSCCDDetector.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/VESPERS/VESPERSBeamlineSetStringAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/VESPERS/VESPERSSetStringAction.h"
 #include "beamline/AMBeamline.h"
 
 #include <QStringBuilder>
@@ -68,32 +68,33 @@ void VESPERSCCDDetector::onStatusControlChanged()
 	}
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFilePathAction(const QString &path)
+AMAction3 *VESPERSCCDDetector::createFilePathAction(const QString &path)
 {
-//	if (!ccdFilePathControl_->isConnected())
-//		return 0;
+	if (!ccdFilePathControl_->isConnected())
+		return 0;
 
-//	return new VESPERSBeamlineSetStringAction(ccdFilePathControl_, path);
-	return 0;
+	return new VESPERSSetStringAction(new VESPERSSetStringActionInfo(path), ccdFilePathControl_);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFileNameAction(const QString &name)
+AMAction3 *VESPERSCCDDetector::createFileNameAction(const QString &name)
 {
-//	if (!ccdFileBaseNameControl_->isConnected())
-//		return 0;
+	if (!ccdFileBaseNameControl_->isConnected())
+		return 0;
 
-//	return new VESPERSBeamlineSetStringAction(ccdFileBaseNameControl_, name);
+	return new VESPERSSetStringAction(new VESPERSSetStringActionInfo(name), ccdFileBaseNameControl_);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFileNumberAction(int number)
+AMAction3 *VESPERSCCDDetector::createFileNumberAction(int number)
 {
-//	if (!ccdFileNumberControl_->isConnected())
-//		return 0;
+	if (!ccdFileNumberControl_->isConnected())
+		return 0;
 
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(ccdFileNumberControl_);
-//	action->setSetpoint(number);
+	AMControlInfo setpoint = ccdFileNumberControl_->toInfo();
+	setpoint.setValue(number);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, ccdFileNumberControl_);
 
-//	return action;
+	return action;
 }
 
 bool VESPERSCCDDetector::sharesDetectorTriggerSource()

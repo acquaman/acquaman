@@ -61,11 +61,11 @@ public:
 	int ccdFileNumber() const;
 
 	/// Creates a newly created action that sets the file path for the detector.  Returns 0 if not connected.
-	AMBeamlineActionItem *createFilePathAction(const QString &path);
+	AMAction3 *createFilePathAction(const QString &path);
 	/// Creates a newly created action that sets the file name for the detector.  Returns 0 if not connected.
-	AMBeamlineActionItem *createFileNameAction(const QString &name);
+	AMAction3 *createFileNameAction(const QString &name);
 	/// Creates a newly created action that sets the number for auto-increment.  Returns 0 if not connected.
-	AMBeamlineActionItem *createFileNumberAction(int number);
+	AMAction3 *createFileNumberAction(int number);
 
 signals:
 	/// Notifier that the elapsed time has changed.  Passes the new value.
