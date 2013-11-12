@@ -102,10 +102,15 @@ public:
 	AMOldDetector *marCCDDetector() const { return marCCD_; }
 	/// Returns the specific pointer to the Mar CCD.
 	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+//	/// Returns a general AMDetector pointer of the Pilatus CCD.
+//	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+//	/// Returns the specific pointer to the Pilatus CCD.
+//	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
+
 	/// Returns a general AMDetector pointer of the Pilatus CCD.
-	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	AMDetector *pilatusCCDDetector() const { return pilatusAreaDetector_; }
 	/// Returns the specific pointer to the Pilatus CCD.
-	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
+	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusAreaDetector_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMOldDetector *iSplitDetector() const { return iSplit_; }

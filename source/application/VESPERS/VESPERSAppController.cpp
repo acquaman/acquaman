@@ -271,8 +271,8 @@ void VESPERSAppController::setupUserInterface()
 	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
 	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_);
 
-	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
-	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+//	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+//	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
 
 	mw_->insertHeading("Detectors", 1);
@@ -367,8 +367,8 @@ void VESPERSAppController::makeConnections()
 	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
 
 	// Startup connections for the CCD detectors.
-	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
-	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
+//	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
+//	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
 }
 

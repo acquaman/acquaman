@@ -28,23 +28,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
-VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, bool configureOnly, QWidget *parent)
+VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWidget *parent)
 	: QWidget(parent)
 {
-	detector_ = 0;
-	setDetector(detector, configureOnly);
-}
-
-bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
-{
-	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
-	Q_UNUSED(configureOnly)
-
-	// If there is no valid detector pointer, then return false.
-	if (!detector)
-		return false;
-
-	detector_ = static_cast<VESPERSCCDDetector *>(detector);
+	detector_ = detector;
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
 	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - %1").arg(detector_->name()));
@@ -52,17 +39,15 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 
 	isAcquiring_ = new QLabel;
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-	connect(detector_, SIGNAL(isAcquiringChanged(bool)), this, SLOT(onIsAcquiringChanged(bool)));
-
 	state_ = new QLabel;
-	connect(detector_, SIGNAL(stateChanged(VESPERSCCDDetector::State)), this, SLOT(onStateChanged(VESPERSCCDDetector::State)));
+	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onIsAcquiringChanged()));
 
 	acquireTime_ = new QDoubleSpinBox;
 	acquireTime_->setSuffix(" s");
 	acquireTime_->setDecimals(2);
 	acquireTime_->setRange(0, 10000);
 	acquireTime_->setAlignment(Qt::AlignCenter);
-	connect(detector_, SIGNAL(acquireTimeChanged(double)), acquireTime_, SLOT(setValue(double)));
+	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), acquireTime_, SLOT(setValue(double)));
 	connect(acquireTime_, SIGNAL(editingFinished()), this, SLOT(setAcquireTime()));
 
 	elapsedTimeLabel_ = new QLabel("0.0 s");
@@ -74,29 +59,7 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 
 	QToolButton *stopButton = new QToolButton;
 	stopButton->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stopButton, SIGNAL(clicked()), detector_, SLOT(stop()));
-
-	triggerMode_ = new QComboBox;
-	triggerMode_->addItem("Free Run");
-	triggerMode_->addItem("External Sync");
-	connect(detector_, SIGNAL(triggerModeChanged(VESPERSCCDDetector::TriggerMode)), this, SLOT(onTriggerModeChanged(VESPERSCCDDetector::TriggerMode)));
-	connect(triggerMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setTriggerMode(int)));
-
-	imageMode_ = new QComboBox;
-	imageMode_->addItem("Normal");
-	imageMode_->addItem("Focus");
-	connect(detector_, SIGNAL(imageModeChanged(VESPERSCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSCCDDetector::ImageMode)));
-	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
-
-	QToolButton *saveButton = new QToolButton;
-	saveButton->setIcon(QIcon(":/save.png"));
-	connect(saveButton, SIGNAL(clicked()), detector_, SLOT(saveFile()));
-
-	autoSaveComboBox_ = new QComboBox;
-	autoSaveComboBox_->addItem("No");
-	autoSaveComboBox_->addItem("Yes");
-	connect(detector_, SIGNAL(autoSaveEnabledChanged(bool)), this, SLOT(onAutoSaveChanged(bool)));
-	connect(autoSaveComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setAutoSave(int)));
+	connect(stopButton, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
 
 	// Setup the CCD file path signals and layout.
 	filePathEdit_ = new QLineEdit;
@@ -122,23 +85,15 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	QHBoxLayout *modeLayout = new QHBoxLayout;
 	modeLayout->addWidget(acquireTime_, 0, Qt::AlignCenter);
 	modeLayout->addWidget(elapsedTimeLabel_, 0, Qt::AlignCenter);
-	modeLayout->addWidget(triggerMode_);
-	modeLayout->addWidget(imageMode_);
+
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
 
 	acquisitionBox->setLayout(acquisitionLayout);
 
-	QHBoxLayout *ccdGBTopLayout = new QHBoxLayout;
-	ccdGBTopLayout->addWidget(new QLabel("Autosave Image:"));
-	ccdGBTopLayout->addWidget(autoSaveComboBox_);
-	ccdGBTopLayout->addWidget(new QLabel("Save Current Image:"));
-	ccdGBTopLayout->addWidget(saveButton);
-
 	QGroupBox *ccdGB = new QGroupBox(tr("Image File Options"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
-	ccdGBLayout->addRow(ccdGBTopLayout);
 	ccdGBLayout->addRow("Path:", filePathEdit_);
 	ccdGBLayout->addRow("Name:", fileNameEdit_);
 	ccdGBLayout->addRow("Number:", fileNumberEdit_);
@@ -170,8 +125,6 @@ bool VESPERSCCDDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	masterLayout_->addStretch();
 
 	setLayout(masterLayout_);
-
-	return true;
 }
 
 void VESPERSCCDDetectorView::ccdPathEdited()
@@ -185,24 +138,32 @@ void VESPERSCCDDetectorView::ccdPathEdited()
 	detector_->setCCDFilePath(filePathEdit_->text());
 }
 
-void VESPERSCCDDetectorView::onIsAcquiringChanged(bool isAcquiring)
+void VESPERSCCDDetectorView::onIsAcquiringChanged()
 {
-	isAcquiring_->setPixmap(QIcon(isAcquiring ? ":/ON.png" : ":/OFF.png").pixmap(25));
+	if (detector_->isAcquiring()){
 
-	if (!isAcquiring)
+		isAcquiring_->setPixmap(QIcon(":/ON.png").pixmap(25));
+		state_->setText("Acquiring");
+	}
+
+	else {
+
+		isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+		state_->setText("Idle");
 		elapsedTimer_.stop();
+	}
 }
 
 void VESPERSCCDDetectorView::setAcquireTime(double time)
 {
-//	if (time != detector_->acquireTime())
-//		detector_->setAcquireTime(time);
+	if (time != detector_->acquisitionTime())
+		detector_->setAcquisitionTime(time);
 }
 
 void VESPERSCCDDetectorView::setAcquireTime()
 {
-//	if (acquireTime_->value() != detector_->acquireTime())
-//		detector_->setAcquireTime(acquireTime_->value());
+	if (acquireTime_->value() != detector_->acquisitionTime())
+		detector_->setAcquisitionTime(acquireTime_->value());
 }
 
 void VESPERSCCDDetectorView::ccdFileEdited()
@@ -240,30 +201,30 @@ void VESPERSCCDDetectorView::onStartClicked()
 	fullPath.append(name);
 	QFileInfo fileInfo = QFileInfo(fullPath);
 
-//	if (fileInfo.exists()){
+	if (fileInfo.exists()){
 
-//		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
-//																							 "File already exists!",
-//																							 QString("The file \"%1\" already exists.  Do you want to overwrite?").arg(name),
-//																							 QMessageBox::Ok,
-//																							 QMessageBox::Cancel));
+		QMessageBox::StandardButton button = QMessageBox::StandardButton(QMessageBox::warning(this,
+																							 "File already exists!",
+																							 QString("The file \"%1\" already exists.  Do you want to overwrite?").arg(name),
+																							 QMessageBox::Ok,
+																							 QMessageBox::Cancel));
 
-//		if (button == QMessageBox::Ok){
+		if (button == QMessageBox::Ok){
 
-//			detector_->start();
+			detector_->acquire();
 
-//			elapsedTimer_.start();
-//			elapsedTime_.restart();
-//		}
-//	}
+			elapsedTimer_.start();
+			elapsedTime_.restart();
+		}
+	}
 
-//	else{
+	else{
 
-//		detector_->start();
+		detector_->acquire();
 
-//		elapsedTimer_.start(100);
-//		elapsedTime_.restart();
-//	}
+		elapsedTimer_.start(100);
+		elapsedTime_.restart();
+	}
 }
 
 void VESPERSCCDDetectorView::onElapsedTimerTimeout()
