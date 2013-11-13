@@ -3,9 +3,10 @@
 
 #include "acquaman/AMRegionScanActionController.h"
 #include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific subclass for X-ray Absorption Spectroscopy.
-class VESPERSXASScanActionController : public AMRegionScanActionController
+class VESPERSXASScanActionController : public AMRegionScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 

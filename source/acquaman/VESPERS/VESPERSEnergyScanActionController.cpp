@@ -5,7 +5,7 @@
 #include "actions3/AMListAction3.h"
 
 VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent)
+	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -16,7 +16,7 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_->setRunId(AMUser::user()->currentRunId());
 //	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
-//	scan_->setNotes(buildNotes());
+	scan_->setNotes(buildNotes());
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	AMDetectorInfoSet detectors;

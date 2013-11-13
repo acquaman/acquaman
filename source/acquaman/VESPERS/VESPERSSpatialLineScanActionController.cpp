@@ -10,7 +10,7 @@
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(VESPERSSpatialLineScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent)
+	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -21,7 +21,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	scan_->setRunId(AMUser::user()->currentRunId());
 //	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
-//	scan_->setNotes(buildNotes());
+	scan_->setNotes(buildNotes());
 
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
