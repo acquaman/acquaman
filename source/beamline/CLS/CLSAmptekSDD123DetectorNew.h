@@ -44,14 +44,14 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns the total count (sum of all bins) as the single reading
-	virtual AMNumber singleReading() const;
+//	/// Returns the total count (sum of all bins) as the single reading
+//	virtual AMNumber singleReading() const;
 
 	/// Returns false, because the Amptek detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+//	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+//	virtual const double* data() const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -92,8 +92,8 @@ protected:
 	/// PV basename for the detector instance
 	QString baseName_;
 
-	/// Memory storage for values (used mainly for the data call).
-	QVector<double> data_;
+//	/// Memory storage for values (used mainly for the data call).
+//	QVector<double> data_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

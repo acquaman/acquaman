@@ -28,6 +28,7 @@ class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
 class AMOldDetectorView;
 class AMDetectorGeneralDetailedView;
+class AMXRFDetailedDetectorView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -143,6 +144,7 @@ protected:
 	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
+	AMXRFDetailedDetectorView *newAmptekSDD4XRFView_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;

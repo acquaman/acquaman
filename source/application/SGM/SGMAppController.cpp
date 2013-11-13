@@ -51,6 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSOceanOptics65000DetectorView.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 #include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -428,8 +429,9 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
 		//newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
-		newAmptekSDD1View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
-		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
+
+		//newAmptekSDD1View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
+		//mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
 	}
 }
 
@@ -437,8 +439,9 @@ void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !newAmptekSDD2View_){
 		//newAmptekSDD2View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD2());
-		newAmptekSDD2View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
-		mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
+
+		//newAmptekSDD2View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
+		//mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
 	}
 }
 
@@ -446,8 +449,9 @@ void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !newAmptekSDD3View_){
 		//newAmptekSDD3View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD3());
-		newAmptekSDD3View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
-		mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "SGM Amptek3", ":/system-software-update.png");
+
+		//newAmptekSDD3View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
+		//mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "SGM Amptek3", ":/system-software-update.png");
 	}
 }
 
@@ -455,8 +459,14 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
 		//newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
-		newAmptekSDD4View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
-		mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "SGM Amptek4", ":/system-software-update.png");
+
+		//newAmptekSDD4View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		//mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "SGM Amptek4", ":/system-software-update.png");
+
+		newAmptekSDD4XRFView_ = new AMXRFDetailedDetectorView(qobject_cast<AMXRFDetector*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		newAmptekSDD4XRFView_->buildDetectorView();
+		newAmptekSDD4XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(newAmptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
 	}
 }
 
@@ -1261,6 +1271,7 @@ bool SGMAppController::setupSGMViews(){
 	onSGMNewAmptekSDD3Connected(false);
 
 	newAmptekSDD4View_ = 0;
+	newAmptekSDD4XRFView_ = 0;
 	connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
 	onSGMNewAmptekSDD4Connected(false);
 
