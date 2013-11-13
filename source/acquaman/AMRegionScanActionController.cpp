@@ -51,7 +51,7 @@ void AMRegionScanActionController::buildScanController()
 					has1DDetectors = true;
 
 				if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(x))))))
-					scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
+					scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 			}
 		}
 

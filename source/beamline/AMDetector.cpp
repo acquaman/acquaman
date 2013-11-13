@@ -19,6 +19,9 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	autoSetInitializing_ = true;
 	autoSetCancelling_ = true;
 	autoSetCleaningUp_ = true;
+
+	isVisible_ = true;
+	hiddenFromUsers_ = false;
 }
 
 AMDetectorInfo AMDetector::toInfo() const{
@@ -551,4 +554,22 @@ bool AMDetector::acceptableChangeCleanupState(CleanupState newState) const{
 		break;
 	}
 	return canTransition;
+}
+
+void AMDetector::setIsVisible(bool visible)
+{
+	if (isVisible_ != visible){
+
+		isVisible_ = visible;
+		emit isVisibleChanged(isVisible_);
+	}
+}
+
+void AMDetector::setHiddenFromUsers(bool hidden)
+{
+	if (hiddenFromUsers_ != hidden){
+
+		hiddenFromUsers_ = hidden;
+		emit isVisibleChanged(hiddenFromUsers_);
+	}
 }

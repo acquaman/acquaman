@@ -259,6 +259,16 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
 
+	/// Handles the default visibility of the detector when added to a scan.
+	bool isVisible() const { return isVisible_; }
+	/// Handles the default accessibility of the detector when added to a scan.  If true, this detector will be completely hidden within the user interface.
+	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+
+	/// Changes the default visibility of the detector when added to a scan.
+	void setIsVisible(bool visible);
+	/// Changes the default accessibility of the detector when added to a scan.
+	void setHiddenFromUsers(bool hidden);
+
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()
 	//////////////////
@@ -340,6 +350,11 @@ signals:
 	/// Indicates that the axis values have changed.  This would affect things like size() and axes().
 	void axisValuesChanged();
 
+	/// Notifier that the default visibility of the detector has changed.
+	void isVisibleChanged(bool);
+	/// Notifier that the default accessibility of the detector has changed.
+	void hiddenFromUsersChanged(bool);
+
 protected slots:
 	///
 	void setInitializing();
@@ -413,6 +428,10 @@ protected:
 	QString units_;
 	/// The axes that describe the dimensionality of the detector.
 	QList<AMAxisInfo> axes_;
+	/// The flag for the visibility of the detector when added to a scan.
+	bool isVisible_;
+	/// The flag for the default accessibility off the detector when added to a scan.
+	bool hiddenFromUsers_;
 
 private:
 	/// Changes states in the acquisition state (if possible)
