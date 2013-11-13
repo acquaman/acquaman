@@ -3,6 +3,9 @@
 VESPERSPilatusCCDDetector::VESPERSPilatusCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSCCDDetector(name, description, parent)
 {
+	axes_ << AMAxisInfo("X-axis", 981, "X dimension in pixels", "Counts")
+		  << AMAxisInfo("Y-axis", 1043, "Y dimension in pixels", "Counts");
+
 	acquireControl_ = new AMPVControl("Acquisition", "PAD1607-B21-05:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", this, 0.1, 10.0, 0);
 	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "PAD1607-B21-05:cam1:AcquireTime", this, 0.1);
 	acquisitionStatusControl_ = new AMSinglePVControl("Detector Status", "PAD1607-B21-05:cam1:Acquire", this, 0.1);
@@ -15,6 +18,10 @@ VESPERSPilatusCCDDetector::VESPERSPilatusCCDDetector(const QString &name, const 
 	dfProcess_ = new QProcess;
 	connect(dfProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(readOutProcess(int,QProcess::ExitStatus)));
 	connect(this, SIGNAL(connected(bool)), this, SLOT(updateAuroraSize()));
+
+	QTimer updateAuroraSizeCounter;
+	connect(&updateAuroraSizeCounter, SIGNAL(timeout()), this, SLOT(updateAuroraSize()));
+	updateAuroraSizeCounter.start(300000);
 }
 
 void VESPERSPilatusCCDDetector::updateAuroraSize()

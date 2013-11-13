@@ -271,9 +271,9 @@ void VESPERSAppController::setupUserInterface()
 	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
 	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_);
 
-	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
-	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
-	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->pilatusCCD());
+//	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+//	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
@@ -369,7 +369,7 @@ void VESPERSAppController::makeConnections()
 	// Startup connections for the CCD detectors.
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
-	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
+	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -898,7 +898,7 @@ void VESPERSAppController::onRoperCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->roperCCD()->setCCDFilePath(QString("/nas/vespers/%1/CCDImages").arg(proposalNumber));
+			VESPERSBeamline::vespers()->vespersRoperCCD()->setCCDFilePath(QString("/nas/vespers/%1/CCDImages").arg(proposalNumber));
 	}
 }
 
@@ -910,7 +910,7 @@ void VESPERSAppController::onMarCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->marCCD()->setCCDFilePath(QString("/home/vespers/users/%1/").arg(proposalNumber));
+			VESPERSBeamline::vespers()->vespersMarCCD()->setCCDFilePath(QString("/home/vespers/users/%1/").arg(proposalNumber));
 	}
 }
 
@@ -922,6 +922,6 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 		QString proposalNumber = VESPERS::getProposalNumber(AMUserSettings::userDataFolder);
 
 		if (!proposalNumber.isEmpty())
-			VESPERSBeamline::vespers()->pilatusCCD()->setCCDFilePath(QString("/ramdisk/%1/").arg(proposalNumber));
+			VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->setCCDFilePath(QString("/ramdisk/%1/").arg(proposalNumber));
 	}
 }

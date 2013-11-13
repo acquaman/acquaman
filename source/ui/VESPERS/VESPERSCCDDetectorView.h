@@ -35,16 +35,13 @@ class VESPERSCCDDetectorView : public QWidget
 
 public:
 	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
-	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
-
-//	/// Returns a pointer to the detector being viewed.
-//	AMOldDetector *detector() { return detector_; }
+	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, QWidget *parent = 0);
 
 protected slots:
 	/// Slot that handles when the start button is clicked.  It checks to see if a file with the current name and number exists and, if yes, prompts the user for input.
 	void onStartClicked();
 	/// Slot used to switch the icon on the currently acquiring indicator.
-	void onIsAcquiringChanged(bool isAcquiring);
+	void onIsAcquiringChanged();
 	/// Slot used to set the acquire time on the detector.
 	void setAcquireTime(double time);
 	/// Overloaded.  Slot used to set the acquire time on the detector.
@@ -61,10 +58,6 @@ protected slots:
 	void onElapsedTimerTimeout();
 
 protected:
-	/*! Sets up the view based with the given detector.
-	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
-
 	/// The pointer to the detector.
 	VESPERSCCDDetector *detector_;
 
@@ -72,14 +65,8 @@ protected:
 	QLabel *isAcquiring_;
 	/// Spin box holding the acquire time.
 	QDoubleSpinBox *acquireTime_;
-	/// Combo box holding the trigger mode.
-	QComboBox *triggerMode_;
-	/// Combo box holding the image mode.
-	QComboBox *imageMode_;
 	/// Label holding the current state.
 	QLabel *state_;
-	/// Combo box holding the autosave options.
-	QComboBox *autoSaveComboBox_;
 	/// The QTime for keeping track of the elapsed time.
 	QTime elapsedTime_;
 	/// The timer used for updating the elapsed time.

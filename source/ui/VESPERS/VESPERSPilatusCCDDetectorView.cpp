@@ -1,7 +1,7 @@
 #include "VESPERSPilatusCCDDetectorView.h"
 
 VESPERSPilatusCCDDetectorView::VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDetector *detector, QWidget *parent)
-	: VESPERSCCDDetectorView(detector, false, parent)
+	: VESPERSCCDDetectorView(detector, parent)
 {
 	QGroupBox *diskUsageBox = new QGroupBox("Aurora File System");
 	diskUsageBar_ = new QProgressBar;
@@ -19,9 +19,6 @@ VESPERSPilatusCCDDetectorView::VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDe
 	connect(detector, SIGNAL(fileSystemInfoUpdated()), this, SLOT(onFileSystemInfoUpdate()));
 
 	detectorLayout_->insertWidget(1, diskUsageBox);
-
-	triggerMode_->hide();
-	imageMode_->hide();
 }
 
 void VESPERSPilatusCCDDetectorView::onFileSystemInfoUpdate()
