@@ -17,8 +17,6 @@ public:
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	///// Returns true if the detector is currently acquiring by checking the status control.
-	//virtual bool isAcquiring() const;
 	/// Cancelling is not implemented for the Amptek detectors
 	virtual bool canCancel() const { return false; }
 	/// Clearing is not currently supported for the Amptek detectors
@@ -44,14 +42,8 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-//	/// Returns the total count (sum of all bins) as the single reading
-//	virtual AMNumber singleReading() const;
-
 	/// Returns false, because the Amptek detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
-
-//	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-//	virtual const double* data() const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -60,7 +52,7 @@ public:
 	double detectorTemperature() const;
 
 	/// The ampteks do not support elapsed time.
-	virtual bool supportsElapsedTime() const { return false; }
+	virtual bool supportsElapsedTime() const { return true; }
 
 public slots:
 
@@ -75,10 +67,10 @@ signals:
 
 protected slots:
 
-	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged();
 
 protected:
+
+
 
 	/// The number of channels control
 	AMReadOnlyPVControl *mcaChannelsControl_;
@@ -91,9 +83,6 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
-
-//	/// Memory storage for values (used mainly for the data call).
-//	QVector<double> data_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H
