@@ -175,7 +175,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
-	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
+	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -256,13 +256,13 @@ void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
 		QString path;
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
@@ -286,16 +286,16 @@ void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &n
 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
-		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
-		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Pilatus)
-		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
 
@@ -400,13 +400,13 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 		QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		config_->setCCDFileName(name);
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
