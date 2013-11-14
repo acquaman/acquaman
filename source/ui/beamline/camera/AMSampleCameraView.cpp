@@ -180,7 +180,7 @@ void AMSampleCameraView::refreshSceneView()
 
 	// scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
-	scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
+        scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
 
 	shapeModel_->setViewSize(viewSize);
 	shapeModel_->setScaledSize(scaledSize, videoTop);
@@ -191,7 +191,7 @@ void AMSampleCameraView::refreshSceneView()
 
 	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,videoTop),
 				   //                                       (viewSize.height()-scaledSize.height())/2),
-				   scaledSize);
+                                    scaledSize);
 
 
 	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
