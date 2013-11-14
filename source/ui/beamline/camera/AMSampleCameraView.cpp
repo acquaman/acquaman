@@ -174,7 +174,6 @@ void AMSampleCameraView::refreshSceneView()
 {
 
 	QSizeF viewSize = shapeScene_->sceneRect().size();
-//        viewSize = shapeScene_->size(); // this gets the size the video should be
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
 	QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
 	double videoTop = shapeScene_->videoItem()->boundingRect().topLeft().y();
