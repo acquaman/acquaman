@@ -29,6 +29,8 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     setModel(model_);
 
+    connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
+
     connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
@@ -146,4 +148,11 @@ void StripToolListView::toSetPVColor()
     {
         emit colorPV(index, newColor);
     }
+}
+
+
+
+void StripToolListView::onModelSelectionChange()
+{
+    QModelIndex modelSelection = model_->selectedIndex();
 }

@@ -238,7 +238,6 @@ void StripToolModel::descriptionChanged(const QModelIndex &index, const QString 
 
 void StripToolModel::toAddPV(const QString &pvName)
 {
-
     if (pvName == "") {
         emit errorMessage("PV name is empty.");
         emit pvValid(false);
@@ -483,9 +482,11 @@ void StripToolModel::setValuesDisplayed(const QModelIndex &index, int points)
 
 void StripToolModel::setSelectedPV(StripToolPV *newSelection)
 {
+    qDebug() << "Setting selected pv...";
+
     if (newSelection)
     {
-        if (contains(newSelection->pvName()))
+        if (contains(newSelection))
         {
             selectedPV_ = newSelection;
             emit modelSelectionChange();

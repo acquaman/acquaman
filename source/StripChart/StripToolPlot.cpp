@@ -81,11 +81,7 @@ void StripToolPlot::toAddSeries(const QModelIndex &parent, int rowStart, int row
 
     while (row <= rowFinish)
     {
-        bool success = addSeriesToPlot(model_->series(row));
-
-        if (success == false)
-            qDebug() << "\nError adding series to plot! \n";
-
+        qDebug() << "Successfully added series : " << addSeriesToPlot(model_->series(row));
         row++;
     }
 }
@@ -101,7 +97,9 @@ bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
         plot_->addItem(newSeries);
 
         if (contains(newSeries))
+        {
             success = true;
+        }
 
     } else {
         qDebug() << "Series already a member of plot. Cannot add duplicate.";
@@ -122,7 +120,7 @@ void StripToolPlot::toRemoveSeries(const QModelIndex &parent, int rowStart, int 
     {
         bool success = removeSeriesFromPlot(model_->series(row));
 
-        if (success == false)
+        if (!success)
             qDebug() << "\nERROR removing series from plot!\n";
 
         row++;
@@ -192,6 +190,8 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 
 void StripToolPlot::onModelSelectionChange()
 {
+    qDebug() << "Setting plot selection...";
+
     MPlotItem *modelSelection = model_->selectedSeries();
 
     if (modelSelection && contains(modelSelection))
@@ -200,6 +200,7 @@ void StripToolPlot::onModelSelectionChange()
             emit setPlotSelection(modelSelection);
 
     } else {
+
         emit setPlotSelection(0);
     }
 }

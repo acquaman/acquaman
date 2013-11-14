@@ -61,6 +61,8 @@ protected slots:
     /// Sets the series color for all of the selected pvs, using the color selected from color picker.
     void toSetPVColor();
 
+    void onModelSelectionChange();
+
 };
 
 #endif // STRIPTOOLLISTVIEW_H
