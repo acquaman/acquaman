@@ -21,7 +21,7 @@
 AMSampleView::AMSampleView(QWidget* parent)
 	: QWidget(parent)
 {
-	//qDebug()<<"Creating new AMSampleView 1";
+        qDebug()<<"Creating new AMSampleView 1";
 	setSample(0);
 	setUpGui();
 	makeConnections();
@@ -32,7 +32,7 @@ AMSampleView::AMSampleView(QWidget* parent)
 AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
 	: QWidget(parent)
 {
-	//qDebug()<<"Creating new AMSampleView 2";
+        qDebug()<<"Creating new AMSampleView 2";
 	sample_ = sample;
 	setUpGui();
 	makeConnections();
@@ -372,7 +372,7 @@ void AMSampleView::makeConnections()
 #include "beamline/camera/AMShapeData.h"
 void AMSampleView::loadFromDb()
 {
-
+    qDebug()<<"AMSampleView::loadFromDb";
 
 	AMDatabase* db = AMDatabase::database("user");
 	if(sample_ == 0)
@@ -420,8 +420,8 @@ void AMSampleView::populateSampleLoader()
 	sampleLoader_->setCurrentIndex(currentIndex);
 	if(sampleLoader_->itemText(currentIndex) != currentSampleName)
 	{
-		// samples are in a different order
-		qDebug()<<"populateSampleLoader - Samples out of order";
+                // samples are in a different order
+                qDebug()<<"AMSampleView::populateSampleLoader - Samples out of order";
 		sampleLoader_->setCurrentIndex(-1);
 	}
 }

@@ -1,4 +1,4 @@
-#include "AMSampleCameraView.h"
+ #include "AMSampleCameraView.h"
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
@@ -225,7 +225,6 @@ void AMSampleCameraView::refreshSceneView()
 		shapeModel_->setCurrentIndex(current_);
 		emit currentChanged();
 	}
-
 	for(int i = 0; i < index_+ 1; i++)
 	{
 		if(shapes_.contains(i) && isValid(i))
@@ -283,14 +282,12 @@ void AMSampleCameraView::refreshSceneView()
 		else
 			qDebug()<<"Missing shape"<<i;
 	}
-
 	if(groupRectangleActive_)
 	{
 		groupRectangle_->setPolygon(shapeModel_->groupRectangle());
 	}
 	// draw the sample plate
 	drawSamplePlate();
-
 	// print the intersection shapes
 	intersection();
 
@@ -888,6 +885,7 @@ void AMSampleCameraView::reviewCameraConfiguration()
 			coordinates[i] = *coordinateList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
+                shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
@@ -1549,8 +1547,6 @@ void AMSampleCameraView::mouseMoveHandler(QPointF position)
 		currentSelectionChanged();
 	}
 
-	//    reviewCrosshairLinePositions();
-
 
 }
 
@@ -1593,14 +1589,14 @@ void AMSampleCameraView::deleteShape()
 	delete text;
 }
 
-/// change the currently selected item, outline it in blue?
+/// change the currently selected item, outline it in blue
 void AMSampleCameraView::currentSelectionChanged()
 {
 	if(isValid(current_))
+        {
 		shapes_[current_]->setPen(colour(BORDER));
+        }
 	current_ = shapeModel_->currentIndex();
-	//	qDebug()<<"AMSampleCameraView::currentSelectionChanged - Setting shape view";
-	//    shapeView_->setShapeData(shapeModel_->currentShape());
 	if(motorREdit_)
 		motorREdit_->setText(QString::number(motorRotation()));
 	if(motorXEdit_)
@@ -1610,14 +1606,12 @@ void AMSampleCameraView::currentSelectionChanged()
 	if(motorZEdit_)
 		motorZEdit_->setText(QString::number(motorZ()));
 
-	//    autoCompleteBox_->setText(shapeModel_->currentInfo());
 
 	if(isValid(current_))
 	{
 		shapes_[current_]->setPen(colour(ACTIVEBORDER));
 
 	}
-
 	refreshSceneView();
 
 }
@@ -2195,8 +2189,13 @@ void AMSampleCameraView::drawSamplePlate()
 	QPolygonF samplePlate = shapeModel_->samplePlate();
 	if(!samplePlate.isEmpty())
 	{
+
 		if(!(samplePlate_ && samplePlate_->polygon() == samplePlate))
 		{
+                    if(!samplePlate_)
+                    {
+                        qDebug()<<"AMSampleCameraView::drawSamplePlate - samplePlate_ is null";
+                    }
 			shapeScene_->scene()->removeItem(samplePlate_);
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
 		}

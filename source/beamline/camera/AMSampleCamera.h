@@ -236,6 +236,8 @@ public:
 	void deleteShape(int index);
 
 
+
+
 	/// list model functions
 	int rowCount(const QModelIndex &parent) const;
 	QVariant data(const QModelIndex &index, int role) const;
@@ -383,11 +385,17 @@ public slots:
 
 	/// Takes an AMSample and add the related shapeData if that AMSample is not currently drawn
 	void addSample(AMSample *sample);
-	/// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
+        /// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
 	void removeSample(AMSample *sample);
 
-	void loadDefaultBeam();
+        /// deletes the specified shape.
+        void removeShapeData(AMShapeData* shape);
+
+        /// Loads the "default" beam configuration
+        void loadDefaultBeam();
+        /// Loads the "default" camera configuration
 	void loadDefaultCamera();
+        /// Loads the "default" sample plate configuration
 	void loadDefaultSamplePlate();
 
 
@@ -560,7 +568,7 @@ protected:
 
 	/// removes an item from the shape list - use this rather than
 	/// removing items manually - keeps the model updated
-	void removeItem(int index);
+//	void removeItem(int index);
 
 	/// removes an item from the shape list and returns it
 	/// use this rather than taking manually - keeps the model updated
