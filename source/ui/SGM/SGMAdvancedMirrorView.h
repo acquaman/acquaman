@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QLabel>
 
+#include "ui/beamline/AMControlEditor.h"
+
 class SGMAdvancedMirrorView : public QWidget
 {
 Q_OBJECT
@@ -15,44 +17,44 @@ protected:
 	QLabel *testLabel2_;
 	QLabel *testLabel3_;
 	QLabel *testLabel4_;
-	QLabel *testLabel5_;
-	QLabel *testLabel6_;
+	AMControlEditor *m2VerticalUpstreamStepControlEditor_;
+	AMControlEditor *m2VerticalUpstreamEncoderControlEditor_;
 	QLabel *testLabel7_;
 	QLabel *testLabel8_;
-	QLabel *testLabel9_;
-	QLabel *testLabel10_;
+	AMControlEditor *m2VerticalDownstreamStepControlEditor_;
+	AMControlEditor *m2VerticalDownstreamEncoderControlEditor_;
 	QLabel *testLabel11_;
 	QLabel *testLabel12_;
-	QLabel *testLabel13_;
-	QLabel *testLabel14_;
+	AMControlEditor *m2HorizontalUpstreamStepControlEditor_;
+	AMControlEditor *m2HorizontalUpstreamEncoderControlEditor_;
 	QLabel *testLabel15_;
 	QLabel *testLabel16_;
-	QLabel *testLabel17_;
-	QLabel *testLabel18_;
+	AMControlEditor *m2HorizontalDownstreamStepControlEditor_;
+	AMControlEditor *m2HorizontalDownstreamEncoderControlEditor_;
 	QLabel *testLabel19_;
 	QLabel *testLabel20_;
-	QLabel *testLabel21_;
-	QLabel *testLabel22_;
+	AMControlEditor *m2RotationalStepControlEditor_;
+	AMControlEditor *m2RotationalEncoderControlEditor_;
 	QLabel *testLabel23_;
 	QLabel *testLabel24_;
-	QLabel *testLabel25_;
-	QLabel *testLabel26_;
+	AMControlEditor *m3VerticalUpstreamStepControlEditor_;
+	AMControlEditor *m3VerticalUpstreamEncoderControlEditor_;
 	QLabel *testLabel27_;
 	QLabel *testLabel28_;
-	QLabel *testLabel29_;
-	QLabel *testLabel30_;
+	AMControlEditor *m3VerticalDownstreamStepControlEditor_;
+	AMControlEditor *m3VerticalDownstreamEncoderControlEditor_;
 	QLabel *testLabel31_;
 	QLabel *testLabel32_;
-	QLabel *testLabel33_;
-	QLabel *testLabel34_;
+	AMControlEditor *m3HorizontalUpstreamStepControlEditor_;
+	AMControlEditor *m3HorizontalUpstreamEncoderControlEditor_;
 	QLabel *testLabel35_;
 	QLabel *testLabel36_;
-	QLabel *testLabel37_;
-	QLabel *testLabel38_;
+	AMControlEditor *m3HorizontalDownstreamStepControlEditor_;
+	AMControlEditor *m3HorizontalDownstreamEncoderControlEditor_;
 	QLabel *testLabel39_;
 	QLabel *testLabel40_;
-	QLabel *testLabel41_;
-	QLabel *testLabel42_;
+	AMControlEditor *m3RotationalStepControlEditor_;
+	AMControlEditor *m3RotationalEncoderControlEditor_;
 
 
 

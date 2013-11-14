@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QDebug>
+#include "beamline/SGM/SGMBeamline.h"
 
 SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	QWidget(parent)
@@ -10,46 +11,46 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 
 	testLabel_ = new QLabel("Test");
 	testLabel2_ = new QLabel("bob");
-	testLabel3_ = new QLabel("jane");
+	testLabel3_ = new QLabel("M2 Vertical upstream");
 	testLabel4_ = new QLabel("tom");
-	testLabel5_ = new QLabel("pen");
-	testLabel6_ = new QLabel("note");
-	testLabel7_ = new QLabel("jane2");
+	m2VerticalUpstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2VerticalUpstreamStep()));
+	m2VerticalUpstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2VerticalUpstreamEncoder()));
+	testLabel7_ = new QLabel("M2 Vertical downstream");
 	testLabel8_ = new QLabel("tom2");
-	testLabel9_ = new QLabel("pen2");
-	testLabel10_ = new QLabel("note2");
-	testLabel11_ = new QLabel("jane3");
+	m2VerticalDownstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2VerticalDownstreamStep()));
+	m2VerticalDownstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2VerticalDownstreamEncoder()));
+	testLabel11_ = new QLabel("M2 Horizontal upstream");
 	testLabel12_ = new QLabel("tom3");
-	testLabel13_ = new QLabel("pen3");
-	testLabel14_ = new QLabel("note3");
-	testLabel15_ = new QLabel("jane4");
+	m2HorizontalUpstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2HorizontalUpstreamStep()));
+	m2HorizontalUpstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2HorizontalUpstreamEncoder()));
+	testLabel15_ = new QLabel("M2 Horizontal downstream");
 	testLabel16_ = new QLabel("tom4");
-	testLabel17_ = new QLabel("pen4");
-	testLabel18_ = new QLabel("note4");
-	testLabel19_ = new QLabel("jane5");
+	m2HorizontalDownstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2HorizontalDownstreamStep()));
+	m2HorizontalDownstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2HorizontalDownstreamEncoder()));
+	testLabel19_ = new QLabel("M2 Rotational");
 	testLabel20_ = new QLabel("tom5");
-	testLabel21_ = new QLabel("pen5");
-	testLabel22_ = new QLabel("note5");
-	testLabel23_ = new QLabel("jane6");
+	m2RotationalStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2RotationalStep()));
+	m2RotationalEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2RotationalEncoder()));
+	testLabel23_ = new QLabel("M3 Vertical upstream");
 	testLabel24_ = new QLabel("tom6");
-	testLabel25_ = new QLabel("pen6");
-	testLabel26_ = new QLabel("note6");
-	testLabel27_ = new QLabel("jane7");
+	m3VerticalUpstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3VerticalUpstreamStep()));
+	m3VerticalUpstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3VerticalUpstreamEncoder()));
+	testLabel27_ = new QLabel("M3 Vertical downstream");
 	testLabel28_ = new QLabel("tom7");
-	testLabel29_ = new QLabel("pen7");
-	testLabel30_ = new QLabel("note7");
-	testLabel31_ = new QLabel("jane8");
+	m3VerticalDownstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3VerticalDownstreamStep()));
+	m3VerticalDownstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3VerticalDownstreamEncoder()));
+	testLabel31_ = new QLabel("M3 Horizontal upstream");
 	testLabel32_ = new QLabel("tom8");
-	testLabel33_ = new QLabel("pen8");
-	testLabel34_ = new QLabel("note8");
-	testLabel35_ = new QLabel("jane9");
+	m3HorizontalUpstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3HorizontalUpstreamStep()));
+	m3HorizontalUpstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3HorizontalUpstreamEncoder()));
+	testLabel35_ = new QLabel("M3 Horizontal downstream");
 	testLabel36_ = new QLabel("tom9");
-	testLabel37_ = new QLabel("pen9");
-	testLabel38_ = new QLabel("note9");
-	testLabel39_ = new QLabel("jane10");
+	m3HorizontalDownstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3HorizontalDownstreamStep()));
+	m3HorizontalDownstreamEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3HorizontalDownstreamEncoder()));
+	testLabel39_ = new QLabel("M3 Rotational");
 	testLabel40_ = new QLabel("tom10");
-	testLabel41_ = new QLabel("pen10");
-	testLabel42_ = new QLabel("note10");
+	m3RotationalStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3RotationalStep()));
+	m3RotationalEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3RotationalEncoder()));
 	QVBoxLayout *verticalLayoutLeft = new QVBoxLayout();
 	verticalLayoutLeft->addWidget(testLabel_);
 
@@ -62,11 +63,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout2->addLayout(verticalLayoutHL21);
 
 	QVBoxLayout *verticalLayoutHL22 = new QVBoxLayout();
-	verticalLayoutHL22->addWidget(testLabel5_);
+	verticalLayoutHL22->addWidget(m2VerticalUpstreamStepControlEditor_);
 	horizontalLayout2->addLayout(verticalLayoutHL22);
 
 	QVBoxLayout *verticalLayoutHL23 = new QVBoxLayout();
-	verticalLayoutHL23->addWidget(testLabel6_);
+	verticalLayoutHL23->addWidget(m2VerticalUpstreamEncoderControlEditor_);
 	horizontalLayout2->addLayout(verticalLayoutHL23);
 
 	QHBoxLayout *horizontalLayout3 = new QHBoxLayout();
@@ -78,11 +79,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout3->addLayout(verticalLayoutHL31);
 
 	QVBoxLayout *verticalLayoutHL32 = new QVBoxLayout();
-	verticalLayoutHL32->addWidget(testLabel9_);
+	verticalLayoutHL32->addWidget(m2VerticalDownstreamStepControlEditor_);
 	horizontalLayout3->addLayout(verticalLayoutHL32);
 
 	QVBoxLayout *verticalLayoutHL33 = new QVBoxLayout();
-	verticalLayoutHL33->addWidget(testLabel10_);
+	verticalLayoutHL33->addWidget(m2VerticalDownstreamEncoderControlEditor_);
 	horizontalLayout3->addLayout(verticalLayoutHL33);
 
 	QHBoxLayout *horizontalLayout4 = new QHBoxLayout();
@@ -94,11 +95,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout4->addLayout(verticalLayoutHL41);
 
 	QVBoxLayout *verticalLayoutHL42 = new QVBoxLayout();
-	verticalLayoutHL42->addWidget(testLabel13_);
+	verticalLayoutHL42->addWidget(m2HorizontalUpstreamStepControlEditor_);
 	horizontalLayout4->addLayout(verticalLayoutHL42);
 
 	QVBoxLayout *verticalLayoutHL43 = new QVBoxLayout();
-	verticalLayoutHL43->addWidget(testLabel14_);
+	verticalLayoutHL43->addWidget(m2HorizontalUpstreamEncoderControlEditor_);
 	horizontalLayout4->addLayout(verticalLayoutHL43);
 
 	QHBoxLayout *horizontalLayout5 = new QHBoxLayout();
@@ -110,11 +111,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout5->addLayout(verticalLayoutHL51);
 
 	QVBoxLayout *verticalLayoutHL52 = new QVBoxLayout();
-	verticalLayoutHL52->addWidget(testLabel17_);
+	verticalLayoutHL52->addWidget(m2HorizontalDownstreamStepControlEditor_);
 	horizontalLayout5->addLayout(verticalLayoutHL52);
 
 	QVBoxLayout *verticalLayoutHL53 = new QVBoxLayout();
-	verticalLayoutHL53->addWidget(testLabel18_);
+	verticalLayoutHL53->addWidget(m2HorizontalDownstreamEncoderControlEditor_);
 	horizontalLayout5->addLayout(verticalLayoutHL53);
 
 	QHBoxLayout *horizontalLayout6 = new QHBoxLayout();
@@ -126,11 +127,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout6->addLayout(verticalLayoutHL61);
 
 	QVBoxLayout *verticalLayoutHL62 = new QVBoxLayout();
-	verticalLayoutHL62->addWidget(testLabel21_);
+	verticalLayoutHL62->addWidget(m2RotationalStepControlEditor_);
 	horizontalLayout6->addLayout(verticalLayoutHL62);
 
 	QVBoxLayout *verticalLayoutHL63 = new QVBoxLayout();
-	verticalLayoutHL63->addWidget(testLabel22_);
+	verticalLayoutHL63->addWidget(m2RotationalEncoderControlEditor_);
 	horizontalLayout6->addLayout(verticalLayoutHL63);
 
 
@@ -148,11 +149,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout7->addLayout(verticalLayoutHL71);
 
 	QVBoxLayout *verticalLayoutHL72 = new QVBoxLayout();
-	verticalLayoutHL72->addWidget(testLabel25_);
+	verticalLayoutHL72->addWidget(m3VerticalUpstreamStepControlEditor_);
 	horizontalLayout7->addLayout(verticalLayoutHL72);
 
 	QVBoxLayout *verticalLayoutHL73 = new QVBoxLayout();
-	verticalLayoutHL73->addWidget(testLabel26_);
+	verticalLayoutHL73->addWidget(m3VerticalUpstreamEncoderControlEditor_);
 	horizontalLayout7->addLayout(verticalLayoutHL73);
 
 	QHBoxLayout *horizontalLayout8 = new QHBoxLayout();
@@ -164,11 +165,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout8->addLayout(verticalLayoutHL81);
 
 	QVBoxLayout *verticalLayoutHL82 = new QVBoxLayout();
-	verticalLayoutHL82->addWidget(testLabel29_);
+	verticalLayoutHL82->addWidget(m3VerticalDownstreamStepControlEditor_);
 	horizontalLayout8->addLayout(verticalLayoutHL82);
 
 	QVBoxLayout *verticalLayoutHL83 = new QVBoxLayout();
-	verticalLayoutHL83->addWidget(testLabel30_);
+	verticalLayoutHL83->addWidget(m3VerticalDownstreamEncoderControlEditor_);
 	horizontalLayout8->addLayout(verticalLayoutHL83);
 
 	QHBoxLayout *horizontalLayout9 = new QHBoxLayout();
@@ -180,11 +181,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout9 ->addLayout(verticalLayoutHL91);
 
 	QVBoxLayout *verticalLayoutHL92 = new QVBoxLayout();
-	verticalLayoutHL92->addWidget(testLabel33_);
+	verticalLayoutHL92->addWidget(m3HorizontalUpstreamStepControlEditor_);
 	horizontalLayout9->addLayout(verticalLayoutHL92);
 
 	QVBoxLayout *verticalLayoutHL93 = new QVBoxLayout();
-	verticalLayoutHL93->addWidget(testLabel34_);
+	verticalLayoutHL93->addWidget(m3HorizontalUpstreamEncoderControlEditor_);
 	horizontalLayout9->addLayout(verticalLayoutHL93);
 
 	QHBoxLayout *horizontalLayout10 = new QHBoxLayout();
@@ -196,11 +197,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout10->addLayout(verticalLayoutHL101);
 
 	QVBoxLayout *verticalLayoutHL102 = new QVBoxLayout();
-	verticalLayoutHL102->addWidget(testLabel37_);
+	verticalLayoutHL102->addWidget(m3HorizontalDownstreamStepControlEditor_);
 	horizontalLayout10->addLayout(verticalLayoutHL102);
 
 	QVBoxLayout *verticalLayoutHL103 = new QVBoxLayout();
-	verticalLayoutHL103->addWidget(testLabel38_);
+	verticalLayoutHL103->addWidget(m3HorizontalDownstreamEncoderControlEditor_);
 	horizontalLayout10->addLayout(verticalLayoutHL103);
 
 	QHBoxLayout *horizontalLayout11 = new QHBoxLayout();
@@ -212,11 +213,11 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout11->addLayout(verticalLayoutHL111);
 
 	QVBoxLayout *verticalLayoutHL112 = new QVBoxLayout();
-	verticalLayoutHL112->addWidget(testLabel41_);
+	verticalLayoutHL112->addWidget(m3RotationalStepControlEditor_);
 	horizontalLayout11->addLayout(verticalLayoutHL112);
 
 	QVBoxLayout *verticalLayoutHL113 = new QVBoxLayout();
-	verticalLayoutHL113->addWidget(testLabel42_);
+	verticalLayoutHL113->addWidget(m3RotationalEncoderControlEditor_);
 	horizontalLayout11->addLayout(verticalLayoutHL113);
 
 

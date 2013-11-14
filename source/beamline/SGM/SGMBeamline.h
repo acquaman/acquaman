@@ -140,7 +140,36 @@ public:
 	AMControl* masterDwell() const { return masterDwell_;}
 	/// Returns the relative step for the undulator
 	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
+
+	AMControl* m2VerticalUpstreamStep() const { return m2VerticalUpstreamStep_; }
+	AMControl* m2VerticalDownstreamStep() const { return m2VerticalDownstreamStep_; }
+	AMControl* m2HorizontalUpstreamStep() const { return m2HorizontalUpstreamStep_; }
+	AMControl* m2HorizontalDownstreamStep() const { return m2HorizontalDownstreamStep_; }
+	AMControl* m2RotationalStep() const { return m2RotationalStep_; }
+	AMControl* m3VerticalUpstreamStep() const { return m3VerticalUpstreamStep_; }
+	AMControl* m3VerticalDownstreamStep() const { return m3VerticalDownstreamStep_; }
+	AMControl* m3HorizontalUpstreamStep() const { return m3HorizontalUpstreamStep_; }
+	AMControl* m3HorizontalDownstreamStep() const { return m3HorizontalDownstreamStep_; }
+	AMControl* m3RotationalStep() const { return m3RotationalStep_; }
+
+	AMControl* m2VerticalUpstreamEncoder() const { return m2VerticalUpstreamEncoder_; }
+	AMControl* m2VerticalDownstreamEncoder() const { return m2VerticalDownstreamEncoder_; }
+	AMControl* m2HorizontalUpstreamEncoder() const { return m2HorizontalUpstreamEncoder_; }
+	AMControl* m2HorizontalDownstreamEncoder() const { return m2HorizontalDownstreamEncoder_; }
+	AMControl* m2RotationalEncoder() const { return m2RotationalEncoder_; }
+	AMControl* m3VerticalUpstreamEncoder() const { return m3VerticalUpstreamEncoder_; }
+	AMControl* m3VerticalDownstreamEncoder() const { return m3VerticalDownstreamEncoder_; }
+	AMControl* m3HorizontalUpstreamEncoder() const { return m3HorizontalUpstreamEncoder_; }
+	AMControl* m3HorizontalDownstreamEncoder() const { return m3HorizontalDownstreamEncoder_; }
+	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
+
+
+
+
+
+
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
+
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
@@ -378,6 +407,29 @@ protected:
 	AMControl *masterDwell_;
 	/// Control for the relative step setpoint on the undulator gap motor
 	AMControl *undulatorRelativeStep_;
+
+	AMControl *m2VerticalUpstreamStep_;
+	AMControl *m2VerticalDownstreamStep_;
+	AMControl *m2HorizontalUpstreamStep_;
+	AMControl *m2HorizontalDownstreamStep_;
+	AMControl *m2RotationalStep_;
+	AMControl *m3VerticalUpstreamStep_;
+	AMControl *m3VerticalDownstreamStep_;
+	AMControl *m3HorizontalUpstreamStep_;
+	AMControl *m3HorizontalDownstreamStep_;
+	AMControl *m3RotationalStep_;
+
+	AMControl *m2VerticalUpstreamEncoder_;
+	AMControl *m2VerticalDownstreamEncoder_;
+	AMControl *m2HorizontalUpstreamEncoder_;
+	AMControl *m2HorizontalDownstreamEncoder_;
+	AMControl *m2RotationalEncoder_;
+	AMControl *m3VerticalUpstreamEncoder_;
+	AMControl *m3VerticalDownstreamEncoder_;
+	AMControl *m3HorizontalUpstreamEncoder_;
+	AMControl *m3HorizontalDownstreamEncoder_;
+	AMControl *m3RotationalEncoder_;
+
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;

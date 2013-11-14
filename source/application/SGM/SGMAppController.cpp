@@ -346,12 +346,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastScanConfiguration2013View_->setDetectorSelector(fastDetectorSelector_);
 		fastScanConfiguration2013Holder3_->setView(fastScanConfiguration2013View_);
 		// End New Fast
-
-		qDebug() << "About to open testMirrorView";
-		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
-		testMirrorView->show();
-		testMirrorView->move(0, 1081);
-		qDebug() << "Just opened testMirrorView";
 	}
 	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
 		//do nothing
@@ -365,6 +359,13 @@ void SGMAppController::onSGMBeamlineConnected(){
 	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isVisible() && fastScanConfiguration2013View_->isVisible()){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
+	}
+	else if(SGMBeamline::sgm()->isConnected()){
+		qDebug() << "About to open testMirrorView";
+		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
+		testMirrorView->show();
+		testMirrorView->move(0, 1081);
+		qDebug() << "Just opened testMirrorView";
 	}
 
 	if(!checkedBadStartupSettings_){
