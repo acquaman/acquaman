@@ -23,14 +23,11 @@ signals:
     void nameEntryEnabled(bool);
     void nameEntryFocus();
     void buttonEnabled(bool);
-    void pvConnected(bool isConnected);
     void addPV(const QString &pvName);
     void error(const QString &errorMessage);
-//    void testComplete(bool isValid, AMControl *pvControl);
 
 protected:
     StripToolModel *model_;
-    QTimer *timer_;
     StripToolListView *listView_;
     QLineEdit *pvNameLineEdit_;
     QPushButton *addButton_;
@@ -48,11 +45,6 @@ protected slots:
     /// When the add button is clicked, information entry is disabled while we test to see if the entered pv name is valid.
     void addClicked();
     void resetControls();
-
-//    /// If the connection is successful, add the pv to the model.
-//    void onPVConnected(bool isConnected);
-
-//    void onTestComplete(bool isValid, AMControl *pvControl);
 
 };
 

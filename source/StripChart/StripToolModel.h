@@ -58,7 +58,7 @@ protected:
 
     /// Returns true if a pv item with a matching name is found, false otherwise.
     bool contains(const QString &nameToFind);
-    bool contains(StripToolPV *toMatch);
+    bool contains(StripToolPV *toMatch) const;
     /// Handles propagating the change in check state from the view's checkbox to the StripToolPV checkstate, and lets both the plot and the list view know a change has happened.
     void checkStateChanged(const QModelIndex &index, Qt::CheckState checked);
     /// Handles propagating the change in a pv's description from the view's line entry to the StripToolPV description field, and lets the list view know a change has happened.

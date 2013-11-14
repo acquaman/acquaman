@@ -27,7 +27,6 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     enableAntiAliasing(true);
 
-
     connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
     connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );
 
@@ -61,7 +60,7 @@ void StripToolPlot::setModel(StripToolModel *model)
 
 void StripToolPlot::createActions()
 {
-    toggleControls_ = new QAction("Show Controls", this);
+    toggleControls_ = new QAction("Control Panel", this);
     connect( toggleControls_, SIGNAL(triggered()), this, SLOT(toToggleControls()) );
 }
 
@@ -82,20 +81,33 @@ void StripToolPlot::toAddSeries(const QModelIndex &parent, int rowStart, int row
 
     while (row <= rowFinish)
     {
-        addSeriesToPlot(model_->series(row));
+        bool success = addSeriesToPlot(model_->series(row));
+
+        if (success == false)
+            qDebug() << "\nError adding series to plot! \n";
+
         row++;
     }
 }
 
 
 
-void StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
+bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 {
+    bool success = false;
+
     if (!contains(newSeries))
     {
         plot_->addItem(newSeries);
-        qDebug() << "New series added to plot.";
+
+        if (contains(newSeries))
+            success = true;
+
+    } else {
+        qDebug() << "Series already a member of plot. Cannot add duplicate.";
     }
+
+    return success;
 }
 
 
@@ -108,20 +120,33 @@ void StripToolPlot::toRemoveSeries(const QModelIndex &parent, int rowStart, int 
 
     while(row <= rowFinish)
     {
-        removeSeriesFromPlot(model_->series(row));
+        bool success = removeSeriesFromPlot(model_->series(row));
+
+        if (success == false)
+            qDebug() << "\nERROR removing series from plot!\n";
+
         row++;
     }
 }
 
 
 
-void StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
+bool StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 {
+    bool success = false;
+
     if (contains(toRemove))
     {
         plot_->removeItem(toRemove);
-        qDebug() << "Series removed from plot.";
+
+        if (!contains(toRemove))
+            success = true;
+
+    } else {
+        qDebug() << "Series not found -- cannot remove.";
     }
+
+    return success;
 }
 
 
@@ -170,10 +195,13 @@ void StripToolPlot::onModelSelectionChange()
     MPlotItem *modelSelection = model_->selectedSeries();
 
     if (modelSelection && contains(modelSelection))
-        emit setPlotSelection(modelSelection);
+    {
+        if (modelSelection != selector_->selectedItem())
+            emit setPlotSelection(modelSelection);
 
-    else
+    } else {
         emit setPlotSelection(0);
+    }
 }
 
 

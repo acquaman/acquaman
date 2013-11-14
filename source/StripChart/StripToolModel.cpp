@@ -193,7 +193,7 @@ bool StripToolModel::contains(const QString &nameToFind)
 
 
 
-bool StripToolModel::contains(StripToolPV *toMatch)
+bool StripToolModel::contains(StripToolPV *toMatch) const
 {
     bool matchFound = false;
     int count = 0;
@@ -429,15 +429,8 @@ void StripToolModel::toSavePVData(QObject *toSave)
 
 bool StripToolModel::savePVData(StripToolPV *toSave)
 {
-    QString pvName = toSave->pvName();
+    QString filename = toSave->pvName().replace(":", "_") + ".txt";
 
-    for (int i = 0; i < pvName.size(); i++)
-    {
-        if (pvName.at(i) == ':')
-            pvName[i] = '_';
-    }
-
-    QString filename = pvName + ".txt";
     if (filename.isEmpty())
         return false;
 

@@ -38,6 +38,7 @@ void StripToolView::buildUI()
     plotView_->setModel(model_);
 
     QCheckBox *controlsToggle = new QCheckBox("Show controls", this);
+    controlsToggle->setChecked(true);
 
     QVBoxLayout *plotLayout = new QVBoxLayout();
     plotLayout->addWidget(plotView_);
@@ -45,7 +46,6 @@ void StripToolView::buildUI()
 
     quickControls_ = new StripToolQuickControls(this);
     quickControls_->setModel(model_);
-    quickControls_->hide();
     connect(controlsToggle, SIGNAL(stateChanged(int)), this, SLOT(toggleControls(int)) );
 
     QHBoxLayout *windowLayout = new QHBoxLayout();

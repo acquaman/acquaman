@@ -41,10 +41,10 @@ public:
 protected:
     /// Returns true if a given series is in the plot, false otherwise.
     bool contains(MPlotItem *series);
-    /// Adds a given series to the plot, if it hasn't been added already.
-    void addSeriesToPlot(MPlotItem *newSeries);
-    /// Removes a given series from the plot, if it is contained in the plot.
-    void removeSeriesFromPlot(MPlotItem *toRemove);
+    /// Adds a given series to the plot, if it hasn't been added already. Returns true if the unique series was successfully added.
+    bool addSeriesToPlot(MPlotItem *newSeries);
+    /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
+    bool removeSeriesFromPlot(MPlotItem *toRemove);
 
     void createActions();
     
