@@ -7,6 +7,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     defaultValuesDisplayed_ = 10;
     valuesDisplayed_ = defaultValuesDisplayed_;
     dataVectorSize_ = 100;
+    savePoint_ = 10;
 
     pvName_ = pvName;
     pvDescription_ = pvDescription;
@@ -28,6 +29,7 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
+    pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 100));
 }
 
 
@@ -94,6 +96,17 @@ MPlotSeriesBasic* StripToolPV::series()
 
 
 
+//QList<QVector<double> >* StripToolPV::dataToSave()
+//{
+//    QList<QVector<double> > *toSave = new QList<QVector<double> >();
+//    toSave[0] = pvUpdateIndex_.mid(updateIndex_ - savePoint_, -1);
+//    toSave[1] = pvDataTotal_.mid(updateIndex_ - savePoint_, -1);
+
+//    return toSave;
+//}
+
+
+
 int StripToolPV::valuesDisplayed()
 {
     return valuesDisplayed_;
@@ -101,9 +114,66 @@ int StripToolPV::valuesDisplayed()
 
 
 
+QVector<double> StripToolPV::saveIndexes()
+{
+    int position = updateIndex_ - savePoint_;
+    int amount;
+
+    if (position < 0)
+        position = 0;
+
+    if (pvUpdateIndex_.size() != pvDataTotal_.size())
+    {
+        amount = 0;
+        qDebug() << "The number of indices do not match the number of data points for : " << pvName();
+
+    } else {
+
+        if (pvUpdateIndex_.size() < savePoint_)
+        {
+            amount = pvUpdateIndex_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
+
+        } else {
+            amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
+        }
+    }
+
+    QVector<double> toSave = pvUpdateIndex_.mid(position, amount);
+
+    if (toSave.size() != savePoint_)
+        qDebug() << "mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
+
+    return toSave;
+}
+
+
+
 QVector<double> StripToolPV::saveData()
 {
-    return pvDataTotal_;
+    int position = updateIndex_ - savePoint_;
+    int amount = savePoint_;
+
+    if (position < 0)
+        position = 0;
+
+    if (pvDataTotal_.size() != pvUpdateIndex_.size())
+    {
+        amount = 0;
+        qDebug() << "The number of indices do not match the number of data points for : " << pvName();
+
+    } else {
+
+        if (pvDataTotal_.size() < savePoint_)
+        {
+            amount = pvDataTotal_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
+
+        } else {
+            amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
+        }
+    }
+
+    QVector<double> toSave = pvDataTotal_.mid(position, amount);
+    return toSave;
 }
 
 
@@ -203,8 +273,8 @@ bool StripToolPV::operator== (const StripToolPV &anotherPV)
 
 void StripToolPV::onPVValueChanged(double newValue)
 {
-//    if (dataVectorSize_ % 10 == 0)
-//        emit savePV();
+    if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0)
+        emit savePV();
 
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)

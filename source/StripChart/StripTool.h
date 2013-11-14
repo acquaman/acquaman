@@ -17,7 +17,7 @@ public:
     ~StripTool();
 
 public:
-    QDir saveDirectory_;
+    QDir appDirectory_;
     QString pvFileName_;
     
 protected:

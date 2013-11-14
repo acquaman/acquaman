@@ -9,6 +9,7 @@
 #include "MPlot/MPlotWidget.h"
 
 #include "StripChart/StripToolModel.h"
+#include "StripChart/StripToolSelector.h"
 
 /// This class displays pv information as a plot. A series may be added or removed from the plot, and displays the units of a series when it's selected.
 
@@ -21,14 +22,18 @@ public:
     ~StripToolPlot();
     
 signals:
-    void seriesSelected(MPlotItem *plotSelection, bool isSelected);
-    void updatePlotSelection(MPlotItem *newSelection);
+    void addSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+    void removeSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+    void seriesSelected(MPlotItem *plotSelection);
+    void seriesDeselected();
+    void setPlotSelection(MPlotItem *modelSelection);
 
 protected:
     StripToolModel *model_;
     MPlot *plot_;
-    MPlotPlotSelectorTool *selector_;
-    MPlotItem *plotSelection_;
+    StripToolSelector *selector_;
+
+    QAction *toggleControls_;
 
 public:
     void setModel(StripToolModel *model);
@@ -40,22 +45,25 @@ protected:
     void addSeriesToPlot(MPlotItem *newSeries);
     /// Removes a given series from the plot, if it is contained in the plot.
     void removeSeriesFromPlot(MPlotItem *toRemove);
+
+    void createActions();
     
 protected slots:
-    /// An attempt at uniform selection--not fully implemented. The model's selectedPV_ becomes the selected series on the plot.
-    void toSetPlotSelection(MPlotItem *modelSelection);
-    /// Informs the model that a series has been selected.
-    void onSeriesSelected(MPlotItem *plotSelection);
-    /// Informs the model that a series has been deselected.
-    void onSeriesDeselected();
+    /// Adds series to the plot when the rowsInserted() signal is emitted from the model.
+    void toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+    /// Removes series from the plot when the rowsAboutToBeRemoved() signal is emitted from the model.
+    void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
     /// Causes the string arguments to become the labels on the plot.
     void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
     void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
     void setTicksVisible(bool isShown);
     /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
-    void onSeriesChanged(Qt::CheckState seriesState, MPlotItem *series);
+    void onSeriesChanged(Qt::CheckState seriesState, int rowChanged);
+    /// Causes a series to become de/selected to match the model's selected pv.
+    void onModelSelectionChange();
 
-    void toUpdatePlotSelection(MPlotItem *newSelection);
+    void contextMenuEvent(QContextMenuEvent *event);
+    void toToggleControls();
 
 };
 

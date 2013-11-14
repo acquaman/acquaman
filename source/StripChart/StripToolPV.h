@@ -28,6 +28,8 @@ protected:
     int defaultValuesDisplayed_;
     int valuesDisplayed_;
     int dataVectorSize_;
+    int savePoint_;
+
     QString pvName_;
     QString pvDescription_;
     QString xUnits_;
@@ -35,6 +37,7 @@ protected:
     bool isUpdating_;
     Qt::CheckState checkState_;
     QColor pvColor_;
+
     QVector<double> pvUpdateIndex_;
     QVector<double> pvDataTotal_;
     QVector<double> xValuesDisplayed_;
@@ -63,6 +66,7 @@ protected:
     /// Returns an integer representing the number of pv value updates that are displayed on the plot. By default, it displays the last ten updates.
     int valuesDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time but isn't fully implemented.
+    QVector<double> saveIndexes();
     QVector<double> saveData();
     /// Returns the bottom axis range for the values displayed for this pv.
     MPlotAxisRange axisBottomRange() const;

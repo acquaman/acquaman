@@ -2,9 +2,13 @@
 
 StripTool::StripTool(QWidget *parent) : QWidget(parent)
 {
-    saveDirectory_ = QDir("/Users/helfrij/Desktop");
 
-    model_ = new StripToolModel(this, saveDirectory_);
+//    QDir home = QDir(QDir::toNativeSeparators(QDir::homePath()));
+//    home.mkdir("StripTool");
+
+//    appDirectory_ = QDir(home.filePath("StripTool"));
+
+    model_ = new StripToolModel(this);
 
     mainView_ = new StripToolView(this, model_);
 

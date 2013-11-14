@@ -35,7 +35,6 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     setLayout(controlsLayout);
     setMaximumWidth(200);
 
-    connect( this, SIGNAL(pvConnected(bool)), this, SLOT(onPVConnected(bool)) );
     connect( this, SIGNAL(reset()), this, SLOT(resetControls()) );
 }
 

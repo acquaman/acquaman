@@ -14,12 +14,12 @@ class StripToolModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit StripToolModel(QObject *parent = 0, QDir saveDirectory = QDir());
+    explicit StripToolModel(QObject *parent = 0);
     ~StripToolModel();
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void seriesChanged(Qt::CheckState, MPlotItem*);
+    void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
     void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
     void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
@@ -33,22 +33,22 @@ protected:
     StripToolPV *selectedPV_;
     QModelIndex selectedIndex_;
 
-    QDir saveDirectory_;
-    QString pvFilename_;
+    QDir appDirectory_;
 
-    QSignalMapper *mapper_;
+    QSignalMapper *controlMapper_;
+    QSignalMapper *pvMapper_;
 
 public:
+    StripToolPV* selectedPV() const;
     QModelIndex selectedIndex() const;
-    MPlotItem* selectedSeries();
+    MPlotItem* selectedSeries() const;
+    MPlotItem* series(int row) const;
 
 protected:
     /// Returns the item flags for the entry at the given index.
     Qt::ItemFlags flags(const QModelIndex &index) const;
     /// Returns the data that should be displayed when the given index is selected in a view--either the pv name or description.
     QVariant data(const QModelIndex &index, int role) const;
-    /// Returns the header data, in case we switch to a view that uses header data.
-//    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     /// Returns the number of pvs in the model.
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     /// Allows the user to set the pv description directly in the list view.
@@ -58,6 +58,7 @@ protected:
 
     /// Returns true if a pv item with a matching name is found, false otherwise.
     bool contains(const QString &nameToFind);
+    bool contains(StripToolPV *toMatch);
     /// Handles propagating the change in check state from the view's checkbox to the StripToolPV checkstate, and lets both the plot and the list view know a change has happened.
     void checkStateChanged(const QModelIndex &index, Qt::CheckState checked);
     /// Handles propagating the change in a pv's description from the view's line entry to the StripToolPV description field, and lets the list view know a change has happened.
@@ -67,37 +68,48 @@ protected:
     bool deletePV(const QModelIndex &index);
     /// Creates a new StripToolPV object and sets its control to pvControl.
     bool addPV(AMControl *pvControl);
+    bool savePVData(StripToolPV *toSave);
 
     StripToolPV* findItem(MPlotItem* series);
     StripToolPV* findItem(const QString &pvName);
 
+    void setSelectedPV(StripToolPV *newSelection);
+
 protected slots:
     void toAddPV(const QString &pvName);
-//    void onPVConnected(bool isConnected);
     void onPVConnected(QObject *itemConnected);
     void toDeletePV(const QModelIndex &index);
+    void toSavePVData(QObject *toSave);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(QList<QModelIndex> indicesToEdit);
+
     /// Selects the appropriate pv and causes it to pause/resume updating on the plot.
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
+
     /// Selects the appropriate pv and changes the number of values it displays on the plot.
     void setValuesDisplayed(const QModelIndex &index, int points);
-    /// Selects the appropriate pv and increments the number of values displayed.
-    void incrementValuesDisplayed(const QModelIndex &index, int difference);
+
     /// Writes the pv name, description, and units of all pvs in the model to file (to be optionally reloaded later).
     void toUpdatePVFile();
+
     /// Reads the pv names, descriptons, and units from file and causes them to be reloaded back into the model.
     void reloadPVs(bool reload);
+
     /// Basic color selection for pv.
     void colorPV(const QModelIndex &index, const QColor &color);
 
-    void toChangeModelSelection(MPlotItem* item, bool isSelected);
-    void toChangeModelSelection(const QModelIndex &index, bool isSelected);
+    void seriesSelected(MPlotItem*);
+    void seriesDeselected();
+
+    void listItemSelected(const QModelIndex &index);
+    void listItemDeselected();
 
     void onModelSelectionChange();
 
     void reloadCheck();
+
+
 };
 
 #endif // STRIPTOOLMODEL_H
