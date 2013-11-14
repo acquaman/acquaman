@@ -87,6 +87,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSPGTDetectorV2View.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorNewView.h"
 
+#include "ui/SGM/SGMAdvancedMirrorView.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -344,6 +346,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastScanConfiguration2013View_->setDetectorSelector(fastDetectorSelector_);
 		fastScanConfiguration2013Holder3_->setView(fastScanConfiguration2013View_);
 		// End New Fast
+
+		qDebug() << "About to open testMirrorView";
+		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
+		testMirrorView->show();
+		testMirrorView->move(0, 1081);
+		qDebug() << "Just opened testMirrorView";
 	}
 	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
 		//do nothing
