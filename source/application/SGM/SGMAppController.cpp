@@ -360,13 +360,14 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}
+	/*
 	else if(SGMBeamline::sgm()->isConnected()){
 		qDebug() << "About to open testMirrorView";
 		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
 		testMirrorView->show();
 		testMirrorView->move(0, 1081);
 		qDebug() << "Just opened testMirrorView";
-	}
+	}*/
 
 	if(!checkedBadStartupSettings_){
 		checkedBadStartupSettings_ = true;
@@ -538,6 +539,12 @@ void SGMAppController::onActionProcServManager(){
 	procServsView_->show();
 }
 
+void SGMAppController::onActionMirrorVeiw(){
+	if(!SGMAdvancedMirror_)
+		SGMAdvancedMirror_ = new SGMAdvancedMirrorView();
+	SGMAdvancedMirror_->show();
+}
+
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
@@ -572,9 +579,18 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	procServsView_ = 0;
 
+	QAction *SGMMirrorAction = new QAction("SGM Beamline Mirrors...", mw_);
+	SGMMirrorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_M));
+	SGMMirrorAction->setStatusTip("View or Change SGM Beamline Mirrors");
+	connect(SGMMirrorAction, SIGNAL(triggered()), this, SLOT(onActionMirrorVeiw()));
+
+	SGMAdvancedMirror_ = 0;
+
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
 	fileMenu_->addAction(sgmProcServAction);
+
+	viewMenu_->addAction(SGMMirrorAction);
 
 	return true;
 }

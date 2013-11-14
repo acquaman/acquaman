@@ -46,6 +46,8 @@ class SGMAdvancedControlsView;
 class AMDetectorSelector;
 class AMDetectorSelectorView;
 
+class SGMAdvancedMirrorView;
+
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
 class SGMAppController : public AMAppController {
@@ -107,6 +109,8 @@ protected slots:
 	void onActionSGMSettings();
 	/// Creates the SGM proc serv manager view if necessary and shows it
 	void onActionProcServManager();
+	/// Create the SGM Advanced mirror veiw if necessary and shows it
+	void onActionMirrorVeiw();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
@@ -163,6 +167,8 @@ protected:
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls
 	SGMAdvancedControlsView *SGMAdvancedControls_;
+	/// Window for SGM mirrors
+	SGMAdvancedMirrorView *SGMAdvancedMirror_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;

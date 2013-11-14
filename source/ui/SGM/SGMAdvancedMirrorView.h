@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QGroupBox>
 
 #include "ui/beamline/AMControlEditor.h"
 
@@ -14,9 +15,9 @@ public:
 
 protected:
 	/// The mirror 2 label
-	QLabel *Mirror2_;
+	QGroupBox *Mirror2_;
 	/// The mirror 3 label
-	QLabel *Mirror3_;
+	QGroupBox *Mirror3_;
 	/// The vertical upstream on mirror 2 label
 	QLabel *m2VerticalUpstream_;
 

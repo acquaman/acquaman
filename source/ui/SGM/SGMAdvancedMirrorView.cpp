@@ -9,8 +9,8 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 {
 	qDebug() << "Start of mirror constructor";
 
-	Mirror2_ = new QLabel("Mirror 2");
-	Mirror3_ = new QLabel("Mirror 3");
+	Mirror2_ = new QGroupBox("Mirror 2");
+	Mirror3_ = new QGroupBox("Mirror 3");
 	m2VerticalUpstream_ = new QLabel("M2 Vertical upstream");
 
 	m2VerticalUpstreamStepControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m2VerticalUpstreamStep()));
@@ -53,7 +53,8 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	m3RotationalEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3RotationalEncoder()));
 
 	QVBoxLayout *verticalLayoutLeft = new QVBoxLayout();
-	verticalLayoutLeft->addWidget(Mirror2_);
+	//verticalLayoutLeft->addWidget(Mirror2_);
+	Mirror2_->setLayout(verticalLayoutLeft);
 
 	QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
 	horizontalLayout2->addWidget(m2VerticalUpstream_);
@@ -124,7 +125,8 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 
 
 	QVBoxLayout *verticalLayoutRight = new QVBoxLayout();
-	verticalLayoutRight->addWidget(Mirror3_);
+	//verticalLayoutRight->addWidget(Mirror3_);
+	Mirror3_->setLayout(verticalLayoutRight);
 
 	QHBoxLayout *horizontalLayout7 = new QHBoxLayout();
 	horizontalLayout7->addWidget(m3VerticalUpstream_);
@@ -204,8 +206,10 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 
 
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
-	horizontalLayout->addLayout(verticalLayoutLeft);
-	horizontalLayout->addLayout(verticalLayoutRight);
+	//horizontalLayout->addLayout(verticalLayoutLeft);
+	//horizontalLayout->addLayout(verticalLayoutRight);
+	horizontalLayout->addWidget(Mirror2_);
+	horizontalLayout->addWidget(Mirror3_);
 	setLayout(horizontalLayout);
 
 	qDebug() << "End of mirror constructor";
