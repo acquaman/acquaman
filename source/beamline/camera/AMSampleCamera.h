@@ -363,9 +363,9 @@ public slots:
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
         /// Create the sample plate using selected points \todo
-        void createSamplePlate(QPointF pointOne, QPointF pointTwo);
-        /// \todo make protected
-        void findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPointF originPoint, QPointF shiftPoint);
+		void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points);
+		/// \todo make protected v
+		QVector3D findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points);
 	void saveSamplePlate();
 
 	void setCameraConfigurationShape();

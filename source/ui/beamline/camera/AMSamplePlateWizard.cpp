@@ -9,30 +9,42 @@
 AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
-    numberOfPoints_ = 3;
+	/// Used to generate and allow modification of the option page
+	numberOfPoints_ = 2;
+	coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
     coordinateList_->append(new QVector3D(0,1,0));
-    coordinateList_->append(new QVector3D(0,3,5));
 
 
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check, new AMSampleCheckPage);
-    setPage(Page_Wait, new AMSampleWaitPage);
-    setPage(Page_Set, new AMSampleSetPage);
+	setPage(Page_Wait_One, new AMSampleWaitPage);
+	setPage(Page_Wait_Two, new AMSampleWaitPage);
+	setPage(Page_Set_One, new AMSampleSetPage);
+	setPage(Page_Set_Two, new AMSampleSetPage);
     setPage(Page_Option, new AMWizardOptionPage);
+	setPage(Page_Final, new AMWizardPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
     setWindowTitle(message(Wizard_Title));
 
+	/// need to disconnect and reconnect buttons to override functionality properly
+
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
-    connect(page(Page_Set), SIGNAL(slider()), this, SLOT(sliderChanged()));
+	connect(page(Page_Set_One), SIGNAL(slider()), this, SLOT(sliderChanged()));
 
     setMinimumSize(600,600);
 
     addOptionPage(Page_Intro);
+
+	pointList_->clear();
+	/// We don't know how many points there will be, so in addPoint, make sure point
+	/// exists before initializing it.
+
+
 
 
 
@@ -57,10 +69,16 @@ int AMSamplePlateWizard::nextId() const
         if(checked(Page_Check))
             return -1;
         else
-            return Page_Wait;
-    case Page_Wait:
-        return Page_Set;
-    case Page_Set:
+			return Page_Wait_One;
+	case Page_Wait_One:
+		return Page_Set_One;
+	case Page_Set_One:
+		return Page_Wait_Two;
+	case Page_Wait_Two:
+		return Page_Set_Two;
+	case Page_Set_Two:
+		return Page_Final;
+	case Page_Final:
     default:
         return -1;
     }
@@ -68,7 +86,22 @@ int AMSamplePlateWizard::nextId() const
 
 void AMSamplePlateWizard::waitPage()
 {
-    emit moveTo(*coordinateList()->at(0));
+	emit moveTo(*coordinateList()->at(relativeId()-1));
+}
+
+int AMSamplePlateWizard::relativeId()
+{
+	switch(currentId())
+	{
+	case Page_Set_One:
+	case Page_Wait_One:
+		return 1;
+	case Page_Set_Two:
+	case Page_Wait_Two:
+		return 2;
+	default:
+		return 0;
+	}
 }
 
 QString AMSamplePlateWizard::message(int type)
@@ -111,13 +144,14 @@ QString AMSamplePlateWizard::message(int type)
         default:
             return QString(tr("Error - check page - unknown message type."));
         }
-    case Page_Wait:
+	case Page_Wait_One:
+	case Page_Wait_Two:
         switch(type)
         {
         case Title:
-            return QString(tr("Please wait"));
+			return QString(tr("Moving to position %1")).arg(relativeId());
         case Text:
-            return QString(tr("Wait while the sample plate moves."));
+			return QString(tr("Wait while the sample plate moves."));
         case Help:
             return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
                               + tr(" the motor.  Ensure that motor movement is enabled."));
@@ -126,13 +160,14 @@ QString AMSamplePlateWizard::message(int type)
         default:
             return QString(tr("Error - Wait page - unknown message type."));
         }
-    case Page_Set:
+	case Page_Set_One:
+	case Page_Set_Two:
         switch(type)
         {
         case Title:
             return QString(tr("Sample Plate Adjustment"));
         case Text:
-            return QString(tr("Move the slider to adjust the position of the sample plate."));
+			return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
         case Help:
             return QString(tr("To adjust the position of the sample plate, move the slider left and right.  If the outline cannot be closely")
                               + tr(" fit to the sample plate, it may require more detailed adjustment."));
@@ -156,16 +191,39 @@ QString AMSamplePlateWizard::message(int type)
 	    default:
 		    return QString(tr("Error message - option page - unknown message type."));
 	    }
+	case Page_Final:
+		switch(type)
+		{
+		case Title:
+			return QString(tr("Final page"));
+		case Text:
+			return QString(tr("Final page text"));
+		case Help:
+			return QString(tr("Final Page Help"));
+		case Other:
+		case Default:
+			return QString(tr("Error message - final page - unknown message type"));
+		}
     }
     return QString(tr("Error message - unknown page type."));
 }
 
 void AMSamplePlateWizard::back()
 {
-    switch(currentId())
+	int id = currentId();
+	switch(id)
     {
-    case Page_Wait:
-        ((AMWaitPage*)page(Page_Wait))->stopTimer();
+	case Page_Wait_One:
+	case Page_Wait_Two:
+		((AMWaitPage*)page(id))->stopTimer();
+		QWizard::back();
+		if(currentId() == Page_Check)
+        {
+            cleanupPage(Page_Check);
+            initializePage(Page_Check);
+        }
+        break;
+	case Page_Set_One:
         while(currentId() != Page_Check)
         {
             QWizard::back();
@@ -176,17 +234,16 @@ void AMSamplePlateWizard::back()
             initializePage(Page_Check);
         }
         break;
-    case Page_Set:
-        while(currentId() != Page_Check)
-        {
-            QWizard::back();
-        }
-        if(currentId() == Page_Check)
-        {
-            cleanupPage(Page_Check);
-            initializePage(Page_Check);
-        }
-        break;
+	case Page_Set_Two:
+		while(currentId() != Page_Wait_One)
+		{
+			QWizard::back();
+		}
+		if(currentId() == Page_Wait_One)
+		{
+			initializePage(Page_Wait_One);
+		}
+		break;
     default:
         QWizard::back();
     }
@@ -195,7 +252,16 @@ void AMSamplePlateWizard::back()
 
 void AMSamplePlateWizard::sliderChanged()
 {
-    emit movePlate(field("adjustmentSlider").toInt());
+	emit movePlate(field("adjustmentSlider").toInt());
+}
+
+void AMSamplePlateWizard::addPoint(QPointF position)
+{
+	int pagePointAddedFrom = relativeId() - 1;
+	QPointF* newPoint = pointList_->at(pagePointAddedFrom);
+	QPointF newPosition = mapPointToVideo(position);
+	*newPoint = newPosition;
+	next();
 }
 
 
@@ -238,3 +304,31 @@ void AMSampleCheckPage::checkBoxChanged(bool state)
     setFinalPage(state);
 }
 
+
+double AMSamplePlateWizard::coordinateX(int id)
+{
+	return coordinateList()->at(id-1)->x();
+}
+
+double AMSamplePlateWizard::coordinateY(int id)
+{
+	return coordinateList()->at(id-1)->y();
+}
+
+double AMSamplePlateWizard::coordinateZ(int id)
+{
+	return coordinateList()->at(id-1)->z();
+}
+
+
+void AMSampleIntroPage::initializePage()
+{
+	AMWizardPage::initializePage();
+	startTimer(0);
+}
+
+void AMSampleIntroPage::timerEvent(QTimerEvent *event)
+{
+	killTimer(event->timerId());
+	viewWizard()->next();
+}

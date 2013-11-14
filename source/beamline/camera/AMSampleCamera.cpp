@@ -1534,40 +1534,50 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
     const int NUMBER_OF_COORDINATES = 2;
     const int MINIMUM_NUMBER_OF_POINTS = 4; // minimal shape is a triangle, 2 points for each coordinate.
     // one coordinate already known
-    if(coordinates.count != NUMBER_OF_COORDINATES)
+	if(coordinates.count() != NUMBER_OF_COORDINATES)
     {
         qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of coordinates";
         qDebug()<<"have "<<coordinates.count()<<" expected "<<NUMBER_OF_COORDINATES;
     }
-    if(points.count < MINIMUM_NUMBER_OF_POINTS)
+	if(points.count() < MINIMUM_NUMBER_OF_POINTS)
     {
         qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of points";
         qDebug()<<"have "<<points.count()<<" expected at least "<<MINIMUM_NUMBER_OF_POINTS;
     }
     QVector3D origin = coordinates.at(0);
     QVector3D shift = coordinates.at(1);
-    findSamplePlateCoordinate(origin, shift, pointOne, pointTwo);
+	// points should be in pairs for topright, bottomright,bottomleft, in that order
+	QVector<QVector3D> plateCoordinates;
+	for(int i = 0; i < points.count(); i = i + 2)
+	{
+		QPair<QPointF, QPointF> pointPair;
+		pointPair.first = points.at(i);
+		pointPair.second = points.at(i + 1);
+		plateCoordinates<<findSamplePlateCoordinate(origin, shift, pointPair);
+	}
+
 }
 
-void AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPointF originPoint, QPointF shiftPoint)
+QVector3D AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points)
 {
     /// This code finds the two coordinates corresponding to the two point and
     /// two coordinates
     qDebug()<<"AMSampleCamera::createSamplePlate";
-    qDebug()<<"PointOne is "<<pointOne;
-    qDebug()<<"PointTwo is"<<pointTwo;
-    // example coordinates
 
 
-    QVector3D topRightOriginBase = camera_->transform2Dto3D(pointOne,1);
-    QVector3D topRightOriginLength = camera_->transform2Dto3D(pointOne, 2);
+	QPointF originPoint = points.first;
+	QPointF shiftPoint = points.second;
+
+
+	QVector3D topRightOriginBase = camera_->transform2Dto3D(originPoint,1);
+	QVector3D topRightOriginLength = camera_->transform2Dto3D(originPoint, 2);
     QVector3D topRightOriginVector = topRightOriginLength-topRightOriginBase;
     topRightOriginVector.normalize();
     QVector3D originBase = topRightOriginBase - topRightOriginVector;
     // originBase + tOrigin*topRightOriginVector gives 3D position of topRight
 
-    QVector3D topRightShiftBase = camera_->transform2Dto3D(pointTwo,1);
-    QVector3D topRightShiftLength = camera_->transform2Dto3D(pointTwo, 2);
+	QVector3D topRightShiftBase = camera_->transform2Dto3D(shiftPoint,1);
+	QVector3D topRightShiftLength = camera_->transform2Dto3D(shiftPoint, 2);
     QVector3D topRightShiftVector = topRightShiftLength-topRightShiftBase;
     topRightOriginVector.normalize();
     QVector3D shiftBase = topRightShiftBase - topRightShiftVector;
@@ -1580,7 +1590,7 @@ void AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVect
     //t0 = (sx + tizix)/zox
     double tShift; // this is the length of the shifted line
     double tOrigin; // this is the length of the origin line
-    QVector3D shift = topLeftShift - topLeftOrigin;
+	QVector3D shift = shiftCoordinate - originCoordinate;
     tShift = (originBase.x()*shift.y()-shift.x()*originBase.y())/(shiftBase.x()*originBase.y()-shiftBase.y()*originBase.x());
     tOrigin = (shift.x() + tShift*shiftBase.x())/originBase.x();
 
@@ -1591,6 +1601,7 @@ void AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVect
     qDebug()<<"tShift"<<tShift;
     qDebug()<<"tOrigin"<<tOrigin;
     qDebug()<<"tOriginTest"<<tOriginTest;
+	return originBase + tOrigin*topRightOriginVector; // this is the "origin" "top right" coordinate.
 }
 
 void AMSampleCamera::saveSamplePlate()
