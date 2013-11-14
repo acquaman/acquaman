@@ -444,51 +444,51 @@ void VESPERSEXAFSDacqScanController::addExtraDatasources()
 
 bool VESPERSEXAFSDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->regionTime(0));
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	buildBaseInitializationAction(config_->regionTime(0));
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	// Add the rest of the stuff needed for XAS.
-	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
+//	// Add the rest of the stuff needed for XAS.
+//	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
 
-		int regionCount = config_->regionCount();
-		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
-																													  time,
-																													  config_->regionStart(regionCount - 1),
-																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
-																													  config_->regionStart(regionCount - 1),
-																													  config_->regionEnd(regionCount - 1),
-																													  config_->regionTime(regionCount - 1)));
-	}
+//		int regionCount = config_->regionCount();
+//		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
+//																													  time,
+//																													  config_->regionStart(regionCount - 1),
+//																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
+//																													  config_->regionStart(regionCount - 1),
+//																													  config_->regionEnd(regionCount - 1),
+//																													  config_->regionTime(regionCount - 1)));
+//	}
 
-	// Move the mono, and if necessary, move the sample stage.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+//	// Move the mono, and if necessary, move the sample stage.
+//	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
-	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
+//	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
+//	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	// Change the edge energy.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
+//	// Change the edge energy.
+//	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -603,9 +603,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 void VESPERSEXAFSDacqScanController::cleanup()
 {
 	buildCleanupAction(true);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERSEXAFSDacqScanController::onCleanupFinished()
@@ -656,7 +656,7 @@ void VESPERSEXAFSDacqScanController::onInitializationActionsFailed(int explanati
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, 0, "XAS scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

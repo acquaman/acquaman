@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
@@ -557,7 +556,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
+	AMAction3 *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////

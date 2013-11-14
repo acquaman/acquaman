@@ -94,7 +94,8 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double ti
 	return action;
 }
 
-AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time){
+AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time)
+{
 	if (!dwellTime_->isConnected())
 		return 0;
 
@@ -112,7 +113,7 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
-	action->setSetpoint(scan == true ? 1.0 : 0.0);
+	action->setSetpoint(scan ? 1.0 : 0.0);
 
 	return action;
 }
@@ -122,7 +123,7 @@ AMAction3 *CLSSynchronizedDwellTime::createScanningAction3(bool scan){
 		return 0;
 
 	AMControlInfo setpoint = startScan_->toInfo();
-	setpoint.setValue(scan == true ? 1.0 : 0.0);
+	setpoint.setValue(scan ? 1.0 : 0.0);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 	AMAction3 *action = new AMControlMoveAction3(actionInfo, startScan_);
 
@@ -159,7 +160,7 @@ AMAction3* CLSSynchronizedDwellTime::createEnableAtAction3(int index, bool isEna
 }
 
 void CLSSynchronizedDwellTime::onScanningChanged(double status){
-	emit scanningChanged((int)status == 1 ? true : false);
+	emit scanningChanged((int)status == 1);
 	if((int)status == 0)
 		triggerSource_->setSucceeded();
 }

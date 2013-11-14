@@ -42,7 +42,7 @@ public:
 	/// Constructor.  Passes the configuration that this controller will run.
 	VESPERSEnergyDacqScanController(VESPERSEnergyScanConfiguration *cfg, QObject *parent = 0);
 	/// Destructor.  Makes sure all of the memory from the actions that were created is freed.
-	~VESPERSEnergyDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	~VESPERSEnergyDacqScanController() { }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.

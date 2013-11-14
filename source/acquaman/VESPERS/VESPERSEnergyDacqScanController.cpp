@@ -85,36 +85,36 @@ void VESPERSEnergyDacqScanController::addExtraDatasources()
 
 bool VESPERSEnergyDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->regionTime(0));
+//	buildBaseInitializationAction(config_->regionTime(0));
 
-	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
+//	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-	if (config_->ccdFileName() != ccdName)
-		config_->setCCDFileName(ccdName);
+//	if (config_->ccdFileName() != ccdName)
+//		config_->setCCDFileName(ccdName);
 
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	// Fourth stage.
-	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
+//	// Fourth stage.
+//	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
+//	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -209,9 +209,9 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 void VESPERSEnergyDacqScanController::cleanup()
 {
 	buildCleanupAction(true);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERSEnergyDacqScanController::onCleanupFinished()
@@ -259,7 +259,7 @@ void VESPERSEnergyDacqScanController::onInitializationActionsFailed(int explanat
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, 0, "Energy scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

@@ -463,62 +463,62 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 
 bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->time());
+//	buildBaseInitializationAction(config_->time());
 
-	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
+//	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-	if (config_->ccdFileName() != ccdName)
-		config_->setCCDFileName(ccdName);
+//	if (config_->ccdFileName() != ccdName)
+//		config_->setCCDFileName(ccdName);
 
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	if (config_->hasOtherPosition()){
+//	if (config_->hasOtherPosition()){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 
-		switch(config_->otherMotor(config_->motor())){
+//		switch(config_->otherMotor(config_->motor())){
 
-		case VESPERS::H:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::H:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::V:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::V:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::X:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::X:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::Z:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::Z:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::AttoH:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::AttoH:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::AttoV:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::AttoV:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::AttoX:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::AttoX:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		case VESPERS::AttoZ:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
+//		case VESPERS::AttoZ:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		default:
-			break;
-		}
-	}
+//		default:
+//			break;
+//		}
+//	}
 
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -557,9 +557,9 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 void VESPERSSpatialLineDacqScanController::cleanup()
 {
 	buildCleanupAction(false);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERSSpatialLineDacqScanController::onCleanupFinished()
@@ -590,7 +590,7 @@ void VESPERSSpatialLineDacqScanController::onInitializationActionsFailed(int exp
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Line scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

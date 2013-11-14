@@ -342,7 +342,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 		}
 		else{
-			if(internalShouldLogSubAction(generalAction)){
+			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
 				int parentLogId = logActionId();
 				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
 				//AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);

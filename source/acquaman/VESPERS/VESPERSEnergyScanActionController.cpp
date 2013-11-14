@@ -40,53 +40,12 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
-
-	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
-	QStringList dwellKeys;
-
-	for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++)
-		dwellKeys << VESPERSBeamline::vespers()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i))->synchronizedDwellKey();
-
-	dwellKeys.removeDuplicates();
-
-	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++){
-
-		if (synchronizedDwell->enabledAt(i) && !dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(false));
-
-		else if (!synchronizedDwell->enabledAt(i) && dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
-	}
-
-	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
-
-	stage1->addSubAction(scaler->createStartAction3(false));
-	stage1->addSubAction(scaler->createScansPerBufferAction3(1));
-	stage1->addSubAction(scaler->createTotalScansAction3(1));
-
-	return stage1;
+	return buildBaseInitializationAction(configuration_->detectorConfigurations());
 }
 
 AMAction3* VESPERSEnergyScanActionController::createCleanupActions()
 {
-	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "VESPERS Cleanup Stage 1"), AMListAction3::Parallel);
-
-	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
-
-	// The scaler is always first.  Therefore, we know this will always only ensure the scaler is still enabled.
-	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++)
-		stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(i == 0));
-
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "VESPERS Cleanup Stage 2"), AMListAction3::Parallel);
-	stage2->addSubAction(synchronizedDwell->createMasterTimeAction3(1));
-	stage2->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::Continuous));
-
-	cleanup->addSubAction(stage1);
-	cleanup->addSubAction(stage2);
-
-	return cleanup;
+	return buildCleanupAction(true);
 }
 
 void VESPERSEnergyScanActionController::onScanTimerUpdate()
