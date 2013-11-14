@@ -141,26 +141,46 @@ public:
 	/// Returns the relative step for the undulator
 	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
 
+	/// Returns the vertical upstream step for M2
 	AMControl* m2VerticalUpstreamStep() const { return m2VerticalUpstreamStep_; }
+	/// Returns the vertical downstream step for M2
 	AMControl* m2VerticalDownstreamStep() const { return m2VerticalDownstreamStep_; }
+	/// Returns the horizontal upstream step for M2
 	AMControl* m2HorizontalUpstreamStep() const { return m2HorizontalUpstreamStep_; }
+	/// Returns the horizontal downstream step for M2
 	AMControl* m2HorizontalDownstreamStep() const { return m2HorizontalDownstreamStep_; }
+	/// Returns the rotational step for M2
 	AMControl* m2RotationalStep() const { return m2RotationalStep_; }
+	/// Returns the vertical upstream step for M3
 	AMControl* m3VerticalUpstreamStep() const { return m3VerticalUpstreamStep_; }
+	/// Returns the vertical downstream step for M3
 	AMControl* m3VerticalDownstreamStep() const { return m3VerticalDownstreamStep_; }
+	/// Returns the horizontal upstream step for M3
 	AMControl* m3HorizontalUpstreamStep() const { return m3HorizontalUpstreamStep_; }
+	/// Returns the horizontal downstream step for M3
 	AMControl* m3HorizontalDownstreamStep() const { return m3HorizontalDownstreamStep_; }
+	/// Returns the rotational step for M3
 	AMControl* m3RotationalStep() const { return m3RotationalStep_; }
 
+	/// Returns the vertical upstream encoder for M2
 	AMControl* m2VerticalUpstreamEncoder() const { return m2VerticalUpstreamEncoder_; }
+	/// Returns the vertical downstream encoder for M2
 	AMControl* m2VerticalDownstreamEncoder() const { return m2VerticalDownstreamEncoder_; }
+	/// Returns the horizontal upstream encoder for M2
 	AMControl* m2HorizontalUpstreamEncoder() const { return m2HorizontalUpstreamEncoder_; }
+	/// Returns the horizontal downstream encoder for M2
 	AMControl* m2HorizontalDownstreamEncoder() const { return m2HorizontalDownstreamEncoder_; }
+	/// Returns the rotational encoder for M2
 	AMControl* m2RotationalEncoder() const { return m2RotationalEncoder_; }
+	/// Returns the vertical upstream encoder for M3
 	AMControl* m3VerticalUpstreamEncoder() const { return m3VerticalUpstreamEncoder_; }
+	/// Returns the vertical downstream encoder for M3
 	AMControl* m3VerticalDownstreamEncoder() const { return m3VerticalDownstreamEncoder_; }
+	/// Returns the horizontal upstream encoder for M3
 	AMControl* m3HorizontalUpstreamEncoder() const { return m3HorizontalUpstreamEncoder_; }
+	/// Returns the horizontal downstream encoder for M3
 	AMControl* m3HorizontalDownstreamEncoder() const { return m3HorizontalDownstreamEncoder_; }
+	/// Returns the rotational encoder for M3
 	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
 
 

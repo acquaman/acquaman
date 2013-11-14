@@ -13,47 +13,79 @@ public:
 	SGMAdvancedMirrorView(QWidget *parent = 0);
 
 protected:
-	QLabel *testLabel_;
-	QLabel *testLabel2_;
-	QLabel *testLabel3_;
-	QLabel *testLabel4_;
+	/// The mirror 2 label
+	QLabel *Mirror2_;
+	/// The mirror 3 label
+	QLabel *Mirror3_;
+	/// The vertical upstream on mirror 2 label
+	QLabel *m2VerticalUpstream_;
+
+	/// Returns the vertical upstream step for mirror 2
 	AMControlEditor *m2VerticalUpstreamStepControlEditor_;
+	/// Returns the vertical upstream encoder for mirror 2
 	AMControlEditor *m2VerticalUpstreamEncoderControlEditor_;
-	QLabel *testLabel7_;
-	QLabel *testLabel8_;
+	/// The vertical downstream label
+	QLabel *m2VerticalDownstream_;
+
+	/// Returns the vertical downstream step for mirror 2
 	AMControlEditor *m2VerticalDownstreamStepControlEditor_;
+	/// Returns the vertical downstream encoder for mirror 2
 	AMControlEditor *m2VerticalDownstreamEncoderControlEditor_;
-	QLabel *testLabel11_;
-	QLabel *testLabel12_;
+	/// The horizontal upstream on mirror 2 label
+	QLabel *m2HorizontalUpstream_;
+
+	/// Returns the horizontal upstream step for mirror 2
 	AMControlEditor *m2HorizontalUpstreamStepControlEditor_;
+	/// Returns the horizontal upstream encoder for mirror 2
 	AMControlEditor *m2HorizontalUpstreamEncoderControlEditor_;
-	QLabel *testLabel15_;
-	QLabel *testLabel16_;
+	/// The horizontal upstream on mirror 2 label
+	QLabel *m2HorizontalDownstream_;
+
+	/// Returns the horizontal downstream step for mirror 2
 	AMControlEditor *m2HorizontalDownstreamStepControlEditor_;
+	/// Returns the horizontal downstream encoder for mirror 2
 	AMControlEditor *m2HorizontalDownstreamEncoderControlEditor_;
-	QLabel *testLabel19_;
-	QLabel *testLabel20_;
+	/// The rotational on mirror 2 label
+	QLabel *m2Rotational_;
+
+	/// Returns the rotational step for mirror 2
 	AMControlEditor *m2RotationalStepControlEditor_;
+	/// Returns the rotational encoder for mirror 2
 	AMControlEditor *m2RotationalEncoderControlEditor_;
-	QLabel *testLabel23_;
-	QLabel *testLabel24_;
+	/// The vertical upstream on mirror 3 label
+	QLabel *m3VerticalUpstream_;
+
+	/// Returns the vertical upstream step for mirror 3
 	AMControlEditor *m3VerticalUpstreamStepControlEditor_;
+	/// Retuurns the vertical upstream encoder for mirrror 3
 	AMControlEditor *m3VerticalUpstreamEncoderControlEditor_;
-	QLabel *testLabel27_;
-	QLabel *testLabel28_;
+	/// The vertical downstream on mirror 3 label
+	QLabel *m3VerticalDownstream_;
+
+	/// Returns the vertical downstream step for mirror 3
 	AMControlEditor *m3VerticalDownstreamStepControlEditor_;
+	/// Returns the vertical downstream step for mirror 3
 	AMControlEditor *m3VerticalDownstreamEncoderControlEditor_;
-	QLabel *testLabel31_;
-	QLabel *testLabel32_;
+	/// The horizontal upstream for mirror 3 label
+	QLabel *m3HorizontalUpstream_;
+
+	/// Returns the horizontal upstream step for mirror 3
 	AMControlEditor *m3HorizontalUpstreamStepControlEditor_;
+	/// Returns the horizontal downstream encoder for mirror 3
 	AMControlEditor *m3HorizontalUpstreamEncoderControlEditor_;
-	QLabel *testLabel35_;
-	QLabel *testLabel36_;
+	/// The horizontal downstream on mirror 3 label
+	QLabel *m3HorizontalDownstream_;
+
+	/// Returns the horizontal downstream step for mirror 3
 	AMControlEditor *m3HorizontalDownstreamStepControlEditor_;
+	/// Returns the horizontal downstream mirror encoder for mirror 3
 	AMControlEditor *m3HorizontalDownstreamEncoderControlEditor_;
-	QLabel *testLabel39_;
-	QLabel *testLabel40_;
+	/// The rotational on mirror 3 label
+	QLabel *m3Rotational_;
+
+	/// Returns the rotational step for mirror 3
 	AMControlEditor *m3RotationalStepControlEditor_;
+	/// Returns the rotational encoder for mirror 3
 	AMControlEditor *m3RotationalEncoderControlEditor_;
 
 
