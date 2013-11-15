@@ -76,6 +76,45 @@ protected:
 };
 
 
+
+/// Helper class for REIXSXESImageABEditor: Exposes REIXSXESImageAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageABEditorEllipticalMask : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+	REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
+
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+	//call when range or roundness changes: call emitDataChanged()
+	void rangeValuesChanged();
+	
+public slots:
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+//	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+//	void onShiftValuesChanged();
+	
+
+
+
+protected:
+	REIXSXESImageAB* analysisBlock_;
+	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
+//	int displayXOffset_;
+
+};
+
+
+
+
+
+
 /// Provides an editor widget for REIXSXESImageAB, showing the raw image, the shift curve, and options to control the summing range and correlation settings.
 class REIXSXESImageABEditor : public QWidget
 {
@@ -87,6 +126,9 @@ public:
 	/// Destructor
 	~REIXSXESImageABEditor();
 
+	/// Enum describing the options for smoothing the auto-correlated shift curve.
+	//enum smoothBoxType { None, Poly, Median, Average };
+
 
 signals:
 
@@ -94,12 +136,23 @@ signals:
 public slots:
 
 	/// signals from GUI objects: range minimum control
-	void onRangeMinControlChanged(int);
+	void onRangeMinYControlChanged(int);
 	/// signals from GUI objects: range maximum control
-	void onRangeMaxControlChanged(int);
+	void onRangeMaxYControlChanged(int);
+	/// signals from GUI objects: range minimum control
+	void onRangeMinXControlChanged(int);
+	/// signals from GUI objects: range maximum control
+	void onRangeMaxXControlChanged(int);
+	
+	/// signals from GUI objects: mask roundness control
+	void onRangeRoundControlChanged(double);
+	
+	
 	/// Called when the correlation settings are changed
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
+
+
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
 	/// Called to apply same shift curve to many XES scans. Shows the dialog to choose which scans.
@@ -123,12 +176,12 @@ protected:
 	REIXSXESImageAB* analysisBlock_;
 
 	// GUI elements:
-	QSpinBox* rangeMinControl_, *rangeMaxControl_;
+	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
 	QSpinBox* correlationCenterBox_, *correlationPointsBox_;
 	QPushButton* correlateNowButton_;
 	QComboBox* correlationSmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
-	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_;
+	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
 
 	QSlider* shiftDisplayOffsetSlider_;
 
@@ -141,10 +194,15 @@ protected:
 	MPlot* plot_;
 	MPlotColorMap* colorMap_;
 	MPlotImageBasic* image_;
-	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
+	MPlotRectangle* rangeRectangleY1_, *rangeRectangleY2_, *rangeRectangleX1_, *rangeRectangleX2_;
+	
 	MPlotSeriesBasic* shiftSeries_;
 	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
 	REIXSXESImageABEditorShiftModel* shiftData_;
+	
+	MPlotSeriesBasic* ellipseSeries_;
+	REIXSXESImageABEditorEllipticalMask* ellipseData_;
+	
 
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
@@ -160,6 +218,7 @@ protected:
 
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
+	
 
 };
 

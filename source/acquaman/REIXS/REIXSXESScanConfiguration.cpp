@@ -31,7 +31,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
 	// removed: detectorOrientation_ = 0;
-	shouldStartFromCurrentPosition_ = false;
+	shouldStartFromCurrentPosition_ = true;
 	doNotClearExistingCounts_ = false;
 
 
@@ -48,11 +48,16 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 	return new REIXSXESScanConfiguration(*this);	// can use the default auto-generated copy-constructor.
 }
 
-#include "acquaman/REIXS/REIXSXESScanController.h"
-
+//#include "acquaman/REIXS/REIXSXESScanController.h"
+#include "acquaman/REIXS/REIXSXESScanActionController.h"
 // Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 AMScanController* REIXSXESScanConfiguration::createController() {
-	return new REIXSXESScanController(this);
+	//return new REIXSXESScanController(this);
+//	return new REIXSXESScanActionController(this);
+	AMScanActionController *controller = new REIXSXESScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 QString REIXSXESScanConfiguration::description() const

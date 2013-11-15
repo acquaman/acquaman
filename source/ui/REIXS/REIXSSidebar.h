@@ -66,6 +66,8 @@ protected slots:
 
 	/// When the scaler's continuous mode is changed
 	void onScalerContinuousModeChanged(double on);
+private slots:
+	// void on_beamOnButton_clicked();  DAVID OOPS?
 };
 
 #endif // REIXSSIDEBAR_H

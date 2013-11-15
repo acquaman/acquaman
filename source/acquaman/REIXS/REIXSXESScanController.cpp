@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
@@ -36,7 +35,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMScanController(configuration, parent)
 {
 	config_ = configuration;
-	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
+//	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
 
 	/////////////////////////
 
@@ -61,7 +60,8 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	/// \todo Check at this point that we have the actual size for the real detector reporting already.
 	// AMMeasurementInfo realDetector = *(REIXSBeamline::bl()->mcpDetector()); // REIXSXESMCPDetector has cast operator to AMDetectorInfo, which has cast operator to AMMeasurementInfo.
 	AMMeasurementInfo configuredDetector = *(config_->mcpDetectorInfo());
-	if(REIXSBeamline::bl()->mcpDetector()->canRead()) {
+	//if(REIXSBeamline::bl()->mcpDetector()->canRead()) {
+	if(REIXSBeamline::bl()->mcpDetector()->isConnected()) {
 		configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
 		configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
 	}
@@ -81,8 +81,8 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
-	xesSpectrum->setSumRangeMax(58);
-	xesSpectrum->setSumRangeMin(5);
+	xesSpectrum->setSumRangeMaxY(58);
+	xesSpectrum->setSumRangeMinY(5);
 	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
 	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
@@ -94,7 +94,8 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 bool REIXSXESScanController::initializeImplementation() {
 
 	// Is the detector connected?
-	if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+	//if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+	if(!REIXSBeamline::bl()->mcpDetector()->isConnected()){
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
 		return false;
 	}
@@ -102,12 +103,15 @@ bool REIXSXESScanController::initializeImplementation() {
 
 	// configure and clear the MCP detector.
 	/// \todo We should really configure the detector even if we're not supposed to clear it, but right now setting the orientation clears the accumulated counts.  We'll be removing that orientation setting soon, since we no longer use it. Therefore, we should be OK to skip this if we're not supposed to clear.
+
+	/*DAVID: Not Testing the configuration setting right now
 	if(!config_->doNotClearExistingCounts()) {
 		if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(config_->mcpDetectorInfo())) ) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
 			return false;
 		}
 	}
+	*/
 
 
 
@@ -135,14 +139,14 @@ bool REIXSXESScanController::initializeImplementation() {
 		//if(initialMoveAction_->isRunning())
 		//	initialMoveAction_->cancel();
 
-		if(!initialMoveAction_->setSetpoint(config_->centerEV())) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
-			return false;
-		}
+//		if(!initialMoveAction_->setSetpoint(config_->centerEV())) {
+//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
+//			return false;
+//		}
 
-		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
-		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
-		initialMoveAction_->start();
+//		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
+//		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
+//		initialMoveAction_->start();
 
 		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
@@ -152,16 +156,17 @@ bool REIXSXESScanController::initializeImplementation() {
 
 void REIXSXESScanController::onInitialSetupMoveFailed() {
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 13, "Could not move the spectrometer into position before starting a scan."));
-	disconnect(initialMoveAction_, 0, this, 0);
+//	disconnect(initialMoveAction_, 0, this, 0);
 	setFailed();
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 
-	disconnect(initialMoveAction_, 0, this, 0);
+//	disconnect(initialMoveAction_, 0, this, 0);
 
 	// remember the state of the beamline at the beginning of the scan.
-	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
+//	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
+	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
@@ -176,7 +181,8 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 bool REIXSXESScanController::startImplementation() {
 
 	if(!config_->doNotClearExistingCounts()) {
-		REIXSBeamline::bl()->mcpDetector()->clearImage();
+//		REIXSBeamline::bl()->mcpDetector()->clearImage();
+		REIXSBeamline::bl()->mcpDetector()->clear();
 	}
 
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
