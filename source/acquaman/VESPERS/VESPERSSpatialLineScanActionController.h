@@ -3,9 +3,10 @@
 
 #include "acquaman/AMRegionScanActionController.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific subclass for spatial line scans.
-class VESPERSSpatialLineScanActionController : public AMRegionScanActionController
+class VESPERSSpatialLineScanActionController : public AMRegionScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 

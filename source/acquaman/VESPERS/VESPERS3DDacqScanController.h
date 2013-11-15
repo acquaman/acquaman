@@ -26,7 +26,7 @@ public:
 	/// Constructor.  \param config is the 3D scan configuration that thee controller will run.
 	VESPERS3DDacqScanController(VESPERS3DScanConfiguration *config, QObject *parent = 0);
 	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERS3DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	~VESPERS3DDacqScanController() {  }
 
 	/// Returns the PV name that will be used for the x-axis.
 	virtual QString xAxisPVName() const { return xAxisPVName_; }

@@ -64,6 +64,10 @@ void AMRegionScanActionController::buildScanController()
 			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 
 		fileWriterThread_ = new QThread();
+		connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
+		connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
+		connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
+
 		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
 
 		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);

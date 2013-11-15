@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSBeamSelectorView.h"
 
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QToolButton>
@@ -80,7 +80,7 @@ VESPERSBeamSelectorView::VESPERSBeamSelectorView(QWidget *parent)
 
 void VESPERSBeamSelectorView::changeBeam(int id)
 {
-	AMBeamlineActionItem *action = 0;
+	AMAction3 *action = 0;
 
 	switch(id){
 
@@ -104,16 +104,15 @@ void VESPERSBeamSelectorView::changeBeam(int id)
 	if (!action)
 		return;
 
+	progressBar_->setRange(0, 0);
 	progressBar_->show();
-	connect(action, SIGNAL(finished()), this, SLOT(onBeamChangeCompleted()));
-	connect(action, SIGNAL(progress(double,double)), this, SLOT(onProgressUpdate(double,double)));
+	connect(action, SIGNAL(cancelled()), this, SLOT(onBeamChangeCompleted()));
+	connect(action, SIGNAL(failed()), this, SLOT(onBeamChangeCompleted()));
+	connect(action, SIGNAL(succeeded()), this, SLOT(onBeamChangeCompleted()));
+	connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
+	connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
+	connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
 	action->start();
-}
-
-void VESPERSBeamSelectorView::onProgressUpdate(double current, double end)
-{
-	Q_UNUSED(end)
-	progressBar_->setValue((int)(current*100));
 }
 
 void VESPERSBeamSelectorView::onCurrentBeamChanged(VESPERS::Beam beam)

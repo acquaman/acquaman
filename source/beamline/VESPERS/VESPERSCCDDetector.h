@@ -4,7 +4,6 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "application/VESPERS/VESPERS.h"
 
 class VESPERSCCDDetector : public AMDetector

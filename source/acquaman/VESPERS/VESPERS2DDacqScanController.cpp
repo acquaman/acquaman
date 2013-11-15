@@ -419,16 +419,17 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 
 bool VESPERS2DDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->timeStep());
-	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
+//	buildBaseInitializationAction(config_->timeStep());
 
-	if (config_->ccdFileName() != ccdName)
-		config_->setCCDFileName(ccdName);
+//	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	if (config_->ccdFileName() != ccdName)
+//		config_->setCCDFileName(ccdName);
+
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -458,9 +459,9 @@ bool VESPERS2DDacqScanController::startImplementation()
 void VESPERS2DDacqScanController::cleanup()
 {
 	buildCleanupAction(false);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERS2DDacqScanController::onCleanupFinished()
@@ -491,7 +492,7 @@ void VESPERS2DDacqScanController::onInitializationActionsFailed(int explanation)
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE, "2D scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

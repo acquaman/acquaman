@@ -3,9 +3,10 @@
 
 #include "acquaman/AMRegionScanActionController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific subclass for XRD energy scans.
-class VESPERSEnergyScanActionController : public AMRegionScanActionController
+class VESPERSEnergyScanActionController : public AMRegionScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
