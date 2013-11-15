@@ -36,6 +36,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
+#include "beamline/AMOldDetector.h"
+#include "beamline/AMSingleControlDetector.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+#include "beamline/CLS/CLSPGTDetector.h"
+#include "beamline/CLS/CLSOceanOptics65000Detector.h"
+#include "beamline/CLS/CLSAmptekSDD123Detector.h"
+
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "beamline/CLS/CLSQE65000Detector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
+
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
@@ -537,6 +551,142 @@ QString SGMBeamline::currentSampleDescription(){
 		return "<Unknown Sample>";
 	else
 		return AMSample(currentId, AMUser::user()->database()).name();
+}
+
+AMOldDetector* SGMBeamline::teyDetector() const {
+	return teyScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::tfyDetector() const {
+	return tfyScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::pgtDetector() const {
+	return pgtDetector_;
+}
+
+AMOldDetector* SGMBeamline::oos65000Detector() const {
+	return oos65000Detector_;
+}
+
+AMOldDetector* SGMBeamline::i0Detector() const {
+	return i0ScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::eVFbkDetector() const {
+	return eVFbkDetector_;
+}
+
+AMOldDetector* SGMBeamline::photodiodeDetector() const {
+	return photodiodeScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::encoderUpDetector() const {
+	return encoderUpDetector_;
+}
+
+AMOldDetector* SGMBeamline::encoderDownDetector() const {
+	return encoderDownDetector_;
+}
+
+AMOldDetector* SGMBeamline::ringCurrentDetector() const {
+	return ringCurrentDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD1ScalarDetector() const {
+	return filterPD1ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD2ScalarDetector() const {
+	return filterPD2ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD3ScalarDetector() const {
+	return filterPD3ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD4ScalarDetector() const {
+	return filterPD4ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::amptekSDD1() const {
+	return amptekSDD1_;
+}
+
+AMOldDetector* SGMBeamline::amptekSDD2() const {
+	return amptekSDD2_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD1() const {
+	return newAmptekSDD1_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD2() const {
+	return newAmptekSDD2_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD3() const {
+	return newAmptekSDD3_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD4() const {
+	return newAmptekSDD4_;
+}
+
+AMDetector* SGMBeamline::newPGTDetector() const {
+	return newPGTDetector_;
+}
+
+AMDetector* SGMBeamline::newQE65000Detector() const {
+	return newQE65000Detector_;
+}
+
+AMDetector* SGMBeamline::newTEYDetector() const {
+	return newTEYDetector_;
+}
+
+AMDetector* SGMBeamline::newTFYDetector() const {
+	return newTFYDetector_;
+}
+
+AMDetector* SGMBeamline::newI0Detector() const {
+	return newI0Detector_;
+}
+
+AMDetector* SGMBeamline::newPDDetector() const {
+	return newPDDetector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD1Detector() const {
+	return newFilteredPD1Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD2Detector() const {
+	return newFilteredPD2Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD3Detector() const {
+	return newFilteredPD3Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD4Detector() const {
+	return newFilteredPD4Detector_;
+}
+
+AMDetector* SGMBeamline::newEncoderUpDetector() const {
+	return newEncoderUpDetector_;
+}
+
+AMDetector* SGMBeamline::newEncoderDownDetector() const {
+	return newEncoderDownDetector_;
+}
+
+AMDetector* SGMBeamline::energyFeedbackDetector() const {
+	return energyFeedbackDetector_;
+}
+
+AMDetector* SGMBeamline::gratingEncoderDetector() const {
+	return gratingEncoderDetector_;
 }
 
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){

@@ -5,6 +5,7 @@
 #include "dataman/AMSample.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMRegionScanActionController(cfg, parent)

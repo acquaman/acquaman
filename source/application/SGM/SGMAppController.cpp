@@ -52,6 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -90,6 +92,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/SGM/SGMAxis2000Exporter.h"
+
+#include "beamline/CLS/CLSPGTDetectorV2.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -457,13 +461,16 @@ void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	Q_UNUSED(connected)
+	qDebug() << "Checking amptek4";
 	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
+		qDebug() << "amptek4 is good";
 		//newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
 
 		//newAmptekSDD4View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		//mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "SGM Amptek4", ":/system-software-update.png");
 
-		newAmptekSDD4XRFView_ = new AMXRFDetailedDetectorView(qobject_cast<AMXRFDetector*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		//newAmptekSDD4XRFView_ = new AMXRFDetailedDetectorView(qobject_cast<AMXRFDetector*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		newAmptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		newAmptekSDD4XRFView_->buildDetectorView();
 		newAmptekSDD4XRFView_->setEnergyRange(270, 2000);
 		mw_->addPane(newAmptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
