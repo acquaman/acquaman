@@ -30,7 +30,8 @@ namespace AMAgnosticDataAPIDefinitions
 		DetectorDimensionalityUnit = 5,		///< The units of the detector.
 		ControlMovementType = 6,			///< Which type of control was moved.
 		ControlMovementValue = 7,			///< The value of the control, regardless of what type of control it is.
-		InvalidType = 8						///< Catch all error type.
+		ControlMovementFeedback = 8,		///< The feedback value of the control, regardless of what type of control it is.
+		InvalidType = 9						///< Catch all error type.
 	};
 
 	/// The event type enum.  There is only one event type because there is only one message.
@@ -155,7 +156,7 @@ class AMAgnosticDataAPIControlMovedMessage : public AMAgnosticDataAPIMessage
 {
 public:
 	/// Constructs a "Control Moved" message with the given initial values
-	AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue);
+	AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue, double movementFeedback);
 
 	/// Returns the control's movement type as a string. If the value is invalid a string containing "INVALIDMOVEMENTTYPE" is returned
 	QString controlMovementType() const;
@@ -163,11 +164,17 @@ public:
 	/// Returns the control's movement value as a double. If the value is invalid 0 is returned.
 	double controlMovementValue() const;
 
+	/// Returns the controls' movement feedback value as a double.  If the value is invalid, 0 is returned.
+	double controlMovementFeedback() const;
+
 	/// Sets the control movement type to the given string
 	void setControlMovementType(const QString &movementType);
 
 	/// Sets the control movement value to the given double
 	void setControlMovementValue(double movementValue);
+
+	/// Sets the control movement feedback value to given double.
+	void setControlMovementFeedback(double movementFeedback);
 };
 
 class AMAgnositicDataEvent : public QEvent

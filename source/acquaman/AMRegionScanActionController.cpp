@@ -25,6 +25,7 @@ AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfigura
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	useFeedback_ = false;
 }
 
 AMRegionScanActionController::~AMRegionScanActionController()
@@ -178,10 +179,18 @@ bool AMRegionScanActionController::event(QEvent *e)
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
-			if(message.value("ControlMovementType") == "Absolute")
-				currentAxisValue_ = message.value("ControlMovementValue").toDouble();
-			else if(message.value("ControlMovementType") == "Relative")
-				currentAxisValue_ += message.value("ControlMovementValue").toDouble();
+
+			if (!useFeedback_){
+				if(message.value("ControlMovementType") == "Absolute")
+					currentAxisValue_ = message.value("ControlMovementValue").toDouble();
+				else if(message.value("ControlMovementType") == "Relative")
+					currentAxisValue_ += message.value("ControlMovementValue").toDouble();
+			}
+
+			else{
+				qDebug() << "Inside and using feedback instead of setpoint." << message.value("ControlMovementFeedback").toDouble();
+				currentAxisValue_ = message.value("ControlMovementFeedback").toDouble();
+			}
 
 			break;
 
