@@ -190,18 +190,19 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 
 void StripToolPlot::onModelSelectionChange()
 {
-    qDebug() << "Setting plot selection...";
-
     MPlotItem *modelSelection = model_->selectedSeries();
 
     if (modelSelection && contains(modelSelection))
     {
-        if (modelSelection != selector_->selectedItem())
-            emit setPlotSelection(modelSelection);
+        qDebug() << "Setting plot selection...";
+        emit setPlotSelection(modelSelection);
+
+    } else if (!modelSelection) {
+        qDebug() << "Plot item deselected.";
+        emit setPlotSelection(0);
 
     } else {
-
-        emit setPlotSelection(0);
+        qDebug() << "Attempting to select plot item that doesn't exist.";
     }
 }
 

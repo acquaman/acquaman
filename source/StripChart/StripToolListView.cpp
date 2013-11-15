@@ -4,15 +4,16 @@ StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
     model_ = 0;
-    modelSelection_ = QModelIndex();
-
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setMaximumWidth(200);
 
     createActions();
     setContextMenuPolicy(Qt::CustomContextMenu);
+
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
+    connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
+
 }
 
 
@@ -30,6 +31,8 @@ void StripToolListView::setPVModel(StripToolModel *model)
     setModel(model_);
 
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
+
+    connect( this->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), model_, SLOT(listItemSelected(QModelIndex, QModelIndex)) );
 
     connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
@@ -72,24 +75,6 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     menu.addAction(setColor_);
 
     menu.exec(mapToGlobal(position));
-}
-
-
-
-void StripToolListView::setViewSelection()
-{
-    QModelIndex modelSelection = model_->selectedIndex();
-
-    if (modelSelection == QModelIndex())
-    {
-        emit setDeselected(modelSelection_, QItemSelectionModel::Deselect);
-
-    } else {
-        QItemSelection *items = new QItemSelection(modelSelection, modelSelection);
-        emit setSelected(*items, QItemSelectionModel::ClearAndSelect);
-    }
-
-    modelSelection_ = modelSelection;
 }
 
 
@@ -155,4 +140,15 @@ void StripToolListView::toSetPVColor()
 void StripToolListView::onModelSelectionChange()
 {
     QModelIndex modelSelection = model_->selectedIndex();
+
+    // an invalid index indicates that there is no model selection--something has been deselected.
+    if (modelSelection == QModelIndex())
+    {
+        qDebug() << "List view item deselected.";
+        emit setCurrentSelection(modelSelection);
+
+    } else if (modelSelection.isValid()) {
+        qDebug() << "Setting list view selection...";
+        emit setCurrentSelection(modelSelection);
+    }
 }

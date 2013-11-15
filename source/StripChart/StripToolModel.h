@@ -31,7 +31,6 @@ signals:
 protected:
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
-    QModelIndex selectedIndex_;
 
     QDir appDirectory_;
 
@@ -102,7 +101,7 @@ protected slots:
     void seriesSelected(MPlotItem*);
     void seriesDeselected();
 
-    void listItemSelected(const QModelIndex &index);
+    void listItemSelected(const QModelIndex &newSelection, const QModelIndex &oldSelection);
     void listItemDeselected();
 
     void onModelSelectionChange();

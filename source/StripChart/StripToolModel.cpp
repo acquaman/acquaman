@@ -30,17 +30,21 @@ StripToolPV* StripToolModel::selectedPV() const
 
 QModelIndex StripToolModel::selectedIndex() const
 {
-    return selectedIndex_;
+    if (selectedPV_ == 0)
+        return QModelIndex();
+
+    else
+        return createIndex(pvList_.indexOf(selectedPV_), 0);
 }
 
 
 
 MPlotItem* StripToolModel::selectedSeries() const
 {
-    if (selectedPV() == 0)
+    if (selectedPV_ == 0)
         return 0;
     else
-        return selectedPV()->series();
+        return selectedPV_->series();
 }
 
 
@@ -50,9 +54,7 @@ MPlotItem* StripToolModel::series(int row) const
     MPlotItem *series = 0;
 
     if (row >= 0 && row < pvList_.size())
-    {
         series = pvList_.at(row)->series();
-    }
 
     return series;
 }
@@ -291,10 +293,9 @@ bool StripToolModel::addPV(AMControl *pvControl)
     pvList_.insert(position, newPV); // add new pv to the model.
     endInsertRows();
 
-    setSelectedPV(newPV);
-
     if (position + 1 == pvList_.size())
     {
+        setSelectedPV(newPV);
         return true;
 
     } else {
@@ -367,8 +368,7 @@ bool StripToolModel::deletePV(const QModelIndex &index)
         int position = index.row(); //  we use the index to identify which pv to remove from the list.
         int count = 1; //  we delete pvs one at a time.
 
-        selectedPV_ = 0;
-        emit modelSelectionChange();
+        setSelectedPV(0);
 
         pvList_.at(position)->disconnect(this);
 
@@ -482,24 +482,27 @@ void StripToolModel::setValuesDisplayed(const QModelIndex &index, int points)
 
 void StripToolModel::setSelectedPV(StripToolPV *newSelection)
 {
-    qDebug() << "Setting selected pv...";
-
-    if (newSelection)
+    if (newSelection != selectedPV_)
     {
-        if (contains(newSelection))
+        if (newSelection && contains(newSelection))
         {
+            qDebug() << "Setting selected pv...";
             selectedPV_ = newSelection;
             emit modelSelectionChange();
             qDebug() << "Selected pv : " << selectedPV_->pvName();
 
-        } else {
-            qDebug() << "ERROR : attempting to set selected pv to a pv not in the model.";
-        }
+        } else if (!newSelection) {
 
-    } else {
-        selectedPV_ = 0;
-        emit modelSelectionChange();
-        qDebug() << "Deselected pv.";
+            selectedPV_ = 0;
+            emit modelSelectionChange();
+            qDebug() << "Deselected pv.";
+
+        } else {
+
+            selectedPV_ = 0;
+            emit modelSelectionChange();
+            qDebug() << "Attempting to set an unknown pv as selected!!";
+        }
     }
 }
 
@@ -519,12 +522,15 @@ void StripToolModel::seriesDeselected()
 
 
 
-void StripToolModel::listItemSelected(const QModelIndex &index)
+void StripToolModel::listItemSelected(const QModelIndex &newSelection, const QModelIndex &oldSelection)
 {
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        setSelectedPV( pvList_.at(index.row()) );
-    }
+    Q_UNUSED(oldSelection);
+
+    if (newSelection == QModelIndex())
+        setSelectedPV(0);
+
+    else if (newSelection.isValid() && newSelection.row() < pvList_.size())
+        setSelectedPV( pvList_.at(newSelection.row()) );
 }
 
 
@@ -538,7 +544,7 @@ void StripToolModel::listItemDeselected()
 
 void StripToolModel::onModelSelectionChange()
 {
-    if (selectedPV() == 0)
+    if (selectedPV_ == 0)
     {
         emit setPlotAxesLabels("", "");
         emit setPlotTicksVisible(false);
