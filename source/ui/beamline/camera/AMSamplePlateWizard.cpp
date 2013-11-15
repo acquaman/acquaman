@@ -6,14 +6,19 @@
 #include <QLayout>
 #include <QDebug>
 
+#include "AMSampleCameraGraphicsView.h"
+
 AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
 	/// Used to generate and allow modification of the option page
 	numberOfPoints_ = 2;
+	showOptionPage_ = false;
 	coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
     coordinateList_->append(new QVector3D(0,1,0));
+
+
 
 
     setPage(Page_Intro, new AMWizardPage);
@@ -39,6 +44,8 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     addOptionPage(Page_Intro);
+	addResetPointsButton(Page_Set_One);
+	addResetPointsButton(Page_Set_Two);
 
 	pointList_->clear();
 	/// We don't know how many points there will be, so in addPoint, make sure point
@@ -71,10 +78,12 @@ int AMSamplePlateWizard::nextId() const
         else
 			return Page_Wait_One;
 	case Page_Wait_One:
+		((AMSampleSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
 		return Page_Set_One;
 	case Page_Set_One:
 		return Page_Wait_Two;
 	case Page_Wait_Two:
+		((AMSampleSetPage*)page(Page_Set_One))->disconnectMouseSignal();
 		return Page_Set_Two;
 	case Page_Set_Two:
 		return Page_Final;
@@ -224,6 +233,7 @@ void AMSamplePlateWizard::back()
         }
         break;
 	case Page_Set_One:
+		((AMSampleSetPage*)page(id))->disconnectMouseSignal();
         while(currentId() != Page_Check)
         {
             QWizard::back();
@@ -235,6 +245,7 @@ void AMSamplePlateWizard::back()
         }
         break;
 	case Page_Set_Two:
+		((AMSampleSetPage*)page(id))->disconnectMouseSignal();
 		while(currentId() != Page_Wait_One)
 		{
 			QWizard::back();
@@ -257,12 +268,39 @@ void AMSamplePlateWizard::sliderChanged()
 
 void AMSamplePlateWizard::addPoint(QPointF position)
 {
-	int pagePointAddedFrom = relativeId() - 1;
-	QPointF* newPoint = pointList_->at(pagePointAddedFrom);
-	QPointF newPosition = mapPointToVideo(position);
-	*newPoint = newPosition;
-	next();
+	/// This should add a point to the list every time the view is clicked.  Need to add a clear button, and visual indicators to show what points have been added.
+	QPointF* newPoint = new QPointF(position);
+	/// Must keep track of which are from page one and which are from page two.
+	/// The easiest way to keep them seperate is to append from one page and
+	/// prepend from the other.
+	if(currentId() == Page_Set_One)
+	{
+		pointList_->prepend(newPoint);
+	}
+	else if(currentId() == Page_Set_Two)
+	{
+		pointList_->append(newPoint);
+	}
+
+	((AMSampleSetPage*)currentPage())->insertPoint(newPoint);
+	qDebug()<<"AMSamplePlateWizard::addPoint - points";
+	foreach(QPointF* point, *pointList_)
+	{
+		qDebug()<<*point;
+	}
+
 }
+
+void AMSamplePlateWizard::removePoint(QPointF *point)
+{
+	if(pointList_->contains(point))
+	{
+		pointList_->removeAll(point);
+		delete(point);
+
+	}
+}
+
 
 
 void AMSampleWaitPage::initializePage()
@@ -272,31 +310,47 @@ void AMSampleWaitPage::initializePage()
 }
 
 
-AMSampleSetPage::AMSampleSetPage(QWidget *parent)
-    :AMViewPage(parent)
-{
-    adjustmentSlider_ = new QSlider();
-    adjustmentSlider_->setOrientation(Qt::Horizontal);
-    adjustmentSlider_->setMaximum(1000);
-    adjustmentSlider_->setMinimum(-1000);
-    adjustmentSlider_->setValue(0);
-    registerField("adjustmentSlider", adjustmentSlider_);
-}
-
 void AMSampleSetPage::initializePage()
 {
     AMViewPage::initializePage();
-    layout()->addWidget(adjustmentSlider_);
-    disconnect(adjustmentSlider_, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
-    adjustmentSlider_->setValue(0);
-    connect(adjustmentSlider_, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
+	/// disconnect and reconnect addPoint.
+	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }
 
-void AMSampleSetPage::sliderChanged()
+void AMSampleSetPage::addPoint(QPointF position)
 {
-    setLabelText(message(Text));
-    emit slider();
+	((AMSamplePlateWizard*)viewWizard())->addPoint(position);
 }
+
+/// Insert the QPointF* into the local pages list.
+void AMSampleSetPage::insertPoint(QPointF *position)
+{
+	localPoints_<<position;
+}
+
+void AMSampleSetPage::disconnectMouseSignal()
+{
+	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+}
+
+
+void AMSampleSetPage::resetPoints()
+{
+	/// This doesn't delete the points, as it didn't make them
+	/// it is up to the wizard to delete the points.
+	foreach(QPointF* point, localPoints_)
+	{
+		localPoints_.remove(localPoints_.indexOf(point));
+		((AMSamplePlateWizard*)viewWizard())->removePoint(point);
+	}
+}
+
+//void AMSampleSetPage::sliderChanged()
+//{
+//    setLabelText(message(Text));
+//    emit slider();
+//}
 
 
 void AMSampleCheckPage::checkBoxChanged(bool state)
@@ -318,6 +372,48 @@ double AMSamplePlateWizard::coordinateY(int id)
 double AMSamplePlateWizard::coordinateZ(int id)
 {
 	return coordinateList()->at(id-1)->z();
+}
+
+void AMSamplePlateWizard::addResetPointsButton(int id)
+{
+	setOption(HaveCustomButton2);
+	setButtonText(CustomButton2, "Reset");
+	connect(this, SIGNAL(customButtonClicked(int)), this, SLOT(triggerReset(int)));
+	connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(showResetButton(int)));
+	addResetPage(id);
+
+}
+
+void AMSamplePlateWizard::triggerReset(int id)
+{
+	if(id == CustomButton2)
+	{
+		if(resetPages_.contains(currentId()))
+		{
+			((AMSampleSetPage*)currentPage())->resetPoints();
+		}
+		else
+		{
+			qDebug()<<"AMSamplePlateWizard::triggerReset - reset triggered on invalid page.";
+		}
+	}
+}
+
+void AMSamplePlateWizard::addResetPage(int id)
+{
+	resetPages_<<id;
+}
+
+void AMSamplePlateWizard::showResetButton(int id)
+{
+	if(resetPages_.contains(id))
+	{
+		button(CustomButton2)->show();
+	}
+	else if(button(CustomButton2)->isVisible())
+	{
+		button(CustomButton2)->hide();
+	}
 }
 
 

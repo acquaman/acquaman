@@ -42,6 +42,10 @@ public slots:
     void sliderChanged();
 	/// \todo implement addPoint
 	virtual void addPoint(QPointF position);
+	void removePoint(QPointF* point);
+	/// Will add duplicate points unless this is called when leaving the page
+
+
 
 
 signals:
@@ -51,7 +55,15 @@ protected:
 	double coordinateX(int id);
 	double coordinateY(int id);
 	double coordinateZ(int id);
+	void addResetPointsButton(int id);
 
+protected slots:
+	void triggerReset(int id);
+	void addResetPage(int id);
+	void showResetButton(int id);
+
+private:
+	QVector<int> resetPages_;
 
 
 };
@@ -73,21 +85,25 @@ public:
     void initializePage();
 };
 
-class AMSampleSetPage : public  AMViewPage
+class AMSampleSetPage : public AMViewPage
 {
     Q_OBJECT
 public:
-    AMSampleSetPage(QWidget* parent = 0);
-    void initializePage();
+//    AMSampleSetPage(QWidget* parent = 0);
+	void initializePage();
 
-signals:
-    void slider();
+public slots:
 
-protected slots:
-    void sliderChanged();
+	void addPoint(QPointF position);
+	/// add a point to the page's list of points
+	void insertPoint(QPointF *position);
+	void disconnectMouseSignal();
+	/// clears all the points currently selected by the page.
+	void resetPoints();
 
-protected:
-    QSlider* adjustmentSlider_;
+private:
+	/// these are the points associated with a particular page.
+	QVector<QPointF*> localPoints_;
 };
 
 class AMSampleCheckPage : public AMCheckPage
