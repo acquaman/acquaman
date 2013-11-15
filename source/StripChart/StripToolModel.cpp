@@ -398,7 +398,7 @@ bool StripToolModel::deletePV(const QModelIndex &index)
 
 
 void StripToolModel::toSavePVData(QObject *toSave)
-{
+{    
     StripToolPV *pvToSave = (StripToolPV *) toSave;
     QDir home, data;
 
@@ -429,6 +429,7 @@ void StripToolModel::toSavePVData(QObject *toSave)
 bool StripToolModel::savePVData(StripToolPV *toSave)
 {
     QString filename = toSave->pvName().replace(":", "_") + ".txt";
+    QList<QString> metaData;
 
     if (filename.isEmpty())
         return false;
@@ -437,6 +438,7 @@ bool StripToolModel::savePVData(StripToolPV *toSave)
     QList<double> indexesToSave = toSave->saveIndexes().toList();
 
     QFile file(filename);
+    bool fileExists = file.exists();
 
     if (!file.open(QIODevice::Append | QIODevice::WriteOnly))
     {
@@ -446,6 +448,18 @@ bool StripToolModel::savePVData(StripToolPV *toSave)
 
     QTextStream out(&file);
 
+    if (!fileExists)
+    {
+        metaData = toSave->metaData();
+
+        for (int h = 0; h < metaData.size(); h++)
+        {
+            out << metaData.at(h) + "\t";
+        }
+
+        out << "\n";
+    }
+
     for (int i = 0; i < dataToSave.size(); i++)
     {
         out << indexesToSave.at(i) << "\t" << dataToSave.at(i) << "\n";
@@ -454,6 +468,13 @@ bool StripToolModel::savePVData(StripToolPV *toSave)
     file.close();
 
     return true;
+}
+
+
+
+bool StripToolModel::createNewPVFile(StripToolPV *pv)
+{
+
 }
 
 
@@ -531,13 +552,6 @@ void StripToolModel::listItemSelected(const QModelIndex &newSelection, const QMo
 
     else if (newSelection.isValid() && newSelection.row() < pvList_.size())
         setSelectedPV( pvList_.at(newSelection.row()) );
-}
-
-
-
-void StripToolModel::listItemDeselected()
-{
-    setSelectedPV(0);
 }
 
 

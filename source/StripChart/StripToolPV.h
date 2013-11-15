@@ -71,6 +71,9 @@ protected:
     /// Returns the bottom axis range for the values displayed for this pv.
     MPlotAxisRange axisBottomRange() const;
 
+    QList<QString> metaDataHeader();
+    QList<QString> metaData();
+
     /// Sets the PV control and reparents for this pv.
     void setControl(AMControl *newPV);
     /// If the user wants to set a new description for the pv, this is where it happens.

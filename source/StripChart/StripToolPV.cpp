@@ -197,6 +197,30 @@ MPlotAxisRange StripToolPV::axisBottomRange() const
 
 
 
+QList<QString> StripToolPV::metaDataHeader()
+{
+    QList<QString> metaDataHeaders;
+
+    metaDataHeaders << "Name";
+    metaDataHeaders << "Color";
+
+    return metaDataHeaders;
+}
+
+
+
+QList<QString> StripToolPV::metaData()
+{
+    QList<QString> metaData;
+
+    metaData << pvName();
+    metaData << color().name();
+
+    return metaData;
+}
+
+
+
 void StripToolPV::setControl(AMControl *newPV)
 {
     pvControl_ = newPV;

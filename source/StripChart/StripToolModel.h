@@ -67,6 +67,7 @@ protected:
     bool deletePV(const QModelIndex &index);
     /// Creates a new StripToolPV object and sets its control to pvControl.
     bool addPV(AMControl *pvControl);
+    bool createNewPVFile(StripToolPV *pv);
     bool savePVData(StripToolPV *toSave);
 
     StripToolPV* findItem(MPlotItem* series);
@@ -102,7 +103,6 @@ protected slots:
     void seriesDeselected();
 
     void listItemSelected(const QModelIndex &newSelection, const QModelIndex &oldSelection);
-    void listItemDeselected();
 
     void onModelSelectionChange();
 
