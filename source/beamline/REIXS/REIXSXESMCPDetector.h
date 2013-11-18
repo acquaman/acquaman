@@ -74,8 +74,8 @@ public:
 	/// Returns false, because the XES MCP detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a REIXSXESMCPDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return image_; }

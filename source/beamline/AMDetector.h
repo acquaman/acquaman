@@ -239,8 +239,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	virtual bool lastContinuousReading(double *outputValues) const;
 	virtual int lastContinuousSize() const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const = 0;
+	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
+	virtual bool data(double *outputValues) const = 0;
 
 	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
 	virtual AMAction3* createInitializationActions();

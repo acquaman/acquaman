@@ -10,10 +10,6 @@ CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &descripti
 	baseName_ = baseName;
 	units_ = "Counts";
 
-	data_ = new double[1024];
-	for(int x = 0; x < 1024; x++)
-		data_[x] = 0;
-
 	allControls_ = new AMControlSet(this);
 	statusControl_ = new AMReadOnlyPVControl(name%"Status", baseName%":GetAcquire", this);
 	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
@@ -48,7 +44,6 @@ CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &descripti
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
-	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
 	connect(integrationModeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionModeChanged()));
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
@@ -122,8 +117,9 @@ bool CLSPGTDetectorV2::lastContinuousReading(double *outputValues) const{
 	return false;
 }
 
-const double* CLSPGTDetectorV2::data() const{
-	return data_;
+bool CLSPGTDetectorV2::data(double *outputValues) const
+{
+	return spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);
 }
 
 AMControl* CLSPGTDetectorV2::privilegedIntegrationModeControl(const QObject *caller){
@@ -190,16 +186,6 @@ void CLSPGTDetectorV2::onControlsConnected(bool connected){
 
 void CLSPGTDetectorV2::onControlsTimedOut(){
 	setConnected(false);
-}
-
-void CLSPGTDetectorV2::onSpectrumControlChanged(double newValue){
-	Q_UNUSED(newValue)
-
-	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
-
-	QVector<int> values = tmpControl->readPV()->lastIntegerValues();
-	for(int x = 0; x < values.count(); x++)
-		data_[x] = values.at(x);
 }
 
 void CLSPGTDetectorV2::onStatusControlChanged(double value){

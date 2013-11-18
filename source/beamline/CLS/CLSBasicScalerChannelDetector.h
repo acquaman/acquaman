@@ -55,8 +55,8 @@ public:
 	/// Returns false, because the scaler channels do not support continuous reads (in this class)
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a single double with our current value
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a single double with our current value
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
@@ -99,9 +99,6 @@ protected:
 
 	///// The list of all the raw spectrum data sources.
 	//AM1DProcessVariableDataSource *spectrumDataSource_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSBASICSCALERCHANNELDETECTOR_H
