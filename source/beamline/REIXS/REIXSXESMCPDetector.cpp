@@ -90,7 +90,7 @@ bool REIXSXESMCPDetector::data(double *outputValues) const
 	QVector<int> intVal = imageControl_->readPV()->lastIntegerValues();
 
 	for(int x = 0, size = intVal.size(); x < size; x++)
-		outputValues[x] = intVal.at(x);
+		outputValues[x] = double(intVal.at(x));
 
 	return true;
 }
