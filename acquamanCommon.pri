@@ -698,7 +698,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
 	source/dataman/export/SGM/SGMAxis2000Exporter.h \
-	source/actions3/AMActionSupport.h
+	source/actions3/AMActionSupport.h \
+    source/ui/CLS/CLSSR570View.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1167,7 +1168,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMRegionScanConfigurationConverter.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
-	source/dataman/export/SGM/SGMAxis2000Exporter.cpp
+	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
+    source/ui/CLS/CLSSR570View.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1191,3 +1193,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
