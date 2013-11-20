@@ -20,8 +20,8 @@ public:
 	virtual bool lastContinuousReading(double *outputValues) const;
 	virtual int lastContinuousSize() const;
 
-	/// Returns a (hopefully) valid pointer to a single double with our current value
-	virtual const double* data() const;
+	/// Fills the (hopefully) valid pointer to a single double with our current value
+	virtual bool data(double *outputValues) const;
 
 public slots:
 	/// Note that this will change the read mode for the entire scaler, not just this channel. The read mode can be changed to either SingleRead or ContinuousRead. Requesting to change to the same readMode returns true and the readModeChanged() signal is immediately emitted

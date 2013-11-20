@@ -56,6 +56,8 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	for(int x = 0; x < other.regionCount(); x++)
 		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x), other.regionTime(x));
 
+	regions_->setDefaultControl(other.regions()->defaultControl());
+
 	scanNumber_ = other.scanNumber_;
 	sampleId_ = other.sampleId_;
 	namedAutomatically_ = other.namedAutomatically_;
@@ -79,9 +81,15 @@ AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 }
 
 #include "acquaman/REIXS/REIXSXASScanController.h"
+#include "acquaman/REIXS/REIXSXASScanActionController.h"
 AMScanController * REIXSXASScanConfiguration::createController()
 {
-	return new REIXSXASScanController(this);
+	//return new REIXSXASScanController(this);
+//	return new REIXSXASScanActionController(this);
+	AMScanActionController *controller = new REIXSXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 #include "ui/dataman/AMRegionScanConfigurationView.h"

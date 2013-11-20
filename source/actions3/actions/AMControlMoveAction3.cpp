@@ -151,7 +151,8 @@ void AMControlMoveAction3::onMoveSucceeded()
 	setProgress(100,100);
 
 	if(generateScanActionMessages_){
-		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value());
+		qDebug() << "Generate message " << controlMoveInfo()->controlInfo()->value() << control_->value();
+		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value(), control_->value());
 		if(controlMoveInfo()->isRelativeMove())
 			controlMovedMessage.setControlMovementType("Relative");
 		else

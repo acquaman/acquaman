@@ -61,6 +61,8 @@ protected:
 	/// The pointer to the region scan configuration to provide the subclass information.
 	AMRegionScanConfiguration *regionsConfiguration_;
 
+	/// Flag for determining whether axis value comes from setpoint or feedback.  Should be set by subclasses.
+	bool useFeedback_;
 	/// The current index new data will be inserted into.
 	AMnDIndex currentAxisValueIndex_;
 	/// The current axis value.

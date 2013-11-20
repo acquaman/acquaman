@@ -63,8 +63,8 @@ public:
 	/// Returns false, because the QE65000 detector does not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
@@ -87,9 +87,6 @@ protected slots:
 	void onControlsConnected(bool connected);
 	/// Handles if one or more the controls times out
 	void onControlsTimedOut();
-
-	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged(double newValue);
 
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
@@ -122,9 +119,6 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSQE65000DETECTOR_H

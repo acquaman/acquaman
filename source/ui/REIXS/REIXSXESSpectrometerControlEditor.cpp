@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/AMFontSizes.h"
 
@@ -44,6 +45,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_, SIGNAL(calibrationChanged()), this, SLOT(populateGratingComboBox()));
 	connect(spectrometer_, SIGNAL(gratingChanged(int)), this, SLOT(updateCurrentGratingStatus()));
 	connect(spectrometer_, SIGNAL(movingChanged(bool)), this, SLOT(updateCurrentGratingStatus()));
+	connect(spectrometer_->gratingMask(), SIGNAL(valueChanged(double)), this, SLOT(updateMaskPosition()));
 
 	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
 	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
@@ -64,8 +66,31 @@ REIXSXESSpectrometerControlEditor::~REIXSXESSpectrometerControlEditor()
 }
 
 
+//void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
+//{
+//	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
+//	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
+//	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
+
+//	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
+//	if(failureExplanation != AMControl::NoFailure)
+//		onSpectrometerMoveFailed(failureExplanation);
+//}  DM UPDATE CODE TO VERIFY GRATING CHANGE FOLLOWS:
+
 void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 {
+	int confirm = QMessageBox::Yes;
+	if (spectrometer_->grating() != ui_->gratingSelectorBox->currentIndex())
+		{
+			QMessageBox confirmBox;
+			confirmBox.setText("A new grating has been selected.");
+			confirmBox.setInformativeText("Do you want to change gratings?");
+			confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+			confirm = confirmBox.exec();
+		}
+
+	if (confirm == QMessageBox::Yes)
+	{
 	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
 	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
 	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
@@ -73,6 +98,8 @@ void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
 	if(failureExplanation != AMControl::NoFailure)
 		onSpectrometerMoveFailed(failureExplanation);
+	}
+	else ui_->gratingSelectorBox->setCurrentIndex(spectrometer_->grating());
 }
 
 void REIXSXESSpectrometerControlEditor::onGratingComboBoxActivated(int grating)
@@ -106,6 +133,11 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 	else {
 		ui_->energyFeedbackLabel->setText(QString("Currently: %1").arg(eV));
 	}
+}
+
+void REIXSXESSpectrometerControlEditor::updateMaskPosition()
+{
+	ui_->maskFeedbackLabel->setText(QString("Currently: %1").arg(spectrometer_->gratingMask()->value()));
 }
 
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus() {
@@ -145,5 +177,23 @@ void REIXSXESSpectrometerControlEditor::onSpectrometerMoveFailed(int reason)
 void REIXSXESSpectrometerControlEditor::onStopButtonClicked()
 {
 	spectrometer_->stop();
+}
+
+
+
+void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(const QString &arg1)
+{
+	if (arg1 == "Pin Hole")
+		spectrometer_->gratingMask()->move(8.5);
+	else if (arg1 == "LEG")
+		spectrometer_->gratingMask()->move(12.9);
+	else if (arg1 == "Impurity")
+		spectrometer_->gratingMask()->move(12.9);
+	else if (arg1 == "MEG")
+		spectrometer_->gratingMask()->move(12.8);
+	else if (arg1 == "HRMEG")
+		spectrometer_->gratingMask()->move(12.6);
+	else if (arg1 == "OUT")
+		spectrometer_->gratingMask()->move(1.0);
 }
 

@@ -47,7 +47,7 @@ public:
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const { Q_UNUSED(indexes) return AMNumber(); }
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const { return 0; }
+	virtual bool data(double *outputValues) const { outputValues[0] = 0; return true; }
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const { return 0; }
 

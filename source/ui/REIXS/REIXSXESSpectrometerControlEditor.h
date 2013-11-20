@@ -56,10 +56,15 @@ protected slots:
 	void updateCurrentEnergyStatus(double eV);
 	void updateCurrentEnergyStatus();
 	void updateCurrentGratingStatus();
+	void updateMaskPosition();
 
 	// Move failed: provide errorMon messages
 	void onSpectrometerMoveSucceeded();
 	void onSpectrometerMoveFailed(int reason);
+
+private slots:
+
+	void on_maskComboBox_currentIndexChanged(const QString &arg1);
 
 private:
 	Ui::REIXSXESSpectrometerControlEditor *ui_;

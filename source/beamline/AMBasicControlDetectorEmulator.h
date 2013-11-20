@@ -52,8 +52,8 @@ public:
 	/// Returns false, because the controls do not support continuous reading
 	virtual bool lastContinuousReading(double *outputValues) const { Q_UNUSED(outputValues); return false; }
 
-	/// Returns a (hopefully) valid pointer to a single double with our current value
-	virtual const double* data() const;
+	/// Fills the given double pointer with our current value
+	virtual bool data(double *outputValues) const;
 
 	virtual AMAction3* createSetAcquisitionTimeAction(double seconds) { Q_UNUSED(seconds); return 0; }
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
@@ -100,9 +100,6 @@ protected:
 	AMControl *statusControl_;
 	/// The master set of controls
 	AMControlSet *allControls_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 
 	bool waitingForNewData_;
 	bool waitingForStatusChange_;

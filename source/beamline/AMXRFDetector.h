@@ -87,19 +87,8 @@ public:
 	/// Returns the region of interest using the provided AMEmissionLine.
 	AMRegionOfInterest *regionOfInterest(const AMEmissionLine &emissionLine) const;
 
-
-
-
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const
-	{
-		data_ = QVector<double>(dataSource()->size(0));
-		dataSource()->values(AMnDIndex(0), AMnDIndex(dataSource()->size(0)-1), data_.data());
-		return data_.constData();
-	}
-
-
-
+	virtual bool data(double *outputValues) const;
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
@@ -188,15 +177,6 @@ protected:
 	// Extras
 	/// Flag that holds whether the detector will do dead time corrections or not.
 	bool doDeadTimeCorrection_;
-
-
-
-
-	mutable QVector<double> data_;
-
-
-
-
 
 private:
 	/// Internal method that builds process variable data sources for the spectrum controls.

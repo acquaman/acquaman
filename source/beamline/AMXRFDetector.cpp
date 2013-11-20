@@ -337,3 +337,8 @@ void AMXRFDetector::removeRegionOfInterestImplementation(AMRegionOfInterest *reg
 	// Base class does nothing extra.
 	Q_UNUSED(regionOfInterest);
 }
+
+bool AMXRFDetector::data(double *outputValues) const
+{
+	return dataSource()->values(AMnDIndex(0), AMnDIndex(dataSource()->size(0)-1), outputValues);
+}

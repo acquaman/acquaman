@@ -9,9 +9,6 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 	scaler_ = scaler;
 	channelIndex_ = channelIndex;
 
-	data_ = new double[1];
-	data_[0] = 0;
-
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
 }
@@ -45,8 +42,10 @@ AMDetectorDwellTimeSource* CLSBasicScalerChannelDetector::detectorDwellTimeSourc
 	return scaler_->dwellTimeSource();
 }
 
-const double* CLSBasicScalerChannelDetector::data() const{
-	return data_;
+bool CLSBasicScalerChannelDetector::data(double *outputValues) const
+{
+	outputValues[0] = singleReading();
+	return true;
 }
 
 AMNumber CLSBasicScalerChannelDetector::reading(const AMnDIndex &indexes) const{
@@ -96,7 +95,6 @@ void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 	if(isScanning)
 		setAcquiring();
 	else{
-		data_[0] = singleReading();
 
 		if(isAcquiring())
 			setAcquisitionSucceeded();

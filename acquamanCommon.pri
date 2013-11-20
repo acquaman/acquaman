@@ -275,7 +275,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/dacq3_3/qepicsacqlocal.h \
 	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
-	source/application/AMAppControllerForActions2.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
@@ -502,35 +501,10 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
 	source/ui/util/AMGithubIssueSubmissionView.h \
-	source/actions2/AMAction.h \
-	source/actions2/AMListAction.h \
-	source/actions2/AMActionInfo.h \
-	source/actions2/AMActionRunner.h \
-	source/ui/actions2/AMActionRunnerQueueView.h \
-	source/ui/actions2/AMActionRunnerCurrentView.h \
-	source/ui/actions2/AMWorkflowView.h \
-	source/actions2/actions/AMWaitAction.h \
-	source/actions2/actions/AMWaitActionInfo.h \
-	source/actions2/actions/AMScanControllerAction.h \
-	source/actions2/actions/AMScanControllerActionInfo.h \
-	source/actions2/AMActionLog.h \
-	source/ui/actions2/AMActionHistoryView.h \
-	source/actions2/AMActionRegistry.h \
-	source/actions2/actions/AMControlMoveActionInfo.h \
-	source/actions2/actions/AMControlMoveAction.h \
-	source/actions2/actions/AMInternalControlMoveAction.h \
-	source/actions2/AMNestedAction.h \
-	source/actions2/AMLoopAction.h \
-	source/actions2/AMLoopActionInfo.h \
-	source/actions2/editors/AMWaitActionEditor.h \
-	source/actions2/editors/AMLoopActionEditor.h \
-	source/ui/acquaman/AMScanConfigurationViewHolder2.h \
-	source/ui/actions2/AMActionRunnerAddActionBar.h \
 	source/dataman/export/AMExporterAthena.h \
 	source/analysis/AM1DBasicDerivativeABEditor.h \
 	source/analysis/AM1DIntegralAB.h \
 	source/analysis/AM1DBasicIntegralABEditor.h \
-	source/ui/actions2/AMAddActionDialog.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
@@ -592,9 +566,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
 	source/dataman/datastore/AMCDFDataStore.h \
 	source/util/amlikely.h \
-	source/actions2/actions/AMChangeRunAction.h \
-	source/actions2/actions/AMChangeRunActionInfo.h \
-	source/actions2/editors/AMChangeRunActionEditor.h \
 	source/ui/dataman/AMSimpleDataSourceEditor.h \
 	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
 	source/actions3/actions/AMSamplePlateMoveAction.h \
@@ -612,7 +583,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
 	source/ui/dataman/AMSampleSelector.h \
 	source/ui/AMTopFrame2.h \
-	source/application/AMDatamanAppControllerForActions2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
 	source/analysis/AM3DAdditionAB.h \
@@ -728,7 +698,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
 	source/dataman/export/SGM/SGMAxis2000Exporter.h \
-    source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h
+	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
+	source/actions3/AMActionSupport.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -761,7 +732,6 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
@@ -800,7 +770,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/dacq3_3/xmlRead.cpp \
 	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
-	source/application/AMAppControllerForActions2.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
@@ -1006,35 +975,10 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
-	source/actions2/AMAction.cpp \
-	source/actions2/AMListAction.cpp \
-	source/actions2/AMActionInfo.cpp \
-	source/actions2/AMActionRunner.cpp \
-	source/ui/actions2/AMActionRunnerQueueView.cpp \
-	source/ui/actions2/AMActionRunnerCurrentView.cpp \
-	source/ui/actions2/AMWorkflowView.cpp \
-	source/actions2/actions/AMWaitAction.cpp \
-	source/actions2/actions/AMWaitActionInfo.cpp \
-	source/actions2/actions/AMScanControllerAction.cpp \
-	source/actions2/actions/AMScanControllerActionInfo.cpp \
-	source/actions2/AMActionLog.cpp \
-	source/ui/actions2/AMActionHistoryView.cpp \
-	source/actions2/AMActionRegistry.cpp \
-	source/actions2/actions/AMControlMoveActionInfo.cpp \
-	source/actions2/actions/AMControlMoveAction.cpp \
-	source/actions2/actions/AMInternalControlMoveAction.cpp \
-	source/actions2/AMNestedAction.cpp \
-	source/actions2/AMLoopAction.cpp \
-	source/actions2/AMLoopActionInfo.cpp \
-	source/actions2/editors/AMWaitActionEditor.cpp \
-	source/actions2/editors/AMLoopActionEditor.cpp \
-	source/ui/acquaman/AMScanConfigurationViewHolder2.cpp \
-	source/ui/actions2/AMActionRunnerAddActionBar.cpp \
 	source/dataman/export/AMExporterAthena.cpp \
 	source/analysis/AM1DBasicDerivativeABEditor.cpp \
 	source/analysis/AM1DIntegralAB.cpp \
 	source/analysis/AM1DBasicIntegralABEditor.cpp \
-	source/ui/actions2/AMAddActionDialog.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
@@ -1093,9 +1037,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
-	source/actions2/actions/AMChangeRunAction.cpp \
-	source/actions2/actions/AMChangeRunActionInfo.cpp \
-	source/actions2/editors/AMChangeRunActionEditor.cpp \
 	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
 	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
 	source/actions3/actions/AMSamplePlateMoveAction.cpp \
@@ -1113,7 +1054,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
 	source/ui/dataman/AMSampleSelector.cpp \
 	source/ui/AMTopFrame2.cpp \
-	source/application/AMDatamanAppControllerForActions2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
 	source/analysis/AM3DAdditionAB.cpp \
@@ -1229,7 +1169,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
 	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
-    source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp
+	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

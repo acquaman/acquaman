@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMControl;
 class AMSADetector;
 class AMRegionScanConfiguration;
-class AMInternalControlMoveAction;
+//class AMInternalControlMoveAction;
 class AMCDFDataStore;
 
 /// Prototype of a 1-dimensional scan controller that steps through the regions defined in AMRegionScanConfiguration, using an AMControl for motion and an arbitrary set of detectors. Detectors need to implement the AMSADetector interface.
@@ -44,7 +44,7 @@ This uses the CDF data store and file loader (AMCDFDataStore, AMCDFv1FileLoader)
 */
 class AMSA1DScanController : public AMScanController
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Build a scan controller to move through the regions of \c scanConfig, using \c control to cause the motion, and a set of \c detectors to acquire the values at each step.
 	AMSA1DScanController(AMControl* control, QList<AMSADetector*> detectors, AMRegionScanConfiguration* scanConfig, QObject* parent = 0);
@@ -174,7 +174,7 @@ protected:
 	int totalSteps_;
 	int stepsCompleted_;
 
-	AMInternalControlMoveAction* moveAction_;
+//	AMInternalControlMoveAction* moveAction_;
 
 	int currentRegion_;
 	int currentStepInRegion_;
