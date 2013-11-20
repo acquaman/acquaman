@@ -26,8 +26,10 @@ class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
 class AMAction3;
 class AMControl;
+class AMReadOnlyPVControl;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
+class CLSSR570;
 
 #include "dataman/info/AMDetectorInfo.h"
 
@@ -197,6 +199,8 @@ public:
 	bool isEnabled() const;
 	/// Returns the current value of the channel.
 	int reading() const;
+	/// Returns the current voltage.  \note Not high voltage.
+	double voltage() const;
 	/// Returns the index of this channel.
 	int index() const { return index_; }
 
@@ -207,6 +211,11 @@ public:
 
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }
+
+	/// Sets a SR570 to this particular channel.  It is assumed that the SR570 ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
+	void setSR570(CLSSR570 *sr570);
+	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
+	CLSSR570 *sr570() const { return sr570_; }
 
 public slots:
 	/// Sets whether the channel is enabled or not.
@@ -220,28 +229,44 @@ signals:
 	void enabledChanged(bool isEnabled);
 	/// Notifier that the current reading of the channel has changed.  Passes the new reading.
 	void readingChanged(int reading);
+	/// Notifier that the voltage reading of the channel has changed.  Passes the new voltage.  \note This value will be meaningless if the EPICS app isn't configured properly.
+	void voltageChanged(double);
 	/// Notifier that the connectivity of the channel has changed.  Passes the new state.
 	void connected(bool isConnected);
+	/// Notifier that a (new) SR570 mapping has been established.
+	void sr570Attached();
+	/// Notifier that the custom name of the scaler channel has been changed.  Passes the new name.
+	void customNameChanged(const QString &);
 
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
 	void onChannelEnabledChanged();
 	/// Helper slot that emits the readingChanged() signal.
 	void onChannelReadingChanged(double reading);
+	/// Handles figuring out whether the entire scalar channel is connected or not.
+	void onConnectedChanged();
 
 protected:
 	/// Index of this scaler channel.
 	int index_;
 
+	/// Flag to help minimize signal traffic when connecting to controls.
+	bool wasConnected_;
+
 	/// Control that handles the enabled flag of the individual channel.
 	AMControl *channelEnable_;
 	/// Control that handles reading the value of the channel.
 	AMControl *channelReading_;
+	/// Control that holds the voltage value.  PV name is the "userRate", but that is just a generic term in the EPICS app. \note This is NOT the high voltage.
+	AMReadOnlyPVControl *channelVoltage_;
 	/// Control set that holds the above two controls.
 	AMControlSet *allControls_;
 
 	/// Holds a custom setable name for the channel
 	QString customChannelName_;
+
+	/// Holds the pointer to the CLSSR570 (if it has one), which controls the sensitivity of the scalar channel.
+	CLSSR570 *sr570_;
 };
 
 #endif // CLSSIS3820SCALER_H

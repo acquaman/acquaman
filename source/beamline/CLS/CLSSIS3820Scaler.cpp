@@ -18,11 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSSIS3820Scaler.h"
-#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
+#include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
-
+#include "beamline/CLS/CLSSR570.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+
+#include <QStringBuilder>
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
@@ -522,24 +524,37 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 {
 	QString fullBaseName = QString("%1%2").arg(baseName).arg(index, 2, 10, QChar('0'));
 
+	wasConnected_ = false;
+
+	// No SR570 to start with.
+	sr570_ = 0;
+
 	customChannelName_ = QString();
 
 	index_ = index;
 
-	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName+":enable", fullBaseName+":enable", QString(), this, 0.1);
-	channelReading_ = new AMReadOnlyPVControl(QString("Channel%1Reading").arg(index), fullBaseName+":fbk", this);
+	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName%":enable", fullBaseName+":enable", QString(), this, 0.1);
+	channelReading_ = new AMReadOnlyPVControl(QString("Channel%1Reading").arg(index), fullBaseName%":fbk", this);
+	channelVoltage_ = new AMReadOnlyPVControl(QString("Channel%1Voltage").arg(index), fullBaseName%":userRate", this);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(channelEnable_);
 	allControls_->addControl(channelReading_);
+	allControls_->addControl(channelVoltage_);
 
 	connect(channelEnable_, SIGNAL(valueChanged(double)), this, SLOT(onChannelEnabledChanged()));
 	connect(channelReading_, SIGNAL(valueChanged(double)), this, SLOT(onChannelReadingChanged(double)));
-	connect(allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(channelVoltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
-bool CLSSIS3820ScalerChannel::isConnected() const{
-	return allControls_->isConnected();
+bool CLSSIS3820ScalerChannel::isConnected() const
+{
+	if (sr570_)
+		return allControls_->isConnected() && sr570_->isConnected();
+
+	else
+		return allControls_->isConnected();
 }
 
 bool CLSSIS3820ScalerChannel::isEnabled() const{
@@ -555,6 +570,20 @@ int CLSSIS3820ScalerChannel::reading() const{
 	return -1;
 }
 
+double CLSSIS3820ScalerChannel::voltage() const
+{
+	if (isConnected())
+		return channelVoltage_->value();
+
+	return -1.0;
+}
+
+void CLSSIS3820ScalerChannel::onConnectedChanged()
+{
+	if (wasConnected_ != isConnected())
+		emit connected(wasConnected_ = isConnected());
+}
+
 AMBeamlineActionItem* CLSSIS3820ScalerChannel::createEnableAction(bool setEnabled){
 
 	if(!isConnected())
@@ -565,7 +594,7 @@ AMBeamlineActionItem* CLSSIS3820ScalerChannel::createEnableAction(bool setEnable
 	if(!action)
 		return 0; //NULL
 
-	action->setSetpoint(setEnabled == true ? 1 : 0);
+	action->setSetpoint(setEnabled ? 1 : 0);
 
 	return action;
 }
@@ -575,7 +604,7 @@ AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
 		return 0; //NULL
 
 	AMControlInfo setpoint = channelEnable_->toInfo();
-	setpoint.setValue(setEnabled == true ? 1 : 0);
+	setpoint.setValue(setEnabled ? 1 : 0);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 
 	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, channelEnable_);
@@ -595,16 +624,27 @@ void CLSSIS3820ScalerChannel::setEnabled(bool isEnabled){
 		channelEnable_->move(0);
 }
 
-void CLSSIS3820ScalerChannel::setCustomChannelName(const QString &customChannelName){
-	customChannelName_ = customChannelName;
+void CLSSIS3820ScalerChannel::setCustomChannelName(const QString &customChannelName)
+{
+	emit customNameChanged(customChannelName_ = customChannelName);
 }
 
-void CLSSIS3820ScalerChannel::onChannelEnabledChanged(){
-
+void CLSSIS3820ScalerChannel::onChannelEnabledChanged()
+{
 	emit enabledChanged(channelEnable_->withinTolerance(1));
 }
 
-void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading){
-
+void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
+{
 	emit readingChanged((int)reading);
+}
+
+void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
+{
+	if (sr570_)
+		disconnect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+
+	sr570_ = sr570;
+	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	emit sr570Attached();
 }
