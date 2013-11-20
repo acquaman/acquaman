@@ -1199,9 +1199,11 @@ void SGMBeamline::setupControls(){
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	grating_->setDescription("Grating Selection");
+	grating_->setAttemptMoveWhenWithinTolerance(false);
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
 	harmonic_->setDescription("Harmonic");
+	harmonic_->setAttemptMoveWhenWithinTolerance(false);
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
 	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", sgmPVName+":stop", this, 20, 20 );
