@@ -194,8 +194,8 @@ bool SGMFastScanActionController::startImplementation(){
 	/////////////////////
 
 	scanningActions_ = masterFastScanActionList;
-	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 
