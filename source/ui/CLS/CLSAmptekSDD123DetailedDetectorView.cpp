@@ -2,6 +2,7 @@
 
 #include <QLineEdit>
 #include <QSignalMapper>
+#include <QComboBox>
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/beamline/AMControlEditor.h"
@@ -74,6 +75,9 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 
 	configurationView_ = new CLSAmptekDetectorConfigurationView(amptekDetector_);
 	connect(editAmptekConfigurationButton_, SIGNAL(clicked()), this, SLOT(onEditAmptekConfigurationButtonClicked()));
+
+	spectraComboBox_->setCurrentIndex(0);
+	plot_->axisScaleBottom()->setDataRangeConstraint(MPlotAxisRange(0, 2500));
 }
 
 void CLSAmptekDetailedDetectorView::onEditAmptekROIsButtonClicked(){
@@ -192,13 +196,13 @@ CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptek
 	pileUpRejectionControlEditor_ = new AMControlEditor(detector_->pileUpRejectionControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(new QLabel("Pile Up Rejection"));
-	tempHBox->addWidget(totalGainControlEditor_);
+	tempHBox->addWidget(pileUpRejectionControlEditor_);
 	mainVL->addLayout(tempHBox);
 
 	thermoelectricCoolerControlEditor_ = new AMControlEditor(detector_->thermoelectricCoolerControl(this));
 	tempHBox = new QHBoxLayout();
-	tempHBox->addWidget(new QLabel("Coolor"));
-	tempHBox->addWidget(pileUpRejectionControlEditor_);
+	tempHBox->addWidget(new QLabel("Cooler"));
+	tempHBox->addWidget(thermoelectricCoolerControlEditor_);
 	mainVL->addLayout(tempHBox);
 
 	fastThresholdControlEditor_ = new AMControlEditor(detector_->fastThresholdControl(this));

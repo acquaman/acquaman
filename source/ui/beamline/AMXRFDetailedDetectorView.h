@@ -13,6 +13,8 @@
 
 #include <QSignalMapper>
 
+class QComboBox;
+
 class AMXRFDetailedDetectorView : public AMXRFBaseDetectorView
 {
 	Q_OBJECT
@@ -212,6 +214,8 @@ protected:
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 
+	/// The combo box that chooses which spectra to look at
+	QComboBox *spectraComboBox_;
 	/// The check box that holds whether multiple spectra should be shown as a waterfall plot or not.
 	QCheckBox *showWaterfall_;
 	/// The button that controls whether the plot is log scale or not.

@@ -172,7 +172,7 @@ public:
 
 	AMOldDetector* teyDetector() const;
 	AMOldDetector* tfyDetector() const;
-	AMOldDetector* pgtDetector() const;
+	//AMOldDetector* pgtDetector() const;
 	AMOldDetector* oos65000Detector() const;
 	AMOldDetector* i0Detector() const;
 	AMOldDetector* eVFbkDetector() const;
@@ -184,13 +184,15 @@ public:
 	AMOldDetector* filterPD2ScalarDetector() const;
 	AMOldDetector* filterPD3ScalarDetector() const;
 	AMOldDetector* filterPD4ScalarDetector() const;
+	/*
 	AMOldDetector* amptekSDD1() const;
 	AMOldDetector* amptekSDD2() const;
+	*/
 	AMDetector* newAmptekSDD1() const;
 	AMDetector* newAmptekSDD2() const;
 	AMDetector* newAmptekSDD3() const;
 	AMDetector* newAmptekSDD4() const;
-	AMDetector* newPGTDetector() const;
+	//AMDetector* newPGTDetector() const;
 	AMDetector* newQE65000Detector() const;
 	AMDetector* newTEYDetector() const;
 	AMDetector* newTFYDetector() const;
@@ -205,10 +207,12 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
+	/*
 	bool isSDD1Enabled() const;
 	bool isSDD2Enabled() const;
 	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
 	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
+	*/
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
@@ -389,13 +393,13 @@ protected:
 	AMOldDetector *filterPD2ScalarDetector_;
 	AMOldDetector *filterPD3ScalarDetector_;
 	AMOldDetector *filterPD4ScalarDetector_;
-	AMOldDetector* amptekSDD1_;
-	AMOldDetector* amptekSDD2_;
+	//AMOldDetector* amptekSDD1_;
+	//AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
-	CLSPGTDetectorV2 *newPGTDetector_;
+	//CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSAdvancedScalerChannelDetector *newTFYDetector_;

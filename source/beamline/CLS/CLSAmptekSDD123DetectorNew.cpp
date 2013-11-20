@@ -16,10 +16,10 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	AMAxisInfo ai("Energy", 1024, "Energy", "eV");
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
-	ai.increment = 10.4;
+	ai.increment = 8.25;
 	axes_ << ai;
 
-	acquireControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:start", baseName+":spectrum:start", QString(), this, 0.5);
+	acquireControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:start", baseName+":spectrum:start", baseName+":spectrum:stop", this, 0.5);
 	acquireControl_->setAllowsMovesWhileMoving(true);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:dwellState", this);
 	acquireTimeControl_ = new AMPVControl(name+"IntegrationTime", baseName+":spectrum:dwellTime", baseName+":spectrum:dwellTime", QString() , this, 0.05);
@@ -30,8 +30,6 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	slowCountsControl_ = new AMReadOnlyPVControl("SlowCounts", QString("%1:spectrum:slowCounts").arg(baseName_), this);
 	averageSlowCountsControl_ = new AMReadOnlyPVControl("AverageSlowCounts", QString("%1:spectrum:average:slowCounts").arg(baseName_), this);
 
-	//icrControls_.append(new AMReadOnlyPVControl("Input Counts", baseName+":spectrum:fastCounts", this, "Input counts for Amptek"));
-	//ocrControls_.append(new AMReadOnlyPVControl("Output Counts", baseName+":spectrum:slowCounts", this, "Output counts for Amptek"));
 	icrControls_.append(fastCountsControl_);
 	ocrControls_.append(slowCountsControl_);
 	spectraControls_.append(new AMReadOnlyPVControl("Raw Spectrum", baseName+":spectrum", this));
@@ -73,8 +71,7 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	peakingTimeControl_ = new AMSinglePVControl(QString("PeakingTime"), QString("%1:parameters:peakingTime").arg(baseName_), this, 0.1);
 	fastChannelPeakingTimeControl_ = new AMSinglePVControl(QString("FastChannelPeakingTime"), QString("%1:parameters:fastChannelPeakingTime").arg(baseName_), this, 0.1);
 
-	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
-	isRequestedControl_ = new AMPVControl(name+"IsRequested", baseName+":isRequested", baseName+":isRequested", QString(), this, 0.5);
+	isRequestedControl_ = new AMPVControl(name+"IsRequested", baseName+":spectrum:isRequested", baseName+":spectrum:isRequested", QString(), this, 0.5);
 
 	connect(lowIndicesSignalMapper_, SIGNAL(mapped(int)), this, SLOT(onLowIndexValueChanged(int)));
 	connect(highIndicesSignalMapper_, SIGNAL(mapped(int)), this, SLOT(onHighIndexValueChanged(int)));
@@ -84,10 +81,11 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	allControlsCreated();	// This is very important.  It does a lot of work for you building data sources and the like.
 
 	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(ai.increment);
+	primarySpectrumDataSource_ = rawSpectraSources_.first();
 }
 
 QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
-	return "amptek:sdd:all:spectrum:startAcquisitio";
+	return "amptek:sdd:all:spectrum:start NPP NMS";
 }
 
 bool CLSAmptekSDD123DetectorNew::sharesDetectorTriggerSource(){

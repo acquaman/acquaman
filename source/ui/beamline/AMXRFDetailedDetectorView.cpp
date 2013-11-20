@@ -130,12 +130,13 @@ void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 {
-	QComboBox *spectraComboBox = new QComboBox;
+	//QComboBox *spectraComboBox_ = new QComboBox;
+	spectraComboBox_ = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
 
 		AMDataSource *source = detector_->allSpectrumSources().at(i);
-		spectraComboBox->insertItem(i, source->name());
+		spectraComboBox_->insertItem(i, source->name());
 	}
 
 	QPushButton *showMultipleSpectraButton = new QPushButton("Show Multiple Spectra");
@@ -150,17 +151,17 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	showSpectraLayout->addWidget(logScaleButton_);
 	showSpectraLayout->addWidget(showWaterfall_);
 	showSpectraLayout->addWidget(showMultipleSpectraButton);
-	showSpectraLayout->addWidget(spectraComboBox);
+	showSpectraLayout->addWidget(spectraComboBox_);
 
 	topLayout_->addLayout(showSpectraLayout);
 
-	connect(spectraComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
+	connect(spectraComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
 	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
 	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleClicked(bool)));
 	connect(logScaleButton_, SIGNAL(toggled(bool)), showWaterfall_, SLOT(setDisabled(bool)));
 
-	spectraComboBox->setCurrentIndex(detector_->allSpectrumSources().size()-1);
+	spectraComboBox_->setCurrentIndex(detector_->allSpectrumSources().size()-1);
 }
 
 void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()

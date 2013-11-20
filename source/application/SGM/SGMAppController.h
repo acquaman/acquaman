@@ -144,7 +144,10 @@ protected:
 	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
-	AMXRFDetailedDetectorView *newAmptekSDD4XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD1XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD4XRFView_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;

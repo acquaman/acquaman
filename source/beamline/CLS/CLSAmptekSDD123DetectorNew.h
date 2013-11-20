@@ -19,8 +19,8 @@ public:
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	/// Cancelling is not implemented for the Amptek detectors
-	virtual bool canCancel() const { return false; }
+	/// Cancelling is implemented for the Amptek detectors
+	virtual bool canCancel() const { return true; }
 	/// Clearing is not currently supported for the Amptek detectors
 	virtual bool canClear() const { return false; }
 
@@ -191,9 +191,6 @@ protected:
 	/// The fast channel peaking time for the detector
 	AMSinglePVControl *fastChannelPeakingTimeControl_;
 
-
-	/// A binned version of the detector spectrum control
-	AMReadOnlyPVControl *binnedSpectrumControl_;
 	/// The enable/disable state for this amptek in the array
 	AMPVControl *isRequestedControl_;
 

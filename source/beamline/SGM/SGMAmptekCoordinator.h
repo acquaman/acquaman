@@ -33,8 +33,6 @@ protected slots:
 	/// Handles watching for when the amptek controls actually connect
 	void onAllAmptekControlsConnected(bool connected);
 
-	/// Handles changes from the all:initialize control
-	void onAmptekAllInitializeControlChanged(double initialize);
 	/// Handles changes from the all:spectrum:startAcquisition control
 	void onAmptekAllStartAcquisitionControlChanged(double startAcquisition);
 	/// Handles changes from the all:spectrum:clear control
@@ -46,8 +44,6 @@ protected slots:
 	void onAmptekSpectrumStateControlsChanged(double spectrumState);
 
 protected:
-	/// Control for coordinating all of the amptek initializations
-	AMControl *AmptekAllInitializeControl_;
 	/// Control for coordinating all of the amptek start acquistions
 	AMControl *AmptekAllStartAcquisitionControl_;
 	/// Control for coordinating all of the amptek spectrum clears
@@ -82,14 +78,6 @@ protected:
 	/// Read only control for the spectrum acquisition state of sdd4
 	AMControl *AmptekSDD4SpectrumStateControl_;
 
-	/// Control for initializing amptek sdd1
-	AMControl *AmptekSDD1InitializeControl_;
-	/// Control for initializing amptek sdd2
-	AMControl *AmptekSDD2InitializeControl_;
-	/// Control for initializing amptek sdd3
-	AMControl *AmptekSDD3InitializeControl_;
-	/// Control for initializing amptek sdd4
-	AMControl *AmptekSDD4InitializeControl_;
 	/// Control for starting acquisition for amptek sdd1
 	AMControl *AmptekSDD1StartAcquisitionControl_;
 	/// Control for starting acquisition for amptek sdd2

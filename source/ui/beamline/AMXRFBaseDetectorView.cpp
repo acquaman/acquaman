@@ -63,6 +63,8 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	acquireTimeSpinBox_->setAlignment(Qt::AlignCenter);
 	connect(acquireTimeSpinBox_, SIGNAL(editingFinished()), this, SLOT(onNewAcquisitionTimeSetpoint()));
 	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), acquireTimeSpinBox_, SLOT(setValue(double)));
+	if(detector_->isConnected())
+		acquireTimeSpinBox_->setValue(detector_->acquisitionTime());
 
 	elapsedTimeLabel_ = new QLabel;
 	elapsedTimeLabel_->setVisible(detector_->supportsElapsedTime());

@@ -98,6 +98,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
 
+	/*
 	if(SGMBeamline::sgm()->pgtDetector()){
 		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description().remove(" "));
 		if(rawSddIndex != -1) {
@@ -122,6 +123,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 			}
 		}
 	}
+	*/
 
 	if(SGMBeamline::sgm()->oos65000Detector()){
 		int rawOOSIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
@@ -175,10 +177,12 @@ bool SGMXASScanController::beamlineInitialize(){
 		tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 	}
 
+	/*
 	tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(SGMBeamline::sgm()->isSDD1Enabled());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 	tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(SGMBeamline::sgm()->isSDD2Enabled());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	*/
 
 	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(SGMBeamline::sgm()->synchronizedDwellTime()->time());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
@@ -204,6 +208,7 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	bool enableSync = false;
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
+		/*
 		if( (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD1()) || (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD2()) ){
 			if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) != config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName()))
 				enableSync = true;
@@ -212,7 +217,7 @@ bool SGMXASScanController::beamlineInitialize(){
 			else
 				enableSync = false;
 		}
-		else if(config_->allDetectorConfigurations().isActiveAt(x)){
+		else*/ if(config_->allDetectorConfigurations().isActiveAt(x)){
 			enableSync = true;
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
@@ -231,6 +236,7 @@ bool SGMXASScanController::beamlineInitialize(){
 		}
 	}
 
+	/*
 	if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()))
 		tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(true);
 	else
@@ -241,6 +247,7 @@ bool SGMXASScanController::beamlineInitialize(){
 	else
 		tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(false);
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	*/
 
 	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0));
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
