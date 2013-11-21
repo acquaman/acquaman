@@ -62,7 +62,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			line = "";
 		}
 		else if(informationSection){
-			if(versionString == "SGM Generic 0.1"){
+			if(versionString == "SGM Generic 0.1" || versionString == "Acquaman Generic Linear Step 0.1"){
 				lp = line.split("|!|!|");
 				index = lp.at(0).toInt();
 				if(index >= 0){
