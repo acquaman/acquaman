@@ -513,6 +513,19 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	}
 }
 
+void SGMAppController::onSGMNewAmptekSDD5Connected(bool connected){
+	Q_UNUSED(connected)
+	qDebug() << "Checking amptek5";
+	if(SGMBeamline::sgm()->newAmptekSDD5() && SGMBeamline::sgm()->newAmptekSDD5()->isConnected() && !amptekSDD5XRFView_){
+		qDebug() << "amptek5 is good";
+
+		amptekSDD5XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5()));
+		amptekSDD5XRFView_->buildDetectorView();
+		amptekSDD5XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD5XRFView_, "Beamline Detectors", "SGM Amptek5 XRF", ":/system-software-update.png");
+	}
+}
+
 void SGMAppController::onSGMNewPGTDetectorConnected(bool connected){
 	Q_UNUSED(connected)
 	/*
@@ -1329,6 +1342,12 @@ bool SGMAppController::setupSGMViews(){
 	if(SGMBeamline::sgm()->newAmptekSDD4()){
 		connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
 		onSGMNewAmptekSDD4Connected(false);
+	}
+
+	amptekSDD5XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD5()){
+		connect(SGMBeamline::sgm()->newAmptekSDD5(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD5Connected(bool)));
+		onSGMNewAmptekSDD5Connected(false);
 	}
 
 	newPGTDetectorView_ = 0;

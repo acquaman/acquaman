@@ -95,6 +95,7 @@ protected slots:
 	void onSGMNewAmptekSDD2Connected(bool connected);
 	void onSGMNewAmptekSDD3Connected(bool connected);
 	void onSGMNewAmptekSDD4Connected(bool connected);
+	void onSGMNewAmptekSDD5Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
@@ -148,6 +149,7 @@ protected:
 	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD4XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD5XRFView_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;

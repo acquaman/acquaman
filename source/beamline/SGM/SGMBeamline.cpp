@@ -310,6 +310,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("AmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
 	newAmptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd3", this);
 	newAmptekSDD4_ = new CLSAmptekSDD123DetectorNew("AmptekSDD4", "Amptek SDD 4", "amptek:sdd4", this);
+	newAmptekSDD5_ = new CLSAmptekSDD123DetectorNew("AmptekSDD5", "Amptek SDD 5", "amptek:sdd5", this);
 	//newAmptekSDD2_ = 0;
 	//newAmptekSDD3_ = 0;
 	//newAmptekSDD4_ = 0;
@@ -337,6 +338,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newDetectorSet_->addDetector(newAmptekSDD2_);
 	newDetectorSet_->addDetector(newAmptekSDD3_);
 	newDetectorSet_->addDetector(newAmptekSDD4_);
+	newDetectorSet_->addDetector(newAmptekSDD5_);
 	//newDetectorSet_->addDetector(newPGTDetector_);
 	newDetectorSet_->addDetector(newQE65000Detector_);
 	newDetectorSet_->addDetector(newTEYDetector_);
@@ -349,6 +351,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newAmptekSDD2_);
 	XASDetectorGroup_->addDetector(newAmptekSDD3_);
 	XASDetectorGroup_->addDetector(newAmptekSDD4_);
+	XASDetectorGroup_->addDetector(newAmptekSDD5_);
 	//XASDetectorGroup_->addDetector(newPGTDetector_);
 	XASDetectorGroup_->addDetector(newQE65000Detector_);
 	XASDetectorGroup_->addDetector(newTEYDetector_);
@@ -647,6 +650,10 @@ AMDetector* SGMBeamline::newAmptekSDD3() const {
 
 AMDetector* SGMBeamline::newAmptekSDD4() const {
 	return newAmptekSDD4_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD5() const {
+	return newAmptekSDD5_;
 }
 
 /*
@@ -1352,6 +1359,7 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD2_);
 	addExposedDetector(newAmptekSDD3_);
 	addExposedDetector(newAmptekSDD4_);
+	addExposedDetector(newAmptekSDD5_);
 	//addExposedDetector(newPGTDetector_);
 	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);
