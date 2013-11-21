@@ -34,7 +34,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 {
 	scaler_ = scaler;
 
-	if(scaler_ && scaler_->isConnected()){
+//	if(scaler_ && scaler_->isConnected()){
 
 		// Build the top part.
 		modeButton_ = new QPushButton("Single Shot");
@@ -156,7 +156,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		constrainingHL->addStretch(10);
 
 		setLayout(constrainingHL);
-	}
+//	}
 }
 
 void CLSSIS3820ScalerView::setScanning(bool scanning)

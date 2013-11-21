@@ -7,6 +7,8 @@
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
+class QSignalMapper;
+
 class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 {
 Q_OBJECT
@@ -17,8 +19,8 @@ public:
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
-	/// Cancelling is not implemented for the Amptek detectors
-	virtual bool canCancel() const { return false; }
+	/// Cancelling is implemented for the Amptek detectors
+	virtual bool canCancel() const { return true; }
 	/// Clearing is not currently supported for the Amptek detectors
 	virtual bool canClear() const { return false; }
 
@@ -54,6 +56,58 @@ public:
 	/// The ampteks do not support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
+	/// Returns the ROI low index for a given ROI index
+	int amptekLowROI(int index);
+	/// Returns the ROI high index for a given ROI index
+	int amptekHighROI(int index);
+
+	/// Returns the AMControl for fastCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* fastCountsControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for averageFastCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* averageFastCountsControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for slowCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* slowCountsControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for averageSlowCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* averageSlowCountsControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for accumulationTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* accumulationTimeControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for averageAccumulationTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* averageAccumulationTimeControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for liveTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* liveTimeControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for averageLiveTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* averageLiveTimeControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for realTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* realTimeControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for averageRealTime if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* averageRealTimeControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for temperature if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* detectorTemperatureControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for high voltage if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* detectorHightVoltageControl(const QObject *privelegedCaller) const;
+
+	/// Returns the AMControl for total gain if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* totalGainControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for MCA channel count if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* mcaChannelsControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for pile up rejection if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* pileUpRejectionControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for cooler if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* thermoelectricCoolerControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for fast threshold if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* fastThresholdControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for slow threshold if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* slowThresholdControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for peaking time if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* peakingTimeControl(const QObject *privelegedCaller) const;
+	/// Returns the AMControl for fast channel peaking time if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	AMControl* fastChannelPeakingTimeControl(const QObject *privelegedCaller) const;
+
 public slots:
 
 	/// The read mode cannot be changed for Amptek detectors
@@ -62,22 +116,81 @@ public slots:
 	/// Amptek detectors do not support clearing
 	virtual bool clear() { return false; }
 
+	/// Set the internal amptek ROI to a given low and high channel number
+	void setAmptekROI(int index, int lowChannel, int highChannel);
+
 signals:
+	/// Emitted when the control for a low index ROI has changed
+	void lowIndexValueChanged(int index);
+	/// Emitted when the control for a high index ROI has changed
+	void highIndexValueChanged(int index);
+
 	void detectorTemperatureChanged(double newTemperature);
 
 protected slots:
-
+	/// Handles changes from the low index controls
+	void onLowIndexValueChanged(int index);
+	/// Handles changes from the low index controls
+	void onHighIndexValueChanged(int index);
 
 protected:
+	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
+	bool isPrivelegedType(const QObject *privelegedCaller) const;
 
+protected:
+	/// Control for the fast counts
+	AMReadOnlyPVControl *fastCountsControl_;
+	/// Control for the average fast counts
+	AMReadOnlyPVControl *averageFastCountsControl_;
+	/// Control for the slow counts
+	AMReadOnlyPVControl *slowCountsControl_;
 
+	/// A list of all of the low index ROI controls
+	QList<AMSinglePVControl*> roiLowIndices_;
+	/// A list of all of the high index ROI controls
+	QList<AMSinglePVControl*> roiHighIndices_;
+	/// Signal mapper for the low index controls
+	QSignalMapper *lowIndicesSignalMapper_;
+	/// Signal mapper for the high index controls
+	QSignalMapper *highIndicesSignalMapper_;
 
-	/// The number of channels control
-	AMReadOnlyPVControl *mcaChannelsControl_;
+	/// Control for the average slow counts
+	AMReadOnlyPVControl *averageSlowCountsControl_;
+	/// Control for the accumulation time
+	AMReadOnlyPVControl *accumulationTimeControl_;
+	/// Control for the average accumulation time
+	AMReadOnlyPVControl *averageAccumulationTimeControl_;
+	/// Control for the live time
+	AMReadOnlyPVControl *liveTimeControl_;
+	/// Control for the average live time
+	AMReadOnlyPVControl *averageLiveTimeControl_;
+	/// Control for the real time
+	AMReadOnlyPVControl *realTimeControl_;
+	/// Control for the average real time
+	AMReadOnlyPVControl *averageRealTimeControl_;
+
 	/// The detector temperature control
 	AMReadOnlyPVControl *detectorTemperatureControl_;
-	/// A binned version of the detector spectrum control
-	AMReadOnlyPVControl *binnedSpectrumControl_;
+	/// The detector high voltage control
+	AMReadOnlyPVControl *detectorHightVoltageControl_;
+
+	/// The total gain for the detector
+	AMSinglePVControl *totalGainControl_;
+	/// The number of channels control
+	AMReadOnlyPVControl *mcaChannelsControl_;
+	/// The pile up rejection is either on or off
+	AMSinglePVControl *pileUpRejectionControl_;
+	/// The temperature for the cooler
+	AMSinglePVControl *thermoelectricCoolerControl_;
+	/// The fast threshold for the detector
+	AMSinglePVControl *fastThresholdControl_;
+	/// The slow threshold for the detector
+	AMSinglePVControl *slowThresholdControl_;
+	/// The peaking time for the detector
+	AMSinglePVControl *peakingTimeControl_;
+	/// The fast channel peaking time for the detector
+	AMSinglePVControl *fastChannelPeakingTimeControl_;
+
 	/// The enable/disable state for this amptek in the array
 	AMPVControl *isRequestedControl_;
 

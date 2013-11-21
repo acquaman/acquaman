@@ -24,20 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "dataman/SGM/SGMBeamlineInfo.h"
 
-#include "beamline/AMOldDetector.h"
-#include "beamline/AMSingleControlDetector.h"
-#include "beamline/SGM/SGMMCPDetector.h"
-#include "beamline/CLS/CLSPGTDetector.h"
-#include "beamline/CLS/CLSOceanOptics65000Detector.h"
-#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
-#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "beamline/CLS/CLSPGTDetectorV2.h"
-#include "beamline/CLS/CLSQE65000Detector.h"
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -62,6 +50,13 @@ class AMSamplePlate;
 class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
+
+class AMOldDetector;
+class CLSAmptekSDD123DetectorNew;
+class CLSPGTDetectorV2;
+class CLSQE65000Detector;
+class CLSAdvancedScalerChannelDetector;
+class AMBasicControlDetectorEmulator;
 
 class SGMBeamline : public AMBeamline
 {
@@ -175,45 +170,49 @@ public:
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
-	AMOldDetector* teyDetector() const { return teyScalerDetector_;}
-	AMOldDetector* tfyDetector() const { return tfyScalerDetector_;}
-	AMOldDetector* pgtDetector() const { return pgtDetector_;}
-	AMOldDetector* oos65000Detector() const { return oos65000Detector_;}
-	AMOldDetector* i0Detector() const { return i0ScalerDetector_;}
-	AMOldDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMOldDetector* photodiodeDetector() const { return photodiodeScalerDetector_;}
-	AMOldDetector* encoderUpDetector() const { return encoderUpDetector_;}
-	AMOldDetector* encoderDownDetector() const { return encoderDownDetector_;}
-	AMOldDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
-	AMOldDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
-	AMOldDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
-	AMOldDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
-	AMOldDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
-	AMOldDetector* amptekSDD1() const { return amptekSDD1_;}
-	AMOldDetector* amptekSDD2() const { return amptekSDD2_;}
-	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
-	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
-	AMDetector* newAmptekSDD3() const { return newAmptekSDD3_;}
-	AMDetector* newAmptekSDD4() const { return newAmptekSDD4_;}
-	AMDetector* newPGTDetector() const { return newPGTDetector_;}
-	AMDetector* newQE65000Detector() const { return newQE65000Detector_;}
-	AMDetector* newTEYDetector() const { return newTEYDetector_;}
-	AMDetector* newTFYDetector() const { return newTFYDetector_;}
-	AMDetector* newI0Detector() const { return newI0Detector_;}
-	AMDetector* newPDDetector() const { return newPDDetector_;}
-	AMDetector* newFilteredPD1Detector() const { return newFilteredPD1Detector_;}
-	AMDetector* newFilteredPD2Detector() const { return newFilteredPD2Detector_;}
-	AMDetector* newFilteredPD3Detector() const { return newFilteredPD3Detector_;}
-	AMDetector* newFilteredPD4Detector() const { return newFilteredPD4Detector_;}
-	AMDetector* newEncoderUpDetector() const { return newEncoderUpDetector_; }
-	AMDetector* newEncoderDownDetector() const { return newEncoderDownDetector_; }
-	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
-	AMDetector* gratingEncoderDetector() const { return gratingEncoderDetector_; }
+	AMOldDetector* teyDetector() const;
+	AMOldDetector* tfyDetector() const;
+	//AMOldDetector* pgtDetector() const;
+	AMOldDetector* oos65000Detector() const;
+	AMOldDetector* i0Detector() const;
+	AMOldDetector* eVFbkDetector() const;
+	AMOldDetector* photodiodeDetector() const;
+	AMOldDetector* encoderUpDetector() const;
+	AMOldDetector* encoderDownDetector() const;
+	AMOldDetector* ringCurrentDetector() const;
+	AMOldDetector* filterPD1ScalarDetector() const;
+	AMOldDetector* filterPD2ScalarDetector() const;
+	AMOldDetector* filterPD3ScalarDetector() const;
+	AMOldDetector* filterPD4ScalarDetector() const;
+	/*
+	AMOldDetector* amptekSDD1() const;
+	AMOldDetector* amptekSDD2() const;
+	*/
+	AMDetector* newAmptekSDD1() const;
+	AMDetector* newAmptekSDD2() const;
+	AMDetector* newAmptekSDD3() const;
+	AMDetector* newAmptekSDD4() const;
+	//AMDetector* newPGTDetector() const;
+	AMDetector* newQE65000Detector() const;
+	AMDetector* newTEYDetector() const;
+	AMDetector* newTFYDetector() const;
+	AMDetector* newI0Detector() const;
+	AMDetector* newPDDetector() const;
+	AMDetector* newFilteredPD1Detector() const;
+	AMDetector* newFilteredPD2Detector() const;
+	AMDetector* newFilteredPD3Detector() const;
+	AMDetector* newFilteredPD4Detector() const;
+	AMDetector* newEncoderUpDetector() const;
+	AMDetector* newEncoderDownDetector() const;
+	AMDetector* energyFeedbackDetector() const;
+	AMDetector* gratingEncoderDetector() const;
 
+	/*
 	bool isSDD1Enabled() const;
 	bool isSDD2Enabled() const;
 	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
 	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
+	*/
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
@@ -394,13 +393,13 @@ protected:
 	AMOldDetector *filterPD2ScalarDetector_;
 	AMOldDetector *filterPD3ScalarDetector_;
 	AMOldDetector *filterPD4ScalarDetector_;
-	AMOldDetector* amptekSDD1_;
-	AMOldDetector* amptekSDD2_;
+	//AMOldDetector* amptekSDD1_;
+	//AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
-	CLSPGTDetectorV2 *newPGTDetector_;
+	//CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSAdvancedScalerChannelDetector *newTFYDetector_;

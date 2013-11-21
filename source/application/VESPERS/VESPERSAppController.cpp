@@ -74,6 +74,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+
+
+
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
@@ -353,6 +357,9 @@ void VESPERSAppController::setupUserInterface()
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
 	mw_->addRightWidget(persistentView_);
+
+	CLSSIS3820ScalerView *view = new CLSSIS3820ScalerView(VESPERSBeamline::vespers()->scaler());
+	view->show();
 
 	// Show the endstation control view first.
 	mw_->setCurrentPane(endstationView_);
