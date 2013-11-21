@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QComboBox>
 
 class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
@@ -67,10 +68,14 @@ public:
 	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 
 protected slots:
-	/// Handles setting the scanning mode.
-	void setScanning(bool scanning);
+	/// Handles starting the scaler.
+	void startScanning();
+	/// Hanldes stopping the scaler.
+	void stopScanning();
 	/// Handles setting the mode.
-	void setContinuous(bool isContinuous);
+	void setContinuous(int index);
+	/// Handles updating the combo box if the mode was changed from elsewhere.
+	void onContinuousChanged(bool isContinuous);
 	/// Handles changing the icon when the status changes.
 	void onStatusChanged(bool status);
 	/// Handles setting the time.
@@ -86,10 +91,12 @@ protected:
 	/// Pointer to the scalar being viewed.
 	CLSSIS3820Scaler *scaler_;
 
-	/// Button that handles setting the scanning mode of the scaler.
-	QPushButton *scanningButton_;
+	/// Button that handles starting the scanning mode of the scaler.
+	QPushButton *startButton_;
+	/// Button that handles stopping the scanning mode of the scaler.
+	QPushButton *stopButton_;
 	/// Button that handles setting the mode of the scaler.
-	QPushButton *modeButton_;
+	QComboBox *modeChoice_;
 	/// Label holding the overal scanning status of the scaler.  Matches the scanning button.
 	QLabel *status_;
 	/// Spin box holding the amount of time to per point.

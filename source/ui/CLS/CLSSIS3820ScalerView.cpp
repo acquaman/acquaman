@@ -37,17 +37,24 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 //	if(scaler_ && scaler_->isConnected()){
 
 		// Build the top part.
-		modeButton_ = new QPushButton("Single Shot");
-		modeButton_->setCheckable(true);
-		modeButton_->setChecked(false);
-		connect(modeButton_, SIGNAL(toggled(bool)), this, SLOT(setContinuous(bool)));
-		connect(scaler_, SIGNAL(continuousChanged(bool)), modeButton_, SLOT(setChecked(bool)));
+		modeChoice_ = new QComboBox;
+		modeChoice_->addItems(QStringList() << "Single Shot" << "Continuous");
+		modeChoice_->setCurrentIndex(0);
+		connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous(int)));
+		connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged(bool)));
 
-		scanningButton_ = new QPushButton("Stopped");
-		scanningButton_->setCheckable(true);
-		scanningButton_->setChecked(false);
-		scanningButton_->setPalette(QPalette(Qt::red));
-		connect(scanningButton_, SIGNAL(toggled(bool)), this, SLOT(setScanning(bool)));
+		startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
+		startButton_->setMaximumHeight(25);
+		connect(scaler_, SIGNAL(scanningChanged(bool)), startButton_, SLOT(setDisabled(bool)));
+		connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
+
+		stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+		stopButton_->setMaximumHeight(25);
+		connect(scaler_, SIGNAL(scanningChanged(bool)), stopButton_, SLOT(setEnabled(bool)));
+		connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
+
+		startButton_->setDisabled(scaler_->isScanning());
+		stopButton_->setEnabled(scaler_->isScanning());
 
 		status_ = new QLabel;
 		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -96,10 +103,14 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);
 		totalScansLayout->addWidget(totalScans_);
 
+		QHBoxLayout *startAndStopButtons = new QHBoxLayout;
+		startAndStopButtons->addWidget(startButton_);
+		startAndStopButtons->addWidget(stopButton_);
+
 		QVBoxLayout *statusAndModeLayout = new QVBoxLayout;
 		statusAndModeLayout->addWidget(status_, 0, Qt::AlignCenter);
-		statusAndModeLayout->addWidget(scanningButton_, 0, Qt::AlignCenter);
-		statusAndModeLayout->addWidget(modeButton_, 0, Qt::AlignCenter);
+		statusAndModeLayout->addLayout(startAndStopButtons);
+		statusAndModeLayout->addWidget(modeChoice_, 0, Qt::AlignCenter);
 
 		QVBoxLayout *spinBoxLayout = new QVBoxLayout;
 		spinBoxLayout->addLayout(timeLayout);
@@ -159,23 +170,33 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 //	}
 }
 
-void CLSSIS3820ScalerView::setScanning(bool scanning)
+void CLSSIS3820ScalerView::startScanning()
+{
+	scaler_->setScanning(true);
+}
+
+void CLSSIS3820ScalerView::stopScanning()
+{
+	scaler_->setScanning(false);
+}
+
+void CLSSIS3820ScalerView::setContinuous(int index)
 {
 	scaler_->blockSignals(true);
 
-	if (scanning != scaler_->isScanning())
-		scaler_->setScanning(scanning);
+	if (index == 1 && !scaler_->isContinuous())
+		scaler_->setContinuous(true);
+
+	else if (index == 0 && scaler_->isContinuous())
+		scaler_->setContinuous(false);
 
 	scaler_->blockSignals(false);
 }
 
-void CLSSIS3820ScalerView::setContinuous(bool isContinuous)
+void CLSSIS3820ScalerView::onContinuousChanged(bool isContinuous)
 {
 	scaler_->blockSignals(true);
-
-	if (isContinuous != scaler_->isContinuous())
-		scaler_->setContinuous(isContinuous);
-
+	modeChoice_->setCurrentIndex(isContinuous ? 1 : 0);
 	scaler_->blockSignals(false);
 }
 
@@ -196,20 +217,7 @@ void CLSSIS3820ScalerView::onTimeChanged(double time)
 
 void CLSSIS3820ScalerView::onStatusChanged(bool status)
 {
-	if (status){
-
-		status_->setPixmap(QIcon(":/ON.png").pixmap(25));
-		scanningButton_->setText("Scanning");
-		scanningButton_->setPalette(QPalette(Qt::green));
-	}
-	else{
-
-		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-		scanningButton_->setText("Stopped");
-		scanningButton_->setPalette(QPalette(Qt::red));
-		if(scanningButton_->isChecked())
-			scanningButton_->setChecked(false);
-	}
+	status_->setPixmap(QIcon(status ? ":/ON.png" : ":/OFF.png").pixmap(25));
 }
 
 void CLSSIS3820ScalerView::setScansPerBuffer()
