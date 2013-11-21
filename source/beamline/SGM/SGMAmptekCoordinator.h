@@ -61,6 +61,8 @@ protected:
 	AMControl *AmptekSDD3IsAvailableControl_;
 	/// Read only control for state of amptek sdd4 availability
 	AMControl *AmptekSDD4IsAvailableControl_;
+	/// Read only control for state of amptek sdd5 availability
+	AMControl *AmptekSDD5IsAvailableControl_;
 	/// Read only control for the state of amptek sdd1 requested status
 	AMControl *AmptekSDD1IsRequestedControl_;
 	/// Read only control for the state of amptek sdd2 requested status
@@ -69,6 +71,8 @@ protected:
 	AMControl *AmptekSDD3IsRequestedControl_;
 	/// Read only control for the state of amptek sdd4 requested status
 	AMControl *AmptekSDD4IsRequestedControl_;
+	/// Read only control for the state of amptek sdd5 requested status
+	AMControl *AmptekSDD5IsRequestedControl_;
 	/// Read only control for the spectrum acquisition state of sdd1
 	AMControl *AmptekSDD1SpectrumStateControl_;
 	/// Read only control for the spectrum acquisition state of sdd2
@@ -77,6 +81,8 @@ protected:
 	AMControl *AmptekSDD3SpectrumStateControl_;
 	/// Read only control for the spectrum acquisition state of sdd4
 	AMControl *AmptekSDD4SpectrumStateControl_;
+	/// Read only control for the spectrum acquisition state of sdd5
+	AMControl *AmptekSDD5SpectrumStateControl_;
 
 	/// Control for starting acquisition for amptek sdd1
 	AMControl *AmptekSDD1StartAcquisitionControl_;
@@ -86,6 +92,8 @@ protected:
 	AMControl *AmptekSDD3StartAcquisitionControl_;
 	/// Control for starting acquisition for amptek sdd4
 	AMControl *AmptekSDD4StartAcquisitionControl_;
+	/// Control for starting acquisition for amptek sdd5
+	AMControl *AmptekSDD5StartAcquisitionControl_;
 	/// Control for spectrum clearing for amptek sdd1
 	AMControl *AmptekSDD1SpectrumClearControl_;
 	/// Control for spectrum clearing for amptek sdd2
@@ -94,6 +102,8 @@ protected:
 	AMControl *AmptekSDD3SpectrumClearControl_;
 	/// Control for spectrum clearing for amptek sdd4
 	AMControl *AmptekSDD4SpectrumClearControl_;
+	/// Control for spectrum clearing for amptek sdd5
+	AMControl *AmptekSDD5SpectrumClearControl_;
 	/// Control for setting amptek SDD 1 preset time
 	AMControl *AmptekSDD1PresetTimeControl_;
 	/// Control for setting amptek SDD 2 preset time
@@ -102,6 +112,8 @@ protected:
 	AMControl *AmptekSDD3PresetTimeControl_;
 	/// Control for setting amptek SDD 4 preset time
 	AMControl *AmptekSDD4PresetTimeControl_;
+	/// Control for setting amptek SDD 5 preset time
+	AMControl *AmptekSDD5PresetTimeControl_;
 
 	/// All the amptek control (for checking connectivity)
 	AMControlSet *allAmptekControls_;
