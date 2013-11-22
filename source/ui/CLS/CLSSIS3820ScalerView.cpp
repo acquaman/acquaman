@@ -273,13 +273,13 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	channelLayout_ = new QHBoxLayout;
 	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
-	channelLayout_->addWidget(channelName_);
+	channelLayout_->addWidget(channelName_, 0, Qt::AlignCenter);
 
 	if (sr570View_)
-		channelLayout_->addWidget(sr570View_);
+		channelLayout_->addWidget(sr570View_, 0, Qt::AlignCenter);
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
-	channelLayout_->addWidget(statusLabel_);
+	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignCenter);
 
 	setLayout(channelLayout_);
 	setVisible(!channel_->customChannelName().isEmpty());
@@ -386,5 +386,5 @@ void CLSSIS3820ScalerChannelView::onNewSR570Attached()
 		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
 
 	sr570View_ = new CLSSR570View(channel_->sr570());
-	channelLayout_->insertWidget(2, sr570View_);
+	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
 }

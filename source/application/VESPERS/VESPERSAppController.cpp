@@ -72,11 +72,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "dataman/AMRun.h"
-
-
-#include "ui/CLS/CLSSIS3820ScalerView.h"
-
-
+#include "ui/VESPERS/VESPERSScalerView.h"
 
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
@@ -358,7 +354,7 @@ void VESPERSAppController::setupUserInterface()
 	persistentView_ = new VESPERSPersistentView;
 	mw_->addRightWidget(persistentView_);
 
-	CLSSIS3820ScalerView *view = new CLSSIS3820ScalerView(VESPERSBeamline::vespers()->scaler());
+	VESPERSScalerView *view = new VESPERSScalerView();
 	view->show();
 
 	// Show the endstation control view first.

@@ -1,5 +1,5 @@
-#ifndef CLSSR570VIEW_H
-#define CLSSR570VIEW_H
+#ifndef CLSSR570COMPOSITEVIEW_H
+#define CLSSR570COMPOSITEVIEW_H
 
 #include <QWidget>
 
@@ -8,8 +8,7 @@
 
 #include "beamline/CLS/CLSSR570.h"
 
-/// This simple widget provides straight forward access to changing the sensitivity on the SR570.
-class CLSSR570View : public QWidget
+class CLSSR570CompositeView : public QWidget
 {
 	Q_OBJECT
 
@@ -17,20 +16,22 @@ public:
 	/// Simple enum holding whether the view should be either basic or advanced looking.
 	enum ViewMode { Basic = 0, Advanced = 1 };
 
-	/// Constructor.  Takes in a valid SR570 pointer.
-	explicit CLSSR570View(CLSSR570 *sr570, QWidget *parent = 0);
+	/// Constructor.  Requires two valid SR570 pointers.
+	CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidget *parent = 0);
 
-	/// Returns the pointer to the SR570 this view is visualizing.
-	CLSSR570 *sr570() const { return sr570_; }
+	/// Returns the pointer to the first SR570 this view is visualizing.
+	CLSSR570 *firstSR570() const { return firstSR570_; }
+	/// Returns the pointer to the second SR570 this view is visualizing.
+	CLSSR570 *secondSR570() const { return secondSR570_; }
 
 	/// Returns the current view mode.
-	CLSSR570View::ViewMode viewMode() const { return mode_; }
+	CLSSR570CompositeView::ViewMode viewMode() const { return mode_; }
 	/// Switches the view from basic to advanced or advanced to basic.
-	void setViewMode(ViewMode mode);
+	void setViewMode(CLSSR570CompositeView::ViewMode mode);
 
 signals:
 	/// Notifier that the view has changed.  Passes the new view.
-	void viewModeChanged(CLSSR570View::ViewMode);
+	void viewModeChanged(CLSSR570CompositeView::ViewMode);
 
 public slots:
 
@@ -49,8 +50,10 @@ protected slots:
 	virtual void onCustomContextMenuRequested(QPoint pos);
 
 protected:
-	/// The pointer to the SR570 this view manages.
-	CLSSR570 *sr570_;
+	/// The pointer to the first SR570 this view manages.
+	CLSSR570 *firstSR570_;
+	/// The pointer to the second SR570 this view manages.
+	CLSSR570 *secondSR570_;
 
 	/// Combo box holding the value for the sensitivity.
 	QComboBox *value_;
@@ -66,4 +69,4 @@ protected:
 	ViewMode mode_;
 };
 
-#endif // CLSSR570VIEW_H
+#endif // CLSSR570COMPOSITEVIEW_H
