@@ -135,10 +135,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	mainVL->addLayout(topLayout);
 	mainVL->addLayout(channelLayout);
 
-	QHBoxLayout *constrainingHL = new QHBoxLayout();
-	constrainingHL->addLayout(mainVL);
-
-	setLayout(constrainingHL);
+	setLayout(mainVL);
 }
 
 void CLSSIS3820ScalerView::startScanning()
