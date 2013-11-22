@@ -34,7 +34,7 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     connect( this->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), model_, SLOT(listItemSelected(QModelIndex, QModelIndex)) );
 
-    connect( this, SIGNAL(editPV(QList<QModelIndex>)), model_, SLOT(editPV(QList<QModelIndex>)) );
+    connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
     connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
@@ -91,7 +91,11 @@ void StripToolListView::deleteSelection()
 
 void StripToolListView::editSelection()
 {
-    emit editPV(selectionModel()->selectedIndexes());
+    // check for batch editing here (eventually).
+
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
+        emit editPV(index);
+//    emit editPV(selectionModel()->selectedIndexes());
 }
 
 

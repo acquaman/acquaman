@@ -18,7 +18,8 @@ public:
     
 signals:
     void setCurrentSelection(const QModelIndex &modelSelection);
-    void editPV(QList<QModelIndex> indicesToEdit);
+//    void editPV(QList<QModelIndex> indicesToEdit);
+    void editPV(const QModelIndex &index);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void colorPV(const QModelIndex &index, const QColor &color);

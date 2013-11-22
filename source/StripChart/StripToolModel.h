@@ -89,9 +89,9 @@ protected slots:
     void toDeletePV(const QModelIndex &index);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
-//    void editPV(const QModelIndex &indexToEdit);
+    void editPV(const QModelIndex &indexToEdit);
 //    void batchEditPVs(QList<QModelIndex> indicesToEdit);
-    void editPV(QList<QModelIndex> indicesToEdit);
+//    void editPV(QList<QModelIndex> indicesToEdit);
 
     /// Selects the appropriate pv and causes it to pause/resume updating on the plot.
     void setPVUpdating(const QModelIndex &index, bool isUpdating);

@@ -317,105 +317,37 @@ bool StripToolModel::addPV(AMControl *pvControl)
 
 
 
-//void StripToolModel::editPV(const QModelIndex &index)
-//{
-//    if (!index.isValid() || index.row() >= pvList_.size())
-//    {
-//        qDebug() << "This index is either invalid or refers to a value outside the list of current pvs.";
-//        return;
-//    }
-
-//    QList<QString> metaData = pvList_.at(index.row())->metaData();
-//    QList<QString> pvData = metaData.insert(0, pvList_.at(index.row())->pvName());
-//    QList<QString> toEdit;
-//    toEdit << pvList_.at(index.row())->pvName();
-
-//    EditPVDialog editDialog(toEdit);
-//    if (editDialog.exec())
-//    {
-//        QString description = editDialog.description();
-//        QString units = editDialog.units();
-//        int points = editDialog.points();
-
-//        foreach(const QModelIndex &index, okIndices)
-//        {
-//            StripToolPV *toEdit = pvList_.at(index.row());
-//            QList<QString> newMetaData;
-
-//            newMetaData << description;
-//            newMetaData << units;
-//            newMetaData << QString::number(points);
-//            newMetaData << "";
-
-//            toEdit->setMetaData(newMetaData);
-
-//            if (description != "")
-//            {
-//                toEdit->setDescription(description);
-//                emit dataChanged(index, index);
-//            }
-
-//            if (units != "")
-//                toEdit->setUnits(units);
-
-//            if (points > 0)
-//                toEdit->setValuesDisplayed(points);
-
-//        }
-//    }
-//}
-
-
-
-void StripToolModel::editPV(QList<QModelIndex> indicesToEdit)
+void StripToolModel::editPV(const QModelIndex &index)
 {
-    QList<QModelIndex> okIndices;
-    QStringList okNames;
-
-    foreach(const QModelIndex &index, indicesToEdit)
+    if (!index.isValid() || index.row() >= pvList_.size())
     {
-        if (index.isValid() && index.row() < pvList_.size())
-        {
-            okIndices.append(index);
-            okNames << data(index, Qt::DisplayRole).toString();
-        }
+        qDebug() << "This index is either invalid or refers to a value outside the list of current pvs.";
+        return;
     }
 
-    if (okNames.length() > 0)
+    QList<QString> pvInfo = pvList_.at(index.row())->metaData();
+
+    EditPVDialog editDialog(pvInfo);
+    if (editDialog.exec())
     {
-        EditPVDialog editDialog(okNames);
-        if (editDialog.exec())
+        QString description = editDialog.description();
+        QString units = editDialog.units();
+        int points = editDialog.points();
+
+        StripToolPV *toEdit = pvList_.at(index.row());
+
+        if (description != "")
         {
-            QString description = editDialog.description();
-            QString units = editDialog.units();
-            int points = editDialog.points();
-
-            foreach(const QModelIndex &index, okIndices)
-            {
-                StripToolPV *toEdit = pvList_.at(index.row());
-                QList<QString> newMetaData;
-
-                newMetaData << description;
-                newMetaData << units;
-                newMetaData << QString::number(points);
-                newMetaData << "";
-
-                toEdit->setMetaData(newMetaData);
-
-                if (description != "")
-                {
-                    toEdit->setDescription(description);
-                    emit dataChanged(index, index);
-                }
-
-                if (units != "")
-                    toEdit->setUnits(units);
-
-                if (points > 0)
-                    toEdit->setValuesDisplayed(points);
-
-            }
+            toEdit->setDescription(description);
+            emit dataChanged(index, index);
         }
+
+        if (units != "")
+            toEdit->setUnits(units);
+
+        if (points > 0)
+            toEdit->setValuesDisplayed(points);
+
     }
 }
 

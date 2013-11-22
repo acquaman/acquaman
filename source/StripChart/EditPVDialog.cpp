@@ -1,27 +1,35 @@
 #include "EditPVDialog.h"
 
-EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
+EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     QDialog(parent)
 {
-    QStringListModel *pvNamesModel = new QStringListModel(this);
-    pvNamesModel->setStringList(pvNames);
+//    QStringListModel *pvNamesModel = new QStringListModel(this);
+//    pvNamesModel->setStringList(pvInfo.at(0));
+
+    QString pvName = pvInfo.at(0);
+    QString pvDescription = pvInfo.at(1);
+    QString pvUnits = pvInfo.at(2);
+    QString pvPoints = pvInfo.at(3);
 
     QLabel *nameLabel = new QLabel("Name : ");
-    QVBoxLayout *namesLayout = new QVBoxLayout();
+//    QVBoxLayout *namesLayout = new QVBoxLayout();
 
-    foreach(const QString &name, pvNames)
-    {
-        QLabel *nameEntry = new QLabel(name);
-        namesLayout->addWidget(nameEntry);
-    }
+//    foreach(const QString &name, pvNames)
+//    {
+//        QLabel *nameEntry = new QLabel(name);
+//        namesLayout->addWidget(nameEntry);
+//    }
+    QLabel *nameEntry = new QLabel(pvName);
 
     QLabel *descriptionLabel = new QLabel("Description : ");
     descriptionEntry_ = new QLineEdit();
+    descriptionEntry_->setText(pvDescription);
     descriptionLabel->setBuddy(descriptionEntry_);
     connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(descriptionEntered(QString)) );
 
     QLabel *unitsLabel = new QLabel("Units : ");
     unitsEntry_ = new QLineEdit();
+    unitsEntry_->setText(pvUnits);
     unitsLabel->setBuddy(unitsEntry_);
     connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(unitsEntered(QString)) );
 
@@ -29,12 +37,14 @@ EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
 
     QLabel *pointsLabel = new QLabel("Points # : ");
     pointsEntry_ = new QLineEdit();
+    pointsEntry_->setText(pvPoints);
     pointsLabel->setBuddy(pointsEntry_);
     connect( pointsEntry_, SIGNAL(textChanged(QString)), this, SLOT(pointsEntered(QString)) );
 
     QGridLayout *entryLayout = new QGridLayout();
     entryLayout->addWidget(nameLabel, 0, 0);
-    entryLayout->addLayout(namesLayout, 0, 1);
+    entryLayout->addWidget(nameEntry, 0, 1);
+//    entryLayout->addLayout(namesLayout, 0, 1);
     entryLayout->addWidget(descriptionLabel, 1, 0);
     entryLayout->addWidget(descriptionEntry_, 1, 1);
     entryLayout->addWidget(unitsLabel, 2, 0);
