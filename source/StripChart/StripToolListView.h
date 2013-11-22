@@ -21,7 +21,6 @@ signals:
     void editPV(QList<QModelIndex> indicesToEdit);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
-    void incrementValuesDisplayed(const QModelIndex &index, int difference);
     void colorPV(const QModelIndex &index, const QColor &color);
 
 protected:

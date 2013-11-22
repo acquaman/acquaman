@@ -15,6 +15,7 @@ class StripToolQuickControls : public QWidget
 
 public:
     explicit StripToolQuickControls(QWidget *parent = 0);
+    ~StripToolQuickControls();
     
 signals:
     void reset();
@@ -35,17 +36,12 @@ protected:
 
 public:
     void setModel(StripToolModel *newModel);
-
-protected:
-    /// Attempts to connect to the pv with the entered name.
-    void testValidity(const QString &pvName);
     
 protected slots:
+    void resetControls();
     void displayMessage(const QString &text);
     /// When the add button is clicked, information entry is disabled while we test to see if the entered pv name is valid.
     void addClicked();
-    void resetControls();
-
 };
 
 #endif // STRIPTOOLQUICKCONTROLS_H

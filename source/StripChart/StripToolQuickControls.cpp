@@ -8,9 +8,8 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     listView_ = new StripToolListView(this);
 
     pvNameLineEdit_ = new QLineEdit();
-    pvNameLineEdit_->setFocus();
+    pvNameLineEdit_->setFocus(Qt::OtherFocusReason);
     connect( this, SIGNAL(nameEntryEnabled(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
-    connect( this, SIGNAL(nameEntryFocus()), pvNameLineEdit_, SLOT(setFocus()) );
     connect( this, SIGNAL(clearName()), pvNameLineEdit_, SLOT(clear()) );
     connect( pvNameLineEdit_, SIGNAL(returnPressed()), this, SLOT(addClicked()) );
     connect( pvNameLineEdit_, SIGNAL(textEdited(QString)), this, SIGNAL(clearMessage()) );
@@ -36,6 +35,11 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     setMaximumWidth(200);
 
     connect( this, SIGNAL(reset()), this, SLOT(resetControls()) );
+}
+
+
+
+StripToolQuickControls::~StripToolQuickControls() {
 }
 
 
@@ -81,7 +85,7 @@ void StripToolQuickControls::addClicked()
 
     if (pvName == "")
     {
-        error("PV name cannot be blank.");
+        emit error("PV name cannot be blank.");
 
     } else {
 

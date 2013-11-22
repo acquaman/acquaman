@@ -1,6 +1,6 @@
 #include "StripToolPV.h"
 
-StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, const QString &pvUnits, QObject *parent)
+StripToolPV::StripToolPV(QObject *parent)
     : QObject(parent)
 {
     updateIndex_ = 0;
@@ -9,10 +9,10 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     dataVectorSize_ = 100;
     savePoint_ = 10;
 
-    pvName_ = pvName;
-    pvDescription_ = pvDescription;
+    pvName_ = "";
+    pvDescription_ = "";
     xUnits_ = "Update number";
-    yUnits_ = pvUnits;
+    yUnits_ = "";
     isUpdating_ = true;
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
@@ -30,6 +30,10 @@ StripToolPV::StripToolPV(const QString &pvName, const QString &pvDescription, co
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
     pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 100));
+
+    setMetaDataHeaders();
+
+    connect( this, SIGNAL(savePVMetaData()), this, SLOT(saveMetaDataTest()) );
 }
 
 
@@ -47,21 +51,21 @@ QString StripToolPV::pvName() const
 
 
 
-QString StripToolPV::pvDescription()
+QString StripToolPV::pvDescription() const
 {
     return pvDescription_;
 }
 
 
 
-QString StripToolPV::xUnits()
+QString StripToolPV::xUnits() const
 {
     return xUnits_;
 }
 
 
 
-QString StripToolPV::yUnits()
+QString StripToolPV::yUnits() const
 {
     return yUnits_;
 }
@@ -93,17 +97,6 @@ MPlotSeriesBasic* StripToolPV::series()
 {
     return pvSeries_;
 }
-
-
-
-//QList<QVector<double> >* StripToolPV::dataToSave()
-//{
-//    QList<QVector<double> > *toSave = new QList<QVector<double> >();
-//    toSave[0] = pvUpdateIndex_.mid(updateIndex_ - savePoint_, -1);
-//    toSave[1] = pvDataTotal_.mid(updateIndex_ - savePoint_, -1);
-
-//    return toSave;
-//}
 
 
 
@@ -141,7 +134,7 @@ QVector<double> StripToolPV::saveIndexes()
     QVector<double> toSave = pvUpdateIndex_.mid(position, amount);
 
     if (toSave.size() != savePoint_)
-        qDebug() << "mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
+        qDebug() << "Mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
 
     return toSave;
 }
@@ -178,33 +171,22 @@ QVector<double> StripToolPV::saveData()
 
 
 
-//MPlotAxisRange* StripToolPV::axisRangeLeft()
-//{
-//    qreal min = ;
-//    qreal max;
-//    return new MPlotAxisRange(min, max);
-//}
-
-
-
-MPlotAxisRange StripToolPV::axisBottomRange() const
+void StripToolPV::setMetaDataHeaders()
 {
-    qreal min = pvUpdateIndex_.at(updateIndex_ - valuesDisplayed_ - 1);
-    qreal max = pvUpdateIndex_.at(updateIndex_ - 1);
+    headers_.clear();
 
-    return MPlotAxisRange(min, max);
+    headers_ << "Name ";
+    headers_ << "Description ";
+    headers_ << "Units ";
+    headers_ << "Displayed ";
+    headers_ << "Color ";
 }
 
 
 
-QList<QString> StripToolPV::metaDataHeader()
+QList<QString> StripToolPV::metaDataHeaders()
 {
-    QList<QString> metaDataHeaders;
-
-    metaDataHeaders << "Name";
-    metaDataHeaders << "Color";
-
-    return metaDataHeaders;
+    return headers_;
 }
 
 
@@ -214,6 +196,9 @@ QList<QString> StripToolPV::metaData()
     QList<QString> metaData;
 
     metaData << pvName();
+    metaData << pvDescription();
+    metaData << yUnits();
+    metaData << QString::number(valuesDisplayed());
     metaData << color().name();
 
     return metaData;
@@ -221,9 +206,36 @@ QList<QString> StripToolPV::metaData()
 
 
 
-void StripToolPV::setControl(AMControl *newPV)
+bool StripToolPV::setMetaData(QList<QString> metaData)
 {
-    pvControl_ = newPV;
+    qDebug() << "Attempting to set meta data for pv named" << metaData.at(0);
+
+    if (metaData.at(0) != pvName())
+    {
+        qDebug() << "The meta data name" << metaData.at(0) << "and pv name" << pvName() << "don't match!";
+        return false;
+    }
+
+    if (metaData.size() != metaDataHeaders().size())
+    {
+        qDebug() << "The meta data size" << QString::number(metaData.size()) << "and the number of pv headers" << QString::number(metaDataHeaders().size()) << "don't match!";
+        return false;
+    }
+
+    setDescription(metaData.at(1));
+    setUnits(metaData.at(2));
+    setValuesDisplayed(metaData.at(3).toInt());
+    setSeriesColor(metaData.at(4));
+
+    return true;
+}
+
+
+
+void StripToolPV::setControl(AMControl *newControl)
+{
+    pvControl_ = newControl;
+    pvName_ = newControl->name();
     pvControl_->setParent(this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
 }
@@ -233,6 +245,7 @@ void StripToolPV::setControl(AMControl *newPV)
 void StripToolPV::setDescription(const QString &newDescription)
 {
     pvDescription_ = newDescription;
+    emit savePVMetaData();
 }
 
 
@@ -240,6 +253,7 @@ void StripToolPV::setDescription(const QString &newDescription)
 void StripToolPV::setUnits(const QString &newUnits)
 {
     yUnits_ = newUnits;
+    emit savePVMetaData();
 }
 
 
@@ -254,21 +268,10 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 void StripToolPV::setValuesDisplayed(int points)
 {
     if (points <= 0)
-    {
-        // do nothing?
-        // I don't want to be able to hide a pv this way.
+        return;
 
-    } else {
-        valuesDisplayed_ = points;
-    }
-}
-
-
-
-void StripToolPV::incrementValuesDisplayed(int diff)
-{
-    int newPoints = valuesDisplayed_ + diff;
-    setValuesDisplayed(newPoints);
+    valuesDisplayed_ = points;
+    emit savePVMetaData();
 }
 
 
@@ -284,6 +287,7 @@ void StripToolPV::setSeriesColor(const QColor &color)
 {
     pvColor_ = color;
     pvSeries_->setLinePen( QPen(pvColor_) );
+    emit savePVMetaData();
 }
 
 
@@ -298,7 +302,7 @@ bool StripToolPV::operator== (const StripToolPV &anotherPV)
 void StripToolPV::onPVValueChanged(double newValue)
 {
     if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0)
-        emit savePV();
+        emit savePVData();
 
     //  check to see if the size of the data vectors allows for a new addition.
     if (dataVectorSize_ < updateIndex_ + 1)
@@ -335,4 +339,11 @@ void StripToolPV::onPVValueChanged(double newValue)
 
     // increment the update counter.
     updateIndex_++;
+}
+
+
+
+void StripToolPV::saveMetaDataTest()
+{
+    qDebug() << "The signal for saving changed meta data was emitted.";
 }

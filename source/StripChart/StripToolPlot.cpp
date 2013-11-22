@@ -26,6 +26,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     setPlot(plot_);
 
     enableAntiAliasing(true);
+    setContextMenuPolicy(Qt::ActionsContextMenu);
 
     connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
     connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );

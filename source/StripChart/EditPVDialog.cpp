@@ -3,10 +3,6 @@
 EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
     QDialog(parent)
 {
-    Q_UNUSED(pvNames);
-
-    points_ = 0;
-
     QStringListModel *pvNamesModel = new QStringListModel(this);
     pvNamesModel->setStringList(pvNames);
 
@@ -28,6 +24,8 @@ EditPVDialog::EditPVDialog(QStringList pvNames, QWidget *parent) :
     unitsEntry_ = new QLineEdit();
     unitsLabel->setBuddy(unitsEntry_);
     connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(unitsEntered(QString)) );
+
+    points_ = 0;
 
     QLabel *pointsLabel = new QLabel("Points # : ");
     pointsEntry_ = new QLineEdit();

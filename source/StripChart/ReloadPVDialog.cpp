@@ -3,7 +3,7 @@
 ReloadPVDialog::ReloadPVDialog(QList<QString> reloadList, QWidget *parent) :
     QDialog(parent)
 {
-    QLabel *dialogMessage = new QLabel("Previous pvs detected--reload previous pvs?");
+    QLabel *dialogMessage = new QLabel("Previous pvs detected--reload pvs?");
 
     QStandardItemModel *contentsModel  = new QStandardItemModel(this);
     connect( contentsModel , SIGNAL(itemChanged(QStandardItem*)), this, SLOT(onItemChanged(QStandardItem*)) );
@@ -18,6 +18,7 @@ ReloadPVDialog::ReloadPVDialog(QList<QString> reloadList, QWidget *parent) :
 
     QListView *contentsView = new QListView(this);
     contentsView->setModel(contentsModel);
+    contentsView->setMaximumHeight(100);
 
     QPushButton *okButton = new QPushButton("Ok");
     okButton->setDefault(true);

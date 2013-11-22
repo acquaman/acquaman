@@ -16,7 +16,9 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripToolListView.cpp \
     source/StripChart/StripToolQuickControls.cpp \
     source/StripChart/EditPVDialog.cpp \
-    source/StripChart/StripToolSelector.cpp
+    source/StripChart/StripToolSelector.cpp \
+    source/StripChart/ReloadPVDialog.cpp \
+    source/StripChart/StripToolDataController.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -27,6 +29,8 @@ HEADERS  += \
     source/StripChart/StripToolListView.h \
     source/StripChart/StripToolQuickControls.h \
     source/StripChart/EditPVDialog.h \
-    source/StripChart/StripToolSelector.h
+    source/StripChart/StripToolSelector.h \
+    source/StripChart/ReloadPVDialog.h \
+    source/StripChart/StripToolDataController.h
 
 OTHER_FILES +=
