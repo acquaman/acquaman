@@ -19,12 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSIS3820ScalerView.h"
 
-#include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QCheckBox>
-#include <QLabel>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "ui/CLS/CLSSR570View.h"
 
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
@@ -123,48 +121,56 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
 		// Build the channel views.
 		QVBoxLayout *channelLayoutLeftTop = new QVBoxLayout;
-		QVBoxLayout *channelLayoutRightTop = new QVBoxLayout;
-		QVBoxLayout *channelLayoutLeftBottom = new QVBoxLayout;
-		QVBoxLayout *channelLayoutRightBottom = new QVBoxLayout;
+//		QVBoxLayout *channelLayoutRightTop = new QVBoxLayout;
+//		QVBoxLayout *channelLayoutLeftBottom = new QVBoxLayout;
+//		QVBoxLayout *channelLayoutRightBottom = new QVBoxLayout;
 
 		CLSSIS3820ScalerChannelView *channelView = 0;
 		int channelCount = scaler_->channels().count();
+		for (int i = 0; i < channelCount; i++){
 
-		for(int x = 0; x < channelCount; x++){
-
-			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(x));
-
-			if(x < channelCount/4)
-				channelLayoutLeftTop->addWidget(channelView);
-
-			else if(x < channelCount/2 && x >= channelCount/4)
-				channelLayoutRightTop->addWidget(channelView);
-
-			else if(x >= channelCount/2 && x < 3*channelCount/4)
-				channelLayoutLeftBottom->addWidget(channelView);
-
-			else
-				channelLayoutRightBottom->addWidget(channelView);
+			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+			channelViews_ << channelView;
+			connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+			connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
+			channelLayoutLeftTop->addWidget(channelView);
 		}
+
+//		for(int x = 0; x < channelCount; x++){
+
+//			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(x));
+
+//			if(x < channelCount/4)
+//				channelLayoutLeftTop->addWidget(channelView);
+
+//			else if(x < channelCount/2 && x >= channelCount/4)
+//				channelLayoutRightTop->addWidget(channelView);
+
+//			else if(x >= channelCount/2 && x < 3*channelCount/4)
+//				channelLayoutLeftBottom->addWidget(channelView);
+
+//			else
+//				channelLayoutRightBottom->addWidget(channelView);
+//		}
 
 		QHBoxLayout *bottomHL1 = new QHBoxLayout();
 		bottomHL1->addLayout(channelLayoutLeftTop);
-		bottomHL1->addLayout(channelLayoutRightTop);
-		bottomHL1->setContentsMargins(10, 0, 10, 5);
+//		bottomHL1->addLayout(channelLayoutRightTop);
+//		bottomHL1->setContentsMargins(10, 0, 10, 5);
 
-		QHBoxLayout *bottomHL2 = new QHBoxLayout();
-		bottomHL2->addLayout(channelLayoutLeftBottom);
-		bottomHL2->addLayout(channelLayoutRightBottom);
-		bottomHL2->setContentsMargins(10, 5, 10, 10);
+//		QHBoxLayout *bottomHL2 = new QHBoxLayout();
+//		bottomHL2->addLayout(channelLayoutLeftBottom);
+//		bottomHL2->addLayout(channelLayoutRightBottom);
+//		bottomHL2->setContentsMargins(10, 5, 10, 10);
 
 		QVBoxLayout *mainVL = new QVBoxLayout();
 		mainVL->addLayout(topLayout);
 		mainVL->addLayout(bottomHL1);
-		mainVL->addLayout(bottomHL2);
+//		mainVL->addLayout(bottomHL2);
 
 		QHBoxLayout *constrainingHL = new QHBoxLayout();
 		constrainingHL->addLayout(mainVL);
-		constrainingHL->addStretch(10);
+//		constrainingHL->addStretch(10);
 
 		setLayout(constrainingHL);
 //	}
@@ -240,6 +246,26 @@ void CLSSIS3820ScalerView::setTotalNumberOfScans()
 	scaler_->blockSignals(false);
 }
 
+void CLSSIS3820ScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
+{
+	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
+
+		channel->blockSignals(true);
+		channel->setSR570ViewMode(mode);
+		channel->blockSignals(false);
+	}
+}
+
+void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode)
+{
+	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
+
+		channel->blockSignals(true);
+		channel->setOutputViewMode(mode);
+		channel->blockSignals(false);
+	}
+}
+
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
 
@@ -247,36 +273,162 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	: QWidget(parent)
 {
 	channel_ = channel;
+	viewMode_ = Counts;
 
-	QCheckBox *enableBox = new QCheckBox;
+	enableBox_ = new QCheckBox;
+
 	if(channel_->isConnected() && channel_->isEnabled())
-		enableBox->setChecked(true);
-	connect(channel_, SIGNAL(enabledChanged(bool)), enableBox, SLOT(setChecked(bool)));
-	connect(enableBox, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
+		enableBox_->setChecked(true);
 
-	readingLabel_ = new QLabel;
+	connect(channel_, SIGNAL(enabledChanged(bool)), enableBox_, SLOT(setChecked(bool)));
+	connect(enableBox_, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
+
+	channelName_ = new QLabel(channel_->customChannelName());
+
+	sr570View_ = 0;
+	connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewSR570Attached()));
+
+	if (channel_->sr570()){
+
+		sr570View_ = new CLSSR570View(channel_->sr570());
+		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
+	}
+
+	scalerOutput_ = new QToolButton;
+	scalerOutput_->setAutoRaise(true);
+
+
+	connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged()));
+	connect(scalerOutput_, SIGNAL(clicked()), this, SLOT(onScalerOutputClicked()));
+
+	statusLabel_ = new QLabel;
+	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setVisible(channel_->voltageRange().isValid());
+	connect(channel_, SIGNAL(voltageRangeChanged(AMRange)), this, SLOT(updateStatusLabel()));
+
 	if(channel_->isConnected())
-		onReadingChanged(channel_->reading());
-	connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged(int)));
+		onReadingChanged();
 
-	QHBoxLayout *layout = new QHBoxLayout;
-	if(channel_->customChannelName().isEmpty())
-		layout->addWidget(new QLabel(QString("%1)").arg(channel_->index())), 0, Qt::AlignLeft);
-	else
-		layout->addWidget(new QLabel(QString("%1)").arg(channel_->customChannelName())), 0, Qt::AlignLeft);
-	layout->addSpacing((channel_->index() >= 10) ? 0 : 8);
-	layout->addWidget(enableBox, 0, Qt::AlignLeft);
-	layout->addStretch();
-	layout->addWidget(readingLabel_, 0, Qt::AlignCenter);
-	if( (channel_->index() < 8) || (channel_->index() > 15 && channel_->index() < 24) )
-		layout->setContentsMargins(0,0,5,0);
-	else
-		layout->setContentsMargins(5,0,0,0);
+	channelLayout_ = new QHBoxLayout;
+	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
+	channelLayout_->addWidget(channelName_);
+	if (sr570View_)
+		channelLayout_->addWidget(sr570View_);
+//	layout->addSpacing((channel_->index() >= 10) ? 0 : 8);
+//	layout->addStretch();
+	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
+	channelLayout_->addWidget(statusLabel_);
+//	if( (channel_->index() < 8) || (channel_->index() > 15 && channel_->index() < 24) )
+//		layout->setContentsMargins(0,0,5,0);
 
-	setLayout(layout);
+//	else
+//		layout->setContentsMargins(5,0,0,0);
+
+	setLayout(channelLayout_);
+
+	setVisible(!channel_->customChannelName().isEmpty());
 }
 
-void CLSSIS3820ScalerChannelView::onReadingChanged(int reading)
+void CLSSIS3820ScalerChannelView::onReadingChanged()
 {
-	readingLabel_->setText(QString("%1 counts").arg(reading));
+	if (viewMode_ == Counts)
+		scalerOutput_->setText(QString("%1 counts").arg(channel_->reading()));
+
+	else if (viewMode_ == Voltage)
+		scalerOutput_->setText(QString("%1 V").arg(channel_->voltage(), 0, 'f', 2));
+
+	updateStatusLabel();
+}
+
+void CLSSIS3820ScalerChannelView::updateStatusLabel()
+{
+	if (channel_->withinLinearRange()){
+
+		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setToolTip("");
+	}
+
+	else if (channel_->voltageTooLow()){
+
+		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setToolTip(QString("The voltage is too low!  Increase the sensitivity until the voltage is higher than %1 V.").arg(channel_->minimumVoltage()));
+	}
+
+	else if (channel_->voltageTooHigh()){
+
+		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setToolTip(QString("The voltage is too high!  Decrease the sensitivity until the voltage is lower than %1 V.").arg(channel_->maximumVoltage()));
+	}
+}
+
+void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
+{
+	if (viewMode_ == Counts){
+
+		viewMode_ = Voltage;
+		disconnect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged()));
+		connect(channel_, SIGNAL(voltageChanged(double)), this, SLOT(onReadingChanged()));
+	}
+
+	else if (viewMode_ == Voltage){
+
+		viewMode_ = Counts;
+		connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged()));
+		disconnect(channel_, SIGNAL(voltageChanged(double)), this, SLOT(onReadingChanged()));
+	}
+
+	emit outputViewModeChanged(viewMode_);
+	onReadingChanged();
+}
+
+void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
+{
+	if (channel_->sr570())
+		sr570View_->setViewMode(mode);
+}
+
+void CLSSIS3820ScalerChannelView::setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode)
+{
+	if (viewMode_ != mode){
+
+		viewMode_ = mode;
+		onReadingChanged();
+		emit outputViewModeChanged(viewMode_);
+	}
+}
+
+void CLSSIS3820ScalerChannelView::setEnableCheckBoxVisibility(bool visible)
+{
+	enableBox_->setVisible(visible);
+}
+
+void CLSSIS3820ScalerChannelView::setCustomNameVisibility(bool visible)
+{
+	channelName_->setVisible(visible);
+}
+
+void CLSSIS3820ScalerChannelView::setSR570Visibility(bool visible)
+{
+	if (sr570View_)
+		sr570View_->setVisible(visible);
+}
+
+void CLSSIS3820ScalerChannelView::setOutputVisibility(bool visible)
+{
+	scalerOutput_->setVisible(visible);
+}
+
+void CLSSIS3820ScalerChannelView::setStatusLabelVisibility(bool visible)
+{
+	statusLabel_->setVisible(visible);
+}
+
+void CLSSIS3820ScalerChannelView::onNewSR570Attached()
+{
+	// If one already exists, lets get rid of it before doing anything else.
+	if (sr570View_)
+		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
+
+	sr570View_ = new CLSSR570View(channel_->sr570());
+	channelLayout_->insertWidget(2, sr570View_);
 }

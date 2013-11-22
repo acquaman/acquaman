@@ -27,6 +27,8 @@ public:
 	void setViewMode(ViewMode mode);
 
 signals:
+	/// Notifier that the view has changed.  Passes the new view.
+	void viewModeChanged(CLSSR570View::ViewMode);
 
 public slots:
 

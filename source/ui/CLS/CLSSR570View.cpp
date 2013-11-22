@@ -25,13 +25,13 @@ CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	value_->hide();
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
-	connect(sr570_, SIGNAL(sensitivityValueIndexChanged(int)), this, SLOT(onValueChanged(int)));
+	connect(sr570_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)));
 
 	units_ = new QComboBox;
 	units_->hide();
 	units_->addItems(QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V");
 	connect(units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)));
-	connect(sr570_, SIGNAL(sensitivityUnitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+	connect(sr570_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 
 	setViewMode(Basic);
 
@@ -102,6 +102,8 @@ void CLSSR570View::setViewMode(ViewMode mode)
 		value_->show();
 		units_->show();
 	}
+
+	emit viewModeChanged(mode_);
 }
 
 void CLSSR570View::onCustomContextMenuRequested(QPoint pos)

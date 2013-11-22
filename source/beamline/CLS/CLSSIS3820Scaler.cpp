@@ -528,6 +528,7 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 
 	// No SR570 to start with.
 	sr570_ = 0;
+	voltageRange_ = AMRange();
 
 	customChannelName_ = QString();
 
@@ -564,7 +565,7 @@ bool CLSSIS3820ScalerChannel::isEnabled() const{
 
 int CLSSIS3820ScalerChannel::reading() const{
 
-	if(isConnected())
+//	if(isConnected())
 		return int(channelReading_->value());
 
 	return -1;
@@ -572,7 +573,7 @@ int CLSSIS3820ScalerChannel::reading() const{
 
 double CLSSIS3820ScalerChannel::voltage() const
 {
-	if (isConnected())
+//	if (isConnected())
 		return channelVoltage_->value();
 
 	return -1.0;
@@ -647,4 +648,36 @@ void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
 	sr570_ = sr570;
 	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	emit sr570Attached();
+}
+
+void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)
+{
+	if (voltageRange_.minimum() != min){
+
+		voltageRange_.setMaximum(min);
+		emit voltageRangeChanged(voltageRange_);
+	}
+}
+
+void CLSSIS3820ScalerChannel::setMaximumVoltage(double max)
+{
+	if (voltageRange_.maximum() != max){
+
+		voltageRange_.setMaximum(max);
+		emit voltageRangeChanged(voltageRange_);
+	}
+}
+
+void CLSSIS3820ScalerChannel::setVoltagRange(const AMRange &range)
+{
+	if (voltageRange_ != range){
+
+		voltageRange_ = range;
+		emit voltageRangeChanged(voltageRange_);
+	}
+}
+
+void CLSSIS3820ScalerChannel::setVoltagRange(double min, double max)
+{
+	setVoltagRange(AMRange(min, max));
 }
