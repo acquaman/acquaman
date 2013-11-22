@@ -221,7 +221,7 @@ DEFINES += AM_ENABLE_BOUNDS_CHECKING
 
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
-QMAKE_CXXFLAGS += -Wextra
+QMAKE_CXXFLAGS += -Wextra -g
 
 # Specify RPATH (runtime library search paths) so that libraries can be found without requiring LD_LIBRARY_PATH
 # For Qt 4.7.1 and earlier, need to use this instead:

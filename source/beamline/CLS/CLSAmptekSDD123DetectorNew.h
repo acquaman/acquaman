@@ -53,6 +53,9 @@ public:
 
 	double detectorTemperature() const;
 
+	/// Return the eV/bin ratio
+	double eVPerBin() const;
+
 	/// The ampteks do not support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
@@ -119,6 +122,9 @@ public slots:
 	/// Set the internal amptek ROI to a given low and high channel number
 	void setAmptekROI(int index, int lowChannel, int highChannel);
 
+	/// Sets the eV/bin ratio
+	void setEVPerBin(double eVPerBin);
+
 signals:
 	/// Emitted when the control for a low index ROI has changed
 	void lowIndexValueChanged(int index);
@@ -126,6 +132,9 @@ signals:
 	void highIndexValueChanged(int index);
 
 	void detectorTemperatureChanged(double newTemperature);
+
+	/// Emitted when the eV/bin ratio changes
+	void eVPerBinChanged(double eVPerBin);
 
 protected slots:
 	/// Handles changes from the low index controls
@@ -196,6 +205,9 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
+
+	/// The eV/bin ratio for this detector
+	double eVPerBin_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

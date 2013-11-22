@@ -311,6 +311,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newAmptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd3", this);
 	newAmptekSDD4_ = new CLSAmptekSDD123DetectorNew("AmptekSDD4", "Amptek SDD 4", "amptek:sdd4", this);
 	newAmptekSDD5_ = new CLSAmptekSDD123DetectorNew("AmptekSDD5", "Amptek SDD 5", "amptek:sdd5", this);
+	newAmptekSDD5_->setEVPerBin(2.25);
 	//newAmptekSDD2_ = 0;
 	//newAmptekSDD3_ = 0;
 	//newAmptekSDD4_ = 0;
@@ -1341,6 +1342,29 @@ void SGMBeamline::setupControls(){
 
 	undulatorRelativeStep_ = new AMPVControl("undulatorRelativeStep", "SMTR1411-01:step:rel", "SMTR1411-01:step:rel", QString(), this, 5);
 	undulatorRelativeStep_->setDescription("Undulator Relative Step");
+
+	m2VerticalUpstreamStep_ = new AMReadOnlyPVControl("m2VerticalUpstreamStep", "SMTR16113I1010:step:fbk", this);
+	m2VerticalDownstreamStep_ = new AMReadOnlyPVControl("m2VerticalDownstreamStep", "SMTR16113I1011:step:fbk", this);
+	m2HorizontalUpstreamStep_ = new AMReadOnlyPVControl("m2HorizontalUpstreamsStep", "SMTR16113I1012:step:fbk", this);
+	m2HorizontalDownstreamStep_ = new AMReadOnlyPVControl("m2HorizontalDownstreamStep_", "SMTR16113I1013:step:fbk", this);
+	m2RotationalStep_ = new AMReadOnlyPVControl("m2RotationalStep_", "SMTR16113I1014:step:fbk", this);
+	m3VerticalUpstreamStep_ = new AMReadOnlyPVControl("m3VerticalUpstreamStep", "SMTR16113I1015:step:sp", this);
+	m3VerticalDownstreamStep_ = new AMReadOnlyPVControl("m3VerticalDownstreamStep", "SMTR16113I1016:step:sp", this);
+	m3HorizontalUpstreamStep_ = new AMReadOnlyPVControl("m3HorizontalUpstreamStep", "SMTR16113I1017:step:sp", this);
+	m3HorizontalDownstreamStep_ = new AMReadOnlyPVControl("m3HorizontalDownstreamStep", "SMTR16113I1018:step:sp", this);
+	m3RotationalStep_ = new AMReadOnlyPVControl("m3RotationalStep", "SMTR16113I1019:step:fbk", this);
+
+	m2VerticalUpstreamEncoder_ = new AMReadOnlyPVControl("m2VerticalUpstreamEncoder", "SMTR16113I1010:encod:fbk", this);
+	m2VerticalDownstreamEncoder_ = new AMReadOnlyPVControl("m2VerticalDownstreamEncoder", "SMTR16113I1011:encod:fbk", this);
+	m2HorizontalUpstreamEncoder_ = new AMReadOnlyPVControl("m2HorizontalUpstreamsEncoder", "SMTR16113I1012:encod:fbk", this);
+	m2HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m2HorizontalDownstreamEncoder_", "SMTR16113I1013:encod:fbk", this);
+	m2RotationalEncoder_ = new AMReadOnlyPVControl("m2RotationalEncoder_", "SMTR16113I1014:encod:fbk", this);
+	m3VerticalUpstreamEncoder_ = new AMReadOnlyPVControl("m3VerticalUpstreamEncoder", "SMTR16113I1015:enc:fbk", this);
+	m3VerticalDownstreamEncoder_ = new AMReadOnlyPVControl("m3VerticalDownstreamEncoder", "SMTR16113I1016:enc:fbk", this);
+	m3HorizontalUpstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalUpstreamEncoder", "SMTR16113I1017:enc:fbk", this);
+	m3HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalDownstreamEncoder", "SMTR16113I1018:enc:fbk", this);
+	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
+
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");

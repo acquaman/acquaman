@@ -11,12 +11,14 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	units_ = "Counts";
 
+	eVPerBin_ = 8.25;
+
 	// This can be done in the constructor because it doesn't depend on anything.
 	axes_ = QList<AMAxisInfo>();
 	AMAxisInfo ai("Energy", 1024, "Energy", "eV");
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
-	ai.increment = 8.25;
+	ai.increment = eVPerBin_;
 	axes_ << ai;
 
 	acquireControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:start", baseName+":spectrum:start", baseName+":spectrum:stop", this, 0.5);
@@ -138,6 +140,12 @@ double CLSAmptekSDD123DetectorNew::detectorTemperature() const{
 	if(!isConnected())
 		return -1;
 	return detectorTemperatureControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::eVPerBin() const{
+	if(!isConnected())
+		return -1;
+	return eVPerBin_;
 }
 
 int CLSAmptekSDD123DetectorNew::amptekLowROI(int index){
@@ -328,4 +336,16 @@ void CLSAmptekSDD123DetectorNew::setAmptekROI(int index, int lowChannel, int hig
 		roiLowIndices_.at(index)->move(lowChannel);
 	if(!roiHighIndices_.at(index)->withinTolerance(highChannel))
 		roiHighIndices_.at(index)->move(highChannel);
+}
+
+void CLSAmptekSDD123DetectorNew::setEVPerBin(double eVPerBin){
+	if(eVPerBin_ != eVPerBin){
+		eVPerBin_ = eVPerBin;
+
+		AMNumber eVPerBinNumber(eVPerBin_);
+		axes_[0].increment = eVPerBinNumber;
+		((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(eVPerBin_);
+
+		emit eVPerBinChanged(eVPerBin_);
+	}
 }

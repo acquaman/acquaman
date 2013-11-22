@@ -1,6 +1,7 @@
 #include "SGMFastScanActionController.h"
 
 #include <QFileInfo>
+#include <QApplication>
 
 #include "dataman/AMFastScan.h"
 #include "actions3/AMActionRunner3.h"
@@ -514,7 +515,13 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	// Total Scans to 1000
 	// Turn off synchronized dwell coordination for the scaler
 	AMListAction3 *fastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings", "SGM Fast Actions Scaler Settings"), AMListAction3::Parallel);
-	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
+	qDebug() << "settings->scalerTime is " << settings->scalerTime();
+	qDebug() << "settings->fastScanSettings->runSeconds is " << settings->fastScanSettings().runSeconds();
+	qDebug() << "arguments: " << QApplication::instance()->arguments();
+	if(QApplication::instance()->arguments().contains("--advanced"))
+		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->fastScanSettings().runSeconds()/1000));
+	else
+		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(1000));
 	retVal->addSubAction(fastActionsScalerSettings);
