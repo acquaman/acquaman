@@ -32,148 +32,116 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 {
 	scaler_ = scaler;
 
-//	if(scaler_ && scaler_->isConnected()){
+	// Build the top part.
+	modeChoice_ = new QComboBox;
+	modeChoice_->addItems(QStringList() << "Single Shot" << "Continuous");
+	modeChoice_->setCurrentIndex(0);
+	connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous(int)));
+	connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged(bool)));
 
-		// Build the top part.
-		modeChoice_ = new QComboBox;
-		modeChoice_->addItems(QStringList() << "Single Shot" << "Continuous");
-		modeChoice_->setCurrentIndex(0);
-		connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous(int)));
-		connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged(bool)));
+	startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
+	startButton_->setMaximumHeight(25);
+	connect(scaler_, SIGNAL(scanningChanged(bool)), startButton_, SLOT(setDisabled(bool)));
+	connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
 
-		startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
-		startButton_->setMaximumHeight(25);
-		connect(scaler_, SIGNAL(scanningChanged(bool)), startButton_, SLOT(setDisabled(bool)));
-		connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
+	stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+	stopButton_->setMaximumHeight(25);
+	connect(scaler_, SIGNAL(scanningChanged(bool)), stopButton_, SLOT(setEnabled(bool)));
+	connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
 
-		stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
-		stopButton_->setMaximumHeight(25);
-		connect(scaler_, SIGNAL(scanningChanged(bool)), stopButton_, SLOT(setEnabled(bool)));
-		connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
+	startButton_->setDisabled(scaler_->isScanning());
+	stopButton_->setEnabled(scaler_->isScanning());
 
-		startButton_->setDisabled(scaler_->isScanning());
-		stopButton_->setEnabled(scaler_->isScanning());
+	status_ = new QLabel;
+	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
-		status_ = new QLabel;
-		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-		connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onStatusChanged(bool)));
+	time_ = new QSpinBox;
+	time_->setRange(0, 1000000);
+	time_->setValue(1000);
+	time_->setSuffix(" ms");
+	time_->setFixedWidth(100);
+	time_->setAlignment(Qt::AlignCenter);
+	connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
+	connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onTimeChanged(double)));
+	if(scaler_->isConnected())
+		onTimeChanged(scaler_->dwellTime());
 
-		time_ = new QSpinBox;
-		time_->setRange(0, 1000000);
-		time_->setValue(1000);
-		time_->setSuffix(" ms");
-		time_->setFixedWidth(100);
-		time_->setAlignment(Qt::AlignCenter);
-		connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
-		connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onTimeChanged(double)));
-		if(scaler_->isConnected())
-			onTimeChanged(scaler_->dwellTime());
+	QHBoxLayout *timeLayout = new QHBoxLayout;
+	timeLayout->addWidget(new QLabel("Dwell Time:"), 0, Qt::AlignRight);
+	timeLayout->addWidget(time_);
 
-		QHBoxLayout *timeLayout = new QHBoxLayout;
-		timeLayout->addWidget(new QLabel("Dwell Time:"), 0, Qt::AlignRight);
-		timeLayout->addWidget(time_);
+	scansPerBuffer_ = new QSpinBox;
+	scansPerBuffer_->setRange(0, 10000);
+	scansPerBuffer_->setValue(1);
+	scansPerBuffer_->setFixedWidth(100);
+	scansPerBuffer_->setAlignment(Qt::AlignCenter);
+	connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
+	connect(scaler_, SIGNAL(scansPerBufferChanged(int)), scansPerBuffer_, SLOT(setValue(int)));
+	if(scaler_->isConnected())
+		scansPerBuffer_->setValue(scaler_->scansPerBuffer());
 
-		scansPerBuffer_ = new QSpinBox;
-		scansPerBuffer_->setRange(0, 10000);
-		scansPerBuffer_->setValue(1);
-		scansPerBuffer_->setFixedWidth(100);
-		scansPerBuffer_->setAlignment(Qt::AlignCenter);
-		connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
-		connect(scaler_, SIGNAL(scansPerBufferChanged(int)), scansPerBuffer_, SLOT(setValue(int)));
-		if(scaler_->isConnected())
-			scansPerBuffer_->setValue(scaler_->scansPerBuffer());
+	QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
+	scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
+	scansPerBufferLayout->addWidget(scansPerBuffer_);
 
-		QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
-		scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
-		scansPerBufferLayout->addWidget(scansPerBuffer_);
+	totalScans_ = new QSpinBox;
+	totalScans_->setRange(0, 10000);
+	totalScans_->setValue(1);
+	totalScans_->setFixedWidth(100);
+	totalScans_->setAlignment(Qt::AlignCenter);
+	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalNumberOfScans()));
+	connect(scaler_, SIGNAL(totalScansChanged(int)), totalScans_, SLOT(setValue(int)));
+	if(scaler_->isConnected())
+		totalScans_->setValue(scaler_->totalScans());
 
-		totalScans_ = new QSpinBox;
-		totalScans_->setRange(0, 10000);
-		totalScans_->setValue(1);
-		totalScans_->setFixedWidth(100);
-		totalScans_->setAlignment(Qt::AlignCenter);
-		connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalNumberOfScans()));
-		connect(scaler_, SIGNAL(totalScansChanged(int)), totalScans_, SLOT(setValue(int)));
-		if(scaler_->isConnected())
-			totalScans_->setValue(scaler_->totalScans());
+	QHBoxLayout *totalScansLayout = new QHBoxLayout;
+	totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);
+	totalScansLayout->addWidget(totalScans_);
 
-		QHBoxLayout *totalScansLayout = new QHBoxLayout;
-		totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);
-		totalScansLayout->addWidget(totalScans_);
+	QHBoxLayout *startAndStopButtons = new QHBoxLayout;
+	startAndStopButtons->addWidget(startButton_);
+	startAndStopButtons->addWidget(stopButton_);
 
-		QHBoxLayout *startAndStopButtons = new QHBoxLayout;
-		startAndStopButtons->addWidget(startButton_);
-		startAndStopButtons->addWidget(stopButton_);
+	QVBoxLayout *statusAndModeLayout = new QVBoxLayout;
+	statusAndModeLayout->addWidget(status_, 0, Qt::AlignCenter);
+	statusAndModeLayout->addLayout(startAndStopButtons);
+	statusAndModeLayout->addWidget(modeChoice_, 0, Qt::AlignCenter);
 
-		QVBoxLayout *statusAndModeLayout = new QVBoxLayout;
-		statusAndModeLayout->addWidget(status_, 0, Qt::AlignCenter);
-		statusAndModeLayout->addLayout(startAndStopButtons);
-		statusAndModeLayout->addWidget(modeChoice_, 0, Qt::AlignCenter);
+	QVBoxLayout *spinBoxLayout = new QVBoxLayout;
+	spinBoxLayout->addLayout(timeLayout);
+	spinBoxLayout->addLayout(scansPerBufferLayout);
+	spinBoxLayout->addLayout(totalScansLayout);
 
-		QVBoxLayout *spinBoxLayout = new QVBoxLayout;
-		spinBoxLayout->addLayout(timeLayout);
-		spinBoxLayout->addLayout(scansPerBufferLayout);
-		spinBoxLayout->addLayout(totalScansLayout);
+	QHBoxLayout *topLayout = new QHBoxLayout;
+	topLayout->addLayout(statusAndModeLayout);
+	topLayout->addLayout(spinBoxLayout);
 
-		QHBoxLayout *topLayout = new QHBoxLayout;
-		topLayout->addLayout(statusAndModeLayout);
-		topLayout->addLayout(spinBoxLayout);
+	// Build the channel views.
+	QVBoxLayout *channelLayout = new QVBoxLayout;
 
-		// Build the channel views.
-		QVBoxLayout *channelLayoutLeftTop = new QVBoxLayout;
-//		QVBoxLayout *channelLayoutRightTop = new QVBoxLayout;
-//		QVBoxLayout *channelLayoutLeftBottom = new QVBoxLayout;
-//		QVBoxLayout *channelLayoutRightBottom = new QVBoxLayout;
+	CLSSIS3820ScalerChannelView *channelView = 0;
+	int channelCount = scaler_->channels().count();
+	for (int i = 0; i < channelCount; i++){
 
-		CLSSIS3820ScalerChannelView *channelView = 0;
-		int channelCount = scaler_->channels().count();
-		for (int i = 0; i < channelCount; i++){
+		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+		channelViews_ << channelView;
+		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
+		channelLayout->addWidget(channelView);
+	}
 
-			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-			channelViews_ << channelView;
-			connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
-			connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
-			channelLayoutLeftTop->addWidget(channelView);
-		}
+	QHBoxLayout *bottomHL1 = new QHBoxLayout();
+	bottomHL1->addLayout(channelLayout);
 
-//		for(int x = 0; x < channelCount; x++){
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(topLayout);
+	mainVL->addLayout(bottomHL1);
 
-//			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(x));
+	QHBoxLayout *constrainingHL = new QHBoxLayout();
+	constrainingHL->addLayout(mainVL);
 
-//			if(x < channelCount/4)
-//				channelLayoutLeftTop->addWidget(channelView);
-
-//			else if(x < channelCount/2 && x >= channelCount/4)
-//				channelLayoutRightTop->addWidget(channelView);
-
-//			else if(x >= channelCount/2 && x < 3*channelCount/4)
-//				channelLayoutLeftBottom->addWidget(channelView);
-
-//			else
-//				channelLayoutRightBottom->addWidget(channelView);
-//		}
-
-		QHBoxLayout *bottomHL1 = new QHBoxLayout();
-		bottomHL1->addLayout(channelLayoutLeftTop);
-//		bottomHL1->addLayout(channelLayoutRightTop);
-//		bottomHL1->setContentsMargins(10, 0, 10, 5);
-
-//		QHBoxLayout *bottomHL2 = new QHBoxLayout();
-//		bottomHL2->addLayout(channelLayoutLeftBottom);
-//		bottomHL2->addLayout(channelLayoutRightBottom);
-//		bottomHL2->setContentsMargins(10, 5, 10, 10);
-
-		QVBoxLayout *mainVL = new QVBoxLayout();
-		mainVL->addLayout(topLayout);
-		mainVL->addLayout(bottomHL1);
-//		mainVL->addLayout(bottomHL2);
-
-		QHBoxLayout *constrainingHL = new QHBoxLayout();
-		constrainingHL->addLayout(mainVL);
-//		constrainingHL->addStretch(10);
-
-		setLayout(constrainingHL);
-//	}
+	setLayout(constrainingHL);
 }
 
 void CLSSIS3820ScalerView::startScanning()
@@ -312,20 +280,14 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelLayout_ = new QHBoxLayout;
 	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
 	channelLayout_->addWidget(channelName_);
+
 	if (sr570View_)
 		channelLayout_->addWidget(sr570View_);
-//	layout->addSpacing((channel_->index() >= 10) ? 0 : 8);
-//	layout->addStretch();
+
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_);
-//	if( (channel_->index() < 8) || (channel_->index() > 15 && channel_->index() < 24) )
-//		layout->setContentsMargins(0,0,5,0);
-
-//	else
-//		layout->setContentsMargins(5,0,0,0);
 
 	setLayout(channelLayout_);
-
 	setVisible(!channel_->customChannelName().isEmpty());
 }
 
