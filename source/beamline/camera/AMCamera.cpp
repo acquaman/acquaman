@@ -152,7 +152,7 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 {
     if(useCameraMatrix_ && calibrationRun_)
-    {
+	{
         return transform2Dto3DMatrix(point,depth);
     }
     /// Use the position of the item on screen, with knowledge of the
@@ -603,63 +603,102 @@ double AMCamera::dot(QVector3D a, QVector3D b) const
     return value;
 }
 
-
+/// This function uses the camera matrix to find a 3D coordinate given a point
 QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 {
     bool isCentred = false;
+	// if it is at the center, things work differently.
     if(point == QPointF(0.5,0.5))
     {
         isCentred = true;
     }
 
     /// translate point to coordinate system
+		// The screen positions are all relative to the top
+		// left being (0,0), we want the center of the screen to
+		// be (0,0).  Mostly because this is how the camera matrix
+		// was calculated in the first place.  It makes life easier.
     point = point - QPointF(0.5,0.5);
 
+	// do stuff (make it not centered) if it is centered.  The reason for this may
+	//(or may not) become apparent later.
     if(isCentred)
         point += QPointF(0.1,0.1);
 
     MatrixXd matrixPoint (3,1);
+	// matrix point format is [x y 1]T
     matrixPoint<<point.x(),point.y(),1;
+	// matrixP is the cameraMatrix. Make sure the matrix actually exists
+	// by using cameraMatrixToMatrix()
     MatrixXd matrixP = cameraConfiguration()->cameraMatrixToMatrix();
 
+	/// solve for the coordinate using QR decomp
     MatrixXd coordinate = matrixP.colPivHouseholderQr().solve(matrixPoint);
-    coordinate /= coordinate(3,0);
+	coordinate /= coordinate(3,0); // normalize the vector [ X Y Z 1]T
     QVector3D location = QVector3D(coordinate(0,0),coordinate(1,0),coordinate(2,0));
 
+	qDebug()<<"AMCamera::transform2Dto3DMatrix - location is"<<location;
+
+	/// solve for the coordinate, but further away, using SVD decomp
+		// just multiplying the point acts as if it is that much
+		// further away, relative to the original point.
+		// need this as a point of reference to get global coordinates?
     MatrixXd matrixPointTwo (3,1);
     matrixPointTwo<<2000*point.x(),2000*point.y(),2000;
+
     MatrixXd coordinateTwo;
+	// SVD
     JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
     svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
-    coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+	coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+	// Normalize [ X Y Z 1]T
     coordinateTwo /= coordinateTwo(3,0);
     QVector3D locationTwo = QVector3D(coordinateTwo(0,0),coordinateTwo(1,0),coordinateTwo(2,0));
 
+	qDebug()<<"AMCamera::transform2Dto3DMatrix - locationTwo is"<<locationTwo;
+
+	/// Now we have location and locationTwo.
+	/// location is a coordinate in line with the desired point,
+	/// and locationTwo is one that is far away.  The vector between
+	/// these two points should line up with the camera view (i.e. locationTwo
+	/// would appear to be directly behind location).
 
 
+	// Find the centre of the camera view
     QPointF centrePoint = QPointF(0,0);
     MatrixXd centrePointOne (3,1);
     MatrixXd centrePointTwo (3,1);
+	// centrePointOne is 0,0,1; centrePointTwo is 0,0,100;
     centrePointOne<<centrePoint.x(),centrePoint.y(),1;
     centrePointTwo<<0,0,100;
 
+	// solve for center point using qr and svd
     MatrixXd centreCoordinateOne = matrixP.colPivHouseholderQr().solve(centrePointOne);
     svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
     MatrixXd centreCoordinateTwo = svdOfMatrixP.solve(centrePointTwo);
+	// normalize the coordinates ([X Y Z 1]T)
     centreCoordinateOne /= centreCoordinateOne(3,0);
     centreCoordinateTwo /= centreCoordinateTwo(3,0);
 
+	// Get the XYZ vector from the matrix calculated
     QVector3D centreLocationOne = QVector3D(centreCoordinateOne(0,0),centreCoordinateOne(1,0), centreCoordinateOne(2,0));
     QVector3D centreLocationTwo = QVector3D(centreCoordinateTwo(0,0),centreCoordinateTwo(1,0), centreCoordinateTwo(2,0));
 
+	qDebug()<<"AMCamera::transform2Dto3DMatrix - centreLocationOne is"<<centreLocationOne;
+	qDebug()<<"AMCamera::transform2Dto3DMatrix - centreLocationTwo is"<<centreLocationTwo;
 
-
+	// pointT is the distance between the two coordinates
     double pointT = (locationTwo - location).length();
-    QVector3D parameters = lineParameters(location, locationTwo, pointT);
+	// parameters is the unit vector between location and locationTwo
+		// this is in global coordinates
+	QVector3D parameters = lineParameters(location, locationTwo, pointT);
 
-    double centreT = (centreLocationTwo - centreLocationOne).length();
+	// centreParameters is the vector between the centre points
+		// this is a unit vector along the camera view
+	double centreT = (centreLocationTwo - centreLocationOne).length();
     QVector3D centreParameters = lineParameters(centreLocationOne, centreLocationTwo,centreT);
 
+	// vector from the centre point to the location
     QVector3D centrePointsVector = location - centreLocationOne;
     MatrixXd centrePointMatrix (3,1);
     centrePointMatrix<<centrePointsVector.x(),centrePointsVector.y(),centrePointsVector.z();
@@ -673,12 +712,20 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     /// putting in the solution should give the same point, which should be
     /// the camera position.
 
+	//[C | -P][tc t]T = [CP]
+	/// this next section is black magic voodoo
+	/// something somehow happens which solves the problem
     JacobiSVD<MatrixXd> solver(parameterMatrix);
     solver.compute(parameterMatrix, ComputeThinU|ComputeThinV);
     MatrixXd solution = solver.solve(centrePointMatrix);
 
-
+	for(int i = 0; i < solution.cols(); i++)
+		for(int j = 0; j < solution.rows(); j++)
+		{
+			qDebug()<<solution(j,i);
+		}
     double coordinateT = solution(1);
+
     QVector3D calculatedPositionOne = location + coordinateT*parameters;
 
     QVector3D desiredPoint;
@@ -886,8 +933,14 @@ double AMCamera::absError(double a, double b, double tolerance) const
     }
 }
 
+/// Helper function for computing 2Dto3D
+/// Given two lines and the distance between them, find the line vector
 QVector3D AMCamera::lineParameters(QVector3D pointOne, QVector3D pointTwo, double t) const
 {
+	/// solves for a vector
+		// X1 + X0t = X2
+		// this is the parameterization of a line in 3D space
+
     double a,b,c;
     a = (pointTwo.x() - pointOne.x())/t;
     b = (pointTwo.y() - pointOne.y())/t;

@@ -638,6 +638,64 @@ void AMSampleCameraView::beamCalibrate()
 
 }
 
+void AMSampleCameraView::samplePlateCreate()
+{
+	qDebug()<<"Sample plate being created.";
+	QList<QPointF*>* pointList = samplePlateWizard_->pointList();
+	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
+	/// it also expects the order to be toplefta,topleftb,etc
+	if(pointList->count()%2 != 0)
+	{
+		qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid number of points. ";
+		return;
+	}
+	QList<QPointF> reverseOriginPoints;
+	QVector<QPointF> combinedPoints;
+	QList<QPointF> shiftedPoints;
+	/// get the first page points, in reverse order
+	for(int i = 0; i < pointList->count()/2; i++)
+	{
+		QPointF originPoint = *pointList->at(i);
+		reverseOriginPoints<<originPoint;
+	}
+	for(int i = pointList->count()/2; i < pointList->count(); i++)
+	{
+		shiftedPoints<<*pointList->at(i);
+	}
+	/// combine the points starting from the end of reverse origin
+	/// and the beginning of shifted, and interleaving them
+
+	while(!reverseOriginPoints.isEmpty() && !shiftedPoints.isEmpty())
+	{
+		if(!reverseOriginPoints.isEmpty())
+		{
+			combinedPoints<<reverseOriginPoints.takeLast();
+		}
+		else
+		{
+			qDebug()<<"AMSampleCameraView::samplePlateCreate - origin points exhausted";
+		}
+		if(!shiftedPoints.isEmpty())
+		{
+			combinedPoints<<shiftedPoints.takeFirst();
+		}
+		else
+		{
+			qDebug()<<"AMSampleCameraView::samplePlateCreate - origin points exhausted";
+		}
+	}
+
+	QList<QVector3D*>* coordinateList = samplePlateWizard_->coordinateList();
+	QVector<QVector3D> sampleCoordinateList;
+	foreach(QVector3D* coordinate, *coordinateList)
+	{
+		sampleCoordinateList<<*coordinate;
+	}
+
+	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints);
+
+}
+
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
 	if(!shapeModel_->motorMovementEnabled())
@@ -1165,6 +1223,7 @@ void AMSampleCameraView::startSampleWizard()
 	delete samplePlateWizard_;
 	samplePlateWizard_ = new AMSamplePlateWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
+	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
 	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));
 	connect(samplePlateWizard_, SIGNAL(movePlate(int)), this, SLOT(moveSamplePlate(int)));
 	connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));

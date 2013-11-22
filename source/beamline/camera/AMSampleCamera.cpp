@@ -383,7 +383,7 @@ void AMSampleCamera::setMotorCoordinate()
 	motorRotation_ = r;
 
         // update the sample plate
-        AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
+		AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
         if(currentPlate)
         {
             currentPlate->setPlatePosition(motorCoordinate_);
@@ -1555,52 +1555,89 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 		pointPair.second = points.at(i + 1);
 		plateCoordinates<<findSamplePlateCoordinate(origin, shift, pointPair);
 	}
+	foreach(QVector3D plate, plateCoordinates)
+	{
+		qDebug()<<"AMSampleCamera::createSamplePlate"<<plate;
+	}
+
+	if(samplePlateShape_)
+	{
+		//delete samplePlateShape_;
+	}
+	samplePlateShape_ = new AMShapeData();
+	samplePlateShape_->setCoordinateShape(plateCoordinates);
+	samplePlateShape_->setName("Sample Plate");
+	samplePlateShape_->setOtherDataFieldOne("Sample Plate");
+
+
 
 }
 
 QVector3D AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points)
 {
-    /// This code finds the two coordinates corresponding to the two point and
+	/// This code finds the two coordinates corresponding to the two points and
     /// two coordinates
-    qDebug()<<"AMSampleCamera::createSamplePlate";
 
 
-	QPointF originPoint = points.first;
-	QPointF shiftPoint = points.second;
+	QPointF originPoint = camera_->undistortPoint(points.first);
+	QPointF shiftPoint = camera_->undistortPoint(points.second);
 
 
 	QVector3D topRightOriginBase = camera_->transform2Dto3D(originPoint,1);
-	QVector3D topRightOriginLength = camera_->transform2Dto3D(originPoint, 2);
+	QVector3D topRightOriginLength = camera_->transform2Dto3D(originPoint, 200);
     QVector3D topRightOriginVector = topRightOriginLength-topRightOriginBase;
     topRightOriginVector.normalize();
     QVector3D originBase = topRightOriginBase - topRightOriginVector;
-    // originBase + tOrigin*topRightOriginVector gives 3D position of topRight
+
+	qDebug()<<"AMSampleCamera::findSamplePlateCoordinate";
+	qDebug()<<"Origin point is"<<originPoint;
+	qDebug()<<"topright origin base is"<<topRightOriginBase;
+	qDebug()<<"topright origin vector is"<<topRightOriginVector;
+	qDebug()<<"Origin base is"<<originBase;
 
 	QVector3D topRightShiftBase = camera_->transform2Dto3D(shiftPoint,1);
-	QVector3D topRightShiftLength = camera_->transform2Dto3D(shiftPoint, 2);
+	QVector3D topRightShiftLength = camera_->transform2Dto3D(shiftPoint, 200);
     QVector3D topRightShiftVector = topRightShiftLength-topRightShiftBase;
-    topRightOriginVector.normalize();
+	topRightShiftVector.normalize();
     QVector3D shiftBase = topRightShiftBase - topRightShiftVector;
-    // shiftBase + tShift*topRightShiftVector gives 3D position of topRight shifted
-    // shift base should be equal to origin base
+	qDebug()<<"Shift point is"<<shiftPoint;
+	qDebug()<<"topright shift base is"<<topRightShiftBase;
+	qDebug()<<"topright shift vector is"<<topRightShiftVector;
+	qDebug()<<"Origin base is"<<shiftBase;
 
-    // overdetermined system?
 
-    //t1 = (zoxsy-sxzoy)/(zixzoy-ziyzox)
-    //t0 = (sx + tizix)/zox
-    double tShift; // this is the length of the shifted line
-    double tOrigin; // this is the length of the origin line
+
+	/// \todo new approach -  [-tROV | tRSV ] [t] = [shift]
+	/// this part seems to be working sort of maybe, but...
+	/// originBase seems to be an incorrect value
+
+	/// shift is the shift that is made
 	QVector3D shift = shiftCoordinate - originCoordinate;
-    tShift = (originBase.x()*shift.y()-shift.x()*originBase.y())/(shiftBase.x()*originBase.y()-shiftBase.y()*originBase.x());
-    tOrigin = (shift.x() + tShift*shiftBase.x())/originBase.x();
 
-    // putting this into the third equation should yield similar results...
-    // if it doesn't agree, may need to do DLT on the system
-    double tOriginTest = (shift.z() + tShift*shiftBase.z())/originBase.z();
+	/// use SVD
+	MatrixXd shiftMatrix (3,1);
+	// shift matrix
+	shiftMatrix<<shift.x(),shift.y(),shift.z();
+	MatrixXd vectorMatrix(3,2);
+	// -O+S matrix
+	vectorMatrix<<-1*topRightOriginVector.x(),topRightShiftVector.x(),
+				  -1*topRightOriginVector.y(),topRightShiftVector.y(),
+				  -1*topRightOriginVector.z(),topRightShiftVector.z();
+	// comput the SVD
+	JacobiSVD<MatrixXd> solver(vectorMatrix);
+	solver.compute(vectorMatrix, ComputeThinU|ComputeThinV);
+	MatrixXd solution = solver.solve(shiftMatrix);
+
+	// solution is [to ts]
+	double tShift = solution(1); // this is the length of the shifted line
+	double tOrigin = solution(0); // this is the length of the origin line
+
+
+
 
     qDebug()<<"tShift"<<tShift;
     qDebug()<<"tOrigin"<<tOrigin;
-    qDebug()<<"tOriginTest"<<tOriginTest;
+
 	return originBase + tOrigin*topRightOriginVector; // this is the "origin" "top right" coordinate.
 }
 

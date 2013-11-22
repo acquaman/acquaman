@@ -358,6 +358,8 @@ protected slots:
 
 	void beamCalibrate();
 
+	void samplePlateCreate();
+
 	void moveBeamSamplePlate(QVector3D);
 
 	void showBeamMarker(int);

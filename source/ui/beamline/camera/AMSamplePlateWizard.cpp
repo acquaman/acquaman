@@ -5,6 +5,9 @@
 #include <QSlider>
 #include <QLayout>
 #include <QDebug>
+#include <QGraphicsRectItem>
+
+#include "beamline/camera/AMSampleCamera.h"
 
 #include "AMSampleCameraGraphicsView.h"
 
@@ -39,7 +42,6 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
-	connect(page(Page_Set_One), SIGNAL(slider()), this, SLOT(sliderChanged()));
 
     setMinimumSize(600,600);
 
@@ -270,17 +272,27 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 {
 	/// This should add a point to the list every time the view is clicked.  Need to add a clear button, and visual indicators to show what points have been added.
 	QPointF* newPoint = new QPointF(position);
+	/// default point size
+	const QSizeF defaultSize = QSizeF(10,10);
+	QPen defaultPen;
 	/// Must keep track of which are from page one and which are from page two.
 	/// The easiest way to keep them seperate is to append from one page and
 	/// prepend from the other.
 	if(currentId() == Page_Set_One)
 	{
 		pointList_->prepend(newPoint);
+		defaultPen = QPen(Qt::green);
 	}
 	else if(currentId() == Page_Set_Two)
 	{
 		pointList_->append(newPoint);
+		defaultPen = QPen(Qt::yellow);
 	}
+
+	QRectF rectangle(view()->mapVideoToScene(*newPoint), defaultSize); /// need to map new point to the actual screen position
+	QGraphicsRectItem* rectItem = view()->scene()->addRect(rectangle, defaultPen);
+	samplePointShapes_<<rectItem;
+
 
 	((AMSampleSetPage*)currentPage())->insertPoint(newPoint);
 	qDebug()<<"AMSamplePlateWizard::addPoint - points";
@@ -296,6 +308,19 @@ void AMSamplePlateWizard::removePoint(QPointF *point)
 	if(pointList_->contains(point))
 	{
 		pointList_->removeAll(point);
+		/// get rid of the drawing of the point.
+		foreach(QGraphicsRectItem* rect, samplePointShapes_)
+		{
+			qDebug()<<rect->rect().topLeft()<<*point;
+			if(rect->rect().topLeft() == view()->mapVideoToScene(*point))
+			{
+				qDebug()<<"Removing rect";
+				samplePointShapes_.remove(samplePointShapes_.indexOf(rect));
+				view()->scene()->removeItem(rect);
+				delete rect;
+			}
+		}
+
 		delete(point);
 
 	}

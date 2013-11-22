@@ -111,7 +111,7 @@ void AMGraphicsViewWizard::setPoint(QPointF point, int index)
 
 void AMGraphicsViewWizard::setCoordinate(QVector3D coordinate, int index)
 {
-    if(pointList_->count() > index)
+	if(coordinateList_->count() > index)
         (*coordinateList_->at(index)) = coordinate;
 }
 

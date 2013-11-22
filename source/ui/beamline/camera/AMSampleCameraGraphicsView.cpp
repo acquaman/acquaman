@@ -83,7 +83,27 @@ QPointF AMSampleCameraGraphicsView::mapSceneToVideo(const QPointF &sceneCoordina
     qreal yScene = (sceneCoordinate.y() - activeRect.top())/activeRect.height();
     qreal xScene = (sceneCoordinate.x() - activeRect.left())/activeRect.width();
 
-    return QPointF(xScene, yScene);
+	return QPointF(xScene, yScene);
+}
+
+QPointF AMSampleCameraGraphicsView::mapVideoToScene(const QPointF &videoCoordinate) const
+{
+
+	QSizeF viewSize = sceneRect().size();
+	QSizeF scaledSize = videoItem_->nativeSize();
+	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+	double videoTop = videoItem_->boundingRect().topLeft().y();
+
+	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2, videoTop),
+//                                       (viewSize.height()-scaledSize.height())/2),
+							   scaledSize);
+
+	QPointF fixedCoordinate;
+	qreal xCoord = activeRect.left() + videoCoordinate.x()*activeRect.width();
+	qreal yCoord = activeRect.top() + videoCoordinate.y()*activeRect.height();
+	fixedCoordinate.setX(xCoord);
+	fixedCoordinate.setY(yCoord);
+	return fixedCoordinate;
 }
 
 void AMSampleCameraGraphicsView::contextMenuEvent(QContextMenuEvent *event)

@@ -4,6 +4,7 @@
 #include "AMGraphicsViewWizard.h"
 
 class QSlider;
+class QGraphicsRectItem;
 
 
 /// Wizard for repositioning the Sample plate.
@@ -64,6 +65,7 @@ protected slots:
 
 private:
 	QVector<int> resetPages_;
+	QVector<QGraphicsRectItem*> samplePointShapes_;
 
 
 };
