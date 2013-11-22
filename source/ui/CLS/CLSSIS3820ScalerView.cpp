@@ -131,12 +131,9 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		channelLayout->addWidget(channelView);
 	}
 
-	QHBoxLayout *bottomHL1 = new QHBoxLayout();
-	bottomHL1->addLayout(channelLayout);
-
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addLayout(topLayout);
-	mainVL->addLayout(bottomHL1);
+	mainVL->addLayout(channelLayout);
 
 	QHBoxLayout *constrainingHL = new QHBoxLayout();
 	constrainingHL->addLayout(mainVL);
