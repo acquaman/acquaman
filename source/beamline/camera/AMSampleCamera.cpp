@@ -1581,49 +1581,74 @@ QVector3D AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, 
 
 	QPointF originPoint = camera_->undistortPoint(points.first);
 	QPointF shiftPoint = camera_->undistortPoint(points.second);
+	/// we assume that the camera was set up using the sample plate
+	/// therefore, it is in the vicinity of 0,0,0
+	double firstDepth = depth(originCoordinate);
+	double secondDepth = depth(shiftCoordinate);
+	// if the two depths are the same, add something reasonable to secondDepth
+	if (secondDepth == firstDepth)
+	{
+		secondDepth = firstDepth + depth(QVector3D(10,10,10)) - depth(QVector3D(0,0,0));
+	}
 
+	if(firstDepth > secondDepth)
+	{
+		double temp;
+		temp = firstDepth;
+		firstDepth = secondDepth;
+		secondDepth = temp;
+	}
+	qDebug()<<"Depths";
+	qDebug()<<firstDepth;
+	qDebug()<<secondDepth;
 
-	QVector3D topRightOriginBase = camera_->transform2Dto3D(originPoint,1);
-	QVector3D topRightOriginLength = camera_->transform2Dto3D(originPoint, 200);
+	// get two different points that could correspond to the selected point, at different depths
+	QVector3D topRightOriginBase = camera_->transform2Dto3D(originPoint,firstDepth);
+	QVector3D topRightOriginLength = camera_->transform2Dto3D(originPoint, secondDepth);
+	// get the unit vector between the two points, i.e. a ray in the direction of the point
     QVector3D topRightOriginVector = topRightOriginLength-topRightOriginBase;
     topRightOriginVector.normalize();
-    QVector3D originBase = topRightOriginBase - topRightOriginVector;
 
 	qDebug()<<"AMSampleCamera::findSamplePlateCoordinate";
 	qDebug()<<"Origin point is"<<originPoint;
 	qDebug()<<"topright origin base is"<<topRightOriginBase;
 	qDebug()<<"topright origin vector is"<<topRightOriginVector;
-	qDebug()<<"Origin base is"<<originBase;
 
-	QVector3D topRightShiftBase = camera_->transform2Dto3D(shiftPoint,1);
-	QVector3D topRightShiftLength = camera_->transform2Dto3D(shiftPoint, 200);
+	// do the same thing as above, but for the shifted point
+	QVector3D topRightShiftBase = camera_->transform2Dto3D(shiftPoint,firstDepth);
+	QVector3D topRightShiftLength = camera_->transform2Dto3D(shiftPoint, secondDepth);
     QVector3D topRightShiftVector = topRightShiftLength-topRightShiftBase;
 	topRightShiftVector.normalize();
-    QVector3D shiftBase = topRightShiftBase - topRightShiftVector;
 	qDebug()<<"Shift point is"<<shiftPoint;
 	qDebug()<<"topright shift base is"<<topRightShiftBase;
 	qDebug()<<"topright shift vector is"<<topRightShiftVector;
-	qDebug()<<"Origin base is"<<shiftBase;
 
 
 
-	/// \todo new approach -  [-tROV | tRSV ] [t] = [shift]
+	/// \todo new approach -  [-tROV | tRSV ] [t] = [shiftMatrix]
 	/// this part seems to be working sort of maybe, but...
-	/// originBase seems to be an incorrect value
+	/// shiftMatrix is shift + topRightOriginBase - topRightShiftBase
+	/// basically this equation is derived from making a path from the "topRightOriginBase" point
+	/// to the "topRightShiftBase" point, using the actual sample plate coordinates.
+	/// topRightOriginBase + tOrigin*topRightOriginVector + shift - tShift*topRightShiftVector = topRightShiftBase
+	/// topRightOriginBase + tOrigin*topRightOriginVector is the actual coordinate of the point when the motors are
+	/// at originCoordinate.  topRightShiftBase + tShift*topRightShiftVector is the coordinate when the motors are
+	/// at shiftCoordinate.  The distance between the points should be shift
 
 	/// shift is the shift that is made
 	QVector3D shift = shiftCoordinate - originCoordinate;
-
-	/// use SVD
+	QVector3D resultantVector = shift + topRightOriginBase - topRightShiftBase;
+	qDebug()<<resultantVector;
+	/// use SVD to get the closest approximation
 	MatrixXd shiftMatrix (3,1);
 	// shift matrix
-	shiftMatrix<<shift.x(),shift.y(),shift.z();
+	shiftMatrix<<resultantVector.x(),resultantVector.y(),resultantVector.z();
 	MatrixXd vectorMatrix(3,2);
 	// -O+S matrix
 	vectorMatrix<<-1*topRightOriginVector.x(),topRightShiftVector.x(),
 				  -1*topRightOriginVector.y(),topRightShiftVector.y(),
 				  -1*topRightOriginVector.z(),topRightShiftVector.z();
-	// comput the SVD
+	// compute the SVD
 	JacobiSVD<MatrixXd> solver(vectorMatrix);
 	solver.compute(vectorMatrix, ComputeThinU|ComputeThinV);
 	MatrixXd solution = solver.solve(shiftMatrix);
@@ -1633,12 +1658,19 @@ QVector3D AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, 
 	double tOrigin = solution(0); // this is the length of the origin line
 
 
-
+	/// check shiftBase + t2*topRightShiftVector - originBase + t1*topRight originVector
+	///    ==   shiftCoord - originCoord
+	///    ==  shift
+	QVector3D pointOne = topRightOriginBase + tOrigin*topRightOriginVector;
+	QVector3D pointTwo = topRightShiftBase + tShift*topRightShiftVector;
+	qDebug()<<"point one is"<<pointOne;
+	qDebug()<<"Point Two is"<<pointTwo;
+	qDebug()<<"Shift calc is "<<pointTwo - pointOne;
 
     qDebug()<<"tShift"<<tShift;
     qDebug()<<"tOrigin"<<tOrigin;
 
-	return originBase + tOrigin*topRightOriginVector; // this is the "origin" "top right" coordinate.
+	return topRightOriginBase + tOrigin*topRightOriginVector; // this is the "origin" "top right" coordinate.
 }
 
 void AMSampleCamera::saveSamplePlate()

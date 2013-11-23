@@ -637,7 +637,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 	coordinate /= coordinate(3,0); // normalize the vector [ X Y Z 1]T
     QVector3D location = QVector3D(coordinate(0,0),coordinate(1,0),coordinate(2,0));
 
-	qDebug()<<"AMCamera::transform2Dto3DMatrix - location is"<<location;
 
 	/// solve for the coordinate, but further away, using SVD decomp
 		// just multiplying the point acts as if it is that much
@@ -655,7 +654,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     coordinateTwo /= coordinateTwo(3,0);
     QVector3D locationTwo = QVector3D(coordinateTwo(0,0),coordinateTwo(1,0),coordinateTwo(2,0));
 
-	qDebug()<<"AMCamera::transform2Dto3DMatrix - locationTwo is"<<locationTwo;
 
 	/// Now we have location and locationTwo.
 	/// location is a coordinate in line with the desired point,
@@ -684,8 +682,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     QVector3D centreLocationOne = QVector3D(centreCoordinateOne(0,0),centreCoordinateOne(1,0), centreCoordinateOne(2,0));
     QVector3D centreLocationTwo = QVector3D(centreCoordinateTwo(0,0),centreCoordinateTwo(1,0), centreCoordinateTwo(2,0));
 
-	qDebug()<<"AMCamera::transform2Dto3DMatrix - centreLocationOne is"<<centreLocationOne;
-	qDebug()<<"AMCamera::transform2Dto3DMatrix - centreLocationTwo is"<<centreLocationTwo;
 
 	// pointT is the distance between the two coordinates
     double pointT = (locationTwo - location).length();
@@ -712,18 +708,26 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     /// putting in the solution should give the same point, which should be
     /// the camera position.
 
-	//[C | -P][tc t]T = [CP]
-	/// this next section is black magic voodoo
-	/// something somehow happens which solves the problem
-    JacobiSVD<MatrixXd> solver(parameterMatrix);
-    solver.compute(parameterMatrix, ComputeThinU|ComputeThinV);
-    MatrixXd solution = solver.solve(centrePointMatrix);
 
-	for(int i = 0; i < solution.cols(); i++)
-		for(int j = 0; j < solution.rows(); j++)
-		{
-			qDebug()<<solution(j,i);
-		}
+
+	//[c | -p][tc t]T = [P-C]
+	// take the unit vector along the center - the unit
+	// vector in the desired direction.  For some tc and t,
+	// respectively, you will get a result that is
+	// equal to the distance vector between the two points.
+	// these solutions correspond to the intersection of the
+	// two vectors, which should occur at the camera.
+
+	// this basically solves for the camera location
+	// solves for the intersection of the ray moving towards
+	// the desired point and the center of the camera.
+	// must do an SVD decomposition as we have an overdetermined
+	// system.
+
+    JacobiSVD<MatrixXd> solver(parameterMatrix);
+	solver.compute(parameterMatrix, ComputeThinU|ComputeThinV);
+	MatrixXd solution = solver.solve(centrePointMatrix);
+
     double coordinateT = solution(1);
 
     QVector3D calculatedPositionOne = location + coordinateT*parameters;
@@ -753,14 +757,8 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 
 
 
-//    QVector3D worldDirection = location - cameraConfiguration()->cameraPosition();
-//    worldDirection.normalize();
-//    QVector3D centre = cameraConfiguration()->cameraCentre()-cameraConfiguration()->cameraPosition();
-//    worldDirection *= depth/dot(worldDirection,centre);
-//    worldDirection += cameraConfiguration()->cameraPosition();
 
-//    qDebug()<<worldDirection;
-//    return worldDirection;
+
 }
 
 QPointF AMCamera::transform3Dto2DMatrix(QVector3D coordinate) const
