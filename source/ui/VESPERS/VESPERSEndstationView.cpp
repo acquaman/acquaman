@@ -303,8 +303,8 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	QFormLayout *ccdLayout = new QFormLayout;
 	ccdLayout->addRow("Low Limit", ccdLowLayout);
 	ccdLayout->addRow("High Limit", ccdHighLayout);
-	ccdLayout->addRow("Safe Position", ccdHomeLayout);
-	ccdLayout->addRow("Buffer Position", ccdBufferSafeLayout);
+	ccdLayout->addRow("Home Position", ccdHomeLayout);
+	ccdLayout->addRow("Safe w/ Buffer Position", ccdBufferSafeLayout);
 	ccdLayout->addRow(usingBuffer_, at90Deg_);
 	ccdGB->setLayout(ccdLayout);
 
