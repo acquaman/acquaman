@@ -8,18 +8,29 @@ TARGET = StripToolProject
 TEMPLATE = app
 
 SOURCES += source/StripChart/main.cpp \
-	source/StripChart/AddPVDialog.cpp \
+    source/StripChart/StripToolPlot.cpp \
+    source/StripChart/StripToolPV.cpp \
+    source/StripChart/StripToolView.cpp \
     source/StripChart/StripTool.cpp \
-    source/StripChart/StripToolItem.cpp \
-    source/StripChart/StripToolContainer.cpp
+    source/StripChart/StripToolModel.cpp \
+    source/StripChart/StripToolListView.cpp \
+    source/StripChart/StripToolQuickControls.cpp \
+    source/StripChart/EditPVDialog.cpp \
+    source/StripChart/StripToolSelector.cpp \
+    source/StripChart/ReloadPVDialog.cpp \
+    source/StripChart/StripToolDataController.cpp
 
 HEADERS  += \
-	source/StripChart/AddPVDialog.h \
+    source/StripChart/StripToolPlot.h \
+    source/StripChart/StripToolPV.h \
+    source/StripChart/StripToolView.h \
     source/StripChart/StripTool.h \
-    source/StripChart/StripToolItem.h \
-    source/StripChart/StripToolContainer.h
+    source/StripChart/StripToolModel.h \
+    source/StripChart/StripToolListView.h \
+    source/StripChart/StripToolQuickControls.h \
+    source/StripChart/EditPVDialog.h \
+    source/StripChart/StripToolSelector.h \
+    source/StripChart/ReloadPVDialog.h \
+    source/StripChart/StripToolDataController.h
 
-OTHER_FILES += \
-    source/StripChart/pvGroupInfo.txt
-
-PATH_TO_ST = $$PATH_TO_AM/source/StripChart
+OTHER_FILES +=

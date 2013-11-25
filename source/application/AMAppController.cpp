@@ -56,10 +56,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMAgnosticDataAPI.h"
 
+#include "beamline/AMProcessVariablePrivate.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
 	overrideCloseCheck_ = false;
+}
+
+AMAppController::~AMAppController()
+{
 }
 
 bool AMAppController::startup(){
@@ -100,6 +106,12 @@ bool AMAppController::startup(){
 	}
 	else
 		return false;
+}
+
+void AMAppController::shutdown()
+{
+	AMDatamanAppController::shutdown();
+	AMProcessVariableSupport::shutdownChannelAccess();
 }
 
 bool AMAppController::startupCreateUserInterface() {

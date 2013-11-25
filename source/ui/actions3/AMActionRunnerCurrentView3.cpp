@@ -227,7 +227,7 @@ void AMActionRunnerCurrentView3::onExpectedDurationChanged(double totalSeconds)
 	AMAction3 *currentAction = actionRunner_->currentAction();
 	double elapsed = 0;
 
-	if (qobject_cast<AMListAction3 *>(currentAction))
+	if (qobject_cast<AMListAction3 *>(currentAction) && ((AMListAction3 *)currentAction)->currentSubAction())
 		elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
 	else
 		elapsed = currentAction->runningTime();
