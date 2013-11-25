@@ -73,6 +73,7 @@ bool REIXSAppController::startupBeforeAnything() {
 
 	// Initialize the central beamline object
 	REIXSBeamline::bl();
+	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
 
 	return true;
 }
