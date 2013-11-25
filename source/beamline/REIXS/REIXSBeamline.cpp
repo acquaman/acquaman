@@ -136,10 +136,10 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(sampleChamber()->z());
 	addExposedControl(sampleChamber()->r());
 	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+	addExposedControl(spectrometer()->spectrometerRotationDrive());
+	addExposedControl(spectrometer()->detectorTranslation());
 
 	if(QApplication::instance()->arguments().contains("--admin")){
-		addExposedControl(spectrometer()->spectrometerRotationDrive());
-		addExposedControl(spectrometer()->detectorTranslation());
 		addExposedControl(spectrometer()->hexapod()->x());
 		addExposedControl(spectrometer()->hexapod()->y());
 		addExposedControl(spectrometer()->hexapod()->z());
@@ -456,7 +456,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
 
-
+	connect(this, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 
 }
 
@@ -596,9 +596,32 @@ bool REIXSSpectrometer::specifyGrating(int gratingIndex)
 	return true;
 }
 
+void REIXSSpectrometer::updateGrating()
+{
+	QVector3D xyz = QVector3D(hexapod_->x()->value(), hexapod_->y()->value(), hexapod_->z()->value());
+	QVector3D uvw = QVector3D(hexapod_->u()->value(), hexapod_->v()->value(), hexapod_->w()->value());
+	QVector3D rst = QVector3D(hexapod_->r()->value(), hexapod_->s()->value(), hexapod_->t()->value());
+
+	for (int i = calibration_.gratingCount() - 1; i >= 0; i--)
+	{
+
+		if (qFuzzyCompare(xyz, calibration_.hexapodXYZ(i)) &&
+			qFuzzyCompare(uvw, calibration_.hexapodUVW(i)) &&
+			qFuzzyCompare(rst, calibration_.hexapodRST(i)))
+		{
+			currentGrating_ = i;
+		}
+	}
+}
+
 void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 {
 	specifiedDetectorTiltOffset_ = tiltOffsetDeg;
+}
+
+void REIXSSpectrometer::onConnected(bool isConnected){
+	//figure out those values
+	//onConnected not required
 }
 
 double REIXSSpectrometer::value() const

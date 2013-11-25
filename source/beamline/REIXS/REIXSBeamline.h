@@ -249,7 +249,11 @@ public slots:
 
 	void specifyFocusOffset(double focusOffsetMm);
 	bool specifyGrating(int gratingIndex);
+	void updateGrating();
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
+
+protected slots:
+	void onConnected(bool isConnected);
 
 protected:
 	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_, *gratingMask_;  //DAVID ADDED 001, 005
