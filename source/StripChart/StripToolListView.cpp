@@ -51,10 +51,12 @@ void StripToolListView::createActions()
     connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
 
     pause_ = new QAction("Pause", this);
-    connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
+    pause_->setEnabled(false);
+//    connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
 
     resume_ = new QAction("Resume", this);
-    connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
+    resume_->setEnabled(false);
+//    connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
 
     setColor_ = new QAction("Line color", this);
     connect( setColor_, SIGNAL(triggered()), this, SLOT(toSetPVColor()) );

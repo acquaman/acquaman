@@ -15,6 +15,7 @@ StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
     connect( saveMetadataMapper_, SIGNAL(mapped(QObject*)), this, SIGNAL(savePVMetadata(QObject*)) );
 
     connect( this, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
+    connect( this, SIGNAL(pvUpdating(QModelIndex,bool)), this, SLOT(setPVUpdating(QModelIndex,bool)) );
 }
 
 
@@ -394,6 +395,30 @@ bool StripToolModel::deletePV(const QModelIndex &index)
     }
 
 
+}
+
+
+
+void StripToolModel::toPausePVs()
+{
+    int pvCount = pvList_.size();
+
+    for (int i = 0; i < pvCount; i++)
+    {
+        emit pvUpdating(createIndex(i, 0), false);
+    }
+}
+
+
+
+void StripToolModel::toResumePVs()
+{
+    int pvCount = pvList_.size();
+
+    for (int i = 0; i < pvCount; i++)
+    {
+        emit pvUpdating(createIndex(i, 0), true);
+    }
 }
 
 

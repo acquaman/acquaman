@@ -31,6 +31,7 @@ signals:
     void setPlotTicksVisible(bool isShown);
     void errorMessage(const QString &message);
     void pvValid(bool isValid);
+    void pvUpdating(const QModelIndex &index, bool isUpdating);
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -87,6 +88,8 @@ protected slots:
     void toAddPV(const QString &pvName);
     void onPVConnected(QObject *itemConnected);
     void toDeletePV(const QModelIndex &index);
+    void toPausePVs();
+    void toResumePVs();
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);

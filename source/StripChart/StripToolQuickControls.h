@@ -26,12 +26,16 @@ signals:
     void buttonEnabled(bool);
     void addPV(const QString &pvName);
     void error(const QString &errorMessage);
+    void pausePVs();
+    void resumePVs();
 
 protected:
     StripToolModel *model_;
     StripToolListView *listView_;
     QLineEdit *pvNameLineEdit_;
     QPushButton *addButton_;
+    QPushButton *pauseButton_;
+    QPushButton *resumeButton_;
     QLabel *message_;
 
 public:
@@ -42,6 +46,8 @@ protected slots:
     void displayMessage(const QString &text);
     /// When the add button is clicked, information entry is disabled while we test to see if the entered pv name is valid.
     void addClicked();
+    void pauseClicked();
+    void resumeClicked();
 };
 
 #endif // STRIPTOOLQUICKCONTROLS_H

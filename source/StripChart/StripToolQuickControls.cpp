@@ -18,9 +18,23 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     connect( addButton_, SIGNAL(clicked()), this, SLOT(addClicked()) );
     connect( this, SIGNAL(buttonEnabled(bool)), addButton_, SLOT(setEnabled(bool)) );
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(pvNameLineEdit_);
-    buttonLayout->addWidget(addButton_);
+    QHBoxLayout *addLayout = new QHBoxLayout();
+    addLayout->addWidget(pvNameLineEdit_);
+    addLayout->addWidget(addButton_);
+
+    pauseButton_ = new QPushButton("Pause");
+    connect( pauseButton_, SIGNAL(clicked()), this, SLOT(pauseClicked()) );
+
+    resumeButton_ = new QPushButton("Resume");
+    connect( resumeButton_, SIGNAL(clicked()), this, SLOT(resumeClicked()) );
+
+    QHBoxLayout *pauseResumeLayout = new QHBoxLayout();
+    pauseResumeLayout->addWidget(pauseButton_);
+    pauseResumeLayout->addWidget(resumeButton_);
+
+    QGroupBox *pauseResumeGroup = new QGroupBox();
+    pauseResumeGroup->setLayout(pauseResumeLayout);
+    pauseResumeGroup->setFlat(true);
 
     message_ = new QLabel("");
     connect( this, SIGNAL(clearMessage()), message_, SLOT(clear()) );
@@ -28,7 +42,8 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
 
     QVBoxLayout *controlsLayout = new QVBoxLayout();
     controlsLayout->addWidget(listView_);
-    controlsLayout->addLayout(buttonLayout);
+    controlsLayout->addLayout(addLayout);
+    controlsLayout->addWidget(pauseResumeGroup);
     controlsLayout->addWidget(message_);
 
     setLayout(controlsLayout);
@@ -49,6 +64,8 @@ void StripToolQuickControls::setModel(StripToolModel *newModel)
     model_ = newModel;
 
     connect( this, SIGNAL(addPV(QString)), model_, SLOT(toAddPV(QString)) );
+    connect( this, SIGNAL(pausePVs()), model_, SLOT(toPausePVs()) );
+    connect( this, SIGNAL(resumePVs()), model_, SLOT(toResumePVs()) );
 
     connect( model_, SIGNAL(pvValid(bool)), this, SLOT(resetControls()) );
     connect( model_, SIGNAL(errorMessage(QString)), this, SLOT(displayMessage(QString)) );
@@ -91,4 +108,20 @@ void StripToolQuickControls::addClicked()
 
         emit addPV(pvName);
     }
+}
+
+
+
+void StripToolQuickControls::pauseClicked()
+{
+    emit pausePVs();
+    resumeButton_->setDefault(true);
+}
+
+
+
+void StripToolQuickControls::resumeClicked()
+{
+    emit resumePVs();
+    resumeButton_->setDefault(false);
 }
