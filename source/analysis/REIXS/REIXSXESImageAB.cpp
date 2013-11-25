@@ -582,7 +582,7 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the XES scan.");
 		return;
 	}
-	AMControlInfoList* positions = scan()->scanInitialConditions();
+	const AMControlInfoList* positions = scan()->scanInitialConditions();
 	if(!positions) {
 		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the spectrometer positions at the start of the scan.");
 		return;
