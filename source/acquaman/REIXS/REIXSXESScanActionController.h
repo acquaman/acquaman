@@ -24,6 +24,10 @@ protected slots:
 	/// Called to save the current raw data to disk
 	void saveRawData();
 
+	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
+	void initializeScanMetaData();
+
+
 protected:
 	virtual bool initializeImplementation();
 	virtual bool startImplementation();

@@ -14,6 +14,11 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	// create our new scan object
 	scan_ = new AMXESScan();
 
+	// Automatic or manual setting of meta-data for the scan:
+	///////////////////////////////////
+	initializeScanMetaData();
+	///////////////////////////////////
+
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(QString("%1/%2").arg(AMUserSettings::userDataFolder).arg(scan_->filePath()), false));
@@ -75,6 +80,14 @@ void REIXSXESScanActionController::saveRawData(){
 }
 
 bool REIXSXESScanActionController::initializeImplementation(){
+	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	positions.insert(0, grating);
+
+	scan_->scanInitialConditions()->setValuesFrom(positions);
+
 	setInitialized();
 	return true;
 }
@@ -95,4 +108,46 @@ bool REIXSXESScanActionController::startImplementation(){
 }
 
 void REIXSXESScanActionController::cancelImplementation(){
+}
+
+#include "dataman/AMSample.h"
+void REIXSXESScanActionController::initializeScanMetaData()
+{
+	//qDebug() << "For Starters REIXSBeamline::bl()->photonSource()->energy().value(): "<< REIXSBeamline::bl()->photonSource()->energy()->value();
+
+	int sampleId = REIXSBeamline::bl()->currentSampleId();
+
+	if(configuration_->namedAutomatically()) {
+		if(sampleId >= 1) {
+			scan_->setSampleId(sampleId);
+			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(configuration_->autoScanName()).arg(REIXSBeamline::bl()->photonSource()->energy()->value()));
+
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
+		}
+		else {
+			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(REIXSBeamline::bl()->photonSource()->energy()->value()));
+
+			scan_->setNumber(0);
+			scan_->setSampleId(-1);
+		}
+	}
+	else {
+		scan_->setName(QString("%1").arg(configuration_->userScanName()));
+		if(scan_->name().isEmpty())
+			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(REIXSBeamline::bl()->photonSource()->energy()->value()));
+
+		if (configuration_->scanNumber() == 0)
+		{
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), "")+1);
+		}
+		else
+		{
+			scan_->setNumber(configuration_->scanNumber());
+		}
+
+		scan_->setSampleId(configuration_->sampleId());
+	}
+
+	scan_->setRunId(AMUser::user()->currentRunId());
 }
