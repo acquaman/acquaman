@@ -29,7 +29,7 @@ StripToolPV::StripToolPV(QObject *parent)
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
-    pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 100));
+    pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 1));
 
     setMetaDataHeaders();
 

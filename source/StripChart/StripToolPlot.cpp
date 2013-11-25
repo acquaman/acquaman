@@ -4,6 +4,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 {
     model_ = 0;
 
+    MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
     selector_ = new StripToolSelector();
 
     connect( this, SIGNAL(setPlotSelection(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
@@ -13,6 +14,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     plot_ = new MPlot();
 
+    plot_->addTool(dragZoomer);
     plot_->addTool(selector_);
 
 //    plot_->setAcceptDrops(true);
