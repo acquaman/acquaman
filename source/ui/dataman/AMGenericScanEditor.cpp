@@ -142,14 +142,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 
-	//
-	//
-	// This DOESN'T work! But it does if refreshScanConditions(); called from onOneSecondTimer();  My slot doesn't take signals???
-	//
-	//
-	//connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(refreshScanConditions()));
-
-
 	oneSecondTimer->start(1000);
 }
 
@@ -344,7 +336,6 @@ void AMGenericScanEditor::refreshWindowTitle() {
 }
 
 void AMGenericScanEditor::refreshScanConditions() {
-	qDebug() << "/n/nrefreshScanConditions() called/n/n";
 	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
 }
 
