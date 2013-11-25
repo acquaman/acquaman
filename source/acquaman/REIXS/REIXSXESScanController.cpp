@@ -172,7 +172,8 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
 	positions.insert(0, grating);
 
-	scan_->scanInitialConditions()->setValuesFrom(positions);
+	//scan_->scanInitialConditions()->setValuesFrom(positions);
+	scan_->setScanInitialConditions(positions);
 
 	// tell the controller API we're now ready to go.
 	setInitialized();
