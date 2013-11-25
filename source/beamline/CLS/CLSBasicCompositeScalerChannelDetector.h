@@ -1,16 +1,17 @@
-#ifndef CLSBASICSCALERCHANNELDETECTOR_H
-#define CLSBASICSCALERCHANNELDETECTOR_H
+#ifndef CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
+#define CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
 
 #include "beamline/AMDetector.h"
 
 class CLSSIS3820Scaler;
 
-class CLSBasicScalerChannelDetector : public AMDetector
+class CLSBasicCompositeScalerChannelDetector : public AMDetector
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
-	/// Constructor takes a name and description as well as the scaler object pointer and the channel index to use (index 0 - 31 for SIS3820)
-	CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
+	/// Constructor takes a name and description as well as the scaler object pointer and the twi channel indices to use (index 0 - 31 for SIS3820)
+	CLSBasicCompositeScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex1, int channelIndex2, QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector
 	virtual int size(int axisNumber) const;
@@ -94,8 +95,10 @@ protected:
 
 	/// The pointer to the scaler object
 	CLSSIS3820Scaler *scaler_;
-	/// The channel index
-	int channelIndex_;
+	/// The channel index of the first channel.
+	int channelIndex1_;
+	/// The channel index of the second channel.
+	int channelIndex2_;
 };
 
-#endif // CLSBASICSCALERCHANNELDETECTOR_H
+#endif // CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
