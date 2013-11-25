@@ -46,6 +46,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_, SIGNAL(gratingChanged(int)), this, SLOT(updateCurrentGratingStatus()));
 	connect(spectrometer_, SIGNAL(movingChanged(bool)), this, SLOT(updateCurrentGratingStatus()));
 	connect(spectrometer_->gratingMask(), SIGNAL(valueChanged(double)), this, SLOT(updateMaskPosition()));
+	connect(spectrometer_->gratingMask(), SIGNAL(connected(bool)), this, SLOT(updateMaskPosition()));
 
 	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
 	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
@@ -117,6 +118,10 @@ void REIXSXESSpectrometerControlEditor::populateGratingComboBox()
 	for(int i=0, cc=spectrometer_->spectrometerCalibration()->gratingCount(); i<cc; i++)
 		ui_->gratingSelectorBox->addItem(spectrometer_->spectrometerCalibration()->gratingAt(i).name());
 
+	if(spectrometer_->grating() != -1) {
+		ui_->gratingSelectorBox->setCurrentIndex(spectrometer_->grating());
+	}
+
 	ui_->gratingSelectorBox->blockSignals(false);
 	updateCurrentGratingStatus();
 }
@@ -147,7 +152,9 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus() {
 void REIXSXESSpectrometerControlEditor::updateCurrentGratingStatus()
 {
 	if(spectrometer_->grating() == -1) {
+
 		ui_->gratingFeedbackLabel->setText("Currently: unknown");
+
 	}
 	else if(spectrometer_->gratingInPosition() == false) {
 		ui_->gratingFeedbackLabel->setText(
@@ -185,14 +192,8 @@ void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(cons
 {
 	if (arg1 == "Pin Hole")
 		spectrometer_->gratingMask()->move(8.5);
-	else if (arg1 == "LEG")
+	else if (arg1 == "Slit")
 		spectrometer_->gratingMask()->move(12.9);
-	else if (arg1 == "Impurity")
-		spectrometer_->gratingMask()->move(12.9);
-	else if (arg1 == "MEG")
-		spectrometer_->gratingMask()->move(12.8);
-	else if (arg1 == "HRMEG")
-		spectrometer_->gratingMask()->move(12.6);
 	else if (arg1 == "OUT")
 		spectrometer_->gratingMask()->move(1.0);
 }
