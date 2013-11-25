@@ -86,7 +86,8 @@ bool REIXSXESScanActionController::initializeImplementation(){
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
 	positions.insert(0, grating);
 
-	scan_->scanInitialConditions()->setValuesFrom(positions);
+	//scan_->scanInitialConditions()->setValuesFrom(positions);
+	scan_->setScanInitialConditions(positions);
 
 	setInitialized();
 	return true;
@@ -133,7 +134,7 @@ void REIXSXESScanActionController::initializeScanMetaData()
 		}
 	}
 	else {
-		scan_->setName(QString("%1").arg(configuration_->userScanName()));
+		scan_->setName(QString("%1 %2 eV").arg(configuration_->userScanName()).arg(REIXSBeamline::bl()->photonSource()->energy()->value()));
 		if(scan_->name().isEmpty())
 			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(REIXSBeamline::bl()->photonSource()->energy()->value()));
 
