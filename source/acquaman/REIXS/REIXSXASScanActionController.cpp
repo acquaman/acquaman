@@ -16,6 +16,8 @@
 
 #include "dataman/AMSample.h"
 
+#include "analysis/AM1DExpressionAB.h"
+
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent) :
@@ -81,6 +83,50 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 					scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
 			}
 		}
+
+		//
+		// DM: add normalized detector channels, if datasources are present
+		//
+		QList<AMDataSource*> raw1DDataSources;
+		for(int i=0; i<scan_->rawDataSources()->count(); i++)
+			if(scan_->rawDataSources()->at(i)->rank() == 1)
+				raw1DDataSources << scan_->rawDataSources()->at(i);
+
+		int rawTeyIndex = scan_->rawDataSources()->indexOfKey("TEY");
+		int rawTfyIndex = scan_->rawDataSources()->indexOfKey("TFY");
+		int rawPfyIndex = scan_->rawDataSources()->indexOfKey("PFY");
+		int rawI0Index = scan_->rawDataSources()->indexOfKey("I0");
+
+		if(rawTeyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYNorm");
+			teyChannel->setDescription("Normalized TEY");
+			teyChannel->setInputDataSources(raw1DDataSources);
+			teyChannel->setExpression("TEY/I0");
+
+			scan_->addAnalyzedDataSource(teyChannel);
+		}
+
+		if(rawTfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNORM");
+			tfyChannel->setDescription("Normalized TFY");
+			tfyChannel->setInputDataSources(raw1DDataSources);
+			tfyChannel->setExpression("TFY/I0");
+
+			scan_->addAnalyzedDataSource(tfyChannel);
+		}
+
+		if(rawPfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* pfyChannel = new AM1DExpressionAB("PFYNORM");
+			pfyChannel->setDescription("Normalized PFY");
+			pfyChannel->setInputDataSources(raw1DDataSources);
+			pfyChannel->setExpression("PFY/I0");
+
+			scan_->addAnalyzedDataSource(pfyChannel);
+		}
+		//
+		// DM: added
+		//
+
 
 		connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onActionTreeGenerated(AMAction3*)));
 		newScanAssembler_->generateActionTree();
