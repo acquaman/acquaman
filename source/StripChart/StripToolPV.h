@@ -96,7 +96,6 @@ private:
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.
     void onPVValueChanged(double newValue);
-    void saveMetaDataTest();
 
 };
 

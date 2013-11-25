@@ -340,10 +340,3 @@ void StripToolPV::onPVValueChanged(double newValue)
     // increment the update counter.
     updateIndex_++;
 }
-
-
-
-void StripToolPV::saveMetaDataTest()
-{
-    qDebug() << "The signal for saving changed meta data was emitted.";
-}
