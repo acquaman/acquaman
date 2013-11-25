@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QTimer>
 #include <QStringBuilder>
+#include <QDebug>
 
 #include "acquaman.h"
 
@@ -67,6 +68,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
 
 	// Ensure that the 2D scan view is pointing to nowhere.
 	scanView2D_ = 0;
@@ -115,6 +117,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	currentScan_ = 0;
 
+
+
+
 	// disable drops on text fields that we don't want to accept drops
 	ui_.scanName->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
@@ -125,14 +130,26 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
 	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
+
 	// close button and save buttons are initially disabled; there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
+
+
 
 	chooseScanDialog_ = 0;
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+
+	//
+	//
+	// This DOESN'T work! But it does if refreshScanConditions(); called from onOneSecondTimer();  My slot doesn't take signals???
+	//
+	//
+	//connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(refreshScanConditions()));
+
+
 	oneSecondTimer->start(1000);
 }
 
@@ -240,10 +257,12 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
+
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
 	}
+
 }
 
 QPointF AMGenericScanEditor::dataPosition() const
@@ -324,6 +343,11 @@ void AMGenericScanEditor::refreshWindowTitle() {
 	setWindowTitle(windowTitle);
 }
 
+void AMGenericScanEditor::refreshScanConditions() {
+	qDebug() << "/n/nrefreshScanConditions() called/n/n";
+	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
+}
+
 void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
 
 	Q_UNUSED(deselected)
@@ -341,6 +365,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
+		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
 	}
 
 	// it becomes now the new scan:
@@ -348,7 +373,6 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// update all widgets to match the current scan
 	updateEditor(currentScan_);
-
 
 	if(currentScan_) {
 		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
@@ -361,6 +385,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
+		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
+
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
 		ui_.saveScanButton->setEnabled(true);
