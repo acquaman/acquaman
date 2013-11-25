@@ -53,7 +53,7 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 		channelLayout_->addWidget(sr570View_, 0, Qt::AlignCenter);
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
-	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignCenter);
+	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
 
 	setLayout(channelLayout_);
 	setVisible(!channel1_->customChannelName().isEmpty());
@@ -87,13 +87,13 @@ void CLSSIS3820CompositeScalerChannelView::updateStatusLabel()
 	else if (channel1_->voltageTooLow()){
 
 		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
-		statusLabel_->setToolTip(QString("The voltage is too low!  Increase the sensitivity until the voltage is higher than %1 V.").arg(channel1_->minimumVoltage()));
+		statusLabel_->setToolTip(QString("The voltage is too low!\nIncrease the sensitivity until the voltage is higher than %1 V.").arg(channel1_->minimumVoltage()));
 	}
 
 	else if (channel1_->voltageTooHigh()){
 
 		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
-		statusLabel_->setToolTip(QString("The voltage is too high!  Decrease the sensitivity until the voltage is lower than %1 V.").arg(channel1_->maximumVoltage()));
+		statusLabel_->setToolTip(QString("The voltage is too high!\nDecrease the sensitivity until the voltage is lower than %1 V.").arg(channel1_->maximumVoltage()));
 	}
 }
 

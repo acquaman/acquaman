@@ -354,9 +354,6 @@ void VESPERSAppController::setupUserInterface()
 	persistentView_ = new VESPERSPersistentView;
 	mw_->addRightWidget(persistentView_);
 
-	VESPERSScalerView *view = new VESPERSScalerView();
-	view->show();
-
 	// Show the endstation control view first.
 	mw_->setCurrentPane(endstationView_);
 }
