@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
 
 /*!
   The following is meant to be an abstraction to the Variable Integration time app used at the CLS.  Currently, only knowledge of how it works is based on
@@ -130,23 +130,23 @@ public:
 
 	// Action getters.  Returns an action equivalent of a setter.
 	/// Returns an action that changes the mode to \param mode.
-	AMBeamlineActionItem *createModeAction(Mode mode);
+	AMAction3 *createModeAction(Mode mode);
 	/// Returns an action that changes the default time to \param time (in seconds).
-	AMBeamlineActionItem *createDefaultTimeAction(double time);
+	AMAction3 *createDefaultTimeAction(double time);
 	/// Returns an action that changes the threshold to \param threshold.
-	AMBeamlineActionItem *createThresholdAction(double threshold);
+	AMAction3 *createThresholdAction(double threshold);
 	/// Returns an action that changes the function to \param function.
-	AMBeamlineActionItem *createFunctionAction(Function function);
+	AMAction3 *createFunctionAction(Function function);
 	/// Returns an action that changes the low value to \param low.
-	AMBeamlineActionItem *createLowValueAction(double low);
+	AMAction3 *createLowValueAction(double low);
 	/// Returns an action that changes the high value to \param high.
-	AMBeamlineActionItem *createHighValueAction(double high);
+	AMAction3 *createHighValueAction(double high);
 	/// Returns an action that changes the maximum time to \param time (in seconds).
-	AMBeamlineActionItem *createMaximumTimeAction(double time);
+	AMAction3 *createMaximumTimeAction(double time);
 	/// Returns an action that intiates a compute action.
-	AMBeamlineActionItem *createComputeAction();
+	AMAction3 *createComputeAction();
 	/// Returns an action that sets up the entire variable dwell time app.
-	AMBeamlineActionItem *createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime);
+	AMAction3 *createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime);
 
 signals:
 	/// Notifier that the mode has changed.  Passes the new mode.

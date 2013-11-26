@@ -3,8 +3,7 @@
 
 #include <QObject>
 
-//class AMAction3;
-class AMBeamlineActionItem;
+class AMAction3;
 class AMDetector;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
