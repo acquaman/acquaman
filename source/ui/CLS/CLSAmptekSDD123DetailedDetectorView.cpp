@@ -22,6 +22,13 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	editAmptekConfigurationButton_ = new QPushButton("Edit Amptek Configuration");
 	rightLayout_->addWidget(editAmptekConfigurationButton_);
 
+	eVPerBinDoubleSpinBox_ = new QDoubleSpinBox();
+	eVPerBinDoubleSpinBox_->setRange(0.5, 100);
+	if(amptekDetector_->isConnected())
+		eVPerBinDoubleSpinBox_->setValue(amptekDetector_->eVPerBin());
+	rightLayout_->addWidget(eVPerBinDoubleSpinBox_);
+	connect(eVPerBinDoubleSpinBox_, SIGNAL(valueChanged(double)), amptekDetector_, SLOT(setEVPerBin(double)));
+
 	QLabel *tempLabel;
 	QHBoxLayout *tempHBox;
 
