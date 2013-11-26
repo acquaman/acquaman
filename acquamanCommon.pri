@@ -703,7 +703,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/actions3/AMActionSupport.h \
     source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
     source/ui/CLS/CLSSR570CompositeView.h \
-    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h
+    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
+    source/actions3/actions/AMControlStopAction.h \
+    source/actions3/actions/AMControlStopActionInfo.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1177,7 +1179,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
     source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
     source/ui/CLS/CLSSR570CompositeView.cpp \
-    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp
+    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
+    source/actions3/actions/AMControlStopAction.cpp \
+    source/actions3/actions/AMControlStopActionInfo.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1201,6 +1205,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

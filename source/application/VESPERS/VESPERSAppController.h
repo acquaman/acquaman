@@ -46,6 +46,7 @@ class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
+class AMListAction3;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -201,7 +202,7 @@ protected:
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
-	AMBeamlineListAction *moveImmediatelyAction_;
+	AMListAction3 *moveImmediatelyAction_;
 
 	/// Pointer to the persistent view.
 	VESPERSPersistentView *persistentView_;
