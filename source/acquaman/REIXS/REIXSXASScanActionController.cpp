@@ -17,6 +17,7 @@
 #include "dataman/AMSample.h"
 
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
@@ -98,28 +99,32 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 		int rawI0Index = scan_->rawDataSources()->indexOfKey("I0");
 
 		if(rawTeyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYNorm");
+			AM1DNormalizationAB* teyChannel = new AM1DNormalizationAB("TEYNorm");
 			teyChannel->setDescription("Normalized TEY");
 			teyChannel->setInputDataSources(raw1DDataSources);
-			teyChannel->setExpression("TEY/I0");
+			teyChannel->setDataName("TEY");
+			teyChannel->setNormalizationName("I0");
 
 			scan_->addAnalyzedDataSource(teyChannel);
 		}
 
 		if(rawTfyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNORM");
+			AM1DNormalizationAB* tfyChannel = new AM1DNormalizationAB("TFYNorm");
 			tfyChannel->setDescription("Normalized TFY");
 			tfyChannel->setInputDataSources(raw1DDataSources);
-			tfyChannel->setExpression("TFY/I0");
+			tfyChannel->setDataName("TFY");
+			tfyChannel->setNormalizationName("I0");
 
 			scan_->addAnalyzedDataSource(tfyChannel);
 		}
 
 		if(rawPfyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* pfyChannel = new AM1DExpressionAB("PFYNORM");
+			AM1DNormalizationAB* pfyChannel = new AM1DNormalizationAB("PFYNorm");
 			pfyChannel->setDescription("Normalized PFY");
 			pfyChannel->setInputDataSources(raw1DDataSources);
-			pfyChannel->setExpression("PFY/I0");
+			pfyChannel->setDataName("PFY");
+			pfyChannel->setNormalizationName("I0");
+
 
 			scan_->addAnalyzedDataSource(pfyChannel);
 		}
