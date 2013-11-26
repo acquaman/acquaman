@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
-#include <QToolButton>
 #include <QGroupBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -38,7 +37,7 @@ VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWi
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	isAcquiring_ = new QLabel;
-	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(22));
 	state_ = new QLabel;
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onIsAcquiringChanged()));
 
@@ -53,13 +52,15 @@ VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWi
 	elapsedTimeLabel_ = new QLabel("0.0 s");
 	connect(&elapsedTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimerTimeout()));
 
-	QToolButton *startButton = new QToolButton;
-	startButton->setIcon(QIcon(":/play_button_green.png"));
-	connect(startButton, SIGNAL(clicked()), this, SLOT(onStartClicked()));
+	startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Acquire");
+	startButton_->setMaximumHeight(25);
+	startButton_->setEnabled(true);
+	connect(startButton_, SIGNAL(clicked()), this, SLOT(onStartClicked()));
 
-	QToolButton *stopButton = new QToolButton;
-	stopButton->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stopButton, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
+	stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+	stopButton_->setMaximumHeight(25);
+	stopButton_->setEnabled(false);
+	connect(stopButton_, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
 
 	// Setup the CCD file path signals and layout.
 	filePathEdit_ = new QLineEdit;
@@ -79,8 +80,8 @@ VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWi
 	QHBoxLayout *statusLayout = new QHBoxLayout;
 	statusLayout->addWidget(isAcquiring_);
 	statusLayout->addWidget(state_);
-	statusLayout->addWidget(startButton);
-	statusLayout->addWidget(stopButton);
+	statusLayout->addWidget(startButton_);
+	statusLayout->addWidget(stopButton_);
 
 	QHBoxLayout *modeLayout = new QHBoxLayout;
 	modeLayout->addWidget(acquireTime_, 0, Qt::AlignCenter);
@@ -140,7 +141,9 @@ void VESPERSCCDDetectorView::ccdPathEdited()
 
 void VESPERSCCDDetectorView::onIsAcquiringChanged()
 {
-	if (detector_->isAcquiring()){
+	bool acquiring = detector_->isAcquiring();
+
+	if (acquiring){
 
 		isAcquiring_->setPixmap(QIcon(":/ON.png").pixmap(25));
 		state_->setText("Acquiring");
@@ -152,6 +155,9 @@ void VESPERSCCDDetectorView::onIsAcquiringChanged()
 		state_->setText("Idle");
 		elapsedTimer_.stop();
 	}
+
+	startButton_->setDisabled(acquiring);
+	stopButton_->setEnabled(acquiring);
 }
 
 void VESPERSCCDDetectorView::setAcquireTime(double time)
