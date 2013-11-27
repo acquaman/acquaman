@@ -36,6 +36,18 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     pauseResumeGroup->setLayout(pauseResumeLayout);
     pauseResumeGroup->setFlat(true);
 
+    QLabel *timeLabel = new QLabel("Time :");
+    QSpinBox *timeEntry = new QSpinBox();
+
+    QHBoxLayout *timeLayout = new QHBoxLayout();
+    timeLayout->addWidget(timeLabel);
+    timeLayout->addWidget(timeEntry);
+
+    QGroupBox *timeGroup = new QGroupBox();
+    timeGroup->setLayout(timeLayout);
+    timeGroup->setFlat(true);
+    timeGroup->setEnabled(false);
+
     message_ = new QLabel("");
     connect( this, SIGNAL(clearMessage()), message_, SLOT(clear()) );
     connect( this, SIGNAL(error(QString)), this, SLOT(displayMessage(QString)) );
@@ -44,10 +56,18 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     controlsLayout->addWidget(listView_);
     controlsLayout->addLayout(addLayout);
     controlsLayout->addWidget(pauseResumeGroup);
-    controlsLayout->addWidget(message_);
+    controlsLayout->addWidget(timeGroup);
+//    controlsLayout->addWidget(message_);
 
-    setLayout(controlsLayout);
-    setMaximumWidth(200);
+    QGroupBox *controlsGroup = new QGroupBox();
+//    controlsGroup->setTitle("PV Controls");
+    controlsGroup->setLayout(controlsLayout);
+
+    QVBoxLayout *contentLayout = new QVBoxLayout();
+    contentLayout->addWidget(controlsGroup);
+
+    setLayout(contentLayout);
+    setMaximumWidth(225);
 
     connect( this, SIGNAL(reset()), this, SLOT(resetControls()) );
 }

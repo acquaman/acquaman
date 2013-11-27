@@ -302,8 +302,10 @@ bool StripToolDataController::savePVData(StripToolPV *toSave)
 
     // identify lists of data to be added to data file.
 
-    QList<double> indexesToSave = toSave->saveIndexes().toList();
-    QList<double> dataToSave = toSave->saveData().toList();
+    QList<QString> timesToSave = toSave->saveMasterTimes().toList();
+    QList<QString> sTimesToSave;
+
+    QList<double> dataToSave = toSave->saveMasterValues().toList();
 
     // write data to file.
 
@@ -311,7 +313,7 @@ bool StripToolDataController::savePVData(StripToolPV *toSave)
 
     for (int i = 0; i < dataToSave.size(); i++)
     {
-        out << indexesToSave.at(i) << "\t" << dataToSave.at(i) << "\n";
+        out << timesToSave.at(i) << "\t" << dataToSave.at(i) << "\n";
     }
 
     file.close();

@@ -15,7 +15,7 @@ class StripToolPV : public QObject
     Q_OBJECT
 
 public:
-    StripToolPV(QObject *parent = 0);
+    StripToolPV(QTime appAge, QObject *parent = 0);
     ~StripToolPV();
     friend class StripToolModel;
     friend class StripToolDataController;
@@ -24,9 +24,14 @@ signals:
     /// Pv signals to the model when it is time to save pv data to file.
     void savePVData();
     void savePVMetaData();
+    void forceUpdate(double newValue);
+    void pvValueUpdated();
 
 protected:
     int updateIndex_;
+    QTime modelStartTime_; // not sure this is needed.
+    QTime pvCreationTime_;
+
     int defaultValuesDisplayed_;
     int valuesDisplayed_;
     int dataVectorSize_;
@@ -42,13 +47,17 @@ protected:
     Qt::CheckState checkState_;
     QColor pvColor_;
 
-    QVector<double> pvUpdateIndex_;
-    QVector<double> pvDataTotal_;
-    QVector<double> xValuesDisplayed_;
-    QVector<double> yValuesDisplayed_;
+    QVector<QTime> masterUpdateTimes_;
+    QVector<double> masterUpdateValues_;
+
+    QVector<double> displayedTimes_;
+    QVector<double> displayedValues_;
+
     MPlotVectorSeriesData *pvData_;
     MPlotSeriesBasic *pvSeries_;
     AMControl *pvControl_;
+
+    bool forceUpdate_;
 
 protected:
     /// Returns the epics pv name for this pv.
@@ -70,8 +79,8 @@ protected:
     /// Returns an integer representing the number of pv value updates that are displayed on the plot. By default, it displays the last ten updates.
     int valuesDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time but isn't fully implemented.
-    QVector<double> saveIndexes();
-    QVector<double> saveData();
+    QVector<QString> saveMasterTimes();
+    QVector<double> saveMasterValues();
     QList<QString> metaDataHeaders();
     QList<QString> metaData();
     bool setMetaData(QList<QString> metaData);
@@ -92,10 +101,14 @@ private:
     void setValuesDisplayed(int points);
     void setSeriesColor(const QColor &color);
     void setMetaDataHeaders();
+    void saveCheck();
+    void dataVectorSizeCheck();
 
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.
     void onPVValueChanged(double newValue);
+
+    void toForceUpdateValue(const QString &toIgnore);
 
 };
 

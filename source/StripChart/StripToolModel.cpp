@@ -2,6 +2,8 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
+//    updateNumber_ = 0;
+
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);
     connect( controlMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onPVConnected(QObject*)) );
@@ -13,6 +15,9 @@ StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
     // used when the StripToolPV signals that it is ready for changes to its metadata to be saved.
     saveMetadataMapper_ = new QSignalMapper(this);
     connect( saveMetadataMapper_, SIGNAL(mapped(QObject*)), this, SIGNAL(savePVMetadata(QObject*)) );
+
+    pvUpdatedMapper_ = new QSignalMapper(this);
+    connect( pvUpdatedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSinglePVUpdated(QObject*)) );
 
     connect( this, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
     connect( this, SIGNAL(pvUpdating(QModelIndex,bool)), this, SLOT(setPVUpdating(QModelIndex,bool)) );
@@ -290,13 +295,20 @@ bool StripToolModel::addPV(AMControl *pvControl)
     int position = pvList_.size(); // append new pvs to the end of the model.
     int count = 1; // insert one pv at a time.
 
-    StripToolPV *newPV = new StripToolPV(this);
+    if (position == 0)
+        modelStartTime_ = QTime::currentTime();
+
+    StripToolPV *newPV = new StripToolPV(modelStartTime_, this);
     newPV->setControl(pvControl);
     saveDataMapper_->setMapping(newPV, newPV);
     saveMetadataMapper_->setMapping(newPV, newPV);
+    pvUpdatedMapper_->setMapping(newPV, newPV);
 
     connect( newPV, SIGNAL(savePVData()), saveDataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(savePVMetaData()), saveMetadataMapper_, SLOT(map()) );
+    connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
+
+    connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
 
     beginInsertRows(QModelIndex(), position, position + count - 1); //  notify list view and plot.
     pvList_.insert(position, newPV); // add new pv to the model.
@@ -537,5 +549,15 @@ void StripToolModel::toSetMetaData(const QString &pvName, QList<QString> metaDat
 
     else
         qDebug() << "Matching pv not found.";
+}
+
+
+
+void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
+{
+//    updateNumber_++;
+
+    StripToolPV *updated = (StripToolPV *) pvUpdated;
+    emit forceUpdatePVs(updated->pvName());
 }
 

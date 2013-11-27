@@ -32,19 +32,24 @@ signals:
     void errorMessage(const QString &message);
     void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
+    void forceUpdatePVs(const QString &updatedName);
 
 protected:
+    QTime modelStartTime_;
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
     QSignalMapper *controlMapper_;
     QSignalMapper *saveDataMapper_;
     QSignalMapper *saveMetadataMapper_;
+    QSignalMapper *pvUpdatedMapper_;
+//    int updateNumber_;
 
 public:
     StripToolPV* selectedPV() const;
     QModelIndex selectedIndex() const;
     MPlotItem* selectedSeries() const;
     MPlotItem* series(int row) const;
+    QString pvName(StripToolPV *pv) const;
 
 protected:
     /// Returns the item flags for the entry at the given index.
@@ -114,6 +119,7 @@ protected slots:
 
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
+    void onSinglePVUpdated(QObject *updatedPV);
 
 };
 

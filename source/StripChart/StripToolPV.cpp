@@ -1,9 +1,13 @@
 #include "StripToolPV.h"
 
-StripToolPV::StripToolPV(QObject *parent)
+StripToolPV::StripToolPV(QTime modelStart, QObject *parent)
     : QObject(parent)
 {
+    modelStartTime_ = modelStart;
+    pvCreationTime_ = QTime::currentTime();
+
     updateIndex_ = 0;
+
     defaultValuesDisplayed_ = 10;
     valuesDisplayed_ = defaultValuesDisplayed_;
     dataVectorSize_ = 100;
@@ -11,14 +15,16 @@ StripToolPV::StripToolPV(QObject *parent)
 
     pvName_ = "";
     pvDescription_ = "";
-    xUnits_ = "Update number";
+    xUnits_ = "Time [ms]";
     yUnits_ = "";
     isUpdating_ = true;
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
-    pvUpdateIndex_ = QVector<double>(dataVectorSize_);
-    pvDataTotal_ = QVector<double>(dataVectorSize_);
+    masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
+    masterUpdateValues_ = QVector<double>(dataVectorSize_);
+    displayedTimes_ = QVector<double>(valuesDisplayed_);
+    displayedValues_ = QVector<double>(valuesDisplayed_);
 
     pvControl_ = 0;
 
@@ -31,9 +37,12 @@ StripToolPV::StripToolPV(QObject *parent)
     pvSeries_->setLinePen(QPen(pvColor_));
     pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 1));
 
+    forceUpdate_ = false;
+
     setMetaDataHeaders();
 
-    connect( this, SIGNAL(savePVMetaData()), this, SLOT(saveMetaDataTest()) );
+    connect( this, SIGNAL(forceUpdate(double)), this, SLOT(onPVValueChanged(double)) );
+
 }
 
 
@@ -107,7 +116,7 @@ int StripToolPV::valuesDisplayed()
 
 
 
-QVector<double> StripToolPV::saveIndexes()
+QVector<QString> StripToolPV::saveMasterTimes()
 {
     int position = updateIndex_ - savePoint_;
     int amount;
@@ -115,23 +124,28 @@ QVector<double> StripToolPV::saveIndexes()
     if (position < 0)
         position = 0;
 
-    if (pvUpdateIndex_.size() != pvDataTotal_.size())
+    if (masterUpdateTimes_.size() != masterUpdateValues_.size())
     {
         amount = 0;
-        qDebug() << "The number of indices do not match the number of data points for : " << pvName();
+        qDebug() << "The number of time entries do not match the number of data points for : " << pvName();
 
     } else {
 
-        if (pvUpdateIndex_.size() < savePoint_)
+        if (masterUpdateTimes_.size() < savePoint_)
         {
-            amount = pvUpdateIndex_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
+            amount = masterUpdateTimes_.size(); // if the number of time entries is less than savePoint_, then return a vector containing all the times we have.
 
         } else {
-            amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
+            amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ times.
         }
     }
 
-    QVector<double> toSave = pvUpdateIndex_.mid(position, amount);
+    QVector<QString> toSave;
+
+    foreach (QTime time, masterUpdateTimes_.mid(position, amount))
+    {
+        toSave.append(time.toString());
+    }
 
     if (toSave.size() != savePoint_)
         qDebug() << "Mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
@@ -141,7 +155,7 @@ QVector<double> StripToolPV::saveIndexes()
 
 
 
-QVector<double> StripToolPV::saveData()
+QVector<double> StripToolPV::saveMasterValues()
 {
     int position = updateIndex_ - savePoint_;
     int amount = savePoint_;
@@ -149,23 +163,23 @@ QVector<double> StripToolPV::saveData()
     if (position < 0)
         position = 0;
 
-    if (pvDataTotal_.size() != pvUpdateIndex_.size())
+    if (masterUpdateValues_.size() != masterUpdateTimes_.size())
     {
         amount = 0;
-        qDebug() << "The number of indices do not match the number of data points for : " << pvName();
+        qDebug() << "The number of time entries do not match the number of data points for : " << pvName();
 
     } else {
 
-        if (pvDataTotal_.size() < savePoint_)
+        if (masterUpdateValues_.size() < savePoint_)
         {
-            amount = pvDataTotal_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
+            amount = masterUpdateValues_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
 
         } else {
             amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
         }
     }
 
-    QVector<double> toSave = pvDataTotal_.mid(position, amount);
+    QVector<double> toSave = masterUpdateValues_.mid(position, amount);
     return toSave;
 }
 
@@ -180,6 +194,7 @@ void StripToolPV::setMetaDataHeaders()
     headers_ << "Units ";
     headers_ << "Displayed ";
     headers_ << "Color ";
+    headers_ << "Date ";
 }
 
 
@@ -200,6 +215,7 @@ QList<QString> StripToolPV::metaData()
     metaData << yUnits();
     metaData << QString::number(valuesDisplayed());
     metaData << color().name();
+    metaData << QDateTime::currentDateTime().toString();
 
     return metaData;
 }
@@ -299,44 +315,105 @@ bool StripToolPV::operator== (const StripToolPV &anotherPV)
 
 
 
-void StripToolPV::onPVValueChanged(double newValue)
+void StripToolPV::saveCheck()
 {
     if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0)
         emit savePVData();
+}
 
-    //  check to see if the size of the data vectors allows for a new addition.
+
+
+void StripToolPV::dataVectorSizeCheck()
+{
     if (dataVectorSize_ < updateIndex_ + 1)
     {
         dataVectorSize_ += 100;
-        pvUpdateIndex_.resize(dataVectorSize_);
-        pvDataTotal_.resize(dataVectorSize_);
+        masterUpdateTimes_.resize(dataVectorSize_);
+        masterUpdateValues_.resize(dataVectorSize_);
     }
+}
 
-    //  vectors are now the correct size, add the new data.
-    pvUpdateIndex_[updateIndex_] = updateIndex_;
-    pvDataTotal_[updateIndex_] = newValue;
+
+
+void StripToolPV::onPVValueChanged(double newValue)
+{
+//    qDebug() << "PV" << pvName() << "value changed";
+
+    // check to see if it's time to save the pv data to file.
+    saveCheck();
+
+    //  check to see if the size of the data vectors allows for a new addition, resize if not.
+    dataVectorSizeCheck();
+
+    //  vectors are now the correct size, add the new data to master lists.
+    masterUpdateTimes_[updateIndex_] = QTime::currentTime();
+    masterUpdateValues_[updateIndex_] = newValue;
+
+    // set a 'now' time that will be used to generate the x-axis display values.
+    QTime nowish = QTime::currentTime();
 
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_)
     {
-        //  if we want to display more points than exist yet, display all we've got.
+        // clear the display arrays to prep for new values.
+        displayedTimes_.clear();
+        displayedValues_.clear();
+
+        //  if we want to display more points than exist yet, show all we've got.
         if (updateIndex_ < valuesDisplayed_)
         {
-            xValuesDisplayed_ = pvUpdateIndex_.mid(0, updateIndex_);
-            yValuesDisplayed_ = pvDataTotal_.mid(0, updateIndex_);
+            displayedTimes_ = QVector<double>(updateIndex_ + 1);
+            displayedValues_ = QVector<double>(updateIndex_ + 1);
 
+            for (int i = 0; i < updateIndex_ + 1; i++)
+            {
+                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(i));
+                displayedValues_[i] = masterUpdateValues_.at(i);
+            }
         }
 
         //  otherwise, show the latest "valuesDisplayed" points.
         else {
-            xValuesDisplayed_ = pvUpdateIndex_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
-            yValuesDisplayed_ = pvDataTotal_.mid(updateIndex_ - valuesDisplayed_, valuesDisplayed_);
+
+            displayedTimes_ = QVector<double>(valuesDisplayed_);
+            displayedValues_ = QVector<double>(valuesDisplayed_);
+
+            for (int i = 0; i < valuesDisplayed_; i++)
+            {
+                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(updateIndex_ - valuesDisplayed_ + i));
+                displayedValues_[i] = masterUpdateValues_.at(updateIndex_ - valuesDisplayed_ + i);
+            }
         }
+
+//        qDebug() << "Displayed times : " << displayedTimes_;
+//        qDebug() << "Displayed values : " << displayedValues_;
+//        qDebug() << "Displayed values for" << this->pvName() << "updated.";
     }
 
     //  update the displayed data with the new vectors.
-    pvData_->setValues(xValuesDisplayed_, yValuesDisplayed_);
+    pvData_->setValues(displayedTimes_, displayedValues_);
 
-    // increment the update counter.
+    // increment the internal update counter.
     updateIndex_++;
+
+    // if the model forced this update to happen (as opposed to the pv updating), do not tell the model that this pv updated!
+    if (forceUpdate_)
+        forceUpdate_ = false;
+    else
+        emit pvValueUpdated();
+
+//    qDebug() << "PV value change complete.";
+
+}
+
+
+
+void StripToolPV::toForceUpdateValue(const QString &toIgnore)
+{
+    if (this->pvName() != toIgnore)
+    {
+//        qDebug() << "PV" << this->pvName() << "is undergoing forced update.";
+        forceUpdate_ = true;
+        emit forceUpdate(pvControl_->value());
+    }
 }

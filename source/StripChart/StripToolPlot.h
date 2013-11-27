@@ -32,7 +32,6 @@ protected:
     StripToolModel *model_;
     MPlot *plot_;
     StripToolSelector *selector_;
-
     QAction *toggleControls_;
 
 public:
@@ -62,7 +61,7 @@ protected slots:
     /// Causes a series to become de/selected to match the model's selected pv.
     void onModelSelectionChange();
 
-    void contextMenuEvent(QContextMenuEvent *event);
+//    void contextMenuEvent(QContextMenuEvent *event);
     void toToggleControls();
 
 };

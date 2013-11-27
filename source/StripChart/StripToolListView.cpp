@@ -10,9 +10,13 @@ StripToolListView::StripToolListView(QWidget *parent) :
 
     createActions();
     setContextMenuPolicy(Qt::CustomContextMenu);
+//    setDragEnabled(true);
+//    setAcceptDrops(true);
+    setMovement(QListView::Static); // right now, user cannot reorder list view items -- they can't be moved!
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
     connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
+    connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(beginDrag(QModelIndex)) );
 
 }
 
@@ -97,7 +101,6 @@ void StripToolListView::editSelection()
 
     foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
         emit editPV(index);
-//    emit editPV(selectionModel()->selectedIndexes());
 }
 
 

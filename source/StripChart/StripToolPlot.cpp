@@ -17,8 +17,6 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->addTool(dragZoomer);
     plot_->addTool(selector_);
 
-//    plot_->setAcceptDrops(true);
-
     plot_->axisLeft()->showAxisName(false);
     plot_->axisBottom()->showAxisName(false);
 
@@ -211,12 +209,12 @@ void StripToolPlot::onModelSelectionChange()
 
 
 
-void StripToolPlot::contextMenuEvent(QContextMenuEvent *event)
-{
-    QMenu menu(this);
-    menu.addAction(toggleControls_);
-    menu.exec(event->globalPos());
-}
+//void StripToolPlot::contextMenuEvent(QContextMenuEvent *event)
+//{
+//    QMenu menu(this);
+//    menu.addAction(toggleControls_);
+//    menu.exec(event->globalPos());
+//}
 
 
 
