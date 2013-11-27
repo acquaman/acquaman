@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/SGM/SGMSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 
@@ -107,7 +107,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-    if( !(userName == "sgm" || userName == "fawkes" || userName == "helfrij") )
+	if( !(userName == "sgm" || userName == "fawkes" || userName == "helfrij") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 
@@ -137,8 +137,6 @@ bool SGMAppController::startup() {
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!AMAppController::startup())
 		return false;
-
-	//splashScreen_->setNumberOfStages(splashScreen_->numberOfStages()+1);
 
 	// Places the SGM specific actions in the menu bar
 	if(!startupSGMInstallActions())
@@ -379,8 +377,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		//do nothing
 	}
 	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013Holder3_->isEnabled() && !fastScanConfiguration2013Holder3_->isEnabled()){
-		//xasScanConfigurationHolder3_->setEnabled(true);
-		//fastScanConfigurationHolder3_->setEnabled(true);
 		xasScanConfiguration2013Holder3_->setEnabled(true);
 		fastScanConfiguration2013Holder3_->setEnabled(true);
 	}
@@ -439,7 +435,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
-		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
@@ -449,10 +445,8 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 	if(SGMBeamline::sgm()->synchronizedDwellTime() && SGMBeamline::sgm()->synchronizedDwellTime()->isConnected() && !sgmSynchronizedDwellTimeView_){
 
 		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
-		if(clsDwellTime){
+		if(clsDwellTime)
 			sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
-		}
-		//sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
 
 		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Control", "SGM Sync Dwell", ":/system-software-update.png", true);
 		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
@@ -461,13 +455,7 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
-	//if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !amptekSDD1XRFView_){
-		//newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
-
-		//newAmptekSDD1View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
-		//mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
-
 		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
 		amptekSDD1XRFView_->buildDetectorView();
 		amptekSDD1XRFView_->setEnergyRange(270, 2000);
@@ -477,13 +465,7 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
-	//if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !newAmptekSDD2View_){
 	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !amptekSDD2XRFView_){
-		//newAmptekSDD2View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD2());
-
-		//newAmptekSDD2View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
-		//mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
-
 		amptekSDD2XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
 		amptekSDD2XRFView_->buildDetectorView();
 		amptekSDD2XRFView_->setEnergyRange(270, 2000);
@@ -493,13 +475,7 @@ void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 	Q_UNUSED(connected)
-	//if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !newAmptekSDD3View_){
 	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !amptekSDD3XRFView_){
-		//newAmptekSDD3View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD3());
-
-		//newAmptekSDD3View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
-		//mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "SGM Amptek3", ":/system-software-update.png");
-
 		amptekSDD3XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
 		amptekSDD3XRFView_->buildDetectorView();
 		amptekSDD3XRFView_->setEnergyRange(270, 2000);
@@ -509,16 +485,7 @@ void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	Q_UNUSED(connected)
-	qDebug() << "Checking amptek4";
-	//if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
 	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !amptekSDD4XRFView_){
-		qDebug() << "amptek4 is good";
-		//newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
-
-		//newAmptekSDD4View_ = new CLSAmptekSDD123DetectorNewView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
-		//mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "SGM Amptek4", ":/system-software-update.png");
-
-		//newAmptekSDD4XRFView_ = new AMXRFDetailedDetectorView(qobject_cast<AMXRFDetector*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		amptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		amptekSDD4XRFView_->buildDetectorView();
 		amptekSDD4XRFView_->setEnergyRange(270, 2000);
@@ -528,10 +495,7 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD5Connected(bool connected){
 	Q_UNUSED(connected)
-	qDebug() << "Checking amptek5";
 	if(SGMBeamline::sgm()->newAmptekSDD5() && SGMBeamline::sgm()->newAmptekSDD5()->isConnected() && !amptekSDD5XRFView_){
-		qDebug() << "amptek5 is good";
-
 		amptekSDD5XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5()));
 		amptekSDD5XRFView_->buildDetectorView();
 		amptekSDD5XRFView_->setEnergyRange(270, 2000);
@@ -752,7 +716,6 @@ bool SGMAppController::setupSGMExporterOptions(){
 		sgmDefault->setColumnHeaderDelimiter("==========");
 		sgmDefault->setSectionHeader("");
 		sgmDefault->setSectionHeaderIncluded(true);
-		//sgmDefault->setIncludeAllDataSources(false);
 		if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
 			sgmDefault->removeDataSourceAt(0);
 		sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
@@ -1328,9 +1291,6 @@ bool SGMAppController::setupSGMViews(){
 							   SGMBeamline::sgm()->sampleManipulator());
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
-
-	// Jan 11, 2013: I don't think this is necessary at all anymore
-	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");

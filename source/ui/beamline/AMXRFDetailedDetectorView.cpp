@@ -67,7 +67,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	bool deadTimeEnabled = detector_->hasDeadTimeCorrection();
 
 	deadTimeLabel_ = new QLabel("Dead Time: 0%");
-	deadTimeLabel_->setVisible(deadTimeEnabled);
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
 
 	deadTimeButtons_ = new QButtonGroup(this);
@@ -98,6 +97,8 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	rightLayout_->removeItem(rightLayout_->itemAt(rightLayout_->count()-1));
 	rightLayout_->addLayout(deadTimeLayout);
 	rightLayout_->addStretch();
+
+	deadTimeLabel_->setVisible(deadTimeEnabled);
 }
 
 void AMXRFDetailedDetectorView::buildPileUpPeakButtons()

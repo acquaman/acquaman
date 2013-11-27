@@ -94,7 +94,6 @@ QString VESPERSExporter2DAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

@@ -68,7 +68,7 @@ public:
 
 	bool isConnected() const;
 	bool isReady() const;
-    bool isBeamlineScanning() const;
+	bool isBeamlineScanning() const;
 	bool isVisibleLightOn() const;
 
 	QStringList unconnectedCriticals() const;
@@ -233,10 +233,7 @@ public:
 	AMOldDetector* filterPD2ScalarDetector() const;
 	AMOldDetector* filterPD3ScalarDetector() const;
 	AMOldDetector* filterPD4ScalarDetector() const;
-	/*
-	AMOldDetector* amptekSDD1() const;
-	AMOldDetector* amptekSDD2() const;
-	*/
+
 	AMDetector* newAmptekSDD1() const;
 	AMDetector* newAmptekSDD2() const;
 	AMDetector* newAmptekSDD3() const;
@@ -257,13 +254,6 @@ public:
 	AMDetector* newEncoderDownDetector() const;
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
-
-	/*
-	bool isSDD1Enabled() const;
-	bool isSDD2Enabled() const;
-	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
-	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
-	*/
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
@@ -467,8 +457,6 @@ protected:
 	AMOldDetector *filterPD2ScalarDetector_;
 	AMOldDetector *filterPD3ScalarDetector_;
 	AMOldDetector *filterPD4ScalarDetector_;
-	//AMOldDetector* amptekSDD1_;
-	//AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
