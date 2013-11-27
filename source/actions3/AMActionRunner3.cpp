@@ -377,14 +377,6 @@ void AMActionRunner3::internalDoNextAction()
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){
-			if(this == AMActionRunner3::scanActionRunner()){
-				qDebug() << "\n\nI AM THE SCAN ACTION RUNNER, logging database: ";
-				qDebug() << loggingDatabase_->connectionName();
-			}
-			if(this == AMActionRunner3::workflow()){
-				qDebug() << "\n\nI AM THE WORKFLOW ACTION RUNNER, logging database: ";
-				qDebug() << loggingDatabase_->connectionName();
-			}
 			listAction->setLoggingDatabase(loggingDatabase_);
 
 			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));

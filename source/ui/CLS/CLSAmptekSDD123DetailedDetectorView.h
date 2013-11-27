@@ -25,6 +25,7 @@ protected:
 
 	QPushButton *editAmptekROIsButton_;
 	QPushButton *editAmptekConfigurationButton_;
+	QDoubleSpinBox *eVPerBinDoubleSpinBox_;
 
 	AMControlEditor *fastCountsControlEditor_;
 	AMControlEditor *averageFastCountsControlEditor_;

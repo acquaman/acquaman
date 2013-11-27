@@ -160,6 +160,11 @@ protected:
 	QSpinBox *totalScans_;
 	/// Holds all of the individual channel views.
 	QList<CLSSIS3820ScalerChannelView *> channelViews_;
+
+	/// A layout for all of the channel views
+	QVBoxLayout *channelLayout_;
+	/// The main layout for the widget
+	QVBoxLayout *mainVL_;
 };
 
 #endif // CLSSIS3820SCALERVIEW_H
