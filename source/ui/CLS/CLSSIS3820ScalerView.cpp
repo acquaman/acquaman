@@ -118,13 +118,13 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	topLayout->addLayout(spinBoxLayout);
 
 	// Build the channel views.
-	QVBoxLayout *channelLayout = new QVBoxLayout;
+	channelLayout_ = new QVBoxLayout;
 
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addLayout(topLayout);
-	mainVL->addLayout(channelLayout);
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addLayout(topLayout);
+	mainVL_->addLayout(channelLayout_);
 
-	setLayout(mainVL);
+	setLayout(mainVL_);
 
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
@@ -134,7 +134,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		channelViews_ << channelView;
 		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
-		channelLayout->addWidget(channelView);
+		channelLayout_->addWidget(channelView);
 		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
 	}
 }
@@ -280,7 +280,6 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
-	channelLayout_->addStretch(10);
 	channelLayout_->setContentsMargins(1, 1, 1, 1);
 
 	setLayout(channelLayout_);

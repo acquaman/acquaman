@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/SGM/SGMSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 
@@ -430,7 +430,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
-		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
