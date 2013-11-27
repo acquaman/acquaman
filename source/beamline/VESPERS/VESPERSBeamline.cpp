@@ -320,7 +320,7 @@ void VESPERSBeamline::setupDetectors()
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 
-//	splitIonChamber_ = new CLSBasicScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, );
+	splitIonChamber_ = new CLSBasicCompositeScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, 5, 6, this);
 	preKBIonChamber_ = new CLSBasicScalerChannelDetector("PreKBIonChamber", "Pre KB Ion Chamber", scaler_, 7, this);
 	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
 	postIonChamber_  = new CLSBasicScalerChannelDetector("PostIonChamber", "Post Ion Chamber", scaler_, 9, this);
@@ -685,6 +685,26 @@ void VESPERSBeamline::setupComponents()
 	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
+	scaler_->channelAt(5)->setCustomChannelName("Split A");
+	CLSSR570 *tempSR570 = new CLSSR570("AMP1607-202:sens_num.VAL", "AMP1607-202:sens_unit.VAL", this);
+	scaler_->channelAt(5)->setSR570(tempSR570);
+	scaler_->channelAt(5)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(6)->setCustomChannelName("Split B");
+	tempSR570 = new CLSSR570("AMP1607-203:sens_num.VAL", "AMP1607-203:sens_unit.VAL", this);
+	scaler_->channelAt(6)->setSR570(tempSR570);
+	scaler_->channelAt(6)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(7)->setCustomChannelName("Pre-KB");
+	tempSR570 = new CLSSR570("AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	scaler_->channelAt(7)->setSR570(tempSR570);
+	scaler_->channelAt(7)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(8)->setCustomChannelName("Mini");
+	tempSR570 = new CLSSR570("AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
+	scaler_->channelAt(8)->setSR570(tempSR570);
+	scaler_->channelAt(8)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(9)->setCustomChannelName("Post");
+	tempSR570 = new CLSSR570("AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
+	scaler_->channelAt(9)->setSR570(tempSR570);
+	scaler_->channelAt(9)->setVoltagRange(AMRange(1.0, 4.5));
 
 	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
 	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);

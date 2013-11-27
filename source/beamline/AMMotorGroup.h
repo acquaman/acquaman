@@ -6,6 +6,7 @@
 
 #include "beamline/AMControl.h"
 #include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
 
 /// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.
 class AMMotorGroupObject : public QObject
@@ -86,19 +87,19 @@ public:
 
 	// Old actions.  Will update with new ones as soon as I can.
 	/// Returns a newly created move action for the horizontal postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createHorizontalMoveAction(double position);
+	AMAction3 *createHorizontalMoveAction(double position);
 	/// Returns a newly created stop action for the horizontal position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createHorizontalStopAction();
+	AMAction3 *createHorizontalStopAction();
 	/// Returns a newly created move action for the vertical postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createVerticalMoveAction(double position);
+	AMAction3 *createVerticalMoveAction(double position);
 	/// Returns a newly created stop action for the vertical position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createVerticalStopAction();
+	AMAction3 *createVerticalStopAction();
 	/// Returns a newly created move action for the normal postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createNormalMoveAction(double position);
+	AMAction3 *createNormalMoveAction(double position);
 	/// Returns a newly created stop action for the normal position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createNormalStopAction();
+	AMAction3 *createNormalStopAction();
 	/// Returns a newly created action that stops ALL the motors.  Returns 0 if not all motors are connected.
-	AMBeamlineActionItem *createStopAllAction();
+	AMAction3 *createStopAllAction();
 
 protected:
 	/// Holds the name of the info.

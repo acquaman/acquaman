@@ -1,37 +1,40 @@
-#include "CLSSR570View.h"
+#include "CLSSR570CompositeView.h"
 
 #include <QHBoxLayout>
 #include <QAction>
 #include <QMenu>
 
-CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
+CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidget *parent)
 	: QWidget(parent)
 {
-	sr570_ = sr570;
+	firstSR570_ = sr1;
+	secondSR570_ = sr2;
 
 	minus_ = new QToolButton;
 	minus_->setMaximumSize(25, 25);
 	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
-	connect(minus_, SIGNAL(clicked()), sr570_, SLOT(decreaseSensitivity()));
-	connect(sr570_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
+	connect(minus_, SIGNAL(clicked()), firstSR570_, SLOT(decreaseSensitivity()));
+	connect(minus_, SIGNAL(clicked()), secondSR570_, SLOT(decreaseSensitivity()));
+	connect(firstSR570_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
 
 	plus_ = new QToolButton;
 	plus_->setMaximumSize(25, 25);
 	plus_->setIcon(QIcon(":/22x22/list-add.png"));
-	connect(plus_, SIGNAL(clicked()), sr570_, SLOT(increaseSensitivity()));
-	connect(sr570_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
+	connect(plus_, SIGNAL(clicked()), firstSR570_, SLOT(increaseSensitivity()));
+	connect(plus_, SIGNAL(clicked()), secondSR570_, SLOT(increaseSensitivity()));
+	connect(firstSR570_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
 
 	value_ = new QComboBox;
 	value_->hide();
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
-	connect(sr570_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)));
+	connect(firstSR570_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)));
 
 	units_ = new QComboBox;
 	units_->hide();
 	units_->addItems(QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V");
 	connect(units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)));
-	connect(sr570_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+	connect(firstSR570_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 
 	setViewMode(Basic);
 
@@ -47,26 +50,31 @@ CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	setLayout(layout);
 }
 
-void CLSSR570View::onValueComboBoxChanged(int index)
+void CLSSR570CompositeView::onValueComboBoxChanged(int index)
 {
-	sr570_->setValueIndex(index);
+	firstSR570_->setValueIndex(index);
+	secondSR570_->setValueIndex(index);
 }
 
-void CLSSR570View::onUnitsComboBoxChanged(int index)
+void CLSSR570CompositeView::onUnitsComboBoxChanged(int index)
 {
-	sr570_->setUnits(units_->itemText(index));
+	firstSR570_->setUnits(units_->itemText(index));
+	secondSR570_->setUnits(units_->itemText(index));
 }
 
-void CLSSR570View::onValueChanged(int value)
+void CLSSR570CompositeView::onValueChanged(int value)
 {
-	sr570_->blockSignals(true);
+	firstSR570_->blockSignals(true);
+	secondSR570_->blockSignals(true);
 	value_->setCurrentIndex(value);
-	sr570_->blockSignals(false);
+	firstSR570_->blockSignals(false);
+	secondSR570_->blockSignals(false);
 }
 
-void CLSSR570View::onUnitsChanged(QString units)
+void CLSSR570CompositeView::onUnitsChanged(QString units)
 {
-	sr570_->blockSignals(true);
+	firstSR570_->blockSignals(true);
+	secondSR570_->blockSignals(true);
 
 	if (units == "pA/V")
 		units_->setCurrentIndex(0);
@@ -80,10 +88,11 @@ void CLSSR570View::onUnitsChanged(QString units)
 	else if (units == "mA/V")
 		units_->setCurrentIndex(3);
 
-	sr570_->blockSignals(false);
+	firstSR570_->blockSignals(false);
+	secondSR570_->blockSignals(false);
 }
 
-void CLSSR570View::setViewMode(ViewMode mode)
+void CLSSR570CompositeView::setViewMode(ViewMode mode)
 {
 	mode_ = mode;
 
@@ -106,7 +115,7 @@ void CLSSR570View::setViewMode(ViewMode mode)
 	emit viewModeChanged(mode_);
 }
 
-void CLSSR570View::onCustomContextMenuRequested(QPoint pos)
+void CLSSR570CompositeView::onCustomContextMenuRequested(QPoint pos)
 {
 	QMenu popup(this);
 

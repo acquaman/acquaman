@@ -73,6 +73,10 @@ protected:
 	QTimer elapsedTimer_;
 	/// The label holding the elapsed time.
 	QLabel *elapsedTimeLabel_;
+	/// The acquire button.
+	QPushButton *startButton_;
+	/// The stop button.
+	QPushButton *stopButton_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

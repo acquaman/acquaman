@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSSR570 : public QObject
 {
 	Q_OBJECT
+
 public:
 	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
 	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
@@ -82,6 +83,7 @@ public slots:
 	bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
 	bool decreaseSensitivity();
+
 
 protected slots:
 	/// Turns the sensitivity value from an index to the value.

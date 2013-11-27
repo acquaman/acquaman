@@ -15,7 +15,7 @@ AMAction3 *VESPERSScanConfigurationViewHolder3::createAction()
 
 		if (config){
 
-			AMLoopAction3 *loop = new AMLoopAction3(config->numberOfScans());
+			AMLoopAction3 *loop = new AMLoopAction3(new AMLoopActionInfo3(config->numberOfScans(), config->name(), config->description()));
 			loop->addSubAction(new AMScanAction(new AMScanActionInfo(config->createCopy())));
 			return loop;
 		}
