@@ -43,7 +43,6 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	cancelButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
 	cancelButton_->setMaximumHeight(25);
 	connect(cancelButton_, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
-	cancelButton_->setVisible(detector_->canCancel());
 
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
@@ -67,7 +66,6 @@ void AMXRFBaseDetectorView::buildDetectorView()
 		acquireTimeSpinBox_->setValue(detector_->acquisitionTime());
 
 	elapsedTimeLabel_ = new QLabel;
-	elapsedTimeLabel_->setVisible(detector_->supportsElapsedTime());
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeChanged(double)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
@@ -77,6 +75,9 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	rightLayout_->addLayout(startLayout);
 	rightLayout_->addLayout(timeLayout);
 	rightLayout_->addStretch();
+
+	cancelButton_->setVisible(detector_->canCancel());
+	elapsedTimeLabel_->setVisible(detector_->supportsElapsedTime());
 }
 
 void AMXRFBaseDetectorView::setupPlot()

@@ -120,6 +120,12 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	// Build the channel views.
 	QVBoxLayout *channelLayout = new QVBoxLayout;
 
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(topLayout);
+	mainVL->addLayout(channelLayout);
+
+	setLayout(mainVL);
+
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
 	for (int i = 0; i < channelCount; i++){
@@ -129,13 +135,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		channelLayout->addWidget(channelView);
+		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
 	}
-
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addLayout(topLayout);
-	mainVL->addLayout(channelLayout);
-
-	setLayout(mainVL);
 }
 
 void CLSSIS3820ScalerView::startScanning()
@@ -265,7 +266,6 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
-	statusLabel_->setVisible(channel_->voltageRange().isValid());
 	connect(channel_, SIGNAL(voltageRangeChanged(AMRange)), this, SLOT(updateStatusLabel()));
 
 	if(channel_->isConnected())
@@ -284,7 +284,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelLayout_->setContentsMargins(1, 1, 1, 1);
 
 	setLayout(channelLayout_);
-	setVisible(!channel_->customChannelName().isEmpty());
+
+	statusLabel_->setVisible(channel_->voltageRange().isValid());
 }
 
 void CLSSIS3820ScalerChannelView::onReadingChanged()

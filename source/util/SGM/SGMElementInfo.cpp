@@ -728,7 +728,6 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 	if(fastScanSettings_ != fastScanSettings){
 		disconnect(&fastScanSettings_, 0);
 		fastScanSettings_ = fastScanSettings;
-		qDebug() << "Setting modified true in SGMFastScanParameters";
 		setModified(true);
 		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
@@ -739,8 +738,6 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
 		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
 	}
-	else
-		qDebug() << "No need to setModified(true), they were the same";
 }
 
 void SGMFastScanParameters::onStartChanged(){
