@@ -2,9 +2,11 @@
 
 StripTool::StripTool(QWidget *parent) : QWidget(parent)
 {
-    saveDirectory_ = QDir("/Users/helfrij/Desktop");
+    model_ = new StripToolModel(this);
 
-    model_ = new StripToolModel(this, saveDirectory_);
+    dataController_ = new StripToolDataController(this);
+    dataController_->setModel(model_);
+    dataController_->checkForPreviousPVs();
 
     mainView_ = new StripToolView(this, model_);
 
@@ -12,7 +14,7 @@ StripTool::StripTool(QWidget *parent) : QWidget(parent)
     windowLayout->addWidget(mainView_);
 
     setLayout(windowLayout);
-    resize(500, 500);
+    resize(700, 400);
 }
 
 
