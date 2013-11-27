@@ -252,6 +252,7 @@ public:
 	AMDetector* newFilteredPD2Detector() const;
 	AMDetector* newFilteredPD3Detector() const;
 	AMDetector* newFilteredPD4Detector() const;
+	AMDetector* newFilteredPD5Detector() const;
 	AMDetector* newEncoderUpDetector() const;
 	AMDetector* newEncoderDownDetector() const;
 	AMDetector* energyFeedbackDetector() const;
@@ -483,6 +484,7 @@ protected:
 	CLSAdvancedScalerChannelDetector *newFilteredPD2Detector_;
 	CLSAdvancedScalerChannelDetector *newFilteredPD3Detector_;
 	CLSAdvancedScalerChannelDetector *newFilteredPD4Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD5Detector_;
 	CLSAdvancedScalerChannelDetector *newEncoderUpDetector_;
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;

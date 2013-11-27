@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 #define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
 #define VESPERSBEAMLINE_VALVES_CLOSED 67801
@@ -671,7 +672,7 @@ protected:
 	AMOldDetector *iMini_;
 	AMOldDetector *iPost_;
 
-//	CLSBasicScalerChannelDetector *splitIonChamber_;
+	CLSBasicCompositeScalerChannelDetector *splitIonChamber_;
 	CLSBasicScalerChannelDetector *preKBIonChamber_;
 	CLSBasicScalerChannelDetector *miniIonChamber_;
 	CLSBasicScalerChannelDetector *postIonChamber_;

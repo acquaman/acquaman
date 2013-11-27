@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
 #include "ui/beamline/AMIonChamberView.h"
+#include "ui/VESPERS/VESPERSScalerView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -239,12 +240,12 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setToolTip("Water Indicator");
 
 	// Ion chambers.
-	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
-	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
-	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
+//	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+//	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+//	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
 
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
@@ -271,7 +272,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
 	persistentLayout->addWidget(ionChamberLabel);
-	persistentLayout->addLayout(ionChamberLayout);
+//	persistentLayout->addLayout(ionChamberLayout);
+	persistentLayout->addWidget(new VESPERSScalerView());
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
@@ -283,7 +285,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	setFixedSize(325, 900);
+	setFixedSize(350, 900);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)

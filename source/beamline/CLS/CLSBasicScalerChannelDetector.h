@@ -96,9 +96,6 @@ protected:
 	CLSSIS3820Scaler *scaler_;
 	/// The channel index
 	int channelIndex_;
-
-	///// The list of all the raw spectrum data sources.
-	//AM1DProcessVariableDataSource *spectrumDataSource_;
 };
 
 #endif // CLSBASICSCALERCHANNELDETECTOR_H

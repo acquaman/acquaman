@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
+#include "actions3/AMListAction3.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFFreeRunView.h"
@@ -72,7 +73,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "dataman/AMRun.h"
-
+#include "ui/VESPERS/VESPERSScalerView.h"
 
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
@@ -530,8 +531,6 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 
 void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 {
-	cleanMoveImmediatelyAction();	// Clean up the action just in case.
-
 	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
 	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
 
@@ -540,39 +539,35 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 
 	if (config->motor() == (VESPERS::H | VESPERS::V)){
 
-		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
-		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
-		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
-		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
 	}
 
 	else if (config->motor() == (VESPERS::X | VESPERS::Z)){
 
-		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
-		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
-		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
-		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
 	}
 }
 
 void VESPERSAppController::onMoveImmediatelySuccess()
 {
+	cleanMoveImmediatelyAction();
 }
 
 void VESPERSAppController::onMoveImmediatelyFailure()
 {
+	cleanMoveImmediatelyAction();
 	QMessageBox::warning(mw_, "Sample Stage Error", "The sample stage was unable to complete the desired movement.");
 }
 
@@ -583,14 +578,6 @@ void VESPERSAppController::cleanMoveImmediatelyAction()
 
 	// Disconnect all signals and return all memory.
 	moveImmediatelyAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = moveImmediatelyAction_->list();
-
-	for (int i = 0; i < actionList->stageCount(); i++){
-
-		while (actionList->stage(i)->size())
-			actionList->stage(i)->takeAt(0)->deleteLater();
-	}
-
 	moveImmediatelyAction_->deleteLater();
 	moveImmediatelyAction_ = 0;
 }
