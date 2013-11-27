@@ -2,7 +2,7 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
-//    updateNumber_ = 0;
+    xAxisLabel_ = "Time [ms]";
 
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);
@@ -516,12 +516,12 @@ void StripToolModel::onModelSelectionChange()
 {
     if (selectedPV_ == 0)
     {
-        emit setPlotAxesLabels("", "");
+        emit setPlotAxesLabels(xAxisLabel_, "");
         emit setPlotTicksVisible(false);
 
     } else {
 
-        emit setPlotAxesLabels(selectedPV()->xUnits(), selectedPV()->yUnits());
+        emit setPlotAxesLabels(xAxisLabel_, selectedPV()->yUnits());
         emit setPlotTicksVisible(true);
     }
 }
@@ -545,7 +545,7 @@ void StripToolModel::toSetMetaData(const QString &pvName, QList<QString> metaDat
     StripToolPV *toEdit = findItem(pvName);
 
     if (toEdit != 0)
-        qDebug() << "Editing metadata for pv" << pvName << ":" << toEdit->setMetaData(metaData);
+        qDebug() << "Editing metadata for pv" << pvName << "complete :" << toEdit->setMetaData(metaData);
 
     else
         qDebug() << "Matching pv not found.";
@@ -555,8 +555,6 @@ void StripToolModel::toSetMetaData(const QString &pvName, QList<QString> metaDat
 
 void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
 {
-//    updateNumber_++;
-
     StripToolPV *updated = (StripToolPV *) pvUpdated;
     emit forceUpdatePVs(updated->pvName());
 }

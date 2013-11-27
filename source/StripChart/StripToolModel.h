@@ -42,7 +42,7 @@ protected:
     QSignalMapper *saveDataMapper_;
     QSignalMapper *saveMetadataMapper_;
     QSignalMapper *pvUpdatedMapper_;
-//    int updateNumber_;
+    QString xAxisLabel_;
 
 public:
     StripToolPV* selectedPV() const;

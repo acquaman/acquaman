@@ -18,7 +18,9 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->addTool(selector_);
 
     plot_->axisLeft()->showAxisName(false);
-    plot_->axisBottom()->showAxisName(false);
+
+    plot_->axisBottom()->setAxisName("Time");
+    plot_->axisBottom()->showAxisName(true);
 
     plot_->axisLeft()->showTickLabels(false);
     plot_->axisBottom()->showTickLabels(false);
@@ -51,7 +53,7 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, int)), this, SLOT(onSeriesChanged(Qt::CheckState, int)) );
-    connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
+    connect( model_, SIGNAL(setPlotAxesLabels(QString, QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
     connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
 
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
@@ -171,7 +173,7 @@ void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
 void StripToolPlot::setTicksVisible(bool isShown)
 {
     plot_->axisLeft()->showTickLabels(isShown);
-    plot_->axisBottom()->showTickLabels(isShown);
+    plot_->axisBottom()->showTickLabels(true);
 }
 
 
