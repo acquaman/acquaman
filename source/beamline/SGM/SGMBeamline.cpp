@@ -144,6 +144,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	scaler_->channelAt(7)->setCustomChannelName("FPD2");
 	scaler_->channelAt(8)->setCustomChannelName("FPD3");
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
+	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
 	detectorMap_ = new QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> >();
 
@@ -325,6 +326,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newFilteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);
 	newFilteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 8, this);
 	newFilteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 9, this);
+	newFilteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
 
 	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("EncoderUp", "Encoder Up", scaler_, 5, this);
 	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("EncoderDown", "Encoder Down", scaler_, 4, this);
@@ -362,6 +364,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newFilteredPD2Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
+	XASDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
 
 	FastDetectorGroup_ = new AMDetectorGroup("Fast Detectors", this);
@@ -373,6 +376,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	FastDetectorGroup_->addDetector(newFilteredPD2Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD4Detector_);
+	FastDetectorGroup_->addDetector(newFilteredPD5Detector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -696,6 +700,10 @@ AMDetector* SGMBeamline::newFilteredPD3Detector() const {
 
 AMDetector* SGMBeamline::newFilteredPD4Detector() const {
 	return newFilteredPD4Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD5Detector() const {
+	return newFilteredPD5Detector_;
 }
 
 AMDetector* SGMBeamline::newEncoderUpDetector() const {
@@ -1370,6 +1378,7 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newFilteredPD2Detector_);
 	addExposedDetector(newFilteredPD3Detector_);
 	addExposedDetector(newFilteredPD4Detector_);
+	addExposedDetector(newFilteredPD5Detector_);
 	addExposedDetector(newEncoderUpDetector_);
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);

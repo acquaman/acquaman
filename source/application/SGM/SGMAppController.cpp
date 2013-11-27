@@ -324,6 +324,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
 			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
 		}
+		if(SGMBeamline::sgm()->newAmptekSDD5()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD5()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), true);
+		}
 		if(SGMBeamline::sgm()->newI0Detector()){
 			preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
 			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);

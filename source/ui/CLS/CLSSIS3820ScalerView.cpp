@@ -280,6 +280,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
+	channelLayout_->addStretch(10);
+	channelLayout_->setContentsMargins(1, 1, 1, 1);
 
 	setLayout(channelLayout_);
 	setVisible(!channel_->customChannelName().isEmpty());
