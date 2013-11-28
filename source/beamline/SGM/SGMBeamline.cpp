@@ -25,8 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
-#include "beamline/CLS/CLSCAEN2527HVChannel.h"
-#include "beamline/CLS/CLSPGT8000HVChannel.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "SGMOptimizationSupport.h"
@@ -1125,10 +1123,6 @@ void SGMBeamline::setupControls(){
 	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
 	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
 	tfyHVToggle_->setContextKnownDescription("Toggle");
-
-	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
-	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
-	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);

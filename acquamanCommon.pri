@@ -411,10 +411,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
-	source/beamline/AMHighVoltageChannel.h \
-	source/beamline/CLS/CLSCAEN2527HVChannel.h \
-	source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
-	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
@@ -876,10 +872,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
-	source/beamline/AMHighVoltageChannel.cpp \
-	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
-	source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
-	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \

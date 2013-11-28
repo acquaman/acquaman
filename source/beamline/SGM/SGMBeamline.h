@@ -38,8 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMSamplePlate;
 class SGMMAXvMotor;
-class CLSCAEN2527HVChannel;
-class CLSPGT8000HVChannel;
 
 class AMOldDetector;
 class CLSAmptekSDD123DetectorNew;
@@ -167,11 +165,6 @@ public:
 	AMControl* m3HorizontalDownstreamEncoder() const { return m3HorizontalDownstreamEncoder_; }
 	/// Returns the rotational encoder for M3
 	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
-
-	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
-
-	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
-	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 
@@ -355,9 +348,6 @@ protected:
 	AMControl *exitSlitTracking_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
-	CLSCAEN2527HVChannel *hvChannel106_;
-	CLSCAEN2527HVChannel *hvChannel109_;
-	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgtHV_;
 	SGMMAXvMotor *ssaManipulatorX_;
