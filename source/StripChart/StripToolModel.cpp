@@ -2,7 +2,7 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
-    xAxisLabel_ = "Time [ms]";
+    xAxisLabel_ = "Time [s]";
 
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);

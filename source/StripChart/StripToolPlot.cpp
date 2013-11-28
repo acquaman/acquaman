@@ -23,12 +23,12 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->axisBottom()->showAxisName(true);
 
     plot_->axisLeft()->showTickLabels(false);
-    plot_->axisBottom()->showTickLabels(false);
+    plot_->axisBottom()->showTickLabels(true);
 
     setPlot(plot_);
 
     enableAntiAliasing(true);
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+//    setContextMenuPolicy(Qt::ActionsContextMenu);
 
     connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
     connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );
