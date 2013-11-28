@@ -25,12 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+#ifndef Q_WS_MAC
 #include <signal.h>
 #include <execinfo.h>
 
 void handle_signal(int signum);
 qint64 crashMonitorPID;
 QFile *errorFile;
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -81,12 +83,15 @@ int main(int argc, char *argv[])
 	if (appController->isRunning())
 		appController->shutdown();
 
+#ifndef Q_WS_MAC
 	kill(crashMonitorPID, SIGUSR2);
+#endif
 	delete appController;
 
 	return retVal;
 }
 
+#ifndef Q_WS_MAC
 void handle_signal(int signum){
 	void *array[100];
 	size_t size;
@@ -100,3 +105,4 @@ void handle_signal(int signum){
 	signal(signum, SIG_DFL);
 	kill(getpid(), signum);
 }
+#endif
