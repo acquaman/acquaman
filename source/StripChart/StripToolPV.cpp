@@ -370,9 +370,6 @@ void StripToolPV::onPVValueChanged(double newValue)
                 displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(i)) / 1000.0;
                 displayedValues_[i] = masterUpdateValues_.at(i);
             }
-
-            qDebug() << displayedTimes_;
-            qDebug() << displayedValues_;
         }
 
         //  otherwise, show the latest "valuesDisplayed" points.

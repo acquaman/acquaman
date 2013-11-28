@@ -10,8 +10,6 @@ StripToolListView::StripToolListView(QWidget *parent) :
 
     createActions();
     setContextMenuPolicy(Qt::CustomContextMenu);
-//    setDragEnabled(true);
-//    setAcceptDrops(true);
     setMovement(QListView::Static); // right now, user cannot reorder list view items -- they can't be moved!
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
@@ -40,7 +38,7 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
-    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
+//    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
 }
 
@@ -74,9 +72,9 @@ void StripToolListView::updateContextMenu(const QPoint &position)
 
     menu.addAction(edit_);
     menu.addAction(delete_);
-    menu.addSeparator();
-    menu.addAction(pause_);
-    menu.addAction(resume_);
+//    menu.addSeparator();
+//    menu.addAction(pause_);
+//    menu.addAction(resume_);
     menu.addSeparator();
     menu.addAction(setColor_);
 
