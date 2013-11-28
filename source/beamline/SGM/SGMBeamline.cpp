@@ -39,10 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMOldDetector.h"
 #include "beamline/AMSingleControlDetector.h"
-#include "beamline/SGM/SGMMCPDetector.h"
-#include "beamline/CLS/CLSPGTDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
-#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSPGTDetectorV2.h"
@@ -191,19 +188,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
 	rawDetectorsSet_->addDetector(tfyScalerDetector_);
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
-	//connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
-
-	/*
-	pgtDetector_ = new CLSPGTDetector("OLDpgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMOldDetector::WaitRead, this);
-	pgtDetector_->setDescription("OLD SDD");
-	detectorRegistry_.append(pgtDetector_);
-	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
-	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
-	// PGT looks broken, so don't include it as a critical detector any more
-	//criticalDetectorsSet_->addDetector(pgtDetector_);
-	rawDetectorsSet_->addDetector(pgtDetector_);
-	*/
 
 	oos65000Detector_ = new CLSOceanOptics65000Detector("OLDoos65000", "SA0000-03", AMOldDetector::WaitRead, this);
 	oos65000Detector_->setDescription("OLD OceanOptics 65000");
@@ -463,9 +447,7 @@ QString SGMBeamline::currentEndstation() const{
 }
 
 int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const{
-	/*if(detector == pgtDetector_)
-		return 2;
-	else*/ if(detector == oos65000Detector_)
+	if(detector == oos65000Detector_)
 		return 3;
 	else
 		return -1;
@@ -526,12 +508,6 @@ AMOldDetector* SGMBeamline::teyDetector() const {
 AMOldDetector* SGMBeamline::tfyDetector() const {
 	return tfyScalerDetector_;
 }
-
-/*
-AMOldDetector* SGMBeamline::pgtDetector() const {
-	return pgtDetector_;
-}
-*/
 
 AMOldDetector* SGMBeamline::oos65000Detector() const {
 	return oos65000Detector_;

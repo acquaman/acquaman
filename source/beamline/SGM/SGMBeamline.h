@@ -206,7 +206,6 @@ public:
 
 	AMOldDetector* teyDetector() const;
 	AMOldDetector* tfyDetector() const;
-	//AMOldDetector* pgtDetector() const;
 	AMOldDetector* oos65000Detector() const;
 	AMOldDetector* i0Detector() const;
 	AMOldDetector* eVFbkDetector() const;
@@ -294,7 +293,6 @@ signals:
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
-	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);
 
 	void beamlineInitialized();
@@ -422,7 +420,6 @@ protected:
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;
-	AMOldDetector *pgtDetector_;
 	AMOldDetector *oos65000Detector_;
 	AMOldDetector *i0ScalerDetector_;
 	AMOldDetector *eVFbkDetector_;

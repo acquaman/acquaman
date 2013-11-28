@@ -328,7 +328,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
-	source/ui/AMWorkflowManagerView.h \
 	source/dataman/AMAbstractFileLoader.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
@@ -381,7 +380,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	source/ui/acquaman/AMScanConfigurationViewHolder.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
@@ -390,11 +388,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/beamline/AMSingleControlDetector.h \
 	source/beamline/AMSpectralOutputDetector.h \
-	source/beamline/CLS/CLSPGTDetector.h \
-	source/beamline/SGM/SGMMCPDetector.h \
 	source/ui/beamline/AMSingleControlDetectorView.h \
-	source/ui/SGM/SGMMCPDetectorView.h \
-	source/ui/CLS/CLSPGTDetectorView.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
@@ -501,15 +495,12 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/analysis/AM2DNormalizationAB.h \
 	source/analysis/AM2DNormalizationABEditor.h \
 	source/dataman/info/AMBasicXRFDetectorInfo.h \
-	source/beamline/CLS/CLSAmptekSDD123Detector.h \
-	source/ui/CLS/CLSAmptekSDD123DetectorView.h \
 	source/util/AMFontSizes.h \
 	source/ui/dataman/AMScanViewUtilities.h \
 	source/ui/dataman/AM2DScanView.h \
 	source/ui/AMDatamanStartupSplashScreen.h \
 	source/dataman/database/AMDbUpgrade.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
-	source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
@@ -805,7 +796,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
-	source/ui/AMWorkflowManagerView.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
@@ -855,7 +845,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
-	source/ui/acquaman/AMScanConfigurationViewHolder.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
@@ -864,11 +853,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/beamline/AMSingleControlDetector.cpp \
 	source/beamline/AMSpectralOutputDetector.cpp \
-	source/beamline/CLS/CLSPGTDetector.cpp \
-	source/beamline/SGM/SGMMCPDetector.cpp \
 	source/ui/beamline/AMSingleControlDetectorView.cpp \
-	source/ui/SGM/SGMMCPDetectorView.cpp \
-	source/ui/CLS/CLSPGTDetectorView.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
@@ -966,14 +951,11 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM2DNormalizationAB.cpp \
 	source/analysis/AM2DNormalizationABEditor.cpp \
 	source/dataman/info/AMBasicXRFDetectorInfo.cpp \
-	source/beamline/CLS/CLSAmptekSDD123Detector.cpp \
-	source/ui/CLS/CLSAmptekSDD123DetectorView.cpp \
 	source/ui/dataman/AMScanViewUtilities.cpp \
 	source/ui/dataman/AM2DScanView.cpp \
 	source/ui/AMDatamanStartupSplashScreen.cpp \
 	source/dataman/database/AMDbUpgrade.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
-	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
 	source/ui/dataman/AMDbObjectGeneralView.cpp \

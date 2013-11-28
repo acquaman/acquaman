@@ -358,13 +358,6 @@ void SGMSidebar::onBeamOnButtonClicked(){
 	connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 	connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 	beamOnAction_->start();
-	/*
-	if(beamOnAction_)
-		return;
-	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions();
-	connect(beamOnAction_, SIGNAL(finished()), this, SLOT(onBeamOnActionFinished()));
-	beamOnAction_->start();
-	*/
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
@@ -372,10 +365,6 @@ void SGMSidebar::onBeamOnActionFinished(){
 	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 	beamOnAction_->deleteLater();
 	beamOnAction_ = 0;
-	/*
-	delete beamOnAction_;
-	beamOnAction_ = 0;//NULL
-	*/
 }
 
 void SGMSidebar::onStopMotorsButtonClicked(){
@@ -385,13 +374,6 @@ void SGMSidebar::onStopMotorsButtonClicked(){
 	connect(stopMotorsAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
 	connect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->start();
-	/*
-	if(stopMotorsAction_)
-		return;
-	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
-	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
-	stopMotorsAction_->start();
-	*/
 }
 
 void SGMSidebar::onStopMotorsActionFinished(){
@@ -399,10 +381,6 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	disconnect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->deleteLater();
 	stopMotorsAction_ = 0;
-	/*
-	delete stopMotorsAction_;
-	stopMotorsAction_ = 0;//NULL
-	*/
 }
 
 void SGMSidebar::onScanningResetButtonClicked(){

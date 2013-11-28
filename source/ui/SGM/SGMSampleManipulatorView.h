@@ -67,9 +67,6 @@ protected slots:
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
-	void onHVButtonClicked();
-	void onHVStateChanged();
-
 	void onIlluminatorSliderValueMoved(int newValue);
 	void onIlluminatorFeedbackChanged(double newValue);
 	void onIlluminatorPreset(int presetIndex);
@@ -92,7 +89,6 @@ protected:
 	AMAction3 *transferPositionActions_;
 	QPushButton *measurePositionButton_;
 	AMAction3 *measurementPositionActions_;
-	QPushButton *hvButton_;
 
 	SGMMAXvMotor *mVerticalCtrl_;
 	SGMMAXvMotor *mHorizontalCtrl_;

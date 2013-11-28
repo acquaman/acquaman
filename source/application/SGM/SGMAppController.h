@@ -145,10 +145,6 @@ protected:
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 
 	/// View for controlling the new SGM amptek SDD (first)
-	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
 	AMXRFDetailedDetectorView *amptekSDD1XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
