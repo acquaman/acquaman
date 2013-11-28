@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_FIND_TEMPLATE_DIRECTORY 27006
 #define SGMXASDACQSCANCONTROLLER_INITIALZATION_FAILED 27007
 
+/*
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
 Q_OBJECT
@@ -76,5 +77,6 @@ protected:
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;
 };
+*/
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 #include "actions3/AMAction3.h"
+#include "util/AMErrorMonitor.h"
 
 /*!
 	This class monitors the PID feedback loops for the sample stage or wire stage.  The motor behaves erratically when the loops are off, and thus there should be a mechanism to turn them back on.

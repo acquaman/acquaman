@@ -21,79 +21,79 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTOR_H
 #define SGMMCPDETECTOR_H
 
-#include "beamline/AMOldDetector.h"
-#include "dataman/SGM/SGMMCPDetectorInfo.h"
-#include "beamline/AMControlSet.h"
-#include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+//#include "beamline/AMOldDetector.h"
+//#include "dataman/SGM/SGMMCPDetectorInfo.h"
+//#include "beamline/AMControlSet.h"
+//#include "beamline/AMPVControl.h"
+//#include "actions/AMBeamlineActionItem.h"
 
-class SGMMCPDetector : public SGMMCPDetectorInfo, public AMOldDetector
-{
-	Q_OBJECT
-public:
-	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
-	~SGMMCPDetector();
+//class SGMMCPDetector : public SGMMCPDetectorInfo, public AMOldDetector
+//{
+//	Q_OBJECT
+//public:
+//	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
+//	~SGMMCPDetector();
 
-	const QMetaObject* getMetaObject();
+//	const QMetaObject* getMetaObject();
 
-	virtual QString dacqName() const;
+//	virtual QString dacqName() const;
 
-	virtual double reading() const;
+//	virtual double reading() const;
 
-	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	AMOldDetectorInfo* toInfo() const;
-	SGMMCPDetectorInfo toMCPInfo() const;
+//	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+//	AMOldDetectorInfo* toInfo() const;
+//	SGMMCPDetectorInfo toMCPInfo() const;
 
-	bool isPoweredOn();
+//	bool isPoweredOn();
 
-	AMControl* readingCtrl() const;
-	AMControl* hvCtrl() const;
+//	AMControl* readingCtrl() const;
+//	AMControl* hvCtrl() const;
 
-	/* NTBA March 14, 2011 David Chevrier
-	bool setFromInfo(const AMDetectorInfo &info);
-	   */
-	bool setFromInfo(const AMOldDetectorInfo *info);
-	bool setFromInfo(const SGMMCPDetectorInfo &info);
+//	/* NTBA March 14, 2011 David Chevrier
+//	bool setFromInfo(const AMDetectorInfo &info);
+//	   */
+//	bool setFromInfo(const AMOldDetectorInfo *info);
+//	bool setFromInfo(const SGMMCPDetectorInfo &info);
 
-	bool activate();
-	AMBeamlineActionItem* turnOnAction();
+//	bool activate();
+//	AMBeamlineActionItem* turnOnAction();
 
-	bool settingsMatchFbk(SGMMCPDetectorInfo* settings);
+//	bool settingsMatchFbk(SGMMCPDetectorInfo* settings);
 
-	QString description() const;
+//	QString description() const;
 
-public slots:
-	void setDescription(const QString &description);
-	virtual bool setControls(SGMMCPDetectorInfo *mcpSettings);
+//public slots:
+//	void setDescription(const QString &description);
+//	virtual bool setControls(SGMMCPDetectorInfo *mcpSettings);
 
-	void onDetectorHVToggleChanged();
+//	void onDetectorHVToggleChanged();
 
-signals:
-	void poweredOnChanged(bool poweredOn);
-	void detectorHVChanged();
+//signals:
+//	void poweredOnChanged(bool poweredOn);
+//	void detectorHVChanged();
 
-protected slots:
-	void onControlsConnected(bool connected);
-	/// Handles if one or more the controls times out
-	void onControlsTimedOut();
-	void onReadingsControlValuesChanged();
-	void onSettingsControlValuesChanged();
+//protected slots:
+//	void onControlsConnected(bool connected);
+//	/// Handles if one or more the controls times out
+//	void onControlsTimedOut();
+//	void onReadingsControlValuesChanged();
+//	void onSettingsControlValuesChanged();
 
-protected:
-	/// The actual control for the reading value
-	AMControl *readingControl_;
-	/// The control for the MCP High voltage
-	AMControl *hvControl_;
+//protected:
+//	/// The actual control for the reading value
+//	AMControl *readingControl_;
+//	/// The control for the MCP High voltage
+//	AMControl *hvControl_;
 
-	/// A control set for all the controls (for ease of signalling)
-	AMControlSet *allControls_;
+//	/// A control set for all the controls (for ease of signalling)
+//	AMControlSet *allControls_;
 
-	AMBeamlineActionItem *toggleOnAction_;
-	AMBeamlineActionItem *toggleOffAction_;
+//	AMBeamlineActionItem *toggleOnAction_;
+//	AMBeamlineActionItem *toggleOffAction_;
 
-private:
-	bool poweredOn_;
-};
+//private:
+//	bool poweredOn_;
+//};
 
 
 #endif // SGMMCPDETECTOR_H

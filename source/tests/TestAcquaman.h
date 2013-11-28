@@ -382,7 +382,7 @@ private slots:
 
 
 
-private:
-	SGMXASDacqScanController *xasCtrl;
+//private:
+//	SGMXASDacqScanController *xasCtrl;
 };
 

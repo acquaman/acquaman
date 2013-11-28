@@ -34,17 +34,20 @@ QFile *errorFile;
 
 int main(int argc, char *argv[])
 {
+#ifndef Q_WS_MAC
 	signal(SIGSEGV, handle_signal);
 
 	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
 	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
 	errorFile = &localErrorFile;
+#endif
 
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
+#ifndef Q_WS_MAC
 	QString applicationPath = app.arguments().at(0);
 	QFileInfo applicationPathInfo(applicationPath);
 	QString applicationRootPath;
@@ -53,14 +56,16 @@ int main(int argc, char *argv[])
 	else
 		applicationRootPath = applicationPathInfo.absoluteDir().path();
 
-	//qDebug() << "Going to try to run " << applicationRootPath+"/AMCrashReporter";
+
+	//applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
 
 	QStringList arguments;
 	arguments << "-m";
 	arguments << app.applicationFilePath();
+	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
 	arguments << QString("%1").arg(getpid());
 	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID);
-
+#endif
 
 	SGMAppController* appController = new SGMAppController();
 

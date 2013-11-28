@@ -409,20 +409,20 @@ void SGMSampleManipulatorView::onJogSettingComboBoxChanged(int index){
 }
 
 void SGMSampleManipulatorView::onTransferPositionButtonClicked(){
-	if(transferPositionActions_ && transferPositionActions_->isRunning())
+	if(transferPositionActions_ && !transferPositionActions_->inFinalState())
 		return;
 	if(transferPositionActions_)
-		delete transferPositionActions_;
-	transferPositionActions_ = SGMBeamline::sgm()->createGoToTransferPositionActions();
+		transferPositionActions_->deleteLater();
+	transferPositionActions_ = SGMBeamline::sgm()->createGoToTransferPositionActions3();
 	transferPositionActions_->start();
 }
 
 void SGMSampleManipulatorView::onMeasurePositionButtonClicked(){
-	if(measurementPositionActions_ && measurementPositionActions_->isRunning())
+	if(measurementPositionActions_ && !measurementPositionActions_->inFinalState())
 		return;
 	if(measurementPositionActions_)
-		delete measurementPositionActions_;
-	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions();
+		measurementPositionActions_->deleteLater();
+	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions3();
 	measurementPositionActions_->start();
 }
 

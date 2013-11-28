@@ -74,11 +74,14 @@ public:
 	double actualRetries() const;
 
 	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
+	//AMBeamlineActionItem* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
+	AMAction3* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the encoder type. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
+	//AMBeamlineActionItem* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
+	AMAction3* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
 	/// Returns a newly created action to change the encoder encoding. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
+	//AMBeamlineActionItem* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
+	AMAction3* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 
 public slots:
 

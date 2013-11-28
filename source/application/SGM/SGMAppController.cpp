@@ -216,10 +216,10 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
-	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+//	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
+//	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
+//	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
@@ -229,12 +229,12 @@ bool SGMAppController::startupRegisterDatabases(){
 	// Register the detectors to their views
 	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 	success &= AMOldDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
+//	success &= AMOldDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
+//	success &= AMOldDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
 	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
 	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
+//	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
+//	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
 	// Register the configuration file and file loader plugin supports
 	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
@@ -455,6 +455,7 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
+
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !amptekSDD1XRFView_){
 		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
 		amptekSDD1XRFView_->buildDetectorView();

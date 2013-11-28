@@ -21,34 +21,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMFASTSCANCONTROLLER_H
 #define SGMFASTSCANCONTROLLER_H
 
-#include "dataman/AMFastScan.h"
-#include "SGMFastScanConfiguration.h"
-#include "analysis/AM1DExpressionAB.h"
-#include "dataman/AMUser.h"
+//#include "dataman/AMFastScan.h"
+//#include "SGMFastScanConfiguration.h"
+//#include "analysis/AM1DExpressionAB.h"
+//#include "dataman/AMUser.h"
 
-class SGMFastScanController
-{
-public:
-	/// Standard constructor. Takes the scan configuration and readies a new scan object with the proper measurements and data sources
-	SGMFastScanController(SGMFastScanConfiguration *cfg);
+//class SGMFastScanController
+//{
+//public:
+//	/// Standard constructor. Takes the scan configuration and readies a new scan object with the proper measurements and data sources
+//	SGMFastScanController(SGMFastScanConfiguration *cfg);
 
-	/// Returns whether or not the initialization actions and cleanup actions were created successfully
-	bool isBeamlineInitialized();
-	/// Creates the initialization actions and the cleanup actions, returns the value of beamlineInitialized_
-	virtual bool beamlineInitialize();
+//	/// Returns whether or not the initialization actions and cleanup actions were created successfully
+//	bool isBeamlineInitialized();
+//	/// Creates the initialization actions and the cleanup actions, returns the value of beamlineInitialized_
+//	virtual bool beamlineInitialize();
 
-protected:
-	/// Holds the scan configuration pointer this controller is working with
-	SGMFastScanConfiguration *config_;
-	/// Holds the scan created here (specifically this will wind up being an AMFastScan)
-	AMScan* specificScan_;
+//protected:
+//	/// Holds the scan configuration pointer this controller is working with
+//	SGMFastScanConfiguration *config_;
+//	/// Holds the scan created here (specifically this will wind up being an AMFastScan)
+//	AMScan* specificScan_;
 
-	/// Actions list for initialization actions (as Actions3 become more fully tested this needs to be converted over)
-	AMBeamlineParallelActionsList *initializationActions_;
-	/// Actions list for cleanup actions (as Actions3 become more fully tested this needs to be converted over)
-	AMBeamlineParallelActionsList *cleanUpActions_;
-	/// Bool holding true if the initialization actions and cleanup actions lists were created successfully
-	bool beamlineInitialized_;
-};
+//	/// Actions list for initialization actions (as Actions3 become more fully tested this needs to be converted over)
+//	AMBeamlineParallelActionsList *initializationActions_;
+//	/// Actions list for cleanup actions (as Actions3 become more fully tested this needs to be converted over)
+//	AMBeamlineParallelActionsList *cleanUpActions_;
+//	/// Bool holding true if the initialization actions and cleanup actions lists were created successfully
+//	bool beamlineInitialized_;
+//};
 
 #endif // SGMFASTSCANCONTROLLER_H

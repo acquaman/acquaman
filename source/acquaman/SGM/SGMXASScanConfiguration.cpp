@@ -133,10 +133,11 @@ AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
 	return new SGMXASScanConfiguration(*this);
 }
 
-#include "SGMXASDacqScanController.h"
+//#include "SGMXASDacqScanController.h"
 
 AMScanController* SGMXASScanConfiguration::createController(){
-	return new SGMXASDacqScanController(this);
+//	return new SGMXASDacqScanController(this);
+	return 0; //NULL
 }
 
 #include "ui/SGM/SGMXASScanConfigurationView.h"

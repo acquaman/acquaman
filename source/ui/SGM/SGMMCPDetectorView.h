@@ -21,60 +21,60 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTORVIEW_H
 #define SGMMCPDETECTORVIEW_H
 
-#include "ui/beamline/AMOldDetectorView.h"
-#include "beamline/SGM/SGMMCPDetector.h"
+//#include "ui/beamline/AMOldDetectorView.h"
+//#include "beamline/SGM/SGMMCPDetector.h"
 
-class QToolButton;
+//class QToolButton;
 
-class SGMMCPBriefDetectorView : public AMBriefOldDetectorView
-{
-Q_OBJECT
-public:
-	Q_INVOKABLE explicit SGMMCPBriefDetectorView(SGMMCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+//class SGMMCPBriefDetectorView : public AMBriefOldDetectorView
+//{
+//Q_OBJECT
+//public:
+//	Q_INVOKABLE explicit SGMMCPBriefDetectorView(SGMMCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
-	AMOldDetector* detector();
+//	AMOldDetector* detector();
 
-protected slots:
-	void onPoweredOnChanged(bool poweredOn);
+//protected slots:
+//	void onPoweredOnChanged(bool poweredOn);
 
-protected:
-	AMExtendedControlEditor *readingCE_;
-	QToolButton *powerState_;
-	QIcon powerOnState_, powerOffState_;
-	QHBoxLayout *hl_;
-	SGMMCPDetector *detector_;
+//protected:
+//	AMExtendedControlEditor *readingCE_;
+//	QToolButton *powerState_;
+//	QIcon powerOnState_, powerOffState_;
+//	QHBoxLayout *hl_;
+//	SGMMCPDetector *detector_;
 
-	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
-};
+//	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+//	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
+//};
 
-class SGMMCPDetailedDetectorView : public AMDetailedOldDetectorView
-{
-Q_OBJECT
-public:
-	Q_INVOKABLE explicit SGMMCPDetailedDetectorView(SGMMCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+//class SGMMCPDetailedDetectorView : public AMDetailedOldDetectorView
+//{
+//Q_OBJECT
+//public:
+//	Q_INVOKABLE explicit SGMMCPDetailedDetectorView(SGMMCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Needs a destructor for configurationSettings_
-	   */
+//	/* NTBA March 14, 2011 David Chevrier
+//	   Needs a destructor for configurationSettings_
+//	   */
 
-	AMOldDetector* detector();
+//	AMOldDetector* detector();
 
-	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
-	AMOldDetectorInfo* configurationSettings() const;
+//	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
+//	AMOldDetectorInfo* configurationSettings() const;
 
-protected slots:
-	void onControlSetpointRequested();
+//protected slots:
+//	void onControlSetpointRequested();
 
-protected:
-	AMExtendedControlEditor *readingCE_;
-	AMExtendedControlEditor *hvCE_;
-	QGridLayout *gl_;
-	SGMMCPDetector *detector_;
-	SGMMCPDetectorInfo *configurationSettings_;
+//protected:
+//	AMExtendedControlEditor *readingCE_;
+//	AMExtendedControlEditor *hvCE_;
+//	QGridLayout *gl_;
+//	SGMMCPDetector *detector_;
+//	SGMMCPDetectorInfo *configurationSettings_;
 
-	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
-};
+//	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+//	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
+//};
 
 #endif // SGMMCPDETECTORVIEW_H

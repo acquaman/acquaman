@@ -21,31 +21,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINECONTROLSTOPACTION_H
 #define AMBEAMLINECONTROLSTOPACTION_H
 
-#include "AMBeamlineActionItem.h"
-#include "beamline/AMControl.h"
+//#include "AMBeamlineActionItem.h"
+//#include "beamline/AMControl.h"
 
-class AMBeamlineControlStopAction : public AMBeamlineActionItem
-{
-Q_OBJECT
-public:
-    AMBeamlineControlStopAction(AMControl *control, QObject *parent = 0);
+//class AMBeamlineControlStopAction : public AMBeamlineActionItem
+//{
+//Q_OBJECT
+//public:
+//    AMBeamlineControlStopAction(AMControl *control, QObject *parent = 0);
 
-    virtual AMBeamlineActionItemView* createView(int index = 0);
+//    virtual AMBeamlineActionItemView* createView(int index = 0);
 
-    virtual AMControl* control();
+//    virtual AMControl* control();
 
-public slots:
-    virtual void start();
-    virtual void setControl(AMControl *control);
-    virtual void cleanup(){}
+//public slots:
+//    virtual void start();
+//    virtual void setControl(AMControl *control);
+//    virtual void cleanup(){}
 
-protected slots:
-    virtual void onMovingChanged(bool moving);
-    virtual void onStopped();
-    virtual void onFailed(int explanation);
+//protected slots:
+//    virtual void onMovingChanged(bool moving);
+//    virtual void onStopped();
+//    virtual void onFailed(int explanation);
 
-protected:
-	AMControl *control_;
-};
+//protected:
+//	AMControl *control_;
+//};
 
 #endif // AMBEAMLINECONTROLSTOPACTION_H

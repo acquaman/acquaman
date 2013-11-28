@@ -21,21 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINECONTROLACTION_H
 #define AMBEAMLINECONTROLACTION_H
 
-#include "beamline/AMControl.h"
-#include "AMBeamlineActionItem.h"
+//#include "beamline/AMControl.h"
+//#include "AMBeamlineActionItem.h"
 
-class AMBeamlineControlAction : public AMBeamlineActionItem
-{
-Q_OBJECT
-public:
-	AMBeamlineControlAction(AMControl *control, QObject *parent = 0);
+//class AMBeamlineControlAction : public AMBeamlineActionItem
+//{
+//Q_OBJECT
+//public:
+//	AMBeamlineControlAction(AMControl *control, QObject *parent = 0);
 
-public slots:
-	virtual void cleanup() {}
+//public slots:
+//	virtual void cleanup() {}
 
-protected:
-	AMControl *control_;
-};
+//protected:
+//	AMControl *control_;
+//};
 
 
 

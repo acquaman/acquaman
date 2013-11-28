@@ -77,23 +77,23 @@ public:
 	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
-	AMBeamlineActionItem* createStartAction(bool setScanning);
+	//AMBeamlineActionItem* createStartAction(bool setScanning);
 	AMAction3* createStartAction3(bool setScanning);
 
 	/// Creates an action to enable continuous mode or enable single shot mode.
-	AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
+	//AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
 	AMAction3* createContinuousEnableAction3(bool enableContinuous);
 
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
-	AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
+	//AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
 	AMAction3* createDwellTimeAction3(double dwellTime);
 
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
-	AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
+	//AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
 	AMAction3* createScansPerBufferAction3(int scansPerBuffer);
 
 	/// Creates an action that sets the total number of scans to \param totalScans.
-	AMBeamlineActionItem* createTotalScansAction(int totalScans);
+	//AMBeamlineActionItem* createTotalScansAction(int totalScans);
 	AMAction3* createTotalScansAction3(int totalScans);
 
 
@@ -206,7 +206,7 @@ public:
 	int index() const { return index_; }
 
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
-	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+	//AMBeamlineActionItem* createEnableAction(bool setEnabled);
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
 	AMAction3* createEnableAction3(bool setEnabled);
 

@@ -126,7 +126,7 @@ public:
 	/// Should be implemented such that a turnOnAction is successful. That is, if a detector needs its high voltage set to a given value, then activate performs that operation. The turnOnAction should only "flip the switch" for the detector's high voltage.
 	virtual bool activate() { return false;}
 	/// Returns an action that "flips the switch" to turn on a detector (normally turning on its high voltage channel)
-	virtual AMBeamlineActionItem* turnOnAction() { return 0;}
+	//virtual AMBeamlineActionItem* turnOnAction() { return 0;}
 
 protected:
 	void setConnected(bool isConnected);

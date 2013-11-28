@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMControlStopAction.h"
 
 #include "beamline/AMOldDetector.h"
 #include "beamline/AMSingleControlDetector.h"
@@ -49,6 +50,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+
+#include "util/AMErrorMonitor.h"
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
@@ -656,6 +659,7 @@ AMDetector* SGMBeamline::gratingEncoderDetector() const {
 	return gratingEncoderDetector_;
 }
 
+/*
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;// NULL
@@ -674,6 +678,7 @@ AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	beamOnActionsList->appendAction(0, beamOnAction2);
 	return beamOnAction;
 }
+*/
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
@@ -696,6 +701,7 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	return beamOnActionsList;
 }
 
+/*
 AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
 	AMBeamlineParallelActionsList *stopMotorsActionsList = new AMBeamlineParallelActionsList();
 	AMBeamlineListAction *stopMotorsAction = new AMBeamlineListAction(stopMotorsActionsList);
@@ -711,7 +717,34 @@ AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
 	stopMotorsActionsList->appendAction(0, stopMotorsAction3);
 	return stopMotorsAction;
 }
+*/
 
+AMAction3* SGMBeamline::createStopMotorsActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *stopMotorsActionsList = new AMListAction3(new AMListActionInfo3("SGM Stop Motors", "SGM Stop Motors"), AMListAction3::Parallel);
+
+	AMControlInfo stopMonoMotorInfo = mono()->toInfo();
+	AMControlInfo stopExitSlitMotorInfo = exitSlit()->toInfo();
+	AMControlInfo stopUndulatorMotorInfo = undulator()->toInfo();
+
+	AMControlStopActionInfo *stopMonoActionInfo = new AMControlStopActionInfo(stopMonoMotorInfo);
+	AMControlStopActionInfo *stopExitSlitActionInfo = new AMControlStopActionInfo(stopExitSlitMotorInfo);
+	AMControlStopActionInfo *stopUndulatorActionInfo = new AMControlStopActionInfo(stopUndulatorMotorInfo);
+
+	AMControlStopAction *stopMonoAction = new AMControlStopAction(stopMonoActionInfo, mono());
+	AMControlStopAction *stopExitSlitAction = new AMControlStopAction(stopExitSlitActionInfo, exitSlit());
+	AMControlStopAction *stopUndulatorAction = new AMControlStopAction(stopUndulatorActionInfo, undulator());
+
+	stopMotorsActionsList->addSubAction(stopMonoAction);
+	stopMotorsActionsList->addSubAction(stopExitSlitAction);
+	stopMotorsActionsList->addSubAction(stopUndulatorAction);
+
+	return stopMotorsActionsList;
+}
+
+/*
 AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
 	AMBeamlineParallelActionsList *gotoTransferPositionActionsList = new AMBeamlineParallelActionsList();
 	AMBeamlineListAction *gotoTransferPositionAction = new AMBeamlineListAction(gotoTransferPositionActionsList);
@@ -733,7 +766,36 @@ AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
 	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction4);
 	return gotoTransferPositionAction;
 }
+*/
 
+AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *goToTransferPostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Tranfer", "SGM Go To Tranfer"), AMListAction3::Parallel);
+
+	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
+	manipulatorXSetpoint.setValue(0.0);
+	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
+	manipulatorYSetpoint.setValue(-13.17);
+	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
+	manipulatorZSetpoint.setValue(-77.0);
+	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
+	manipulatorRSetpoint.setValue(0.0);
+
+	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
+	goToTransferPostionActionsList->addSubAction(manipulatorXAction);
+	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
+	goToTransferPostionActionsList->addSubAction(manipulatorYAction);
+	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
+	goToTransferPostionActionsList->addSubAction(manipulatorZAction);
+	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
+	goToTransferPostionActionsList->addSubAction(manipulatorRAction);
+
+	return goToTransferPostionActionsList;
+}
+
+/*
 AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
 	AMBeamlineParallelActionsList *gotoMeasurementPositionActionsList = new AMBeamlineParallelActionsList();
 	AMBeamlineListAction *gotoMeasurementPositionAction = new AMBeamlineListAction(gotoMeasurementPositionActionsList);
@@ -755,7 +817,36 @@ AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
 	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction4);
 	return gotoMeasurementPositionAction;
 }
+*/
 
+AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *goToMeasurePostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Measure", "SGM Go To Measure"), AMListAction3::Parallel);
+
+	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
+	manipulatorXSetpoint.setValue(0.0);
+	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
+	manipulatorYSetpoint.setValue(0.0);
+	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
+	manipulatorZSetpoint.setValue(0.0);
+	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
+	manipulatorRSetpoint.setValue(0.0);
+
+	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorXAction);
+	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorYAction);
+	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorZAction);
+	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorRAction);
+
+	return goToMeasurePostionActionsList;
+}
+
+/*
 AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
 	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
 	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
@@ -791,6 +882,7 @@ AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
 	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
 	return offAction;
 }
+*/
 
 CLSSIS3820Scaler* SGMBeamline::scaler(){
 	if(scaler_->isConnected())

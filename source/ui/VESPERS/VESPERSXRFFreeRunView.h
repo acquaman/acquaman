@@ -45,8 +45,8 @@ protected slots:
 	{
 		start_->setDisabled(true);
 		detector_->setTime(integrationTime_->value());
-		AMBeamlineScanAction *action = new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy());
-		action->start();
+		//AMBeamlineScanAction *action = new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy());
+		//action->start();
 	}
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();

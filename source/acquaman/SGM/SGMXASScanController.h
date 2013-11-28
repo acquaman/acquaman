@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMXASSCANCONTROLLER_CANNOT_ADD_MEASUREMENT 290201
 
+/*
 class SGMXASScanController
 {
 public:
@@ -51,5 +52,6 @@ protected:
 	/// Bool holding true if the initialization actions and cleanup actions lists were created successfully
 	bool beamlineInitialized_;
 };
+*/
 
 #endif // AMSGMXASSCANCONTROLLER_H

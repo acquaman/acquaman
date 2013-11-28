@@ -20,22 +20,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AM2DSCANCONFIGURATIONVIEWHOLDER_H
 #define AM2DSCANCONFIGURATIONVIEWHOLDER_H
 
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+//#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 
-/// This is a very simple extension to AMScanConfigurationViewHolder that adds 2D scan actions instead of regular ones.
-class AM2DScanConfigurationViewHolder : public AMScanConfigurationViewHolder
-{
-	Q_OBJECT
+///// This is a very simple extension to AMScanConfigurationViewHolder that adds 2D scan actions instead of regular ones.
+//class AM2DScanConfigurationViewHolder : public AMScanConfigurationViewHolder
+//{
+//	Q_OBJECT
 
-public:
-	/// Constructor.  Builds a view for the holder.  This adds nothing to the view.
-	AM2DScanConfigurationViewHolder(AMWorkflowManagerView *workflow, AMScanConfigurationView *view = 0, QWidget *parent = 0);
+//public:
+//	/// Constructor.  Builds a view for the holder.  This adds nothing to the view.
+//	AM2DScanConfigurationViewHolder(AMWorkflowManagerView *workflow, AMScanConfigurationView *view = 0, QWidget *parent = 0);
 
-protected slots:
-	/// Called when the "Start Scan" button is clicked
-	virtual void onStartScanRequested();
-	/// Reimplemented to add 2D scan actions instead of 1D.
-	virtual void onAddToQueueRequested();
-};
+//protected slots:
+//	/// Called when the "Start Scan" button is clicked
+//	virtual void onStartScanRequested();
+//	/// Reimplemented to add 2D scan actions instead of 1D.
+//	virtual void onAddToQueueRequested();
+//};
 
 #endif // AM2DSCANCONFIGURATIONVIEWHOLDER_H

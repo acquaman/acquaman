@@ -32,7 +32,7 @@ class QToolButton;
 class QButtonGroup;
 class QGridLayout;
 
-class AMBeamlineListAction;
+class AMAction3;
 class SGMMAXvMotor;
 class AMExtendedControlEditor;
 
@@ -89,9 +89,11 @@ protected:
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
-	AMBeamlineListAction *transferPositionActions_;
+	//AMBeamlineListAction *transferPositionActions_;
+	AMAction3 *transferPositionActions_;
 	QPushButton *measurePositionButton_;
-	AMBeamlineListAction *measurementPositionActions_;
+	//AMBeamlineListAction *measurementPositionActions_;
+	AMAction3 *measurementPositionActions_;
 	QPushButton *hvButton_;
 
 	SGMMAXvMotor *mVerticalCtrl_;

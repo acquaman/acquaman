@@ -28,6 +28,7 @@ class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
 class QCheckBox;
+class QToolButton;
 
 class AMControlButton;
 
@@ -120,8 +121,10 @@ protected:
 	int stripToolCounter_;
 	MPlotAxisScale* stripToolSpecialAxisScale_;
 
-	AMBeamlineListAction *beamOnAction_;
-	AMBeamlineListAction *stopMotorsAction_;
+	//AMBeamlineListAction *beamOnAction_;
+	AMAction3 *beamOnAction_;
+	//AMBeamlineListAction *stopMotorsAction_;
+	AMAction3 *stopMotorsAction_;
 };
 
 #endif // SGMSIDEBAR_H

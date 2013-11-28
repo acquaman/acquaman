@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QToolButton>
 
 #include "ui/beamline/AMControlButton.h"
 
@@ -353,30 +354,55 @@ void SGMSidebar::onCloseVacuumButtonClicked(){
 void SGMSidebar::onBeamOnButtonClicked(){
 	if(beamOnAction_)
 		return;
+	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions3();
+	connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+	connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+	beamOnAction_->start();
+	/*
+	if(beamOnAction_)
+		return;
 	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions();
 	connect(beamOnAction_, SIGNAL(finished()), this, SLOT(onBeamOnActionFinished()));
 	beamOnAction_->start();
+	*/
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
-	/* NTBA - August 25th, 2011 (David Chevrier)
-			Probably need to delete the internals too, list, actions, etc"
-	*/
+	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+	beamOnAction_->deleteLater();
+	beamOnAction_ = 0;
+	/*
 	delete beamOnAction_;
 	beamOnAction_ = 0;//NULL
+	*/
 }
 
 void SGMSidebar::onStopMotorsButtonClicked(){
 	if(stopMotorsAction_)
 		return;
+	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsActions3();
+	connect(stopMotorsAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
+	connect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
+	stopMotorsAction_->start();
+	/*
+	if(stopMotorsAction_)
+		return;
 	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
 	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->start();
+	*/
 }
 
 void SGMSidebar::onStopMotorsActionFinished(){
+	disconnect(stopMotorsAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
+	disconnect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
+	stopMotorsAction_->deleteLater();
+	stopMotorsAction_ = 0;
+	/*
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
+	*/
 }
 
 void SGMSidebar::onScanningResetButtonClicked(){
