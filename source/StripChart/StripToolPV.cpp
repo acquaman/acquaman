@@ -1,21 +1,23 @@
 #include "StripToolPV.h"
 
-StripToolPV::StripToolPV(QTime modelStart, QObject *parent)
+StripToolPV::StripToolPV(QObject *parent)
     : QObject(parent)
 {
-    modelStartTime_ = modelStart;
-    pvCreationTime_ = QTime::currentTime();
-
     updateIndex_ = 0;
 
-    defaultValuesDisplayed_ = 10;
-    valuesDisplayed_ = defaultValuesDisplayed_;
+//    defaultValuesDisplayed_ = 10;
+//    valuesDisplayed_ = defaultValuesDisplayed_;
+
+    defaultTimeDisplayed_ = 10;
+    timeDisplayed_ = defaultTimeDisplayed_;
+
     dataVectorSize_ = 100;
+//    displayVectorSize_ = defaultTimeDisplayed_;
     savePoint_ = 10;
 
     pvName_ = "";
     pvDescription_ = "";
-    xUnits_ = "Time [ms]";
+    xUnits_ = "Time [s]";
     yUnits_ = "";
     isUpdating_ = true;
     checkState_ = Qt::Checked;
@@ -23,8 +25,8 @@ StripToolPV::StripToolPV(QTime modelStart, QObject *parent)
 
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
-    displayedTimes_ = QVector<double>(valuesDisplayed_);
-    displayedValues_ = QVector<double>(valuesDisplayed_);
+//    displayedTimes_ = QVector<double>(displayVectorSize_);
+//    displayedValues_ = QVector<double>(displayVectorSize_);
 
     pvControl_ = 0;
 
@@ -109,9 +111,15 @@ MPlotSeriesBasic* StripToolPV::series()
 
 
 
-int StripToolPV::valuesDisplayed()
+//int StripToolPV::valuesDisplayed()
+//{
+//    return valuesDisplayed_;
+//}
+
+
+int StripToolPV::timeDisplayed()
 {
-    return valuesDisplayed_;
+    return timeDisplayed_;
 }
 
 
@@ -147,8 +155,8 @@ QVector<QString> StripToolPV::saveMasterTimes()
         toSave.append(time.toString());
     }
 
-    if (toSave.size() != savePoint_)
-        qDebug() << "Mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
+//    if (toSave.size() != savePoint_)
+//        qDebug() << "Mismatched sizes : should be saving " << savePoint_ << " values, but are actually saving " << toSave.size();
 
     return toSave;
 }
@@ -192,7 +200,7 @@ void StripToolPV::setMetaDataHeaders()
     headers_ << "Name ";
     headers_ << "Description ";
     headers_ << "Units ";
-    headers_ << "Displayed ";
+//    headers_ << "Displayed ";
     headers_ << "Color ";
     headers_ << "Date ";
 }
@@ -213,7 +221,7 @@ QList<QString> StripToolPV::metaData()
     metaData << pvName();
     metaData << pvDescription();
     metaData << yUnits();
-    metaData << QString::number(valuesDisplayed());
+//    metaData << QString::number(valuesDisplayed());
     metaData << color().name();
     metaData << QDateTime::currentDateTime().toString();
 
@@ -240,7 +248,7 @@ bool StripToolPV::setMetaData(QList<QString> metaData)
 
     setDescription(metaData.at(1));
     setUnits(metaData.at(2));
-    setValuesDisplayed(metaData.at(3).toInt());
+//    setValuesDisplayed(metaData.at(3).toInt());
     setSeriesColor(metaData.at(4));
 
     return true;
@@ -281,13 +289,23 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 
 
 
-void StripToolPV::setValuesDisplayed(int points)
+//void StripToolPV::setValuesDisplayed(int points)
+//{
+//    if (points <= 0)
+//        return;
+
+//    valuesDisplayed_ = points;
+//    emit savePVMetaData();
+//}
+
+
+
+void StripToolPV::setTimeDisplayed(int seconds)
 {
-    if (points <= 0)
+    if (seconds <= 0)
         return;
 
-    valuesDisplayed_ = points;
-    emit savePVMetaData();
+    timeDisplayed_ = seconds;
 }
 
 
@@ -346,44 +364,71 @@ void StripToolPV::onPVValueChanged(double newValue)
     dataVectorSizeCheck();
 
     //  vectors are now the correct size, add the new data to master lists.
-    masterUpdateTimes_[updateIndex_] = QTime::currentTime();
-    masterUpdateValues_[updateIndex_] = newValue;
+    QTime latestTime = QTime::currentTime();
+    double latestValue = newValue;
 
-    // set a 'now' time that will be used to generate the x-axis display values.
-    QTime nowish = QTime::currentTime();
+    qDebug() << "Measurement : " << latestTime << latestValue;
+
+    masterUpdateTimes_[updateIndex_] = latestTime;
+    masterUpdateValues_[updateIndex_] = latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_)
     {
+        // set a 'now' time that will be used to generate the x-axis display values.
+        QTime nowish = QTime::currentTime();
+
         // clear the display arrays to prep for new values.
         displayedTimes_.clear();
         displayedValues_.clear();
 
-        //  if we want to display more points than exist yet, show all we've got.
-        if (updateIndex_ < valuesDisplayed_)
+        // copy all values of masterUpdateTimes_ that are less than timeDisplayed_ to the display vectors.
+        int startIndex = updateIndex_;
+        bool copyComplete = false;
+
+        while (startIndex >= 0 && startIndex < masterUpdateTimes_.size() && !copyComplete)
         {
-            displayedTimes_ = QVector<double>(updateIndex_ + 1);
-            displayedValues_ = QVector<double>(updateIndex_ + 1);
+            double relativeTime = nowish.msecsTo(masterUpdateTimes_.at(startIndex)) / 1000.0; // relative time is in seconds.
+            qDebug() << "Relative time" << relativeTime;
 
-            for (int i = 0; i < updateIndex_ + 1; i++)
+            if (qAbs(relativeTime) < qAbs(timeDisplayed_))
             {
-                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(i)) / 1000.0;
-                displayedValues_[i] = masterUpdateValues_.at(i);
+                displayedTimes_.append(relativeTime);
+                displayedValues_.append(masterUpdateValues_.at(startIndex));
+                startIndex--;
+
+            } else {
+
+                copyComplete = true;
             }
         }
 
-        //  otherwise, show the latest "valuesDisplayed" points.
-        else {
 
-            displayedTimes_ = QVector<double>(valuesDisplayed_);
-            displayedValues_ = QVector<double>(valuesDisplayed_);
+//        //  if we want to display more points than exist yet, show all we've got.
+//        if (updateIndex_ < valuesDisplayed_)
+//        {
+//            displayedTimes_ = QVector<double>(updateIndex_);
+//            displayedValues_ = QVector<double>(updateIndex_);
 
-            for (int i = 0; i < valuesDisplayed_; i++)
-            {
-                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(updateIndex_ - valuesDisplayed_ + i));
-                displayedValues_[i] = masterUpdateValues_.at(updateIndex_ - valuesDisplayed_ + i);
-            }
-        }
+//            for (int i = 0; i < updateIndex_ + 1; i++)
+//            {
+//                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(i)) / 1000.0;
+//                displayedValues_[i] = masterUpdateValues_.at(i);
+//            }
+//        }
+
+//        //  otherwise, show the latest "valuesDisplayed" points.
+//        else {
+
+//            displayedTimes_ = QVector<double>(valuesDisplayed_);
+//            displayedValues_ = QVector<double>(valuesDisplayed_);
+
+//            for (int i = 0; i < valuesDisplayed_; i++)
+//            {
+//                displayedTimes_[i] = nowish.msecsTo(masterUpdateTimes_.at(updateIndex_ - valuesDisplayed_ + i)) / 1000.0;
+//                displayedValues_[i] = masterUpdateValues_.at(updateIndex_ - valuesDisplayed_ + i);
+//            }
+//        }
 
 //        qDebug() << "Displayed times : " << displayedTimes_;
 //        qDebug() << "Displayed values : " << displayedValues_;
@@ -416,4 +461,11 @@ void StripToolPV::toForceUpdateValue(const QString &toIgnore)
         forceUpdate_ = true;
         emit forceUpdate(pvControl_->value());
     }
+}
+
+
+
+void StripToolPV::toUpdateTime(int newTime)
+{
+    setTimeDisplayed(newTime);
 }

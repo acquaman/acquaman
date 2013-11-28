@@ -37,16 +37,21 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     pauseResumeGroup->setFlat(true);
 
     QLabel *timeLabel = new QLabel("Time :");
-    QSpinBox *timeEntry = new QSpinBox();
+    QSpinBox *timeEntry_ = new QSpinBox();
+    QLabel *timeUnits = new QLabel("sec");
+
+    timeEntry_->setValue(10);
+    connect( timeEntry_, SIGNAL(valueChanged(int)), this, SLOT(timeValueChanged(int)) );
 
     QHBoxLayout *timeLayout = new QHBoxLayout();
     timeLayout->addWidget(timeLabel);
-    timeLayout->addWidget(timeEntry);
+    timeLayout->addWidget(timeEntry_);
+    timeLayout->addWidget(timeUnits);
 
     QGroupBox *timeGroup = new QGroupBox();
     timeGroup->setLayout(timeLayout);
     timeGroup->setFlat(true);
-    timeGroup->setEnabled(false);
+//    timeGroup->setEnabled(false);
 
     message_ = new QLabel("");
     connect( this, SIGNAL(clearMessage()), message_, SLOT(clear()) );
@@ -60,7 +65,6 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
 //    controlsLayout->addWidget(message_);
 
     QGroupBox *controlsGroup = new QGroupBox();
-//    controlsGroup->setTitle("PV Controls");
     controlsGroup->setLayout(controlsLayout);
 
     QVBoxLayout *contentLayout = new QVBoxLayout();
@@ -86,6 +90,7 @@ void StripToolQuickControls::setModel(StripToolModel *newModel)
     connect( this, SIGNAL(addPV(QString)), model_, SLOT(toAddPV(QString)) );
     connect( this, SIGNAL(pausePVs()), model_, SLOT(toPausePVs()) );
     connect( this, SIGNAL(resumePVs()), model_, SLOT(toResumePVs()) );
+    connect( this, SIGNAL(updateTime(int)), model_, SLOT(toUpdateTime(int)) );
 
     connect( model_, SIGNAL(pvValid(bool)), this, SLOT(resetControls()) );
     connect( model_, SIGNAL(errorMessage(QString)), this, SLOT(displayMessage(QString)) );
@@ -144,4 +149,11 @@ void StripToolQuickControls::resumeClicked()
 {
     emit resumePVs();
     resumeButton_->setDefault(false);
+}
+
+
+
+void StripToolQuickControls::timeValueChanged(int newTime)
+{
+    emit updateTime(newTime);
 }

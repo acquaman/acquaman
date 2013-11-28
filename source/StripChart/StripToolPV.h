@@ -15,7 +15,7 @@ class StripToolPV : public QObject
     Q_OBJECT
 
 public:
-    StripToolPV(QTime appAge, QObject *parent = 0);
+    StripToolPV(QObject *parent = 0);
     ~StripToolPV();
     friend class StripToolModel;
     friend class StripToolDataController;
@@ -29,12 +29,15 @@ signals:
 
 protected:
     int updateIndex_;
-    QTime modelStartTime_; // not sure this is needed.
-    QTime pvCreationTime_;
 
-    int defaultValuesDisplayed_;
-    int valuesDisplayed_;
+//    int defaultValuesDisplayed_;
+//    int valuesDisplayed_;
+
+    int defaultTimeDisplayed_;
+    int timeDisplayed_;
+
     int dataVectorSize_;
+//    int displayVectorSize_;
     int savePoint_;
 
     QList<QString> headers_;
@@ -77,7 +80,8 @@ protected:
     /// Returns a pointer to the series that should be plotted for this pv.
     MPlotSeriesBasic* series();
     /// Returns an integer representing the number of pv value updates that are displayed on the plot. By default, it displays the last ten updates.
-    int valuesDisplayed();
+//    int valuesDisplayed();
+    int timeDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time but isn't fully implemented.
     QVector<QString> saveMasterTimes();
     QVector<double> saveMasterValues();
@@ -98,7 +102,8 @@ protected:
 private:
     void setDescription(const QString &newDescription);
     void setUnits(const QString &newUnits);
-    void setValuesDisplayed(int points);
+//    void setValuesDisplayed(int points);
+    void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
     void setMetaDataHeaders();
     void saveCheck();
@@ -109,6 +114,7 @@ protected slots:
     void onPVValueChanged(double newValue);
 
     void toForceUpdateValue(const QString &toIgnore);
+    void toUpdateTime(int newTime);
 
 };
 

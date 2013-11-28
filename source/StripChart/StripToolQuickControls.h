@@ -28,6 +28,7 @@ signals:
     void error(const QString &errorMessage);
     void pausePVs();
     void resumePVs();
+    void updateTime(int newTime);
 
 protected:
     StripToolModel *model_;
@@ -36,6 +37,7 @@ protected:
     QPushButton *addButton_;
     QPushButton *pauseButton_;
     QPushButton *resumeButton_;
+    QSpinBox *timeEntry_;
     QLabel *message_;
 
 public:
@@ -48,6 +50,7 @@ protected slots:
     void addClicked();
     void pauseClicked();
     void resumeClicked();
+    void timeValueChanged(int newTime);
 };
 
 #endif // STRIPTOOLQUICKCONTROLS_H

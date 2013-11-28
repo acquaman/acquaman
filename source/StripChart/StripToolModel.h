@@ -33,9 +33,9 @@ signals:
     void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
     void forceUpdatePVs(const QString &updatedName);
+    void updateTime(int newTime);
 
 protected:
-    QTime modelStartTime_;
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
     QSignalMapper *controlMapper_;
@@ -95,6 +95,7 @@ protected slots:
     void toDeletePV(const QModelIndex &index);
     void toPausePVs();
     void toResumePVs();
+    void toUpdateTime(int newTime);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);

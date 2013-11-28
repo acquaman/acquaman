@@ -295,10 +295,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
     int position = pvList_.size(); // append new pvs to the end of the model.
     int count = 1; // insert one pv at a time.
 
-    if (position == 0)
-        modelStartTime_ = QTime::currentTime();
-
-    StripToolPV *newPV = new StripToolPV(modelStartTime_, this);
+    StripToolPV *newPV = new StripToolPV(this);
     newPV->setControl(pvControl);
     saveDataMapper_->setMapping(newPV, newPV);
     saveMetadataMapper_->setMapping(newPV, newPV);
@@ -309,6 +306,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
+    connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
 
     beginInsertRows(QModelIndex(), position, position + count - 1); //  notify list view and plot.
     pvList_.insert(position, newPV); // add new pv to the model.
@@ -345,7 +343,6 @@ void StripToolModel::editPV(const QModelIndex &index)
     {
         QString description = editDialog.description();
         QString units = editDialog.units();
-        int points = editDialog.points();
 
         StripToolPV *toEdit = pvList_.at(index.row());
 
@@ -357,9 +354,6 @@ void StripToolModel::editPV(const QModelIndex &index)
 
         if (units != "")
             toEdit->setUnits(units);
-
-        if (points > 0)
-            toEdit->setValuesDisplayed(points);
 
     }
 }
@@ -435,6 +429,13 @@ void StripToolModel::toResumePVs()
 
 
 
+void StripToolModel::toUpdateTime(int newTime)
+{
+    emit updateTime(newTime);
+}
+
+
+
 void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
 {
     if (index.isValid() && index.row() < pvList_.size())
@@ -448,11 +449,11 @@ void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
 
 void StripToolModel::setValuesDisplayed(const QModelIndex &index, int points)
 {
-    if (index.isValid() && index.row() < pvList_.size())
-    {
-        StripToolPV *toChange = pvList_.at(index.row());
-        toChange->setValuesDisplayed(points);
-    }
+//    if (index.isValid() && index.row() < pvList_.size())
+//    {
+//        StripToolPV *toChange = pvList_.at(index.row());
+//        toChange->setValuesDisplayed(points);
+//    }
 }
 
 
