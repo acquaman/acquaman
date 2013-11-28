@@ -279,8 +279,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
 	source/beamline/AMBeamline.h \
-	source/actions/AMBeamlineActionItem.h \
-	source/actions/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
@@ -331,9 +329,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
 	source/ui/AMWorkflowManagerView.h \
-	source/actions/AMBeamlineScanAction.h \
 	source/dataman/AMAbstractFileLoader.h \
-	source/actions/AMBeamlineControlMoveAction.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
@@ -350,9 +346,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
 	source/ui/dataman/AMDataSourcesEditor.h \
-	source/actions/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
-	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
@@ -383,10 +377,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
-	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
 	source/ui/beamline/AMControlOptimizationView.h \
-	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder.h \
@@ -406,9 +398,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
-	source/actions/AMBeamlineListAction.h \
-	source/actions/AMBeamlineControlWaitAction.h \
-	source/actions/AMBeamlineUserConfirmAction.h \
 	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
@@ -422,8 +411,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
 	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
-	source/actions/AMBeamlineSamplePlateMoveAction.h \
-	source/actions/AMBeamlineFiducializationMoveAction.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/beamline/CLS/CLSOceanOptics65000Detector.h \
 	source/ui/CLS/CLSOceanOptics65000DetectorView.h \
@@ -433,7 +420,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMHighVoltageChannel.h \
 	source/beamline/CLS/CLSCAEN2527HVChannel.h \
 	source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
-	source/actions/AMBeamlineHighVoltageChannelToggleAction.h \
 	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
@@ -523,7 +509,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMDatamanStartupSplashScreen.h \
 	source/dataman/database/AMDbUpgrade.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
-	source/actions/AMBeamline2DScanAction.h \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
@@ -779,8 +764,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
-	source/actions/AMBeamlineActionItem.cpp \
-	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
@@ -823,8 +806,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
-	source/actions/AMBeamlineScanAction.cpp \
-	source/actions/AMBeamlineControlMoveAction.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
@@ -841,9 +822,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
 	source/ui/dataman/AMDataSourcesEditor.cpp \
-	source/actions/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
-	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
@@ -872,10 +851,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
-	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
-	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder.cpp \
@@ -895,9 +872,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
-	source/actions/AMBeamlineListAction.cpp \
-	source/actions/AMBeamlineControlWaitAction.cpp \
-	source/actions/AMBeamlineUserConfirmAction.cpp \
 	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
@@ -911,8 +885,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
 	#source/ui/dataman/AM3dDataSourceView.cpp \
-	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
-	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/beamline/CLS/CLSOceanOptics65000Detector.cpp \
 	source/ui/CLS/CLSOceanOptics65000DetectorView.cpp \
@@ -922,7 +894,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \
 	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
 	source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
-	source/actions/AMBeamlineHighVoltageChannelToggleAction.cpp \
 	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
@@ -1002,7 +973,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMDatamanStartupSplashScreen.cpp \
 	source/dataman/database/AMDbUpgrade.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
-	source/actions/AMBeamline2DScanAction.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \

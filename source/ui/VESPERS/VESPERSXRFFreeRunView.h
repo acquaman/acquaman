@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "acquaman/VESPERS/XRFFreeRun.h"
-#include "actions/AMBeamlineScanAction.h"
+//#include "actions/AMBeamlineScanAction.h"
 
 class VESPERSXRFFreeRunView : public QWidget
 {

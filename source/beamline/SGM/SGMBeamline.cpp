@@ -659,27 +659,6 @@ AMDetector* SGMBeamline::gratingEncoderDetector() const {
 	return gratingEncoderDetector_;
 }
 
-/*
-AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
-	if(!beamOnControlSet_->isConnected())
-		return 0;// NULL
-	AMBeamlineParallelActionsList *beamOnActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *beamOnAction = new AMBeamlineListAction(beamOnActionsList);
-	// Action to turn on beam for SGM:
-	// Set beamOn to "1"
-	// Set fastShutterVoltage to "0 V"
-	AMBeamlineControlMoveAction *beamOnAction1 = new AMBeamlineControlMoveAction(beamOn());
-	beamOnAction1->setSetpoint(1);
-	AMBeamlineControlMoveAction *beamOnAction2 = new AMBeamlineControlMoveAction(fastShutterVoltage());
-	beamOnAction2->setSetpoint(0);
-
-	beamOnActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	beamOnActionsList->appendAction(0, beamOnAction1);
-	beamOnActionsList->appendAction(0, beamOnAction2);
-	return beamOnAction;
-}
-*/
-
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMBeamline::createBeamOnActions3(){
@@ -700,24 +679,6 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 
 	return beamOnActionsList;
 }
-
-/*
-AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
-	AMBeamlineParallelActionsList *stopMotorsActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *stopMotorsAction = new AMBeamlineListAction(stopMotorsActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlStopAction *stopMotorsAction1 = new AMBeamlineControlStopAction(mono());
-	AMBeamlineControlStopAction *stopMotorsAction2 = new AMBeamlineControlStopAction(exitSlit());
-	AMBeamlineControlStopAction *stopMotorsAction3 = new AMBeamlineControlStopAction(undulator());
-
-	stopMotorsActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	stopMotorsActionsList->appendAction(0, stopMotorsAction1);
-	stopMotorsActionsList->appendAction(0, stopMotorsAction2);
-	stopMotorsActionsList->appendAction(0, stopMotorsAction3);
-	return stopMotorsAction;
-}
-*/
 
 AMAction3* SGMBeamline::createStopMotorsActions3(){
 	if(!beamOnControlSet_->isConnected())
@@ -743,30 +704,6 @@ AMAction3* SGMBeamline::createStopMotorsActions3(){
 
 	return stopMotorsActionsList;
 }
-
-/*
-AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
-	AMBeamlineParallelActionsList *gotoTransferPositionActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *gotoTransferPositionAction = new AMBeamlineListAction(gotoTransferPositionActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
-	gotoTransferPositionAction1->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoTransferPositionAction2->setSetpoint(-13.17);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoTransferPositionAction3->setSetpoint(-77.0);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
-	gotoTransferPositionAction4->setSetpoint(0.0);
-
-	gotoTransferPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction1);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction2);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction3);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction4);
-	return gotoTransferPositionAction;
-}
-*/
 
 AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	if(!beamOnControlSet_->isConnected())
@@ -795,30 +732,6 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	return goToTransferPostionActionsList;
 }
 
-/*
-AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
-	AMBeamlineParallelActionsList *gotoMeasurementPositionActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *gotoMeasurementPositionAction = new AMBeamlineListAction(gotoMeasurementPositionActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
-	gotoMeasurementPositionAction1->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoMeasurementPositionAction2->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoMeasurementPositionAction3->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
-	gotoMeasurementPositionAction4->setSetpoint(0.0);
-
-	gotoMeasurementPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction1);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction2);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction3);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction4);
-	return gotoMeasurementPositionAction;
-}
-*/
-
 AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;
@@ -845,44 +758,6 @@ AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 
 	return goToMeasurePostionActionsList;
 }
-
-/*
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
-}
-*/
 
 CLSSIS3820Scaler* SGMBeamline::scaler(){
 	if(scaler_->isConnected())

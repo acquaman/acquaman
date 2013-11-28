@@ -18,7 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSSIS3820Scaler.h"
-#include "actions/AMBeamlineControlMoveAction.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/CLS/CLSSR570.h"
@@ -158,21 +157,6 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-//AMBeamlineActionItem* CLSSIS3820Scaler::createStartAction(bool setScanning) {
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startToggle_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(setScanning == true ? 1 : 0);
-
-//	return action;
-//}
-
 AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
 	if(!isConnected())
 		return 0; //NULL
@@ -188,21 +172,6 @@ AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
 
 	return action;
 }
-
-//AMBeamlineActionItem* CLSSIS3820Scaler::createContinuousEnableAction(bool enableContinuous) {
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(continuousToggle_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(enableContinuous == true ? 1 : 0);
-
-//	return action;
-//}
 
 AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
 	if(!isConnected())
@@ -220,21 +189,6 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 	return action;
 }
 
-//AMBeamlineActionItem* CLSSIS3820Scaler::createDwellTimeAction(double dwellTime) {
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(dwellTime_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(dwellTime*1000);
-
-//	return action;
-//}
-
 AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
 	if(!isConnected())
 		return 0; //NULL
@@ -251,21 +205,6 @@ AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
 	return action;
 }
 
-//AMBeamlineActionItem* CLSSIS3820Scaler::createScansPerBufferAction(int scansPerBuffer) {
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(scanPerBuffer_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(scansPerBuffer);
-
-//	return action;
-//}
-
 AMAction3* CLSSIS3820Scaler::createScansPerBufferAction3(int scansPerBuffer) {
 	if(!isConnected())
 		return 0; //NULL
@@ -281,21 +220,6 @@ AMAction3* CLSSIS3820Scaler::createScansPerBufferAction3(int scansPerBuffer) {
 
 	return action;
 }
-
-//AMBeamlineActionItem* CLSSIS3820Scaler::createTotalScansAction(int totalScans) {
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(totalScans_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(totalScans);
-
-//	return action;
-//}
 
 AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
 	if(!isConnected())
@@ -584,21 +508,6 @@ void CLSSIS3820ScalerChannel::onConnectedChanged()
 	if (wasConnected_ != isConnected())
 		emit connected(wasConnected_ = isConnected());
 }
-
-//AMBeamlineActionItem* CLSSIS3820ScalerChannel::createEnableAction(bool setEnabled){
-
-//	if(!isConnected())
-//		return 0; //NULL
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(channelEnable_);
-
-//	if(!action)
-//		return 0; //NULL
-
-//	action->setSetpoint(setEnabled ? 1 : 0);
-
-//	return action;
-//}
 
 AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
 	if(!isConnected())

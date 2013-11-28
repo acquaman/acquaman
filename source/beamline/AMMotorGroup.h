@@ -5,7 +5,6 @@
 #include <QMap>
 
 #include "beamline/AMControl.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "actions3/AMAction3.h"
 
 /// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.

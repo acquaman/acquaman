@@ -109,15 +109,6 @@ double SGMMAXvMotor::actualRetries() const{
 	return 0.5;
 }
 
-//AMBeamlineActionItem* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset){
-//	if(!isConnected())
-//		return 0;
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderCalibrationAbsoluteOffset_);
-//	action->setSetpoint(encoderCalibrationAbsoluteOffset);
-//	return action;
-//}
-
 AMAction3* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset){
 	if(!isConnected())
 		return 0;
@@ -129,15 +120,6 @@ AMAction3* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double enc
 	return action;
 }
 
-//AMBeamlineActionItem* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType){
-//	if(!isConnected())
-//		return 0;
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderType_);
-//	action->setSetpoint(encoderType);
-//	return action;
-//}
-
 AMAction3* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType){
 	if(!isConnected())
 		return 0;
@@ -148,15 +130,6 @@ AMAction3* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encod
 	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, encoderType_);
 	return action;
 }
-
-//AMBeamlineActionItem* SGMMAXvMotor::createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding){
-//	if(!isConnected())
-//		return 0;
-
-//	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderEncoding_);
-//	action->setSetpoint(encoderEncoding);
-//	return action;
-//}
 
 AMAction3* SGMMAXvMotor::createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding){
 	if(!isConnected())

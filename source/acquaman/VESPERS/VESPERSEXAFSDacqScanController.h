@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanController.h"
 #include "dataman/AMXASScan.h"
-#include "actions/AMBeamlineListAction.h"
 
 #include <QTimer>
 

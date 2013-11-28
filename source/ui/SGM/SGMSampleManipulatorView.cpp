@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QToolButton>
 
-#include "actions/AMBeamlineListAction.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 

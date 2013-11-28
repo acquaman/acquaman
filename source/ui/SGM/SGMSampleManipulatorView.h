@@ -89,10 +89,8 @@ protected:
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
-	//AMBeamlineListAction *transferPositionActions_;
 	AMAction3 *transferPositionActions_;
 	QPushButton *measurePositionButton_;
-	//AMBeamlineListAction *measurementPositionActions_;
 	AMAction3 *measurementPositionActions_;
 	QPushButton *hvButton_;
 

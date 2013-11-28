@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMMAXVMOTOR_H
 
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "actions/AMBeamlineActionItem.h"
 
 /*!
   Due to the fact that not all motors at the CLS use the same version of the MaxV driver, SGM needs to have its own class for the motor because
@@ -74,13 +73,10 @@ public:
 	double actualRetries() const;
 
 	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
-	//AMBeamlineActionItem* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 	AMAction3* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the encoder type. Returns 0 if the control is not connected.
-	//AMBeamlineActionItem* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
 	AMAction3* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
 	/// Returns a newly created action to change the encoder encoding. Returns 0 if the control is not connected.
-	//AMBeamlineActionItem* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 	AMAction3* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 
 public slots:

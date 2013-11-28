@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   VESPERS, however my understanding is that all of the apps were made by the same person (Ru) and therefore will likely be very similar, if not identical,
   to each other in naming conventions and other aspects.  To use the class, the idea will be to pass the base name and the constructor will build the
   necessary controls.  The functionality of the class will be similar to the new trend for AM classes to have getters, setters, and action getters.  Getters
-  and setters for immediate actions on the beamline, and action getters that return an AMBeamlineActionItem that handles all the necessary setup and can be
+  and setters for immediate actions on the beamline, and action getters that return an action that handles all the necessary setup and can be
   started at any time and behave according the Acquaman actions framework (useful for intialization or clean up procedures that need to wait for other actions
   to complete before starting).  One final thing, although most things use seconds as the default unit of time, the CLS app uses milliseconds.  Therefore,
   I have mapped all of the values from milliseconds to seconds for consistency within AM.

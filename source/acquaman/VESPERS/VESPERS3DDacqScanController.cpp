@@ -1,9 +1,7 @@
 #include "VESPERS3DDacqScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
-#include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 

@@ -1,9 +1,5 @@
 #include "AMMotorGroup.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlStopAction.h"
 #include "actions3/AMListAction3.h"

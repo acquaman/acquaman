@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEXAFSDacqScanController.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
@@ -27,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AM2DDeadTimeAB.h"
-#include "actions/AMBeamlineParallelActionsList.h"
+//#include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "analysis/AM1DDeadTimeAB.h"

@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "actions3/AMAction3.h"
 #include "util/AMErrorMonitor.h"
 
