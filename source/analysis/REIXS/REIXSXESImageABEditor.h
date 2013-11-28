@@ -152,6 +152,7 @@ public slots:
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
 	void onCSmoothBoxChanged();
+	void onCSmoothModeChanged();
 
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.

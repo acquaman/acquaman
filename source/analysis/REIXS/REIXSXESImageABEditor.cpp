@@ -309,6 +309,7 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	//connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), analysisBlock_, SLOT(setCorrelationSmoothing(int)));
 
 	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBoxChanged()));
+	connect(smoothModeBox_, SIGNAL(valueChanged(int)), this, SLOT(onCSmoothModeChanged()));
 
 
 	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
@@ -417,20 +418,24 @@ void REIXSXESImageABEditor::onCSmoothBoxChanged()
 
 	switch((smoothBoxType)correlationSmoothingBox_->currentIndex()) {
 	case None:
+		smoothModeBox_->setDisabled(true);
 		break;
 	case Poly:
+		smoothModeBox_->setEnabled(true);
 		smoothModeBox_->setMinimum(2);
 		smoothModeBox_->setMaximum(4);
 		smoothModeBox_->setSingleStep(1);
 		smoothModeBox_->setValue(2);
 		break;
 	case Median:
+		smoothModeBox_->setEnabled(true);
 		smoothModeBox_->setMinimum(1);
 		smoothModeBox_->setMaximum(99);
 		smoothModeBox_->setSingleStep(2);
 		smoothModeBox_->setValue(3);
 		break;
 	case Average:
+		smoothModeBox_->setEnabled(true);
 		smoothModeBox_->setMinimum(1);
 		smoothModeBox_->setMaximum(99);
 		smoothModeBox_->setSingleStep(2);
@@ -440,6 +445,10 @@ void REIXSXESImageABEditor::onCSmoothBoxChanged()
 		break;
 	}
 
+	analysisBlock_->setCorrelationSmoothing(QPair<int,int>(correlationSmoothingBox_->currentIndex(), smoothModeBox_->value()));
+}
+
+void REIXSXESImageABEditor::onCSmoothModeChanged() {
 	analysisBlock_->setCorrelationSmoothing(QPair<int,int>(correlationSmoothingBox_->currentIndex(), smoothModeBox_->value()));
 }
 
@@ -748,7 +757,7 @@ void REIXSXESImageABEditorEllipticalMask::xValues(unsigned indexStart, unsigned 
 	for(unsigned index=indexStart; index<=indexEnd; ++index) {
 		if(analysisBlock_->rangeRound() == 0.0) {
 			//rectangular masking
-			if(index == 0 || index == 2 || index == 4)
+			if(index == 0 || index == 3 || index == 4)
 				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinX();
 			else
 				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxX();
@@ -770,53 +779,56 @@ void REIXSXESImageABEditorEllipticalMask::xValues(unsigned indexStart, unsigned 
 void REIXSXESImageABEditorEllipticalMask::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
 	for(unsigned index=indexStart; index<=indexEnd; ++index) {
-		if(analysisBlock_->rangeRound() == 0.0) {
-			//rectangular masking
-			if(index == 0 || index == 1 || index == 4)
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxY();
-			else
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY();
-		}
-		else {
-			//rounded mask
-			qreal dx = analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX();
-			qreal dy = analysisBlock_->sumRangeMaxY() - analysisBlock_->sumRangeMinY();
-			double D = analysisBlock_->rangeRound(); //just for shorter formulas
-			qreal i = (qreal)index;
+		*(outputValues++) = REIXSXESImageABEditorEllipticalMask::y(index);
+
+//		if(analysisBlock_->rangeRound() == 0.0) {
+//			//rectangular masking
+//			if(index == 0 || index == 1 || index == 4)
+//				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxY();
+//			else
+//				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY();
+//		}
+//		else {
+//			//rounded mask
+//			qreal dx = analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX();
+//			qreal dy = analysisBlock_->sumRangeMaxY() - analysisBlock_->sumRangeMinY();
+//			double D = analysisBlock_->rangeRound(); //just for shorter formulas
+//			qreal i = (qreal)index;
 		
-			//done to here
-			if(index == 0 || index == (int)dx || index == 2*(int)dx) {
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
-			}
-			else if(i < D * dx/2.0) {
-				//upper left elliptical part
-				*(outputValues++) = sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
-			}
-			else if(i < dx - D * dx/2.0) {
-				//upper flat part
-				*(outputValues++) = analysisBlock_->sumRangeMaxY();
-			}
-			else if(i < dx) {
-				//upper right elliptical part
-				*(outputValues++) = sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
-			}
-			else if(i < dx + D * dx/2.0) {
-				//lower right elliptical part
-				*(outputValues++) = -(sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
-			}
-			else if(i < 2*dx - D * dx/2.0) {
-				//lower flat part
-				*(outputValues++) = analysisBlock_->sumRangeMinY();
-			}
-			else if(i < 2*dx) {
-				//lower left elliptical part
-				*(outputValues++) = -(sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
-			}
-			else {
-				//index out of range...shouldn't happen
-				*(outputValues++) = -1.0;
-			}
-		}
+//			//done to here
+//			if(index == 0 || index == (int)dx || index == 2*(int)dx) {
+//				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
+//			}
+//			else if(i < D * dx/2.0) {
+//				//upper left elliptical part
+//				*(outputValues++) = sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+//			}
+//			else if(i < dx - D * dx/2.0) {
+//				//upper flat part
+//				*(outputValues++) = analysisBlock_->sumRangeMaxY();
+//			}
+//			else if(i < dx) {
+//				//upper right elliptical part
+//				*(outputValues++) = sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+//			}
+//			else if(i < dx + D * dx/2.0) {
+//				//lower right elliptical part
+//qDebug() << "Lower right index - value:" << i << -(sqrt(-1.0 + ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
+//				*(outputValues++) = -(sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
+//			}
+//			else if(i < 2*dx - D * dx/2.0) {
+//				//lower flat part
+//				*(outputValues++) = analysisBlock_->sumRangeMinY();
+//			}
+//			else if(i < 2*dx) {
+//				//lower left elliptical part
+//				*(outputValues++) = -(sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
+//			}
+//			else {
+//				//index out of range...shouldn't happen
+//				*(outputValues++) = -1.0;
+//			}
+//		}
 
 	}
 }

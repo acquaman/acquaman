@@ -488,8 +488,10 @@ void REIXSXESImageAB::enableLiveCorrelation(bool enabled)
 
 void REIXSXESImageAB::correlateNow()
 {
+
 	if(!inputSource_ || !inputSource_->isValid())
 		return;
+
 
 	// variables:
 	int sizeY = inputSource_->size(1);
@@ -540,6 +542,8 @@ void REIXSXESImageAB::correlateNow()
 
 
 	if(correlationSmoothing_.first != 0) { //0 is no smoothing
+
+
 		// Apply smoothing to reduce the noise:
 		QVector<double> weights(sizeY, 0.0);
 		weights[sumRangeMinY_] = 0.5;
@@ -547,7 +551,9 @@ void REIXSXESImageAB::correlateNow()
 		for(int j=sumRangeMinY_+1; j<sumRangeMaxY_; ++j)
 			weights[j] = 1.0;
 
+
 		if(curveSmoother_) shifts = curveSmoother_->smooth(shifts, weights);
+
 
 		// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
 		int centerShift = shifts[midY];
@@ -745,14 +751,25 @@ void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
 void REIXSXESImageAB::setCorrelationSmoothingType(int type)
 {
 	correlationSmoothing_.first = type;
+
+	emitValuesChanged();
+
+	if(liveCorrelation())
+			callCorrelation_.schedule();
+
+	setModified(true);
 }
 
 void REIXSXESImageAB::setCorrelationSmoothingMode(int mode)
 {
 	correlationSmoothing_.second = mode;
 
+	emitValuesChanged();
+
 	if(liveCorrelation())
 		callCorrelation_.schedule();
+
+	setModified(true);
 }
 
 void REIXSXESImageAB::setCorrelationSmoothing(QPair<int,int> cSmooth)
