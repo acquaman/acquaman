@@ -29,28 +29,26 @@ signals:
     void pausePVs();
     void resumePVs();
     void updateTime(int newTime);
+    void updateUnits(const QString &newUnits);
 
 protected:
     StripToolModel *model_;
     StripToolListView *listView_;
-    QLineEdit *pvNameLineEdit_;
-    QPushButton *addButton_;
     QPushButton *pauseButton_;
     QPushButton *resumeButton_;
-    QSpinBox *timeEntry_;
+    QComboBox *timeUnits_;
     QLabel *message_;
 
 public:
     void setModel(StripToolModel *newModel);
+    QString getCurrentUnits() const;
     
 protected slots:
     void resetControls();
-    void displayMessage(const QString &text);
-    /// When the add button is clicked, information entry is disabled while we test to see if the entered pv name is valid.
-    void addClicked();
     void pauseClicked();
     void resumeClicked();
     void timeValueChanged(int newTime);
+    void timeUnitsSelected(const QString &newUnits);
 };
 
 #endif // STRIPTOOLQUICKCONTROLS_H

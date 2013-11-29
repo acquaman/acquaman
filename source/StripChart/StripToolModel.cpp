@@ -2,7 +2,6 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
-    xAxisLabel_ = "Time [s]";
 
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);
@@ -307,6 +306,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
+    connect( this, SIGNAL(updateTimeUnits(QString)), newPV, SLOT(toUpdateTimeUnits(QString)) );
 
     beginInsertRows(QModelIndex(), position, position + count - 1); //  notify list view and plot.
     pvList_.insert(position, newPV); // add new pv to the model.
@@ -353,7 +353,7 @@ void StripToolModel::editPV(const QModelIndex &index)
         }
 
         if (units != "")
-            toEdit->setUnits(units);
+            toEdit->setYUnits(units);
 
     }
 }
@@ -436,6 +436,14 @@ void StripToolModel::toUpdateTime(int newTime)
 
 
 
+void StripToolModel::toUpdateTimeUnits(const QString &newUnits)
+{
+    qDebug() << "The model received these units :" << newUnits;
+    emit updateTimeUnits(newUnits); // updates both the plot and pvs.
+}
+
+
+
 void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
 {
     if (index.isValid() && index.row() < pvList_.size())
@@ -443,17 +451,6 @@ void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
         StripToolPV *toChange = pvList_.at(index.row());
         toChange->setPVUpdating(isUpdating);
     }
-}
-
-
-
-void StripToolModel::setValuesDisplayed(const QModelIndex &index, int points)
-{
-//    if (index.isValid() && index.row() < pvList_.size())
-//    {
-//        StripToolPV *toChange = pvList_.at(index.row());
-//        toChange->setValuesDisplayed(points);
-//    }
 }
 
 
@@ -517,12 +514,12 @@ void StripToolModel::onModelSelectionChange()
 {
     if (selectedPV_ == 0)
     {
-        emit setPlotAxesLabels(xAxisLabel_, "");
+        emit setYAxisLabel("");
         emit setPlotTicksVisible(false);
 
     } else {
 
-        emit setPlotAxesLabels(xAxisLabel_, selectedPV()->yUnits());
+        emit setYAxisLabel(selectedPV()->yUnits());
         emit setPlotTicksVisible(true);
     }
 }
@@ -558,5 +555,12 @@ void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
 {
     StripToolPV *updated = (StripToolPV *) pvUpdated;
     emit forceUpdatePVs(updated->pvName());
+}
+
+
+
+void StripToolModel::toTestSignal(const QString &signalText)
+{
+    qDebug() << "Signal text received by model :" << signalText;
 }
 

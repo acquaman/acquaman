@@ -26,14 +26,15 @@ signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
-    void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
-    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
     void setPlotTicksVisible(bool isShown);
     void errorMessage(const QString &message);
     void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
     void forceUpdatePVs(const QString &updatedName);
     void updateTime(int newTime);
+    void updateTimeUnits(const QString &newUnits);
+    void setXAxisLabel(const QString &newLabel);
+    void setYAxisLabel(const QString &newLabel);
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -42,7 +43,6 @@ protected:
     QSignalMapper *saveDataMapper_;
     QSignalMapper *saveMetadataMapper_;
     QSignalMapper *pvUpdatedMapper_;
-    QString xAxisLabel_;
 
 public:
     StripToolPV* selectedPV() const;
@@ -96,17 +96,16 @@ protected slots:
     void toPausePVs();
     void toResumePVs();
     void toUpdateTime(int newTime);
+    void toUpdateTimeUnits(const QString &newUnits);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);
-//    void batchEditPVs(QList<QModelIndex> indicesToEdit);
-//    void editPV(QList<QModelIndex> indicesToEdit);
 
     /// Selects the appropriate pv and causes it to pause/resume updating on the plot.
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
 
     /// Selects the appropriate pv and changes the number of values it displays on the plot.
-    void setValuesDisplayed(const QModelIndex &index, int points);
+//    void setValuesDisplayed(const QModelIndex &index, int points);
 
     /// Basic color selection for pv.
     void colorPV(const QModelIndex &index, const QColor &color);
@@ -121,6 +120,8 @@ protected slots:
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
     void onSinglePVUpdated(QObject *updatedPV);
+
+    void toTestSignal(const QString &signalText);
 
 };
 

@@ -21,18 +21,20 @@ void StripToolView::buildUI()
 
     quickControls_ = new StripToolQuickControls(this);
     quickControls_->setModel(model_);
+    quickControls_->hide();
 
-    QHBoxLayout *dataLayout = new QHBoxLayout();
-    dataLayout->addWidget(plotView_);
-    dataLayout->addWidget(quickControls_);
+    controlPanel_ = new StripToolControlsPanel(this);
+    controlPanel_->setModel(model_);
+    connect( controlPanel_, SIGNAL(showSidebar()), quickControls_, SLOT(show()) );
+    connect( controlPanel_, SIGNAL(hideSidebar()), quickControls_, SLOT(hide()) );
 
-    QCheckBox *controlsToggle = new QCheckBox("Show controls", this);
-    controlsToggle->setChecked(true);
-    connect(controlsToggle, SIGNAL(stateChanged(int)), this, SLOT(toggleControls(int)) );
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(plotView_);
+    mainLayout->addWidget(controlPanel_);
 
-    QVBoxLayout *windowLayout = new QVBoxLayout();
-    windowLayout->addLayout(dataLayout);
-    windowLayout->addWidget(controlsToggle);
+    QHBoxLayout *windowLayout = new QHBoxLayout();
+    windowLayout->addLayout(mainLayout);
+    windowLayout->addWidget(quickControls_);
 
     setLayout(windowLayout);
 }

@@ -53,16 +53,15 @@ protected slots:
     /// Removes series from the plot when the rowsAboutToBeRemoved() signal is emitted from the model.
     void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
     /// Causes the string arguments to become the labels on the plot.
-    void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
-    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
+//    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
     void setTicksVisible(bool isShown);
     /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
     void onSeriesChanged(Qt::CheckState seriesState, int rowChanged);
     /// Causes a series to become de/selected to match the model's selected pv.
     void onModelSelectionChange();
-
-//    void contextMenuEvent(QContextMenuEvent *event);
-    void toToggleControls();
+    void toSetXAxisLabel(const QString &newLabel);
+    void toSetXAxisUnit(const QString &newUnit);
+    void toSetYAxisLabel(const QString &newLabel);
 
 };
 

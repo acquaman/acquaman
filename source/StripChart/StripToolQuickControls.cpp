@@ -7,21 +7,6 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
 
     listView_ = new StripToolListView(this);
 
-    pvNameLineEdit_ = new QLineEdit();
-    pvNameLineEdit_->setFocus(Qt::OtherFocusReason);
-    connect( this, SIGNAL(nameEntryEnabled(bool)), pvNameLineEdit_, SLOT(setEnabled(bool)) );
-    connect( this, SIGNAL(clearName()), pvNameLineEdit_, SLOT(clear()) );
-    connect( pvNameLineEdit_, SIGNAL(returnPressed()), this, SLOT(addClicked()) );
-    connect( pvNameLineEdit_, SIGNAL(textEdited(QString)), this, SIGNAL(clearMessage()) );
-
-    addButton_ = new QPushButton("Add");
-    connect( addButton_, SIGNAL(clicked()), this, SLOT(addClicked()) );
-    connect( this, SIGNAL(buttonEnabled(bool)), addButton_, SLOT(setEnabled(bool)) );
-
-    QHBoxLayout *addLayout = new QHBoxLayout();
-    addLayout->addWidget(pvNameLineEdit_);
-    addLayout->addWidget(addButton_);
-
     pauseButton_ = new QPushButton("Pause");
     connect( pauseButton_, SIGNAL(clicked()), this, SLOT(pauseClicked()) );
 
@@ -37,32 +22,34 @@ StripToolQuickControls::StripToolQuickControls(QWidget *parent) :
     pauseResumeGroup->setFlat(true);
 
     QLabel *timeLabel = new QLabel("Time :");
-    QSpinBox *timeEntry_ = new QSpinBox();
-    QLabel *timeUnits = new QLabel("sec");
 
-    timeEntry_->setValue(10);
-    connect( timeEntry_, SIGNAL(valueChanged(int)), this, SLOT(timeValueChanged(int)) );
+    QSpinBox *timeEntry = new QSpinBox();
+    timeEntry->setValue(10);
+    connect( timeEntry, SIGNAL(valueChanged(int)), this, SLOT(timeValueChanged(int)) );
+
+    timeUnits_ = new QComboBox();
+    timeUnits_->addItem("seconds");
+    timeUnits_->addItem("minutes");
+    timeUnits_->addItem("hours");
+    timeUnits_->setEditable(false);
+    connect( timeUnits_, SIGNAL(currentIndexChanged(QString)), this, SLOT(timeUnitsSelected(QString)) );
 
     QHBoxLayout *timeLayout = new QHBoxLayout();
     timeLayout->addWidget(timeLabel);
-    timeLayout->addWidget(timeEntry_);
-    timeLayout->addWidget(timeUnits);
+    timeLayout->addWidget(timeEntry);
+    timeLayout->addWidget(timeUnits_);
 
     QGroupBox *timeGroup = new QGroupBox();
     timeGroup->setLayout(timeLayout);
     timeGroup->setFlat(true);
-//    timeGroup->setEnabled(false);
 
     message_ = new QLabel("");
     connect( this, SIGNAL(clearMessage()), message_, SLOT(clear()) );
-    connect( this, SIGNAL(error(QString)), this, SLOT(displayMessage(QString)) );
 
     QVBoxLayout *controlsLayout = new QVBoxLayout();
     controlsLayout->addWidget(listView_);
-    controlsLayout->addLayout(addLayout);
     controlsLayout->addWidget(pauseResumeGroup);
     controlsLayout->addWidget(timeGroup);
-//    controlsLayout->addWidget(message_);
 
     QGroupBox *controlsGroup = new QGroupBox();
     controlsGroup->setLayout(controlsLayout);
@@ -93,7 +80,6 @@ void StripToolQuickControls::setModel(StripToolModel *newModel)
     connect( this, SIGNAL(updateTime(int)), model_, SLOT(toUpdateTime(int)) );
 
     connect( model_, SIGNAL(pvValid(bool)), this, SLOT(resetControls()) );
-    connect( model_, SIGNAL(errorMessage(QString)), this, SLOT(displayMessage(QString)) );
 
     listView_->setPVModel(model_);
 }
@@ -110,30 +96,30 @@ void StripToolQuickControls::resetControls()
 
 
 
-void StripToolQuickControls::displayMessage(const QString &text)
-{
-    message_->setText(text);
-    emit reset();
-}
+//void StripToolQuickControls::displayMessage(const QString &text)
+//{
+//    message_->setText(text);
+//    emit reset();
+//}
 
 
 
-void StripToolQuickControls::addClicked()
-{
-    emit buttonEnabled(false);
-    emit nameEntryEnabled(false);
+//void StripToolQuickControls::addClicked()
+//{
+//    emit buttonEnabled(false);
+//    emit nameEntryEnabled(false);
 
-    QString pvName = pvNameLineEdit_->text();
+//    QString pvName = pvNameLineEdit_->text();
 
-    if (pvName == "")
-    {
-        emit error("PV name cannot be blank.");
+//    if (pvName == "")
+//    {
+//        emit error("PV name cannot be blank.");
 
-    } else {
+//    } else {
 
-        emit addPV(pvName);
-    }
-}
+//        emit addPV(pvName);
+//    }
+//}
 
 
 
@@ -156,4 +142,19 @@ void StripToolQuickControls::resumeClicked()
 void StripToolQuickControls::timeValueChanged(int newTime)
 {
     emit updateTime(newTime);
+}
+
+
+
+QString StripToolQuickControls::getCurrentUnits() const
+{
+    return timeUnits_->currentText();
+}
+
+
+
+void StripToolQuickControls::timeUnitsSelected(const QString &newUnits)
+{
+    qDebug() << "New units :" << newUnits;
+    emit updateUnits(newUnits);
 }

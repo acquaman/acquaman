@@ -28,7 +28,6 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     setPlot(plot_);
 
     enableAntiAliasing(true);
-//    setContextMenuPolicy(Qt::ActionsContextMenu);
 
     connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
     connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );
@@ -53,18 +52,11 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, int)), this, SLOT(onSeriesChanged(Qt::CheckState, int)) );
-    connect( model_, SIGNAL(setPlotAxesLabels(QString, QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
+    connect( model_, SIGNAL(setXAxisLabel(QString)), this, SLOT(toSetXAxisLabel(QString)) );
+    connect( model_, SIGNAL(setYAxisLabel(QString)), this, SLOT(toSetYAxisLabel(QString)) );
     connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
-
+    connect( model_, SIGNAL(updateTimeUnits(QString)), this, SLOT(toSetXAxisUnit(QString)) );
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
-}
-
-
-
-void StripToolPlot::createActions()
-{
-    toggleControls_ = new QAction("Control Panel", this);
-    connect( toggleControls_, SIGNAL(triggered()), this, SLOT(toToggleControls()) );
 }
 
 
@@ -152,21 +144,42 @@ bool StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 
 
 
-void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
+void StripToolPlot::toSetXAxisLabel(const QString &newLabel)
 {
-    plot_->axisBottom()->setAxisName(bottomLabel);
-    plot_->axisBottom()->showAxisName(true);
-
-    plot_->axisLeft()->setAxisName(leftLabel);
-    plot_->axisLeft()->showAxisName(true);
+    plot_->axisBottom()->setAxisName(newLabel);
 }
 
 
 
-void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
+void StripToolPlot::toSetXAxisUnit(const QString &newUnit)
 {
-    plot_->axisScaleBottom()->setDataRange(axisBottom);
+    plot_->axisBottom()->setAxisName("Time [" + newUnit + "]");
 }
+
+
+
+void StripToolPlot::toSetYAxisLabel(const QString &newLabel)
+{
+    plot_->axisLeft()->setAxisName(newLabel);
+}
+
+
+
+//void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
+//{
+//    plot_->axisBottom()->setAxisName("Time [" + bottomLabel + "]");
+//    plot_->axisBottom()->showAxisName(true);
+
+//    plot_->axisLeft()->setAxisName(leftLabel);
+//    plot_->axisLeft()->showAxisName(true);
+//}
+
+
+
+//void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
+//{
+//    plot_->axisScaleBottom()->setDataRange(axisBottom);
+//}
 
 
 
@@ -207,22 +220,6 @@ void StripToolPlot::onModelSelectionChange()
     } else {
         qDebug() << "Attempting to select plot item that doesn't exist.";
     }
-}
-
-
-
-//void StripToolPlot::contextMenuEvent(QContextMenuEvent *event)
-//{
-//    QMenu menu(this);
-//    menu.addAction(toggleControls_);
-//    menu.exec(event->globalPos());
-//}
-
-
-
-void StripToolPlot::toToggleControls()
-{
-
 }
 
 

@@ -14,8 +14,6 @@ StripToolListView::StripToolListView(QWidget *parent) :
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
     connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
-    connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(beginDrag(QModelIndex)) );
-
 }
 
 

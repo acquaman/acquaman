@@ -30,14 +30,10 @@ signals:
 protected:
     int updateIndex_;
 
-//    int defaultValuesDisplayed_;
-//    int valuesDisplayed_;
-
     int defaultTimeDisplayed_;
     int timeDisplayed_;
 
     int dataVectorSize_;
-//    int displayVectorSize_;
     int savePoint_;
 
     QList<QString> headers_;
@@ -49,6 +45,8 @@ protected:
     bool isUpdating_;
     Qt::CheckState checkState_;
     QColor pvColor_;
+
+    double timeFactor_;
 
     QVector<QTime> masterUpdateTimes_;
     QVector<double> masterUpdateValues_;
@@ -67,7 +65,7 @@ protected:
     QString pvName() const;
     /// Returns the description for this pv, if the user has provided one.
     QString pvDescription() const;
-    /// The x units are the same for all pvs right now--"Update number"--but if they were different, they could be found here.
+    /// The pvs are all plotted against time, and the units of time are returned here.
     QString xUnits() const;
     /// Returns the pv's units, if the user has provided them.
     QString yUnits() const;
@@ -79,8 +77,6 @@ protected:
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.
     MPlotSeriesBasic* series();
-    /// Returns an integer representing the number of pv value updates that are displayed on the plot. By default, it displays the last ten updates.
-//    int valuesDisplayed();
     int timeDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time but isn't fully implemented.
     QVector<QString> saveMasterTimes();
@@ -101,8 +97,8 @@ protected:
 
 private:
     void setDescription(const QString &newDescription);
-    void setUnits(const QString &newUnits);
-//    void setValuesDisplayed(int points);
+    void setYUnits(const QString &newUnits);
+    void setXUnits(const QString &newUnits);
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
     void setMetaDataHeaders();
@@ -112,9 +108,9 @@ private:
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.
     void onPVValueChanged(double newValue);
-
     void toForceUpdateValue(const QString &toIgnore);
     void toUpdateTime(int newTime);
+    void toUpdateTimeUnits(const QString &newUnits);
 
 };
 

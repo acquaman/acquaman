@@ -14,7 +14,7 @@ StripTool::StripTool(QWidget *parent) : QWidget(parent)
     windowLayout->addWidget(mainView_);
 
     setLayout(windowLayout);
-    resize(700, 400);
+    resize(500, 500);
 }
 
 
