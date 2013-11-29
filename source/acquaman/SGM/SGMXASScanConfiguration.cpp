@@ -59,15 +59,6 @@ const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMOldDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
-	AMOldDetectorInfoSet allConfigurations;
-	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
-		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
-	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
-		allConfigurations.addDetectorInfo(xasDetectorsCfg_.detectorInfoAt(x), xasDetectorsCfg_.isActiveAt(x));
-	return allConfigurations;
-}
-
 bool SGMXASScanConfiguration::canEnumConvert(const QString &enumName) const{
 	if(enumName == "grating" || enumName == "harmonic")
 		return true;

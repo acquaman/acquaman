@@ -71,15 +71,6 @@ const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMOldDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
-	AMOldDetectorInfoSet allConfigurations;
-	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
-		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
-	for(int x = 0; x < fastDetectorsConfigurations_.count(); x++)
-		allConfigurations.addDetectorInfo(fastDetectorsConfigurations_.detectorInfoAt(x), fastDetectorsConfigurations_.isActiveAt(x));
-	return allConfigurations;
-}
-
 AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 	return new SGMFastScanConfiguration(*this);
 }

@@ -243,6 +243,7 @@ public:
 	/// All of the detectors on the beamline, regardless of whether they're connnected or not
 	AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
 
+	/*
 	/// All of the detectors currently connected on the beamline
 	AMOldDetectorSet* allDetectors() const { return allDetectors_;}
 	/// List of connected feedback detectors
@@ -251,6 +252,7 @@ public:
 	AMOldDetectorSet* XASDetectors() const { return XASDetectors_;}
 	/// List of connected detectors available for Fast scans
 	AMOldDetectorSet* FastDetectors() const { return FastDetectors_;}
+	*/
 
 	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
 	//QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
@@ -461,10 +463,12 @@ protected:
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
 
+	/*
 	AMOldDetectorSet *allDetectors_;
 	AMOldDetectorSet *feedbackDetectors_;
 	AMOldDetectorSet *XASDetectors_;
 	AMOldDetectorSet *FastDetectors_;
+	*/
 
 	/// Mapping detectors to their sets and whether they are default or not
 	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> > *detectorMap_;

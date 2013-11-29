@@ -62,8 +62,6 @@ public:
 
 	/// Returns the current configuration requested for the user selectable detectors
 	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return fastDetectorsConfigurations_; }
-	/// Returns the current configuration requested for all of the detectors
-	AMOldDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

@@ -528,6 +528,7 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 
+	/*
 	AMScan *scan = action->controller()->scan();
 
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
@@ -546,6 +547,7 @@ void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *ac
 		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
 		return;
 	}
+	*/
 }
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){

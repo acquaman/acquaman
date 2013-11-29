@@ -51,8 +51,6 @@ public:
 
 	/// Returns the current configuration requested for the user selectable detectors
 	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
-	/// Returns the current configuration requested for all of the detectors
-	AMOldDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
 	virtual bool canEnumConvert(const QString &enumName) const;
