@@ -404,6 +404,7 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QCheckBox *tempCheckBox;
 	QLabel *tempLabel;
 	QHBoxLayout *tempHL;
+	/*
 	AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
 	AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
 	for(int x = 0; x < allDetectors->count(); x++){
@@ -429,6 +430,7 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 		connect(tempCheckBox, SIGNAL(toggled(bool)), this, SLOT(onCheckBoxesChanged(bool)));
 		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
 	}
+	*/
 
 	setLayout(fl_);
 }
@@ -439,6 +441,7 @@ bool SGMDetectorsMasterView::hasUnsavedChanges() const{
 
 void SGMDetectorsMasterView::applyChanges(){
 	if(unsavedChanges_){
+		/*
 		AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
 		AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
 
@@ -461,6 +464,7 @@ void SGMDetectorsMasterView::applyChanges(){
 		}
 
 		storeInitialState();
+		*/
 	}
 }
 

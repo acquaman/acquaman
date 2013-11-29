@@ -239,9 +239,9 @@ public:
 	bool detectorConnectedByName(QString name);
 
 	/// Critical detectors that must be there for the beamline to be considered "connected". Can be altered in the beamline settings view
-	AMOldDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
+//	AMOldDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
 	/// All of the detectors on the beamline, regardless of whether they're connnected or not
-	AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
+	//AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
 
 	/*
 	/// All of the detectors currently connected on the beamline
@@ -448,8 +448,8 @@ protected:
 	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
-	AMOldDetectorSet *criticalDetectorsSet_;
-	AMOldDetectorSet *rawDetectorsSet_;
+//	AMOldDetectorSet *criticalDetectorsSet_;
+//	AMOldDetectorSet *rawDetectorsSet_;
 
 	AMControlSet *beamOnControlSet_;
 
@@ -462,13 +462,6 @@ protected:
 	AMControlSetSampleManipulator *sampleManipulator_;
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
-
-	/*
-	AMOldDetectorSet *allDetectors_;
-	AMOldDetectorSet *feedbackDetectors_;
-	AMOldDetectorSet *XASDetectors_;
-	AMOldDetectorSet *FastDetectors_;
-	*/
 
 	/// Mapping detectors to their sets and whether they are default or not
 	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> > *detectorMap_;
