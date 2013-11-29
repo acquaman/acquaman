@@ -1,19 +1,76 @@
 #include "SGMFluxResolutionPickerView.h"
 
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QBoxLayout>
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "acquaman/AMRegionsList.h"
 #include "beamline/SGM/SGMBeamline.h"
 
-SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
-		QGroupBox("Flux/Resolution", parent)
+SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMXASRegionsList *regions, QWidget *parent) :
+	QGroupBox("Flux/Resolution", parent)
 {
 	regions_ = regions;
 	minEnergy_ = -1;
 	maxEnergy_ = -1;
 
+	QVBoxLayout *tmpVL;
+	exitSlitGapGroupBox_ = new QGroupBox("Exit Slit Gap");
+	exitSlitGapLineEdit_ = new QLineEdit("N/A");
+	tmpVL = new QVBoxLayout();
+	tmpVL->setContentsMargins(2,2,2,2);
+	tmpVL->addWidget(exitSlitGapLineEdit_);
+	exitSlitGapGroupBox_->setLayout(tmpVL);
+
+	gratingGroupBox_ = new QGroupBox("Grating");
+	gratingLineEdit_ = new QLineEdit("N/A");
+	tmpVL = new QVBoxLayout();
+	tmpVL->setContentsMargins(2,2,2,2);
+	tmpVL->addWidget(gratingLineEdit_);
+	gratingGroupBox_->setLayout(tmpVL);
+
+	harmonicGroupBox_ = new QGroupBox("Harmonic");
+	harmonicLineEdit_ = new QLineEdit("N/A");
+	tmpVL = new QVBoxLayout();
+	tmpVL->setContentsMargins(2,2,2,2);
+	tmpVL->addWidget(harmonicLineEdit_);
+	harmonicGroupBox_->setLayout(tmpVL);
+
+	buttonsVL_ = new QVBoxLayout();
+	buttonsVL_->addStretch(8);
+	buttonsVL_->insertSpacing(0, 4);
+
+	ceVL_ = new QVBoxLayout();
+	ceVL_->addWidget(exitSlitGapGroupBox_);
+	ceVL_->addWidget(gratingGroupBox_);
+	ceVL_->addWidget(harmonicGroupBox_);
+	ceVL_->addStretch(10);
+
+	settingsHL_ = new QHBoxLayout();
+	settingsHL_->addLayout(buttonsVL_);
+	settingsHL_->addSpacing(5);
+	settingsHL_->addLayout(ceVL_, 10);
+
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addLayout(settingsHL_);
+	setLayout(mainVL_);
+}
+
+void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList &infoList){
+	for(int x = 0; x < infoList.count(); x++){
+		if( infoList.at(x).name() == "exitSlitGap")
+			exitSlitGapLineEdit_->setText(QString("%1").arg(infoList.at(x).value()));
+		if( infoList.at(x).name() == "grating")
+			gratingLineEdit_->setText(QString("%1").arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription((SGMBeamlineInfo::sgmGrating)infoList.at(x).value())));
+		if( infoList.at(x).name() == "harmonic")
+			harmonicLineEdit_->setText(QString("%1").arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription((SGMBeamlineInfo::sgmHarmonic)infoList.at(x).value())));
+	}
+}
+
+SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
+	SGMFluxResolutionPickerStaticView(regions, parent)
+{
 	bestFluxButton_ = new QPushButton("Best Flux");
 	bestResolutionButton_ = new QPushButton("Best Resolution");
 
@@ -27,27 +84,22 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	warningsLabel_->setFont(warningsFont);
 	warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
-	buttonsVL_ = new QVBoxLayout();
 	buttonsVL_->addWidget(bestFluxButton_);
 	buttonsVL_->addWidget(bestResolutionButton_);
-	buttonsVL_->addStretch(8);
-	buttonsVL_->insertSpacing(0, 4);
 
-	ceVL_ = new QVBoxLayout();
+	ceVL_->removeWidget(exitSlitGapGroupBox_);
+	ceVL_->removeWidget(gratingGroupBox_);
+	ceVL_->removeWidget(harmonicGroupBox_);
+	exitSlitGapGroupBox_->deleteLater();
+	gratingGroupBox_->deleteLater();
+	harmonicGroupBox_->deleteLater();
+
 	ceVL_->addWidget(exitSlitGapCE_);
 	ceVL_->addWidget(gratingCE_);
 	ceVL_->addWidget(harmonicCE_);
 	ceVL_->addStretch(10);
 
-	settingsHL_ = new QHBoxLayout();
-	settingsHL_->addLayout(buttonsVL_);
-	settingsHL_->addSpacing(5);
-	settingsHL_->addLayout(ceVL_, 10);
-
-	mainVL_ = new QVBoxLayout();
-	mainVL_->addLayout(settingsHL_);
 	mainVL_->addWidget(warningsLabel_);
-	setLayout(mainVL_);
 
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	connect(exitSlitGapCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));

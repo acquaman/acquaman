@@ -43,9 +43,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSidebar.h"
 #include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
+
 #include "ui/beamline/AMOldDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
 #include "ui/CLS/CLSOceanOptics65000DetectorView.h"
+#include "dataman/info/CLSPGTDetectorInfo.h"
+#include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
+
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
@@ -211,6 +215,8 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
+	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();

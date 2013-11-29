@@ -44,6 +44,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPen>
 #include <QBrush>
 
+class AMControlInfoListView : public QGroupBox
+{
+Q_OBJECT
+public:
+	AMControlInfoListView(const AMControlInfoList &infoList, QMap<int, QString> enumOverrides, QWidget *parent = 0);
+};
+
 /// An AMControlSetView is a means of generating a default view for an AMControlSet
 /*!
   Inheriting from QGroupBox, the AMControlSetView displays the contents of an AMControlSet in a group box.

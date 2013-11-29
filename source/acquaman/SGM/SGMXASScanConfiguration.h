@@ -49,15 +49,6 @@ public:
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
-	/// Returns the control set for flux/resolution (exit slit gap, grating, harmonic)
-	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
-	/// Returns the control set for tracking (mono tracking, undulator tracking, exit slit tracking)
-	AMControlSet *trackingSet() const { return trackingSet_;}
-
-	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
-	AMOldDetectorSet* detectorChoices() const { return xasDetectors_; }
-	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
-	AMOldDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
 	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
 	/// Returns the current configuration requested for all of the detectors
@@ -129,16 +120,6 @@ signals:
 	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
 
-	/// Emitted when the requested exit slit gap value changes
-	void exitSlitGapChanged(double exitSlitGap);
-	/// Emitted when the requested grating value changes
-	void gratingChanged(int grating);
-	/// Emitted when the requested harmonic value changes
-	void harmonicChanged(int harmonic);
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
-
 protected slots:
 	/// NOT CURRENTLY IN USE
 	void detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
@@ -150,15 +131,6 @@ protected:
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
 
 protected:
-	/// Control Set for flux/resolution (exit slit gap, grating, harmonic)
-	AMControlSet *fluxResolutionSet_;
-	/// Control set for the tracking (mono tracking, undulator tracking, exit slit tracking)
-	AMControlSet *trackingSet_;
-
-	/// The detectors specific to XAS retrieved from the SGM Beamline object
-	AMOldDetectorSet *xasDetectors_;
-	/// All the detectors in this configuration
-	AMOldDetectorSet *allDetectors_;
 	/// The configurations for the detectors
 	AMOldDetectorInfoSet xasDetectorsCfg_;
 };

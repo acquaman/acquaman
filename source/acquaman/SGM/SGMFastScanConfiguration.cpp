@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
-	qDebug() << "\nUsing default constructor\n\n";
-
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -39,30 +37,11 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	setParametersFromPreset(0);
 
 	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
-
-	/*
-	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
-
-	allDetectors_ = new AMOldDetectorSet(this);
-	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
-	for(int x = 0; x < fastDetectors_->count(); x++)
-		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
-
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
-
-	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
-	*/
 }
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original) :
 		AMFastScanConfiguration(original), SGMScanConfiguration()
 {
-	qDebug() << "\nUsing copy constructor\n\n";
-
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -79,20 +58,6 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 		setParameters(original.currentParameters());
 
 	setEnergyParameters(original.currentEnergyParameters());
-
-	/*
-	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
-	allDetectors_ = new AMOldDetectorSet(this);
-	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
-	for(int x = 0; x < fastDetectors_->count(); x++)
-		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
-
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD1ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
-	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
-	*/
 
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
 

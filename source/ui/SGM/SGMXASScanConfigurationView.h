@@ -39,7 +39,7 @@ class QSpacerItem;
 
 #include "ui/beamline/AMOldDetectorView.h"
 
-class SGMFluxResolutionPickerView;
+class SGMFluxResolutionPickerStaticView;
 
 class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
@@ -62,11 +62,13 @@ protected:
 	SGMXASScanConfiguration *cfg_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsView *regionsView_;
+	AMRegionsStaticView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
-	SGMFluxResolutionPickerView *fluxResolutionView_;
+	SGMFluxResolutionPickerStaticView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
+	AMControlInfoListView *trackingStaticView_;
 	AMOldDetectorSetView *xasDetectorsView_;
+	AMOldDetectorInfoSetView *xasDetectorsStaticView_;
 
 	QLabel *warningsLabel_;
 

@@ -60,10 +60,6 @@ public:
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
-	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY and TFY
-	//AMOldDetectorSet* detectorChoices() const { return fastDetectors_; }
-	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0, photodiode, and energy feedback)
-	//AMOldDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
 	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return fastDetectorsConfigurations_; }
 	/// Returns the current configuration requested for all of the detectors
@@ -259,10 +255,6 @@ protected:
 	void dbLoadFastScanParameters(AMDbObject *fastScanParameters);
 
 protected:
-	/// Detector set for detectors particular to fast scanning (retrieved from SGM Beamline object)
-	//AMOldDetectorSet *fastDetectors_;
-	/// All the detectors used for this scan
-	//AMOldDetectorSet *allDetectors_;
 	/// Configuration for the detectors in use
 	AMOldDetectorInfoSet fastDetectorsConfigurations_;
 
