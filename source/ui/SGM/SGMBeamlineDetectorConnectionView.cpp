@@ -24,12 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/AMOldDetector.h"
 
 SGMBeamlineDetectorConnectionView::SGMBeamlineDetectorConnectionView(QWidget *parent) :
 	QWidget(parent)
 {
 	fl_ = new QFormLayout();
-	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
+	QList<AMOldDetector*> possibleDetectors;// = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
 	for(int x = 0; x < possibleDetectors.count(); x++){
 		QCheckBox *tempCheckBox = new QCheckBox();
 		tempCheckBox->setEnabled(false);

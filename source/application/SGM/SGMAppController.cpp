@@ -567,6 +567,7 @@ void SGMAppController::onActionMirrorVeiw(){
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
+	/*
 	QStringList waitingForDetectorNames;
 	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
 	for(int x = 0; x < possibleDetectors.count(); x++)
@@ -581,6 +582,7 @@ void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *d
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
 	}
+	*/
 }
 
 bool SGMAppController::startupSGMInstallActions(){

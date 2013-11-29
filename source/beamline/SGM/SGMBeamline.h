@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBiHash.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMControlSetSampleManipulator.h"
-#include "beamline/AMOldDetectorSet.h"
 #include "beamline/AMControlOptimization.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
@@ -40,6 +39,7 @@ class AMSamplePlate;
 class SGMMAXvMotor;
 
 class AMOldDetector;
+class AMOldDetectorSet;
 class CLSAmptekSDD123DetectorNew;
 class CLSPGTDetectorV2;
 class CLSQE65000Detector;
@@ -253,7 +253,7 @@ public:
 	AMOldDetectorSet* FastDetectors() const { return FastDetectors_;}
 
 	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
-	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
+	//QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
 
 	AMAction3* createBeamOnActions3();
 	AMAction3* createStopMotorsActions3();

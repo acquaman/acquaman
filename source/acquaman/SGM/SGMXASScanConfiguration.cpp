@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfiguration.h"
 
+#include "beamline/AMOldDetectorSet.h"
+
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
 	xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());

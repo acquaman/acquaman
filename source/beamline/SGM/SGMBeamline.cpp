@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlStopAction.h"
 
 #include "beamline/AMOldDetector.h"
+#include "beamline/AMOldDetectorSet.h"
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
 
@@ -755,6 +756,7 @@ bool SGMBeamline::isVisibleLightOn() const{
 	return false;
 }
 
+/*
 QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set){
 	QPair<AMOldDetectorSet*, bool> tempDetectorSet;
 	QList<AMOldDetector*> retVal;
@@ -767,6 +769,7 @@ QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set
 	}
 	return retVal;
 }
+*/
 
 void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
 	if(currentSamplePlate_ != newSamplePlate){

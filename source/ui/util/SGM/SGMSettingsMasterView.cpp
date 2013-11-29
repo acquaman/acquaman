@@ -20,6 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMSettingsMasterView.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QCheckBox>
+#include <QLabel>
+
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/AMOldDetectorSet.h"
 
 SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
@@ -388,10 +393,6 @@ void SGMDacqConfigurationFileView::onLineEditsChanged(){
 		emit unsavedChanges(false);
 	}
 }
-
-#include "beamline/SGM/SGMBeamline.h"
-#include <QCheckBox>
-#include <QLabel>
 
 SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QGroupBox("Detectors", parent)

@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMXASScanConfiguration.h"
 #include "SGMScanConfiguration.h"
+#include "dataman/info/AMOldDetectorInfoSet.h"
 
 class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
 {

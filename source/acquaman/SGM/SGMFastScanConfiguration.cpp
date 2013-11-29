@@ -23,10 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDir>
 
+#include "beamline/AMOldDetectorSet.h"
 #include "util/SGM/SGMPeriodicTable.h"
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
+	qDebug() << "\nUsing default constructor\n\n";
+
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -37,6 +40,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 
+	/*
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 
 	allDetectors_ = new AMOldDetectorSet(this);
@@ -51,11 +55,14 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
 
 	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
+	*/
 }
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original) :
 		AMFastScanConfiguration(original), SGMScanConfiguration()
 {
+	qDebug() << "\nUsing copy constructor\n\n";
+
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -73,6 +80,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 
 	setEnergyParameters(original.currentEnergyParameters());
 
+	/*
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 	allDetectors_ = new AMOldDetectorSet(this);
 	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
@@ -84,6 +92,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD2ScalarDetector(), true);
 	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD3ScalarDetector(), true);
 	allDetectors_->addDetector(SGMBeamline::sgm()->filterPD4ScalarDetector(), true);
+	*/
 
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
 

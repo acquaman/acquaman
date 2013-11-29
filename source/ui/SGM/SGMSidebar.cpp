@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 
 #include "ui/beamline/AMControlButton.h"
+#include "beamline/AMOldDetector.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
