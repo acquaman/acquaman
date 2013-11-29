@@ -20,43 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlSetView.h"
 
-#include <QLineEdit>
-
-AMControlInfoListView::AMControlInfoListView(const AMControlInfoList &infoList, QMap<int, QString> enumOverrides, QWidget *parent) :
-	QGroupBox(parent)
-{
-	setTitle(infoList.name());
-
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->setContentsMargins(2,2,2,2);
-	setLayout(mainVL);
-
-	bool overridingEnums = false;
-	if(enumOverrides.count() > 0)
-		overridingEnums = true;
-
-	QGroupBox *tempGroupBox;
-	QLineEdit *tempLineEdit;
-	QVBoxLayout *tempVL;
-	for(int x = 0, size = infoList.count(); x < size; x++){
-		tempGroupBox = new QGroupBox(infoList.at(x).description());
-		QString lineEditString;
-		if(overridingEnums)
-			lineEditString = enumOverrides.value(infoList.at(x).value());
-		else
-			lineEditString = QString("%1").arg(infoList.at(x).value());
-		tempLineEdit = new QLineEdit(lineEditString);
-		tempVL = new QVBoxLayout();
-		tempVL->addWidget(tempLineEdit);
-		tempVL->setContentsMargins(2,2,2,2);
-		tempGroupBox->setLayout(tempVL);
-
-		mainVL->addWidget(tempGroupBox);
-	}
-
-	setFixedSize(300, 200);
-}
-
 /// Sets the title of the group box based on the name() function of the AMControlSet.
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.

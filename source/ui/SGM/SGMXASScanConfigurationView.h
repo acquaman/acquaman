@@ -28,8 +28,6 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-#include "ui/beamline/AMControlSetView.h"
-#include "ui/beamline/AMOldDetectorSetView.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -37,9 +35,9 @@ class QSpacerItem;
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
-#include "ui/beamline/AMOldDetectorView.h"
-
 class SGMFluxResolutionPickerStaticView;
+class AMControlInfoListView;
+class AMOldDetectorInfoSetView;
 
 class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
@@ -52,12 +50,6 @@ public:
 public slots:
 	void setDisabled(bool disabled);
 
-protected slots:
-	void onDetectorConfigurationsChanged();
-	void onSGMBeamlineCriticalControlsConnectedChanged();
-
-	void onScanNameEditChanged(const QString &scanName);
-
 protected:
 	SGMXASScanConfiguration *cfg_;
 
@@ -65,18 +57,11 @@ protected:
 	AMRegionsStaticView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	SGMFluxResolutionPickerStaticView *fluxResolutionView_;
-	AMControlSetView *trackingView_;
 	AMControlInfoListView *trackingStaticView_;
-	AMOldDetectorSetView *xasDetectorsView_;
 	AMOldDetectorInfoSetView *xasDetectorsStaticView_;
-
-	QLabel *warningsLabel_;
 
 	QVBoxLayout *mainVL_;
 	QGridLayout *bottomGL_;
-
-	QLabel *scanNameLabel_;
-	QLineEdit *scanNameEdit_;
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEWER_H
