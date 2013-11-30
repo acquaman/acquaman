@@ -238,25 +238,6 @@ public:
 
 	bool detectorConnectedByName(QString name);
 
-	/// Critical detectors that must be there for the beamline to be considered "connected". Can be altered in the beamline settings view
-//	AMOldDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
-	/// All of the detectors on the beamline, regardless of whether they're connnected or not
-	//AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
-
-	/*
-	/// All of the detectors currently connected on the beamline
-	AMOldDetectorSet* allDetectors() const { return allDetectors_;}
-	/// List of connected feedback detectors
-	AMOldDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
-	/// List of connected detectors availabe for XAS scans
-	AMOldDetectorSet* XASDetectors() const { return XASDetectors_;}
-	/// List of connected detectors available for Fast scans
-	AMOldDetectorSet* FastDetectors() const { return FastDetectors_;}
-	*/
-
-	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
-	//QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
-
 	AMAction3* createBeamOnActions3();
 	AMAction3* createStopMotorsActions3();
 
@@ -423,6 +404,7 @@ protected:
 	AMOldDetector *filterPD2ScalarDetector_;
 	AMOldDetector *filterPD3ScalarDetector_;
 	AMOldDetector *filterPD4ScalarDetector_;
+
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
@@ -448,8 +430,6 @@ protected:
 	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
-//	AMOldDetectorSet *criticalDetectorsSet_;
-//	AMOldDetectorSet *rawDetectorsSet_;
 
 	AMControlSet *beamOnControlSet_;
 
