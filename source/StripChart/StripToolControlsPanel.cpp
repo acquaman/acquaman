@@ -14,6 +14,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     pauseResume_ = new DoubleButtonWidget(this);
     pauseResume_->setLeftButtonText("Pause");
     pauseResume_->setRightButtonText("Resume");
+    pauseResume_->setMinimumWidth(200);
     connect( pauseResume_, SIGNAL(leftButtonClicked()), this, SLOT(onPauseButtonClicked()) );
     connect( pauseResume_, SIGNAL(rightButtonClicked()), this, SLOT(onResumeButtonClicked()) );
 
@@ -23,6 +24,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     separator2->setMaximumHeight(20);
 
     timeEntry_ = new TimeEntryWidget(this);
+    timeEntry_->setMinimumWidth(200);
 
     QFrame *separator3 = new QFrame();
     separator3->setFrameShape(QFrame::VLine);
@@ -43,18 +45,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     controlsLayout->addWidget(separator3);
     controlsLayout->addWidget(sidebarButton_);
 
-//    QGroupBox *controlsGroup = new QGroupBox();
-//    controlsGroup->setLayout(controlsLayout);
-//    controlsGroup->setMaximumHeight(100);
-//    controlsGroup->setFlat(true);
-
-//    QVBoxLayout *mainLayout = new QVBoxLayout();
-//    mainLayout->addWidget(controlsGroup);
-
-//    setLayout(mainLayout);
-
     setLayout(controlsLayout);
-    setMinimumHeight(30);
 
 }
 

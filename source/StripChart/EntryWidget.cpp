@@ -4,6 +4,7 @@ EntryWidget::EntryWidget(QWidget *parent) :
     QWidget(parent)
 {
     lineEdit_ = new QLineEdit();
+    lineEdit_->setMinimumWidth(100);
     connect( this, SIGNAL(entryEnabled(bool)), lineEdit_, SLOT(setEnabled(bool)) );
     connect( this, SIGNAL(clearEntry()), lineEdit_, SLOT(clear()) );
     connect( lineEdit_, SIGNAL(textChanged(QString)), this, SLOT(toSaveEntry(QString)) );

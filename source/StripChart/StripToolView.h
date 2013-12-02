@@ -7,7 +7,7 @@
 #include "StripChart/StripToolPlot.h"
 #include "StripChart/StripToolModel.h"
 #include "StripChart/StripToolListView.h"
-#include "StripChart/StripToolQuickControls.h"
+#include "StripChart/StripToolSidePanel.h"
 #include "StripChart/ReloadPVDialog.h"
 #include "StripChart/StripToolControlsPanel.h"
 
@@ -27,16 +27,12 @@ signals:
 protected:
     StripToolModel *model_;
     StripToolPlot *plotView_;
-    StripToolQuickControls *quickControls_;
+    StripToolSidePanel *sidePanel_;
     StripToolControlsPanel *controlPanel_;
 
 protected:
-    /// Creates instances of StripToolPlot and StripToolQuickControls, and a checkbox that toggles STQC's visibility.
+    /// Creates instances of StripToolPlot, StripToolSidePanel, and StripToolControlsPanel.
     void buildUI();
-
-protected slots:
-    /// Causes the StripToolsQuickControls to dis/appear as needed.
-    void toggleControls(int checkState);
 
 };
 
