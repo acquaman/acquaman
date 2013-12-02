@@ -33,7 +33,6 @@ class QSpacerItem;
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
-#include "acquaman/SGM/SGMXASDacqScanController.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"

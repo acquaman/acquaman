@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMAppController.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/export/AMExporter.h"
@@ -267,9 +266,7 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 

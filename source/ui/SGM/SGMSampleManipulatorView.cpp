@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QToolButton>
 
-#include "actions/AMBeamlineListAction.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 
@@ -85,8 +84,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 	measurePositionButton_ = new QPushButton("Measure Position");
 	measurementPositionActions_ = 0;//NULL
 
-	hvButton_ = new QPushButton("HV Toggle");
-
 	mVerticalCtrl_ = SGMBeamline::sgm()->ssaManipulatorZ();
 	mHorizontalCtrl_ = SGMBeamline::sgm()->ssaManipulatorX();
 	mInPlaneCtrl_ = SGMBeamline::sgm()->ssaManipulatorY();
@@ -135,7 +132,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 
 		transferPositionButton_->setMinimumHeight(100);
 		measurePositionButton_->setMinimumHeight(100);
-		hvButton_->setMinimumHeight(100);
 
 		illuminatorOff_->setMinimumHeight(75);
 		illuminatorDim_->setMinimumHeight(75);
@@ -165,8 +161,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 	connect(jogSettingComboBox_, SIGNAL(activated(int)), this, SLOT(onJogSettingComboBoxChanged(int)));
 	connect(transferPositionButton_, SIGNAL(clicked()), this, SLOT(onTransferPositionButtonClicked()));
 	connect(measurePositionButton_, SIGNAL(clicked()), this, SLOT(onMeasurePositionButtonClicked()));
-	connect(hvButton_, SIGNAL(clicked()), this, SLOT(onHVButtonClicked()));
-	connect(SGMBeamline::sgm(), SIGNAL(detectorHVChanged()), this, SLOT(onHVStateChanged()));
 
 	connect(illuminatorSlider_, SIGNAL(sliderMoved(int)), this, SLOT(onIlluminatorSliderValueMoved(int)));
 	connect(SGMBeamline::sgm()->ssaIllumination(), SIGNAL(valueChanged(double)), this, SLOT(onIlluminatorFeedbackChanged(double)));
@@ -206,7 +200,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 		vl2->addLayout(ipl);
 		vl2->addWidget(transferPositionButton_);
 		vl2->addWidget(measurePositionButton_);
-		vl2->addWidget(hvButton_);
 	}
 	else{
 		vl1->addStretch(10);
@@ -217,7 +210,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 		vl1->addLayout(ipl);
 		vl1->addWidget(transferPositionButton_);
 		vl1->addWidget(measurePositionButton_);
-		vl1->addWidget(hvButton_);
 	}
 
 	QHBoxLayout *hl = new QHBoxLayout();
@@ -409,53 +401,21 @@ void SGMSampleManipulatorView::onJogSettingComboBoxChanged(int index){
 }
 
 void SGMSampleManipulatorView::onTransferPositionButtonClicked(){
-	if(transferPositionActions_ && transferPositionActions_->isRunning())
+	if(transferPositionActions_ && !transferPositionActions_->inFinalState())
 		return;
 	if(transferPositionActions_)
-		delete transferPositionActions_;
-	transferPositionActions_ = SGMBeamline::sgm()->createGoToTransferPositionActions();
+		transferPositionActions_->deleteLater();
+	transferPositionActions_ = SGMBeamline::sgm()->createGoToTransferPositionActions3();
 	transferPositionActions_->start();
 }
 
 void SGMSampleManipulatorView::onMeasurePositionButtonClicked(){
-	if(measurementPositionActions_ && measurementPositionActions_->isRunning())
+	if(measurementPositionActions_ && !measurementPositionActions_->inFinalState())
 		return;
 	if(measurementPositionActions_)
-		delete measurementPositionActions_;
-	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions();
+		measurementPositionActions_->deleteLater();
+	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions3();
 	measurementPositionActions_->start();
-}
-
-void SGMSampleManipulatorView::onHVButtonClicked(){
-	if( SGMBeamline::sgm()->tfyHVToggle()->tolerance() > fabs(SGMBeamline::sgm()->tfyHVToggle()->value()-1) ){
-		SGMBeamline::sgm()->tfyHVToggle()->move(0);
-	}
-	else{
-		SGMBeamline::sgm()->tfyHVToggle()->move(1);
-	}
-}
-
-void SGMSampleManipulatorView::onHVStateChanged(){
-//	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
-//		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
-//		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
-//		case 0:
-//			hvButton_->setText("HV is OFF");
-//			break;
-//		case 1:
-//			hvButton_->setText("HV is ON");
-//			break;
-//		case 2:
-//			hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
-//			break;
-//		case 3:
-//			hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
-//			break;
-//		}
-//		lastHVValue_ = curHVValue;
-//	}
-//	else
-		hvButton_->setText("--Disconnected--");
 }
 
 void SGMSampleManipulatorView::onIlluminatorSliderValueMoved(int newValue){

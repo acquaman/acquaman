@@ -28,12 +28,12 @@ class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
 class QCheckBox;
+class QToolButton;
 
 class AMControlButton;
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
-#include "actions/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
@@ -120,8 +120,8 @@ protected:
 	int stripToolCounter_;
 	MPlotAxisScale* stripToolSpecialAxisScale_;
 
-	AMBeamlineListAction *beamOnAction_;
-	AMBeamlineListAction *stopMotorsAction_;
+	AMAction3 *beamOnAction_;
+	AMAction3 *stopMotorsAction_;
 };
 
 #endif // SGMSIDEBAR_H

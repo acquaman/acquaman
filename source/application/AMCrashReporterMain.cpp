@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 		QCoreApplication coreApp(argc, argv);
 		coreApp.setApplicationName("Acquaman Crash Monitor");
 
-		AMCrashMonitor *crashMonitor = new AMCrashMonitor(coreApp.arguments().at(2), coreApp.arguments().at(3).toInt());
+		AMCrashMonitor *crashMonitor = new AMCrashMonitor(coreApp.arguments().at(2), coreApp.arguments().at(3), coreApp.arguments().at(4).toInt());
 
 		return coreApp.exec();
 	}
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 		QApplication app(argc, argv);
 		app.setApplicationName("Acquaman Crash Reporter");
 
-		AMCrashReporter *crashReporter = new AMCrashReporter(app.arguments().at(1), app.arguments().at(2).toInt(), app.arguments().at(3).toInt());
+		AMCrashReporter *crashReporter = new AMCrashReporter(app.arguments().at(1), app.arguments().at(2), app.arguments().at(3).toInt(), app.arguments().at(4).toInt());
 		crashReporter->show();
 
 		return app.exec();

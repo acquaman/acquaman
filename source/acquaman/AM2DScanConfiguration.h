@@ -79,11 +79,11 @@ public:
 	/// Returns the pointer to the meta object.
 	virtual const QMetaObject* getMetaObject() { return metaObject(); }
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("2D Scan over %1 and %2").arg(xAxisName()).arg(yAxisName());
 	}
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("2D Scan over %1 and %2 from (%3,%4) %5 and (%6,%7) %8")
 				.arg(xAxisName())

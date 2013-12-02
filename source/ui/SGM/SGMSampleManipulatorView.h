@@ -32,7 +32,7 @@ class QToolButton;
 class QButtonGroup;
 class QGridLayout;
 
-class AMBeamlineListAction;
+class AMAction3;
 class SGMMAXvMotor;
 class AMExtendedControlEditor;
 
@@ -67,9 +67,6 @@ protected slots:
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
-	void onHVButtonClicked();
-	void onHVStateChanged();
-
 	void onIlluminatorSliderValueMoved(int newValue);
 	void onIlluminatorFeedbackChanged(double newValue);
 	void onIlluminatorPreset(int presetIndex);
@@ -89,10 +86,9 @@ protected:
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
-	AMBeamlineListAction *transferPositionActions_;
+	AMAction3 *transferPositionActions_;
 	QPushButton *measurePositionButton_;
-	AMBeamlineListAction *measurementPositionActions_;
-	QPushButton *hvButton_;
+	AMAction3 *measurementPositionActions_;
 
 	SGMMAXvMotor *mVerticalCtrl_;
 	SGMMAXvMotor *mHorizontalCtrl_;

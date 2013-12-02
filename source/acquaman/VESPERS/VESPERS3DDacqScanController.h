@@ -5,7 +5,6 @@
 #include "acquaman/VESPERS/VESPERSScanController.h"
 #include "acquaman/VESPERS/VESPERS3DScanConfiguration.h"
 #include "dataman/AM3DScan.h"
-#include "actions/AMBeamlineListAction.h"
 #include "application/VESPERS/VESPERS.h"
 
 #include <QTimer>

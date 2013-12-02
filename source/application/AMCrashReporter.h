@@ -59,7 +59,7 @@ class AMCrashMonitor : public QObject
 {
 Q_OBJECT
 public:
-	AMCrashMonitor(const QString &executableFullPath, int watchingPID, QObject *parent = 0);
+	AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent = 0);
 
 protected slots:
 	void onSiguser1Detected();
@@ -67,6 +67,7 @@ protected slots:
 
 protected:
 	QString executableFullPath_;
+	QString errorFilePath_;
 	int watchingPID_;
 
 	qint64 crashReporterPID_;
@@ -78,7 +79,7 @@ class AMCrashReporter : public QWidget
 {
 Q_OBJECT
 public:
-	AMCrashReporter(const QString &executableFullPath, int watchingPID, int monitorPID, QWidget *parent = 0);
+	AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent = 0);
 	
 protected slots:
 	void onSiguser1Detected();
@@ -90,6 +91,7 @@ protected slots:
 
 protected:
 	QString executableFullPath_;
+	QString errorFilePath_;
 	int watchingPID_;
 	int monitorPID_;
 

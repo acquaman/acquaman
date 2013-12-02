@@ -35,13 +35,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMControlStopAction.h"
 
 #include "beamline/AMOldDetector.h"
 #include "beamline/AMSingleControlDetector.h"
-#include "beamline/SGM/SGMMCPDetector.h"
-#include "beamline/CLS/CLSPGTDetector.h"
 #include "beamline/CLS/CLSOceanOptics65000Detector.h"
-#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSPGTDetectorV2.h"
@@ -49,6 +47,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+
+#include "util/AMErrorMonitor.h"
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
@@ -188,19 +188,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
 	rawDetectorsSet_->addDetector(tfyScalerDetector_);
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
-	//connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
-
-	/*
-	pgtDetector_ = new CLSPGTDetector("OLDpgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMOldDetector::WaitRead, this);
-	pgtDetector_->setDescription("OLD SDD");
-	detectorRegistry_.append(pgtDetector_);
-	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
-	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
-	// PGT looks broken, so don't include it as a critical detector any more
-	//criticalDetectorsSet_->addDetector(pgtDetector_);
-	rawDetectorsSet_->addDetector(pgtDetector_);
-	*/
 
 	oos65000Detector_ = new CLSOceanOptics65000Detector("OLDoos65000", "SA0000-03", AMOldDetector::WaitRead, this);
 	oos65000Detector_->setDescription("OLD OceanOptics 65000");
@@ -460,9 +447,7 @@ QString SGMBeamline::currentEndstation() const{
 }
 
 int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const{
-	/*if(detector == pgtDetector_)
-		return 2;
-	else*/ if(detector == oos65000Detector_)
+	if(detector == oos65000Detector_)
 		return 3;
 	else
 		return -1;
@@ -523,12 +508,6 @@ AMOldDetector* SGMBeamline::teyDetector() const {
 AMOldDetector* SGMBeamline::tfyDetector() const {
 	return tfyScalerDetector_;
 }
-
-/*
-AMOldDetector* SGMBeamline::pgtDetector() const {
-	return pgtDetector_;
-}
-*/
 
 AMOldDetector* SGMBeamline::oos65000Detector() const {
 	return oos65000Detector_;
@@ -656,25 +635,6 @@ AMDetector* SGMBeamline::gratingEncoderDetector() const {
 	return gratingEncoderDetector_;
 }
 
-AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
-	if(!beamOnControlSet_->isConnected())
-		return 0;// NULL
-	AMBeamlineParallelActionsList *beamOnActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *beamOnAction = new AMBeamlineListAction(beamOnActionsList);
-	// Action to turn on beam for SGM:
-	// Set beamOn to "1"
-	// Set fastShutterVoltage to "0 V"
-	AMBeamlineControlMoveAction *beamOnAction1 = new AMBeamlineControlMoveAction(beamOn());
-	beamOnAction1->setSetpoint(1);
-	AMBeamlineControlMoveAction *beamOnAction2 = new AMBeamlineControlMoveAction(fastShutterVoltage());
-	beamOnAction2->setSetpoint(0);
-
-	beamOnActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	beamOnActionsList->appendAction(0, beamOnAction1);
-	beamOnActionsList->appendAction(0, beamOnAction2);
-	return beamOnAction;
-}
-
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMBeamline::createBeamOnActions3(){
@@ -696,100 +656,83 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	return beamOnActionsList;
 }
 
-AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
-	AMBeamlineParallelActionsList *stopMotorsActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *stopMotorsAction = new AMBeamlineListAction(stopMotorsActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlStopAction *stopMotorsAction1 = new AMBeamlineControlStopAction(mono());
-	AMBeamlineControlStopAction *stopMotorsAction2 = new AMBeamlineControlStopAction(exitSlit());
-	AMBeamlineControlStopAction *stopMotorsAction3 = new AMBeamlineControlStopAction(undulator());
+AMAction3* SGMBeamline::createStopMotorsActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
 
-	stopMotorsActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	stopMotorsActionsList->appendAction(0, stopMotorsAction1);
-	stopMotorsActionsList->appendAction(0, stopMotorsAction2);
-	stopMotorsActionsList->appendAction(0, stopMotorsAction3);
-	return stopMotorsAction;
+	AMListAction3 *stopMotorsActionsList = new AMListAction3(new AMListActionInfo3("SGM Stop Motors", "SGM Stop Motors"), AMListAction3::Parallel);
+
+	AMControlInfo stopMonoMotorInfo = mono()->toInfo();
+	AMControlInfo stopExitSlitMotorInfo = exitSlit()->toInfo();
+	AMControlInfo stopUndulatorMotorInfo = undulator()->toInfo();
+
+	AMControlStopActionInfo *stopMonoActionInfo = new AMControlStopActionInfo(stopMonoMotorInfo);
+	AMControlStopActionInfo *stopExitSlitActionInfo = new AMControlStopActionInfo(stopExitSlitMotorInfo);
+	AMControlStopActionInfo *stopUndulatorActionInfo = new AMControlStopActionInfo(stopUndulatorMotorInfo);
+
+	AMControlStopAction *stopMonoAction = new AMControlStopAction(stopMonoActionInfo, mono());
+	AMControlStopAction *stopExitSlitAction = new AMControlStopAction(stopExitSlitActionInfo, exitSlit());
+	AMControlStopAction *stopUndulatorAction = new AMControlStopAction(stopUndulatorActionInfo, undulator());
+
+	stopMotorsActionsList->addSubAction(stopMonoAction);
+	stopMotorsActionsList->addSubAction(stopExitSlitAction);
+	stopMotorsActionsList->addSubAction(stopUndulatorAction);
+
+	return stopMotorsActionsList;
 }
 
-AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
-	AMBeamlineParallelActionsList *gotoTransferPositionActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *gotoTransferPositionAction = new AMBeamlineListAction(gotoTransferPositionActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
-	gotoTransferPositionAction1->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoTransferPositionAction2->setSetpoint(-13.17);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoTransferPositionAction3->setSetpoint(-77.0);
-	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
-	gotoTransferPositionAction4->setSetpoint(0.0);
+AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
 
-	gotoTransferPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction1);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction2);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction3);
-	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction4);
-	return gotoTransferPositionAction;
+	AMListAction3 *goToTransferPostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Tranfer", "SGM Go To Tranfer"), AMListAction3::Parallel);
+
+	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
+	manipulatorXSetpoint.setValue(0.0);
+	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
+	manipulatorYSetpoint.setValue(-13.17);
+	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
+	manipulatorZSetpoint.setValue(-77.0);
+	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
+	manipulatorRSetpoint.setValue(0.0);
+
+	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
+	goToTransferPostionActionsList->addSubAction(manipulatorXAction);
+	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
+	goToTransferPostionActionsList->addSubAction(manipulatorYAction);
+	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
+	goToTransferPostionActionsList->addSubAction(manipulatorZAction);
+	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
+	goToTransferPostionActionsList->addSubAction(manipulatorRAction);
+
+	return goToTransferPostionActionsList;
 }
 
-AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
-	AMBeamlineParallelActionsList *gotoMeasurementPositionActionsList = new AMBeamlineParallelActionsList();
-	AMBeamlineListAction *gotoMeasurementPositionAction = new AMBeamlineListAction(gotoMeasurementPositionActionsList);
-	// Action to stop motors for SGM:
-	// Stop mono, exit slit,
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
-	gotoMeasurementPositionAction1->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoMeasurementPositionAction2->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoMeasurementPositionAction3->setSetpoint(0.0);
-	AMBeamlineControlMoveAction *gotoMeasurementPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
-	gotoMeasurementPositionAction4->setSetpoint(0.0);
+AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
 
-	gotoMeasurementPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction1);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction2);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction3);
-	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction4);
-	return gotoMeasurementPositionAction;
-}
+	AMListAction3 *goToMeasurePostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Measure", "SGM Go To Measure"), AMListAction3::Parallel);
 
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
+	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
+	manipulatorXSetpoint.setValue(0.0);
+	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
+	manipulatorYSetpoint.setValue(0.0);
+	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
+	manipulatorZSetpoint.setValue(0.0);
+	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
+	manipulatorRSetpoint.setValue(0.0);
 
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
-}
+	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorXAction);
+	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorYAction);
+	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorZAction);
+	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
+	goToMeasurePostionActionsList->addSubAction(manipulatorRAction);
 
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOnActions(){
-	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
-	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
-	return onAction;
-}
-
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
-	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
-	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
-	return offAction;
+	return goToMeasurePostionActionsList;
 }
 
 CLSSIS3820Scaler* SGMBeamline::scaler(){

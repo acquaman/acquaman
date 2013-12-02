@@ -20,9 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSPIDLoopControl.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"

@@ -26,7 +26,7 @@ class AMScanConfiguration;
 class AMScanConfigurationView;
 
 /// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the workflow queue (using AMActionRunner).
-/*! This class is an updated version of AMScanConfigurationViewHolder that uses the workflow system in actions3/AMActionRunner.
+/*! This class is an updated version of the old scan configuration view holder that uses the workflow system in actions3/AMActionRunner.
 
 This widget takes ownership of the view specifified in its constructor.
 

@@ -51,7 +51,6 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 //  # Action StartPass WaitPV "<Dwell Time Confirmed PV>" "1"
 // Basically, reset the confirmation, then trigger a request for change, then wait someone to confirm that the change has been made
 // On this side, we will connect to the trigger, look to see it has changed to "1", do what changes we need to, and then reset the trigger and set the confirm to "1"
-// Check SGMXASDacqScanController for more information, tested with that model.
 void AMDacqScanController::useDwellTimes(AMControl *dwellTimeTrigger, AMControl *dwellTimeConfirmed){
 	if(dwellTimeTrigger && dwellTimeConfirmed && dwellTimeTrigger->isConnected() && dwellTimeConfirmed->isConnected()){
 		useDwellTimes_ = true;

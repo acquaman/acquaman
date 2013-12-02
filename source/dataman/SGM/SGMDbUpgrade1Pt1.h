@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/database/AMDbUpgrade.h"
 
-/// This class is used to upgrade databases from PGTDetectorInfo, MCPDetectorInfo, and OceanOptics65000DetectorInfo to CLSPGTDetector, SGMMCPDetectorInfo, and CLSOceanOptics65000DetectorInfo.
+/// This class is used to upgrade databases from PGTDetectorInfo, MCPDetectorInfo, and OceanOptics65000DetectorInfo to CLSPGTDetectorInfo, SGMMCPDetectorInfo, and CLSOceanOptics65000DetectorInfo.
 
 class SGMDbUpgrade1Pt1 : public AMDbUpgrade
 {

@@ -20,10 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSSpatialLineDacqScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
 #include "dataman/AMLineScan.h"
-#include "actions/AMBeamlineParallelActionsList.h"
+//#include "actions/AMBeamlineParallelActionsList.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM1DSummingAB.h"

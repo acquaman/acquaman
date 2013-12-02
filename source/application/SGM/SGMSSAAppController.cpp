@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSidebar.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMWorkflowManagerView.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"

@@ -110,9 +110,8 @@ AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 	return new SGMFastScanConfiguration(*this);
 }
 
-#include "SGMFastDacqScanController.h"
 AMScanController* SGMFastScanConfiguration::createController(){
-	return new SGMFastDacqScanController(this);
+	return 0; //NULL
 }
 
 #include "ui/SGM/SGMFastScanConfigurationView.h"

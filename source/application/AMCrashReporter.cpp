@@ -75,10 +75,11 @@ AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &
 	invalid_ = false;
 }
 
-AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, int watchingPID, QObject *parent) :
+AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent) :
 	QObject(parent)
 {
 	executableFullPath_ = executableFullPath;
+	errorFilePath_ = errorFilePath;
 	watchingPID_ = watchingPID;
 
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
@@ -91,6 +92,7 @@ void AMCrashMonitor::onSiguser1Detected(){
 
 	QStringList arguments;
 	arguments << executableFullPath_;
+	arguments << errorFilePath_;
 	arguments << QString("%1").arg(watchingPID_);
 	arguments << QString("%1").arg(getpid());
 	QProcess::startDetached(QCoreApplication::instance()->arguments().at(0), arguments, QDir::currentPath(), &crashReporterPID_);
@@ -102,10 +104,11 @@ void AMCrashMonitor::onSiguser2Detected(){
 	QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
 }
 
-AMCrashReporter::AMCrashReporter(const QString &executableFullPath, int watchingPID, int monitorPID, QWidget *parent) :
+AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent) :
 	QWidget(parent)
 {
 	executableFullPath_ = executableFullPath;
+	errorFilePath_ = errorFilePath;
 	watchingPID_ = watchingPID;
 	monitorPID_ = monitorPID;
 	activeAddressConversion_ = 0;
@@ -218,7 +221,7 @@ void AMCrashReporter::onOneSymbolProcessed(){
 
 void AMCrashReporter::onAllSymbolsProcessed(){
 	//qDebug() << "Processed as: ";
-	QFile reportFile(QString("/home/acquaman/AcquamanApplicationCrashReports/report_%1_%2_%3_%4.txt").arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
+	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){

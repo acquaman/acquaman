@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
@@ -46,17 +45,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMOldDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/SGM/SGMMCPDetectorView.h"
-#include "ui/CLS/CLSPGTDetectorView.h"
 #include "ui/CLS/CLSOceanOptics65000DetectorView.h"
-#include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "actions3/AMActionRunner3.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -216,10 +211,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
-	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
@@ -229,12 +221,8 @@ bool SGMAppController::startupRegisterDatabases(){
 	// Register the detectors to their views
 	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 	success &= AMOldDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
 	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
 	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
 	// Register the configuration file and file loader plugin supports
 	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
@@ -384,14 +372,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}
-	/*
-	else if(SGMBeamline::sgm()->isConnected()){
-		qDebug() << "About to open testMirrorView";
-		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
-		testMirrorView->show();
-		testMirrorView->move(0, 1081);
-		qDebug() << "Just opened testMirrorView";
-	}*/
 
 	if(!checkedBadStartupSettings_){
 		checkedBadStartupSettings_ = true;
@@ -455,6 +435,7 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
+
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !amptekSDD1XRFView_){
 		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
 		amptekSDD1XRFView_->buildDetectorView();
@@ -1304,28 +1285,24 @@ bool SGMAppController::setupSGMViews(){
 
 	mw_->insertHeading("Beamline Detectors", 1);
 
-	newAmptekSDD1View_ = 0;
 	amptekSDD1XRFView_ = 0;
 	if(SGMBeamline::sgm()->newAmptekSDD1()){
 		connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 		onSGMNewAmptekSDD1Connected(false);
 	}
 
-	newAmptekSDD2View_ = 0;
 	amptekSDD2XRFView_ = 0;
 	if(SGMBeamline::sgm()->newAmptekSDD2()){
 		connect(SGMBeamline::sgm()->newAmptekSDD2(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD2Connected(bool)));
 		onSGMNewAmptekSDD2Connected(false);
 	}
 
-	newAmptekSDD3View_ = 0;
 	amptekSDD3XRFView_ = 0;
 	if(SGMBeamline::sgm()->newAmptekSDD3()){
 		connect(SGMBeamline::sgm()->newAmptekSDD3(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD3Connected(bool)));
 		onSGMNewAmptekSDD3Connected(false);
 	}
 
-	newAmptekSDD4View_ = 0;
 	amptekSDD4XRFView_ = 0;
 	if(SGMBeamline::sgm()->newAmptekSDD4()){
 		connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));

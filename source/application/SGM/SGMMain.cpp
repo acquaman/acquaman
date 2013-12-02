@@ -25,26 +25,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+#ifndef Q_WS_MAC
 #include <signal.h>
 #include <execinfo.h>
 
 void handle_signal(int signum);
 qint64 crashMonitorPID;
 QFile *errorFile;
+#endif
 
 int main(int argc, char *argv[])
 {
+#ifndef Q_WS_MAC
 	signal(SIGSEGV, handle_signal);
 
 	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
 	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
 	errorFile = &localErrorFile;
+#endif
 
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
+#ifndef Q_WS_MAC
 	QString applicationPath = app.arguments().at(0);
 	QFileInfo applicationPathInfo(applicationPath);
 	QString applicationRootPath;
@@ -53,14 +58,16 @@ int main(int argc, char *argv[])
 	else
 		applicationRootPath = applicationPathInfo.absoluteDir().path();
 
-	//qDebug() << "Going to try to run " << applicationRootPath+"/AMCrashReporter";
+
+	//applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
 
 	QStringList arguments;
 	arguments << "-m";
 	arguments << app.applicationFilePath();
+	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
 	arguments << QString("%1").arg(getpid());
 	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID);
-
+#endif
 
 	SGMAppController* appController = new SGMAppController();
 
@@ -76,12 +83,15 @@ int main(int argc, char *argv[])
 	if (appController->isRunning())
 		appController->shutdown();
 
+#ifndef Q_WS_MAC
 	kill(crashMonitorPID, SIGUSR2);
+#endif
 	delete appController;
 
 	return retVal;
 }
 
+#ifndef Q_WS_MAC
 void handle_signal(int signum){
 	void *array[100];
 	size_t size;
@@ -95,3 +105,4 @@ void handle_signal(int signum){
 	signal(signum, SIG_DFL);
 	kill(getpid(), signum);
 }
+#endif

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSOMS58MOTOR_H
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
 
 /// This function object provides the moving check for the CLSOMS58Motors
 class AMControlStatusCheckerCLSOMS58 : public AMAbstractControlStatusChecker {

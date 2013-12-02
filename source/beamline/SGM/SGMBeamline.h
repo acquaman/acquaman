@@ -28,16 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
-#include "actions/AMBeamlineControlAction.h"
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlSetMoveAction.h"
-#include "actions/AMBeamlineControlWaitAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
-#include "actions/AMBeamlineUserConfirmAction.h"
-#include "actions/AMBeamlineHighVoltageChannelToggleAction.h"
-#include "actions/AMBeamlineActionsList.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMControlSetSampleManipulator.h"
 #include "beamline/AMOldDetectorSet.h"
@@ -178,11 +168,6 @@ public:
 	/// Returns the rotational encoder for M3
 	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
 
-
-
-
-
-
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
@@ -221,7 +206,6 @@ public:
 
 	AMOldDetector* teyDetector() const;
 	AMOldDetector* tfyDetector() const;
-	//AMOldDetector* pgtDetector() const;
 	AMOldDetector* oos65000Detector() const;
 	AMOldDetector* i0Detector() const;
 	AMOldDetector* eVFbkDetector() const;
@@ -278,19 +262,11 @@ public:
 	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
 	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
 
-	AMBeamlineListAction* createBeamOnActions();
-	AMAction3 *createBeamOnActions3();
-	AMBeamlineListAction* createStopMotorsAction();
+	AMAction3* createBeamOnActions3();
+	AMAction3* createStopMotorsActions3();
 
-	AMBeamlineListAction* createGoToTransferPositionActions();
-	AMBeamlineListAction* createGoToMeasurementPositionActions();
-
-	AMBeamlineHighVoltageChannelToggleAction* createHV106OnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV106OffActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV109OnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV109OffActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
+	AMAction3* createGoToTransferPositionActions3();
+	AMAction3* createGoToMeasurementPositionActions3();
 
 public slots:
 	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
@@ -317,7 +293,6 @@ signals:
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
-	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);
 
 	void beamlineInitialized();
@@ -445,7 +420,6 @@ protected:
 
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;
-	AMOldDetector *pgtDetector_;
 	AMOldDetector *oos65000Detector_;
 	AMOldDetector *i0ScalerDetector_;
 	AMOldDetector *eVFbkDetector_;

@@ -36,8 +36,6 @@ class AMScanConfigurationViewHolder3;
 class VESPERSScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
-class AM2DScanConfigurationViewHolder;
-class AMBeamlineListAction;
 class AMScanAction;
 class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
