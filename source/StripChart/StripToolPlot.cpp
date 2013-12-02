@@ -17,6 +17,8 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->addTool(dragZoomer);
     plot_->addTool(selector_);
 
+    plot_->enableAxisNormalization(plot_->indexOfAxisScale(plot_->axisLeft()->axisScale()), true);
+
     plot_->axisLeft()->showAxisName(false);
 
     plot_->axisBottom()->setAxisName("Time");
