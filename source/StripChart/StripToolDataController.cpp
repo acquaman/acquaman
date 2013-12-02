@@ -303,7 +303,6 @@ bool StripToolDataController::savePVData(StripToolPV *toSave)
     // identify lists of data to be added to data file.
 
     QList<QString> timesToSave = toSave->saveMasterTimes().toList();
-    QList<QString> sTimesToSave;
 
     QList<double> dataToSave = toSave->saveMasterValues().toList();
 

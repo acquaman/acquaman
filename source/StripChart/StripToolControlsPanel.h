@@ -20,6 +20,7 @@ public:
 signals:
     void showSidebar();
     void hideSidebar();
+    void requestTimeUpdate();
 
 public:
     void setModel(StripToolModel *newModel);

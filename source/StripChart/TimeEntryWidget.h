@@ -26,6 +26,7 @@ protected:
 
 protected slots:
     void toTestSignal(const QString &signalText);
+    void timeUpdateRequested();
 
 };
 

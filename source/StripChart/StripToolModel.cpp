@@ -324,6 +324,8 @@ bool StripToolModel::addPV(AMControl *pvControl)
         setSelectedPV(newPV);
         qDebug() << "Requesting meta data for pv" << newPV->pvName() << "if it exists...";
         emit metaDataCheck(newPV->pvName());
+        emit requestTimeUpdate();
+
         return true;
 
     } else {
@@ -331,6 +333,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
         qDebug() << "Failed to add pv -- unknown cause.";
         return false;
     }
+
 }
 
 
@@ -350,6 +353,7 @@ void StripToolModel::editPV(const QModelIndex &index)
     {
         QString description = editDialog.description();
         QString units = editDialog.units();
+        int granularity = editDialog.granularity();
 
         StripToolPV *toEdit = pvList_.at(index.row());
 
@@ -361,6 +365,9 @@ void StripToolModel::editPV(const QModelIndex &index)
 
         if (units != "")
             toEdit->setYUnits(units);
+
+        if (granularity > 0)
+            toEdit->setUpdateGranularity(granularity);
 
     }
 }

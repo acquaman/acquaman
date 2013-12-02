@@ -29,6 +29,7 @@ signals:
 
 protected:
     int updateIndex_;
+    int updateGranularity_;
 
     int defaultTimeDisplayed_;
     int timeDisplayed_;
@@ -73,6 +74,7 @@ protected:
     Qt::CheckState checkState();
     /// Returns the color set for this pv's series.
     QColor color();
+    int updateGranularity();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.
@@ -101,6 +103,7 @@ private:
     void setXUnits(const QString &newUnits);
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
+    void setUpdateGranularity(int newVal);
     void setMetaDataHeaders();
     void saveCheck();
     void dataVectorSizeCheck();

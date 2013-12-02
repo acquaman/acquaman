@@ -4,13 +4,14 @@ StripToolPV::StripToolPV(QObject *parent)
     : QObject(parent)
 {
     updateIndex_ = 0;
+    updateGranularity_ = 2;
     timeFactor_ = 0.001; // for conversion from different time units into seconds.
 
     defaultTimeDisplayed_ = 10;
     timeDisplayed_ = defaultTimeDisplayed_;
 
     dataVectorSize_ = 100;
-    savePoint_ = 10;
+    savePoint_ = 100;
 
     pvName_ = "";
     pvDescription_ = "";
@@ -92,6 +93,13 @@ QColor StripToolPV::color()
 
 
 
+int StripToolPV::updateGranularity()
+{
+    return updateGranularity_;
+}
+
+
+
 MPlotVectorSeriesData* StripToolPV::data()
 {
     return pvData_;
@@ -163,14 +171,7 @@ QVector<double> StripToolPV::saveMasterValues()
         qDebug() << "The number of time entries do not match the number of data points for : " << pvName();
 
     } else {
-
-        if (masterUpdateValues_.size() < savePoint_)
-        {
-            amount = masterUpdateValues_.size(); // if the number of data points is less than savePoint_, then return a vector containing all the values we have.
-
-        } else {
-            amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
-        }
+        amount = savePoint_; // otherwise, return a vector that contains the latest savePoint_ data values.
     }
 
     QVector<double> toSave = masterUpdateValues_.mid(position, amount);
@@ -187,6 +188,7 @@ void StripToolPV::setMetaDataHeaders()
     headers_ << "Description ";
     headers_ << "Units ";
     headers_ << "Color ";
+    headers_ << "Granularity ";
     headers_ << "Date ";
 }
 
@@ -207,6 +209,7 @@ QList<QString> StripToolPV::metaData()
     metaData << pvDescription();
     metaData << yUnits();
     metaData << color().name();
+    metaData << QString::number(updateGranularity());
     metaData << QDateTime::currentDateTime().toString();
 
     return metaData;
@@ -328,6 +331,13 @@ void StripToolPV::setSeriesColor(const QColor &color)
 
 
 
+void StripToolPV::setUpdateGranularity(int newVal)
+{
+    updateGranularity_ = newVal;
+}
+
+
+
 bool StripToolPV::operator== (const StripToolPV &anotherPV)
 {
     return (this->pvName() == anotherPV.pvName());
@@ -337,8 +347,10 @@ bool StripToolPV::operator== (const StripToolPV &anotherPV)
 
 void StripToolPV::saveCheck()
 {
-    if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0)
+    if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0) {
+
         emit savePVData();
+    }
 }
 
 
@@ -371,7 +383,7 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateValues_[updateIndex_] = latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
-    if (isUpdating_)
+    if (isUpdating_ && (updateIndex_ % updateGranularity_ == 0))
     {
         // set a 'now' time that will be used to generate the x-axis display values.
         QTime nowish = QTime::currentTime();

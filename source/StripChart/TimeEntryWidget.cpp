@@ -44,6 +44,14 @@ void TimeEntryWidget::initialize()
 
 
 
+void TimeEntryWidget::timeUpdateRequested() {
+    qDebug() << "Time update requested.";
+    emit timeUnitsChanged(timeUnits_->currentText());
+    emit timeAmountChanged(timeAmount_->text().toInt());
+}
+
+
+
 void TimeEntryWidget::toTestSignal(const QString &signalText)
 {
     qDebug() << "Time entry widget emitted signal with this text:" << signalText;

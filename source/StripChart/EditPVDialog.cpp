@@ -3,13 +3,11 @@
 EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     QDialog(parent)
 {
-//    QStringListModel *pvNamesModel = new QStringListModel(this);
-//    pvNamesModel->setStringList(pvInfo.at(0));
-
     QString pvName = pvInfo.at(0);
     QString pvDescription = pvInfo.at(1);
     QString pvUnits = pvInfo.at(2);
-//    QString pvPoints = pvInfo.at(3);
+    // we don't show color here, which would be pvInfo.at(3)!
+    QString pvGranularity = pvInfo.at(4);
 
     QLabel *nameLabel = new QLabel("Name : ");
     QLabel *nameEntry = new QLabel(pvName);
@@ -26,13 +24,11 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     unitsLabel->setBuddy(unitsEntry_);
     connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(unitsEntered(QString)) );
 
-//    points_ = 0;
-
-//    QLabel *pointsLabel = new QLabel("Points # : ");
-//    pointsEntry_ = new QLineEdit();
-//    pointsEntry_->setText(pvPoints);
-//    pointsLabel->setBuddy(pointsEntry_);
-//    connect( pointsEntry_, SIGNAL(textChanged(QString)), this, SLOT(pointsEntered(QString)) );
+    QLabel *granularityLabel = new QLabel("Granularity :");
+    granularityEntry_ = new QLineEdit();
+    granularityEntry_->setText(pvGranularity);
+    granularityLabel->setBuddy(granularityEntry_);
+    connect(granularityEntry_, SIGNAL(textChanged(QString)), this, SLOT(granularityEntered(QString)) );
 
     QGridLayout *entryLayout = new QGridLayout();
     entryLayout->addWidget(nameLabel, 0, 0);
@@ -41,8 +37,8 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     entryLayout->addWidget(descriptionEntry_, 1, 1);
     entryLayout->addWidget(unitsLabel, 2, 0);
     entryLayout->addWidget(unitsEntry_, 2, 1);
-//    entryLayout->addWidget(pointsLabel, 3, 0);
-//    entryLayout->addWidget(pointsEntry_, 3, 1);
+    entryLayout->addWidget(granularityLabel, 3, 0);
+    entryLayout->addWidget(granularityEntry_, 3, 1);
 
     QPushButton *okButton_ = new QPushButton("Ok");
     connect( okButton_, SIGNAL(clicked()), this, SLOT(accept()) );
@@ -85,9 +81,9 @@ QString EditPVDialog::units()
 
 
 
-int EditPVDialog::points()
+int EditPVDialog::granularity()
 {
-        return points_;
+    return gran_;
 }
 
 
@@ -106,7 +102,7 @@ void EditPVDialog::unitsEntered(const QString &newUnits)
 
 
 
-void EditPVDialog::pointsEntered(const QString &points)
+void EditPVDialog::granularityEntered(const QString &gran)
 {
-    points_ = points.toInt();
+    gran_ = gran.toInt();
 }

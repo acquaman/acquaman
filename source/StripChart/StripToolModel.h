@@ -34,6 +34,7 @@ signals:
     void updateTimeUnits(const QString &newUnits);
     void setXAxisLabel(const QString &newLabel);
     void setYAxisLabel(const QString &newLabel);
+    void requestTimeUpdate();
 
 protected:
     QList<StripToolPV*> pvList_;

@@ -3,7 +3,6 @@
 StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent)
 {
     nameEntry_ = new EntryWidget(this);
-//    nameEntry_->setMinimumWidth(200);
     connect( nameEntry_, SIGNAL(entryComplete(QString)), this, SLOT(toTestSignal(QString)) );
 
     QVBoxLayout *nameLayout = new QVBoxLayout();
@@ -12,15 +11,9 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     QGroupBox *nameGroup = new QGroupBox();
     nameGroup->setLayout(nameLayout);
 
-//    QFrame *separator1 = new QFrame();
-//    separator1->setFrameShape(QFrame::VLine);
-//    separator1->setFrameShadow(QFrame::Sunken);
-//    separator1->setMaximumHeight(20);
-
     pauseResume_ = new DoubleButtonWidget(this);
     pauseResume_->setLeftButtonText("Pause");
     pauseResume_->setRightButtonText("Resume");
-//    pauseResume_->setMinimumWidth(200);
     connect( pauseResume_, SIGNAL(leftButtonClicked()), this, SLOT(onPauseButtonClicked()) );
     connect( pauseResume_, SIGNAL(rightButtonClicked()), this, SLOT(onResumeButtonClicked()) );
 
@@ -30,24 +23,13 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     QGroupBox *pauseResumeGroup = new QGroupBox();
     pauseResumeGroup->setLayout(pauseResumeLayout);
 
-//    QFrame *separator2 = new QFrame();
-//    separator2->setFrameShape(QFrame::VLine);
-//    separator2->setFrameShadow(QFrame::Sunken);
-//    separator2->setMaximumHeight(20);
-
     timeEntry_ = new TimeEntryWidget(this);
-//    timeEntry_->setMinimumWidth(200);
 
     QVBoxLayout *timeLayout = new QVBoxLayout();
     timeLayout->addWidget(timeEntry_);
 
     QGroupBox *timeGroup = new QGroupBox();
     timeGroup->setLayout(timeLayout);
-
-//    QFrame *separator3 = new QFrame();
-//    separator3->setFrameShape(QFrame::VLine);
-//    separator3->setFrameShadow(QFrame::Sunken);
-//    separator3->setMaximumHeight(20);
 
     sidebarShown_ = false;
     sidebarButton_ = new QPushButton(">");
@@ -81,8 +63,6 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     widgetLayout->addWidget(controlsGroup);
 
     setLayout(widgetLayout);
-    setMinimumHeight(100);
-    setMaximumHeight(200);
 
 }
 
@@ -104,8 +84,7 @@ void StripToolControlsPanel::setModel(StripToolModel *newModel)
     connect( timeEntry_, SIGNAL(timeAmountChanged(int)), model_, SLOT(toUpdateTime(int)) );
     connect( timeEntry_, SIGNAL(timeUnitsChanged(QString)), model_, SLOT(toUpdateTimeUnits(QString)) );
 
-    connect( timeEntry_, SIGNAL(timeUnitsChanged(QString)), model_, SLOT(toTestSignal(QString)) );
-    connect( timeEntry_, SIGNAL(timeUnitsChanged(QString)), this, SLOT(toTestSignal(QString)) );
+    connect( model_, SIGNAL(requestTimeUpdate()), timeEntry_, SLOT(timeUpdateRequested()) );
 
     timeEntry_->initialize();
 }

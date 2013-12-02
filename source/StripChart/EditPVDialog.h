@@ -20,10 +20,11 @@ signals:
 private:
     QString description_;
     QString units_;
-    int points_;
+    int gran_;
     QLineEdit *descriptionEntry_;
     QLineEdit *unitsEntry_;
     QLineEdit *pointsEntry_;
+    QLineEdit *granularityEntry_;
     QPushButton *okButton_;
 
 protected:
@@ -31,16 +32,14 @@ protected:
     QString description();
     /// Returns the units entered by the user, an empty string if nothing entered.
     QString units();
-    /// Returns the number of points the user wants to be displayed, 0 if nothing entered (and ignored later).
-    int points();
+    int granularity();
 
 protected slots:
     /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
     void descriptionEntered(const QString &newDescription);
     /// When the user finishes editing the text in unitsEntry_, the new text is saved to units_.
     void unitsEntered(const QString &units);
-    /// When the user finishes editing the text in pointsEntry_, the string is converted to an int and is saved to points_.
-    void pointsEntered(const QString &points);
+    void granularityEntered(const QString &gran);
     
 };
 
