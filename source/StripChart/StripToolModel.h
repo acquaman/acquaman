@@ -27,7 +27,6 @@ signals:
     void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
     void setPlotTicksVisible(bool isShown);
-    void errorMessage(const QString &message);
     void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
     void forceUpdatePVs(const QString &updatedName);

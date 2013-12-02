@@ -35,9 +35,9 @@ void TimeEntryWidget::initialize()
 {
     timeAmount_->setValue(10);
 
-    timeUnits_->addItem("seconds");
-    timeUnits_->addItem("minutes");
-    timeUnits_->addItem("hours");
+    timeUnits_->addItem("sec");
+    timeUnits_->addItem("min");
+    timeUnits_->addItem("hr");
 
     emit setUnits(0);
 }

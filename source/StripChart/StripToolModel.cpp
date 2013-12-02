@@ -252,16 +252,20 @@ void StripToolModel::toAddPV(const QString &pvName)
     qDebug() << "Pv to add : " << pvName;
 
     if (pvName == "") {
-        emit errorMessage("PV name is empty.");
+        QMessageBox errorMsg;
+        errorMsg.setText("PV name cannot be blank.");
+        errorMsg.exec();
         emit pvValid(false);
 
     } else if (contains(pvName)) {
-        emit errorMessage("PV already added.");
+        QMessageBox errorMsg;
+        errorMsg.setText("PV with that name already added.");
+        errorMsg.exec();
         emit pvValid(false);
 
     } else {
 
-        qDebug() << "\n\nAdding new pv...";
+        qDebug() << "Adding new pv...";
         AMReadOnlyPVControl *pvControl = new AMReadOnlyPVControl(pvName, pvName, this);
         controlMapper_->setMapping(pvControl, pvControl);
 
@@ -281,7 +285,10 @@ void StripToolModel::onPVConnected(QObject* itemConnected)
         qDebug() << "PV added : " << addPV(pvControl);
 
     } else {
-        emit errorMessage("Invalid pv name.");
+        QMessageBox errorMsg;
+        errorMsg.setText("Invalid pv name.");
+        errorMsg.exec();
+
         emit pvValid(false);
         pvControl->deleteLater();
     }
@@ -389,14 +396,16 @@ bool StripToolModel::deletePV(const QModelIndex &index)
             return true;
 
         } else {
-
-            emit errorMessage("PV deleted unsuccessfully--unknown cause.");
+            QMessageBox errorMsg;
+            errorMsg.setText("PV deleted unsuccessfully--unknown cause.");
+            errorMsg.exec();
             return false;
         }
 
     } else {
-
-        emit errorMessage("Cannot delete pv at invalid index.");
+        QMessageBox errorMsg;
+        errorMsg.setText("Cannot delete pv at an invalid index.");
+        errorMsg.exec();
         return false;
     }
 

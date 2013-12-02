@@ -4,8 +4,6 @@ StripToolView::StripToolView(QWidget *parent, StripToolModel *model) : QWidget(p
 {
     model_ = model;
     buildUI();
-
-    setMaximumWidth(700);
 }
 
 

@@ -269,20 +269,25 @@ void StripToolPV::setXUnits(const QString &newUnits)
 {
     xUnits_ = newUnits;
 
-    if (xUnits_ == "seconds")
-    {
+    if (xUnits_ == "seconds") {
         timeFactor_ = 0.001; // convert calculated millisecond values to seconds.
 
-    } else if (xUnits_ == "minutes")
-    {
+    } else if (xUnits_ == "minutes") {
         timeFactor_ = 0.001/60.0; // convert calculated millisecond values to minutes.
 
-    } else if (xUnits_ == "hours")
-    {
+    } else if (xUnits_ == "hours") {
         timeFactor_ = 0.001/3600.0; // convert calculated millisecond values to hours!
 
-    } else {
+    } else if (xUnits_ == "sec") {
+        timeFactor_ = 0.001;
 
+    } else if (xUnits_ == "min") {
+        timeFactor_ = 0.001/60.0;
+
+    } else if (xUnits_ == "hr") {
+        timeFactor_ = 0.001/3600.0;
+
+    } else {
         qDebug() << "Could not determine correct time factor for these units :" << newUnits;
 
     }
