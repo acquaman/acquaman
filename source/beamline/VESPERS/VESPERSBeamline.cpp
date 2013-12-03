@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -458,8 +459,8 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
-	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
+	energy_ = new VESPERSMonochomatorControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
+	energyRelative_ = new VESPERSMonochomatorControl("Relative Energy Movement", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
 	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this);
 

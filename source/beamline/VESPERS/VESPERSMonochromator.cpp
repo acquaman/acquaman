@@ -21,13 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSMonochromator.h"
 #include "beamline/AMPVControl.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 
 VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	QObject(parent)
 {
-	Eo_ = new AMPVwStatusControl("Energy Setpoint", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Eo", "SMTR1607-1-B20-20:status", QString(), this, 20);
-	energy_ = new AMPVwStatusControl("Acutal Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", QString(), this, 20);
-	delE_ = new AMPVwStatusControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", QString(), this, 20);
+	Eo_ = new VESPERSMonochomatorControl("Energy Setpoint", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Eo", "SMTR1607-1-B20-20:status", QString(), this);
+	energy_ = new VESPERSMonochomatorControl("Acutal Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", QString(), this);
+	delE_ = new VESPERSMonochomatorControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", QString(), this);
 	K_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);
 	offsetAngle_ = new AMSinglePVControl("Offset Angle", "07B2_Mono_SineB_ThOS", this, 0.01);
 	allowScan_ = new AMSinglePVControl("Scan Allow Control", "07B2_Mono_ScanSineB", this, 0.1);
