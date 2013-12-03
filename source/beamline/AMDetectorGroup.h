@@ -68,6 +68,8 @@ protected slots:
 	/// Handles checking the internal connected state and setting the cached lastAllAreConnected value
 	void checkAllAreConnected();
 
+	void onUnconnectedDetectorSetTimedOut();
+
 protected:
 	/// Holds the programmer name of the group
 	QString name_;

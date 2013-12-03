@@ -71,8 +71,9 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 AMListAction3::~AMListAction3() {
 	//qDeleteAll(subActions_);
 	//subActions_.clear();
-	while(subActions_.count() > 0)
-		delete subActions_.takeLast();
+
+//	while(subActions_.count() > 0)
+//		delete subActions_.takeLast();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
