@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_DBOBJECT_H
-#define ACQMAN_DBOBJECT_H
+#ifndef AM_DBOBJECT_H
+#define AM_DBOBJECT_H
 
 #include "acquaman.h"
 #include <QObject>

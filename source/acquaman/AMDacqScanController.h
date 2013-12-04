@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_DACQSCANCONTROLLER_H
-#define ACQMAN_DACQSCANCONTROLLER_H
+#ifndef AM_DACQSCANCONTROLLER_H
+#define AM_DACQSCANCONTROLLER_H
 
 class QTime;
 class QStringList;
@@ -102,4 +102,4 @@ protected:
 	QTimer flushToDiskTimer_;
 };
 
-#endif // ACQMAN_DACQSCANCONTROLLER_H
+#endif // AM_DACQSCANCONTROLLER_H

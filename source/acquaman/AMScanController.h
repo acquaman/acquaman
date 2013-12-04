@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCANCONTROLLER_H
-#define ACQMAN_SCANCONTROLLER_H
+#ifndef AM_SCANCONTROLLER_H
+#define AM_SCANCONTROLLER_H
 
 #include <QObject>
 
@@ -238,4 +238,4 @@ protected:
 	AMScanController *currentScanController_;
 };
 
-#endif // ACQMAN_SCANCONTROLLER_H
+#endif // AM_SCANCONTROLLER_H

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROL_H
-#define ACQMAN_CONTROL_H
+#ifndef AM_CONTROL_H
+#define AM_CONTROL_H
 
 #include <QObject>
 #include <QString>

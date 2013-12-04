@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMREGION_H
-#define ACQMAN_AMREGION_H
+#ifndef AM_AMREGION_H
+#define AM_AMREGION_H
 
 #include <QObject>
 #include <QAbstractTableModel>
@@ -413,4 +413,4 @@ protected:
 	bool defaultIsRelative_;
 };
 
-#endif // ACQMAN_AMREGION_H
+#endif // AM_AMREGION_H

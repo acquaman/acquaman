@@ -17,7 +17,7 @@ AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
 	connect(connectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onConnectedSetDetectorConnectedChanged(bool,AMDetector*)));
 	connect(unconnectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onUnconnectedSetDetectorConnectedChanged(bool,AMDetector*)));
 
-	connect(unconnectedSet_, SIGNAL(detectorSetTimedOut()), this, SLOT(onUnconnectedDetectorSetTimedOut()));
+	connect(unconnectedSet_, SIGNAL(allDetectorsResponded()), this, SIGNAL(allDetectorsResponded()));
 }
 
 QString AMDetectorGroup::name() const{
@@ -123,9 +123,4 @@ void AMDetectorGroup::onUnconnectedSetDetectorConnectedChanged(bool detectorConn
 
 void AMDetectorGroup::checkAllAreConnected(){
 	lastAllAreConnected_ = allAreConnected();
-}
-
-#include <QDebug>
-void AMDetectorGroup::onUnconnectedDetectorSetTimedOut(){
-	qDebug() << "I heard that the unconnected detector set timed out";
 }

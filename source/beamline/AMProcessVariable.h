@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_PROCESSVARIABLE_H_
-#define ACQMAN_PROCESSVARIABLE_H_
+#ifndef AM_PROCESSVARIABLE_H_
+#define AM_PROCESSVARIABLE_H_
 
 #include "beamline/AMProcessVariablePrivate.h"
 
@@ -344,4 +344,4 @@ protected:
   @}
   */
 
-#endif /*ACQMAN_PROCESSVARIABLE_H_*/
+#endif /*AM_PROCESSVARIABLE_H_*/

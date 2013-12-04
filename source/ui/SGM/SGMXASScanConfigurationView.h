@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMXASScanConfigurationViewer_H
-#define ACQMAN_SGMXASScanConfigurationViewer_H
+#ifndef AM_SGMXASScanConfigurationViewer_H
+#define AM_SGMXASScanConfigurationViewer_H
 
 #include <QtGui>
 

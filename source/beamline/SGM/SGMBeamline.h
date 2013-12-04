@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMBEAMLINE_H
-#define ACQMAN_SGMBEAMLINE_H
+#ifndef AM_SGMBEAMLINE_H
+#define AM_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
 #include "dataman/SGM/SGMBeamlineInfo.h"
@@ -38,8 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSamplePlate;
 class SGMMAXvMotor;
 
-class AMOldDetector;
-class AMOldDetectorSet;
 class CLSAmptekSDD123DetectorNew;
 class CLSPGTDetectorV2;
 class CLSQE65000Detector;
@@ -168,8 +166,6 @@ public:
 
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 
-	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
-
 	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.
 	virtual AMAction3::ActionValidity validateAction(AMAction3 *action);
 	/// Returns messages for invalid actions (old scan configurations) and "Action is Currently Valid" for all other actions.
@@ -197,26 +193,12 @@ public:
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
-	AMOldDetector* teyDetector() const;
-	AMOldDetector* tfyDetector() const;
-	AMOldDetector* oos65000Detector() const;
-	AMOldDetector* i0Detector() const;
-	AMOldDetector* eVFbkDetector() const;
-	AMOldDetector* photodiodeDetector() const;
-	AMOldDetector* encoderUpDetector() const;
-	AMOldDetector* encoderDownDetector() const;
-	AMOldDetector* ringCurrentDetector() const;
-	AMOldDetector* filterPD1ScalarDetector() const;
-	AMOldDetector* filterPD2ScalarDetector() const;
-	AMOldDetector* filterPD3ScalarDetector() const;
-	AMOldDetector* filterPD4ScalarDetector() const;
-
 	AMDetector* newAmptekSDD1() const;
 	AMDetector* newAmptekSDD2() const;
 	AMDetector* newAmptekSDD3() const;
 	AMDetector* newAmptekSDD4() const;
 	AMDetector* newAmptekSDD5() const;
-	//AMDetector* newPGTDetector() const;
+	AMDetector* newPGTDetector() const;
 	AMDetector* newQE65000Detector() const;
 	AMDetector* newTEYDetector() const;
 	AMDetector* newTFYDetector() const;
@@ -232,7 +214,7 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
-	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
+	AMDetectorGroup *newDetectorSet() const { return allDetectorGroup_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
 	AMDetectorGroup *FastDetectorGroup() const { return FastDetectorGroup_;}
 
@@ -269,8 +251,6 @@ signals:
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
-	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);
-
 	void beamlineInitialized();
 
 protected slots:
@@ -286,10 +266,10 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
-	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
-	void ensureDetectorTimeout();
 
 	void computeBeamlineInitialized();
+
+	void onAllDetectorsGroupAllDetectorResponded();
 
 protected:
 	void setupControls();
@@ -390,27 +370,12 @@ protected:
 	AMControl *m3HorizontalDownstreamEncoder_;
 	AMControl *m3RotationalEncoder_;
 
-
-	AMOldDetector *teyScalerDetector_;
-	AMOldDetector *tfyScalerDetector_;
-	AMOldDetector *oos65000Detector_;
-	AMOldDetector *i0ScalerDetector_;
-	AMOldDetector *eVFbkDetector_;
-	AMOldDetector *photodiodeScalerDetector_;
-	AMOldDetector *encoderUpDetector_;
-	AMOldDetector *encoderDownDetector_;
-	AMOldDetector *ringCurrentDetector_;
-	AMOldDetector *filterPD1ScalarDetector_;
-	AMOldDetector *filterPD2ScalarDetector_;
-	AMOldDetector *filterPD3ScalarDetector_;
-	AMOldDetector *filterPD4ScalarDetector_;
-
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD5_;
-	//CLSPGTDetectorV2 *newPGTDetector_;
+	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSAdvancedScalerChannelDetector *newTFYDetector_;
@@ -425,7 +390,7 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMDetectorGroup *newDetectorSet_;
+	AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
 
@@ -442,13 +407,6 @@ protected:
 	AMControlSetSampleManipulator *sampleManipulator_;
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
-
-	/// Mapping detectors to their sets and whether they are default or not
-	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> > *detectorMap_;
-	/// Generally listing all detectors this beamline can have
-	QList<AMOldDetector*> detectorRegistry_;
-	/// Listing the detectors that haven't responded (either as connected or timed out)
-	QList<AMOldDetector*> unrespondedDetectors_;
 
 	/// Holds a boolean for whether everything the beamline cares about has reported back as either connected or timed out ... then we've initialized
 	bool beamlineIsInitialized_;
@@ -468,4 +426,4 @@ protected:
 };
 
 
-#endif // ACQMAN_SGMBEAMLINE_H
+#endif // AM_SGMBEAMLINE_H

@@ -405,22 +405,22 @@ void SGMSidebar::onStripToolTimerTimeout(){
 
 	// inserted to prevent crashes before SGM detectors connected
 	double i0Reading = 0, teyReading = 0, tfyReading = 0, pdReading = 0, fpd1Reading = 0, fpd2Reading = 0, fpd3Reading = 0, fpd4Reading = 0;
-	if(SGMBeamline::sgm()->i0Detector())
-		i0Reading = SGMBeamline::sgm()->i0Detector()->reading();
-	if(SGMBeamline::sgm()->teyDetector())
-		teyReading = SGMBeamline::sgm()->teyDetector()->reading();
-	if(SGMBeamline::sgm()->tfyDetector())
-		tfyReading = SGMBeamline::sgm()->tfyDetector()->reading();
-	if(SGMBeamline::sgm()->photodiodeDetector())
-		pdReading = SGMBeamline::sgm()->photodiodeDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD1ScalarDetector())
-		fpd1Reading = SGMBeamline::sgm()->filterPD1ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD2ScalarDetector())
-		fpd2Reading = SGMBeamline::sgm()->filterPD2ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD3ScalarDetector())
-		fpd3Reading = SGMBeamline::sgm()->filterPD3ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD4ScalarDetector())
-		fpd4Reading = SGMBeamline::sgm()->filterPD4ScalarDetector()->reading();
+	if(SGMBeamline::sgm()->newI0Detector())
+		i0Reading = SGMBeamline::sgm()->newI0Detector()->singleReading();
+	if(SGMBeamline::sgm()->newTEYDetector())
+		teyReading = SGMBeamline::sgm()->newTEYDetector()->singleReading();
+	if(SGMBeamline::sgm()->newTFYDetector())
+		tfyReading = SGMBeamline::sgm()->newTFYDetector()->singleReading();
+	if(SGMBeamline::sgm()->newPDDetector())
+		pdReading = SGMBeamline::sgm()->newPDDetector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD1Detector())
+		fpd1Reading = SGMBeamline::sgm()->newFilteredPD1Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD2Detector())
+		fpd2Reading = SGMBeamline::sgm()->newFilteredPD2Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD3Detector())
+		fpd3Reading = SGMBeamline::sgm()->newFilteredPD3Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD4Detector())
+		fpd4Reading = SGMBeamline::sgm()->newFilteredPD4Detector()->singleReading();
 
 	///////////////
 

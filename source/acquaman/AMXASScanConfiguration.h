@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_XASSCANCONFIGURATION_H
-#define ACQMAN_XASSCANCONFIGURATION_H
+#ifndef AM_XASSCANCONFIGURATION_H
+#define AM_XASSCANCONFIGURATION_H
 
 #include "acquaman/AMRegionScanConfiguration.h"
 
@@ -80,4 +80,4 @@ public slots:
 	bool setEndEnergy(double endEnergy) { return setEndValue(endEnergy); }
 };
 
-#endif // ACQMAN_XASSCANCONFIGURATION_H
+#endif // AM_XASSCANCONFIGURATION_H

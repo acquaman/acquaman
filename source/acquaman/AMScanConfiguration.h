@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCANCONFIGURATION_H
-#define ACQMAN_SCANCONFIGURATION_H
+#ifndef AM_SCANCONFIGURATION_H
+#define AM_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/info/AMDetectorInfoSet.h"
@@ -173,4 +173,4 @@ protected:
 	AMDetectorInfoSet detectorConfigurations_;
 };
 
-#endif // ACQMAN_SCANCONFIGURATION_H
+#endif // AM_SCANCONFIGURATION_H

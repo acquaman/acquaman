@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMSCANCONFIG_H
-#define ACQMAN_SGMSCANCONFIG_H
+#ifndef AM_SGMSCANCONFIG_H
+#define AM_SGMSCANCONFIG_H
 
 #include "beamline/SGM/SGMBeamline.h"
 
@@ -92,4 +92,4 @@ protected:
 	SGMBeamlineInfo::sgmHarmonic harmonic_;
 };
 
-#endif // ACQMAN_SGMSCANCONFIG_H
+#endif // AM_SGMSCANCONFIG_H

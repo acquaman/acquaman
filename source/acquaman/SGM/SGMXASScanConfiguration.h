@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMXASSCANCONFIGURATION_H
-#define ACQMAN_SGMXASSCANCONFIGURATION_H
+#ifndef AM_SGMXASSCANCONFIGURATION_H
+#define AM_SGMXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
 #include "SGMScanConfiguration.h"
@@ -133,4 +133,4 @@ protected:
 	AMOldDetectorInfoSet xasDetectorsCfg_;
 };
 
-#endif // ACQMAN_SGMXASSCANCONFIGURATION_H
+#endif // AM_SGMXASSCANCONFIGURATION_H

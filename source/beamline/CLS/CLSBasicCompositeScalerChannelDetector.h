@@ -90,9 +90,6 @@ protected:
 	void checkReadyForAcquisition();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The pointer to the scaler object
 	CLSSIS3820Scaler *scaler_;
 	/// The channel index of the first channel.

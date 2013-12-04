@@ -100,9 +100,6 @@ protected:
 	bool cleanupImplementation();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The status control
 	AMControl *statusControl_;
 	/// The integration time control
