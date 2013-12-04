@@ -741,7 +741,6 @@ void AMXRFDetailedDetectorView::onPeriodicTableHeaderButtonClicked(){
 }
 
 void AMXRFDetailedDetectorView::resizeToMinimumHeight(){
-	qDebug() << "Want to resize height to " << minimumSizeHint().height();
 	resize(size().width(), minimumSizeHint().height());
 	emit resized();
 }

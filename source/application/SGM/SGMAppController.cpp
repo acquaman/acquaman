@@ -592,14 +592,13 @@ void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *dete
 }
 
 void SGMAppController::onXRFDetectorViewResized(){
-	qDebug() << "I should be able to check if I can resize mw_ now to " << mw_->minimumSizeHint().height();
-	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
-	QTimer::singleShot(100, this, SLOT(oneMoreLevel()));
+	// This is a HACK, why it needs 100ms I have no idea. But any less and sometimes it doesn't resize properly
+	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
 }
 
-void SGMAppController::oneMoreLevel(){
-	qDebug() << "ACTUALLY I should be able to check if I can resize mw_ now to " << mw_->minimumSizeHint().height();
-	mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
+void SGMAppController::resizeToMinimum(){
+	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
+	mw_->resize(mw_->minimumSizeHint());
 }
 
 bool SGMAppController::startupSGMInstallActions(){

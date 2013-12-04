@@ -117,8 +117,10 @@ protected slots:
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
+	/// Handles listening to size changes from the XRFDetectorViews, which can expand the main window significantly
 	void onXRFDetectorViewResized();
-	void oneMoreLevel();
+	/// Actually handles the resize for the above function some time later. Looks like one of the widgets or layouts takes quite a while to recalculate its minimumSizeHint() or its minimumSize()
+	void resizeToMinimum();
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
