@@ -214,9 +214,12 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
-	AMDetectorGroup *newDetectorSet() const { return allDetectorGroup_;}
-	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
-	AMDetectorGroup *FastDetectorGroup() const { return FastDetectorGroup_;}
+	AMDetectorGroup* allDetectorGroup() const { return allDetectorGroup_;}
+	AMDetectorGroup* XASDetectorGroup() const { return XASDetectorGroup_;}
+	AMDetectorGroup* FastDetectorGroup() const { return FastDetectorGroup_;}
+
+	const AMControlSet* criticalControlsSet() const { return criticalControlsSet_; }
+	const AMDetectorSet* criticalDetectorSet() const { return criticalDetectorSet_; }
 
 	bool detectorConnectedByName(QString name);
 
@@ -244,6 +247,9 @@ signals:
 	void criticalConnectionsChanged();
 	void beamlineReadyChanged();
 
+	void beamlineConnected(bool isConnected);
+	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
 	void visibleLightStatusChanged(const QString& status);
 	void beamlineWarningsChanged(const QString& warnings);
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
@@ -259,6 +265,10 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 	void onCriticalsConnectedChanged();
 	void onEnergyValueChanged();
+
+	void onCriticalDetectorSetConnectedChanged(bool connected);
+	void onAllDetectorGroupDetectorBecameConnected(AMDetector *detector);
+	void onAllDetectorGroupDetectorBecameUnconnected(AMDetector *detector);
 
 	void onActiveEndstationChanged(double value);
 	void onMirrorStripeChanged(double value);
@@ -280,6 +290,8 @@ protected:
 
 	/// Sets up the exposed detectors for the SGM beamline (accessible through the AMScanConfiguration/Controller interface)
 	void setupExposedDetectors();
+
+	void reviewConnected();
 
 protected:
 	// Singleton implementation:
@@ -395,6 +407,7 @@ protected:
 	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
+	AMDetectorSet *criticalDetectorSet_;
 
 	AMControlSet *beamOnControlSet_;
 

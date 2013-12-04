@@ -178,6 +178,12 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	allDetectorGroup_->addDetector(newTFYDetector_);
 	allDetectorGroup_->addDetector(newI0Detector_);
 	allDetectorGroup_->addDetector(newPDDetector_);
+	allDetectorGroup_->addDetector(newFilteredPD1Detector_);
+	allDetectorGroup_->addDetector(newFilteredPD2Detector_);
+	allDetectorGroup_->addDetector(newFilteredPD3Detector_);
+	allDetectorGroup_->addDetector(newFilteredPD4Detector_);
+	allDetectorGroup_->addDetector(newFilteredPD5Detector_);
+	allDetectorGroup_->addDetector(energyFeedbackDetector_);
 
 	connect(allDetectorGroup_, SIGNAL(allDetectorsResponded()), this, SLOT(onAllDetectorsGroupAllDetectorResponded()));
 
@@ -210,6 +216,27 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	FastDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD5Detector_);
+
+	criticalDetectorSet_ = new AMDetectorSet();
+	criticalDetectorSet_->addDetector(newAmptekSDD1_);
+	criticalDetectorSet_->addDetector(newAmptekSDD2_);
+	criticalDetectorSet_->addDetector(newAmptekSDD3_);
+	criticalDetectorSet_->addDetector(newAmptekSDD4_);
+	criticalDetectorSet_->addDetector(newAmptekSDD5_);
+	criticalDetectorSet_->addDetector(newTEYDetector_);
+	criticalDetectorSet_->addDetector(newTFYDetector_);
+	criticalDetectorSet_->addDetector(newI0Detector_);
+	criticalDetectorSet_->addDetector(newPDDetector_);
+	criticalDetectorSet_->addDetector(newFilteredPD1Detector_);
+	criticalDetectorSet_->addDetector(newFilteredPD2Detector_);
+	criticalDetectorSet_->addDetector(newFilteredPD3Detector_);
+	criticalDetectorSet_->addDetector(newFilteredPD4Detector_);
+	criticalDetectorSet_->addDetector(newFilteredPD5Detector_);
+	criticalDetectorSet_->addDetector(energyFeedbackDetector_);
+
+	connect(criticalDetectorSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalDetectorSetConnectedChanged(bool)));
+	connect(allDetectorGroup_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SLOT(onAllDetectorGroupDetectorBecameConnected(AMDetector*)));
+	connect(allDetectorGroup_, SIGNAL(detectorBecameUnconnected(AMDetector*)), this, SLOT(onAllDetectorGroupDetectorBecameUnconnected(AMDetector*)));
 
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
@@ -263,7 +290,7 @@ SGMBeamline::~SGMBeamline()
 }
 
 bool SGMBeamline::isConnected() const{
-	return criticalControlsSet_->isConnected();
+	return criticalControlsSet_->isConnected() && criticalDetectorSet_->isConnnected();
 }
 
 bool SGMBeamline::isReady() const{
@@ -659,6 +686,7 @@ void SGMBeamline::onCriticalsConnectedChanged(){
 	//qdebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
 	//qdebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
 	emit criticalConnectionsChanged();
+	reviewConnected();
 }
 
 void SGMBeamline::onEnergyValueChanged(){
@@ -675,6 +703,19 @@ void SGMBeamline::onEnergyValueChanged(){
 
 		lastEnergyValue_ = energy()->value();
 	}
+}
+
+void SGMBeamline::onCriticalDetectorSetConnectedChanged(bool connected){
+	Q_UNUSED(connected)
+	reviewConnected();
+}
+
+void SGMBeamline::onAllDetectorGroupDetectorBecameConnected(AMDetector *detector){
+	emit detectorAvailabilityChanged(detector, true);
+}
+
+void SGMBeamline::onAllDetectorGroupDetectorBecameUnconnected(AMDetector *detector){
+	emit detectorAvailabilityChanged(detector, false);
 }
 
 void SGMBeamline::onActiveEndstationChanged(double value){
@@ -1034,6 +1075,13 @@ void SGMBeamline::setupExposedDetectors(){
 
 	addExposedDetectorGroup(XASDetectorGroup_);
 	addExposedDetectorGroup(FastDetectorGroup_);
+}
+
+void SGMBeamline::reviewConnected(){
+	if(criticalControlsSet_->isConnected() && criticalDetectorSet_->isConnnected())
+		emit beamlineConnected(true);
+	else
+		emit beamlineConnected(false);
 }
 
 SGMBeamline* SGMBeamline::sgm() {

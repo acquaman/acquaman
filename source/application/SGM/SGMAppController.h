@@ -38,7 +38,7 @@ class AMScanController;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
-class AMOldDetector;
+class AMDetector;
 class AMScanAction;
 class CLSProcServManager;
 class CLSProcServManagerView;
@@ -115,7 +115,7 @@ protected slots:
 	void onActionMirrorVeiw();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source

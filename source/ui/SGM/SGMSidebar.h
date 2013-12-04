@@ -77,6 +77,9 @@ protected slots:
 
 	void onBeamlineWarnings(const QString &newWarnings);
 
+	void onBeamlineCriticalControlSetConnectedChanged(bool isConnected);
+	void onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected);
+
 protected:
 	QGroupBox *mainBox_;
 

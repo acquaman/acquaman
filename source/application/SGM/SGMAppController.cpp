@@ -44,9 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
 
-#include "ui/beamline/AMOldDetectorView.h"
-#include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
+#include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
 
@@ -143,7 +141,7 @@ bool SGMAppController::startup() {
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
@@ -223,12 +221,6 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
-
-	// Register the detectors to their views
-	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
 
 	// Register the configuration file and file loader plugin supports
 	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
@@ -572,25 +564,21 @@ void SGMAppController::onActionMirrorVeiw(){
 	SGMAdvancedMirror_->show();
 }
 
-void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
+void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
-	/*
 	QStringList waitingForDetectorNames;
-	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
-	for(int x = 0; x < possibleDetectors.count(); x++)
-		if(!possibleDetectors.at(x)->isConnected())
-			waitingForDetectorNames.append(possibleDetectors.at(x)->toInfo()->description());
+	AMDetectorSet *currentlyUnconnected = SGMBeamline::sgm()->allDetectorGroup()->unconnectedDetectors();
+	for(int x = 0, size = currentlyUnconnected->count(); x < size; x++)
+		waitingForDetectorNames.append(currentlyUnconnected->at(x)->toInfo().description());
 
 	QString waitingDetectors = QString("Waiting for:\n %1").arg(waitingForDetectorNames.join("\n"));
-
 	if(lastWaitingDetectors_ != waitingDetectors){
 		lastWaitingDetectors_ = waitingDetectors;
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE,  "Waiting");
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
 	}
-	*/
 }
 
 bool SGMAppController::startupSGMInstallActions(){

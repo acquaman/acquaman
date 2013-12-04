@@ -113,6 +113,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
 
+	connect(SGMBeamline::sgm()->criticalControlsSet(), SIGNAL(connected(bool)), this, SLOT(onBeamlineCriticalControlSetConnectedChanged(bool)));
+	connect(SGMBeamline::sgm()->criticalDetectorSet(), SIGNAL(connected(bool)), this, SLOT(onBeamlineCriticalDetectorSetConnectedChanged(bool)));
+
 	i0CheckBox_ = new QCheckBox("I0");
 	teyCheckBox_ = new QCheckBox("TEY");
 	tfyCheckBox_ = new QCheckBox("TFY");
@@ -617,4 +620,12 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}
+}
+
+void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
+	qDebug() << "I just heard that the critical controls became connected " << isConnected;
+}
+
+void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
+	qDebug() << "I just heard that the critical detectors became connected " << isConnected;
 }
