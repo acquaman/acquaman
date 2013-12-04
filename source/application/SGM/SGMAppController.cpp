@@ -438,7 +438,9 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
 		amptekSDD1XRFView_->buildDetectorView();
 		amptekSDD1XRFView_->setEnergyRange(270, 2000);
+		amptekSDD1XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD1XRFView_, "Beamline Detectors", "SGM Amptek1 XRF", ":/system-software-update.png");
+		connect(amptekSDD1XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -448,7 +450,9 @@ void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 		amptekSDD2XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
 		amptekSDD2XRFView_->buildDetectorView();
 		amptekSDD2XRFView_->setEnergyRange(270, 2000);
+		amptekSDD2XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD2XRFView_, "Beamline Detectors", "SGM Amptek2 XRF", ":/system-software-update.png");
+		connect(amptekSDD2XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -458,7 +462,9 @@ void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 		amptekSDD3XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
 		amptekSDD3XRFView_->buildDetectorView();
 		amptekSDD3XRFView_->setEnergyRange(270, 2000);
+		amptekSDD3XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD3XRFView_, "Beamline Detectors", "SGM Amptek3 XRF", ":/system-software-update.png");
+		connect(amptekSDD3XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -468,7 +474,9 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 		amptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		amptekSDD4XRFView_->buildDetectorView();
 		amptekSDD4XRFView_->setEnergyRange(270, 2000);
+		amptekSDD4XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
+		connect(amptekSDD4XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -478,7 +486,9 @@ void SGMAppController::onSGMNewAmptekSDD5Connected(bool connected){
 		amptekSDD5XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5()));
 		amptekSDD5XRFView_->buildDetectorView();
 		amptekSDD5XRFView_->setEnergyRange(270, 2000);
+		amptekSDD5XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD5XRFView_, "Beamline Detectors", "SGM Amptek5 XRF", ":/system-software-update.png");
+		connect(amptekSDD5XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -579,6 +589,17 @@ void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *dete
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
 	}
+}
+
+void SGMAppController::onXRFDetectorViewResized(){
+	qDebug() << "I should be able to check if I can resize mw_ now to " << mw_->minimumSizeHint().height();
+	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
+	QTimer::singleShot(100, this, SLOT(oneMoreLevel()));
+}
+
+void SGMAppController::oneMoreLevel(){
+	qDebug() << "ACTUALLY I should be able to check if I can resize mw_ now to " << mw_->minimumSizeHint().height();
+	mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
 }
 
 bool SGMAppController::startupSGMInstallActions(){

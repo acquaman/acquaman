@@ -12,6 +12,8 @@
 #include "dataman/AMAnalysisBlock.h"
 #include "ui/beamline/AMRegionOfInterestView.h"
 
+#include "ui/AMHeaderButton.h"
+
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
@@ -214,7 +216,19 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	completeBottomLayout->addLayout(rowAbovePeriodicTableLayout_);
 	completeBottomLayout->addLayout(periodicTableAndElementViewLayout);
 
-	bottomLayout_->addLayout(completeBottomLayout);
+	periodicTableHeaderButton_ = new AMHeaderButton();
+	periodicTableHeaderButton_->setText("Periodic Table");
+	periodicTableHeaderButton_->setArrowType(Qt::DownArrow);
+
+	bottomLayoutWidget_ = new QWidget();
+	bottomLayoutWidget_->setLayout(completeBottomLayout);
+
+	QVBoxLayout *bottomLayoutWithHeader = new QVBoxLayout();
+	bottomLayoutWithHeader->addWidget(periodicTableHeaderButton_);
+	bottomLayoutWithHeader->addWidget(bottomLayoutWidget_);
+
+	bottomLayout_->addLayout(bottomLayoutWithHeader);
+	//bottomLayout_->addLayout(completeBottomLayout);
 
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
@@ -224,6 +238,8 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
+
+	connect(periodicTableHeaderButton_, SIGNAL(clicked()), this, SLOT(onPeriodicTableHeaderButtonClicked()));
 }
 
 void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
@@ -353,6 +369,14 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	emissionLineValidator_->setMaximum(newMaximum);
 	periodicTableView_->setMaximumEnergy(newMaximum);
 	elementView_->setMaximumEnergy(newMaximum);
+}
+
+void AMXRFDetailedDetectorView::expandPeriodicTableViews(){
+	hidePeriodicTableViews(false);
+}
+
+void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
+	hidePeriodicTableViews(true);
 }
 
 void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
@@ -707,4 +731,29 @@ void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
 
 	plot_->axisScaleLeft()->setLogScaleEnabled(logScale);
 	onWaterfallUpdateRequired();
+}
+
+void AMXRFDetailedDetectorView::onPeriodicTableHeaderButtonClicked(){
+	if(bottomLayoutWidget_->isHidden())
+		hidePeriodicTableViews(false);
+	else
+		hidePeriodicTableViews(true);
+}
+
+void AMXRFDetailedDetectorView::resizeToMinimumHeight(){
+	qDebug() << "Want to resize height to " << minimumSizeHint().height();
+	resize(size().width(), minimumSizeHint().height());
+	emit resized();
+}
+
+void AMXRFDetailedDetectorView::hidePeriodicTableViews(bool setHidden){
+	if(setHidden && !bottomLayoutWidget_->isHidden()){
+		periodicTableHeaderButton_->setArrowType(Qt::RightArrow);
+		bottomLayoutWidget_->hide();
+		QTimer::singleShot(0, this, SLOT(resizeToMinimumHeight()));
+	}
+	else if(!setHidden && bottomLayoutWidget_->isHidden()){
+		periodicTableHeaderButton_->setArrowType(Qt::DownArrow);
+		bottomLayoutWidget_->show();
+	}
 }

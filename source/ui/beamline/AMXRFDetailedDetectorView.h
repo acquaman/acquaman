@@ -14,6 +14,7 @@
 #include <QSignalMapper>
 
 class QComboBox;
+class AMHeaderButton;
 
 class AMXRFDetailedDetectorView : public AMXRFBaseDetectorView
 {
@@ -106,6 +107,15 @@ public slots:
 	/// Sets a new maximum value for the energy range.
 	void setMaximumEnergy(double newMaximum);
 
+	/// Expands (shows) the periodic table views
+	void expandPeriodicTableViews();
+	/// Collapses (hides) the periodic table views
+	void collapsePeriodTableViews();
+
+signals:
+	/// Emitted when the periodic table views are hidden
+	void resized();
+
 protected slots:
 	/// Handles setting a new element to the AMSelectableElementView.
 	void onElementClicked(AMElement *element);
@@ -148,6 +158,11 @@ protected slots:
 	/// Handles changing the scale of the axis to logarithmic or linear.
 	void onLogScaleClicked(bool logScale);
 
+	/// Handles showing or hiding the periodic table related views when the button is clicked
+	void onPeriodicTableHeaderButtonClicked();
+	/// Handles resizing the vertical height to a minimum size when the periodic table views are hidden
+	void resizeToMinimumHeight();
+
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
 	void highlightCurrentElementRegionOfInterest();
@@ -170,6 +185,13 @@ protected:
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 
+	/// Helper method to show or hide the periodic table related views and fix the header button
+	void hidePeriodicTableViews(bool setHidden);
+
+	/// The drop down button to show or hide the periodic table related information
+	AMHeaderButton *periodicTableHeaderButton_;
+	/// Widget to hold all of the periodic table related views, this way we can hide and show them all at once
+	QWidget *bottomLayoutWidget_;
 	/// The selectable periodic table model.
 	AMSelectablePeriodicTable *periodicTable_;
 	/// The selectable periodic table view.

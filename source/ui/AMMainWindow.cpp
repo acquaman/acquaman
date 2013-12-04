@@ -328,5 +328,64 @@ QWidget * AMMainWindow::currentPane() const
 	return stackWidget_->currentWidget();
 }
 
+#include <QDebug>
+QSize AMMainWindow::minimumSizeHint() const{
+	qDebug() << "I think the minimum size hint will be " << QWidget::minimumSizeHint() << layout()->totalMinimumSize();
 
+	int heightDifference = vlayout_->totalMinimumSize().height()-hlayout_->totalMinimumSize().height();
+	int hlayoutHeightMax = 0;
+	int oneHeight;
+	qDebug() << "vlayout_" << vlayout_->totalMinimumSize();
+	qDebug() << "hlayout_" << hlayout_->totalMinimumSize();
+	for(int x = 0; x < hlayout_->count(); x++){
+		if(hlayout_->itemAt(x)->widget()){
+			qDebug() << "hlayout_ at " << x << "is a widget " << hlayout_->itemAt(x)->widget()->minimumSizeHint();
+			oneHeight = hlayout_->itemAt(x)->widget()->minimumSizeHint().height();
+		}
+		else{
+			qDebug() << "hlayout_ at " << x << "is a layout " << hlayout_->itemAt(x)->layout()->totalMinimumSize();
+			oneHeight = hlayout_->itemAt(x)->layout()->totalMinimumSize().height();
+		}
+		if(oneHeight > hlayoutHeightMax)
+			hlayoutHeightMax = oneHeight;
+	}
 
+	QSize retVal = QSize(QWidget::minimumSizeHint().width(), hlayoutHeightMax+heightDifference);
+
+	qDebug() << "I want to return a value of " << retVal;
+	qDebug() << "One more question: " << stackWidget_->layout()->minimumSize();
+	qDebug() << "Another question: " << minimumSize();
+	return retVal;
+}
+
+QSize AMMainWindow::minimumSize() const{
+	/*
+	qDebug() << "My minimumSize is " << QWidget::minimumSize();
+	for(int x = 0; x < hlayout_->count(); x++){
+		if(hlayout_->itemAt(x)->widget()){
+			qDebug() << "hlayout_ at " << x << "is a widget " << hlayout_->itemAt(x)->widget()->minimumSize();
+		}
+		else{
+			qDebug() << "hlayout_ at " << x << "is a layout " << hlayout_->itemAt(x)->layout()->minimumSize();
+		}
+	}
+	*/
+	return QWidget::minimumSize();
+	/*
+	int heightDifference = vlayout_->totalMinimumSize().height()-hlayout_->totalMinimumSize().height();
+	int hlayoutHeightMax = 0;
+	int oneHeight;
+	for(int x = 0; x < hlayout_->count(); x++){
+		if(hlayout_->itemAt(x)->widget())
+			oneHeight = hlayout_->itemAt(x)->widget()->minimumSizeHint().height();
+		else
+			oneHeight = hlayout_->itemAt(x)->layout()->totalMinimumSize().height();
+		if(oneHeight > hlayoutHeightMax)
+			hlayoutHeightMax = oneHeight;
+	}
+
+	QSize retVal = QSize(QWidget::minimumSizeHint().width(), hlayoutHeightMax+heightDifference);
+	qDebug() << "\n\nCalling for minimum size, I'll return " << retVal << "\n\n";
+	return retVal;
+	*/
+}

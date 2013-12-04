@@ -117,6 +117,9 @@ protected slots:
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
+	void onXRFDetectorViewResized();
+	void oneMoreLevel();
+
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
