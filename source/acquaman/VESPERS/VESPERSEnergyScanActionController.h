@@ -25,7 +25,7 @@ protected:
 	AMAction3* createCleanupActions();
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
-	virtual void buildScanControllerImplementation() {}
+	virtual void buildScanControllerImplementation();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERSEnergyScanConfiguration *configuration_;

@@ -18,8 +18,6 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	scan_->setName(regionsConfiguration_->name());
 	scan_->setScanConfiguration(regionsConfiguration_);
 	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
-//	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
@@ -60,6 +58,11 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+}
+
+void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
+{
+	// Need scan axes!
 }
 
 AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
