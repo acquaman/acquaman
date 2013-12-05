@@ -16,11 +16,9 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(REIXSBeamline::bl()->currentSampleId());
 	scan_->setIndexType("fileSystem");
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString rangeString;
 	if(configuration_->regionCount())
@@ -54,6 +52,11 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("TFY")->toInfo());
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("PFY")->toInfo());
 	configuration_->setDetectorConfigurations(reixsDetectors);
+}
+
+void REIXSXASScanActionController::buildScanControllerImplementation()
+{
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* REIXSXASScanActionController::createInitializationActions(){

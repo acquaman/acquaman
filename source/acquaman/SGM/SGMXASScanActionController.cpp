@@ -14,11 +14,9 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString scanName;
 	QString sampleName;
@@ -34,6 +32,11 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+}
+
+void SGMXASScanActionController::buildScanControllerImplementation()
+{
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){
