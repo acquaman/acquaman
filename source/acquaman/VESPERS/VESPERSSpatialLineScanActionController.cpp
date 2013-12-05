@@ -17,7 +17,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	scan_ = new AMLineScan();
 	scan_->setName(regionsConfiguration_->name());
 	scan_->setScanConfiguration(regionsConfiguration_);
-	scan_->setFileFormat("sgm2013XAS");
+	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 

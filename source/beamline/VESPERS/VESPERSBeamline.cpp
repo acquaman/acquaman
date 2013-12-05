@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
+#include "beamline/CLS/CLSSR570.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -292,28 +293,6 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
-
-	ionChambers_ = new AMOldDetectorSet(this);
-
-	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
-	tempSplit->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(tempSplit);
-	iSplit_ = tempSplit;
-
-	CLSIonChamber *temp = new CLSIonChamber("Iprekb", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iPreKB_ = temp;
-
-	temp = new CLSIonChamber("Imini", "Mini", "BL1607-B2-1:mcs08:fbk", "BL1607-B2-1:mcs08:userRate", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iMini_ = temp;
-
-	temp = new CLSIonChamber("Ipost", "Post", "BL1607-B2-1:mcs09:fbk", "BL1607-B2-1:mcs09:userRate", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iPost_ = temp;
 
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError(bool)));

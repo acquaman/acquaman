@@ -30,9 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/AMIonChamber.h"
-#include "beamline/CLS/CLSIonChamber.h"
-#include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
@@ -106,25 +103,6 @@ public:
 	AMDetector *pilatusAreaDetector() const { return pilatusAreaDetector_; }
 	/// Returns the specific pointer to the Pilatus CCD.
 	VESPERSPilatusCCDDetector *vespersPilatusAreaDetector() const { return (VESPERSPilatusCCDDetector *)pilatusAreaDetector_; }
-
-	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMOldDetector *iSplitDetector() const { return iSplit_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
-	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
-	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMOldDetector *iMiniDetector() const { return iMini_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
-	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMOldDetector *iPostDetector() const { return iPost_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
-	/// Returns the ion chamber detector set.
-	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
 	/// Returns the single element vortex detector.
 	AMDetector *singleElementVortexDetector() const { return singleElementVortexDetector_; }
@@ -667,10 +645,6 @@ protected:
 	// Detectors.
 	AMOldDetector *vortex1E_;
 	AMOldDetector *vortex4E_;
-	AMOldDetector *iSplit_;
-	AMOldDetector *iPreKB_;
-	AMOldDetector *iMini_;
-	AMOldDetector *iPost_;
 
 	CLSBasicCompositeScalerChannelDetector *splitIonChamber_;
 	CLSBasicScalerChannelDetector *preKBIonChamber_;

@@ -77,16 +77,12 @@ public:
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMAction3* createStartAction3(bool setScanning);
-
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMAction3* createContinuousEnableAction3(bool enableContinuous);
-
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
 	AMAction3* createDwellTimeAction3(double dwellTime);
-
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
 	AMAction3* createScansPerBufferAction3(int scansPerBuffer);
-
 	/// Creates an action that sets the total number of scans to \param totalScans.
 	AMAction3* createTotalScansAction3(int totalScans);
 

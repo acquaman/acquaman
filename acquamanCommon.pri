@@ -440,17 +440,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/AMScanExemplarDictionary.h \
 	source/dataman/AMScanExemplar.h \
 	source/ui/dataman/AMDictionaryLineEdit.h \
-	source/beamline/AMIonChamber.h \
-	source/dataman/info/AMIonChamberInfo.h \
-	source/beamline/CLS/CLSIonChamber.h \
 	source/beamline/CLS/CLSSR570.h \
-	source/ui/beamline/AMIonChamberView.h \
-	source/ui/CLS/CLSIonChamberView.h \
 	source/beamline/CLS/CLSBiStateControl.h \
-	source/beamline/AMSplitIonChamber.h \
-	source/beamline/CLS/CLSSplitIonChamber.h \
-	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h \
 	source/application/AMAppControllerSupport.h \
 	source/application/AMPluginsManager.h \
 	source/dataman/import/AMScanDatabaseImportController.h \
@@ -904,17 +895,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/AMScanExemplarDictionary.cpp \
 	source/dataman/AMScanExemplar.cpp \
 	source/ui/dataman/AMDictionaryLineEdit.cpp \
-	source/beamline/AMIonChamber.cpp \
-	source/dataman/info/AMIonChamberInfo.cpp \
-	source/beamline/CLS/CLSIonChamber.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
-	source/ui/beamline/AMIonChamberView.cpp \
-	source/ui/CLS/CLSIonChamberView.cpp \
 	source/beamline/CLS/CLSBiStateControl.cpp \
-	source/beamline/AMSplitIonChamber.cpp \
-	source/beamline/CLS/CLSSplitIonChamber.cpp \
-	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
 	source/dataman/import/AMScanDatabaseImportController.cpp \
@@ -1157,6 +1139,24 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

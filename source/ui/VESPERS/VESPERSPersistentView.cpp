@@ -21,9 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSPersistentView.h"
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
-#include "ui/CLS/CLSIonChamberView.h"
-#include "ui/CLS/CLSSplitIonChamberView.h"
-#include "ui/beamline/AMIonChamberView.h"
 #include "ui/VESPERS/VESPERSScalerView.h"
 
 #include <QHBoxLayout>
@@ -239,14 +236,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
-	// Ion chambers.
-//	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
-//	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
-//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
-//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
-//	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
-
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
 	statusLayout->addWidget(temperatureIcon, 0, 0);
@@ -272,7 +261,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
 	persistentLayout->addWidget(ionChamberLabel);
-//	persistentLayout->addLayout(ionChamberLayout);
 	persistentLayout->addWidget(new VESPERSScalerView());
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
