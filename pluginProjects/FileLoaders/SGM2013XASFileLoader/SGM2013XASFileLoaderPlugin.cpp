@@ -13,7 +13,7 @@
 
 bool SGM2013XASFileLoaderPlugin::accepts(AMScan *scan){
 	qDebug() << "SGM2013XAS trying to accept " << scan->fileFormat();
-	if(scan->fileFormat() == "sgm2013XAS")
+	if(scan->fileFormat() == "sgm2013XAS" || scan->fileFormat() == "amRegionAscii2013")
 		return true;
 	return false;
 }
@@ -158,7 +158,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 bool SGM2013XASFileLoaderFactory::accepts(AMScan *scan)
 {
-	return (scan->fileFormat() == "sgm2013XAS");
+	return (scan->fileFormat() == "sgm2013XAS" || scan->fileFormat() == "amRegionAscii2013");
 }
 
 Q_EXPORT_PLUGIN2(SGM2013XASFileLoaderFactory, SGM2013XASFileLoaderFactory)

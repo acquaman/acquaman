@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QStringBuilder>
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
@@ -16,6 +17,7 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
@@ -39,45 +41,72 @@ void AMRegionScanActionController::buildScanController()
 
 	if(regionScanConfigurationConverter.convert()){
 
+		// Handle some general scan stuff, including setting the default file path.
+		scan_->setRunId(AMUser::user()->currentRunId());
+
 		bool has1DDetectors = false;
-		AMDetector *oneDetector;
 
-		for (int x = 0; x < regionsConfiguration_->detectorConfigurations().count(); x++){
+		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size && !has1DDetectors; i++){
 
-			oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(x));
+			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
-			if(oneDetector){
-
-				if(oneDetector->rank() == 1)
-					has1DDetectors = true;
-
-				if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(x))))))
-					scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
-			}
+			if (detector && detector->rank() == 1)
+				has1DDetectors = true;
 		}
 
-		connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
-		newScanAssembler_->generateActionTree();
-
 		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
-		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-		if(has1DDetectors)
-			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+
+		// If using just the basic ascii files.
+		if (scan_->fileFormat() == "sgm2013XAS" || scan_->fileFormat() == "amRegionAscii2013"){
+
+			scan_->setFilePath(fullPath.filePath() % ".dat");	// relative path and extension (is what the database wants)
+
+			if(has1DDetectors)
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath() % "_spectra.dat" );
+		}
+
+		// If you want to use the CDF data file format.
+		else if (scan_->fileFormat() == "amCDFv1"){
+
+			scan_->setFilePath(fullPath.filePath() % ".cdf");
+			scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
+
+			flushToDiskTimer_.setInterval(300000);
+			connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+			connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+			flushToDiskTimer_.start();
+		}
+
+		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath() % ".dat", has1DDetectors);
+		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
+		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
 		fileWriterThread_ = new QThread();
 		connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
 		connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
 		connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
-
-		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-
-		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), has1DDetectors);
-		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
-		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 		fileWriter->moveToThread(fileWriterThread_);
 		fileWriterThread_->start();
+
+		// Get all the detectors added to the scan.
+		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size && !has1DDetectors; i++){
+
+			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+
+			if(oneDetector && scan_->rawData()->addMeasurement(AMMeasurementInfo(*oneDetector)))
+				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
+		}
+
+		connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
+		newScanAssembler_->generateActionTree();
 
 		buildScanControllerImplementation();
 	}
@@ -91,7 +120,12 @@ bool AMRegionScanActionController::isReadyForDeletion() const
 	return !fileWriterIsBusy_;
 }
 
-
+void AMRegionScanActionController::flushCDFDataStoreToDisk()
+{
+	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
+	if(dataStore && !dataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
+}
 
 void AMRegionScanActionController::onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error)
 {

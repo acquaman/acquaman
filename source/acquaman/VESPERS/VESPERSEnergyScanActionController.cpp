@@ -13,11 +13,8 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
-//	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(2)->toInfo());
@@ -36,6 +33,11 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+}
+
+void VESPERSEnergyScanActionController::buildScanControllerImplementation()
+{
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()

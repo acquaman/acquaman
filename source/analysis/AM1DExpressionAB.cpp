@@ -147,20 +147,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	// initialize the combination of state flags. These will be kept updated by onInputSourceStateChanged()
 	combinedInputState_ = 0;
-	for(int i=0; i<sources_.count(); i++)
-		combinedInputState_ |= sources_.at(i)->state();
-
-
-	// initialize whether the sizes all match. This will be kept updated by onInputSourceSizeChanged()
-	sizesMatch_ = true;
-	size_ = 0;
-	if(!sources_.isEmpty()) {
-		size_ = sources_.at(0)->size(0);
-		for(int i=1; i<sources_.count(); i++)
-			if(sources_.at(i)->size(0) != size_)
-				sizesMatch_ = false;
-	}
-
+	onInputSourceStateChanged();
 
 	setExpression(oldExpression);
 	setXExpression(oldXExpression);
@@ -174,7 +161,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 void AM1DExpressionAB::reviewState() {
 	int state = 0;
 
-	if(inputDataSourceCount() == 0 || !sizesMatch_ || !expressionValid_ || !xExpressionValid_)
+	if(inputDataSourceCount() == 0 || !allUsedSizesMatch() || !expressionValid_ || !xExpressionValid_)
 		state |= AMDataSource::InvalidFlag;
 
 	state |= combinedInputState_;
@@ -416,24 +403,41 @@ void AM1DExpressionAB::onInputSourceValuesChanged(const AMnDIndex& start, const 
 
 // If the inputs change size, this will affect the output state. All the inputs need to be the same size for now, otherwise the result is invalid.
 void AM1DExpressionAB::onInputSourceSizeChanged() {
-	size_ = inputDataSourceAt(0)->size(0);
-	sizesMatch_ = true;
-	for(int i=1; i<inputDataSourceCount(); i++)
-		if(inputDataSourceAt(i)->size(0) != size_)
-			sizesMatch_ = false;
 
-	// anything that could trigger a change in the output validity must call this
+	if (inputDataSourceCount() > 0){
+
+		size_ = inputDataSourceAt(0)->size(0);
+		emitSizeChanged(0);
+	}
+
 	reviewState();
 }
 
 // If the inputs change state, this will affect the output state.  If any inputs are InvalidState, then the output is InvalidState.  If any of the inputs are in ProcessingState, then the output is ProcessingState. Otherwise, it's ReadyState.
 void AM1DExpressionAB::onInputSourceStateChanged() {
 	combinedInputState_ = 0;
-	for(int i=0; i<inputDataSourceCount(); i++)
-		combinedInputState_ |= inputDataSourceAt(i)->state();
+	for(int i = 0; i < usedVariables_.size(); i++)
+		combinedInputState_ |= inputDataSourceAt(usedVariables_.at(i)->sourceIndex)->state();
 
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
+}
+
+bool AM1DExpressionAB::allUsedSizesMatch() const
+{
+	int size = -1;
+	bool sizesMatch = true;
+
+	foreach (AMParserVariable *var, usedVariables_){
+
+		if (size == -1)
+			size = inputDataSourceAt(var->sourceIndex)->size(0);
+
+		else if (size != inputDataSourceAt(var->sourceIndex)->size(0))
+			sizesMatch = false;
+	}
+
+	return sizesMatch;
 }
 
 // Check if a given expression string is valid (for the current set of inputs)
@@ -504,8 +508,9 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 		expressionValid_ = false;
 	}
 
-
 	// anything that could trigger a change in the output validity must call this
+	onInputSourceStateChanged();
+	onInputSourceSizeChanged();
 	reviewState();
 	emitValuesChanged();
 
@@ -566,6 +571,8 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 		xExpressionValid_ = false;
 	}
 
+	onInputSourceStateChanged();
+	onInputSourceSizeChanged();
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();	/// \todo: actually, we mean that the axis values changed. How to signal that?
@@ -575,14 +582,3 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	return xExpressionValid_;
 }
-
-
-
-
-
-
-
-
-
-
-

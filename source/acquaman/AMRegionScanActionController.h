@@ -46,6 +46,8 @@ protected slots:
 	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
+	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
+	void flushCDFDataStoreToDisk();
 
 protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
@@ -72,6 +74,8 @@ protected:
 	QThread *fileWriterThread_;
 	/// Flag for keeping track of whether the file writer thread is busy or not.
 	bool fileWriterIsBusy_;
+	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
+	QTimer flushToDiskTimer_;
 };
 
 #endif // AMREGIONSCANACTIONCONTROLLER_H
