@@ -366,7 +366,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013Holder3_->setEnabled(true);
 		fastScanConfiguration2013Holder3_->setEnabled(true);
 	}
-	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isVisible() && fastScanConfiguration2013View_->isVisible()){
+	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isEnabled() && fastScanConfiguration2013View_->isEnabled()){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}

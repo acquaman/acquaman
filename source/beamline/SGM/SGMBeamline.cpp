@@ -310,6 +310,13 @@ QStringList SGMBeamline::unconnectedCriticals() const{
 	return allUnconnected;
 }
 
+AMDetectorSet* SGMBeamline::criticalDetectorSet(const QObject *privilegedRequester){
+	qDebug() << "Class name is " << privilegedRequester->metaObject()->className();
+	if(QString("%1").arg(privilegedRequester->metaObject()->className()) == "SGMDetectorsMasterView")
+		return criticalDetectorSet_;
+	return 0; //NULL
+}
+
 bool SGMBeamline::detectorConnectedByName(QString name){
 	for(int x = 0; x < unconnectedSets_.count(); x++){
 		if( QString::compare(unconnectedSets_.at(x)->name().section(' ', 0, 0), name, Qt::CaseInsensitive) == 0)
@@ -707,6 +714,9 @@ void SGMBeamline::onEnergyValueChanged(){
 
 void SGMBeamline::onCriticalDetectorSetConnectedChanged(bool connected){
 	Q_UNUSED(connected)
+	qDebug() << "Heard that critical detector set connected changed to " << connected;
+	qDebug() << criticalDetectorSet_->unconnectedDetectors();
+	emit criticalConnectionsChanged();
 	reviewConnected();
 }
 

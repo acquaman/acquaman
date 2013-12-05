@@ -220,6 +220,7 @@ public:
 
 	const AMControlSet* criticalControlsSet() const { return criticalControlsSet_; }
 	const AMDetectorSet* criticalDetectorSet() const { return criticalDetectorSet_; }
+	AMDetectorSet* criticalDetectorSet(const QObject *privilegedRequester);
 
 	bool detectorConnectedByName(QString name);
 

@@ -679,7 +679,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/actions3/actions/AMControlStopAction.h \
     source/actions3/actions/AMControlStopActionInfo.h \
     source/ui/dataman/AMControlInfoListView.h \
-    source/ui/dataman/AMOldDetectorInfoSetView.h
+    source/ui/dataman/AMOldDetectorInfoSetView.h \
+    source/ui/beamline/AMDetectorSelectorRequiredView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1129,7 +1130,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/actions3/actions/AMControlStopAction.cpp \
     source/actions3/actions/AMControlStopActionInfo.cpp \
     source/ui/dataman/AMControlInfoListView.cpp \
-    source/ui/dataman/AMOldDetectorInfoSetView.cpp
+    source/ui/dataman/AMOldDetectorInfoSetView.cpp \
+    source/ui/beamline/AMDetectorSelectorRequiredView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1153,6 +1155,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

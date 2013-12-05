@@ -3,6 +3,8 @@
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
+#include <QDebug>
+
 AMDetectorSelector::AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent) :
 	QObject(parent)
 {
@@ -66,6 +68,34 @@ AMDetectorInfoSet AMDetectorSelector::selectedDetectorInfos() const{
 	return retVal;
 }
 
+AMDetectorInfoSet AMDetectorSelector::unselectedDetectorInfos() const{
+	AMDetectorInfoSet retVal;
+
+	AMDetector *detector = 0;
+	QList<AMDetector*> foundInPreferentialOrdering;
+	for(int x = 0; x < preferentialOrdering_.count(); x++){
+		detector = detectorGroup_->detectorByName(preferentialOrdering_.at(x));
+		if(detector && !detectorIsSelected(detector)){
+			retVal.addDetectorInfo(detector->toInfo());
+			foundInPreferentialOrdering.append(detector);
+		}
+	}
+
+	for(int x = 0, size = detectorGroup_->connectedDetectors()->count(); x < size; x++){
+		detector = detectorGroup_->connectedDetectors()->detectorAt(x);
+		if(!detectorIsSelected(detector) && !foundInPreferentialOrdering.contains(detector))
+			retVal.addDetectorInfo(detector->toInfo());
+	}
+
+	for(int x = 0, size = detectorGroup_->unconnectedDetectors()->count(); x < size; x++){
+		detector = detectorGroup_->unconnectedDetectors()->detectorAt(x);
+		if(!detectorIsSelected(detector) && !foundInPreferentialOrdering.contains(detector))
+			retVal.addDetectorInfo(detector->toInfo());
+	}
+
+	return retVal;
+}
+
 bool AMDetectorSelector::detectorIsDefaultByName(const QString &name) const{
 	if(!detectorGroup_ || !defaultDetectors_.contains(name))
 		return false;
@@ -107,6 +137,7 @@ void AMDetectorSelector::setDetectorSelected(AMDetector *detector, bool isSelect
 		return;
 
 	if(selectedDetectors_.value(detector->name()) != isSelected){
+		qDebug() << "Need to change selected value for this detector " << detector->name();
 		selectedDetectors_[detector->name()] = isSelected;
 		emit selectedChanged(detector);
 	}

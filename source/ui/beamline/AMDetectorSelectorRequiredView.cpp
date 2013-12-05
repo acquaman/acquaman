@@ -1,19 +1,20 @@
-#include "AMDetectorSelectorView.h"
+#include "AMDetectorSelectorRequiredView.h"
 
 #include <QScrollArea>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QCheckBox>
+#include <QDebug>
 
 #include "ui/beamline/AMDetectorView.h"
 #include "beamline/AMDetectorSelector.h"
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
-AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent) :
+AMDetectorSelectorRequiredView::AMDetectorSelectorRequiredView(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QGroupBox(parent)
 {
-	internalView_ = new AMDetectorSelectorViewInternal(detectorSelector);
+	internalView_ = new AMDetectorSelectorRequiredViewInternal(detectorSelector);
 
 	setTitle(detectorSelector->detectorGroup()->name());
 	scrollArea_ = new QScrollArea();
@@ -26,7 +27,7 @@ AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelec
 	setLayout(vl);
 }
 
-AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent) :
+AMDetectorSelectorRequiredViewInternal::AMDetectorSelectorRequiredViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QWidget(parent)
 {
 	detectorSelector_ = detectorSelector;
@@ -41,14 +42,14 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 	unconnectedVL_->addWidget(noneUnconnectedLabel_);
 
 	if(detectorSelector_){
-		AMDetectorSelectorViewInternalLineView *tmpDetectorView = 0;
+		AMDetectorSelectorRequiredViewInternalLineView *tmpDetectorView = 0;
 
 		AMDetector *detector = 0;
 		QStringList preferentialOrdering = detectorSelector_->preferentialOrdering();
 		for(int x = 0; x < preferentialOrdering.count(); x++){
 			detector = detectorSelector_->detectorGroup()->detectorByName(preferentialOrdering.at(x));
 			if(detector){
-				tmpDetectorView = new AMDetectorSelectorViewInternalLineView(detector, detectorSelector_->detectorIsSelected(detector));
+				tmpDetectorView = new AMDetectorSelectorRequiredViewInternalLineView(detector, detectorSelector_->detectorIsSelected(detector));
 				allDetectorViews_.insert(detector->name(), tmpDetectorView);
 				if(detector->isConnected())
 					connectedVL_->addWidget(tmpDetectorView);
@@ -63,7 +64,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 		AMDetectorSet *connectedDetectors = detectorSelector_->detectorGroup()->connectedDetectors();
 		for(int x = 0; x < connectedDetectors->count(); x++){
 			if(!preferentialOrdering.contains(connectedDetectors->at(x)->name())){
-				tmpDetectorView = new AMDetectorSelectorViewInternalLineView(connectedDetectors->at(x), detectorSelector_->detectorIsSelected(connectedDetectors->at(x)));
+				tmpDetectorView = new AMDetectorSelectorRequiredViewInternalLineView(connectedDetectors->at(x), detectorSelector_->detectorIsSelected(connectedDetectors->at(x)));
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(connectedDetectors->at(x)));
 				allDetectorViews_.insert(connectedDetectors->at(x)->name(), tmpDetectorView);
 				connectedVL_->addWidget(tmpDetectorView);
@@ -74,7 +75,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 		AMDetectorSet *unconnectedDetectors = detectorSelector_->detectorGroup()->unconnectedDetectors();
 		for(int x = 0; x < unconnectedDetectors->count(); x++){
 			if(!preferentialOrdering.contains(unconnectedDetectors->at(x)->name())){
-				tmpDetectorView = new AMDetectorSelectorViewInternalLineView(unconnectedDetectors->at(x), detectorSelector_->detectorIsSelected(unconnectedDetectors->at(x)));
+				tmpDetectorView = new AMDetectorSelectorRequiredViewInternalLineView(unconnectedDetectors->at(x), detectorSelector_->detectorIsSelected(unconnectedDetectors->at(x)));
 				tmpDetectorView->setDetectorConnected(false);
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(unconnectedDetectors->at(x)));
 				allDetectorViews_.insert(unconnectedDetectors->at(x)->name(), tmpDetectorView);
@@ -101,11 +102,11 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 	setLayout(mainVL);
 }
 
-void AMDetectorSelectorViewInternal::onDetectorBecameConnected(AMDetector *detector){
+void AMDetectorSelectorRequiredViewInternal::onDetectorBecameConnected(AMDetector *detector){
 	if(!detector || !detectorSelector_ || !allDetectorViews_.contains(detector->name()))
 		return;
 
-	AMDetectorSelectorViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
+	AMDetectorSelectorRequiredViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
 	tmpDetectorView->setDetectorConnected(true);
 	unconnectedVL_->removeWidget(tmpDetectorView);
 
@@ -133,11 +134,11 @@ void AMDetectorSelectorViewInternal::onDetectorBecameConnected(AMDetector *detec
 		noneConnectedLabel_->hide();
 }
 
-void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *detector){
+void AMDetectorSelectorRequiredViewInternal::onDetectorBecameUnconnected(AMDetector *detector){
 	if(!detector || !detectorSelector_ || !allDetectorViews_.contains(detector->name()))
 		return;
 
-	AMDetectorSelectorViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
+	AMDetectorSelectorRequiredViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
 	tmpDetectorView->setDetectorConnected(false);
 	connectedVL_->removeWidget(tmpDetectorView);
 
@@ -164,27 +165,27 @@ void AMDetectorSelectorViewInternal::onDetectorBecameUnconnected(AMDetector *det
 		noneUnconnectedLabel_->hide();
 }
 
-void AMDetectorSelectorViewInternal::onDetectorCheckedChanged(bool selected){
-	AMDetectorSelectorViewInternalLineView *castToLineView = qobject_cast<AMDetectorSelectorViewInternalLineView*>(QObject::sender());
+void AMDetectorSelectorRequiredViewInternal::onDetectorCheckedChanged(bool selected){
+	AMDetectorSelectorRequiredViewInternalLineView *castToLineView = qobject_cast<AMDetectorSelectorRequiredViewInternalLineView*>(QObject::sender());
 	if(castToLineView)
 		detectorSelector_->setDetectorSelectedByName(castToLineView->detectorName(), selected);
 }
 
-void AMDetectorSelectorViewInternal::onDetectorSelectorSelectedChanged(AMDetector *detector){
-	AMDetectorSelectorViewInternalLineView *lineView = allDetectorViews_.value(detector->name());
+void AMDetectorSelectorRequiredViewInternal::onDetectorSelectorSelectedChanged(AMDetector *detector){
+	AMDetectorSelectorRequiredViewInternalLineView *lineView = allDetectorViews_.value(detector->name());
 	if(lineView)
 		lineView->setDetectorSelected(detectorSelector_->detectorIsSelected(detector));
 }
 
-int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout){
+int AMDetectorSelectorRequiredViewInternal::preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout){
 	if(preferentialListIndex == 0)
 		return -1;
 
 	QString priorDetectorName = detectorSelector_->preferentialOrdering().at(preferentialListIndex-1);
 
-	AMDetectorSelectorViewInternalLineView *tmpLineView;
+	AMDetectorSelectorRequiredViewInternalLineView *tmpLineView;
 	for(int x = 0; x < layout->count(); x++){
-		tmpLineView = qobject_cast<AMDetectorSelectorViewInternalLineView*>(layout->itemAt(x)->widget());
+		tmpLineView = qobject_cast<AMDetectorSelectorRequiredViewInternalLineView*>(layout->itemAt(x)->widget());
 		if(tmpLineView && tmpLineView->detectorName() == priorDetectorName)
 			return x+1;
 	}
@@ -192,37 +193,50 @@ int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialL
 	return preferentialInsertionIndex(preferentialListIndex-1, layout);
 }
 
-AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected, QWidget *parent) :
+AMDetectorSelectorRequiredViewInternalLineView::AMDetectorSelectorRequiredViewInternalLineView(AMDetector *detector, bool isSelected, QWidget *parent) :
 	QWidget(parent)
 {
 	detector_ = detector;
 
 	detectorSelectedCheckBox_ = new QCheckBox();
 	detectorSelectedCheckBox_->setChecked(isSelected);
-	briefView_ = new AMDetectorGeneralBriefView(detector);
+	if(isSelected)
+		detectorSelectedCheckBox_->setText("Required");
+	else
+		detectorSelectedCheckBox_->setText("Not Required");
+	//briefView_ = new AMDetectorGeneralBriefView(detector);
+	detectorNameLabel_ = new QLabel(detector_->name());
 
 	QHBoxLayout *hl = new QHBoxLayout();
-	hl->addWidget(briefView_);
+	hl->addWidget(detectorNameLabel_);
 	hl->addWidget(detectorSelectedCheckBox_);
 	hl->setContentsMargins(0,0,0,0);
 
-	connect(detectorSelectedCheckBox_, SIGNAL(toggled(bool)), this, SIGNAL(detectorCheckedChanged(bool)));
+	connect(detectorSelectedCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onDetectorSelectedCheckBoxToggled(bool)));
 
 	setLayout(hl);
 }
 
-QString AMDetectorSelectorViewInternalLineView::detectorName() const{
+QString AMDetectorSelectorRequiredViewInternalLineView::detectorName() const{
 	return detector_->name();
 }
 
-bool AMDetectorSelectorViewInternalLineView::detectorChecked(){
+bool AMDetectorSelectorRequiredViewInternalLineView::detectorChecked(){
 	return detectorSelectedCheckBox_->isChecked();
 }
 
-void AMDetectorSelectorViewInternalLineView::setDetectorSelected(bool selected){
+void AMDetectorSelectorRequiredViewInternalLineView::setDetectorSelected(bool selected){
 	detectorSelectedCheckBox_->setChecked(selected);
 }
 
-void AMDetectorSelectorViewInternalLineView::setDetectorConnected(bool connected){
-	briefView_->setEnabled(connected);
+void AMDetectorSelectorRequiredViewInternalLineView::setDetectorConnected(bool connected){
+	//detectorNameLabel_->setEnabled(connected);
+}
+
+void AMDetectorSelectorRequiredViewInternalLineView::onDetectorSelectedCheckBoxToggled(bool isChecked){
+	if(isChecked)
+		detectorSelectedCheckBox_->setText("Required");
+	else
+		detectorSelectedCheckBox_->setText("Not Required");
+	emit detectorCheckedChanged(isChecked);
 }
