@@ -125,6 +125,9 @@ protected:
 
 	AMAction3 *beamOnAction_;
 	AMAction3 *stopMotorsAction_;
+
+	QLabel *controlsConnectedLabel_;
+	QLabel *detectorsConnectedLabel_;
 };
 
 #endif // SGMSIDEBAR_H

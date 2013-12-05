@@ -591,7 +591,6 @@ void AMDetector::initiateTimedOutTimer(){
 void AMDetector::onTimedOutTimerTimedOut(){
 	timedOutTimerCleanup();
 	if(!wasConnected_){
-		qDebug() << "Just heard that " << name() << " timed out";
 		timedOut_ = true;
 		emit timedOut();
 		emit connected(false);

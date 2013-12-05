@@ -311,7 +311,6 @@ QStringList SGMBeamline::unconnectedCriticals() const{
 }
 
 AMDetectorSet* SGMBeamline::criticalDetectorSet(const QObject *privilegedRequester){
-	qDebug() << "Class name is " << privilegedRequester->metaObject()->className();
 	if(QString("%1").arg(privilegedRequester->metaObject()->className()) == "SGMDetectorsMasterView")
 		return criticalDetectorSet_;
 	return 0; //NULL
@@ -714,8 +713,6 @@ void SGMBeamline::onEnergyValueChanged(){
 
 void SGMBeamline::onCriticalDetectorSetConnectedChanged(bool connected){
 	Q_UNUSED(connected)
-	qDebug() << "Heard that critical detector set connected changed to " << connected;
-	qDebug() << criticalDetectorSet_->unconnectedDetectors();
 	emit criticalConnectionsChanged();
 	reviewConnected();
 }
@@ -767,12 +764,10 @@ void SGMBeamline::computeBeamlineInitialized(){
 	if(!beamlineIsInitialized_){
 		beamlineIsInitialized_ = true;
 		emit beamlineInitialized();
-		qDebug() << "Beamline initialized just emitted";
 	}
 }
 
 void SGMBeamline::onAllDetectorsGroupAllDetectorResponded(){
-	qDebug() << "Looks like all of the detectors have at least responded";
 	if(!beamlineIsInitialized_)
 		computeBeamlineInitialized();
 }

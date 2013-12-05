@@ -108,6 +108,25 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
 
+	controlsConnectedLabel_ = new QLabel();
+	detectorsConnectedLabel_ = new QLabel();
+	QVBoxLayout *vhl = new QVBoxLayout();
+	QHBoxLayout *tmpHL = new QHBoxLayout();
+	tmpHL->addWidget(controlsConnectedLabel_);
+	tmpHL->addWidget(new QLabel("  Controls"));
+	tmpHL->addStretch(10);
+	vhl->addLayout(tmpHL);
+	tmpHL = new QHBoxLayout();
+	tmpHL->addWidget(detectorsConnectedLabel_);
+	tmpHL->addWidget(new QLabel("  Detectors"));
+	tmpHL->addStretch(10);
+	vhl->addLayout(tmpHL);
+	vhl->setSpacing(0);
+	vhl->setContentsMargins(2, 2, 2, 2);
+
+	onBeamlineCriticalControlSetConnectedChanged(SGMBeamline::sgm()->criticalControlsSet()->isConnected());
+	onBeamlineCriticalDetectorSetConnectedChanged(SGMBeamline::sgm()->criticalDetectorSet()->isConnnected());
+
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
@@ -305,6 +324,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(exitSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addLayout(shl,			6, 3, 1, 3, 0);
+	gl_->addLayout(vhl,			7, 0, 1, 3, 0);
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
 	gl_->setRowStretch(9, 10);
@@ -622,9 +642,17 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 }
 
 void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
-	qDebug() << "I just heard that the critical controls became connected " << isConnected;
+	//qDebug() << "I just heard that the critical controls became connected " << isConnected;
+	if(isConnected)
+		controlsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+	else
+		controlsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
 }
 
 void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
-	qDebug() << "I just heard that the critical detectors became connected " << isConnected;
+	//qDebug() << "I just heard that the critical detectors became connected " << isConnected;
+	if(isConnected)
+		detectorsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+	else
+		detectorsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
 }

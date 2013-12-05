@@ -137,8 +137,6 @@ void AMDetectorSet::setName(const QString &name){
 	name_ = name;
 }
 
-#include <QDebug>
-
 void AMDetectorSet::onConnectedChanged(bool detectorConnected){
 	AMDetector *tmpDetector = 0; //NULL
 	if( (tmpDetector = qobject_cast<AMDetector*>(QObject::sender())) )

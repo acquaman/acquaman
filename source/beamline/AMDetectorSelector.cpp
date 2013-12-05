@@ -3,8 +3,6 @@
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
-#include <QDebug>
-
 AMDetectorSelector::AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent) :
 	QObject(parent)
 {
@@ -137,7 +135,6 @@ void AMDetectorSelector::setDetectorSelected(AMDetector *detector, bool isSelect
 		return;
 
 	if(selectedDetectors_.value(detector->name()) != isSelected){
-		qDebug() << "Need to change selected value for this detector " << detector->name();
 		selectedDetectors_[detector->name()] = isSelected;
 		emit selectedChanged(detector);
 	}

@@ -22,9 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QLabel>
+#include <QCloseEvent>
+#include <QShowEvent>
 
 #include "beamline/SGM/SGMBeamline.h"
-#include "beamline/AMOldDetectorSet.h"
+#include "util/SGM/SGMDacqConfigurationFile.h"
+#include "beamline/AMDetectorSelector.h"
+#include "ui/beamline/AMDetectorSelectorRequiredView.h"
 
 SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
@@ -86,7 +90,6 @@ void SGMSettingsMasterView::onOkButtonClicked(){
 	close();
 }
 
-#include <QCloseEvent>
 void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
 		e->accept();
@@ -226,7 +229,6 @@ void SGMPluginsLocationView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void SGMPluginsLocationView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();
@@ -258,8 +260,6 @@ void SGMPluginsLocationView::onLineEditsChanged(){
 		emit unsavedChanges(false);
 	}
 }
-
-#include "util/SGM/SGMDacqConfigurationFile.h"
 
 SGMDacqConfigurationFileView::SGMDacqConfigurationFileView(QWidget *parent) :
 	QGroupBox("Configuration Files", parent)
@@ -361,7 +361,6 @@ void SGMDacqConfigurationFileView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void SGMDacqConfigurationFileView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();
@@ -394,8 +393,6 @@ void SGMDacqConfigurationFileView::onLineEditsChanged(){
 	}
 }
 
-#include "beamline/AMDetectorSelector.h"
-#include "ui/beamline/AMDetectorSelectorRequiredView.h"
 SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QGroupBox("Detectors", parent)
 {
@@ -426,19 +423,13 @@ void SGMDetectorsMasterView::applyChanges(){
 		AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
 		AMDetectorInfoSet unselectedDetectorInfos = requiredDetectorSelector_->unselectedDetectorInfos();
 
-		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++){
-			if(!criticalDetectorSet_->detectorNamed(selectedDetectorInfos.at(x).name())){
-				qDebug() << "Going to add " << selectedDetectorInfos.at(x).name() << " to critical detectors";
+		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++)
+			if(!criticalDetectorSet_->detectorNamed(selectedDetectorInfos.at(x).name()))
 				criticalDetectorSet_->addDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(selectedDetectorInfos.at(x).name()));
-			}
-		}
 
-		for(int x = 0, size = unselectedDetectorInfos.count(); x < size; x++){
-			if(criticalDetectorSet_->detectorNamed(unselectedDetectorInfos.at(x).name())){
-				qDebug() << "Going to remove " << unselectedDetectorInfos.at(x).name() << " from critical detectors";
+		for(int x = 0, size = unselectedDetectorInfos.count(); x < size; x++)
+			if(criticalDetectorSet_->detectorNamed(unselectedDetectorInfos.at(x).name()))
 				criticalDetectorSet_->removeDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(unselectedDetectorInfos.at(x).name()));
-			}
-		}
 	}
 }
 
@@ -462,32 +453,26 @@ void SGMDetectorsMasterView::discardChanges(){
 
 void SGMDetectorsMasterView::onSelectedChanged(AMDetector *detector){
 	Q_UNUSED(detector)
-	qDebug() << "In onSelectedChanged";
 	AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
 	if(selectedDetectorInfos.count() != criticalDetectorSet_->count()){
 		unsavedChangesHelper(true);
-		qDebug() << "There are unsaved changes, obviously because the counts don't match";
 		return;
 	}
 
 	for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++){
 		if(selectedDetectorInfos.indexOf(criticalDetectorSet_->detectorAt(x)->toInfo()) == -1){
 			unsavedChangesHelper(true);
-			qDebug() << "There are unsaved changes, obviously because I couldn't find the index";
 			return;
 		}
 		selectedDetectorInfos.removeDetector(criticalDetectorSet_->detectorAt(x)->toInfo());
 	}
 	if(selectedDetectorInfos.count() != 0){
 		unsavedChangesHelper(true);
-		qDebug() << "There are unsaved changes, obviously because there are infos left over";
 		return;
 	}
-	qDebug() << "There are no unsaved changes, finally made it to the end";
 	unsavedChangesHelper(false);
 }
 
-#include <QShowEvent>
 void SGMDetectorsMasterView::showEvent(QShowEvent *e){
 	unsavedChanges_ = false;
 	e->accept();
