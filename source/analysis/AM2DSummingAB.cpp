@@ -241,7 +241,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 	else
 		return rv;
 }
-#include <QDebug>
+
 bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 1 || indexEnd.rank() != 1)

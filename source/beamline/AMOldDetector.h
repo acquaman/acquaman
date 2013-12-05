@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMOLDDETECTOR_H
-#define ACQMAN_AMOLDDETECTOR_H
+#ifndef AM_AMOLDDETECTOR_H
+#define AM_AMOLDDETECTOR_H
 
 #include <QObject>
 #include "dataman/info/AMOldDetectorInfo.h"

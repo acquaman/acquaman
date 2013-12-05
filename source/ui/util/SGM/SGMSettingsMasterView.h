@@ -123,7 +123,11 @@ protected:
 	QFormLayout *fl_;
 };
 
-class AMOldDetector;
+class AMDetector;
+class AMDetectorSet;
+class AMDetectorSelector;
+class AMDetectorSelectorRequiredView;
+
 class SGMDetectorsMasterView : public QGroupBox
 {
 Q_OBJECT
@@ -144,23 +148,23 @@ signals:
 	void unsavedChanges(bool hasUnsavedChanges) const;
 
 protected slots:
-	/// Slot connected to each QCheckBox to determine if changes have been made
-	void onCheckBoxesChanged(bool toggled);
-	/// Slot connected to each detector to determine the connectivity state
-	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+	void onSelectedChanged(AMDetector *detector);
 
 protected:
 	/// Show event is reimplemented to save the initial state to check against future changes
 	virtual void showEvent(QShowEvent *);
 
-	/// Internal function to record the strings in the QLineEdits and reset unsavedChanges
-	void storeInitialState();
+	/// Helper function to change the unsavedChanges variable and emit signals if necessary
+	void unsavedChangesHelper(bool newUnsavedChanges);
 
 protected:
-	QFormLayout *fl_;
+	/// A detectorSelector for the detectors we want to designate as "required"
+	AMDetectorSelector *requiredDetectorSelector_;
+	/// View for the required detectorSelector
+	AMDetectorSelectorRequiredView *requiredDetectorSelectorView_;
+	/// Privileged access tot he critical detectors from the SGM Beamline
+	AMDetectorSet *criticalDetectorSet_;
 
-	/// Holds a cache of the startup values of the QCheckBoxes (to check against for future changes)
-	QList<bool> initialRequiredDetectors_;
 	/// Holds whether or not there are actual changes (compared to the initialLineEdits)
 	bool unsavedChanges_;
 };

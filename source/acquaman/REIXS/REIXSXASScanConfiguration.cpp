@@ -18,7 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSXASScanConfiguration.h"
-#include <QDebug>
 
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMXASScanConfiguration(parent)

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_BEAMLINE_H_
-#define ACQMAN_BEAMLINE_H_
+#ifndef AM_BEAMLINE_H_
+#define AM_BEAMLINE_H_
 
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"

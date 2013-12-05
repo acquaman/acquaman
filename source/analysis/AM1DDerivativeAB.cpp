@@ -117,7 +117,7 @@ void AM1DDerivativeAB::setAnalyzedName(const QString &name)
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }
-#include <QDebug>
+
 void AM1DDerivativeAB::setInputSource()
 {
 	// disconnect connections from old source, if it exists.

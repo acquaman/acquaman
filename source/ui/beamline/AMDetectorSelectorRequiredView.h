@@ -1,5 +1,5 @@
-#ifndef AMDETECTORSELECTORVIEW_H
-#define AMDETECTORSELECTORVIEW_H
+#ifndef AMDETECTORSELECTORREQUIREDVIEW_H
+#define AMDETECTORSELECTORREQUIREDVIEW_H
 
 #include <QGroupBox>
 #include <QMap>
@@ -7,33 +7,32 @@
 class QScrollArea;
 class QVBoxLayout;
 class QLabel;
-class AMDetectorSelectorViewInternal;
-class AMDetectorGeneralBriefView;
+class AMDetectorSelectorRequiredViewInternal;
 class AMDetector;
 class AMDetectorSelector;
 
-class AMDetectorSelectorView : public QGroupBox
+class AMDetectorSelectorRequiredView : public QGroupBox
 {
 Q_OBJECT
 public:
 	/// Constructor for the top view. Going to put the internal view into a scroll area
-	AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
+	AMDetectorSelectorRequiredView(AMDetectorSelector *requiredDetectorSelector, QWidget *parent = 0);
 
 protected:
 	/// The internal view (doing all the actual drawing)
-	AMDetectorSelectorViewInternal *internalView_;
+	AMDetectorSelectorRequiredViewInternal *internalView_;
 	/// The scroll area that the internal view is going to be placed in
 	QScrollArea *scrollArea_;
 };
 
-class AMDetectorSelectorViewInternalLineView;
+class AMDetectorSelectorRequiredViewInternalLineView;
 
-class AMDetectorSelectorViewInternal : public QWidget
+class AMDetectorSelectorRequiredViewInternal : public QWidget
 {
 Q_OBJECT
 public:
 	/// Constructor
-	AMDetectorSelectorViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
+	AMDetectorSelectorRequiredViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
 
 protected slots:
 	/// Handles changes in the detector selector where detectors become connected
@@ -41,9 +40,7 @@ protected slots:
 	/// Handles changes in the detector selector where detectors become unconnected
 	void onDetectorBecameUnconnected(AMDetector *detector);
 
-	/// Handles changes from the lineviews to the checked state (selected state)
 	void onDetectorCheckedChanged(bool selected);
-	/// Handles changes from the detectorSelected to the selected state
 	void onDetectorSelectorSelectedChanged(AMDetector *detector);
 
 protected:
@@ -55,7 +52,7 @@ protected:
 	AMDetectorSelector *detectorSelector_;
 
 	/// The map of detector names to individual view widgets
-	QMap<QString, AMDetectorSelectorViewInternalLineView*> allDetectorViews_;
+	QMap<QString, AMDetectorSelectorRequiredViewInternalLineView*> allDetectorViews_;
 
 	/// The groupbox for the connected detectors
 	QGroupBox *connectedGroupBox_;
@@ -73,12 +70,12 @@ protected:
 
 class QCheckBox;
 
-class AMDetectorSelectorViewInternalLineView : public QWidget
+class AMDetectorSelectorRequiredViewInternalLineView : public QWidget
 {
 Q_OBJECT
 public:
 	/// Constructor. Creates a "single line" to view a single detector
-	AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected = false, QWidget *parent = 0);
+	AMDetectorSelectorRequiredViewInternalLineView(AMDetector *detector, bool isSelected = false, QWidget *parent = 0);
 
 	/// Returns the detector name as a string
 	QString detectorName() const;
@@ -95,14 +92,17 @@ signals:
 	/// Emitted when the check box is (de)selected
 	void detectorCheckedChanged(bool selected);
 
+protected slots:
+	void onDetectorSelectedCheckBoxToggled(bool isChecked);
+
 protected:
 	/// A check box to show the (de)selected state of this detector
 	QCheckBox *detectorSelectedCheckBox_;
 
 	/// Holds a pointer to the detector being visualized
 	AMDetector *detector_;
-	/// The general brief-style view for this detector
-	AMDetectorGeneralBriefView *briefView_;
+
+	QLabel *detectorNameLabel_;
 };
 
-#endif // AMDETECTORSELECTORVIEW_H
+#endif // AMDETECTORSELECTORREQUIREDVIEW_H

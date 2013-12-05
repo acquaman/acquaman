@@ -59,6 +59,9 @@ signals:
 	/// Emitted when a detector is removed from the group
 	void detectorRemovedFromGroup(AMDetector *detector);
 
+	/// Emitted once all of the detectors have responded (even if that means one or more have timed out)
+	void allDetectorsResponded();
+
 protected slots:
 	/// Handles moving detectors from the connected set to the unconnected set
 	void onConnectedSetDetectorConnectedChanged(bool detectorConnected, AMDetector *detector);

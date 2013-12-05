@@ -1,6 +1,5 @@
 #include "AMCrashReporter.h"
 
-#include <QDebug>
 #include <QLabel>
 #include <QBoxLayout>
 #include <QDir>
@@ -88,8 +87,6 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString 
 }
 
 void AMCrashMonitor::onSiguser1Detected(){
-	qDebug() << "Detected SIGUSR1 in AMCrashMonitor, need to launch AMCrashReporter";
-
 	QStringList arguments;
 	arguments << executableFullPath_;
 	arguments << errorFilePath_;

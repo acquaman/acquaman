@@ -43,9 +43,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSidebar.h"
 #include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
-#include "ui/beamline/AMOldDetectorView.h"
-#include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
+
+#include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
+#include "dataman/info/CLSPGTDetectorInfo.h"
+#include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
+
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
@@ -139,7 +141,7 @@ bool SGMAppController::startup() {
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
@@ -211,18 +213,14 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
+	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
-
-	// Register the detectors to their views
-	success &= AMOldDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
-	success &= AMOldDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
 
 	// Register the configuration file and file loader plugin supports
 	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
@@ -368,7 +366,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013Holder3_->setEnabled(true);
 		fastScanConfiguration2013Holder3_->setEnabled(true);
 	}
-	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isVisible() && fastScanConfiguration2013View_->isVisible()){
+	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isEnabled() && fastScanConfiguration2013View_->isEnabled()){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}
@@ -440,7 +438,9 @@ void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
 		amptekSDD1XRFView_->buildDetectorView();
 		amptekSDD1XRFView_->setEnergyRange(270, 2000);
+		amptekSDD1XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD1XRFView_, "Beamline Detectors", "SGM Amptek1 XRF", ":/system-software-update.png");
+		connect(amptekSDD1XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -450,7 +450,9 @@ void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 		amptekSDD2XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
 		amptekSDD2XRFView_->buildDetectorView();
 		amptekSDD2XRFView_->setEnergyRange(270, 2000);
+		amptekSDD2XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD2XRFView_, "Beamline Detectors", "SGM Amptek2 XRF", ":/system-software-update.png");
+		connect(amptekSDD2XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -460,7 +462,9 @@ void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 		amptekSDD3XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
 		amptekSDD3XRFView_->buildDetectorView();
 		amptekSDD3XRFView_->setEnergyRange(270, 2000);
+		amptekSDD3XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD3XRFView_, "Beamline Detectors", "SGM Amptek3 XRF", ":/system-software-update.png");
+		connect(amptekSDD3XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -470,7 +474,9 @@ void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 		amptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
 		amptekSDD4XRFView_->buildDetectorView();
 		amptekSDD4XRFView_->setEnergyRange(270, 2000);
+		amptekSDD4XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
+		connect(amptekSDD4XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -480,7 +486,9 @@ void SGMAppController::onSGMNewAmptekSDD5Connected(bool connected){
 		amptekSDD5XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5()));
 		amptekSDD5XRFView_->buildDetectorView();
 		amptekSDD5XRFView_->setEnergyRange(270, 2000);
+		amptekSDD5XRFView_->collapsePeriodTableViews();
 		mw_->addPane(amptekSDD5XRFView_, "Beamline Detectors", "SGM Amptek5 XRF", ":/system-software-update.png");
+		connect(amptekSDD5XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
 	}
 }
 
@@ -522,6 +530,7 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 
+	/*
 	AMScan *scan = action->controller()->scan();
 
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
@@ -540,6 +549,7 @@ void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *ac
 		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
 		return;
 	}
+	*/
 }
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
@@ -564,23 +574,31 @@ void SGMAppController::onActionMirrorVeiw(){
 	SGMAdvancedMirror_->show();
 }
 
-void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
+void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
 	QStringList waitingForDetectorNames;
-	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
-	for(int x = 0; x < possibleDetectors.count(); x++)
-		if(!possibleDetectors.at(x)->isConnected())
-			waitingForDetectorNames.append(possibleDetectors.at(x)->toInfo()->description());
+	AMDetectorSet *currentlyUnconnected = SGMBeamline::sgm()->allDetectorGroup()->unconnectedDetectors();
+	for(int x = 0, size = currentlyUnconnected->count(); x < size; x++)
+		waitingForDetectorNames.append(currentlyUnconnected->at(x)->toInfo().description());
 
 	QString waitingDetectors = QString("Waiting for:\n %1").arg(waitingForDetectorNames.join("\n"));
-
 	if(lastWaitingDetectors_ != waitingDetectors){
 		lastWaitingDetectors_ = waitingDetectors;
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE,  "Waiting");
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
 	}
+}
+
+void SGMAppController::onXRFDetectorViewResized(){
+	// This is a HACK, why it needs 100ms I have no idea. But any less and sometimes it doesn't resize properly
+	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
+}
+
+void SGMAppController::resizeToMinimum(){
+	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
+	mw_->resize(mw_->minimumSizeHint());
 }
 
 bool SGMAppController::startupSGMInstallActions(){

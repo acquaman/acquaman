@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_BOTTOMBAR_H
-#define ACQMAN_BOTTOMBAR_H
+#ifndef AM_BOTTOMBAR_H
+#define AM_BOTTOMBAR_H
 
 #include <QtGui/QWidget>
 #include <QTime>

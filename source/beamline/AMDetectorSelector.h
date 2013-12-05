@@ -22,6 +22,7 @@ public:
 	/// Convenience version of above
 	bool detectorIsSelected(AMDetector *detector) const;
 	AMDetectorInfoSet selectedDetectorInfos() const;
+	AMDetectorInfoSet unselectedDetectorInfos() const;
 
 	/// Returns whether or not a detector is set to default by checking against the name
 	bool detectorIsDefaultByName(const QString &name) const;

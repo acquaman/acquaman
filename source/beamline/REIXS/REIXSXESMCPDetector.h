@@ -147,9 +147,6 @@ protected:
 	void acquisitionSucceededHelper();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The master set of controls
 	AMControlSet *allControls_;
 

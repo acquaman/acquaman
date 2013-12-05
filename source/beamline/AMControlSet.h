@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMCONTROLSET_H
-#define ACQMAN_AMCONTROLSET_H
+#ifndef AM_AMCONTROLSET_H
+#define AM_AMCONTROLSET_H
 
 #define AMCONTROLSET_CONTROL_TIMEOUT_MS 4000
 
@@ -121,4 +121,4 @@ protected:
 
 
 
-#endif // ACQMAN_AMCONTROLSET_H
+#endif // AM_AMCONTROLSET_H

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMREGIONSLIST_H
-#define ACQMAN_AMREGIONSLIST_H
+#ifndef AM_AMREGIONSLIST_H
+#define AM_AMREGIONSLIST_H
 
 #include <QObject>
 

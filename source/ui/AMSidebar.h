@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMSIDEBAR_H
-#define ACQMAN_AMSIDEBAR_H
+#ifndef AM_AMSIDEBAR_H
+#define AM_AMSIDEBAR_H
 
 #include <QStandardItem>
 #include <QStandardItemModel>

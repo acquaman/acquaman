@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
-#include <QDebug>
 
 #include "util/AMDeferredFunctionCall.h"
 

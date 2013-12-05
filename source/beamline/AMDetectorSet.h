@@ -1,7 +1,7 @@
 #ifndef AMDETECTORSET_H
 #define AMDETECTORSET_H
 
-#define AMDETECTORSET_DETECTOR_TIMEOUT_MS 4000
+//#define AMDETECTORSET_DEFAULT_DETECTOR_TIMEOUT_MS 10000
 
 #include "beamline/AMDetector.h"
 #include "util/AMOrderedSet.h"
@@ -25,6 +25,10 @@ public:
 	bool isConnnected() const;
 	/// Returns the names of the detectors that are not connected
 	QStringList unconnectedDetectors() const;
+	/// Returns a list of detectors that are timed out
+	QList<const AMDetector*> timedOutDetectors() const;
+	/// Returns a list of detectors that haven't responded as connected or timed out
+	QList<const AMDetector*> unrespondedDetectors() const;
 
 	/// Return the index of a given \c detector in the set. Returns -1 if not found.
 	int indexOf(AMDetector *detector) const;
@@ -59,6 +63,8 @@ signals:
 	void detectorConnectedChanged(bool isConnected, AMDetector *detector);
 	/// Emitted if any of the detectors in this set have timed out
 	void detectorSetTimedOut();
+	/// Emitted once all of the detectors have responded (even if that means one or more have timed out)
+	void allDetectorsResponded();
 
 public slots:
 	/// Sets the name of the detector set
@@ -76,6 +82,9 @@ protected:
 
 	/// Caches whether all of the detectors in this set were previously connected
 	bool wasConnected_;
+
+	/// Caches whether all of the detectors in this set have repsonded at least once
+	bool allHaveResponded_;
 };
 
 #endif // AMDETECTORSET_H

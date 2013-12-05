@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROLSTATE_H
-#define ACQMAN_CONTROLSTATE_H
+#ifndef AM_CONTROLSTATE_H
+#define AM_CONTROLSTATE_H
 
 #include <QObject>
 #include <QList>
@@ -116,4 +116,4 @@ protected:
 	bool restoreListInternal(AMControl * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
 };
 
-#endif // ACQMAN_CONTROLSTATE_H
+#endif // AM_CONTROLSTATE_H

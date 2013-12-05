@@ -36,7 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
-#include <QDebug>
 // This constructor is protected; only access is through AMDatabase::createDatabase().
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),

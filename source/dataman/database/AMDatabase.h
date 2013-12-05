@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_DATABASE_H
-#define ACQMAN_DATABASE_H
+#ifndef AM_DATABASE_H
+#define AM_DATABASE_H
 
 #include "util/AMSettings.h"
 #include <QObject>

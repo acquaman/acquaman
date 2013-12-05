@@ -178,13 +178,10 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 
 // Using auto-generated assignment operator is fine
 
-#include <QDebug>
 int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
 	if( tolerances.count() == 0 ){
 		for(int x = count()-1; x >= 0; x--){
 			if( at(x).matchesPosition(position) ){
-			//if( at(x).position() == position ){
-				//qdebug() << "Position at " << x << " matches " << position;
 				return at(x).sampleId();
 			}
 		}

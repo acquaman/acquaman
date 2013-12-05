@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMXASScanConfigurationViewer_H
-#define ACQMAN_SGMXASScanConfigurationViewer_H
+#ifndef AM_SGMXASScanConfigurationViewer_H
+#define AM_SGMXASScanConfigurationViewer_H
 
 #include <QtGui>
 
@@ -28,8 +28,6 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-#include "ui/beamline/AMControlSetView.h"
-#include "ui/beamline/AMOldDetectorSetView.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -37,9 +35,9 @@ class QSpacerItem;
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
-#include "ui/beamline/AMOldDetectorView.h"
-
-class SGMFluxResolutionPickerView;
+class SGMFluxResolutionPickerStaticView;
+class AMControlInfoListView;
+class AMOldDetectorInfoSetView;
 
 class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
@@ -52,29 +50,18 @@ public:
 public slots:
 	void setDisabled(bool disabled);
 
-protected slots:
-	void onDetectorConfigurationsChanged();
-	void onSGMBeamlineCriticalControlsConnectedChanged();
-
-	void onScanNameEditChanged(const QString &scanName);
-
 protected:
 	SGMXASScanConfiguration *cfg_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsView *regionsView_;
+	AMRegionsStaticView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
-	SGMFluxResolutionPickerView *fluxResolutionView_;
-	AMControlSetView *trackingView_;
-	AMOldDetectorSetView *xasDetectorsView_;
-
-	QLabel *warningsLabel_;
+	SGMFluxResolutionPickerStaticView *fluxResolutionView_;
+	AMControlInfoListView *trackingStaticView_;
+	AMOldDetectorInfoSetView *xasDetectorsStaticView_;
 
 	QVBoxLayout *mainVL_;
 	QGridLayout *bottomGL_;
-
-	QLabel *scanNameLabel_;
-	QLineEdit *scanNameEdit_;
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEWER_H

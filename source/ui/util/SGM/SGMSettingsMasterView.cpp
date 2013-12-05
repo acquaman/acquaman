@@ -20,6 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMSettingsMasterView.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QCheckBox>
+#include <QLabel>
+#include <QCloseEvent>
+#include <QShowEvent>
+
+#include "beamline/SGM/SGMBeamline.h"
+#include "util/SGM/SGMDacqConfigurationFile.h"
+#include "beamline/AMDetectorSelector.h"
+#include "ui/beamline/AMDetectorSelectorRequiredView.h"
 
 SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
@@ -81,7 +90,6 @@ void SGMSettingsMasterView::onOkButtonClicked(){
 	close();
 }
 
-#include <QCloseEvent>
 void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
 		e->accept();
@@ -221,7 +229,6 @@ void SGMPluginsLocationView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void SGMPluginsLocationView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();
@@ -253,8 +260,6 @@ void SGMPluginsLocationView::onLineEditsChanged(){
 		emit unsavedChanges(false);
 	}
 }
-
-#include "util/SGM/SGMDacqConfigurationFile.h"
 
 SGMDacqConfigurationFileView::SGMDacqConfigurationFileView(QWidget *parent) :
 	QGroupBox("Configuration Files", parent)
@@ -356,7 +361,6 @@ void SGMDacqConfigurationFileView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void SGMDacqConfigurationFileView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();
@@ -389,47 +393,24 @@ void SGMDacqConfigurationFileView::onLineEditsChanged(){
 	}
 }
 
-#include "beamline/SGM/SGMBeamline.h"
-#include <QCheckBox>
-#include <QLabel>
-
 SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QGroupBox("Detectors", parent)
 {
 	unsavedChanges_ = false;
 
-	fl_ = new QFormLayout();
+	criticalDetectorSet_ = SGMBeamline::sgm()->criticalDetectorSet(this);
 
-	QCheckBox *tempCheckBox;
-	QLabel *tempLabel;
-	QHBoxLayout *tempHL;
-	AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
-	AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
-	for(int x = 0; x < allDetectors->count(); x++){
-		tempCheckBox = new QCheckBox("(Required)");
-		if(criticalDetectors->indexOf(allDetectors->detectorAt(x)) != -1)
-			tempCheckBox->setChecked(true);
-		tempLabel = new QLabel();
-		QPalette labelPallete = tempLabel->palette();
-		if(allDetectors->detectorAt(x)->isConnected()){
-			tempLabel->setText("Connected");
-			labelPallete.setColor(tempLabel->foregroundRole(), QColor(0, 255, 0));
-		}
-		else{
-			tempLabel->setText("Not Connected");
-			labelPallete.setColor(tempLabel->foregroundRole(), QColor(255, 0, 0));
-		}
-		tempLabel->setPalette(labelPallete);
-		tempHL = new QHBoxLayout();
-		tempHL->addWidget(tempCheckBox);
-		tempHL->addWidget(tempLabel);
+	requiredDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->allDetectorGroup());
+	for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++)
+		requiredDetectorSelector_->setDetectorDefault(criticalDetectorSet_->at(x), true);
+	requiredDetectorSelector_->setDefaultsSelected();
+	requiredDetectorSelectorView_ = new AMDetectorSelectorRequiredView(requiredDetectorSelector_);
 
-		fl_->addRow(allDetectors->detectorAt(x)->description(), tempHL);
-		connect(tempCheckBox, SIGNAL(toggled(bool)), this, SLOT(onCheckBoxesChanged(bool)));
-		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
-	}
+	connect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
 
-	setLayout(fl_);
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(requiredDetectorSelectorView_);
+	setLayout(vl);
 }
 
 bool SGMDetectorsMasterView::hasUnsavedChanges() const{
@@ -438,97 +419,68 @@ bool SGMDetectorsMasterView::hasUnsavedChanges() const{
 
 void SGMDetectorsMasterView::applyChanges(){
 	if(unsavedChanges_){
-		AMOldDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
-		AMOldDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
 
-		QList<bool> newRequiredDetectors;
-		for(int x = 0; x < fl_->rowCount(); x++){
-			QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
-			if(checkBox && checkBox->isChecked())
-				newRequiredDetectors.append(true);
-			else
-				newRequiredDetectors.append(false);
-		}
+		AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+		AMDetectorInfoSet unselectedDetectorInfos = requiredDetectorSelector_->unselectedDetectorInfos();
 
-		for(int x = 0; x < initialRequiredDetectors_.count(); x++){
-			if(initialRequiredDetectors_.at(x) != newRequiredDetectors.at(x)){
-				if(newRequiredDetectors.at(x))
-					criticalDetectors->addDetector(allDetectors->detectorAt(x));
-				else
-					criticalDetectors->removeDetector(allDetectors->detectorAt(x));
-			}
-		}
+		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++)
+			if(!criticalDetectorSet_->detectorNamed(selectedDetectorInfos.at(x).name()))
+				criticalDetectorSet_->addDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(selectedDetectorInfos.at(x).name()));
 
-		storeInitialState();
+		for(int x = 0, size = unselectedDetectorInfos.count(); x < size; x++)
+			if(criticalDetectorSet_->detectorNamed(unselectedDetectorInfos.at(x).name()))
+				criticalDetectorSet_->removeDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(unselectedDetectorInfos.at(x).name()));
 	}
 }
 
 void SGMDetectorsMasterView::discardChanges(){
 	if(unsavedChanges_){
-		for(int x = 0; x < fl_->rowCount(); x++){
-			QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
-			if(checkBox && (checkBox->isChecked() != initialRequiredDetectors_.at(x)) )
-				checkBox->setChecked(initialRequiredDetectors_.at(x));
-		}
+		disconnect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
 
-		storeInitialState();
+		AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+		for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++){
+			requiredDetectorSelector_->setDetectorSelected(criticalDetectorSet_->detectorAt(x), true);
+			selectedDetectorInfos.removeDetector(criticalDetectorSet_->detectorAt(x)->toInfo());
+		}
+		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++)
+			requiredDetectorSelector_->setDetectorSelectedByName(selectedDetectorInfos.at(x).name(), false);
+
+		connect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
+
+		unsavedChanges_ = false;
 	}
 }
 
-#include <QShowEvent>
+void SGMDetectorsMasterView::onSelectedChanged(AMDetector *detector){
+	Q_UNUSED(detector)
+	AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+	if(selectedDetectorInfos.count() != criticalDetectorSet_->count()){
+		unsavedChangesHelper(true);
+		return;
+	}
+
+	for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++){
+		if(selectedDetectorInfos.indexOf(criticalDetectorSet_->detectorAt(x)->toInfo()) == -1){
+			unsavedChangesHelper(true);
+			return;
+		}
+		selectedDetectorInfos.removeDetector(criticalDetectorSet_->detectorAt(x)->toInfo());
+	}
+	if(selectedDetectorInfos.count() != 0){
+		unsavedChangesHelper(true);
+		return;
+	}
+	unsavedChangesHelper(false);
+}
+
 void SGMDetectorsMasterView::showEvent(QShowEvent *e){
-	storeInitialState();
+	unsavedChanges_ = false;
 	e->accept();
 }
 
-void SGMDetectorsMasterView::storeInitialState(){
-	unsavedChanges_ = false;
-	initialRequiredDetectors_.clear();
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
-		if(checkBox && checkBox->isChecked())
-			initialRequiredDetectors_.append(true);
-		else
-			initialRequiredDetectors_.append(false);
-	}
-}
-
-void SGMDetectorsMasterView::onCheckBoxesChanged(bool toggled){
-	Q_UNUSED(toggled)
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
-		if(checkBox && (checkBox->isChecked() != initialRequiredDetectors_.at(x)) ){
-			if(!unsavedChanges_){
-				unsavedChanges_ = true;
-				emit unsavedChanges(true);
-			}
-			return;
-		}
-	}
-	if(unsavedChanges_){
-		unsavedChanges_ = false;
-		emit unsavedChanges(false);
-	}
-}
-
-void SGMDetectorsMasterView::onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLabel *label = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::LabelRole)->widget());
-		if(label && (label->text() == detector->description()) ){
-			QLabel *connectedLabel = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(1)->widget());
-			if(connectedLabel){
-				QPalette labelPallete = connectedLabel->palette();
-				if(isAvailable){
-					connectedLabel->setText("Connected");
-					labelPallete.setColor(connectedLabel->foregroundRole(), QColor(0, 255, 0));
-				}
-				else{
-					connectedLabel->setText("Not Connected");
-					labelPallete.setColor(connectedLabel->foregroundRole(), QColor(255, 0, 0));
-				}
-				connectedLabel->setPalette(labelPallete);
-			}
-			return;
-		}
+void SGMDetectorsMasterView::unsavedChangesHelper(bool newUnsavedChanges){
+	if(newUnsavedChanges != unsavedChanges_){
+		unsavedChanges_ = newUnsavedChanges;
+		emit unsavedChanges(unsavedChanges_);
 	}
 }

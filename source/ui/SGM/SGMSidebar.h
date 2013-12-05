@@ -77,6 +77,9 @@ protected slots:
 
 	void onBeamlineWarnings(const QString &newWarnings);
 
+	void onBeamlineCriticalControlSetConnectedChanged(bool isConnected);
+	void onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected);
+
 protected:
 	QGroupBox *mainBox_;
 
@@ -122,6 +125,9 @@ protected:
 
 	AMAction3 *beamOnAction_;
 	AMAction3 *stopMotorsAction_;
+
+	QLabel *controlsConnectedLabel_;
+	QLabel *detectorsConnectedLabel_;
 };
 
 #endif // SGMSIDEBAR_H
