@@ -26,13 +26,13 @@ signals:
     void removeSeries(const QModelIndex &parent, int rowStart, int rowFinish);
     void seriesSelected(MPlotItem *plotSelection);
     void seriesDeselected();
-    void setPlotSelection(MPlotItem *modelSelection);
+//    void setPlotSelection(MPlotItem *modelSelection, const QString &axisLabel);
+    void itemSelected(MPlotItem* newSelection);
 
 protected:
     StripToolModel *model_;
     MPlot *plot_;
     StripToolSelector *selector_;
-    QAction *toggleControls_;
 
 public:
     void setModel(StripToolModel *model);
@@ -45,24 +45,25 @@ protected:
     /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
     bool removeSeriesFromPlot(MPlotItem *toRemove);
 
-    void createActions();
-    
+
 protected slots:
     /// Adds series to the plot when the rowsInserted() signal is emitted from the model.
     void toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+
     /// Removes series from the plot when the rowsAboutToBeRemoved() signal is emitted from the model.
     void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
-    /// Causes the string arguments to become the labels on the plot.
-//    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
-    void setTicksVisible(bool isShown);
+
     /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
     void onSeriesChanged(Qt::CheckState seriesState, int rowChanged);
+
     /// Causes a series to become de/selected to match the model's selected pv.
     void onModelSelectionChange();
-    void toSetXAxisLabel(const QString &newLabel);
-    void toSetXAxisUnit(const QString &newUnit);
-    void toSetYAxisLabel(const QString &newLabel);
 
+    void toUpdateXAxisLabel(const QString &newLabel);
+//    void toSetPlotSelection(MPlotItem *newSelection, const QString &axisLabel);
+
+    void toUpdateYAxisRange(MPlotAxisRange *newRange);
+    void toUpdateYAxisLabel(const QString &newLabel);
 };
 
 #endif // STRIPTOOLPLOT_H

@@ -26,6 +26,8 @@ signals:
     void savePVMetaData();
     void forceUpdate(double newValue);
     void pvValueUpdated();
+    void updateYAxisRange(MPlotAxisRange *newRange);
+    void updateYAxisLabel(const QString &newLabel);
 
 protected:
     int updateIndex_;
@@ -46,6 +48,9 @@ protected:
     bool isUpdating_;
     Qt::CheckState checkState_;
     QColor pvColor_;
+
+    bool isSelected_;
+    QString yAxisLabel_;
 
     double timeFactor_;
 
@@ -86,6 +91,9 @@ protected:
     QList<QString> metaDataHeaders();
     QList<QString> metaData();
     bool setMetaData(QList<QString> metaData);
+
+    bool isSelected();
+    void setSelected(bool selected);
 
     /// Sets the PV control and reparents for this pv.
     void setControl(AMControl *newControl);

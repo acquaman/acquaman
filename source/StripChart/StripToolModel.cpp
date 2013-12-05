@@ -2,6 +2,7 @@
 
 StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
+    selectedPV_ = 0;
 
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);
@@ -18,7 +19,6 @@ StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
     pvUpdatedMapper_ = new QSignalMapper(this);
     connect( pvUpdatedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSinglePVUpdated(QObject*)) );
 
-    connect( this, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
     connect( this, SIGNAL(pvUpdating(QModelIndex,bool)), this, SLOT(setPVUpdating(QModelIndex,bool)) );
 }
 
@@ -54,6 +54,24 @@ MPlotItem* StripToolModel::selectedSeries() const
         return 0;
     else
         return selectedPV_->series();
+}
+
+
+QString StripToolModel::selectedDescription() const
+{
+    if (selectedPV_ == 0)
+        return 0;
+    else
+        return selectedPV_->pvDescription();
+}
+
+
+QString StripToolModel::selectedUnits() const
+{
+    if (selectedPV_ == 0)
+        return 0;
+    else
+        return selectedPV_->yUnits();
 }
 
 
@@ -310,6 +328,8 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(savePVData()), saveDataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(savePVMetaData()), saveMetadataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
+    connect( newPV, SIGNAL(updateYAxisRange(MPlotAxisRange *)), this, SIGNAL(updateYAxisRange(MPlotAxisRange *)) );
+    connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
@@ -319,17 +339,20 @@ bool StripToolModel::addPV(AMControl *pvControl)
     pvList_.insert(position, newPV); // add new pv to the model.
     endInsertRows();
 
-    if (position + 1 == pvList_.size())
-    {
+    if (position + count == pvList_.size()) {
         setSelectedPV(newPV);
+
         qDebug() << "Requesting meta data for pv" << newPV->pvName() << "if it exists...";
         emit metaDataCheck(newPV->pvName());
+
+        qDebug() << "Requesting time update.";
         emit requestTimeUpdate();
 
         return true;
 
     } else {
 
+        setSelectedPV(0);
         qDebug() << "Failed to add pv -- unknown cause.";
         return false;
     }
@@ -454,8 +477,9 @@ void StripToolModel::toUpdateTime(int newTime)
 
 void StripToolModel::toUpdateTimeUnits(const QString &newUnits)
 {
-    qDebug() << "The model received these units :" << newUnits;
-    emit updateTimeUnits(newUnits); // updates both the plot and pvs.
+//    qDebug() << "The model received these units :" << newUnits;
+    emit updateTimeUnits(newUnits); // update pvs.
+    emit updateXAxisLabel("Time [" + newUnits + "]"); // update plot.
 }
 
 
@@ -477,12 +501,21 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
     {
         if (newSelection && contains(newSelection))
         {
+            // deselect old selection.
+            if (selectedPV_ != 0)
+                selectedPV_->setSelected(false);
+
             qDebug() << "Setting selected pv...";
             selectedPV_ = newSelection;
+            selectedPV_->setSelected(true);
+
             emit modelSelectionChange();
             qDebug() << "Selected pv : " << selectedPV_->pvName();
 
         } else if (!newSelection) {
+
+            if (selectedPV_ != 0)
+                selectedPV_->setSelected(false);
 
             selectedPV_ = 0;
             emit modelSelectionChange();
@@ -491,7 +524,6 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
         } else {
 
             selectedPV_ = 0;
-            emit modelSelectionChange();
             qDebug() << "Attempting to set an unknown pv as selected!!";
         }
     }
@@ -522,22 +554,6 @@ void StripToolModel::listItemSelected(const QModelIndex &newSelection, const QMo
 
     else if (newSelection.isValid() && newSelection.row() < pvList_.size())
         setSelectedPV( pvList_.at(newSelection.row()) );
-}
-
-
-
-void StripToolModel::onModelSelectionChange()
-{
-    if (selectedPV_ == 0)
-    {
-        emit setYAxisLabel("");
-        emit setPlotTicksVisible(false);
-
-    } else {
-
-        emit setYAxisLabel(selectedPV()->yUnits());
-        emit setPlotTicksVisible(true);
-    }
 }
 
 

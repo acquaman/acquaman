@@ -3,6 +3,10 @@
 TimeEntryWidget::TimeEntryWidget(QWidget *parent) :
     QWidget(parent)
 {
+    secondsMax_ = 60;
+    minutesMax_ = 1;
+    hoursMax_ = 1;
+
     timeLabel_ = new QLabel("Time :");
 
     timeAmount_ = new QSpinBox();
@@ -34,6 +38,7 @@ TimeEntryWidget::~TimeEntryWidget()
 void TimeEntryWidget::initialize()
 {
     timeAmount_->setValue(10);
+    timeAmount_->setMinimum(1);
 
     timeUnits_->addItem("sec");
     timeUnits_->addItem("min");

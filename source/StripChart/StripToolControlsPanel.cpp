@@ -43,17 +43,17 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
 
 
     QHBoxLayout *controlsLayout = new QHBoxLayout();
-    controlsLayout->addWidget(nameGroup);
-    controlsLayout->addWidget(pauseResumeGroup);
-    controlsLayout->addWidget(timeGroup);
-    controlsLayout->addWidget(buttonGroup);
-//    controlsLayout->addWidget(nameEntry_);
+//    controlsLayout->addWidget(nameGroup);
+//    controlsLayout->addWidget(pauseResumeGroup);
+//    controlsLayout->addWidget(timeGroup);
+//    controlsLayout->addWidget(buttonGroup);
+    controlsLayout->addWidget(nameEntry_);
 //    controlsLayout->addWidget(separator1);
-//    controlsLayout->addWidget(pauseResume_);
+    controlsLayout->addWidget(pauseResume_);
 //    controlsLayout->addWidget(separator2);
-//    controlsLayout->addWidget(timeEntry_);
+    controlsLayout->addWidget(timeEntry_);
 //    controlsLayout->addWidget(separator3);
-//    controlsLayout->addWidget(sidebarButton_);
+    controlsLayout->addWidget(sidebarButton_);
 
     QGroupBox *controlsGroup = new QGroupBox();
     controlsGroup->setLayout(controlsLayout);

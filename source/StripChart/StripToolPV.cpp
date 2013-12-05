@@ -21,6 +21,9 @@ StripToolPV::StripToolPV(QObject *parent)
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
+    isSelected_ = false;
+    yAxisLabel_ = "";
+
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
 
@@ -33,7 +36,6 @@ StripToolPV::StripToolPV(QObject *parent)
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
-    pvSeries_->enableYAxisNormalization(true, MPlotAxisRange(0, 1));
 
     forceUpdate_ = false;
 
@@ -96,6 +98,19 @@ QColor StripToolPV::color()
 int StripToolPV::updateGranularity()
 {
     return updateGranularity_;
+}
+
+
+bool StripToolPV::isSelected()
+{
+    return isSelected_;
+}
+
+
+void StripToolPV::setSelected(bool selected)
+{
+    isSelected_ = selected;
+    emit updateYAxisLabel(yAxisLabel_);
 }
 
 
@@ -229,13 +244,24 @@ bool StripToolPV::setMetaData(QList<QString> metaData)
 
     if (metaData.size() != metaDataHeaders().size())
     {
-        qDebug() << "The meta data size" << QString::number(metaData.size()) << "and the number of pv headers" << QString::number(metaDataHeaders().size()) << "don't match!";
+        qDebug() << "The number of meta data entries" << QString::number(metaData.size()) << "and the number of headers" << QString::number(metaDataHeaders().size()) << "don't match!";
         return false;
     }
 
-    setDescription(metaData.at(1));
-    setYUnits(metaData.at(2));
-    setSeriesColor(metaData.at(4));
+    QString description = metaData.at(1);
+    QString yUnits = metaData.at(2);
+    QString color = metaData.at(3);
+    int granularity = metaData.at(4).toInt();
+
+    setDescription(description);
+    setYUnits(yUnits);
+    setSeriesColor(color);
+
+    if (granularity > 0) {
+        setUpdateGranularity(granularity);
+    } else {
+        setUpdateGranularity(2);
+    }
 
     return true;
 }
@@ -246,6 +272,10 @@ void StripToolPV::setControl(AMControl *newControl)
 {
     pvControl_ = newControl;
     pvName_ = newControl->name();
+
+    if (pvDescription_ == "")
+        setDescription(pvName_);
+
     pvControl_->setParent(this);
     connect( pvControl_, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)) );
 }
@@ -256,6 +286,9 @@ void StripToolPV::setDescription(const QString &newDescription)
 {
     pvDescription_ = newDescription;
     emit savePVMetaData();
+
+    yAxisLabel_ = newDescription + " [" + yUnits() + "]";
+    emit updateYAxisLabel(yAxisLabel_);
 }
 
 
@@ -264,6 +297,14 @@ void StripToolPV::setYUnits(const QString &newUnits)
 {
     yUnits_ = newUnits;
     emit savePVMetaData();
+
+    if (pvDescription() == "") {
+        yAxisLabel_ = pvName() + " [" + newUnits + "]";
+    } else {
+        yAxisLabel_ = pvDescription() + " [" + newUnits + "]";
+    }
+
+    emit updateYAxisLabel(yAxisLabel_);
 }
 
 
@@ -333,7 +374,10 @@ void StripToolPV::setSeriesColor(const QColor &color)
 
 void StripToolPV::setUpdateGranularity(int newVal)
 {
-    updateGranularity_ = newVal;
+    if (newVal > 0) {
+        updateGranularity_ = newVal;
+        emit savePVMetaData();
+    }
 }
 
 
@@ -375,7 +419,7 @@ void StripToolPV::onPVValueChanged(double newValue)
     //  check to see if the size of the data vectors allows for a new addition, resize if not.
     dataVectorSizeCheck();
 
-    //  vectors are now the correct size, add the new data to master lists.
+    //  vectors are now the correct size, add the new data!
     QTime latestTime = QTime::currentTime();
     double latestValue = newValue;
 
@@ -394,17 +438,22 @@ void StripToolPV::onPVValueChanged(double newValue)
 
         // copy all values of masterUpdateTimes_ that are less than timeDisplayed_ to the display vectors.
         int startIndex = updateIndex_;
+        int index = startIndex;
         bool copyComplete = false;
 
-        while (startIndex >= 0 && startIndex < masterUpdateTimes_.size() && !copyComplete)
-        {
-            double relativeTime = nowish.msecsTo(masterUpdateTimes_.at(startIndex)) * timeFactor_; // relative time is in seconds.
+        while (index >= 0 && index < masterUpdateTimes_.size() && !copyComplete)
+        {   
+            double relativeTime = nowish.msecsTo(masterUpdateTimes_.at(index)) * timeFactor_; // relative time is initially in seconds, but changes depending on the x axis units.
 
             if (qAbs(relativeTime) < qAbs(timeDisplayed_))
             {
-                displayedTimes_.append(relativeTime);
-                displayedValues_.append(masterUpdateValues_.at(startIndex));
-                startIndex--;
+                double newTime = relativeTime;
+                double newVal = masterUpdateValues_.at(index);
+
+                displayedTimes_.append(newTime);
+                displayedValues_.append(newVal);
+
+                index--;
 
             } else {
 
@@ -424,6 +473,13 @@ void StripToolPV::onPVValueChanged(double newValue)
         forceUpdate_ = false;
     else
         emit pvValueUpdated();
+
+    // if this pv is selected, emit signal notifying potential listeners that a selected pv has updated.
+    if (isSelected()) {
+//        qDebug() << "PV" << pvName() << "attempting to notify plot of change in axis scale...";
+        MPlotAxisRange *newRange = new MPlotAxisRange(series()->dataRect(), Qt::Vertical); // get the vertical range of the selected data.
+        emit updateYAxisRange(newRange);
+    }
 
 }
 

@@ -7,7 +7,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
     selector_ = new StripToolSelector();
 
-    connect( this, SIGNAL(setPlotSelection(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
+    connect( this, SIGNAL(itemSelected(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
 
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SIGNAL(seriesSelected(MPlotItem*)) );
     connect( selector_, SIGNAL(deselected()), this, SIGNAL(seriesDeselected()) );
@@ -19,13 +19,12 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     plot_->enableAxisNormalization(plot_->indexOfAxisScale(plot_->axisLeft()->axisScale()), true);
 
-    plot_->axisLeft()->showAxisName(false);
-
     plot_->axisBottom()->setAxisName("Time");
     plot_->axisBottom()->showAxisName(true);
-
-    plot_->axisLeft()->showTickLabels(false);
     plot_->axisBottom()->showTickLabels(true);
+
+    plot_->axisLeft()->showAxisName(false);
+    plot_->axisLeft()->showTickLabels(false);
 
     setPlot(plot_);
 
@@ -54,11 +53,10 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex, int, int)) );
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, int)), this, SLOT(onSeriesChanged(Qt::CheckState, int)) );
-    connect( model_, SIGNAL(setXAxisLabel(QString)), this, SLOT(toSetXAxisLabel(QString)) );
-    connect( model_, SIGNAL(setYAxisLabel(QString)), this, SLOT(toSetYAxisLabel(QString)) );
-    connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
-    connect( model_, SIGNAL(updateTimeUnits(QString)), this, SLOT(toSetXAxisUnit(QString)) );
+    connect( model_, SIGNAL(updateXAxisLabel(QString)), this, SLOT(toUpdateXAxisLabel(QString)) );
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
+    connect( model_, SIGNAL(updateYAxisLabel(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
+    connect( model_, SIGNAL(updateYAxisRange(MPlotAxisRange*)), this, SLOT(toUpdateYAxisRange(MPlotAxisRange*)) );
 }
 
 
@@ -74,35 +72,33 @@ void StripToolPlot::toAddSeries(const QModelIndex &parent, int rowStart, int row
 {
     Q_UNUSED(parent);
 
-    int row = rowStart;
-
-    while (row <= rowFinish)
-    {
-        qDebug() << "Successfully added series : " << addSeriesToPlot(model_->series(row));
-        row++;
+    // we expect rowStart == rowFinish, only adding one series to the plot at a time!
+    if (rowStart != rowFinish) {
+        qDebug() << "Cannot add more than one series at a time!";
+        return;
     }
+
+    qDebug() << "Successfully added series : " << addSeriesToPlot(model_->series(rowStart));
 }
 
 
 
 bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 {
-    bool success = false;
+    int oldItemNum = plot_->plotItems().size();
 
     if (!contains(newSeries))
     {
-        plot_->addItem(newSeries);
+        plot_->addItem(newSeries, MPlot::VerticalRelative);
+//        plot_->addItem(newSeries);
+        int newItemNum = plot_->plotItems().size();
 
-        if (contains(newSeries))
-        {
-            success = true;
+        if (contains(newSeries) && newItemNum == oldItemNum + 1) {
+            return true;
         }
-
-    } else {
-        qDebug() << "Series already a member of plot. Cannot add duplicate.";
     }
 
-    return success;
+    return false;
 }
 
 
@@ -111,17 +107,12 @@ void StripToolPlot::toRemoveSeries(const QModelIndex &parent, int rowStart, int 
 {
     Q_UNUSED(parent);
 
-    int row = rowStart;
-
-    while(row <= rowFinish)
-    {
-        bool success = removeSeriesFromPlot(model_->series(row));
-
-        if (!success)
-            qDebug() << "\nERROR removing series from plot!\n";
-
-        row++;
+    if (rowStart != rowFinish) {
+        qDebug() << "Cannot delete more than one series at a time!";
+        return;
     }
+
+    qDebug() << "Successfully removing series from plot :" << removeSeriesFromPlot(model_->series(rowStart));
 }
 
 
@@ -146,49 +137,9 @@ bool StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 
 
 
-void StripToolPlot::toSetXAxisLabel(const QString &newLabel)
+void StripToolPlot::toUpdateXAxisLabel(const QString &newLabel)
 {
     plot_->axisBottom()->setAxisName(newLabel);
-}
-
-
-
-void StripToolPlot::toSetXAxisUnit(const QString &newUnit)
-{
-    plot_->axisBottom()->setAxisName("Time [" + newUnit + "]");
-}
-
-
-
-void StripToolPlot::toSetYAxisLabel(const QString &newLabel)
-{
-    plot_->axisLeft()->setAxisName(newLabel);
-}
-
-
-
-//void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
-//{
-//    plot_->axisBottom()->setAxisName("Time [" + bottomLabel + "]");
-//    plot_->axisBottom()->showAxisName(true);
-
-//    plot_->axisLeft()->setAxisName(leftLabel);
-//    plot_->axisLeft()->showAxisName(true);
-//}
-
-
-
-//void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
-//{
-//    plot_->axisScaleBottom()->setDataRange(axisBottom);
-//}
-
-
-
-void StripToolPlot::setTicksVisible(bool isShown)
-{
-    plot_->axisLeft()->showTickLabels(isShown);
-    plot_->axisBottom()->showTickLabels(true);
 }
 
 
@@ -205,6 +156,26 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 }
 
 
+void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newRange)
+{
+    qreal plotRectX = plot_->plotArea()->boundingRect().height();
+    qreal plotRectY = plot_->plotArea()->boundingRect().width();
+
+    const QSizeF &drawingSize = QSizeF(plotRectY, plotRectX);
+    MPlotAxisScale *newScale = new MPlotAxisScale(Qt::Vertical, drawingSize, *newRange, 5, this); // map the vertical data range onto an axis scale.
+
+    plot_->axisLeft()->setAxisScale(newScale); // apply the new axis scale to the displayed axis.
+}
+
+
+
+void StripToolPlot::toUpdateYAxisLabel(const QString &newLabel)
+{
+    plot_->axisLeft()->setAxisName(newLabel);
+    plot_->axisLeft()->showAxisName(true);
+}
+
+
 
 void StripToolPlot::onModelSelectionChange()
 {
@@ -213,11 +184,14 @@ void StripToolPlot::onModelSelectionChange()
     if (modelSelection && contains(modelSelection))
     {
         qDebug() << "Setting plot selection...";
-        emit setPlotSelection(modelSelection);
+        plot_->axisLeft()->showTickLabels(true);
+        emit itemSelected(modelSelection); // let selector_ tool know about the selection change.
 
     } else if (!modelSelection) {
         qDebug() << "Plot item deselected.";
-        emit setPlotSelection(0);
+        plot_->axisLeft()->showAxisName(false);
+        plot_->axisLeft()->showTickLabels(false);
+        emit itemSelected(0);
 
     } else {
         qDebug() << "Attempting to select plot item that doesn't exist.";

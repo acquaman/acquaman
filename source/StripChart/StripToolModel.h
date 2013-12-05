@@ -26,15 +26,15 @@ signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
-    void setPlotTicksVisible(bool isShown);
     void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
     void forceUpdatePVs(const QString &updatedName);
     void updateTime(int newTime);
     void updateTimeUnits(const QString &newUnits);
-    void setXAxisLabel(const QString &newLabel);
-    void setYAxisLabel(const QString &newLabel);
+    void updateXAxisLabel(const QString &newUnits);
     void requestTimeUpdate();
+    void updateYAxisRange(MPlotAxisRange *newRange);
+    void updateYAxisLabel(const QString &newLabel);
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -48,6 +48,8 @@ public:
     StripToolPV* selectedPV() const;
     QModelIndex selectedIndex() const;
     MPlotItem* selectedSeries() const;
+    QString selectedDescription() const;
+    QString selectedUnits() const;
     MPlotItem* series(int row) const;
     QString pvName(StripToolPV *pv) const;
 
@@ -115,13 +117,15 @@ protected slots:
 
     void listItemSelected(const QModelIndex &newSelection, const QModelIndex &oldSelection);
 
-    void onModelSelectionChange();
+//    void onModelSelectionChange();
 
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
     void onSinglePVUpdated(QObject *updatedPV);
 
     void toTestSignal(const QString &signalText);
+
+//    void onSelectedPVUpdated();
 
 };
 

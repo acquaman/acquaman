@@ -20,6 +20,11 @@ public:
     void initialize();
 
 protected:
+    int secondsMax_;
+    int minutesMax_;
+    int hoursMax_;
+
+protected:
     QLabel *timeLabel_;
     QSpinBox *timeAmount_;
     QComboBox *timeUnits_;
