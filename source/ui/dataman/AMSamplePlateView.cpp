@@ -608,7 +608,6 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 	samplePlate_->storeToDb(AMDatabase::database("user"));
 }
 
-#include <QDebug>
 void AMSamplePlateView::onAdditionalInformationRequested(int row){
 	if(manipulator_){
 		AMSamplePosition *positionInQuestion = &(samplePlate_->operator [](row));
@@ -1097,8 +1096,6 @@ void AMSamplePositionAdditionalInformationView::onBottomRightManuallyEnterClicke
 	connect(enterBottomRightDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onBottomRightManualEnterFinished(double,double,double,double)));
 	enterBottomRightDialog_->show();
 }
-
-#include <QDebug>
 
 void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
 	//qdebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;

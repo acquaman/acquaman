@@ -209,7 +209,7 @@ AMNumber AMOrderReductionAB::value(const AMnDIndex &indexes) const
 
 	return val;
 }
-#include <QDebug>
+
 bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if (indexStart.rank() == 0 || indexEnd.rank() == 0 || indexStart.rank() != axes_.size())
@@ -420,7 +420,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 
 	return true;
 }
-#include <QDebug>
+
 AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())

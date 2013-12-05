@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QDebug>
+
 #include "util/AMElement.h"
 #include "util/AMOrderedSet.h"
 #include "dataman/database/AMDbObject.h"

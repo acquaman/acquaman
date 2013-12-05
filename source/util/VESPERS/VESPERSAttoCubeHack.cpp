@@ -1,7 +1,6 @@
 #include "VESPERSAttoCubeHack.h"
 #include "beamline/AMPVControl.h"
 
-#include <QDebug>
 VESPERSAttoCubeHack::VESPERSAttoCubeHack(AMControl *Rz, QObject *parent)
 	: QObject(parent)
 {

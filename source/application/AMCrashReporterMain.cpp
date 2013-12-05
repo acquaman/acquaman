@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include <QDebug>
 #include "AMCrashReporter.h"
 
 #include <signal.h>

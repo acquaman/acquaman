@@ -4,7 +4,6 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QCheckBox>
-#include <QDebug>
 
 #include "ui/beamline/AMDetectorView.h"
 #include "beamline/AMDetectorSelector.h"

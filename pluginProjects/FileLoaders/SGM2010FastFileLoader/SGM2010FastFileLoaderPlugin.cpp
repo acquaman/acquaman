@@ -12,16 +12,12 @@
 #include "acquaman/AMScanConfiguration.h"
 
 bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2010Fast trying to accept " << scan->fileFormat();
 	if(scan->fileFormat() == "sgm2010Fast")
 		return true;
 	return false;
 }
 
 bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
-	qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
-	qDebug() << "Saying ANOTHER THING";
-
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("scaler_fileOffset", "BL1611-ID-1:mcs:scan");
@@ -45,14 +41,8 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
-	if(sourceFileInfo.isRelative()){
-		//qdebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
-		//sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scan->filePath());
-		qDebug() << "Path IS relative, user data folder is " << userDataFolder;
+	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
-	}
-	else
-		qDebug() << "Path IS NOT relative.";
 
 	// information about the scan we hope to locate:
 	QString comments;
@@ -126,12 +116,9 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	while(!fs.atEnd()) {
 		line = fs.readLine();
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
-			for(int i=1; i<colNames1.count(); i++) {
-				if(colNames1.at(i) == "encoder"){
+			for(int i=1; i<colNames1.count(); i++)
+				if(colNames1.at(i) == "encoder")
 					encoderEndpoint = int(lp.at(i).toDouble());
-					qDebug() << "Encoder endpoint set to " << encoderEndpoint;
-				}
-			}
 		}
 		// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
 		if(line.startsWith("# 2,") && (lp = line.split(',')).count() == colNames2.count() ) {
@@ -187,7 +174,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 			}
 
 			if(numScalerReadings == 4000){
-				qDebug() << "Going for fast scan without energy calib";
 				for(int x = 0; x < numScalerReadings; x++){
 					if(x%4 == 0){
 						scan->rawData()->beginInsertRows(1, -1);
@@ -200,8 +186,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 				}
 			}
 			else if(numScalerReadings == 6000){
-
-				qDebug() << "Going for fast scan with energy calib";
 				//int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
@@ -229,7 +213,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 				QList<double> readings;
 
 				if(!hasEncoderInfo){
-					qDebug() << "Need to back calculate encoder startpoint";
 					encoderStartPoint = encoderEndpoint;
 					for(int x = 0; x < numScalerReadings; x++){
 						sfls >> scalerVal;
@@ -241,7 +224,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 							encoderStartPoint -= scalerVal;
 					}
 				}
-				qDebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;
 				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
@@ -277,7 +259,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 
 			}
 			else if(numScalerReadings == 10000){
-				qDebug() << "Going for fast scan with energy calib and extra diodes";
 				int encoderReading = 0;
 				double energyFbk = 0.0;
 
@@ -304,7 +285,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 				QList<double> readings;
 
 				if(!hasEncoderInfo){
-					qDebug() << "Need to back calculate encoder startpoint";
 					encoderStartPoint = encoderEndpoint;
 					for(int x = 0; x < numScalerReadings; x++){
 						sfls >> scalerVal;
@@ -315,7 +295,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 							encoderStartPoint -= scalerVal;
 					}
 				}
-				qDebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;
 				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
@@ -347,9 +326,6 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 						scan->rawData()->endInsertRows();
 					}
 				}
-			}
-			else{
-				qDebug() << "Cannot handle " << numScalerReadings << " points in a fast scan";
 			}
 		}
 		else{

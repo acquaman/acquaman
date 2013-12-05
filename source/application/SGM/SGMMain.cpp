@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include "application/SGM/SGMAppController.h"
 
-#include <QDebug>
-
 #ifndef Q_WS_MAC
 #include <signal.h>
 #include <execinfo.h>
@@ -98,8 +96,6 @@ void handle_signal(int signum){
 
 	size = backtrace(array, 100);
 	backtrace_symbols_fd(array, size, errorFile->handle());
-
-	//qDebug() << "Handling SIGSEV, hopefully on PID " << getpid() << " need to notify PID " << crashMonitorPID;
 
 	kill(crashMonitorPID, SIGUSR1);
 	signal(signum, SIG_DFL);

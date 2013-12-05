@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
-#include <QDebug>
-
 /// Interface to define categories of curve fitting
 class REIXSFunctionFitter {
 public:
