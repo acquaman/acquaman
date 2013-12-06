@@ -79,49 +79,49 @@ protected:
 
 #include <QList>
 
-class SGMDacqConfigurationFileView : public QGroupBox
-{
-Q_OBJECT
+//class SGMDacqConfigurationFileView : public QGroupBox
+//{
+//Q_OBJECT
 
-public:
-	SGMDacqConfigurationFileView(QWidget *parent = 0);
+//public:
+//	SGMDacqConfigurationFileView(QWidget *parent = 0);
 
-	/// Returns whether or not there are unsaved changed (see unsavedChanges_ member variable)
-	bool hasUnsavedChanges();
+//	/// Returns whether or not there are unsaved changed (see unsavedChanges_ member variable)
+//	bool hasUnsavedChanges();
 
-public slots:
-	/// Applies any changes (this is, saves changes to the SGM Beamline database)
-	void applyChanges();
-	/// Discards any changes and sets the line edits back to the database values
-	void discardChanges();
+//public slots:
+//	/// Applies any changes (this is, saves changes to the SGM Beamline database)
+//	void applyChanges();
+//	/// Discards any changes and sets the line edits back to the database values
+//	void discardChanges();
 
-signals:
-	/// Emitted whenever the value unsavedChanges changes from true to false or vice versa
-	void unsavedChanges(bool hasUnsavedChanges);
+//signals:
+//	/// Emitted whenever the value unsavedChanges changes from true to false or vice versa
+//	void unsavedChanges(bool hasUnsavedChanges);
 
-protected slots:
-	/// Slot connected to each QLineEdit to determine if changes have been made
-	void onLineEditsChanged();
+//protected slots:
+//	/// Slot connected to each QLineEdit to determine if changes have been made
+//	void onLineEditsChanged();
 
-protected:
-	/// Show event is reimplemented to save the initial state to check against future changes
-	virtual void showEvent(QShowEvent *);
+//protected:
+//	/// Show event is reimplemented to save the initial state to check against future changes
+//	virtual void showEvent(QShowEvent *);
 
-	/// Internal function to record the strings in the QLineEdits and reset unsavedChanges
-	void storeInitialState();
+//	/// Internal function to record the strings in the QLineEdits and reset unsavedChanges
+//	void storeInitialState();
 
-protected:
-	/// Holds a cache of the startup values of the QLineEdits (to check against for future changes)
-	QStringList initialLineEdits_;
-	/// Holds whether or not there are actual changes (compared to the initialLineEdits)
-	bool unsavedChanges_;
+//protected:
+//	/// Holds a cache of the startup values of the QLineEdits (to check against for future changes)
+//	QStringList initialLineEdits_;
+//	/// Holds whether or not there are actual changes (compared to the initialLineEdits)
+//	bool unsavedChanges_;
 
-	/// Interface to the line edits
-	QList<QLineEdit*> configurationFileLineEdits_;
-	QList<int> configurationFileIDs_;
+//	/// Interface to the line edits
+//	QList<QLineEdit*> configurationFileLineEdits_;
+//	QList<int> configurationFileIDs_;
 
-	QFormLayout *fl_;
-};
+//	QFormLayout *fl_;
+//};
 
 class AMDetector;
 class AMDetectorSet;
@@ -193,8 +193,8 @@ protected:
 protected:
 	/// Instance of SGMPluginsLocationView
 	SGMPluginsLocationView *sgmPluginsLocationView_;
-	/// Instance of SGMDacqConfigurationFileView
-	SGMDacqConfigurationFileView *sgmDacqConfigurationFileView_;
+//	/// Instance of SGMDacqConfigurationFileView
+//	SGMDacqConfigurationFileView *sgmDacqConfigurationFileView_;
 
 	/// Instance of SGMDetectorMasterView
 	SGMDetectorsMasterView *sgmDetectorsMasterView_;

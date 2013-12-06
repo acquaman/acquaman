@@ -65,7 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/util/SGM/SGMSettingsMasterView.h"
 #include "util/SGM/SGMSettings.h"
-#include "util/SGM/SGMDacqConfigurationFile.h"
+//#include "util/SGM/SGMDacqConfigurationFile.h"
 #include "util/SGM/SGMPluginsLocation.h"
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
@@ -223,7 +223,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
 
 	// Register the configuration file and file loader plugin supports
-	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
+//	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
 
 	// Register the SGM periodic table support classes
@@ -244,7 +244,7 @@ bool SGMAppController::startupPopulateNewDatabase(){
 	bool success = true;
 
 	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
-	success &= setupSGMConfigurationFiles();
+	//success &= setupSGMConfigurationFiles();
 	success &= setupSGMPlugins();
 	success &= setupSGMPeriodicTable();
 	success &= setupSGMExporterOptions();
@@ -260,7 +260,7 @@ bool SGMAppController::startupLoadFromExistingDatabase(){
 	bool success = true;
 
 	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
-	success &= setupSGMConfigurationFiles();
+	//success &= setupSGMConfigurationFiles();
 	success &= setupSGMPlugins();
 	success &= setupSGMPeriodicTable();
 	success &= setupSGMExporterOptions();
@@ -632,27 +632,27 @@ bool SGMAppController::startupSGMInstallActions(){
 	return true;
 }
 
-bool SGMAppController::setupSGMConfigurationFiles()
-{
-	bool success = true;
+//bool SGMAppController::setupSGMConfigurationFiles()
+//{
+//	bool success = true;
 
-	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-	if(!dbSGM)
-		return false;
+//	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+//	if(!dbSGM)
+//		return false;
 
-	QList<int> matchIDs;
-	SGMDacqConfigurationFile *configFile;
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("FastScaler");
-		configFile->setConfigurationFileName("Scalar_Fast.config");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
+//	QList<int> matchIDs;
+//	SGMDacqConfigurationFile *configFile;
+//	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
+//	if(matchIDs.count() == 0){
+//		configFile = new SGMDacqConfigurationFile();
+//		configFile->setName("FastScaler");
+//		configFile->setConfigurationFileName("Scalar_Fast.config");
+//		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+//		success &= configFile->storeToDb(dbSGM);
+//	}
 
-	return success;
-}
+//	return success;
+//}
 
 bool SGMAppController::setupSGMPlugins()
 {

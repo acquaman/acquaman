@@ -34,16 +34,16 @@ SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
 {
 	sgmPluginsLocationView_ = new SGMPluginsLocationView();
-	sgmDacqConfigurationFileView_ = new SGMDacqConfigurationFileView();
+//	sgmDacqConfigurationFileView_ = new SGMDacqConfigurationFileView();
 	sgmDetectorsMasterView_ = new SGMDetectorsMasterView();
 
 	connect(sgmPluginsLocationView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
-	connect(sgmDacqConfigurationFileView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
+//	connect(sgmDacqConfigurationFileView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 	connect(sgmDetectorsMasterView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(sgmPluginsLocationView_);
-	vl_->addWidget(sgmDacqConfigurationFileView_);
+//	vl_->addWidget(sgmDacqConfigurationFileView_);
 	vl_->addWidget(sgmDetectorsMasterView_);
 
 	applyButton_ = new QPushButton("Apply");
@@ -74,14 +74,14 @@ void SGMSettingsMasterView::onUnsavedChanges(bool hasUnsavedChanges){
 
 void SGMSettingsMasterView::onCancelButtonClicked(){
 	sgmPluginsLocationView_->discardChanges();
-	sgmDacqConfigurationFileView_->discardChanges();
+//	sgmDacqConfigurationFileView_->discardChanges();
 	sgmDetectorsMasterView_->discardChanges();
 	close();
 }
 
 void SGMSettingsMasterView::onApplyButtonClicked(){
 	sgmPluginsLocationView_->applyChanges();
-	sgmDacqConfigurationFileView_->applyChanges();
+//	sgmDacqConfigurationFileView_->applyChanges();
 	sgmDetectorsMasterView_->applyChanges();
 }
 
@@ -91,7 +91,8 @@ void SGMSettingsMasterView::onOkButtonClicked(){
 }
 
 void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
-	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
+//	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
+	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
 		e->accept();
 		return;
 	}
@@ -103,13 +104,13 @@ void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 								   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if(ret == QMessageBox::Save){
 			sgmPluginsLocationView_->applyChanges();
-			sgmDacqConfigurationFileView_->applyChanges();
+//			sgmDacqConfigurationFileView_->applyChanges();
 			sgmDetectorsMasterView_->applyChanges();
 			e->accept();
 		}
 		else if(ret == QMessageBox::Discard){
 			sgmPluginsLocationView_->discardChanges();
-			sgmDacqConfigurationFileView_->discardChanges();
+//			sgmDacqConfigurationFileView_->discardChanges();
 			sgmDetectorsMasterView_->discardChanges();
 			e->accept();
 		}
@@ -261,137 +262,137 @@ void SGMPluginsLocationView::onLineEditsChanged(){
 	}
 }
 
-SGMDacqConfigurationFileView::SGMDacqConfigurationFileView(QWidget *parent) :
-	QGroupBox("Configuration Files", parent)
-{
-	unsavedChanges_ = false;
+//SGMDacqConfigurationFileView::SGMDacqConfigurationFileView(QWidget *parent) :
+//	QGroupBox("Configuration Files", parent)
+//{
+//	unsavedChanges_ = false;
 
-	fl_ = new QFormLayout();
+//	fl_ = new QFormLayout();
 
-	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-	QLineEdit *tempLineEdit;
-	QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
+//	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+//	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+//	QLineEdit *tempLineEdit;
+//	QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
 
-	for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-		if(configFile->loadFromDb(dbSGM, allConfigurationFileIDs.at(x))){
-			tempLineEdit = new QLineEdit();
-			tempLineEdit->setText(configFile->configurationFileFullPath());
-			fl_->addRow(configFile->name(), tempLineEdit);
-			connect(tempLineEdit, SIGNAL(textEdited(QString)), this, SLOT(onLineEditsChanged()));
-			configurationFileIDs_.append(allConfigurationFileIDs.at(x));
-		}
-	}
+//	for(int x = 0; x < allConfigurationFileIDs.count(); x++){
+//		if(configFile->loadFromDb(dbSGM, allConfigurationFileIDs.at(x))){
+//			tempLineEdit = new QLineEdit();
+//			tempLineEdit->setText(configFile->configurationFileFullPath());
+//			fl_->addRow(configFile->name(), tempLineEdit);
+//			connect(tempLineEdit, SIGNAL(textEdited(QString)), this, SLOT(onLineEditsChanged()));
+//			configurationFileIDs_.append(allConfigurationFileIDs.at(x));
+//		}
+//	}
 
-	int maxFontWidth = 0;
-	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(0, QFormLayout::FieldRole)->widget());
-	QFontMetrics fontMetric(lineEdit->font());
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit && (fontMetric.width(lineEdit->text()) > maxFontWidth))
-			maxFontWidth = fontMetric.width(lineEdit->text());
-	}
-	if(maxFontWidth > 500)
-		maxFontWidth = 500;
-	for(int x = 0; x < fl_->rowCount(); x++)
-		fl_->itemAt(x, QFormLayout::FieldRole)->widget()->setMinimumWidth(maxFontWidth);
+//	int maxFontWidth = 0;
+//	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(0, QFormLayout::FieldRole)->widget());
+//	QFontMetrics fontMetric(lineEdit->font());
+//	for(int x = 0; x < fl_->rowCount(); x++){
+//		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
+//		if(lineEdit && (fontMetric.width(lineEdit->text()) > maxFontWidth))
+//			maxFontWidth = fontMetric.width(lineEdit->text());
+//	}
+//	if(maxFontWidth > 500)
+//		maxFontWidth = 500;
+//	for(int x = 0; x < fl_->rowCount(); x++)
+//		fl_->itemAt(x, QFormLayout::FieldRole)->widget()->setMinimumWidth(maxFontWidth);
 
 
-	setLayout(fl_);
-}
+//	setLayout(fl_);
+//}
 
-bool SGMDacqConfigurationFileView::hasUnsavedChanges(){
-	return unsavedChanges_;
-}
+//bool SGMDacqConfigurationFileView::hasUnsavedChanges(){
+//	return unsavedChanges_;
+//}
 
-void SGMDacqConfigurationFileView::applyChanges() {
+//void SGMDacqConfigurationFileView::applyChanges() {
 
-	if(unsavedChanges_){
-		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
+//	if(unsavedChanges_){
+//		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+//		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+//		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
 
-		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//NEM June 15th, 2012
-				return;
-			}
-		}
+//		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
+//			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
+//				//NEM June 15th, 2012
+//				return;
+//			}
+//		}
 
-		for(int x = 0; x < configurationFileIDs_.count(); x++){
-			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//NEM June 15th, 2012
-				return;
-			}
-			if(configFile->configurationFileFullPath() != lineEdit->text()){
-				configFile->setConfigurationFileName(lineEdit->text().section('/', -1));
-				configFile->setConfigurationFilePath("/"+lineEdit->text().section('/', 1, -2));
-				configFile->storeToDb(dbSGM);
-			}
-		}
+//		for(int x = 0; x < configurationFileIDs_.count(); x++){
+//			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
+//			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
+//				//NEM June 15th, 2012
+//				return;
+//			}
+//			if(configFile->configurationFileFullPath() != lineEdit->text()){
+//				configFile->setConfigurationFileName(lineEdit->text().section('/', -1));
+//				configFile->setConfigurationFilePath("/"+lineEdit->text().section('/', 1, -2));
+//				configFile->storeToDb(dbSGM);
+//			}
+//		}
 
-		storeInitialState();
-	}
-}
+//		storeInitialState();
+//	}
+//}
 
-void SGMDacqConfigurationFileView::discardChanges(){
-	if(unsavedChanges_){
-		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
+//void SGMDacqConfigurationFileView::discardChanges(){
+//	if(unsavedChanges_){
+//		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+//		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+//		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
 
-		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//NEM June 15th, 2012
-				return;
-			}
-		}
+//		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
+//			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
+//				//NEM June 15th, 2012
+//				return;
+//			}
+//		}
 
-		for(int x = 0; x < configurationFileIDs_.count(); x++){
-			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//NEM June 15th, 2012
-				return;
-			}
-			lineEdit->setText(configFile->configurationFileFullPath());
-		}
+//		for(int x = 0; x < configurationFileIDs_.count(); x++){
+//			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
+//			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
+//				//NEM June 15th, 2012
+//				return;
+//			}
+//			lineEdit->setText(configFile->configurationFileFullPath());
+//		}
 
-		storeInitialState();
-	}
-}
+//		storeInitialState();
+//	}
+//}
 
-void SGMDacqConfigurationFileView::showEvent(QShowEvent *e){
-	storeInitialState();
-	e->accept();
-}
+//void SGMDacqConfigurationFileView::showEvent(QShowEvent *e){
+//	storeInitialState();
+//	e->accept();
+//}
 
-void SGMDacqConfigurationFileView::storeInitialState(){
-	unsavedChanges_ = false;
-	initialLineEdits_.clear();
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit)
-			initialLineEdits_.append(lineEdit->text());
-	}
-}
+//void SGMDacqConfigurationFileView::storeInitialState(){
+//	unsavedChanges_ = false;
+//	initialLineEdits_.clear();
+//	for(int x = 0; x < fl_->rowCount(); x++){
+//		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
+//		if(lineEdit)
+//			initialLineEdits_.append(lineEdit->text());
+//	}
+//}
 
-void SGMDacqConfigurationFileView::onLineEditsChanged(){
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit && (initialLineEdits_.at(x) != lineEdit->text()) ){
-			if(!unsavedChanges_){
-				unsavedChanges_ = true;
-				emit unsavedChanges(true);
-			}
-			return;
-		}
-	}
-	if(unsavedChanges_){
-		unsavedChanges_ = false;
-		emit unsavedChanges(false);
-	}
-}
+//void SGMDacqConfigurationFileView::onLineEditsChanged(){
+//	for(int x = 0; x < fl_->rowCount(); x++){
+//		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
+//		if(lineEdit && (initialLineEdits_.at(x) != lineEdit->text()) ){
+//			if(!unsavedChanges_){
+//				unsavedChanges_ = true;
+//				emit unsavedChanges(true);
+//			}
+//			return;
+//		}
+//	}
+//	if(unsavedChanges_){
+//		unsavedChanges_ = false;
+//		emit unsavedChanges(false);
+//	}
+//}
 
 SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QGroupBox("Detectors", parent)

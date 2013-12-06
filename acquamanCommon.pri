@@ -45,9 +45,9 @@ macx {
 		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
-		# LibXML Dependencies (required by dacq library)
-		XML_LIB = -lxml2
-		XML_INCLUDE_DIR = /usr/include/libxml2
+#		# LibXML Dependencies (required by dacq library)
+#		XML_LIB = -lxml2
+#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -74,9 +74,9 @@ linux-g++ {
 		GSL_LIB = -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
 
-		# LibXML Dependencies (required by dacq library)
-		XML_LIB = -lxml2
-		XML_INCLUDE_DIR = /usr/include/libxml2
+#		# LibXML Dependencies (required by dacq library)
+#		XML_LIB = -lxml2
+#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		#CDFLib dependencies
 		CDF_LIB = -lcdf
@@ -110,9 +110,9 @@ linux-g++-32 {
 #		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 #		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
-		# LibXML Dependencies (required by dacq library)
-		XML_LIB = -lxml2
-		XML_INCLUDE_DIR = /usr/include/libxml2
+#		# LibXML Dependencies (required by dacq library)
+#		XML_LIB = -lxml2
+#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
@@ -150,9 +150,9 @@ linux-g++-64 {
 		# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 		# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
-		# LibXML Dependencies (required by dacq library)
-		XML_LIB = -lxml2
-		XML_INCLUDE_DIR = /usr/include/libxml2
+#		# LibXML Dependencies (required by dacq library)
+#		XML_LIB = -lxml2
+#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
@@ -205,14 +205,14 @@ INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
-		$$XML_INCLUDE_DIR \
+#		$$XML_INCLUDE_DIR \
 		$$QWTPLOT3D_INCLUDE_DIR \
 		$$CDF_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		-L$$MPLOT_LIB_DIR -lMPlot \
-		$$XML_LIB \
+#		$$XML_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB
@@ -248,32 +248,10 @@ QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 #######################
 
 HEADERS += source/acquaman/AMRegion.h \
-#	source/acquaman/AMAcqScanOutput.h \
-#	source/acquaman/AMAcqScanSpectrumOutput.h \
-#	source/acquaman/AMDacqScanController.h \
 	source/acquaman/AMRegionsList.h \
 	source/acquaman/AMScanConfiguration.h \
 	source/acquaman/AMScanController.h \
 	source/acquaman/AMXASScanConfiguration.h \
-#	source/acquaman/dacq3_3/acqDataHandler.h \
-#	source/acquaman/dacq3_3/acqLibHelper.h \
-#	source/acquaman/dacq3_3/acquisitionLib.h \
-#	source/acquaman/dacq3_3/acquisitionLib.internal.h \
-#	source/acquaman/dacq3_3/acquisitionLib.main.h \
-#	source/acquaman/dacq3_3/displayAlias.h \
-#	source/acquaman/dacq3_3/epicsConnect.h \
-#	source/acquaman/dacq3_3/epicsConnect.main.h \
-#	source/acquaman/dacq3_3/factoryQtTemplate.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqBaseOutput.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqBaseStream.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqFactory.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqFileStream.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqProperties.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqTextOutput.h \
-#	source/acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.h \
-#	source/acquaman/dacq3_3/qepicsacqclass.h \
-#	source/acquaman/dacq3_3/qepicsacqlocal.h \
-#	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
@@ -702,38 +680,10 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/AMTopFrame2.ui
 
 SOURCES += source/acquaman/AMRegion.cpp \
-#	source/acquaman/AMAcqScanOutput.cpp \
-#	source/acquaman/AMAcqScanSpectrumOutput.cpp \
-#	source/acquaman/AMDacqScanController.cpp \
 	source/acquaman/AMRegionsList.cpp \
 	source/acquaman/AMScanConfiguration.cpp \
 	source/acquaman/AMScanController.cpp \
 	source/acquaman/AMXASScanConfiguration.cpp \
-#	source/acquaman/dacq3_3/acqAction.c \
-#	source/acquaman/dacq3_3/acqActSetup.c \
-#	source/acquaman/dacq3_3/acqExtern.c \
-#	source/acquaman/dacq3_3/acqLibHelper.c \
-#	source/acquaman/dacq3_3/acqLoad.c \
-#	source/acquaman/dacq3_3/acqMessage.c \
-#	source/acquaman/dacq3_3/acqMonitor.c \
-#	source/acquaman/dacq3_3/acqMotor.c \
-#	source/acquaman/dacq3_3/channel_hash.c \
-#	source/acquaman/dacq3_3/channel.c \
-#	source/acquaman/dacq3_3/connector.c \
-#	source/acquaman/dacq3_3/displayAlias.cpp \
-#	source/acquaman/dacq3_3/macro.c \
-#	source/acquaman/dacq3_3/OutputHandler/acqBaseOutput.cpp \
-#	source/acquaman/dacq3_3/OutputHandler/acqBaseStream.cpp \
-#	source/acquaman/dacq3_3/OutputHandler/acqFactory.cpp \
-#	source/acquaman/dacq3_3/OutputHandler/acqFileStream.cpp \
-#	source/acquaman/dacq3_3/OutputHandler/acqTextOutput.cpp \
-#	source/acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.cpp \
-#	source/acquaman/dacq3_3/qepicsacqclass.cpp \
-#	source/acquaman/dacq3_3/qepicsacqlocal.cpp \
-#	source/acquaman/dacq3_3/qepicsadvacq.cpp \
-#	source/acquaman/dacq3_3/update.c \
-#	source/acquaman/dacq3_3/xmlRead.cpp \
-#	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
