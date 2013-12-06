@@ -386,9 +386,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/beamline/AMSingleControlDetector.h \
-	source/beamline/AMSpectralOutputDetector.h \
-	source/ui/beamline/AMSingleControlDetectorView.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
@@ -406,8 +403,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
-	source/beamline/CLS/CLSOceanOptics65000Detector.h \
-	source/ui/CLS/CLSOceanOptics65000DetectorView.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
@@ -582,7 +577,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMSynchronizedDwellTime.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMDetectorInfoSet.h \
-	source/ui/beamline/AMOldDetectorSetView.h \
 	source/ui/beamline/AMDetectorSelectorView.h \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.h \
 	source/beamline/AMDetectorTriggerSource.h \
@@ -850,9 +844,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/beamline/AMSingleControlDetector.cpp \
-	source/beamline/AMSpectralOutputDetector.cpp \
-	source/ui/beamline/AMSingleControlDetectorView.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
@@ -870,8 +861,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/export/AMExporter.cpp \
 	#source/ui/dataman/AM3dDataSourceView.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
-	source/beamline/CLS/CLSOceanOptics65000Detector.cpp \
-	source/ui/CLS/CLSOceanOptics65000DetectorView.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
@@ -1034,7 +1023,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMSynchronizedDwellTime.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMDetectorInfoSet.cpp \
-	source/ui/beamline/AMOldDetectorSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorView.cpp \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.cpp \
 	source/beamline/AMDetectorTriggerSource.cpp \

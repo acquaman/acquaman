@@ -23,30 +23,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
-class AMOldDetectorView;
 class AMDetectorGeneralDetailedView;
 class AMXRFDetailedDetectorView;
+
+class AMScanAction;
+class AMScanController;
+
+class AMSampleManagementWidget;
+class SGMSidebar;
+
 class AMScanConfigurationViewHolder3;
-class SGMXASScanConfigurationView;
-class SGMFastScanConfigurationView;
 class SGMXASScanConfiguration2013View;
 class SGMFastScanConfiguration2013View;
-class AMScanController;
-class SGMSidebar;
-class SGMSettingsMasterView;
-class AMGithubManager;
-class AMDetector;
-class AMScanAction;
-class CLSProcServManager;
-class CLSProcServManagerView;
-class SGMAdvancedControlsView;
 
+class AMDetector;
 class AMDetectorSelector;
 class AMDetectorSelectorView;
 
+class SGMSettingsMasterView;
+class AMGithubManager;
+class CLSProcServManager;
+class CLSProcServManagerView;
+
+class SGMAdvancedControlsView;
 class SGMAdvancedMirrorView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
@@ -160,10 +161,8 @@ protected:
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;
 
 	/// View for the SGM's XAS scan configurations
-	SGMXASScanConfigurationView *xasScanConfigurationView_;
-	/// View for the SGM's Fast scan configurations
-	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
 	AMDetectorSelector *xasDetectorSelector_;
 	AMDetectorSelector *fastDetectorSelector_;
