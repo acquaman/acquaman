@@ -25,6 +25,7 @@ public:
     void setRightButtonText(const QString &text);
     void setRightButtonDefault(bool isDefault);
 
+    // here is a change so I can commit something!
 };
 
 #endif // DOUBLEBUTTONWIDGET_H
