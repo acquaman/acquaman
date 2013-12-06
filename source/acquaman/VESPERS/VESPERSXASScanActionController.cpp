@@ -12,11 +12,11 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	scan_ = new AMXASScan();
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
-	scan_->setFileFormat("sgm2013XAS");
+	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
-//	useFeedback_ = true;
+	useFeedback_ = true;
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(2)->toInfo());

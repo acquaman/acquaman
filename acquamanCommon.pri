@@ -431,17 +431,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/AMScanExemplarDictionary.h \
 	source/dataman/AMScanExemplar.h \
 	source/ui/dataman/AMDictionaryLineEdit.h \
-	source/beamline/AMIonChamber.h \
-	source/dataman/info/AMIonChamberInfo.h \
-	source/beamline/CLS/CLSIonChamber.h \
 	source/beamline/CLS/CLSSR570.h \
-	source/ui/beamline/AMIonChamberView.h \
-	source/ui/CLS/CLSIonChamberView.h \
 	source/beamline/CLS/CLSBiStateControl.h \
-	source/beamline/AMSplitIonChamber.h \
-	source/beamline/CLS/CLSSplitIonChamber.h \
-	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h \
 	source/application/AMAppControllerSupport.h \
 	source/application/AMPluginsManager.h \
 	source/dataman/import/AMScanDatabaseImportController.h \
@@ -667,14 +658,14 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/CLS/CLSSR570View.h \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
 	source/actions3/AMActionSupport.h \
-    source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
-    source/ui/CLS/CLSSR570CompositeView.h \
-    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
-    source/actions3/actions/AMControlStopAction.h \
-    source/actions3/actions/AMControlStopActionInfo.h \
-    source/ui/dataman/AMControlInfoListView.h \
-    source/ui/dataman/AMOldDetectorInfoSetView.h \
-    source/ui/beamline/AMDetectorSelectorRequiredView.h
+	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
+	source/ui/CLS/CLSSR570CompositeView.h \
+	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
+	source/actions3/actions/AMControlStopAction.h \
+	source/actions3/actions/AMControlStopActionInfo.h \
+	source/ui/dataman/AMControlInfoListView.h \
+	source/ui/dataman/AMOldDetectorInfoSetView.h \
+	source/ui/beamline/AMDetectorSelectorRequiredView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -888,17 +879,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/AMScanExemplarDictionary.cpp \
 	source/dataman/AMScanExemplar.cpp \
 	source/ui/dataman/AMDictionaryLineEdit.cpp \
-	source/beamline/AMIonChamber.cpp \
-	source/dataman/info/AMIonChamberInfo.cpp \
-	source/beamline/CLS/CLSIonChamber.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
-	source/ui/beamline/AMIonChamberView.cpp \
-	source/ui/CLS/CLSIonChamberView.cpp \
 	source/beamline/CLS/CLSBiStateControl.cpp \
-	source/beamline/AMSplitIonChamber.cpp \
-	source/beamline/CLS/CLSSplitIonChamber.cpp \
-	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
 	source/dataman/import/AMScanDatabaseImportController.cpp \
@@ -1112,14 +1094,14 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
 	source/ui/CLS/CLSSR570View.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
-    source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
-    source/ui/CLS/CLSSR570CompositeView.cpp \
-    source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
-    source/actions3/actions/AMControlStopAction.cpp \
-    source/actions3/actions/AMControlStopActionInfo.cpp \
-    source/ui/dataman/AMControlInfoListView.cpp \
-    source/ui/dataman/AMOldDetectorInfoSetView.cpp \
-    source/ui/beamline/AMDetectorSelectorRequiredView.cpp
+	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
+	source/ui/CLS/CLSSR570CompositeView.cpp \
+	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
+	source/actions3/actions/AMControlStopAction.cpp \
+	source/actions3/actions/AMControlStopActionInfo.cpp \
+	source/ui/dataman/AMControlInfoListView.cpp \
+	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
+	source/ui/beamline/AMDetectorSelectorRequiredView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1143,23 +1125,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

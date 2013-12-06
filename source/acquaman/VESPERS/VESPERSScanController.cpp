@@ -3,6 +3,7 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/dacq3_3/qepicsadvacq.h"
 #include "actions3/AMListAction3.h"
+#include "beamline/CLS/CLSSR570.h"
 
 #include <QStringBuilder>
 
@@ -196,14 +197,15 @@ QString VESPERSScanController::buildNotes()
 	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
 	notes.append(QString("Gas used in ion chambers:\tN2\n"));
 	notes.append(QString("\nIon Chamber Gain Settings\n"));
-	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
-	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
-	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iMini();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iPost();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+
+	CLSSIS3820ScalerChannel *channel = VESPERSBeamline::vespers()->scaler()->channelAt(5);
+	notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(7);
+	notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(8);
+	notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(9);
+	notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
 
 	return notes;
 }
