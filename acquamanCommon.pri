@@ -556,7 +556,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/info/AMOldDetectorInfo.h \
 	source/beamline/AMOldDetector.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
-	source/beamline/AMOldDetectorSet.h \
 	source/beamline/AMDetector.h \
 	source/dataman/AMDbUpgrade1Pt1.h \
 	source/dataman/AMDbUpgrade1Pt2.h \
@@ -993,7 +992,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/info/AMOldDetectorInfo.cpp \
 	source/beamline/AMOldDetector.cpp \
 	source/dataman/info/AMOldDetectorInfoSet.cpp \
-	source/beamline/AMOldDetectorSet.cpp \
 	source/beamline/AMDetector.cpp \
 	source/dataman/AMDbUpgrade1Pt1.cpp \
 	source/dataman/AMDbUpgrade1Pt2.cpp \
