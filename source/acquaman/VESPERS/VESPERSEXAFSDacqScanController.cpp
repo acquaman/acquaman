@@ -364,7 +364,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //		// If this is an L edge, chop out the number for comparison purposes.
 //		if (edge.contains(QRegExp("L\\d$")))
 //			edge.chop(1);
-//\
+//
 //		for (int i = 0, count = sameRois.size(); i < count; i++){
 
 //			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+4);

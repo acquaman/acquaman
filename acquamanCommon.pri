@@ -45,10 +45,6 @@ macx {
 		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
-#		# LibXML Dependencies (required by dacq library)
-#		XML_LIB = -lxml2
-#		XML_INCLUDE_DIR = /usr/include/libxml2
-
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
 		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
@@ -73,10 +69,6 @@ linux-g++ {
 		# GSL Dependencies
 		GSL_LIB = -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
-
-#		# LibXML Dependencies (required by dacq library)
-#		XML_LIB = -lxml2
-#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		#CDFLib dependencies
 		CDF_LIB = -lcdf
@@ -109,10 +101,6 @@ linux-g++-32 {
 		# QwtPlot3d dependencies (Disabled for now...)
 #		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 #		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
-
-#		# LibXML Dependencies (required by dacq library)
-#		XML_LIB = -lxml2
-#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
@@ -149,10 +137,6 @@ linux-g++-64 {
 		# QwtPlot3d dependencies (Disabled for now...)
 		# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 		# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
-
-#		# LibXML Dependencies (required by dacq library)
-#		XML_LIB = -lxml2
-#		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
@@ -205,14 +189,12 @@ INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
-#		$$XML_INCLUDE_DIR \
 		$$QWTPLOT3D_INCLUDE_DIR \
 		$$CDF_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		-L$$MPLOT_LIB_DIR -lMPlot \
-#		$$XML_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB

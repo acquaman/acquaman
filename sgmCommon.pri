@@ -47,7 +47,6 @@ HEADERS += \
 	source/ui/util/SGM/SGMEnergyPositionView.h \
 	source/analysis/SGM/SGM1DFastScanFilterAB.h \
 	source/util/SGM/SGMSettings.h \
-	source/util/SGM/SGMDacqConfigurationFile.h \
 	source/util/SGM/SGMPluginsLocation.h \
 	source/ui/util/SGM/SGMSettingsMasterView.h \
 	source/beamline/SGM/SGMMAXvMotor.h \
@@ -86,7 +85,6 @@ SOURCES += \
 	source/ui/util/SGM/SGMEnergyPositionView.cpp \
 	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
 	source/util/SGM/SGMSettings.cpp \
-	source/util/SGM/SGMDacqConfigurationFile.cpp \
 	source/util/SGM/SGMPluginsLocation.cpp \
 	source/ui/util/SGM/SGMSettingsMasterView.cpp \
 	source/beamline/SGM/SGMMAXvMotor.cpp \

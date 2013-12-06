@@ -130,8 +130,6 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
-//	/// Grabs the dacq configuration file locations
-//	bool setupSGMConfigurationFiles();
 	/// Determines the plugin locations for file loaders
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options

@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 		coreApp.setApplicationName("Acquaman Crash Monitor");
 
 		AMCrashMonitor *crashMonitor = new AMCrashMonitor(coreApp.arguments().at(2), coreApp.arguments().at(3), coreApp.arguments().at(4).toInt());
+		Q_UNUSED(crashMonitor)
 
 		return coreApp.exec();
 	}

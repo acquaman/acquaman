@@ -65,7 +65,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/util/SGM/SGMSettingsMasterView.h"
 #include "util/SGM/SGMSettings.h"
-//#include "util/SGM/SGMDacqConfigurationFile.h"
 #include "util/SGM/SGMPluginsLocation.h"
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
@@ -223,7 +222,6 @@ bool SGMAppController::startupRegisterDatabases(){
 	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
 
 	// Register the configuration file and file loader plugin supports
-//	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
 
 	// Register the SGM periodic table support classes
@@ -529,6 +527,7 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 }
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
+	Q_UNUSED(action)
 
 	/*
 	AMScan *scan = action->controller()->scan();
@@ -631,28 +630,6 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	return true;
 }
-
-//bool SGMAppController::setupSGMConfigurationFiles()
-//{
-//	bool success = true;
-
-//	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-//	if(!dbSGM)
-//		return false;
-
-//	QList<int> matchIDs;
-//	SGMDacqConfigurationFile *configFile;
-//	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
-//	if(matchIDs.count() == 0){
-//		configFile = new SGMDacqConfigurationFile();
-//		configFile->setName("FastScaler");
-//		configFile->setConfigurationFileName("Scalar_Fast.config");
-//		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-//		success &= configFile->storeToDb(dbSGM);
-//	}
-
-//	return success;
-//}
 
 bool SGMAppController::setupSGMPlugins()
 {
