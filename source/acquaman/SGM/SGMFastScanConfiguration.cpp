@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDir>
 
-#include "beamline/AMOldDetectorSet.h"
 #include "util/SGM/SGMPeriodicTable.h"
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()

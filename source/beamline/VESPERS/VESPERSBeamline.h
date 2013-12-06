@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMOldDetectorSet.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
@@ -657,11 +656,6 @@ protected:
 	VESPERSPilatusCCDDetector *pilatusAreaDetector_;
 
 	// End detectors.
-
-	// Detector sets.
-	AMOldDetectorSet *ionChambers_;
-
-	// End detector sets.
 
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;

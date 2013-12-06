@@ -1,7 +1,7 @@
 #include "VESPERSScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "acquaman/dacq3_3/qepicsadvacq.h"
+//#include "acquaman/dacq3_3/qepicsadvacq.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSSR570.h"
 
@@ -350,82 +350,82 @@ void VESPERSScanController::addFourElementSpectraMeasurments(AMScan *scan, const
 	}
 }
 
-void VESPERSScanController::addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK)
-{
-	if (addEaAndDwellTime && addK){
+//void VESPERSScanController::addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK)
+//{
+//	if (addEaAndDwellTime && addK){
 
-		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-		advAcq->appendRecord("07B2_Mono_SineB_K", true, false, 0);
-		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	}
+//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+//		advAcq->appendRecord("07B2_Mono_SineB_K", true, false, 0);
+//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+//	}
 
-	else if (addEaAndDwellTime){
+//	else if (addEaAndDwellTime){
 
-		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	}
+//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+//	}
 
-	advAcq->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
-}
+//	advAcq->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+//}
 
-void VESPERSScanController::addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
-}
+//void VESPERSScanController::addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
+//}
 
-void VESPERSScanController::addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-{
-	for (int i = 0; i < roiCount; i++)
-		advAcq->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
-}
+//void VESPERSScanController::addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
+//{
+//	for (int i = 0; i < roiCount; i++)
+//		advAcq->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
+//}
 
-void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("IOC1607-004:mca1", true, true, 1);
-}
+//void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("IOC1607-004:mca1", true, true, 1);
+//}
 
-void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
-}
+//void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
+//}
 
-void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-{
-	for (int i = 0; i < roiCount; i++)
-		advAcq->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
-}
+//void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
+//{
+//	for (int i = 0; i < roiCount; i++)
+//		advAcq->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
+//}
 
-void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
-}
+//void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
+//}
 
 QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
 {

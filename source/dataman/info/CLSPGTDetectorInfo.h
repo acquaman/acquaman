@@ -54,7 +54,7 @@ public:
 	// Dimensionality and size:
 	////////////////////////////////////
 
-	// Using the base class (AMSpectralOutputDetector) for default rank(), size(), and axes().
+	// Using the base class (AMSpectralOutputDetectorInfo) for default rank(), size(), and axes().
 
 
 	virtual bool hasDetails() const;

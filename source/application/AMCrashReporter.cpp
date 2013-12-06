@@ -55,12 +55,14 @@ void AMCrashReporterUnixSignalHandler::handleSigusr2(){
 }
 
 void AMCrashReporterUnixSignalHandler::sigusr1SignalHandler(int signum){
+	Q_UNUSED(signum)
 	char a = 1;
 	ssize_t retVal = ::write(sigusr1Fd[0], &a, sizeof(a));
 	Q_UNUSED(retVal);
 }
 
 void AMCrashReporterUnixSignalHandler::sigusr2SignalHandler(int signum){
+	Q_UNUSED(signum)
 	char a = 1;
 	ssize_t retVal = ::write(sigusr2Fd[0], &a, sizeof(a));
 	Q_UNUSED(retVal);

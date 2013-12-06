@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/AMSingleControlDetector.h"
+//#include "beamline/AMSingleControlDetector.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"

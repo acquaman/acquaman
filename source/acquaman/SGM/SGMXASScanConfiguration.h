@@ -118,10 +118,6 @@ signals:
 	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
 
-protected slots:
-	/// NOT CURRENTLY IN USE
-	void detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
-
 protected:
 	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}

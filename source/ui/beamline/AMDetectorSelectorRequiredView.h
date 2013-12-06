@@ -85,8 +85,6 @@ public:
 public slots:
 	/// Sets this detector as selected (or deselected)
 	void setDetectorSelected(bool selected);
-	/// Paints the name in the view enabled or disabled based on connected state
-	void setDetectorConnected(bool connected);
 
 signals:
 	/// Emitted when the check box is (de)selected

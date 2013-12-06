@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfiguration.h"
 
-#include "beamline/AMOldDetectorSet.h"
-
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
 	if(SGMBeamline::sgm()->isConnected()){
@@ -236,9 +234,4 @@ bool SGMXASScanConfiguration::setDetectorConfigurations(const AMOldDetectorInfoS
 	xasDetectorsCfg_ = xasDetectorsCfg;
 	setModified(true);
 	return true;
-}
-
-void SGMXASScanConfiguration::detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
-	Q_UNUSED(detector)
-	Q_UNUSED(isAvailable)
 }

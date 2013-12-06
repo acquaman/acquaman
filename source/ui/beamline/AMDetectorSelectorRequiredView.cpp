@@ -52,10 +52,8 @@ AMDetectorSelectorRequiredViewInternal::AMDetectorSelectorRequiredViewInternal(A
 				allDetectorViews_.insert(detector->name(), tmpDetectorView);
 				if(detector->isConnected())
 					connectedVL_->addWidget(tmpDetectorView);
-				else{
-					tmpDetectorView->setDetectorConnected(false);
+				else
 					unconnectedVL_->addWidget(tmpDetectorView);
-				}
 				connect(tmpDetectorView, SIGNAL(detectorCheckedChanged(bool)), this, SLOT(onDetectorCheckedChanged(bool)));
 			}
 		}
@@ -75,7 +73,6 @@ AMDetectorSelectorRequiredViewInternal::AMDetectorSelectorRequiredViewInternal(A
 		for(int x = 0; x < unconnectedDetectors->count(); x++){
 			if(!preferentialOrdering.contains(unconnectedDetectors->at(x)->name())){
 				tmpDetectorView = new AMDetectorSelectorRequiredViewInternalLineView(unconnectedDetectors->at(x), detectorSelector_->detectorIsSelected(unconnectedDetectors->at(x)));
-				tmpDetectorView->setDetectorConnected(false);
 				tmpDetectorView->setDetectorSelected(detectorSelector_->detectorIsDefault(unconnectedDetectors->at(x)));
 				allDetectorViews_.insert(unconnectedDetectors->at(x)->name(), tmpDetectorView);
 				unconnectedVL_->addWidget(tmpDetectorView);
@@ -106,7 +103,6 @@ void AMDetectorSelectorRequiredViewInternal::onDetectorBecameConnected(AMDetecto
 		return;
 
 	AMDetectorSelectorRequiredViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
-	tmpDetectorView->setDetectorConnected(true);
 	unconnectedVL_->removeWidget(tmpDetectorView);
 
 	int insertionIndex = -1;
@@ -138,7 +134,6 @@ void AMDetectorSelectorRequiredViewInternal::onDetectorBecameUnconnected(AMDetec
 		return;
 
 	AMDetectorSelectorRequiredViewInternalLineView *tmpDetectorView = allDetectorViews_.value(detector->name());
-	tmpDetectorView->setDetectorConnected(false);
 	connectedVL_->removeWidget(tmpDetectorView);
 
 	int insertionIndex = -1;
@@ -226,10 +221,6 @@ bool AMDetectorSelectorRequiredViewInternalLineView::detectorChecked(){
 
 void AMDetectorSelectorRequiredViewInternalLineView::setDetectorSelected(bool selected){
 	detectorSelectedCheckBox_->setChecked(selected);
-}
-
-void AMDetectorSelectorRequiredViewInternalLineView::setDetectorConnected(bool connected){
-	//detectorNameLabel_->setEnabled(connected);
 }
 
 void AMDetectorSelectorRequiredViewInternalLineView::onDetectorSelectedCheckBoxToggled(bool isChecked){
