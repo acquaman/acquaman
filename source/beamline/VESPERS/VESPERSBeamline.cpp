@@ -721,6 +721,8 @@ void VESPERSBeamline::setupExposedDetectors()
 {
 	addExposedDetector(singleElementVortexDetector_);
 	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(pilatusAreaDetector_);
+	addExposedDetector(splitIonChamber_);
 	addExposedDetector(preKBIonChamber_);
 	addExposedDetector(miniIonChamber_);
 	addExposedDetector(postIonChamber_);

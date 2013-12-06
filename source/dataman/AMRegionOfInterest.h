@@ -74,7 +74,7 @@ public slots:
 
 protected slots:
 	/// Handles passing on the value changed on.
-	void onValueChanged() const;
+	void onValueChanged();
 
 protected:
 	/// The energy of the region of interest.

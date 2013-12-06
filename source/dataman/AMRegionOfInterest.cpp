@@ -107,7 +107,7 @@ void AMRegionOfInterest::setSpectrumSource(AMDataSource *source)
 	value_->setInputDataSources(QList<AMDataSource *>() << source);
 }
 
-void AMRegionOfInterest::onValueChanged() const
+void AMRegionOfInterest::onValueChanged()
 {
-	emit value_->value(AMnDIndex());
+	emit valueChanged(double(value_->value(AMnDIndex())));
 }

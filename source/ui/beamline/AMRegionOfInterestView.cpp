@@ -42,6 +42,7 @@ AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest 
 
 	value_ = new QLabel;
 	value_->setFixedWidth(100);
+	onValueChanged(region_->value());
 	connect(region_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
@@ -80,8 +81,11 @@ void AMRegionOfInterestElementView::updateUpperBound(double value)
 
 void AMRegionOfInterestElementView::updateSpinBoxSingleStep()
 {
-	lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
-	upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+	if (!((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axes().isEmpty()){
+
+		lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+		upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+	}
 }
 
 // AMRegionOfInterestView

@@ -43,9 +43,6 @@ public:
 	/// Returns false, because the Vortex detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-//	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-//	virtual const double* data() const;
-
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
