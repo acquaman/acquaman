@@ -11,7 +11,7 @@ fi
 input=T1.txt
 if [ -e $input ]; then
 	echo T1.txt already exists
-	input=temp_file_T1_01f23c0.txt #random name. shouldnt match anything ever. except itself
+	input=temp_file_T1_01f23c0.txt #random name. shouldnt match anything, except itself
 fi
 	
 
@@ -28,11 +28,39 @@ do
 		echo $className
 		echo "No Destructor"
 		if [[ $fix == 1 ]]; then
-			constructorLine=`grep -nE "$className\(" $file | cut -d: -f-1 | tail -1`
+			constructorLine=`grep -nE "$className\(.*;[^}]*$" $file | cut -d: -f-1 | tail -1`
 			echo "Constructor on line $constructorLine"
-			#grep to the constructor, add the virtual destructor on the next line
-			#as well, add the destructor to the .cpp file
+			if [[ $constructorLine != "" ]]; then
+				#grep to the constructor, add the virtual destructor on the next line
+				#sed -i "$constructorLine a\ \tvirtual ~$className();" $file
+				#as well, add the destructor to the .cpp file
+				if [[ `echo $file | grep "\.h"` ]]; then
+					echo "Destructor declared in .h"
+					cFile=${file:0:-1}cpp
+					if [[ -e $cFile ]]; then
+						echo $cFile Exists
+						if ! [[ `grep -E "~$className" $cFile` ]]; then
+							echo "Destructor does not exist"
+								definitionConstructorLine=`grep -nE "$className::$className" $cFile | tail -1 | cut -d: -f-1`
+								#add it to the line above
+								#sed -i "$definitionConstructorLine i\$className::~$className{}" $cFile
+							echo "Constructor is on line $definitionConstructorLine "
+							
+						else
+							echo "Destructor already exists"
+						fi
+					else
+						echo $cFile does not exist
+						#declare it in line
+					fi
+				else
+					echo "Destructor declared in .cpp"
+				fi
+			else
+				echo "Class has no constructor, does not need a destructor"
+			fi
 		fi
+		echo "Done empty destructor"
 	else
 		if ! `echo ${destructor} | grep "virtual" 1>/dev/null 2>&1`; then
 			
