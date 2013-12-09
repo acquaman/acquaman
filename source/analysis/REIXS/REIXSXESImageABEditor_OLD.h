@@ -85,7 +85,7 @@ public:
 	explicit REIXSXESImageABEditor(REIXSXESImageAB* analysisBlock, QWidget *parent = 0);
 
 	/// Destructor
-	~REIXSXESImageABEditor();
+	virtual ~REIXSXESImageABEditor();
 
 
 signals:

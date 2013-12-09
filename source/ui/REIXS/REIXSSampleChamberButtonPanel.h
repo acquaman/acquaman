@@ -33,7 +33,7 @@ class REIXSSampleChamberButtonPanel : public QWidget
 
 public:
     explicit REIXSSampleChamberButtonPanel(QWidget *parent = 0);
-    ~REIXSSampleChamberButtonPanel();
+    virtual ~REIXSSampleChamberButtonPanel();
 
 public slots:
 	void onJoystickButtonChanged(int buttonId, bool isDown);

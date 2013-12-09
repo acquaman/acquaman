@@ -42,7 +42,7 @@ do
 			destructorLine=`grep -nE "~$className" $file | cut -d: -f-1`
 			echo "Destructor on line: $destructorLine"
 			if [[ $fix == 1 ]]; then
-				
+				sed -i "s/~$className/virtual ~$className/g" $file	
 			fi	
 				
 			if `echo ${destructor} | grep '{.*}' 1>/dev/null 2>&1`; then

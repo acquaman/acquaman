@@ -27,7 +27,7 @@ public:
 	/// Constructor.  Takes in a SGMFastScanConfiguration2013.
 	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 	/// Destructor.
-	~SGMFastScanActionController();
+	virtual ~SGMFastScanActionController();
 
 	/// Builds all the raw data sources and configures and starts up the file writer thread.
 	virtual void buildScanController();

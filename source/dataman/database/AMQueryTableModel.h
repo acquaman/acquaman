@@ -81,7 +81,7 @@ public:
 		return *this;
 	}
 
-	~AMQueryTableModelColumnInfo() {
+	virtual ~AMQueryTableModelColumnInfo() {
 		delete foreignKeyCache;
 	}
 

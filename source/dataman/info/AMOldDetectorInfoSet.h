@@ -47,7 +47,7 @@ public:
 	AMOldDetectorInfoSet& operator=(const AMOldDetectorInfoSet& other);
 
 	/// Destructor
-	~AMOldDetectorInfoSet() {}
+	virtual ~AMOldDetectorInfoSet() {}
 
 	friend QDebug operator<<(QDebug d, const AMOldDetectorInfoSet& dis);
 

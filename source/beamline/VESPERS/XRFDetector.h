@@ -47,7 +47,7 @@ public:
 	/// Constructor.  Requires the name, number of elements, and the base PV name of the detector.  It builds all the PV's and connects the accordingly based on standard naming conventions.
 	XRFDetector(QString name, int elements, QString baseName, QObject *parent = 0);
 
-	~XRFDetector();
+	virtual ~XRFDetector();
 
 	/// Return the meta object.
 	const QMetaObject *getMetaObject() { return metaObject(); }

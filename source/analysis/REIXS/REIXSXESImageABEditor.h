@@ -124,7 +124,7 @@ public:
 	explicit REIXSXESImageABEditor(REIXSXESImageAB* analysisBlock, QWidget *parent = 0);
 
 	/// Destructor
-	~REIXSXESImageABEditor();
+	virtual ~REIXSXESImageABEditor();
 
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
 	//enum smoothBoxType { None, Poly, Median, Average };

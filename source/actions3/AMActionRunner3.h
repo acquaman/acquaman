@@ -218,7 +218,7 @@ private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
 	explicit AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
-	~AMActionRunner3();
+	virtual ~AMActionRunner3();
 
 	/// The singleton instance for the workflow
 	static AMActionRunner3 *workflowInstance_;

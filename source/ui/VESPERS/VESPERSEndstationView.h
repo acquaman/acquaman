@@ -95,7 +95,7 @@ public:
 	/// Constructor.  Takes an instance of VESPERSEndstation and builds a view around it.
 	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
 	/// Destructor.
-	~VESPERSEndstationView();
+	virtual ~VESPERSEndstationView();
 
 	/// Returns whether or not the view is showing the normal sample stage motor or the y motor.  True is the normal stage and false is the y motor.
 	bool usingNormalMotor() const { return usingNormal_; }

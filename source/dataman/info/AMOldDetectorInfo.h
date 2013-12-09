@@ -59,7 +59,7 @@ public:
 
 	AMOldDetectorInfo& operator=(const AMOldDetectorInfo &other);
 
-	~AMOldDetectorInfo() {}
+	virtual ~AMOldDetectorInfo() {}
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
 	virtual AMOldDetectorInfo* toNewInfo() const;

@@ -42,7 +42,7 @@ class AMScanViewScanBarContextMenu : public QMenu {
 	Q_OBJECT
 public:
 	AMScanViewScanBarContextMenu(AMScanSetModel* model, int scanIndex, int dataSourceIndex, QWidget* parent = 0);
-	~AMScanViewScanBarContextMenu();
+	virtual ~AMScanViewScanBarContextMenu();
 
 protected:
 	/// The model this context menu was created within

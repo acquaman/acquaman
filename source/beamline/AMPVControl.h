@@ -742,7 +742,7 @@ public:
 										const QString &description = "");
 
 	/// Destructor: deletes the unit converter
-	~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
+	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
 
 	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);

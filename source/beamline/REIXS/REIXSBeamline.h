@@ -418,7 +418,7 @@ public:
 	}
 
 	/// Destructor
-	~REIXSBeamline();
+	virtual ~REIXSBeamline();
 
 	// Accessing control elements:
 

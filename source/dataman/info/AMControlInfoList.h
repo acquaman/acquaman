@@ -55,7 +55,7 @@ public:
 	bool compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const;
 
 	/// Destructor
-	~AMControlInfoList() {}
+	virtual ~AMControlInfoList() {}
 
 	/// Allows you to push a ControlInfoList into a QDebug stream
 	friend QDebug operator<<(QDebug d, const AMControlInfoList& cil);

@@ -70,7 +70,7 @@ public:
 	/// Construct a property dialog on the given \c model, for the scan at \c scanIndex and the data source at \c dataSourceIndex. (These are just current indexes... If they change later because of scans and data sources being added, we'll handle that internally for you.)
 	AMScanSetItemPropertyDialog(AMScanSetModel* model, int scanIndex, int dataSourceIndex, QWidget* parent = 0);
 	/// Destructor
-	~AMScanSetItemPropertyDialog();
+	virtual ~AMScanSetItemPropertyDialog();
 
 signals:
 

@@ -44,7 +44,7 @@ class SGMSidebar : public QWidget
 public:
 	explicit SGMSidebar(QWidget *parent = 0);
 
-	~SGMSidebar();
+	virtual ~SGMSidebar();
 
 protected:
 	void showEvent(QShowEvent *);
