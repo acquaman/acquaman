@@ -305,12 +305,15 @@ void VESPERSBeamline::setupDetectors()
 	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
 	postIonChamber_  = new CLSBasicScalerChannelDetector("PostIonChamber", "Post Ion Chamber", scaler_, 9, this);
 
-	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
-	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
+	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
+	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
 	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
 	pilatusAreaDetector_ = new VESPERSPilatusCCDDetector("PilatusPixelArrayDetector", "Pilatus Pixel Array Detector", this);
+
+	addSynchronizedXRFDetector(singleElementVortexDetector_);
+	addSynchronizedXRFDetector(fourElementVortexDetector_);
 }
 
 void VESPERSBeamline::setupControlSets()

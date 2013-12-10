@@ -34,6 +34,11 @@ AMRegionOfInterest::AMRegionOfInterest(const AMRegionOfInterest &original)
 	connect(value_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onValueChanged()));
 }
 
+AMRegionOfInterest *AMRegionOfInterest::createCopy()
+{
+	return new AMRegionOfInterest(*this);
+}
+
 AMRegionOfInterest &AMRegionOfInterest::operator =(const AMRegionOfInterest &other)
 {
 	if (this != &other){

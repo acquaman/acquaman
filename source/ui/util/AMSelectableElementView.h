@@ -135,15 +135,16 @@ public slots:
 	/// Sets a new maximum value for the energy range.
 	void setMaximumEnergy(double newMaximum);
 
+	/// Updates the list of absorption line views based on the current filters.
+	void updateAbsorptionEdgeViewList();
+	/// Updates the list of emission line views based on the current filters.
+	void updateEmissionLineViewList();
+
 protected slots:
 	/// Handles when the check state from an AMSelectableAbsorptionEdgeView changes.
 	void onAbsorptionEdgeSelected(bool isSelected, const AMAbsorptionEdge &edge);
 	/// Handles when the check state from an AMSelectableEmissionLineView changes.
 	void onEmissionLineSelected(bool isSelected, const AMEmissionLine &line);
-	/// Updates the list of absorption line views based on the current filters.
-	void updateAbsorptionEdgeViewList();
-	/// Updates the list of emission line views based on the current filters.
-	void updateEmissionLineViewList();
 
 protected:
 	/// The label for the name of the element.

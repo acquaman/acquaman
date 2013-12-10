@@ -24,6 +24,9 @@ public:
 	/// Copy constructor.
 	AMRegionOfInterest(const AMRegionOfInterest &original);
 
+	/// Virtual copy constructor.  Returns a copy of this region of interest.  Caller is responsible for memory.
+	AMRegionOfInterest *createCopy();
+
 	/// The assignment operator.  Copies all information from one and sets the values here.
 	AMRegionOfInterest &operator=(const AMRegionOfInterest &other);
 

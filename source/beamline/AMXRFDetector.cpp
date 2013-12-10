@@ -307,7 +307,7 @@ void AMXRFDetector::removeRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 
 		removeRegionOfInterestImplementation(regionOfInterest);
 		emit removedRegionOfInterest(regionOfInterest);
-		delete regionOfInterest;
+		regionOfInterest->deleteLater();
 	}
 }
 

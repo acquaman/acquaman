@@ -78,3 +78,41 @@ bool AMBeamline::addExposedDetectorGroup(AMDetectorGroup *detectorGroup){
 	exposedDetectorGroups_.append(detectorGroup);
 	return true;
 }
+
+void AMBeamline::addSynchronizedXRFDetector(AMXRFDetector *detector)
+{
+	synchronizedXRFDetectors_.append(detector);
+	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+
+}
+
+void AMBeamline::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
+{
+	foreach (AMXRFDetector *detector, synchronizedXRFDetectors_){
+
+		bool regionNeedsToBeAdded = true;
+
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
+			if (newRegion->name() == region->name())
+				regionNeedsToBeAdded = false;
+
+		if (regionNeedsToBeAdded)
+			detector->addRegionOfInterest(newRegion->createCopy());
+	}
+}
+
+void AMBeamline::onRegionOfInterestRemoved(AMRegionOfInterest *removedRegion)
+{
+	foreach (AMXRFDetector *detector, synchronizedXRFDetectors_){
+
+		bool regionNeedsToBeRemoved = false;
+
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
+			if (removedRegion->name() == region->name())
+				regionNeedsToBeRemoved = true;
+
+		if (regionNeedsToBeRemoved)
+			detector->removeRegionOfInterest(removedRegion);
+	}
+}

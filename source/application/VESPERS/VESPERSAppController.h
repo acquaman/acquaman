@@ -74,10 +74,6 @@ public:
 protected slots:
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
-	/// Helper slot that pauses scans using the bottom bar.
-	void onPauseScanIssued();
-	/// Helper slot that cancels the current scan.
-	void onCancelScanIssued();
 
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
