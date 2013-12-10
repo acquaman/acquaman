@@ -138,13 +138,17 @@ protected slots:
 protected:
 	bool initializeImplementation();
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+	bool cancelAcquisitionImplementation();
 	bool cleanupImplementation();
 
 	bool clearImplementation();
 
+
 	void setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions);
 
 	void acquisitionSucceededHelper();
+	void acquisitionCancelledHelper();
+
 
 protected:
 	/// Bool handling whether the detector was connected.
