@@ -1,5 +1,5 @@
 //WARNING																								WARNING
-//WARNING  This file has been depreciated, it has been replace with REIXSXESScanActionController.h		WARNING
+//WARNING  This file has been depreciated, it has been replace with REIXSXESScanActionController.cpp	WARNING
 //WARNING																								WARNING
 
 /*
