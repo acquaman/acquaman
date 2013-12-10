@@ -80,6 +80,13 @@ void REIXSXESScanActionController::saveRawData(){
 }
 
 bool REIXSXESScanActionController::initializeImplementation(){
+	// Is the detector connected?
+	//if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+	if(!REIXSBeamline::bl()->mcpDetector()->isConnected()){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
+		return false;
+	}
+
 	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
@@ -100,6 +107,7 @@ bool REIXSXESScanActionController::startImplementation(){
 	REIXSBeamline::bl()->mcpDetector()->acquire();
 	setStarted();
 
+
 	updateTimer_ = new QTimer();
 	updateTimer_->setInterval(5000);
 	connect(updateTimer_, SIGNAL(timeout()), this, SLOT(saveRawData()));
@@ -109,7 +117,16 @@ bool REIXSXESScanActionController::startImplementation(){
 }
 
 void REIXSXESScanActionController::cancelImplementation(){
+
+	ScanState currentState = state();
+
+	if(currentState == Running || currentState == Paused) {
+		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
+	}
+	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
+	setCancelled();
 }
+
 
 #include "dataman/AMSample.h"
 void REIXSXESScanActionController::initializeScanMetaData()
