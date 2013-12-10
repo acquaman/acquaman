@@ -64,9 +64,9 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	insertionIndex_ = AMnDIndex(0);
 
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
-	//cfg->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
+	cfg->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->energy());  //->directEnergy());
 	AMXASScanConfigurationConverter xasScanConfigurationConverter(newScanAssembler_, cfg, this);
-	qDebug() << "\n\nCurrent cfg says default control: " << cfg->regions()->defaultControl()->name();
+	//qDebug() << "\n\nCurrent cfg says default control: " << cfg->regions()->defaultControl()->name();
 
 	AMDetectorInfoSet reixsDetectors;
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("I0")->toInfo());

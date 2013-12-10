@@ -93,7 +93,7 @@ public slots:
 
 	void setScanNumber(int number) { if(number == scanNumber_) return; scanNumber_ = number; setModified(true); emit configurationChanged(); }
 	void setSampleId(int sampleId) { if(sampleId == sampleId_) return; sampleId_ = sampleId; setModified(true); emit configurationChanged(); }
-	void setNamedAutomatically(bool autoOn) { if(autoOn == namedAutomatically_) return; namedAutomatically_ = autoOn; setModified(true); emit configurationChanged(); }
+	void setNamedAutomatically(bool autoOn) { if(autoOn == namedAutomatically_) return;	namedAutomatically_ = autoOn; setModified(true); emit configurationChanged(); }
 
 	void setSlitWidth(double slitWidth) { if(slitWidth == slitWidth_) return; slitWidth_ = slitWidth; setModified(true); emit configurationChanged(); }
 	void setApplySlitWidth(bool applySlitWidth) { if(applySlitWidth == applySlitWidth_) return; applySlitWidth_ = applySlitWidth; setModified(true); emit configurationChanged(); }

@@ -72,6 +72,7 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	polarizationAngle_ = other.polarizationAngle_;
 	applyPolarization_ = other.applyPolarization_;
 	////////////////////////
+	setAutoExportEnabled(false);
 }
 
 AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
