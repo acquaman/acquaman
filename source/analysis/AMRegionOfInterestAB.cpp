@@ -77,11 +77,10 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	QVector<double> data = QVector<double>(int(binningRange_.maximum()-binningRange_.minimum()+1));
-
 	// Need to turn the range into index positions.
 	int minimum = binningRange_.minimum()/double(spectrum_->axisInfoAt(0).increment);
 	int maximum = binningRange_.maximum()/double(spectrum_->axisInfoAt(0).increment);
+	QVector<double> data = QVector<double>(maximum - minimum + 1);
 
 	if (spectrum_->values(minimum, maximum, data.data())){
 
@@ -113,11 +112,10 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	if (!binningRange_.isValid())
 		return false;
 
-	QVector<double> data = QVector<double>(int(binningRange_.maximum()-binningRange_.minimum()+1));
-
 	// Need to turn the range into index positions.
-	int minimum = binningRange_.minimum()/double(spectrum_->axisInfoAt(0).increment);
-	int maximum = binningRange_.maximum()/double(spectrum_->axisInfoAt(0).increment);
+	int minimum = int(binningRange_.minimum()/double(spectrum_->axisInfoAt(0).increment));
+	int maximum = int(binningRange_.maximum()/double(spectrum_->axisInfoAt(0).increment));
+	QVector<double> data = QVector<double>(maximum - minimum + 1);
 
 	if (spectrum_->values(minimum, maximum, data.data())){
 

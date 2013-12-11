@@ -200,8 +200,8 @@ public:
 
 			int totalSize = indexStart.totalPointsTo(indexEnd);
 			QVector<double> val = QVector<double>(totalSize);
-			for (int i = 0; i < totalSize; i++)
-				val[i] = double(data_->lastIntegerValues().at(i));
+			for (int i = 0, offset = indexStart.i(); i < totalSize; i++)
+				val[i] = double(data_->lastIntegerValues().at(i+offset));
 
 			memcpy(outputValues, val.constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
 		}
@@ -286,7 +286,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
 	virtual AMnDIndex size() const { return AMnDIndex(length_, int(data_->count()/length_)); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be be 0 or 1.
-    virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : int(data_->count())/length_; }
+	virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : int(data_->count())/length_; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and 1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { axes_[0].size = length_; axes_[1].size = data_->count()/length_; return axes_.at(axisNumber); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
