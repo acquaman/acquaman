@@ -130,6 +130,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *newRegion);
 	/// Slot that handles ensuring all synchronized XRF detectors have removed the specified region of interest.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *removedRegion);
+	/// Slot that handles ensuring all the bounding ranges of regions of interest are synchronized across all synchronized XRF detectors.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Singleton classes have a protected constructor; all access is through AMBeamline::bl() or YourBeamline::bl()

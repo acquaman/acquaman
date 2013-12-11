@@ -84,7 +84,7 @@ void AMBeamline::addSynchronizedXRFDetector(AMXRFDetector *detector)
 	synchronizedXRFDetectors_.append(detector);
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-
+	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void AMBeamline::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
@@ -106,13 +106,21 @@ void AMBeamline::onRegionOfInterestRemoved(AMRegionOfInterest *removedRegion)
 {
 	foreach (AMXRFDetector *detector, synchronizedXRFDetectors_){
 
-		bool regionNeedsToBeRemoved = false;
+		AMRegionOfInterest *regionToBeRemoved = 0;
 
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
 			if (removedRegion->name() == region->name())
-				regionNeedsToBeRemoved = true;
+				regionToBeRemoved = region;
 
-		if (regionNeedsToBeRemoved)
-			detector->removeRegionOfInterest(removedRegion);
+		if (regionToBeRemoved)
+			detector->removeRegionOfInterest(regionToBeRemoved);
 	}
+}
+
+void AMBeamline::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	foreach (AMXRFDetector *detector, synchronizedXRFDetectors_)
+		foreach (AMRegionOfInterest *tempRegion, detector->regionsOfInterest())
+			if (region->name() == tempRegion->name() && tempRegion->boundingRange() != region->boundingRange())
+				tempRegion->setBoundingRange(region->boundingRange());
 }
