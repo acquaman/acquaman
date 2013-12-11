@@ -69,6 +69,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
 
+#include "dataman/VESPERS/VESPERSUserConfiguration.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -148,6 +150,8 @@ bool VESPERSAppController::startup() {
 
 		if (!ensureProgramStructure())
 			return false;
+
+		userConfiguration_ = new VESPERSUserConfiguration(this);
 
 		setupExporterOptions();
 		setupUserInterface();
@@ -373,6 +377,11 @@ void VESPERSAppController::makeConnections()
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -397,6 +406,8 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 		return;
 
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	// Save the current configuration to the database.
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -894,4 +905,9 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 		if (!proposalNumber.isEmpty())
 			VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->setCCDFilePath(QString("/ramdisk/%1/").arg(proposalNumber));
 	}
+}
+
+void VESPERSAppController::onUserConfigurationLoadedFromDb()
+{
+	// Fill this in.
 }

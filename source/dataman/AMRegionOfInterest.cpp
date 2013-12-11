@@ -34,7 +34,7 @@ AMRegionOfInterest::AMRegionOfInterest(const AMRegionOfInterest &original)
 	connect(value_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onValueChanged()));
 }
 
-AMRegionOfInterest *AMRegionOfInterest::createCopy()
+AMRegionOfInterest *AMRegionOfInterest::createCopy() const
 {
 	return new AMRegionOfInterest(*this);
 }
