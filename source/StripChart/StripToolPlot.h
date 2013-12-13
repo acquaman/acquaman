@@ -29,6 +29,8 @@ signals:
 //    void setPlotSelection(MPlotItem *modelSelection, const QString &axisLabel);
     void itemSelected(MPlotItem* newSelection);
 
+    // it's back!!
+
 protected:
     StripToolModel *model_;
     MPlot *plot_;
