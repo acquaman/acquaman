@@ -3,11 +3,12 @@
 VESPERSUserConfiguration::VESPERSUserConfiguration(QObject *parent)
 	: AMDbObject(parent)
 {
+	setName("User Configuration");
 	I0_ = VESPERS::Imini;
 	It_ = VESPERS::Ipost;
-	fluorescenceDetector_ = VESPERS::NoXRF;
+	fluorescenceDetector_ = VESPERS::SingleElement;
 	ccdDetector_ = VESPERS::NoCCD;
-	motor_ = VESPERS::NoMotor;
+	motor_ = VESPERS::Motor(VESPERS::H | VESPERS::V);
 }
 
 void VESPERSUserConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
@@ -82,10 +83,12 @@ void VESPERSUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
 	regionsOfInterest_.append(region);
 	setModified(true);
+	storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 {
 	regionsOfInterest_.removeOne(region);
 	setModified(true);
+	storeToDb(AMDatabase::database("user"));
 }

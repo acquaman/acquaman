@@ -8,6 +8,8 @@
 /// A class that holds onto the latest experiment configuration and saves it to the database.  This allows it to be seamlessly reloaded from the database upon startup.
 class VESPERSUserConfiguration : public AMDbObject
 {
+	Q_OBJECT
+
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(int motor READ motor WRITE setMotor)
@@ -16,6 +18,12 @@ class VESPERSUserConfiguration : public AMDbObject
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS User Configuration Database Object")
+
+	Q_CLASSINFO("incomingChoice", "upgradeDefault=2")
+	Q_CLASSINFO("transmissionChoice", "upgradeDefault=3")
+	Q_CLASSINFO("motor", "upgradeDefault=3")
+	Q_CLASSINFO("fluorescenceDetector", "upgradeDefault=1")
+	Q_CLASSINFO("ccdDetector", "upgradeDefault=0")
 
 public:
 	/// Constructor.  Builds a user configuration.
@@ -31,6 +39,8 @@ public:
 	VESPERS::Motor motor() const { return motor_; }
 	/// Returns what CCD the scan is using, if any.
 	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
+	/// Returns the list of regions the configuration has a hold of.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 	/// Returns the regions of interest list.
 	AMDbObjectList dbReadRegionsOfInterest();
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.

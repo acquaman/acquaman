@@ -282,6 +282,32 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
+QString VESPERSBeamline::motorGroupName(VESPERS::Motor motor) const
+{
+	if ((motor & VESPERS::H) || (motor & VESPERS::V))
+		return "Sample Stage - H, V, N";
+
+	else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
+		return "Sample Stage - X, Z, Y";
+
+	else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
+		return "Attocube Stage - H, V, N";
+
+	else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
+		return "Attocube Stage - X, Z, Y";
+
+	else if (motor == VESPERS::AttoRx)
+		return "Attocube Stage - Rx";
+
+	else if (motor == VESPERS::AttoRy)
+		return "Attocube Stage - Ry";
+
+	else if (motor == VESPERS::AttoRz)
+		return "Attocube Stage - Rz";
+
+	return "Sample Stage - H, V, N";
+}
+
 void VESPERSBeamline::setupEndstation()
 {
 	endstation_ = new VESPERSEndstation(this);
