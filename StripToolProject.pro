@@ -22,7 +22,8 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/DoubleButtonWidget.cpp \
     source/StripChart/TimeEntryWidget.cpp \
     source/StripChart/StripToolControlsPanel.cpp \
-    source/StripChart/StripToolSidePanel.cpp
+    source/StripChart/StripToolSidePanel.cpp \
+    source/StripChart/PlotOptionsDialog.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -39,6 +40,7 @@ HEADERS  += \
     source/StripChart/DoubleButtonWidget.h \
     source/StripChart/TimeEntryWidget.h \
     source/StripChart/StripToolControlsPanel.h \
-    source/StripChart/StripToolSidePanel.h
+    source/StripChart/StripToolSidePanel.h \
+    source/StripChart/PlotOptionsDialog.h
 
 OTHER_FILES +=

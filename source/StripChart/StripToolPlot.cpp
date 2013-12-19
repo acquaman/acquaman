@@ -17,8 +17,6 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     plot_->addTool(dragZoomer);
     plot_->addTool(selector_);
 
-    plot_->enableAxisNormalization(plot_->indexOfAxisScale(plot_->axisLeft()->axisScale()), true);
-
     plot_->axisBottom()->setAxisName("Time");
     plot_->axisBottom()->showAxisName(true);
     plot_->axisBottom()->showTickLabels(true);
@@ -89,8 +87,8 @@ bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 
     if (!contains(newSeries))
     {
-        plot_->addItem(newSeries, MPlot::VerticalRelative);
-//        plot_->addItem(newSeries);
+//        plot_->addItem(newSeries, MPlot::VerticalRelative);
+        plot_->addItem(newSeries);
         int newItemNum = plot_->plotItems().size();
 
         if (contains(newSeries) && newItemNum == oldItemNum + 1) {
@@ -156,15 +154,31 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 }
 
 
+
 void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newRange)
 {
-    qreal plotRectX = plot_->plotArea()->boundingRect().height();
-    qreal plotRectY = plot_->plotArea()->boundingRect().width();
+//    qreal plotRectX = plot_->plotArea()->boundingRect().height();
+//    qreal plotRectY = plot_->plotArea()->boundingRect().width();
 
-    const QSizeF &drawingSize = QSizeF(plotRectY, plotRectX);
-    MPlotAxisScale *newScale = new MPlotAxisScale(Qt::Vertical, drawingSize, *newRange, 5, this); // map the vertical data range onto an axis scale.
+//    const QSizeF &drawingSize = QSizeF(plotRectY, plotRectX);
+//    MPlotAxisScale *newScale = new MPlotAxisScale(Qt::Vertical, drawingSize, *newRange, 5, this); // map the vertical data range onto an axis scale.
 
-    plot_->axisLeft()->setAxisScale(newScale); // apply the new axis scale to the displayed axis.
+//    plot_->axisLeft()->setAxisScale(newScale); // apply the new axis scale to the displayed axis.
+    qreal rangeMin = newRange->min();
+    qreal rangeMax = newRange->max();
+
+    if (rangeMin == rangeMax) {
+        rangeMin = rangeMin * 0.95;
+        rangeMax *= 1.05;
+    }
+
+    qDebug() << "Range min  :" << rangeMin;
+    qDebug() << "Range max  :" << rangeMax;
+
+
+    plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
+//    plot_->enableAxisNormalization(MPlot::Left, true);
+
 }
 
 

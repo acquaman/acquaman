@@ -474,10 +474,31 @@ void StripToolPV::onPVValueChanged(double newValue)
     else
         emit pvValueUpdated();
 
-    // if this pv is selected, emit signal notifying potential listeners that a selected pv has updated.
-    if (isSelected()) {
+    // if this pv is selected and being plotted, emit signal notifying potential listeners that a selected pv has updated.
+    if (isSelected() && checkState() == Qt::Checked) {
 //        qDebug() << "PV" << pvName() << "attempting to notify plot of change in axis scale...";
-        MPlotAxisRange *newRange = new MPlotAxisRange(series()->dataRect(), Qt::Vertical); // get the vertical range of the selected data.
+//        MPlotAxisRange *newRange = new MPlotAxisRange(series()->dataRect(), Qt::Vertical); // get the vertical range of the selected data.
+
+        double min, max;
+
+        for (int i = 0; i < displayedValues_.size(); i++) {
+            if (i == 0) {
+                min = displayedValues_.at(i);
+                max = displayedValues_.at(i);
+            } else {
+
+                if (min > displayedValues_.at(i)) {
+                    min = displayedValues_.at(i);
+                }
+
+                if (max < displayedValues_.at(i)) {
+                    max = displayedValues_.at(i);
+                }
+            }
+        }
+
+        MPlotAxisRange *newRange = new MPlotAxisRange(min, max); // get the vertical range of the selected data.
+
         emit updateYAxisRange(newRange);
     }
 
