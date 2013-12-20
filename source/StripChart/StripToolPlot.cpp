@@ -55,6 +55,7 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
     connect( model_, SIGNAL(updateYAxisLabel(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
     connect( model_, SIGNAL(updateYAxisRange(MPlotAxisRange*)), this, SLOT(toUpdateYAxisRange(MPlotAxisRange*)) );
+    connect( model_, SIGNAL(updateWaterfall(double)), this, SLOT(toUpdateWaterfall(double)) );
 }
 
 
@@ -168,12 +169,12 @@ void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newRange)
     qreal rangeMax = newRange->max();
 
     if (rangeMin == rangeMax) {
-        rangeMin = rangeMin * 0.95;
+//        rangeMin = rangeMin * 0.95;
         rangeMax *= 1.05;
     }
 
-    qDebug() << "Range min  :" << rangeMin;
-    qDebug() << "Range max  :" << rangeMax;
+//    qDebug() << "Range min  :" << rangeMin;
+//    qDebug() << "Range max  :" << rangeMax;
 
 
     plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
@@ -210,6 +211,15 @@ void StripToolPlot::onModelSelectionChange()
     } else {
         qDebug() << "Attempting to select plot item that doesn't exist.";
     }
+}
+
+
+
+void StripToolPlot::toUpdateWaterfall(double amount)
+{
+    qreal waterfall = amount;
+    plot_->setAxisScaleWaterfall(MPlot::Left, waterfall);
+    qDebug() << "Plot received signal to adjust waterfall amount to" << waterfall;
 }
 
 

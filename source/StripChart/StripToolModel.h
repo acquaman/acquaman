@@ -35,6 +35,7 @@ signals:
     void requestTimeUpdate();
     void updateYAxisRange(MPlotAxisRange *newRange);
     void updateYAxisLabel(const QString &newLabel);
+    void updateWaterfall(double newWaterfall);
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -90,6 +91,7 @@ protected:
     bool addPV(AMControl *pvControl);
 
     void setSelectedPV(StripToolPV *newSelection);
+    bool setSelectedWaterfall(double newWaterfall);
 
 protected slots:
     void toAddPV(const QString &pvName);
@@ -99,6 +101,7 @@ protected slots:
     void toResumePVs();
     void toUpdateTime(int newTime);
     void toUpdateTimeUnits(const QString &newUnits);
+    void toSetSelectedWaterfall(double newWaterfall);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);

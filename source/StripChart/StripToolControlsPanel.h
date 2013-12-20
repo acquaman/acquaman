@@ -8,6 +8,7 @@
 #include "StripChart/EntryWidget.h"
 #include "StripChart/DoubleButtonWidget.h"
 #include "StripChart/TimeEntryWidget.h"
+#include "StripChart/WaterfallEntryWidget.h"
 
 class StripToolControlsPanel : public QWidget
 {
@@ -32,6 +33,7 @@ protected:
     DoubleButtonWidget *pauseResume_;
     TimeEntryWidget *timeEntry_;
     QPushButton *sidebarButton_;
+    WaterfallEntryWidget *waterfallEntry_;
 
 protected:
 

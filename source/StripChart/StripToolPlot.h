@@ -29,8 +29,6 @@ signals:
 //    void setPlotSelection(MPlotItem *modelSelection, const QString &axisLabel);
     void itemSelected(MPlotItem* newSelection);
 
-    // it's back!!
-
 protected:
     StripToolModel *model_;
     MPlot *plot_;
@@ -66,6 +64,7 @@ protected slots:
 
     void toUpdateYAxisRange(MPlotAxisRange *newRange);
     void toUpdateYAxisLabel(const QString &newLabel);
+    void toUpdateWaterfall(double amount);
 };
 
 #endif // STRIPTOOLPLOT_H

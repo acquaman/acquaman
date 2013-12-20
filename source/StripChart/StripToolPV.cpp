@@ -24,6 +24,8 @@ StripToolPV::StripToolPV(QObject *parent)
     isSelected_ = false;
     yAxisLabel_ = "";
 
+    waterfall_ = 0;
+
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
 
@@ -98,6 +100,12 @@ QColor StripToolPV::color()
 int StripToolPV::updateGranularity()
 {
     return updateGranularity_;
+}
+
+
+double StripToolPV::waterfall()
+{
+    return waterfall_;
 }
 
 
@@ -342,6 +350,18 @@ void StripToolPV::setXUnits(const QString &newUnits)
 void StripToolPV::setPVUpdating(bool isUpdating)
 {
     isUpdating_ = isUpdating;
+}
+
+
+
+void StripToolPV::setWaterfall(double newWaterfall)
+{
+    waterfall_ = newWaterfall;
+//    qDebug() << "Waterfall for pv" << pvName() << "has been changed to" << waterfall();
+
+    if (checkState_ == Qt::Checked && isSelected_) {
+        emit updateWaterfall(waterfall_);
+    }
 }
 
 

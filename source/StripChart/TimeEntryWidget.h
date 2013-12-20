@@ -17,17 +17,19 @@ signals:
     void setUnits(int index);
 
 public:
-    void initialize();
+
 
 protected:
     int secondsMax_;
     int minutesMax_;
     int hoursMax_;
 
-protected:
     QLabel *timeLabel_;
     QSpinBox *timeAmount_;
     QComboBox *timeUnits_;
+
+protected:
+    void initialize();
 
 protected slots:
     void toTestSignal(const QString &signalText);

@@ -25,6 +25,8 @@ TimeEntryWidget::TimeEntryWidget(QWidget *parent) :
     timeLayout->addWidget(timeUnits_);
 
     setLayout(timeLayout);
+
+    initialize();
 }
 
 
@@ -44,7 +46,7 @@ void TimeEntryWidget::initialize()
     timeUnits_->addItem("min");
     timeUnits_->addItem("hr");
 
-    emit setUnits(0);
+//    emit setUnits(0);
 }
 
 

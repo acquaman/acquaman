@@ -330,6 +330,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(updateYAxisRange(MPlotAxisRange *)), this, SIGNAL(updateYAxisRange(MPlotAxisRange *)) );
     connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
+    connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
@@ -480,6 +481,26 @@ void StripToolModel::toUpdateTimeUnits(const QString &newUnits)
 //    qDebug() << "The model received these units :" << newUnits;
     emit updateTimeUnits(newUnits); // update pvs.
     emit updateXAxisLabel("Time [" + newUnits + "]"); // update plot.
+}
+
+
+void StripToolModel::toSetSelectedWaterfall(double newWaterfall)
+{
+    if (selectedPV_) {
+        qDebug() << "Setting waterfall value" << newWaterfall << "for pv" << selectedPV_->pvName() << ":" << setSelectedWaterfall(newWaterfall);
+    }
+}
+
+
+bool StripToolModel::setSelectedWaterfall(double newWaterfall)
+{
+    if (newWaterfall == selectedPV_->waterfall()) {
+        qDebug() << "New waterfall is same as old waterfall--no change made.";
+        return false;
+    }
+
+    selectedPV_->setWaterfall(newWaterfall);
+    return true;
 }
 
 

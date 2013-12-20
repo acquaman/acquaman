@@ -87,5 +87,5 @@ void EntryWidget::addClicked() {
 
 void EntryWidget::toTestSignal(const QString &textEntered)
 {
-    qDebug() << "Entry was completed. Text saved :" << textEntered;
+    qDebug() << "Entry complete. Text saved :" << textEntered;
 }

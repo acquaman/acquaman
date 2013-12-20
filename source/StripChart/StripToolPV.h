@@ -28,6 +28,7 @@ signals:
     void pvValueUpdated();
     void updateYAxisRange(MPlotAxisRange *newRange);
     void updateYAxisLabel(const QString &newLabel);
+    void updateWaterfall(double newWaterfall);
 
 protected:
     int updateIndex_;
@@ -51,6 +52,8 @@ protected:
 
     bool isSelected_;
     QString yAxisLabel_;
+
+    double waterfall_;
 
     double timeFactor_;
 
@@ -80,6 +83,7 @@ protected:
     /// Returns the color set for this pv's series.
     QColor color();
     int updateGranularity();
+    double waterfall();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.
@@ -112,6 +116,7 @@ private:
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
     void setUpdateGranularity(int newVal);
+    void setWaterfall(double newWaterfall);
     void setMetaDataHeaders();
     void saveCheck();
     void dataVectorSizeCheck();
