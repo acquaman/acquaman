@@ -17,9 +17,28 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_->setNotes(buildNotes());
 
 	AMDetectorInfoSet detectors;
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(2)->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(3)->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(4)->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
+
+	switch (int(configuration_->ccdDetector())){
+
+	case VESPERS::NoCCD:
+		break;
+
+	case VESPERS::Roper:
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+		break;
+
+	case VESPERS::Mar:
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+		break;
+
+	case VESPERS::Pilatus:
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+		break;
+	}
 
 	configuration_->setDetectorConfigurations(detectors);
 
