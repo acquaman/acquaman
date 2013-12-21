@@ -111,106 +111,106 @@ void VESPERSScanConfigurationView::updateMotor(int choice)
 }
 
 void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
-{
-	roiText_->clear();
+{Q_UNUSED(xrfId);
+//	roiText_->clear();
 
-	if (xrfId ==  (VESPERS::SingleElement | VESPERS::FourElement)){
+//	if (xrfId ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
+//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+//		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
 
-		if (!sameList.isEmpty()){
+//		if (!sameList.isEmpty()){
 
-			QList<int> singleRoiList;
-			QList<int> fourRoiList;
+//			QList<int> singleRoiList;
+//			QList<int> fourRoiList;
 
-			roiText_->insertPlainText("Same ROI's\n");
-			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+//			roiText_->insertPlainText("Same ROI's\n");
+//			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-			for (int i = 0, count = sameList.size(); i < count; i++){
+//			for (int i = 0, count = sameList.size(); i < count; i++){
 
-				QPair<int, int> temp = sameList.at(i);
-				singleRoiList << temp.first;
-				fourRoiList << temp.second;
-				AMROIInfo info = singleElList.at(temp.first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
+//				QPair<int, int> temp = sameList.at(i);
+//				singleRoiList << temp.first;
+//				fourRoiList << temp.second;
+//				AMROIInfo info = singleElList.at(temp.first);
+//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+//			}
 
-			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
+//			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
 
-				roiText_->insertPlainText("\nDifferent ROI's\n");
+//				roiText_->insertPlainText("\nDifferent ROI's\n");
 
-				if (singleRoiList.size() < singleElList.count()){
+//				if (singleRoiList.size() < singleElList.count()){
 
-					roiText_->insertPlainText("Single Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+//					roiText_->insertPlainText("Single Element Vortex\n");
+//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-					for (int i = 0, count = singleElList.count(); i < count; i++){
+//					for (int i = 0, count = singleElList.count(); i < count; i++){
 
-						if (!singleRoiList.contains(i)){
+//						if (!singleRoiList.contains(i)){
 
-							AMROIInfo info = singleElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
+//							AMROIInfo info = singleElList.at(i);
+//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+//						}
+//					}
 
-					roiText_->insertPlainText("\n");
-				}
+//					roiText_->insertPlainText("\n");
+//				}
 
-				if (fourRoiList.size() < fourElList.count()){
+//				if (fourRoiList.size() < fourElList.count()){
 
-					roiText_->insertPlainText("Four Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+//					roiText_->insertPlainText("Four Element Vortex\n");
+//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-					for (int i = 0, count = fourElList.count(); i < count; i++){
+//					for (int i = 0, count = fourElList.count(); i < count; i++){
 
-						if (!fourRoiList.contains(i)){
+//						if (!fourRoiList.contains(i)){
 
-							AMROIInfo info = fourElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-				}
-			}
-		}
+//							AMROIInfo info = fourElList.at(i);
+//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+//						}
+//					}
+//				}
+//			}
+//		}
 
-		else {
+//		else {
 
-			roiText_->insertPlainText("Different ROI's\n");
-			roiText_->insertPlainText("Single Element Vortex\n");
+//			roiText_->insertPlainText("Different ROI's\n");
+//			roiText_->insertPlainText("Single Element Vortex\n");
 
-			for (int i = 0, count = singleElList.count(); i < count; i++){
+//			for (int i = 0, count = singleElList.count(); i < count; i++){
 
-				AMROIInfo info = singleElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
+//				AMROIInfo info = singleElList.at(i);
+//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+//			}
 
-			roiText_->insertPlainText("\nFour Element Vortex\n");
+//			roiText_->insertPlainText("\nFour Element Vortex\n");
 
-			for (int i = 0, count = fourElList.count(); i < count; i++){
+//			for (int i = 0, count = fourElList.count(); i < count; i++){
 
-				AMROIInfo info = fourElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-		}
-	}
+//				AMROIInfo info = fourElList.at(i);
+//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+//			}
+//		}
+//	}
 
-	else {
+//	else {
 
-		AMROIInfoList list = AMROIInfoList();
+//		AMROIInfoList list = AMROIInfoList();
 
-		if (xrfId == VESPERS::SingleElement)
-			list = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+//		if (xrfId == VESPERS::SingleElement)
+//			list = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
 
-		else if (xrfId == VESPERS::FourElement)
-			list = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+//		else if (xrfId == VESPERS::FourElement)
+//			list = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
 
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+//		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-		for (int i = 0; i < list.count(); i++)
-			roiText_->insertPlainText(GeneralUtilities::addGreek(list.at(i).name())+"\t" + QString::number(list.at(i).low()) + "\t" + QString::number(list.at(i).high()) +"\n");
-	}
+//		for (int i = 0; i < list.count(); i++)
+//			roiText_->insertPlainText(GeneralUtilities::addGreek(list.at(i).name())+"\t" + QString::number(list.at(i).low()) + "\t" + QString::number(list.at(i).high()) +"\n");
+//	}
 }
 
 QGroupBox *VESPERSScanConfigurationView::addFluorescenceDetectorSelectionView()

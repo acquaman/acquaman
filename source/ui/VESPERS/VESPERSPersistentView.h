@@ -42,6 +42,9 @@ public:
  	virtual ~VESPERSPersistentView();
 	explicit VESPERSPersistentView(QWidget *parent = 0);
 
+	/// Returns the pointer to the motor group view.
+	CLSPseudoMotorGroupView *motorGroupView() const { return motorGroupView_; }
+
 signals:
 	/// Notifier that the current sample has changed.
 	void currentSampleStageChanged(const QString &name);

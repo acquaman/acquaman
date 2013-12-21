@@ -93,6 +93,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
+#include "dataman/AMRegionOfInterest.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -567,6 +568,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 

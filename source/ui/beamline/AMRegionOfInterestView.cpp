@@ -10,6 +10,7 @@ AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest 
 	: QWidget(parent)
 {
 	region_ = region;
+	connect(region_, SIGNAL(destroyed()), this, SLOT(onRegionDestroyed()));
 
 	QLabel *name = new QLabel(region_->name());
 	name->setAlignment(Qt::AlignCenter);
@@ -55,6 +56,14 @@ AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest 
 	setLayout(elementViewLayout);
 }
 
+void AMRegionOfInterestElementView::onRegionDestroyed()
+{
+	if (region_ && region_->valueSource() && ((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0))
+		disconnect(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(updateSpinBoxSingleStep()));
+
+	region_ = 0;
+}
+
 void AMRegionOfInterestElementView::onValueChanged(double value)
 {
 	value_->setText(QString("%1 counts").arg(int(value)));
@@ -82,7 +91,7 @@ void AMRegionOfInterestElementView::updateUpperBound(double value)
 
 void AMRegionOfInterestElementView::updateSpinBoxSingleStep()
 {
-	if (!((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axes().isEmpty()){
+	if (!((AMAnalysisBlock *)region_->valueSource())->inputDataSourceCount() > 0){
 
 		lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
 		upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);

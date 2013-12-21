@@ -45,6 +45,7 @@ class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 class AMListAction3;
+class VESPERSUserConfiguration;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -74,10 +75,6 @@ public:
 protected slots:
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
-	/// Helper slot that pauses scans using the bottom bar.
-	void onPauseScanIssued();
-	/// Helper slot that cancels the current scan.
-	void onCancelScanIssued();
 
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
@@ -105,6 +102,9 @@ protected slots:
 	void onMarCCDConnected(bool connected);
 	/// Handles setting the path for the Pilatus CCD when it is connected.
 	void onPilatusCCDConnected(bool connected);
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -214,6 +214,8 @@ protected:
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
 
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	VESPERSUserConfiguration *userConfiguration_;
 
 	ROIHelper *roiHelper_;
 	VESPERSAttoCubeHack *attoHack_;

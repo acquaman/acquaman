@@ -239,6 +239,8 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 
 	connect(periodicTableHeaderButton_, SIGNAL(clicked()), this, SLOT(onPeriodicTableHeaderButtonClicked()));
 }
@@ -382,7 +384,9 @@ void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
 
 void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
 {
-	detector_->addRegionOfInterest(emissionLine);
+	if (!detector_->regionOfInterest(emissionLine))
+		detector_->addRegionOfInterest(emissionLine);
+
 	AMRegionOfInterest *newRegion = detector_->regionOfInterest(emissionLine);
 	regionOfInterestMapper_->setMapping(newRegion, regionOfInterestMarkers_.size());
 	connect(newRegion, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestMapper_, SLOT(map()));
@@ -402,14 +406,48 @@ void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &e
 
 	if (itemToBeRemoved){
 
-		regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
-		detector_->removeRegionOfInterest(emissionLine);
-		plot_->removeItem(itemToBeRemoved);
-		regionOfInterestMarkers_.remove(emissionLine);
-		delete itemToBeRemoved;
+			regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
+			detector_->removeRegionOfInterest(emissionLine);
+			plot_->removeItem(itemToBeRemoved);
+			regionOfInterestMarkers_.remove(emissionLine);
+			delete itemToBeRemoved;
 
-		updatePeriodicTableButtonColors(emissionLine);
-		editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
+			updatePeriodicTableButtonColors(emissionLine);
+			editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
+	}
+}
+
+void AMXRFDetailedDetectorView::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
+{
+	QString regionName = newRegion->name();
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(regionName.split(" ").first()));
+	AMEmissionLine emissionLine = AMEmissionLine();
+
+	foreach (AMEmissionLine line, element->emissionLines())
+		if (regionName == line.name())
+			emissionLine = line;
+
+	if (!emissionLine.isNull() && !element->isSelected(emissionLine)){
+
+		element->selectEmissionLine(emissionLine);
+		elementView_->updateEmissionLineViewList();
+	}
+}
+
+void AMXRFDetailedDetectorView::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	QString regionName = region->name();
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(regionName.split(" ").first()));
+	AMEmissionLine emissionLine = AMEmissionLine();
+
+	foreach (AMEmissionLine line, element->emissionLines())
+		if (regionName == line.name())
+			emissionLine = line;
+
+	if (!emissionLine.isNull()){
+
+		element->deselectEmissionLine(emissionLine);
+		elementView_->updateEmissionLineViewList();
 	}
 }
 

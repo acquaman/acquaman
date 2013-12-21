@@ -34,9 +34,9 @@ public:
 	/// The assignment operator.  Assigns all the values associated with \param other range.
 	AMRange &operator =(const AMRange &other);
 	/// The equivalence operator.  Checks all the values against \param other's values.
-	bool operator ==(const AMRange &other);
+	bool operator ==(const AMRange &other) const;
 	/// The not-equivalence operator.  Checks all the values against \param other's values.
-	bool operator !=(const AMRange &other);
+	bool operator !=(const AMRange &other) const;
 
 protected:
 	/// Flag that holds whether the range is null or not.

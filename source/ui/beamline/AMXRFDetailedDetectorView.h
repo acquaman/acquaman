@@ -130,6 +130,10 @@ protected slots:
 	void onEmissionLineSelected(const AMEmissionLine &emissionLine);
 	/// Handles passing on the information when an emission line has been deselected.
 	void onEmissionLineDeselected(const AMEmissionLine &emissionLine);
+	/// Handles adding the region of interest to the view with the provided region.
+	void onRegionOfInterestAdded(AMRegionOfInterest *newRegion);
+	/// Handles removing the region of interest from the view with the provided region.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 	/// Removes all of the emission line markers and deselects all of the elements.
 	void removeAllEmissionLineMarkers();
 	/// Removes all regions of interest.

@@ -282,6 +282,32 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
+QString VESPERSBeamline::motorGroupName(VESPERS::Motor motor) const
+{
+	if ((motor & VESPERS::H) || (motor & VESPERS::V))
+		return "Sample Stage - H, V, N";
+
+	else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
+		return "Sample Stage - X, Z, Y";
+
+	else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
+		return "Attocube Stage - H, V, N";
+
+	else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
+		return "Attocube Stage - X, Z, Y";
+
+	else if (motor == VESPERS::AttoRx)
+		return "Attocube Stage - Rx";
+
+	else if (motor == VESPERS::AttoRy)
+		return "Attocube Stage - Ry";
+
+	else if (motor == VESPERS::AttoRz)
+		return "Attocube Stage - Rz";
+
+	return "Sample Stage - H, V, N";
+}
+
 void VESPERSBeamline::setupEndstation()
 {
 	endstation_ = new VESPERSEndstation(this);
@@ -305,12 +331,15 @@ void VESPERSBeamline::setupDetectors()
 	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
 	postIonChamber_  = new CLSBasicScalerChannelDetector("PostIonChamber", "Post Ion Chamber", scaler_, 9, this);
 
-	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
-	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
+	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
+	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
 	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
 	pilatusAreaDetector_ = new VESPERSPilatusCCDDetector("PilatusPixelArrayDetector", "Pilatus Pixel Array Detector", this);
+
+	addSynchronizedXRFDetector(singleElementVortexDetector_);
+	addSynchronizedXRFDetector(fourElementVortexDetector_);
 }
 
 void VESPERSBeamline::setupControlSets()

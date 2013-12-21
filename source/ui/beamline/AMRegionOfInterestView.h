@@ -29,6 +29,8 @@ protected slots:
 	void updateUpperBound(double value);
 	/// Updates the single step for the upper and lower bound spin boxes based on the increment of the spectrum data source.
 	void updateSpinBoxSingleStep();
+	/// Handles reseting the region pointer to 0 if the region is destroyed.
+	void onRegionDestroyed();
 
 protected:
 	/// The region that this view encapsulates.
