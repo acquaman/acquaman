@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+ 	virtual ~AMControlStatusCheckerCLSMAXv();
 	AMControlStatusCheckerCLSMAXv() {}
 
 	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
@@ -91,6 +92,7 @@ public:
 	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
 	  \param parent QObject parent class
 	  */
+ 	virtual ~CLSMAXvMotor();
 	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
 
 	/// Indicates that all process variables for this motor are connected

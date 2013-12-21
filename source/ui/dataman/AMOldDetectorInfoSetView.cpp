@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QCheckBox>
 
+ AMOldDetectorInfoSetView::~AMOldDetectorInfoSetView(){}
 AMOldDetectorInfoSetView::AMOldDetectorInfoSetView(const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -21,6 +22,7 @@ AMOldDetectorInfoSetView::AMOldDetectorInfoSetView(const AMOldDetectorInfoSet &i
 	setLayout(mainVL);
 }
 
+ AMOldDetectorInfoSetViewInternal::~AMOldDetectorInfoSetViewInternal(){}
 AMOldDetectorInfoSetViewInternal::AMOldDetectorInfoSetViewInternal(const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QWidget(parent)
 {

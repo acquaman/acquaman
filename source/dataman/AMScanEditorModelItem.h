@@ -35,6 +35,7 @@ public:
 
 	/// Constructor takes a pointer to a valid scan editor \c editorWidget, and an optional \c iconFileName
 	/*! This constructor will set the AM::WidgetRole to point this item at the editor widget. It will also set the AM::CanCloseRole to true, so that this editor can be closed from the window pane manager sidebar. (For more information, see AMWindowPaneModel.) Finally, it will set the item flags to enable drop capability.*/
+ 	virtual ~AMScanEditorModelItem();
 	AMScanEditorModelItem(AMGenericScanEditor* editorWidget, AMDatamanAppController* controller);
 
 	/// This function accepts Drag-and-Drop mime data when it is in the form of a uri-list containing "amd://databaseConnectionName/tableName/objectId" protocol URLs, as documented in AMGenericScanEditor::dropEvent().  Returns false to reject, or true to accept.

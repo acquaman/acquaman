@@ -118,6 +118,7 @@ public:
 
 protected:
 	/// This is a singleton class, so the constructor is protected.
+ 	virtual ~AMSettings();
 	AMSettings() : mutex_(QReadWriteLock::Recursive) {}
 
 	QString publicDataFolder_;

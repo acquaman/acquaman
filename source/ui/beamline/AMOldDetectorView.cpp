@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMOldDetectorView.h"
 
+ AMOldDetectorView::~AMOldDetectorView(){}
 AMOldDetectorView::AMOldDetectorView(bool configureOnly, QWidget *parent) :
 	QWidget(parent)
 {
@@ -40,6 +41,7 @@ bool AMOldDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 	return false;
 }
 
+ AMBriefOldDetectorView::~AMBriefOldDetectorView(){}
 AMBriefOldDetectorView::AMBriefOldDetectorView(bool configureOnly, QWidget *parent) :
 		AMOldDetectorView(configureOnly, parent)
 {
@@ -51,6 +53,7 @@ bool AMBriefOldDetectorView::setDetector(AMOldDetector *detector, bool configure
 	return false;
 }
 
+ AMDetailedOldDetectorView::~AMDetailedOldDetectorView(){}
 AMDetailedOldDetectorView::AMDetailedOldDetectorView(bool configureOnly, QWidget *parent) :
 		AMOldDetectorView(configureOnly, parent)
 {

@@ -51,6 +51,7 @@ class QDoubleSpinBox;
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanViewModeBar();
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
 	QButtonGroup* modeButtons_;
@@ -77,6 +78,7 @@ class AMScanView;
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanViewInternal();
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 public slots:

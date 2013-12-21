@@ -6,6 +6,7 @@
 #include "application/AMAppControllerSupport.h"
 #include "beamline/AMBeamline.h"
 
+ AMScanActionController::~AMScanActionController(){}
 AMScanActionController::AMScanActionController(AMScanConfiguration *configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {

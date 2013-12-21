@@ -45,6 +45,7 @@ class AMControlSet : public QObject, public AMOrderedSet<QString, AMControl*>
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMControlSet();
 	explicit AMControlSet(QObject *parent = 0);
 
 	/// Returns the name defined for the control set.

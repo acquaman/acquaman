@@ -35,6 +35,7 @@ class AM0DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM0DProcessVariableDataSource();
 	AM0DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -115,6 +116,7 @@ class AM1DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM1DProcessVariableDataSource();
 	AM1DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -256,6 +258,7 @@ class AM2DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM2DProcessVariableDataSource();
 	AM2DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, int rowLength, QObject *parent = 0);
 
 	// Data source type

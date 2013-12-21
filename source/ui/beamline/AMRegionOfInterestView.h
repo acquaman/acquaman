@@ -16,6 +16,7 @@ class AMRegionOfInterestElementView : public QWidget
 
 public:
 	/// Constructor.  Builds a region of interest element view.
+ 	virtual ~AMRegionOfInterestElementView();
 	explicit AMRegionOfInterestElementView(AMRegionOfInterest *region, QWidget *parent = 0);
 
 protected slots:
@@ -47,6 +48,7 @@ class AMRegionOfInterestView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Builds a view based on the list of regions provided.
+ 	virtual ~AMRegionOfInterestView();
 	explicit AMRegionOfInterestView(QList<AMRegionOfInterest *> regions, QWidget *parent = 0);
 
 signals:

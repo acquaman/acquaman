@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <cmath>
 
+ VESPERSRegionOfInterestView::~VESPERSRegionOfInterestView(){}
 VESPERSRegionOfInterestView::VESPERSRegionOfInterestView(AMROI *roi, QWidget *parent)
 	: QWidget(parent)
 {
@@ -84,6 +85,7 @@ void VESPERSRegionOfInterestView::nameUpdate(QString name)
 	show();
 }
 
+ VESPERSCustomizeRegionsOfInterest::~VESPERSCustomizeRegionsOfInterest(){}
 VESPERSCustomizeRegionsOfInterest::VESPERSCustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent)
 	: QWidget(parent)
 {

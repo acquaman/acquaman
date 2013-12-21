@@ -32,6 +32,7 @@ class QListWidget;
 class AMScanDatabaseImportWizardChooseSourcePage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDatabaseImportWizardChooseSourcePage();
 	AMScanDatabaseImportWizardChooseSourcePage(AMScanDatabaseImportController* controller, QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -57,6 +58,7 @@ protected:
 class AMScanDatabaseImportWizardReviewRunsPage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDatabaseImportWizardReviewRunsPage();
 	AMScanDatabaseImportWizardReviewRunsPage(AMScanDatabaseImportController* controller, QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -75,6 +77,7 @@ protected:
 class AMScanDatabaseImportWizardReviewExperimentsPage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDatabaseImportWizardReviewExperimentsPage();
 	AMScanDatabaseImportWizardReviewExperimentsPage(AMScanDatabaseImportController* controller, QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -94,6 +97,7 @@ protected:
 class AMScanDatabaseImportWizardReviewSamplesPage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDatabaseImportWizardReviewSamplesPage();
 	AMScanDatabaseImportWizardReviewSamplesPage(AMScanDatabaseImportController* controller, QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -112,6 +116,7 @@ protected:
 class AMScanDatabaseImportWizardDoImportPage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDatabaseImportWizardDoImportPage();
 	AMScanDatabaseImportWizardDoImportPage(AMScanDatabaseImportController* controller, QWidget* parent = 0);
 
 	virtual void initializePage();

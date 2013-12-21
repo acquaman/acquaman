@@ -14,6 +14,7 @@ class AMSelectableItemView : public QWidget
 
 public:
 	/// Constructor.  Builds the typical view for the selectable item.
+ 	virtual ~AMSelectableItemView();
 	explicit AMSelectableItemView(QWidget *parent = 0);
 	/// Constructor.  Passes in the text and default checked state of the view.
 	AMSelectableItemView(const QString &text, bool checked = false, QWidget *parent = 0);

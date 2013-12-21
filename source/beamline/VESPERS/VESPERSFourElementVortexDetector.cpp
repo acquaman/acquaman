@@ -1,5 +1,6 @@
 #include "VESPERSFourElementVortexDetector.h"
 
+ VESPERSFourElementVortexDetector::~VESPERSFourElementVortexDetector(){}
 VESPERSFourElementVortexDetector::VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {

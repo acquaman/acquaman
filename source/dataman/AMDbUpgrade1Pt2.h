@@ -11,6 +11,7 @@ class AMDbUpgrade1Pt2 : public AMDbUpgrade
 Q_OBJECT
 public:
 	/// Constructor calls the base constructor for AMDbUpgrade
+ 	virtual ~AMDbUpgrade1Pt2();
 	AMDbUpgrade1Pt2(QString databaseNameToUpgrade, QObject *parent = 0);
 
 	/// This upgrade depends on AMDbUpgrade1.1

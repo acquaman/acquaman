@@ -14,6 +14,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration 201
 
 public:
 	/// Constructor
+ 	virtual ~SGMXASScanConfiguration2013();
 	Q_INVOKABLE SGMXASScanConfiguration2013(QObject *parent = 0);
 	/// Copy Constructor
 	SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original);

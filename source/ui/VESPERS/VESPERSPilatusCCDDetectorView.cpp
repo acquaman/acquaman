@@ -1,5 +1,6 @@
 #include "VESPERSPilatusCCDDetectorView.h"
 
+ VESPERSPilatusCCDDetectorView::~VESPERSPilatusCCDDetectorView(){}
 VESPERSPilatusCCDDetectorView::VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDetector *detector, QWidget *parent)
 	: VESPERSCCDDetectorView(detector, parent)
 {

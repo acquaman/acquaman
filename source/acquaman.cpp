@@ -68,3 +68,6 @@ namespace AM {
 		qRegisterMetaType<AMHighPrecisionDateTime>();
 	}
 }
+ AMAcqEvent::~AMAcqEvent(){}
+ AMAcqErrorEvent::~AMAcqErrorEvent(){}
+ AMHighPrecisionDateTime::~AMHighPrecisionDateTime(){}

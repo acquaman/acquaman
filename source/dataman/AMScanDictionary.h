@@ -29,6 +29,7 @@ class AMScanDictionary : public AMOldScanParametersDictionary
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMScanDictionary();
 	AMScanDictionary(AMScan *scan, QObject *parent = 0);
 
 	bool canOperateOnName() const;

@@ -68,6 +68,7 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
+ 	virtual ~AMAnalysisBlock();
 	AMAnalysisBlock(const QString& outputName, QObject* parent = 0);
 
 	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.

@@ -44,6 +44,7 @@ public:
 		Finished
 	};
 
+ 	virtual ~AMScanDatabaseImportController();
 	explicit AMScanDatabaseImportController(AMDatabase* destinationDb = AMDatabase::database("user"),
 											const QString& destinationPath = AMUserSettings::userDataFolder,
 											QObject *parent = 0);

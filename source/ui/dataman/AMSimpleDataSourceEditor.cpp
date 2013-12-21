@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 
+ AMSimpleDataSourceEditor::~AMSimpleDataSourceEditor(){}
 AMSimpleDataSourceEditor::AMSimpleDataSourceEditor(AMDataSource *dataSource, QWidget *parent) : QWidget(parent) {
 	dataSource_ = dataSource;
 

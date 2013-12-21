@@ -68,6 +68,7 @@ class AMCurve : public QObject
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMCurve();
 	AMCurve(QMap<double, double> dataMap, QObject *parent = 0);
 
 	QPair<double, double> minX() const { return minX_;}

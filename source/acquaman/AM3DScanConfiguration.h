@@ -53,6 +53,7 @@ class AM3DScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Constructor.
+ 	virtual ~AM3DScanConfiguration();
 	AM3DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	AM3DScanConfiguration(const AM3DScanConfiguration &original);

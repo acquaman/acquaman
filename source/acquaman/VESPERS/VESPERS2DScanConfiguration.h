@@ -46,6 +46,7 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration, public VESPERSS
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERS2DScanConfiguration();
 	Q_INVOKABLE VESPERS2DScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
 	VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original);

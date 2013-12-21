@@ -10,6 +10,7 @@
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
+ AMDetectorSelectorRequiredView::~AMDetectorSelectorRequiredView(){}
 AMDetectorSelectorRequiredView::AMDetectorSelectorRequiredView(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -26,6 +27,7 @@ AMDetectorSelectorRequiredView::AMDetectorSelectorRequiredView(AMDetectorSelecto
 	setLayout(vl);
 }
 
+ AMDetectorSelectorRequiredViewInternal::~AMDetectorSelectorRequiredViewInternal(){}
 AMDetectorSelectorRequiredViewInternal::AMDetectorSelectorRequiredViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -187,6 +189,7 @@ int AMDetectorSelectorRequiredViewInternal::preferentialInsertionIndex(int prefe
 	return preferentialInsertionIndex(preferentialListIndex-1, layout);
 }
 
+ AMDetectorSelectorRequiredViewInternalLineView::~AMDetectorSelectorRequiredViewInternalLineView(){}
 AMDetectorSelectorRequiredViewInternalLineView::AMDetectorSelectorRequiredViewInternalLineView(AMDetector *detector, bool isSelected, QWidget *parent) :
 	QWidget(parent)
 {

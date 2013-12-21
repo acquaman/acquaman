@@ -38,6 +38,7 @@ class AMAddAnalysisBlockDialog : public QDialog
 
 public:
 	/// Constructor.  Builds a dialog and populates it with the available analysis blocks for the given rank.
+ 	virtual ~AMAddAnalysisBlockDialog();
 	AMAddAnalysisBlockDialog(int rank, QWidget *parent = 0);
 
 	/// This method returns the name of a string based on the analysis block selected.  You must provide the rank so that the proper analysis blocks are populated.

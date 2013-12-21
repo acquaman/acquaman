@@ -63,6 +63,7 @@ class ALSBL8XESDetectorInfo : public AMOldDetectorInfo
 	Q_CLASSINFO("AMDbObject_Attributes", "description=ALS BL8.0.1 XES Spectrometer Settings")
 
 public:
+ 	virtual ~ALSBL8XESDetectorInfo();
 	explicit ALSBL8XESDetectorInfo(QObject *parent = 0);
 
 	// Dimensionality and size:

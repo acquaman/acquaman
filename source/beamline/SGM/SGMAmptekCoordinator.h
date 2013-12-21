@@ -27,6 +27,7 @@ class SGMAmptekCoordinator : public QObject
 Q_OBJECT
 public:
 	/// Simple constructor for class
+ 	virtual ~SGMAmptekCoordinator();
 	SGMAmptekCoordinator(QObject *parent = 0);
 
 protected slots:

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QFormLayout>
 
+ SGMFastScanSettingsView::~SGMFastScanSettingsView(){}
 SGMFastScanSettingsView::SGMFastScanSettingsView(SGMFastScanSettings *fastScanSettings, QWidget *parent) :
 	QGroupBox(parent)
 {

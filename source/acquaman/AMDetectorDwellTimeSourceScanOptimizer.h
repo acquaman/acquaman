@@ -7,6 +7,7 @@ class AMDetectorDwellTimeSourceScanOptimizer : public AMScanActionControllerScan
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDetectorDwellTimeSourceScanOptimizer();
 	AMDetectorDwellTimeSourceScanOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 protected:

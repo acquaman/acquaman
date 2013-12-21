@@ -49,6 +49,7 @@ public:
 	  \param baseName is the base name used to build all the process varaibles.
 	  \param index is the index in the list of the current synchronized dwell time.
 	  */
+ 	virtual ~CLSSynchronizedDwellTimeElement();
 	explicit CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent = 0);
 
 	/// Returns the name.

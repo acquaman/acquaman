@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "ui/dataman/AMImagePropertyEditor.h"
 
+ REIXSXESMCPDetectorView::~REIXSXESMCPDetectorView(){}
 //REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
 REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, QWidget *parent) :
 	QWidget(parent)

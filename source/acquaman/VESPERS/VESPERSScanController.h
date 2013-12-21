@@ -18,6 +18,7 @@ class VESPERSScanController
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSScanController();
 	VESPERSScanController(VESPERSScanConfiguration *configuration);
 
 protected:

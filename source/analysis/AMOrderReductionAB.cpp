@@ -1,5 +1,6 @@
 #include "AMOrderReductionAB.h"
 
+ AMOrderReductionAB::~AMOrderReductionAB(){}
 AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

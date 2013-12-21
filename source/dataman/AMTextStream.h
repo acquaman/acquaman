@@ -8,6 +8,7 @@
 class AMTextStream : public QTextStream
 {
 public:
+ 	virtual ~AMTextStream();
 	AMTextStream();
 	explicit AMTextStream(QIODevice *device);
 	explicit AMTextStream(FILE *fileHandle, QIODevice::OpenMode openMode = QIODevice::ReadWrite);

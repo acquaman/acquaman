@@ -48,6 +48,7 @@ class AMGenericLinuxJoystickThread : public QThread {
     Q_OBJECT
 public:
     /// Constructor. \c fileDescriptor is the open file handle to read from.
+ 	virtual ~AMGenericLinuxJoystickThread();
     AMGenericLinuxJoystickThread(int fileDescriptor, QObject* parent = 0);
 
     /// Run function (in separate thread)

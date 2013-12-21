@@ -25,6 +25,7 @@ class SGMFastScanConfiguration2013View : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
+ 	virtual ~SGMFastScanConfiguration2013View();
 	SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent = 0);
 
 	const AMScanConfiguration* configuration() const;

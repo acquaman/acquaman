@@ -51,6 +51,7 @@ namespace mu
 class ParserCallback
 {
 public:
+ 	virtual ~ParserCallback();
     ParserCallback(fun_type0 a_pFun, bool a_bAllowOpti);
     ParserCallback(fun_type1 a_pFun, bool a_bAllowOpti, int a_iPrec = -1, ECmdCode a_iCode=cmFUNC);
     ParserCallback(fun_type2 a_pFun, bool a_bAllowOpti, int a_iPrec = -1, ECmdCode a_iCode=cmFUNC);

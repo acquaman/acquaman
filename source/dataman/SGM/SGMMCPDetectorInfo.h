@@ -34,6 +34,7 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=MCP Detector")
 
 public:
+ 	virtual ~SGMMCPDetectorInfo();
 	Q_INVOKABLE SGMMCPDetectorInfo(const QString& name = "tfy", const QString& description = "TFY", QObject *parent = 0);
 
 	SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original);

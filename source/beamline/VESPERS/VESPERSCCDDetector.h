@@ -12,6 +12,7 @@ class VESPERSCCDDetector : public AMDetector
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSCCDDetector();
 	VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors

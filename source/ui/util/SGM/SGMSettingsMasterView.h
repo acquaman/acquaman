@@ -38,6 +38,7 @@ class SGMPluginsLocationView : public QGroupBox
 Q_OBJECT
 
 public:
+ 	virtual ~SGMPluginsLocationView();
 	SGMPluginsLocationView(QWidget *parent = 0);
 
 	/// Returns whether or not there are unsaved changed (see unsavedChanges_ member variable)
@@ -87,6 +88,7 @@ class SGMDetectorsMasterView : public QGroupBox
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMDetectorsMasterView();
 	SGMDetectorsMasterView(QWidget *parent = 0);
 
 	/// Returns whether or not there are unsaved changed (see unsavedChanges_ member variable)
@@ -129,6 +131,7 @@ class SGMSettingsMasterView : public QWidget
 Q_OBJECT
 
 public:
+ 	virtual ~SGMSettingsMasterView();
 	SGMSettingsMasterView(QWidget *parent = 0);
 
 protected slots:

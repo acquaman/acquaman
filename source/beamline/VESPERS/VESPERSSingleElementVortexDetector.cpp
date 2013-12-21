@@ -2,6 +2,7 @@
 
 #include "beamline/AMBeamline.h"
 
+ VESPERSSingleElementVortexDetector::~VESPERSSingleElementVortexDetector(){}
 VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {

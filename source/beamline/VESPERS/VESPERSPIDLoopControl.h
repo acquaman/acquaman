@@ -35,6 +35,7 @@ class VESPERSPIDLoopControl : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in the three PID loops for each motor as well as a description.
+ 	virtual ~VESPERSPIDLoopControl();
 		explicit VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
 
 	/// Returns the name of the PID control.

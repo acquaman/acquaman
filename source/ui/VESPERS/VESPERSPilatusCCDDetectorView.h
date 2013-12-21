@@ -13,6 +13,7 @@ class VESPERSPilatusCCDDetectorView : public VESPERSCCDDetectorView
 
 public:
 	/// Constructor.  Extends the standard CCD detector view.
+ 	virtual ~VESPERSPilatusCCDDetectorView();
 	Q_INVOKABLE explicit VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDetector *detector, QWidget *parent = 0);
 
 protected slots:

@@ -34,6 +34,7 @@ AMBiHash<QString, AMMeasurementInfo> SGM2011XASFileLoader::offsets2MeasurementIn
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
+ SGM2011XASFileLoader::~SGM2011XASFileLoader(){}
 SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		AMAbstractFileLoader(scan)
 {

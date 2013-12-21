@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
+ CLSVariableIntegrationTime::~CLSVariableIntegrationTime(){}
 CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, QObject *parent)
 	: QObject(parent)
 {

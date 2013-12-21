@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3DBinningAB.h"
 
+ AM3DBinningAB::~AM3DBinningAB(){}
 AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

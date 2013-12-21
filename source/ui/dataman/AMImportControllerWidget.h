@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMImportControllerWidget : public QWidget, public Ui::AMImportControllerWidget {
 public:
+ 	virtual ~AMImportControllerWidget(){}
 	explicit AMImportControllerWidget(QWidget* parent = 0) : QWidget(parent) {
 		setupUi(this);
 		thumbnailViewer = new AMThumbnailScrollWidget();

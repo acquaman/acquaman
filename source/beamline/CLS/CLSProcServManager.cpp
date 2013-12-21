@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSProcServManager.h"
 
+ CLSProcServManager::~CLSProcServManager(){}
 CLSProcServManager::CLSProcServManager(const QString &hostname, quint16 port, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -37,6 +38,7 @@ CLSProcServManager::CLSProcServManager(const QString &hostname, quint16 port, co
 }
 
 #include <QPushButton>
+ CLSProcServManagerView::~CLSProcServManagerView(){}
 CLSProcServManagerView::CLSProcServManagerView(QList<CLSProcServManager *> procServs, QWidget *parent) :
 	QWidget(parent)
 {

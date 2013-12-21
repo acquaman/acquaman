@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+ VESPERSDeviceStatusView::~VESPERSDeviceStatusView(){}
 VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	QWidget(parent)
 {

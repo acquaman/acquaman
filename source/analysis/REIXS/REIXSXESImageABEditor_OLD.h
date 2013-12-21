@@ -50,6 +50,7 @@ class REIXSXESImageABEditorShiftModel : public QObject, public MPlotAbstractSeri
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+ 	virtual ~REIXSXESImageABEditorShiftModel();
 	REIXSXESImageABEditorShiftModel(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;

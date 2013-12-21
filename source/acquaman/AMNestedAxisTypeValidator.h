@@ -7,6 +7,7 @@ class AMNestedAxisTypeValidator : public AMScanActionControllerScanValidator
 {
 Q_OBJECT
 public:
+ 	virtual ~AMNestedAxisTypeValidator();
 	AMNestedAxisTypeValidator(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 protected:

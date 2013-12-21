@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QMessageBox>
 
+ AM2DScanBar::~AM2DScanBar(){}
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
@@ -547,6 +548,7 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 // AM2DScanViewInternal
 ////////////////////////////////////////////////
 
+ AM2DScanViewInternal::~AM2DScanViewInternal(){}
 AM2DScanViewInternal::AM2DScanViewInternal(AM2DScanView* masterView)
 	: QGraphicsWidget(),
 	  masterView_(masterView)

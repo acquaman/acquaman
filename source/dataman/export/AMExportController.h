@@ -33,6 +33,7 @@ class QStandardItemModel;
 class AMExporterInfo {
 public:
 	/// Constructor (Default values make an invalid AMExporterInfo)
+ 	virtual ~AMExporterInfo();
 	AMExporterInfo(const QMetaObject* exporterMetaObject = 0, QString exporterDescription = QString(), QString exporterOptionClassName = QString(), QString exporterLongDescription = QString() )
 		: description(exporterDescription),
 		  optionClassName(exporterOptionClassName),

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
+ AMControlMoveAction3::~AMControlMoveAction3(){}
 AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {

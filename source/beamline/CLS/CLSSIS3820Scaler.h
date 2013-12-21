@@ -44,6 +44,7 @@ class CLSSIS3820Scaler : public QObject
 
 public:
 	/// Constructor.  Takes the baseName of the PV's as parameters.
+ 	virtual ~CLSSIS3820Scaler();
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 
 	/// Returns whether the scaler is all connected.
@@ -182,6 +183,7 @@ class CLSSIS3820ScalerChannel : public QObject
 
 public:
 	/// Constructor.  Takes in a base name and the index of the channel and builds all the necessary PV's.
+ 	virtual ~CLSSIS3820ScalerChannel();
 	CLSSIS3820ScalerChannel(const QString &baseName, int index, QObject *parent = 0);
 
 	/// Returns whether the channel is connected.

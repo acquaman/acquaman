@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "MPlot/MPlotSeriesData.h"
 
+ AM3DBinningABEditor::~AM3DBinningABEditor(){}
 AM3DBinningABEditor::AM3DBinningABEditor(AM3DBinningAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

@@ -240,6 +240,7 @@ class AMSequentialListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a sequential list action.
+ 	virtual ~AMSequentialListAction3();
 	Q_INVOKABLE AMSequentialListAction3(AMSequentialListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Sequential, parent)
 	{}
@@ -252,6 +253,7 @@ class AMParallelListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a parallel list action.
+ 	virtual ~AMParallelListAction3();
 	Q_INVOKABLE AMParallelListAction3(AMParallelListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Parallel, parent)
 	{}

@@ -70,6 +70,7 @@ namespace AMAgnosticDataAPIDefinitions{
 	}
 }
 
+ AMAgnosticDataAPIMessage::~AMAgnosticDataAPIMessage(){}
 AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::MessageType messageType, const QString &uniqueID)
 {
 	jsonData_["message"] = AMAgnosticDataAPIDefinitions::nameFromMessageType(messageType);
@@ -154,18 +155,21 @@ void AMAgnosticDataAPIMessage::setValue(const QString &key, QVariant &value){
 }
 
 
+ AMAgnosticDataAPIStartAxisMessage::~AMAgnosticDataAPIStartAxisMessage(){}
 AMAgnosticDataAPIStartAxisMessage::AMAgnosticDataAPIStartAxisMessage(const QString &uniqueID) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::AxisStarted, uniqueID)
 {
 
 }
 
+ AMAgnosticDataAPIFinishAxisMessage::~AMAgnosticDataAPIFinishAxisMessage(){}
 AMAgnosticDataAPIFinishAxisMessage::AMAgnosticDataAPIFinishAxisMessage(const QString &uniqueID) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::AxisFinished, uniqueID)
 {
 
 }
 
+ AMAgnosticDataAPILoopIncrementMessage::~AMAgnosticDataAPILoopIncrementMessage(){}
 AMAgnosticDataAPILoopIncrementMessage::AMAgnosticDataAPILoopIncrementMessage(const QString &uniqueID, int nextLoopIncrement) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::LoopIncremented, uniqueID)
 {
@@ -187,6 +191,7 @@ void AMAgnosticDataAPILoopIncrementMessage::setNextLoopIncrement(int nextLoopInc
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::NextLoopValue)] = nextLoopIncrement;
 }
 
+ AMAgnosticDataAPIDataAvailableMessage::~AMAgnosticDataAPIDataAvailableMessage(){}
 AMAgnosticDataAPIDataAvailableMessage::AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::DataAvailable, uniqueID)
 {
@@ -295,6 +300,7 @@ void AMAgnosticDataAPIDataAvailableMessage::setDetectorDimensionalityUnits(QStri
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit)] = initializedDetectorUnits;
 }
 
+ AMAgnosticDataAPIControlMovedMessage::~AMAgnosticDataAPIControlMovedMessage(){}
 AMAgnosticDataAPIControlMovedMessage::AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue, double movementFeedback)
 	: AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::ControlMoved, uniqueID)
 {
@@ -350,12 +356,14 @@ void AMAgnosticDataAPIControlMovedMessage::setControlMovementFeedback(double mov
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementFeedback)] = movementFeedback;
 }
 
+ AMAgnosticDataMessageHandler::~AMAgnosticDataMessageHandler(){}
 AMAgnosticDataMessageHandler::AMAgnosticDataMessageHandler(QObject *parent) :
 	QObject(parent)
 {
 
 }
 
+ AMAgnosticDataMessageQEventHandler::~AMAgnosticDataMessageQEventHandler(){}
 AMAgnosticDataMessageQEventHandler::AMAgnosticDataMessageQEventHandler(QObject *parent) :
 	AMAgnosticDataMessageHandler(parent)
 {
@@ -408,3 +416,4 @@ namespace AMAgnosticDataAPISupport{
 		return 0;
 	}
 }
+ AMAgnositicDataEvent::~AMAgnositicDataEvent(){}

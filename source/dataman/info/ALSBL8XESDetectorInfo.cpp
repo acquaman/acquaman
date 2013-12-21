@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ALSBL8XESDetectorInfo.h"
 
+ ALSBL8XESDetectorInfo::~ALSBL8XESDetectorInfo(){}
 ALSBL8XESDetectorInfo::ALSBL8XESDetectorInfo(QObject *parent) :
 	AMOldDetectorInfo("xes", "XES Image Detector", parent)
 {

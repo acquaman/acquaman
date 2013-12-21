@@ -50,6 +50,7 @@ class VESPERSEndstationLimitsView : public QWidget
 
 public:
 	/// Constructor for the configuration.
+ 	virtual ~VESPERSEndstationLimitsView();
 	VESPERSEndstationLimitsView(QWidget *parent = 0);
 
 signals:

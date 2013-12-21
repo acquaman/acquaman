@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DScan.h"
 
+ AM2DScan::~AM2DScan(){}
 AM2DScan::AM2DScan(QObject *parent)
 	: AMScan(parent)
 {

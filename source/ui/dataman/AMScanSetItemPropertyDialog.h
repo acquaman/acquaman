@@ -34,6 +34,7 @@ class AMScanSetItem1DPropertyEditor : public AMLinePropertyEditor {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMScanSetItem1DPropertyEditor();
 	explicit AMScanSetItem1DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex& dataSourcePersistentIndex, QWidget* parent = 0);
 
 protected slots:
@@ -49,6 +50,7 @@ class AMScanSetItem2DPropertyEditor : public AMImagePropertyEditor {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMScanSetItem2DPropertyEditor();
 	explicit AMScanSetItem2DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex& dataSourcePersistentIndex, QWidget* parent = 0);
 
 protected slots:

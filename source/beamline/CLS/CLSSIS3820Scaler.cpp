@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
+ CLSSIS3820Scaler::~CLSSIS3820Scaler(){}
 CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
@@ -443,6 +444,7 @@ AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
 // CLSSIS3820ScalarChannel
 /////////////////////////////////////////////
 
+ CLSSIS3820ScalerChannel::~CLSSIS3820ScalerChannel(){}
 CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int index, QObject *parent) :
 	QObject(parent)
 {

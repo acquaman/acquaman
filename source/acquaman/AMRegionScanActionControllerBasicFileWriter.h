@@ -21,6 +21,7 @@ public:
 	};
 
 	/// Constructor.  Requires the file path for where the files should be stored.  \param filePath should have everything for the data file except the extension.  Also needs to be told whether it needs to open a separate file for spectral data.
+ 	virtual ~AMRegionScanActionControllerBasicFileWriter();
 	AMRegionScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
 
 public slots:

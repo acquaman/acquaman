@@ -12,6 +12,7 @@ class VESPERSAttoCubeHack : public QObject
 
 public:
 	/// Constructor.  Takes the control to the Rz motor.
+ 	virtual ~VESPERSAttoCubeHack();
 	explicit VESPERSAttoCubeHack(AMControl *Rz, QObject *parent = 0);
 
 signals:

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfiguration.h"
 
+ SGMXASScanConfiguration::~SGMXASScanConfiguration(){}
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
 	if(SGMBeamline::sgm()->isConnected()){

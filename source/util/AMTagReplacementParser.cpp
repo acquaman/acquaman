@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMTagReplacementParser.h"
 #include "util/AMErrorMonitor.h"
 
+ AMTagReplacementParser::~AMTagReplacementParser(){}
 AMTagReplacementParser::AMTagReplacementParser(const QChar& tagStartCharacter, const QChar& argumentStartCharacter, const QChar& argumentEndCharacter)
 {
 	tagStart_ = tagStartCharacter;

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QMessageBox>
 
+ XRFPeriodicTableView::~XRFPeriodicTableView(){}
 XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent)
 	: QWidget(parent)
 {

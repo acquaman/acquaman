@@ -31,6 +31,7 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSScanConfigurationDbObject();
 	Q_INVOKABLE VESPERSScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy Constructor.
 	VESPERSScanConfigurationDbObject(const VESPERSScanConfigurationDbObject &original);

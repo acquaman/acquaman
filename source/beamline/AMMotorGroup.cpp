@@ -7,6 +7,7 @@
 // AMMotorGroupObject
 ////////////////////////////////////////
 
+ AMMotorGroupObject::~AMMotorGroupObject(){}
 AMMotorGroupObject::AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent)
 	: QObject(parent)
 {

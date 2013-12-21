@@ -24,6 +24,7 @@ class AMXRFBaseDetectorView : public QWidget
 
 public:
 	/// Constructor.  Takes in an AMXRFDetector pointer.
+ 	virtual ~AMXRFBaseDetectorView();
 	explicit AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
 
 	/// Builds the for the detector and must be called after the view has been constructed.  All building of the GUI should be done inside of this method.  Reimplement this method when you want to customize the entire look and feel of the detector view.

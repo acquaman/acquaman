@@ -120,6 +120,7 @@ void AMScanViewSourceSelector::setExclusiveModeOn(bool exclusiveModeOn) {
 #include <QApplication>
 #include <QStyle>
 
+ AMScanViewModeBar::~AMScanViewModeBar(){}
 AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	: QFrame(parent)
 {
@@ -520,6 +521,7 @@ void AMScanView::mousePressEvent(QMouseEvent *e)
 
 #include <QSizePolicy>
 
+ AMScanViewInternal::~AMScanViewInternal(){}
 AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	: QGraphicsWidget(),
 	  masterView_(masterView) {

@@ -32,6 +32,7 @@ class VESPERSXRFScanController : public AMScanController
 
 public:
 	/// Default constructor.
+ 	virtual ~VESPERSXRFScanController();
 	VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent = 0);
 
 public slots:

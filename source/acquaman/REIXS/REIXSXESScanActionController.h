@@ -14,6 +14,7 @@ class REIXSXESScanActionController : public AMScanActionController
 {
 Q_OBJECT
 public:
+ 	virtual ~REIXSXESScanActionController();
 	REIXSXESScanActionController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.

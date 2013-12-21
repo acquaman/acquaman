@@ -13,6 +13,7 @@ class VESPERSScanConfiguration
 {
 public:
 	/// Constructor.
+ 	virtual ~VESPERSScanConfiguration();
 	VESPERSScanConfiguration();
 	/// Copy constructor.
 	VESPERSScanConfiguration(const VESPERSScanConfiguration &original);

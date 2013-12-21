@@ -31,6 +31,7 @@ class AMDataSourceSeriesData : public QObject, public MPlotAbstractSeriesData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as XY scatter data.
+ 	virtual ~AMDataSourceSeriesData();
 	AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source

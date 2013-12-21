@@ -15,6 +15,7 @@ class AMDetectorSelector : public QObject
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorSelector();
 	AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent = 0);
 
 	/// Returns whether or not a detector is selected (enabled) by checking against the name

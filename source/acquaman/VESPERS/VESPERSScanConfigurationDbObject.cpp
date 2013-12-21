@@ -1,5 +1,6 @@
 #include "VESPERSScanConfigurationDbObject.h"
 
+ VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {

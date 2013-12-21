@@ -113,6 +113,7 @@ public:
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
+ 	virtual ~AMDetector();
 	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.

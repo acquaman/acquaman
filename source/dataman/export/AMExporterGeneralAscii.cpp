@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 #include "util/AMErrorMonitor.h"
 
+ AMExporterGeneralAscii::~AMExporterGeneralAscii(){}
 AMExporterGeneralAscii::AMExporterGeneralAscii(QObject *parent) :
 	AMExporter(parent)
 {

@@ -3,6 +3,7 @@
 #include "util/AMErrorMonitor.h"
 #include "application/VESPERS/VESPERS.h"
 
+ VESPERSSetStringAction::~VESPERSSetStringAction(){}
 VESPERSSetStringAction::VESPERSSetStringAction(VESPERSSetStringActionInfo *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {

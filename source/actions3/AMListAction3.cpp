@@ -716,3 +716,5 @@ bool AMListAction3::internalShouldLogSubAction(AMAction3 *action)
 	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }
+ AMSequentialListAction3::~AMSequentialListAction3(){}
+ AMParallelListAction3::~AMParallelListAction3(){}

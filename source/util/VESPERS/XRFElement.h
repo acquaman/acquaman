@@ -31,6 +31,7 @@ class XRFElement : public AMElement
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in an AMElement and builds a copy of it with the inclusion of selected lines for regions of interest.
+ 	virtual ~XRFElement();
 	XRFElement(AMElement *el, QObject *parent = 0);
 
 	/// Returns the list of checked off lines.  Contains the names of the lines (ie: Ka1).

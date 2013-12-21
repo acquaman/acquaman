@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 
+ VESPERSExporterLineScanAscii::~VESPERSExporterLineScanAscii(){}
 VESPERSExporterLineScanAscii::VESPERSExporterLineScanAscii(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {

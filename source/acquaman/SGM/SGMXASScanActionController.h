@@ -11,6 +11,7 @@ class SGMXASScanActionController : public AMRegionScanActionController
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
+ 	virtual ~SGMXASScanActionController();
 	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
 
 protected:

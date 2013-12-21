@@ -29,6 +29,7 @@ Q_PROPERTY(int indexToChange READ indexToChange WRITE setIndexToChange)
 Q_PROPERTY(int newNumber READ newNumber WRITE setNewNumber)
 
 public:
+ 	virtual ~AMNumberChangeActionInfo();
 	Q_INVOKABLE AMNumberChangeActionInfo(int newNumber = 0, int indexToChange = -1, QObject *parent = 0);
 
 	AMNumberChangeActionInfo(const AMNumberChangeActionInfo &other);

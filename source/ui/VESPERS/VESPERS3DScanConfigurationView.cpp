@@ -14,6 +14,7 @@
 #include <QSpinBox>
 #include <QMenu>
 
+ VESPERS3DScanConfigurationView::~VESPERS3DScanConfigurationView(){}
 VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {

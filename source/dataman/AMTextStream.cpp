@@ -2,6 +2,7 @@
 
 #include <QStringList>
 
+ AMTextStream::~AMTextStream(){}
 AMTextStream::AMTextStream() :
 	QTextStream()
 {

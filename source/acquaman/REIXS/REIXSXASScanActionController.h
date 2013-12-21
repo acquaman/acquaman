@@ -10,6 +10,7 @@ class REIXSXASScanActionController : public AMRegionScanActionController
 {
 Q_OBJECT
 public:
+ 	virtual ~REIXSXASScanActionController();
 	REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent = 0);
 
 protected:

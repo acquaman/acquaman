@@ -36,6 +36,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=Basic XRF Detector")
 
 public:
 	/// Default Constructor
+ 	virtual ~AMBasicXRFDetectorInfo();
 	Q_INVOKABLE AMBasicXRFDetectorInfo(const QString& name = "BasicXRF", const QString& description = "Basic XRF Detector", QObject *parent = 0);
 	/// Copy Constructor
 	AMBasicXRFDetectorInfo(const AMBasicXRFDetectorInfo &original);

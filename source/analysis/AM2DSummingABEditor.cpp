@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
 
+ AM2DSummingABEditor::~AM2DSummingABEditor(){}
 AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent) :
 	QWidget(parent)
 {

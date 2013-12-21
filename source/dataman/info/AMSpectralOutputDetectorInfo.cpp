@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSpectralOutputDetectorInfo.h"
 
+ AMSpectralOutputDetectorInfo::~AMSpectralOutputDetectorInfo(){}
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
 		AMOldDetectorInfo(name, description, parent)
 {

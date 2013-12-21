@@ -32,6 +32,7 @@ class REIXSTest : public QObject
 	Q_OBJECT
 
 public:
+ 	virtual ~REIXSTest();
 	REIXSTest();
 
 private Q_SLOTS:

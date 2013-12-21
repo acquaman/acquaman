@@ -10,6 +10,7 @@ class AMScanActionControllerScanConfigurationConverter : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMScanActionControllerScanConfigurationConverter();
 	AMScanActionControllerScanConfigurationConverter(AMScanActionControllerScanAssembler *scanAssembler = 0, AMScanConfiguration *scanConfiguration = 0, QObject *parent = 0);
 
 	bool convert();

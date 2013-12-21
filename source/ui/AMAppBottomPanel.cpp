@@ -1,5 +1,6 @@
 #include "AMAppBottomPanel.h"
 
+ AMAppBottomPanel::~AMAppBottomPanel(){}
 AMAppBottomPanel::AMAppBottomPanel(AMActionRunner3 *actionRunner, QWidget *parent)
 	: AMDatamanAppBottomPanel(parent)
 {

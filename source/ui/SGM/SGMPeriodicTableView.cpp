@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDateTimeUtils.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
+ SGMPeriodicTableView::~SGMPeriodicTableView(){}
 SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, QWidget *parent) :
 	QWidget(parent)
 {
@@ -109,6 +110,7 @@ void SGMPeriodicTableView::onTriggerAvailableScansMenu(){
 }
 
 
+ SGMFastScanParametersModificationWizardPeriodicTablePage::~SGMFastScanParametersModificationWizardPeriodicTablePage(){}
 SGMFastScanParametersModificationWizardPeriodicTablePage::SGMFastScanParametersModificationWizardPeriodicTablePage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -160,6 +162,7 @@ void SGMFastScanParametersModificationWizardPeriodicTablePage::checkIsComplete()
 	isComplete();
 }
 
+ SGMFastScanParametersModificationWizardEditOrCopyPage::~SGMFastScanParametersModificationWizardEditOrCopyPage(){}
 SGMFastScanParametersModificationWizardEditOrCopyPage::SGMFastScanParametersModificationWizardEditOrCopyPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -245,6 +248,7 @@ void SGMFastScanParametersModificationWizardEditOrCopyPage::onButtonClicked(QAbs
 	emit completeChanged();
 }
 
+ SGMFastScanParametersModificationWizardEditPage::~SGMFastScanParametersModificationWizardEditPage(){}
 SGMFastScanParametersModificationWizardEditPage::SGMFastScanParametersModificationWizardEditPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -402,6 +406,7 @@ void SGMFastScanParametersModificationWizardEditPage::onAnySettingsChanged(){
 }
 
 
+ SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::~SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(){}
 SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -609,6 +614,7 @@ void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::checkV
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::~SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(){}
 SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -687,6 +693,7 @@ void SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::onButt
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditScanInfoPage::~SGMFastScanParametersModificationWizardCopyEditScanInfoPage(){}
 SGMFastScanParametersModificationWizardCopyEditScanInfoPage::SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -752,6 +759,7 @@ int SGMFastScanParametersModificationWizardCopyEditScanInfoPage::nextId() const{
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::~SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(){}
 SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -831,6 +839,7 @@ void SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::~SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(){}
 SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -919,6 +928,7 @@ int SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::nextId()
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::~SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(){}
 SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -975,6 +985,7 @@ int SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::nextId(
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyConfirmationPage::~SGMFastScanParametersModificationWizardCopyConfirmationPage(){}
 SGMFastScanParametersModificationWizardCopyConfirmationPage::SGMFastScanParametersModificationWizardCopyConfirmationPage(QWidget *parent) :
 	QWizardPage(parent)
 {

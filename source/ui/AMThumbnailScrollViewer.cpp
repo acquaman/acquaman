@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include <QVBoxLayout>
 
+ AMThumbnailScrollViewer::~AMThumbnailScrollViewer(){}
 AMThumbnailScrollViewer::AMThumbnailScrollViewer(QWidget *parent) :
 		QLabel(parent)
 {
@@ -201,6 +202,7 @@ void AMThumbnailScrollViewer::mouseMoveEvent ( QMouseEvent * event ) {
 }
 
 
+ AMThumbnailScrollWidget::~AMThumbnailScrollWidget(){}
 AMThumbnailScrollWidget::AMThumbnailScrollWidget(const QString& caption1, const QString& caption2, QWidget* parent)
 	: QWidget(parent) {
 	tv_ = new AMThumbnailScrollViewer();

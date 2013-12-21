@@ -1,5 +1,6 @@
 #include "AMDbUpgrade1Pt1.h"
 
+ AMDbUpgrade1Pt1::~AMDbUpgrade1Pt1(){}
 AMDbUpgrade1Pt1::AMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {

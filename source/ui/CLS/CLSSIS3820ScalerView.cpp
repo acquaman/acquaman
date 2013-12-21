@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
+ CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
 CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
 	QWidget(parent)
 {
@@ -232,6 +233,7 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
 
+ CLSSIS3820ScalerChannelView::~CLSSIS3820ScalerChannelView(){}
 CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, QWidget *parent)
 	: QWidget(parent)
 {

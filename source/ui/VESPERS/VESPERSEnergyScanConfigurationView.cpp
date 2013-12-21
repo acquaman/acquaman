@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
+ VESPERSEnergyScanConfigurationView::~VESPERSEnergyScanConfigurationView(){}
 VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {

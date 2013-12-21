@@ -39,6 +39,7 @@ class VESPERSPersistentView : public QWidget
 	Q_OBJECT
 public:
 	/// Default constructor.
+ 	virtual ~VESPERSPersistentView();
 	explicit VESPERSPersistentView(QWidget *parent = 0);
 
 signals:

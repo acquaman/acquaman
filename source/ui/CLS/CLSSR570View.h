@@ -18,6 +18,7 @@ public:
 	enum ViewMode { Basic = 0, Advanced = 1 };
 
 	/// Constructor.  Takes in a valid SR570 pointer.
+ 	virtual ~CLSSR570View();
 	explicit CLSSR570View(CLSSR570 *sr570, QWidget *parent = 0);
 
 	/// Returns the pointer to the SR570 this view is visualizing.

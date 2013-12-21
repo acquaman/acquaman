@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QStyleOption>
 
+ AMDeadTimeButton::~AMDeadTimeButton(){}
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent)
 	: QToolButton(parent)
 {

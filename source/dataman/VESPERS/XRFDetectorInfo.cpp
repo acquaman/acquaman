@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "XRFDetectorInfo.h"
 
+ XRFDetectorInfo::~XRFDetectorInfo(){}
 XRFDetectorInfo::XRFDetectorInfo(const QString &name, const QString &description, QObject *parent)
 	: AMBasicXRFDetectorInfo(name, description, parent)
 {

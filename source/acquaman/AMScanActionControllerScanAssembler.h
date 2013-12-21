@@ -9,6 +9,7 @@ class AMScanActionControllerScanAssembler : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMScanActionControllerScanAssembler();
 	AMScanActionControllerScanAssembler(QObject *parent = 0);
 
 	bool insertAxis(int index, AMControl *axisControl, AMScanAxis *scanAxis);

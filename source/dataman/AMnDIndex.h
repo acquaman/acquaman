@@ -65,6 +65,7 @@ protected:
 
 public:
 	/// Create an invalid index (rank of 0)
+ 	virtual ~AMnDIndex();
 	AMnDIndex();
 	/// Create an index for 1D data
 	AMnDIndex(long row);

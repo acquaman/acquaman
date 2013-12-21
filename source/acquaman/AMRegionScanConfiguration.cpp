@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMRegionScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 
+ AMRegionScanConfiguration::~AMRegionScanConfiguration(){}
 AMRegionScanConfiguration::AMRegionScanConfiguration(QObject *parent, bool setup)
 	: AMScanConfiguration(parent)
 {

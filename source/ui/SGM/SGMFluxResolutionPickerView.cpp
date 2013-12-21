@@ -8,6 +8,7 @@
 #include "acquaman/AMRegionsList.h"
 #include "beamline/SGM/SGMBeamline.h"
 
+ SGMFluxResolutionPickerStaticView::~SGMFluxResolutionPickerStaticView(){}
 SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMXASRegionsList *regions, QWidget *parent) :
 	QGroupBox("Flux/Resolution", parent)
 {
@@ -68,6 +69,7 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 	}
 }
 
+ SGMFluxResolutionPickerView::~SGMFluxResolutionPickerView(){}
 SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
 	SGMFluxResolutionPickerStaticView(regions, parent)
 {

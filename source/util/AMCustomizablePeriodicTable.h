@@ -15,6 +15,7 @@ class AMCustomizablePeriodicTable : public QObject
 
 public:
 	/// Constructor.  Builds the periodic table from a file and creates a list of elements.
+ 	virtual ~AMCustomizablePeriodicTable();
 	explicit AMCustomizablePeriodicTable(QObject *parent = 0);
 
 	/// Builds the periodic table model.  Must be called after the table has been created.  Subclasses should reimplement if more sophisticated subclasses of AMElement are required.

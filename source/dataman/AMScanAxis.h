@@ -24,6 +24,7 @@ public:
 	};
 
 	/// Constructor requires an axisType (defaults to StepAxis) and the first region (in the case of continuous regions, the first region is the only region)
+ 	virtual ~AMScanAxis();
 	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, const AMScanAxisRegion &firstRegion = AMScanAxisRegion(), QObject *parent = 0);
 
 	/// Returns the type of axis

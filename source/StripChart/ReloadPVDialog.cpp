@@ -1,5 +1,6 @@
 #include "ReloadPVDialog.h"
 
+ ReloadPVDialog::~ReloadPVDialog(){}
 ReloadPVDialog::ReloadPVDialog(QList<QString> reloadList, QWidget *parent) :
     QDialog(parent)
 {

@@ -3,6 +3,7 @@
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
 
+ AMCustomizablePeriodicTable::~AMCustomizablePeriodicTable(){}
 AMCustomizablePeriodicTable::AMCustomizablePeriodicTable(QObject *parent)
 	: QObject(parent)
 {

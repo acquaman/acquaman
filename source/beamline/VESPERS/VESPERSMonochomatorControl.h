@@ -21,6 +21,7 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   */
+ 	virtual ~VESPERSMonochomatorControl();
 	VESPERSMonochomatorControl(const QString& name,
 							   const QString& readPVname,
 							   const QString& writePVname,

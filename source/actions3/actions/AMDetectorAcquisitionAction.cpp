@@ -4,6 +4,7 @@
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
+ AMDetectorAcquisitionAction::~AMDetectorAcquisitionAction(){}
 AMDetectorAcquisitionAction::AMDetectorAcquisitionAction(AMDetectorAcquisitionActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {

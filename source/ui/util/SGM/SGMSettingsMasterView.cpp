@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSelector.h"
 #include "ui/beamline/AMDetectorSelectorRequiredView.h"
 
+ SGMSettingsMasterView::~SGMSettingsMasterView(){}
 SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
 {
@@ -110,6 +111,7 @@ void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 	}
 }
 
+ SGMPluginsLocationView::~SGMPluginsLocationView(){}
 SGMPluginsLocationView::SGMPluginsLocationView(QWidget *parent) :
 	QGroupBox("Plugin Locations", parent)
 {
@@ -253,6 +255,7 @@ void SGMPluginsLocationView::onLineEditsChanged(){
 	}
 }
 
+ SGMDetectorsMasterView::~SGMDetectorsMasterView(){}
 SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	QGroupBox("Detectors", parent)
 {

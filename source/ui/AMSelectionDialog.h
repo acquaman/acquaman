@@ -12,6 +12,7 @@ class AMSelectionDialog : public QDialog
 
 public:
 	/// Constructor.  Builds the dialog from the provided string list.
+ 	virtual ~AMSelectionDialog();
 	AMSelectionDialog(const QString &title, const QStringList &items, QWidget *parent = 0);
 
 	/// Returns the items that are selected as a string list.

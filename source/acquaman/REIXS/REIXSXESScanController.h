@@ -35,6 +35,7 @@ class REIXSXESScanController : public AMScanController
 {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSXESScanController();
 	explicit REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
 signals:

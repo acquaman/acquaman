@@ -1,5 +1,6 @@
 #include "AMDetectorDwellTimeActionInfo.h"
 
+ AMDetectorDwellTimeActionInfo::~AMDetectorDwellTimeActionInfo(){}
 AMDetectorDwellTimeActionInfo::AMDetectorDwellTimeActionInfo(const AMDetectorInfo &detectorInfo, double dwellSeconds, QObject *parent) :
 	AMActionInfo3("Detector Dwell", "Detector Dwell", ":/system-run.png", parent)
 {

@@ -1,5 +1,6 @@
 #include "AM3DScanConfiguration.h"
 
+ AM3DScanConfiguration::~AM3DScanConfiguration(){}
 AM3DScanConfiguration::AM3DScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {

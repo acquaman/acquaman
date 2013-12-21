@@ -210,3 +210,5 @@ bool AMSidebar::eventFilter(QObject* sourceObject, QEvent* event) {
 	}
 	return QFrame::eventFilter(source, event);
 }*/
+ AMSidebarItem::~AMSidebarItem(){}
+ AMSidebarHeading::~AMSidebarHeading(){}

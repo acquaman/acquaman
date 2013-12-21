@@ -36,6 +36,7 @@ class REIXSXESRawFileLoader : public AMAbstractFileLoader
 {
 public:
 	/// Construct a file loader to data into \c scan.
+ 	virtual ~REIXSXESRawFileLoader();
 	REIXSXESRawFileLoader(AMXESScan* scan);
 
 	/// Format tag: a unique string identifying this format (ex: "reixsXESRaw")

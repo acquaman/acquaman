@@ -4,6 +4,7 @@
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
+ AMXRFBaseDetectorView::~AMXRFBaseDetectorView(){}
 AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: QWidget(parent)
 {

@@ -12,6 +12,7 @@ class AMAppBottomPanel : public AMDatamanAppBottomPanel
 
 public:
 	/// Constructor.  Passes in the action runner to appropriately build the mini-workflow view.
+ 	virtual ~AMAppBottomPanel();
 	AMAppBottomPanel(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
 	/// Returns the bottom bar view that is encapuslated.

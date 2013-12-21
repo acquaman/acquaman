@@ -37,6 +37,7 @@ QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
 // This constructor is protected; only access is through AMDatabase::createDatabase().
+ AMDatabase::~AMDatabase(){}
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
 	connectionName_(connectionName),

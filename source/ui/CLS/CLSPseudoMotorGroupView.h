@@ -11,6 +11,7 @@ class CLSPseudoMotorGroupObjectView : public AMMotorGroupObjectView
 
 public:
 	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
+ 	virtual ~CLSPseudoMotorGroupObjectView();
 	explicit CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent = 0);
 };
 
@@ -29,6 +30,7 @@ class CLSPseudoMotorGroupView : public AMMotorGroupView
 public:
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	/// \note Maybe I should subclass AMMotorGroup for consistency in naming?
+ 	virtual ~CLSPseudoMotorGroupView();
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);

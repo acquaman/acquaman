@@ -39,6 +39,7 @@ class VESPERSConfigurationFileBuilder : public QObject
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSConfigurationFileBuilder();
 	explicit VESPERSConfigurationFileBuilder(QObject *parent = 0);
 
 	/// Based on the flags set, builds a configuration file.  The result is saved in the provided directory as template.cfg.

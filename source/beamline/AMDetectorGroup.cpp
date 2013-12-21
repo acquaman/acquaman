@@ -3,6 +3,7 @@
 #include "beamline/AMDetectorSet.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorGroup::~AMDetectorGroup(){}
 AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
 	: QObject(parent)
 {

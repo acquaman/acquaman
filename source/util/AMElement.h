@@ -40,6 +40,7 @@ class AMElement : public QObject
 public:
 
 	/// Constructor for the element.  For the edgeList and emissionLineList, the edges and lines energy values \em must be in order (ie: edges { K, L1, L2, L3, ... }, lines { Ka1, Ka2, ... }.
+ 	virtual ~AMElement();
 	explicit AMElement(QString name, QString symbol, QString atomicNumber, QStringList edgeList, QStringList emissionLineList, QObject *parent = 0);
 	/// Copy constructor.
 	AMElement(const AMElement &original);

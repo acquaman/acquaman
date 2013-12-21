@@ -29,6 +29,7 @@ class REIXSXESHexapodControlEditor : public QGroupBox
 {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSXESHexapodControlEditor();
 	explicit REIXSXESHexapodControlEditor(REIXSHexapod* hexapod, QWidget *parent = 0);
 
 signals:

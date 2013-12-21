@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 //Singleton instance
 SGMPeriodicTable* SGMPeriodicTable::instance_ = 0;
+ SGMPeriodicTable::~SGMPeriodicTable(){}
 QString SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName_ = "^%^AllDatabases^%^";
 
 SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :

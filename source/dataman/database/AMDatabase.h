@@ -52,6 +52,7 @@ class AMDatabase : public QObject {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMDatabase();
 
 	// Multiton accessor functions: getting access to an AMDatabase instance.
 	/////////////////////////////////////

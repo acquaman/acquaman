@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlInfo.h"
 
+ AMControlInfo::~AMControlInfo(){}
 AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, double tolerance, const QString &description, const QString &contextKnownDescription, const QString& enumString, QObject* parent)
 	: AMDbObject(parent)
 {

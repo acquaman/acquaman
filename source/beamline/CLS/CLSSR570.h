@@ -38,6 +38,7 @@ class CLSSR570 : public QObject
 
 public:
 	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
+ 	virtual ~CLSSR570();
 	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
 
 	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <math.h>
 
+ SGM1DFastScanFilterAB::~SGM1DFastScanFilterAB(){}
 SGM1DFastScanFilterAB::SGM1DFastScanFilterAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent), inputAxis_("invalid", 0, "No input data")
 {

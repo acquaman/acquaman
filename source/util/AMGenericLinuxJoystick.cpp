@@ -173,6 +173,7 @@ void AMGenericLinuxJoystick::onJoystickEvents(QVector<AMGenericLinuxJoystickEven
 
 
 
+ AMGenericLinuxJoystickThread::~AMGenericLinuxJoystickThread(){}
 AMGenericLinuxJoystickThread::AMGenericLinuxJoystickThread(int fileDescriptor, QObject* parent) :
     QThread(parent)
 {

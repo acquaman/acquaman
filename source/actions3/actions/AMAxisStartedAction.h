@@ -9,6 +9,7 @@ class AMAxisStartedAction : public AMAction3
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMAxisStartedAction();
 	Q_INVOKABLE AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject *parent = 0);
 	/// Copy Constructor
 	AMAxisStartedAction(const AMAxisStartedAction &other);

@@ -59,6 +59,7 @@ public slots:
 
 protected:
 	/// Constructor: Builds the periodic table from a file and creates a list of elements. (Protected: access via table())
+ 	virtual ~AMPeriodicTable();
 	explicit AMPeriodicTable(QObject *parent = 0);
 
 	/// The periodic table.  In all its glory.  Stores all AMElement *'s in a list.

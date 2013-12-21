@@ -38,6 +38,7 @@ public:
 		waitingMode = 1
 	};
 
+ 	virtual ~AMDatamanStartupSplashScreen();
 	AMDatamanStartupSplashScreen(QWidget *parent = 0);
 
 	int numberOfStages() const;

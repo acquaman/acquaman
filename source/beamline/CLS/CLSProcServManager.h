@@ -29,6 +29,7 @@ class CLSProcServManager : public QObject
 {
 	Q_OBJECT
 public:
+ 	virtual ~CLSProcServManager();
 	CLSProcServManager(const QString &hostname, quint16 port, const QString &description, QObject *parent = 0);
 
 	QString description() const { return description_;}
@@ -149,6 +150,7 @@ class CLSProcServManagerView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSProcServManagerView();
 	CLSProcServManagerView(QList<CLSProcServManager*> procServs, QWidget *parent = 0);
 
 protected:

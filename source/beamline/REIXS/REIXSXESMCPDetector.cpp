@@ -7,6 +7,7 @@
 #include "util/AMErrorMonitor.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ REIXSXESMCPDetector::~REIXSXESMCPDetector(){}
 REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	AMDetector("XESMCPDetector", "REIXS XES MCP Detector", parent)
 {

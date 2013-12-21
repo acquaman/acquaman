@@ -1,5 +1,6 @@
 #include "AMRegionOfInterest.h"
 
+ AMRegionOfInterest::~AMRegionOfInterest(){}
 AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, const AMRange &range, QObject *parent)
 	: AMDbObject(parent)
 {

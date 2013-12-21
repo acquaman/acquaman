@@ -593,6 +593,7 @@ void REIXSXESImageABEditor::placeRangeRectangle()
 //}
 
 
+ REIXSXESImageABEditorEllipticalMask::~REIXSXESImageABEditorEllipticalMask(){}
 REIXSXESImageABEditorEllipticalMask::REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {
@@ -801,6 +802,7 @@ void REIXSXESImageABEditorEllipticalMask::yValues(unsigned indexStart, unsigned 
 
 
 
+ REIXSXESImageABEditorShiftModel::~REIXSXESImageABEditorShiftModel(){}
 REIXSXESImageABEditorShiftModel::REIXSXESImageABEditorShiftModel(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {

@@ -1,5 +1,6 @@
 #include "AMNameAndRangeValidator.h"
 
+ AMNameAndRangeValidator::~AMNameAndRangeValidator(){}
 AMNameAndRangeValidator::AMNameAndRangeValidator(QObject *parent)
 	: QObject(parent)
 {

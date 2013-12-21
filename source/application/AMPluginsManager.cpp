@@ -109,3 +109,4 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 	}
 	*/
 }
+ AMPluginsManager::~AMPluginsManager(){}

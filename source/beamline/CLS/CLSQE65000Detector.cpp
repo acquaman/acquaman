@@ -2,6 +2,7 @@
 
 #include <QStringBuilder>
 
+ CLSQE65000Detector::~CLSQE65000Detector(){}
 CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {

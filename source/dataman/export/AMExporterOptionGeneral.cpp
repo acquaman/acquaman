@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOptionGeneral.h"
 
+ AMExporterOptionGeneral::~AMExporterOptionGeneral(){}
 AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	AMExporterOption(parent)
 {

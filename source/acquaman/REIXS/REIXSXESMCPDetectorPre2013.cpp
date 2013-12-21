@@ -59,6 +59,7 @@ REIXSXESMCPDetectorPre2013::~REIXSXESMCPDetectorPre2013() {
 }
 
 
+ REIXSXESMCPDataSourcePre2013::~REIXSXESMCPDataSourcePre2013(){}
 REIXSXESMCPDataSourcePre2013::REIXSXESMCPDataSourcePre2013(const QString &name, AMProcessVariable *imagePV, AMProcessVariable *resolutionXPV, AMProcessVariable *resolutionYPV, QObject *parent)
 	: QObject(parent), AMDataSource(name) {
 

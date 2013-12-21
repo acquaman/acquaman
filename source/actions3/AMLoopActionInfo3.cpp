@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLoopActionInfo3.h"
 
+ AMLoopActionInfo3::~AMLoopActionInfo3(){}
 AMLoopActionInfo3::AMLoopActionInfo3(int iterations, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
 	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {

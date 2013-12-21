@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
+ VESPERSEXAFSScanConfigurationView::~VESPERSEXAFSScanConfigurationView(){}
 VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {

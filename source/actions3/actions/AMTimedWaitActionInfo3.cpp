@@ -1,5 +1,6 @@
 #include "AMTimedWaitActionInfo3.h"
 
+ AMTimedWaitActionInfo3::~AMTimedWaitActionInfo3(){}
 AMTimedWaitActionInfo3::AMTimedWaitActionInfo3(double waitTime, QObject *parent) :
 	AMActionInfo3("Timed Wait", "Timed Wait", ":/system-run.png", parent)
 {

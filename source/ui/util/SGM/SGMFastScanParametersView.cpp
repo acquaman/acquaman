@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMDateTimeUtils.h"
 
+ SGMFastScanParametersView::~SGMFastScanParametersView(){}
 SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fastScanParameters, bool disableCopy, QWidget *parent) :
 	QWidget(parent)
 {
@@ -267,6 +268,7 @@ void SGMFastScanParametersView::onAnySettingChanged(){
 	emit unsavedChanges(hasUnsavedChanges_);
 }
 
+ SGMFastScanParametersDatabaseSaveView::~SGMFastScanParametersDatabaseSaveView(){}
 SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGMFastScanParameters *fastScanParameters, QWidget *parent) :
 	QWidget(parent)
 {

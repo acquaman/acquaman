@@ -46,6 +46,7 @@ public:
 		ViewModeMiddle
 	};
 
+ 	virtual ~SGMEnergyPositionView();
 	SGMEnergyPositionView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
 
 public slots:
@@ -86,6 +87,7 @@ class SGMEnergyPositionWBeamlineView : public SGMEnergyPositionView
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMEnergyPositionWBeamlineView();
 	SGMEnergyPositionWBeamlineView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
 
 protected slots:
@@ -99,6 +101,7 @@ class SGMEnergyPositionDisassociateFromDbDialog : public QDialog
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMEnergyPositionDisassociateFromDbDialog();
 	SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent);
 
 public slots:
@@ -120,6 +123,7 @@ class SGMEnergyPositionWBeamlineAndDatabaseView : public SGMEnergyPositionWBeaml
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMEnergyPositionWBeamlineAndDatabaseView();
 	SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
 
 	QStringList alsoUsedByList() const;

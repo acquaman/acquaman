@@ -30,6 +30,7 @@ class VESPERSDeviceStatusView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Builds the device status view.
+ 	virtual ~VESPERSDeviceStatusView();
 	explicit VESPERSDeviceStatusView(QWidget *parent = 0);
 
 signals:

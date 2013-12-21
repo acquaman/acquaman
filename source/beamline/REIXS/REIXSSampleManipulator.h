@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class REIXSSampleManipulator : public AMSampleManipulator {
 public:
 	/// Constructor
+ 	virtual ~REIXSSampleManipulator();
 	REIXSSampleManipulator() : AMSampleManipulator() {}
 
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.

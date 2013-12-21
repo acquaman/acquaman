@@ -3,6 +3,7 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ CLSBasicCompositeScalerChannelDetector::~CLSBasicCompositeScalerChannelDetector(){}
 CLSBasicCompositeScalerChannelDetector::CLSBasicCompositeScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex1, int channelIndex2, QObject *parent)
 	: AMDetector(name, description, parent)
 {

@@ -34,6 +34,7 @@ QMap<QString, QMap<double, double> > AMControlOptimization::collapse(AMRegionsLi
 	return noMap;
 }
 
+ AMCurve::~AMCurve(){}
 AMCurve::AMCurve(QMap<double, double> dataMap, QObject *parent) : QObject(parent){
 	hasXDiscontinuities_ = false;
 	hasYDiscontinuities_ = false;

@@ -8,6 +8,7 @@ class AMAbsorptionEdge
 {
 public:
 	/// Builds an absorption edge from the name and energy provided.  The name is expected to be in the form "Fe L1".  Failure to use this convention will result in undefined behaviour.
+ 	virtual ~AMAbsorptionEdge();
 	AMAbsorptionEdge(const QString &name, double energy);
 	/// Builds an absorption edge from the name and energy (energy is provided as a string) provided.  The name is expected to be in the form "Fe L1".  Failure to use this convention will result in undefined behaviour.
 	AMAbsorptionEdge(const QString &name, const QString &energy);

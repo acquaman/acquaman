@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMRegionItem : public QGraphicsItem
 {
 public:
+ 	virtual ~AMRegionItem();
 	AMRegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
@@ -54,6 +55,7 @@ private:
 class AMEnergyIndexItem : public QGraphicsItem
 {
 public:
+ 	virtual ~AMEnergyIndexItem();
 	AMEnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
@@ -74,6 +76,7 @@ class AMRegionsLineView : public QWidget
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMRegionsLineView();
 	AMRegionsLineView(AMRegionsList *regions, QWidget *parent = 0);
 
 protected slots:
@@ -95,6 +98,7 @@ class AMEXAFSLineView : public AMRegionsLineView
 
 public:
 	/// Constructor.
+ 	virtual ~AMEXAFSLineView();
 	AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent = 0);
 
 protected slots:

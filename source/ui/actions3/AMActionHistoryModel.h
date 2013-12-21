@@ -56,6 +56,7 @@ Q_DECLARE_METATYPE(ParentSelectMap)
 class AMActionLogItem3 {
 public:
 	/// Constructor requires the \c id of the AMActionLog and the database \c db where it is stored.
+ 	virtual ~AMActionLogItem3();
 	AMActionLogItem3(AMDatabase* db, int id);
 	AMActionLogItem3(const AMActionLog3 &actionLog);
 

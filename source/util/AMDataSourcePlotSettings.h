@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
+ 	virtual ~AMDataSourcePlotSettings(){}
 	AMDataSourcePlotSettings(bool Visible = true, double Priority = 1, const QPen& LinePen = QPen(nextColor()))
 		: priority(Priority),
 		  visible(Visible),

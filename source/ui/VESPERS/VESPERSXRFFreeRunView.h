@@ -37,6 +37,7 @@ class VESPERSXRFFreeRunView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~VESPERSXRFFreeRunView();
 	explicit VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent = 0);
 
 protected slots:

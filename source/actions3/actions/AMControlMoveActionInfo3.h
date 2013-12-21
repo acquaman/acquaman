@@ -33,6 +33,7 @@ class AMControlMoveActionInfo3 : public AMActionInfo3
 
 public:
 	/// Constructor. You should always specify a valid \c setpoint, but we provide the default argument because we need a default constructor for database loading.
+ 	virtual ~AMControlMoveActionInfo3();
 	Q_INVOKABLE AMControlMoveActionInfo3(const AMControlInfo &setpoint = AMControlInfo(), QObject *parent = 0);
 
 	/// Copy Constructor

@@ -27,6 +27,7 @@ class SGMAddOnsCoordinator : public QObject
 Q_OBJECT
 public:
 	/// Simple constructor for class
+ 	virtual ~SGMAddOnsCoordinator();
 	SGMAddOnsCoordinator(QObject *parent = 0);
 
 protected slots:

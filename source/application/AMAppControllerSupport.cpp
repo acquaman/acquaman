@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanActionControllerScanOptimizer.h"
 #include "acquaman/AMScanActionControllerScanValidator.h"
 
+ AMScanConfigurationObjectInfo::~AMScanConfigurationObjectInfo(){}
 AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId, QString useDatabaseName){
 	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId, useDatabaseName);
 }
@@ -264,3 +265,4 @@ namespace AMAppControllerSupport{
 	}
 }
 
+ AMActionRunnerGroup::~AMActionRunnerGroup(){}

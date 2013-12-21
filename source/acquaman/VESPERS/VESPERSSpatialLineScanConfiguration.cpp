@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
+ VESPERSSpatialLineScanConfiguration::~VESPERSSpatialLineScanConfiguration(){}
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject *parent)
 	: AMRegionScanConfiguration(parent), VESPERSScanConfiguration()
 {

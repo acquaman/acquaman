@@ -236,6 +236,7 @@ void VESPERSEndstationView::lightBulbToggled(bool pressed)
 ///////////////////////////////////////////////////////////////////////
 // Endstation Configuration
 
+ VESPERSEndstationLimitsView::~VESPERSEndstationLimitsView(){}
 VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	: QWidget(parent)
 {

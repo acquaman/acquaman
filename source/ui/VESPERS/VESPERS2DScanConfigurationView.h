@@ -39,6 +39,7 @@ class VESPERS2DScanConfigurationView : public VESPERSScanConfigurationView
 
 public:
 	/// Constructor.  \param config is the 2D configuration that the view will modify.
+ 	virtual ~VESPERS2DScanConfigurationView();
 	VESPERS2DScanConfigurationView(VESPERS2DScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

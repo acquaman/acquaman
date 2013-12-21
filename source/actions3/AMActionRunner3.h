@@ -233,6 +233,7 @@ class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMActionRunnerQueueModel3();
 	AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -305,6 +306,7 @@ class AMModelIndexListMimeData3 : public QMimeData {
 	Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMModelIndexListMimeData3();
 	AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
 		foreach(const QModelIndex& mi, mil)
 			mil_ << mi;

@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QStandardItemModel>
 
+ AMActionRunnerQueueView3::~AMActionRunnerQueueView3(){}
 AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
@@ -311,3 +312,4 @@ bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *even
 //		return 0;
 //	}
 //}
+ AMActionRunnerQueueItemDelegate3::~AMActionRunnerQueueItemDelegate3(){}

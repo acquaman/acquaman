@@ -87,3 +87,4 @@ QString SGMSettings::SGMDatabaseFilename() const{
 	QReadLocker rl(&mutex_);
 	return SGMDatabaseFilename_;
 }
+ SGMSettings::~SGMSettings(){}

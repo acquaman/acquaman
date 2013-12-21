@@ -30,6 +30,7 @@ class AMNumberChangeActionEditor : public QFrame
 {
 Q_OBJECT
 public:
+ 	virtual ~AMNumberChangeActionEditor();
 	Q_INVOKABLE AMNumberChangeActionEditor(AMNumberChangeActionInfo *info, QWidget *parent = 0);
 
 protected slots:

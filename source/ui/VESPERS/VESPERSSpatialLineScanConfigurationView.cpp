@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QMenu>
 
+ VESPERSSpatialLineScanConfigurationView::~VESPERSSpatialLineScanConfigurationView(){}
 VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {

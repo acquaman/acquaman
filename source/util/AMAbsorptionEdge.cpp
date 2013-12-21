@@ -2,6 +2,7 @@
 
 #include <QStringList>
 
+ AMAbsorptionEdge::~AMAbsorptionEdge(){}
 AMAbsorptionEdge::AMAbsorptionEdge(const QString &name, double energy)
 {
 	name_ = name;

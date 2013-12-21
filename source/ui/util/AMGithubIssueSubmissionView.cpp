@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QTimer>
 
+ AMGithubIssueSubmissionView::~AMGithubIssueSubmissionView(){}
 AMGithubIssueSubmissionView::AMGithubIssueSubmissionView(QWidget *parent)
 	: QDialog(parent)
 {

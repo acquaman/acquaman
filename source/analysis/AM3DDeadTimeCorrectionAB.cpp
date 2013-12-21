@@ -1,5 +1,6 @@
 #include "AM3DDeadTimeCorrectionAB.h"
 
+ AM3DDeadTimeCorrectionAB::~AM3DDeadTimeCorrectionAB(){}
 AM3DDeadTimeCorrectionAB::AM3DDeadTimeCorrectionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

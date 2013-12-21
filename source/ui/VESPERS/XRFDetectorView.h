@@ -43,6 +43,7 @@ class XRFBriefDetectorView : public AMBriefOldDetectorView
 public:
 
 	/// Default constructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+ 	virtual ~XRFBriefDetectorView();
 	Q_INVOKABLE explicit XRFBriefDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
@@ -81,6 +82,7 @@ class XRFDetailedDetectorView : public AMDetailedOldDetectorView
 public:
 
 	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+ 	virtual ~XRFDetailedDetectorView();
 	Q_INVOKABLE explicit XRFDetailedDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.

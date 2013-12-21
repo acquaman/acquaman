@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM1DExpressionABEditor.h"
 #include <limits>
 
+ AM1DExpressionAB::~AM1DExpressionAB(){}
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
 	  axisInfo_(outputName + "_x", 0)

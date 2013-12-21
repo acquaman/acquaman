@@ -60,6 +60,7 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration, public VE
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSEXAFSScanConfiguration();
 	Q_INVOKABLE VESPERSEXAFSScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original);

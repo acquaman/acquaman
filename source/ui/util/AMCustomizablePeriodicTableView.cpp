@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
+ AMCustomizablePeriodicTableView::~AMCustomizablePeriodicTableView(){}
 AMCustomizablePeriodicTableView::AMCustomizablePeriodicTableView(AMCustomizablePeriodicTable *table, QWidget *parent)
 	: QWidget(parent)
 {

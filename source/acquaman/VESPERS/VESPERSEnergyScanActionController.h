@@ -12,6 +12,7 @@ class VESPERSEnergyScanActionController : public AMRegionScanActionController, p
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the VESPERS beamline.
+ 	virtual ~VESPERSEnergyScanActionController();
 	VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent = 0);
 
 protected slots:

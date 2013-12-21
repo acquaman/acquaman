@@ -4,6 +4,7 @@
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
+ CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew(){}
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
 {	

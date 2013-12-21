@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSelectableElement.h"
 #include "util/AMPeriodicTable.h"
 
+ AMSelectablePeriodicTable::~AMSelectablePeriodicTable(){}
 AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent)
 	: AMCustomizablePeriodicTable(parent)
 {

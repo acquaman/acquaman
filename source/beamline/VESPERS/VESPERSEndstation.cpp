@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
+ VESPERSEndstation::~VESPERSEndstation(){}
 VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	: QObject(parent)
 {
