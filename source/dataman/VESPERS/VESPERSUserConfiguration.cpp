@@ -1,5 +1,6 @@
 #include "VESPERSUserConfiguration.h"
 
+ VESPERSUserConfiguration::~VESPERSUserConfiguration(){}
 VESPERSUserConfiguration::VESPERSUserConfiguration(QObject *parent)
 	: AMDbObject(parent)
 {
