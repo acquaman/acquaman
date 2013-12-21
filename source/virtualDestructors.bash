@@ -80,14 +80,14 @@ do
 	# if there is no destructor, need to add it.
 	elif [[ $destructor == "" ]]; then
 		#has no destructor, look for a constructor don't match new or return statements or inline descendent constructors
-		constructorLine=`grep -nE "$className\(.*$" $file | cut -d: -f1-2 | grep -E "$className\(" | grep -vE "new $className|return $className" | cut -d: -f-1 | head -1`
+		constructorLine=`grep -nE "[^a-zA-Z]$className\(.*$" $file | cut -d: -f1-2 | grep -E "$className\(" | grep -vE "new $className|return $className" | cut -d: -f-1 | head -1`
 		if [[ $constructorLine == "" ]]; then
 			#check for template constructors
-			constructorLine=`grep -nE "$className<.*>\(.*$" $file | cut -d: -f-1 | head -1`
+			constructorLine=`grep -nE "[^a-zA-Z]$className<.*>\(.*$" $file | cut -d: -f-1 | head -1`
 		fi
 		#does the constructor exist?
 		privateConstructor=false
-		echo searched for constructor in $class in $file
+		echo searched for constructor in $className in $file
 		if [[ $constructorLine != "" ]]; then
 			echo constructor line not empty
 			#is the constructor public? because the destructor needs to be
@@ -135,9 +135,11 @@ do
 				if [[ $constructorLine == "" ]]; then
 					echo Error - ConstructorLine blank
 				elif [[ $privateConstructor == true ]]; then
+					echo adding destructor at $publicLocation in $file \(private constructor\)
 					sed -i "$publicLocation a\ \tvirtual ~$className();" $file
 				else
 					#grep to the constructor, add the virtual destructor on the line above
+					echo adding destructor at $constructorLine in $file
 					sed -i "$constructorLine i\ \tvirtual ~$className();" $file
 				fi
 				#as well, add the destructor to the .cpp file

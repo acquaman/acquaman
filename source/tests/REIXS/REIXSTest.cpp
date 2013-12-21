@@ -40,6 +40,7 @@ private Q_SLOTS:
 	void testHexapodPVChanges();
 };
 
+ REIXSTest::~REIXSTest(){}
 REIXSTest::REIXSTest()
 {
 }

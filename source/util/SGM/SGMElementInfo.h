@@ -188,7 +188,6 @@ public slots:
 
 protected:
 	AMDbObjectList dbReadSGMEdgeInfos();
- 	virtual ~SGMFastScanParameters();
 	AMDbObjectList dbReadSGMFastScanParameters();
 
 	void dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos);
@@ -261,6 +260,7 @@ Q_PROPERTY(AMDbObject* fastScanSettings READ dbGetFastScanSettings WRITE dbLoadF
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 
 public:
+ 	virtual ~SGMFastScanParameters();
 	Q_INVOKABLE SGMFastScanParameters(const QString &name = QString(), const QString &element = QString(), const SGMScanInfo &scanInfo = SGMScanInfo(), const SGMFastScanSettings &fastScanSettings = SGMFastScanSettings(), QObject *parent = 0);
 
 	SGMFastScanParameters& operator =(const SGMFastScanParameters &other);
