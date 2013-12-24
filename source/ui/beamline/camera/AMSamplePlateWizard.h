@@ -17,31 +17,33 @@ class AMSamplePlateWizard : public AMGraphicsViewWizard
 public:
 	enum
 	{
-		  Page_Intro, // description -> should skip on start
+                  Page_Intro, // description -> should skip on start
 		  Page_Check,  // check to see if the plate is where it should be
 		  Page_Wait_One,
 		  Page_Set_One,
 		  Page_Wait_Two,
 		  Page_Set_Two,
+                  Page_Wait_Three,
+                  Page_Set_Three,
 		  Page_Final,
 		  Page_Option
 	 };
     AMSamplePlateWizard(QWidget* parent = 0);
-    ~AMSamplePlateWizard();
+    virtual ~AMSamplePlateWizard();
 
     int nextId() const;
 
     void waitPage();
 
-	int relativeId();/// \todo need this to differentiate the wait and set pages
+        int relativeId();
 
 	virtual QString message(int type);
 
 public slots:
     void back();
 	/// \todo get rid of this
-    void sliderChanged();
-	/// \todo implement addPoint
+//    void sliderChanged();
+//	/ \todo implement addPoint
 	virtual void addPoint(QPointF position);
 	void removePoint(QPointF* point);
 	/// Will add duplicate points unless this is called when leaving the page
@@ -57,6 +59,7 @@ protected:
 	double coordinateY(int id);
 	double coordinateZ(int id);
 	void addResetPointsButton(int id);
+        QPen getDefaultPen();
 
 protected slots:
 	void triggerReset(int id);

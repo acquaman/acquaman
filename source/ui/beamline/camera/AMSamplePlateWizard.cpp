@@ -15,29 +15,32 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
 	/// Used to generate and allow modification of the option page
-	numberOfPoints_ = 2;
+        numberOfPoints_ = 3;
 	showOptionPage_ = false;
 	coordinateList_->clear();
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,1,0));
+    coordinateList_->append(new QVector3D(5,5,5));
+    coordinateList_->append(new QVector3D(-4,-4,-4));
 
 
 
 
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check, new AMSampleCheckPage);
-	setPage(Page_Wait_One, new AMSampleWaitPage);
-	setPage(Page_Wait_Two, new AMSampleWaitPage);
-	setPage(Page_Set_One, new AMSampleSetPage);
-	setPage(Page_Set_Two, new AMSampleSetPage);
+    setPage(Page_Wait_One, new AMSampleWaitPage);
+    setPage(Page_Wait_Two, new AMSampleWaitPage);
+    setPage(Page_Wait_Three, new AMSampleWaitPage);
+    setPage(Page_Set_One, new AMSampleSetPage);
+    setPage(Page_Set_Two, new AMSampleSetPage);
+    setPage(Page_Set_Three, new AMSampleSetPage);
     setPage(Page_Option, new AMWizardOptionPage);
-	setPage(Page_Final, new AMWizardPage);
+    setPage(Page_Final, new AMWizardPage);
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
     setWindowTitle(message(Wizard_Title));
 
-	/// need to disconnect and reconnect buttons to override functionality properly
+    /// need to disconnect and reconnect buttons to override functionality properly
 
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
@@ -46,19 +49,14 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     addOptionPage(Page_Intro);
-	addResetPointsButton(Page_Set_One);
-	addResetPointsButton(Page_Set_Two);
+    addResetPointsButton(Page_Set_One);
+    addResetPointsButton(Page_Set_Two);
+    addResetPointsButton(Page_Set_Three);
+    showResetButton(currentId());
 
 	pointList_->clear();
 	/// We don't know how many points there will be, so in addPoint, make sure point
-	/// exists before initializing it.
-
-
-
-
-
-
-
+        /// exists before initializing it. (sample plate may be any shape)
 }
 
 AMSamplePlateWizard::~AMSamplePlateWizard()
@@ -81,14 +79,22 @@ int AMSamplePlateWizard::nextId() const
 			return Page_Wait_One;
 	case Page_Wait_One:
 		((AMSampleSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
+                ((AMSampleSetPage*)page(Page_Set_Three))->disconnectMouseSignal();
 		return Page_Set_One;
 	case Page_Set_One:
 		return Page_Wait_Two;
 	case Page_Wait_Two:
 		((AMSampleSetPage*)page(Page_Set_One))->disconnectMouseSignal();
+                ((AMSampleSetPage*)page(Page_Set_Three))->disconnectMouseSignal();
 		return Page_Set_Two;
 	case Page_Set_Two:
-		return Page_Final;
+                return Page_Wait_Three;
+        case Page_Wait_Three:
+                ((AMSampleSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
+                ((AMSampleSetPage*)page(Page_Set_One))->disconnectMouseSignal();
+                return Page_Set_Three;
+        case Page_Set_Three:
+                return Page_Final;
 	case Page_Final:
     default:
         return -1;
@@ -110,6 +116,9 @@ int AMSamplePlateWizard::relativeId()
 	case Page_Set_Two:
 	case Page_Wait_Two:
 		return 2;
+        case Page_Set_Three:
+        case Page_Wait_Three:
+                return 3;
 	default:
 		return 0;
 	}
@@ -156,7 +165,8 @@ QString AMSamplePlateWizard::message(int type)
             return QString(tr("Error - check page - unknown message type."));
         }
 	case Page_Wait_One:
-	case Page_Wait_Two:
+        case Page_Wait_Two:
+        case Page_Wait_Three:
         switch(type)
         {
         case Title:
@@ -173,6 +183,7 @@ QString AMSamplePlateWizard::message(int type)
         }
 	case Page_Set_One:
 	case Page_Set_Two:
+        case Page_Set_Three:
         switch(type)
         {
         case Title:
@@ -226,6 +237,7 @@ void AMSamplePlateWizard::back()
     {
 	case Page_Wait_One:
 	case Page_Wait_Two:
+        case Page_Wait_Three:
 		((AMWaitPage*)page(id))->stopTimer();
 		QWizard::back();
 		if(currentId() == Page_Check)
@@ -257,37 +269,63 @@ void AMSamplePlateWizard::back()
 			initializePage(Page_Wait_One);
 		}
 		break;
+        case Page_Set_Three:
+                ((AMSampleSetPage*)page(id))->disconnectMouseSignal();
+                while(currentId() != Page_Wait_Two)
+                {
+                    QWizard::back();
+                }
+                if(currentId() == Page_Wait_Two)
+                {
+                    initializePage(Page_Wait_Two);
+                }
+                break;
     default:
         QWizard::back();
     }
 
 }
 
-void AMSamplePlateWizard::sliderChanged()
-{
-	emit movePlate(field("adjustmentSlider").toInt());
-}
+//void AMSamplePlateWizard::sliderChanged()
+//{
+//	emit movePlate(field("adjustmentSlider").toInt());
+//}
 
 void AMSamplePlateWizard::addPoint(QPointF position)
 {
 	/// This should add a point to the list every time the view is clicked.  Need to add a clear button, and visual indicators to show what points have been added.
+        int pageId = relativeId();
+
 	QPointF* newPoint = new QPointF(position);
 	/// default point size
 	const QSizeF defaultSize = QSizeF(10,10);
 	QPen defaultPen;
-	/// Must keep track of which are from page one and which are from page two.
-	/// The easiest way to keep them seperate is to append from one page and
-	/// prepend from the other.
-	if(currentId() == Page_Set_One)
-	{
-		pointList_->prepend(newPoint);
-		defaultPen = QPen(Qt::green);
-	}
-	else if(currentId() == Page_Set_Two)
-	{
-		pointList_->append(newPoint);
-		defaultPen = QPen(Qt::yellow);
-	}
+        /// Must keep track of which points are from which page.
+        /// Pad the list with QPointF(0,0) seperators
+        /// list will go (0,0),...page1...,(0,0),...page2...,(0,0)...etc...,...finalpage...,(0,0)
+        if(pointList_->isEmpty())
+        {
+            for(int i = 0; i < numberOfPoints() + 1; i ++)
+            {
+                pointList_->append(new QPointF(0,0));
+            }
+        }
+        if(*newPoint == QPointF(0,0))
+        {
+            *newPoint = *newPoint + QPointF(0.00001,0);
+        }
+        int count = 0;
+        int index = 0;
+        for(int i = 0; count < pageId+1 && i < pointList_->count(); i++)
+        {
+            if(*pointList_->at(i) == QPointF(0,0))
+            {
+                count++;
+            }
+            index = i;
+        }
+        pointList_->insert(index,newPoint);
+        defaultPen = getDefaultPen();
 
 	QRectF rectangle(view()->mapVideoToScene(*newPoint), defaultSize); /// need to map new point to the actual screen position
 	QGraphicsRectItem* rectItem = view()->scene()->addRect(rectangle, defaultPen);
@@ -301,6 +339,21 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 		qDebug()<<*point;
 	}
 
+}
+
+QPen AMSamplePlateWizard::getDefaultPen()
+{
+    switch(currentId())
+    {
+        case Page_Set_One:
+            return QPen(Qt::yellow);
+        case Page_Set_Two:
+            return QPen(Qt::green);
+        case Page_Set_Three:
+            return QPen(Qt::cyan);
+        default:
+            return QPen(Qt::white);
+    }
 }
 
 void AMSamplePlateWizard::removePoint(QPointF *point)

@@ -642,47 +642,75 @@ void AMSampleCameraView::samplePlateCreate()
 {
 	qDebug()<<"Sample plate being created.";
 	QList<QPointF*>* pointList = samplePlateWizard_->pointList();
+        int numberOfPoints = samplePlateWizard_->numberOfPoints();
 	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
 	/// it also expects the order to be toplefta,topleftb,etc
-	if(pointList->count()%2 != 0)
+        if((pointList->count() - numberOfPoints - 1)%numberOfPoints  != 0)
 	{
 		qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid number of points. ";
 		return;
 	}
-	QList<QPointF> reverseOriginPoints;
+        // have a list divided into numberOfPoints sections, want to change it into one list that
+        // interleaves the three sections ex:
+        // "pointList" is 0abcd0efgh0ijkl0
+        // "combinedePoints" is aeibfjcgkdhl
+        QList<QPointF> *list = new QList<QPointF>[numberOfPoints];
 	QVector<QPointF> combinedPoints;
-	QList<QPointF> shiftedPoints;
-	/// get the first page points, in reverse order
-	for(int i = 0; i < pointList->count()/2; i++)
-	{
-		QPointF originPoint = *pointList->at(i);
-		reverseOriginPoints<<originPoint;
-	}
-	for(int i = pointList->count()/2; i < pointList->count(); i++)
-	{
-		shiftedPoints<<*pointList->at(i);
-	}
-	/// combine the points starting from the end of reverse origin
-	/// and the beginning of shifted, and interleaving them
+        // first strip off the first 0
+        if(*pointList->first() == QPointF(0,0))
+        {
+            if(!pointList->isEmpty())
+            {
+                pointList->removeFirst();
+            }
+            else
+            {
+                qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
+            }
+        }
+        else
+        {
+            qDebug()<<"AMSampleCameraView::samplePlateCreate - unexpected first value of list";
+        }
+        for(int i = 0; i < numberOfPoints; i++)
+        {
+            while(*pointList->first() != QPointF(0,0))
+            {
+                if(!pointList->isEmpty())
+                {
+                    list[i].append(*pointList->takeFirst());
+                }
+                else
+                {
+                    qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
+                }
+            }
+            if(!pointList->isEmpty())
+            {
+                pointList->removeFirst();
+            }
+            else
+            {
+                qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
+            }
+        }
 
-	while(!reverseOriginPoints.isEmpty() && !shiftedPoints.isEmpty())
+
+
+        while(!samplePointListEmpty(list,numberOfPoints))
 	{
-		if(!reverseOriginPoints.isEmpty())
-		{
-			combinedPoints<<reverseOriginPoints.takeLast();
-		}
-		else
-		{
-			qDebug()<<"AMSampleCameraView::samplePlateCreate - origin points exhausted";
-		}
-		if(!shiftedPoints.isEmpty())
-		{
-			combinedPoints<<shiftedPoints.takeFirst();
-		}
-		else
-		{
-			qDebug()<<"AMSampleCameraView::samplePlateCreate - origin points exhausted";
-		}
+            for(int i = 0; i < numberOfPoints; i++)
+            {
+                if(!list[i].isEmpty())
+                {
+                    combinedPoints<<(list[i].takeFirst());
+                }
+                else
+                {
+                    qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
+                }
+            }
+
 	}
 
 	QList<QVector3D*>* coordinateList = samplePlateWizard_->coordinateList();
@@ -692,8 +720,18 @@ void AMSampleCameraView::samplePlateCreate()
 		sampleCoordinateList<<*coordinate;
 	}
 
-	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints);
+        shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, numberOfPoints);
 
+}
+
+bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const
+{
+    bool empty= true;
+    for(int i = 0; i < numberOfPoints; i++)
+    {
+        empty &= list[i].isEmpty();
+    }
+    return empty;
 }
 
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)

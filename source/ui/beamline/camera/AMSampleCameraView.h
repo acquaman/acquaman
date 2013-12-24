@@ -360,6 +360,7 @@ protected slots:
 
 	void samplePlateCreate();
 
+
 	void moveBeamSamplePlate(QVector3D);
 
 	void showBeamMarker(int);
@@ -421,6 +422,8 @@ protected:
 	QColor colour(ShapeColour role);
 
 	void drawSamplePlate();
+
+        bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
 
 
 protected:

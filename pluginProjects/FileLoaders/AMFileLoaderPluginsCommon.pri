@@ -1,4 +1,9 @@
 HOME_FOLDER = $$system(echo $HOME)
+user = $$system(whoami)
+contains(user,ludbae){
+    HOME_FOLDER=/home/ludbae
+}
+
 
 macx {
 
