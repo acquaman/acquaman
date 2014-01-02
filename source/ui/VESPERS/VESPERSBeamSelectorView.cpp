@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+ VESPERSBeamSelectorView::~VESPERSBeamSelectorView(){}
 VESPERSBeamSelectorView::VESPERSBeamSelectorView(QWidget *parent)
 	: QWidget(parent)
 {

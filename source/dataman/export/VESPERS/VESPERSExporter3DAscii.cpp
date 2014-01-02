@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+ VESPERSExporter3DAscii::~VESPERSExporter3DAscii(){}
 VESPERSExporter3DAscii::VESPERSExporter3DAscii(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {

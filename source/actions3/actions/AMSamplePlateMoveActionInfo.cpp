@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
 
+ AMSamplePlateMoveActionInfo::~AMSamplePlateMoveActionInfo(){}
 AMSamplePlateMoveActionInfo::AMSamplePlateMoveActionInfo(int samplePlateId, int samplePositionIndex, QObject *parent) :
 	AMActionInfo3("Sample Move", "Sample Move", ":/system-run.png", parent)
 {

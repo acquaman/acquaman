@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyleOption>
 #include <QFontMetrics>
 
+ CLSStopLightButton::~CLSStopLightButton(){}
 CLSStopLightButton::CLSStopLightButton(CLSBiStateControl *control, QWidget *parent)
 	: QPushButton(parent)
 {

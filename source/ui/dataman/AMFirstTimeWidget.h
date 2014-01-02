@@ -47,6 +47,7 @@ class AMFirstTimeWizardPage : public QWizardPage
 	 Q_OBJECT
 
  public:
+ 	virtual ~AMFirstTimeWizardPage(){}
 	AMFirstTimeWizardPage(QWidget *parent = 0) : QWizardPage(parent) {
 		setTitle("Welcome to Acquman");
 		setSubTitle("This looks like the first time you're using Acquaman. We need some information to get you started.");

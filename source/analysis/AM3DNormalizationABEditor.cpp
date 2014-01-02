@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QFormLayout>
 
+ AM3DNormalizationABEditor::~AM3DNormalizationABEditor(){}
 AM3DNormalizationABEditor::AM3DNormalizationABEditor(AM3DNormalizationAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

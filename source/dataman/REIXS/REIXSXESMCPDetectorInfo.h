@@ -34,6 +34,7 @@ class REIXSXESMCPDetectorInfo : public AMOldDetectorInfo
 
 public:
 	/// Default constructor
+ 	virtual ~REIXSXESMCPDetectorInfo();
 	Q_INVOKABLE REIXSXESMCPDetectorInfo(const QString& name = "xesImage", const QString& description = "XES Imaging Detector", QObject *parent = 0);
 
 	// Dimensionality and size:

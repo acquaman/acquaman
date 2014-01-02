@@ -2,6 +2,7 @@
 
 #include "actions3/AMListAction3.h"
 
+ AMEmptyListScanOptimizer::~AMEmptyListScanOptimizer(){}
 AMEmptyListScanOptimizer::AMEmptyListScanOptimizer(AMAction3 *scanActionTree, QObject *parent) :
 	AMScanActionControllerScanOptimizer(scanActionTree, parent)
 {
@@ -30,6 +31,7 @@ void AMEmptyListScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree)
 	delete templateListAction;
 }
 
+ AMSingleElementListOptimizer::~AMSingleElementListOptimizer(){}
 AMSingleElementListOptimizer::AMSingleElementListOptimizer(AMAction3 *scanActionTree, QObject *parent) :
 	AMScanActionControllerScanOptimizer(scanActionTree, parent)
 {

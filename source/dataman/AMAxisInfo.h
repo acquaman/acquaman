@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMAxisInfo
 {
 public:
+ 	virtual ~AMAxisInfo();
 	AMAxisInfo(const QString& mName, long mSize, const QString& mDescription = QString(), const QString& mUnits = QString() );
 	/// Size: number of elements along the axis
 	long size;

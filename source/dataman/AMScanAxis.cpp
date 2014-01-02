@@ -1,5 +1,6 @@
 #include "AMScanAxis.h"
 
+ AMScanAxis::~AMScanAxis(){}
 AMScanAxis::AMScanAxis(AMScanAxis::AxisType axisType, const AMScanAxisRegion &firstRegion, QObject *parent) :
 	AMDbObject(parent)
 {

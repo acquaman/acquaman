@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+ REIXSXESGratingInfo::~REIXSXESGratingInfo(){}
 REIXSXESGratingInfo::REIXSXESGratingInfo(QObject *parent) :
 	AMDbObject(parent)
 {
@@ -40,6 +41,7 @@ REIXSXESGratingInfo::REIXSXESGratingInfo(QObject *parent) :
 	evRangeMax_ = 800;
 }
 
+ REIXSXESCalibration2::~REIXSXESCalibration2(){}
 REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
     AMDbObject(parent)
 {

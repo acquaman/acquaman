@@ -13,6 +13,7 @@ class AMOldDetectorInfoSetView : public QGroupBox
 {
 Q_OBJECT
 public:
+ 	virtual ~AMOldDetectorInfoSetView();
 	AMOldDetectorInfoSetView(const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 protected:
@@ -24,6 +25,7 @@ class AMOldDetectorInfoSetViewInternal : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~AMOldDetectorInfoSetViewInternal();
 	AMOldDetectorInfoSetViewInternal(const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 };
 

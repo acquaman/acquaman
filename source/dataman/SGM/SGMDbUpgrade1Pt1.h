@@ -29,6 +29,7 @@ class SGMDbUpgrade1Pt1 : public AMDbUpgrade
 Q_OBJECT
 public:
 	/// Constructor calls the base constructor for AMDbUpgrade
+ 	virtual ~SGMDbUpgrade1Pt1();
 	SGMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent = 0);
 
 	/// Indicates the dependencies of this upgrade (in this case there are none).

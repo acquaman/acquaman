@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSBiStateControl.h"
 #include "util/AMErrorMonitor.h"
 
+ CLSBiStateControl::~CLSBiStateControl(){}
 CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &description, const QString &state, const QString &open, const QString &close, AMAbstractControlStatusChecker *statusChecker, QObject *parent)
 	: AMControl(name, "", parent, description)
 {

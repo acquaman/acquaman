@@ -4,6 +4,7 @@
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMnDDeadTimeAB.h"
 
+ AMXRFDetector::~AMXRFDetector(){}
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
 {

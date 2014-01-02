@@ -33,7 +33,7 @@ class AMBottomBar : public QWidget, public Ui::AMBottomBarClass {
 public:
 	AMBottomBar(QWidget *parent = 0);
 
-	~AMBottomBar();
+	virtual ~AMBottomBar();
 
 public slots:
 	/// Set the progress bar fraction completed

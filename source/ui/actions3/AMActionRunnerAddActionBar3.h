@@ -38,6 +38,7 @@ class AMActionRunnerAddActionBar3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  If the main "Start ____" should say something other than "Start Action", you can specify that name here.  (ex: "Scan", "Move", etc.)
+ 	virtual ~AMActionRunnerAddActionBar3();
 	explicit AMActionRunnerAddActionBar3(const QString& actionCategoryName = "Action", QWidget *parent = 0);
 
 	/// Adds a widget to our layout, directly above the buttons.  We take ownership of that \c widget.

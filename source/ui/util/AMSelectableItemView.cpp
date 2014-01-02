@@ -1,5 +1,6 @@
 #include "AMSelectableItemView.h"
 
+ AMSelectableItemView::~AMSelectableItemView(){}
 AMSelectableItemView::AMSelectableItemView(QWidget *parent)
 	: QWidget(parent)
 {

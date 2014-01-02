@@ -1,5 +1,6 @@
 #include "AMDetectorCleanupActionInfo.h"
 
+ AMDetectorCleanupActionInfo::~AMDetectorCleanupActionInfo(){}
 AMDetectorCleanupActionInfo::AMDetectorCleanupActionInfo(const AMDetectorInfo &detectorInfo, QObject *parent) :
 	AMActionInfo3("Detector Cleanup", "Detector Cleanup", ":/system-run.png", parent)
 {

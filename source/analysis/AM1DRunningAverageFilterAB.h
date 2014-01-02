@@ -31,6 +31,7 @@ Q_OBJECT
 Q_CLASSINFO("AMDbObject_Attributes", "description=1D Running Average Filter Block")
 
 public:
+ 	virtual ~AM1DRunningAverageFilterAB();
 	Q_INVOKABLE AM1DRunningAverageFilterAB(int filterSize, const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

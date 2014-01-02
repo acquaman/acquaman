@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QToolButton>
 
+ VESPERSXRFElementView::~VESPERSXRFElementView(){}
 VESPERSXRFElementView::VESPERSXRFElementView(XRFElement *el, QWidget *parent)
 	: QWidget(parent)
 {
@@ -117,3 +118,4 @@ void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
 	else
 		emit removeLine(lineName);
 }
+ LineView::~LineView(){}

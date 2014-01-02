@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include "ui/beamline/AMControlEditor.h"
 
+ REIXSXESHexapodControlEditor::~REIXSXESHexapodControlEditor(){}
 REIXSXESHexapodControlEditor::REIXSXESHexapodControlEditor(REIXSHexapod* hexapod, QWidget *parent) :
 	QGroupBox("Hexapod Control", parent)
 {

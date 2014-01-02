@@ -1,5 +1,6 @@
 #include "SGMSIS3820ScalerView.h"
 
+ SGMSIS3820ScalerView::~SGMSIS3820ScalerView(){}
 SGMSIS3820ScalerView::SGMSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
 	CLSSIS3820ScalerView(scaler, parent)
 {

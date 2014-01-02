@@ -27,7 +27,7 @@ public:
 	/// Constructor.  Takes in an AMRegionScanConfiguration.
 	AMRegionScanActionController(AMRegionScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
-	~AMRegionScanActionController();
+	virtual ~AMRegionScanActionController();
 
 	/// Returns whether it is safe to be deleted.  This is important due to the multithreaded nature of the file writing.
 	virtual bool isReadyForDeletion() const;

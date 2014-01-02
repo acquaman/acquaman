@@ -13,6 +13,7 @@
 #include "MPlot/MPlotTools.h"
 #include "MPlot/MPlotSeriesData.h"
 
+ AM4DBinningABEditor::~AM4DBinningABEditor(){}
 AM4DBinningABEditor::AM4DBinningABEditor(AM4DBinningAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QStringBuilder>
 
+ VESPERSChooseDataFolderDialog::~VESPERSChooseDataFolderDialog(){}
 VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent)
 	: QDialog(parent)
 {

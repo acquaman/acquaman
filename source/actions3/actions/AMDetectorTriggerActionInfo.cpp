@@ -1,5 +1,6 @@
 #include "AMDetectorTriggerActionInfo.h"
 
+ AMDetectorTriggerActionInfo::~AMDetectorTriggerActionInfo(){}
 AMDetectorTriggerActionInfo::AMDetectorTriggerActionInfo(const AMDetectorInfo &detectorInfo, AMDetectorDefinitions::ReadMode readMode, QObject *parent) :
 	AMActionInfo3("Detector Trigger", "Detector Trigger", ":/system-run.png", parent)
 {

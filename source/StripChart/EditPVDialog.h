@@ -12,7 +12,7 @@ class EditPVDialog : public QDialog
 
 public:
     EditPVDialog(QStringList pvNames, QWidget *parent = 0);
-    ~EditPVDialog();
+    virtual ~EditPVDialog();
     friend class StripToolModel;
     
 signals:

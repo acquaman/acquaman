@@ -27,6 +27,7 @@ class VESPERSUserConfiguration : public AMDbObject
 
 public:
 	/// Constructor.  Builds a user configuration.
+ 	virtual ~VESPERSUserConfiguration();
 	Q_INVOKABLE VESPERSUserConfiguration(QObject *parent = 0);
 
 	/// Returns the current I0 ion chamber choice.

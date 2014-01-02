@@ -42,6 +42,7 @@ class AMActionHistoryModel3;
 class AMScanConfigurationObjectInfo{
 public:
 	/// The default constructor creates an invalid object
+ 	virtual ~AMScanConfigurationObjectInfo();
 	AMScanConfigurationObjectInfo(){
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
@@ -86,6 +87,7 @@ private:
 
 class AMActionRunnerGroup{
 public:
+ 	virtual ~AMActionRunnerGroup();
 	AMActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel){
 		databaseName_ = databaseName;
 		actionRunner_ = actionRunner;

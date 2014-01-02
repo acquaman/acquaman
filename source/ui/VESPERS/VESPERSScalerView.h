@@ -13,6 +13,7 @@ class VESPERSScalerView : public QWidget
 
 public:
 	/// Constructor.  Builds the view for the 5 scaler channels that users care about.
+ 	virtual ~VESPERSScalerView();
 	explicit VESPERSScalerView(QWidget *parent = 0);
 
 signals:

@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //#include "ui/AMElementListEdit.h"
 #include <QListView>
 
+ AMSampleEditor::~AMSampleEditor(){}
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {

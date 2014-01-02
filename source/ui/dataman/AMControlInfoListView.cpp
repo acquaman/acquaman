@@ -3,6 +3,7 @@
 #include <QLineEdit>
 #include <QBoxLayout>
 
+ AMControlInfoListView::~AMControlInfoListView(){}
 AMControlInfoListView::AMControlInfoListView(const AMControlInfoList &infoList, QMap<int, QString> enumOverrides, QWidget *parent) :
 	QGroupBox(parent)
 {

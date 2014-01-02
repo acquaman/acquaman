@@ -5,6 +5,7 @@
 // AMRegionOfInterestElementView
 /////////////////////////////////////////////////////
 
+ AMRegionOfInterestElementView::~AMRegionOfInterestElementView(){}
 AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest *region, QWidget *parent)
 	: QWidget(parent)
 {
@@ -100,6 +101,7 @@ void AMRegionOfInterestElementView::updateSpinBoxSingleStep()
 // AMRegionOfInterestView
 //////////////////////////////////////////////////////
 
+ AMRegionOfInterestView::~AMRegionOfInterestView(){}
 AMRegionOfInterestView::AMRegionOfInterestView(QList<AMRegionOfInterest *> regions, QWidget *parent)
 	: QWidget(parent)
 {

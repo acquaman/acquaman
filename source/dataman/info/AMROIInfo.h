@@ -100,7 +100,7 @@ public:
 	AMROIInfoList& operator=(const AMROIInfoList& other);
 
 	/// Destructor
-	~AMROIInfoList() {}
+	virtual ~AMROIInfoList() {}
 
 	/// A human-readable description for this set of ROIs
 	QString description() const { return description_; }

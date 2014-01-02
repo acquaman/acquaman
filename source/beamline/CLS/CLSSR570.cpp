@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSR570.h"
 
+ CLSSR570::~CLSSR570(){}
 CLSSR570::CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent)
 	: QObject(parent)
 {

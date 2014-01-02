@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM2DSummingAB.h"
 
 /// Constructor. \c outputName is the name() for the output data source.
+ AM2DSummingAB::~AM2DSummingAB(){}
 AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	: AMStandardAnalysisBlock(outputName, parent) {
 

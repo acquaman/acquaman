@@ -37,6 +37,7 @@ AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 
 #include <algorithm>
 
+ SGM2010FastFileLoader::~SGM2010FastFileLoader(){}
 SGM2010FastFileLoader::SGM2010FastFileLoader(AMFastScan *scan) : AMAbstractFileLoader(scan)
 {
 	if(columns2pvNames_.count() == 0) {

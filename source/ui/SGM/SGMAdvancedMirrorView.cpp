@@ -4,6 +4,7 @@
 #include <QDebug>
 #include "beamline/SGM/SGMBeamline.h"
 
+ SGMAdvancedMirrorView::~SGMAdvancedMirrorView(){}
 SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	QWidget(parent)
 {

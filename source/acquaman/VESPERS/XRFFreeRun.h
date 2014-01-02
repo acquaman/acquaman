@@ -33,6 +33,7 @@ class XRFFreeRun : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.  Links the XRF periodic table model to the XRF detector.
+ 	virtual ~XRFFreeRun();
 	explicit XRFFreeRun(XRFDetector *detector, QObject *parent = 0);
 
 	/// Returns the detector used in this configuration.

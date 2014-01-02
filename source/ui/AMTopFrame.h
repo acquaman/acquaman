@@ -34,6 +34,7 @@ class AMTopFrame : public QFrame
 
 public:
 	/// Constructor.  Provide a title and optionally an icon.
+ 	virtual ~AMTopFrame();
 	AMTopFrame(const QString &title, const QIcon &icon = QIcon(":/system-software-update.png"), QWidget *parent = 0);
 
 	/// Returns the title of the frame.

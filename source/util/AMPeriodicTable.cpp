@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Singleton instance
 AMPeriodicTable* AMPeriodicTable::instance_ = 0;
 
+ AMPeriodicTable::~AMPeriodicTable(){}
 AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 	QObject(parent)
 {

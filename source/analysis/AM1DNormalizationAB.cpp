@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DNormalizationAB.h"
 
+ AM1DNormalizationAB::~AM1DNormalizationAB(){}
 AM1DNormalizationAB::AM1DNormalizationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

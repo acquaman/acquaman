@@ -34,6 +34,7 @@ class VESPERSRoperCCDDetectorView : public AMDetailedOldDetectorView
 
 public:
 	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+ 	virtual ~VESPERSRoperCCDDetectorView(){}
 	Q_INVOKABLE explicit VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.

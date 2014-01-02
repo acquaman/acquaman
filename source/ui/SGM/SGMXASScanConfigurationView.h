@@ -43,7 +43,7 @@ class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
 public:
 	SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent = 0);
-	~SGMXASScanConfigurationView();
+	virtual ~SGMXASScanConfigurationView();
 
 	const AMScanConfiguration* configuration() const;
 

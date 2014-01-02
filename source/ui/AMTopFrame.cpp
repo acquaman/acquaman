@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMFontSizes.h"
 
+ AMTopFrame::~AMTopFrame(){}
 AMTopFrame::AMTopFrame(const QString &title, const QIcon &icon, QWidget *parent)
 	: QFrame(parent)
 {

@@ -58,6 +58,7 @@ public:
 	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
 	  \param parent QObject parent class
 	  */
+ 	virtual ~SGMMAXvMotor();
 	SGMMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
 
 	/// Indicates that all process variables for this motor are connected

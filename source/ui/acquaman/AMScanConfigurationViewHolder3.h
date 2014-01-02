@@ -38,6 +38,7 @@ class AMScanConfigurationViewHolder3 : public AMActionRunnerAddActionBar3
 public:
 	/// Construct a holder for an AMScanConfigurationView \c view (or 0 if no view is ready yet).
 	/*! If provided, this widget takes ownership of the \c view */
+ 	virtual ~AMScanConfigurationViewHolder3();
 	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, QWidget *parent = 0);
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.

@@ -36,6 +36,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Can choose to setup the model.  Valuable when you want subclases to setup their own model.
+ 	virtual ~AMRegionsList();
 	AMRegionsList(QObject *parent = 0, bool setup = true);
 
 	/// Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
@@ -212,6 +213,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Sets up its own regions model.
+ 	virtual ~AMXASRegionsList();
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
 
 public slots:
@@ -233,6 +235,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Sets up its own regions model.
+ 	virtual ~AMEXAFSRegionsList();
 	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true)
 		: AMXASRegionsList(parent, false)
 	{

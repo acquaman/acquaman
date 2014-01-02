@@ -14,6 +14,7 @@ class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
+ 	virtual ~CLSAmptekSDD123DetectorNew();
 	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
 
 	/// The Ampteks don't explicitly require powering on

@@ -36,7 +36,7 @@ public:
 	explicit REIXSXESSpectrometerControlEditor(REIXSSpectrometer* spectrometer, QWidget *parent = 0);
 
 
-	~REIXSXESSpectrometerControlEditor();
+	virtual ~REIXSXESSpectrometerControlEditor();
 
 protected:
 	REIXSSpectrometer* spectrometer_;

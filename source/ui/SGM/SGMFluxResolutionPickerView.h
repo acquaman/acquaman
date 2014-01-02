@@ -15,6 +15,7 @@ class AMXASRegionsList;
 class SGMFluxResolutionPickerStaticView : public QGroupBox{
 Q_OBJECT
 public:
+ 	virtual ~SGMFluxResolutionPickerStaticView();
 	SGMFluxResolutionPickerStaticView(AMXASRegionsList *regions, QWidget *parent = 0);
 
 public slots:
@@ -43,6 +44,7 @@ class SGMFluxResolutionPickerView : public SGMFluxResolutionPickerStaticView
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFluxResolutionPickerView();
 	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
 
 public slots:

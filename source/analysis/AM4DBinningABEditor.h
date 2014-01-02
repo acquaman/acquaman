@@ -19,6 +19,7 @@ class AM4DBinningABEditor : public QWidget
 
 public:
 	/// Construct an editor for the analysis block \c analysisBlock.
+ 	virtual ~AM4DBinningABEditor();
 	explicit AM4DBinningABEditor(AM4DBinningAB *analysisBlock, QWidget *parent = 0);
 
 signals:

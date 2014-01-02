@@ -4,6 +4,7 @@
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
 
+ VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
 VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {

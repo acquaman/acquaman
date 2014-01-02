@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageData.h"
 
+ AMDataSourceImageData::~AMDataSourceImageData(){}
 AMDataSourceImageData::AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent)
 	: QObject(parent), MPlotAbstractImageData()
 {

@@ -18,7 +18,7 @@ class StripToolView : public QWidget
     
 public:
     explicit StripToolView(QWidget *parent = 0, StripToolModel *model = 0);
-    ~StripToolView();
+    virtual ~StripToolView();
 
 signals:
     void reloadPVs(bool reload);

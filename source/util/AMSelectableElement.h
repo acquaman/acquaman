@@ -10,6 +10,7 @@ class AMSelectableElement : public AMElement
 
 public:
 	/// Constructor.  Requires a valid element name (eg: Iron).  Will become a null object if the name is invalid.
+ 	virtual ~AMSelectableElement();
 	AMSelectableElement(const QString &elementName, QObject *parent = 0);
 	/// Constructor.  Takes an existing AMElement and builds an AMSelectableElement out of it.
 	AMSelectableElement(const AMElement &element, QObject *parent);

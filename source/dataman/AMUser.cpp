@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMUser* AMUser::instance_ = 0;
 
 // Protected default constructor
+ AMUser::~AMUser(){}
 AMUser::AMUser() :
 	AMDbObject()
 {

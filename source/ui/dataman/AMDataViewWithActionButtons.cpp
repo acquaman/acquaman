@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataViewWithActionButtons.h"
 #include <QBoxLayout>
 
+ AMDataViewWithActionButtons::~AMDataViewWithActionButtons(){}
 AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {

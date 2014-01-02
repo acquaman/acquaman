@@ -39,6 +39,7 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Binning Spectrum-Output Detector")
 
 public:
+ 	virtual ~AMSpectralOutputDetectorInfo();
 	AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount = 0, QString axisName = "", QStringList binNames = QStringList(), QObject *parent = 0);
 
 	AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original);

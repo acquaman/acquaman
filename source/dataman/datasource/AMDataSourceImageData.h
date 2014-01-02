@@ -32,6 +32,7 @@ class AMDataSourceImageData : public QObject, public MPlotAbstractImageData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as Z=f(X,Y) image data.
+ 	virtual ~AMDataSourceImageData();
 	AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source

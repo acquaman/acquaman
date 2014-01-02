@@ -33,6 +33,7 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
+ SGM2004FileLoader::~SGM2004FileLoader(){}
 SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.

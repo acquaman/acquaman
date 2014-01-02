@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "actions/AMBeamlineControlStopAction.h"
 /*
+ CLSOMS58Motor::~CLSOMS58Motor(){}
 CLSOMS58Motor::CLSOMS58Motor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, bool hasEGU, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
 	AMPVwStatusControl(name,
 				//hasEncoder ? baseName+":mm:fbk" : baseName+":mm:sp",
@@ -1090,3 +1091,4 @@ void CLSOMS58Motor::onEncoderMovementTypeChanged(double value){
 }
 
 */
+ AMControlStatusCheckerCLSOMS58::~AMControlStatusCheckerCLSOMS58(){}

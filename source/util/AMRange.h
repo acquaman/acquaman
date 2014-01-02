@@ -6,6 +6,7 @@ class AMRange
 {
 public:
 	/// Constructor.  Builds an AMRange from a the \param minimum and \param maximum values provided.
+ 	virtual ~AMRange();
 	AMRange(double minimum, double maximum);
 	/// Copy constructor.  Builds a copy AMRange from the one provided.
 	AMRange(const AMRange &original);

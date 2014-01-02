@@ -30,6 +30,7 @@ class AMLoopActionInfo3 : public AMListActionInfo3
 
 public:
 	/// Constructor. Specify the \c loopCount: number of iterations you want to loop for
+ 	virtual ~AMLoopActionInfo3();
 	Q_INVOKABLE AMLoopActionInfo3(int iterations = 3, const QString& shortDescription = "Loop", const QString& longDescription = "Loop of Actions to Run", const QString& iconFileName = ":/32x32/media-playlist-repeat.png", QObject *parent = 0);
 
 	/// Copy Constructor

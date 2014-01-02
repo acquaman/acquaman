@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetectorInfo.h"
 
+ CLSPGTDetectorInfo::~CLSPGTDetectorInfo(){}
 CLSPGTDetectorInfo::CLSPGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
 {
 	hvSetpoint_ = double(0.0);

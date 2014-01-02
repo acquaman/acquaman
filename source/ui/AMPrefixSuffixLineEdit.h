@@ -59,6 +59,7 @@ class AMPrefixSuffixLineEdit : public QLineEdit
 public:
 
 
+ 	virtual ~AMPrefixSuffixLineEdit();
 	AMPrefixSuffixLineEdit(const QString& prefix = QString(), const QString& suffix = QString(), QWidget *parent = 0);
 
 	QString text() const {

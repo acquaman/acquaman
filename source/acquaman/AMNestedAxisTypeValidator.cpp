@@ -1,5 +1,6 @@
 #include "AMNestedAxisTypeValidator.h"
 
+ AMNestedAxisTypeValidator::~AMNestedAxisTypeValidator(){}
 AMNestedAxisTypeValidator::AMNestedAxisTypeValidator(AMAction3 *scanActionTree, QObject *parent) :
 	AMScanActionControllerScanValidator(scanActionTree, parent)
 {

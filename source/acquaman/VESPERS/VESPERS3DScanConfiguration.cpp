@@ -6,6 +6,7 @@
 #include "acquaman/VESPERS/VESPERS3DDacqScanController.h"
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
+ VESPERS3DScanConfiguration::~VESPERS3DScanConfiguration(){}
 VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	: AM3DScanConfiguration(parent), VESPERSScanConfiguration()
 {

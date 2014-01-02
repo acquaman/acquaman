@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMFastScanConfiguration.h"
 
+ AMFastScanConfiguration::~AMFastScanConfiguration(){}
 AMFastScanConfiguration::AMFastScanConfiguration(QObject *parent) :
     AMScanConfiguration(parent)
 {

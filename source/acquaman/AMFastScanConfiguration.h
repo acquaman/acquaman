@@ -32,6 +32,7 @@ class AMFastScanConfiguration : public AMScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Fast Scan Configuration")
 
 public:
+ 	virtual ~AMFastScanConfiguration();
 	AMFastScanConfiguration(QObject *parent = 0);
 
 	const QMetaObject* getMetaObject();

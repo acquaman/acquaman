@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QFormLayout>
 
+ AM1DNormalizationABEditor::~AM1DNormalizationABEditor(){}
 AM1DNormalizationABEditor::AM1DNormalizationABEditor(AM1DNormalizationAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

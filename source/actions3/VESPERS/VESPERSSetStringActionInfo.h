@@ -12,6 +12,7 @@ class VESPERSSetStringActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.  Requires the text that will be set.
+ 	virtual ~VESPERSSetStringActionInfo();
 	VESPERSSetStringActionInfo(const QString &newText, QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSetStringActionInfo(const VESPERSSetStringActionInfo &other);

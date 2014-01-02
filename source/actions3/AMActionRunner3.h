@@ -218,7 +218,7 @@ private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
 	explicit AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
-	~AMActionRunner3();
+	virtual ~AMActionRunner3();
 
 	/// The singleton instance for the workflow
 	static AMActionRunner3 *workflowInstance_;
@@ -233,6 +233,7 @@ class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMActionRunnerQueueModel3();
 	AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -305,6 +306,7 @@ class AMModelIndexListMimeData3 : public QMimeData {
 	Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMModelIndexListMimeData3();
 	AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
 		foreach(const QModelIndex& mi, mil)
 			mil_ << mi;

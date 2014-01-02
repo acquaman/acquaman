@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QStringBuilder>
 
+ VESPERSConfigurationFileBuilder::~VESPERSConfigurationFileBuilder(){}
 VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent)
 	: QObject(parent)
 {

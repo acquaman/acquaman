@@ -14,6 +14,7 @@ class AMDetectorGroup : public QObject
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorGroup();
 	AMDetectorGroup(const QString &name = "Invalid Name", QObject *parent = 0);
 
 	/// Returns the name for this detector set

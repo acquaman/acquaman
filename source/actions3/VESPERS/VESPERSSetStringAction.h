@@ -16,6 +16,7 @@ class VESPERSSetStringAction : public AMAction3
 
 public:
 	/// Constructor.  Requires and takes ownership of an existing VESPERSSetStringActionInfo.  Requires a control to act on as well.
+ 	virtual ~VESPERSSetStringAction();
 	Q_INVOKABLE VESPERSSetStringAction(VESPERSSetStringActionInfo *info, AMControl *control = 0, QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSetStringAction(const VESPERSSetStringAction &other);

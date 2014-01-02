@@ -45,6 +45,7 @@ public:
 	enum Function { Default = 0, Geometric, Exponential, Linear, Quadratic, SmoothStep, Logarithmic };
 
 	/// Constructor.  Takes in the base name and parent and builds a variable integration time object.
+ 	virtual ~CLSVariableIntegrationTime();
 	explicit CLSVariableIntegrationTime(const QString &baseName, QObject *parent = 0);
 
 	/// Returns the current mode of the variable integration time app.

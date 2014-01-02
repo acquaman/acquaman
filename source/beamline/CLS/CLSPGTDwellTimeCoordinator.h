@@ -27,6 +27,7 @@ class CLSPGTDwellTimeCoordinator : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSPGTDwellTimeCoordinator();
 	CLSPGTDwellTimeCoordinator(const QString &PGTStubName, const QString &beamlineStubName, QObject *parent = 0);
 
 protected slots:

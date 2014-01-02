@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
+ AMReadOnlyPVControl::~AMReadOnlyPVControl(){}
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent, const QString description)
 	: AMControl(name, "?", parent, description)  {
 
@@ -78,6 +79,7 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 }
 
 
+ AMPVControl::~AMPVControl(){}
 AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname, QObject* parent, double tolerance, double completionTimeoutSeconds, int stopValue, const QString &description)
 	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -260,6 +262,7 @@ void AMPVControl::onCompletionTimeout() {
 // Class AMSinglePVControl
 ///////////////////////////////////////
 
+ AMSinglePVControl::~AMSinglePVControl(){}
 AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
 	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
 {
@@ -316,6 +319,7 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
+ AMPVwStatusControl::~AMPVwStatusControl(){}
 AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue, const QString &description)
 	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
@@ -565,6 +569,7 @@ void AMPVwStatusControl::onSettlingTimeFinished()
 }
 
 
+ AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
 AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
 	AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -653,3 +658,6 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 
 
 
+ AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
+ AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
+ AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}

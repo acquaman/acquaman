@@ -19,6 +19,7 @@ public:
 	enum MotionType { None = -1, Translational = 0, Rotational = 1 };
 
 	/// Constructor.  Builds a new motor group object with a single control.
+ 	virtual ~AMMotorGroupObject();
 	AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
 	/// Constructor.  Builds a new motor group object with up to three controls.
 	AMMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, QObject *parent = 0);

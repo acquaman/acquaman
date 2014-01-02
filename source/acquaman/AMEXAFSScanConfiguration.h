@@ -43,6 +43,7 @@ class AMEXAFSScanConfiguration : public AMXASScanConfiguration
 
 public:
 	/// Constructor, needs a pointer to a QObject to act as a parent and needs to know whether it should new its own regions list.  This allows a way to not new the wrong type of regions list.
+ 	virtual ~AMEXAFSScanConfiguration();
 	AMEXAFSScanConfiguration(QObject *parent = 0, bool setup = true);
 	AMEXAFSScanConfiguration(const AMEXAFSScanConfiguration &original, bool setup = true);
 

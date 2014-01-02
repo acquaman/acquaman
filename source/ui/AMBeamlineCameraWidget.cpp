@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMCrosshairOverlayVideoWidget.h"
 #include "ui/dataman/AMColorPickerButton.h"
 
+ AMBeamlineCameraWidget::~AMBeamlineCameraWidget(){}
 AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {

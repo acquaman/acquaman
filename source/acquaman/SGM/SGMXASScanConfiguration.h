@@ -42,6 +42,7 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 public:
 	/// Standard constructor, queries the SGMBeamline and retrieves some detector information
+ 	virtual ~SGMXASScanConfiguration();
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 	/// Copy constructor
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);

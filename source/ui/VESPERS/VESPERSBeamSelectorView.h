@@ -38,6 +38,7 @@ class VESPERSBeamSelectorView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes a VESPERSBeamSelector as an argument.
+ 	virtual ~VESPERSBeamSelectorView();
 	explicit VESPERSBeamSelectorView(QWidget *parent = 0);
 
 signals:

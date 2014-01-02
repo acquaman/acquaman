@@ -38,6 +38,7 @@ class AMGithubIssueSubmissionView : public QDialog
 
 public:
 	/// Constructor.  Builds the standard Github submission view dialog.
+ 	virtual ~AMGithubIssueSubmissionView();
 	AMGithubIssueSubmissionView(QWidget *parent = 0);
 
 public slots:

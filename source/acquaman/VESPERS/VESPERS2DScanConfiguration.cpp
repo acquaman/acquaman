@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 
 
+ VESPERS2DScanConfiguration::~VESPERS2DScanConfiguration(){}
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	: AM2DScanConfiguration(parent), VESPERSScanConfiguration()
 {

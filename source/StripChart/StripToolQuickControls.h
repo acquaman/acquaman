@@ -15,7 +15,7 @@ class StripToolQuickControls : public QWidget
 
 public:
     explicit StripToolQuickControls(QWidget *parent = 0);
-    ~StripToolQuickControls();
+    virtual ~StripToolQuickControls();
     
 signals:
     void reset();

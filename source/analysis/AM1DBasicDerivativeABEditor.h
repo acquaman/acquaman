@@ -35,6 +35,7 @@ class AM1DBasicDerivativeABEditor : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in an AM1DDerivativeAB pointer.
+ 	virtual ~AM1DBasicDerivativeABEditor();
 	explicit AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analysisBlock, QWidget *parent = 0);
 
 signals:

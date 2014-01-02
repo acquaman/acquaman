@@ -47,6 +47,7 @@ protected slots:
 	void emitDeleted() { emit deleted(data_); }
 
 protected:
+ 	virtual ~AMDataSourceSignalSource();
 	AMDataSourceSignalSource(AMDataSource* parent);
 	AMDataSource* data_;
 	friend class AMDataSource;

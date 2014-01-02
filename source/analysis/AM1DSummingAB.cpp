@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DSummingAB.h"
 
+ AM1DSummingAB::~AM1DSummingAB(){}
 AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

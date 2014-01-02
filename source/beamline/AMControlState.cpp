@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Constructor for AMControlState.
 /// Sets the name to the AMControl's objectName() function output.
 /// Calls searchChildren() on the control, which is called recursively.
+ AMControlState::~AMControlState(){}
 AMControlState::AMControlState(AMControl *ctrl, QObject *parent) :
 	QObject(parent)
 {
@@ -127,3 +128,4 @@ bool AMControlState::restoreListInternal(AMControl *ctrl, QList<QString> *maskLi
 	}
 	return TRUE;
 }
+ AMControlStatus::~AMControlStatus(){}

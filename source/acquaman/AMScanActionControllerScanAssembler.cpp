@@ -1,5 +1,6 @@
 #include "AMScanActionControllerScanAssembler.h"
 
+ AMScanActionControllerScanAssembler::~AMScanActionControllerScanAssembler(){}
 AMScanActionControllerScanAssembler::AMScanActionControllerScanAssembler(QObject *parent) :
 	QObject(parent)
 {

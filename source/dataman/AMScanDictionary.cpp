@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/AMControlInfo.h"
 #include "dataman/AMSample.h"
 
+ AMScanDictionary::~AMScanDictionary(){}
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
 	AMOldScanParametersDictionary(parent)
 {

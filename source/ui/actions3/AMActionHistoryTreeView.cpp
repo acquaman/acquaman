@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMActionHistoryModel.h"
 
+ AMActionHistoryTreeView3::~AMActionHistoryTreeView3(){}
 AMActionHistoryTreeView3::AMActionHistoryTreeView3(QWidget *parent) :
 	QTreeView(parent)
 {
@@ -297,6 +298,7 @@ bool AMActionHistoryTreeView3::hasSelectedParent(const QModelIndex &index) const
 // AMActionLogItemDelegate
 ////////////////////////////
 
+ AMActionLogItemDelegate3::~AMActionLogItemDelegate3(){}
 AMActionLogItemDelegate3::AMActionLogItemDelegate3(AMActionHistoryTreeView3 *viewer, QObject *parent) :
 	QStyledItemDelegate(parent)
 {

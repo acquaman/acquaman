@@ -2,6 +2,7 @@
 #include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMScanAction.h"
 
+ VESPERSScanConfigurationViewHolder3::~VESPERSScanConfigurationViewHolder3(){}
 VESPERSScanConfigurationViewHolder3::VESPERSScanConfigurationViewHolder3(VESPERSEXAFSScanConfigurationView *view, QWidget *parent)
 	: AMScanConfigurationViewHolder3(view, parent)
 {

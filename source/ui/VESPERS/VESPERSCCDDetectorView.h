@@ -35,6 +35,7 @@ class VESPERSCCDDetectorView : public QWidget
 
 public:
 	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+ 	virtual ~VESPERSCCDDetectorView();
 	Q_INVOKABLE explicit VESPERSCCDDetectorView(VESPERSCCDDetector *detector = 0, QWidget *parent = 0);
 
 protected slots:

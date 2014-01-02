@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMCloseItemDelegate.h"
 #include "acquaman.h"
 
+ AMCloseItemDelegate::~AMCloseItemDelegate(){}
 AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 		QStyledItemDelegate(parent)
 {

@@ -35,6 +35,7 @@ class LineView : public QWidget
 
 public:
 	/// Constructor.  Takes a Line in the form of a QPair<QString, QString> and creates a custom line widget.
+ 	virtual ~LineView();
 	LineView(AMEmissionLine line = AMEmissionLine(), QWidget *parent = 0)
 		: QWidget(parent)
 	{
@@ -93,6 +94,7 @@ class VESPERSXRFElementView : public QWidget
 	Q_OBJECT
 public:
 	/// This constructor builds an element view for the fluorescence detector.  Only the emission lines are displayed.
+ 	virtual ~VESPERSXRFElementView();
 	explicit VESPERSXRFElementView(XRFElement *el = 0, QWidget *parent = 0);
 
 	/// Returns the element.

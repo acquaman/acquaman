@@ -44,6 +44,7 @@ Q_OBJECT
 
 public:
 	/// Default constructor.
+ 	virtual ~AMSample();
 	explicit AMSample(QObject *parent = 0);
 	/// This constructor initializes a sample with a given name.
 	AMSample(const QString& sampleName, QObject* parent = 0);

@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
+ SGMFastScanConfigurationView::~SGMFastScanConfigurationView(){}
 SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {

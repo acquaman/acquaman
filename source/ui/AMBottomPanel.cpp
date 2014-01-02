@@ -1,5 +1,6 @@
 #include "AMBottomPanel.h"
 
+ AMBottomPanel::~AMBottomPanel(){}
 AMBottomPanel::AMBottomPanel(QWidget *parent)
 	: QFrame(parent)
 {

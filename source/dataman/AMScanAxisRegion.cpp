@@ -1,5 +1,6 @@
 #include "AMScanAxisRegion.h"
 
+ AMScanAxisRegion::~AMScanAxisRegion(){}
 AMScanAxisRegion::AMScanAxisRegion(AMNumber start, AMNumber step, AMNumber end, AMNumber time, QObject *parent) :
 	AMDbObject(parent)
 {

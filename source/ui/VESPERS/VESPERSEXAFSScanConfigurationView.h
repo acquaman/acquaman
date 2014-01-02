@@ -45,6 +45,7 @@ class VESPERSEXAFSScanConfigurationView : public VESPERSScanConfigurationView
 public:
 	/// Constructor.
 	/// \param config is the EXAFS configuration that the view will modify.
+ 	virtual ~VESPERSEXAFSScanConfigurationView();
 	VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

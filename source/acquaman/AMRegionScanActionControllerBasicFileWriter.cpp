@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include "dataman/AMTextStream.h"
 
+ AMRegionScanActionControllerBasicFileWriter::~AMRegionScanActionControllerBasicFileWriter(){}
 AMRegionScanActionControllerBasicFileWriter::AMRegionScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData, QObject *parent)
 	: QObject(parent)
 {

@@ -15,6 +15,7 @@ class VESPERSPilatusCCDDetector : public VESPERSCCDDetector
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSPilatusCCDDetector();
 	VESPERSPilatusCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system

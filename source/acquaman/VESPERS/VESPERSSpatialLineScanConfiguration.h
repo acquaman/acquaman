@@ -60,6 +60,7 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, pu
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSSpatialLineScanConfiguration();
 	Q_INVOKABLE VESPERSSpatialLineScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original);

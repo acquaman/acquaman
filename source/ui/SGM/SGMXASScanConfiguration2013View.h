@@ -18,6 +18,7 @@ class SGMXASScanConfiguration2013View : public AMScanConfigurationView
 Q_OBJECT
 
 public:
+ 	virtual ~SGMXASScanConfiguration2013View();
 	SGMXASScanConfiguration2013View(SGMXASScanConfiguration2013 *configuration, QWidget *parent = 0);
 
 	virtual const AMScanConfiguration* configuration() const;

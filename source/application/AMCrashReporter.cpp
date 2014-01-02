@@ -14,6 +14,7 @@
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];
 
+ AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler(){}
 AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *parent) :
 	QObject(parent)
 {
@@ -68,6 +69,7 @@ void AMCrashReporterUnixSignalHandler::sigusr2SignalHandler(int signum){
 	Q_UNUSED(retVal);
 }
 
+ AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol(){}
 AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent) :
 	QObject(parent)
 {
@@ -76,6 +78,7 @@ AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &
 	invalid_ = false;
 }
 
+ AMCrashMonitor::~AMCrashMonitor(){}
 AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent) :
 	QObject(parent)
 {

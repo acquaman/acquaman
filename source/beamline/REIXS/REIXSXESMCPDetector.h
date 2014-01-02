@@ -25,6 +25,7 @@ public:
 	Q_DECLARE_FLAGS(XESMCPFinishedConditions, XESMCPFinishedCondition)
 
 	/// Default constructor. It builds all of the PVs and connec to them accordingly.
+ 	virtual ~REIXSXESMCPDetector();
 	REIXSXESMCPDetector(QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a image detector, so it has a rank of 2.

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMSampleManipulator.h"
 #include "util/AMErrorMonitor.h"
 
+ AMSamplePlateItemModel::~AMSamplePlateItemModel(){}
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
 	QAbstractListModel(parent)
 {
@@ -283,6 +284,7 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 }
 
 
+ AMSamplePlateSelector::~AMSamplePlateSelector(){}
 AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
 	: QWidget(parent) {
 
@@ -490,6 +492,7 @@ void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) 
 }
 
 #include <QGroupBox>
+ AMSamplePlateView::~AMSamplePlateView(){}
 AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *parent) : QWidget(parent) {
 
 	manipulator_ = 0;
@@ -634,6 +637,7 @@ void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 	}
 }
 
+ AMSamplePlatePositionInfo::~AMSamplePlatePositionInfo(){}
 AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent) :
 	QObject(parent)
 {
@@ -757,6 +761,7 @@ QColor AMSamplePlatePositionInfo::getPositionColor(bool isHighlighted) const{
 	return retVal;
 }
 
+ AMSamplePlatePositionInfoView::~AMSamplePlatePositionInfoView(){}
 AMSamplePlatePositionInfoView::AMSamplePlatePositionInfoView(AMSamplePlatePositionInfo *positionInfo, QWidget *parent) :
 	QFrame(parent)
 {
@@ -822,6 +827,7 @@ void AMSamplePlatePositionInfoView::setHighlighted(bool isHighlighted){
 	emit becameHighlighted(isHighlighted_);
 }
 
+ AMSamplePlatePositionInfoListView::~AMSamplePlatePositionInfoListView(){}
 AMSamplePlatePositionInfoListView::AMSamplePlatePositionInfoListView(QList<AMSamplePlatePositionInfoView *> infoViews, QWidget *parent) :
 	QWidget(parent)
 {
@@ -855,12 +861,14 @@ void AMSamplePlatePositionInfoListView::onSamplePlatePositionInfoViewBecameHighl
 				infoViews_.at(x)->setHighlighted(false);
 }
 
+ AMScrollViewWidget::~AMScrollViewWidget(){}
 AMScrollViewWidget::AMScrollViewWidget(QLayout *layout, QWidget *parent) :
 	QWidget(parent)
 {
 	setLayout(layout);
 }
 
+ AMSamplePlateAdditionalInformationView::~AMSamplePlateAdditionalInformationView(){}
 AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel *samplePlateModel, QWidget *parent) :
 	QWidget(parent)
 {
@@ -932,6 +940,7 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 
 #include <QFormLayout>
 
+ AMSamplePositionManuallyEnterView::~AMSamplePositionManuallyEnterView(){}
 AMSamplePositionManuallyEnterView::AMSamplePositionManuallyEnterView(QWidget *parent) :
 	QDialog(parent)
 {
@@ -1000,6 +1009,7 @@ void AMSamplePositionManuallyEnterView::closeEvent(QCloseEvent *e){
 	hideAndFinish();
 }
 
+ AMSamplePositionAdditionalInformationView::~AMSamplePositionAdditionalInformationView(){}
 AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent) :
 	QDialog(parent)
 {

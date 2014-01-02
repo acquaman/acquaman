@@ -3,6 +3,7 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorInitializeAction::~AMDetectorInitializeAction(){}
 AMDetectorInitializeAction::AMDetectorInitializeAction(AMDetectorInitializeActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {

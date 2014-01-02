@@ -1,5 +1,6 @@
 #include "AMRegionOfInterestAB.h"
 
+ AMRegionOfInterestAB::~AMRegionOfInterestAB(){}
 AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

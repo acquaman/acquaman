@@ -1,5 +1,6 @@
 #include "AMDetectorInfo.h"
 
+ AMDetectorInfo::~AMDetectorInfo(){}
 AMDetectorInfo::AMDetectorInfo(const QString &name, const QString &description, const QString &units, double acquisitionTime, AMDetectorDefinitions::ReadMode readMode, QObject *parent) :
 	AMDbObject(parent)
 {

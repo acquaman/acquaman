@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 
+ VESPERSExporterSMAK::~VESPERSExporterSMAK(){}
 VESPERSExporterSMAK::VESPERSExporterSMAK(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {

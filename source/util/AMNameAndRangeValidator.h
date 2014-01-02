@@ -15,6 +15,7 @@ class AMNameAndRangeValidator : public QObject
 
 public:
 	/// Builds a default validator.  All results are valid with no constraints to compare against.
+ 	virtual ~AMNameAndRangeValidator();
 	explicit AMNameAndRangeValidator(QObject *parent = 0);
 	/// Builds a validator with the provided range.
 	AMNameAndRangeValidator(const AMRange &range, QObject *parent = 0);

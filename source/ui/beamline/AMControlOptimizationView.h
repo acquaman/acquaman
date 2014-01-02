@@ -35,6 +35,7 @@ class AMQuickDataSet : public QObject
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMQuickDataSet();
 	AMQuickDataSet(QMap<double, double> dataMap, QObject *parent = 0);
 
 	double minY() { return minY_; }
@@ -62,6 +63,7 @@ Q_OBJECT
 public:
 	/// Constructor
 
+ 	virtual ~AMOldControlSetView();
 	explicit AMOldControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
@@ -100,6 +102,7 @@ class AMControlOptimizationSetView : public AMOldControlSetView
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMControlOptimizationSetView();
 	AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent = 0);
 
 public slots:
@@ -123,6 +126,7 @@ protected:
 class CCOSVItem : public QGraphicsItem
 {
 public:
+ 	virtual ~CCOSVItem();
 	CCOSVItem(int width, int height, QColor curveColor, bool invert = false, bool log = false);
 
 	void updateCurve(AMCurve *dataCurve);
@@ -145,6 +149,7 @@ class AMCompactControlOptimizationSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMCompactControlOptimizationSetView();
 	AMCompactControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
 	AMControlOptimizationSetView *detailView() { return detailView_;}
@@ -182,6 +187,7 @@ class AMColorControlOptimizationSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMColorControlOptimizationSetView();
 	AMColorControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
 protected slots:

@@ -18,6 +18,7 @@ class AMControlStopAction : public AMAction3
 
 public:
 	/// Constructor.  Requires and takes ownership of an existing AMControlStopActionInfo.  Provides an AMControl \param control that will be stopped, if possible.
+ 	virtual ~AMControlStopAction();
 	Q_INVOKABLE AMControlStopAction(AMControlStopActionInfo *info, AMControl *control, QObject *parent = 0);
 	/// Copy constructor.
 	AMControlStopAction(const AMControlStopAction &other);

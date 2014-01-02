@@ -1,5 +1,6 @@
 #include "SGMSScanConfigurationDbObject.h"
 
+ SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(QObject *parent) :
 	AMDbObject(parent)
 {

@@ -38,7 +38,7 @@ public:
 	/// Convenience constructor.
 	VESPERSXRFScanConfiguration(XRFDetectorInfo detectorInfo, QObject *parent = 0);
 	/// Destructor.
-	~VESPERSXRFScanConfiguration();
+	virtual ~VESPERSXRFScanConfiguration();
 
 	/// Returns the detector info for the current detector.
 	XRFDetectorInfo detectorInfo() const { return xrfDetectorInfo_; }

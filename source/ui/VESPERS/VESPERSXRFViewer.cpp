@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QStringBuilder>
 
+ VESPERSXRFViewer::~VESPERSXRFViewer(){}
 VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	QWidget(parent)
 {
@@ -695,3 +696,4 @@ void VESPERSXRFViewer::loadAcquamanXRFFile(QString filename)
 
 	onSpectraGroupClicked(0);
 }
+ VESPERSSpectrumData::~VESPERSSpectrumData(){}

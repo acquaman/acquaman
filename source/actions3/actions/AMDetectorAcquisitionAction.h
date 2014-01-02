@@ -14,6 +14,7 @@ class AMDetectorAcquisitionAction : public AMAction3
 Q_OBJECT
 public:
 	/// Constructor. Requires and takes ownership of an existing AMDetectorInitializeActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedControls will be used instead.
+ 	virtual ~AMDetectorAcquisitionAction();
 	Q_INVOKABLE AMDetectorAcquisitionAction(AMDetectorAcquisitionActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
 	/// Copy Constructor
 	AMDetectorAcquisitionAction(const AMDetectorAcquisitionAction &other);

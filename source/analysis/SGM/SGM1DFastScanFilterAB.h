@@ -31,6 +31,7 @@ Q_OBJECT
 Q_CLASSINFO("AMDbObject_Attributes", "description=1D Running Average Filter Block")
 
 public:
+ 	virtual ~SGM1DFastScanFilterAB();
 	Q_INVOKABLE SGM1DFastScanFilterAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

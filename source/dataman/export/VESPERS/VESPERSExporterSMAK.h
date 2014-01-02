@@ -43,6 +43,7 @@ class VESPERSExporterSMAK : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSExporterSMAK();
 	Q_INVOKABLE explicit VESPERSExporterSMAK(QObject *parent = 0);
 
 	/// Description of the exporter.

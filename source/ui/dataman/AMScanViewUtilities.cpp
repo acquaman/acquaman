@@ -366,6 +366,7 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 #include <QCheckBox>
 #include <QPushButton>
 
+ AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
@@ -887,3 +888,4 @@ bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
 
 	return true;
 }
+ AMScanViewSourceSelector::~AMScanViewSourceSelector(){}

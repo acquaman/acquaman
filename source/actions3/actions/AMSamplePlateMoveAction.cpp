@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
+ AMSamplePlateMoveAction::~AMSamplePlateMoveAction(){}
 AMSamplePlateMoveAction::AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {

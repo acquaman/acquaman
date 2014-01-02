@@ -69,7 +69,7 @@ public:
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
 
-	~VESPERSBeamline();
+	virtual ~VESPERSBeamline();
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.

@@ -39,6 +39,7 @@ class VESPERSExporterLineScanAscii : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSExporterLineScanAscii();
 	Q_INVOKABLE explicit VESPERSExporterLineScanAscii(QObject *parent = 0);
 
 	/// Description of the exporter.

@@ -8,6 +8,7 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
+ VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {

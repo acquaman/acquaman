@@ -52,6 +52,7 @@ class AMActionHistoryView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor. If you want this history view to be able to re-instantiate and re-queue actions, pass in valid AMActionRunner, ie: AMActionRunner::s().  The default (\c actionRunner = 0) is suitable for a Dataman-only program, and can only browse the user's action history.
+ 	virtual ~AMActionHistoryView3();
 	AMActionHistoryView3(AMActionRunner3* actionRunner = 0, AMDatabase* db = 0, QWidget *parent = 0);
 
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.

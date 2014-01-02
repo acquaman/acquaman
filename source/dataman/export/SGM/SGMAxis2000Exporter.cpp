@@ -7,6 +7,7 @@
 #include "dataman/export/AMExporterOption.h"
 #include "acquaman/AMXASScanConfiguration.h"
 
+ SGMAxis2000Exporter::~SGMAxis2000Exporter(){}
 SGMAxis2000Exporter::SGMAxis2000Exporter(QObject *parent) :
 	AMExporterGeneralAscii(parent)
 {

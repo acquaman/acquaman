@@ -27,6 +27,7 @@ class SGMScanConfiguration
 {
 public:
 	/// Standard constructor, sets up nominal beamline values
+ 	virtual ~SGMScanConfiguration();
 	SGMScanConfiguration();
 
 	/// Returns a control info list regarding the tracking group (mono tracking, exit slit tracking, and undulator tracking)

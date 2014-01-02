@@ -33,6 +33,7 @@ class VESPERSEndstation : public QObject
 
 public:
 	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.
+ 	virtual ~VESPERSEndstation();
 	explicit VESPERSEndstation(QObject *parent = 0);
 
 	/// Returns the state of the endstation XIA shutter.

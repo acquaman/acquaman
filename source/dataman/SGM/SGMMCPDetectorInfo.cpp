@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMCPDetectorInfo.h"
 
+ SGMMCPDetectorInfo::~SGMMCPDetectorInfo(){}
 SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMOldDetectorInfo(name, description, parent)
 {
 	hvSetpoint_ = double(0.0);

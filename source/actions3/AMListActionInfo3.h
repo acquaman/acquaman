@@ -28,6 +28,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.
+ 	virtual ~AMListActionInfo3();
 	Q_INVOKABLE AMListActionInfo3(const QString& shortDescription = "List", const QString& longDescription = "List of Actions to Run", const QString& iconFileName = ":/32x32/format-list-ordered.png", QObject *parent = 0);
 	/// Copy constructor.
 	AMListActionInfo3(const AMListActionInfo3 &other);
@@ -43,6 +44,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.
+ 	virtual ~AMSequentialListActionInfo3();
 	Q_INVOKABLE AMSequentialListActionInfo3(const QString& shortDescription = "Sequential List", const QString& longDescription = "Sequential List of Actions to Run", const QString& iconFileName = ":/32x32/format-list-ordered.png", QObject *parent = 0);
 	/// Copy constructor.
 	AMSequentialListActionInfo3(const AMSequentialListActionInfo3 &other);
@@ -58,6 +60,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.
+ 	virtual ~AMParallelListActionInfo3();
 	Q_INVOKABLE AMParallelListActionInfo3(const QString& shortDescription = "Parallel List", const QString& longDescription = "Parallel List of Actions to Run", const QString& iconFileName = ":/32x32/format-line-spacing-triple.png", QObject *parent = 0);
 	/// Copy constructor.
 	AMParallelListActionInfo3(const AMParallelListActionInfo3 &other);

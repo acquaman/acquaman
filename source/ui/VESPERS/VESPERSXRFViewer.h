@@ -41,6 +41,7 @@ class VESPERSXRFViewer : public QWidget
 	Q_OBJECT
 public:
 	/// Builds the viewer.  The general layout, control buttons and information is built here.
+ 	virtual ~VESPERSXRFViewer();
 	explicit VESPERSXRFViewer(QWidget *parent = 0);
 
 signals:
@@ -147,6 +148,7 @@ class VESPERSSpectrumData : public MPlotAbstractSeriesData
 
 public:
 	/// Constructor for the series.  It requires a QList of data..
+ 	virtual ~VESPERSSpectrumData();
 	VESPERSSpectrumData(const QList<double> &data)
 		: MPlotAbstractSeriesData()
 	{

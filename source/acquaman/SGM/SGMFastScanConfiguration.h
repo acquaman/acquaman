@@ -55,7 +55,7 @@ public:
 	/// Copy constrcutor
 	SGMFastScanConfiguration(const SGMFastScanConfiguration &original);
 	/// Destructor
-	~SGMFastScanConfiguration();
+	virtual ~SGMFastScanConfiguration();
 
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();

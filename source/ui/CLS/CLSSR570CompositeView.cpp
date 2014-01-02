@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QMenu>
 
+ CLSSR570CompositeView::~CLSSR570CompositeView(){}
 CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidget *parent)
 	: QWidget(parent)
 {

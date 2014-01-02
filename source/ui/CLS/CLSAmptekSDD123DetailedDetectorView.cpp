@@ -7,6 +7,7 @@
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/beamline/AMControlEditor.h"
 
+ CLSAmptekDetailedDetectorView::~CLSAmptekDetailedDetectorView(){}
 CLSAmptekDetailedDetectorView::CLSAmptekDetailedDetectorView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	AMXRFDetailedDetectorView(detector, parent)
 {
@@ -97,6 +98,7 @@ void CLSAmptekDetailedDetectorView::onEditAmptekConfigurationButtonClicked(){
 	configurationView_->raise();
 }
 
+ CLSAmptekDetectorROIView::~CLSAmptekDetectorROIView(){}
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -180,6 +182,7 @@ void CLSAmptekDetectorROIView::roiEditingFinishedHelper(int index){
 		detector_->setAmptekROI(index, convertedLowValue, convertedHighValue);
 }
 
+ CLSAmptekDetectorConfigurationView::~CLSAmptekDetectorConfigurationView(){}
 CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	QWidget(parent)
 {

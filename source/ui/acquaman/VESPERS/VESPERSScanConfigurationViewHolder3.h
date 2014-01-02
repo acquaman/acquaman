@@ -11,6 +11,7 @@ class VESPERSScanConfigurationViewHolder3 : public AMScanConfigurationViewHolder
 
 public:
 	/// Constructor.  Requires the VESPERSEXAFSScanConfigurationView since it is specifically that scan that needs the ability to be put inside a loop action.
+ 	virtual ~VESPERSScanConfigurationViewHolder3();
 	VESPERSScanConfigurationViewHolder3(VESPERSEXAFSScanConfigurationView *view = 0, QWidget *parent = 0);
 
 protected:

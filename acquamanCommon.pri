@@ -66,13 +66,24 @@ linux-g++ {
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
+
 		# GSL Dependencies
-		GSL_LIB = -lgsl
-		GSL_CBLAS_LIB = -lgslcblas
+		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
+		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
 
 		#CDFLib dependencies
 		CDF_LIB = -lcdf
 		CDF_INCLUDE_DIR = /usr/local/include
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 }
 linux-g++-32 {
 

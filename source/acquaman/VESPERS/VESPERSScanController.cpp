@@ -7,6 +7,7 @@
 
 #include <QStringBuilder>
 
+ VESPERSScanController::~VESPERSScanController(){}
 VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configuration)
 {
 	config_ = configuration;

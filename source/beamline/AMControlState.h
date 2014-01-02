@@ -43,6 +43,7 @@ public:
 	/// Should be able to move/measure defaults to no ("0")
 	/// Value defaults to -1, which could be a legitimate value ... ?
 	/// Tolerance defaults to 0, which is not a legitimate value
+ 	virtual ~AMControlStatus();
 	explicit AMControlStatus(QString name = "", int can = 0, int should = 0, double value = -1, double tolerance = 0, QObject *parent = 0) : QObject(parent){
 		name_ = name;
 		can_ = can;
@@ -88,6 +89,7 @@ class AMControlState : public QObject
 Q_OBJECT
 public:
 	/// Constructor, takes an AMControl and saves its current state. Also takes a QObject as a parent.
+ 	virtual ~AMControlState();
 	explicit AMControlState(AMControl *ctrl, QObject *parent = 0);
 
 signals:

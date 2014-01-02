@@ -11,6 +11,7 @@ class AMScanActionControllerScanOptimizer : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMScanActionControllerScanOptimizer();
 	AMScanActionControllerScanOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 public slots:

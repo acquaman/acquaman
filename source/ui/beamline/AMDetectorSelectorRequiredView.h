@@ -16,6 +16,7 @@ class AMDetectorSelectorRequiredView : public QGroupBox
 Q_OBJECT
 public:
 	/// Constructor for the top view. Going to put the internal view into a scroll area
+ 	virtual ~AMDetectorSelectorRequiredView();
 	AMDetectorSelectorRequiredView(AMDetectorSelector *requiredDetectorSelector, QWidget *parent = 0);
 
 protected:
@@ -32,6 +33,7 @@ class AMDetectorSelectorRequiredViewInternal : public QWidget
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorSelectorRequiredViewInternal();
 	AMDetectorSelectorRequiredViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
 
 protected slots:
@@ -75,6 +77,7 @@ class AMDetectorSelectorRequiredViewInternalLineView : public QWidget
 Q_OBJECT
 public:
 	/// Constructor. Creates a "single line" to view a single detector
+ 	virtual ~AMDetectorSelectorRequiredViewInternalLineView();
 	AMDetectorSelectorRequiredViewInternalLineView(AMDetector *detector, bool isSelected = false, QWidget *parent = 0);
 
 	/// Returns the detector name as a string

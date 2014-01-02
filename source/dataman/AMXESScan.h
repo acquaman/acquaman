@@ -29,6 +29,7 @@ class AMXESScan : public AMScan {
 	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Emission Scan")
 
 public:
+ 	virtual ~AMXESScan();
 	Q_INVOKABLE explicit AMXESScan(QObject *parent = 0);
 
 };

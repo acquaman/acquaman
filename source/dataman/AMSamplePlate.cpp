@@ -154,6 +154,7 @@ double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const
 	return 9999997;
 }
 
+ AMSamplePlate::~AMSamplePlate(){}
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
 
 	setName("New Sample Plate");
@@ -275,3 +276,4 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 	return false;
 }
 
+ AMSamplePosition::~AMSamplePosition(){}

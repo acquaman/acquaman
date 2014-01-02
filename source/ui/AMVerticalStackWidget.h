@@ -34,6 +34,7 @@ class AMVerticalStackWidget : public QFrame
 Q_OBJECT
 public:
 	/// Create a new vertical stack widget to hold a column of subwidgets.
+ 	virtual ~AMVerticalStackWidget();
 	explicit AMVerticalStackWidget(QWidget *parent = 0);
 
 	/// Number of widgets in the stack

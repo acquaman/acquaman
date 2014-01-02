@@ -427,6 +427,7 @@ void REIXSXESImageABEditor::placeRangeRectangle()
 //	shiftData_->setValues(xs, ys);
 //}
 
+ REIXSXESImageABEditorShiftModel::~REIXSXESImageABEditorShiftModel(){}
 REIXSXESImageABEditorShiftModel::REIXSXESImageABEditorShiftModel(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {

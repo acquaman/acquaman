@@ -1,5 +1,6 @@
 #include "VESPERSScanConfiguration.h"
 
+ VESPERSScanConfiguration::~VESPERSScanConfiguration(){}
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;

@@ -8,6 +8,7 @@ class AMEmissionLine
 {
 public:
 	/// Builds an emission line from the name and energy provided.  The name is expected to be in the form "Fe Ka1" with no greek letters.
+ 	virtual ~AMEmissionLine();
 	AMEmissionLine(const QString &name, double energy);
 	/// Builds an emission line from the name and  The name is expected to be in the form "Fe Ka1" with no greek letters.
 	AMEmissionLine(const QString &name, const QString &energy);

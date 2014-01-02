@@ -44,6 +44,7 @@ class AMSamplePosition : public AMDbObject {
 
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
+ 	virtual ~AMSamplePosition();
 	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
 		sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
 
@@ -121,6 +122,7 @@ Q_OBJECT
 
 public:
 	/// Default constructor: an empty sample plate with no samples.
+ 	virtual ~AMSamplePlate();
 	Q_INVOKABLE explicit AMSamplePlate(QObject *parent = 0);
 	/// Copy constructor
 	AMSamplePlate(const AMSamplePlate& other);

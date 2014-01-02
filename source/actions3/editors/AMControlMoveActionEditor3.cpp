@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 
+ AMControlMoveActionEditor3::~AMControlMoveActionEditor3(){}
 AMControlMoveActionEditor3::AMControlMoveActionEditor3(AMControlMoveActionInfo3 *info, QWidget *parent)
 	: QFrame(parent) {
 

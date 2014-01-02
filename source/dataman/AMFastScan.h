@@ -29,6 +29,7 @@ class AMFastScan : public AMScan
 	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Fast Scan")
 public:
 	/// create a new Fast scan
+ 	virtual ~AMFastScan();
 	Q_INVOKABLE explicit AMFastScan(QObject *parent = 0);
 
 };

@@ -4,6 +4,7 @@
 
 #include "ui/CLS/CLSPGTDetectorV2View.h"
 
+ CLSPGTDetectorV2::~CLSPGTDetectorV2(){}
 CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {

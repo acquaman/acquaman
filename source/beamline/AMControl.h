@@ -282,6 +282,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
+ 	virtual ~AMControl();
 	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info

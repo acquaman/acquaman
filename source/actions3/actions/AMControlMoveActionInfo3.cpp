@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlMoveActionInfo3.h"
 
+ AMControlMoveActionInfo3::~AMControlMoveActionInfo3(){}
 AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlInfo &setpoint, QObject *parent)
 	: AMActionInfo3("Control Move", "Control Move", ":/system-run.png", parent)
 {

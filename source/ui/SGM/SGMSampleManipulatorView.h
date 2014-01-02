@@ -40,6 +40,7 @@ class SGMSampleManipulatorView : public QGroupBox
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMSampleManipulatorView();
 	SGMSampleManipulatorView(bool bigButtons = false, QWidget *parent = 0);
 
 protected slots:

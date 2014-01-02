@@ -16,7 +16,7 @@ class StripToolModel : public QAbstractListModel
 
 public:
     explicit StripToolModel(QObject *parent = 0);
-    ~StripToolModel();
+    virtual ~StripToolModel();
 
 signals:
     void metaDataCheck(const QString &pvName);

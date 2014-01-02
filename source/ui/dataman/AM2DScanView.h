@@ -49,6 +49,7 @@ class AM2DScanBar : public QWidget
 
 public:
 	/// Constructor.
+ 	virtual ~AM2DScanBar();
 	AM2DScanBar(QWidget *parent = 0);
 
 	/// Returns the x axis units.
@@ -242,6 +243,7 @@ class AM2DScanViewInternal : public QGraphicsWidget
 
 public:
 	/// Constructor.
+ 	virtual ~AM2DScanViewInternal();
 	explicit AM2DScanViewInternal(AM2DScanView *masterView);
 
 protected slots:

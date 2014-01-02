@@ -4,6 +4,7 @@
 
 #include <QVBoxLayout>
 
+ VESPERSScalerView::~VESPERSScalerView(){}
 VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	: QWidget(parent)
 {

@@ -3,6 +3,7 @@
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
+ AMDetectorSelector::~AMDetectorSelector(){}
 AMDetectorSelector::AMDetectorSelector(AMDetectorGroup *detectorGroup, QObject *parent) :
 	QObject(parent)
 {

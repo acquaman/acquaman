@@ -10,6 +10,7 @@ class CLSBasicScalerChannelDetector : public AMDetector
 Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the channel index to use (index 0 - 31 for SIS3820)
+ 	virtual ~CLSBasicScalerChannelDetector();
 	CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector

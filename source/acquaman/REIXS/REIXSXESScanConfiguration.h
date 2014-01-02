@@ -48,6 +48,7 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Default Constructor
+ 	virtual ~REIXSXESScanConfiguration();
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
 
 	virtual QString description() const;

@@ -1,5 +1,6 @@
 #include "AMRange.h"
 
+ AMRange::~AMRange(){}
 AMRange::AMRange(double minimum, double maximum)
 {
 	isNull_ = false;

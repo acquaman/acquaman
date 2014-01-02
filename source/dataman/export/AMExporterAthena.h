@@ -40,6 +40,7 @@ class AMExporterAthena : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
+ 	virtual ~AMExporterAthena();
 	Q_INVOKABLE explicit AMExporterAthena(QObject *parent = 0);
 
 	/// Description of the exporter.

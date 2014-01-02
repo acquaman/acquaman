@@ -12,6 +12,7 @@ class AMRegionScanConfigurationConverter : public AMScanActionControllerScanConf
 
 public:
 	/// Constructor.  Requires a valid scan assembler and an AMRegionScanConfiguration to build from.
+ 	virtual ~AMRegionScanConfigurationConverter();
 	AMRegionScanConfigurationConverter(AMScanActionControllerScanAssembler *scanAssembler = 0, AMRegionScanConfiguration *scanConfiguration = 0, QObject *parent = 0);
 
 protected:

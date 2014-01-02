@@ -9,6 +9,7 @@ class AMBasicControlDetectorEmulator : public AMDetector
 Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as a pointer to the control you wish to acquire
+ 	virtual ~AMBasicControlDetectorEmulator();
 	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector

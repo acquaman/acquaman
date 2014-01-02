@@ -13,6 +13,7 @@ class AMOrderReductionABEditor : public QWidget
 
 public:
 	/// Constructor.  Takes in an AMOrderReductionAB pointer.
+ 	virtual ~AMOrderReductionABEditor();
 	explicit AMOrderReductionABEditor(AMOrderReductionAB *analysisBlock, QWidget *parent = 0);
 
 signals:

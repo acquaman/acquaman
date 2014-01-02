@@ -1,5 +1,6 @@
 #include "AMControlStopActionInfo.h"
 
+ AMControlStopActionInfo::~AMControlStopActionInfo(){}
 AMControlStopActionInfo::AMControlStopActionInfo(const AMControlInfo &setpoint, QObject *parent)
 	: AMActionInfo3("Control Stop", "Control Stop", ":/stop.png", parent)
 {

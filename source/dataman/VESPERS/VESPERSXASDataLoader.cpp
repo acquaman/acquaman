@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
+ VESPERSXASDataLoader::~VESPERSXASDataLoader(){}
 VESPERSXASDataLoader::VESPERSXASDataLoader(AMXASScan *scan)
 	: AMAbstractFileLoader(scan)
 {

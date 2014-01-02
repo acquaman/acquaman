@@ -15,7 +15,7 @@ class StripToolDataController : public QObject
 
 public:
     explicit StripToolDataController(QObject *parent = 0);
-    ~StripToolDataController();
+    virtual ~StripToolDataController();
 
 signals:
     void addPV(const QString &pvName);

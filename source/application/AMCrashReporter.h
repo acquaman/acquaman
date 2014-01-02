@@ -13,6 +13,7 @@ class AMCrashReporterUnixSignalHandler : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCrashReporterUnixSignalHandler();
 	AMCrashReporterUnixSignalHandler(QObject *parent = 0);
 
 	static void sigusr1SignalHandler(int signum);
@@ -38,6 +39,7 @@ class AMCrashReporterStackTraceSymbol : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCrashReporterStackTraceSymbol();
 	AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent = 0);
 
 	QString executable() const { return executable_; }
@@ -59,6 +61,7 @@ class AMCrashMonitor : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCrashMonitor();
 	AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent = 0);
 
 protected slots:

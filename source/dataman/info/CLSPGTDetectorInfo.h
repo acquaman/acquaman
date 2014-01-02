@@ -34,6 +34,7 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=PGT Detector")
 
 public:
+ 	virtual ~CLSPGTDetectorInfo();
 	Q_INVOKABLE CLSPGTDetectorInfo(const QString& name = "pgt", const QString& description = "SDD", QObject *parent = 0);
 
 	CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original);

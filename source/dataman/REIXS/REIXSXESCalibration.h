@@ -67,6 +67,7 @@ class REIXSXESCalibration : public AMDbObject
 
 
 public:
+ 	virtual ~REIXSXESCalibration();
 	explicit REIXSXESCalibration(QObject *parent = 0);
 
 	int gratingCount() const { return gratingNames_.count(); } ///< returns the number of gratings defined in this calibration

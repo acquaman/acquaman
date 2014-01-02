@@ -28,6 +28,7 @@ class ROIHelper : public QObject
 {
 	Q_OBJECT
 public:
+ 	virtual ~ROIHelper();
 	explicit ROIHelper(QObject *parent = 0);
 
 signals:

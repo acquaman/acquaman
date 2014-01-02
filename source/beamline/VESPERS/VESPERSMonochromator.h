@@ -35,6 +35,7 @@ class VESPERSMonochromator : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~VESPERSMonochromator();
 	explicit VESPERSMonochromator(QObject *parent = 0);
 
 	/// Returns the energy setpoint.

@@ -43,6 +43,7 @@ protected slots:
 	void emitDeleted();
 
 protected:
+ 	virtual ~AMDetectorSignalSource();
 	AMDetectorSignalSource(AMOldDetector* parent);
 	AMOldDetector* detector_;
 	friend class AMOldDetector;

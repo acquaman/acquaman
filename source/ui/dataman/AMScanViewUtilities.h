@@ -42,7 +42,7 @@ class AMScanViewScanBarContextMenu : public QMenu {
 	Q_OBJECT
 public:
 	AMScanViewScanBarContextMenu(AMScanSetModel* model, int scanIndex, int dataSourceIndex, QWidget* parent = 0);
-	~AMScanViewScanBarContextMenu();
+	virtual ~AMScanViewScanBarContextMenu();
 
 protected:
 	/// The model this context menu was created within
@@ -112,6 +112,7 @@ class AMScanViewSourceSelector : public QWidget {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMScanViewSourceSelector();
 	explicit AMScanViewSourceSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
 
@@ -211,6 +212,7 @@ class AMScanViewSingleSpectrumView : public QWidget
 
 public:
 	/// Constructor.  Builds a plot.
+ 	virtual ~AMScanViewSingleSpectrumView();
 	AMScanViewSingleSpectrumView(QWidget *parent = 0);
 
 	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.

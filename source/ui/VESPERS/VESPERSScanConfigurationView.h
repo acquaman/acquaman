@@ -31,6 +31,7 @@ class VESPERSScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuraiton that this view will modify.
+ 	virtual ~VESPERSScanConfigurationView();
 	VESPERSScanConfigurationView(QWidget *parent = 0);
 
 signals:

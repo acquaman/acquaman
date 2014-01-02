@@ -34,7 +34,7 @@ public:
 	/// Default constructor.
 	VESPERSXRFScanConfigurationView(VESPERSXRFScanConfiguration *scanConfig, QWidget *parent = 0);
 	/// Destructor.
-	~VESPERSXRFScanConfigurationView();
+	virtual ~VESPERSXRFScanConfigurationView();
 
 	/// Returns a pointer to the current configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }

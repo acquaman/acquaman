@@ -41,6 +41,7 @@ class AMNumberChangeAction : public AMAction3
 Q_OBJECT
 
 public:
+ 	virtual ~AMNumberChangeAction();
 	Q_INVOKABLE AMNumberChangeAction(AMNumberChangeActionInfo *info, QObject *parent = 0);
 	AMNumberChangeAction(const AMNumberChangeAction &other);
 

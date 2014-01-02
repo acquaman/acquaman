@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AM1DBasicDerivativeABEditor.h"
 
+ AM1DDerivativeAB::~AM1DDerivativeAB(){}
 AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {

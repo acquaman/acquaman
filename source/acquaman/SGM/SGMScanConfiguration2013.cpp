@@ -1,5 +1,6 @@
 #include "SGMScanConfiguration2013.h"
 
+ SGMScanConfiguration2013::~SGMScanConfiguration2013(){}
 SGMScanConfiguration2013::SGMScanConfiguration2013()
 {
 	dbObject_ = new SGMSScanConfigurationDbObject();

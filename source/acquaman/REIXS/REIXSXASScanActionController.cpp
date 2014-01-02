@@ -8,6 +8,7 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "dataman/AMSample.h"
 
+ REIXSXASScanActionController::~REIXSXASScanActionController(){}
 REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent) :
 	AMRegionScanActionController(cfg, parent)
 {

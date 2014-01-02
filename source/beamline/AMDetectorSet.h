@@ -13,6 +13,7 @@ class AMDetectorSet : public QObject, public AMOrderedSet<QString, AMDetector*>
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorSet();
 	explicit AMDetectorSet(QObject *parent = 0);
 
 	/// Returns the name for this detector set

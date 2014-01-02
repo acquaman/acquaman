@@ -15,6 +15,7 @@ class AMCustomizablePeriodicTableView : public QWidget
 
 public:
 	/// Constructor.  Requires a customizable periodic table model to view.
+ 	virtual ~AMCustomizablePeriodicTableView();
 	explicit AMCustomizablePeriodicTableView(AMCustomizablePeriodicTable *table, QWidget *parent = 0);
 
 	/// This method actually builds all of the GUI elements for the periodic table view.  It can be reimplemented by subclasses for specific looks.  The default implementation is the typical periodic table look.  It expects mapElement to be implemented correctly to ensure proper mapping of buttons to elements and a valid periodic table model.

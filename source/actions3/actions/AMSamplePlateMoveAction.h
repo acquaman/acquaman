@@ -42,6 +42,7 @@ Q_OBJECT
 
 public:
 	/// Constructor, Requires and takes ownership of an exisiting AMSamplePlateMoveActionInfo. Does not require a control set, this will be looked up from the beamline automatically.
+ 	virtual ~AMSamplePlateMoveAction();
 	Q_INVOKABLE AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *info, QObject *parent = 0);
 	/// Copy constructor
 	AMSamplePlateMoveAction(const AMSamplePlateMoveAction &other);

@@ -19,6 +19,7 @@ class AMActionRunnerBottomBarCurrentView3 : public QWidget
 
 public:
 	/// Constructor.  For now, include AMActionRunner::s() for \c actionRunner.
+ 	virtual ~AMActionRunnerBottomBarCurrentView3();
 	AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
 	/// Sets whether the cancel prompt should be shown.

@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMActionHistoryView
 ////////////////////////////
 
+ AMActionHistoryView3::~AMActionHistoryView3(){}
 AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMDatabase *db, QWidget *parent) : QWidget(parent)
 {
 	actionRunner_ = actionRunner;

@@ -179,6 +179,7 @@ void CLSSynchronizedDwellTime::onDwellTimeSourceSetDwellTime(double dwellSeconds
 		dwellTimeSource_->setSucceeded();
 }
 
+ CLSSynchronizedDwellTimeElement::~CLSSynchronizedDwellTimeElement(){}
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
 	: QObject(parent)
 {

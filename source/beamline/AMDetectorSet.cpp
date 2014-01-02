@@ -4,6 +4,7 @@
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorSet::~AMDetectorSet(){}
 AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
 {

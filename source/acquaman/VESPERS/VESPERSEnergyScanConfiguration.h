@@ -50,6 +50,7 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VES
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSEnergyScanConfiguration();
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original);

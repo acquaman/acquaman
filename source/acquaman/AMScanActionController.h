@@ -14,6 +14,7 @@ class AMScanActionController : public AMScanController
 
 public:
 	/// Constructor.  Requires the scan configuration.
+ 	virtual ~AMScanActionController();
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Returns the master action that encapsulates all of the, possibly nested, actions that run the scan.

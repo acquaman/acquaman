@@ -1,5 +1,6 @@
 #include "VESPERSPilatusCCDDetector.h"
 
+ VESPERSPilatusCCDDetector::~VESPERSPilatusCCDDetector(){}
 VESPERSPilatusCCDDetector::VESPERSPilatusCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSCCDDetector(name, description, parent)
 {

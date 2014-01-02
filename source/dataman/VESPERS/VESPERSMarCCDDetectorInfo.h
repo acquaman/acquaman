@@ -32,6 +32,7 @@ class VESPERSMarCCDDetectorInfo : public AMOldDetectorInfo
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSMarCCDDetectorInfo();
 	VESPERSMarCCDDetectorInfo(const QString &name, const QString &description, QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSMarCCDDetectorInfo(const VESPERSMarCCDDetectorInfo &original);
