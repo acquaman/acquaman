@@ -268,11 +268,11 @@ void VESPERSAppController::setupUserInterface()
 	// Setup the general endstation control view.
 	endstationView_ = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 	// Setup the general status page.
-	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+	statusPage_ = new VESPERSDeviceStatusView;
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
-	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
+	mw_->addPane(statusPage_, "General", "Device Status", ":/system-software-update.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -292,8 +292,6 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
-//	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
-//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
 	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	testView1->buildDetectorView();
 	testView1->setEnergyRange(3000, 20000);
@@ -302,8 +300,6 @@ void VESPERSAppController::setupUserInterface()
 	testView1->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(testView1, "Detectors", "New 1-el Vortex", ":/system-search.png");
 
-//	VESPERSFourElementVortexDetector *test4 = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
-//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
 	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	testView4->buildDetectorView();
 	testView4->setEnergyRange(3000, 20000);
@@ -387,6 +383,14 @@ void VESPERSAppController::makeConnections()
 	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
 	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+
+	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
+	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
+}
+
+void VESPERSAppController::onStatusViewRequrested()
+{
+	mw_->setCurrentPane(statusPage_);
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)

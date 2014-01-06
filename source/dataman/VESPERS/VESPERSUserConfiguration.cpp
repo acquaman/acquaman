@@ -84,12 +84,10 @@ void VESPERSUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
 	regionsOfInterest_.append(region);
 	setModified(true);
-	storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 {
 	regionsOfInterest_.removeOne(region);
 	setModified(true);
-	storeToDb(AMDatabase::database("user"));
 }

@@ -70,4 +70,4 @@ namespace AM {
 }
  AMAcqEvent::~AMAcqEvent(){}
  AMAcqErrorEvent::~AMAcqErrorEvent(){}
- AMHighPrecisionDateTime::~AMHighPrecisionDateTime(){}
+// AMHighPrecisionDateTime::~AMHighPrecisionDateTime(){}

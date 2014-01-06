@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 
 class VESPERSEndstationView;
+class VESPERSDeviceStatusView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
 class VESPERSCCDDetectorView;
@@ -76,6 +77,8 @@ protected slots:
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
 
+	/// Helper slot that handles moving the status page to the front of the main window stack.
+	void onStatusViewRequrested();
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
@@ -206,6 +209,8 @@ protected:
 	VESPERSPersistentView *persistentView_;
 	/// Pointer to the endstation view.
 	VESPERSEndstationView *endstationView_;
+	/// Pointer to the status view.
+	VESPERSDeviceStatusView *statusPage_;
 
 	/// Flag for holding the startup flag for the Roper CCD.  This is false until the roper is connected.
 	bool roperCCDStartup_;
