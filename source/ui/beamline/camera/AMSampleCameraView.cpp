@@ -719,8 +719,8 @@ void AMSampleCameraView::samplePlateCreate()
 	{
 		sampleCoordinateList<<*coordinate;
 	}
-
-        shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, numberOfPoints);
+        QVector<double> rotations = samplePlateWizard_->rotations();
+        shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
 }
 
@@ -762,6 +762,11 @@ void AMSampleCameraView::showBeamMarker(int index)
 void AMSampleCameraView::transmitMotorMovementEnabled()
 {
 	emit motorMovementEnabled(shapeModel_->motorMovementEnabled());
+}
+
+void AMSampleCameraView::transmitMotorRotation()
+{
+    emit motorRotation(shapeModel_->motorRotation());
 }
 
 void AMSampleCameraView::updateShapeName(QString newName)
@@ -1268,6 +1273,8 @@ void AMSampleCameraView::startSampleWizard()
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
+        connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SLOT(transmitMotorRotation()));
+        connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
 	view->setScene(shapeScene_->scene());
 	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
 	samplePlateWizard_->setView(view);

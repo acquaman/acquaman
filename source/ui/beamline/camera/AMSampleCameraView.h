@@ -221,6 +221,7 @@ signals:
 	void applyDistortion();
 
 	void motorMovementEnabled(bool enabled);
+        void motorRotation(double rotation);
 
 	void moveSucceeded();
 
@@ -366,6 +367,8 @@ protected slots:
 	void showBeamMarker(int);
 
 	void transmitMotorMovementEnabled();
+
+        void transmitMotorRotation();
 
 	void updateShapeName(QString newName);
 
