@@ -371,7 +371,7 @@ void VESPERSPersistentView::onPressureStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < pressure_->count() && allGood; i++)
+	for (int i = 0, size = pressure_->count(); i < size && allGood; i++)
 		if (pressure_->at(i)->isMoving())
 			allGood = false;
 
@@ -383,7 +383,7 @@ void VESPERSPersistentView::onTemperatureStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < temperature_->count() && allGood; i++)
+	for (int i = 0, size = temperature_->count(); i < size && allGood; i++)
 		if (temperature_->at(i)->isMoving())
 			allGood = false;
 
@@ -395,11 +395,11 @@ void VESPERSPersistentView::onWaterStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < flowSwitches_->count() && allGood; i++)
+	for (int i = 0, size = flowSwitches_->count(); i < size && allGood; i++)
 		if (flowSwitches_->at(i)->value() == 0)
 			allGood = false;
 
-	for (int i = 0; i < flowTransducers_->count() && allGood; i++)
+	for (int i = 0, size = flowTransducers_->count(); i < size && allGood; i++)
 		if (flowTransducers_->at(i)->isMoving())
 			allGood = false;
 

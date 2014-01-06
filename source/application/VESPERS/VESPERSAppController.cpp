@@ -415,6 +415,7 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 		return;
 
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
