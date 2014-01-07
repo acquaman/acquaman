@@ -47,6 +47,8 @@ bool VESPERSExporterSMAK::prepareDataSources()
 
 	if (option_->includeAllDataSources() && option_->firstColumnOnly()){
 
+		bool includeFirstColumn = true;
+
 		for (int i = 0; i < currentScan_->dataSourceCount(); i++){
 
 			switch(currentScan_->dataSourceAt(i)->rank()){
@@ -57,7 +59,11 @@ bool VESPERSExporterSMAK::prepareDataSources()
 
 			case 2:
 				mainTableDataSources_ << i;
-				mainTableIncludeX_ << (i == 0 ? true : false); // X and Y.
+				mainTableIncludeX_ << includeFirstColumn; // X and Y.
+
+				if (includeFirstColumn)
+					includeFirstColumn = false;
+
 				break;
 
 			case 3:
