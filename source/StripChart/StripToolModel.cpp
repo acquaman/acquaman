@@ -370,28 +370,43 @@ void StripToolModel::editPV(const QModelIndex &index)
         return;
     }
 
-    QList<QString> pvInfo = pvList_.at(index.row())->metaData();
+    StripToolPV *toEdit = pvList_.at(index.row());
 
-    EditPVDialog editDialog(pvInfo);
+    EditPVDialog editDialog(toEdit->editPVDialogData(), toEdit->editPVDialogDefaults());
+
     if (editDialog.exec())
     {
-        QString description = editDialog.description();
-        QString units = editDialog.units();
-        int granularity = editDialog.granularity();
+//        QString description = editDialog.description();
+//        QString units = editDialog.units();
+//        int granularity = editDialog.granularity();
+//        QString color = editDialog.color();
+//        double displayMax = editDialog.displayMax();
+//        double displayMin = editDialog.displayMin();
 
-        StripToolPV *toEdit = pvList_.at(index.row());
-
-        if (description != "")
+        if (editDialog.description())
         {
-            toEdit->setDescription(description);
+            toEdit->setDescription(*editDialog.description());
             emit dataChanged(index, index);
         }
 
-        if (units != "")
-            toEdit->setYUnits(units);
+        if (editDialog.units())
+            toEdit->setYUnits(*editDialog.units());
 
-        if (granularity > 0)
-            toEdit->setUpdateGranularity(granularity);
+        if (editDialog.granularity())
+            toEdit->setUpdateGranularity(*editDialog.granularity());
+
+        if (editDialog.color())
+            toEdit->setSeriesColor(*editDialog.color());
+
+        if (editDialog.displayMax())
+            toEdit->setDisplayedYMax(*editDialog.displayMax());
+        else
+            toEdit->restoreDefaultYMaxDisplay();
+
+        if (editDialog.displayMin())
+            toEdit->setDisplayedYMin(*editDialog.displayMin());
+        else
+            toEdit->restoreDefaultYMinDisplay();
 
     }
 }
@@ -411,8 +426,8 @@ bool StripToolModel::deletePV(const QModelIndex &index)
 
     if (index.isValid() && index.row() < size)
     {
-        int position = index.row(); //  we use the index to identify which pv to remove from the list.
-        int count = 1; //  we delete pvs one at a time.
+        int position = index.row(); //  use the index to identify which pv to remove from the list.
+        int count = 1; //  delete pvs one at a time.
 
         setSelectedPV(0);
         emit deletePVData(pvList_.at(index.row()));
@@ -533,14 +548,19 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
             emit modelSelectionChange();
             qDebug() << "Selected pv : " << selectedPV_->pvName();
 
+            emit selectedWaterfall(selectedPV_->waterfall());
+
         } else if (!newSelection) {
 
             if (selectedPV_ != 0)
                 selectedPV_->setSelected(false);
 
             selectedPV_ = 0;
+
             emit modelSelectionChange();
             qDebug() << "Deselected pv.";
+
+            emit selectedWaterfall(0.0);
 
         } else {
 

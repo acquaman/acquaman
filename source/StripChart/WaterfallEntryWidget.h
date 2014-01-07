@@ -23,6 +23,9 @@ protected:
 protected:
     void initialize();
 
+protected slots:
+    void toSetWaterfallDisplayed(double newDisplay);
+
 };
 
 #endif // WATERFALLENTRYWIDGET_H

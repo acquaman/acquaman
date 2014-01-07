@@ -88,7 +88,6 @@ bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
 
     if (!contains(newSeries))
     {
-//        plot_->addItem(newSeries, MPlot::VerticalRelative);
         plot_->addItem(newSeries);
         int newItemNum = plot_->plotItems().size();
 
@@ -158,27 +157,13 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 
 void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newRange)
 {
-//    qreal plotRectX = plot_->plotArea()->boundingRect().height();
-//    qreal plotRectY = plot_->plotArea()->boundingRect().width();
-
-//    const QSizeF &drawingSize = QSizeF(plotRectY, plotRectX);
-//    MPlotAxisScale *newScale = new MPlotAxisScale(Qt::Vertical, drawingSize, *newRange, 5, this); // map the vertical data range onto an axis scale.
-
-//    plot_->axisLeft()->setAxisScale(newScale); // apply the new axis scale to the displayed axis.
     qreal rangeMin = newRange->min();
     qreal rangeMax = newRange->max();
 
-    if (rangeMin == rangeMax) {
-//        rangeMin = rangeMin * 0.95;
+    if (rangeMin == rangeMax)
         rangeMax *= 1.05;
-    }
-
-//    qDebug() << "Range min  :" << rangeMin;
-//    qDebug() << "Range max  :" << rangeMax;
-
 
     plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
-//    plot_->enableAxisNormalization(MPlot::Left, true);
 
 }
 
@@ -215,10 +200,15 @@ void StripToolPlot::onModelSelectionChange()
 
 
 
-void StripToolPlot::toUpdateWaterfall(double amount)
-{
-    qreal waterfall = amount;
+void StripToolPlot::toUpdateWaterfall(double vertPercentage)
+{    
+    MPlotAxisRange leftRange = plot_->axisScaleLeft()->dataRange();
+    qreal rangeMin = leftRange.min();
+    qreal rangeMax = leftRange.max();
+
+    qreal waterfall = ((rangeMax - rangeMin) * vertPercentage);
     plot_->setAxisScaleWaterfall(MPlot::Left, waterfall);
+
     qDebug() << "Plot received signal to adjust waterfall amount to" << waterfall;
 }
 

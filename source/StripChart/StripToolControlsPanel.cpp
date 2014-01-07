@@ -17,6 +17,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     connect( sidebarButton_, SIGNAL(clicked()), this, SLOT(toToggleSidebar()) );
 
     waterfallEntry_ = new WaterfallEntryWidget();
+    waterfallEntry_->setEnabled(false);
 
     QGridLayout *panelLayout = new QGridLayout();
     panelLayout->addWidget(nameEntry_, 0, 0);
@@ -58,6 +59,7 @@ void StripToolControlsPanel::setModel(StripToolModel *newModel)
     connect( model_, SIGNAL(requestTimeUpdate()), timeEntry_, SLOT(timeUpdateRequested()) );
 
     connect( waterfallEntry_, SIGNAL(waterfallChanged(double)), model_, SLOT(toSetSelectedWaterfall(double)) );
+    connect( model_, SIGNAL(selectedWaterfall(double)), waterfallEntry_, SLOT(toSetWaterfallDisplayed(double)) );
 }
 
 

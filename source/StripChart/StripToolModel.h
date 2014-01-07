@@ -36,6 +36,7 @@ signals:
     void updateYAxisRange(MPlotAxisRange *newRange);
     void updateYAxisLabel(const QString &newLabel);
     void updateWaterfall(double newWaterfall);
+    void selectedWaterfall(double selectedWaterfall);
 
 protected:
     QList<StripToolPV*> pvList_;

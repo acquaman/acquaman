@@ -29,6 +29,7 @@ signals:
     void updateYAxisRange(MPlotAxisRange *newRange);
     void updateYAxisLabel(const QString &newLabel);
     void updateWaterfall(double newWaterfall);
+    void updateWaterfallDisplay(double waterfall);
 
 protected:
     int updateIndex_;
@@ -43,6 +44,7 @@ protected:
     QList<QString> headers_;
 
     QString pvName_;
+    QString dateCreated_;
     QString pvDescription_;
     QString xUnits_;
     QString yUnits_;
@@ -62,6 +64,16 @@ protected:
 
     QVector<double> displayedTimes_;
     QVector<double> displayedValues_;
+
+    double defaultDisplayedYMin_;
+    double defaultDisplayedYMax_;
+
+    double displayedYMin_;
+    double displayedYMax_;
+
+//    bool defaultDisplayWindow_;
+    bool defaultYMaxDisplayed_;
+    bool defaultYMinDisplayed_;
 
     MPlotVectorSeriesData *pvData_;
     MPlotSeriesBasic *pvSeries_;
@@ -84,6 +96,8 @@ protected:
     QColor color();
     int updateGranularity();
     double waterfall();
+    double displayedYMin();
+    double displayedYMax();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.
@@ -94,6 +108,8 @@ protected:
     QVector<double> saveMasterValues();
     QList<QString> metaDataHeaders();
     QList<QString> metaData();
+    QList<QString> editPVDialogData();
+    QList<QString> editPVDialogDefaults();
     bool setMetaData(QList<QString> metaData);
 
     bool isSelected();
@@ -106,6 +122,12 @@ protected:
     void setPVUpdating(bool isUpdating);
     /// The list view will allow the user to un/check a pv, and the most recent update for a pv's check state is set here.
     void setCheckState(Qt::CheckState isChecked);
+    void setWaterfall(double newWaterfall);
+
+    void setDisplayedYMax(double newMax);
+    void setDisplayedYMin(double newMin);
+    void restoreDefaultYMaxDisplay();
+    void restoreDefaultYMinDisplay();
 
     bool operator== (const StripToolPV &anotherPV);
 
@@ -116,7 +138,6 @@ private:
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
     void setUpdateGranularity(int newVal);
-    void setWaterfall(double newWaterfall);
     void setMetaDataHeaders();
     void saveCheck();
     void dataVectorSizeCheck();

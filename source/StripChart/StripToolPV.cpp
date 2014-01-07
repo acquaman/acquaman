@@ -5,7 +5,7 @@ StripToolPV::StripToolPV(QObject *parent)
 {
     updateIndex_ = 0;
     updateGranularity_ = 2;
-    timeFactor_ = 0.001; // for conversion from different time units into seconds.
+    timeFactor_ = 0.001; // for conversion from different time units (initially ms) into seconds.
 
     defaultTimeDisplayed_ = 10;
     timeDisplayed_ = defaultTimeDisplayed_;
@@ -24,10 +24,23 @@ StripToolPV::StripToolPV(QObject *parent)
     isSelected_ = false;
     yAxisLabel_ = "";
 
-    waterfall_ = 0;
+    dateCreated_ = QDateTime::currentDateTime().toString();
+
+    waterfall_ = 0.00; // all pvs begin centered on the plot view.
 
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
+
+    defaultDisplayedYMin_ = 0.0; // this will always be updated to reflect the min/max of the pv's displayed values!
+    defaultDisplayedYMax_ = 1.0;
+
+//    defaultDisplayWindow_ = true; // the defaultDisplayedYMin/Max values will be used to calculate the axis scale.
+    defaultYMaxDisplayed_ = true;
+    defaultYMinDisplayed_ = true;
+
+
+    displayedYMin_ = defaultDisplayedYMin_; // if not using the defaultDisplayWindow, the user can specify a range they would like to view.
+    displayedYMax_ = defaultDisplayedYMax_;
 
     pvControl_ = 0;
 
@@ -43,6 +56,7 @@ StripToolPV::StripToolPV(QObject *parent)
 
     setMetaDataHeaders();
 
+    // we can force the master times and values lists to update with the most recent value (say if we wanted all pvs to have roughly the same number of points displayed) by emitting this pv's forceUpdate signal. See 'toForceUpdateValue' slot.
     connect( this, SIGNAL(forceUpdate(double)), this, SLOT(onPVValueChanged(double)) );
 
 }
@@ -109,6 +123,20 @@ double StripToolPV::waterfall()
 }
 
 
+
+double StripToolPV::displayedYMin()
+{
+    return displayedYMin_;
+}
+
+
+
+double StripToolPV::displayedYMax()
+{
+    return displayedYMax_;
+}
+
+
 bool StripToolPV::isSelected()
 {
     return isSelected_;
@@ -118,7 +146,9 @@ bool StripToolPV::isSelected()
 void StripToolPV::setSelected(bool selected)
 {
     isSelected_ = selected;
+
     emit updateYAxisLabel(yAxisLabel_);
+    emit updateWaterfallDisplay(waterfall_);
 }
 
 
@@ -146,8 +176,8 @@ int StripToolPV::timeDisplayed()
 
 QVector<QString> StripToolPV::saveMasterTimes()
 {
-    int position = updateIndex_ - savePoint_;
-    int amount;
+    int position = updateIndex_ - savePoint_; // the index at which we begin saving data.
+    int amount; // the number of values to save.
 
     if (position < 0)
         position = 0;
@@ -233,9 +263,45 @@ QList<QString> StripToolPV::metaData()
     metaData << yUnits();
     metaData << color().name();
     metaData << QString::number(updateGranularity());
-    metaData << QDateTime::currentDateTime().toString();
+    metaData << dateCreated_;
 
     return metaData;
+}
+
+
+
+QList<QString> StripToolPV::editPVDialogData()
+{
+    QList<QString> editPVData;
+
+    editPVData << pvName();
+    editPVData << dateCreated_;
+    editPVData << pvDescription();
+    editPVData << yUnits();
+    editPVData << QString::number(updateGranularity());
+    editPVData << color().name();
+    editPVData << QString::number(displayedYMax());
+    editPVData << QString::number(displayedYMin());
+
+    return editPVData;
+}
+
+
+
+QList<QString> StripToolPV::editPVDialogDefaults()
+{
+    QList<QString> defaults;
+
+    defaults << pvName();
+    defaults << dateCreated_;
+    defaults << "";
+    defaults << "";
+    defaults << QString::number(2);
+    defaults << QColor(Qt::red).name();
+    defaults << QString::number(defaultDisplayedYMax_);
+    defaults << QString::number(defaultDisplayedYMin_);
+
+    return defaults;
 }
 
 
@@ -357,11 +423,42 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 void StripToolPV::setWaterfall(double newWaterfall)
 {
     waterfall_ = newWaterfall;
-//    qDebug() << "Waterfall for pv" << pvName() << "has been changed to" << waterfall();
+    qDebug() << "Waterfall for pv" << pvName() << "has been changed to" << waterfall();
 
     if (checkState_ == Qt::Checked && isSelected_) {
         emit updateWaterfall(waterfall_);
     }
+}
+
+
+
+void StripToolPV::setDisplayedYMax(double newMax)
+{
+    displayedYMax_ = newMax;
+    defaultYMaxDisplayed_ = false;
+
+}
+
+
+
+void StripToolPV::setDisplayedYMin(double newMin)
+{
+    displayedYMin_ = newMin;
+    defaultYMinDisplayed_ = false;
+}
+
+
+
+void StripToolPV::restoreDefaultYMaxDisplay()
+{
+    defaultYMaxDisplayed_ = true;
+}
+
+
+
+void StripToolPV::restoreDefaultYMinDisplay()
+{
+    defaultYMinDisplayed_ = true;
 }
 
 
@@ -446,8 +543,10 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
+//    qDebug() << "PV" << pvName() << "value update :" << latestValue;
+
     //  if the pv is updating on the plot, display the correct updated information.
-    if (isUpdating_ && (updateIndex_ % updateGranularity_ == 0))
+    if (isUpdating_ && (updateIndex_ % updateGranularity() == 0))
     {
         // set a 'now' time that will be used to generate the x-axis display values.
         QTime nowish = QTime::currentTime();
@@ -494,30 +593,35 @@ void StripToolPV::onPVValueChanged(double newValue)
     else
         emit pvValueUpdated();
 
-    // if this pv is selected and being plotted, emit signal notifying potential listeners that a selected pv has updated.
     if (isSelected() && checkState() == Qt::Checked) {
-//        qDebug() << "PV" << pvName() << "attempting to notify plot of change in axis scale...";
-//        MPlotAxisRange *newRange = new MPlotAxisRange(series()->dataRect(), Qt::Vertical); // get the vertical range of the selected data.
 
         double min, max;
 
         for (int i = 0; i < displayedValues_.size(); i++) {
+
             if (i == 0) {
                 min = displayedValues_.at(i);
                 max = displayedValues_.at(i);
+
             } else {
-
-                if (min > displayedValues_.at(i)) {
+                if (min > displayedValues_.at(i))
                     min = displayedValues_.at(i);
-                }
 
-                if (max < displayedValues_.at(i)) {
+                if (max < displayedValues_.at(i))
                     max = displayedValues_.at(i);
-                }
             }
         }
 
-        MPlotAxisRange *newRange = new MPlotAxisRange(min, max); // get the vertical range of the selected data.
+        defaultDisplayedYMin_ = min;
+        defaultDisplayedYMax_ = max;
+
+        if (defaultYMaxDisplayed_)
+            displayedYMax_ = defaultDisplayedYMax_;
+
+        if (defaultYMinDisplayed_)
+            displayedYMin_ = defaultDisplayedYMin_;
+
+        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin_, displayedYMax_); // get the vertical range of the selected data.
 
         emit updateYAxisRange(newRange);
     }
