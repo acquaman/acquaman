@@ -1670,7 +1670,7 @@ QVector3D AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, 
     qDebug()<<"tShift"<<tShift;
     qDebug()<<"tOrigin"<<tOrigin;
 
-	return topRightOriginBase + tOrigin*topRightOriginVector; // this is the "origin" "top right" coordinate.
+	return topRightShiftBase + tShift*topRightShiftVector; // this is the "shift" "top right" coordinate.
 }
 
 void AMSampleCamera::saveSamplePlate()

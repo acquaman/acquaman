@@ -290,6 +290,7 @@ void AMSample::setElementList(const AMIntList& elements)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
+	qDebug()<<"AMSample:setSampleShapePositionData";
     if(sampleShapePositionData_ != sampleShapePositionData)
     {
         if(sampleShapePositionData_)
@@ -317,6 +318,7 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 		emit currentTagChanged(currentTag_);
 		emit elementsChanged(elementString());
     }
+	qDebug()<<"AMSample:setSampleShapePositionData - done";
 }
 
 /// deletes the sample shape position data.
@@ -471,7 +473,7 @@ void AMSample::editCurrentTag(QString tag)
 
 void AMSample::removeSample()
 {
-    qDebug()<<"AMSample::removeSample";
+	qDebug()<<"AMSample::removeSample - calling removeSampleShapePostion Data";
         removeSampleShapePositionData();
 	emit sampleAboutToBeRemoved();
 }

@@ -71,6 +71,7 @@ bool AMSamplePlate::removeSample(AMSample *sample){
 		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 		disconnect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
 		storeToDb(database());
+		qDebug()<<"AMSamplePlate::removeSample - calling removeSampleShapePositionData";
                 sample->removeSampleShapePositionData();
 		sample->deleteLater();
 		return true;
