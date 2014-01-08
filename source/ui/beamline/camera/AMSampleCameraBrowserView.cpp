@@ -54,7 +54,7 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 
 		if(url.isValid()) {
 			if(url.toString() != stringUrl){
-				qDebug() << "Apparently diong a setItemText";
+                                qDebug() << "Apparently doing a setItemText";
 				sourceComboBox_->setItemText(index, url.toString());
 			}
 			setWindowTitle(url.toString());
@@ -139,6 +139,8 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
 	qDebug() << "Error was " << e;
 	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
+        qDebug()<<"Error message "<<videoWidget_->mediaPlayer()->errorString();
+        qDebug()<<"Media content "<<videoWidget_->mediaPlayer()->media().canonicalUrl().toString();
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());

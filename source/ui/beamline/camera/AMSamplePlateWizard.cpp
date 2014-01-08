@@ -15,29 +15,40 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
 	/// Used to generate and allow modification of the option page
-	numberOfPoints_ = 2;
+        numberOfPoints_ = 4;
 	showOptionPage_ = false;
 	coordinateList_->clear();
+    /// need a coordinate per point
     coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,1,0));
+    coordinateList_->append(new QVector3D(5,5,5));
+    for(int i = 1; i < numberOfPoints(); i++ )
+    {
+        coordinateList_->append(new QVector3D(0,0,0));
+    }
+
+    for(int i = 0; i < numberOfPoints(); i++)
+    {
+        rotations_.append(0);
+    }
 
 
 
 
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check, new AMSampleCheckPage);
-	setPage(Page_Wait_One, new AMSampleWaitPage);
-	setPage(Page_Wait_Two, new AMSampleWaitPage);
-	setPage(Page_Set_One, new AMSampleSetPage);
-	setPage(Page_Set_Two, new AMSampleSetPage);
     setPage(Page_Option, new AMWizardOptionPage);
-	setPage(Page_Final, new AMWizardPage);
+    setPage(Page_Final, new AMWizardPage);
+    for(int i = 0; i < numberOfPoints(); i++)
+    {
+        setPage(pageWait(i),new AMSampleWaitPage);
+        setPage(pageSet(i), new AMSampleSetPage);
+    }
     setStartId(Page_Intro);
     setOption(HaveHelpButton, true);
     connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
     setWindowTitle(message(Wizard_Title));
 
-	/// need to disconnect and reconnect buttons to override functionality properly
+    /// need to disconnect and reconnect buttons to override functionality properly
 
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
@@ -46,19 +57,15 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     addOptionPage(Page_Intro);
-	addResetPointsButton(Page_Set_One);
-	addResetPointsButton(Page_Set_Two);
+    for(int i = 0; i < numberOfPoints(); i++)
+    {
+        addResetPointsButton(pageSet(i));
+    }
+    showResetButton(currentId());
 
 	pointList_->clear();
 	/// We don't know how many points there will be, so in addPoint, make sure point
-	/// exists before initializing it.
-
-
-
-
-
-
-
+        /// exists before initializing it. (sample plate may be any shape)
 }
 
 AMSamplePlateWizard::~AMSamplePlateWizard()
@@ -78,19 +85,35 @@ int AMSamplePlateWizard::nextId() const
         if(checked(Page_Check))
             return -1;
         else
-			return Page_Wait_One;
-	case Page_Wait_One:
-		((AMSampleSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
-		return Page_Set_One;
-	case Page_Set_One:
-		return Page_Wait_Two;
-	case Page_Wait_Two:
-		((AMSampleSetPage*)page(Page_Set_One))->disconnectMouseSignal();
-		return Page_Set_Two;
-	case Page_Set_Two:
-		return Page_Final;
-	case Page_Final:
+            return pageWait(0);
+    case Page_Final:
+            return -1;
     default:
+        for(int i = 0; i < numberOfPoints(); i++)
+        {
+            if(currentId() == pageWait(i))
+            {
+                for(int j = 0; j < numberOfPoints(); j++)
+                {
+                    if(j != i)
+                    {
+                        ((AMSampleSetPage*)page(pageSet(j)))->disconnectMouseSignal();
+                    }
+                }
+                return pageSet(i);
+            }
+            else if(currentId() == pageSet(i))
+            {
+                if(i == numberOfPoints() - 1)
+                {
+                    return Page_Final;
+                }
+                else
+                {
+                    return pageWait(i+1);
+                }
+            }
+        }
         return -1;
     }
 }
@@ -102,17 +125,14 @@ void AMSamplePlateWizard::waitPage()
 
 int AMSamplePlateWizard::relativeId()
 {
-	switch(currentId())
-	{
-	case Page_Set_One:
-	case Page_Wait_One:
-		return 1;
-	case Page_Set_Two:
-	case Page_Wait_Two:
-		return 2;
-	default:
-		return 0;
-	}
+        for(int i = 0; i < numberOfPoints(); i++)
+        {
+            if(currentId() == pageSet(i) || currentId() == pageWait(i))
+            {
+                return i + 1;
+            }
+        }
+        return 0;
 }
 
 QString AMSamplePlateWizard::message(int type)
@@ -155,38 +175,6 @@ QString AMSamplePlateWizard::message(int type)
         default:
             return QString(tr("Error - check page - unknown message type."));
         }
-	case Page_Wait_One:
-	case Page_Wait_Two:
-        switch(type)
-        {
-        case Title:
-			return QString(tr("Moving to position %1")).arg(relativeId());
-        case Text:
-			return QString(tr("Wait while the sample plate moves."));
-        case Help:
-            return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
-                              + tr(" the motor.  Ensure that motor movement is enabled."));
-        case Other:
-        case Default:
-        default:
-            return QString(tr("Error - Wait page - unknown message type."));
-        }
-	case Page_Set_One:
-	case Page_Set_Two:
-        switch(type)
-        {
-        case Title:
-            return QString(tr("Sample Plate Adjustment"));
-        case Text:
-			return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
-        case Help:
-            return QString(tr("To adjust the position of the sample plate, move the slider left and right.  If the outline cannot be closely")
-                              + tr(" fit to the sample plate, it may require more detailed adjustment."));
-        case Other:
-        case Default:
-        default:
-            return QString(tr("Error message - set page - unknown message type."));
-        }
     case Page_Option:
 	    switch(type)
 	    {
@@ -215,79 +203,180 @@ QString AMSamplePlateWizard::message(int type)
 		case Default:
 			return QString(tr("Error message - final page - unknown message type"));
 		}
+        /// handle the wait and set pages here, as they must be in a for loop
+        default:
+        for(int i = 0; i < numberOfPoints(); i++)
+        {
+            if(currentId() == pageWait(i))
+            {
+                switch(type)
+                {
+                    case Title:
+                                return QString(tr("Moving to position %1")).arg(relativeId());
+                    case Text:
+                                return QString(tr("Wait while the sample plate moves."));
+                    case Help:
+                        return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
+                                          + tr(" the motor.  Ensure that motor movement is enabled."));
+                    case Other:
+                    case Default:
+                    default:
+                        return QString(tr("Error - Wait page - unknown message type."));
+                }
+            }
+            else if(currentId() == pageSet(i))
+            {
+                switch(type)
+                {
+                case Title:
+                    return QString(tr("Sample Plate Adjustment"));
+                case Text:
+                                return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
+                case Help:
+                    return QString(tr("To adjust the position of the sample plate, move the slider left and right.  If the outline cannot be closely")
+                                      + tr(" fit to the sample plate, it may require more detailed adjustment."));
+                case Other:
+                case Default:
+                default:
+                    return QString(tr("Error message - set page - unknown message type."));
+                }
+            }
+        }
     }
     return QString(tr("Error message - unknown page type."));
 }
 
+QVector<double> AMSamplePlateWizard::rotations() const
+{
+    return rotations_;
+}
+
+/// gets the page number for each wait page
+int AMSamplePlateWizard::pageWait(int index) const
+{
+    if(index > numberOfPoints())
+    {
+        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Max index is "<<numberOfPoints() - 1;
+    }
+    else if (index < 0)
+    {
+        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Must be between 1 and "<<numberOfPoints() - 1;
+    }
+    return Page_Free + index;
+}
+
+/// gets the page number for each set page
+int AMSamplePlateWizard::pageSet(int index) const
+{
+    if(index > numberOfPoints())
+    {
+        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Max index is "<<numberOfPoints() - 1;
+    }
+    else if (index < 0)
+    {
+        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Must be between 0 and "<<numberOfPoints() - 1;
+    }
+    return Page_Free + numberOfPoints() + index;
+}
+
+bool AMSamplePlateWizard::isWaitPage(int pageNumber) const
+{
+    return pageNumber >= Page_Free && pageNumber < Page_Free + numberOfPoints();
+}
+
+bool AMSamplePlateWizard::isSetPage(int pageNumber) const
+{
+    return pageNumber >= Page_Free + numberOfPoints() && pageNumber < Page_Free + 2*numberOfPoints();
+}
+
+
 void AMSamplePlateWizard::back()
 {
 	int id = currentId();
-	switch(id)
-    {
-	case Page_Wait_One:
-	case Page_Wait_Two:
-		((AMWaitPage*)page(id))->stopTimer();
-		QWizard::back();
-		if(currentId() == Page_Check)
+        int pageRelativeId = relativeId() - 1;
+        if(isWaitPage(id))
         {
-            cleanupPage(Page_Check);
-            initializePage(Page_Check);
+            ((AMWaitPage*)page(id))->stopTimer();
+            QWizard::back();
+            if(currentId() == Page_Check)
+            {
+                cleanupPage(Page_Check);
+                initializePage(Page_Check);
+            }
         }
-        break;
-	case Page_Set_One:
-		((AMSampleSetPage*)page(id))->disconnectMouseSignal();
-        while(currentId() != Page_Check)
+        else if(isSetPage(id))
+        {
+            if(relativeId() == 1)
+            {
+                    ((AMSampleSetPage*)page(id))->disconnectMouseSignal();
+                while(currentId() != Page_Check)
+                {
+                    QWizard::back();
+                }
+                if(currentId() == Page_Check)
+                {
+                    cleanupPage(Page_Check);
+                    initializePage(Page_Check);
+                }
+            }
+            else
+            {
+                ((AMSampleSetPage*)page(id))->disconnectMouseSignal();
+                while(currentId() != pageWait(pageRelativeId - 1))
+                {
+                       QWizard::back();
+                }
+                if(currentId() == pageWait(pageRelativeId - 1))
+                {
+                    initializePage(pageWait(pageRelativeId - 1));
+                }
+            }
+        }
+        else
         {
             QWizard::back();
         }
-        if(currentId() == Page_Check)
-        {
-            cleanupPage(Page_Check);
-            initializePage(Page_Check);
-        }
-        break;
-	case Page_Set_Two:
-		((AMSampleSetPage*)page(id))->disconnectMouseSignal();
-		while(currentId() != Page_Wait_One)
-		{
-			QWizard::back();
-		}
-		if(currentId() == Page_Wait_One)
-		{
-			initializePage(Page_Wait_One);
-		}
-		break;
-    default:
-        QWizard::back();
-    }
+
+
 
 }
 
-void AMSamplePlateWizard::sliderChanged()
-{
-	emit movePlate(field("adjustmentSlider").toInt());
-}
 
 void AMSamplePlateWizard::addPoint(QPointF position)
 {
 	/// This should add a point to the list every time the view is clicked.  Need to add a clear button, and visual indicators to show what points have been added.
+        int pageId = relativeId();
+
 	QPointF* newPoint = new QPointF(position);
 	/// default point size
 	const QSizeF defaultSize = QSizeF(10,10);
 	QPen defaultPen;
-	/// Must keep track of which are from page one and which are from page two.
-	/// The easiest way to keep them seperate is to append from one page and
-	/// prepend from the other.
-	if(currentId() == Page_Set_One)
-	{
-		pointList_->prepend(newPoint);
-		defaultPen = QPen(Qt::green);
-	}
-	else if(currentId() == Page_Set_Two)
-	{
-		pointList_->append(newPoint);
-		defaultPen = QPen(Qt::yellow);
-	}
+        /// Must keep track of which points are from which page.
+        /// Pad the list with QPointF(0,0) seperators
+        /// list will go (0,0),...page1...,(0,0),...page2...,(0,0)...etc...,...finalpage...,(0,0)
+        if(pointList_->isEmpty())
+        {
+            for(int i = 0; i < numberOfPoints() + 1; i ++)
+            {
+                pointList_->append(new QPointF(0,0));
+            }
+        }
+        if(*newPoint == QPointF(0,0))
+        {
+            *newPoint = *newPoint + QPointF(0.00001,0);
+        }
+        int count = 0;
+        int index = 0;
+        for(int i = 0; count < pageId+1 && i < pointList_->count(); i++)
+        {
+            if(*pointList_->at(i) == QPointF(0,0))
+            {
+                count++;
+            }
+            index = i;
+        }
+        pointList_->insert(index,newPoint);
+        defaultPen = getDefaultPen();
 
 	QRectF rectangle(view()->mapVideoToScene(*newPoint), defaultSize); /// need to map new point to the actual screen position
 	QGraphicsRectItem* rectItem = view()->scene()->addRect(rectangle, defaultPen);
@@ -301,6 +390,23 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 		qDebug()<<*point;
 	}
 
+        rotations_[relativeId() -1] = requestMotorRotation();
+
+}
+
+QPen AMSamplePlateWizard::getDefaultPen()
+{
+    switch(relativeId())
+    {
+        case 1:
+            return QPen(Qt::yellow);
+        case 2:
+            return QPen(Qt::green);
+        case 3:
+            return QPen(Qt::cyan);
+        default:
+            return QPen(Qt::white);
+    }
 }
 
 void AMSamplePlateWizard::removePoint(QPointF *point)
@@ -451,5 +557,27 @@ void AMSampleIntroPage::initializePage()
 void AMSampleIntroPage::timerEvent(QTimerEvent *event)
 {
 	killTimer(event->timerId());
-	viewWizard()->next();
+        viewWizard()->next();
 }
+
+double AMSamplePlateWizard::requestMotorRotation()
+{
+    emit requestRotation();
+    return currentRotation();
+
+}
+
+void AMSamplePlateWizard::setCurrentRotation(double currentRotation)
+{
+    currentRotation_ = currentRotation;
+}
+
+double AMSamplePlateWizard::currentRotation()
+{
+    return currentRotation_;
+}
+
+
+
+
+

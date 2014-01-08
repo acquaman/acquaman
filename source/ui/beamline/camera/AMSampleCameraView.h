@@ -221,6 +221,7 @@ signals:
 	void applyDistortion();
 
 	void motorMovementEnabled(bool enabled);
+        void motorRotation(double rotation);
 
 	void moveSucceeded();
 
@@ -360,11 +361,14 @@ protected slots:
 
 	void samplePlateCreate();
 
+
 	void moveBeamSamplePlate(QVector3D);
 
 	void showBeamMarker(int);
 
 	void transmitMotorMovementEnabled();
+
+        void transmitMotorRotation();
 
 	void updateShapeName(QString newName);
 
@@ -421,6 +425,8 @@ protected:
 	QColor colour(ShapeColour role);
 
 	void drawSamplePlate();
+
+        bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
 
 
 protected:

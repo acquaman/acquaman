@@ -17,46 +17,66 @@ class AMSamplePlateWizard : public AMGraphicsViewWizard
 public:
 	enum
 	{
-		  Page_Intro, // description -> should skip on start
-		  Page_Check,  // check to see if the plate is where it should be
-		  Page_Wait_One,
-		  Page_Set_One,
-		  Page_Wait_Two,
-		  Page_Set_Two,
-		  Page_Final,
-		  Page_Option
+                  Page_Intro = 0, // description -> should skip on start
+                  Page_Check = 1,  // check to see if the plate is where it should be
+                  Page_Final = 2,
+                  Page_Option = 3,
+                  Page_Free = 4
 	 };
     AMSamplePlateWizard(QWidget* parent = 0);
-    ~AMSamplePlateWizard();
+    virtual ~AMSamplePlateWizard();
 
     int nextId() const;
 
     void waitPage();
 
-	int relativeId();/// \todo need this to differentiate the wait and set pages
+    int relativeId();
 
-	virtual QString message(int type);
+    virtual QString message(int type);
+
+    QVector<double> rotations() const;
+
+    double currentRotation();
+
+protected:
+    /// returns the page number of the nth wait page
+    int pageWait(int index) const;
+
+    /// returns the page number of the nth set page
+    int pageSet(int index) const;
+
+    /// returns true if pageNumber is a wait page
+    bool isWaitPage(int pageNumber) const;
+
+    /// returns true if pageNumber is a set page
+    bool isSetPage(int pageNumber) const;
+
+    double requestMotorRotation();
+
+
 
 public slots:
     void back();
 	/// \todo get rid of this
-    void sliderChanged();
-	/// \todo implement addPoint
+//    void sliderChanged();
+//	/ \todo implement addPoint
 	virtual void addPoint(QPointF position);
 	void removePoint(QPointF* point);
 	/// Will add duplicate points unless this is called when leaving the page
-
+        void setCurrentRotation(double rotation);
 
 
 
 signals:
     void movePlate(int);
+    void requestRotation();
 
 protected:
 	double coordinateX(int id);
 	double coordinateY(int id);
 	double coordinateZ(int id);
 	void addResetPointsButton(int id);
+        QPen getDefaultPen();
 
 protected slots:
 	void triggerReset(int id);
@@ -66,6 +86,8 @@ protected slots:
 private:
 	QVector<int> resetPages_;
 	QVector<QGraphicsRectItem*> samplePointShapes_;
+        QVector<double> rotations_;
+        double currentRotation_;
 
 
 };

@@ -40,7 +40,7 @@ public:
     /// These are the different message elements
     enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
     AMGraphicsViewWizard(QWidget* parent = 0);
-    ~AMGraphicsViewWizard();
+    virtual ~AMGraphicsViewWizard();
 
     /// returns the view held by this wizard
     AMSampleCameraGraphicsView* view() const;

@@ -363,9 +363,9 @@ public slots:
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
         /// Create the sample plate using selected points \todo
-		void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points);
-		/// \todo make protected v
-		QVector3D findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points);
+        void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations, int numberOfPoints);
+                /// \todo make protected
+                QPair<QVector3D,QVector3D> findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points, QPair<double,double> rotations);
 	void saveSamplePlate();
 
 	void setCameraConfigurationShape();
@@ -672,7 +672,7 @@ protected:
 	/// true if drawing on shape is enabled
 	bool drawOnShapeEnabled_;
 
-	/// true if a drawOnShape_ is a valid shape
+        /// true if drawOnShape_ is a valid shape
 	bool drawOnShapeSelected_;
 
 	/// the polygon currently being drawn
