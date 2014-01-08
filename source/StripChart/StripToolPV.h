@@ -30,6 +30,8 @@ signals:
     void updateYAxisLabel(const QString &newLabel);
     void updateWaterfall(double newWaterfall);
     void updateWaterfallDisplay(double waterfall);
+    void updateYDisplayMax(double newMax);
+    void updateYDisplayMin(double newMin);
 
 protected:
     int updateIndex_;
@@ -71,7 +73,6 @@ protected:
     double displayedYMin_;
     double displayedYMax_;
 
-//    bool defaultDisplayWindow_;
     bool defaultYMaxDisplayed_;
     bool defaultYMinDisplayed_;
 
@@ -124,10 +125,8 @@ protected:
     void setCheckState(Qt::CheckState isChecked);
     void setWaterfall(double newWaterfall);
 
-    void setDisplayedYMax(double newMax);
-    void setDisplayedYMin(double newMin);
-    void restoreDefaultYMaxDisplay();
-    void restoreDefaultYMinDisplay();
+    void setDisplayedYMax(const QString &newMax);
+    void setDisplayedYMin(const QString &newMin);
 
     bool operator== (const StripToolPV &anotherPV);
 

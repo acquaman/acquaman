@@ -331,6 +331,10 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(updateYAxisRange(MPlotAxisRange *)), this, SIGNAL(updateYAxisRange(MPlotAxisRange *)) );
     connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
     connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
+    connect( newPV, SIGNAL(updateYDisplayMax(double)), this, SIGNAL(updateSelectedDisplayMax(double)) );
+    connect( newPV, SIGNAL(updateYDisplayMin(double)), this, SIGNAL(updateSelectedDisplayMin(double)) );
+
+//    connect( this, SIGNAL(updateSelectedDisplayMax(double)), this, SLOT(toTestDoubleSignal(double)) );
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
@@ -372,43 +376,41 @@ void StripToolModel::editPV(const QModelIndex &index)
 
     StripToolPV *toEdit = pvList_.at(index.row());
 
-    EditPVDialog editDialog(toEdit->editPVDialogData(), toEdit->editPVDialogDefaults());
+//    EditPVDialog editDialog(toEdit->editPVDialogData());
+    EditPVDialog *editDialog = new EditPVDialog(toEdit->editPVDialogData());
 
-    if (editDialog.exec())
+    connect( this, SIGNAL(updateSelectedDisplayMax(double)), editDialog, SLOT(toUpdateCurrentDisplayMax(double)) );
+    connect( this, SIGNAL(updateSelectedDisplayMin(double)), editDialog, SLOT(toUpdateCurrentDisplayMin(double)) );
+
+    if (editDialog->exec())
     {
-//        QString description = editDialog.description();
-//        QString units = editDialog.units();
-//        int granularity = editDialog.granularity();
-//        QString color = editDialog.color();
-//        double displayMax = editDialog.displayMax();
-//        double displayMin = editDialog.displayMin();
 
-        if (editDialog.description())
+//        StripToolPV handles deciding whether or not these values are okay! Don't worry about them here.
+
+        if (editDialog->descriptionChanged())
         {
-            toEdit->setDescription(*editDialog.description());
+            toEdit->setDescription(editDialog->description());
             emit dataChanged(index, index);
         }
 
-        if (editDialog.units())
-            toEdit->setYUnits(*editDialog.units());
+        if (editDialog->unitsChanged())
+            toEdit->setYUnits(editDialog->units());
 
-        if (editDialog.granularity())
-            toEdit->setUpdateGranularity(*editDialog.granularity());
+        if (editDialog->granularityChanged())
+            toEdit->setUpdateGranularity(editDialog->granularity());
 
-        if (editDialog.color())
-            toEdit->setSeriesColor(*editDialog.color());
+        if (editDialog->colorChanged())
+            toEdit->setSeriesColor(editDialog->color());
 
-        if (editDialog.displayMax())
-            toEdit->setDisplayedYMax(*editDialog.displayMax());
-        else
-            toEdit->restoreDefaultYMaxDisplay();
+        if (editDialog->displayMaxChanged())
+            toEdit->setDisplayedYMax(editDialog->displayMax());
 
-        if (editDialog.displayMin())
-            toEdit->setDisplayedYMin(*editDialog.displayMin());
-        else
-            toEdit->restoreDefaultYMinDisplay();
+        if (editDialog->displayMinChanged())
+            toEdit->setDisplayedYMin(editDialog->displayMin());
 
     }
+
+    editDialog->deleteLater();
 }
 
 
@@ -635,5 +637,12 @@ void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
 void StripToolModel::toTestSignal(const QString &signalText)
 {
     qDebug() << "Signal text received by model :" << signalText;
+}
+
+
+
+void StripToolModel::toTestDoubleSignal(double val)
+{
+    qDebug() << "Signal double received by model :" << val;
 }
 

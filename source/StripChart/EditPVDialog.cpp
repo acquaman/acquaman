@@ -1,16 +1,14 @@
 #include "EditPVDialog.h"
 
-EditPVDialog::EditPVDialog(QStringList pvInfo, QStringList pvDefaults, QWidget *parent) :
+EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     QDialog(parent)
 {
-    defaults_ = pvDefaults;
-
-    description_ = 0;
-    units_ = 0;
-    gran_ = 0;
-    color_ = 0;
-    displayMax_ = 0;
-    displayMin_ = 0;
+    descriptionChanged_ = false;
+    unitsChanged_ = false;
+    granChanged_ = false;
+    colorChanged_ = false;
+    yMaxChanged_ = false;
+    yMinChanged_ = false;
 
     QGridLayout *entryLayout = new QGridLayout();
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -25,11 +23,6 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QStringList pvDefaults, QWidget *
 
 
     ////////////////////////////////////////////////////////
-
-//    QGridLayout *basicInfoLayout = new QGridLayout();
-//    QGroupBox *basicGroup = new QGroupBox();
-//    basicGroup->setLayout(basicInfoLayout);
-//    basicGroup->setFlat(true);
 
     QString pvName = pvInfo.at(0);
     QLabel *nameLabel = new QLabel("Name : ");
@@ -48,7 +41,7 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QStringList pvDefaults, QWidget *
     descriptionEntry_ = new QLineEdit();
     descriptionEntry_->setText(pvDescription);
     descriptionLabel->setBuddy(descriptionEntry_);
-    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(descriptionEntered(QString)) );
+    connect( descriptionEntry_, SIGNAL(textEdited(QString)), this, SLOT(descriptionEntered(QString)) );
     entryLayout->addWidget(descriptionLabel, 2, 0);
     entryLayout->addWidget(descriptionEntry_, 2, 1);
 
@@ -85,30 +78,26 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QStringList pvDefaults, QWidget *
 
         QString displayedMax = pvInfo.at(6);
         displayMaxEntry_ = new QLineEdit();
-        displayMaxEntry_->setText(displayedMax);
+//        displayMaxEntry_->setText(displayedMax);
         maxLabel->setBuddy(displayMaxEntry_);
         connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMaxEntered(QString)) );
         entryLayout->addWidget(displayMaxEntry_, 6, 1);
 
-        QPushButton *restoreMaxDisplay = new QPushButton("Restore");
-        restoreMaxDisplay->setDefault(false);
-        connect( restoreMaxDisplay, SIGNAL(clicked()), this, SLOT(toRestoreMaxDisplay()) );
-        entryLayout->addWidget(restoreMaxDisplay, 6, 2);
+        currentDisplayMax_ = new QLabel("boo");
+        entryLayout->addWidget(currentDisplayMax_, 6, 2);
 
         QLabel *minLabel = new QLabel("Displayed min : ");
         entryLayout->addWidget(minLabel, 7, 0);
 
         QString displayedMin = pvInfo.at(7);
         displayMinEntry_ = new QLineEdit();
-        displayMinEntry_->setText(displayedMin);
+//        displayMinEntry_->setText(displayedMin);
         minLabel->setBuddy(displayMinEntry_);
         connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMinEntered(QString)) );
         entryLayout->addWidget(displayMinEntry_, 7, 1);
 
-        QPushButton *restoreMinDisplay = new QPushButton("Restore");
-        restoreMinDisplay->setDefault(false);
-        connect( restoreMinDisplay, SIGNAL(clicked()), this, SLOT(toRestoreMinDisplay()) );
-        entryLayout->addWidget(restoreMinDisplay, 7, 2);
+        currentDisplayMin_ = new QLabel("ger");
+        entryLayout->addWidget(currentDisplayMin_, 7, 2);
     }
 
 
@@ -121,9 +110,6 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QStringList pvDefaults, QWidget *
     connect( cancelButton_, SIGNAL(clicked()), this, SLOT(reject()) );
     buttonLayout->addWidget(cancelButton_);
 
-    restoreButton_ = new QPushButton("Restore");
-    restoreButton_->setToolTip("Restore default settings");
-    connect( restoreButton_, SIGNAL(clicked()), this, SLOT(restore()) );
 }
 
 
@@ -134,104 +120,139 @@ EditPVDialog::~EditPVDialog()
 
 
 
-QString* EditPVDialog::description()
+bool EditPVDialog::descriptionChanged()
+{
+    return descriptionChanged_;
+}
+
+
+
+QString EditPVDialog::description()
 {
     return description_;
 }
 
 
 
-QString* EditPVDialog::units()
+bool EditPVDialog::unitsChanged()
+{
+    return unitsChanged_;
+}
+
+
+
+QString EditPVDialog::units()
 {
     return units_;
 }
 
 
 
-int* EditPVDialog::granularity()
+bool EditPVDialog::granularityChanged()
+{
+    return granChanged_;
+}
+
+
+
+int EditPVDialog::granularity()
 {
     return gran_;
 }
 
 
 
-QString* EditPVDialog::color()
+bool EditPVDialog::colorChanged()
+{
+    return colorChanged_;
+}
+
+
+
+QString EditPVDialog::color()
 {
     return color_;
 }
 
 
-double* EditPVDialog::displayMax()
+
+bool EditPVDialog::displayMaxChanged()
+{
+    return yMaxChanged_;
+}
+
+
+QString EditPVDialog::displayMax()
 {
     return displayMax_;
 }
 
 
+bool EditPVDialog::displayMinChanged()
+{
+    return yMinChanged_;
+}
 
-double* EditPVDialog::displayMin()
+
+
+QString EditPVDialog::displayMin()
 {
     return displayMin_;
 }
 
 
 
-void EditPVDialog::descriptionEntered(QString &newDescription)
+void EditPVDialog::descriptionEntered(const QString &newDescription)
 {
-    description_ = &newDescription;
+    description_ = newDescription;
+    descriptionChanged_ = true;
 }
 
 
 
-void EditPVDialog::unitsEntered(QString &newUnits)
+void EditPVDialog::unitsEntered(const QString &newUnits)
 {
-    units_ = &newUnits;
+    units_ = newUnits;
+    unitsChanged_ = true;
 }
 
 
 
-void EditPVDialog::granularityEntered(QString &gran)
+void EditPVDialog::granularityEntered(const QString &gran)
 {
-    int newGranularity = gran.toInt();
-    gran_ = &newGranularity;
+    gran_ = gran.toInt();
+    granChanged_ = true;
 }
 
 
-void EditPVDialog::colorEntered(QString &newColor)
+void EditPVDialog::colorEntered(const QString &newColor)
 {
-    color_ = &newColor;
+    color_ = newColor;
+    colorChanged_ = true;
 }
 
 
-void EditPVDialog::displayMaxEntered(QString &max)
+void EditPVDialog::displayMaxEntered(const QString &max)
 {
-    double newMax = max.toDouble();
-    displayMax_ = &newMax;
+    displayMax_ = max;
+    yMaxChanged_ = true;
 }
 
 
-void EditPVDialog::displayMinEntered(QString &min)
+void EditPVDialog::displayMinEntered(const QString &min)
 {
-    double newMin = min.toDouble();
-    displayMin_ = &newMin;
+    displayMin_ = min;
+    yMinChanged_ = true;
 }
 
 
-void EditPVDialog::toRestoreMaxDisplay()
+void EditPVDialog::toUpdateCurrentDisplayMax(double currentMax)
 {
-    displayMax_ = 0;
-    displayMaxEntry_->setText("");
+    currentDisplayMax_->setText(QString::number(currentMax));
 }
 
 
-void EditPVDialog::toRestoreMinDisplay()
+void EditPVDialog::toUpdateCurrentDisplayMin(double currentMin)
 {
-    displayMin_ = 0;
-    displayMinEntry_->setText("");
-}
-
-
-void EditPVDialog::restore()
-{
-//    emit restoreSelectedDefaults();
-    emit accept();
+    currentDisplayMin_->setText(QString::number(currentMin));
 }

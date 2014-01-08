@@ -37,6 +37,8 @@ signals:
     void updateYAxisLabel(const QString &newLabel);
     void updateWaterfall(double newWaterfall);
     void selectedWaterfall(double selectedWaterfall);
+    void updateSelectedDisplayMax(double newMax);
+    void updateSelectedDisplayMin(double newMin);
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -128,6 +130,7 @@ protected slots:
     void onSinglePVUpdated(QObject *updatedPV);
 
     void toTestSignal(const QString &signalText);
+    void toTestDoubleSignal(double val);
 
 //    void onSelectedPVUpdated();
 

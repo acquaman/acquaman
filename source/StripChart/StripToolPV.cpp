@@ -17,12 +17,13 @@ StripToolPV::StripToolPV(QObject *parent)
     pvDescription_ = "";
     xUnits_ = "";
     yUnits_ = "";
+    yAxisLabel_ = "";
+
     isUpdating_ = true;
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
     isSelected_ = false;
-    yAxisLabel_ = "";
 
     dateCreated_ = QDateTime::currentDateTime().toString();
 
@@ -34,7 +35,6 @@ StripToolPV::StripToolPV(QObject *parent)
     defaultDisplayedYMin_ = 0.0; // this will always be updated to reflect the min/max of the pv's displayed values!
     defaultDisplayedYMax_ = 1.0;
 
-//    defaultDisplayWindow_ = true; // the defaultDisplayedYMin/Max values will be used to calculate the axis scale.
     defaultYMaxDisplayed_ = true;
     defaultYMinDisplayed_ = true;
 
@@ -358,7 +358,13 @@ void StripToolPV::setControl(AMControl *newControl)
 
 void StripToolPV::setDescription(const QString &newDescription)
 {
-    pvDescription_ = newDescription;
+    if (newDescription != "")
+        pvDescription_ = newDescription;
+
+    else
+        pvDescription_ = pvName();
+
+    qDebug() << "Setting new description for pv" << pvName() << ":" << pvDescription_;
     emit savePVMetaData();
 
     yAxisLabel_ = newDescription + " [" + yUnits() + "]";
@@ -370,14 +376,10 @@ void StripToolPV::setDescription(const QString &newDescription)
 void StripToolPV::setYUnits(const QString &newUnits)
 {
     yUnits_ = newUnits;
+    qDebug() << "Setting new units for pv" << pvName() << ":" << yUnits_;
     emit savePVMetaData();
 
-    if (pvDescription() == "") {
-        yAxisLabel_ = pvName() + " [" + newUnits + "]";
-    } else {
-        yAxisLabel_ = pvDescription() + " [" + newUnits + "]";
-    }
-
+    yAxisLabel_ = pvDescription() + " [" + newUnits + "]";
     emit updateYAxisLabel(yAxisLabel_);
 }
 
@@ -385,6 +387,9 @@ void StripToolPV::setYUnits(const QString &newUnits)
 
 void StripToolPV::setXUnits(const QString &newUnits)
 {
+    if (newUnits == "")
+        return;
+
     xUnits_ = newUnits;
 
     if (xUnits_ == "seconds") {
@@ -422,6 +427,11 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 
 void StripToolPV::setWaterfall(double newWaterfall)
 {
+    if (newWaterfall > 0.5 || newWaterfall < -0.5) {
+        qDebug() << "New waterfall value falls outside acceptable range.";
+        return;
+    }
+
     waterfall_ = newWaterfall;
     qDebug() << "Waterfall for pv" << pvName() << "has been changed to" << waterfall();
 
@@ -432,41 +442,42 @@ void StripToolPV::setWaterfall(double newWaterfall)
 
 
 
-void StripToolPV::setDisplayedYMax(double newMax)
+void StripToolPV::setDisplayedYMax(const QString &newMax)
 {
-    displayedYMax_ = newMax;
+    if (newMax == "") {
+        qDebug() << "Returning to automatically updating y max for pv" << pvName();
+        defaultYMaxDisplayed_ = true;
+        return;
+    }
+
+    qDebug() << "Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
+    displayedYMax_ = newMax.toDouble();
     defaultYMaxDisplayed_ = false;
-
 }
 
 
 
-void StripToolPV::setDisplayedYMin(double newMin)
+void StripToolPV::setDisplayedYMin(const QString &newMin)
 {
-    displayedYMin_ = newMin;
+    if (newMin == "") {
+        qDebug() << "Returning to automatically updating y max for pv " << pvName();
+        defaultYMinDisplayed_ = true;
+        return;
+    }
+
+    qDebug() << "Setting lower limit on displayed y values for pv" << pvName() << "to" << newMin;
+    displayedYMin_ = newMin.toDouble();
     defaultYMinDisplayed_ = false;
-}
-
-
-
-void StripToolPV::restoreDefaultYMaxDisplay()
-{
-    defaultYMaxDisplayed_ = true;
-}
-
-
-
-void StripToolPV::restoreDefaultYMinDisplay()
-{
-    defaultYMinDisplayed_ = true;
 }
 
 
 
 void StripToolPV::setTimeDisplayed(int seconds)
 {
-    if (seconds <= 0)
+    if (seconds <= 0) {
+        qDebug() << "Cannot display a time less than zero seconds!";
         return;
+    }
 
     timeDisplayed_ = seconds;
 }
@@ -482,8 +493,14 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 
 void StripToolPV::setSeriesColor(const QColor &color)
 {
+    if (!color.isValid()) {
+        qDebug() << "New color selection is invalid.";
+        return;
+    }
+
     pvColor_ = color;
     pvSeries_->setLinePen( QPen(pvColor_) );
+    qDebug() << "Setting new color for pv" << pvName() << ":" << color.name();
     emit savePVMetaData();
 }
 
@@ -491,10 +508,14 @@ void StripToolPV::setSeriesColor(const QColor &color)
 
 void StripToolPV::setUpdateGranularity(int newVal)
 {
-    if (newVal > 0) {
-        updateGranularity_ = newVal;
-        emit savePVMetaData();
+    if (newVal <= 0) {
+        qDebug() << "Cannot display a pv with update granularity of zero or less! Must be positive, nonzero integer.";
+        return;
     }
+
+    updateGranularity_ = newVal;
+    qDebug() << "Setting new update granularity for pv" << pvName() << ":" << updateGranularity();
+    emit savePVMetaData();
 }
 
 
@@ -593,8 +614,8 @@ void StripToolPV::onPVValueChanged(double newValue)
     else
         emit pvValueUpdated();
 
+    // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
-
         double min, max;
 
         for (int i = 0; i < displayedValues_.size(); i++) {
@@ -622,8 +643,10 @@ void StripToolPV::onPVValueChanged(double newValue)
             displayedYMin_ = defaultDisplayedYMin_;
 
         MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin_, displayedYMax_); // get the vertical range of the selected data.
-
         emit updateYAxisRange(newRange);
+
+        emit updateYDisplayMax(displayedYMax_);
+        emit updateYDisplayMin(displayedYMin_);
     }
 
 }
