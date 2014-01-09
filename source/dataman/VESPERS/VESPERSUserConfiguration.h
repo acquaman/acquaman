@@ -35,11 +35,11 @@ public:
 	/// Returns the current It ion chamber choice.
 	VESPERS::IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
+	VESPERS::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current motor choice.
-	VESPERS::Motor motor() const { return motor_; }
+	VESPERS::Motors motor() const { return motor_; }
 	/// Returns what CCD the scan is using, if any.
-	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
+	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 	/// Returns the regions of interest list.
@@ -57,17 +57,17 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector);
+	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotor(VESPERS::Motor choice);
+	void setMotor(VESPERS::Motors choice);
 	/// Overloaded.  Used for database loading.
-	void setMotor(int choice) { setMotor((VESPERS::Motor)choice); }
+	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
 	/// Sets whether the scan should be using the CCD or not.
-	void setCCDDetector(VESPERS::CCDDetector ccd);
+	void setCCDDetector(VESPERS::CCDDetectors ccd);
 	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetector)ccd); }
+	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
@@ -79,11 +79,11 @@ protected:
 	/// It ion chamber choice.
 	VESPERS::IonChamber It_;
 	/// Fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector_;
+	VESPERS::FluorescenceDetectors fluorescenceDetector_;
 	/// Motor choice for which set of motors will be used.
-	VESPERS::Motor motor_;
+	VESPERS::Motors motor_;
 	/// CCD choice whether the scan should use a CCD detector or not.
-	VESPERS::CCDDetector ccdDetector_;
+	VESPERS::CCDDetectors ccdDetector_;
 	/// The list of the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;
 };

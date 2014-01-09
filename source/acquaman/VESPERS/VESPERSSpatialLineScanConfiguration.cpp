@@ -51,7 +51,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motor)), this, SLOT(onMotorChoiceChanged(VESPERS::Motor)));
+	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motors)), this, SLOT(onMotorChoiceChanged(VESPERS::Motors)));
 }
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original)
@@ -75,7 +75,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motor)), this, SLOT(onMotorChoiceChanged(VESPERS::Motor)));
+	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motors)), this, SLOT(onMotorChoiceChanged(VESPERS::Motors)));
 }
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
@@ -209,9 +209,9 @@ void VESPERSSpatialLineScanConfiguration::setExportSpectraSources(bool exportSpe
 	exportSpectraSources_ = exportSpectra;
 }
 
-VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor motor) const
+VESPERS::Motors VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motors motor) const
 {
-	VESPERS::Motor other = VESPERS::NoMotor;
+	VESPERS::Motors other = VESPERS::NoMotor;
 
 	switch(motor){
 
@@ -267,7 +267,7 @@ VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor mo
 	return other;
 }
 
-QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor motor) const
+QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motors motor) const
 {
 	QString string;
 
@@ -333,7 +333,7 @@ void VESPERSSpatialLineScanConfiguration::setExportSpectraInRows(bool exportInRo
 	exportSpectraInRows_ = exportInRows;
 }
 
-void VESPERSSpatialLineScanConfiguration::onMotorChoiceChanged(VESPERS::Motor motor)
+void VESPERSSpatialLineScanConfiguration::onMotorChoiceChanged(VESPERS::Motors motor)
 {
 	switch(int(motor)){
 

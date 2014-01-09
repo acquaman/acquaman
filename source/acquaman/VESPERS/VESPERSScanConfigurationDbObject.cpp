@@ -49,7 +49,7 @@ void VESPERSScanConfigurationDbObject::setTransmissionChoice(VESPERS::IonChamber
 	}
 }
 
-void VESPERSScanConfigurationDbObject::setFluorescenceDetector(VESPERS::FluorescenceDetector detector)
+void VESPERSScanConfigurationDbObject::setFluorescenceDetector(VESPERS::FluorescenceDetectors detector)
 {
 	if (fluorescenceDetector_ != detector){
 
@@ -60,7 +60,7 @@ void VESPERSScanConfigurationDbObject::setFluorescenceDetector(VESPERS::Fluoresc
 	}
 }
 
-void VESPERSScanConfigurationDbObject::setMotor(VESPERS::Motor choice)
+void VESPERSScanConfigurationDbObject::setMotor(VESPERS::Motors choice)
 {
 	if (motor_ != choice) {
 
@@ -71,7 +71,7 @@ void VESPERSScanConfigurationDbObject::setMotor(VESPERS::Motor choice)
 	}
 }
 
-void VESPERSScanConfigurationDbObject::setCCDDetector(VESPERS::CCDDetector ccd)
+void VESPERSScanConfigurationDbObject::setCCDDetector(VESPERS::CCDDetectors ccd)
 {
 	if (ccdDetector_ != ccd){
 

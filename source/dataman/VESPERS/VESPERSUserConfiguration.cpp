@@ -9,7 +9,7 @@ VESPERSUserConfiguration::VESPERSUserConfiguration(QObject *parent)
 	It_ = VESPERS::Ipost;
 	fluorescenceDetector_ = VESPERS::SingleElement;
 	ccdDetector_ = VESPERS::NoCCD;
-	motor_ = VESPERS::Motor(VESPERS::H | VESPERS::V);
+	motor_ = VESPERS::Motors(VESPERS::H | VESPERS::V);
 }
 
 void VESPERSUserConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
@@ -30,7 +30,7 @@ void VESPERSUserConfiguration::setTransmissionChoice(VESPERS::IonChamber It)
 	}
 }
 
-void VESPERSUserConfiguration::setFluorescenceDetector(VESPERS::FluorescenceDetector detector)
+void VESPERSUserConfiguration::setFluorescenceDetector(VESPERS::FluorescenceDetectors detector)
 {
 	if (fluorescenceDetector_ != detector){
 
@@ -39,7 +39,7 @@ void VESPERSUserConfiguration::setFluorescenceDetector(VESPERS::FluorescenceDete
 	}
 }
 
-void VESPERSUserConfiguration::setMotor(VESPERS::Motor choice)
+void VESPERSUserConfiguration::setMotor(VESPERS::Motors choice)
 {
 	if (motor_ != choice) {
 
@@ -48,7 +48,7 @@ void VESPERSUserConfiguration::setMotor(VESPERS::Motor choice)
 	}
 }
 
-void VESPERSUserConfiguration::setCCDDetector(VESPERS::CCDDetector ccd)
+void VESPERSUserConfiguration::setCCDDetector(VESPERS::CCDDetectors ccd)
 {
 	if (ccdDetector_ != ccd){
 

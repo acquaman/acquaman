@@ -32,42 +32,24 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-	switch ((int)configuration_->fluorescenceDetector()){
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
-	case VESPERS::SingleElement:
-
+	if (xrfDetector.testFlag(VESPERS::SingleElement))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
-		break;
 
-	case VESPERS::FourElement:
-
+	if (xrfDetector.testFlag(VESPERS::FourElement))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:
+	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
-		break;
-	}
-
-	switch (int(configuration_->ccdDetector())){
-
-	case VESPERS::NoCCD:
-		break;
-
-	case VESPERS::Roper:
+	if (ccdDetector == VESPERS::Roper)
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
-		break;
 
-	case VESPERS::Mar:
+	if (ccdDetector == VESPERS::Mar)
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
-		break;
 
-	case VESPERS::Pilatus:
+	if (ccdDetector == VESPERS::Pilatus)
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
-		break;
-	}
 
 	configuration_->setDetectorConfigurations(detectors);
 

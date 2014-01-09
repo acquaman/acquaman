@@ -48,7 +48,7 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetector
 	return stage1;
 }
 
-AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName)
+AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName)
 {
 	AMParallelListAction3 *action = new AMParallelListAction3(new AMParallelListActionInfo3("CCD Setup Action", "Sets the path, base file name and file number to the detector."));
 
@@ -147,24 +147,18 @@ QString VESPERSScanController::buildNotes()
 {
 	// Build the notes for the scan.
 	QString notes;
+	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
-	switch ((int)config_->fluorescenceDetector()){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
+	if (xrfFlag == VESPERS::SingleElement)
 		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
-		break;
 
-	case VESPERS::FourElement:
+	else if (xrfFlag == VESPERS::FourElement)
 		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:
+	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
+
 		notes.append(QString("\nFluorescence detector (1-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
 		notes.append(QString("\nFluorescence detector (4-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-		break;
 	}
 
 	if (config_->ccdDetector() == VESPERS::Pilatus)

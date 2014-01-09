@@ -31,20 +31,13 @@ QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 {
 	QString string = QString();
 
-	switch(id){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
+	if (id == VESPERS::SingleElement)
 		string = "Single Element";
-		break;
 
-	case VESPERS::FourElement:
+	else if (id == VESPERS::FourElement)
 		string = "Four Element";
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:
+	else if (id == int(VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QMenu menu(this);
 		menu.addAction("Single Element");
@@ -53,8 +46,6 @@ QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 
 		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
 			string = action->text();
-
-		break;
 	}
 
 	return string;

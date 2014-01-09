@@ -60,7 +60,7 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, pu
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSSpatialLineScanConfiguration();
+	virtual ~VESPERSSpatialLineScanConfiguration();
 	Q_INVOKABLE VESPERSSpatialLineScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original);
@@ -104,9 +104,9 @@ public:
 	/// Returns whether the other position is valid or not.
 	bool hasOtherPosition() const { return otherPosition_ != -123456789.0; }
 	/// Returns the other motor that corresponds to the provided motor.  Ie: if \param motor is H the this returns V.
-	VESPERS::Motor otherMotor(VESPERS::Motor motor) const;
+	VESPERS::Motors otherMotor(VESPERS::Motors motor) const;
 	/// Returns a string of the other motor.
-	QString otherMotorString(VESPERS::Motor motor) const;
+	QString otherMotorString(VESPERS::Motors motor) const;
 	/// Returns whether the region is valid.
 	bool validAxis() const { return regions_->isValid(0); }
 
@@ -146,7 +146,7 @@ protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
 	/// Sets the default control based on motor choice changes.
-	void onMotorChoiceChanged(VESPERS::Motor motor);
+	void onMotorChoiceChanged(VESPERS::Motors motor);
 
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.

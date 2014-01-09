@@ -33,24 +33,13 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-	switch ((int)configuration_->fluorescenceDetector()){
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
-	case VESPERS::SingleElement:
-
+	if (xrfDetector.testFlag(VESPERS::SingleElement))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
-		break;
 
-	case VESPERS::FourElement:
-
+	if (xrfDetector.testFlag(VESPERS::FourElement))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
-
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
-		break;
-	}
 
 	configuration_->setDetectorConfigurations(detectors);
 

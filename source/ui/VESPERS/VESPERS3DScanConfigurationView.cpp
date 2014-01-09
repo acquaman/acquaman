@@ -355,21 +355,18 @@ void VESPERS3DScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERS3DScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetector()){
+	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
-	case VESPERS::NoXRF:
+	if (xrfFlag == VESPERS::NoXRF)
 		config_->setRoiInfoList(AMROIInfoList());
-		break;
 
-	case VESPERS::SingleElement:
+	else if (xrfFlag == VESPERS::SingleElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		break;
 
-	case VESPERS::FourElement:
+	else if (xrfFlag == VESPERS::FourElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:{
+	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -382,8 +379,6 @@ void VESPERS3DScanConfigurationView::updateRoiText()
 			list.append(fourElList.at(i));
 
 		config_->setRoiInfoList(list);
-		break;
-	}
 	}
 
 	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));

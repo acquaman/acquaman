@@ -3,7 +3,8 @@
 #include <QAction>
 #include <QMenu>
 
- CLSSIS3820CompositeScalerChannelView::~CLSSIS3820CompositeScalerChannelView(){}
+CLSSIS3820CompositeScalerChannelView::~CLSSIS3820CompositeScalerChannelView(){}
+
 CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSIS3820ScalerChannel *channel1, CLSSIS3820ScalerChannel *channel2, QWidget *parent)
 	: QWidget(parent)
 {

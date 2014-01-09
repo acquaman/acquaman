@@ -243,39 +243,31 @@ void VESPERSEXAFSScanConfigurationView::onScanNameEdited()
 
 	double n = 0;
 
-	switch(int(config_->motor())){
+	VESPERS::Motors motor = config_->motor();
 
-	case VESPERS::H | VESPERS::V:
-
+	if (motor == (VESPERS::H | VESPERS::V))
 		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
-		break;
 
-	case VESPERS::X | VESPERS::Z:
-
+	else if (motor == (VESPERS::X | VESPERS::Z))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
-		break;
-	}
 
 	config_->setNormalPosition(n);
 }
 
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetector()){
+	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
-	case VESPERS::NoXRF:
+	if (xrfFlag == VESPERS::NoXRF)
 		config_->setRoiInfoList(AMROIInfoList());
-		break;
 
-	case VESPERS::SingleElement:
+	else if (xrfFlag == VESPERS::SingleElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		break;
 
-	case VESPERS::FourElement:
+	else if (xrfFlag == VESPERS::FourElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:{
+	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -288,11 +280,9 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 			list.append(fourElList.at(i));
 
 		config_->setRoiInfoList(list);
-		break;
-	}
 	}
 
-	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));
+	updateAndSetRoiTextBox(int(xrfFlag));
 }
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
@@ -432,41 +422,38 @@ void VESPERSEXAFSScanConfigurationView::setScanPosition()
 {
 	double x = 0;
 	double y = 0;
+	VESPERS::Motors motor = config_->motor();
 
-	switch(int(config_->motor())){
-
-	case VESPERS::H | VESPERS::V:
+	if (motor == (VESPERS::H | VESPERS::V)){
 
 		x = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motor == (VESPERS::X | VESPERS::Z)){
 
 		x = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoH | VESPERS::AttoV:
+	else if (motor == (VESPERS::AttoH | VESPERS::AttoV)){
 
 		x = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoX | VESPERS::AttoZ:
-
+	else if (motor == (VESPERS::AttoX | VESPERS::AttoZ)){
 
 		x = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
 	}
 
 	config_->setPosition(x, y);

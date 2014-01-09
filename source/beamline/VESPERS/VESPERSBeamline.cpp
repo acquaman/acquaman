@@ -282,7 +282,7 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
-QString VESPERSBeamline::motorGroupName(VESPERS::Motor motor) const
+QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
 {
 	if ((motor & VESPERS::H) || (motor & VESPERS::V))
 		return "Sample Stage - H, V, N";

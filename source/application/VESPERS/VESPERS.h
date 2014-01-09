@@ -27,19 +27,64 @@ namespace VESPERS {
 	 - OnePointSixPercent (1.6%) is a narrow band pass filter.
 	 - Si is the monochromator with 0.01% band pass.
 	  */
-	enum Beam { NoBeam = 0, Pink, TenPercent, OnePointSixPercent, Si };
+	enum Beam
+	{
+		NoBeam = 0,
+		Pink,
+		TenPercent,
+		OnePointSixPercent,
+		Si
+	};
 
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
-	enum FluorescenceDetector { NoXRF = 0, SingleElement = 1, FourElement = 2 };
+	enum FluorescenceDetector
+	{
+		NoXRF = 0,
+		SingleElement = 1,
+		FourElement = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Enum for making the decision on what CCD detector the user wants to use.
-	enum CCDDetector { NoCCD = 0, Roper = 1, Mar = 2, Pilatus = 4 };
+	enum CCDDetector
+	{
+		NoCCD = 0,
+		Roper = 1,
+		Mar = 2,
+		Pilatus = 4
+	};
+	Q_DECLARE_FLAGS(CCDDetectors, CCDDetector)
 
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
-	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
+	enum IonChamber
+	{
+		Isplit = 0,
+		Iprekb,
+		Imini,
+		Ipost
+	};
 
 	/// Enum for what motor(s) are going to be used.  Currently, there are only the motors and pseudo motors of the primary sample stage.  More will be added as they are added to the beamline.
-	enum Motor { NoMotor = 0, H = 1, V = 2, N = 4, X = 8, Z = 16, Y = 32, AttoH = 64, AttoV = 128, AttoN = 256, AttoX = 512, AttoZ = 1024, AttoY = 2048, AttoRz = 4096, AttoRy = 8192, AttoRx = 16384 };
+	enum Motor
+	{
+		NoMotor = 0,
+		H = 1,
+		V = 2,
+		N = 4,
+		X = 8,
+		Z = 16,
+		Y = 32,
+		AttoH = 64,
+		AttoV = 128,
+		AttoN = 256,
+		AttoX = 512,
+		AttoZ = 1024,
+		AttoY = 2048,
+		AttoRz = 4096,
+		AttoRy = 8192,
+		AttoRx = 16384
+	};
+	Q_DECLARE_FLAGS(Motors, Motor)
 
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)
@@ -235,5 +280,9 @@ namespace VESPERS {
 		return pathParts.at(index);
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::FluorescenceDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::CCDDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::Motors)
 
 #endif // VESPERS_H

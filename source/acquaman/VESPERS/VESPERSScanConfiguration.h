@@ -13,7 +13,7 @@ class VESPERSScanConfiguration
 {
 public:
 	/// Constructor.
- 	virtual ~VESPERSScanConfiguration();
+	virtual ~VESPERSScanConfiguration();
 	VESPERSScanConfiguration();
 	/// Copy constructor.
 	VESPERSScanConfiguration(const VESPERSScanConfiguration &original);
@@ -36,11 +36,11 @@ public:
 	/// Returns the current It ion chamber choice.
 	VESPERS::IonChamber transmissionChoice() const { return dbObject_->transmissionChoice(); }
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
+	VESPERS::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
 	/// Returns the current motor choice.
-	VESPERS::Motor motor() const { return dbObject_->motor(); }
+	VESPERS::Motors motor() const { return dbObject_->motor(); }
 	/// Returns the CCD detector choice.
-	VESPERS::CCDDetector ccdDetector() const { return dbObject_->ccdDetector(); }
+	VESPERS::CCDDetectors ccdDetector() const { return dbObject_->ccdDetector(); }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
@@ -67,17 +67,17 @@ public:
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector) { dbObject_->setFluorescenceDetector(detector); }
+	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector) { dbObject_->setFluorescenceDetector(detector); }
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotor(VESPERS::Motor choice) { dbObject_->setMotor(choice); }
+	void setMotor(VESPERS::Motors choice) { dbObject_->setMotor(choice); }
 	/// Overloaded.  Used for database loading.
-	void setMotor(int choice) { setMotor((VESPERS::Motor)choice); }
+	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
 	/// Sets whether the scan should be using the CCD or not.
-	void setCCDDetector(VESPERS::CCDDetector ccd) { dbObject_->setCCDDetector(ccd); }
+	void setCCDDetector(VESPERS::CCDDetectors ccd) { dbObject_->setCCDDetector(ccd); }
 	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetector)ccd); }
+	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
 	/// Sets the ROI list.
@@ -100,7 +100,7 @@ protected:
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void setHeaderText(QString) {}
 	/// Returns a string for the header string for the given \param fluorescence detector.
-	QString fluorescenceHeaderString(VESPERS::FluorescenceDetector detector) const;
+	QString fluorescenceHeaderString(VESPERS::FluorescenceDetectors detector) const;
 	/// Returns a string for the I0 ion chamber.
 	QString incomingChoiceHeaderString(VESPERS::IonChamber detector) const;
 	/// Returns a string for the It ion chamber.
@@ -108,9 +108,9 @@ protected:
 	/// Returns a string that is nicely formatted for the regions of interest.
 	QString regionOfInterestHeaderString(AMROIInfoList list) const;
 	/// Returns a string that with what motors were used based on \param motor.
-	QString motorHeaderString(VESPERS::Motor motor) const;
+	QString motorHeaderString(VESPERS::Motors motor) const;
 	/// Returns a string that gives the name of the CCD images.
-	QString ccdDetectorHeaderString(VESPERS::CCDDetector detector) const;
+	QString ccdDetectorHeaderString(VESPERS::CCDDetectors detector) const;
 
 	////////////////////////////////////////
 

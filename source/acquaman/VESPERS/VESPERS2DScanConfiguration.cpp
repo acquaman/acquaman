@@ -35,7 +35,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	dbObject_->setParent(this);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
-	setMotor(VESPERS::Motor(VESPERS::H | VESPERS::V));
+	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
 	setCCDDetector(VESPERS::NoCCD);
 	setCCDFileName("");
 	setRoiInfoList(AMROIInfoList());
@@ -126,56 +126,52 @@ QString VESPERS2DScanConfiguration::headerText() const
 
 QString VESPERS2DScanConfiguration::xAxisName() const
 {
-	switch(int(motor())){
+	VESPERS::Motors motors = motor();
 
-	case VESPERS::H | VESPERS::V:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "Horizontal (H)";
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "Horizontal (X)";
-	}
 
 	return "Horizontal";
 }
 
 QString VESPERS2DScanConfiguration::xAxisUnits() const
 {
-	switch(int(motor())){
+	VESPERS::Motors motors = motor();
 
-	case VESPERS::H | VESPERS::V:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "mm";
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "mm";
-	}
 
 	return "mm";
 }
 
 QString VESPERS2DScanConfiguration::yAxisName() const
 {
-	switch(int(motor())){
+	VESPERS::Motors motors = motor();
 
-	case VESPERS::H | VESPERS::V:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "Vertical (V)";
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "Vertical (Z)";
-	}
 
 	return "Vertical";
 }
 
 QString VESPERS2DScanConfiguration::yAxisUnits() const
 {
-	switch(int(motor())){
+	VESPERS::Motors motors = motor();
 
-	case VESPERS::H | VESPERS::V:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "mm";
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "mm";
-	}
 
 	return "mm";
 }

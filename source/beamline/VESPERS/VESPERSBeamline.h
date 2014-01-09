@@ -454,7 +454,7 @@ public:
 
 	// The motor group and specific motor group object getters.
 	/// Helper method that returns a name of the motor group object given a VESPERS::Motor enum.
-	QString motorGroupName(VESPERS::Motor motor) const;
+	QString motorGroupName(VESPERS::Motors motor) const;
 	/// Returns the CLSPseudoMotorGroup pointer.
 	CLSPseudoMotorGroup *motorGroup() const { return motorGroup_; }
 	/// Returns the pseudo sample stage motor group object.
