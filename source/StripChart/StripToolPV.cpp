@@ -39,8 +39,8 @@ StripToolPV::StripToolPV(QObject *parent)
     defaultYMinDisplayed_ = true;
 
 
-    displayedYMin_ = defaultDisplayedYMin_; // if not using the defaultDisplayWindow, the user can specify a range they would like to view.
-    displayedYMax_ = defaultDisplayedYMax_;
+    customDisplayedYMin_ = ""; // if not using the defaultDisplayWindow, the user can specify a range they would like to view.
+    customDisplayedYMax_ = "";
 
     pvControl_ = 0;
 
@@ -126,14 +126,20 @@ double StripToolPV::waterfall()
 
 double StripToolPV::displayedYMin()
 {
-    return displayedYMin_;
+    if (defaultYMinDisplayed_)
+        return defaultDisplayedYMin_;
+    else
+        return customDisplayedYMin_.toDouble();
 }
 
 
 
 double StripToolPV::displayedYMax()
 {
-    return displayedYMax_;
+    if (defaultYMaxDisplayed_)
+        return defaultDisplayedYMax_;
+    else
+        return customDisplayedYMax_.toDouble();
 }
 
 
@@ -280,28 +286,13 @@ QList<QString> StripToolPV::editPVDialogData()
     editPVData << yUnits();
     editPVData << QString::number(updateGranularity());
     editPVData << color().name();
-    editPVData << QString::number(displayedYMax());
-    editPVData << QString::number(displayedYMin());
+    editPVData << customDisplayedYMax_;
+    editPVData << customDisplayedYMin_;
+
+    qDebug() << "PV information to be displayed in EditPVDialog : " << editPVData;
+
 
     return editPVData;
-}
-
-
-
-QList<QString> StripToolPV::editPVDialogDefaults()
-{
-    QList<QString> defaults;
-
-    defaults << pvName();
-    defaults << dateCreated_;
-    defaults << "";
-    defaults << "";
-    defaults << QString::number(2);
-    defaults << QColor(Qt::red).name();
-    defaults << QString::number(defaultDisplayedYMax_);
-    defaults << QString::number(defaultDisplayedYMin_);
-
-    return defaults;
 }
 
 
@@ -447,11 +438,12 @@ void StripToolPV::setDisplayedYMax(const QString &newMax)
     if (newMax == "") {
         qDebug() << "Returning to automatically updating y max for pv" << pvName();
         defaultYMaxDisplayed_ = true;
+        customDisplayedYMax_ = newMax;
         return;
     }
 
     qDebug() << "Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
-    displayedYMax_ = newMax.toDouble();
+    customDisplayedYMax_ = newMax;
     defaultYMaxDisplayed_ = false;
 }
 
@@ -461,12 +453,13 @@ void StripToolPV::setDisplayedYMin(const QString &newMin)
 {
     if (newMin == "") {
         qDebug() << "Returning to automatically updating y max for pv " << pvName();
+        customDisplayedYMin_ = newMin;
         defaultYMinDisplayed_ = true;
         return;
     }
 
     qDebug() << "Setting lower limit on displayed y values for pv" << pvName() << "to" << newMin;
-    displayedYMin_ = newMin.toDouble();
+    customDisplayedYMin_ = newMin;
     defaultYMinDisplayed_ = false;
 }
 
@@ -636,17 +629,25 @@ void StripToolPV::onPVValueChanged(double newValue)
         defaultDisplayedYMin_ = min;
         defaultDisplayedYMax_ = max;
 
-        if (defaultYMaxDisplayed_)
-            displayedYMax_ = defaultDisplayedYMax_;
+        double displayedYMax, displayedYMin;
 
-        if (defaultYMinDisplayed_)
-            displayedYMin_ = defaultDisplayedYMin_;
+        if (defaultYMaxDisplayed_) {
+            displayedYMax = defaultDisplayedYMax_;
+        } else {
+            displayedYMax = customDisplayedYMax_.toDouble();
+        }
 
-        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin_, displayedYMax_); // get the vertical range of the selected data.
+        if (defaultYMinDisplayed_) {
+            displayedYMin = defaultDisplayedYMin_;
+        } else {
+            displayedYMin = customDisplayedYMin_.toDouble();
+        }
+
+        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin, displayedYMax); // get the vertical range of the selected data.
         emit updateYAxisRange(newRange);
 
-        emit updateYDisplayMax(displayedYMax_);
-        emit updateYDisplayMin(displayedYMin_);
+        emit updateYDisplayMax(defaultDisplayedYMax_);
+        emit updateYDisplayMin(defaultDisplayedYMin_);
     }
 
 }

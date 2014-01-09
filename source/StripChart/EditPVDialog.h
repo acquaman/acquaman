@@ -43,11 +43,13 @@ private:
     bool yMaxChanged_;
     QLineEdit *displayMaxEntry_;
     QLabel *currentDisplayMax_;
+    QCheckBox *automaticMax_;
 
     QString displayMin_;
     bool yMinChanged_;
     QLineEdit *displayMinEntry_;
     QLabel *currentDisplayMin_;
+    QCheckBox *automaticMin_;
 
     QPushButton *okButton_;
     QPushButton *cancelButton_;
@@ -84,6 +86,12 @@ protected slots:
     void colorEntered(const QString &newColor);
     void displayMaxEntered(const QString &max);
     void displayMinEntered(const QString &min);
+    void automaticDisplayMaxChanged(Qt::CheckState checkState);
+    void automaticDisplayMinChanged(Qt::CheckState checkState);
+    void setMaxCheckState(const QString &textEntered);
+    void setMinCheckState(const QString &textEntered);
+    void toClearMaxEntry(int checkState);
+    void toClearMinEntry(int checkState);
 
     void toUpdateCurrentDisplayMax(double currentMax);
     void toUpdateCurrentDisplayMin(double currentMin);

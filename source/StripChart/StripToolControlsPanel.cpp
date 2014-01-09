@@ -24,7 +24,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     panelLayout->addWidget(pauseResume_, 0, 1);
     panelLayout->addWidget(timeEntry_, 0, 2);
     panelLayout->addWidget(sidebarButton_, 0, 3);
-    panelLayout->addWidget(waterfallEntry_, 1, 0);
+//    panelLayout->addWidget(waterfallEntry_, 1, 0);
 
     QGroupBox *controlsGroup = new QGroupBox();
     controlsGroup->setLayout(panelLayout);

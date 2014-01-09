@@ -70,8 +70,8 @@ protected:
     double defaultDisplayedYMin_;
     double defaultDisplayedYMax_;
 
-    double displayedYMin_;
-    double displayedYMax_;
+    QString customDisplayedYMin_;
+    QString customDisplayedYMax_;
 
     bool defaultYMaxDisplayed_;
     bool defaultYMinDisplayed_;
@@ -110,7 +110,6 @@ protected:
     QList<QString> metaDataHeaders();
     QList<QString> metaData();
     QList<QString> editPVDialogData();
-    QList<QString> editPVDialogDefaults();
     bool setMetaData(QList<QString> metaData);
 
     bool isSelected();
