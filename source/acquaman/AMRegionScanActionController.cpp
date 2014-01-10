@@ -68,8 +68,18 @@ void AMRegionScanActionController::buildScanController()
 		// If you want to use the CDF data file format.
 		else if (scan_->fileFormat() == "amCDFv1"){
 
+			// Get all the scan axes so they can be added to the new data store.
+			QList<AMAxisInfo> scanAxes;
+
+			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
+				scanAxes << scan_->rawData()->scanAxisAt(i);
+
 			scan_->setFilePath(fullPath.filePath() % ".cdf");
 			scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
+
+			// Add all the old scan axes.
+			foreach (AMAxisInfo axis, scanAxes)
+				scan_->rawData()->addScanAxis(axis);
 
 			flushToDiskTimer_.setInterval(300000);
 			connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
@@ -83,7 +93,7 @@ void AMRegionScanActionController::buildScanController()
 		}
 
 		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath() % ".dat", has1DDetectors);
+		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
 		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
 		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
 		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));

@@ -20,6 +20,7 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(REIXSBeamline::bl()->currentSampleId());
 	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString rangeString;
 	if(configuration_->regionCount())
@@ -57,7 +58,6 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 
 void REIXSXASScanActionController::buildScanControllerImplementation()
 {
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* REIXSXASScanActionController::createInitializationActions(){

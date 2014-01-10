@@ -12,7 +12,7 @@
 #include "dataman/AMTextStream.h"
 
 bool SGM2013XASFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2013XAS trying to accept " << scan->fileFormat();
+
 	if(scan->fileFormat() == "sgm2013XAS" || scan->fileFormat() == "amRegionAscii2013")
 		return true;
 	return false;

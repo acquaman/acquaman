@@ -611,7 +611,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		rv = image;
 		break; }
 	default:
-		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, "Asked to create a plot item for a rank that we don't handle.");
+		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, QString("Asked to create a plot item for a rank that we don't handle. Source name is: %1").arg(dataSource->name()));
 		rv = 0;
 		break;
 	}

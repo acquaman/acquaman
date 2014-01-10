@@ -18,6 +18,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString scanName;
 	QString sampleName;
@@ -37,7 +38,6 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){

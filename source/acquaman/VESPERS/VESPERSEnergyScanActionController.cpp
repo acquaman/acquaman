@@ -4,7 +4,8 @@
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
 
- VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
+VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
+
 VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
@@ -16,6 +17,9 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	useFeedback_ = true;
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
@@ -23,23 +27,16 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-	switch (int(configuration_->ccdDetector())){
+//	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-	case VESPERS::NoCCD:
-		break;
+//	if (ccdDetector == VESPERS::Roper)
+//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
 
-	case VESPERS::Roper:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
-		break;
+//	if (ccdDetector == VESPERS::Mar)
+//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
 
-	case VESPERS::Mar:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
-		break;
-
-	case VESPERS::Pilatus:
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
-		break;
-	}
+//	if (ccdDetector == VESPERS::Pilatus)
+//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -57,7 +54,6 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 
 void VESPERSEnergyScanActionController::buildScanControllerImplementation()
 {
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()

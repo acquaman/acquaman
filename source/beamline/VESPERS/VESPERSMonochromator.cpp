@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 
- VESPERSMonochromator::~VESPERSMonochromator(){}
+VESPERSMonochromator::~VESPERSMonochromator(){}
+
 VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	QObject(parent)
 {

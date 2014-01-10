@@ -744,6 +744,7 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
 	addExposedControl(energyRelative_);
+	addExposedControl(energy_);
 }
 
 void VESPERSBeamline::setupExposedDetectors()

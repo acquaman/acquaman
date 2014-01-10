@@ -159,7 +159,7 @@ bool VESPERSAppController::startup() {
 		setupUserInterface();
 		makeConnections();
 
-		userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+//		userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");

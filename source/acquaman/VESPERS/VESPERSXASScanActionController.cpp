@@ -8,7 +8,8 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
- VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
+VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
+
 VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
@@ -20,6 +21,7 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", configuration_->exportSpectraSources(), true, true, configuration_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
@@ -57,7 +59,6 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 
 void VESPERSXASScanActionController::buildScanControllerImplementation()
 {
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 }
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
