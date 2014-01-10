@@ -7,6 +7,11 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
     selector_ = new StripToolSelector();
 
+//    // the user has the option to specify custom limits for the y axis scale. If 'default...' is false, use the custom axis scale specified, else let the axis values update with the pv data.
+//    defaultLeftAxisScale_ = true;
+
+    waterfall_ = 0.0;
+
     connect( this, SIGNAL(itemSelected(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
 
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SIGNAL(seriesSelected(MPlotItem*)) );
@@ -26,7 +31,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     setPlot(plot_);
 
-    enableAntiAliasing(true);
+//    plot_->enableAntiAliasing(true);
 
     connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
     connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );
@@ -53,9 +58,16 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(seriesChanged(Qt::CheckState, int)), this, SLOT(onSeriesChanged(Qt::CheckState, int)) );
     connect( model_, SIGNAL(updateXAxisLabel(QString)), this, SLOT(toUpdateXAxisLabel(QString)) );
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
-    connect( model_, SIGNAL(updateYAxisLabel(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
-    connect( model_, SIGNAL(updateYAxisRange(MPlotAxisRange*)), this, SLOT(toUpdateYAxisRange(MPlotAxisRange*)) );
-    connect( model_, SIGNAL(updateWaterfall(double)), this, SLOT(toUpdateWaterfall(double)) );
+//    connect( model_, SIGNAL(updateYAxisLabel(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
+//    connect( model_, SIGNAL(updateWaterfall(double)), this, SLOT(toUpdateWaterfall(double)) );
+//    connect( model_, SIGNAL(applyLeftAxisScaleShift(double)), this, SLOT(toShiftLeftAxisScale(double)) );
+    connect( model_, SIGNAL(applyDefaultYAxisScale(bool)), this, SLOT(toApplyDefaultYAxisRange(bool)) );
+
+    connect( model_, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)), this, SLOT(toUpdateYAxisRange(MPlotAxisRange*)) );
+    connect( model_, SIGNAL(selectedPVAxisLabelChanged(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
+    connect( model_, SIGNAL(waterfallChanged(double)), this, SLOT(toSetNewWaterfall(double)) );
+//    connect( model_, SIGNAL(selectedPVOffsetChanged(double)), this, SLOT(toUpdate))
+
 }
 
 
@@ -137,6 +149,7 @@ bool StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
 
 void StripToolPlot::toUpdateXAxisLabel(const QString &newLabel)
 {
+    qDebug() << "StripToolPlot :: Plot axis label changed to" << newLabel;
     plot_->axisBottom()->setAxisName(newLabel);
 }
 
@@ -155,17 +168,48 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 
 
 
-void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newRange)
-{
-    qreal rangeMin = newRange->min();
-    qreal rangeMax = newRange->max();
+void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newDataRange)
+{    
+    qreal rangeMin = newDataRange->min();
+    qreal rangeMax = newDataRange->max();
 
     if (rangeMin == rangeMax)
         rangeMax *= 1.05;
 
     plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
 
+    double offset = waterfall_ * (rangeMax - rangeMin);
+    plot_->setAxisScaleWaterfall(MPlot::Left, offset);
 }
+
+
+
+//void StripToolPlot::applyDefaultYAxisRange(MPlotAxisRange *newRange)
+//{
+////    qreal rangeMin = newRange->min();
+////    qreal rangeMax = newRange->max();
+
+////    if (rangeMin == rangeMax)
+////        rangeMax *= 1.05;
+
+////    plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
+//}
+
+
+
+//void StripToolPlot::applyCustomYAxisRange(MPlotAxisRange *newRange)
+//{
+////    plot_->axisScaleLeft()->setDataRange(*newRange);
+//}
+
+
+
+//void StripToolPlot::toApplyDefaultYAxisRange(bool applyDefault)
+//{
+//    defaultLeftAxisScale_ = applyDefault;
+
+//    qDebug() << "StripToolPlot :: Plot received signal that the default axis scale (limits update with data) will be applied :" << applyDefault;
+//}
 
 
 
@@ -183,7 +227,7 @@ void StripToolPlot::onModelSelectionChange()
 
     if (modelSelection && contains(modelSelection))
     {
-        qDebug() << "Setting plot selection...";
+        qDebug() << "StripToolPlot :: Setting plot selection...";
         plot_->axisLeft()->showTickLabels(true);
         emit itemSelected(modelSelection); // let selector_ tool know about the selection change.
 
@@ -194,22 +238,45 @@ void StripToolPlot::onModelSelectionChange()
         emit itemSelected(0);
 
     } else {
-        qDebug() << "Attempting to select plot item that doesn't exist.";
+        qDebug() << "StripToolPlot :: Attempting to select plot item that doesn't exist! No change made.";
     }
 }
 
 
 
-void StripToolPlot::toUpdateWaterfall(double vertPercentage)
-{    
-    MPlotAxisRange leftRange = plot_->axisScaleLeft()->dataRange();
-    qreal rangeMin = leftRange.min();
-    qreal rangeMax = leftRange.max();
-
-    qreal waterfall = ((rangeMax - rangeMin) * vertPercentage);
-    plot_->setAxisScaleWaterfall(MPlot::Left, waterfall);
-
-    qDebug() << "Plot received signal to adjust waterfall amount to" << waterfall;
+void StripToolPlot::toSetNewWaterfall(double newWaterfall)
+{
+    waterfall_ = newWaterfall;
 }
+
+
+
+//void StripToolPlot::toUpdateWaterfall(double vertPercentage)
+//{
+////    MPlotAxisRange leftRange = plot_->axisScaleLeft()->dataRange();
+////    qreal rangeMin = leftRange.min();
+////    qreal rangeMax = leftRange.max();
+
+////    qreal waterfall = ((rangeMax - rangeMin) * vertPercentage);
+////    plot_->setAxisScaleWaterfall(MPlot::Left, waterfall);
+
+////    qDebug() << "Plot received signal to adjust waterfall amount to" << waterfall;
+//}
+
+
+
+//void StripToolPlot::toShiftLeftAxisScale(double shiftAmount)
+//{
+//    qDebug() << "Plot received signal to shift displayed left axis scale by" << shiftAmount;
+
+////    defaultLeftAxisScale_ = false;
+
+//    MPlotAxisRange leftRange = plot_->axisScaleLeft()->dataRange();
+//    qreal oldMin = leftRange.min();
+//    qreal oldMax = leftRange.max();
+
+//    MPlotAxisRange *newRange = new MPlotAxisRange(oldMin + shiftAmount, oldMax + shiftAmount);
+//    applyCustomYAxisRange(newRange);
+//}
 
 

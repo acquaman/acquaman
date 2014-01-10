@@ -33,6 +33,8 @@ protected:
     StripToolModel *model_;
     MPlot *plot_;
     StripToolSelector *selector_;
+//    bool defaultLeftAxisScale_;
+    double waterfall_;
 
 public:
     void setModel(StripToolModel *model);
@@ -44,6 +46,9 @@ protected:
     bool addSeriesToPlot(MPlotItem *newSeries);
     /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
     bool removeSeriesFromPlot(MPlotItem *toRemove);
+
+//    void applyDefaultYAxisRange(MPlotAxisRange *newRange);
+//    void applyCustomYAxisRange(MPlotAxisRange *newRange);
 
 
 protected slots:
@@ -62,9 +67,13 @@ protected slots:
     void toUpdateXAxisLabel(const QString &newLabel);
 //    void toSetPlotSelection(MPlotItem *newSelection, const QString &axisLabel);
 
-    void toUpdateYAxisRange(MPlotAxisRange *newRange);
+    void toUpdateYAxisRange(MPlotAxisRange *newDataRange);
+//    void toApplyDefaultYAxisRange(bool applyDefault);
     void toUpdateYAxisLabel(const QString &newLabel);
-    void toUpdateWaterfall(double amount);
+    void toSetNewWaterfall(double newWaterfall);
+//    void toUpdateWaterfall(double amount);
+
+//    void toShiftLeftAxisScale(double shiftAmount);
 };
 
 #endif // STRIPTOOLPLOT_H

@@ -17,7 +17,7 @@ StripToolPV::StripToolPV(QObject *parent)
     pvDescription_ = "";
     xUnits_ = "";
     yUnits_ = "";
-    yAxisLabel_ = "";
+//    yAxisLabel_ = "";
 
     isUpdating_ = true;
     checkState_ = Qt::Checked;
@@ -27,13 +27,14 @@ StripToolPV::StripToolPV(QObject *parent)
 
     dateCreated_ = QDateTime::currentDateTime().toString();
 
-    waterfall_ = 0.00; // all pvs begin centered on the plot view.
+//    waterfall_ = 0.00; // all pvs begin centered on the plot view.
 
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
 
     defaultDisplayedYMin_ = 0.0; // this will always be updated to reflect the min/max of the pv's displayed values!
     defaultDisplayedYMax_ = 1.0;
+    defaultDisplayedAvg_ = 0.5;
 
     defaultYMaxDisplayed_ = true;
     defaultYMinDisplayed_ = true;
@@ -117,10 +118,10 @@ int StripToolPV::updateGranularity()
 }
 
 
-double StripToolPV::waterfall()
-{
-    return waterfall_;
-}
+//double StripToolPV::waterfall()
+//{
+//    return waterfall_;
+//}
 
 
 
@@ -153,8 +154,8 @@ void StripToolPV::setSelected(bool selected)
 {
     isSelected_ = selected;
 
-    emit updateYAxisLabel(yAxisLabel_);
-    emit updateWaterfallDisplay(waterfall_);
+//    emit updateYAxisLabel(yAxisLabel_);
+//    emit updateWaterfallDisplay(waterfall_);
 }
 
 
@@ -288,6 +289,7 @@ QList<QString> StripToolPV::editPVDialogData()
     editPVData << color().name();
     editPVData << customDisplayedYMax_;
     editPVData << customDisplayedYMin_;
+//    editPVData << QString::number(waterfall_);
 
     qDebug() << "PV information to be displayed in EditPVDialog : " << editPVData;
 
@@ -356,22 +358,27 @@ void StripToolPV::setDescription(const QString &newDescription)
         pvDescription_ = pvName();
 
     qDebug() << "Setting new description for pv" << pvName() << ":" << pvDescription_;
-    emit savePVMetaData();
 
-    yAxisLabel_ = newDescription + " [" + yUnits() + "]";
-    emit updateYAxisLabel(yAxisLabel_);
+    emit savePVMetaData();
+    emit descriptionChanged(pvDescription_);
+
+//    yAxisLabel_ = newDescription + " [" + yUnits() + "]";
+//    emit updateYAxisLabel(yAxisLabel_);
 }
 
 
 
 void StripToolPV::setYUnits(const QString &newUnits)
 {
-    yUnits_ = newUnits;
-    qDebug() << "Setting new units for pv" << pvName() << ":" << yUnits_;
-    emit savePVMetaData();
+    qDebug() << "Setting new units for pv" << pvName() << ":" << newUnits;
 
-    yAxisLabel_ = pvDescription() + " [" + newUnits + "]";
-    emit updateYAxisLabel(yAxisLabel_);
+    yUnits_ = newUnits;
+
+    emit savePVMetaData();
+    emit unitsChanged(yUnits_);
+
+//    yAxisLabel_ = pvDescription() + " [" + newUnits + "]";
+//    emit updateYAxisLabel(yAxisLabel_);
 }
 
 
@@ -416,33 +423,59 @@ void StripToolPV::setPVUpdating(bool isUpdating)
 
 
 
-void StripToolPV::setWaterfall(double newWaterfall)
-{
-    if (newWaterfall > 0.5 || newWaterfall < -0.5) {
-        qDebug() << "New waterfall value falls outside acceptable range.";
-        return;
-    }
+//void StripToolPV::setWaterfall(double newWaterfall)
+//{
+//    if (newWaterfall > 0.5 || newWaterfall < -0.5) {
+//        qDebug() << "StripToolPV :: New waterfall value falls outside acceptable range! No change made.";
+//        return;
+//    }
 
-    waterfall_ = newWaterfall;
-    qDebug() << "Waterfall for pv" << pvName() << "has been changed to" << waterfall();
+//    waterfall_ = newWaterfall;
 
-    if (checkState_ == Qt::Checked && isSelected_) {
-        emit updateWaterfall(waterfall_);
-    }
-}
+//    qDebug() << "StripToolPV :: Waterfall for pv" << pvName() << "has been changed to" << waterfall();
+//    emit waterfallChanged(newWaterfall);
+
+
+////    if (checkState_ == Qt::Checked && isSelected_) {
+
+////        // in order to create the appearance of the pv shifting up on the plot, we shift the y plot axis down by the equivalent amount.
+////        double shiftAmount;
+
+////        if (defaultYMaxDisplayed_ && defaultYMinDisplayed_) {
+////            shiftAmount = -waterfall_ * (defaultDisplayedYMax_ - defaultDisplayedYMin_);
+
+////        } else if (defaultYMaxDisplayed_ && !defaultYMinDisplayed_) {
+////            shiftAmount = -waterfall_ * (defaultDisplayedYMax_ - customDisplayedYMin_.toDouble());
+
+////        } else if (!defaultDisplayedYMax_ && defaultYMinDisplayed_) {
+////            shiftAmount = -waterfall_ * (customDisplayedYMax_.toDouble() - defaultDisplayedYMin_);
+
+////        } else if (!defaultYMaxDisplayed_ && !defaultYMinDisplayed_) {
+////            shiftAmount = -waterfall_ * (customDisplayedYMax_.toDouble() - customDisplayedYMin_.toDouble());
+
+////        } else {
+////            qDebug() << "StripToolPV :: Unable to resolve axis scale shift!!";
+////            shiftAmount = 0;
+////        }
+
+////        qDebug() << "StripToolPV :: The calculated axis shift for pv" << pvName() << "is" << shiftAmount;
+
+////        emit applyLeftAxisScaleShift(shiftAmount);
+////    }
+//}
 
 
 
 void StripToolPV::setDisplayedYMax(const QString &newMax)
 {
     if (newMax == "") {
-        qDebug() << "Returning to automatically updating y max for pv" << pvName();
+        qDebug() << "StripToolPV :: Returning to automatically updating y max for pv" << pvName();
         defaultYMaxDisplayed_ = true;
         customDisplayedYMax_ = newMax;
         return;
     }
 
-    qDebug() << "Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
+    qDebug() << "StripToolPV :: Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
     customDisplayedYMax_ = newMax;
     defaultYMaxDisplayed_ = false;
 }
@@ -452,7 +485,7 @@ void StripToolPV::setDisplayedYMax(const QString &newMax)
 void StripToolPV::setDisplayedYMin(const QString &newMin)
 {
     if (newMin == "") {
-        qDebug() << "Returning to automatically updating y max for pv " << pvName();
+        qDebug() << "Returning to automatically updating y min for pv " << pvName();
         customDisplayedYMin_ = newMin;
         defaultYMinDisplayed_ = true;
         return;
@@ -629,25 +662,40 @@ void StripToolPV::onPVValueChanged(double newValue)
         defaultDisplayedYMin_ = min;
         defaultDisplayedYMax_ = max;
 
+        defaultDisplayedAvg_ = 0.5 * (defaultDisplayedYMin_ + defaultDisplayedYMax_);
+
+
         double displayedYMax, displayedYMin;
 
         if (defaultYMaxDisplayed_) {
             displayedYMax = defaultDisplayedYMax_;
-        } else {
+
+        } else if (customDisplayedYMax_ != "") {
             displayedYMax = customDisplayedYMax_.toDouble();
+
+        } else {
+            qDebug() << "StripToolPV :: Cannot switch to display a custom max value for y axis when the max hasn't been set. No change made.";
+            displayedYMax = defaultDisplayedYMax_;
         }
+
 
         if (defaultYMinDisplayed_) {
             displayedYMin = defaultDisplayedYMin_;
-        } else {
+
+        } else if (customDisplayedYMin_ != "") {
             displayedYMin = customDisplayedYMin_.toDouble();
+
+        } else {
+            qDebug() << "StripToolPV :: Cannot switch to display a custom min value for y axis when the min hasn't been set. No change made.";
+            displayedYMin = defaultDisplayedYMin_;
         }
 
-        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin, displayedYMax); // get the vertical range of the selected data.
-        emit updateYAxisRange(newRange);
 
-        emit updateYDisplayMax(defaultDisplayedYMax_);
-        emit updateYDisplayMin(defaultDisplayedYMin_);
+        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin, displayedYMax); // get the vertical range of the selected data.
+        emit dataRangeChanged(newRange);
+
+        emit dataMaxChanged(defaultDisplayedYMax_);
+        emit dataMinChanged(defaultDisplayedYMin_);
     }
 
 }

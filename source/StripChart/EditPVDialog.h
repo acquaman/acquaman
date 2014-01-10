@@ -51,6 +51,10 @@ private:
     QLabel *currentDisplayMin_;
     QCheckBox *automaticMin_;
 
+//    double waterfallAmnt_;
+//    bool waterfallChanged_;
+//    QDoubleSpinBox *waterfallEntry_;
+
     QPushButton *okButton_;
     QPushButton *cancelButton_;
     QPushButton *restoreButton_;
@@ -76,6 +80,9 @@ protected:
     QString displayMin();
     bool displayMinChanged();
 
+//    double waterfall();
+//    bool waterfallChanged();
+
 protected slots:
     /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
     void descriptionEntered(const QString &newDescription);
@@ -86,6 +93,8 @@ protected slots:
     void colorEntered(const QString &newColor);
     void displayMaxEntered(const QString &max);
     void displayMinEntered(const QString &min);
+//    void waterfallEntered(double newPercent);
+
     void automaticDisplayMaxChanged(Qt::CheckState checkState);
     void automaticDisplayMinChanged(Qt::CheckState checkState);
     void setMaxCheckState(const QString &textEntered);
@@ -93,8 +102,8 @@ protected slots:
     void toClearMaxEntry(int checkState);
     void toClearMinEntry(int checkState);
 
-    void toUpdateCurrentDisplayMax(double currentMax);
-    void toUpdateCurrentDisplayMin(double currentMin);
+    void toUpdateDataMax(double currentMax);
+    void toUpdateDataMin(double currentMin);
     
 };
 

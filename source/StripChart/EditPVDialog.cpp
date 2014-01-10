@@ -9,6 +9,7 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     colorChanged_ = false;
     yMaxChanged_ = false;
     yMinChanged_ = false;
+//    waterfallChanged_ = false;
 
     QGridLayout *formLayout = new QGridLayout();
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -72,52 +73,52 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     formLayout->addWidget(colorLabel, 5, 0);
     formLayout->addWidget(colorEntry_, 5, 1);
 
-    if (pvInfo.size() > 6) {
-        QLabel *maxLabel = new QLabel("Displayed max : ");
-        formLayout->addWidget(maxLabel, 6, 0);
+    QLabel *maxLabel = new QLabel("Displayed max : ");
+    formLayout->addWidget(maxLabel, 6, 0);
 
-        QString displayedMax = pvInfo.at(6);
-        displayMaxEntry_ = new QLineEdit();
-        displayMaxEntry_->setText(displayedMax);
-        maxLabel->setBuddy(displayMaxEntry_);
-        connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMaxEntered(QString)) );
-        formLayout->addWidget(displayMaxEntry_, 6, 1);
+    QString displayedMax = pvInfo.at(6);
+    displayMaxEntry_ = new QLineEdit();
+    displayMaxEntry_->setEnabled(false);
+    displayMaxEntry_->setText(displayedMax);
+    maxLabel->setBuddy(displayMaxEntry_);
+    connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMaxEntered(QString)) );
+    formLayout->addWidget(displayMaxEntry_, 6, 1);
 
-        currentDisplayMax_ = new QLabel("boo");
-        formLayout->addWidget(currentDisplayMax_, 6, 2);
+    currentDisplayMax_ = new QLabel("boo");
+    formLayout->addWidget(currentDisplayMax_, 6, 2);
 
-        automaticMax_ = new QCheckBox("Automatically update max");
-        formLayout->addWidget(automaticMax_, 7, 1);
-        connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMaxCheckState(QString)) );
-        connect( automaticMax_, SIGNAL(stateChanged(int)), this, SLOT(toClearMaxEntry(int)) );
-        if (displayedMax == "")
-            automaticMax_->setCheckState(Qt::Checked);
-        else
-            automaticMax_->setCheckState(Qt::Unchecked);
+    automaticMax_ = new QCheckBox("Automatically update max");
+    formLayout->addWidget(automaticMax_, 7, 1);
+    connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMaxCheckState(QString)) );
+    connect( automaticMax_, SIGNAL(stateChanged(int)), this, SLOT(toClearMaxEntry(int)) );
+    if (displayedMax == "")
+        automaticMax_->setCheckState(Qt::Checked);
+    else
+        automaticMax_->setCheckState(Qt::Unchecked);
 
 
-        QLabel *minLabel = new QLabel("Displayed min : ");
-        formLayout->addWidget(minLabel, 8, 0);
+    QLabel *minLabel = new QLabel("Displayed min : ");
+    formLayout->addWidget(minLabel, 8, 0);
 
-        QString displayedMin = pvInfo.at(7);
-        displayMinEntry_ = new QLineEdit();
-        displayMinEntry_->setText(displayedMin);
-        minLabel->setBuddy(displayMinEntry_);
-        connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMinEntered(QString)) );
-        formLayout->addWidget(displayMinEntry_, 8, 1);
+    QString displayedMin = pvInfo.at(7);
+    displayMinEntry_ = new QLineEdit();
+    displayMinEntry_->setEnabled(false);
+    displayMinEntry_->setText(displayedMin);
+    minLabel->setBuddy(displayMinEntry_);
+    connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMinEntered(QString)) );
+    formLayout->addWidget(displayMinEntry_, 8, 1);
 
-        currentDisplayMin_ = new QLabel("ger");
-        formLayout->addWidget(currentDisplayMin_, 8, 2);
+    currentDisplayMin_ = new QLabel("ger");
+    formLayout->addWidget(currentDisplayMin_, 8, 2);
 
-        automaticMin_ = new QCheckBox("Automatically update min");
-        formLayout->addWidget(automaticMin_, 9, 1);
-        connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMinCheckState(QString)) );
-        connect( automaticMin_, SIGNAL(stateChanged(int)), this, SLOT(toClearMinEntry(int)) );
-        if (displayedMin == "")
-            automaticMin_->setCheckState(Qt::Checked);
-        else
-            automaticMin_->setCheckState(Qt::Unchecked);
-    }
+    automaticMin_ = new QCheckBox("Automatically update min");
+    formLayout->addWidget(automaticMin_, 9, 1);
+    connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMinCheckState(QString)) );
+    connect( automaticMin_, SIGNAL(stateChanged(int)), this, SLOT(toClearMinEntry(int)) );
+    if (displayedMin == "")
+        automaticMin_->setCheckState(Qt::Checked);
+    else
+        automaticMin_->setCheckState(Qt::Unchecked);
 
 
     okButton_ = new QPushButton("Ok");
@@ -265,13 +266,14 @@ void EditPVDialog::displayMinEntered(const QString &min)
 }
 
 
-void EditPVDialog::toUpdateCurrentDisplayMax(double currentMax)
+
+void EditPVDialog::toUpdateDataMax(double currentMax)
 {
     currentDisplayMax_->setText(QString::number(currentMax, 'f', 2));
 }
 
 
-void EditPVDialog::toUpdateCurrentDisplayMin(double currentMin)
+void EditPVDialog::toUpdateDataMin(double currentMin)
 {
     currentDisplayMin_->setText(QString::number(currentMin, 'f', 2));
 }

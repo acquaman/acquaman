@@ -3,7 +3,7 @@
 WaterfallEntryWidget::WaterfallEntryWidget(QWidget *parent) :
     QWidget(parent)
 {
-    waterfallLabel_ = new QLabel("Percent offset : ");
+    waterfallLabel_ = new QLabel("Waterfall amount : ");
 
     waterfallAmount_ = new QDoubleSpinBox();
     connect( waterfallAmount_, SIGNAL(valueChanged(double)), this, SIGNAL(waterfallChanged(double)) );

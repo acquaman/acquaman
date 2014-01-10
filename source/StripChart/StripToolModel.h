@@ -33,12 +33,19 @@ signals:
     void updateTimeUnits(const QString &newUnits);
     void updateXAxisLabel(const QString &newUnits);
     void requestTimeUpdate();
-    void updateYAxisRange(MPlotAxisRange *newRange);
-    void updateYAxisLabel(const QString &newLabel);
-    void updateWaterfall(double newWaterfall);
-    void selectedWaterfall(double selectedWaterfall);
-    void updateSelectedDisplayMax(double newMax);
-    void updateSelectedDisplayMin(double newMin);
+//    void updateYAxisLabel(const QString &newLabel);
+//    void updateWaterfall(double newWaterfall);
+//    void selectedWaterfall(double selectedWaterfall);
+    void updateSelectedDataMax(double newMax);
+    void updateSelectedDataMin(double newMin);
+    void applyLeftAxisScaleShift(double shiftAmount);
+    void applyDefaultYAxisScale(bool applyDefault);
+
+    void selectedPVDataRangeChanged(MPlotAxisRange *newRange);
+    void selectedPVAxisLabelChanged(const QString &newLabel);
+    void selectedPVOffsetChanged(double offset);
+    void waterfallChanged(double newWaterfall);
+
 
 protected:
     QList<StripToolPV*> pvList_;
@@ -94,7 +101,7 @@ protected:
     bool addPV(AMControl *pvControl);
 
     void setSelectedPV(StripToolPV *newSelection);
-    bool setSelectedWaterfall(double newWaterfall);
+//    bool setSelectedWaterfall(double newWaterfall);
 
 protected slots:
     void toAddPV(const QString &pvName);
@@ -104,7 +111,7 @@ protected slots:
     void toResumePVs();
     void toUpdateTime(int newTime);
     void toUpdateTimeUnits(const QString &newUnits);
-    void toSetSelectedWaterfall(double newWaterfall);
+//    void toSetWaterfall(double newWaterfall);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);
@@ -133,6 +140,11 @@ protected slots:
     void toTestDoubleSignal(double val);
 
 //    void onSelectedPVUpdated();
+
+    ////////
+
+    void toChangeYAxisLabel();
+//    void toShiftYAxis(double selectedPVWaterfall);
 
 };
 

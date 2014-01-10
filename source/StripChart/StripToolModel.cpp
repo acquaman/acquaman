@@ -328,12 +328,13 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(savePVData()), saveDataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(savePVMetaData()), saveMetadataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
-    connect( newPV, SIGNAL(updateYAxisRange(MPlotAxisRange *)), this, SIGNAL(updateYAxisRange(MPlotAxisRange *)) );
-    connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
-    connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
-    connect( newPV, SIGNAL(updateYDisplayMax(double)), this, SIGNAL(updateSelectedDisplayMax(double)) );
-    connect( newPV, SIGNAL(updateYDisplayMin(double)), this, SIGNAL(updateSelectedDisplayMin(double)) );
 
+//    connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
+//    connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
+//    connect( newPV, SIGNAL(applyLeftAxisScaleShift(double)), this, SIGNAL(applyLeftAxisScaleShift(double)) );
+//    connect( newPV, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
+    connect( newPV, SIGNAL(dataMaxChanged(double)), this, SIGNAL(updateSelectedDataMax(double)) );
+    connect( newPV, SIGNAL(dataMinChanged(double)), this, SIGNAL(updateSelectedDataMin(double)) );
 //    connect( this, SIGNAL(updateSelectedDisplayMax(double)), this, SLOT(toTestDoubleSignal(double)) );
 
     connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
@@ -379,8 +380,8 @@ void StripToolModel::editPV(const QModelIndex &index)
 //    EditPVDialog editDialog(toEdit->editPVDialogData());
     EditPVDialog *editDialog = new EditPVDialog(toEdit->editPVDialogData());
 
-    connect( this, SIGNAL(updateSelectedDisplayMax(double)), editDialog, SLOT(toUpdateCurrentDisplayMax(double)) );
-    connect( this, SIGNAL(updateSelectedDisplayMin(double)), editDialog, SLOT(toUpdateCurrentDisplayMin(double)) );
+    connect( this, SIGNAL(updateSelectedDataMax(double)), editDialog, SLOT(toUpdateDataMax(double)) );
+    connect( this, SIGNAL(updateSelectedDataMin(double)), editDialog, SLOT(toUpdateDataMin(double)) );
 
     if (editDialog->exec())
     {
@@ -402,11 +403,38 @@ void StripToolModel::editPV(const QModelIndex &index)
         if (editDialog->colorChanged())
             toEdit->setSeriesColor(editDialog->color());
 
-        if (editDialog->displayMaxChanged())
-            toEdit->setDisplayedYMax(editDialog->displayMax());
+        if (editDialog->displayMaxChanged()) {
+            QString displayMax = editDialog->displayMax();
 
-        if (editDialog->displayMinChanged())
+            if (displayMax != "")
+                emit applyDefaultYAxisScale(false);
+            else
+                emit applyDefaultYAxisScale(true);
+
+            toEdit->setDisplayedYMax(editDialog->displayMax());
+        }
+
+        if (editDialog->displayMinChanged()) {
+            QString displayMin = editDialog->displayMin();
+
+            if (displayMin != "")
+                emit applyDefaultYAxisScale(false);
+            else
+                emit applyDefaultYAxisScale(true);
+
             toEdit->setDisplayedYMin(editDialog->displayMin());
+        }
+
+//        if (editDialog->waterfallChanged()) {
+//            double waterfall = editDialog->waterfall();
+
+//            if (waterfall != 0.0)
+//                emit applyDefaultYAxisScale(false);
+//            else
+//                emit applyDefaultYAxisScale(true);
+
+//            toEdit->setWaterfall(editDialog->waterfall());
+//        }
 
     }
 
@@ -501,26 +529,6 @@ void StripToolModel::toUpdateTimeUnits(const QString &newUnits)
 }
 
 
-void StripToolModel::toSetSelectedWaterfall(double newWaterfall)
-{
-    if (selectedPV_) {
-        qDebug() << "Setting waterfall value" << newWaterfall << "for pv" << selectedPV_->pvName() << ":" << setSelectedWaterfall(newWaterfall);
-    }
-}
-
-
-bool StripToolModel::setSelectedWaterfall(double newWaterfall)
-{
-    if (newWaterfall == selectedPV_->waterfall()) {
-        qDebug() << "New waterfall is same as old waterfall--no change made.";
-        return false;
-    }
-
-    selectedPV_->setWaterfall(newWaterfall);
-    return true;
-}
-
-
 
 void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
 {
@@ -540,17 +548,26 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
         if (newSelection && contains(newSelection))
         {
             // deselect old selection.
-            if (selectedPV_ != 0)
+            if (selectedPV_ != 0) {
                 selectedPV_->setSelected(false);
+
+                disconnect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *newRange)) );
+                disconnect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+                disconnect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+            }
 
             qDebug() << "Setting selected pv...";
             selectedPV_ = newSelection;
             selectedPV_->setSelected(true);
 
-            emit modelSelectionChange();
-            qDebug() << "Selected pv : " << selectedPV_->pvName();
+            connect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
+            connect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+            connect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
 
-            emit selectedWaterfall(selectedPV_->waterfall());
+            emit modelSelectionChange();
+            emit selectedPVAxisLabelChanged(selectedPV_->pvDescription() + " [" + selectedPV_->yUnits() + "]");
+
+            qDebug() << "Selected pv : " << selectedPV_->pvName();
 
         } else if (!newSelection) {
 
@@ -562,15 +579,37 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
             emit modelSelectionChange();
             qDebug() << "Deselected pv.";
 
-            emit selectedWaterfall(0.0);
-
         } else {
 
             selectedPV_ = 0;
-            qDebug() << "Attempting to set an unknown pv as selected!!";
+            qDebug() << "Attempting to set an unknown pv as selected!! No change made.";
         }
     }
 }
+
+
+
+void StripToolModel::toChangeYAxisLabel()
+{
+    QString description = selectedPV_->pvDescription();
+    QString units = selectedPV_->yUnits();
+
+    qDebug() << "StripToolModel :: Model has received signal that selected pv description/units have changed : {" << description << "," << units << "}";
+
+    emit selectedPVAxisLabelChanged(description + " [" + units + "]");
+}
+
+
+
+//void StripToolModel::toShiftYAxis(double selectedPVWaterfall)
+//{
+//    double displayedMax = selectedPV_->displayedYMax();
+//    double displayedMin = selectedPV_->displayedYMin();
+
+//    double shiftAmount = -selectedPVWaterfall * abs(displayedMax - displayedMin);
+
+//    emit selectedPVOffsetChanged(shiftAmount);
+//}
 
 
 

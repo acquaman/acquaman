@@ -24,14 +24,14 @@ signals:
     /// Pv signals to the model when it is time to save pv data to file.
     void savePVData();
     void savePVMetaData();
-    void forceUpdate(double newValue);
     void pvValueUpdated();
-    void updateYAxisRange(MPlotAxisRange *newRange);
-    void updateYAxisLabel(const QString &newLabel);
-    void updateWaterfall(double newWaterfall);
-    void updateWaterfallDisplay(double waterfall);
-    void updateYDisplayMax(double newMax);
-    void updateYDisplayMin(double newMin);
+    void forceUpdate(double newValue);
+    void descriptionChanged(const QString &newDescription);
+    void unitsChanged(const QString &units);
+    void dataRangeChanged(MPlotAxisRange *newRange);
+    void dataMaxChanged(double newMax);
+    void dataMinChanged(double newMin);
+    void waterfallChanged(double shiftAmount);
 
 protected:
     int updateIndex_;
@@ -55,9 +55,6 @@ protected:
     QColor pvColor_;
 
     bool isSelected_;
-    QString yAxisLabel_;
-
-    double waterfall_;
 
     double timeFactor_;
 
@@ -69,6 +66,7 @@ protected:
 
     double defaultDisplayedYMin_;
     double defaultDisplayedYMax_;
+    double defaultDisplayedAvg_;
 
     QString customDisplayedYMin_;
     QString customDisplayedYMax_;
@@ -96,7 +94,6 @@ protected:
     /// Returns the color set for this pv's series.
     QColor color();
     int updateGranularity();
-    double waterfall();
     double displayedYMin();
     double displayedYMax();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
@@ -111,22 +108,16 @@ protected:
     QList<QString> metaData();
     QList<QString> editPVDialogData();
     bool setMetaData(QList<QString> metaData);
-
     bool isSelected();
     void setSelected(bool selected);
-
     /// Sets the PV control and reparents for this pv.
     void setControl(AMControl *newControl);
-
     /// The user can pause and restart the value updates displayed on the plot (this class will still continue to record updates).
     void setPVUpdating(bool isUpdating);
     /// The list view will allow the user to un/check a pv, and the most recent update for a pv's check state is set here.
     void setCheckState(Qt::CheckState isChecked);
-    void setWaterfall(double newWaterfall);
-
     void setDisplayedYMax(const QString &newMax);
     void setDisplayedYMin(const QString &newMin);
-
     bool operator== (const StripToolPV &anotherPV);
 
 private:
