@@ -542,6 +542,12 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		correlationSmoothingBox_->setCurrentIndex(analysisBlock_->correlationSmoothing().first);
 		correlationSmoothingBox_->blockSignals(false);
 
+		smoothModeBox_->blockSignals(true);
+		smoothModeBox_->setValue(analysisBlock_->correlationSmoothing().second);
+		if(analysisBlock_->correlationSmoothing().first = 1)
+			smoothModeBox_->setMinimum(2);
+		smoothModeBox_->blockSignals(false);
+
 		liveCorrelationCheckBox_->blockSignals(true);
 		liveCorrelationCheckBox_->setChecked(analysisBlock_->liveCorrelation());
 		liveCorrelationCheckBox_->blockSignals(false);
