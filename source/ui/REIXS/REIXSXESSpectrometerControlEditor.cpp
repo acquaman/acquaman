@@ -40,6 +40,8 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	spectrometer_ = spectrometer;
 
 	populateGratingComboBox();
+	updateMaskPosition();
+	updateCurrentEnergyStatus();
 
 	connect(spectrometer_, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus(double)));
 	connect(spectrometer_, SIGNAL(calibrationChanged()), this, SLOT(populateGratingComboBox()));
@@ -129,7 +131,9 @@ void REIXSXESSpectrometerControlEditor::populateGratingComboBox()
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 {
 	if(eV < 0) {
-		ui_->energyFeedbackLabel->setText("Currently: unknown");
+		ui_->energyFeedbackLabel->setText("Currently: out of position");
+		//ui_->energyFeedbackLabel->setText(QString("Currently: %1").arg(eV));
+
 	}
 
 	else if(fabs(eV - ui_->energyBox->value()) < 0.001) {
@@ -142,7 +146,31 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 
 void REIXSXESSpectrometerControlEditor::updateMaskPosition()
 {
-	ui_->maskFeedbackLabel->setText(QString("Currently: %1").arg(spectrometer_->gratingMask()->value()));
+	double arg1 = spectrometer_->gratingMask()->value();
+
+
+	if (abs(arg1 - 8.5) < 0.01) {
+		ui_->maskFeedbackLabel->setText(QString("Currently: Pinhole"));
+		ui_->maskComboBox->blockSignals(true);
+		ui_->maskComboBox->setCurrentIndex(0);
+		ui_->maskComboBox->blockSignals(false);
+	}
+	else if (abs(arg1 - 12.9) < 0.01) {
+		ui_->maskFeedbackLabel->setText(QString("Currently: Slit"));
+		ui_->maskComboBox->blockSignals(true);
+		ui_->maskComboBox->setCurrentIndex(1);
+		ui_->maskComboBox->blockSignals(false);
+
+	}
+	else if (arg1 < 2) {
+		ui_->maskFeedbackLabel->setText(QString("Currently: Out"));
+		ui_->maskComboBox->blockSignals(true);
+		ui_->maskComboBox->setCurrentIndex(2);
+		ui_->maskComboBox->blockSignals(false);
+
+	}
+	else
+		ui_->maskFeedbackLabel->setText(QString("Currently: %1").arg(arg1));
 }
 
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus() {
@@ -190,11 +218,11 @@ void REIXSXESSpectrometerControlEditor::onStopButtonClicked()
 
 void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(const QString &arg1)
 {
-	if (arg1 == "Pin Hole")
+	if (arg1 == "Pinhole")
 		spectrometer_->gratingMask()->move(8.5);
 	else if (arg1 == "Slit")
 		spectrometer_->gratingMask()->move(12.9);
-	else if (arg1 == "OUT")
+	else if (arg1 == "Out")
 		spectrometer_->gratingMask()->move(1.0);
 }
 
