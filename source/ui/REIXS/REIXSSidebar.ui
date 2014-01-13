@@ -169,13 +169,6 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
-       <widget class="QPushButton" name="fluxResolutionWizardButton">
-        <property name="text">
-         <string>Flux/Resolution Wizard</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -187,6 +180,13 @@
        <widget class="QLabel" name="label_11">
         <property name="text">
          <string>Angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QPushButton" name="fluxResolutionWizardButton">
+        <property name="text">
+         <string>STOP</string>
         </property>
        </widget>
       </item>
@@ -392,17 +392,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
  </resources>
  <connections/>

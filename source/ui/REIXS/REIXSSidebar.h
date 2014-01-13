@@ -68,6 +68,7 @@ protected slots:
 	void onScalerContinuousModeChanged(double on);
 private slots:
 	// void on_beamOnButton_clicked();  DAVID OOPS?
+	void on_fluxResolutionWizardButton_clicked();
 };
 
 #endif // REIXSSIDEBAR_H
