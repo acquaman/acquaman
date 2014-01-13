@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include <QApplication>
+#include <QDebug>
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -129,15 +130,16 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(photonSource()->monoGratingSelector());
 	addExposedControl(photonSource()->monoMirrorSelector());
 	addExposedControl(photonSource()->monoSlit());
-	addExposedControl(spectrometer());
-	addExposedControl(spectrometer()->detectorTiltDrive());
 	addExposedControl(sampleChamber()->x());
 	addExposedControl(sampleChamber()->y());
 	addExposedControl(sampleChamber()->z());
 	addExposedControl(sampleChamber()->r());
 	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+	addExposedControl(spectrometer());
 	addExposedControl(spectrometer()->spectrometerRotationDrive());
 	addExposedControl(spectrometer()->detectorTranslation());
+	addExposedControl(spectrometer()->detectorTiltDrive());
+
 
 	if(QApplication::instance()->arguments().contains("--admin")){
 		addExposedControl(spectrometer()->hexapod()->x());
@@ -598,6 +600,7 @@ bool REIXSSpectrometer::specifyGrating(int gratingIndex)
 
 void REIXSSpectrometer::updateGrating()
 {
+	qDebug() << "Updating Grating";
 	QVector3D xyz = QVector3D(hexapod_->x()->value(), hexapod_->y()->value(), hexapod_->z()->value());
 	QVector3D uvw = QVector3D(hexapod_->u()->value(), hexapod_->v()->value(), hexapod_->w()->value());
 	QVector3D rst = QVector3D(hexapod_->r()->value(), hexapod_->s()->value(), hexapod_->t()->value());
@@ -610,6 +613,7 @@ void REIXSSpectrometer::updateGrating()
 			qFuzzyCompare(rst, calibration_.hexapodRST(i)))
 		{
 			currentGrating_ = i;
+			specifiedGrating_ = i;
 		}
 	}
 }
@@ -622,13 +626,14 @@ void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 void REIXSSpectrometer::onConnected(bool isConnected){
 	//figure out those values
 	//onConnected not required
+	updateGrating();
 }
 
 double REIXSSpectrometer::value() const
 {
 	if(currentGrating_ < 0 || currentGrating_ >= gratingCount())
 		return -1.;
-
+	qDebug() << "Value called with: " << currentGrating_ << spectrometerRotationDrive_->value() << detectorTranslation_->value();
 	return calibration_.computeEVFromSpectrometerPosition(currentGrating_, spectrometerRotationDrive_->value(), detectorTranslation_->value());
 }
 
