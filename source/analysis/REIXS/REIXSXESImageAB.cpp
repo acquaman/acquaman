@@ -34,7 +34,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	rangeRound_ = 1.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
-	correlationSmoothing_ = QPair<int,int>(-1,1);
+	correlationSmoothing_ = QPair<int,int>(-1,1);  //-1,1???
 	liveCorrelation_ = false;
 	setCorrelationSmoothing(QPair<int,int>(1,2)); //poly,quadratic
 
@@ -758,6 +758,7 @@ void REIXSXESImageAB::setCorrelationSmoothingType(int type)
 			callCorrelation_.schedule();
 
 	setModified(true);
+
 }
 
 void REIXSXESImageAB::setCorrelationSmoothingMode(int mode)
@@ -770,6 +771,7 @@ void REIXSXESImageAB::setCorrelationSmoothingMode(int mode)
 		callCorrelation_.schedule();
 
 	setModified(true);
+
 }
 
 void REIXSXESImageAB::setCorrelationSmoothing(QPair<int,int> cSmooth)
