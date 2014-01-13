@@ -22,15 +22,29 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	editAmptekConfigurationButton_ = new QPushButton("Edit Amptek Configuration");
 	rightLayout_->addWidget(editAmptekConfigurationButton_);
 
+	QHBoxLayout *tempHBox;
+
 	eVPerBinDoubleSpinBox_ = new QDoubleSpinBox();
 	eVPerBinDoubleSpinBox_->setRange(0.5, 100);
 	if(amptekDetector_->isConnected())
 		eVPerBinDoubleSpinBox_->setValue(amptekDetector_->eVPerBin());
-	rightLayout_->addWidget(eVPerBinDoubleSpinBox_);
+	tempHBox = new QHBoxLayout();
+	tempHBox->addWidget(new QLabel("eV/bin"));
+	tempHBox->addWidget(eVPerBinDoubleSpinBox_);
+	rightLayout_->addLayout(tempHBox);
+	//rightLayout_->addWidget(eVPerBinDoubleSpinBox_);
 	connect(eVPerBinDoubleSpinBox_, SIGNAL(valueChanged(double)), amptekDetector_, SLOT(setEVPerBin(double)));
 
+	temperatureLabel_ = new QLabel();
+	if(amptekDetector_->isConnected())
+		temperatureLabel_->setText(QString("%1").arg(amptekDetector_->detectorTemperature()));
+	tempHBox = new QHBoxLayout();
+	tempHBox->addWidget(new QLabel("Temperature"));
+	tempHBox->addWidget(temperatureLabel_);
+	connect(amptekDetector_, SIGNAL(detectorTemperatureChanged(double)), this, SLOT(onDetectorTemperatureChanged(double)));
+	rightLayout_->addLayout(tempHBox);
+
 	QLabel *tempLabel;
-	QHBoxLayout *tempHBox;
 
 	tempLabel = new QLabel("Fast Counts");
 	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this));
@@ -95,6 +109,10 @@ void CLSAmptekDetailedDetectorView::onEditAmptekROIsButtonClicked(){
 void CLSAmptekDetailedDetectorView::onEditAmptekConfigurationButtonClicked(){
 	configurationView_->show();
 	configurationView_->raise();
+}
+
+void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperature){
+	temperatureLabel_->setText(QString("%1").arg(temperature));
 }
 
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
