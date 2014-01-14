@@ -7,10 +7,9 @@ class QSlider;
 class QGraphicsRectItem;
 
 
-/// Wizard for repositioning the Sample plate.
-/// used to adjust it based on its exact position.
-// changing it to use to determine the exact sample plate position
-/// \todo everything
+
+// changing it to determine the exact sample plate position
+
 class AMSamplePlateWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
@@ -34,8 +33,6 @@ public:
 
     virtual QString message(int type);
 
-    QVector<double> rotations() const;
-
     double currentRotation();
 
 protected:
@@ -57,13 +54,12 @@ protected:
 
 public slots:
     void back();
-	/// \todo get rid of this
-//    void sliderChanged();
-//	/ \todo implement addPoint
 	virtual void addPoint(QPointF position);
-	void removePoint(QPointF* point);
+
 	/// Will add duplicate points unless this is called when leaving the page
-        void setCurrentRotation(double rotation);
+	void removePoint(QPointF* point);
+
+	void setCurrentRotation(double rotation);
 
 
 
@@ -86,8 +82,7 @@ protected slots:
 private:
 	QVector<int> resetPages_;
 	QVector<QGraphicsRectItem*> samplePointShapes_;
-        QVector<double> rotations_;
-        double currentRotation_;
+	double currentRotation_;
 
 
 };

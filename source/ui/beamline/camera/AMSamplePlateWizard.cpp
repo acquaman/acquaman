@@ -15,20 +15,23 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
 	/// Used to generate and allow modification of the option page
+	// 2 points should be sufficient to get an accurate result
         numberOfPoints_ = 4;
 	showOptionPage_ = false;
+	/// allow the rotation to be changed during wizard operation
+	setRotationEnabled(true);
 	coordinateList_->clear();
     /// need a coordinate per point
     coordinateList_->append(new QVector3D(0,0,0));
     coordinateList_->append(new QVector3D(5,5,5));
-    for(int i = 1; i < numberOfPoints(); i++ )
+	for(int i = coordinateList_->count() - 1; i < numberOfPoints(); i++ )
     {
         coordinateList_->append(new QVector3D(0,0,0));
     }
 
     for(int i = 0; i < numberOfPoints(); i++)
     {
-        rotations_.append(0);
+		rotations_->append(0);
     }
 
 
@@ -120,7 +123,7 @@ int AMSamplePlateWizard::nextId() const
 
 void AMSamplePlateWizard::waitPage()
 {
-	emit moveTo(*coordinateList()->at(relativeId()-1));
+	emit moveTo(*coordinateList()->at(relativeId()-1),rotations_->at(relativeId()-1));
 }
 
 int AMSamplePlateWizard::relativeId()
@@ -145,14 +148,12 @@ QString AMSamplePlateWizard::message(int type)
         switch(type)
         {
         case Title:
-            return QString(tr("Sample Plate Adjustment"));
+			return QString(tr("Sample Plate Configuration"));
         case Text:
-            return QString(tr("Use this configuration tool to fine tune the position of the sample plate."));
+			return QString(tr("Use this configuration tool to determine the position of the sample plate."));
         case Help:
-            return QString(tr("This configuration simply adjusts the sample plate to account for how tightly it has")
-                              + tr(" been placed in the sample plate holder.  It can be adjusted using a slider to move it left and right.")
-                              + tr("  If the sample plate is significantly out of place, there may be some other error, which will need to be")
-                              + tr(" resolved outside of this tool."));
+			return QString(tr("This configuration allows you to determine the position of the sample plate")
+						   +tr("by identifying the face of the plate as it moves around."));
         case Other:
         case Default:
         default:
@@ -216,7 +217,7 @@ QString AMSamplePlateWizard::message(int type)
                     case Text:
                                 return QString(tr("Wait while the sample plate moves."));
                     case Help:
-                        return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
+						return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
                                           + tr(" the motor.  Ensure that motor movement is enabled."));
                     case Other:
                     case Default:
@@ -231,10 +232,12 @@ QString AMSamplePlateWizard::message(int type)
                 case Title:
                     return QString(tr("Sample Plate Adjustment"));
                 case Text:
-                                return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
+								return QString(tr("Select the plate corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
                 case Help:
-                    return QString(tr("To adjust the position of the sample plate, move the slider left and right.  If the outline cannot be closely")
-                                      + tr(" fit to the sample plate, it may require more detailed adjustment."));
+					return QString(tr("To configure the sample plate, select each corner of the sample plate on this page.")
+								   +tr("When you click a point, a small square should appear whose top right corner is aligned with")
+								   +tr("where you have clicked.  You may press reset to clear all the points selected on this")
+								   +tr("page (it will keep all points selected on other pages"));
                 case Other:
                 case Default:
                 default:
@@ -246,10 +249,6 @@ QString AMSamplePlateWizard::message(int type)
     return QString(tr("Error message - unknown page type."));
 }
 
-QVector<double> AMSamplePlateWizard::rotations() const
-{
-    return rotations_;
-}
 
 /// gets the page number for each wait page
 int AMSamplePlateWizard::pageWait(int index) const
@@ -390,7 +389,7 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 		qDebug()<<*point;
 	}
 
-        rotations_[relativeId() -1] = requestMotorRotation();
+//        rotations_[relativeId() -1] = requestMotorRotation();
 
 }
 
@@ -477,11 +476,6 @@ void AMSampleSetPage::resetPoints()
 	}
 }
 
-//void AMSampleSetPage::sliderChanged()
-//{
-//    setLabelText(message(Text));
-//    emit slider();
-//}
 
 
 void AMSampleCheckPage::checkBoxChanged(bool state)
@@ -562,7 +556,7 @@ void AMSampleIntroPage::timerEvent(QTimerEvent *event)
 
 double AMSamplePlateWizard::requestMotorRotation()
 {
-    emit requestRotation();
+	emit requestRotation();
     return currentRotation();
 
 }

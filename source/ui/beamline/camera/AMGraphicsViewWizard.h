@@ -61,6 +61,8 @@ public:
     /// returns the list of coordinates
     virtual QList<QVector3D*>* coordinateList() const;
 
+	virtual QList<double>* rotations() const;
+
     /// the number of points for this wizard.
     /// used to generate the options page
     int numberOfPoints() const;
@@ -106,7 +108,7 @@ public:
     /// in order to get the true value
     void checkMotorMovementState();
 
-
+	bool rotationEnabled() const;
 
 public slots:
     /// sets the view
@@ -117,6 +119,8 @@ public slots:
 
     /// sets the coordinate in coordinateList at index to coordinate
     virtual void setCoordinate(QVector3D coordinate, int index);
+
+	virtual void setRotation(double rotation, int index);
 
 
 
@@ -145,6 +149,7 @@ public slots:
 signals:
     void done();
     void moveTo(QVector3D);
+	void moveTo(QVector3D,double);
     void requestMotorMovementEnabled();
     void moveSucceeded();
 
@@ -153,12 +158,16 @@ protected slots:
     void showOptionsButton(int id);
     void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
     void mediaPlayerErrorChanged(QMediaPlayer::Error);
+	void setRotationEnabled(bool rotationEnabled);
+
 protected:
     AMSampleCameraGraphicsView* view_;
     QPointF* scale_;
     int numberOfPoints_;
 
     QList<QVector3D*>* coordinateList_;
+
+	QList<double>* rotations_;
 
     QList<QPointF*>* pointList_;
 
@@ -168,12 +177,16 @@ protected:
 
     int optionsPage_;
 
+
+
 private slots:
     void setMotorMovementEnabled(bool motorMovementEnabled);
 private:
     bool motorMovementEnabled_;
 
     QMediaPlayer* mediaPlayer_;
+
+	bool rotationEnabled_;
 
 
 };

@@ -70,14 +70,17 @@ signals:
 	void requestLoadBeam();
 	void requestLoadCamera();
 	void requestLoadSamplePlate();
+	void requestLoadRotationConfiguration();
 
 	void beamWizardPressed();
 	void cameraWizardPressed();
 	void samplePlateWizardPressed();
+	void rotationWizardPressed();
 
 	void beamWizardFinished();
 	void cameraWizardFinished();
 	void samplePlateWizardFinished();
+	void rotationWizardFinished();
 
 	void samplePlateLoaded(AMSamplePlate*);
 	void samplePlateSelected();

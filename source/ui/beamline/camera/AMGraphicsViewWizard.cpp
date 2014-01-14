@@ -25,9 +25,11 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
     coordinateList_ = new QList<QVector3D*>();
+	rotations_ = new QList<double>();
     showOptionPage_ = false;
     optionsPage_ = -1;
     motorMovementEnabled_ = false;
+	rotationEnabled_ = false;
     mediaPlayer_ = new QMediaPlayer();
 
 
@@ -95,7 +97,12 @@ QList<QPointF *> *AMGraphicsViewWizard::pointList() const
 
 QList<QVector3D *> *AMGraphicsViewWizard::coordinateList() const
 {
-    return coordinateList_;
+	return coordinateList_;
+}
+
+QList<double> *AMGraphicsViewWizard::rotations() const
+{
+	return rotations_;
 }
 
 int AMGraphicsViewWizard::numberOfPoints() const
@@ -112,7 +119,13 @@ void AMGraphicsViewWizard::setPoint(QPointF point, int index)
 void AMGraphicsViewWizard::setCoordinate(QVector3D coordinate, int index)
 {
 	if(coordinateList_->count() > index)
-        (*coordinateList_->at(index)) = coordinate;
+		(*coordinateList_->at(index)) = coordinate;
+}
+
+void AMGraphicsViewWizard::setRotation(double rotation, int index)
+{
+	if(rotations_->count() > index)
+		rotations_->replace(index,rotation);
 }
 
 /// defines text in one location
@@ -397,6 +410,16 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 
 }
 
+void AMGraphicsViewWizard::setRotationEnabled(bool rotationEnabled)
+{
+	rotationEnabled_ = rotationEnabled;
+}
+
+bool AMGraphicsViewWizard::rotationEnabled() const
+{
+	return rotationEnabled_;
+}
+
 void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
 {
     qDebug()<<"AMGraphicsViewWizard::setMotorMovementEnabled - setting state";
@@ -619,8 +642,14 @@ AMWizardOptionPage::AMWizardOptionPage(QWidget *parent)
 void AMWizardOptionPage::initializePage()
 {
     int points = viewWizard()->numberOfPoints();
-    coordinateEdit_ = new QLineEdit* [3*points];
-    for(int i = 0; i < 3*points; i++)
+	int numberOfDimensions = 3;
+	/// if including rotation, add a fourth element to each coordinate
+	if(viewWizard()->rotationEnabled())
+	{
+		numberOfDimensions = 4;
+	}
+	coordinateEdit_ = new QLineEdit* [numberOfDimensions*points];
+	for(int i = 0; i < numberOfDimensions*points; i++)
     {
         coordinateEdit_[i] = new QLineEdit();
     }
@@ -634,9 +663,9 @@ void AMWizardOptionPage::initializePage()
         rowFrame[i] = new QFrame();
         rowLayout[i] = new QHBoxLayout();
         rowLayout[i]->setContentsMargins(12,4,12,4);
-        for(int j = 0; j < 3; j++)
+		for(int j = 0; j < numberOfDimensions; j++)
         {
-            rowLayout[i]->addWidget(coordinateEdit_[3*i + j]);
+			rowLayout[i]->addWidget(coordinateEdit_[numberOfDimensions*i + j]);
         }
 
         rowLayout[i]->addStretch();
@@ -650,15 +679,24 @@ void AMWizardOptionPage::initializePage()
 
     AMWizardPage::initializePage();
 
+	const int X = 0;
+	const int Y = 1;
+	const int Z = 2;
+	const int ROTATION = 3;
 
     for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
     {
-        coordinateEdit_[3*i]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->x()));
-        connect(coordinateEdit_[3*i], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-        coordinateEdit_[3*i+1]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->y()));
-        connect(coordinateEdit_[3*i+1], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-        coordinateEdit_[3*i+2]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->z()));
-        connect(coordinateEdit_[3*i+2], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+X]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->x()));
+		connect(coordinateEdit_[numberOfDimensions*i+X], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+Y]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->y()));
+		connect(coordinateEdit_[numberOfDimensions*i+Y], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+Z]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->z()));
+		connect(coordinateEdit_[numberOfDimensions*i+Z], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		if(viewWizard()->rotationEnabled())
+		{
+			coordinateEdit_[numberOfDimensions*i+ROTATION]->setText(QString("%1").arg(viewWizard()->rotations()->at(i)));
+			connect(coordinateEdit_[numberOfDimensions*i+ROTATION], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		}
     }
 
 
@@ -677,14 +715,33 @@ bool AMWizardOptionPage::isComplete() const
 
 void AMWizardOptionPage::textChanged()
 {
+
+	int numberOfDimensions = 3;
+	/// if including rotation, add a fourth element to each coordinate
+	if(viewWizard()->rotationEnabled())
+	{
+		numberOfDimensions = 4;
+	}
+
+	const int X = 0;
+	const int Y = 1;
+	const int Z = 2;
+	const int ROTATION = 3;
+
     for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
     {
-        double x,y,z;
-        x = coordinateEdit_[3*i]->text().toDouble();
-        y = coordinateEdit_[3*i+1]->text().toDouble();
-        z = coordinateEdit_[3*i+2]->text().toDouble();
+		double x,y,z,rotation;
+		x = coordinateEdit_[numberOfDimensions*i+X]->text().toDouble();
+		y = coordinateEdit_[numberOfDimensions*i+Y]->text().toDouble();
+		z = coordinateEdit_[numberOfDimensions*i+Z]->text().toDouble();
+		if(viewWizard()->rotationEnabled())
+		{
+			rotation = coordinateEdit_[numberOfDimensions*i+ROTATION]->text().toDouble();
+			viewWizard()->setRotation(rotation,i);
+		}
         QVector3D newVector(x,y,z);
         viewWizard()->setCoordinate(newVector, i);
+
     }
 
 
