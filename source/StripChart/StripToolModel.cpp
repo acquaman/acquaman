@@ -4,6 +4,11 @@ StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
 {
     selectedPV_ = 0;
 
+    pvsUpdatingRegularly_ = false;
+    updateIntervalTimer_ = new QTimer(this);
+//    connect( this, SIGNAL(restartUpdateIntervalTimer()), this, SLOT(toRestartUpdateIntervalTimer()) );
+//    connect( updateIntervalTimer_, SIGNAL(timeout()), this, SLOT(toForceAllPVsUpdate()) );
+
     // when the pv control signals that it has successfully connected to EPICS, we know the pv is valid and can proceed to add it.
     controlMapper_ = new QSignalMapper(this);
     connect( controlMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onPVConnected(QObject*)) );
@@ -273,13 +278,14 @@ void StripToolModel::toAddPV(const QString &pvName)
         QMessageBox errorMsg;
         errorMsg.setText("PV name cannot be blank.");
         errorMsg.exec();
-        emit pvValid(false);
+//        emit pvValid(false);
 
     } else if (contains(pvName)) {
         QMessageBox errorMsg;
-        errorMsg.setText("PV with that name already added.");
+        errorMsg.setText("Cannot add duplicate pvs.");
+        errorMsg.setDetailedText("PV with that name already added!");
         errorMsg.exec();
-        emit pvValid(false);
+//        emit pvValid(false);
 
     } else {
 
@@ -299,16 +305,18 @@ void StripToolModel::onPVConnected(QObject* itemConnected)
 
     if (pvControl->isConnected())
     {
-        emit pvValid(true);
+//        emit pvValid(true);
         qDebug() << "PV added : " << addPV(pvControl);
 
     } else {
+//        emit pvValid(false);
+        pvControl->deleteLater();
+
         QMessageBox errorMsg;
-        errorMsg.setText("Invalid pv name.");
+        errorMsg.setText("Unable to connect to pv " + pvControl->name() + ".");
+        errorMsg.setDetailedText("The pv name may be invalid, or EPICS timed out trying to connect to this pv!");
         errorMsg.exec();
 
-        emit pvValid(false);
-        pvControl->deleteLater();
     }
 }
 
@@ -337,7 +345,7 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(dataMinChanged(double)), this, SIGNAL(updateSelectedDataMin(double)) );
 //    connect( this, SIGNAL(updateSelectedDisplayMax(double)), this, SLOT(toTestDoubleSignal(double)) );
 
-    connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
+//    connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
     connect( this, SIGNAL(updateTimeUnits(QString)), newPV, SLOT(toUpdateTimeUnits(QString)) );
 
@@ -386,7 +394,7 @@ void StripToolModel::editPV(const QModelIndex &index)
     if (editDialog->exec())
     {
 
-//        StripToolPV handles deciding whether or not these values are okay! Don't worry about them here.
+//        StripToolPV handles deciding whether or not these values are okay, for now! Don't worry about them here.
 
         if (editDialog->descriptionChanged())
         {
@@ -406,35 +414,24 @@ void StripToolModel::editPV(const QModelIndex &index)
         if (editDialog->displayMaxChanged()) {
             QString displayMax = editDialog->displayMax();
 
-            if (displayMax != "")
-                emit applyDefaultYAxisScale(false);
-            else
-                emit applyDefaultYAxisScale(true);
+//            if (displayMax != "")
+//                emit applyDefaultYAxisScale(false);
+//            else
+//                emit applyDefaultYAxisScale(true);
 
-            toEdit->setDisplayedYMax(editDialog->displayMax());
+            toEdit->setDisplayedYMax(displayMax);
         }
 
         if (editDialog->displayMinChanged()) {
             QString displayMin = editDialog->displayMin();
 
-            if (displayMin != "")
-                emit applyDefaultYAxisScale(false);
-            else
-                emit applyDefaultYAxisScale(true);
-
-            toEdit->setDisplayedYMin(editDialog->displayMin());
-        }
-
-//        if (editDialog->waterfallChanged()) {
-//            double waterfall = editDialog->waterfall();
-
-//            if (waterfall != 0.0)
+//            if (displayMin != "")
 //                emit applyDefaultYAxisScale(false);
 //            else
 //                emit applyDefaultYAxisScale(true);
 
-//            toEdit->setWaterfall(editDialog->waterfall());
-//        }
+            toEdit->setDisplayedYMin(displayMin);
+        }
 
     }
 
@@ -667,9 +664,58 @@ void StripToolModel::toSetMetaData(const QString &pvName, QList<QString> metaDat
 
 void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
 {
-    StripToolPV *updated = (StripToolPV *) pvUpdated;
-    emit forceUpdatePVs(updated->pvName());
+    if (pvUpdated == 0)
+        return;
+
+//    if (pvsUpdatingRegularly) {
+//        emit restartUpdateIntervalTimer();
+        StripToolPV *updated = (StripToolPV *) pvUpdated;
+        emit forceUpdatePVs(updated->pvName());
+//    } else {
+//        emit forceUpdatePVs("");
+//    }
+
+//    pvsUpdatingRegularly = true;
+//    emit startUpdateIntervalTimer();
+
+//    updateOKTimer_->singleShot(500, this, SLOT(toCheckUpdatingRegularly()) );
+//    updatingOkTimer_->singleShot(1000, this, SLOT(pvUpdateCheck()) );
+
+
 }
+
+
+
+//void StripToolModel::toRestartUpdateIntervalTimer()
+//{
+//    pvsUpdatingRegularly_ = true;
+//    emit stopIntervalTimer();
+
+//    updateIntervalTimer_->start(2000);
+//}
+
+
+
+//void StripToolModel::toCheckUpdatingRegularly()
+//{
+//    pvsUpdatingRegularly = false;
+//}
+
+
+
+//void StripToolModel::pvUpdateCheck()
+//{
+//    if (!pvsUpdatingRegularly)
+//        emit forceUpdatePVs("");
+
+//}
+
+
+
+//void StripToolModel::toForceAllPVsUpdate()
+//{
+
+//}
 
 
 

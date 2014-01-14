@@ -61,7 +61,7 @@ void StripToolPlot::setModel(StripToolModel *model)
 //    connect( model_, SIGNAL(updateYAxisLabel(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
 //    connect( model_, SIGNAL(updateWaterfall(double)), this, SLOT(toUpdateWaterfall(double)) );
 //    connect( model_, SIGNAL(applyLeftAxisScaleShift(double)), this, SLOT(toShiftLeftAxisScale(double)) );
-    connect( model_, SIGNAL(applyDefaultYAxisScale(bool)), this, SLOT(toApplyDefaultYAxisRange(bool)) );
+//    connect( model_, SIGNAL(applyDefaultYAxisScale(bool)), this, SLOT(toApplyDefaultYAxisRange(bool)) );
 
     connect( model_, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)), this, SLOT(toUpdateYAxisRange(MPlotAxisRange*)) );
     connect( model_, SIGNAL(selectedPVAxisLabelChanged(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
@@ -173,8 +173,10 @@ void StripToolPlot::toUpdateYAxisRange(MPlotAxisRange *newDataRange)
     qreal rangeMin = newDataRange->min();
     qreal rangeMax = newDataRange->max();
 
-    if (rangeMin == rangeMax)
-        rangeMax *= 1.05;
+    if (rangeMin == rangeMax) {
+        rangeMin *= 0.9;
+        rangeMax *= 1.1;
+    }
 
     plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
 

@@ -26,7 +26,7 @@ signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
-    void pvValid(bool isValid);
+//    void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
     void forceUpdatePVs(const QString &updatedName);
     void updateTime(int newTime);
@@ -38,18 +38,23 @@ signals:
 //    void selectedWaterfall(double selectedWaterfall);
     void updateSelectedDataMax(double newMax);
     void updateSelectedDataMin(double newMin);
-    void applyLeftAxisScaleShift(double shiftAmount);
-    void applyDefaultYAxisScale(bool applyDefault);
+//    void applyLeftAxisScaleShift(double shiftAmount);
+//    void applyDefaultYAxisScale(bool applyDefault);
 
     void selectedPVDataRangeChanged(MPlotAxisRange *newRange);
     void selectedPVAxisLabelChanged(const QString &newLabel);
     void selectedPVOffsetChanged(double offset);
     void waterfallChanged(double newWaterfall);
 
+//    void restartUpdateIntervalTimer();
+//    void stopUpdateIntervalTimer();
+
 
 protected:
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
+    QTimer *updateIntervalTimer_;
+    bool pvsUpdatingRegularly_;
     QSignalMapper *controlMapper_;
     QSignalMapper *saveDataMapper_;
     QSignalMapper *saveMetadataMapper_;
@@ -119,9 +124,6 @@ protected slots:
     /// Selects the appropriate pv and causes it to pause/resume updating on the plot.
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
 
-    /// Selects the appropriate pv and changes the number of values it displays on the plot.
-//    void setValuesDisplayed(const QModelIndex &index, int points);
-
     /// Basic color selection for pv.
     void colorPV(const QModelIndex &index, const QColor &color);
 
@@ -135,6 +137,8 @@ protected slots:
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
     void onSinglePVUpdated(QObject *updatedPV);
+//    void toForceAllPVsUpdate();
+//    void toRestartUpdateIntervalTimer();
 
     void toTestSignal(const QString &signalText);
     void toTestDoubleSignal(double val);
