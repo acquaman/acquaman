@@ -12,7 +12,7 @@ class VESPERSCCDDetector : public AMDetector
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSCCDDetector();
+	virtual ~VESPERSCCDDetector();
 	VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
@@ -66,6 +66,9 @@ public:
 	AMAction3 *createFileNameAction(const QString &name);
 	/// Creates a newly created action that sets the number for auto-increment.  Returns 0 if not connected.
 	AMAction3 *createFileNumberAction(int number);
+
+	/// Re-implemented for the special VESPERS CCD read action.
+	virtual AMAction3* createReadAction();
 
 signals:
 	/// Notifier that the elapsed time has changed.  Passes the new value.

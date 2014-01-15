@@ -38,6 +38,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupControlSets();
 	setupMono();
 	setupMotorGroup();
+	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
 }
@@ -733,6 +734,11 @@ void VESPERSBeamline::onPOEStatusChanged()
 void VESPERSBeamline::setPOEStatusEnable(bool enabled)
 {
 	poeBeamStatusEnable_->move(enabled ? 0 : 1);
+}
+
+void VESPERSBeamline::setupControlsAsDetectors()
+{
+
 }
 
 void VESPERSBeamline::setupExposedControls()

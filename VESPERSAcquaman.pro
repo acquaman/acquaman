@@ -83,7 +83,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/actions3/VESPERS/VESPERSSetStringActionInfo.h \
     source/ui/VESPERS/VESPERSScalerView.h \
     source/beamline/VESPERS/VESPERSMonochomatorControl.h \
-    source/dataman/VESPERS/VESPERSUserConfiguration.h
+    source/dataman/VESPERS/VESPERSUserConfiguration.h \
+    source/actions3/actions/VESPERS/VESPERSCCDReadAction.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -164,10 +165,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/actions3/VESPERS/VESPERSSetStringActionInfo.cpp \
     source/ui/VESPERS/VESPERSScalerView.cpp \
     source/beamline/VESPERS/VESPERSMonochomatorControl.cpp \
-    source/dataman/VESPERS/VESPERSUserConfiguration.cpp
+    source/dataman/VESPERS/VESPERSUserConfiguration.cpp \
+    source/actions3/actions/VESPERS/VESPERSCCDReadAction.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

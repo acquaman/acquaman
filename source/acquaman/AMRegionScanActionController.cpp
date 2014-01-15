@@ -231,10 +231,8 @@ bool AMRegionScanActionController::event(QEvent *e)
 					currentAxisValue_ += message.value("ControlMovementValue").toDouble();
 			}
 
-			else{
-				qDebug() << "Inside and using feedback instead of setpoint." << message.value("ControlMovementFeedback").toDouble();
+			else
 				currentAxisValue_ = message.value("ControlMovementFeedback").toDouble();
-			}
 
 			break;
 

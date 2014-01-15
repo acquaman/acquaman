@@ -4,7 +4,8 @@
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
- AMDetectorReadAction::~AMDetectorReadAction(){}
+AMDetectorReadAction::~AMDetectorReadAction(){}
+
 AMDetectorReadAction::AMDetectorReadAction(AMDetectorReadActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -64,10 +65,12 @@ void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
 	if(generateScanActionMessages_){
+
 		QList<int> dimensionSizes;
 		QStringList dimensionNames;
 		QStringList dimensionUnits;
 		QList<AMAxisInfo> axes = detector_->axes();
+
 		for(int x = 0; x < axes.count(); x++){
 			dimensionSizes.append(axes.at(x).size);
 			dimensionNames.append(axes.at(x).name);
@@ -97,7 +100,6 @@ void AMDetectorReadAction::internalSetSucceeded(){
 			for(int x = 0; x < totalPoints; x++)
 				detectorData.append(detectorDataPointer[x]);
 		}
-
 
 		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
 		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);

@@ -4,7 +4,8 @@
 #include "acquaman/AMRegionScanConfiguration.h"
 #include "beamline/AMBeamline.h"
 
- AMRegionScanConfigurationConverter::~AMRegionScanConfigurationConverter(){}
+AMRegionScanConfigurationConverter::~AMRegionScanConfigurationConverter(){}
+
 AMRegionScanConfigurationConverter::AMRegionScanConfigurationConverter(AMScanActionControllerScanAssembler *scanAssembler, AMRegionScanConfiguration *scanConfiguration, QObject *parent)
 	: AMScanActionControllerScanConfigurationConverter(scanAssembler, scanConfiguration, parent)
 {

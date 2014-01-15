@@ -27,16 +27,16 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-//	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
+	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-//	if (ccdDetector == VESPERS::Roper)
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Roper))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
 
-//	if (ccdDetector == VESPERS::Mar)
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Mar))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
 
-//	if (ccdDetector == VESPERS::Pilatus)
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Pilatus))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
