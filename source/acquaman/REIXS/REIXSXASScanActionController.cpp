@@ -164,6 +164,17 @@ bool REIXSXASScanActionController::isReadyForDeletion() const{
 }
 
 void REIXSXASScanActionController::onInitializationActionsListSucceeded(){
+
+	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	positions.insert(9, grating);
+
+	//scan_->scanInitialConditions()->setValuesFrom(positions);
+	scan_->setScanInitialConditions(positions);
+
 	disconnect(xasActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
 	disconnect(xasActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
@@ -278,15 +289,18 @@ bool REIXSXASScanActionController::initializeImplementation(){
 	AMActionRunner3::scanActionRunner()->addActionToQueue(xasActionsInitializationList_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 
-	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+//	**********
+//	MOVED to onInitializationActionsListSucceeded();
+//	***********
+//	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 
-	// add the spectrometer grating selection, since it's not a "control" anywhere.
-	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
-	positions.insert(9, grating);
+//	// add the spectrometer grating selection, since it's not a "control" anywhere.
+//	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+//	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+//	positions.insert(9, grating);
 
-	//scan_->scanInitialConditions()->setValuesFrom(positions);
-	scan_->setScanInitialConditions(positions);
+//	//scan_->scanInitialConditions()->setValuesFrom(positions);
+//	scan_->setScanInitialConditions(positions);
 
 	return true;
 }
