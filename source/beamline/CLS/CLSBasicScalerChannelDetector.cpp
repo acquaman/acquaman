@@ -92,13 +92,16 @@ void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){
 	checkReadyForAcquisition();
 }
 
-void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning){
+void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning)
+{
 	if(isScanning)
 		setAcquiring();
+
 	else{
 
 		if(isAcquiring())
 			setAcquisitionSucceeded();
+
 		checkReadyForAcquisition();
 	}
 }

@@ -87,18 +87,12 @@ bool CLSSIS3820Scaler::isConnected() const{
 
 bool CLSSIS3820Scaler::isScanning() const{
 
-	if(isConnected() && startToggle_->withinTolerance(1))
-		return true;
-
-	return false;
+	return isConnected() && startToggle_->withinTolerance(1);
 }
 
 bool CLSSIS3820Scaler::isContinuous() const{
 
-	if(isConnected() && continuousToggle_->withinTolerance(1))
-		return true;
-
-	return false;
+	return isConnected() && continuousToggle_->withinTolerance(1);
 }
 
 double CLSSIS3820Scaler::dwellTime() const{
@@ -163,7 +157,7 @@ AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
 		return 0; //NULL
 
 	AMControlInfo setpoint = startToggle_->toInfo();
-	setpoint.setValue(setScanning == true ? 1 : 0);
+	setpoint.setValue(setScanning ? 1 : 0);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 
 	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, startToggle_);
@@ -179,7 +173,7 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 		return 0; //NULL
 
 	AMControlInfo setpoint = continuousToggle_->toInfo();
-	setpoint.setValue(enableContinuous == true ? 1 : 0);
+	setpoint.setValue(enableContinuous ? 1 : 0);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 
 	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, continuousToggle_);

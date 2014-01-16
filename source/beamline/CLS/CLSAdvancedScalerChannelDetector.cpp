@@ -122,6 +122,7 @@ void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 
 	if(isAcquiring())
 		setAcquisitionSucceeded();
+
 	checkReadyForAcquisition();
 }
 

@@ -22,9 +22,14 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetector
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot,set the time on the synchronized dwell time.
 	 */
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
-
+	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("VESPERS Scan Initialization Actions", "VESPERS Scan Initialization Actions"));
 	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
+	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::SingleShot));
+	stage1->addSubAction(synchronizedDwell->createScanningAction3(false));
+
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
 	QStringList dwellKeys;
 
 	for (int i = 0, size = detectorConfigurations.count(); i < size; i++)
@@ -35,31 +40,31 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetector
 	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++){
 
 		if (synchronizedDwell->enabledAt(i) && !dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(false));
+			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(false));
 
 		else if (!synchronizedDwell->enabledAt(i) && dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
+			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
 	}
 
+	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
-	stage1->addSubAction(scaler->createStartAction3(false));
-	stage1->addSubAction(scaler->createScansPerBufferAction3(1));
-	stage1->addSubAction(scaler->createTotalScansAction3(1));
+	stage3->addSubAction(scaler->createStartAction3(false));
+	stage3->addSubAction(scaler->createScansPerBufferAction3(1));
+	stage3->addSubAction(scaler->createTotalScansAction3(1));
 
-	return stage1;
+	initializationAction->addSubAction(stage1);
+	initializationAction->addSubAction(stage2);
+	initializationAction->addSubAction(stage3);
+
+	return initializationAction;
 }
 
 AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName)
 {
 	AMParallelListAction3 *action = new AMParallelListAction3(new AMParallelListActionInfo3("CCD Setup Action", "Sets the path, base file name and file number to the detector."));
 
-	switch(ccdChoice){
-
-	case VESPERS::NoCCD:
-		break;
-
-	case VESPERS::Roper:{
+	if (ccdChoice.testFlag(VESPERS::Roper)){
 
 		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersRoperCCD();
 		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
@@ -69,11 +74,9 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 
 		action->addSubAction(ccd->createFileNameAction(uniqueName));
 		action->addSubAction(ccd->createFileNumberAction(1));
-
-		break;
 	}
 
-	case VESPERS::Mar:{
+	if (ccdChoice.testFlag(VESPERS::Mar)){
 
 		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersMarCCD();
 		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
@@ -83,11 +86,9 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 
 		action->addSubAction(ccd->createFileNameAction(uniqueName));
 		action->addSubAction(ccd->createFileNumberAction(1));
-
-		break;
 	}
 
-	case VESPERS::Pilatus:{
+	if (ccdChoice.testFlag(VESPERS::Pilatus)){
 
 		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersPilatusAreaDetector();
 
@@ -103,9 +104,6 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 
 		action->addSubAction(ccd->createFileNameAction(uniqueName));
 		action->addSubAction(ccd->createFileNumberAction(1));
-
-		break;
-	}
 	}
 
 	return action;
@@ -152,16 +150,10 @@ QString VESPERSScanController::buildNotes()
 	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
 	if (xrfFlag == VESPERS::SingleElement)
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
-
-	else if (xrfFlag == VESPERS::FourElement)
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-
-	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
-
 		notes.append(QString("\nFluorescence detector (1-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
+
+	if (xrfFlag == VESPERS::FourElement)
 		notes.append(QString("\nFluorescence detector (4-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-	}
 
 	if (config_->ccdDetector() == VESPERS::Pilatus)
 		notes.append(QString("\nPilatus distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToCCD(), 0, 'f', 1));
@@ -443,10 +435,8 @@ QString VESPERSScanController::getUniqueCCDName(const QString &path, const QStri
 
 	QString newName = name;
 
-	while (VESPERS::fileNameExists(newPath, newName)){
-
+	while (VESPERS::fileNameExists(newPath, newName))
 		newName = VESPERS::appendUniqueIdentifier(name);
-	}
 
 	return newName;
 }

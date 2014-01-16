@@ -113,7 +113,7 @@ int AMDetector::size(int axisNumber) const
 
 bool AMDetector::currentlySynchronizedDwell() const{
 
-	qDebug() << "Has synchronized dwell time: " << AMBeamline::bl()->synchronizedDwellTime();
+//	qDebug() << "Has synchronized dwell time: " << AMBeamline::bl()->synchronizedDwellTime();
 	if(AMBeamline::bl()->synchronizedDwellTime()){
 		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
 		if(index >= 0)
