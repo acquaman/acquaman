@@ -40,6 +40,12 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
+	Q_PROPERTY(double slitWidth READ slitWidth WRITE setSlitWidth)
+	Q_PROPERTY(bool applySlitWidth READ applySlitWidth WRITE setApplySlitWidth)
+	Q_PROPERTY(double energy READ energy WRITE setEnergy)
+	Q_PROPERTY(bool applyEnergy READ applyEnergy WRITE setApplyEnergy)
+
+
 	// The following properties should be moved upwards if we can figure out how to work on this together, and determine what should be stored at the AMScanConfiguration level.
 	Q_PROPERTY(QString userScanName READ userScanName WRITE setUserScanName)
 	Q_PROPERTY(int scanNumber READ scanNumber WRITE setScanNumber)
@@ -58,6 +64,17 @@ public:
 	int gratingNumber() const { return gratingNumber_; }
 	/// Where we should place the detector (ie: the energy at the center of the detector)
 	double centerEV() const { return centerEV_; }
+
+	/// Energy to set beamline to before scan
+	double energy() const { return energy_; }
+	/// A flag indicating that the energy should be changed before starting the scan
+	bool applyEnergy() const { return applyEnergy_; };
+
+	/// Slit Width to set before scan
+	double slitWidth() const { return slitWidth_; }
+	/// A flag indicating that the slit width should be changed before starting the scan
+	double applySlitWidth() const { return applySlitWidth_; }
+
 	/// How long to count for? We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
 	/// How long to count for? We should stop this scan after this many seconds have elapsed
@@ -115,6 +132,15 @@ public slots:
 	void setGratingNumber(int gratingNumber) { if(gratingNumber_ == gratingNumber) return; gratingNumber_ = gratingNumber;  setModified(true); emit configurationChanged(); }
 	/// Where we should place the detector (ie: the energy at the center of the detector)
 	void setCenterEV(double centerEV) { if(centerEV_ == centerEV) return; centerEV_ = centerEV; setModified(true); emit configurationChanged(); }
+
+	/// Set the desired beamline energy value
+	void setEnergy(double energy) {if(energy_ == energy) return; energy_ = energy; setModified(true); emit configurationChanged(); }
+	void setApplyEnergy(bool ApplyEnergy) { if(applyEnergy_ == ApplyEnergy) return; applyEnergy_ = ApplyEnergy; setModified(true); emit configurationChanged(); }
+
+	/// Set the desired slit width value
+	void setSlitWidth(double slitWidth) {if(slitWidth_ == slitWidth) return; slitWidth_ = slitWidth; setModified(true); emit configurationChanged(); }
+		void setApplySlitWidth(bool applySlitWidth) { if(applySlitWidth_ == applySlitWidth) return; applySlitWidth_ = applySlitWidth; setModified(true); emit configurationChanged(); }
+
 	/// Set how long to count for. We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	void setMaximumTotalCounts(double counts) { if(maximumTotalCounts_ == counts) return; maximumTotalCounts_ = counts; setModified(true); emit configurationChanged(); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
@@ -144,6 +170,18 @@ protected:
 	int gratingNumber_;
 	/// Where we should place the detector (ie: the energy at the center of the detector)
 	double centerEV_;
+
+	/// The beamline energy to use for this scan
+	double energy_;
+	/// A flag indicating that the energy should be changed before starting the scan
+	bool applyEnergy_;
+
+	/// The slit width for this scan
+	double slitWidth_;
+	/// A flag indicating that the slit width should be changed before starting the scan
+	bool applySlitWidth_;
+
+
 	/// We should stop this scan when we get this many counts
 	double maximumTotalCounts_;
 	/// We should stop this scan after this many seconds have elapsed

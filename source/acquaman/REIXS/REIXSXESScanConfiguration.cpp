@@ -27,6 +27,10 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 
 	gratingNumber_ = 0;
 	centerEV_ = 200;
+
+	slitWidth_ = 25;
+	energy_ = 400;
+
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
@@ -58,11 +62,12 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
-	if(defocusDistanceMm() != 0)
-		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
-	if(detectorTiltOffset() != 0)
-		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
+	QString rv = QString("XES Scan");// at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
+	if(applyEnergy()) rv.append(QString(" at %1 eV").arg(energy()));
+//	if(defocusDistanceMm() != 0)
+//		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
+//	if(detectorTiltOffset() != 0)
+//		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
 
 	return rv;
 }
