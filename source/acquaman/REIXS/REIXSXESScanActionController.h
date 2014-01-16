@@ -16,6 +16,9 @@ Q_OBJECT
 public:
 	REIXSXESScanActionController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
+public slots:
+	virtual void skip(const QString &command);
+
 protected slots:
 	void onDetectorAcquisitionSucceeded();
 
@@ -32,6 +35,7 @@ protected:
 	virtual bool initializeImplementation();
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
+
 
 protected:
 	REIXSXESScanConfiguration *configuration_;
