@@ -3,7 +3,6 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/VESPERS/VESPERSSetStringAction.h"
 #include "beamline/AMBeamline.h"
-#include "actions3/actions/VESPERS/VESPERSCCDReadAction.h"
 
 #include <QStringBuilder>
 
@@ -240,9 +239,4 @@ void VESPERSCCDDetector::setCCDNumber(int number)
 void VESPERSCCDDetector::onElapsedTimeChanged()
 {
 	emit elapsedTimeChanged(elapsedTime_.elapsed()/1000.0);
-}
-
-AMAction3 *VESPERSCCDDetector::createReadAction()
-{
-	return new VESPERSCCDReadAction(new AMDetectorReadActionInfo(toInfo(), this));
 }

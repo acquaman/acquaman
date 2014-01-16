@@ -49,7 +49,7 @@ public:
 	  \param baseName is the base name used to build all the process varaibles.
 	  \param index is the index in the list of the current synchronized dwell time.
 	  */
- 	virtual ~CLSSynchronizedDwellTimeElement();
+	virtual ~CLSSynchronizedDwellTimeElement();
 	explicit CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent = 0);
 
 	/// Returns the name.
@@ -205,6 +205,13 @@ public:
 	AMAction3* createModeAction3(CLSSynchronizedDwellTime::Mode mode);
 	/// Returns a newly created action that changes the enabled state of the synchronized dwell time.
 	AMAction3* createEnableAtAction3(int index, bool isEnabled);
+
+	/// Returns the control for the master dwell time.
+	AMControl *dwellTimeControl() const { return dwellTime_; }
+	/// Returns the scan trigger control.
+	AMControl *startScanControl() const { return startScan_; }
+	/// Returns the scan mode control.
+	AMControl *scanModeControl() const { return mode_; }
 
 signals:
 	/// Notifier that the Mode has changed.

@@ -60,15 +60,17 @@ public:
 	/// Returns the current number that is used for auto indexing of the file names.
 	int ccdFileNumber() const;
 
+	/// Returns the status control for the CCD detector.
+	AMControl *statusControl() const { return acquisitionStatusControl_; }
+	/// Returns the CCD file number control.
+	AMControl *ccdFileNumberControl() const { return ccdFileNumberControl_; }
+
 	/// Creates a newly created action that sets the file path for the detector.  Returns 0 if not connected.
 	AMAction3 *createFilePathAction(const QString &path);
 	/// Creates a newly created action that sets the file name for the detector.  Returns 0 if not connected.
 	AMAction3 *createFileNameAction(const QString &name);
 	/// Creates a newly created action that sets the number for auto-increment.  Returns 0 if not connected.
 	AMAction3 *createFileNumberAction(int number);
-
-	/// Re-implemented for the special VESPERS CCD read action.
-	virtual AMAction3* createReadAction();
 
 signals:
 	/// Notifier that the elapsed time has changed.  Passes the new value.

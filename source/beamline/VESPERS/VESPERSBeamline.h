@@ -526,13 +526,13 @@ public:
 
 	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
 	/// Returns the energy control.
-	AMControl *energy() const { return energy_; }
+	AMControl *energy() const { return mono_->EaControl(); }
 	/// Returns the relative energy control.
-	AMControl *energyRelative() const { return energyRelative_; }
+	AMControl *energyRelative() const { return mono_->delEControl(); }
+	/// Returns the k control used for EXAFS scans.
+	AMControl *kControl() const { return mono_->KControl(); }
 	/// Returns the master dwell time control.
 	AMControl *masterDwellTime() const { return masterDwellTime_; }
-	/// Returns the k control used for EXAFS scans.
-	AMControl *kControl() const { return kControl_; }
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -876,13 +876,23 @@ protected:
 	// End sample stage controls.
 
 	// Scanning settings.
-	AMControl *energy_;
-	AMControl *energyRelative_;
 	AMControl *masterDwellTime_;
-	AMControl *kControl_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;
+
+	// The ring current.
+	AMControl *ringCurrent_;
+	// The energy setpoint control.
+	AMControl *energySetpointControl_;
+
+	// Extra AMDetectors for the various single controls added to scans.
+	AMDetector *energySetpointDetector_;
+	AMDetector *masterDwellTimeDetector_;
+	AMDetector *ringCurrentDetector_;
+	AMDetector *roperCCDFileNumberDetector_;
+	AMDetector *marCCDFileNumberDetector_;
+	AMDetector *pilatusCCDFileNumberDetector_;
 };
 
 #endif // VESPERSBEAMLINE_H

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -468,13 +469,11 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::setupMono()
 {
-	energy_ = new VESPERSMonochomatorControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
-	energyRelative_ = new VESPERSMonochomatorControl("Relative Energy Movement", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this);
-	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
-	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this);
-
 	mono_ = new VESPERSMonochromator(this);
+	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
+	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
+	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
 }
 
 void VESPERSBeamline::setupSynchronizedDwellTime()
@@ -738,7 +737,12 @@ void VESPERSBeamline::setPOEStatusEnable(bool enabled)
 
 void VESPERSBeamline::setupControlsAsDetectors()
 {
-
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", synchronizedDwellTime_->dwellTimeControl(), synchronizedDwellTime_->startScanControl(), 1, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	roperCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(roperCCD_, "RoperFileNumber", "Roper File Number", roperCCD_->ccdFileNumberControl(), roperCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
+	marCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(marCCD_, "MarFileNumber", "Mar File Number", marCCD_->ccdFileNumberControl(), marCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
+	pilatusCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(pilatusAreaDetector_, "PilatusFileNumber", "Pilatus File Number", pilatusAreaDetector_->ccdFileNumberControl(), pilatusAreaDetector_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
 }
 
 void VESPERSBeamline::setupExposedControls()
@@ -749,8 +753,8 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
-	addExposedControl(energyRelative_);
-	addExposedControl(energy_);
+	addExposedControl(mono_->delEControl());
+	addExposedControl(mono_->EaControl());
 }
 
 void VESPERSBeamline::setupExposedDetectors()
@@ -761,6 +765,12 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(preKBIonChamber_);
 	addExposedDetector(miniIonChamber_);
 	addExposedDetector(postIonChamber_);
+	addExposedDetector(energySetpointDetector_);
+	addExposedDetector(masterDwellTimeDetector_);
+	addExposedDetector(ringCurrentDetector_);
+	addExposedDetector(roperCCDFileNumberDetector_);
+	addExposedDetector(marCCDFileNumberDetector_);
+	addExposedDetector(pilatusCCDFileNumberDetector_);
 }
 
 AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

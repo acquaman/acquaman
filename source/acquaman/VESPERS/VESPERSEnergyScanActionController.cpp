@@ -26,17 +26,20 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergySetpoint")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
 
-//	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
+	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-//	if (ccdDetector.testFlag(VESPERS::Roper))
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Roper))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
-//	if (ccdDetector.testFlag(VESPERS::Mar))
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Mar))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
-//	if (ccdDetector.testFlag(VESPERS::Pilatus))
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+	if (ccdDetector.testFlag(VESPERS::Pilatus))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -58,7 +61,11 @@ void VESPERSEnergyScanActionController::buildScanControllerImplementation()
 
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMSequentialListAction3 *initializationList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
+	initializationList->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationList->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+
+	return initializationList;
 }
 
 AMAction3* VESPERSEnergyScanActionController::createCleanupActions()
