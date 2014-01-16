@@ -16,22 +16,22 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 {
 	/// Used to generate and allow modification of the option page
 	// 2 points should be sufficient to get an accurate result
-        numberOfPoints_ = 4;
-	showOptionPage_ = false;
+	setNumberOfPoints(4);
+	setNumberOfPages(numberOfPoints());
+	setFreePage(Page_Free);
 	/// allow the rotation to be changed during wizard operation
 	setRotationEnabled(true);
-	coordinateList_->clear();
     /// need a coordinate per point
-    coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(5,5,5));
-	for(int i = coordinateList_->count() - 1; i < numberOfPoints(); i++ )
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(5,5,5));
+	for(int i = coordinateListCount() - 1; i < numberOfPoints(); i++ )
     {
-        coordinateList_->append(new QVector3D(0,0,0));
+		coordinateListAppend(new QVector3D(0,0,0));
     }
 
     for(int i = 0; i < numberOfPoints(); i++)
     {
-		rotations_->append(0);
+		rotationsAppend(0);
     }
 
 
@@ -41,7 +41,7 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     setPage(Page_Check, new AMSampleCheckPage);
     setPage(Page_Option, new AMWizardOptionPage);
     setPage(Page_Final, new AMWizardPage);
-    for(int i = 0; i < numberOfPoints(); i++)
+	for(int i = 0; i < numberOfPages(); i++)
     {
         setPage(pageWait(i),new AMSampleWaitPage);
         setPage(pageSet(i), new AMSampleSetPage);
@@ -60,15 +60,15 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     addOptionPage(Page_Intro);
-    for(int i = 0; i < numberOfPoints(); i++)
+	for(int i = 0; i < numberOfPages(); i++)
     {
         addResetPointsButton(pageSet(i));
     }
     showResetButton(currentId());
 
-	pointList_->clear();
+
 	/// We don't know how many points there will be, so in addPoint, make sure point
-        /// exists before initializing it. (sample plate may be any shape)
+	/// exists before initializing it. (sample plate may be any shape)
 }
 
 AMSamplePlateWizard::~AMSamplePlateWizard()
@@ -77,7 +77,8 @@ AMSamplePlateWizard::~AMSamplePlateWizard()
 
 int AMSamplePlateWizard::nextId() const
 {
-    switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
     {
     case Page_Intro:
         if(showOptionPage())
@@ -92,57 +93,71 @@ int AMSamplePlateWizard::nextId() const
     case Page_Final:
             return -1;
     default:
-        for(int i = 0; i < numberOfPoints(); i++)
-        {
-            if(currentId() == pageWait(i))
+		int id = relativeId();
+		if(isWaitPage(pageId))
+		{
+			if(currentId() == pageWait(id))
             {
-                for(int j = 0; j < numberOfPoints(); j++)
+				for(int j = 0; j < numberOfPages(); j++)
                 {
-                    if(j != i)
+					if(j != id)
                     {
                         ((AMSampleSetPage*)page(pageSet(j)))->disconnectMouseSignal();
                     }
                 }
-                return pageSet(i);
+				return pageSet(id);
             }
-            else if(currentId() == pageSet(i))
+			else
+			{
+				qDebug()<<"AMSamplePlateWizard::nextId() - Error, determine current page. currentId is: "<<pageId;
+			}
+		}
+		else if(isSetPage(pageId))
+		{
+			if(currentId() == pageSet(id))
             {
-                if(i == numberOfPoints() - 1)
+				if(id == numberOfPages() - 1)
                 {
                     return Page_Final;
                 }
                 else
                 {
-                    return pageWait(i+1);
+					return pageWait(id+1);
                 }
             }
-        }
+			else
+			{
+				qDebug()<<"AMSamplePlateWizard::nextId() - Error, determine current page. currentId is: "<<pageId;
+			}
+		}
+
         return -1;
     }
 }
 
 void AMSamplePlateWizard::waitPage()
 {
-	emit moveTo(*coordinateList()->at(relativeId()-1),rotations_->at(relativeId()-1));
+	emit moveTo(*coordinateList()->at(relativeId()),rotations_->at(relativeId()));
 }
 
-int AMSamplePlateWizard::relativeId()
-{
-        for(int i = 0; i < numberOfPoints(); i++)
-        {
-            if(currentId() == pageSet(i) || currentId() == pageWait(i))
-            {
-                return i + 1;
-            }
-        }
-        return 0;
-}
+//int AMSamplePlateWizard::relativeId()
+//{
+//        for(int i = 0; i < numberOfPoints(); i++)
+//        {
+//            if(currentId() == pageSet(i) || currentId() == pageWait(i))
+//            {
+//				return i;
+//            }
+//        }
+//		return -1;
+//}
 
 QString AMSamplePlateWizard::message(int type)
 {
     if(type == Wizard_Title) return QString(tr("Sample Plate Wizard"));
     else if(type == Help_Title) return QString(tr("Help"));
-    switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
     {
     case Page_Intro:
         switch(type)
@@ -206,93 +221,97 @@ QString AMSamplePlateWizard::message(int type)
 		}
         /// handle the wait and set pages here, as they must be in a for loop
         default:
-        for(int i = 0; i < numberOfPoints(); i++)
-        {
-            if(currentId() == pageWait(i))
-            {
-                switch(type)
-                {
-                    case Title:
-                                return QString(tr("Moving to position %1")).arg(relativeId());
-                    case Text:
-                                return QString(tr("Wait while the sample plate moves."));
-                    case Help:
-						return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
-                                          + tr(" the motor.  Ensure that motor movement is enabled."));
-                    case Other:
-                    case Default:
-                    default:
-                        return QString(tr("Error - Wait page - unknown message type."));
-                }
-            }
-            else if(currentId() == pageSet(i))
-            {
-                switch(type)
-                {
-                case Title:
-                    return QString(tr("Sample Plate Adjustment"));
-                case Text:
-								return QString(tr("Select the plate corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
-                case Help:
-					return QString(tr("To configure the sample plate, select each corner of the sample plate on this page.")
-								   +tr("When you click a point, a small square should appear whose top right corner is aligned with")
-								   +tr("where you have clicked.  You may press reset to clear all the points selected on this")
-								   +tr("page (it will keep all points selected on other pages"));
-                case Other:
-                case Default:
-                default:
-                    return QString(tr("Error message - set page - unknown message type."));
-                }
-            }
-        }
+			int id = relativeId(pageId);
+			if(isWaitPage(id))
+			{
+				if(currentId() == pageWait(id))
+				{
+					switch(type)
+					{
+						case Title:
+									return QString(tr("Moving to position %1")).arg(relativeId() + 1);
+						case Text:
+									return QString(tr("Wait while the sample plate moves."));
+						case Help:
+							return QString(tr("If this window is stuck in this state, there may be a problem communicating with")
+											  + tr(" the motor.  Ensure that motor movement is enabled."));
+						case Other:
+						case Default:
+						default:
+							return QString(tr("Error - Wait page - unknown message type."));
+					}
+				}
+			}
+			else if(isSetPage(id))
+			{
+				if(currentId() == pageSet(id))
+				{
+					switch(type)
+					{
+					case Title:
+						return QString(tr("Sample Plate Adjustment"));
+					case Text:
+									return QString(tr("Select the plate corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
+					case Help:
+						return QString(tr("To configure the sample plate, select each corner of the sample plate on this page.")
+									   +tr("When you click a point, a small square should appear whose top right corner is aligned with")
+									   +tr("where you have clicked.  You may press reset to clear all the points selected on this")
+									   +tr("page (it will keep all points selected on other pages"));
+					case Other:
+					case Default:
+					default:
+						return QString(tr("Error message - set page - unknown message type."));
+					}
+				}
+			}
     }
     return QString(tr("Error message - unknown page type."));
 }
 
 
-/// gets the page number for each wait page
-int AMSamplePlateWizard::pageWait(int index) const
-{
-    if(index > numberOfPoints())
-    {
-        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Max index is "<<numberOfPoints() - 1;
-    }
-    else if (index < 0)
-    {
-        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Must be between 1 and "<<numberOfPoints() - 1;
-    }
-    return Page_Free + index;
-}
+///// gets the page number for each wait page
+//int AMSamplePlateWizard::pageWait(int index) const
+//{
+//    if(index > numberOfPoints())
+//    {
+//        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Max index is "<<numberOfPoints() - 1;
+//    }
+//    else if (index < 0)
+//    {
+//        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Must be between 1 and "<<numberOfPoints() - 1;
+//    }
+//    return Page_Free + index;
+//}
 
-/// gets the page number for each set page
-int AMSamplePlateWizard::pageSet(int index) const
-{
-    if(index > numberOfPoints())
-    {
-        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Max index is "<<numberOfPoints() - 1;
-    }
-    else if (index < 0)
-    {
-        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Must be between 0 and "<<numberOfPoints() - 1;
-    }
-    return Page_Free + numberOfPoints() + index;
-}
+///// gets the page number for each set page
+//int AMSamplePlateWizard::pageSet(int index) const
+//{
+//    if(index > numberOfPoints())
+//    {
+//        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Max index is "<<numberOfPoints() - 1;
+//    }
+//    else if (index < 0)
+//    {
+//        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Must be between 0 and "<<numberOfPoints() - 1;
+//    }
+//    return Page_Free + numberOfPoints() + index;
+//}
 
-bool AMSamplePlateWizard::isWaitPage(int pageNumber) const
-{
-    return pageNumber >= Page_Free && pageNumber < Page_Free + numberOfPoints();
-}
+//bool AMSamplePlateWizard::isWaitPage(int pageNumber) const
+//{
+//    return pageNumber >= Page_Free && pageNumber < Page_Free + numberOfPoints();
+//}
 
-bool AMSamplePlateWizard::isSetPage(int pageNumber) const
-{
-    return pageNumber >= Page_Free + numberOfPoints() && pageNumber < Page_Free + 2*numberOfPoints();
-}
+//bool AMSamplePlateWizard::isSetPage(int pageNumber) const
+//{
+//    return pageNumber >= Page_Free + numberOfPoints() && pageNumber < Page_Free + 2*numberOfPoints();
+//}
 
 
 void AMSamplePlateWizard::back()
 {
 	int id = currentId();
-        int pageRelativeId = relativeId() - 1;
+		int pageRelativeId = relativeId();
         if(isWaitPage(id))
         {
             ((AMWaitPage*)page(id))->stopTimer();
@@ -305,7 +324,7 @@ void AMSamplePlateWizard::back()
         }
         else if(isSetPage(id))
         {
-            if(relativeId() == 1)
+			if(relativeId() == 0)
             {
                     ((AMSampleSetPage*)page(id))->disconnectMouseSignal();
                 while(currentId() != Page_Check)
@@ -321,13 +340,13 @@ void AMSamplePlateWizard::back()
             else
             {
                 ((AMSampleSetPage*)page(id))->disconnectMouseSignal();
-                while(currentId() != pageWait(pageRelativeId - 1))
+				while(currentId() != pageWait(pageRelativeId))
                 {
                        QWizard::back();
                 }
-                if(currentId() == pageWait(pageRelativeId - 1))
+				if(currentId() == pageWait(pageRelativeId))
                 {
-                    initializePage(pageWait(pageRelativeId - 1));
+					initializePage(pageWait(pageRelativeId));
                 }
             }
         }
@@ -355,7 +374,7 @@ void AMSamplePlateWizard::addPoint(QPointF position)
         /// list will go (0,0),...page1...,(0,0),...page2...,(0,0)...etc...,...finalpage...,(0,0)
         if(pointList_->isEmpty())
         {
-            for(int i = 0; i < numberOfPoints() + 1; i ++)
+			for(int i = 0; i < numberOfPages() + 1; i ++)
             {
                 pointList_->append(new QPointF(0,0));
             }
@@ -366,7 +385,8 @@ void AMSamplePlateWizard::addPoint(QPointF position)
         }
         int count = 0;
         int index = 0;
-        for(int i = 0; count < pageId+1 && i < pointList_->count(); i++)
+		/// need to count 2 sets of zero for page one, 3 for page two, etc.
+		for(int i = 0; count < pageId+2 && i < pointList_->count(); i++)
         {
             if(*pointList_->at(i) == QPointF(0,0))
             {
@@ -397,11 +417,11 @@ QPen AMSamplePlateWizard::getDefaultPen()
 {
     switch(relativeId())
     {
-        case 1:
+		case 0:
             return QPen(Qt::yellow);
-        case 2:
+		case 1:
             return QPen(Qt::green);
-        case 3:
+		case 2:
             return QPen(Qt::cyan);
         default:
             return QPen(Qt::white);
@@ -486,17 +506,17 @@ void AMSampleCheckPage::checkBoxChanged(bool state)
 
 double AMSamplePlateWizard::coordinateX(int id)
 {
-	return coordinateList()->at(id-1)->x();
+	return coordinateList()->at(id)->x();
 }
 
 double AMSamplePlateWizard::coordinateY(int id)
 {
-	return coordinateList()->at(id-1)->y();
+	return coordinateList()->at(id)->y();
 }
 
 double AMSamplePlateWizard::coordinateZ(int id)
 {
-	return coordinateList()->at(id-1)->z();
+	return coordinateList()->at(id)->z();
 }
 
 void AMSamplePlateWizard::addResetPointsButton(int id)

@@ -25,28 +25,28 @@ public:
     AMSamplePlateWizard(QWidget* parent = 0);
     virtual ~AMSamplePlateWizard();
 
-    int nextId() const;
+	virtual int nextId() const;
 
-    void waitPage();
+	virtual void waitPage();
 
-    int relativeId();
+//    int relativeId();
 
     virtual QString message(int type);
 
     double currentRotation();
 
 protected:
-    /// returns the page number of the nth wait page
-    int pageWait(int index) const;
+//    /// returns the page number of the nth wait page
+//    int pageWait(int index) const;
 
-    /// returns the page number of the nth set page
-    int pageSet(int index) const;
+//    /// returns the page number of the nth set page
+//    int pageSet(int index) const;
 
-    /// returns true if pageNumber is a wait page
-    bool isWaitPage(int pageNumber) const;
+//    /// returns true if pageNumber is a wait page
+//    bool isWaitPage(int pageNumber) const;
 
-    /// returns true if pageNumber is a set page
-    bool isSetPage(int pageNumber) const;
+//    /// returns true if pageNumber is a set page
+//    bool isSetPage(int pageNumber) const;
 
     double requestMotorRotation();
 

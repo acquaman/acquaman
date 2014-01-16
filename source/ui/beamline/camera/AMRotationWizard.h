@@ -3,7 +3,7 @@
 
 #include "AMGraphicsViewWizard.h"
 
-
+/// The AMRotationWizard is used to calculate the centre of rotation
 class AMRotationWizard : public AMGraphicsViewWizard
 {
 	Q_OBJECT

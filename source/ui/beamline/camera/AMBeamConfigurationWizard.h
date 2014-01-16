@@ -20,15 +20,15 @@ public:
 
 
     AMBeamConfigurationWizard(QWidget* parent = 0);
-    ~AMBeamConfigurationWizard();
+	virtual ~AMBeamConfigurationWizard();
 
-    int nextId() const;
+	virtual int nextId() const;
 
-    QString message(int);
+	virtual QString message(int);
 
     int relativeId();
 
-    void waitPage();
+	virtual void waitPage();
 
     void showBeamShape();
 
@@ -41,7 +41,7 @@ public slots:
 
     void next();
 
-    void addPoint(QPointF position);
+	virtual void addPoint(QPointF position);
 
     void endPoint();
 

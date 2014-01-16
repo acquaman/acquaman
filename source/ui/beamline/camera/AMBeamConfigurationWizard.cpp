@@ -16,6 +16,9 @@
 AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
+	/// two points for each square, three squares.
+	setNumberOfPoints(6);
+
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check_One, new AMBeamCheckPage);
     setPage(Page_Check_Two, new AMBeamCheckPage);
@@ -42,11 +45,10 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setting_ = false;
     reviewBeamShape_ = true;
 
-    /// two points for each square, three squares.
-    numberOfPoints_ = 6;
 
 
-    for(int i = 0; i < numberOfPoints_; i++)
+
+	for(int i = 0; i < numberOfPoints(); i++)
     {
         pointList_->append(new QPointF(0,0));
     }

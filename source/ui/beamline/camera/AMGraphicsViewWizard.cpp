@@ -24,13 +24,19 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     view_ = new AMSampleCameraGraphicsView();
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
+	pointList_->clear();
     coordinateList_ = new QList<QVector3D*>();
+	coordinateList_->clear();
 	rotations_ = new QList<double>();
+	rotations_->clear();
     showOptionPage_ = false;
     optionsPage_ = -1;
     motorMovementEnabled_ = false;
 	rotationEnabled_ = false;
     mediaPlayer_ = new QMediaPlayer();
+	/// set the default free page. Make sure to set if not using
+	/// default pages.  Set through setFreePage(freePageNumber);
+	freePage_ = Default_Free;
 
 
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -107,7 +113,12 @@ QList<double> *AMGraphicsViewWizard::rotations() const
 
 int AMGraphicsViewWizard::numberOfPoints() const
 {
-    return numberOfPoints_;
+	return numberOfPoints_;
+}
+
+int AMGraphicsViewWizard::numberOfPages() const
+{
+	return numberOfPages_;
 }
 
 void AMGraphicsViewWizard::setPoint(QPointF point, int index)
@@ -413,6 +424,106 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 void AMGraphicsViewWizard::setRotationEnabled(bool rotationEnabled)
 {
 	rotationEnabled_ = rotationEnabled;
+}
+
+void AMGraphicsViewWizard::setNumberOfPages(int numberOfPages)
+{
+	numberOfPages_ = numberOfPages;
+}
+
+void AMGraphicsViewWizard::setNumberOfPoints(int numberOfPoints)
+{
+	numberOfPoints_ = numberOfPoints;
+}
+
+void AMGraphicsViewWizard::setShowOptionPage(bool showOptionPage)
+{
+	showOptionPage_ = showOptionPage;
+}
+
+void AMGraphicsViewWizard::coordinateListAppend(QVector3D *coordinate)
+{
+	coordinateList_->append(coordinate);
+}
+
+void AMGraphicsViewWizard::rotationsAppend(double rotation)
+{
+	rotations_->append(rotation);
+}
+
+void AMGraphicsViewWizard::setFreePage(int freePage)
+{
+	freePage_ = freePage;
+}
+
+int AMGraphicsViewWizard::coordinateListCount() const
+{
+	return coordinateList_->count();
+}
+
+int AMGraphicsViewWizard::relativeId() const
+{
+	return relativeId(currentId());
+}
+
+int AMGraphicsViewWizard::relativeId(int pageId) const
+{
+	if(pageId >= freePage())
+	{
+		if(pageId >= freePage() + numberOfPages())
+		{
+			return pageId - freePage() - numberOfPages();
+		}
+		else
+		{
+			return pageId - freePage();
+		}
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int AMGraphicsViewWizard::pageWait(int relativeId) const
+{
+	if(relativeId >= numberOfPages())
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
+	}
+	else if(relativeId < 0)
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Min index is 0.";
+	}
+	return freePage() + relativeId;
+}
+
+int AMGraphicsViewWizard::pageSet(int relativeId) const
+{
+	if(relativeId >= numberOfPages())
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
+	}
+	else if(relativeId < 0)
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Min index is 0.";
+	}
+	return freePage() + numberOfPages() + relativeId;
+}
+
+int AMGraphicsViewWizard::freePage() const
+{
+	return freePage_;
+}
+
+bool AMGraphicsViewWizard::isWaitPage(int pageNumber) const
+{
+	return (pageNumber >= freePage()) && (pageNumber < (freePage() + numberOfPages()));
+}
+
+bool AMGraphicsViewWizard::isSetPage(int pageNumber) const
+{
+	return (pageNumber >= (freePage() + numberOfPages())) && (pageNumber < (freePage() + 2*numberOfPages()));
 }
 
 bool AMGraphicsViewWizard::rotationEnabled() const
@@ -746,6 +857,8 @@ void AMWizardOptionPage::textChanged()
 
 
 }
+
+
 
 
 

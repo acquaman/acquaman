@@ -8,7 +8,7 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 	: AMGraphicsViewWizard(parent)
 {
 	/// need only two points to calculate since the first one (rotation == 0) is inherently known
-	numberOfPoints_ = 2;
+	setNumberOfPoints(2);
 	showOptionPage_ = false;
 	/// allow rotation during wizard operation
 	setRotationEnabled(true);

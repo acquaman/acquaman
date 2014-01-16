@@ -25,7 +25,8 @@
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
-    numberOfPoints_ = 6;
+	setNumberOfPages(6);
+	setNumberOfPoints(numberOfPages());
     showOptionPage_ = false;
 
     setPage(Page_Intro, new IntroPage);
@@ -66,7 +67,7 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     setMinimumSize(600,600);
 
     pointList_->clear();
-    for(int i = 0; i < numberOfPoints_; i++)
+	for(int i = 0; i < numberOfPoints(); i++)
     {
         pointList_->append(new QPointF(0,0));
     }

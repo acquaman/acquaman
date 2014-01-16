@@ -27,19 +27,20 @@ public:
             Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
 
     AMCameraConfigurationWizard(QWidget* parent = 0);
-    ~AMCameraConfigurationWizard();
+	virtual ~AMCameraConfigurationWizard();
 
     /// reimplementation of nextId.
     /// it is necessary to control the page flow from the wizard
     /// rather than the pages becuase there is more than one instance of several pages
-    int nextId() const;
+	virtual int nextId() const;
 
     virtual QString message(int messageType);
 
     /// used to correlate Page_Wait_x and Page_Select_x with their order
     int relativeId();
 
-    void waitPage();
+	/// moves to the position for Page_Wait_x
+	virtual void waitPage();
 
 
 public slots:
@@ -51,6 +52,8 @@ public slots:
     virtual void addPoint(QPointF position);
 
 protected:
+	/// get coordinate (x/y/z) for specified id
+	/// -this is the relative id
     double coordinateX(int id);
     double coordinateY(int id);
     double coordinateZ(int id);
@@ -68,7 +71,8 @@ public:
 
 };
 
-
+/// Check page is used to check if the camera is actually aligned,
+/// so that the wizard may be skipped early on.
 class CheckPage : public AMCheckPage
 {
     Q_OBJECT
@@ -79,7 +83,7 @@ public slots:
 protected slots:
 };
 
-
+/// SelectPage is where the calibration point is selected.
 class SelectPage : public AMViewPage
 {
     Q_OBJECT
@@ -91,6 +95,8 @@ public slots:
     void addPoint(QPointF position);
 };
 
+/// Wait page causes the user to wait while the motor moves
+/// to the next position
 class WaitPage : public AMWaitPage
 {
     Q_OBJECT
