@@ -593,7 +593,25 @@ QPointF AMCamera::undistortPoint(QPointF point) const
     /// move to screen coordinates
     newPoint.setX(newPoint.x()+0.5);
     newPoint.setY(newPoint.y()+0.5);
-    return newPoint;
+	return newPoint;
+}
+
+MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y)
+{
+	/// solves Ax = Y for x
+	JacobiSVD<MatrixXd> solver(A);
+	solver.compute(A, ComputeThinU|ComputeThinV);
+	MatrixXd x = solver.solve(Y);
+	return x;
+}
+
+MatrixXd AMCamera::computeSVDHomogenous(MatrixXd leftHandSide)
+{
+	JacobiSVD<MatrixXd> solver(leftHandSide, ComputeThinV|ComputeThinU);
+	solver.compute(leftHandSide, ComputeThinU|ComputeThinV);
+	MatrixXd vMatrix = sovler.matrixV();
+	MatrixXd solution = vMatrix.col(0);
+	return solution;
 }
 
 /// returns the dot product of two vectors
@@ -645,11 +663,11 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     MatrixXd matrixPointTwo (3,1);
     matrixPointTwo<<2000*point.x(),2000*point.y(),2000;
 
-    MatrixXd coordinateTwo;
+	MatrixXd coordinateTwo = computeSVDLeastSquares(matrixP, matrixPointTwo);
 	// SVD
-    JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
-    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
-	coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+//    JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
+//    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+//	coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
 	// Normalize [ X Y Z 1]T
     coordinateTwo /= coordinateTwo(3,0);
     QVector3D locationTwo = QVector3D(coordinateTwo(0,0),coordinateTwo(1,0),coordinateTwo(2,0));
@@ -724,9 +742,8 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 	// must do an SVD decomposition as we have an overdetermined
 	// system.
 
-    JacobiSVD<MatrixXd> solver(parameterMatrix);
-	solver.compute(parameterMatrix, ComputeThinU|ComputeThinV);
-	MatrixXd solution = solver.solve(centrePointMatrix);
+
+	MatrixXd solution = computeSVDLeastSquares(parameterMatrix, centrePointMatrix);
 
     double coordinateT = solution(1);
 
@@ -927,7 +944,7 @@ double AMCamera::absError(double a, double b, double tolerance) const
     }
     else
     {
-        return fabs((a-b)/a);
+		return fabs((a - b)/a);
     }
 }
 

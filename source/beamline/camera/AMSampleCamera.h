@@ -621,6 +621,10 @@ protected:
 	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
 	double degreesToRadians(double degrees);
 	double radiansToDegrees(double radians);
+	/// computes the SVD least squares solution
+	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide);
+	/// computes the SVD homogenous solution for the largest singular value
+	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide);
 protected:
 
 	/// Members

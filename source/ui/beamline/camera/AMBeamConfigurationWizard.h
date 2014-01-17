@@ -28,7 +28,7 @@ public:
 
     int relativeId();
 
-	virtual void waitPage();
+//	virtual void waitPage();
 
     void showBeamShape();
 
@@ -58,6 +58,15 @@ protected:
     bool topLeft_;
 };
 
+class AMBeamIntroPage : public AMWizardPage
+{
+	Q_OBJECT
+public:
+	void initializePage();
+
+	void timerEvent(QTimerEvent *event);
+
+};
 
 class AMBeamCheckPage : public AMCheckPage
 {

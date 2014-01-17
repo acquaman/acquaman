@@ -647,10 +647,12 @@ void AMSampleCameraView::beamCalibrate()
 void AMSampleCameraView::samplePlateCreate()
 {
 	qDebug()<<"Sample plate being created.";
+
 	const QList<QPointF*>* pointList = samplePlateWizard_->getPointList();
 	int numberOfPoints = samplePlateWizard_->numberOfPoints();
 	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
 	/// it also expects the order to be toplefta,topleftb,etc
+	// need to convert pointList into the correct format
 	if((pointList->count() - numberOfPoints - 1)%numberOfPoints  != 0)
 	{
 		qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid number of points. ";

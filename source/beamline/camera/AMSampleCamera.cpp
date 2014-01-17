@@ -765,11 +765,11 @@ QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points)
 		mMatrix(i,2) = point.z();
 	}
 
-	JacobiSVD<MatrixXd> svd(mMatrix,ComputeThinV|ComputeThinU);
-	svd.compute(mMatrix,ComputeThinU|ComputeThinV);
-	// solution is first column of V matrix - solution for maximum singular value of m
-	MatrixXd vMatrix = svd.matrixV();
-	MatrixXd solution = vMatrix.col(0);
+
+// solution is first column of V matrix - solution for maximum singular value of m
+	MatrixXd solution = computeSVDHomogenous(mMatrix);
+
+
 	QVector3D unitVector(0,0,0);
 	if(solution.rows() == 3)
 	{
@@ -2929,13 +2929,9 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 							centreOfRotationOrigin.x(),centreOfRotationOrigin.y(),centreOfRotationOrigin.z();
 
 
+		// compute the SVD least squares solution
+		MatrixXd parameters = computeSVDLeastSquares(coeffMatrix,solutionMatrix);
 
-		// do the actual svd decomposition and least squares solution here
-		JacobiSVD<MatrixXd> coeffSolver(coeffMatrix);
-		// compute the svd
-		coeffSolver.compute(coeffMatrix, ComputeThinU|ComputeThinV);
-		// solve for solution matrix defined above
-		MatrixXd parameters = coeffSolver.solve(solutionMatrix);
 
 
 		// debugging output //////////////////////////////////////////////////////
@@ -3082,9 +3078,7 @@ MatrixXd AMSampleCamera::solveCentreOfRotationMatrix(MatrixXd coeffMatrix, Matri
 		qDebug()<<"AMSampleCamera::solveCentreOfRotationMatrix - Cannot solve, rows of matrices do not match";
 	}
 
-	JacobiSVD<MatrixXd> matrixSolver(coeffMatrix);
-	matrixSolver.compute(coeffMatrix, ComputeThinU|ComputeThinV);
-	MatrixXd solution = matrixSolver.solve(coordinateMatrix);
+	MatrixXd solution = computeSVDLeastSquares(coeffMatrx,coordinateMatrix);
 	return solution;
 }
 
@@ -3096,4 +3090,15 @@ double AMSampleCamera::degreesToRadians(double degrees)
 double AMSampleCamera::radiansToDegrees(double radians)
 {
 	return radians*180.0/M_PI;
+}
+
+MatrixXd AMSampleCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y)
+{
+	return camera_->computeSVDLeastSquares(A,Y);
+}
+
+MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide)
+{
+	// solution is first column of V matrix - solution for maximum singular value of m
+	return camera_->computeSVDHomogenous(leftHandSide);
 }

@@ -78,8 +78,6 @@ AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 
 int AMCameraConfigurationWizard::nextId() const
 {
-    qDebug()<<"AMCameraConfigurationWizard::nextId";
-
 	int pageId = currentId();
 	switch(pageId)
     {
@@ -96,8 +94,7 @@ int AMCameraConfigurationWizard::nextId() const
             }
             else
             {
-
-			return pageWait(0);
+				return pageWait(0);
             }
 	case Page_Final:
 	default:
@@ -131,20 +128,18 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 	int index = relativeId();
 	if (!isSetPage(currentId()))
 	{
-		index = -1;
+		return;
 	}
 
     if(checked(Page_Check))
     {
-		for(int i = 0; i < pointList()->count(); i++)
-        {
-            qDebug()<<"Deleting point"<<i;
-			newPoint = pointList()->at(i);
-            *newPoint = QPointF(0,0);
-        }
+		clearPoints();
         return;
     }
-    else if(index < 0)return;
+	else if(index < 0)
+	{
+		return;
+	}
 
 
 	newPoint = pointList()->at(index);
@@ -173,7 +168,18 @@ double AMCameraConfigurationWizard::coordinateY(int id)
 
 double AMCameraConfigurationWizard::coordinateZ(int id)
 {
-    return coordinateList()->at(id-1)->z();
+	return coordinateList()->at(id-1)->z();
+}
+
+void AMCameraConfigurationWizard::clearPoints()
+{
+	QPointF *newPoint;
+	for(int i = 0; i < pointList()->count(); i++)
+	{
+		qDebug()<<"Deleting point"<<i;
+		newPoint = pointList()->at(i);
+		*newPoint = QPointF(0,0);
+	}
 }
 
 
@@ -316,46 +322,11 @@ QString AMCameraConfigurationWizard::message(int messageType)
     }
 }
 
-//int AMCameraConfigurationWizard::relativeId()
+//void AMCameraConfigurationWizard::waitPage()
 //{
-//    // this function relates each page number with an
-//    // appropriate integer, used for naming and indexing.
-//    // This prevents the need of a unique page type for
-//    // each page while simpifying logic for indexing
-//    // coordinates.
-//    switch(currentId())
-//    {
-//    case Page_Select_One:
-//    case Page_Wait_One:
-//        return 1;
-//    case Page_Select_Two:
-//     case Page_Wait_Two:
-//        return 2;
-//    case Page_Select_Three:
-//    case Page_Wait_Three:
-//        return 3;
-//    case Page_Select_Four:
-//    case Page_Wait_Four:
-//        return 4;
-//    case Page_Select_Five:
-//    case Page_Wait_Five:
-//        return 5;
-//    case Page_Select_Six:
-//    case Page_Wait_Six:
-//        return 6;
-//    default:
-//        return 0;
-//    }
+//    qDebug()<<"AMCameraConfigurationWizard::waitPage";
+//	emit moveTo(*coordinateList()->at(relativeId()));
 //}
-
-void AMCameraConfigurationWizard::waitPage()
-{
-    qDebug()<<"AMCameraConfigurationWizard::waitPage";
-    emit moveTo(*coordinateList()->at(relativeId()-1));
-}
-
-
-
 
 void AMCameraConfigurationWizard::back()
 {

@@ -93,7 +93,7 @@ void AMGraphicsViewWizard::setScale(double scaleFactor)
 
 void AMGraphicsViewWizard::waitPage()
 {
-    emit moveTo(*coordinateList()->at(currentId()));
+	emit moveTo(*coordinateList()->at(relativeId()));
 }
 
 QList<QPointF *> *AMGraphicsViewWizard::pointList() const
@@ -151,6 +151,12 @@ QString AMGraphicsViewWizard::message(int type)
     //          case Help:
     //              return "Help message text";
     //  etc.
+	//  when using non-specified wait/set pages, put in default case:
+	//	default:
+	//		if(isSetPage(pageNumber)
+	//			...
+	//		else if(isWaitPage(pageNumber)
+	//			...
     if(type)
     {
         return "Default message";
@@ -242,7 +248,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
     /// when there is a QGraphicsItem or a descendent in less than
     /// all the views, but at least one.
     /// It seems that placing a QGraphicsTextItem with it's bounding rectangle
-    /// touching the current views boundaries (adjusted for scrolling) will
+	/// touching the current view's boundaries (adjusted for scrolling) will
     /// stop the behaviour.
     fixItem_ = new QGraphicsTextItem("Fix");
     fixItem_->setObjectName("Fix");
@@ -255,7 +261,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
     view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-    fixText();
+	fixText();
 
     /// get the mediaObject
     foreach(QGraphicsItem* item, view_->scene()->items())
