@@ -23,8 +23,16 @@ class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
 public:
-    enum {Page_Intro, Page_Option, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
-            Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
+	enum
+	{
+		Page_Intro,
+		Page_Option,
+		Page_Check,
+		Page_Final,
+		Page_Free
+	};
+//    enum {Page_Intro, Page_Option, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
+//            Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
 
     AMCameraConfigurationWizard(QWidget* parent = 0);
 	virtual ~AMCameraConfigurationWizard();
@@ -37,7 +45,7 @@ public:
     virtual QString message(int messageType);
 
     /// used to correlate Page_Wait_x and Page_Select_x with their order
-    int relativeId();
+//    int relativeId();
 
 	/// moves to the position for Page_Wait_x
 	virtual void waitPage();

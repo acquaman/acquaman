@@ -602,9 +602,9 @@ void AMSampleCameraView::autoCompleteEnterPressed()
 
 void AMSampleCameraView::beamShape(int shapeNumber)
 {
-	QList<QPointF*>* points;
+	const QList<QPointF*>* points;
 	if(beamWizard_ != 0)
-		points = beamWizard_->pointList();
+		points = beamWizard_->getPointList();
 	else return;
 	QPointF topLeft = mapPointToVideo(*(points->at(2*shapeNumber)));
 	QPointF bottomRight = mapPointToVideo(*(points->at(2*shapeNumber+1)));
@@ -647,63 +647,40 @@ void AMSampleCameraView::beamCalibrate()
 void AMSampleCameraView::samplePlateCreate()
 {
 	qDebug()<<"Sample plate being created.";
-	QList<QPointF*>* pointList = samplePlateWizard_->pointList();
-        int numberOfPoints = samplePlateWizard_->numberOfPoints();
+	const QList<QPointF*>* pointList = samplePlateWizard_->getPointList();
+	int numberOfPoints = samplePlateWizard_->numberOfPoints();
 	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
 	/// it also expects the order to be toplefta,topleftb,etc
-        if((pointList->count() - numberOfPoints - 1)%numberOfPoints  != 0)
+	if((pointList->count() - numberOfPoints - 1)%numberOfPoints  != 0)
 	{
 		qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid number of points. ";
 		return;
 	}
-        // have a list divided into numberOfPoints sections, want to change it into one list that
-        // interleaves the three sections ex:
-        // "pointList" is 0abcd0efgh0ijkl0
-        // "combinedePoints" is aeibfjcgkdhl
-        QList<QPointF> *list = new QList<QPointF>[numberOfPoints];
+	int pointsPerSample = (pointList->count() - numberOfPoints -1)/numberOfPoints;
+	// have a list divided into numberOfPoints sections, want to change it into one list that
+	// interleaves the three sections ex:
+	// "pointList" is 0abcd0efgh0ijkl0
+	// "combinedPoints" is aeibfjcgkdhl
+	QList<QPointF> *list = new QList<QPointF>[numberOfPoints];
 	QVector<QPointF> combinedPoints;
-        // first strip off the first 0
-        if(*pointList->first() == QPointF(0,0))
-        {
-            if(!pointList->isEmpty())
-            {
-                pointList->removeFirst();
-            }
-            else
-            {
-                qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
-            }
-        }
-        else
-        {
-            qDebug()<<"AMSampleCameraView::samplePlateCreate - unexpected first value of list";
-        }
-        for(int i = 0; i < numberOfPoints; i++)
-        {
-            while(*pointList->first() != QPointF(0,0))
-            {
-                if(!pointList->isEmpty())
-                {
-                    list[i].append(*pointList->takeFirst());
-                }
-                else
-                {
-                    qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
-                }
-            }
-            if(!pointList->isEmpty())
-            {
-                pointList->removeFirst();
-            }
-            else
-            {
-                qDebug()<<"AMSampleCameraView::samplePlateCreate - list unexpectedly empty";
-            }
-        }
+	int index = 0;
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		for(int j = 0; j < pointsPerSample; j++)
+		{
+			/// get each section into its own list
+			index = (numberOfPoints+1)*i+1+j;
+			if(index >= pointList->size() || index < 0)
+			{
+				qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid sample index"<<index;
+				return;
+			}
+			list[i].append(*pointList->at(index));
+		}
+	}
 
-
-
-        while(!samplePointListEmpty(list,numberOfPoints))
+	/// interleave the created lists
+	while(!samplePointListEmpty(list,numberOfPoints))
 	{
             for(int i = 0; i < numberOfPoints; i++)
             {
@@ -716,17 +693,16 @@ void AMSampleCameraView::samplePlateCreate()
                     qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
                 }
             }
-
 	}
 
-	QList<QVector3D*>* coordinateList = samplePlateWizard_->coordinateList();
+	const QList<QVector3D*>* coordinateList = samplePlateWizard_->getCoordinateList();
 	QVector<QVector3D> sampleCoordinateList;
 	foreach(QVector3D* coordinate, *coordinateList)
 	{
 		sampleCoordinateList<<*coordinate;
 	}
 
-		QList<double> *rotationsList = samplePlateWizard_->rotations();
+		const QList<double> *rotationsList = samplePlateWizard_->getRotationList();
 		QVector<double> rotations;
 		foreach(double angle, *rotationsList)
 		{
@@ -739,9 +715,9 @@ void AMSampleCameraView::samplePlateCreate()
 void AMSampleCameraView::rotationConfiguration()
 {
 	qDebug()<<"Calling configure rotation";
-	QList<QPointF*> pointList = *rotationWizard_->pointList();
-	QList<QVector3D*> coordinateList = *rotationWizard_->coordinateList();
-	QList<double> rotationList = *rotationWizard_->rotations();
+	QList<QPointF*> pointList = *rotationWizard_->getPointList();
+	QList<QVector3D*> coordinateList = *rotationWizard_->getCoordinateList();
+	QList<double> rotationList = *rotationWizard_->getRotationList();
 	int numberOfPoints = rotationWizard_->numberOfPoints();
 	QVector<QVector3D> coordinates;
 	QVector<QPointF> points;
@@ -1023,14 +999,14 @@ void AMSampleCameraView::setDrawOnShapeEnabled(bool enable)
 void AMSampleCameraView::reviewCameraConfiguration()
 {
 	bool review = false;
-	QList<QPointF*>* pointList = cameraWizard_->pointList();
+	const QList<QPointF*>* pointList = cameraWizard_->getPointList();
 	foreach(QPointF* point, *pointList)
 	{
 		if(*point != QPointF(0,0))
 			review = true;
 	}
 
-	QList<QVector3D*>* coordinateList = cameraWizard_->coordinateList();
+	const QList<QVector3D*>* coordinateList = cameraWizard_->getCoordinateList();
 	QPointF positions[SAMPLEPOINTS];
 	QVector3D coordinates[SAMPLEPOINTS];
 	if(review)

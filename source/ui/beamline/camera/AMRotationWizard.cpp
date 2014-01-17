@@ -9,45 +9,47 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 {
 	/// need only two points to calculate since the first one (rotation == 0) is inherently known
 	setNumberOfPoints(2);
-	showOptionPage_ = false;
+	setNumberOfPages(numberOfPoints());
+	setFreePage(Page_Free);
 	/// allow rotation during wizard operation
 	setRotationEnabled(true);
-	coordinateList_->clear();
-	rotations_->clear();
 	/// place two zero coordinates in the list
-	coordinateList_->append(new QVector3D(0,0,0));
-	coordinateList_->append(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,0,0));
 
 	/// add some rotations
-	rotations_->append(15);
-	rotations_->append(30);
+	rotationsAppend(15);
+	rotationsAppend(30);
+
+
+	pointListAppend(new QPointF(0,0));
+	pointListAppend(new QPointF(0,0));
 
 	setPage(Page_Intro, new AMWizardPage);
 	setPage(Page_Check, new AMRotationCheckPage);
 	setPage(Page_Option, new AMWizardOptionPage);
 	setPage(Page_Final, new AMWizardPage);
-	setPage(Page_Set_One, new AMRotationSetPage);
-	setPage(Page_Set_Two, new AMRotationSetPage);
-	setPage(Page_Wait_One, new AMRotationWaitPage);
-	setPage(Page_Wait_Two, new AMRotationWaitPage);
+	for(int i = 0; i < numberOfPages(); i++)
+	{
+		setPage(pageSet(i), new AMRotationSetPage);
+		setPage(pageWait(i), new AMRotationWaitPage);
+	}
+
 
 	setStartId(Page_Intro);
-	setOption(HaveHelpButton, true);
-	connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
-	setWindowTitle(message(Wizard_Title));
+	setHasHelpButton(true);
+	setDefaultWindowTitle();
 
 
 	/// need to disconnect and reconnect buttons to override functionality properly
-
+	// can this go in base class?
 	disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 	connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
 	setMinimumSize(600,600);
 
 	addOptionPage(Page_Intro);
-	pointList_->clear();
-	pointList_->append(new QPointF(0,0));
-	pointList_->append(new QPointF(0,0));
+
 
 }
 
@@ -57,7 +59,8 @@ AMRotationWizard::~AMRotationWizard()
 
 int AMRotationWizard::nextId() const
 {
-	switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
 	{
 	case Page_Intro:
 		if(showOptionPage())
@@ -66,51 +69,63 @@ int AMRotationWizard::nextId() const
 			return Page_Check;
 	case Page_Check:
 		if(checked(Page_Check))
-			return -1;
+			return FINISHED;
 		else
-			return Page_Wait_One;
+			return pageWait(0);
 	case Page_Final:
-		return -1;
-	case Page_Set_One:
-		return Page_Wait_Two;
-	case Page_Set_Two:
-		return Page_Final;
-	case Page_Wait_One:
-//		((AMRotationSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
-		return Page_Set_One;
-	case Page_Wait_Two:
-//		((AMRotationSetPage*)page(Page_Set_One))->disconnectMouseSignal();
-		return Page_Set_Two;
+		return FINISHED;
 	default:
-		return -1;
+		int id = relativeId();
+		if(isSetPage(pageId))
+		{
+			if(id == numberOfPages() - 1)
+			{
+				return Page_Final;
+			}
+			else
+			{
+				return pageWait(id+1);
+			}
+		}
+		else if(isWaitPage(pageId))
+		{
+			//		((AMRotationSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
+			return pageSet(id);
+		}
+		else
+		{
+			return FINISHED;
+		}
+
 	}
 }
 
 void AMRotationWizard::waitPage()
 {
-	emit moveTo(*coordinateList()->at(relativeId()-1),rotations_->at(relativeId()-1));
+	emit moveTo(*coordinateList()->at(relativeId()),rotations()->at(relativeId()));
 }
 
-int AMRotationWizard::relativeId()
-{
-	switch(currentId())
-	{
-	case Page_Set_One:
-	case Page_Wait_One:
-		return 1;
-	case Page_Set_Two:
-	case Page_Wait_Two:
-		return 2;
-	default:
-		return 0;
-	}
-}
+//int AMRotationWizard::relativeId()
+//{
+//	switch(currentId())
+//	{
+//	case Page_Set_One:
+//	case Page_Wait_One:
+//		return 0;
+//	case Page_Set_Two:
+//	case Page_Wait_Two:
+//		return 1;
+//	default:
+//		return -1;
+//	}
+//}
 
 QString AMRotationWizard::message(int type)
 {
 	if(type == Wizard_Title) return QString(tr("Rotation Wizard"));
 	else if(type == Help_Title) return QString(tr("Help"));
-	switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
 	{
 	case Page_Intro:
 		switch(type)
@@ -119,7 +134,7 @@ QString AMRotationWizard::message(int type)
 			return QString(tr("Centre of Rotation Configuration Wizard"));
 		case Text:
 			return QString(tr("This wizard is used to determine the centre of rotaiton of")
-						   +tr(" the sample plate.  This is required for accurate tracking when rotation occur."));
+						   +tr(" the sample plate.  This is required for accurate tracking when rotations occur."));
 		case Help:
 			return QString(tr("Rotation Wizard intro page help message"));
 		case Other:
@@ -166,77 +181,83 @@ QString AMRotationWizard::message(int type)
 		default:
 			return QString(tr("Error - final page - unknown message type"));
 		}
-	case Page_Set_One:
-	case Page_Set_Two:
-		switch(type)
-		{
-		case Title:
-		case Text:
-		case Help:
-		case Other:
-		case Default:
-		default:
-			return QString(tr("Error - set page - unknown message type"));
-		}
-	case Page_Wait_One:
-	case Page_Wait_Two:
-		switch(type)
-		{
-		case Title:
-		case Text:
-		case Help:
-		case Other:
-		case Default:
-		default:
-			return QString(tr("Error - wait page - unknown message type"));
-		}
 	default:
-		return QString(tr("Error - unknown page"));
+		if(isSetPage(pageId))
+		{
+			switch(type)
+			{
+			case Title:
+			case Text:
+			case Help:
+			case Other:
+			case Default:
+			default:
+				return QString(tr("Error - set page - unknown message type"));
+			}
+		}
+		else if(isWaitPage(pageId))
+		{
+			switch(type)
+			{
+			case Title:
+			case Text:
+			case Help:
+			case Other:
+			case Default:
+			default:
+				return QString(tr("Error - wait page - unknown message type"));
+			}
+		}
+		else
+		{
+			return QString(tr("Error - unknown page"));
+		}
 	}
 }
 
 void AMRotationWizard::back()
 {
 	int id = currentId();
-	switch(id)
+	if(isWaitPage(id))
 	{
-	case Page_Wait_One:
 		((AMRotationWaitPage*)page(id))->stopTimer();
 		QWizard::back();
-		cleanupPage(Page_Check);
-		initializePage(Page_Check);
-		break;
-	case Page_Wait_Two:
-		((AMRotationWaitPage*)page(id))->stopTimer();
-		QWizard::back();
-		break;
-	case Page_Set_One:
-		while(currentId() != Page_Check) QWizard::back();
-		if(currentId() == Page_Check)
+		if(relativeId() == 0)
 		{
 			cleanupPage(Page_Check);
 			initializePage(Page_Check);
 		}
-		break;
-	case Page_Set_Two:
-		while(currentId() != Page_Wait_One) QWizard::back();
-		if(currentId() == Page_Wait_One)
+	}
+	else if(isSetPage(id))
+	{
+		int prevId = pageWait(relativeId()-1);
+		if(relativeId() == 0)
 		{
-			initializePage(Page_Wait_One);
+			prevId = Page_Check;
 		}
-		break;
-	default:
+		while(currentId() != prevId) QWizard::back();
+		if(currentId() == prevId)
+		{
+			if(relativeId() == 0)
+			{
+				cleanupPage(prevId);
+			}
+			initializePage(prevId);
+		}
+	}
+	else
+	{
 		QWizard::back();
 	}
 }
 
 void AMRotationWizard::addPoint(QPointF position)
 {
-	int index = relativeId() -1;
+	int index = relativeId();
 	QPointF* newPoint;
 	if(index >= 0)
 	{
-		newPoint = pointList_->at(index);
+		newPoint = pointList()->at(index);
 		QPointF newPosition = mapPointToVideo(position);
 		*newPoint = newPosition;
 		next();

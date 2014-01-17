@@ -137,7 +137,7 @@ int AMSamplePlateWizard::nextId() const
 
 void AMSamplePlateWizard::waitPage()
 {
-	emit moveTo(*coordinateList()->at(relativeId()),rotations_->at(relativeId()));
+	emit moveTo(*coordinateList()->at(relativeId()),rotations()->at(relativeId()));
 }
 
 //int AMSamplePlateWizard::relativeId()
@@ -372,11 +372,11 @@ void AMSamplePlateWizard::addPoint(QPointF position)
         /// Must keep track of which points are from which page.
         /// Pad the list with QPointF(0,0) seperators
         /// list will go (0,0),...page1...,(0,0),...page2...,(0,0)...etc...,...finalpage...,(0,0)
-        if(pointList_->isEmpty())
+		if(pointList()->isEmpty())
         {
 			for(int i = 0; i < numberOfPages() + 1; i ++)
             {
-                pointList_->append(new QPointF(0,0));
+				pointListAppend(new QPointF(0,0));
             }
         }
         if(*newPoint == QPointF(0,0))
@@ -386,15 +386,15 @@ void AMSamplePlateWizard::addPoint(QPointF position)
         int count = 0;
         int index = 0;
 		/// need to count 2 sets of zero for page one, 3 for page two, etc.
-		for(int i = 0; count < pageId+2 && i < pointList_->count(); i++)
+		for(int i = 0; count < pageId+2 && i < pointList()->count(); i++)
         {
-            if(*pointList_->at(i) == QPointF(0,0))
+			if(*pointList()->at(i) == QPointF(0,0))
             {
                 count++;
             }
             index = i;
         }
-        pointList_->insert(index,newPoint);
+		pointList()->insert(index,newPoint);
         defaultPen = getDefaultPen();
 
 	QRectF rectangle(view()->mapVideoToScene(*newPoint), defaultSize); /// need to map new point to the actual screen position
@@ -404,7 +404,7 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 
 	((AMSampleSetPage*)currentPage())->insertPoint(newPoint);
 	qDebug()<<"AMSamplePlateWizard::addPoint - points";
-	foreach(QPointF* point, *pointList_)
+	foreach(QPointF* point, *pointList())
 	{
 		qDebug()<<*point;
 	}
@@ -430,9 +430,9 @@ QPen AMSamplePlateWizard::getDefaultPen()
 
 void AMSamplePlateWizard::removePoint(QPointF *point)
 {
-	if(pointList_->contains(point))
+	if(pointList()->contains(point))
 	{
-		pointList_->removeAll(point);
+		pointList()->removeAll(point);
 		/// get rid of the drawing of the point.
 		foreach(QGraphicsRectItem* rect, samplePointShapes_)
 		{

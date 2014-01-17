@@ -1666,6 +1666,7 @@ void AMSampleCamera::configureRotation(QVector<QVector3D> coordinates, QVector<Q
 
 	QVector3D centreOfRotation = QVector3D(solution(0),solution(1),solution(2));
 	qDebug()<<centreOfRotation;
+	rotationalOffset_ = centreOfRotation;
 
 }
 

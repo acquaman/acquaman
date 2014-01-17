@@ -50,18 +50,17 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 
 	for(int i = 0; i < numberOfPoints(); i++)
     {
-        pointList_->append(new QPointF(0,0));
+		pointListAppend(new QPointF(0,0));
     }
 
     topLeft_ = true;
 
-    coordinateList_->clear();
-    coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,-1,0));
-    coordinateList_->append(new QVector3D(0,1,0));
-    coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,-1,0));
-    coordinateList_->append(new QVector3D(0,1,0));
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,-1,0));
+	coordinateListAppend(new QVector3D(0,1,0));
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,-1,0));
+	coordinateListAppend(new QVector3D(0,1,0));
 
 
     addOptionPage(Page_Intro);
@@ -299,13 +298,13 @@ void AMBeamConfigurationWizard::addPoint(QPointF position)
 
     if(topLeft_)
     {
-        newPoint = (*pointList_)[2*(index)];
+		newPoint = (*pointList())[2*(index)];
         connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
         topLeft_ = !topLeft_;
     }
     else
     {
-        newPoint = (*pointList_)[2*(index) + 1];
+		newPoint = (*pointList())[2*(index) + 1];
     }
 
     *newPoint = mapPointToVideo(position);

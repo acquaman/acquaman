@@ -345,6 +345,17 @@ void AMGraphicsViewWizard::testMoveSlot()
     emit moveSucceeded();
 }
 
+void AMGraphicsViewWizard::setHasHelpButton(bool hasHelp)
+{
+	setOption(HaveHelpButton, hasHelp);
+	connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
+}
+
+void AMGraphicsViewWizard::setDefaultWindowTitle()
+{
+	QWizard::setWindowTitle(message(Wizard_Title));
+}
+
 void AMGraphicsViewWizard::showOptions(int id)
 {
     if(id == CustomButton1)
@@ -446,6 +457,11 @@ void AMGraphicsViewWizard::coordinateListAppend(QVector3D *coordinate)
 	coordinateList_->append(coordinate);
 }
 
+void AMGraphicsViewWizard::pointListAppend(QPointF *point)
+{
+	pointList_->append(point);
+}
+
 void AMGraphicsViewWizard::rotationsAppend(double rotation)
 {
 	rotations_->append(rotation);
@@ -529,6 +545,21 @@ bool AMGraphicsViewWizard::isSetPage(int pageNumber) const
 bool AMGraphicsViewWizard::rotationEnabled() const
 {
 	return rotationEnabled_;
+}
+
+const QList<QVector3D *> *AMGraphicsViewWizard::getCoordinateList() const
+{
+	return coordinateList();
+}
+
+const QList<QPointF *> *AMGraphicsViewWizard::getPointList() const
+{
+	return pointList();
+}
+
+const QList<double> *AMGraphicsViewWizard::getRotationList() const
+{
+	return rotations();
 }
 
 void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
@@ -797,15 +828,15 @@ void AMWizardOptionPage::initializePage()
 
     for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
     {
-		coordinateEdit_[numberOfDimensions*i+X]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->x()));
+		coordinateEdit_[numberOfDimensions*i+X]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->x()));
 		connect(coordinateEdit_[numberOfDimensions*i+X], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-		coordinateEdit_[numberOfDimensions*i+Y]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->y()));
+		coordinateEdit_[numberOfDimensions*i+Y]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->y()));
 		connect(coordinateEdit_[numberOfDimensions*i+Y], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-		coordinateEdit_[numberOfDimensions*i+Z]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->z()));
+		coordinateEdit_[numberOfDimensions*i+Z]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->z()));
 		connect(coordinateEdit_[numberOfDimensions*i+Z], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
 		if(viewWizard()->rotationEnabled())
 		{
-			coordinateEdit_[numberOfDimensions*i+ROTATION]->setText(QString("%1").arg(viewWizard()->rotations()->at(i)));
+			coordinateEdit_[numberOfDimensions*i+ROTATION]->setText(QString("%1").arg(viewWizard()->getRotationList()->at(i)));
 			connect(coordinateEdit_[numberOfDimensions*i+ROTATION], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
 		}
     }
@@ -857,6 +888,8 @@ void AMWizardOptionPage::textChanged()
 
 
 }
+
+
 
 
 

@@ -14,17 +14,14 @@ public:
 		Page_Check,
 		Page_Final,
 		Page_Option,
-		Page_Set_One,
-		Page_Set_Two,
-		Page_Wait_One,
-		Page_Wait_Two
+		Page_Free
 	};
 	AMRotationWizard(QWidget* parent = 0);
 	virtual ~AMRotationWizard();
 	int nextId() const;
 
 	void waitPage();
-	int relativeId();
+//	int relativeId();
 
 	virtual QString message(int type);
 
