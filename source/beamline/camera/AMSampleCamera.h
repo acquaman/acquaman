@@ -622,9 +622,9 @@ protected:
 	double degreesToRadians(double degrees);
 	double radiansToDegrees(double radians);
 	/// computes the SVD least squares solution
-	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide);
+	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
 	/// computes the SVD homogenous solution for the largest singular value
-	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide);
+	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 protected:
 
 	/// Members

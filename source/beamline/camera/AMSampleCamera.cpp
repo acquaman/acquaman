@@ -3078,7 +3078,7 @@ MatrixXd AMSampleCamera::solveCentreOfRotationMatrix(MatrixXd coeffMatrix, Matri
 		qDebug()<<"AMSampleCamera::solveCentreOfRotationMatrix - Cannot solve, rows of matrices do not match";
 	}
 
-	MatrixXd solution = computeSVDLeastSquares(coeffMatrx,coordinateMatrix);
+	MatrixXd solution = computeSVDLeastSquares(coeffMatrix,coordinateMatrix);
 	return solution;
 }
 
@@ -3092,12 +3092,12 @@ double AMSampleCamera::radiansToDegrees(double radians)
 	return radians*180.0/M_PI;
 }
 
-MatrixXd AMSampleCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y)
+MatrixXd AMSampleCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 {
 	return camera_->computeSVDLeastSquares(A,Y);
 }
 
-MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide)
+MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	// solution is first column of V matrix - solution for maximum singular value of m
 	return camera_->computeSVDHomogenous(leftHandSide);

@@ -59,8 +59,8 @@ public:
     QPointF undistortPoint(QPointF point) const;
 
 	// general functions
-	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide);
-	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide);
+	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
+	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 
 signals:
     void configurationChanged(AMCameraConfiguration*);

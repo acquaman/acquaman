@@ -21,7 +21,6 @@ public:
 	int nextId() const;
 
 	void waitPage();
-//	int relativeId();
 
 	virtual QString message(int type);
 

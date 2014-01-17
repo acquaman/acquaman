@@ -105,20 +105,6 @@ void AMRotationWizard::waitPage()
 	emit moveTo(*coordinateList()->at(relativeId()),rotations()->at(relativeId()));
 }
 
-//int AMRotationWizard::relativeId()
-//{
-//	switch(currentId())
-//	{
-//	case Page_Set_One:
-//	case Page_Wait_One:
-//		return 0;
-//	case Page_Set_Two:
-//	case Page_Wait_Two:
-//		return 1;
-//	default:
-//		return -1;
-//	}
-//}
 
 QString AMRotationWizard::message(int type)
 {
@@ -163,7 +149,11 @@ QString AMRotationWizard::message(int type)
 		switch(type)
 		{
 		case Title:
+			return QString(tr("Rotation Coordinates"));
 		case Text:
+			return QString(tr("Set the coordinates to use in the rotation calibration.")
+						   +tr("The x y and z coordinates should be left at zero, only the rotation ")
+						   +tr("should be adjusted"));
 		case Help:
 		case Other:
 		case Default:
@@ -174,7 +164,9 @@ QString AMRotationWizard::message(int type)
 		switch(type)
 		{
 		case Title:
+			return QString(tr("Finished"));
 		case Text:
+			return QString(tr("Rotation calibration is now complete."));
 		case Help:
 		case Other:
 		case Default:
@@ -187,6 +179,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
+				return QString(tr("Select Page %d ").arg(relativeId()));
 			case Text:
 			case Help:
 			case Other:
@@ -200,6 +193,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
+				return QString(tr("Wait Page %d").arg(relativeId()));
 			case Text:
 			case Help:
 			case Other:

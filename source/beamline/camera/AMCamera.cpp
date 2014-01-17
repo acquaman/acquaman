@@ -596,7 +596,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 	return newPoint;
 }
 
-MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y)
+MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 {
 	/// solves Ax = Y for x
 	JacobiSVD<MatrixXd> solver(A);
@@ -605,11 +605,11 @@ MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y)
 	return x;
 }
 
-MatrixXd AMCamera::computeSVDHomogenous(MatrixXd leftHandSide)
+MatrixXd AMCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	JacobiSVD<MatrixXd> solver(leftHandSide, ComputeThinV|ComputeThinU);
 	solver.compute(leftHandSide, ComputeThinU|ComputeThinV);
-	MatrixXd vMatrix = sovler.matrixV();
+	MatrixXd vMatrix = solver.matrixV();
 	MatrixXd solution = vMatrix.col(0);
 	return solution;
 }
@@ -689,9 +689,10 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     centrePointTwo<<0,0,100;
 
 	// solve for center point using qr and svd
+
     MatrixXd centreCoordinateOne = matrixP.colPivHouseholderQr().solve(centrePointOne);
-    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
-    MatrixXd centreCoordinateTwo = svdOfMatrixP.solve(centrePointTwo);
+//    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+	MatrixXd centreCoordinateTwo = computeSVDLeastSquares(matrixP,centrePointTwo);//svdOfMatrixP.solve(centrePointTwo);
 	// normalize the coordinates ([X Y Z 1]T)
     centreCoordinateOne /= centreCoordinateOne(3,0);
     centreCoordinateTwo /= centreCoordinateTwo(3,0);
