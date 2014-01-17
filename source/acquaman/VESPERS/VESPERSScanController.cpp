@@ -137,7 +137,7 @@ AMAction3 *VESPERSScanController::buildCleanupAction(bool usingMono)
 
 		AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
 		stage3->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-//		stage3->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
+		stage3->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
 	}
 
 	return cleanup;

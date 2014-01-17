@@ -886,13 +886,66 @@ protected:
 	// The energy setpoint control.
 	AMControl *energySetpointControl_;
 
+	// Extra controls.
+	AMControl *singleElementVortexDeadTimeControl_;
+	AMControl *singleElementVortexRealTimeControl_;
+	AMControl *singleElementVortexLiveTimeControl_;
+	AMControl *singleElementVortexFastPeaksControl_;
+	AMControl *singleElementVortexSlowPeaksControl_;
+	AMControl *fourElementVortexDeadTime1Control_;
+	AMControl *fourElementVortexDeadTime2Control_;
+	AMControl *fourElementVortexDeadTime3Control_;
+	AMControl *fourElementVortexDeadTime4Control_;
+	AMControl *fourElementVortexRealTime1Control_;
+	AMControl *fourElementVortexRealTime2Control_;
+	AMControl *fourElementVortexRealTime3Control_;
+	AMControl *fourElementVortexRealTime4Control_;
+	AMControl *fourElementVortexLiveTime1Control_;
+	AMControl *fourElementVortexLiveTime2Control_;
+	AMControl *fourElementVortexLiveTime3Control_;
+	AMControl *fourElementVortexLiveTime4Control_;
+	AMControl *fourElementVortexFastPeaks1Control_;
+	AMControl *fourElementVortexFastPeaks2Control_;
+	AMControl *fourElementVortexFastPeaks3Control_;
+	AMControl *fourElementVortexFastPeaks4Control_;
+	AMControl *fourElementVortexSlowPeaks1Control_;
+	AMControl *fourElementVortexSlowPeaks2Control_;
+	AMControl *fourElementVortexSlowPeaks3Control_;
+	AMControl *fourElementVortexSlowPeaks4Control_;
+
 	// Extra AMDetectors for the various single controls added to scans.
 	AMDetector *energySetpointDetector_;
+	AMDetector *kEnergyDetector_;
 	AMDetector *masterDwellTimeDetector_;
 	AMDetector *ringCurrentDetector_;
 	AMDetector *roperCCDFileNumberDetector_;
 	AMDetector *marCCDFileNumberDetector_;
 	AMDetector *pilatusCCDFileNumberDetector_;
+	AMDetector *singleElementVortexDeadTime_;
+	AMDetector *singleElementVortexRealTime_;
+	AMDetector *singleElementVortexLiveTime_;
+	AMDetector *singleElementVortexFastPeaks_;
+	AMDetector *singleElementVortexSlowPeaks_;
+	AMDetector *fourElementVortexDeadTime1_;
+	AMDetector *fourElementVortexDeadTime2_;
+	AMDetector *fourElementVortexDeadTime3_;
+	AMDetector *fourElementVortexDeadTime4_;
+	AMDetector *fourElementVortexRealTime1_;
+	AMDetector *fourElementVortexRealTime2_;
+	AMDetector *fourElementVortexRealTime3_;
+	AMDetector *fourElementVortexRealTime4_;
+	AMDetector *fourElementVortexLiveTime1_;
+	AMDetector *fourElementVortexLiveTime2_;
+	AMDetector *fourElementVortexLiveTime3_;
+	AMDetector *fourElementVortexLiveTime4_;
+	AMDetector *fourElementVortexFastPeaks1_;
+	AMDetector *fourElementVortexFastPeaks2_;
+	AMDetector *fourElementVortexFastPeaks3_;
+	AMDetector *fourElementVortexFastPeaks4_;
+	AMDetector *fourElementVortexSlowPeaks1_;
+	AMDetector *fourElementVortexSlowPeaks2_;
+	AMDetector *fourElementVortexSlowPeaks3_;
+	AMDetector *fourElementVortexSlowPeaks4_;
 };
 
 #endif // VESPERSBEAMLINE_H

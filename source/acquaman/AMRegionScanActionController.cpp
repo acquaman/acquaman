@@ -107,7 +107,7 @@ void AMRegionScanActionController::buildScanController()
 		fileWriterThread_->start();
 
 		// Get all the detectors added to the scan.
-		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size && !has1DDetectors; i++){
+		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
 
 			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
