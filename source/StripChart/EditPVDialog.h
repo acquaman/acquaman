@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QtGui>
 
+#include "MPlot/MPlotAxisScale.h"
+
 /// This is a dialog that pops up when the user indicates they want to edit a single/group of pvs. The pvs to edit are displayed, then space is provided for new description, points, unit to be entered. The entered values are applied to all selected pvs.
 
 class EditPVDialog : public QDialog
@@ -18,10 +20,6 @@ public:
 signals:
     void restoreSelectedDefaults();
 
-//public:
-//    void updateCurrentDisplayMax(double newMax);
-//    void updateCurrentDisplayMin(double newMin);
-
 private:
     QString description_;
     bool descriptionChanged_;
@@ -31,7 +29,7 @@ private:
     bool unitsChanged_;
     QLineEdit *unitsEntry_;
 
-    int gran_;
+    QString gran_;
     bool granChanged_;
     QLineEdit *granularityEntry_;
 
@@ -51,9 +49,9 @@ private:
     QLabel *currentDisplayMin_;
     QCheckBox *automaticMin_;
 
-//    double waterfallAmnt_;
-//    bool waterfallChanged_;
-//    QDoubleSpinBox *waterfallEntry_;
+    QString shiftAmount_;
+    bool shiftAmountChanged_;
+    QLineEdit *shiftAmountEntry_;
 
     QPushButton *okButton_;
     QPushButton *cancelButton_;
@@ -68,7 +66,7 @@ protected:
     QString units();
     bool unitsChanged();
 
-    int granularity();
+    QString granularity();
     bool granularityChanged();
 
     QString color();
@@ -80,8 +78,8 @@ protected:
     QString displayMin();
     bool displayMinChanged();
 
-//    double waterfall();
-//    bool waterfallChanged();
+    QString shiftAmount();
+    bool shiftAmountChanged();
 
 protected slots:
     /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
@@ -93,7 +91,7 @@ protected slots:
     void colorEntered(const QString &newColor);
     void displayMaxEntered(const QString &max);
     void displayMinEntered(const QString &min);
-//    void waterfallEntered(double newPercent);
+    void shiftAmountEntered(const QString &shift);
 
     void automaticDisplayMaxChanged(Qt::CheckState checkState);
     void automaticDisplayMinChanged(Qt::CheckState checkState);
@@ -102,8 +100,10 @@ protected slots:
     void toClearMaxEntry(int checkState);
     void toClearMinEntry(int checkState);
 
-    void toUpdateDataMax(double currentMax);
-    void toUpdateDataMin(double currentMin);
+    void toUpdateDataRange(MPlotAxisRange *newRange);
+
+//    void toUpdateDataMax(double currentMax);
+//    void toUpdateDataMin(double currentMin);
     
 };
 

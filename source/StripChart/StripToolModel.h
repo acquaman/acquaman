@@ -28,7 +28,7 @@ signals:
     void modelSelectionChange();
 //    void pvValid(bool isValid);
     void pvUpdating(const QModelIndex &index, bool isUpdating);
-    void forceUpdatePVs(const QString &updatedName);
+//    void forceUpdatePVs(const QString &updatedName);
     void updateTime(int newTime);
     void updateTimeUnits(const QString &newUnits);
     void updateXAxisLabel(const QString &newUnits);
@@ -36,12 +36,14 @@ signals:
 //    void updateYAxisLabel(const QString &newLabel);
 //    void updateWaterfall(double newWaterfall);
 //    void selectedWaterfall(double selectedWaterfall);
-    void updateSelectedDataMax(double newMax);
-    void updateSelectedDataMin(double newMin);
+    void selectedDataMaxChanged(double newMax);
+    void selectedDataMinChanged(double newMin);
+    void selectedCustomDataMaxChanged(double newMax);
+    void selectedCustomDataMinChanged(double newMin);
 //    void applyLeftAxisScaleShift(double shiftAmount);
 //    void applyDefaultYAxisScale(bool applyDefault);
-
     void selectedPVDataRangeChanged(MPlotAxisRange *newRange);
+    void selectedPVDisplayRangeChanged(MPlotAxisRange *newRange);
     void selectedPVAxisLabelChanged(const QString &newLabel);
     void selectedPVOffsetChanged(double offset);
     void waterfallChanged(double newWaterfall);
@@ -108,6 +110,9 @@ protected:
     void setSelectedPV(StripToolPV *newSelection);
 //    bool setSelectedWaterfall(double newWaterfall);
 
+    void deselectPV();
+    void selectPV(StripToolPV *newSelection);
+
 protected slots:
     void toAddPV(const QString &pvName);
     void onPVConnected(QObject *itemConnected);
@@ -136,12 +141,13 @@ protected slots:
 
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
-    void onSinglePVUpdated(QObject *updatedPV);
+//    void onSinglePVUpdated(QObject *updatedPV);
 //    void toForceAllPVsUpdate();
 //    void toRestartUpdateIntervalTimer();
 
     void toTestSignal(const QString &signalText);
     void toTestDoubleSignal(double val);
+    void toTestRangeSignal(MPlotAxisRange* newRange);
 
 //    void onSelectedPVUpdated();
 

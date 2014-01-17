@@ -22,6 +22,8 @@ StripToolPV::StripToolPV(QObject *parent)
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
+    shiftAmount_ = 0.0;
+
     maxTimeBetweenUpdates_ = 1500; // ms
 
     updateIntervalTimer_ = new QTimer(this);
@@ -36,21 +38,11 @@ StripToolPV::StripToolPV(QObject *parent)
     masterUpdateTimes_ = QVector<QTime>(dataVectorSize_);
     masterUpdateValues_ = QVector<double>(dataVectorSize_);
 
-    defaultDisplayedYMin_ = 0.0; // this will always be updated to reflect the min/max of the pv's displayed values!
-    defaultDisplayedYMax_ = 1.0;
-
-    defaultYMaxDisplayed_ = true;
-    defaultYMinDisplayed_ = true;
-
-
-    customDisplayedYMin_ = ""; // if not using the defaultYMin/MaxDisplayed, the user can specify a range they would like to view.
-    customDisplayedYMax_ = "";
-
     pvControl_ = 0;
 
     pvData_ = new MPlotVectorSeriesData();
 
-    pvSeries_ = new MPlotSeriesBasic();
+    pvSeries_ = new StripToolSeries();
     pvSeries_->setModel(pvData_);
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
@@ -61,9 +53,10 @@ StripToolPV::StripToolPV(QObject *parent)
     setMetaDataHeaders();
 
     // we can force the master times and values lists to update with the most recent value (say if we wanted all pvs to have roughly the same number of points displayed) by emitting this pv's forceUpdate signal. See 'toForceUpdateValue' slot.
-//    connect( this, SIGNAL(forceUpdate(double)), this, SLOT(onPVValueChanged(double)) );
     connect( this, SIGNAL(manuallyUpdatePV(double)), this, SLOT(onPVValueChanged(double)) );
+    connect( this, SIGNAL(shiftAmountChanged(double)), this, SLOT(toApplySeriesTransform(double)) );
 
+    connect( this, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(onDisplayRangeChanged(MPlotAxisRange*)) );
 }
 
 
@@ -123,22 +116,47 @@ int StripToolPV::updateGranularity()
 
 
 
+QString StripToolPV::customDisplayedYMax()
+{
+    if (series()->customMaxDefined()) {
+        return QString::number(series()->customMax());
+
+    } else {
+        return "";
+    }
+}
+
+
+
+QString StripToolPV::customDisplayedYMin()
+{
+    if (series()->customMinDefined()) {
+        return QString::number(series()->customMin());
+
+    } else {
+        return "";
+    }
+}
+
+
+
 double StripToolPV::displayedYMin()
 {
-    if (defaultYMinDisplayed_)
-        return defaultDisplayedYMin_;
-    else
-        return customDisplayedYMin_.toDouble();
+    return series()->displayedMin();
 }
 
 
 
 double StripToolPV::displayedYMax()
 {
-    if (defaultYMaxDisplayed_)
-        return defaultDisplayedYMax_;
-    else
-        return customDisplayedYMax_.toDouble();
+    return series()->displayedMax();
+}
+
+
+
+double StripToolPV::shiftAmount()
+{
+    return shiftAmount_;
 }
 
 
@@ -170,7 +188,7 @@ MPlotVectorSeriesData* StripToolPV::data()
 
 
 
-MPlotSeriesBasic* StripToolPV::series()
+StripToolSeries* StripToolPV::series()
 {
     return pvSeries_;
 }
@@ -195,7 +213,7 @@ QVector<QString> StripToolPV::saveMasterTimes()
     if (masterUpdateTimes_.size() != masterUpdateValues_.size())
     {
         amount = 0;
-        qDebug() << "The number of time entries do not match the number of data points for : " << pvName();
+        qDebug() << "StripToolPV :: The number of time entries do not match the number of data points for : " << pvName();
 
     } else {
 
@@ -290,10 +308,11 @@ QList<QString> StripToolPV::editPVDialogData()
     editPVData << yUnits();
     editPVData << QString::number(updateGranularity());
     editPVData << color().name();
-    editPVData << customDisplayedYMax_;
-    editPVData << customDisplayedYMin_;
+    editPVData << customDisplayedYMax();
+    editPVData << customDisplayedYMin();
+    editPVData << QString::number(shiftAmount_);
 
-    qDebug() << "PV information to be displayed in EditPVDialog : " << editPVData;
+    qDebug() << "StripToolPV :: PV information to be displayed in EditPVDialog : " << editPVData;
 
 
     return editPVData;
@@ -303,17 +322,17 @@ QList<QString> StripToolPV::editPVDialogData()
 
 bool StripToolPV::setMetaData(QList<QString> metaData)
 {
-    qDebug() << "Attempting to set meta data for pv named" << metaData.at(0);
+    qDebug() << "StripToolPV :: Attempting to set meta data for pv named" << metaData.at(0);
 
     if (metaData.at(0) != pvName())
     {
-        qDebug() << "The meta data name" << metaData.at(0) << "and pv name" << pvName() << "don't match!";
+        qDebug() << "StripToolPV :: The meta data name" << metaData.at(0) << "and pv name" << pvName() << "don't match!";
         return false;
     }
 
     if (metaData.size() != metaDataHeaders().size())
     {
-        qDebug() << "The number of meta data entries" << QString::number(metaData.size()) << "and the number of headers" << QString::number(metaDataHeaders().size()) << "don't match!";
+        qDebug() << "StripToolPV :: The number of meta data entries" << QString::number(metaData.size()) << "and the number of headers" << QString::number(metaDataHeaders().size()) << "don't match!";
         return false;
     }
 
@@ -327,9 +346,9 @@ bool StripToolPV::setMetaData(QList<QString> metaData)
     setSeriesColor(color);
 
     if (granularity > 0) {
-        setUpdateGranularity(granularity);
+        setUpdateGranularity(QString::number(granularity));
     } else {
-        setUpdateGranularity(2);
+        setUpdateGranularity(QString::number(2));
     }
 
     return true;
@@ -353,6 +372,14 @@ void StripToolPV::setControl(AMControl *newControl)
 
 
 
+void StripToolPV::setShiftAmount(double newShift)
+{
+    shiftAmount_ = newShift;
+    emit shiftAmountChanged(shiftAmount_);
+}
+
+
+
 void StripToolPV::setDescription(const QString &newDescription)
 {
     if (newDescription != "")
@@ -361,7 +388,7 @@ void StripToolPV::setDescription(const QString &newDescription)
     else
         pvDescription_ = pvName();
 
-    qDebug() << "Setting new description for pv" << pvName() << ":" << pvDescription_;
+    qDebug() << "StripToolPV :: Setting new description for pv" << pvName() << ":" << pvDescription_;
 
     emit savePVMetaData();
     emit descriptionChanged(pvDescription_);
@@ -371,7 +398,7 @@ void StripToolPV::setDescription(const QString &newDescription)
 
 void StripToolPV::setYUnits(const QString &newUnits)
 {
-    qDebug() << "Setting new units for pv" << pvName() << ":" << newUnits;
+    qDebug() << "StripToolPV :: Setting new units for pv" << pvName() << ":" << newUnits;
 
     yUnits_ = newUnits;
 
@@ -407,7 +434,7 @@ void StripToolPV::setXUnits(const QString &newUnits)
         timeFactor_ = 0.001/3600.0;
 
     } else {
-        qDebug() << "Could not determine correct time factor for these units :" << newUnits;
+        qDebug() << "StripToolPV :: Could not determine correct time factor for these units :" << newUnits;
 
     }
 }
@@ -433,14 +460,15 @@ void StripToolPV::setDisplayedYMax(const QString &newMax)
 {
     if (newMax == "") {
         qDebug() << "StripToolPV :: Returning to automatically updating y max for pv" << pvName();
-        defaultYMaxDisplayed_ = true;
-        customDisplayedYMax_ = newMax;
-        return;
-    }
+        series()->eraseCustomMax();
 
-    qDebug() << "StripToolPV :: Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
-    customDisplayedYMax_ = newMax;
-    defaultYMaxDisplayed_ = false;
+    } else if (newMax.toDouble() < displayedYMin()) {
+        qDebug() << "StripToolPV :: New displayed y max for" << pvName() << "is less than the current displayed y min! No change made.";
+
+    } else {
+        qDebug() << "StripToolPV :: Setting upper limit on displayed y values for pv" << pvName() << "to" << newMax;
+        series()->setCustomMax(newMax.toDouble());
+    }
 }
 
 
@@ -448,15 +476,16 @@ void StripToolPV::setDisplayedYMax(const QString &newMax)
 void StripToolPV::setDisplayedYMin(const QString &newMin)
 {
     if (newMin == "") {
-        qDebug() << "Returning to automatically updating y min for pv " << pvName();
-        customDisplayedYMin_ = newMin;
-        defaultYMinDisplayed_ = true;
-        return;
-    }
+        qDebug() << "StripToolPV :: Returning to automatically updating y min for pv " << pvName();
+        series()->eraseCustomMin();
 
-    qDebug() << "Setting lower limit on displayed y values for pv" << pvName() << "to" << newMin;
-    customDisplayedYMin_ = newMin;
-    defaultYMinDisplayed_ = false;
+    } else if (newMin.toDouble() > displayedYMax()) {
+        qDebug() << "StripToolPV :: New displayed y min for" << pvName() << "is greater than the current displayed y max! No change made.";
+
+    } else {
+        qDebug() << "StripToolPV :: Setting lower limit on displayed y values for pv" << pvName() << "to" << newMin;
+        series()->setCustomMin(newMin.toDouble());
+    }
 }
 
 
@@ -464,7 +493,7 @@ void StripToolPV::setDisplayedYMin(const QString &newMin)
 void StripToolPV::setTimeDisplayed(int seconds)
 {
     if (seconds <= 0) {
-        qDebug() << "Cannot display a time less than zero seconds!";
+        qDebug() << "StripToolPV :: Cannot display a time less than zero seconds! No change made.";
         return;
     }
 
@@ -483,27 +512,27 @@ void StripToolPV::setCheckState(Qt::CheckState isChecked)
 void StripToolPV::setSeriesColor(const QColor &color)
 {
     if (!color.isValid()) {
-        qDebug() << "New color selection is invalid.";
+        qDebug() << "StripToolPV :: New color selection for" << pvName() << "is invalid. No change made.";
         return;
     }
 
     pvColor_ = color;
-    pvSeries_->setLinePen( QPen(pvColor_) );
+    series()->setLinePen( QPen(pvColor_) );
     qDebug() << "Setting new color for pv" << pvName() << ":" << color.name();
     emit savePVMetaData();
 }
 
 
 
-void StripToolPV::setUpdateGranularity(int newVal)
+void StripToolPV::setUpdateGranularity(const QString &newVal)
 {
-    if (newVal <= 0) {
-        qDebug() << "Cannot display a pv with update granularity of zero or less! Must be positive, nonzero integer.";
+    if (newVal.toInt() <= 0) {
+        qDebug() << "StripToolPV :: Cannot display a pv with update granularity of zero or less! Must be positive, nonzero integer. No change made.";
         return;
     }
 
-    updateGranularity_ = newVal;
-    qDebug() << "Setting new update granularity for pv" << pvName() << ":" << updateGranularity();
+    updateGranularity_ = newVal.toInt();
+    qDebug() << "StripToolPV :: Setting new update granularity for pv" << pvName() << ":" << updateGranularity();
     emit savePVMetaData();
 }
 
@@ -594,6 +623,7 @@ void StripToolPV::onPVValueChanged(double newValue)
     //  update the displayed data with the new vectors.
     pvData_->setValues(displayedTimes_, displayedValues_);
 
+
     // increment the internal update counter.
     updateIndex_++;
 
@@ -601,65 +631,62 @@ void StripToolPV::onPVValueChanged(double newValue)
 
     // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
-        double min, max;
+//        double min, max;
 
-        for (int i = 0; i < displayedValues_.size(); i++) {
+//        for (int i = 0; i < displayedValues_.size(); i++) {
 
-            if (i == 0) {
-                min = displayedValues_.at(i);
-                max = displayedValues_.at(i);
+//            if (i == 0) {
+//                min = displayedValues_.at(i);
+//                max = displayedValues_.at(i);
 
-            } else {
-                if (min > displayedValues_.at(i))
-                    min = displayedValues_.at(i);
+//            } else {
+//                if (min > displayedValues_.at(i))
+//                    min = displayedValues_.at(i);
 
-                if (max < displayedValues_.at(i))
-                    max = displayedValues_.at(i);
-            }
-        }
+//                if (max < displayedValues_.at(i))
+//                    max = displayedValues_.at(i);
+//            }
+//        }
 
-        defaultDisplayedYMin_ = min;
-        defaultDisplayedYMax_ = max;
+//        defaultDisplayedYMin_ = min;
+//        defaultDisplayedYMax_ = max;
 
-        double displayedYMax, displayedYMin;
+//        double displayedYMax, displayedYMin;
 
-        if (defaultYMaxDisplayed_) {
-            displayedYMax = defaultDisplayedYMax_;
+//        if (defaultYMaxDisplayed_) {
+//            displayedYMax = defaultDisplayedYMax_;
 
-        } else if (customDisplayedYMax_ != "") {
-            displayedYMax = customDisplayedYMax_.toDouble();
+//        } else if (customDisplayedYMax_ != "") {
+//            displayedYMax = customDisplayedYMax_.toDouble();
 
-        } else {
-            qDebug() << "StripToolPV :: Cannot switch to display a custom max value for y axis when the max hasn't been set. No change made.";
-            displayedYMax = defaultDisplayedYMax_;
-        }
-
-
-        if (defaultYMinDisplayed_) {
-            displayedYMin = defaultDisplayedYMin_;
-
-        } else if (customDisplayedYMin_ != "") {
-            displayedYMin = customDisplayedYMin_.toDouble();
-
-        } else {
-            qDebug() << "StripToolPV :: Cannot switch to display a custom min value for y axis when the min hasn't been set. No change made.";
-            displayedYMin = defaultDisplayedYMin_;
-        }
+//        } else {
+//            qDebug() << "StripToolPV :: Cannot switch to display a custom max value for y axis when the max hasn't been set. No change made.";
+//            displayedYMax = defaultDisplayedYMax_;
+//        }
 
 
-        if (displayedYMin == displayedYMax) {
-            displayedYMin *= 0.9;
-            displayedYMax *= 1.1;
+//        if (defaultYMinDisplayed_) {
+//            displayedYMin = defaultDisplayedYMin_;
 
-            qDebug() << "The displayed y min and max for pv" << pvName() << "are identical.";
-        }
+//        } else if (customDisplayedYMin_ != "") {
+//            displayedYMin = customDisplayedYMin_.toDouble();
+
+//        } else {
+//            qDebug() << "StripToolPV :: Cannot switch to display a custom min value for y axis when the min hasn't been set. No change made.";
+//            displayedYMin = defaultDisplayedYMin_;
+//        }
 
 
-        MPlotAxisRange *newRange = new MPlotAxisRange(displayedYMin, displayedYMax); // get the vertical range of the selected data.
-        emit dataRangeChanged(newRange);
+//        if (displayedYMin == displayedYMax) {
+//            displayedYMin = displayedYMin * 0.5;
+//            displayedYMax = displayedYMax * 1.5;
 
-        emit dataMaxChanged(defaultDisplayedYMax_);
-        emit dataMinChanged(defaultDisplayedYMin_);
+//            qDebug() << "StripToolPV :: The displayed y min and max for pv" << pvName() << "are identical. Adjusting each by +/- 50%.";
+//        }
+
+//        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << dataRange->min() << "and upper limit" << dataRange->max();
+        emit dataRangeChanged(series()->dataRange());
+        emit displayRangeChanged(series()->displayedRange());
     }
 
 }
@@ -691,6 +718,21 @@ void StripToolPV::toUpdateTime(int newTime)
 
 void StripToolPV::toUpdateTimeUnits(const QString &newUnits)
 {
-    qDebug() << "Updating time units to" << newUnits << "for pv " << this->pvName();
+    qDebug() << "StripToolPV :: Updating time units to" << newUnits << "for pv " << this->pvName();
     setXUnits(newUnits);
+}
+
+
+
+void StripToolPV::toApplySeriesTransform(double dy)
+{
+    qDebug() << "StripToolPV :: Applying transform to pv" << pvName() << ": shift by " << dy;
+    pvSeries_->applyTransform(1, 1, 0, dy);
+}
+
+
+
+void StripToolPV::onDisplayRangeChanged(MPlotAxisRange *range)
+{
+    qDebug() << "StripToolPV :: the display range has been changed to min ->" << range->min() << " and max ->" << range->max() << ".";
 }

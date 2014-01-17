@@ -7,6 +7,7 @@
 #include "beamline/AMPVControl.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
+#include "StripToolSeries.h"
 
 /// This class keeps track of all information relevant to a given pv: pv name, description, units, check state, value updates.
 
@@ -32,6 +33,7 @@ signals:
     void descriptionChanged(const QString &newDescription);
     void unitsChanged(const QString &units);
     void dataRangeChanged(MPlotAxisRange *newRange);
+    void displayRangeChanged(MPlotAxisRange *newRange);
     void dataMaxChanged(double newMax);
     void dataMinChanged(double newMin);
     void waterfallChanged(double shiftAmount);
@@ -42,6 +44,8 @@ signals:
     void stopUpdateIntervalTimer();
     /// When the update interval timer has counted out the maxTimeBetweenUpdates, the pv will 'manually' report a change in value (a value identical to the last update), even if the control didn't signal that one happened.
     void manuallyUpdatePV(double value);
+
+    void shiftAmountChanged(double newShift);
 
 protected:
     int updateIndex_;
@@ -64,6 +68,8 @@ protected:
     Qt::CheckState checkState_;
     QColor pvColor_;
 
+    double shiftAmount_;
+
     QTimer *updateIntervalTimer_;
     int maxTimeBetweenUpdates_;
 
@@ -77,17 +83,8 @@ protected:
     QVector<double> displayedTimes_;
     QVector<double> displayedValues_;
 
-    double defaultDisplayedYMin_;
-    double defaultDisplayedYMax_;
-
-    QString customDisplayedYMin_;
-    QString customDisplayedYMax_;
-
-    bool defaultYMaxDisplayed_;
-    bool defaultYMinDisplayed_;
-
     MPlotVectorSeriesData *pvData_;
-    MPlotSeriesBasic *pvSeries_;
+    StripToolSeries *pvSeries_;
     AMControl *pvControl_;
 
 protected:
@@ -104,13 +101,16 @@ protected:
     /// Returns the color set for this pv's series.
     QColor color();
     int updateGranularity();
+    QString customDisplayedYMax();
+    QString customDisplayedYMin();
     double displayedYMin();
     double displayedYMax();
+    double shiftAmount();
     double maxTimeBetweenUpdates();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
     /// Returns a pointer to the series that should be plotted for this pv.
-    MPlotSeriesBasic* series();
+    StripToolSeries *series();
     int timeDisplayed();
     /// This is here because I thought it would be neat to have the pv data saved periodically, which would be handled by the model. This could cut down on memory needed, if this application runs for a long time (but isn't fully implemented!).
     QVector<QString> saveMasterTimes();
@@ -123,6 +123,7 @@ protected:
     void setSelected(bool selected);
     /// Sets the PV control and reparents for this pv.
     void setControl(AMControl *newControl);
+    void setShiftAmount(double newShift);
     void setMaxTimeBetweenUpdates(double seconds);
     /// The user can pause and restart the value updates displayed on the plot (this class will still continue to record updates).
     void setPVUpdating(bool isUpdating);
@@ -138,7 +139,7 @@ private:
     void setXUnits(const QString &newUnits);
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
-    void setUpdateGranularity(int newVal);
+    void setUpdateGranularity(const QString &newVal);
     void setMetaDataHeaders();
     void saveCheck();
     void dataVectorSizeCheck();
@@ -152,6 +153,10 @@ protected slots:
 
     void toRestartUpdateIntervalTimer();
     void toManuallyUpdatePV();
+
+    void toApplySeriesTransform(double dy);
+
+    void onDisplayRangeChanged(MPlotAxisRange *range);
 
 };
 

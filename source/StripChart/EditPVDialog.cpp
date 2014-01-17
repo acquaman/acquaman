@@ -9,7 +9,7 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     colorChanged_ = false;
     yMaxChanged_ = false;
     yMinChanged_ = false;
-//    waterfallChanged_ = false;
+    shiftAmountChanged_ = false;
 
     QGridLayout *formLayout = new QGridLayout();
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -78,13 +78,12 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
 
     QString displayedMax = pvInfo.at(6);
     displayMaxEntry_ = new QLineEdit();
-    displayMaxEntry_->setEnabled(false);
     displayMaxEntry_->setText(displayedMax);
     maxLabel->setBuddy(displayMaxEntry_);
     connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMaxEntered(QString)) );
     formLayout->addWidget(displayMaxEntry_, 6, 1);
 
-    currentDisplayMax_ = new QLabel("boo");
+    currentDisplayMax_ = new QLabel("---");
     formLayout->addWidget(currentDisplayMax_, 6, 2);
 
     automaticMax_ = new QCheckBox("Automatically update max");
@@ -102,13 +101,12 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
 
     QString displayedMin = pvInfo.at(7);
     displayMinEntry_ = new QLineEdit();
-    displayMinEntry_->setEnabled(false);
     displayMinEntry_->setText(displayedMin);
     minLabel->setBuddy(displayMinEntry_);
     connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMinEntered(QString)) );
     formLayout->addWidget(displayMinEntry_, 8, 1);
 
-    currentDisplayMin_ = new QLabel("ger");
+    currentDisplayMin_ = new QLabel("---");
     formLayout->addWidget(currentDisplayMin_, 8, 2);
 
     automaticMin_ = new QCheckBox("Automatically update min");
@@ -119,6 +117,16 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
         automaticMin_->setCheckState(Qt::Checked);
     else
         automaticMin_->setCheckState(Qt::Unchecked);
+
+    QLabel *shiftLabel = new QLabel("Shift amount : ");
+//    formLayout->addWidget(shiftLabel, 10, 0);
+
+    QString shiftAmount = pvInfo.at(8);
+    shiftAmountEntry_ = new QLineEdit();
+//    formLayout->addWidget(shiftAmountEntry_, 10, 1);
+    shiftLabel->setBuddy(shiftAmountEntry_);
+    shiftAmountEntry_->setText(shiftAmount);
+    connect( shiftAmountEntry_, SIGNAL(textEdited(QString)), this, SLOT(shiftAmountEntered(QString)) );
 
 
     okButton_ = new QPushButton("Ok");
@@ -175,7 +183,7 @@ bool EditPVDialog::granularityChanged()
 
 
 
-int EditPVDialog::granularity()
+QString EditPVDialog::granularity()
 {
     return gran_;
 }
@@ -222,10 +230,28 @@ QString EditPVDialog::displayMin()
 
 
 
+bool EditPVDialog::shiftAmountChanged()
+{
+    return shiftAmountChanged_;
+}
+
+
+
+QString EditPVDialog::shiftAmount()
+{
+    return shiftAmount_;
+}
+
+
+
 void EditPVDialog::descriptionEntered(const QString &newDescription)
 {
     description_ = newDescription;
-    descriptionChanged_ = true;
+
+    if (description_ == "")
+        descriptionChanged_ = false;
+    else
+        descriptionChanged_ = true;
 }
 
 
@@ -233,50 +259,83 @@ void EditPVDialog::descriptionEntered(const QString &newDescription)
 void EditPVDialog::unitsEntered(const QString &newUnits)
 {
     units_ = newUnits;
-    unitsChanged_ = true;
+
+    if (units_ == "")
+        unitsChanged_ = false;
+    else
+        unitsChanged_ = true;
 }
 
 
 
 void EditPVDialog::granularityEntered(const QString &gran)
 {
-    gran_ = gran.toInt();
-    granChanged_ = true;
+    gran_ = gran;
+
+    if (gran_ == "")
+        granChanged_ = false;
+    else
+        granChanged_ = true;
 }
 
 
 void EditPVDialog::colorEntered(const QString &newColor)
 {
     color_ = newColor;
-    colorChanged_ = true;
+
+    if (color_ == "")
+        colorChanged_ = false;
+    else
+        colorChanged_ = true;
 }
 
 
 void EditPVDialog::displayMaxEntered(const QString &max)
 {
     displayMax_ = max;
+    qDebug() << "EditPVDialog :: new display max entered :" << max << ".";
     yMaxChanged_ = true;
+
 }
 
 
 void EditPVDialog::displayMinEntered(const QString &min)
 {
     displayMin_ = min;
+
+    qDebug() << "EditPVDialog :: new display min entered :" << min;
     yMinChanged_ = true;
 }
 
 
 
-void EditPVDialog::toUpdateDataMax(double currentMax)
+void EditPVDialog::shiftAmountEntered(const QString &shift)
 {
-    currentDisplayMax_->setText(QString::number(currentMax, 'f', 2));
+    shiftAmount_ = shift;
+
+    if (shiftAmount_ == "")
+        shiftAmountChanged_ = false;
+    else
+        shiftAmountChanged_ = true;
 }
 
 
-void EditPVDialog::toUpdateDataMin(double currentMin)
+
+void EditPVDialog::toUpdateDataRange(MPlotAxisRange *newRange)
 {
-    currentDisplayMin_->setText(QString::number(currentMin, 'f', 2));
+    qreal min = newRange->min();
+    qreal max = newRange->max();
+
+    if (min < max) {
+        currentDisplayMax_->setText(QString::number(max, 'f', 2));
+        currentDisplayMin_->setText(QString::number(min, 'f', 2));
+
+    } else {
+        currentDisplayMax_->setText(QString::number(min, 'f', 2));
+        currentDisplayMin_->setText(QString::number(max, 'f', 2));
+    }
 }
+
 
 
 

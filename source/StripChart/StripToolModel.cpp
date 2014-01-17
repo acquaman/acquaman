@@ -22,7 +22,7 @@ StripToolModel::StripToolModel(QObject *parent) : QAbstractListModel(parent)
     connect( saveMetadataMapper_, SIGNAL(mapped(QObject*)), this, SIGNAL(savePVMetadata(QObject*)) );
 
     pvUpdatedMapper_ = new QSignalMapper(this);
-    connect( pvUpdatedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSinglePVUpdated(QObject*)) );
+//    connect( pvUpdatedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSinglePVUpdated(QObject*)) );
 
     connect( this, SIGNAL(pvUpdating(QModelIndex,bool)), this, SLOT(setPVUpdating(QModelIndex,bool)) );
 }
@@ -340,9 +340,10 @@ bool StripToolModel::addPV(AMControl *pvControl)
 //    connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
 //    connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
 //    connect( newPV, SIGNAL(applyLeftAxisScaleShift(double)), this, SIGNAL(applyLeftAxisScaleShift(double)) );
-//    connect( newPV, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
-    connect( newPV, SIGNAL(dataMaxChanged(double)), this, SIGNAL(updateSelectedDataMax(double)) );
-    connect( newPV, SIGNAL(dataMinChanged(double)), this, SIGNAL(updateSelectedDataMin(double)) );
+    connect( newPV, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
+//    connect( newPV, SIGNAL(displayRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange *)) );
+//    connect( newPV, SIGNAL(dataMaxChanged(double)), this, SIGNAL(selectedDataMaxChanged(double)) );
+//    connect( newPV, SIGNAL(dataMinChanged(double)), this, SIGNAL(selectedDataMinChanged(double)) );
 //    connect( this, SIGNAL(updateSelectedDisplayMax(double)), this, SLOT(toTestDoubleSignal(double)) );
 
 //    connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
@@ -385,11 +386,8 @@ void StripToolModel::editPV(const QModelIndex &index)
 
     StripToolPV *toEdit = pvList_.at(index.row());
 
-//    EditPVDialog editDialog(toEdit->editPVDialogData());
     EditPVDialog *editDialog = new EditPVDialog(toEdit->editPVDialogData());
-
-    connect( this, SIGNAL(updateSelectedDataMax(double)), editDialog, SLOT(toUpdateDataMax(double)) );
-    connect( this, SIGNAL(updateSelectedDataMin(double)), editDialog, SLOT(toUpdateDataMin(double)) );
+    connect( this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)), editDialog, SLOT(toUpdateDataRange(MPlotAxisRange*)) );
 
     if (editDialog->exec())
     {
@@ -413,23 +411,11 @@ void StripToolModel::editPV(const QModelIndex &index)
 
         if (editDialog->displayMaxChanged()) {
             QString displayMax = editDialog->displayMax();
-
-//            if (displayMax != "")
-//                emit applyDefaultYAxisScale(false);
-//            else
-//                emit applyDefaultYAxisScale(true);
-
             toEdit->setDisplayedYMax(displayMax);
         }
 
         if (editDialog->displayMinChanged()) {
             QString displayMin = editDialog->displayMin();
-
-//            if (displayMin != "")
-//                emit applyDefaultYAxisScale(false);
-//            else
-//                emit applyDefaultYAxisScale(true);
-
             toEdit->setDisplayedYMin(displayMin);
         }
 
@@ -540,48 +526,69 @@ void StripToolModel::setPVUpdating(const QModelIndex &index, bool isUpdating)
 
 void StripToolModel::setSelectedPV(StripToolPV *newSelection)
 {
-    if (newSelection != selectedPV_)
-    {
-        if (newSelection && contains(newSelection))
-        {
-            // deselect old selection.
-            if (selectedPV_ != 0) {
-                selectedPV_->setSelected(false);
+    if (newSelection != selectedPV_) {
 
-                disconnect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *newRange)) );
-                disconnect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-                disconnect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-            }
+        if (newSelection && contains(newSelection)) {
+            deselectPV();
+            selectPV(newSelection);
 
-            qDebug() << "Setting selected pv...";
-            selectedPV_ = newSelection;
-            selectedPV_->setSelected(true);
-
-            connect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
-            connect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-            connect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-
-            emit modelSelectionChange();
             emit selectedPVAxisLabelChanged(selectedPV_->pvDescription() + " [" + selectedPV_->yUnits() + "]");
 
-            qDebug() << "Selected pv : " << selectedPV_->pvName();
-
         } else if (!newSelection) {
-
             if (selectedPV_ != 0)
-                selectedPV_->setSelected(false);
-
-            selectedPV_ = 0;
-
-            emit modelSelectionChange();
-            qDebug() << "Deselected pv.";
+                deselectPV();
 
         } else {
-
             selectedPV_ = 0;
-            qDebug() << "Attempting to set an unknown pv as selected!! No change made.";
+            qDebug() << "StripToolModel :: Attempting to set an unknown pv as selected!! No change made.";
         }
     }
+}
+
+
+
+void StripToolModel::deselectPV()
+{
+    if (selectedPV_ != 0) {
+        selectedPV_->setSelected(false);
+
+//        disconnect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)) );
+        disconnect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange*)) );
+        disconnect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+        disconnect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+        disconnect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
+
+
+        selectedPV_ = 0;
+
+        qDebug() << "Deselected pv.";
+
+        emit modelSelectionChange();
+    }
+}
+
+
+
+void StripToolModel::selectPV(StripToolPV *newSelection)
+{
+    if (selectedPV_ != 0) {
+        deselectPV();
+    }
+
+    qDebug() << "Setting selected pv...";
+
+    selectedPV_ = newSelection;
+    selectedPV_->setSelected(true);
+
+//    connect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
+    connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange*)) );
+    connect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+    connect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
+    connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
+
+    qDebug() << "Selected pv : " << selectedPV_->pvName();
+
+    emit modelSelectionChange();
 }
 
 
@@ -595,18 +602,6 @@ void StripToolModel::toChangeYAxisLabel()
 
     emit selectedPVAxisLabelChanged(description + " [" + units + "]");
 }
-
-
-
-//void StripToolModel::toShiftYAxis(double selectedPVWaterfall)
-//{
-//    double displayedMax = selectedPV_->displayedYMax();
-//    double displayedMin = selectedPV_->displayedYMin();
-
-//    double shiftAmount = -selectedPVWaterfall * abs(displayedMax - displayedMin);
-
-//    emit selectedPVOffsetChanged(shiftAmount);
-//}
 
 
 
@@ -662,63 +657,6 @@ void StripToolModel::toSetMetaData(const QString &pvName, QList<QString> metaDat
 
 
 
-void StripToolModel::onSinglePVUpdated(QObject *pvUpdated)
-{
-    if (pvUpdated == 0)
-        return;
-
-//    if (pvsUpdatingRegularly) {
-//        emit restartUpdateIntervalTimer();
-        StripToolPV *updated = (StripToolPV *) pvUpdated;
-        emit forceUpdatePVs(updated->pvName());
-//    } else {
-//        emit forceUpdatePVs("");
-//    }
-
-//    pvsUpdatingRegularly = true;
-//    emit startUpdateIntervalTimer();
-
-//    updateOKTimer_->singleShot(500, this, SLOT(toCheckUpdatingRegularly()) );
-//    updatingOkTimer_->singleShot(1000, this, SLOT(pvUpdateCheck()) );
-
-
-}
-
-
-
-//void StripToolModel::toRestartUpdateIntervalTimer()
-//{
-//    pvsUpdatingRegularly_ = true;
-//    emit stopIntervalTimer();
-
-//    updateIntervalTimer_->start(2000);
-//}
-
-
-
-//void StripToolModel::toCheckUpdatingRegularly()
-//{
-//    pvsUpdatingRegularly = false;
-//}
-
-
-
-//void StripToolModel::pvUpdateCheck()
-//{
-//    if (!pvsUpdatingRegularly)
-//        emit forceUpdatePVs("");
-
-//}
-
-
-
-//void StripToolModel::toForceAllPVsUpdate()
-//{
-
-//}
-
-
-
 void StripToolModel::toTestSignal(const QString &signalText)
 {
     qDebug() << "Signal text received by model :" << signalText;
@@ -729,5 +667,12 @@ void StripToolModel::toTestSignal(const QString &signalText)
 void StripToolModel::toTestDoubleSignal(double val)
 {
     qDebug() << "Signal double received by model :" << val;
+}
+
+
+
+void StripToolModel::toTestRangeSignal(MPlotAxisRange *newRange)
+{
+    qDebug() << "StripToolModel :: the model received a new signal range with min ->" << newRange->min() << "and max ->" << newRange->max();
 }
 
