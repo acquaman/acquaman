@@ -210,53 +210,88 @@ MPlotAxisRange* StripToolSeries::dataRange()
 
 
 
-
-void StripToolSeries::enableYAxisNormalization(bool on, qreal min, qreal max)
+void StripToolSeries::enableYNormalization(bool on, qreal normMin, qreal normMax)
 {
-    qDebug() << "The series is being normalized according to StripToolSeries method.";
-    qDebug() << "newMin = " << min;
-    qDebug() << "newMax = " << max;
+    double pvYMin, pvYMax;
 
-    if (customLimitsDefined() && on) {
-        yAxisNormalizationOn_ = on;
+    if (customLimitsDefined()) {
 
-        if (min == customMin()) {
-            normYMin_ = dataMin();
+        if (normMin == customMin())
+            pvYMin = dataMin();
 
-        } else {
-            normYMin_ = min + (dataMin() - customMin()) / (customMax() - customMin()) * (max - min);
-        }
+        else
+            pvYMin = normMin + (dataMin() - customMin()) / (customMax() - customMin()) * (normMax - normMin);
 
 
-        if (dataMin() == dataMax()) {
-//            normYMax_ = normYMin_;
+        if (dataMin() == dataMax())
+            pvYMax = pvYMin;
 
-        } else if (max == customMax()) {
-            normYMax_ = dataMax();
+        else if (normMax == customMax())
+            pvYMax = dataMax();
 
-        } else {
-            normYMax_ = max - (customMax() - dataMax()) / (customMax() - customMin()) * (max - min);
-        }
-
-
-        qDebug() << "using custom limits : normYMin = " << normYMin_;
-        qDebug() << "using custom limits : normYMax = " << normYMax_;
-
-
-
-    } else if (!customLimitsDefined() && on) {
-        yAxisNormalizationOn_ = on;
-
-        normYMin_ = min;
-        normYMax_ = max;
-
-        qDebug() << "using data limits : normYMin = " << normYMin_;
-        qDebug() << "using data limits : normYMax = " << normYMax_;
+        else
+            pvYMax = normMax - (customMax() - dataMax()) / (customMax() - customMin()) * (normMax - normMin);
 
     } else {
-        sx_ = 1.0;
-        dx_ = 0.0;
+
+        pvYMin = normMin;
+        pvYMax = normMax;
+
     }
 
-    MPlotSeriesBasic::onDataChanged();
+    enableYAxisNormalization(on, pvYMin, pvYMax);
+
 }
+
+
+
+
+//void StripToolSeries::enableYAxisNormalization(bool on, qreal min, qreal max)
+//{
+//    qDebug() << "The series is being normalized according to StripToolSeries method.";
+//    qDebug() << "newMin = " << min;
+//    qDebug() << "newMax = " << max;
+
+//    if (customLimitsDefined() && on) {
+//        yAxisNormalizationOn_ = on;
+
+//        if (min == customMin()) {
+//            normYMin_ = dataMin();
+
+//        } else {
+//            normYMin_ = min + (dataMin() - customMin()) / (customMax() - customMin()) * (max - min);
+//        }
+
+
+//        if (dataMin() == dataMax()) {
+//            normYMax_ = normYMin_;
+
+//        } else if (max == customMax()) {
+//            normYMax_ = dataMax();
+
+//        } else {
+//            normYMax_ = max - (customMax() - dataMax()) / (customMax() - customMin()) * (max - min);
+//        }
+
+
+//        qDebug() << "using custom limits : normYMin = " << normYMin_;
+//        qDebug() << "using custom limits : normYMax = " << normYMax_;
+
+
+
+//    } else if (!customLimitsDefined() && on) {
+//        yAxisNormalizationOn_ = on;
+
+//        normYMin_ = min;
+//        normYMax_ = max;
+
+//        qDebug() << "using data limits : normYMin = " << normYMin_;
+//        qDebug() << "using data limits : normYMax = " << normYMax_;
+
+//    } else {
+//        sx_ = 1.0;
+//        dx_ = 0.0;
+//    }
+
+//    MPlotSeriesBasic::onDataChanged();
+//}

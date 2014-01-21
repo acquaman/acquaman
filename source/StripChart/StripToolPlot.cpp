@@ -193,7 +193,7 @@ void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newDataRange)
 
     foreach(MPlotItem* item, plot_->plotItems()) {
         StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(item);
-        series->enableYAxisNormalization(true, rangeMin, rangeMax);
+        series->enableYNormalization(true, rangeMin, rangeMax);
     }
 
 }

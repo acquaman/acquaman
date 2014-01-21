@@ -27,7 +27,7 @@ public:
     bool customMaxDefined();
     MPlotAxisRange* displayedRange();
 
-    void enableYAxisNormalization(bool on, qreal min, qreal max);
+    void enableYNormalization(bool on, qreal min, qreal max);
 
 
 protected:
