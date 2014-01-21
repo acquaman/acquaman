@@ -101,7 +101,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes") )
+        if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 

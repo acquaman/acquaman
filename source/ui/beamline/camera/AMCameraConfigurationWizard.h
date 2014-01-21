@@ -23,23 +23,31 @@ class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
     Q_OBJECT
 public:
-    enum {Page_Intro, Page_Option, Page_Check, Page_Final, Page_Select_One, Page_Select_Two, Page_Select_Three, Page_Select_Four,
-            Page_Select_Five, Page_Select_Six, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Wait_Four, Page_Wait_Five, Page_Wait_Six};
+	enum
+	{
+		Page_Intro,
+		Page_Option,
+		Page_Check,
+		Page_Final,
+		Page_Free
+	};
 
     AMCameraConfigurationWizard(QWidget* parent = 0);
-    ~AMCameraConfigurationWizard();
+	virtual ~AMCameraConfigurationWizard();
 
     /// reimplementation of nextId.
     /// it is necessary to control the page flow from the wizard
-    /// rather than the pages becuase there is more than one instance of several pages
-    int nextId() const;
+	/// rather than the pages because there is more than one instance of several pages
+	virtual int nextId() const;
 
     virtual QString message(int messageType);
 
-    /// used to correlate Page_Wait_x and Page_Select_x with their order
-    int relativeId();
+	// moved to AMGraphicsViewWizard
+//    / used to correlate Page_Wait_x and Page_Select_x with their order
+//    int relativeId();
 
-    void waitPage();
+//	/ moves to the position for Page_Wait_x
+//	virtual void waitPage();
 
 
 public slots:
@@ -51,9 +59,12 @@ public slots:
     virtual void addPoint(QPointF position);
 
 protected:
+	/// get coordinate (x/y/z) for specified id
+	/// -this is the relative id
     double coordinateX(int id);
     double coordinateY(int id);
     double coordinateZ(int id);
+	void clearPoints();
 };
 
 /// Intro page is just the introduction/howto for this wizard.
@@ -68,7 +79,8 @@ public:
 
 };
 
-
+/// Check page is used to check if the camera is actually aligned,
+/// so that the wizard may be skipped early on.
 class CheckPage : public AMCheckPage
 {
     Q_OBJECT
@@ -79,7 +91,7 @@ public slots:
 protected slots:
 };
 
-
+/// SelectPage is where the calibration point is selected.
 class SelectPage : public AMViewPage
 {
     Q_OBJECT
@@ -91,6 +103,8 @@ public slots:
     void addPoint(QPointF position);
 };
 
+/// Wait page causes the user to wait while the motor moves
+/// to the next position
 class WaitPage : public AMWaitPage
 {
     Q_OBJECT

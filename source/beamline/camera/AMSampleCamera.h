@@ -29,7 +29,6 @@ class QGraphicsRectItem;
 class QVector3D;
 class QPolygonF;
 class AMCameraConfiguration;
-//class SGMMAXvMotor;
 class AMControl;
 class AMCamera;
 class AMSample;
@@ -37,13 +36,20 @@ class AMSamplePlate;
 
 using namespace Eigen;
 
+/// AMSampleCamera is a singleton class that provides the model for
+/// an AMSampleCameraView.  It includes a collection of shapes that need
+/// to be represented in the view, and also includes a camera model for
+/// the display of the shapes and a beam model for positioning samples.
+
 class AMSampleCamera: public QAbstractListModel
 {
 	Q_OBJECT
 public:
 
+	/// access to the AMSampleCamera
 	static AMSampleCamera* set();
 
+	/// Define axis names for convenience
 	enum AxisDirection {XAXIS,YAXIS,ZAXIS};
 
 	/// Accessors
@@ -136,6 +142,7 @@ public:
 	/// returns the coordinate of the current index
 	QVector3D currentCoordinate() const;
 
+	/// the offset of the center of rotation.
 	QVector3D rotationalOffset() const;
 
 	double rotationalOffsetX() const;
@@ -162,6 +169,7 @@ public slots:
 
 	/// sets the motor cooridinates
 	void setMotorCoordinate(double x, double y, double z, double r);
+	/// sets the motor cooridinates using the current motor values
 	void setMotorCoordinate();
 
 	/// toggles distortion on or off
@@ -174,12 +182,14 @@ public slots:
 
 	void setCrosshairLocked(bool locked);
 
+	/// view size and scaled size are used to
+	/// determine the position of the camera image
 	void setViewSize(QSizeF viewSize);
 
 	void setScaledSize(QSizeF scaledSize, double videoTop);
 
 
-    /// setters for shape elements
+	/// mutators for shape elements
     void setCurrentName(QString name);
 	void setCurrentInfo(const QString &info);
     void setRotation(double rotation, int index = -1);
@@ -204,13 +214,17 @@ public slots:
 	/// set to true to move to beam.  Set to false to move to crosshair
 	void setMoveToBeam(bool move);
 
+	/// set to move parallel to the selected shape's plane (usually the sample plate shape)
+	/// (rather than parallel to the camera view plane)
 	void setMoveOnShape(bool moveOnShape);
 
+	/// set the offset of rotation (the centre of rotation at 0,0,0)
 	void setRotationalOffset(const QVector3D &offset);
 	void setRotationalOffsetX(const double &xCoordinate);
 	void setRotationalOffsetY(const double &yCoordinate);
 	void setRotationalOffsetZ(const double &zCoordinate);
 
+	/// handles loading in an old sample plate
 	void onSamplePlateLoaded(AMSamplePlate* plate);
 
 
@@ -236,6 +250,8 @@ public:
 	void deleteShape(int index);
 
 
+
+
 	/// list model functions
 	int rowCount(const QModelIndex &parent) const;
 	QVariant data(const QModelIndex &index, int role) const;
@@ -249,6 +265,9 @@ public:
 	/// if true mouse selection will not perform normal actions (but can put focus on text items)
 	bool overrideMouseSelection() const;
 
+	/// calculates the line of best fit for the given points
+	/// the line is given by two points, the first is the centroid of
+	/// all the points and the second is another point on the line
 	QVector<QVector3D> lineOfBestFit(const QList<QVector3D> &points) const;
 
 
@@ -360,9 +379,15 @@ public slots:
 
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
+	/// Create the sample plate using selected points \todo
+	void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations, int numberOfPoints);
+
+	/// saves the sample plate to the database
 	void saveSamplePlate();
 
 	void setCameraConfigurationShape();
+
+	void configureRotation(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations);
 
 	void moveSamplePlateTo(const QVector3D &coordinate);
 
@@ -375,19 +400,25 @@ public slots:
 	/// updates the view
 	void updateView();
 
-	/// moves the xyz motors to the specified location
-	void moveMotorTo(QVector3D coordinate);
+	/// moves the xyz motors to the specified location and rotation
+	void moveMotorTo(QVector3D coordinate, double rotation);
 
 	/// stop the motors
 	void stopMotors();
 
 	/// Takes an AMSample and add the related shapeData if that AMSample is not currently drawn
 	void addSample(AMSample *sample);
-	/// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
+        /// Takes an AMSample and removes the related shapeData if that AMSample is currently drawn
 	void removeSample(AMSample *sample);
 
+	/// deletes the specified shape.
+	void removeShapeData(AMShapeData* shape);
+
+	/// Loads the "default" beam configuration
 	void loadDefaultBeam();
+	/// Loads the "default" camera configuration
 	void loadDefaultCamera();
+	/// Loads the "default" sample plate configuration
 	void loadDefaultSamplePlate();
 
 
@@ -560,7 +591,7 @@ protected:
 
 	/// removes an item from the shape list - use this rather than
 	/// removing items manually - keeps the model updated
-	void removeItem(int index);
+//	void removeItem(int index);
 
 	/// removes an item from the shape list and returns it
 	/// use this rather than taking manually - keeps the model updated
@@ -572,6 +603,28 @@ protected:
 	/// move the motors
 	bool moveMotors(double x, double y, double z);
 
+	bool moveMotors(double x, double y, double z, double rotation);
+
+
+	QPair<QVector3D,QVector3D> findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points, QPair<double,double> rotations);
+	/// these three functions each generate a row of a rotation matrix
+	QVector3D findRotationMatrixXRow(QVector3D rotationVector, double angleOfRotation) const;
+	QVector3D findRotationMatrixYRow(QVector3D rotationVector, double angleOfRotation) const;
+	QVector3D findRotationMatrixZRow(QVector3D rotationVector, double angleOfRotation) const;
+
+	/// returns two vectors describing the line that lies along point
+	/// using the provided coordinates for depth
+	/// the result will be a point along the line and a unit vector in the direction of the line
+	QPair<QVector3D,QVector3D> findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference = QVector3D(0,0,0));
+	MatrixXd constructCentreOfRotationMatrix(QVector<double> rotations, QVector3D v1, QVector3D v2);
+	MatrixXd constructCentreOfRotationCoordinateMatrix(QVector3D originalCoordinate, QVector3D B1, QVector3D B2);
+	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
+	double degreesToRadians(double degrees);
+	double radiansToDegrees(double radians);
+	/// computes the SVD least squares solution
+	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
+	/// computes the SVD homogenous solution for the largest singular value
+	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 protected:
 
 	/// Members
@@ -660,7 +713,7 @@ protected:
 	/// true if drawing on shape is enabled
 	bool drawOnShapeEnabled_;
 
-	/// true if a drawOnShape_ is a valid shape
+        /// true if drawOnShape_ is a valid shape
 	bool drawOnShapeSelected_;
 
 	/// the polygon currently being drawn

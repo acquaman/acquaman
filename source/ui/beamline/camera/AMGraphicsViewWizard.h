@@ -10,12 +10,10 @@ class QPointF;
 class QTimer;
 class QFrame;
 class QLabel;
-//class QVector3D;
 class QGraphicsPolygonItem;
 class QCheckBox;
 class QGraphicsTextItem;
 class QLineEdit;
-//class QMediaPlayer;
 
 
 /// Wizard class
@@ -37,10 +35,32 @@ class AMGraphicsViewWizard : public QWizard
 {
     Q_OBJECT
 public:
-    /// These are the different message elements
-    enum {Wizard_Title, Help_Title, Title, Text, Help, Other, Default};
+	/// Default page numbers.  If using a different scheme, define own page numbers
+	/// If not using default page numbers, will have to redefine auto-generation type
+	/// functions (pageWait,pageSet)
+	enum
+	{
+		Default_Intro,
+		Default_Check,
+		Default_Option,
+		Default_Final,
+		Default_Free
+	};
+	 /// These are the different message elements
+	enum
+	{
+		Wizard_Title,
+		Help_Title,
+		Title,
+		Text,
+		Help,
+		Other,
+		Default
+	};
+	/// next page -1 is always finish
+	enum {FINISHED = -1};
     AMGraphicsViewWizard(QWidget* parent = 0);
-    ~AMGraphicsViewWizard();
+    virtual ~AMGraphicsViewWizard();
 
     /// returns the view held by this wizard
     AMSampleCameraGraphicsView* view() const;
@@ -55,15 +75,14 @@ public:
     /// emits moveTo signal with currentId as the argument
     virtual void waitPage();
 
-    /// returns the list of points
-    virtual QList<QPointF*>* pointList() const;
 
-    /// returns the list of coordinates
-    virtual QList<QVector3D*>* coordinateList() const;
 
     /// the number of points for this wizard.
     /// used to generate the options page
     int numberOfPoints() const;
+	/// number of set/wait type pages in the wizard
+	/// usually the same as number of points
+	int numberOfPages() const;
 
 
 
@@ -94,17 +113,28 @@ public:
     /// sets the page to access the options page from
     void setOptionPage(int id);
 
-    // These functions are to protect from accidental motor movement during testing
+	// These functions are to protect from accidental motor movement during testing
 
-    /// in order to prevent motorMovementEnabled_ from being changed outside of where it should be
-    /// it is not operated in the same way as a regular member.  It is always false except immediately
-    /// after it requests its state.  After the state is read, it immediately becomes false again
-    bool motorMovementEnabled();
+	/// in order to prevent motorMovementEnabled_ from being changed outside of where it should be
+	/// it is not operated in the same way as a regular member.  It is always false except immediately
+	/// after it requests its state.  After the state is read, it immediately becomes false again
+	bool motorMovementEnabled();
 
-    /// call this to request the motorMovementState
-    /// this must be called before motorMovementEnabled()
-    /// in order to get the true value
-    void checkMotorMovementState();
+	/// call this to request the motorMovementState
+	/// this must be called before motorMovementEnabled()
+	/// in order to get the true value
+	void checkMotorMovementState();
+
+	bool rotationEnabled() const;
+
+	/// returns the list of coordinates
+	virtual const QList<QVector3D*>* getCoordinateList() const;
+
+	/// returns the list of points
+	virtual const QList<QPointF*>* getPointList() const;
+
+	/// returns the list of rotations
+	virtual const QList<double>* getRotationList() const;
 
 
 
@@ -117,6 +147,8 @@ public slots:
 
     /// sets the coordinate in coordinateList at index to coordinate
     virtual void setCoordinate(QVector3D coordinate, int index);
+
+	virtual void setRotation(double rotation, int index);
 
 
 
@@ -145,35 +177,107 @@ public slots:
 signals:
     void done();
     void moveTo(QVector3D);
+	void moveTo(QVector3D,double);
     void requestMotorMovementEnabled();
     void moveSucceeded();
 
 protected slots:
-    void showOptions(int id);
-    void showOptionsButton(int id);
+	virtual void setHasHelpButton(bool hasHelp);
+	virtual void setDefaultWindowTitle();
+	virtual void showOptions(int id);
+	virtual void showOptionsButton(int id);
     void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
     void mediaPlayerErrorChanged(QMediaPlayer::Error);
+	void setRotationEnabled(bool rotationEnabled);
+	void setNumberOfPages(int numberOfPages);
+	void setNumberOfPoints(int numberOfPoints);
+	void setShowOptionPage(bool showOptionPage);
+
+
+	void coordinateListAppend(QVector3D *coordinate);
+	void pointListAppend(QPointF *point);
+	void rotationsAppend(double rotation);
+	void setFreePage(int freePage);
+
 protected:
-    AMSampleCameraGraphicsView* view_;
-    QPointF* scale_;
-    int numberOfPoints_;
+	virtual int coordinateListCount() const;
+	virtual int relativeId() const;
+	virtual int relativeId(int pageId) const;
+	/// get the page number of wait or set page
+	/// based on its relative id (should be 0<=relativeId<numberOfPages)
+	virtual int pageWait(int relativeId) const;
+	virtual int pageSet(int relativeId) const;
+	/// returns the free page number. Must set it if not using default pages
+	virtual int freePage() const;
 
-    QList<QVector3D*>* coordinateList_;
+	virtual bool isWaitPage(int pageNumber) const;
+	virtual bool isSetPage(int pageNumber) const;
 
-    QList<QPointF*>* pointList_;
+	/// returns the list of coordinates
+	virtual QList<QVector3D*>* coordinateList() const;
 
-    QGraphicsTextItem* fixItem_;
+	/// returns the list of points
+	virtual QList<QPointF*>* pointList() const;
 
-    bool showOptionPage_;
+	/// returns the list of rotations
+	virtual QList<double>* rotations() const;
 
-    int optionsPage_;
+
 
 private slots:
+
+	/// sets the state of motorMovementEnabled
     void setMotorMovementEnabled(bool motorMovementEnabled);
+
 private:
+	/// used to see if motor movement is actually allowed.
+		// if this is true but motorMovement is not allowed
+		// in the main application, it will hang.
     bool motorMovementEnabled_;
 
+	/// the media player used to display the camera feed
     QMediaPlayer* mediaPlayer_;
+
+	/// sets whether the wizard controls rotation
+	/// some wizards may need rotation, some may
+	/// need to have no rotation
+	bool rotationEnabled_;
+
+	/// the number of points to save
+	int numberOfPoints_;
+
+	/// the number of wait/set type pages
+	int numberOfPages_;
+
+	/// sets whether to show the option page next
+	bool showOptionPage_;
+
+	/// first free page (highest assigned page number + 1)
+	int freePage_;
+
+	/// the page id to show the options page from
+	int optionsPage_;
+
+	/// The fix item is used to prevent the screen from flashing
+	/// due to having two views up at the same time
+	QGraphicsTextItem* fixItem_;
+
+	/// List of points
+	QList<QPointF*>* pointList_;
+
+	/// The graphics view used by this wizard
+	AMSampleCameraGraphicsView* view_;
+
+	/// the scale of the view's image
+	QPointF* scale_;
+
+
+
+	/// a list of coordinates to move to.
+	QList<QVector3D*>* coordinateList_;
+
+	/// list of rotations corresponding to coordinateList_
+	QList<double>* rotations_;
 
 
 };

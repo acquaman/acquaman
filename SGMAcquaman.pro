@@ -9,8 +9,11 @@ RESOURCES += \
 	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
 	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
 
-
 SOURCES += \
-	source/application/SGM/SGMMain.cpp
+	source/application/SGM/SGMMain.cpp \
+    source/ui/beamline/camera/AMRotationWizard.cpp
+
+HEADERS += \
+    source/ui/beamline/camera/AMRotationWizard.h
 
 

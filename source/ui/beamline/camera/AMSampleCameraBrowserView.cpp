@@ -54,7 +54,7 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 
 		if(url.isValid()) {
 			if(url.toString() != stringUrl){
-				qDebug() << "Apparently diong a setItemText";
+                                qDebug() << "Apparently doing a setItemText";
 				sourceComboBox_->setItemText(index, url.toString());
 			}
 			setWindowTitle(url.toString());
@@ -139,6 +139,8 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
 	qDebug() << "Error was " << e;
 	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
+        qDebug()<<"Error message "<<videoWidget_->mediaPlayer()->errorString();
+        qDebug()<<"Media content "<<videoWidget_->mediaPlayer()->media().canonicalUrl().toString();
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
@@ -252,14 +254,17 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));
 	connect(this, SIGNAL(cameraWizardPressed()), videoWidget_, SLOT(startCameraWizard()));
 	connect(this, SIGNAL(samplePlateWizardPressed()), videoWidget_, SLOT(startSampleWizard()));
+	connect(this, SIGNAL(rotationWizardPressed()), videoWidget_, SLOT(startRotationWizard()));
 
 	connect(this, SIGNAL(requestLoadBeam()), videoWidget_, SLOT(requestLoadBeam()));
 	connect(this, SIGNAL(requestLoadCamera()), videoWidget_, SLOT(requestLoadCamera()));
 	connect(this, SIGNAL(requestLoadSamplePlate()), videoWidget_, SLOT(requestLoadSamplePlate()));
+	connect(this, SIGNAL(requestLoadRotationConfiguration()), videoWidget_, SLOT(requestLoadRotationConfiguration()));
 
 	connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
 	connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
 	connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+	connect(videoWidget_, SIGNAL(rotationWizardFinished()), this, SIGNAL(rotationWizardFinished()));
 
 	connect(this, SIGNAL(samplePlateSelected()), videoWidget_, SLOT(samplePlateSelected()));
 }

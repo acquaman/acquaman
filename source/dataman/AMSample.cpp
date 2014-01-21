@@ -290,6 +290,7 @@ void AMSample::setElementList(const AMIntList& elements)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
+	qDebug()<<"AMSample:setSampleShapePositionData";
     if(sampleShapePositionData_ != sampleShapePositionData)
     {
         if(sampleShapePositionData_)
@@ -316,6 +317,23 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 		emit requestCurrentTag();
 		emit currentTagChanged(currentTag_);
 		emit elementsChanged(elementString());
+    }
+	qDebug()<<"AMSample:setSampleShapePositionData - done";
+}
+
+/// deletes the sample shape position data.
+void AMSample::removeSampleShapePositionData()
+{
+    qDebug()<<"AMSample::removeSampleShapePositionData";
+    if(sampleShapePositionData_)
+    {
+
+        sampleShapePositionData()->removeShape();
+        setSampleShapePositionData(0);
+    }
+    else
+    {
+        qDebug()<<"AMSample::removeSampleShapePositionData - sample shape is null.";
     }
 }
 
@@ -455,6 +473,8 @@ void AMSample::editCurrentTag(QString tag)
 
 void AMSample::removeSample()
 {
+	qDebug()<<"AMSample::removeSample - calling removeSampleShapePostion Data";
+        removeSampleShapePositionData();
 	emit sampleAboutToBeRemoved();
 }
 
@@ -499,5 +519,7 @@ void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
 	AMShapeData* shapeData = new AMShapeData(this);
 	setSampleShapePositionData(shapeData);
 	sampleShapePositionData_->setCoordinateShape(newShapeData);
-	emit sampleShapeDataChanged();
+        emit sampleShapeDataChanged();
 }
+
+

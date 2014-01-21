@@ -10,12 +10,16 @@
 #include <QMessageBox>
 #include "AMSampleCameraGraphicsView.h"
 #include <QVector3D>
-
+#include <QTimer>
+#include <QTimerEvent>
 
 
 AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
+	/// two points for each square, three squares.
+	setNumberOfPoints(6);
+
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check_One, new AMBeamCheckPage);
     setPage(Page_Check_Two, new AMBeamCheckPage);
@@ -42,24 +46,22 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
     setting_ = false;
     reviewBeamShape_ = true;
 
-    /// two points for each square, three squares.
-    numberOfPoints_ = 6;
 
 
-    for(int i = 0; i < numberOfPoints_; i++)
+
+	for(int i = 0; i < numberOfPoints(); i++)
     {
-        pointList_->append(new QPointF(0,0));
+		pointListAppend(new QPointF(0,0));
     }
 
     topLeft_ = true;
 
-    coordinateList_->clear();
-    coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,-1,0));
-    coordinateList_->append(new QVector3D(0,1,0));
-    coordinateList_->append(new QVector3D(0,0,0));
-    coordinateList_->append(new QVector3D(0,-1,0));
-    coordinateList_->append(new QVector3D(0,1,0));
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,-1,0));
+	coordinateListAppend(new QVector3D(0,1,0));
+	coordinateListAppend(new QVector3D(0,0,0));
+	coordinateListAppend(new QVector3D(0,-1,0));
+	coordinateListAppend(new QVector3D(0,1,0));
 
 
     addOptionPage(Page_Intro);
@@ -200,7 +202,7 @@ QString AMBeamConfigurationWizard::message(int type)
         case Title:
             return QString(tr("Confirm Beam"));
         case Text:
-            return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId());
+			return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId() + 1);
         case Help:
             return QString(tr("Check to see if the rectangle appears around the beamspot.  \n") +
                            tr("If the beamspot is not visible, ensure that visible light has been turned on.  \n") +
@@ -221,7 +223,7 @@ QString AMBeamConfigurationWizard::message(int type)
         case Title:
             return QString(tr("Set Beam"));
         case Text:
-            return QString(tr("Draw a box over beam position %1")).arg(relativeId());
+			return QString(tr("Draw a box over beam position %1")).arg(relativeId() + 1);
         case Help:
             return QString(tr("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  "))
                     + tr("Try to fit the box to best encompass the entire beamspot.");
@@ -239,7 +241,7 @@ QString AMBeamConfigurationWizard::message(int type)
         case Title:
             return QString(tr("Please Wait"));
         case Text:
-            return QString(tr("Moving to position %1")).arg(relativeId());
+			return QString(tr("Moving to position %1")).arg(relativeId() + 1);
         case Help:
             return QString(tr("If the configuration is stuck here please check to make sure that motor movement is enabled.")
                               + tr(" If movement is enabled there may be a problem communicating with the sample manipulator motors."));
@@ -292,18 +294,18 @@ QString AMBeamConfigurationWizard::message(int type)
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
 
-    int index = relativeId() - 1;
+	int index = relativeId();
     QPointF* newPoint;
 
     if(topLeft_)
     {
-        newPoint = (*pointList_)[2*(index)];
+		newPoint = (*pointList())[2*(index)];
         connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(addPoint(QPointF)));
         topLeft_ = !topLeft_;
     }
     else
     {
-        newPoint = (*pointList_)[2*(index) + 1];
+		newPoint = (*pointList())[2*(index) + 1];
     }
 
     *newPoint = mapPointToVideo(position);
@@ -328,28 +330,28 @@ int AMBeamConfigurationWizard::relativeId()
     case Page_Check_One:
         case Page_Wait_One:
         case Page_Set_One:
-        return 1;
+		return 0;
     case Page_Check_Two:
     case Page_Wait_Two:
     case Page_Set_Two:
-        return 2;
+		return 1;
     case Page_Check_Three:
     case Page_Wait_Three:
     case Page_Set_Three:
-        return 3;
+		return 2;
     default:
-        return 0;
+		return -1;
     }
 }
 
-void AMBeamConfigurationWizard::waitPage()
-{
-    emit moveTo(*coordinateList()->at(relativeId() - 1));
-}
+//void AMBeamConfigurationWizard::waitPage()
+//{
+//	emit moveTo(*coordinateList()->at(relativeId()));
+//}
 
 void AMBeamConfigurationWizard::showBeamShape()
 {
-    emit showBeamMarker(relativeId()-1);
+	emit showBeamMarker(relativeId());
 }
 
 bool AMBeamConfigurationWizard::setting()
@@ -451,6 +453,18 @@ void AMBeamConfigurationWizard::back()
 }
 
 
+void AMBeamIntroPage::initializePage()
+{
+	AMWizardPage::initializePage();
+	startTimer(0);
+}
+
+void AMBeamIntroPage::timerEvent(QTimerEvent *event)
+{
+	killTimer(event->timerId());
+	viewWizard()->next();
+}
+
 void AMBeamCheckPage::initializePage()
 {
     if(((AMBeamConfigurationWizard*)viewWizard())->reviewBeamShape())
@@ -483,5 +497,7 @@ void AMBeamSelectPage::initializePage()
 
 
 }
+
+
 
 

@@ -24,6 +24,8 @@ public:
 
     /// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.
     QPointF mapSceneToVideo(const QPointF& sceneCoordinate) const;
+	/// Inverse of mapSceneToVideo, takes a relative point and gives it a screen position.
+	QPointF mapVideoToScene(const QPointF &videoCoordinate) const;
 
 signals:
 

@@ -47,6 +47,10 @@ AMShapeData::~AMShapeData()
 
 QPolygonF* AMShapeData::shape() const
 {
+    if(!(shape_))
+    {
+        qDebug()<<"AMShapeData::shape - shape is null";
+    }
     return shape_;
 }
 
@@ -114,11 +118,12 @@ void AMShapeData::setShape(const QPolygonF shape)
 
 void AMShapeData::setName(QString name)
 {
+
     if(name_ != name)
     {
         name_ = name;
         emit nameChanged(name_);
-		emit shapeDataChanged(this);
+        emit shapeDataChanged(this);
     }
 }
 
@@ -218,6 +223,10 @@ void AMShapeData::setVisible(bool visible)
 
 void AMShapeData::copy(const AMShapeData *other)
 {
+    if(!(other))
+    {
+        qDebug()<<"Other is null";
+    }
 	blockSignals(true);
     setName(other->name());
     setOtherDataFieldOne(other->otherDataFieldOne());
@@ -246,15 +255,16 @@ void AMShapeData::copy(const AMShapeData *other)
 	emit shapeDataChanged(this);
 }
 
-/// finds the center of the shape - must be rectangular
+/// finds the center of the shape
+/// Shape should have a repeated start/end point
 QVector3D AMShapeData::centerCoordinate() const
 {
     QVector3D center = QVector3D(0,0,0);
-    for(int i = 0; i < (coordinateCount_); i++)// dont want the last point
+    for(int i = 0; i < (coordinateCount_ - 1); i++)// dont want the last point
     {
         center += coordinate(i);
     }
-    return center/(double)(coordinateCount_ );
+    return center/(double)(coordinateCount_ - 1);
 }
 
 /// shifts the shape by the given amount
@@ -278,6 +288,7 @@ void AMShapeData::shiftTo(const QVector3D &shiftTo)
 }
 
 /// returns a count of the number of coordinates
+/// Should be one more than the number or vertices (start/end is repeated)
 int AMShapeData::count() const
 {
     return coordinateCount_;
@@ -327,9 +338,17 @@ bool AMShapeData::isEqual(const AMShapeData &other) const
     return true;
 }
 
+bool AMShapeData::removeShape()
+{
+    qDebug()<<"AMShapeData::removeShape";
+    emit shapeDataRemoved(this);
+}
+
 /// checks for a valid coordinate index
 bool AMShapeData::validIndex(int index) const
 {
     return (index >= 0 && index <= coordinateCount_);
 }
+
+
 

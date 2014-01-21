@@ -58,11 +58,15 @@ public:
     /// remove distortion from a point
     QPointF undistortPoint(QPointF point) const;
 
+	// general functions
+	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
+	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
+
 signals:
     void configurationChanged(AMCameraConfiguration*);
 
 protected:
-
+	// general function
     double dot(QVector3D a, QVector3D b) const;
 
     /// transforms 2D point to 3D vector, using current camera matrix
@@ -89,6 +93,8 @@ protected:
     /// finds absolute coordinates from a coordinate and an extrinsic Matrix
     MatrixXd findWorldCoordinate(MatrixXd matrix, MatrixXd extrinsicMatrix) const;
 
+	// general functions
+
     /// checks to see if two numbers are not equal, within the given tolerance
     bool notEqual(double a, double b, double tolerance = 0.001) const;
 
@@ -102,7 +108,7 @@ protected:
     /// given two points and the distance between them (t).
     /// returns the values as a vector
     QVector3D lineParameters(QVector3D pointOne, QVector3D pointTwo, double t) const;
-
+	//
 
 protected:
     AMCameraConfiguration* cameraConfiguration_;

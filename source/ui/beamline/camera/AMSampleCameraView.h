@@ -28,6 +28,7 @@ class QMediaPlayer;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
+class AMRotationWizard;
 class AMShapeDataListView;
 class AMShapeData;
 class AMSamplePlate;
@@ -221,6 +222,7 @@ signals:
 	void applyDistortion();
 
 	void motorMovementEnabled(bool enabled);
+        void motorRotation(double rotation);
 
 	void moveSucceeded();
 
@@ -232,6 +234,7 @@ signals:
 	void beamWizardFinished();
 	void cameraWizardFinished();
 	void samplePlateWizardFinished();
+	void rotationWizardFinished();
 
 	void samplePlateSelected(AMSamplePlate*);
 
@@ -261,6 +264,8 @@ public slots:
 
 	void startSampleWizard();
 
+	void startRotationWizard();
+
 	void setSamplePlate();
 
 	void setCameraConfigurationShape();
@@ -280,6 +285,7 @@ public slots:
 	void requestLoadBeam();
 	void requestLoadCamera();
 	void requestLoadSamplePlate();
+	void requestLoadRotationConfiguration();
 
 	void setRotationOffsetX(QString offset);
 	void setRotationOffsetY(QString offset);
@@ -358,11 +364,19 @@ protected slots:
 
 	void beamCalibrate();
 
+	void samplePlateCreate();
+
+	void rotationConfiguration();
+
+
 	void moveBeamSamplePlate(QVector3D);
+	void moveBeamSamplePlate(QVector3D, double);
 
 	void showBeamMarker(int);
 
 	void transmitMotorMovementEnabled();
+
+        void transmitMotorRotation();
 
 	void updateShapeName(QString newName);
 
@@ -419,6 +433,8 @@ protected:
 	QColor colour(ShapeColour role);
 
 	void drawSamplePlate();
+
+        bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
 
 
 protected:
@@ -564,6 +580,8 @@ protected:
 	QPushButton* samplePlateWizardButton_;
 	AMSamplePlateWizard* samplePlateWizard_;
 	int samplePlateMovement_;
+
+	AMRotationWizard* rotationWizard_;
 
 	QPushButton* cameraConfigurationShapeButton_;
 

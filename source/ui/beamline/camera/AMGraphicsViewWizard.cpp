@@ -24,11 +24,19 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
     view_ = new AMSampleCameraGraphicsView();
     scale_ = new QPointF(1,1);
     pointList_ = new QList<QPointF*>();
+	pointList_->clear();
     coordinateList_ = new QList<QVector3D*>();
+	coordinateList_->clear();
+	rotations_ = new QList<double>();
+	rotations_->clear();
     showOptionPage_ = false;
     optionsPage_ = -1;
     motorMovementEnabled_ = false;
+	rotationEnabled_ = false;
     mediaPlayer_ = new QMediaPlayer();
+	/// set the default free page. Make sure to set if not using
+	/// default pages.  Set through setFreePage(freePageNumber);
+	freePage_ = Default_Free;
 
 
     connect(QWizard::button(QWizard::FinishButton), SIGNAL(clicked()), this, SIGNAL(done()));
@@ -85,7 +93,7 @@ void AMGraphicsViewWizard::setScale(double scaleFactor)
 
 void AMGraphicsViewWizard::waitPage()
 {
-    emit moveTo(*coordinateList()->at(currentId()));
+	emit moveTo(*coordinateList()->at(relativeId()));
 }
 
 QList<QPointF *> *AMGraphicsViewWizard::pointList() const
@@ -95,12 +103,22 @@ QList<QPointF *> *AMGraphicsViewWizard::pointList() const
 
 QList<QVector3D *> *AMGraphicsViewWizard::coordinateList() const
 {
-    return coordinateList_;
+	return coordinateList_;
+}
+
+QList<double> *AMGraphicsViewWizard::rotations() const
+{
+	return rotations_;
 }
 
 int AMGraphicsViewWizard::numberOfPoints() const
 {
-    return numberOfPoints_;
+	return numberOfPoints_;
+}
+
+int AMGraphicsViewWizard::numberOfPages() const
+{
+	return numberOfPages_;
 }
 
 void AMGraphicsViewWizard::setPoint(QPointF point, int index)
@@ -111,8 +129,14 @@ void AMGraphicsViewWizard::setPoint(QPointF point, int index)
 
 void AMGraphicsViewWizard::setCoordinate(QVector3D coordinate, int index)
 {
-    if(pointList_->count() > index)
-        (*coordinateList_->at(index)) = coordinate;
+	if(coordinateList_->count() > index)
+		(*coordinateList_->at(index)) = coordinate;
+}
+
+void AMGraphicsViewWizard::setRotation(double rotation, int index)
+{
+	if(rotations_->count() > index)
+		rotations_->replace(index,rotation);
 }
 
 /// defines text in one location
@@ -127,6 +151,12 @@ QString AMGraphicsViewWizard::message(int type)
     //          case Help:
     //              return "Help message text";
     //  etc.
+	//  when using non-specified wait/set pages, put in default case:
+	//	default:
+	//		if(isSetPage(pageNumber)
+	//			...
+	//		else if(isWaitPage(pageNumber)
+	//			...
     if(type)
     {
         return "Default message";
@@ -168,8 +198,12 @@ bool AMGraphicsViewWizard::checked(int page) const
     return field(QString("configured%1").arg(page)).toBool();
 }
 
+/// call this function to make the option page accessible from
+/// page with page number id.
 void AMGraphicsViewWizard::addOptionPage(int id)
 {
+	// to access the "option" page, return the desired page
+	// for the condition showOptionsPage().
     setOption(HaveCustomButton1);
     setButtonText(CustomButton1,"Options");
     connect(this, SIGNAL(customButtonClicked(int)), this, SLOT(showOptions(int)));
@@ -214,7 +248,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
     /// when there is a QGraphicsItem or a descendent in less than
     /// all the views, but at least one.
     /// It seems that placing a QGraphicsTextItem with it's bounding rectangle
-    /// touching the current views boundaries (adjusted for scrolling) will
+	/// touching the current view's boundaries (adjusted for scrolling) will
     /// stop the behaviour.
     fixItem_ = new QGraphicsTextItem("Fix");
     fixItem_->setObjectName("Fix");
@@ -227,7 +261,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
     view_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view_->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-    fixText();
+	fixText();
 
     /// get the mediaObject
     foreach(QGraphicsItem* item, view_->scene()->items())
@@ -317,6 +351,17 @@ void AMGraphicsViewWizard::testMoveSlot()
     emit moveSucceeded();
 }
 
+void AMGraphicsViewWizard::setHasHelpButton(bool hasHelp)
+{
+	setOption(HaveHelpButton, hasHelp);
+	connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
+}
+
+void AMGraphicsViewWizard::setDefaultWindowTitle()
+{
+	QWizard::setWindowTitle(message(Wizard_Title));
+}
+
 void AMGraphicsViewWizard::showOptions(int id)
 {
     if(id == CustomButton1)
@@ -391,6 +436,136 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 //        mediaPlayer_->play();
     }
 
+}
+
+void AMGraphicsViewWizard::setRotationEnabled(bool rotationEnabled)
+{
+	rotationEnabled_ = rotationEnabled;
+}
+
+void AMGraphicsViewWizard::setNumberOfPages(int numberOfPages)
+{
+	numberOfPages_ = numberOfPages;
+}
+
+void AMGraphicsViewWizard::setNumberOfPoints(int numberOfPoints)
+{
+	numberOfPoints_ = numberOfPoints;
+}
+
+void AMGraphicsViewWizard::setShowOptionPage(bool showOptionPage)
+{
+	showOptionPage_ = showOptionPage;
+}
+
+void AMGraphicsViewWizard::coordinateListAppend(QVector3D *coordinate)
+{
+	coordinateList_->append(coordinate);
+}
+
+void AMGraphicsViewWizard::pointListAppend(QPointF *point)
+{
+	pointList_->append(point);
+}
+
+void AMGraphicsViewWizard::rotationsAppend(double rotation)
+{
+	rotations_->append(rotation);
+}
+
+void AMGraphicsViewWizard::setFreePage(int freePage)
+{
+	freePage_ = freePage;
+}
+
+int AMGraphicsViewWizard::coordinateListCount() const
+{
+	return coordinateList_->count();
+}
+
+int AMGraphicsViewWizard::relativeId() const
+{
+	return relativeId(currentId());
+}
+
+int AMGraphicsViewWizard::relativeId(int pageId) const
+{
+	if(pageId >= freePage())
+	{
+		if(pageId >= freePage() + numberOfPages())
+		{
+			return pageId - freePage() - numberOfPages();
+		}
+		else
+		{
+			return pageId - freePage();
+		}
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int AMGraphicsViewWizard::pageWait(int relativeId) const
+{
+	if(relativeId >= numberOfPages())
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
+	}
+	else if(relativeId < 0)
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Min index is 0.";
+	}
+	return freePage() + relativeId;
+}
+
+int AMGraphicsViewWizard::pageSet(int relativeId) const
+{
+	if(relativeId >= numberOfPages())
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
+	}
+	else if(relativeId < 0)
+	{
+		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Min index is 0.";
+	}
+	return freePage() + numberOfPages() + relativeId;
+}
+
+int AMGraphicsViewWizard::freePage() const
+{
+	return freePage_;
+}
+
+bool AMGraphicsViewWizard::isWaitPage(int pageNumber) const
+{
+	return (pageNumber >= freePage()) && (pageNumber < (freePage() + numberOfPages()));
+}
+
+bool AMGraphicsViewWizard::isSetPage(int pageNumber) const
+{
+	return (pageNumber >= (freePage() + numberOfPages())) && (pageNumber < (freePage() + 2*numberOfPages()));
+}
+
+bool AMGraphicsViewWizard::rotationEnabled() const
+{
+	return rotationEnabled_;
+}
+
+const QList<QVector3D *> *AMGraphicsViewWizard::getCoordinateList() const
+{
+	return coordinateList();
+}
+
+const QList<QPointF *> *AMGraphicsViewWizard::getPointList() const
+{
+	return pointList();
+}
+
+const QList<double> *AMGraphicsViewWizard::getRotationList() const
+{
+	return rotations();
 }
 
 void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
@@ -615,8 +790,14 @@ AMWizardOptionPage::AMWizardOptionPage(QWidget *parent)
 void AMWizardOptionPage::initializePage()
 {
     int points = viewWizard()->numberOfPoints();
-    coordinateEdit_ = new QLineEdit* [3*points];
-    for(int i = 0; i < 3*points; i++)
+	int numberOfDimensions = 3;
+	/// if including rotation, add a fourth element to each coordinate
+	if(viewWizard()->rotationEnabled())
+	{
+		numberOfDimensions = 4;
+	}
+	coordinateEdit_ = new QLineEdit* [numberOfDimensions*points];
+	for(int i = 0; i < numberOfDimensions*points; i++)
     {
         coordinateEdit_[i] = new QLineEdit();
     }
@@ -630,9 +811,9 @@ void AMWizardOptionPage::initializePage()
         rowFrame[i] = new QFrame();
         rowLayout[i] = new QHBoxLayout();
         rowLayout[i]->setContentsMargins(12,4,12,4);
-        for(int j = 0; j < 3; j++)
+		for(int j = 0; j < numberOfDimensions; j++)
         {
-            rowLayout[i]->addWidget(coordinateEdit_[3*i + j]);
+			rowLayout[i]->addWidget(coordinateEdit_[numberOfDimensions*i + j]);
         }
 
         rowLayout[i]->addStretch();
@@ -646,15 +827,24 @@ void AMWizardOptionPage::initializePage()
 
     AMWizardPage::initializePage();
 
+	const int X = 0;
+	const int Y = 1;
+	const int Z = 2;
+	const int ROTATION = 3;
 
     for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
     {
-        coordinateEdit_[3*i]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->x()));
-        connect(coordinateEdit_[3*i], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-        coordinateEdit_[3*i+1]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->y()));
-        connect(coordinateEdit_[3*i+1], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
-        coordinateEdit_[3*i+2]->setText(QString("%1").arg(viewWizard()->coordinateList()->at(i)->z()));
-        connect(coordinateEdit_[3*i+2], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+X]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->x()));
+		connect(coordinateEdit_[numberOfDimensions*i+X], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+Y]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->y()));
+		connect(coordinateEdit_[numberOfDimensions*i+Y], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		coordinateEdit_[numberOfDimensions*i+Z]->setText(QString("%1").arg(viewWizard()->getCoordinateList()->at(i)->z()));
+		connect(coordinateEdit_[numberOfDimensions*i+Z], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		if(viewWizard()->rotationEnabled())
+		{
+			coordinateEdit_[numberOfDimensions*i+ROTATION]->setText(QString("%1").arg(viewWizard()->getRotationList()->at(i)));
+			connect(coordinateEdit_[numberOfDimensions*i+ROTATION], SIGNAL(textEdited(QString)), this, SLOT(textChanged()));
+		}
     }
 
 
@@ -673,18 +863,41 @@ bool AMWizardOptionPage::isComplete() const
 
 void AMWizardOptionPage::textChanged()
 {
+
+	int numberOfDimensions = 3;
+	/// if including rotation, add a fourth element to each coordinate
+	if(viewWizard()->rotationEnabled())
+	{
+		numberOfDimensions = 4;
+	}
+
+	const int X = 0;
+	const int Y = 1;
+	const int Z = 2;
+	const int ROTATION = 3;
+
     for(int i = 0; i < viewWizard()->numberOfPoints(); i++)
     {
-        double x,y,z;
-        x = coordinateEdit_[3*i]->text().toDouble();
-        y = coordinateEdit_[3*i+1]->text().toDouble();
-        z = coordinateEdit_[3*i+2]->text().toDouble();
+		double x,y,z,rotation;
+		x = coordinateEdit_[numberOfDimensions*i+X]->text().toDouble();
+		y = coordinateEdit_[numberOfDimensions*i+Y]->text().toDouble();
+		z = coordinateEdit_[numberOfDimensions*i+Z]->text().toDouble();
+		if(viewWizard()->rotationEnabled())
+		{
+			rotation = coordinateEdit_[numberOfDimensions*i+ROTATION]->text().toDouble();
+			viewWizard()->setRotation(rotation,i);
+		}
         QVector3D newVector(x,y,z);
         viewWizard()->setCoordinate(newVector, i);
+
     }
 
 
 }
+
+
+
+
 
 
 

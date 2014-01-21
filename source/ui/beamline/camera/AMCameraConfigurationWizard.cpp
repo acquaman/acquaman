@@ -25,30 +25,22 @@
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     : AMGraphicsViewWizard(parent)
 {
-    numberOfPoints_ = 6;
-    showOptionPage_ = false;
+	setNumberOfPages(6);
+	setNumberOfPoints(numberOfPages());
+	setFreePage(Page_Free);
 
     setPage(Page_Intro, new IntroPage);
     setPage(Page_Check, new CheckPage);
     setPage(Page_Final, new AMWizardPage);
-    setPage(Page_Select_One, new SelectPage);
-    setPage(Page_Select_Two, new SelectPage);
-    setPage(Page_Select_Three, new SelectPage);
-    setPage(Page_Select_Four, new SelectPage);
-    setPage(Page_Select_Five, new SelectPage);
-    setPage(Page_Select_Six, new SelectPage);
-    setPage(Page_Wait_One, new WaitPage);
-    setPage(Page_Wait_Two, new WaitPage);
-    setPage(Page_Wait_Three, new WaitPage);
-    setPage(Page_Wait_Four, new WaitPage);
-    setPage(Page_Wait_Five, new WaitPage);
-    setPage(Page_Wait_Six, new WaitPage);
     setPage(Page_Option, new AMWizardOptionPage);
+	for(int i = 0; i < numberOfPages(); i++)
+	{
+		setPage(pageSet(i), new SelectPage);
+		setPage(pageWait(i), new WaitPage);
+	}
     setStartId(Page_Intro);
-    setOption(HaveHelpButton, true);
-//    setPixmap(QWizard::LogoPixmap, QPixMap());
-    connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
-    setWindowTitle(message(Wizard_Title));
+	setHasHelpButton(true);
+	setDefaultWindowTitle();
     disconnect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
     connect(button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(back()));
 
@@ -65,19 +57,17 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 
     setMinimumSize(600,600);
 
-    pointList_->clear();
-    for(int i = 0; i < numberOfPoints_; i++)
+	for(int i = 0; i < numberOfPoints(); i++)
     {
-        pointList_->append(new QPointF(0,0));
+		pointListAppend(new QPointF(0,0));
     }
     /// set the coordinates
-    coordinateList_->clear();
-    coordinateList_->append(new  QVector3D(0,6,0));
-    coordinateList_->append(new  QVector3D(-5,6,0));
-    coordinateList_->append(new  QVector3D(0,6,-20));
-    coordinateList_->append(new  QVector3D(10,2,-8));
-    coordinateList_->append(new  QVector3D(-10,2,-8));
-    coordinateList_->append(new  QVector3D(0,2,8.5));
+	coordinateListAppend(new  QVector3D(0,6,0));
+	coordinateListAppend(new  QVector3D(-5,6,0));
+	coordinateListAppend(new  QVector3D(0,6,-20));
+	coordinateListAppend(new  QVector3D(10,2,-8));
+	coordinateListAppend(new  QVector3D(-10,2,-8));
+	coordinateListAppend(new  QVector3D(0,2,8.5));
 
     //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
@@ -88,53 +78,46 @@ AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
 
 int AMCameraConfigurationWizard::nextId() const
 {
-    qDebug()<<"AMCameraConfigurationWizard::nextId";
-
-    switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
     {
-        case Page_Intro:
+	case Page_Intro:
         if(showOptionPage())
             return Page_Option;
         else return Page_Check;
     case Page_Option:
         return Page_Check;
-        case Page_Check:
+	case Page_Check:
         if(checked(Page_Check))
             {
                 return Page_Final;
             }
             else
             {
-
-                return Page_Wait_One;
+				return pageWait(0);
             }
-        case Page_Select_One:
-            return Page_Wait_Two;
-        case Page_Select_Two:
-            return Page_Wait_Three;
-        case Page_Select_Three:
-            return Page_Wait_Four;
-        case Page_Select_Four:
-            return Page_Wait_Five;
-        case Page_Select_Five:
-            return Page_Wait_Six;
-        case Page_Select_Six:
-            return Page_Final;
-        case Page_Wait_One:
-            return Page_Select_One;
-        case Page_Wait_Two:
-            return Page_Select_Two;
-        case Page_Wait_Three:
-            return Page_Select_Three;
-        case Page_Wait_Four:
-            return Page_Select_Four;
-        case Page_Wait_Five:
-            return Page_Select_Five;
-        case Page_Wait_Six:
-            return Page_Select_Six;
-        case Page_Final:
-        default:
-            return -1;
+	case Page_Final:
+	default:
+		int id = relativeId();
+		if(isSetPage(pageId))
+		{
+			if(id == numberOfPages() - 1)
+			{
+				return Page_Final;
+			}
+			else
+			{
+				return pageWait(id+1);
+			}
+		}
+		else if(isWaitPage(pageId))
+		{
+			return pageSet(id);
+		}
+		else
+		{
+			return FINISHED;
+		}
     }
 }
 
@@ -142,50 +125,28 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
     qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
     QPointF* newPoint;
-    int index;
-    switch(currentId())
-    {
-    case Page_Select_One:
-        index = 0;
-        break;
-    case Page_Select_Two:
-        index = 1;
-        break;
-    case Page_Select_Three:
-        index = 2;
-        break;
-    case Page_Select_Four:
-        index = 3;
-        break;
-    case Page_Select_Five:
-        index = 4;
-        break;
-    case Page_Select_Six:
-        index = 5;
-        break;
-    default:
-        index = -1;
-        break;
-    }
+	int index = relativeId();
+	if (!isSetPage(currentId()))
+	{
+		return;
+	}
 
     if(checked(Page_Check))
     {
-        for(int i = 0; i < pointList_->count(); i++)
-        {
-            qDebug()<<"Deleting point"<<i;
-            newPoint = pointList_->at(i);
-            *newPoint = QPointF(0,0);
-        }
+		clearPoints();
         return;
     }
-    else if(index < 0)return;
+	else if(index < 0)
+	{
+		return;
+	}
 
 
-    newPoint = pointList_->at(index);
+	newPoint = pointList()->at(index);
     QPointF newPosition = mapPointToVideo(position);
     *newPoint = newPosition;
 
-    foreach(QPointF* point, *pointList_)
+	foreach(QPointF* point, *pointList())
     {
         qDebug()<<*point;
     }
@@ -207,7 +168,18 @@ double AMCameraConfigurationWizard::coordinateY(int id)
 
 double AMCameraConfigurationWizard::coordinateZ(int id)
 {
-    return coordinateList()->at(id-1)->z();
+	return coordinateList()->at(id-1)->z();
+}
+
+void AMCameraConfigurationWizard::clearPoints()
+{
+	QPointF *newPoint;
+	for(int i = 0; i < pointList()->count(); i++)
+	{
+		qDebug()<<"Deleting point"<<i;
+		newPoint = pointList()->at(i);
+		*newPoint = QPointF(0,0);
+	}
 }
 
 
@@ -260,51 +232,7 @@ QString AMCameraConfigurationWizard::message(int messageType)
             break;
         }
         break;
-    case Page_Select_One:
-    case Page_Select_Two:
-    case Page_Select_Three:
-    case Page_Select_Four:
-    case Page_Select_Five:
-    case Page_Select_Six:
-        switch(messageType)
-        {
-        case Title:
-            return QString(tr("Selection Page %1")).arg(relativeId());
-        case Text:
-            return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
-        case Help:
-            return QString(tr("For each selection you will need to click on the same point on the sample plate.  Upon clicking, the")
-                           + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
-                           + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
-        case Other:
-        case Default:
-        default:
-            break;
-        }
-        break;
-    case Page_Wait_One:
-    case Page_Wait_Two:
-    case Page_Wait_Three:
-    case Page_Wait_Four:
-    case Page_Wait_Five:
-    case Page_Wait_Six:
-        switch(messageType)
-        {
-        case Title:
-            return QString(tr("Moving to position %1")).arg(relativeId());
-        case Text:
-             return QString(tr("Please wait until the manipulator has finished moving."));
-        case Help:
-            return QString(tr("The sample manipulator is attempting to move to the next point for calibration.  If")
-                           + tr(" the video does not reappear within a few moments there may be a problem communicating")
-                           + tr(" with the motors.  Please ensure that motor movement is enabled.  You may re-attempt")
-                           + tr(" this movement by selecting back, followed by next."));
-        case Other:
-        case Default:
-        default:
-            break;
-        }
-        break;
+
     case Page_Final:
         switch(messageType)
         {
@@ -322,6 +250,61 @@ QString AMCameraConfigurationWizard::message(int messageType)
             break;
         }
         break;
+	case Page_Option:
+		switch(messageType)
+		{
+		case Title:
+			return QString(tr("Motor movement coordinates"));
+		case Text:
+			return QString(tr("Set the coordinates to move to for this configuration."));
+		case Help:
+			return QString(tr("Changing the values on this page will set the motor coordinates to be moved to for the camera configuration."));
+		case Other:
+		case Default:
+		default:
+			break;
+		}
+		break;
+	default:
+		if(isSetPage(currentId()))
+		{
+			switch(messageType)
+			{
+			case Title:
+				return QString(tr("Selection Page %1")).arg(relativeId()+1);
+			case Text:
+				return QString(tr("Select the point corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
+			case Help:
+				return QString(tr("For each selection you will need to click on the same point on the sample plate.  Upon clicking, the")
+							   + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
+							   + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
+			case Other:
+			case Default:
+			default:
+				break;
+			}
+			break;
+		}
+		else if(isWaitPage(currentId()))
+		{
+			switch(messageType)
+			{
+			case Title:
+				return QString(tr("Moving to position %1")).arg(relativeId()+1);
+			case Text:
+				 return QString(tr("Please wait until the manipulator has finished moving."));
+			case Help:
+				return QString(tr("The sample manipulator is attempting to move to the next point for calibration.  If")
+							   + tr(" the video does not reappear within a few moments there may be a problem communicating")
+							   + tr(" with the motors.  Please ensure that motor movement is enabled.  You may re-attempt")
+							   + tr(" this movement by selecting back, followed by next."));
+			case Other:
+			case Default:
+			default:
+				break;
+			}
+			break;
+		}
     }
     switch(messageType)
     {
@@ -339,101 +322,56 @@ QString AMCameraConfigurationWizard::message(int messageType)
     }
 }
 
-int AMCameraConfigurationWizard::relativeId()
-{
-    // this function relates each page number with an
-    // appropriate integer, used for naming and indexing.
-    // This prevents the need of a unique page type for
-    // each page while simpifying logic for indexing
-    // coordinates.
-    switch(currentId())
-    {
-    case Page_Select_One:
-    case Page_Wait_One:
-        return 1;
-    case Page_Select_Two:
-     case Page_Wait_Two:
-        return 2;
-    case Page_Select_Three:
-    case Page_Wait_Three:
-        return 3;
-    case Page_Select_Four:
-    case Page_Wait_Four:
-        return 4;
-    case Page_Select_Five:
-    case Page_Wait_Five:
-        return 5;
-    case Page_Select_Six:
-    case Page_Wait_Six:
-        return 6;
-    default:
-        return 0;
-    }
-}
-
-void AMCameraConfigurationWizard::waitPage()
-{
-    qDebug()<<"AMCameraConfigurationWizard::waitPage";
-    emit moveTo(*coordinateList()->at(relativeId()-1));
-}
-
-
-
+//void AMCameraConfigurationWizard::waitPage()
+//{
+//    qDebug()<<"AMCameraConfigurationWizard::waitPage";
+//	emit moveTo(*coordinateList()->at(relativeId()));
+//}
 
 void AMCameraConfigurationWizard::back()
 {
     // this makes sure that the motors move to the
     // correct position upon pressing back.
-    int id = currentId();
-    switch(id)
-    {
-        case Page_Wait_One:
-            ((WaitPage*)page(id))->stopTimer();
-            QWizard::back();
-            cleanupPage(Page_Check);
-            initializePage(Page_Check);
-            break;
-        case Page_Wait_Two:
-        case Page_Wait_Three:
-        case Page_Wait_Four:
-        case Page_Wait_Five:
-        case Page_Wait_Six:
-            ((WaitPage*)page(id))->stopTimer();
-            QWizard::back();
-            break;
-        case Page_Select_One:
-            while(currentId() != Page_Check) QWizard::back();
-            if(currentId() == Page_Check)
-            {
-                // page check needs a cleanup or it will attempt to
-                // display everything twice
-                cleanupPage(Page_Check);
-                initializePage(Page_Check);
-            }
-            break;
-        case Page_Select_Two:
-            while(currentId() != Page_Wait_One) QWizard::back();
-            if(currentId() == Page_Wait_One) initializePage(Page_Wait_One);
-            break;
-        case Page_Select_Three:
-            while(currentId() != Page_Wait_Two) QWizard::back();
-            if(currentId() == Page_Wait_Two) initializePage(Page_Wait_Two);
-            break;
-        case Page_Select_Four:
-            while(currentId() != Page_Wait_Three) QWizard::back();
-            if(currentId() == Page_Wait_Three) initializePage(Page_Wait_Three);
-            break;
-        case Page_Select_Five:
-            while(currentId() != Page_Wait_Four) QWizard::back();
-            if(currentId() == Page_Wait_Four) initializePage(Page_Wait_Four);
-            break;
-        case Page_Select_Six:
-            while(currentId() != Page_Wait_Five) QWizard::back();
-            if(currentId() == Page_Wait_Five) initializePage(Page_Wait_Five);
-            break;
-        default:
-            QWizard::back();
-    }
+	int pageId = currentId();
+	int id = relativeId();
+	if(isWaitPage(pageId))
+	{
+		((WaitPage*)page(pageId))->stopTimer();
+		QWizard::back();
+		if(id == 0)
+		{
+			cleanupPage(Page_Check);
+			initializePage(Page_Check);
+		}
+	}
+	else if(isSetPage(pageId))
+	{
+		int prevPage = pageWait(id-1);
+		if(id == 0)
+		{
+			prevPage = Page_Check;
+		}
+		while(currentId() != prevPage) QWizard::back();
+		if(currentId() == prevPage)
+		{
+
+			if(id == 0)
+			{
+				// page check needs a cleanup or it will attempt to
+				// display everything twice
+				cleanupPage(prevPage);
+			}
+			initializePage(prevPage);
+		}
+		else
+		{
+			qDebug()<<"AMCameraConfigurationWizard::back - could not reach correct page";
+		}
+	}
+	else
+	{
+		QWizard::back();
+	}
 }
 
 void IntroPage::initializePage()
