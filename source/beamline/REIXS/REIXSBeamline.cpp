@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include <QDebug>
+#include <QTimer>
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -189,12 +190,12 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
-	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);
+	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);//, 2.0,new AMControlStatusCheckerDefault(1),-1);
 	directEnergy->setSettlingTime(0);
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 180, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
 	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
@@ -815,12 +816,18 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 bool REIXSBrokenMonoControl::stop()
 {
-	bool success = control_->stop();
-
 	if(moveAction_) {
 		moveAction_->cancel();
 		stopInProgress_ = true;
 	}
+		bool success = control_->stop();
+		QTimer *repeat = new QTimer(this);
+		connect(repeat, SIGNAL(timeout()), control_, SLOT(stop()));
+		connect(control_,SIGNAL(movingChanged(bool)),repeat,SLOT(stop()));
+
+		if(control_->movingPVValue()==1)
+			repeat->start(250);
+
 
 	return success;
 }
