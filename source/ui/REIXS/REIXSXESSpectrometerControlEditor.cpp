@@ -42,6 +42,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	populateGratingComboBox();
 	updateMaskPosition();
 	updateCurrentEnergyStatus();
+	if(spectrometer_->eV() > 0) ui_->energyBox->setValue(spectrometer_->eV());
 
 	connect(spectrometer_, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus(double)));
 	connect(spectrometer_, SIGNAL(calibrationChanged()), this, SLOT(populateGratingComboBox()));
