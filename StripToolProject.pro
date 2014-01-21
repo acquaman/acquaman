@@ -25,7 +25,8 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripToolSidePanel.cpp \
     source/StripChart/PlotOptionsDialog.cpp \
     source/StripChart/WaterfallEntryWidget.cpp \
-    source/StripChart/StripToolSeries.cpp
+    source/StripChart/StripToolSeries.cpp \
+    source/StripChart/StripToolVariable.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -45,6 +46,7 @@ HEADERS  += \
     source/StripChart/StripToolSidePanel.h \
     source/StripChart/PlotOptionsDialog.h \
     source/StripChart/WaterfallEntryWidget.h \
-    source/StripChart/StripToolSeries.h
+    source/StripChart/StripToolSeries.h \
+    source/StripChart/StripToolVariable.h
 
 OTHER_FILES +=

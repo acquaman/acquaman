@@ -177,24 +177,24 @@ void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newDataRange)
 
     qDebug() << "StripToolPlot :: a new range with min ->" << rangeMin << "and max ->" << rangeMax << "to be applied to left axis scale.";
 
-    if (rangeMin == rangeMax) {
-        qDebug() << "StripToolPlot :: the range max and min provided are identical. Adjusting each by +/- 5%.";
-        rangeMin *= 0.95;
-        rangeMax *= 1.05;
-    }
+//    if (rangeMin == rangeMax && rangeMin == 0) {
+//        qDebug() << "StripToolPlot :: the range max and min provided are both zero. Adjusting each by +/- 1.";
+//        rangeMin = -1;
+//        rangeMax = 1;
+
+//    } else if (rangeMin == rangeMax) {
+//        qDebug() << "StripToolPlot :: the range max and min provided are identical. Adjusting each by +/- 5%.";
+//        rangeMin *= 0.95;
+//        rangeMax *= 1.05;
+//    }
 
     MPlotAxisScale *axis = plot_->axisScaleLeft();
     axis->setDataRange(newDataRange->normalized(), true);
 
-//    foreach (MPlotItem *item, plot_->plotItems())
-//    {
-//        if (item != selector_->selectedItem()) {
-//            MPlotAbstractSeries *series = qgraphicsitem_cast<MPlotAbstractSeries*>(item);
-//            series->enableYAxisNormalization(true, rangeMin, rangeMax);
-//        }
-//    }
-
-//    plot_->enableAxisNormalization(MPlot::Left, true, rangeMin, rangeMax);
+    foreach(MPlotItem* item, plot_->plotItems()) {
+        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(item);
+        series->enableYAxisNormalization(true, rangeMin, rangeMax);
+    }
 
 }
 

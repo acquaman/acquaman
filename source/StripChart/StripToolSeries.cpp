@@ -62,36 +62,43 @@ void StripToolSeries::eraseCustomLimits()
 
 qreal StripToolSeries::dataMin()
 {
-    qreal max = model()->boundingRect().top();
-    qreal min = model()->boundingRect().bottom();
-    qreal trueMin;
+    int count = model()->count();
+    qDebug() << "Count :" << count;
 
-    if (max > min) {
-        trueMin = min;
-    } else {
-        trueMin = max;
+    qreal min = 0;
+
+    for (int i = 0; i < count; i++) {
+        if (i == 0)
+            min = model()->y(i);
+
+        else if (min > model()->y(i))
+            min = model()->y(i);
+
+        qDebug() << "\tData value :" << model()->y(i);
     }
 
-//    qDebug() << "Minimum data value :" << trueMin;
-    return trueMin;
+    qDebug() << "Minimum data value :" << min;
+    return min;
 }
 
 
 
 qreal StripToolSeries::dataMax()
 {
-    qreal max = model()->boundingRect().top();
-    qreal min = model()->boundingRect().bottom();
-    qreal trueMax;
+    int count = model()->count();
+    qDebug() << "Count :" << count;
+    qreal max = 0;
 
-    if (max > min) {
-        trueMax = max;
-    } else {
-        trueMax = min;
+    for (int i = 0; i < count; i++) {
+        if (i == 0)
+            max = model()->y(i);
+
+        else if (max < model()->y(i))
+            max = model()->y(i);
     }
 
-//    qDebug() << "Maximum data value :" << trueMax;
-    return trueMax;
+    qDebug() << "Maximum data value :" << max;
+    return max;
 }
 
 
@@ -166,10 +173,22 @@ double StripToolSeries::displayedMax()
 
 MPlotAxisRange* StripToolSeries::displayedRange()
 {
+    qreal min = dataRange()->min();
+    qreal max = dataRange()->max();
+
     MPlotAxisRange *displayRange;
 
     if (!customLimitsDefined()) {
-        displayRange = dataRange();
+
+        if (min == max && min == 0) {
+            displayRange = new MPlotAxisRange(-1, 1);
+
+        } else if (min == max) {
+            displayRange = new MPlotAxisRange(0.95 * min, 1.05 * max);
+
+        } else {
+            displayRange = dataRange();
+        }
 
     } else {
         displayRange = new MPlotAxisRange(displayedMin(), displayedMax());
@@ -194,13 +213,45 @@ MPlotAxisRange* StripToolSeries::dataRange()
 
 void StripToolSeries::enableYAxisNormalization(bool on, qreal min, qreal max)
 {
+    qDebug() << "The series is being normalized according to StripToolSeries method.";
+    qDebug() << "newMin = " << min;
+    qDebug() << "newMax = " << max;
+
     if (customLimitsDefined() && on) {
-        normXMin_ = customMin();
-        normXMax_ = customMax();
+        yAxisNormalizationOn_ = on;
+
+        if (min == customMin()) {
+            normYMin_ = dataMin();
+
+        } else {
+            normYMin_ = min + (dataMin() - customMin()) / (customMax() - customMin()) * (max - min);
+        }
+
+
+        if (dataMin() == dataMax()) {
+//            normYMax_ = normYMin_;
+
+        } else if (max == customMax()) {
+            normYMax_ = dataMax();
+
+        } else {
+            normYMax_ = max - (customMax() - dataMax()) / (customMax() - customMin()) * (max - min);
+        }
+
+
+        qDebug() << "using custom limits : normYMin = " << normYMin_;
+        qDebug() << "using custom limits : normYMax = " << normYMax_;
+
+
 
     } else if (!customLimitsDefined() && on) {
-        normXMin_ = min;
-        normXMax_ = max;
+        yAxisNormalizationOn_ = on;
+
+        normYMin_ = min;
+        normYMax_ = max;
+
+        qDebug() << "using data limits : normYMin = " << normYMin_;
+        qDebug() << "using data limits : normYMax = " << normYMax_;
 
     } else {
         sx_ = 1.0;

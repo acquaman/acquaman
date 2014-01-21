@@ -631,60 +631,8 @@ void StripToolPV::onPVValueChanged(double newValue)
 
     // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
-//        double min, max;
 
-//        for (int i = 0; i < displayedValues_.size(); i++) {
-
-//            if (i == 0) {
-//                min = displayedValues_.at(i);
-//                max = displayedValues_.at(i);
-
-//            } else {
-//                if (min > displayedValues_.at(i))
-//                    min = displayedValues_.at(i);
-
-//                if (max < displayedValues_.at(i))
-//                    max = displayedValues_.at(i);
-//            }
-//        }
-
-//        defaultDisplayedYMin_ = min;
-//        defaultDisplayedYMax_ = max;
-
-//        double displayedYMax, displayedYMin;
-
-//        if (defaultYMaxDisplayed_) {
-//            displayedYMax = defaultDisplayedYMax_;
-
-//        } else if (customDisplayedYMax_ != "") {
-//            displayedYMax = customDisplayedYMax_.toDouble();
-
-//        } else {
-//            qDebug() << "StripToolPV :: Cannot switch to display a custom max value for y axis when the max hasn't been set. No change made.";
-//            displayedYMax = defaultDisplayedYMax_;
-//        }
-
-
-//        if (defaultYMinDisplayed_) {
-//            displayedYMin = defaultDisplayedYMin_;
-
-//        } else if (customDisplayedYMin_ != "") {
-//            displayedYMin = customDisplayedYMin_.toDouble();
-
-//        } else {
-//            qDebug() << "StripToolPV :: Cannot switch to display a custom min value for y axis when the min hasn't been set. No change made.";
-//            displayedYMin = defaultDisplayedYMin_;
-//        }
-
-
-//        if (displayedYMin == displayedYMax) {
-//            displayedYMin = displayedYMin * 0.5;
-//            displayedYMax = displayedYMax * 1.5;
-
-//            qDebug() << "StripToolPV :: The displayed y min and max for pv" << pvName() << "are identical. Adjusting each by +/- 50%.";
-//        }
-
-//        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << dataRange->min() << "and upper limit" << dataRange->max();
+        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
         emit dataRangeChanged(series()->dataRange());
         emit displayRangeChanged(series()->displayedRange());
     }

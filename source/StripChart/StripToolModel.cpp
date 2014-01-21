@@ -552,11 +552,11 @@ void StripToolModel::deselectPV()
     if (selectedPV_ != 0) {
         selectedPV_->setSelected(false);
 
-//        disconnect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)) );
+        disconnect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)) );
         disconnect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange*)) );
         disconnect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
         disconnect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-        disconnect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
+//        disconnect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
 
 
         selectedPV_ = 0;
@@ -580,11 +580,11 @@ void StripToolModel::selectPV(StripToolPV *newSelection)
     selectedPV_ = newSelection;
     selectedPV_->setSelected(true);
 
-//    connect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
+    connect( selectedPV_, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
     connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange*)) );
     connect( selectedPV_, SIGNAL(descriptionChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
     connect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
-    connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
+//    connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
 
     qDebug() << "Selected pv : " << selectedPV_->pvName();
 
