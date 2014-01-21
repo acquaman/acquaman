@@ -97,12 +97,25 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+
+	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));
+
+	return initializationAction;
 }
 
 AMAction3* VESPERSXASScanActionController::createCleanupActions()
 {
-	return buildCleanupAction(true);
+	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
+
+	AMListAction3 *monoCleanupAction = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
+	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
+
+	cleanupAction->addSubAction(monoCleanupAction);
+
+	return cleanupAction;
 }
 
 void VESPERSXASScanActionController::onScanTimerUpdate()

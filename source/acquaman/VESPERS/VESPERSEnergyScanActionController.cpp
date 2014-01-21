@@ -20,6 +20,7 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	useFeedback_ = true;
+	originalEnergy_ = VESPERSBeamline::vespers()->mono()->energy();
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
@@ -70,8 +71,11 @@ AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 
 AMAction3* VESPERSEnergyScanActionController::createCleanupActions()
 {
-	return buildCleanupAction(true);
-}
+	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
+
+	cleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEaAction(originalEnergy_));
+
+	return cleanupAction;}
 
 void VESPERSEnergyScanActionController::onScanTimerUpdate()
 {

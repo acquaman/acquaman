@@ -18,7 +18,7 @@ class VESPERSScanController
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSScanController();
+	virtual ~VESPERSScanController();
 	VESPERSScanController(VESPERSScanConfiguration *configuration);
 
 protected:
@@ -27,7 +27,7 @@ protected:
 	/// Helper method that builds the CCD file path, name, and number for the beginning of a scan.  Requires the detector enum, ccd file name from the configuration, AND must be called after buildInitializationActions() because it assumes the list has already been created.
 	AMAction3 *buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.
-	AMAction3 *buildCleanupAction(bool usingMono);
+	AMAction3 *buildCleanupAction();
 
 //	/// Helper method that adds the standard extra PVs to the advAcq_.
 //	void addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK);

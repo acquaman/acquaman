@@ -197,10 +197,8 @@ public:
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
 	AMAction3* createMasterTimeAction3(double time);
-
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
 	AMAction3* createScanningAction3(bool scan);
-
 	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
 	AMAction3* createModeAction3(CLSSynchronizedDwellTime::Mode mode);
 	/// Returns a newly created action that changes the enabled state of the synchronized dwell time.

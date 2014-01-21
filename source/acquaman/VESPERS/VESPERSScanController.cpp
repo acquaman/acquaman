@@ -109,7 +109,7 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 	return action;
 }
 
-AMAction3 *VESPERSScanController::buildCleanupAction(bool usingMono)
+AMAction3 *VESPERSScanController::buildCleanupAction()
 {
 	// To cleanup the XAS scan, there is one stage.
 	/*
@@ -118,27 +118,20 @@ AMAction3 *VESPERSScanController::buildCleanupAction(bool usingMono)
 		Third: Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "Disabling all but the scaler in the synchronized dwell."), AMListAction3::Parallel);
-
 	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
+	stage1->addSubAction(synchronizedDwell->createMasterTimeAction3(1));
+	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::Continuous));
+
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "Disabling all but the scaler in the synchronized dwell."), AMListAction3::Parallel);
 
 	// The scaler is always first.  Therefore, we know this will always only ensure the scaler is still enabled.
 	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++)
-		stage1->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(i == 0));
-
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
-	stage2->addSubAction(synchronizedDwell->createMasterTimeAction3(1));
-	stage2->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::Continuous));
+		stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(i == 0));
 
 	cleanup->addSubAction(stage1);
 	cleanup->addSubAction(stage2);
-
-	if (usingMono){
-
-		AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
-		stage3->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-		stage3->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-	}
 
 	return cleanup;
 }
