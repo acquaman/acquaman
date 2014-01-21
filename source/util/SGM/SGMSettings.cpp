@@ -43,7 +43,7 @@ void SGMSettings::load(){
 #else
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
 #endif
-	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
+	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db.bk.July182013NewScanController").toString();
 }
 
 void SGMSettings::save(){

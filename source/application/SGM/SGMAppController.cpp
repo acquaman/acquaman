@@ -431,6 +431,11 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
+
+		AMDetectorGeneralDetailedView *failView = 0;
+		failView->layout();
+
+
 		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
 		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
 	}
@@ -1249,6 +1254,7 @@ bool SGMAppController::setupSGMViews(){
 	mw_->insertHeading("Beamline Detectors", 1);
 
 	newAmptekSDD1View_ = 0;
+	//newAmptekSDD1View_->layout();
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
 
