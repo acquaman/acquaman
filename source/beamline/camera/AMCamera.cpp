@@ -795,17 +795,34 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
     /// x is given by screenPosition
     /// X is given by coordinate
 
-    /// construct the 12x11 x matrix from coordinate and screen position
+	/// to solve for P, solve the matrix equation
+	/// [G][P'] = [0]
+	/// G is a matrix of relating points and coordinates
+	/// P' is matrix P as a single column
+	/// [0] is a matrix of zeroes
+
+	// "matrix" is a 12x12 matrix used to compute the P matrix
+	// where [matrix][P']=0
+	// where P' is [P11 P12 ... P34]^T
     MatrixXd matrix = constructMatrix(coordinate,screenPosition);
-    MatrixXd rhs(matrix.rows(),1);
-    rhs.setZero(matrix.rows(),1);
-    JacobiSVD<MatrixXd> svd(matrix,ComputeThinV|ComputeThinU);
-    svd.compute(matrix,ComputeThinU|ComputeThinV);
+//    MatrixXd rhs(matrix.rows(),1);
+//    rhs.setZero(matrix.rows(),1);
+//	rhs.setZero();
+	JacobiSVD<MatrixXd> svd(matrix,ComputeFullV|ComputeFullU);
+	svd.compute(matrix,ComputeFullU|ComputeFullV);
 
 
     MatrixXd matrixV = svd.matrixV();
     MatrixXd solution = matrixV.col(matrixV.cols()-1);
+	qDebug()<<svd.singularValues();
     /// solution is given by the right eigenvector corresponding to the smallest eigen value
+	// solution is given by the right eigenvector corresponding to a zero eigen value
+		// according to "http://www.google.ca/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0CC0QFjAB&url=http%3A%2F%2Fcmp.felk.cvut.cz%2Fcmp%2Fcourses%2FXE33PVR%2FWS20072008%2FLectures%2FSupporting%2Fconstrained_lsq.pdf&ei=rF7hUtLGA4zpoATCmYHYDA&usg=AFQjCNHSGoScGLo9D9jsPwGqBsXXWq-8DA&bvm=bv.59568121,d.cGU&cad=rja"
+		// choosing the smallest eigenvalue should be sufficient for the least squares solution (minimization of error)
+		// hopefully with FullV and FullU this will work?
+	// is the smallest eigenvalue 0?
+	// if we cannot get an eigenvalue of 0, have to take a different approach,
+	// which is not quite so simple
     /// (SVD decomposition)
     /// This means the solution is the last column of the V matrix
 
@@ -823,6 +840,10 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 
 MatrixXd AMCamera::constructMatrix(QVector3D coordinate[], QPointF screenposition[]) const
 {
+	/// Construct the matrix "G"
+	/// which is used to find the parameter matrix
+	// see "http://research.microsoft.com/en-us/um/people/zhang/Papers/Camera%20Calibration%20-%20book%20chapter.pdf"
+	// for explanation
 
     MatrixXd matrix(12,12);
     for(int i = 0; i<6; i++)
