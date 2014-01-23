@@ -153,6 +153,7 @@ QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 {
     if(useCameraMatrix_ && calibrationRun_)
 	{
+
         return transform2Dto3DMatrix(point,depth);
     }
     /// Use the position of the item on screen, with knowledge of the
@@ -756,7 +757,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 
     if(!isCentred)
     {
-
         QVector3D locationDirection = location - calculatedPositionOne;
         locationDirection.normalize();
         double cosTheta = dot(cameraCentre,locationDirection);
@@ -769,7 +769,6 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
     {
         desiredPoint = calculatedPositionOne + cameraCentre*depth;
     }
-
     return desiredPoint;
 
 

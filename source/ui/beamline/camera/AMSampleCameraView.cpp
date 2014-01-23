@@ -2336,6 +2336,8 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 		return QColor(Qt::yellow);
 	case SAMPLEPLATEINTERSECTION:
 		return QColor(Qt::green);
+	case SAMPLEFILL:
+		return QColor(Qt::cyan);
 	case HIDEINTERSECTION:
 	case BACKWARDSFILL:
 	case FILL:
@@ -2347,7 +2349,7 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 void AMSampleCameraView::drawSamplePlate()
 {
 	QPen pen(colour(BORDER));
-	QBrush brush(colour(FILL));
+	QBrush brush(colour(SAMPLEFILL));
 	QPolygonF samplePlate = shapeModel_->samplePlate();
 	if(!samplePlate.isEmpty())
 	{

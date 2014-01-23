@@ -62,12 +62,12 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 		pointListAppend(new QPointF(0,0));
     }
     /// set the coordinates
-	coordinateListAppend(new  QVector3D(0,6,0));
-	coordinateListAppend(new  QVector3D(-5,6,0));
-	coordinateListAppend(new  QVector3D(0,6,-20));
-	coordinateListAppend(new  QVector3D(10,2,-8));
-	coordinateListAppend(new  QVector3D(-10,2,-8));
-	coordinateListAppend(new  QVector3D(0,2,8.5));
+	coordinateListAppend(new  QVector3D(-8,0,3.75));
+	coordinateListAppend(new  QVector3D(10,10,-7.5));
+	coordinateListAppend(new  QVector3D(10,5,-5));
+	coordinateListAppend(new  QVector3D(4,2,-1.9));
+	coordinateListAppend(new  QVector3D(0,0,0));
+	coordinateListAppend(new  QVector3D(-7,4,0));
 
     //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
@@ -158,17 +158,17 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 
 double AMCameraConfigurationWizard::coordinateX(int id)
 {
-    return coordinateList()->at(id-1)->x();
+    return coordinateList()->at(id)->x();
 }
 
 double AMCameraConfigurationWizard::coordinateY(int id)
 {
-    return coordinateList()->at(id-1)->y();
+    return coordinateList()->at(id)->y();
 }
 
 double AMCameraConfigurationWizard::coordinateZ(int id)
 {
-	return coordinateList()->at(id-1)->z();
+	return coordinateList()->at(id)->z();
 }
 
 void AMCameraConfigurationWizard::clearPoints()

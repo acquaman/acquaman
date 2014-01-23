@@ -23,16 +23,22 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 	setRotationEnabled(true);
     /// need a coordinate per point
 	coordinateListAppend(new QVector3D(0,0,0));
-	coordinateListAppend(new QVector3D(5,5,5));
-	for(int i = coordinateListCount() - 1; i < numberOfPoints(); i++ )
-    {
-		coordinateListAppend(new QVector3D(0,0,0));
-    }
+	coordinateListAppend(new QVector3D(5,5,2));
+	coordinateListAppend(new QVector3D(2.5,-4,2.5));
+	coordinateListAppend(new QVector3D(-5,2,1));
+//	for(int i = coordinateListCount() - 1; i < numberOfPoints(); i++ )
+//    {
+//		coordinateListAppend(new QVector3D(0,0,0));
+//    }
 
-    for(int i = 0; i < numberOfPoints(); i++)
-    {
-		rotationsAppend(0);
-    }
+	rotationsAppend(0);
+	rotationsAppend(10);
+	rotationsAppend(20);
+	rotationsAppend(30);
+//    for(int i = 0; i < numberOfPoints(); i++)
+//    {
+//		rotationsAppend(0);
+//    }
 
 
 

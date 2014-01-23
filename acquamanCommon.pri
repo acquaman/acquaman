@@ -740,6 +740,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/camera/AMBeamConfigurationWizard.h \
 	source/ui/beamline/camera/AMSamplePlateWizard.h \
 	source/ui/beamline/camera/AMGraphicsViewWizard.h \
+	source/ui/beamline/camera/AMRotationWizard.h \
 	source/ui/AMColorPickerButton2.h \
 	source/ui/util/AMSamplePeriodicTableDialog.h \
 	source/beamline/camera/AMGraphicsVideoSceneCopier.h \
@@ -1245,6 +1246,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/camera/AMBeamConfigurationWizard.cpp \
 	source/ui/beamline/camera/AMSamplePlateWizard.cpp \
 	source/ui/beamline/camera/AMGraphicsViewWizard.cpp \
+	source/ui/beamline/camera/AMRotationWizard.cpp \
 	source/ui/AMColorPickerButton2.cpp \
 	source/ui/util/AMSamplePeriodicTableDialog.cpp \
 	source/beamline/camera/AMGraphicsVideoSceneCopier.cpp \
