@@ -606,6 +606,7 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	config_->setEnd(position);
 	end_->setValue(position);
 	config_->setOtherPosition(otherPosition);
+	config_->setNormalPosition(n);
 	otherPosition_->setValue(otherPosition);
 	updateMapInfo();
 	axesAcceptable();

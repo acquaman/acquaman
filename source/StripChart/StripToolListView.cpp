@@ -10,10 +10,10 @@ StripToolListView::StripToolListView(QWidget *parent) :
 
     createActions();
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setMovement(QListView::Static); // right now, user cannot reorder list view items -- they can't be moved!
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
     connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
-
 }
 
 
@@ -36,7 +36,7 @@ void StripToolListView::setPVModel(StripToolModel *model)
 
     connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
     connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
-    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
+//    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
     connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
 }
 
@@ -51,10 +51,12 @@ void StripToolListView::createActions()
     connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
 
     pause_ = new QAction("Pause", this);
-    connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
+    pause_->setEnabled(false);
+//    connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
 
     resume_ = new QAction("Resume", this);
-    connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
+    resume_->setEnabled(false);
+//    connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
 
     setColor_ = new QAction("Line color", this);
     connect( setColor_, SIGNAL(triggered()), this, SLOT(toSetPVColor()) );
@@ -68,9 +70,6 @@ void StripToolListView::updateContextMenu(const QPoint &position)
 
     menu.addAction(edit_);
     menu.addAction(delete_);
-    menu.addSeparator();
-    menu.addAction(pause_);
-    menu.addAction(resume_);
     menu.addSeparator();
     menu.addAction(setColor_);
 
@@ -91,11 +90,8 @@ void StripToolListView::deleteSelection()
 
 void StripToolListView::editSelection()
 {
-    // check for batch editing here (eventually).
-
     foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
         emit editPV(index);
-//    emit editPV(selectionModel()->selectedIndexes());
 }
 
 
@@ -103,9 +99,7 @@ void StripToolListView::editSelection()
 void StripToolListView::pauseSelection()
 {
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
         emit setPVUpdating(index, false);
-    }
 }
 
 
@@ -113,9 +107,7 @@ void StripToolListView::pauseSelection()
 void StripToolListView::resumeSelection()
 {
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
           emit setPVUpdating(index, true);
-    }
 }
 
 
@@ -134,9 +126,7 @@ void StripToolListView::toSetPVColor()
     QColor newColor = colorPicker();
 
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
         emit colorPV(index, newColor);
-    }
 }
 
 

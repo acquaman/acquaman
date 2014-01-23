@@ -14,11 +14,19 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripTool.cpp \
     source/StripChart/StripToolModel.cpp \
     source/StripChart/StripToolListView.cpp \
-    source/StripChart/StripToolQuickControls.cpp \
     source/StripChart/EditPVDialog.cpp \
     source/StripChart/StripToolSelector.cpp \
     source/StripChart/ReloadPVDialog.cpp \
-    source/StripChart/StripToolDataController.cpp
+    source/StripChart/StripToolDataController.cpp \
+    source/StripChart/EntryWidget.cpp \
+    source/StripChart/DoubleButtonWidget.cpp \
+    source/StripChart/TimeEntryWidget.cpp \
+    source/StripChart/StripToolControlsPanel.cpp \
+    source/StripChart/StripToolSidePanel.cpp \
+    source/StripChart/PlotOptionsDialog.cpp \
+    source/StripChart/WaterfallEntryWidget.cpp \
+    source/StripChart/StripToolSeries.cpp \
+    source/StripChart/StripToolVariable.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -27,10 +35,18 @@ HEADERS  += \
     source/StripChart/StripTool.h \
     source/StripChart/StripToolModel.h \
     source/StripChart/StripToolListView.h \
-    source/StripChart/StripToolQuickControls.h \
     source/StripChart/EditPVDialog.h \
     source/StripChart/StripToolSelector.h \
     source/StripChart/ReloadPVDialog.h \
-    source/StripChart/StripToolDataController.h
+    source/StripChart/StripToolDataController.h \
+    source/StripChart/EntryWidget.h \
+    source/StripChart/DoubleButtonWidget.h \
+    source/StripChart/TimeEntryWidget.h \
+    source/StripChart/StripToolControlsPanel.h \
+    source/StripChart/StripToolSidePanel.h \
+    source/StripChart/PlotOptionsDialog.h \
+    source/StripChart/WaterfallEntryWidget.h \
+    source/StripChart/StripToolSeries.h \
+    source/StripChart/StripToolVariable.h
 
 OTHER_FILES +=

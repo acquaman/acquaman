@@ -43,6 +43,8 @@ protected:
     /// To view a color picker.
     QColor colorPicker();
 
+private:
+
 protected slots:
     /// Creates the menu that appears when a user right-clicks on a pv, displays the available actions.
     void updateContextMenu(const QPoint &position);

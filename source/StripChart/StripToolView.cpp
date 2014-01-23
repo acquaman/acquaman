@@ -19,30 +19,22 @@ void StripToolView::buildUI()
     plotView_ = new StripToolPlot(this);
     plotView_->setModel(model_);
 
-    QCheckBox *controlsToggle = new QCheckBox("Show controls", this);
-    controlsToggle->setChecked(true);
+    sidePanel_ = new StripToolSidePanel(this);
+    sidePanel_->setModel(model_);
+    sidePanel_->hide();
 
-    QVBoxLayout *plotLayout = new QVBoxLayout();
-    plotLayout->addWidget(plotView_);
-    plotLayout->addWidget(controlsToggle);
+    QHBoxLayout *upperLayout = new QHBoxLayout();
+    upperLayout->addWidget(plotView_);
+    upperLayout->addWidget(sidePanel_);
 
-    quickControls_ = new StripToolQuickControls(this);
-    quickControls_->setModel(model_);
-    connect(controlsToggle, SIGNAL(stateChanged(int)), this, SLOT(toggleControls(int)) );
+    controlPanel_ = new StripToolControlsPanel(this);
+    controlPanel_->setModel(model_);
+    connect( controlPanel_, SIGNAL(showSidebar()), sidePanel_, SLOT(show()) );
+    connect( controlPanel_, SIGNAL(hideSidebar()), sidePanel_, SLOT(hide()) );
 
-    QHBoxLayout *windowLayout = new QHBoxLayout();
-    windowLayout->addLayout(plotLayout);
-    windowLayout->addWidget(quickControls_);
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addLayout(upperLayout);
+    mainLayout->addWidget(controlPanel_);
 
-    setLayout(windowLayout);
-}
-
-
-
-void StripToolView::toggleControls(int checkState)
-{
-    if (checkState == 0)
-        quickControls_->hide();
-    else
-        quickControls_->show();
+    setLayout(mainLayout);
 }

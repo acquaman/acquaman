@@ -425,6 +425,32 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 	if (config_->ccdFileName() != ccdName)
 		config_->setCCDFileName(ccdName);
 
+	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));  // focusing isn't done with attocube motors.
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+		break;
+	}
+
 	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));

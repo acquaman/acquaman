@@ -26,24 +26,50 @@ signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void seriesChanged(Qt::CheckState state, int row);
     void modelSelectionChange();
-    void setPlotAxesLabels(const QString &xAxis, const QString &yAxis);
-    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
-    void setPlotTicksVisible(bool isShown);
-    void errorMessage(const QString &message);
-    void pvValid(bool isValid);
+//    void pvValid(bool isValid);
+    void pvUpdating(const QModelIndex &index, bool isUpdating);
+//    void forceUpdatePVs(const QString &updatedName);
+    void updateTime(int newTime);
+    void updateTimeUnits(const QString &newUnits);
+    void updateXAxisLabel(const QString &newUnits);
+    void requestTimeUpdate();
+//    void updateYAxisLabel(const QString &newLabel);
+//    void updateWaterfall(double newWaterfall);
+//    void selectedWaterfall(double selectedWaterfall);
+    void selectedDataMaxChanged(double newMax);
+    void selectedDataMinChanged(double newMin);
+    void selectedCustomDataMaxChanged(double newMax);
+    void selectedCustomDataMinChanged(double newMin);
+//    void applyLeftAxisScaleShift(double shiftAmount);
+//    void applyDefaultYAxisScale(bool applyDefault);
+    void selectedPVDataRangeChanged(MPlotAxisRange *newRange);
+    void selectedPVDisplayRangeChanged(MPlotAxisRange *newRange);
+    void selectedPVAxisLabelChanged(const QString &newLabel);
+    void selectedPVOffsetChanged(double offset);
+    void waterfallChanged(double newWaterfall);
+
+//    void restartUpdateIntervalTimer();
+//    void stopUpdateIntervalTimer();
+
 
 protected:
     QList<StripToolPV*> pvList_;
     StripToolPV *selectedPV_;
+    QTimer *updateIntervalTimer_;
+    bool pvsUpdatingRegularly_;
     QSignalMapper *controlMapper_;
     QSignalMapper *saveDataMapper_;
     QSignalMapper *saveMetadataMapper_;
+    QSignalMapper *pvUpdatedMapper_;
 
 public:
     StripToolPV* selectedPV() const;
     QModelIndex selectedIndex() const;
     MPlotItem* selectedSeries() const;
+    QString selectedDescription() const;
+    QString selectedUnits() const;
     MPlotItem* series(int row) const;
+    QString pvName(StripToolPV *pv) const;
 
 protected:
     /// Returns the item flags for the entry at the given index.
@@ -82,22 +108,26 @@ protected:
     bool addPV(AMControl *pvControl);
 
     void setSelectedPV(StripToolPV *newSelection);
+//    bool setSelectedWaterfall(double newWaterfall);
+
+    void deselectPV();
+    void selectPV(StripToolPV *newSelection);
 
 protected slots:
     void toAddPV(const QString &pvName);
     void onPVConnected(QObject *itemConnected);
     void toDeletePV(const QModelIndex &index);
+    void toPausePVs();
+    void toResumePVs();
+    void toUpdateTime(int newTime);
+    void toUpdateTimeUnits(const QString &newUnits);
+//    void toSetWaterfall(double newWaterfall);
 
     /// Displays a dialog box that allows the user to edit a given pv(s) description and units.
     void editPV(const QModelIndex &indexToEdit);
-//    void batchEditPVs(QList<QModelIndex> indicesToEdit);
-//    void editPV(QList<QModelIndex> indicesToEdit);
 
     /// Selects the appropriate pv and causes it to pause/resume updating on the plot.
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
-
-    /// Selects the appropriate pv and changes the number of values it displays on the plot.
-    void setValuesDisplayed(const QModelIndex &index, int points);
 
     /// Basic color selection for pv.
     void colorPV(const QModelIndex &index, const QColor &color);
@@ -107,10 +137,24 @@ protected slots:
 
     void listItemSelected(const QModelIndex &newSelection, const QModelIndex &oldSelection);
 
-    void onModelSelectionChange();
+//    void onModelSelectionChange();
 
     void toSetMetaData(const QString &pvName, QList<QString> metaData);
 
+//    void onSinglePVUpdated(QObject *updatedPV);
+//    void toForceAllPVsUpdate();
+//    void toRestartUpdateIntervalTimer();
+
+    void toTestSignal(const QString &signalText);
+    void toTestDoubleSignal(double val);
+    void toTestRangeSignal(MPlotAxisRange* newRange);
+
+//    void onSelectedPVUpdated();
+
+    ////////
+
+    void toChangeYAxisLabel();
+//    void toShiftYAxis(double selectedPVWaterfall);
 
 };
 

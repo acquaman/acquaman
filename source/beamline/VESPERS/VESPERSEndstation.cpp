@@ -319,7 +319,11 @@ bool VESPERSEndstation::microscopeInSafePosition(double value) const
 	if (!ccdAt90Degrees_)
 		return true;
 
-	return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second);
+	else if (heliumBufferAttached_)
+		return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second) || ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).second);
 }
 
 bool VESPERSEndstation::microscopeInSafePosition() const
@@ -327,7 +331,11 @@ bool VESPERSEndstation::microscopeInSafePosition() const
 	if (!ccdAt90Degrees_)
 		return true;
 
-	return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second);
+	else if (heliumBufferAttached_)
+		return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second) || ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).second);
 }
 
 bool VESPERSEndstation::ccdInSafePosition(double value) const
