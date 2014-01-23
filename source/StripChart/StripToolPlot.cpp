@@ -7,13 +7,7 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
     MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
     selector_ = new StripToolSelector();
 
-//    // the user has the option to specify custom limits for the y axis scale. If 'default...' is false, use the custom axis scale specified, else let the axis values update with the pv data.
-//    defaultLeftAxisScale_ = true;
-
-    waterfall_ = 0.0;
-
-    waterfallApplied_ = false;
-//    customAxisRangeApplied_ = false;
+    waterfallOn_ = false;
 
     connect( this, SIGNAL(itemSelected(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
 
@@ -34,7 +28,6 @@ StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 
     setPlot(plot_);
 
-//    plot_->enableAntiAliasing(true);
     plot_->enableAxisNormalization(MPlot::Left, false);
     plot_->axisScaleLeft()->setAutoScaleEnabled(false);
 
@@ -64,12 +57,9 @@ void StripToolPlot::setModel(StripToolModel *model)
     connect( model_, SIGNAL(updateXAxisLabel(QString)), this, SLOT(toUpdateXAxisLabel(QString)) );
     connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
 
-//    connect( model_, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange*)), this, SLOT(toUpdateSelectedDataRange(MPlotAxisRange*)) );
     connect( model_, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange*)), this, SLOT(toUpdateLeftAxisRange(MPlotAxisRange*)) );
     connect( model_, SIGNAL(selectedPVAxisLabelChanged(QString)), this, SLOT(toUpdateYAxisLabel(QString)) );
-//    connect( model_, SIGNAL(waterfallChanged(double)), this, SLOT(toSetNewWaterfall(double)) );
-//    connect( model_, SIGNAL(selectedPVOffsetChanged(double)), this, SLOT(toUpdate))
-
+    connect( model_, SIGNAL(waterfallStateChanged(bool)), this, SLOT(onWaterfallStateChange(bool)) );
 }
 
 
@@ -175,24 +165,14 @@ void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newDataRange)
     qreal rangeMin = newDataRange->min();
     qreal rangeMax = newDataRange->max();
 
-    qDebug() << "StripToolPlot :: a new range with min ->" << rangeMin << "and max ->" << rangeMax << "to be applied to left axis scale.";
-
-//    if (rangeMin == rangeMax && rangeMin == 0) {
-//        qDebug() << "StripToolPlot :: the range max and min provided are both zero. Adjusting each by +/- 1.";
-//        rangeMin = -1;
-//        rangeMax = 1;
-
-//    } else if (rangeMin == rangeMax) {
-//        qDebug() << "StripToolPlot :: the range max and min provided are identical. Adjusting each by +/- 5%.";
-//        rangeMin *= 0.95;
-//        rangeMax *= 1.05;
-//    }
-
     MPlotAxisScale *axis = plot_->axisScaleLeft();
     axis->setDataRange(newDataRange->normalized(), true);
 
-    foreach(MPlotItem* item, plot_->plotItems()) {
-        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(item);
+    int itemCount = plot_->plotItems().size();
+
+    for (int i = 0; i < itemCount; i++) {
+        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+        series->enableWaterfall(waterfallOn_, i, itemCount);
         series->enableYNormalization(true, rangeMin, rangeMax);
     }
 
@@ -232,14 +212,15 @@ void StripToolPlot::onModelSelectionChange()
 
 
 
-void StripToolPlot::toSetNewWaterfall(double newWaterfall)
+void StripToolPlot::onWaterfallStateChange(bool waterfallOn)
 {
-    waterfall_ = newWaterfall;
+    waterfallOn_ = waterfallOn;
 
-    if (waterfall_ == 0.0)
-        waterfallApplied_ = false;
-    else
-        waterfallApplied_ = true;
+    if (waterfallOn) {
+        qDebug() << "StripToolPlot :: waterfall feature is turning on:";
+    } else {
+        qDebug() << "StripToolPlot :: waterfall feature is turning off:";
+    }
 }
 
 

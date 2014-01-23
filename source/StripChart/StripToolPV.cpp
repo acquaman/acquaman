@@ -1,7 +1,7 @@
 #include "StripToolPV.h"
 
 StripToolPV::StripToolPV(QObject *parent)
-    : QObject(parent)
+    : StripToolVariable(parent)
 {
     updateIndex_ = 0;
     updateGranularity_ = 2;
@@ -582,7 +582,7 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
-//    qDebug() << "PV" << pvName() << "value update :" << latestValue;
+    qDebug() << "PV" << pvName() << "value update :" << latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_ && (updateIndex_ % updateGranularity() == 0))
@@ -632,8 +632,10 @@ void StripToolPV::onPVValueChanged(double newValue)
     // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
 
-        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
+//        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
         emit dataRangeChanged(series()->dataRange());
+
+
         emit displayRangeChanged(series()->displayedRange());
     }
 
@@ -674,13 +676,13 @@ void StripToolPV::toUpdateTimeUnits(const QString &newUnits)
 
 void StripToolPV::toApplySeriesTransform(double dy)
 {
-    qDebug() << "StripToolPV :: Applying transform to pv" << pvName() << ": shift by " << dy;
-    pvSeries_->applyTransform(1, 1, 0, dy);
+//    qDebug() << "StripToolPV :: Applying transform to pv" << pvName() << ": shift by " << dy;
+//    pvSeries_->applyTransform(1, 1, 0, dy);
 }
 
 
 
 void StripToolPV::onDisplayRangeChanged(MPlotAxisRange *range)
 {
-    qDebug() << "StripToolPV :: the display range has been changed to min ->" << range->min() << " and max ->" << range->max() << ".";
+//    qDebug() << "StripToolPV :: the display range has been changed to min ->" << range->min() << " and max ->" << range->max() << ".";
 }

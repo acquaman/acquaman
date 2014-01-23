@@ -21,34 +21,50 @@ protected:
     double customMin_;
     double customMax_;
 
+    bool waterfallApplied_;
+
+    double waterfallMin_;
+    double waterfallMax_;
+
 public:
     bool customLimitsDefined();
     bool customMinDefined();
     bool customMaxDefined();
     MPlotAxisRange* displayedRange();
+    bool waterfallApplied();
 
-    void enableYNormalization(bool on, qreal min, qreal max);
+    void enableYNormalization(bool normOn, qreal axisMin, qreal axisMax);
+    void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
 
 
 protected:
+    qreal dataMin();
+    qreal dataMax();
+    MPlotAxisRange* dataRange();
+
+    double customMin();
+    double customMax();
     void setCustomLimits(qreal min, qreal max);
     void eraseCustomLimits();
 
-    qreal dataMax();
-    qreal dataMin();
-
-    void setCustomMin(qreal min);
-    void eraseCustomMin();
-    double customMin();
-
-    void setCustomMax(qreal max);
-    void eraseCustomMax();
-    double customMax();
+    qreal waterfallMin();
+    qreal waterfallMax();
+    void setWaterfallLimits(qreal min, qreal max);
+    void eraseWaterfallLimits();
 
     double displayedMin();
     double displayedMax();
 
-    MPlotAxisRange* dataRange();
+
+private:
+    void setWaterfallMin(qreal min);
+    void setWaterfallMax(qreal max);
+    void applyWaterfall(int itemPosition, int itemCount);
+
+    void setCustomMin(qreal min);
+    void setCustomMax(qreal max);
+    void eraseCustomMin();
+    void eraseCustomMax();
 
 
 };

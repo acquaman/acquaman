@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDebug>
 
+#include "StripToolVariable.h"
 #include "beamline/AMPVControl.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
@@ -11,7 +12,7 @@
 
 /// This class keeps track of all information relevant to a given pv: pv name, description, units, check state, value updates.
 
-class StripToolPV : public QObject
+class StripToolPV : public StripToolVariable
 {
     Q_OBJECT
 

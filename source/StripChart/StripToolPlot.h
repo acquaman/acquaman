@@ -32,9 +32,7 @@ protected:
     StripToolModel *model_;
     MPlot *plot_;
     StripToolSelector *selector_;
-    double waterfall_;
-    bool waterfallApplied_;
-    bool customAxisRangeApplied_;
+    bool waterfallOn_;
 
 public:
     void setModel(StripToolModel *model);
@@ -46,7 +44,6 @@ protected:
     bool addSeriesToPlot(MPlotItem *newSeries);
     /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
     bool removeSeriesFromPlot(MPlotItem *toRemove);
-
 
 protected slots:
     /// Adds series to the plot when the rowsInserted() signal is emitted from the model.
@@ -65,7 +62,7 @@ protected slots:
 
     void toUpdateLeftAxisRange(MPlotAxisRange *newDataRange);
     void toUpdateYAxisLabel(const QString &newLabel);
-    void toSetNewWaterfall(double newWaterfall);
+    void onWaterfallStateChange(bool waterfallOn);
 
 };
 
