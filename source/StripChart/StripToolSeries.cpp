@@ -351,14 +351,36 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal axisMin, qreal axi
 void StripToolSeries::applyWaterfall(int itemPosition, int itemCount)
 {
     // we begin by dividing the series' axis into 'itemCount' pieces of size 'sectionSize'.
-    double sectionSize = dataMax() - dataMin();
+    double sectionSize, min, max;
+
+    if (dataMax() == dataMin()) {
+
+        if (customLimitsDefined() && customMax() != customMin()) {
+            qDebug() << "StripToolSeries :: Having dataMax = dataMin will not allow the waterfall to display properly. However, there appear to be appropriate custom limits defined. Using these instead.";
+            sectionSize = customMax() - customMin();
+            min = customMin();
+            max = customMax();
+
+        } else {
+            qDebug() << "StripToolSeries :: Having dataMax = dataMin will not allow the waterfall to display properly. Custom limits are not defined. Selecting arbitrary range (10) to display waterfall for this pv.";
+            sectionSize = 10;
+            min = dataMin() - 5;
+            max = dataMax() + 5;
+        }
+
+    } else {
+
+        sectionSize = dataMax() - dataMin();
+        min = dataMin();
+        max = dataMax();
+    }
 
     // if the item is the first to be displayed, it's position is 0.
     // its section should be the one at the very top of the graph (ie customMax = dataMax()).
     // the minimum should be chosen so that when normalized, dataMin() is at the lower boundary for this section.
 
-    double waterfallMin = dataMin() + (itemPosition - itemCount + 1) * sectionSize;
-    double waterfallMax = dataMax() + itemPosition * sectionSize;
+    double waterfallMin = min + (itemPosition - itemCount + 1) * sectionSize;
+    double waterfallMax = max + itemPosition * sectionSize;
 
     setWaterfallLimits(waterfallMin, waterfallMax);
 

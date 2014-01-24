@@ -22,8 +22,6 @@ StripToolPV::StripToolPV(QObject *parent)
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
-    shiftAmount_ = 0.0;
-
     maxTimeBetweenUpdates_ = 1500; // ms
 
     updateIntervalTimer_ = new QTimer(this);
@@ -54,9 +52,6 @@ StripToolPV::StripToolPV(QObject *parent)
 
     // we can force the master times and values lists to update with the most recent value (say if we wanted all pvs to have roughly the same number of points displayed) by emitting this pv's forceUpdate signal. See 'toForceUpdateValue' slot.
     connect( this, SIGNAL(manuallyUpdatePV(double)), this, SLOT(onPVValueChanged(double)) );
-    connect( this, SIGNAL(shiftAmountChanged(double)), this, SLOT(toApplySeriesTransform(double)) );
-
-    connect( this, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(onDisplayRangeChanged(MPlotAxisRange*)) );
 }
 
 
@@ -374,8 +369,8 @@ void StripToolPV::setControl(AMControl *newControl)
 
 void StripToolPV::setShiftAmount(double newShift)
 {
-    shiftAmount_ = newShift;
-    emit shiftAmountChanged(shiftAmount_);
+//    shiftAmount_ = newShift;
+//    emit shiftAmountChanged(shiftAmount_);
 }
 
 
@@ -638,14 +633,16 @@ void StripToolPV::onPVValueChanged(double newValue)
         if (max == min) {
 
             if (min == 0) {
-                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 1.";
-                max = 1;
-                min = -1;
+                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 2.";
+                max = 2;
+                min = -2;
+                series()->setCustomLimits(min, max);
 
             } else {
-                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
-                min *= 0.95;
-                max *= 1.05;
+//                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
+//                min *= 0.95;
+//                max *= 1.05;
+//                series()->setCustomLimits(min, max);
             }
         }
 
@@ -683,19 +680,4 @@ void StripToolPV::toUpdateTimeUnits(const QString &newUnits)
 {
     qDebug() << "StripToolPV :: Updating time units to" << newUnits << "for pv " << this->pvName();
     setXUnits(newUnits);
-}
-
-
-
-void StripToolPV::toApplySeriesTransform(double dy)
-{
-//    qDebug() << "StripToolPV :: Applying transform to pv" << pvName() << ": shift by " << dy;
-//    pvSeries_->applyTransform(1, 1, 0, dy);
-}
-
-
-
-void StripToolPV::onDisplayRangeChanged(MPlotAxisRange *range)
-{
-//    qDebug() << "StripToolPV :: the display range has been changed to min ->" << range->min() << " and max ->" << range->max() << ".";
 }
