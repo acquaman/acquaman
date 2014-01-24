@@ -582,11 +582,10 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
-    qDebug() << "PV" << pvName() << "value update :" << latestValue;
+//    qDebug() << "PV" << pvName() << "value update :" << latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
-    if (isUpdating_ && (updateIndex_ % updateGranularity() == 0))
-    {
+    if (isUpdating_ && (updateIndex_ % updateGranularity() == 0)) {
         // set a 'now' time that will be used to generate the x-axis display values.
         QTime nowish = QTime::currentTime();
 
@@ -599,12 +598,10 @@ void StripToolPV::onPVValueChanged(double newValue)
         int index = startIndex;
         bool copyComplete = false;
 
-        while (index >= 0 && index < masterUpdateTimes_.size() && !copyComplete)
-        {   
+        while (index >= 0 && index < masterUpdateTimes_.size() && !copyComplete) {
             double relativeTime = nowish.msecsTo(masterUpdateTimes_.at(index)) * timeFactor_; // relative time is initially in seconds, but changes depending on the x axis units.
 
-            if (qAbs(relativeTime) < qAbs(timeDisplayed_))
-            {
+            if (qAbs(relativeTime) < qAbs(timeDisplayed_)) {
                 double newTime = relativeTime;
                 double newVal = masterUpdateValues_.at(index);
 
@@ -635,8 +632,24 @@ void StripToolPV::onPVValueChanged(double newValue)
 //        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
         emit dataRangeChanged(series()->dataRange());
 
+        qreal max = series()->displayedRange()->max();
+        qreal min = series()->displayedRange()->min();
 
-        emit displayRangeChanged(series()->displayedRange());
+        if (max == min) {
+
+            if (min == 0) {
+                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 1.";
+                max = 1;
+                min = -1;
+
+            } else {
+                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
+                min *= 0.95;
+                max *= 1.05;
+            }
+        }
+
+        emit displayRangeChanged(new MPlotAxisRange(min, max));
     }
 
 }

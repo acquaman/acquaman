@@ -256,10 +256,10 @@ MPlotAxisRange* StripToolSeries::displayedRange()
     double max = displayedMax();
     double min = displayedMin();
 
-    if (min < max)
+//    if (min < max)
         return new MPlotAxisRange(displayedMin(), displayedMax());
-    else
-        return new MPlotAxisRange(min - 5, max + 5);
+//    else
+//        return new MPlotAxisRange(min - 5, max + 5);
 
 //    qreal min = dataRange()->min();
 //    qreal max = dataRange()->max();
