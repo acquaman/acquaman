@@ -45,6 +45,10 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool applyEnergy READ applyEnergy WRITE setApplyEnergy)
 
+	Q_PROPERTY(int polarization READ polarization WRITE setPolarization)
+	Q_PROPERTY(double polarizationAngle READ polarizationAngle WRITE setPolarizationAngle)
+	Q_PROPERTY(bool applyPolarization READ applyPolarization WRITE setApplyPolarization)
+
 
 	// The following properties should be moved upwards if we can figure out how to work on this together, and determine what should be stored at the AMScanConfiguration level.
 	Q_PROPERTY(QString userScanName READ userScanName WRITE setUserScanName)
@@ -73,7 +77,11 @@ public:
 	/// Slit Width to set before scan
 	double slitWidth() const { return slitWidth_; }
 	/// A flag indicating that the slit width should be changed before starting the scan
-	double applySlitWidth() const { return applySlitWidth_; }
+	bool applySlitWidth() const { return applySlitWidth_; }
+
+	int polarization() const { return polarization_; }
+	double polarizationAngle() const { return polarizationAngle_; }
+	bool applyPolarization() const { return applyPolarization_; }
 
 	/// How long to count for? We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
@@ -141,6 +149,10 @@ public slots:
 	void setSlitWidth(double slitWidth) {if(slitWidth_ == slitWidth) return; slitWidth_ = slitWidth; setModified(true); emit configurationChanged(); }
 		void setApplySlitWidth(bool applySlitWidth) { if(applySlitWidth_ == applySlitWidth) return; applySlitWidth_ = applySlitWidth; setModified(true); emit configurationChanged(); }
 
+		void setPolarization(int polarization) { if(polarization == polarization_) return; polarization_ = polarization; setModified(true); emit configurationChanged(); }
+		void setPolarizationAngle(double polarizationAngle) { if(polarizationAngle == polarizationAngle_) return; polarizationAngle_ = polarizationAngle; setModified(true); emit configurationChanged(); }
+		void setApplyPolarization(bool applyPolarization) { if(applyPolarization == applyPolarization_) return; applyPolarization_ = applyPolarization; setModified(true); emit configurationChanged(); }
+
 	/// Set how long to count for. We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	void setMaximumTotalCounts(double counts) { if(maximumTotalCounts_ == counts) return; maximumTotalCounts_ = counts; setModified(true); emit configurationChanged(); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
@@ -180,6 +192,10 @@ protected:
 	double slitWidth_;
 	/// A flag indicating that the slit width should be changed before starting the scan
 	bool applySlitWidth_;
+
+	int polarization_;
+	double polarizationAngle_;
+	bool applyPolarization_;
 
 
 	/// We should stop this scan when we get this many counts
