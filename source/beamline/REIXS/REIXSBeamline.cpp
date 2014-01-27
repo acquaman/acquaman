@@ -219,6 +219,12 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
+	epuPolarization_->enumNames() << "Circular Left";
+	epuPolarization_->enumNames() << "Circular Right";
+	epuPolarization_->enumNames() << "Linear Horizontal";
+	epuPolarization_->enumNames() << "Linear Vertical +";
+	epuPolarization_->enumNames() << "Linear Vertical -";
+	epuPolarization_->enumNames() << "Linear Inclined";
 	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
 }
@@ -392,7 +398,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 0.05);
+														"SMTR1610-4-I21-01:stop", this, 0.15);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
 	spectrometerRotationDrive_->setSettlingTime(0.2);
 
@@ -402,7 +408,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 0.05);
+												  "SMTR1610-4-I21-04:stop", this, 0.15);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTranslation_->setSettlingTime(0.2);
