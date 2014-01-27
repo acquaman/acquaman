@@ -8,6 +8,7 @@
 
 class QTimer;
 
+class AMListAction3;
 class REIXSXESScanConfiguration;
 
 class REIXSXESScanActionController : public AMScanActionController
@@ -29,6 +30,7 @@ protected slots:
 
 	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
 	void initializeScanMetaData();
+	void onInitializationActionsListSucceeded();
 
 
 protected:
@@ -36,10 +38,15 @@ protected:
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
 
+	AMAction3* createInitializationActions();
+
 
 protected:
 	REIXSXESScanConfiguration *configuration_;
 	QTimer *updateTimer_;
+	AMListAction3 *xesActionsInitializationList_;
+
+
 };
 
 #endif // REIXSXESSCANACTIONCONTROLLER_H
