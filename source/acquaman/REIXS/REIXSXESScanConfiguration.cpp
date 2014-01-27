@@ -29,7 +29,14 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	centerEV_ = 200;
 
 	slitWidth_ = 25;
+	applySlitWidth_ = false;
 	energy_ = 400;
+	applyEnergy_ = false;
+
+	polarization_ = 1;
+	polarizationAngle_ = 0;
+	applyPolarization_ = false;
+
 
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
