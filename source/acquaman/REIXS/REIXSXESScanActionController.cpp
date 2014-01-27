@@ -6,6 +6,11 @@
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionRunner3.h"
+
+
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration_, parent)
 {
@@ -80,13 +85,8 @@ void REIXSXESScanActionController::saveRawData(){
 }
 
 bool REIXSXESScanActionController::initializeImplementation(){
-	// Is the detector connected?
-	//if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
-	if(!REIXSBeamline::bl()->mcpDetector()->isConnected()){
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
-		return false;
-	}
 
+	//Population Initial condition, prior to initialization moves
 	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
@@ -94,12 +94,133 @@ bool REIXSXESScanActionController::initializeImplementation(){
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
 	positions.insert(9, grating);
 
-	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
 
-	setInitialized();
+
+	// Is the detector connected?
+	//if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+	if(!REIXSBeamline::bl()->mcpDetector()->isConnected()){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
+		return false;
+	}
+
+	AMAction3 *initializationActions = createInitializationActions();
+	if(qobject_cast<AMListAction3*>(initializationActions))
+		xesActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
+
+	connect(xesActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	//connect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	AMActionRunner3::scanActionRunner()->addActionToQueue(xesActionsInitializationList_);
+	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
+
 	return true;
 }
+
+void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
+
+
+	//Update Scan Initial Conditions
+	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	positions.insert(9, grating);
+
+	// add the polarization selection, since it's not a "control" anywhere.
+	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
+	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
+	positions.append(polarization);
+
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+	AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+	positions.append(polarizationAngle);
+	}
+
+
+
+	scan_->setScanInitialConditions(positions);
+
+	disconnect(xesActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
+	//disconnect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+
+	setInitialized();
+}
+
+
+
+AMAction3* REIXSXESScanActionController::createInitializationActions(){
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("REIXS XES Initialization Actions",
+																				   "REIXS XES Initialization Actions"),
+															 AMListAction3::Parallel);
+
+	AMListAction3 *initializationPreActions = new AMListAction3(new AMListActionInfo3("REIXS XES Initialization Actions",
+																				   "REIXS XES Initialization Actions"),
+															 AMListAction3::Parallel);
+
+	AMListAction3 *initializationCombinedActions = new AMListAction3(new AMListActionInfo3("REIXS XES Initialization Actions",
+																				   "REIXS XES Initialization Actions"),
+															 AMListAction3::Sequential);
+
+
+
+	//qDebug() << "applySlitWidth() returns: " << configuration_->applySlitWidth();
+
+
+	if(configuration_->applyPolarization()){
+		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
+		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
+		polarizationSetpoint.setValue(configuration_->polarization());
+		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationPreActions->addSubAction(moveAction);
+	}
+
+
+
+	if(configuration_->applySlitWidth()){
+//		qDebug() << "it would have queued a slit move to: " << configuration_->slitWidth();
+		tmpControl = REIXSBeamline::bl()->photonSource()->monoSlit();
+		AMControlInfo monoSlitSetpoint = tmpControl->toInfo();
+		monoSlitSetpoint.setValue(configuration_->slitWidth());
+		moveActionInfo = new AMControlMoveActionInfo3(monoSlitSetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationActions->addSubAction(moveAction);
+	}
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5){
+		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
+		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
+		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
+		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationActions->addSubAction(moveAction);
+
+	}
+
+	qDebug() << "applyEnergy() returns: " << configuration_->applyEnergy();
+	if(configuration_->applyEnergy()){
+//		qDebug() << "it would have queued an energy move to: " << configuration_->energy();
+		tmpControl = REIXSBeamline::bl()->photonSource()->energy();
+		AMControlInfo energySetpoint = tmpControl->toInfo();
+		energySetpoint.setValue(configuration_->energy());
+		moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationActions->addSubAction(moveAction);
+	}
+
+	initializationCombinedActions->addSubAction(initializationPreActions);
+	initializationCombinedActions->addSubAction(initializationActions);
+
+	return initializationCombinedActions;
+}
+
+
+
 
 bool REIXSXESScanActionController::startImplementation(){
 	REIXSBeamline::bl()->mcpDetector()->setAcquisitionTime(configuration_->maximumDurationSeconds());
