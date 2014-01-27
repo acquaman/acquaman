@@ -172,6 +172,18 @@ void REIXSXASScanActionController::onInitializationActionsListSucceeded(){
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
 	positions.insert(9, grating);
 
+	// add the polarization selection, since it's not a "control" anywhere.
+	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
+	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
+	positions.append(polarization);
+
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+	AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+	positions.append(polarizationAngle);
+	}
+
+
 	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
 
