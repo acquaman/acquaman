@@ -486,6 +486,19 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	return beamOnActionsList;
 }
 
+AMAction3* SGMBeamline::createTurnOffBeamActions(){
+    if(!SGMBeamline::sgm()->isConnected()) {
+        return 0;
+    }
+
+    AMControlInfo fastShutterSetpoint = fastShutterVoltage()->toInfo();
+    fastShutterSetpoint.setValue(5);
+    AMControlMoveActionInfo3* fastShutterActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
+    AMControlMoveAction3* fastShutterAction = new AMControlMoveAction3(fastShutterActionInfo, fastShutterVoltage());
+
+    return fastShutterAction;
+}
+
 AMAction3* SGMBeamline::createStopMotorsActions3(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;

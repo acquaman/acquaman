@@ -87,6 +87,11 @@ void AMBeamline::addSynchronizedXRFDetector(AMXRFDetector *detector)
 	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
+AMAction3* AMBeamline::createTurnOffBeamActions()
+{
+    return 0;
+}
+
 void AMBeamline::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
 {
 	foreach (AMXRFDetector *detector, synchronizedXRFDetectors_){

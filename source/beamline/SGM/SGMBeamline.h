@@ -225,6 +225,8 @@ public:
 	bool detectorConnectedByName(QString name);
 
 	AMAction3* createBeamOnActions3();
+    /// Turn off beam on SGM.
+    AMAction3* createTurnOffBeamActions();
 	AMAction3* createStopMotorsActions3();
 
 	AMAction3* createGoToTransferPositionActions3();

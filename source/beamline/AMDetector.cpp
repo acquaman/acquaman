@@ -46,6 +46,13 @@ AMDetector::operator AMMeasurementInfo() {
 	*/
 }
 
+double AMDetector::darkCurrentCorrection() const {
+    if (canDoDarkCurrentCorrection())
+        return darkCurrentCorrection_;
+
+    return -1;
+}
+
 QString AMDetector::acquisitionStateDescription(AMDetector::AcqusitionState state){
 	switch(state){
 	case NotReadyForAcquisition:
@@ -237,6 +244,10 @@ AMAction3* AMDetector::createCleanupActions(){
 	return new AMDetectorCleanupAction(new AMDetectorCleanupActionInfo(toInfo()), this);
 }
 
+AMAction3* AMDetector::createDarkCurrentCorrectionAction(){
+    return 0;
+}
+
 void AMDetector::setInitializing(){
 	if(!acceptableChangeInitializationState(Initializing))
 		AMErrorMon::debug(this, AMDETECTOR_NOTIFIED_INITIALIZING_UNEXPECTEDLY, QString("An unexpected transition occured to Initializing. Detector name: %1. Current state: %2.").arg(name()).arg(initializationStateDescription(initializationState())) );
@@ -358,6 +369,12 @@ bool AMDetector::clear(){
 	if(!canClear())
 		return false;
 	return clearImplementation();
+}
+
+void AMDetector::setAsDarkCurrentCorrection(){
+    if (canDoDarkCurrentCorrection()){
+        darkCurrentCorrection_ = singleReading();
+    }
 }
 
 bool AMDetector::cancelAcquisitionImplementation(){
