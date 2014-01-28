@@ -33,7 +33,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/beamline/REIXS/REIXSXESMCPDetector.h \
     source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.h \
     source/dataman/datasource/REIXS/REIXSXESMCPDataSource.h \
-    source/acquaman/REIXS/REIXSXESScanActionController.h
+    source/acquaman/REIXS/REIXSXESScanActionController.h \
+    source/ui/REIXS/REIXSRIXSScanConfigurationView.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -62,7 +63,10 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/beamline/REIXS/REIXSXESMCPDetector.cpp \
     source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.cpp \
     source/dataman/datasource/REIXS/REIXSXESMCPDataSource.cpp \
-    source/acquaman/REIXS/REIXSXESScanActionController.cpp
+    source/acquaman/REIXS/REIXSXESScanActionController.cpp \
+    source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp
+
+
 
 
 
