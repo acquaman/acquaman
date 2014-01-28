@@ -171,6 +171,15 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 	//qDebug() << "applySlitWidth() returns: " << configuration_->applySlitWidth();
 
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5){
+		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
+		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
+		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
+		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationPreActions->addSubAction(moveAction);
+
+	}
 
 	if(configuration_->applyPolarization()){
 		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
@@ -178,7 +187,7 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 		polarizationSetpoint.setValue(configuration_->polarization());
 		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
 		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationPreActions->addSubAction(moveAction);
+		initializationActions->addSubAction(moveAction);
 	}
 
 
@@ -192,15 +201,7 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 		initializationActions->addSubAction(moveAction);
 	}
-	if(configuration_->applyPolarization() && configuration_->polarization() == 5){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
-		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
-		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
 
-	}
 
 	qDebug() << "applyEnergy() returns: " << configuration_->applyEnergy();
 	if(configuration_->applyEnergy()){
