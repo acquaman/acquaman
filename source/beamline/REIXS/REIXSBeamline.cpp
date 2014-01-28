@@ -195,7 +195,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 180, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 0.251, 3, 0.5, 0.5, 180, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
 	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
