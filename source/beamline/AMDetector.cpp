@@ -2,6 +2,14 @@
 
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h"
+#include "actions3/actions/AMDetectorInitializeAction.h"
+#include "actions3/actions/AMDetectorDwellTimeAction.h"
+#include "actions3/actions/AMDetectorAcquisitionAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
+#include "actions3/actions/AMDetectorReadAction.h"
+#include "actions3/actions/AMDetectorCleanupAction.h"
+
 
  AMDetector::~AMDetector(){}
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
@@ -214,38 +222,36 @@ int AMDetector::lastContinuousSize() const{
 	return 0;
 }
 
-#include "actions3/actions/AMDetectorInitializeAction.h"
 AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }
 
-#include "actions3/actions/AMDetectorDwellTimeAction.h"
 AMAction3* AMDetector::createSetAcquisitionTimeAction(double seconds){
 	return new AMDetectorDwellTimeAction(new AMDetectorDwellTimeActionInfo(toInfo(), seconds), this);
 }
 
-#include "actions3/actions/AMDetectorAcquisitionAction.h"
 AMAction3* AMDetector::createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode){
 	return new AMDetectorAcquisitionAction(new AMDetectorAcquisitionActionInfo(toInfo(), readMode, this));
 }
 
-#include "actions3/actions/AMDetectorTriggerAction.h"
 AMAction3* AMDetector::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){
 	return new AMDetectorTriggerAction(new AMDetectorTriggerActionInfo(toInfo(), readMode, this));
 }
 
-#include "actions3/actions/AMDetectorReadAction.h"
 AMAction3* AMDetector::createReadAction(){
 	return new AMDetectorReadAction(new AMDetectorReadActionInfo(toInfo(), this));
 }
 
-#include "actions3/actions/AMDetectorCleanupAction.h"
 AMAction3* AMDetector::createCleanupActions(){
 	return new AMDetectorCleanupAction(new AMDetectorCleanupActionInfo(toInfo()), this);
 }
 
-AMAction3* AMDetector::createDarkCurrentCorrectionAction(){
+AMAction3* AMDetector::createDarkCurrentCorrectionActions(){
     return 0;
+}
+
+AMAction3* AMDetector::createSetAsDarkCurrentCorrectionAction(){
+    return new AMDetectorSetAsDarkCurrentCorrectionAction(new AMDetectorSetAsDarkCurrentCorrectionActionInfo(toInfo()), this);
 }
 
 void AMDetector::setInitializing(){

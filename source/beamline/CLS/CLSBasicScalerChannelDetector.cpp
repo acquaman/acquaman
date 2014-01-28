@@ -68,6 +68,17 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
+#include "actions3/AMListAction3.h"
+AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(){
+    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannel Dark Current Correction", "BasicScalerChannel Dark Current Correction"), AMListAction3::Sequential);
+    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
+    darkCurrentCorrectionActions->addSubAction(scaler_->createDwellTimeAction3(30.0));
+    darkCurrentCorrectionActions->addSubAction(scaler_->createStartAction3(true));
+    darkCurrentCorrectionActions->addSubAction(createSetAsDarkCurrentCorrectionAction());
+
+    return darkCurrentCorrectionActions;
+}
+
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
