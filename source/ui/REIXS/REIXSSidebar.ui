@@ -184,9 +184,13 @@
        </widget>
       </item>
       <item row="7" column="0" colspan="2">
-       <widget class="QPushButton" name="fluxResolutionWizardButton">
+       <widget class="QPushButton" name="MonoStopButton">
         <property name="text">
-         <string>STOP</string>
+         <string>Stop!</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
         </property>
        </widget>
       </item>

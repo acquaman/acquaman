@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionRunner3.h"
 
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
@@ -68,7 +69,7 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(ui->scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
 	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
 
-	connect(ui->fluxResolutionWizardButton, SIGNAL(clicked()), this, SLOT(on_fluxResolutionWizardButton_clicked()));
+	connect(ui->MonoStopButton, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
 	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
 	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
@@ -159,8 +160,9 @@ void REIXSSidebar::onScalerContinuousModeChanged(double on)
 	ui->scalerContinuousButton->setChecked(bool(on));
 }
 
-void REIXSSidebar::on_fluxResolutionWizardButton_clicked()
+void REIXSSidebar::on_MonoStopButton_clicked()
 {
 	REIXSBeamline::bl()->photonSource()->energy()->stop();
-
+	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+	AMActionRunner3::workflow()->cancelCurrentAction();
 }
