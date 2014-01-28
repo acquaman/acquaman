@@ -1019,7 +1019,7 @@ void AMSampleCameraView::reviewCameraConfiguration()
 			coordinates[i] = *coordinateList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
-                shapeModel_->deleteCalibrationPoints();
+//                shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
@@ -2336,8 +2336,9 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 		return QColor(Qt::yellow);
 	case SAMPLEPLATEINTERSECTION:
 		return QColor(Qt::green);
-	case SAMPLEFILL:
+	case SAMPLEBORDER:
 		return QColor(Qt::cyan);
+	case SAMPLEFILL:
 	case HIDEINTERSECTION:
 	case BACKWARDSFILL:
 	case FILL:
@@ -2348,7 +2349,7 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 
 void AMSampleCameraView::drawSamplePlate()
 {
-	QPen pen(colour(BORDER));
+	QPen pen(colour(SAMPLEBORDER));
 	QBrush brush(colour(SAMPLEFILL));
 	QPolygonF samplePlate = shapeModel_->samplePlate();
 	if(!samplePlate.isEmpty())

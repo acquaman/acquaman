@@ -62,12 +62,12 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 		pointListAppend(new QPointF(0,0));
     }
     /// set the coordinates
-	coordinateListAppend(new  QVector3D(-8,0,3.75));
+	coordinateListAppend(new  QVector3D(0,0,0));
+	coordinateListAppend(new  QVector3D(-10,0,14));
 	coordinateListAppend(new  QVector3D(10,10,-7.5));
 	coordinateListAppend(new  QVector3D(10,5,-5));
 	coordinateListAppend(new  QVector3D(4,2,-1.9));
-	coordinateListAppend(new  QVector3D(0,0,0));
-	coordinateListAppend(new  QVector3D(-7,4,0));
+	coordinateListAppend(new  QVector3D(-6,4,0));
 
     //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
@@ -123,19 +123,19 @@ int AMCameraConfigurationWizard::nextId() const
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
-    qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
-    QPointF* newPoint;
+	qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
+	QPointF* newPoint;
 	int index = relativeId();
 	if (!isSetPage(currentId()))
 	{
 		return;
 	}
 
-    if(checked(Page_Check))
-    {
+	if(checked(Page_Check))
+	{
 		clearPoints();
-        return;
-    }
+		return;
+	}
 	else if(index < 0)
 	{
 		return;

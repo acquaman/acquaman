@@ -638,6 +638,7 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 	{
 		point[i].setX((points[i].x()-0.5));
 		point[i].setY((points[i].y()-0.5));
+//		point[i] = undistortPoint(point[i]);
 	}
 	/// auto draw shapes at the points, for convenience
 	/// these should appear at "points" if the calibration was successful

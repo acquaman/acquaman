@@ -33,6 +33,7 @@ void AMCamera::setCameraConfiguration(AMCameraConfiguration *cameraConfiguration
 
 void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 {
+	qDebug()<<"AMCamera::getTransforms - calculating matrix";
     // use least squares to find the matrix of parameters
     MatrixXd matrixP = directLinearTransform(coordinates,points);
 
@@ -65,6 +66,18 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
     }
 
     // set the camera matrix to A[R t]
+    QString row = "";
+    MatrixXd error = matrixP - matrixA*matrixExtrinsic;
+    qDebug()<<"Error matrix";
+    for(int i = 0; i < error.rows(); i++)
+    {
+	    for(int j = 0; j < error.cols(); j++)
+	    {
+		    row.append(QString("%1 ").arg(error(i,j)));
+	    }
+	    qDebug()<<row;
+	    row = "";
+    }
     cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
     MatrixXd point [6];
     for(int i= 0; i<6; i++)
@@ -73,15 +86,41 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
         point[i] = point[i]/((point[i](2,0)));
 
     }
+	qDebug()<<"A matrix";
+    for(int i = 0; i < matrixA.rows(); i++)
+    {
+	    for(int j = 0; j < matrixA.cols(); j++)
+	    {
+		    row.append(QString("%1 ").arg(matrixA(i,j)));
+	    }
+	    qDebug()<<row;
+	    row = "";
+    }
 
+    qDebug()<<"Extrinsic matrix";
+    for(int i = 0; i < matrixExtrinsic.rows(); i++)
+    {
+	    for(int j = 0; j < matrixExtrinsic.cols(); j++)
+	    {
+		    row.append(QString("%1 ").arg(matrixExtrinsic(i,j)));
+	    }
+	    qDebug()<<row;
+	    row = "";
+    }
 
 
     MatrixXd coordZero(4,1);
     coordZero<<0,0,0,1;
     QVector3D rotationVector = QVector3D(matrixExtrinsic(2,0),matrixExtrinsic(2,1),matrixExtrinsic(2,2));
+    qDebug()<<"Rotation vector is "<<rotationVector;
     double factorTwo = 1/rotationVector.length();
+    qDebug()<<"Length is "<<rotationVector.length();
+    qDebug()<<"factor is "<<factorTwo;
 
     matrixExtrinsic *= factorTwo;
+
+
+
     Matrix3d rotationMatrix = matrixExtrinsic.block(0,0,3,3);
     double sign = rotationMatrix.determinant();
     if(notEqual(sign,1) && notEqual(sign,-1))
@@ -89,6 +128,18 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
         qDebug()<<"determinant not close to 1, it is:"<<sign;
     }
     matrixExtrinsic *= sign;
+
+    qDebug()<<"Extrinsic matrix";
+
+    for(int i = 0; i < matrixExtrinsic.rows(); i++)
+    {
+	    for(int j = 0; j < matrixExtrinsic.cols(); j++)
+	    {
+		    row.append(QString("%1 ").arg(matrixExtrinsic(i,j)));
+	    }
+	    qDebug()<<row;
+	    row = "";
+    }
 
     // the location of the camera is given by the negative of each component times the shift
     QVector3D cameraCoordinateShift;
@@ -100,7 +151,7 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 
     MatrixXd manualCameraCenter;
     MatrixXd cameraCenterMatrix(3,1);
-    cameraCenterMatrix<<0,0,1;
+    cameraCenterMatrix<<0,0,153.5;
     manualCameraCenter = findWorldCoordinate(cameraCenterMatrix,matrixExtrinsic);
 
 //    MatrixXd cameraCalculatedWorldCenter(4,1);
@@ -151,11 +202,13 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 
 QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 {
-    if(useCameraMatrix_ && calibrationRun_)
+	if(useCameraMatrix_ && calibrationRun_)
 	{
 
-        return transform2Dto3DMatrix(point,depth);
-    }
+		return transform2Dto3DMatrix(point,depth);
+	}
+
+//	qDebug()<<"AMCamera::transform2Dto3D - not using matrix";
     /// Use the position of the item on screen, with knowledge of the
     /// camera position to determine its xyz coordinate.
     /// first convert to a point in an ideal plane, then shift and rotate to match camera
@@ -264,6 +317,8 @@ QPointF AMCamera::transform3Dto2D(QVector3D coordinate) const
     {
         return transform3Dto2DMatrix(coordinate);
     }
+
+//    qDebug()<<"AMCamera::transform3Dto2D - not using matrix";
 
     /// Shifts and rotates the entire scene so that it is looking down the z-axis
     /// then converts that to screen coordinates by taking the proportion of
@@ -811,10 +866,50 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 	JacobiSVD<MatrixXd> svd(matrix,ComputeFullV|ComputeFullU);
 	svd.compute(matrix,ComputeFullU|ComputeFullV);
 
+	MatrixXd matrixV = svd.matrixV();
 
-    MatrixXd matrixV = svd.matrixV();
+#include <iostream>
+    std::cout<<svd.singularValues()<<endl;
+//	qDebug()<<svd.singularValues();
+
+	MatrixXd potential;
+	for(int i = 0; i < matrixV.cols(); i++)
+	{
+		potential = matrixV.col(i);
+		potential.resize(4,3);
+		potential.transposeInPlace();
+		qDebug()<<"matrix for eigenvalue "<<svd.singularValues()(i);
+//		std::cout<<potential<<endl;
+		QString row = "";
+		for(int i = 0; i < potential.rows(); i++)
+		{
+			for(int j = 0; j < potential.cols(); j++)
+			{
+				row.append(QString("%1").arg(potential(i,j)));
+			}
+			qDebug()<<row;
+			row = "";
+		}
+
+		qDebug()<<"Screen position is:";
+		MatrixXd centre(4,1);
+		centre<<0,0,0,1;
+		MatrixXd potsolution = potential*centre;
+		for(int i = 0; i < potsolution.rows(); i++)
+		{
+			for(int j = 0; j < potsolution.cols(); j++)
+			{
+				row.append(QString("%1").arg(potsolution(i,j)));
+			}
+			qDebug()<<row;
+			row = "";
+		}
+	}
+
+
+
     MatrixXd solution = matrixV.col(matrixV.cols()-1);
-	qDebug()<<svd.singularValues();
+
     /// solution is given by the right eigenvector corresponding to the smallest eigen value
 	// solution is given by the right eigenvector corresponding to a zero eigen value
 		// according to "http://www.google.ca/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0CC0QFjAB&url=http%3A%2F%2Fcmp.felk.cvut.cz%2Fcmp%2Fcourses%2FXE33PVR%2FWS20072008%2FLectures%2FSupporting%2Fconstrained_lsq.pdf&ei=rF7hUtLGA4zpoATCmYHYDA&usg=AFQjCNHSGoScGLo9D9jsPwGqBsXXWq-8DA&bvm=bv.59568121,d.cGU&cad=rja"
