@@ -41,16 +41,13 @@ StripToolPV::StripToolPV(QObject *parent)
     pvData_ = new MPlotVectorSeriesData();
 
     pvSeries_ = new StripToolSeries();
-    pvSeries_->setModel(pvData_);
+    pvSeries_->setModel(pvData_, true);
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
 
-//    forceUpdate_ = false;
-
     setMetaDataHeaders();
 
-    // we can force the master times and values lists to update with the most recent value (say if we wanted all pvs to have roughly the same number of points displayed) by emitting this pv's forceUpdate signal. See 'toForceUpdateValue' slot.
     connect( this, SIGNAL(manuallyUpdatePV(double)), this, SLOT(onPVValueChanged(double)) );
 }
 
@@ -367,14 +364,6 @@ void StripToolPV::setControl(AMControl *newControl)
 
 
 
-void StripToolPV::setShiftAmount(double newShift)
-{
-//    shiftAmount_ = newShift;
-//    emit shiftAmountChanged(shiftAmount_);
-}
-
-
-
 void StripToolPV::setDescription(const QString &newDescription)
 {
     if (newDescription != "")
@@ -438,7 +427,7 @@ void StripToolPV::setXUnits(const QString &newUnits)
 
 void StripToolPV::setMaxTimeBetweenUpdates(double seconds)
 {
-    maxTimeBetweenUpdates_ = seconds * 1000;
+    maxTimeBetweenUpdates_ = seconds * 1000; // ms
     emit maxTimeBetweenUpdatesChanged(maxTimeBetweenUpdates_);
 }
 

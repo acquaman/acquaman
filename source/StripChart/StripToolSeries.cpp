@@ -1,6 +1,7 @@
 #include "StripToolSeries.h"
 
 StripToolSeries::StripToolSeries()
+    : MPlotSeriesBasic()
 {
     customMinDefined_ = false;
     customMaxDefined_ = false;
