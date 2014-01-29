@@ -638,7 +638,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
-    source/actions3/actions/AMControlWaitActionInfo.h
+    source/actions3/actions/AMControlWaitActionInfo.h \
+    source/actions3/actions/AMControlWaitAction.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1048,7 +1049,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
-    source/actions3/actions/AMControlWaitActionInfo.cpp
+    source/actions3/actions/AMControlWaitActionInfo.cpp \
+    source/actions3/actions/AMControlWaitAction.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
