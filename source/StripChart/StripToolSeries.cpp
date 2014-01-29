@@ -225,80 +225,54 @@ double StripToolSeries::customMax()
 
 double StripToolSeries::displayedMin()
 {
+    double displayedMin;
+
     if (waterfallApplied())
-        return waterfallMin();
+        displayedMin = waterfallMin();
 
     else if (customMinDefined())
-        return customMin();
+        displayedMin = customMin();
 
     else
-        return dataMin();
+        displayedMin = dataMin();
+
+    qDebug() << "Displayed min : " << displayedMin;
+
+    return displayedMin;
 }
 
 
 
 double StripToolSeries::displayedMax()
 {
+    double displayedMax;
+
     if (waterfallApplied())
-        return waterfallMax();
+        displayedMax = waterfallMax();
 
     else if (customMaxDefined())
-        return customMax();
+        displayedMax = customMax();
 
     else
-        return dataMax();
+        displayedMax = dataMax();
+
+    qDebug() << "Displayed max : " << displayedMax;
+
+    return displayedMax;
 }
 
 
 
 MPlotAxisRange* StripToolSeries::displayedRange()
 {
-//    qDebug() << "StripToolSeries :: returning the current display range :" << displayRange->min() << "to" << displayRange->max();
-    double max = displayedMax();
-    double min = displayedMin();
-
-//    if (min < max)
         return new MPlotAxisRange(displayedMin(), displayedMax());
-//    else
-//        return new MPlotAxisRange(min - 5, max + 5);
-
-//    qreal min = dataRange()->min();
-//    qreal max = dataRange()->max();
-
-//    MPlotAxisRange *displayRange;
-
-//    if (waterfallApplied()) {
-//        return MPlotAxisRange(waterfallMin(), waterfallMax());
-
-//    } else if
-
-//    if (!customLimitsDefined()) {
-
-//        if (min == max && min == 0) {
-//            displayRange = new MPlotAxisRange(-1, 1);
-
-//        } else if (min == max) {
-//            displayRange = new MPlotAxisRange(0.95 * min, 1.05 * max);
-
-//        } else {
-//            displayRange = dataRange();
-//        }
-
-//    } else {
-//        displayRange = new MPlotAxisRange(displayedMin(), displayedMax());
-//    }
-
-//    return displayRange;
-
 }
 
 
 
 MPlotAxisRange* StripToolSeries::dataRange()
 {
-//    qDebug() << "StripToolSeries :: returning the current data range :" << dataMin() << "to" << dataMax();
-    MPlotAxisRange *dataRange = new MPlotAxisRange(dataMin(), dataMax());
-    return dataRange;
+    return new MPlotAxisRange(dataMin(), dataMax());
 }
 
 
@@ -321,7 +295,7 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal axisMin, qreal axi
 
     if (waterfallApplied() || customLimitsDefined()) {
 
-        if (axisMin == displayedMin())
+        if (axisMin == displayedMin()) // this is the case when this series is the selected pv.
             pvYMin = dataMin();
 
         else

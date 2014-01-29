@@ -60,7 +60,7 @@ protected slots:
 
     void toUpdateXAxisLabel(const QString &newLabel);
 
-    void toUpdateLeftAxisRange(MPlotAxisRange *newDataRange);
+    void toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange);
     void toUpdateYAxisLabel(const QString &newLabel);
     void onWaterfallStateChange(bool waterfallOn);
 

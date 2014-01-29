@@ -160,13 +160,13 @@ void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
 
 
 
-void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newDataRange)
+void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange)
 {    
-    qreal rangeMin = newDataRange->min();
-    qreal rangeMax = newDataRange->max();
+    qreal rangeMin = newAxisRange->min();
+    qreal rangeMax = newAxisRange->max();
 
     MPlotAxisScale *axis = plot_->axisScaleLeft();
-    axis->setDataRange(newDataRange->normalized(), true);
+    axis->setDataRange(newAxisRange->normalized(), true);
 
     int itemCount = plot_->plotItems().size();
 
@@ -175,7 +175,6 @@ void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newDataRange)
         series->enableWaterfall(waterfallOn_, i, itemCount);
         series->enableYNormalization(true, rangeMin, rangeMax);
     }
-
 }
 
 
@@ -220,6 +219,13 @@ void StripToolPlot::onWaterfallStateChange(bool waterfallOn)
         qDebug() << "StripToolPlot :: waterfall feature is turning on:";
     } else {
         qDebug() << "StripToolPlot :: waterfall feature is turning off:";
+    }
+
+    int count = plot_->plotItems().size();
+
+    for (int i = 0; i < count; i++) {
+        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+        series->enableWaterfall(waterfallOn_, i, count);
     }
 }
 
