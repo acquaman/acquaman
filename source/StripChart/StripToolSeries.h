@@ -11,7 +11,48 @@ public:
     StripToolSeries();
     friend class StripToolPV;
 
+
+public:
+    MPlotAxisRange* displayedRange();
+    void enableYNormalization(bool normOn, qreal axisMin, qreal axisMax);
+    void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
+
+
 protected:
+    qreal dataMin();
+    qreal dataMax();
+    MPlotAxisRange* dataRange();
+
+    bool customLimitsDefined();
+    bool customMinDefined();
+    bool customMaxDefined();
+    double customMin();
+    double customMax();
+    void setCustomLimits(qreal min, qreal max);
+    void eraseCustomLimits();
+
+    bool waterfallApplied();
+    qreal waterfallMin();
+    qreal waterfallMax();
+    void eraseWaterfallLimits();
+
+    double displayedMin();
+    double displayedMax();
+
+
+private:
+    void setWaterfallMin(qreal min);
+    void setWaterfallMax(qreal max);
+    void setWaterfallLimits(qreal min, qreal max);
+    void applyWaterfall(int itemPosition, int itemCount);
+
+    void setCustomMin(qreal min);
+    void setCustomMax(qreal max);
+    void eraseCustomMin();
+    void eraseCustomMax();
+
+
+private:
     bool customMinDefined_;
     bool customMaxDefined_;
 
@@ -25,48 +66,6 @@ protected:
 
     double waterfallMin_;
     double waterfallMax_;
-
-public:
-    bool customLimitsDefined();
-    bool customMinDefined();
-    bool customMaxDefined();
-    MPlotAxisRange* displayedRange();
-    bool waterfallApplied();
-
-    void enableYNormalization(bool normOn, qreal axisMin, qreal axisMax);
-    void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
-
-
-protected:
-    qreal dataMin();
-    qreal dataMax();
-    MPlotAxisRange* dataRange();
-
-    double customMin();
-    double customMax();
-    void setCustomLimits(qreal min, qreal max);
-    void eraseCustomLimits();
-
-    qreal waterfallMin();
-    qreal waterfallMax();
-    void setWaterfallLimits(qreal min, qreal max);
-    void eraseWaterfallLimits();
-
-    double displayedMin();
-    double displayedMax();
-
-
-private:
-    void setWaterfallMin(qreal min);
-    void setWaterfallMax(qreal max);
-    void applyWaterfall(int itemPosition, int itemCount);
-
-    void setCustomMin(qreal min);
-    void setCustomMax(qreal max);
-    void eraseCustomMin();
-    void eraseCustomMax();
-
-
 };
 
 #endif // STRIPTOOLSERIES_H

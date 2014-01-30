@@ -13,7 +13,6 @@ StripToolSeries::StripToolSeries()
 
     waterfallMin_ = 0.0;
     waterfallMax_ = 0.0;
-
 }
 
 
@@ -107,14 +106,14 @@ void StripToolSeries::setWaterfallLimits(double min, double max)
 
         if (!waterfallApplied_) {
             qDebug() << "StripToolSeries :: waterfall added.";
+            waterfallApplied_ = true;
         }
 
-        waterfallApplied_ = true;
         setWaterfallMin(min);
         setWaterfallMax(max);
 
-//        qDebug() << "StripToolSeries :: min =" << min;
-//        qDebug() << "StripToolSeries :: max=" << max;
+//        qDebug() << "StripToolSeries :: waterfall min =" << min;
+//        qDebug() << "StripToolSeries :: waterfall max =" << max;
 
     } else {
 
@@ -141,13 +140,10 @@ qreal StripToolSeries::dataMin()
 {
     int count = model()->count();
 
-    qreal min = 0;
+    qreal min = model()->y(0);
 
     for (int i = 0; i < count; i++) {
-        if (i == 0)
-            min = model()->y(i);
-
-        else if (min > model()->y(i))
+        if (min > model()->y(i))
             min = model()->y(i);
     }
 
@@ -160,13 +156,10 @@ qreal StripToolSeries::dataMax()
 {
     int count = model()->count();
 
-    qreal max = 0;
+    qreal max = model()->y(0);
 
     for (int i = 0; i < count; i++) {
-        if (i == 0)
-            max = model()->y(i);
-
-        else if (max < model()->y(i))
+        if (max < model()->y(i))
             max = model()->y(i);
     }
 
@@ -226,17 +219,23 @@ double StripToolSeries::customMax()
 double StripToolSeries::displayedMin()
 {
     double displayedMin;
+    QString source;
 
-    if (waterfallApplied())
+    if (waterfallApplied()) {
         displayedMin = waterfallMin();
+        source = "waterfall";
 
-    else if (customMinDefined())
+    } else if (customMinDefined()) {
         displayedMin = customMin();
+        source = "custom";
 
-    else
+    } else {
         displayedMin = dataMin();
+        source = "data";
 
-    qDebug() << "Displayed min : " << displayedMin;
+    }
+
+//    qDebug() << "Displayed min : " << source << ":" << displayedMin;
 
     return displayedMin;
 }
@@ -246,17 +245,22 @@ double StripToolSeries::displayedMin()
 double StripToolSeries::displayedMax()
 {
     double displayedMax;
+    QString source;
 
-    if (waterfallApplied())
+    if (waterfallApplied()) {
         displayedMax = waterfallMax();
+        source = "waterfall";
 
-    else if (customMaxDefined())
+    } else if (customMaxDefined()) {
         displayedMax = customMax();
+        source = "custom";
 
-    else
+    } else {
         displayedMax = dataMax();
+        source = "data";
+    }
 
-    qDebug() << "Displayed max : " << displayedMax;
+//    qDebug() << "Displayed max : " << source << ":" << displayedMax;
 
     return displayedMax;
 }
@@ -265,7 +269,7 @@ double StripToolSeries::displayedMax()
 
 MPlotAxisRange* StripToolSeries::displayedRange()
 {
-        return new MPlotAxisRange(displayedMin(), displayedMax());
+    return new MPlotAxisRange(displayedMin(), displayedMax());
 }
 
 
@@ -318,7 +322,6 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal axisMin, qreal axi
     }
 
     enableYAxisNormalization(normOn, pvYMin, pvYMax);
-
 }
 
 
@@ -345,9 +348,17 @@ void StripToolSeries::applyWaterfall(int itemPosition, int itemCount)
 
     } else {
 
-        sectionSize = dataMax() - dataMin();
-        min = dataMin();
-        max = dataMax();
+        if (customLimitsDefined()) {
+            sectionSize = customMax() - customMin();
+            min = customMin();
+            max = customMax();
+
+        } else {
+
+            sectionSize = dataMax() - dataMin();
+            min = dataMin();
+            max = dataMax();
+        }
     }
 
     // if the item is the first to be displayed, it's position is 0.
@@ -358,6 +369,5 @@ void StripToolSeries::applyWaterfall(int itemPosition, int itemCount)
     double waterfallMax = max + itemPosition * sectionSize;
 
     setWaterfallLimits(waterfallMin, waterfallMax);
-
 }
 
