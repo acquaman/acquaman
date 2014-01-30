@@ -915,9 +915,7 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 		// according to "http://www.google.ca/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=0CC0QFjAB&url=http%3A%2F%2Fcmp.felk.cvut.cz%2Fcmp%2Fcourses%2FXE33PVR%2FWS20072008%2FLectures%2FSupporting%2Fconstrained_lsq.pdf&ei=rF7hUtLGA4zpoATCmYHYDA&usg=AFQjCNHSGoScGLo9D9jsPwGqBsXXWq-8DA&bvm=bv.59568121,d.cGU&cad=rja"
 		// choosing the smallest eigenvalue should be sufficient for the least squares solution (minimization of error)
 		// hopefully with FullV and FullU this will work?
-	// is the smallest eigenvalue 0?
-	// if we cannot get an eigenvalue of 0, have to take a different approach,
-	// which is not quite so simple
+	// the closer to zero, the better the solution
     /// (SVD decomposition)
     /// This means the solution is the last column of the V matrix
 
