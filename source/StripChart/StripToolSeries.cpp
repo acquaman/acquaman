@@ -301,7 +301,7 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
     // seriesMin_axis, seriesMax_axis are the boundaries of this series, in the axis coordinates. these are what we are trying to find.
     double seriesMin_axis, seriesMax_axis;
 
-    if (!customLimitsDefined() && dataMin() == dataMax()) {
+    if (!customLimitsDefined() && dataMin() == dataMax() && model()->count() > 2) {
         qDebug() << "StripToolSeries :: dataMin and dataMax for this series are identical, and there are no custom limits defined. We are defining custom limits automatically (+/- 5) so that this series will display properly!";
         setCustomLimits(dataMin() - 5, dataMax() + 5);
     }
@@ -333,6 +333,13 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
         seriesMin_axis = ymin_axis;
         seriesMax_axis = ymax_axis;
     }
+
+//    double val = -1;
+//    qreal *xvalues = &val;
+//    model()->xValues(0, model()->count() - 1, xvalues);
+
+//    qDebug() << "StripToolSeries :: x values : " << xvalues;
+//    qDebug() << "StripToolSeries :: y values : " << model()->yValues();
 
     // and now we normalize this series to be between the seriesMin/Max_axis values! ta da!
     enableYAxisNormalization(normOn, seriesMin_axis, seriesMax_axis);

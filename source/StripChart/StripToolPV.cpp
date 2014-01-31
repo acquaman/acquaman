@@ -566,7 +566,7 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
-//    qDebug() << "PV" << pvName() << "value update :" << latestValue;
+    qDebug() << "PV" << pvName() << "value update :" << latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_ && (updateIndex_ % updateGranularity() == 0)) {
@@ -600,6 +600,9 @@ void StripToolPV::onPVValueChanged(double newValue)
             }
         }
     }
+
+    qDebug() << "StripToolPV :: Displayed times : " << displayedTimes_;
+    qDebug() << "StripToolPV :: Displayed values : " << displayedValues_;
 
     //  update the displayed data with the new vectors.
     pvData_->setValues(displayedTimes_, displayedValues_);
