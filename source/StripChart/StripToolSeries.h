@@ -14,7 +14,7 @@ public:
 
 public:
     MPlotAxisRange* displayedRange();
-    void enableYNormalization(bool normOn, qreal axisMin, qreal axisMax);
+    void enableYNormalization(bool normOn, qreal ymin_axis, qreal ymax_axis);
     void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
 
 
