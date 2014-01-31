@@ -33,6 +33,7 @@ class AMControl;
 class AMCamera;
 class AMSample;
 class AMSamplePlate;
+class AMRotationalOffset;
 
 using namespace Eigen;
 
@@ -388,6 +389,7 @@ public slots:
 	void setCameraConfigurationShape();
 
 	void configureRotation(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations);
+	void saveRotationalOffset();
 
 	void moveSamplePlateTo(const QVector3D &coordinate);
 
@@ -700,7 +702,7 @@ protected:
 
 	/// center and direction of rotation
 	QVector3D centerOfRotation_;
-	QVector3D rotationalOffset_;
+	AMRotationalOffset *rotationalOffset_;
 	QVector3D directionOfRotation_;
 
 	/// list of points used in camera calibration

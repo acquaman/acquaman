@@ -113,6 +113,8 @@ public:
 	bool loadCamera();
 	/// load last sample plate
 	bool loadSamplePlate();
+	/// load last rotational offset
+	bool loadRotationalOffset();
 
 	AMSampleCamera* sampleCamera();
 

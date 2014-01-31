@@ -27,6 +27,8 @@
 #include "dataman/AMSamplePlate.h"
 #include "source/beamline/AMBeamline.h"
 
+#include "beamline/camera/AMRotationalOffset.h"
+
 
 
 #define TOPLEFT 0
@@ -315,7 +317,7 @@ QVector3D AMSampleCamera::currentCoordinate() const
 
 QVector3D AMSampleCamera::rotationalOffset() const
 {
-	return rotationalOffset_;
+	return rotationalOffset_->rotationalOffset();
 }
 
 double AMSampleCamera::rotationalOffsetX() const
@@ -556,9 +558,9 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 
 void AMSampleCamera::setRotationalOffset(const QVector3D &offset)
 {
-	rotationalOffset_ = offset;
-	centerOfRotation_ = motorCoordinate_ + rotationalOffset_;
-	emit rotationalOffsetChanged(rotationalOffset_);
+	rotationalOffset_->setRotationalOffset(offset);
+	centerOfRotation_ = motorCoordinate_ + rotationalOffset();
+	emit rotationalOffsetChanged(rotationalOffset());
 }
 
 void AMSampleCamera::setRotationalOffsetX(const double &xCoordinate)
@@ -1721,6 +1723,12 @@ void AMSampleCamera::configureRotation(QVector<QVector3D> coordinates, QVector<Q
 
 }
 
+void AMSampleCamera::saveRotationalOffset()
+{
+	rotationalOffset_->setName("LastRotationalOffset");
+	rotationalOffset_->storeToDb(AMDatabase::database("user"));
+}
+
 void AMSampleCamera::moveSamplePlateTo(const QVector3D &coordinate)
 {
 	if(samplePlateSelected_)
@@ -1987,9 +1995,10 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	moveToBeam_ = true;
 	moveOnShape_ = true;
 
-	rotationalOffset_ = QVector3D(10.5,2.35,0);
+	rotationalOffset_ = new AMRotationalOffset(10.5,2.35,0);
 
-	emit rotationalOffsetChanged(rotationalOffset_);
+
+	emit rotationalOffsetChanged(rotationalOffset());
 
 	oldRotation_ = 0;
 
@@ -2023,6 +2032,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 			success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
 			success &= AMDbObjectSupport::s()->registerClass<AMSample>();
 			success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
+			success &= AMDbObjectSupport::s()->registerClass<AMRotationalOffset>();
 
 			qDebug() << "Status of registration is " << success;
 		}
@@ -2321,7 +2331,7 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 //	qDebug()<<"AMSampleCamera::motorMovement"<<x<<y<<z<<r;
         QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
-	QVector3D centerOfRotation = newPosition + rotationalOffset_;
+	QVector3D centerOfRotation = newPosition + rotationalOffset();
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
 	directionOfRotation_ = directionOfRotation;

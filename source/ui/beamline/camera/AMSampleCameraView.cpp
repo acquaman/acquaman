@@ -51,6 +51,8 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSample.h"
 
+#include "beamline/camera/AMRotationalOffset.h"
+
 
 
 #define SAMPLEPOINTS 6
@@ -745,6 +747,7 @@ void AMSampleCameraView::rotationConfiguration()
 	}
 
 	shapeModel_->configureRotation( coordinates, points, rotations);
+	shapeModel_->saveRotationalOffset();
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const
@@ -1172,6 +1175,27 @@ bool AMSampleCameraView::loadSamplePlate()
 
 }
 
+bool AMSampleCameraView::loadRotationalOffset()
+{
+	QString rotationalOffsetName = "LastRotationalOffset";
+	AMDatabase *db = AMDatabase::database("user");
+	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
+
+	if(matchList.count() <= 0)
+	{
+		return false;
+	}
+
+	AMRotationalOffset *rotationalOffset = new AMRotationalOffset();
+	rotationalOffset->loadFromDb(db,matchList.last());
+	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
+	delete rotationalOffset;
+	refreshSceneView();
+	return true;
+
+
+}
+
 AMSampleCamera* AMSampleCameraView::sampleCamera(){
 	return shapeModel_;
 }
@@ -1437,7 +1461,15 @@ void AMSampleCameraView::requestLoadSamplePlate()
 
 void AMSampleCameraView::requestLoadRotationConfiguration()
 {
-	qDebug()<<"AMSampleCameraView::requestLoadRotationConfiguration";
+	bool success = loadRotationalOffset();
+	if(success)
+	{
+		emit rotationWizardFinished();
+	}
+	else
+	{
+		qDebug()<<"Need to load default rotational offset";
+	}
 }
 
 

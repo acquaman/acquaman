@@ -868,8 +868,8 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 
 	MatrixXd matrixV = svd.matrixV();
 
-#include <iostream>
-    std::cout<<svd.singularValues()<<endl;
+//#include <iostream>
+//    std::cout<<svd.singularValues()<<endl;
 //	qDebug()<<svd.singularValues();
 
 	MatrixXd potential;
@@ -881,11 +881,11 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 		qDebug()<<"matrix for eigenvalue "<<svd.singularValues()(i);
 //		std::cout<<potential<<endl;
 		QString row = "";
-		for(int i = 0; i < potential.rows(); i++)
+		for(int k = 0; k < potential.rows(); k++)
 		{
 			for(int j = 0; j < potential.cols(); j++)
 			{
-				row.append(QString("%1").arg(potential(i,j)));
+				row.append(QString("%1").arg(potential(k,j)));
 			}
 			qDebug()<<row;
 			row = "";
@@ -895,11 +895,11 @@ MatrixXd AMCamera::directLinearTransform(QVector3D coordinate[], QPointF screenP
 		MatrixXd centre(4,1);
 		centre<<0,0,0,1;
 		MatrixXd potsolution = potential*centre;
-		for(int i = 0; i < potsolution.rows(); i++)
+		for(int k = 0; k < potsolution.rows(); k++)
 		{
 			for(int j = 0; j < potsolution.cols(); j++)
 			{
-				row.append(QString("%1").arg(potsolution(i,j)));
+				row.append(QString("%1").arg(potsolution(k,j)));
 			}
 			qDebug()<<row;
 			row = "";

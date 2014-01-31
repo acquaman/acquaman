@@ -668,8 +668,11 @@ void AMWaitPage::stopTimer()
 
 void AMWaitPage::startTimer(int msec)
 {
+	/// request the motor movement state
     viewWizard()->checkMotorMovementState();
+	/// get the result of the request
     bool state = viewWizard()->motorMovementEnabled();
+	/// if not moving, start the time, else move the motor
     if(!state)
         waitTimer_->start(msec);
     else
