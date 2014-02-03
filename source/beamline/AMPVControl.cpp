@@ -108,7 +108,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
@@ -130,6 +130,12 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; that will break subclasses.
 	if(writePV_->isInitialized())
 		onWritePVInitialized();
+}
+
+void AMPVControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVControl::onWritePVInitialized() {
@@ -343,7 +349,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// connect the timer to the timeout handler:
@@ -369,6 +375,12 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	if(movingPV_->readReady())
 		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
 
+}
+
+void AMPVwStatusControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVwStatusControl::onWritePVInitialized() {

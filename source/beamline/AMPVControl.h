@@ -70,7 +70,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
- 	virtual ~AMReadOnlyPVControl();
+	virtual ~AMReadOnlyPVControl();
 	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
 	/// \name Reimplemented Public Functions:
@@ -183,7 +183,7 @@ public:
   \param parent QObject parent class
   \param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
   */
- 	virtual ~AMPVControl();
+	virtual ~AMPVControl();
 	AMPVControl(const QString& name,
 				const QString& readPVname,
 				const QString& writePVname,
@@ -307,6 +307,8 @@ protected slots:
 
 	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 
 };
@@ -330,7 +332,7 @@ public:
   \param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
   \param parent QObject parent class
   */
- 	virtual ~AMSinglePVControl();
+	virtual ~AMSinglePVControl();
 	AMSinglePVControl(const QString& name,
 					  const QString& PVname,
 					  QObject* parent = 0,
@@ -352,7 +354,7 @@ public:
 class AMControlStatusCheckerDefault : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compared to \c isMovingValue, and return true if the status value is equal to isMovingValue.
- 	virtual ~AMControlStatusCheckerDefault();
+	virtual ~AMControlStatusCheckerDefault();
 	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
 
 	/// Returns true (moving) if the \c statusValue matches isMovingValue_;
@@ -366,7 +368,7 @@ protected:
 class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
- 	virtual ~AMControlStatusCheckerStopped();
+	virtual ~AMControlStatusCheckerStopped();
 	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
 
 	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
@@ -535,7 +537,7 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   */
- 	virtual ~AMPVwStatusControl();
+	virtual ~AMPVwStatusControl();
 	AMPVwStatusControl(const QString& name,
 					   const QString& readPVname,
 					   const QString& writePVname,
@@ -673,6 +675,8 @@ protected slots:
 
 	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 };
 
@@ -694,7 +698,7 @@ public:
 class AMScaleAndOffsetUnitConverter : public AMAbstractUnitConverter {
 public:
 	/// Constructor
- 	virtual ~AMScaleAndOffsetUnitConverter();
+	virtual ~AMScaleAndOffsetUnitConverter();
 	AMScaleAndOffsetUnitConverter(const QString& units, double scale = 1.0, double offset = 0.0) :
 		units_(units), scale_(scale), offset_(offset) {}
 	/// Convert raw units to output units
@@ -824,7 +828,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
- 	virtual ~AMReadOnlyWaveformBinningPVControl();
+	virtual ~AMReadOnlyWaveformBinningPVControl();
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
 									   const QString& readPVname,
 									   int lowIndex = 0,
