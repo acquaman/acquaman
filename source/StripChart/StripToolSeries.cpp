@@ -13,6 +13,8 @@ StripToolSeries::StripToolSeries()
 
     waterfallMin_ = 0.0;
     waterfallMax_ = 0.0;
+
+//    connect( model()->signalSource(), SIGNAL(dataChanged()), this, SLOT(onModelDataChanged()));
 }
 
 
@@ -321,6 +323,10 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
         // this is the range of values that we will be mapping to--the current axis range. in axis coordinates.
         double axisRange_axis = ymax_axis - ymin_axis;
 
+        // Darren's note:  We typically will never want to have a height range of zero because that will cause issues within the painter because you will accidentally create a NULL QRect, which obviously can never be painted.
+        if (axisRange_axis == 0)
+            axisRange_axis = 1;
+
         // now, we want to convert the buffer values to the axis coordinates, and then exclude them from the series range in axis coordinates.
         // remember that we will be normalizing the series to be between seriesMin/Max_axis--we are only interested in the range that the series itself occupies, without the buffers, for this (ie the range over which a line appears on the plot).
         seriesMin_axis = ymin_axis + (seriesMinBuffer_series / seriesDisplayRange_series) * (axisRange_axis);
@@ -334,12 +340,9 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
         seriesMax_axis = ymax_axis;
     }
 
-//    double val = -1;
-//    qreal *xvalues = &val;
-//    model()->xValues(0, model()->count() - 1, xvalues);
-
-//    qDebug() << "StripToolSeries :: x values : " << xvalues;
-//    qDebug() << "StripToolSeries :: y values : " << model()->yValues();
+    // Darren's note:  We typically will never want to have a height range of zero because that will cause issues within the painter because you will accidentally create a NULL QRect, which obviously can never be painted.
+    if (seriesMax_axis == 0)
+        seriesMax_axis = 1;
 
     // and now we normalize this series to be between the seriesMin/Max_axis values! ta da!
     enableYAxisNormalization(normOn, seriesMin_axis, seriesMax_axis);
