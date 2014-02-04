@@ -127,6 +127,7 @@ REIXSBeamline::~REIXSBeamline() {
 }
 
 void REIXSBeamline::setupExposedControls(){
+	addExposedControl(photonSource()->ringCurrent());
 	addExposedControl(photonSource()->energy());
 	addExposedControl(photonSource()->monoGratingSelector());
 	addExposedControl(photonSource()->monoMirrorSelector());
@@ -227,6 +228,10 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarization_->enumNames() << "Linear Inclined";
 	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
+
+	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
+
+
 }
 
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)

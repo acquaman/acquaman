@@ -57,11 +57,12 @@ public:
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
+	AMControl* ringCurrent()  { return ringCurrent_; }
 	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
 	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_; //DAVID ADDED M5's
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
 
 };
