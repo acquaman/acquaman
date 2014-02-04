@@ -45,8 +45,10 @@ signals:
     void selectedPVDataRangeChanged(MPlotAxisRange *newRange);
     void selectedPVDisplayRangeChanged(MPlotAxisRange *newRange);
     void selectedPVAxisLabelChanged(const QString &newLabel);
-    void selectedPVOffsetChanged(double offset);
-    void waterfallChanged(double newWaterfall);
+//    void selectedPVOffsetChanged(double offset);
+//    void waterfallChanged(double newWaterfall);
+    void changeWaterfallCheckState(bool on);
+    void waterfallStateChanged(bool on);
 
 //    void restartUpdateIntervalTimer();
 //    void stopUpdateIntervalTimer();

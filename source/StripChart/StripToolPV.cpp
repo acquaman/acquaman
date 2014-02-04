@@ -1,7 +1,7 @@
 #include "StripToolPV.h"
 
 StripToolPV::StripToolPV(QObject *parent)
-    : QObject(parent)
+    : StripToolVariable(parent)
 {
     updateIndex_ = 0;
     updateGranularity_ = 2;
@@ -22,8 +22,6 @@ StripToolPV::StripToolPV(QObject *parent)
     checkState_ = Qt::Checked;
     pvColor_ = QColor(Qt::red);
 
-    shiftAmount_ = 0.0;
-
     maxTimeBetweenUpdates_ = 1500; // ms
 
     updateIntervalTimer_ = new QTimer(this);
@@ -43,20 +41,14 @@ StripToolPV::StripToolPV(QObject *parent)
     pvData_ = new MPlotVectorSeriesData();
 
     pvSeries_ = new StripToolSeries();
-    pvSeries_->setModel(pvData_);
+    pvSeries_->setModel(pvData_, true);
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
     pvSeries_->setLinePen(QPen(pvColor_));
 
-//    forceUpdate_ = false;
-
     setMetaDataHeaders();
 
-    // we can force the master times and values lists to update with the most recent value (say if we wanted all pvs to have roughly the same number of points displayed) by emitting this pv's forceUpdate signal. See 'toForceUpdateValue' slot.
     connect( this, SIGNAL(manuallyUpdatePV(double)), this, SLOT(onPVValueChanged(double)) );
-    connect( this, SIGNAL(shiftAmountChanged(double)), this, SLOT(toApplySeriesTransform(double)) );
-
-    connect( this, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(onDisplayRangeChanged(MPlotAxisRange*)) );
 }
 
 
@@ -372,14 +364,6 @@ void StripToolPV::setControl(AMControl *newControl)
 
 
 
-void StripToolPV::setShiftAmount(double newShift)
-{
-    shiftAmount_ = newShift;
-    emit shiftAmountChanged(shiftAmount_);
-}
-
-
-
 void StripToolPV::setDescription(const QString &newDescription)
 {
     if (newDescription != "")
@@ -443,7 +427,7 @@ void StripToolPV::setXUnits(const QString &newUnits)
 
 void StripToolPV::setMaxTimeBetweenUpdates(double seconds)
 {
-    maxTimeBetweenUpdates_ = seconds * 1000;
+    maxTimeBetweenUpdates_ = seconds * 1000; // ms
     emit maxTimeBetweenUpdatesChanged(maxTimeBetweenUpdates_);
 }
 
@@ -582,11 +566,10 @@ void StripToolPV::onPVValueChanged(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
-//    qDebug() << "PV" << pvName() << "value update :" << latestValue;
+    qDebug() << "PV" << pvName() << "value update :" << latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
-    if (isUpdating_ && (updateIndex_ % updateGranularity() == 0))
-    {
+    if (isUpdating_ && (updateIndex_ % updateGranularity() == 0)) {
         // set a 'now' time that will be used to generate the x-axis display values.
         QTime nowish = QTime::currentTime();
 
@@ -599,12 +582,10 @@ void StripToolPV::onPVValueChanged(double newValue)
         int index = startIndex;
         bool copyComplete = false;
 
-        while (index >= 0 && index < masterUpdateTimes_.size() && !copyComplete)
-        {   
+        while (index >= 0 && index < masterUpdateTimes_.size() && !copyComplete) {
             double relativeTime = nowish.msecsTo(masterUpdateTimes_.at(index)) * timeFactor_; // relative time is initially in seconds, but changes depending on the x axis units.
 
-            if (qAbs(relativeTime) < qAbs(timeDisplayed_))
-            {
+            if (qAbs(relativeTime) < qAbs(timeDisplayed_)) {
                 double newTime = relativeTime;
                 double newVal = masterUpdateValues_.at(index);
 
@@ -620,6 +601,9 @@ void StripToolPV::onPVValueChanged(double newValue)
         }
     }
 
+    qDebug() << "StripToolPV :: Displayed times : " << displayedTimes_;
+    qDebug() << "StripToolPV :: Displayed values : " << displayedValues_;
+
     //  update the displayed data with the new vectors.
     pvData_->setValues(displayedTimes_, displayedValues_);
 
@@ -632,9 +616,29 @@ void StripToolPV::onPVValueChanged(double newValue)
     // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
 
-        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
+//        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
         emit dataRangeChanged(series()->dataRange());
-        emit displayRangeChanged(series()->displayedRange());
+
+        qreal max = series()->displayedRange()->max();
+        qreal min = series()->displayedRange()->min();
+
+        if (max == min) {
+
+            if (min == 0) {
+                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 2.";
+                max = 2;
+                min = -2;
+                series()->setCustomLimits(min, max);
+
+            } else {
+//                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
+//                min *= 0.95;
+//                max *= 1.05;
+//                series()->setCustomLimits(min, max);
+            }
+        }
+
+        emit displayRangeChanged(new MPlotAxisRange(min, max));
     }
 
 }
@@ -668,19 +672,4 @@ void StripToolPV::toUpdateTimeUnits(const QString &newUnits)
 {
     qDebug() << "StripToolPV :: Updating time units to" << newUnits << "for pv " << this->pvName();
     setXUnits(newUnits);
-}
-
-
-
-void StripToolPV::toApplySeriesTransform(double dy)
-{
-    qDebug() << "StripToolPV :: Applying transform to pv" << pvName() << ": shift by " << dy;
-    pvSeries_->applyTransform(1, 1, 0, dy);
-}
-
-
-
-void StripToolPV::onDisplayRangeChanged(MPlotAxisRange *range)
-{
-    qDebug() << "StripToolPV :: the display range has been changed to min ->" << range->min() << " and max ->" << range->max() << ".";
 }

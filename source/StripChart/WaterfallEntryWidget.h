@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QtGui>
 
-#include "StripChart/StripToolModel.h"
 
 class WaterfallEntryWidget : public QWidget
 {
@@ -14,17 +13,13 @@ public:
     explicit WaterfallEntryWidget(QWidget *parent = 0);
 
 signals:
-    void waterfallChanged(double newWaterfall);
+    void waterfallOn(bool on);
 
 protected:
-    QLabel *waterfallLabel_;
-    QDoubleSpinBox *waterfallAmount_;
-
-protected:
-    void initialize();
+    QCheckBox *waterfallCheckBox_;
 
 protected slots:
-    void toSetWaterfallDisplayed(double newDisplay);
+    void setWaterfallCheckState(bool on);
 
 };
 
