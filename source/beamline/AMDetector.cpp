@@ -246,7 +246,8 @@ AMAction3* AMDetector::createCleanupActions(){
 	return new AMDetectorCleanupAction(new AMDetectorCleanupActionInfo(toInfo()), this);
 }
 
-AMAction3* AMDetector::createDarkCurrentCorrectionActions(){
+AMAction3* AMDetector::createDarkCurrentCorrectionActions(double dwellTime){
+    Q_UNUSED(dwellTime)
     return 0;
 }
 

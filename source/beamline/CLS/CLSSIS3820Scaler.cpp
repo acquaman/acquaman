@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlWaitAction.h"
 
 #include <QStringBuilder>
 
@@ -230,6 +231,22 @@ AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
 		return 0; //NULL
 
 	return action;
+}
+
+
+AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
+    if(!isConnected())
+        return 0; //NULL
+
+    AMControlInfo setpoint = startToggle_->toInfo();
+    setpoint.setValue(0);
+    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, dwellTime_->value() * 1.1, AMControlWaitActionInfo::MatchEqual);
+    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, startToggle_);
+
+    if(!action)
+        return 0; //NULL
+
+    return action;
 }
 
 void CLSSIS3820Scaler::setScanning(bool isScanning){

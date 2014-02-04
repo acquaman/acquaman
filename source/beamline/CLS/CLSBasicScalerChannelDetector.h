@@ -62,7 +62,7 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
-    virtual AMAction3* createDarkCurrentCorrectionActions();
+    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors

@@ -87,6 +87,8 @@ public:
 	/// Creates an action that sets the total number of scans to \param totalScans.
 	AMAction3* createTotalScansAction3(int totalScans);
 
+    AMAction3* createWaitForDwellFinishedAction();
+
 
 public slots:
 	/// Sets the scaler to be scanning or not.
