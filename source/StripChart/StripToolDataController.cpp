@@ -194,11 +194,11 @@ void StripToolDataController::toSavePVData(QObject *toSave)
     StripToolPV *pv = (StripToolPV *) toSave;
 
     // check that metadata exists for this pv.
-    if (!metaDataExists(pv->pvName()))
+    if (!metaDataExists(pv->name()))
         savePVMetaData(pv);
 
     // write the new data to the pv's data file.
-    qDebug() << "Saving collected data for pv" << pv->pvName() << ":" << savePVData(pv);
+    qDebug() << "Saving collected data for pv" << pv->name() << ":" << savePVData(pv);
 }
 
 
@@ -208,11 +208,11 @@ void StripToolDataController::toSavePVMetaData(QObject *toSave)
     StripToolPV *pv = (StripToolPV*) toSave;
 
     // check that collected data exists for this pv.
-    if (!dataExists(pv->pvName()))
+    if (!dataExists(pv->name()))
         savePVData(pv);
 
     // write the new meta data to the pv's reload file.
-    qDebug() << "Saving meta data for pv" << pv->pvName() << ":" << savePVMetaData(pv);
+    qDebug() << "Saving meta data for pv" << pv->name() << ":" << savePVMetaData(pv);
 }
 
 
@@ -224,7 +224,7 @@ bool StripToolDataController::metaDataHeaderCheck(StripToolPV *toSave)
 
     if (headerCount != dataCount)
     {
-        qDebug() << "ERROR : number of metadata entries do not match the number of headers for this pv : " << toSave->pvName();
+        qDebug() << "ERROR : number of metadata entries do not match the number of headers for this pv : " << toSave->name();
         return false;
     }
 
@@ -237,7 +237,7 @@ bool StripToolDataController::savePVMetaData(StripToolPV *toSave)
 {
     setDirectories("pvs");
 
-    QString filename = pvNameToFilename(toSave->pvName());
+    QString filename = pvNameToFilename(toSave->name());
 
     if (filename.isEmpty())
         return false;
@@ -274,7 +274,7 @@ bool StripToolDataController::savePVMetaData(StripToolPV *toSave)
 
     file.close();
 
-    if (getReloadList().contains(toSave->pvName()))
+    if (getReloadList().contains(toSave->name()))
     {
         return true;
     }
@@ -287,7 +287,7 @@ bool StripToolDataController::savePVMetaData(StripToolPV *toSave)
 bool StripToolDataController::savePVData(StripToolPV *toSave)
 {
     setDirectories("data");
-    QString filename = pvNameToFilename(toSave->pvName());
+    QString filename = pvNameToFilename(toSave->name());
 
     if (filename.isEmpty())
         return false;
@@ -317,7 +317,7 @@ bool StripToolDataController::savePVData(StripToolPV *toSave)
 
     file.close();
 
-    if (getDataList().contains(toSave->pvName()))
+    if (getDataList().contains(toSave->name()))
         return true;
     else
         return false;
@@ -329,11 +329,11 @@ void StripToolDataController::toDeletePVData(QObject *toDelete)
 {
     StripToolPV *pv = (StripToolPV*) toDelete;
 
-    if (metaDataExists(pv->pvName()))
-        qDebug() << "Deleting metadata for pv" << pv->pvName() << ":" << deleteMetaData(pv->pvName());
+    if (metaDataExists(pv->name()))
+        qDebug() << "Deleting metadata for pv" << pv->name() << ":" << deleteMetaData(pv->name());
 
-    if (dataExists(pv->pvName()))
-        qDebug() << "Deleting collected data for pv" << pv->pvName() << ":" << deleteData(pv->pvName());
+    if (dataExists(pv->name()))
+        qDebug() << "Deleting collected data for pv" << pv->name() << ":" << deleteData(pv->name());
 }
 
 

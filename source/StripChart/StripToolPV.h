@@ -6,6 +6,7 @@
 
 #include "StripToolVariable.h"
 #include "beamline/AMPVControl.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
 #include "StripToolSeries.h"
@@ -31,18 +32,18 @@ signals:
     /// Signals the model that the pv's current value has been updated.
     void pvValueUpdated();
     ///
-    void descriptionChanged(const QString &newDescription);
-    void unitsChanged(const QString &units);
+//    void descriptionChanged(const QString &newDescription);
+//    void unitsChanged(const QString &units);
     void dataRangeChanged(MPlotAxisRange *newRange);
     void displayRangeChanged(MPlotAxisRange *newRange);
     void dataMaxChanged(double newMax);
     void dataMinChanged(double newMin);
-    void waterfallChanged(double shiftAmount);
+//    void waterfallChanged(double shiftAmount);
     void maxTimeBetweenUpdatesChanged(double seconds);
 
     // these are internal signals, used to trigger other internal events in response to something happening.
     /// When the control's latest value updates, the first step to restarting the updating interval timer is to stop it!
-    void stopUpdateIntervalTimer();
+//    void stopUpdateIntervalTimer();
     /// When the update interval timer has counted out the maxTimeBetweenUpdates, the pv will 'manually' report a change in value (a value identical to the last update), even if the control didn't signal that one happened.
     void manuallyUpdatePV(double value);
 
@@ -58,16 +59,14 @@ protected:
 
     QList<QString> headers_;
 
-    QString pvName_;
+//    QString pvName_;
     QString dateCreated_;
-    QString pvDescription_;
+//    QString pvDescription_;
     QString xUnits_;
-    QString yUnits_;
+//    QString yUnits_;
     bool isUpdating_;
-    Qt::CheckState checkState_;
+//    Qt::CheckState checkState_;
     QColor pvColor_;
-
-    double shiftAmount_;
 
     QTimer *updateIntervalTimer_;
     int maxTimeBetweenUpdates_;
@@ -88,15 +87,15 @@ protected:
 
 protected:
     /// Returns the epics pv name for this pv.
-    QString pvName() const;
+//    QString pvName() const;
     /// Returns the description for this pv, if the user has provided one.
-    QString pvDescription() const;
+//    QString pvDescription() const;
     /// The pvs are all plotted against time, and the units of time are returned here.
     QString xUnits() const;
     /// Returns the pv's units, if the user has provided them.
-    QString yUnits() const;
+//    QString yUnits() const;
     /// Returns the checkstate for this pv : checked indicates it should appear on the plot, unchecked that it should be hidden.
-    Qt::CheckState checkState();
+//    Qt::CheckState checkState();
     /// Returns the color set for this pv's series.
     QColor color();
     int updateGranularity();
@@ -104,7 +103,6 @@ protected:
     QString customDisplayedYMin();
     double displayedYMin();
     double displayedYMax();
-    double shiftAmount();
     double maxTimeBetweenUpdates();
     /// Returns a pointer to the pv's instance of MPlotVectorSeriesData. This was useful earlier, when a pv's series was actually a property of the plot, but I don't think it's used now.
     MPlotVectorSeriesData* data();
@@ -122,19 +120,18 @@ protected:
     void setSelected(bool selected);
     /// Sets the PV control and reparents for this pv.
     void setControl(AMControl *newControl);
-    void setShiftAmount(double newShift);
     void setMaxTimeBetweenUpdates(double seconds);
     /// The user can pause and restart the value updates displayed on the plot (this class will still continue to record updates).
     void setPVUpdating(bool isUpdating);
     /// The list view will allow the user to un/check a pv, and the most recent update for a pv's check state is set here.
-    void setCheckState(Qt::CheckState isChecked);
+//    void setCheckState(Qt::CheckState isChecked);
     void setDisplayedYMax(const QString &newMax);
     void setDisplayedYMin(const QString &newMin);
-    bool operator== (const StripToolPV &anotherPV);
+//    bool operator== (const StripToolPV &anotherPV);
 
 private:
-    void setDescription(const QString &newDescription);
-    void setYUnits(const QString &newUnits);
+//    void setDescription(const QString &newDescription);
+//    void setYUnits(const QString &newUnits);
     void setXUnits(const QString &newUnits);
     void setTimeDisplayed(int seconds);
     void setSeriesColor(const QColor &color);
@@ -143,12 +140,13 @@ private:
     void saveCheck();
     void dataVectorSizeCheck();
 
+//    virtual void createDataSource(const QString &pvName);
+
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.
     void onPVValueChanged(double newValue);
     void toUpdateTime(int newTime);
     void toUpdateTimeUnits(const QString &newUnits);
-    void toRestartUpdateIntervalTimer();
     void toManuallyUpdatePV();
 
 };

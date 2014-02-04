@@ -67,7 +67,7 @@ QString StripToolModel::selectedDescription() const
     if (selectedPV_ == 0)
         return 0;
     else
-        return selectedPV_->pvDescription();
+        return selectedPV_->description();
 }
 
 
@@ -76,7 +76,7 @@ QString StripToolModel::selectedUnits() const
     if (selectedPV_ == 0)
         return 0;
     else
-        return selectedPV_->yUnits();
+        return selectedPV_->units();
 }
 
 
@@ -116,14 +116,14 @@ QVariant StripToolModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole)
     {
-        if (toDisplay->pvDescription() == "")
-            return QVariant(toDisplay->pvName());
+        if (toDisplay->description() == "")
+            return QVariant(toDisplay->name());
         else
-            return QVariant(toDisplay->pvDescription());
+            return QVariant(toDisplay->description());
     }
 
     if (role == Qt::ToolTipRole)
-        return QVariant(toDisplay->pvName());
+        return QVariant(toDisplay->name());
 
     if (role == Qt::CheckStateRole)
         return QVariant(toDisplay->checkState());
@@ -181,7 +181,7 @@ StripToolPV* StripToolModel::findItem(const QString &pvName) const
 
     while(count < pvList_.size() && !found)
     {
-        if (pvName == pvList_.at(count)->pvName())
+        if (pvName == pvList_.at(count)->name())
         {
             match = pvList_.at(count);
             found = true;
@@ -346,8 +346,8 @@ bool StripToolModel::addPV(AMControl *pvControl)
     if (position + count == pvList_.size()) {
         setSelectedPV(newPV);
 
-        qDebug() << "Requesting meta data for pv" << newPV->pvName() << "if it exists...";
-        emit metaDataCheck(newPV->pvName());
+        qDebug() << "Requesting meta data for pv" << newPV->name() << "if it exists...";
+        emit metaDataCheck(newPV->name());
 
         qDebug() << "Requesting time update.";
         emit requestTimeUpdate();
@@ -390,7 +390,7 @@ void StripToolModel::editPV(const QModelIndex &index)
         }
 
         if (editDialog->unitsChanged())
-            toEdit->setYUnits(editDialog->units());
+            toEdit->setUnits(editDialog->units());
 
         if (editDialog->granularityChanged())
             toEdit->setUpdateGranularity(editDialog->granularity());
@@ -521,7 +521,7 @@ void StripToolModel::setSelectedPV(StripToolPV *newSelection)
             deselectPV();
             selectPV(newSelection);
 
-            emit selectedPVAxisLabelChanged(selectedPV_->pvDescription() + " [" + selectedPV_->yUnits() + "]");
+            emit selectedPVAxisLabelChanged(selectedPV_->description() + " [" + selectedPV_->units() + "]");
 
         } else if (!newSelection) {
             if (selectedPV_ != 0)
@@ -575,7 +575,7 @@ void StripToolModel::selectPV(StripToolPV *newSelection)
     connect( selectedPV_, SIGNAL(unitsChanged(QString)), this, SLOT(toChangeYAxisLabel()) );
 //    connect( selectedPV_, SIGNAL(displayRangeChanged(MPlotAxisRange*)), this, SLOT(toTestRangeSignal(MPlotAxisRange*)) );
 
-    qDebug() << "Selected pv : " << selectedPV_->pvName();
+    qDebug() << "Selected pv : " << selectedPV_->name();
 
     emit modelSelectionChange();
 }
@@ -584,8 +584,8 @@ void StripToolModel::selectPV(StripToolPV *newSelection)
 
 void StripToolModel::toChangeYAxisLabel()
 {
-    QString description = selectedPV_->pvDescription();
-    QString units = selectedPV_->yUnits();
+    QString description = selectedPV_->description();
+    QString units = selectedPV_->units();
 
     qDebug() << "StripToolModel :: Model has received signal that selected pv description/units have changed : {" << description << "," << units << "}";
 

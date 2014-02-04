@@ -118,15 +118,15 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     else
         automaticMin_->setCheckState(Qt::Unchecked);
 
-    QLabel *shiftLabel = new QLabel("Shift amount : ");
-//    formLayout->addWidget(shiftLabel, 10, 0);
+//    QLabel *shiftLabel = new QLabel("Shift amount : ");
+////    formLayout->addWidget(shiftLabel, 10, 0);
 
-    QString shiftAmount = pvInfo.at(8);
-    shiftAmountEntry_ = new QLineEdit();
-//    formLayout->addWidget(shiftAmountEntry_, 10, 1);
-    shiftLabel->setBuddy(shiftAmountEntry_);
-    shiftAmountEntry_->setText(shiftAmount);
-    connect( shiftAmountEntry_, SIGNAL(textEdited(QString)), this, SLOT(shiftAmountEntered(QString)) );
+//    QString shiftAmount = pvInfo.at(8);
+//    shiftAmountEntry_ = new QLineEdit();
+////    formLayout->addWidget(shiftAmountEntry_, 10, 1);
+//    shiftLabel->setBuddy(shiftAmountEntry_);
+//    shiftAmountEntry_->setText(shiftAmount);
+//    connect( shiftAmountEntry_, SIGNAL(textEdited(QString)), this, SLOT(shiftAmountEntered(QString)) );
 
 
     okButton_ = new QPushButton("Ok");
