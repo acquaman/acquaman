@@ -59,7 +59,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	}
 
 	int count = scan->rawDataSourceCount();
-
+	foreach (AMDataSource *source, scan->rawDataSources()->toList())
+		qDebug() << source->name();
+	qDebug() << scan->rawDataSourceCount();
 	in.readLine();
 	in.readLine();
 	in.readLine();
@@ -118,7 +120,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	temp.replace(".dat", ".cdf");
 	AMCDFDataStore *cdfData = new AMCDFDataStore(temp, false);
 
-	if (line == "TS1607-2-B21-01:H:user:mm"){
+	if (line == "TS1607-2-B21-02:H:user:mm"){
 
 		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
@@ -166,7 +168,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		for (int i = count-5; i < count; i++)
 			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
 	}
-
+	for (int i = 0, size = cdfData->measurementCount(); i < size; i++)
+		qDebug() << cdfData->measurementAt(i).name;
+	qDebug() << scan->rawDataSourceCount() << cdfData->measurementCount();
 	cdfData->beginInsertRows(xLength, -1);
 
 	x = 0;
