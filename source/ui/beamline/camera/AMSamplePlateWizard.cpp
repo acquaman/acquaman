@@ -32,9 +32,9 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 //    }
 
 	rotationsAppend(0);
-	rotationsAppend(10);
-	rotationsAppend(20);
-	rotationsAppend(30);
+	rotationsAppend(0);
+	rotationsAppend(0);
+	rotationsAppend(0);
 //    for(int i = 0; i < numberOfPoints(); i++)
 //    {
 //		rotationsAppend(0);

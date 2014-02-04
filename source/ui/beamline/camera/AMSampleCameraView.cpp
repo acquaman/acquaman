@@ -1022,7 +1022,7 @@ void AMSampleCameraView::reviewCameraConfiguration()
 			coordinates[i] = *coordinateList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
-//                shapeModel_->deleteCalibrationPoints();
+		shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
 		shapeModel_->updateAllShapes();
 		refreshSceneView();

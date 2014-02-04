@@ -1543,91 +1543,102 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
         // points should be in n-pairs for each vertex in that order
         //points[vertexIndex][coordinateIndex]
         int numberOfVertices = points.count()/NUMBER_OF_COORDINATES;
-        QPointF *pointList = new QPointF [numberOfVertices*NUMBER_OF_COORDINATES];
-        QVector<QVector3D> *plateCoordinates = new QVector<QVector3D> [numberOfVertices*NUMBER_OF_COORDINATES];
-		/// fill pointList with the values from "points".
-		for(int i = 0; i < numberOfVertices; i++)
-        {
-            for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
-            {
-                pointList[i*NUMBER_OF_COORDINATES + j] = points.at(i*NUMBER_OF_COORDINATES + j);
-            }
-        }
-        /// for each vertex, run through n*(n-1)/2 iterations of
-		/// the calculation
-        /// i = current shape vertex
-		/// j,k == pair of coordinates being used
-        for(int i = 0; i < numberOfVertices; i++)
-        {
-            for(int j = 0; j < NUMBER_OF_COORDINATES-1; j++)
-            {
-                for(int k = j+1; k < NUMBER_OF_COORDINATES; k++)
-                {
-                    QPair<QPointF, QPointF> pointPair;
-                    pointPair.first = pointList[i*NUMBER_OF_COORDINATES + j];
-                    pointPair.second = pointList[i*NUMBER_OF_COORDINATES + k];
-                    QPair<QVector3D,QVector3D> coordinatePair;
-                    QPair<double, double> rotationPair;
-                    rotationPair.first = rotations.at(j);
-                    rotationPair.second = rotations.at(k);
-					/// calculate the coordinate
-                    coordinatePair = findSamplePlateCoordinate(coordinates.at(j),coordinates.at(k),pointPair, rotationPair);
-                    plateCoordinates[i*NUMBER_OF_COORDINATES + k]<<coordinatePair.second;
-                    plateCoordinates[i*NUMBER_OF_COORDINATES + j]<<coordinatePair.first;
-                }
-            }
-        }
-
-	QVector3D best [numberOfVertices];
-	QPointF bestError[numberOfVertices];
-	QVector3D bestCoordinate [numberOfVertices];
+	QPointF *pointList = new QPointF [numberOfVertices*NUMBER_OF_COORDINATES];
+//	QVector<QVector3D> *plateCoordinates = new QVector<QVector3D> [numberOfVertices*NUMBER_OF_COORDINATES];
+	/// fill pointList with the values from "points".
 	for(int i = 0; i < numberOfVertices; i++)
 	{
-		best[i] = QVector3D(0,0,0);
-		bestError[i] = QPointF(1000,1000);
-		bestCoordinate[i] = QVector3D(0,0,0);
 		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
 		{
-			foreach(QVector3D coord, plateCoordinates[i*NUMBER_OF_COORDINATES + j])
-			{
-				QPointF error = camera_->distortPoint(camera_->transform3Dto2D(coord));
-				QPointF percentError;
-				percentError.setX(100*(error.x() - pointList[i*NUMBER_OF_COORDINATES + j].x())/pointList[i*NUMBER_OF_COORDINATES + j].x());
-				percentError.setY(100*(error.y() - pointList[i*NUMBER_OF_COORDINATES + j].y())/pointList[i*NUMBER_OF_COORDINATES + j].y());
-				if(best[i] == QVector3D(0,0,0))
-				{
-					best[i] = coord;
-					bestError[i] = percentError;
-					bestCoordinate[i] = coordinates.at(j);
-				}
-				else if(pow(percentError.x(),2)+pow(percentError.y(),2) < pow(bestError[i].x(),2)+pow(bestError[i].y(),2))
-				{
-					best[i] = coord;
-					bestError[i] = percentError;
-					bestCoordinate[i] = coordinates.at(j);
-				}
-
-
-
-				qDebug()<<"Plate Coordinate (vertex)(sample number)"<<i<<j<<coord<<"new point"<<error<<" OldPoint "<<pointList[i*NUMBER_OF_COORDINATES + j]<<"% point err"<<percentError;
-			}
+			pointList[i*NUMBER_OF_COORDINATES + j] = points.at(i*NUMBER_OF_COORDINATES + j);
 		}
 	}
+	/// for each vertex, run through n*(n-1)/2 iterations of
+	/// the calculation
+        /// i = current shape vertex
+		/// j,k == pair of coordinates being used
+//        for(int i = 0; i < numberOfVertices; i++)
+//        {
+//            for(int j = 0; j < NUMBER_OF_COORDINATES-1; j++)
+//            {
+//                for(int k = j+1; k < NUMBER_OF_COORDINATES; k++)
+//                {
+//                    QPair<QPointF, QPointF> pointPair;
+//                    pointPair.first = pointList[i*NUMBER_OF_COORDINATES + j];
+//                    pointPair.second = pointList[i*NUMBER_OF_COORDINATES + k];
+//                    QPair<QVector3D,QVector3D> coordinatePair;
+//                    QPair<double, double> rotationPair;
+//                    rotationPair.first = rotations.at(j);
+//                    rotationPair.second = rotations.at(k);
+//					/// calculate the coordinate
+//                    coordinatePair = findSamplePlateCoordinate(coordinates.at(j),coordinates.at(k),pointPair, rotationPair);
+//                    plateCoordinates[i*NUMBER_OF_COORDINATES + k]<<coordinatePair.second;
+//                    plateCoordinates[i*NUMBER_OF_COORDINATES + j]<<coordinatePair.first;
+//                }
+//            }
+//        }
+
+//	QVector3D best [numberOfVertices];
+//	QPointF bestError[numberOfVertices];
+//	QVector3D bestCoordinate [numberOfVertices];
+//	for(int i = 0; i < numberOfVertices; i++)
+//	{
+//		best[i] = QVector3D(0,0,0);
+//		bestError[i] = QPointF(1000,1000);
+//		bestCoordinate[i] = QVector3D(0,0,0);
+//		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
+//		{
+//			foreach(QVector3D coord, plateCoordinates[i*NUMBER_OF_COORDINATES + j])
+//			{
+//				QPointF error = camera_->distortPoint(camera_->transform3Dto2D(coord));
+//				QPointF percentError;
+//				percentError.setX(100*(error.x() - pointList[i*NUMBER_OF_COORDINATES + j].x())/pointList[i*NUMBER_OF_COORDINATES + j].x());
+//				percentError.setY(100*(error.y() - pointList[i*NUMBER_OF_COORDINATES + j].y())/pointList[i*NUMBER_OF_COORDINATES + j].y());
+//				if(best[i] == QVector3D(0,0,0))
+//				{
+//					best[i] = coord;
+//					bestError[i] = percentError;
+//					bestCoordinate[i] = coordinates.at(j);
+//				}
+//				else if(pow(percentError.x(),2)+pow(percentError.y(),2) < pow(bestError[i].x(),2)+pow(bestError[i].y(),2))
+//				{
+//					best[i] = coord;
+//					bestError[i] = percentError;
+//					bestCoordinate[i] = coordinates.at(j);
+//				}
 
 
+
+//				qDebug()<<"Plate Coordinate (vertex)(sample number)"<<i<<j<<coord<<"new point"<<error<<" OldPoint "<<pointList[i*NUMBER_OF_COORDINATES + j]<<"% point err"<<percentError;
+//			}
+//		}
+//	}
+
+
+//	for(int i = 0; i < numberOfVertices; i++)
+//	{
+//		best[i] = best[i] + coordinates.last() - bestCoordinate[i];// this doesn't account for rotation
+//		qDebug()<<"Best "<<i<<" is "<<best[i]<< "with error"<<bestError[i];
+//	}
+
+	QVector< QVector<QVector3D> > pointResults;
+	QVector<QPointF> vertexPoints;
 	for(int i = 0; i < numberOfVertices; i++)
 	{
-		best[i] = best[i] + coordinates.last() - bestCoordinate[i];
-		qDebug()<<"Best "<<i<<" is "<<best[i]<< "with error"<<bestError[i];
+		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
+		{
+			vertexPoints<<pointList[i*NUMBER_OF_COORDINATES + j];
+		}
+		pointResults<<findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
+		vertexPoints.clear();
 	}
-
 
 
 	QVector<QVector3D> plateShape;
 
 	for(int i = 0; i < numberOfVertices; i++)
 	{
-		plateShape<<best[i];
+		plateShape<<pointResults.at(i).last();//plateCoordinates[i*NUMBER_OF_COORDINATES + NUMBER_OF_COORDINATES - 1].last();//best[i];
 	}
 
 
@@ -2816,56 +2827,79 @@ bool AMSampleCamera::moveMotors(double x, double y, double z, double rotation)
 /// and
 /// when the motor is moved "shiftCoordinate" with rotation equal to "rotations.second"
 /// the desired coordinate will appear to be at screen position "points.second"
-QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points, QPair<double, double> rotations)
+QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints) const
 {
 		/// This function finds the coordinate of a sample plate point when it is at origin coordinate and shift coordinate
 		/// This is done using SVD decomposition to perform a least squares solution
 		/// to the matrix defined below.
 
 	// first get rid of the lens distortion on the test points.
-	QPointF originPoint = camera_->undistortPoint(points.first);
-	QPointF shiftPoint = camera_->undistortPoint(points.second);
+	QVector<QPointF> adjustedPoints;
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		adjustedPoints<<undistortPoint(points.at(i));
+	}
+//	QPointF originPoint = camera_->undistortPoint(points.first);
+//	QPointF shiftPoint = camera_->undistortPoint(points.second);
 
 	// find a reasonable starting point for the calculations; use the positions of the
 	// calibration points to get approximations of the actual coordinate
-	double firstDepth = depth(originCoordinate);
-	double secondDepth = depth(shiftCoordinate);
-	// if the two depths are the same, add something reasonable to secondDepth
-	if (secondDepth == firstDepth)
+	QVector<double> depths;
+	for(int i = 0; i < numberOfPoints; i++)
 	{
-			// add the depth from 0,0,0 to 10,10,10
-			secondDepth = firstDepth + depth(QVector3D(10,10,10)) - depth(QVector3D(0,0,0));
+		depths<<depth(coordinates.at(i));
 	}
+//	double firstDepth = depth(originCoordinate);
+//	double secondDepth = depth(shiftCoordinate);
+//	// if the two depths are the same, add something reasonable to secondDepth
+//	if (secondDepth == firstDepth)
+//	{
+//			// add the depth from 0,0,0 to 10,10,10
+//			secondDepth = firstDepth + depth(QVector3D(10,10,10)) - depth(QVector3D(0,0,0));
+//	}
 
-	qDebug()<<"Depths";
-	qDebug()<<firstDepth;
-	qDebug()<<secondDepth;
+//	qDebug()<<"Depths";
+//	qDebug()<<firstDepth;
+//	qDebug()<<secondDepth;
 
 	/// Find the line along which each coordinate lies
 	/// //////////////////////////////////////////////////////////////////////////////////////////
 	// get two different points that could correspond to the selected point, at different depths
 	// these points will be used to calculate the line along which the desired coordinate lies
-	QVector3D originBase = camera_->transform2Dto3D(originPoint,firstDepth);
-	QVector3D originLength = camera_->transform2Dto3D(originPoint, secondDepth);
+	QVector<QVector3D> bases;
+	QVector<QVector3D> lengths;
+	QVector<QVector3D> vectors;
+
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		bases<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i));
+		lengths<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i) + 5);
+		vectors<<(lengths.at(i)-bases.at(i)).normalized();
+
+	}
+
+
+//	QVector3D originBase = camera_->transform2Dto3D(originPoint,firstDepth);
+//	QVector3D originLength = camera_->transform2Dto3D(originPoint, secondDepth);
 
 	// get the unit vector between the two points, i.e. a ray in the direction of the point
 	// (from originBase (possibly negative))
-	QVector3D originVector = (originLength-originBase);
-	originVector.normalize();
+//	QVector3D originVector = (originLength-originBase);
+//	originVector.normalize();
 
-	qDebug()<<"AMSampleCamera::findSamplePlateCoordinate";
-	qDebug()<<"Origin point is"<<originPoint;
-	qDebug()<<"topright origin base is"<<originBase;
-	qDebug()<<"topright origin vector is"<<originVector;
+//	qDebug()<<"AMSampleCamera::findSamplePlateCoordinate";
+//	qDebug()<<"Origin point is"<<originPoint;
+//	qDebug()<<"topright origin base is"<<originBase;
+//	qDebug()<<"topright origin vector is"<<originVector;
 
-	// do the same thing as above, but for the shifted point
-	QVector3D shiftBase = camera_->transform2Dto3D(shiftPoint,firstDepth);
-	QVector3D shiftLength = camera_->transform2Dto3D(shiftPoint, secondDepth);
-	QVector3D shiftVector = shiftLength-shiftBase;
-	shiftVector.normalize();
-	qDebug()<<"Shift point is"<<shiftPoint;
-	qDebug()<<"topright shift base is"<<shiftBase;
-	qDebug()<<"topright shift vector is"<<shiftVector;
+//	// do the same thing as above, but for the shifted point
+//	QVector3D shiftBase = camera_->transform2Dto3D(shiftPoint,firstDepth);
+//	QVector3D shiftLength = camera_->transform2Dto3D(shiftPoint, secondDepth);
+//	QVector3D shiftVector = shiftLength-shiftBase;
+//	shiftVector.normalize();
+//	qDebug()<<"Shift point is"<<shiftPoint;
+//	qDebug()<<"topright shift base is"<<shiftBase;
+//	qDebug()<<"topright shift vector is"<<shiftVector;
 
 	/// //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2902,9 +2936,9 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 	/// P1 - l1 = CR1 // center of rotation is known (may need to implement cor finding)
 	/// this gives the following matrices:
 	/// A =
-	/// [ I | -originVector | 0			   | 0 0 0;
-	///	  I | 0				| -shiftVector | 0 0 0;
-	///   I | 0				| 0		       | -I	  ; ]
+	/// [ I | -originVector | 0	       | 0 0 0;
+	///   I | 0	        | -shiftVector | 0 0 0;
+	///   I | 0		| 0	       | -I	  ; ]
 	/// (each I is a 3x3 Identity matrix)
 	/// (A is a 9X8 matrix)
 	/// x =
@@ -2920,35 +2954,73 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 	/// this relies on the accuracy of rotational offset and  direction of rotation
 	/// may require an evaluation of rotational offset/direction of rotation
 
-	QVector3D centreOfRotationOrigin;
-	QVector3D centreOfRotationShift;
+	/// Further extending this matrix to an arbitrary number of point
+	/// ie solve for P1, P2 ... PN, t1, t2 ... tN, l1
+	/// each point has two equations
+	/// Pn - tnvn = Bn
+	/// Pn - Rn(l1) = CoRn
+	/// CoRn is the CoR at coordinate n  (coordinate n + rotation offset)
+	/// Rn(l1) is the rotation matrix
+	/// Ax = B
+	/// A is a (6n)x(4n+3) matrix
+	/// x is a (4n+3)x1 matrix
+	/// B is a 6nx1 matrix
+
+	QVector<QVector3D> centreOfRotations;
 	QVector3D unitRotation;
-	double theta;
-	QVector3D l2x;
-	QVector3D l2y;
-	QVector3D l2z;
+	QVector<double> referenceRotations;
+	QVector<QVector3D> lnx;
+	QVector<QVector3D> lny;
+	QVector<QVector3D> lnz;
 
-		theta = rotations.second - rotations.first;
-		qDebug()<<"AMSampleCamera::findSamplePlateCoordinate - theta in deg is "<<theta;
-		theta = theta*M_PI/180;
-		qDebug()<<"AMSampleCamera::findSamplePlateCoordinate - theta in rad is "<<theta;
-		unitRotation = directionOfRotation_.normalized();
-		centreOfRotationOrigin = originCoordinate + rotationalOffset();
-		centreOfRotationShift = shiftCoordinate + rotationalOffset();
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		referenceRotations<<(rotations.at(i)-rotations.first())*M_PI/180;
+	}
 
-		qDebug()<<"2d pos of base is "<<camera_->transform3Dto2D(originBase);
-		qDebug()<<"origin base is "<<originBase;
-		qDebug()<<"originLength is "<<originLength;
-		qDebug()<<"2d pos of base + 1 *vector is"<<camera_->transform3Dto2D(originBase + 1*originVector);
-		qDebug()<<"2d pos of base + 100 * vector is"<<camera_->transform3Dto2D(originBase + 100*originVector);
-		qDebug()<<"2d pos of base +  10000 * vector is"<<camera_->transform3Dto2D(originBase + 10000*originVector);
-		qDebug()<<"2d pos of base - vector is"<<camera_->transform3Dto2D(originBase + -1*originVector);
-		qDebug()<<"2d pos of base - 100 * vector is"<<camera_->transform3Dto2D(originBase + -100*originVector);
-		qDebug()<<"2d pos of base - 10000 * vector is"<<camera_->transform3Dto2D(originBase + -10000*originVector);
-		qDebug()<<"Point was "<<points.first;
-		qDebug()<<"origin base is "<<originBase;
-		qDebug()<<"Origin vector is"<<originVector;
-		qDebug()<<"Origin centre of rotation is "<<centreOfRotationOrigin;
+	unitRotation = directionOfRotation_.normalized();
+
+	for(int i = 0; i < numberOfPoints; i ++)
+	{
+		centreOfRotations<<coordinates.at(i)+rotationalOffset();
+	}
+
+	for(int i = 0 ; i < numberOfPoints; i++)
+	{
+		lnx<<findRotationMatrixXRow(unitRotation,referenceRotations.at(i));
+		lny<<findRotationMatrixYRow(unitRotation,referenceRotations.at(i));
+		lnz<<findRotationMatrixZRow(unitRotation,referenceRotations.at(i));
+	}
+
+//	QVector3D centreOfRotationOrigin;
+//	QVector3D centreOfRotationShift;
+//	QVector3D unitRotation;
+//	double theta;
+//	QVector3D l2x;
+//	QVector3D l2y;
+//	QVector3D l2z;
+
+//		theta = rotations.second - rotations.first;
+//		qDebug()<<"AMSampleCamera::findSamplePlateCoordinate - theta in deg is "<<theta;
+//		theta = theta*M_PI/180;
+//		qDebug()<<"AMSampleCamera::findSamplePlateCoordinate - theta in rad is "<<theta;
+//		unitRotation = directionOfRotation_.normalized();
+//		centreOfRotationOrigin = originCoordinate + rotationalOffset();
+//		centreOfRotationShift = shiftCoordinate + rotationalOffset();
+
+//		qDebug()<<"2d pos of base is "<<camera_->transform3Dto2D(originBase);
+//		qDebug()<<"origin base is "<<originBase;
+//		qDebug()<<"originLength is "<<originLength;
+//		qDebug()<<"2d pos of base + 1 *vector is"<<camera_->transform3Dto2D(originBase + 1*originVector);
+//		qDebug()<<"2d pos of base + 100 * vector is"<<camera_->transform3Dto2D(originBase + 100*originVector);
+//		qDebug()<<"2d pos of base +  10000 * vector is"<<camera_->transform3Dto2D(originBase + 10000*originVector);
+//		qDebug()<<"2d pos of base - vector is"<<camera_->transform3Dto2D(originBase + -1*originVector);
+//		qDebug()<<"2d pos of base - 100 * vector is"<<camera_->transform3Dto2D(originBase + -100*originVector);
+//		qDebug()<<"2d pos of base - 10000 * vector is"<<camera_->transform3Dto2D(originBase + -10000*originVector);
+//		qDebug()<<"Point was "<<points.first;
+//		qDebug()<<"origin base is "<<originBase;
+//		qDebug()<<"Origin vector is"<<originVector;
+//		qDebug()<<"Origin centre of rotation is "<<centreOfRotationOrigin;
 
 
 		/// rotation matrix l2x is first row,
@@ -2969,14 +3041,15 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 //        l2z.setZ(cos(theta) + pow(unitRotation.z(),2)*(1-cos(theta)));
 
 
-		l2x = findRotationMatrixXRow(unitRotation,theta);
-		l2y = findRotationMatrixYRow(unitRotation,theta);
-		l2z = findRotationMatrixZRow(unitRotation,theta);
+//		l2x = findRotationMatrixXRow(unitRotation,theta);
+//		l2y = findRotationMatrixYRow(unitRotation,theta);
+//		l2z = findRotationMatrixZRow(unitRotation,theta);
 
-		QVector3D shift = shiftCoordinate - originCoordinate;
+//		QVector3D shift = shiftCoordinate - originCoordinate;
 //		MatrixXd coeffMatrix = MatrixXd::Zero(9,8);
-		MatrixXd coeffMatrix = MatrixXd::Zero(12,11);
-		MatrixXd solutionMatrix(12,1);
+
+//		MatrixXd coeffMatrix = MatrixXd::Zero(12,11);
+//		MatrixXd solutionMatrix(12,1);
 //		coeffMatrix(0,0) = 1;   coeffMatrix(0,3) = -1*originVector.x();
 //		coeffMatrix(1,1) = 1;   coeffMatrix(1,3) = -1*originVector.y();
 //		coeffMatrix(2,2) = 1;   coeffMatrix(2,3) = -1*originVector.z();
@@ -2987,21 +3060,21 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 //		coeffMatrix(7,1) = 1;   coeffMatrix(7,6) = -1;
 //		coeffMatrix(8,2) = 1;   coeffMatrix(8,7) = -1;
 
-		coeffMatrix(0,0) = 1;   coeffMatrix(0,6) = -1*originVector.x();
-		coeffMatrix(1,1) = 1;   coeffMatrix(1,6) = -1*originVector.y();
-		coeffMatrix(2,2) = 1;   coeffMatrix(2,6) = -1*originVector.z();
+//		coeffMatrix(0,0) = 1;   coeffMatrix(0,6) = -1*originVector.x();
+//		coeffMatrix(1,1) = 1;   coeffMatrix(1,6) = -1*originVector.y();
+//		coeffMatrix(2,2) = 1;   coeffMatrix(2,6) = -1*originVector.z();
 
-		coeffMatrix(3,3) = 1;   coeffMatrix(3,7) = -1*shiftVector.x();
-		coeffMatrix(4,4) = 1;   coeffMatrix(4,7) = -1*shiftVector.y();
-		coeffMatrix(5,5) = 1;   coeffMatrix(5,7) = -1*shiftVector.z();
+//		coeffMatrix(3,3) = 1;   coeffMatrix(3,7) = -1*shiftVector.x();
+//		coeffMatrix(4,4) = 1;   coeffMatrix(4,7) = -1*shiftVector.y();
+//		coeffMatrix(5,5) = 1;   coeffMatrix(5,7) = -1*shiftVector.z();
 
-		coeffMatrix(6,0) = 1;   coeffMatrix(6,8) = -1;
-		coeffMatrix(7,1) = 1;   coeffMatrix(7,9) = -1;
-		coeffMatrix(8,2) = 1;   coeffMatrix(8,10) = -1;
+//		coeffMatrix(6,0) = 1;   coeffMatrix(6,8) = -1;
+//		coeffMatrix(7,1) = 1;   coeffMatrix(7,9) = -1;
+//		coeffMatrix(8,2) = 1;   coeffMatrix(8,10) = -1;
 
-		coeffMatrix(9,3) = 1;	 coeffMatrix(9,8) = -1*l2x.x();   coeffMatrix(9,9) = -1*l2x.y();     coeffMatrix(9,10) = -1*l2x.z();
-		coeffMatrix(10,4) = 1;   coeffMatrix(10,8) = -1*l2y.x();     coeffMatrix(10,9) = -1*l2y.y();   coeffMatrix(10,10) = -1*l2y.z();
-		coeffMatrix(11,5) = 1;   coeffMatrix(11,8) = -1*l2z.x();     coeffMatrix(11,9) = -1*l2z.y();     coeffMatrix(11,10) = -1*l2z.z();
+//		coeffMatrix(9,3) = 1;	 coeffMatrix(9,8) = -1*l2x.x();   coeffMatrix(9,9) = -1*l2x.y();     coeffMatrix(9,10) = -1*l2x.z();
+//		coeffMatrix(10,4) = 1;   coeffMatrix(10,8) = -1*l2y.x();     coeffMatrix(10,9) = -1*l2y.y();   coeffMatrix(10,10) = -1*l2y.z();
+//		coeffMatrix(11,5) = 1;   coeffMatrix(11,8) = -1*l2z.x();     coeffMatrix(11,9) = -1*l2z.y();     coeffMatrix(11,10) = -1*l2z.z();
 
 
 
@@ -3010,15 +3083,73 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 //							shiftBase.x() - shift.x(), shiftBase.y() - shift.y(), shiftBase.z() - shift.z(),
 //							centreOfRotationOrigin.x(),centreOfRotationOrigin.y(),centreOfRotationOrigin.z();
 
-		solutionMatrix<<    originBase.x(),originBase.y(),originBase.z(),
-				    shiftBase.x(),shiftBase.y(),shiftBase.z(),
-				    centreOfRotationOrigin.x(),centreOfRotationOrigin.y(),centreOfRotationOrigin.z(),
-				    centreOfRotationShift.x(),centreOfRotationShift.y(),centreOfRotationShift.z();
+//		solutionMatrix<<    originBase.x(),originBase.y(),originBase.z(),
+//				    shiftBase.x(),shiftBase.y(),shiftBase.z(),
+//				    centreOfRotationOrigin.x(),centreOfRotationOrigin.y(),centreOfRotationOrigin.z(),
+//				    centreOfRotationShift.x(),centreOfRotationShift.y(),centreOfRotationShift.z();
 
 
 		// compute the SVD least squares solution
-		MatrixXd parameters = computeSVDLeastSquares(coeffMatrix,solutionMatrix);
+//		MatrixXd parameters = computeSVDLeastSquares(coeffMatrix,solutionMatrix);
 
+
+
+	MatrixXd coeffMatrix = constructSampleCoefficientMatrix(vectors,lnx,lny,lnz, numberOfPoints);
+
+	QString row = "";
+	for(int i = 0; i < coeffMatrix.rows(); i++)
+	{
+		for(int j = 0; j < coeffMatrix.cols(); j++)
+		{
+			row.append(QString("%1 ").arg(coeffMatrix(i,j)));
+		}
+		qDebug()<<row;
+		row = "";
+	}
+
+	MatrixXd solutionMatrix (6*numberOfPoints,1);
+	for(int i = 0; i < solutionMatrix.rows(); i++)
+	{
+		int index;
+		QVector3D element;
+		if(i < 3*numberOfPoints)
+		{
+			index = i/3;
+			element = bases.at(index);
+
+		}
+		else
+		{
+			index = i/3 - numberOfPoints;
+			element = centreOfRotations.at(index);
+		}
+		int section = i%3;
+		switch(section)
+		{
+		case 0:
+			solutionMatrix(i,0) = element.x();
+			break;
+		case 1:
+			solutionMatrix(i,0) = element.y();
+			break;
+		case 2:
+			solutionMatrix(i,0) = element.z();
+			break;
+		}
+	}
+
+	row = "";
+	for(int i = 0; i < solutionMatrix.rows(); i++)
+	{
+		for(int j = 0; j < solutionMatrix.cols(); j++)
+		{
+			row.append(QString("%1 ").arg(solutionMatrix(i,j)));
+		}
+		qDebug()<<row;
+		row = "";
+	}
+
+	MatrixXd parameters = computeSVDLeastSquares(coeffMatrix,solutionMatrix);
 
 
 		// debugging output //////////////////////////////////////////////////////
@@ -3041,32 +3172,124 @@ QPair<QVector3D,QVector3D> AMSampleCamera::findSamplePlateCoordinate(QVector3D o
 
 		//////////////////////////////////////////////////////////////////////////
 
-		MatrixXd rotationMatrix(3,3);
+//		MatrixXd rotationMatrix(3,3);
 
-		rotationMatrix<<l2x.x(),l2x.y(),l2x.z(),
-						l2y.x(),l2y.y(),l2y.z(),
-						l2z.x(),l2z.y(),l2z.z();
+//		rotationMatrix<<l2x.x(),l2x.y(),l2x.z(),
+//						l2y.x(),l2y.y(),l2y.z(),
+//						l2z.x(),l2z.y(),l2z.z();
 
-		MatrixXd l1(3,1);
-		l1<<parameters(8),parameters(9),parameters(10);
+//		MatrixXd l1(3,1);
+//		l1<<parameters(8),parameters(9),parameters(10);
 //		MatrixXd l2 = rotationMatrix*l1;
 //		QVector3D l1Vector = QVector3D(l1(0),l1(1),l1(2));
 //		QVector3D l2Vector = QVector3D(l2(0),l2(1),l2(2));
 
 
-
-		QVector3D originSolution = QVector3D(parameters(0),parameters(1),parameters(2));
-		QVector3D shiftedSolution = QVector3D(parameters(3),parameters(4),parameters(5));
+		QVector<QVector3D> solutions;
+		for(int i = 0; i < numberOfPoints; i++)
+		{
+			solutions<<QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
+		}
+//		QVector3D originSolution = QVector3D(parameters(0),parameters(1),parameters(2));
+//		QVector3D shiftedSolution = QVector3D(parameters(3),parameters(4),parameters(5));
 //		QVector3D shiftedSolution = originSolution + shift + l2Vector - l1Vector;
-		qDebug()<<"Origin point is "<<originSolution;
-		qDebug()<<"shifted point is"<<shiftedSolution;
-		qDebug()<<"T1 is "<<parameters(3);
-		qDebug()<<"T2 is "<<parameters(4);
-		return QPair<QVector3D,QVector3D>(originSolution,shiftedSolution);
+//		qDebug()<<"Origin point is "<<originSolution;
+//		qDebug()<<"shifted point is"<<shiftedSolution;
+//		qDebug()<<"T1 is "<<parameters(3);
+//		qDebug()<<"T2 is "<<parameters(4);
+//		return QPair<QVector3D,QVector3D>(originSolution,shiftedSolution);
+		return solutions;
 
 
 
 }
+
+/// construct the coefficient matrix for solving for the sample plate position
+Eigen::MatrixXd AMSampleCamera::constructSampleCoefficientMatrix(const QVector<QVector3D> vectors, const QVector<QVector3D> rotationX, const QVector<QVector3D> rotationY, const QVector<QVector3D> rotationZ, const int numberOfPoints) const
+{
+
+	/// constructs the matrix of the form
+	/// Pn - vn
+	/// ...
+	/// Pn - ln
+	/// ...
+	MatrixXd coefficientMatrix = MatrixXd::Zero(6*numberOfPoints,4*numberOfPoints+3);
+
+	for(int i = 0; i < coefficientMatrix.rows(); i++)
+	{
+		for(int j = 0; j < coefficientMatrix.cols(); j++)
+		{
+			if(i == j && i < 3*numberOfPoints)
+			{
+				coefficientMatrix(i,j) = 1;
+			}
+			else if (j+3*numberOfPoints == i)
+			{
+				coefficientMatrix(i,j) = 1;
+			}
+			else if (i < 3*numberOfPoints)
+			{
+				if(j == (3*numberOfPoints + i/3))
+				{
+					int index = i/3;
+					int section = i%3;
+
+					switch(section)
+					{
+					case 0:
+						coefficientMatrix(i,j) = -1*vectors.at(index).x();
+						break;
+					case 1:
+						coefficientMatrix(i,j) = -1*vectors.at(index).y();
+						break;
+					case 2:
+						coefficientMatrix(i,j) = -1*vectors.at(index).z();
+						break;
+					}
+				}
+
+			}
+			else if (i >= 3*numberOfPoints && j >= 4*numberOfPoints)
+			{
+				int index = (i-3*numberOfPoints)/3;
+				int section = i%3;
+				int col = j - 4*numberOfPoints;
+				QVector3D currentRotationRow;
+				switch(section)
+				{
+				case 0:
+					currentRotationRow = rotationX.at(index);
+					break;
+				case 1:
+					currentRotationRow = rotationY.at(index);
+					break;
+				case 2:
+					currentRotationRow = rotationZ.at(index);
+					break;
+				}
+				switch(col)
+				{
+				case 0:
+					coefficientMatrix(i,j) = -1*currentRotationRow.x();
+					break;
+				case 1:
+					coefficientMatrix(i,j) = -1*currentRotationRow.y();
+					break;
+				case 2:
+					coefficientMatrix(i,j) = -1*currentRotationRow.z();
+					break;
+				}
+
+			}
+
+		}
+	}
+
+	qDebug()<<"first rotation is "<<rotationX.at(0).x();
+
+	return coefficientMatrix;
+}
+
 
 /// find the first row of a general rotation matrix
 /// rotationVector must be a unit vector and
@@ -3190,3 +3413,5 @@ MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 	// solution is first column of V matrix - solution for maximum singular value of m
 	return camera_->computeSVDHomogenous(leftHandSide);
 }
+
+

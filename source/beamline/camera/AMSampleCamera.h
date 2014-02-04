@@ -608,7 +608,8 @@ protected:
 	bool moveMotors(double x, double y, double z, double rotation);
 
 
-	QPair<QVector3D,QVector3D> findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points, QPair<double,double> rotations);
+	QVector<QVector3D> findSamplePlateCoordinate(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints) const;
+	MatrixXd constructSampleCoefficientMatrix(const QVector<QVector3D> vectors, const QVector<QVector3D> rotationX, const QVector<QVector3D> rotationY, const QVector<QVector3D> rotationZ, const int numberOfPoints) const;
 	/// these three functions each generate a row of a rotation matrix
 	QVector3D findRotationMatrixXRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixYRow(QVector3D rotationVector, double angleOfRotation) const;
