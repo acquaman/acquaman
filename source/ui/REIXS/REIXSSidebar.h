@@ -55,6 +55,8 @@ protected slots:
 	// Responding to beamline events:
 	///////////////////////////////////
 
+	void onRingCurrentChanged(double current);
+
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
 	void onTEYCountsChanged(double counts);

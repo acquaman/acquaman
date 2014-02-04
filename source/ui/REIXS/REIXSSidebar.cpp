@@ -75,6 +75,8 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
 	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
+	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
+
 	// Get initial status:
 	//////////////////////////
 
@@ -166,3 +168,9 @@ void REIXSSidebar::on_MonoStopButton_clicked()
 	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 	AMActionRunner3::workflow()->cancelCurrentAction();
 }
+
+void REIXSSidebar::onRingCurrentChanged(double current)
+{
+	ui->ringCurrentValue->setText((QString("%1 mA").arg(int(current)))); //REIXSBeamline::bl()->photonSource()->ringCurrent()));
+}
+
