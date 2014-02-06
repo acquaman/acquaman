@@ -9,7 +9,7 @@ EditPVDialog::EditPVDialog(QStringList pvInfo, QWidget *parent) :
     colorChanged_ = false;
     yMaxChanged_ = false;
     yMinChanged_ = false;
-    shiftAmountChanged_ = false;
+//    shiftAmountChanged_ = false;
 
     QGridLayout *formLayout = new QGridLayout();
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -230,17 +230,17 @@ QString EditPVDialog::displayMin()
 
 
 
-bool EditPVDialog::shiftAmountChanged()
-{
-    return shiftAmountChanged_;
-}
+//bool EditPVDialog::shiftAmountChanged()
+//{
+//    return shiftAmountChanged_;
+//}
 
 
 
-QString EditPVDialog::shiftAmount()
-{
-    return shiftAmount_;
-}
+//QString EditPVDialog::shiftAmount()
+//{
+//    return shiftAmount_;
+//}
 
 
 
@@ -309,15 +309,15 @@ void EditPVDialog::displayMinEntered(const QString &min)
 
 
 
-void EditPVDialog::shiftAmountEntered(const QString &shift)
-{
-    shiftAmount_ = shift;
+//void EditPVDialog::shiftAmountEntered(const QString &shift)
+//{
+//    shiftAmount_ = shift;
 
-    if (shiftAmount_ == "")
-        shiftAmountChanged_ = false;
-    else
-        shiftAmountChanged_ = true;
-}
+//    if (shiftAmount_ == "")
+//        shiftAmountChanged_ = false;
+//    else
+//        shiftAmountChanged_ = true;
+//}
 
 
 

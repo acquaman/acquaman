@@ -49,9 +49,9 @@ private:
     QLabel *currentDisplayMin_;
     QCheckBox *automaticMin_;
 
-    QString shiftAmount_;
-    bool shiftAmountChanged_;
-    QLineEdit *shiftAmountEntry_;
+//    QString shiftAmount_;
+//    bool shiftAmountChanged_;
+//    QLineEdit *shiftAmountEntry_;
 
     QPushButton *okButton_;
     QPushButton *cancelButton_;
@@ -78,8 +78,8 @@ protected:
     QString displayMin();
     bool displayMinChanged();
 
-    QString shiftAmount();
-    bool shiftAmountChanged();
+//    QString shiftAmount();
+//    bool shiftAmountChanged();
 
 protected slots:
     /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
@@ -91,7 +91,7 @@ protected slots:
     void colorEntered(const QString &newColor);
     void displayMaxEntered(const QString &max);
     void displayMinEntered(const QString &min);
-    void shiftAmountEntered(const QString &shift);
+//    void shiftAmountEntered(const QString &shift);
 
     void automaticDisplayMaxChanged(Qt::CheckState checkState);
     void automaticDisplayMinChanged(Qt::CheckState checkState);

@@ -2,6 +2,7 @@
 #define STRIPTOOLVARIABLE_H
 
 #include <QObject>
+#include <QDateTime>
 #include "dataman/datasource/AMDataSource.h"
 
 class StripToolVariable : public QObject
@@ -9,16 +10,17 @@ class StripToolVariable : public QObject
     Q_OBJECT
 
 public:
-    explicit StripToolVariable(QObject *parent = 0);
+    explicit StripToolVariable(AMDataSource *dataSource = 0, QObject *parent = 0);
     bool operator== (const StripToolVariable &anotherVariable);
 
 signals:
+    void infoChanged();
     void nameChanged(const QString &name);
     void descriptionChanged(const QString &description);
     void unitsChanged(const QString &units);
-//    void propertyChanged
-    void checkStateChanged(const Qt::CheckState &checkState);
+    void propertyChanged();
     void dataSourceChanged();
+    void dataSourceValueUpdate(double newValue);
 
 protected:
     QString name() const;
@@ -30,20 +32,31 @@ protected:
     QString units() const;
     void setUnits(const QString &newUnits);
 
-    Qt::CheckState checkState() const;
-    void setCheckState(Qt::CheckState newState);
+    bool isValid() const;
+
+    QList<QString> getInfo();
+    void setInfo(QList<QString> newProperties);
+
+    QString creationDateTime() const;
 
     AMDataSource* dataSource() const;
     void setDataSource(AMDataSource* newDataSource);
 
+private slots:
+    virtual void onDataSourceChanged(AMnDIndex start, AMnDIndex end) = 0;
+    void onDataSourceStateChanged(int newState);
+    void onDataSourceValueChanged(AMnDIndex start, AMnDIndex end);
+
 private:
-//    virtual void createDataSource(const QString pvName) = 0;
+    void setAsValid(bool isValid);
 
 private:
     QString name_;
     QString description_;
     QString units_;
-    Qt::CheckState checkState_;
+    QString creationDateTime_;
+    bool isValid_;
+
     AMDataSource* dataSource_;
 
 };
