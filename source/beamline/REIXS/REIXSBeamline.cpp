@@ -645,7 +645,7 @@ double REIXSSpectrometer::value() const
 {
 	if(currentGrating_ < 0 || currentGrating_ >= gratingCount())
 		return -1.;
-	qDebug() << "Value called with: " << currentGrating_ << spectrometerRotationDrive_->value() << detectorTranslation_->value();
+	//qDebug() << "Value called with: " << currentGrating_ << spectrometerRotationDrive_->value() << detectorTranslation_->value();
 	return calibration_.computeEVFromSpectrometerPosition(currentGrating_, spectrometerRotationDrive_->value(), detectorTranslation_->value());
 }
 
