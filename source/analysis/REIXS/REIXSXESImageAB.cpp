@@ -688,6 +688,9 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+//		qDebug()<< "sindb = " << sindb;
+//		qDebug()<< "sinbp = " << sinbp;
+
 	}
 	//////////////////////////////////////////////////////
 
@@ -720,6 +723,14 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 //	}
 	////////////////////////////////////////////////////////
 
+//	qDebug()<< "rPrime = " << rPrime;
+//	qDebug() <<"cosgp = " << cosgp;
+//	qDebug()<< "cosBeta = " << cosBeta;
+//	qDebug()<< "sinBeta = " << sinBeta;
+//	qDebug()<< "gamma = " << gamma;
+//	qDebug()<< "beta = " << beta;
+//	qDebug()<< "grooveDensity = " << grooveDensity;
+//	qDebug()<< "sinAlpha = " << sinAlpha;
 
 
 	axisValuesInvalid_ = false;
