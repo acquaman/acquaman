@@ -52,7 +52,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_->gratingMask(), SIGNAL(connected(bool)), this, SLOT(updateMaskPosition()));
 
 	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
-	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
+		connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
 
 
 	connect(ui_->moveNowButton, SIGNAL(clicked()), this, SLOT(onMoveButtonClicked()));
@@ -61,6 +61,12 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_, SIGNAL(moveFailed(int)), this, SLOT(onSpectrometerMoveFailed(int)));
 
 	connect(ui_->stopButton, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+
+	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateEnergyRange()));
+	connect(ui_->tiltOffsetBox, SIGNAL(valueChanged(double)), this, SLOT(updateEnergyRange()));
+	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateEnergyRange()));
+
+
 
 }
 
@@ -225,5 +231,85 @@ void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(cons
 		spectrometer_->gratingMask()->move(12.9);
 	else if (arg1 == "Out")
 		spectrometer_->gratingMask()->move(1.0);
+}
+
+void REIXSXESSpectrometerControlEditor::updateEnergyRange()
+{
+			float upperE = 0, lowerE =0;
+
+			int grating = ui_->gratingSelectorBox->currentIndex();
+
+			double grooveDensity = spectrometer_->spectrometerCalibration()->gratingAt(grating).grooveDensity();
+			double gratingRadius = spectrometer_->spectrometerCalibration()->gratingAt(grating).radius();
+			double sinAlpha = sin(spectrometer_->spectrometerCalibration()->d2r(spectrometer_->spectrometerCalibration()->gratingAt(grating).alpha()));
+
+			// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
+			// beta is also the nominal incidence angle onto the detector. Get beta from spectrometer position:
+			double beta = asin(sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value()));
+
+			double sinBeta = sin(beta);
+			double cosBeta = cos(beta);
+
+			double rPrime = gratingRadius * cosBeta;
+
+
+			double gamma = spectrometer_->spectrometerCalibration()->d2r(ui_->tiltOffsetBox->value());
+
+			double singp = cosBeta*cos(gamma) + sinBeta*sin(gamma);
+			double cosgp = sinBeta*cos(gamma) - cosBeta*sin(gamma);
+			// Calculate bottom half of the axis. (low energies). Sign is -1
+
+			double dx = 20;
+			// sindb: sin("delta Beta"): the angle difference from the nominal beta.
+			double sindb = -1 *( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*-1) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
+			//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+			//																		 = sinb*cos(db) + cosb*sindb
+			//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+			double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+			//solving the grating equation for eV:
+			lowerE = 0.0012398417*grooveDensity / (sinAlpha - sinbp);	// NOTE: we're adding in the user-specified energy offset here.
+
+			sindb = ( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp) );
+			sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+			upperE = 0.0012398417*grooveDensity / (sinAlpha - sinbp);	// NOTE: we're adding in the user-specified energy offset here.
+
+			ui_->energyRangeLabel->setText(QString("%1 eV - %2 eV (%3 eV)").arg(qRound(lowerE)).arg(qRound(upperE)).arg(qRound(upperE - lowerE)));
+
+			/*
+			example for MEG @ 392 0 tilt
+			sindb =  0.00203589
+			sinbp =  0.995825
+			rPrime =  934.696
+			cosgp =  0.995637
+			cosBeta =  0.0933081
+			sinBeta =  0.995637
+			gamma =  -1.70245e-06
+			beta =  1.47735
+			grooveDensity =  1187.82
+			sinAlpha =  0.999391
+			*/
+
+//			qDebug()<< "sindb 0.00203589 = " << sindb;
+//			qDebug()<< "sinbp 0.995825 = " << sinbp;
+//			qDebug()<< "rPrime 934.696 = " << rPrime;
+//			qDebug() <<"cosgp 0.995637 = " << cosgp;
+//			qDebug()<< "cosBeta 0.0933081 = " << cosBeta;
+//			qDebug()<< "sinBeta 0.995637= " << sinBeta;
+//			qDebug()<< "gratingRadius = " << gratingRadius;
+//			qDebug()<< "gamma -1.70245e-06 = " << gamma;
+//			qDebug()<< "beta 1.47735 = " << beta;
+//			qDebug()<< "ui_->tiltOffsetBox->value() = " << ui_->tiltOffsetBox->value();
+//			qDebug()<< "grooveDensity 1187.82 = " << grooveDensity;
+//			qDebug()<< "ui_->energyBox->value() = " << ui_->energyBox->value();
+//			qDebug()<< "sinAlpha 0.999391 = " << sinAlpha;
+//			qDebug()<< "sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value()) = " << sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value());
+
+
+
+
+//			qDebug() << "The new energy range is: " << lowerE << "eV to " << upperE << "eV";
+
+
+
 }
 
