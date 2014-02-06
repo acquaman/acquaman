@@ -133,7 +133,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
-	REIXSXESScanConfiguration *rixsScanConfiguration = new REIXSXESScanConfiguration();
+	//REIXSXESScanConfiguration *rixsScanConfiguration = new REIXSXESScanConfiguration();
 	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(rixsConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
