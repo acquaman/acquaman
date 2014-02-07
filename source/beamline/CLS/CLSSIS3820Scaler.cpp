@@ -240,7 +240,8 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
 
     AMControlInfo setpoint = startToggle_->toInfo();
     setpoint.setValue(0);
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, dwellTime_->value() * 1.1, AMControlWaitActionInfo::MatchEqual);
+    //AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, dwellTime_->value() * 1.1, AMControlWaitActionInfo::MatchEqual);
+    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 11.0 , AMControlWaitActionInfo::MatchEqual);
     AMControlWaitAction *action = new AMControlWaitAction(actionInfo, startToggle_);
 
     if(!action)

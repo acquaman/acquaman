@@ -24,6 +24,8 @@ public:
 	/// Clearing is not yet implemented for the scaler channels (but it can be in the future)
 	virtual bool canClear() const { return false; }
 
+    virtual bool canDoDarkCurrentCorrection() const { return true; }
+
 	/// Basic scaler channels cannot continuous acquire. This needs to be implemented in a subclass.
 	virtual bool canContinuousAcquire() const { return false; }
 

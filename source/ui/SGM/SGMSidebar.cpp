@@ -406,8 +406,19 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	stopMotorsAction_ = 0;
 }
 
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "actions3/AMActionRunner3.h"
 void SGMSidebar::onScanningResetButtonClicked(){
 	SGMBeamline::sgm()->beamlineScanning()->move(0);
+
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if(teyDetector){
+        qDebug() << "Got the TEY detector";
+
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){

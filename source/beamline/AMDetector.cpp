@@ -381,6 +381,7 @@ bool AMDetector::clear(){
 void AMDetector::setAsDarkCurrentCorrection(){
     if (canDoDarkCurrentCorrection()){
         darkCurrentCorrection_ = singleReading();
+        qDebug() << "Set dark current correction as " << darkCurrentCorrection_;
     }
 }
 

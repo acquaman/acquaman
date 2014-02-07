@@ -39,7 +39,8 @@ void SGMSettings::load(){
 	// variable = settings.value(key, defaultValue).toType();
 
 #ifdef Q_WS_MAC
-    SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
+    //SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
+    SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/helfrij/SGM Data").toString();
 #else
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
 #endif
