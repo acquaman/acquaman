@@ -310,7 +310,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
-				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(0));
+				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i));
 				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
 			}
