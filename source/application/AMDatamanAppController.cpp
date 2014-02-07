@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDatamanAppController.h"
+#include "AMAppController.h"
+
 
 #include "util/AMSettings.h"
 #include "acquaman.h"
@@ -709,6 +711,12 @@ bool AMDatamanAppController::startupInstallActions()
 	qApp->processEvents();
 	// make/install actions:
 	/////////////////////////////////
+	QAction *saveAllAction = new QAction("Save All Scans", mw_);
+	saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
+	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
+	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
+
+
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
 	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
 	importLegacyFilesAction->setStatusTip("Import raw data files (not collected with Acquaman) into the library");
@@ -744,6 +752,8 @@ bool AMDatamanAppController::startupInstallActions()
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
+	fileMenu_->addAction(saveAllAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
@@ -1001,6 +1011,29 @@ void AMDatamanAppController::onStartupFinished(){
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
+	QMessageBox shouldSave;
+	shouldSave.setText("Save changes to open scans before exporting?");
+	shouldSave.setInformativeText("Unsaved changes will not export.");
+	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+	shouldSave.setDefaultButton(QMessageBox::SaveAll);
+	shouldSave.setEscapeButton(QMessageBox::Cancel);
+	int ret = shouldSave.exec();
+	switch (ret) {
+	  case QMessageBox::SaveAll: saveAll();
+		  // Save was clicked
+		  break;
+	  case QMessageBox::No:
+		  // Don't Save was clicked
+		  break;
+	  case QMessageBox::Cancel: return;
+		  // Cancel was clicked
+		  break;
+	  default:
+		  // should never be reached
+		  break;
+	}
+
+
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
@@ -1410,5 +1443,23 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	if (newFolder != AMUserSettings::userDataFolder){
 		AMUserSettings::userDataFolder = newFolder;
 		AMUserSettings::save();
+	}
+}
+
+void AMDatamanAppController::saveAll(){
+
+	for(int i=0, count = scanEditorCount(); i<count; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor){
+			for(int i=0; i < editor->scanCount(); i++)
+			{
+				AMScan* scan =  editor->scanAt(i);
+				if(scan->database())
+					scan->storeToDb(scan->database());
+				else
+					scan->storeToDb(AMDatabase::database("user"));
+			}
+		}
 	}
 }
