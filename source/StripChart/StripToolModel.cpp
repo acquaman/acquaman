@@ -292,7 +292,6 @@ void StripToolModel::toAddPV(const QString &pvName)
         qDebug() << "Adding new pv...";
         AMReadOnlyPVControl *pvControl = new AMReadOnlyPVControl(pvName, pvName, this);
         controlMapper_->setMapping(pvControl, pvControl);
-
         connect( pvControl, SIGNAL(connected(bool)), controlMapper_, SLOT(map()) );
     }
 }
@@ -316,7 +315,6 @@ void StripToolModel::onPVConnected(QObject* itemConnected)
         errorMsg.setText("Unable to connect to pv " + pvControl->name() + ".");
         errorMsg.setDetailedText("The pv name may be invalid, or EPICS timed out trying to connect to this pv!");
         errorMsg.exec();
-
     }
 }
 
@@ -336,17 +334,8 @@ bool StripToolModel::addPV(AMControl *pvControl)
     connect( newPV, SIGNAL(savePVData()), saveDataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(savePVMetaData()), saveMetadataMapper_, SLOT(map()) );
     connect( newPV, SIGNAL(pvValueUpdated()), pvUpdatedMapper_, SLOT(map()) );
-
-//    connect( newPV, SIGNAL(updateYAxisLabel(QString)), this, SIGNAL(updateYAxisLabel(QString)) );
-//    connect( newPV, SIGNAL(updateWaterfall(double)), this, SIGNAL(updateWaterfall(double)) );
-//    connect( newPV, SIGNAL(applyLeftAxisScaleShift(double)), this, SIGNAL(applyLeftAxisScaleShift(double)) );
     connect( newPV, SIGNAL(dataRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDataRangeChanged(MPlotAxisRange *)) );
-//    connect( newPV, SIGNAL(displayRangeChanged(MPlotAxisRange *)), this, SIGNAL(selectedPVDisplayRangeChanged(MPlotAxisRange *)) );
-//    connect( newPV, SIGNAL(dataMaxChanged(double)), this, SIGNAL(selectedDataMaxChanged(double)) );
-//    connect( newPV, SIGNAL(dataMinChanged(double)), this, SIGNAL(selectedDataMinChanged(double)) );
-//    connect( this, SIGNAL(updateSelectedDisplayMax(double)), this, SLOT(toTestDoubleSignal(double)) );
 
-//    connect( this, SIGNAL(forceUpdatePVs(QString)), newPV, SLOT(toForceUpdateValue(QString)) );
     connect( this, SIGNAL(updateTime(int)), newPV, SLOT(toUpdateTime(int)) );
     connect( this, SIGNAL(updateTimeUnits(QString)), newPV, SLOT(toUpdateTimeUnits(QString)) );
 

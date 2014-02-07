@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDebug>
 
+#include "StripToolVariable.h"
 #include "beamline/AMPVControl.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
@@ -11,7 +12,7 @@
 
 /// This class keeps track of all information relevant to a given pv: pv name, description, units, check state, value updates.
 
-class StripToolPV : public QObject
+class StripToolPV : public StripToolVariable
 {
     Q_OBJECT
 
@@ -44,8 +45,6 @@ signals:
     void stopUpdateIntervalTimer();
     /// When the update interval timer has counted out the maxTimeBetweenUpdates, the pv will 'manually' report a change in value (a value identical to the last update), even if the control didn't signal that one happened.
     void manuallyUpdatePV(double value);
-
-    void shiftAmountChanged(double newShift);
 
 protected:
     int updateIndex_;
@@ -147,16 +146,10 @@ private:
 protected slots:
     /// When the pv indicates there's been a value update, this function handles recording the new value as well as updating the displayed values.
     void onPVValueChanged(double newValue);
-//    void toForceUpdateValue(const QString &toIgnore);
     void toUpdateTime(int newTime);
     void toUpdateTimeUnits(const QString &newUnits);
-
     void toRestartUpdateIntervalTimer();
     void toManuallyUpdatePV();
-
-    void toApplySeriesTransform(double dy);
-
-    void onDisplayRangeChanged(MPlotAxisRange *range);
 
 };
 
