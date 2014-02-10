@@ -87,6 +87,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AM3DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM1DCalibrationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM3DAdditionAB.h"
 #include "analysis/AM3DBinningAB.h"
@@ -548,6 +549,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DCalibrationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();

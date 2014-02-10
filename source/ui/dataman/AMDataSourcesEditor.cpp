@@ -281,6 +281,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM1DCalibrationAB.h"
 #include "analysis/AM3DBinningAB.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
@@ -363,6 +364,12 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	else if (nameOfAnalysisBlockToBeAdded_ == "Normalization"){
 
 		newAnalysisBlock = new AM1DNormalizationAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Calibrated Normalization"){
+
+		newAnalysisBlock = new AM1DCalibrationAB(chName);
 		newAnalysisBlock->setInputDataSources(singleDimDataSources);
 	}
 

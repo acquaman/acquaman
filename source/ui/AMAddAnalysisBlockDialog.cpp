@@ -137,6 +137,10 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Calibrated Normalization", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool normalizes its input and allows for energy calibration.");
+
 }
 
 void AMAddAnalysisBlockDialog::populateWith2D()
