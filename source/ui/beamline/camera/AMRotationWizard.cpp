@@ -179,7 +179,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Select Page %d ").arg(relativeId()));
+				return QString(tr("Select Page %1 ")).arg(relativeId());
 			case Text:
 			case Help:
 			case Other:
@@ -193,7 +193,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Wait Page %d").arg(relativeId()));
+				return QString(tr("Wait Page %1")).arg(relativeId());
 			case Text:
 			case Help:
 			case Other:
