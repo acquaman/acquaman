@@ -14,7 +14,7 @@ VESPERSDatabaseDuplicateEntryPatch::VESPERSDatabaseDuplicateEntryPatch(QObject *
 
 bool VESPERSDatabaseDuplicateEntryPatch::start()
 {
-	AMDatabase *database = AMDatabase::createDatabase("Patch", "/home/hunterd/beamline/programming/databases/test/userData/userdataTest.db");
+	AMDatabase *database = AMDatabase::createDatabase("Patch", "/home/hunterd/beamline/programming/databases/t17-5255/userData/userdata.db");
 
 	QSqlQuery query = database->query();
 	query.prepare("SELECT id, measurementId, name FROM AMRawDataSource_table;");
@@ -78,6 +78,11 @@ bool VESPERSDatabaseDuplicateEntryPatch::start()
 
 	foreach(int id, scanIds)
 		duplicateEntryObjects.append(new VESPERSDatabaseDuplicateEntryObject(database, id));
+
+	foreach(VESPERSDatabaseDuplicateEntryObject *patchObject, duplicateEntryObjects)
+		patchObject->fix();
+
+	qDebug() << "Done!";
 
 	return true;
 }
