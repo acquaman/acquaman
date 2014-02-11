@@ -746,7 +746,7 @@ void AMSampleCameraView::rotationConfiguration()
 		qDebug()<<"AMSampleCameraView::rotationConfiguration - Incorrect number of points";
 	}
 
-	shapeModel_->configureRotation( coordinates, points, rotations);
+	shapeModel_->configureRotation( coordinates, points, rotations, rotationWizard_->numberOfPoints());
 	shapeModel_->saveRotationalOffset();
 }
 

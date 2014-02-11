@@ -388,7 +388,7 @@ public slots:
 
 	void setCameraConfigurationShape();
 
-	void configureRotation(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations);
+	void configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints);
 	void saveRotationalOffset();
 
 	void moveSamplePlateTo(const QVector3D &coordinate);
@@ -619,8 +619,8 @@ protected:
 	/// using the provided coordinates for depth
 	/// the result will be a point along the line and a unit vector in the direction of the line
 	QPair<QVector3D,QVector3D> findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference = QVector3D(0,0,0));
-	MatrixXd constructCentreOfRotationMatrix(QVector<double> rotations, QVector3D v1, QVector3D v2);
-	MatrixXd constructCentreOfRotationCoordinateMatrix(QVector3D originalCoordinate, QVector3D B1, QVector3D B2);
+	MatrixXd constructCentreOfRotationMatrix(const QVector<double> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints);
+	MatrixXd constructCentreOfRotationCoordinateMatrix(QVector3D originalCoordinate, QVector<QVector3D> bases, const int &numberOfPoints);
 	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
 	double degreesToRadians(double degrees);
 	double radiansToDegrees(double radians);
