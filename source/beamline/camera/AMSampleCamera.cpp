@@ -1666,6 +1666,7 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 
 
 
+
 }
 
 
