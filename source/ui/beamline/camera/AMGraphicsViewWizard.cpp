@@ -171,6 +171,7 @@ QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 {
     QList<QGraphicsItem*> list = view()->items();
     QGraphicsVideoItem* videoItem;
+    // will break if can't find video?
     foreach(QGraphicsItem* item, list)
     {
         if(item->type() == QGraphicsItem::UserType)

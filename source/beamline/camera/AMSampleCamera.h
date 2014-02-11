@@ -628,6 +628,10 @@ protected:
 	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
 	/// computes the SVD homogenous solution for the largest singular value
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
+
+	void debugPrintMatrix(const MatrixXd matrix) const;
+
+
 protected:
 
 	/// Members

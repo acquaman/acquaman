@@ -1664,9 +1664,9 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	QVector<VectorPair> lines;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		int referenceIndex = i-1;
-		if(i == 0) referenceIndex = 1;
-		lines<<findScreenVector(points.at(i),coordinates.at(i),coordinates.at(referenceIndex));
+
+		lines<<findScreenVector(points.at(i),coordinates.at(i),QVector3D(10,10,10));
+		qDebug()<<points.at(i);
 	}
 	QVector<QVector3D> bases,vectors;
 
@@ -1687,11 +1687,22 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 
 
-
+	qDebug()<<"AMSampleCamera::configureRotation - about to construct matrices";
 	MatrixXd matrix = constructCentreOfRotationMatrix(rotations,vectors, numberOfPoints);
 	MatrixXd coordinateMatrix = constructCentreOfRotationCoordinateMatrix(coordinates.first(),bases, numberOfPoints);
+	qDebug()<<"AMSampleCamera::configureRotation - done constructing matrices";
 
 	MatrixXd solution = solveCentreOfRotationMatrix(matrix,coordinateMatrix);
+	qDebug()<<"AMSampleCamera::configureRotation - done solving";
+
+	qDebug()<<"Input matrix";
+	debugPrintMatrix(matrix);
+	qDebug()<<"RHS matrix";
+	debugPrintMatrix(coordinateMatrix);
+	qDebug()<<"Solution Matrix";
+	debugPrintMatrix(solution);
+	qDebug()<<"Computed RHS";
+	debugPrintMatrix(matrix*solution);
 
 	QVector3D centreOfRotation = QVector3D(solution(0),solution(1),solution(2));
 //	centreOfRotation.normalize();
@@ -3145,6 +3156,9 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 	const int dimensions = 3;
 	// convert rotations to radians
 	QVector<double> angles;
+
+	qDebug()<<"AMSampleCamera::constructCentreOfRotationMatrix";
+
 	foreach (double rotation, rotations)
 	{
 		angles<<degreesToRadians(rotation);
@@ -3157,10 +3171,13 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 	QVector<QVector<QVector3D> > rotationRows;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		rotationRows[i]<<findRotationMatrixXRow(rotationVector,rotations.at(i));
-		rotationRows[i]<<findRotationMatrixYRow(rotationVector,rotations.at(i));
-		rotationRows[i]<<findRotationMatrixZRow(rotationVector,rotations.at(i));
+		QVector<QVector3D> newVector;
+		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i));
+		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i));
+		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i));
+		rotationRows<<newVector;
 	}
+
 
 //	QVector3D firstRotationX = findRotationMatrixXRow(rotationVector,firstAngle);
 //	QVector3D firstRotationY = findRotationMatrixYRow(rotationVector,firstAngle);
@@ -3179,7 +3196,6 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 	matrix(1,1) = 1;	matrix(1,4) = 1;
 	matrix(2,2) = 1;	matrix(2,5) = 1;
 	/// build this dynamically using angles and rotations, and vectors.
-
 	for(int i = dimensions; i < rows; i++)
 	{
 		for(int j = 0; j < cols; j++)
@@ -3213,7 +3229,7 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 			}
 			else
 			{
-				int rowIndex = i/dimensions -1;
+				int rowIndex = i/dimensions - 1;
 				int colIndex = j-2*dimensions;
 				if(rowIndex == colIndex)
 				{
@@ -3236,12 +3252,6 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 			}
 		}
 	}
-//	matrix(3,0) = 1;	matrix(3,3) = firstRotationX.x();	matrix(3,4) = firstRotationX.y();	matrix(3,5) = firstRotationX.z();	matrix(3,6) = -1*v1.x();
-//	matrix(4,1) = 1;	matrix(4,3) = firstRotationY.x();	matrix(4,4) = firstRotationY.y();	matrix(4,5) = firstRotationY.z();	matrix(4,6) = -1*v1.y();
-//	matrix(5,2) = 1;	matrix(5,3) = firstRotationZ.x();	matrix(5,4) = firstRotationZ.y();	matrix(5,5) = firstRotationZ.z();	matrix(5,6) = -1*v1.z();
-//	matrix(6,0) = 1;	matrix(6,3) = secondRotationX.x();	matrix(6,4) = secondRotationX.y();	matrix(6,5) = secondRotationX.z();	matrix(6,7) = -1*v2.x();
-//	matrix(7,1) = 1;	matrix(7,3) = secondRotationY.x();	matrix(7,4) = secondRotationY.y();	matrix(7,5) = secondRotationY.z();	matrix(7,7) = -1*v2.y();
-//	matrix(8,2) = 1;	matrix(8,3) = secondRotationZ.x();	matrix(8,4) = secondRotationZ.y();	matrix(8,5) = secondRotationZ.z();	matrix(8,7) = -1*v2.z();
 
 	return matrix;
 
@@ -3251,31 +3261,38 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(QVector3D originalCoordinate, QVector<QVector3D> bases, const int &numberOfPoints)
 {
 	const int dimensions = 3;
-	MatrixXd matrix(dimensions*(numberOfPoints+1),1);
-	for(int i = 0; i < matrix.rows(); i++)
-	{
-		QVector3D element;
-		int index = i/dimensions - 1;
-		if(i < dimensions)
-		{
-			element = originalCoordinate;
-		}
-		else
-		{
-			element = bases.at(index);
-		}
-		switch(i%dimensions)
-		{
-		case 0:
-			matrix(i,1) = element.x();
-			break;
-		case 1:
-			matrix(i,1) = element.y();
-			break;
-		case 2:
-			matrix(i,1) = element.z();
-			break;
+	MatrixXd matrix(dimensions*(numberOfPoints + 1),1);
 
+	qDebug()<<"AMSampleCamera::constructCentreOfRotationCoordinateMatrix";
+
+	/// j should just be 0
+	for(int j = 0; j < matrix.cols(); j++)
+	{
+		for(int i = 0; i < matrix.rows(); i++)
+		{
+			QVector3D element;
+			int index = i/dimensions - 1;
+			if(i < dimensions)
+			{
+				element = originalCoordinate;
+			}
+			else
+			{
+				element = bases.at(index);
+			}
+			switch(i%dimensions)
+			{
+			case 0:
+				matrix(i,j) = element.x();
+				break;
+			case 1:
+				matrix(i,j) = element.y();
+				break;
+			case 2:
+				matrix(i,j) = element.z();
+				break;
+
+			}
 		}
 	}
 //	matrix<<originalCoordinate.x(),originalCoordinate.y(),originalCoordinate.z(),
@@ -3314,6 +3331,21 @@ MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	// solution is first column of V matrix - solution for maximum singular value of m
 	return camera_->computeSVDHomogenous(leftHandSide);
+}
+
+void AMSampleCamera::debugPrintMatrix(const Eigen::MatrixXd matrix) const
+{
+	QString row = "";
+	for(int i = 0; i < matrix.rows(); i++)
+	{
+		for(int j = 0; j < matrix.cols(); j++)
+		{
+			row.append(QString("%1\t").arg(matrix(i,j),1,'f',4));
+		}
+		qDebug()<<row;
+		row = "";
+	}
+
 }
 
 
