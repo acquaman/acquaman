@@ -13,7 +13,7 @@ VESPERSDatabaseDuplicateEntryObject::VESPERSDatabaseDuplicateEntryObject(AMDatab
 bool VESPERSDatabaseDuplicateEntryObject::fix()
 {
 	QSqlQuery query = database_->query();
-	query.prepare(QString("SELECT name, fileFormat, filePath, analyzedDataSourcesConnections FROM AMScan_table WHERE id=%1").arg(scanId_));
+	query.prepare(QString("SELECT name, thumbnailCount, fileFormat, filePath, analyzedDataSourcesConnections FROM AMScan_table WHERE id=%1").arg(scanId_));
 
 	if (!database_->execQuery(query)){
 
@@ -24,9 +24,10 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 	while (query.next()){
 
 		scanName_ = query.value(0).toString();
-		fileFormat_ = query.value(1).toString();
-		filePath_ = query.value(2).toString();
-		analyzedDataSourceConnections_ = query.value(3).toString();
+		thumbnailCount_ = query.value(1).toInt();
+		fileFormat_ = query.value(2).toString();
+		filePath_ = query.value(3).toString();
+		analyzedDataSourceConnections_ = query.value(4).toString();
 	}
 
 	query.finish();
@@ -135,15 +136,66 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 		correctedAnalyzedDataSourceConnectionsToRemain_ << fixedAnalyzedConnection.join(",");
 	}
 
+	query = database_->query();
+	query.prepare(QString("SELECT id, number, subtitle FROM AMDbObjectThumbnails_table WHERE objectId=%1 AND objectTableName='AMScan_table'").arg(scanId_));
+
+	if (!database_->execQuery(query)){
+
+		query.finish();
+		return false;
+	}
+
+	while (query.next()){
+
+		allThumbnailIds_ << query.value(0).toInt();
+		allThumbnailNumbers_ << query.value(1).toInt();
+		allThumbnailNames_ << query.value(2).toString();
+	}
+
+	query.finish();
+
+	// Only go to N-1 because the last entry was already checked.
+	for (int i = 0, size = allThumbnailIds_.size(); i < size-1; i++)
+		if (allThumbnailNames_.at(i) == allThumbnailNames_.at(i+1)){
+
+			duplicateThumbnailIds_ << allThumbnailIds_.at(i+1);
+			duplicateThumbnailNumbers_ << allThumbnailNumbers_.at(i+1);
+		}
+
+	correctedThumbnailIds_ = allThumbnailIds_;
+
+	foreach (int id, duplicateThumbnailIds_)
+		correctedThumbnailIds_.removeOne(id);
+
+	correctedThumbnailNumbers_ = allThumbnailNumbers_;
+
+	foreach (int id, duplicateThumbnailNumbers_)
+		correctedThumbnailNumbers_.removeOne(id);
+
+	for (int i = 0, size = correctedThumbnailNumbers_.size(); i < size; i++)
+		correctedThumbnailNumbers_[i] = fixIntIndex(correctedThumbnailNumbers_.at(i), duplicateThumbnailNumbers_);
+
+	// The corrected thumbnail count correction is due to explicit knowledge of how this bug came to be.  In the future, all data sources would need to have their "hiddenFromUsers" column checked.
+	correctedThumbnailCount_ = thumbnailCount_ - duplicateThumbnailIds_.size();
 	fixedFileFormat_ = "vespers2012XRF1ElXRD";
 	fixedFilePath_ = filePath_;
 	fixedFilePath_.replace(".cdf", ".dat");
 	fixedAdditionalFilePath_ = filePath_;
 	fixedAdditionalFilePath_.replace(".cdf", "_spectra.dat");
 
+	// Start the database patch!
+	////////////////////////////////////////////////////////
+
 	database_->startTransaction();
 
 	if (!database_->update(scanId_, "AMScan_table", "analyzedDataSourcesConnections", QVariant(correctedAnalyzedDataSourceConnectionsToRemain_.join("\n")))){
+
+		qDebug() << "Failed to update row" << scanId_ << "from AMScan_table";
+		database_->rollbackTransaction();
+		return false;
+	}
+
+	if (!database_->update(scanId_, "AMScan_table", "thumbnailCount", QVariant(correctedThumbnailCount_))){
 
 		qDebug() << "Failed to update row" << scanId_ << "from AMScan_table";
 		database_->rollbackTransaction();
@@ -203,13 +255,36 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 			return false;
 		}
 
+	foreach (int id, duplicateThumbnailIds_)
+		if (!database_->deleteRow(id, "AMDbObjectThumbnails_table")){
+
+			qDebug() << "Failed to delete row" << id << "from AMDbObjectThumbnails_table";
+			database_->rollbackTransaction();
+			return false;
+		}
+
+	for (int i = 0, size = correctedThumbnailIds_.size(); i < size; i++)
+		if (!database_->update(correctedThumbnailIds_.at(i), "AMDbObjectThumbnails_table", "number", QVariant(correctedThumbnailNumbers_.at(i)))){
+
+			qDebug() << "Failed to update row" << correctedThumbnailIds_.at(i) << "from AMDbObjectThumbnails_table";
+			database_->rollbackTransaction();
+			return false;
+		}
+
 	database_->commitTransaction();
 
 	QString path = database_->dbAccessString();
 	path.remove("userdata.db");
 	QFile::remove(path % filePath_);
 
+	// End of patch.
+	/////////////////////////////////////////////////////////////
+
+	// Helper debug statments.
+	///////////////////////////////////////////////////////////////
+
 //	qDebug() << scanName_;
+//	qDebug() << thumbnailCount_;
 //	qDebug() << fileFormat_;
 //	qDebug() << filePath_;
 //	qDebug() << analyzedDataSourceConnections_;
@@ -233,6 +308,17 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 //	qDebug() << fixedFilePath_;
 //	qDebug() << fixedAdditionalFilePath_;
 //	qDebug() << QFile::exists(path % filePath_);
+//	qDebug() << correctedThumbnailCount_;
+//	qDebug() << allThumbnailIds_;
+//	qDebug() << allThumbnailNames_;
+//	qDebug() << allThumbnailNumbers_;
+//	qDebug() << duplicateThumbnailIds_;
+//	qDebug() << duplicateThumbnailNumbers_;
+//	qDebug() << correctedThumbnailIds_;
+//	qDebug() << correctedThumbnailNumbers_;
+
+	// End of helper debug statements.
+	//////////////////////////////////////////////////////////////
 
 	qDebug() << "Successfully fixed" << scanName_;
 
@@ -244,7 +330,7 @@ QString VESPERSDatabaseDuplicateEntryObject::fixStringIndex(const QString &index
 	int id = index.toInt();
 	int newId = -1;
 
-	QList<int> fullList = QList<int>() << 0 << indexList;
+	QList<int> fullList = QList<int>() << -1 << indexList;
 
 	for (int i = 0, size = fullList.size(); i < size-1; i++){
 
@@ -256,4 +342,22 @@ QString VESPERSDatabaseDuplicateEntryObject::fixStringIndex(const QString &index
 	}
 
 	return QString("%1").arg(newId);
+}
+
+int VESPERSDatabaseDuplicateEntryObject::fixIntIndex(int index, QList<int> indexList) const
+{
+	int newId = -1;
+
+	QList<int> fullList = QList<int>() << -1 << indexList;
+
+	for (int i = 0, size = fullList.size(); i< size-1; i++){
+
+		if (index > fullList.at(i) && index <= fullList.at(i+1))
+			newId = index - i;
+
+		else if (index > fullList.at(i+1))
+			newId = index - (i+1);
+	}
+
+	return newId;
 }

@@ -16,6 +16,8 @@ public:
 protected:
 	/// Helper method that takes in a string that represents an index, a list of duplicate indices, and returns a QString with a corrected index string.
 	QString fixStringIndex(const QString &index, QList<int> indexList) const;
+	/// Helper method that takes in an int that represents and index, a list of duplicate indices, and returns an int that is corrected based on that list.
+	int fixIntIndex(int index, QList<int> indexList) const;
 
 	/// The database the object works with.
 	AMDatabase *database_;
@@ -23,6 +25,8 @@ protected:
 	int scanId_;
 	/// The scan name.
 	QString scanName_;
+	/// The thumbnail count.
+	int thumbnailCount_;
 	/// The file format.
 	QString fileFormat_;
 	/// The file path to the data file.
@@ -61,12 +65,28 @@ protected:
 	QStringList analyzedDataSourceConnectionsToRemain_;
 	/// The list of analyzed data sources that will remain but with fixed ids.
 	QStringList correctedAnalyzedDataSourceConnectionsToRemain_;
+	/// The list of all the thumbnail ids.
+	QList<int> allThumbnailIds_;
+	/// The list of all the thumbnail names.
+	QStringList allThumbnailNames_;
+	/// The list of all thumbnail numbers.
+	QList<int> allThumbnailNumbers_;
+	/// The list of duplicate thumnail ids.
+	QList<int> duplicateThumbnailIds_;
+	/// The list of duplicate thumbnail numbers.
+	QList<int> duplicateThumbnailNumbers_;
+	/// The list of the corrected thumbnail ids.
+	QList<int> correctedThumbnailIds_;
+	/// The list of the corrected thumbnail numbers.
+	QList<int> correctedThumbnailNumbers_;
 	/// The fixed file format.
 	QString fixedFileFormat_;
 	/// The fixed file path.
 	QString fixedFilePath_;
 	/// The fixed additional file path.
 	QString fixedAdditionalFilePath_;
+	/// The fixed thumbnail count.
+	int correctedThumbnailCount_;
 };
 
 #endif // VESPERSDATABASEDUPLICATEENTRYOBJECT_H
