@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/IDEAS/IDEASPersistentView.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -68,7 +69,7 @@ bool IDEASAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
+                        AMRun firstRun("IDEAS", 5);	/// \todo For now, we know that 5 is the ID of the IDEAS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -77,7 +78,7 @@ bool IDEASAppController::startup()
 		makeConnections();
 
 		// Github setup for adding VESPERS specific comment.
-//		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
+                additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
 		return true;
 	}
@@ -113,6 +114,9 @@ void IDEASAppController::setupUserInterface()
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
+
+        IDEASPersistentView *persistentPanel = new IDEASPersistentView;
+        mw_->addRightWidget(persistentPanel);
 }
 
 void IDEASAppController::makeConnections()

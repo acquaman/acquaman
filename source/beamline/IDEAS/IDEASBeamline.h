@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -50,11 +51,24 @@ public:
 	/// Destructor.
 	virtual ~IDEASBeamline();
 
+        /// Returns the overall shutter status.  Returns true if both are open, false otherwise.
+        bool shuttersOpen() const;
+
+        /// Creates an action that opens the shutters to act like a Beam On.
+        AMAction3 *createBeamOnAction() const;
+        /// Creates an action that closes the shutters to act like a Beam Off.
+        AMAction3 *createBeamOffAction() const;
+
 signals:
+
+        /// Notifier that the status of the shutters has changed.
+        void overallShutterStatus(bool);
 
 public slots:
 
 protected slots:
+        /// Helper slot that handles emitting the overall shutter status.
+        void onShutterStatusChanged();
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -82,6 +96,11 @@ protected:
 
 	/// Constructor. This is a singleton class; access it through IDEASBeamline::ideas().
 	IDEASBeamline();
+
+        /// The safety shutter for the beamline.
+        CLSBiStateControl *safetyShutter_;
+        /// The second photon shutter.
+        CLSBiStateControl *photonShutter2_;
 };
 
 #endif // IDEASSBEAMLINE_H
