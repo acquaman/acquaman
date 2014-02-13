@@ -86,6 +86,11 @@ void IDEASBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL08B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
+        synchronizedDwellTime_->addElement(1);
+        synchronizedDwellTime_->addElement(2);
+        synchronizedDwellTime_->addElement(3);
+        synchronizedDwellTime_->addElement(4);
+        synchronizedDwellTime_->addElement(5);
 
 	masterDwell_ = new AMPVControl("masterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
 }

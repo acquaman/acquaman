@@ -13,7 +13,7 @@ void IDEASMonochromatorControl::onAllControlsConnected()
 
 AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 {
-        if (qAbs(setpoint-setpoint_) < 0.1){
+        if (qAbs(setpoint-setpoint_) < 1){
 
                 emit moveSucceeded();
                 return AMControl::NoFailure;
