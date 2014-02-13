@@ -93,6 +93,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        valueLabel_->setAlignment(Qt::AlignCenter);
 
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);

@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
+#include "beamline/IDEAS/IDEASMonochromatorControl.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public AMBeamline
 {
@@ -62,7 +64,8 @@ public:
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
-	AMPVwStatusControl *monoEnergyControl() const { return monoEnergy_; }
+        /// Returns the monochromator control for the beamline.
+        AMControl *monoEnergyControl() const { return monoEnergy_; }
 
 signals:
 
@@ -108,7 +111,7 @@ protected:
         CLSBiStateControl *photonShutter2_;
 
 	/// Control for the mono
-	AMPVwStatusControl *monoEnergy_;
+        IDEASMonochromatorControl *monoEnergy_;
 
 	/// The synchronized dwell time app for IDEAS
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;

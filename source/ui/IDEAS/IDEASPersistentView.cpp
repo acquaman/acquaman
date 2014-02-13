@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QGroupBox>
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -23,6 +24,8 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::ideas(), SIGNAL(overallShutterStatus(bool)), this, SLOT(onShutterStatusChanged(bool)));
 
     energyControlEditor_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->monoEnergyControl());
+    energyControlEditor_->setMaximumWidth(200);
+    energyControlEditor_->setControlFormat('f', 1);
 
     QHBoxLayout *beamChangeLayout = new QHBoxLayout;
     beamChangeLayout->addWidget(beamOnButton_);
@@ -34,7 +37,15 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(energyControlEditor_);
     mainPanelLayout->addStretch();
 
-    setLayout(mainPanelLayout);
+    QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
+    persistentPanel->setLayout(mainPanelLayout);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(persistentPanel);
+
+    setLayout(layout);
+
+    setMaximumWidth(200);
 }
 
 void IDEASPersistentView::onBeamOnClicked()
