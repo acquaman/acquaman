@@ -64,6 +64,8 @@ protected:
 protected:
 	/// View for controlling the synchronized dwell time application
 	CLSSynchronizedDwellTimeView *ideasSynchronizedDwellTimeView_;
+
+
 };
 
 #endif // IDEASAPPCONTROLLER_H

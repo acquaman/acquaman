@@ -62,6 +62,8 @@ public:
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
+	AMPVwStatusControl *monoEnergyControl() const { return monoEnergy_; }
+
 signals:
 
         /// Notifier that the status of the shutters has changed.
