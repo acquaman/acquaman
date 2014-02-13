@@ -5,10 +5,10 @@ HOME_FOLDER = $$system(echo $HOME)
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
@@ -16,8 +16,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a

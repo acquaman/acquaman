@@ -59,6 +59,9 @@ public:
         /// Creates an action that closes the shutters to act like a Beam Off.
         AMAction3 *createBeamOffAction() const;
 
+	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
 signals:
 
         /// Notifier that the status of the shutters has changed.
@@ -101,6 +104,22 @@ protected:
         CLSBiStateControl *safetyShutter_;
         /// The second photon shutter.
         CLSBiStateControl *photonShutter2_;
+
+	/// Control for the mono
+	AMPVwStatusControl *monoEnergy_;
+
+	/// The synchronized dwell time app for IDEAS
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	AMReadOnlyPVControl *oldIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
+
+	AMDetector *oldIonChamberDetector_;
+	AMDetector *oxfordI0IonChamberDetector_;
+	AMDetector *oxfordSampleIonChamberDetector_;
+	AMDetector *oxfordReferenceIonChamberDetector_;
 };
 
 #endif // IDEASSBEAMLINE_H
