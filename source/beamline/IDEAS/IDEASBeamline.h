@@ -66,6 +66,9 @@ public:
 
         /// Returns the monochromator control for the beamline.
         AMControl *monoEnergyControl() const { return monoEnergy_; }
+        /// \todo THESE NEED TO BE COMMENTED!
+        AMPVControl *masterDwellControl() const { return masterDwell_; }
+
 
 signals:
 
@@ -112,6 +115,8 @@ protected:
 
 	/// Control for the mono
         IDEASMonochromatorControl *monoEnergy_;
+	/// Control for the master dwell time on the synchronized dwell time application
+	AMPVControl *masterDwell_;
 
 	/// The synchronized dwell time app for IDEAS
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;

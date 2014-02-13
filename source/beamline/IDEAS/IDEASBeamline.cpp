@@ -84,6 +84,8 @@ void IDEASBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL08B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
+
+	masterDwell_ = new AMPVControl("masterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
 }
 
 void IDEASBeamline::setupComponents()
@@ -102,7 +104,8 @@ void IDEASBeamline::setupControlsAsDetectors()
 
 void IDEASBeamline::setupExposedControls()
 {
-
+	addExposedControl(monoEnergy_);
+	addExposedControl(masterDwell_);
 }
 
 void IDEASBeamline::setupExposedDetectors()

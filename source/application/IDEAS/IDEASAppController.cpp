@@ -43,6 +43,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+#include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
@@ -123,6 +127,13 @@ void IDEASAppController::setupUserInterface()
 	ideasSynchronizedDwellTimeView_ = 0; //NULL
 	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
 	onSynchronizedDwellTimeConnected(false);
+
+	xasScanConfigurationView_ = 0; //NULL
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
+	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
+
+	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
+	onEnergyConnected(false);
 }
 
 void IDEASAppController::makeConnections()
@@ -130,7 +141,6 @@ void IDEASAppController::makeConnections()
 
 }
 
-#include <QDebug>
 void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
@@ -140,6 +150,21 @@ void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
 
 		mw_->addPane(ideasSynchronizedDwellTimeView_, "Detectors", "IDEAS Sync Dwell", ":/system-software-update.png", true);
 		ideasSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
+	}
+}
+
+void IDEASAppController::onEnergyConnected(bool connected){
+	Q_UNUSED(connected)
+	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
+		double goodEnergy = 10 * floor(IDEASBeamline::ideas()->monoEnergyControl()->value() / 10);
+		// Do New XAS
+		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
+		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
+		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
+		xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+
+		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
+		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 	}
 }
 
