@@ -50,6 +50,9 @@ public:
 	/// Destructor.
 	virtual ~IDEASBeamline();
 
+	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
 signals:
 
 public slots:

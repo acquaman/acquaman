@@ -116,6 +116,7 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
+	ideasSynchronizedDwellTimeView_ = 0; //NULL
 	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
 	onSynchronizedDwellTimeConnected(false);
 }
@@ -125,6 +126,7 @@ void IDEASAppController::makeConnections()
 
 }
 
+#include <QDebug>
 void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
