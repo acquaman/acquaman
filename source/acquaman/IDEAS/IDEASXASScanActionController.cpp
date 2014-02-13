@@ -33,6 +33,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I0Detector")->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("SampleDetector")->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("ReferenceDetector")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 }
 

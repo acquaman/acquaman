@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 #include "beamline/IDEAS/IDEASMonochromatorControl.h"
+#include "beamline/IDEAS/IDEASKETEKDetector.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public AMBeamline
@@ -69,6 +70,8 @@ public:
         /// \todo THESE NEED TO BE COMMENTED!
         AMPVControl *masterDwellControl() const { return masterDwell_; }
 
+        /// Returns the KETEK detector pointer.
+        IDEASKETEKDetector *ketek() const { return ketek_; }
 
 signals:
 
@@ -130,6 +133,8 @@ protected:
 	AMDetector *oxfordI0IonChamberDetector_;
 	AMDetector *oxfordSampleIonChamberDetector_;
 	AMDetector *oxfordReferenceIonChamberDetector_;
+
+        IDEASKETEKDetector *ketek_;
 };
 
 #endif // IDEASSBEAMLINE_H

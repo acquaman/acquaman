@@ -45,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 
@@ -144,6 +145,11 @@ void IDEASAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 
 	mw_->insertHeading("Detectors", 1);
+
+        AMXRFDetailedDetectorView *view = new AMXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+//        view->setEnergyRange(1500, 20480);
+        view->buildDetectorView();
+        mw_->addPane(view, "Detectors", "KETEK", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

@@ -68,6 +68,8 @@ void IDEASBeamline::setupDetectors()
 	oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I0Detector", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 	oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("SampleDetector", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 	oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("ReferenceDetector", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+
+        ketek_ = new IDEASKETEKDetector("KETEK", "KETEK XRF Detector", this);
 }
 
 void IDEASBeamline::setupControlSets()
@@ -114,6 +116,7 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(oxfordI0IonChamberDetector_);
 	addExposedDetector(oxfordSampleIonChamberDetector_);
 	addExposedDetector(oxfordReferenceIonChamberDetector_);
+        addExposedDetector(ketek_);
 }
 
 

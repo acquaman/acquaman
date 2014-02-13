@@ -11,6 +11,9 @@ public:
     /// Constructor.  Builds all the important aspects of the mono for the IDEAS beamline.
     IDEASMonochromatorControl(QObject *parent = 0);
 
+public slots:
+    /// Re-implemented move method.
+    AMControl::FailureExplanation move(double setpoint);
 protected slots:
     /// Handles setting the units of the control after all the controls have initialized.
     void onAllControlsConnected();
