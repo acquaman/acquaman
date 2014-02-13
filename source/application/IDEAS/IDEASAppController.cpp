@@ -101,11 +101,37 @@ void IDEASAppController::shutdown()
 
 void IDEASAppController::registerClasses()
 {
-
+    AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 }
 
 void IDEASAppController::setupExporterOptions()
-{
+{   
+    QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "IDEAS Default XAS");
+
+    AMExporterOptionGeneralAscii *ideasDefaultXAS = new AMExporterOptionGeneralAscii();
+
+    if (matchIDs.count() != 0)
+            ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+    ideasDefaultXAS->setName("IDEAS Default XAS");
+    ideasDefaultXAS->setFileName("$name_$fsIndex.dat");
+    ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+    ideasDefaultXAS->setHeaderIncluded(true);
+    ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
+    ideasDefaultXAS->setColumnHeaderIncluded(true);
+    ideasDefaultXAS->setColumnHeaderDelimiter("");
+    ideasDefaultXAS->setSectionHeader("");
+    ideasDefaultXAS->setSectionHeaderIncluded(true);
+    ideasDefaultXAS->setIncludeAllDataSources(true);
+    ideasDefaultXAS->setFirstColumnOnly(true);
+    ideasDefaultXAS->setIncludeHigherDimensionSources(true);
+    ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
+    ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+    ideasDefaultXAS->setHigherDimensionsInRows(true);
+    ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
+
+    if(ideasDefaultXAS->id() > 0)
+            AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(ideasDefaultXAS->id());
 
 }
 
