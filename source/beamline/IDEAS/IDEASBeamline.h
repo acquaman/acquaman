@@ -63,6 +63,7 @@ public:
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 	AMPVwStatusControl *monoEnergyControl() const { return monoEnergy_; }
+	AMPVControl *masterDwellControl() const { return masterDwell_; }
 
 signals:
 
@@ -109,6 +110,8 @@ protected:
 
 	/// Control for the mono
 	AMPVwStatusControl *monoEnergy_;
+	/// Control for the master dwell time on the synchronized dwell time application
+	AMPVControl *masterDwell_;
 
 	/// The synchronized dwell time app for IDEAS
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;

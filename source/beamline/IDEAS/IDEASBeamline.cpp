@@ -77,13 +77,15 @@ void IDEASBeamline::setupControlSets()
 
 void IDEASBeamline::setupMono()
 {
-	monoEnergy_ = new AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", this, 0.5, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy");
+	monoEnergy_ = new AMPVwStatusControl("energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", this, 0.5, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy");
 }
 
 void IDEASBeamline::setupSynchronizedDwellTime()
 {
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL08B2-1:dwell", this);
 	synchronizedDwellTime_->addElement(0);
+
+	masterDwell_ = new AMPVControl("masterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
 }
 
 void IDEASBeamline::setupComponents()
@@ -102,7 +104,8 @@ void IDEASBeamline::setupControlsAsDetectors()
 
 void IDEASBeamline::setupExposedControls()
 {
-
+	addExposedControl(monoEnergy_);
+	addExposedControl(masterDwell_);
 }
 
 void IDEASBeamline::setupExposedDetectors()

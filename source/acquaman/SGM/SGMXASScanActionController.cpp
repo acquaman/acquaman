@@ -7,7 +7,6 @@
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
- SGMXASScanActionController::~SGMXASScanActionController(){}
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMRegionScanActionController(cfg, parent)
 {
@@ -35,6 +34,8 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
 }
+
+SGMXASScanActionController::~SGMXASScanActionController(){}
 
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
