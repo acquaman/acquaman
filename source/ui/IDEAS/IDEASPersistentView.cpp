@@ -2,6 +2,8 @@
 
 #include "beamline/IDEAS/IDEASBeamline.h"
 
+#include "ui/beamline/AMExtendedControlEditor.h"
+
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -20,6 +22,8 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     connect(IDEASBeamline::ideas(), SIGNAL(overallShutterStatus(bool)), this, SLOT(onShutterStatusChanged(bool)));
 
+    energyControlEditor_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->monoEnergyControl());
+
     QHBoxLayout *beamChangeLayout = new QHBoxLayout;
     beamChangeLayout->addWidget(beamOnButton_);
     beamChangeLayout->addWidget(beamOffButton_);
@@ -27,6 +31,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QVBoxLayout *mainPanelLayout = new QVBoxLayout;
     mainPanelLayout->addLayout(beamChangeLayout);
     mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
+    mainPanelLayout->addWidget(energyControlEditor_);
     mainPanelLayout->addStretch();
 
     setLayout(mainPanelLayout);

@@ -6,6 +6,8 @@
 class QPushButton;
 class QLabel;
 
+class AMExtendedControlEditor;
+
 /// The persistent panel that lives on the right side of the application.
 class IDEASPersistentView : public QWidget
 {
@@ -34,6 +36,8 @@ protected:
     QPushButton *beamOffButton_;
     /// The label for the beam status.
     QLabel *beamStatusLabel_;
+
+    AMExtendedControlEditor *energyControlEditor_;
 };
 
 #endif // IDEASPERSISTENTVIEW_H
