@@ -9,7 +9,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 {
 	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
 	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("energy"));
+		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("Energy"));
 	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
 
 	regions_->setSensibleRange(2000, 12000);
@@ -22,7 +22,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 {
 	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
 	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("energy"));
+		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("Energy"));
 	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
 
 	regions_->setSensibleStart(original.regions()->sensibleStart());

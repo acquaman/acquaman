@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
-#include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/AMAdvancedControlDetectorEmulator.h"
 
 IDEASBeamline::IDEASBeamline()
 	: AMBeamline("IDEAS Beamline")
@@ -64,10 +64,10 @@ void IDEASBeamline::setupDetectors()
 	oxfordSampleIonChamberAmmeter_ = new AMReadOnlyPVControl("Sample", "A1608-10-06:A:fbk", this, "Sample Ion Chamber");
 	oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference", "A1608-10-07:A:fbk", this, "Reference Ion Chamber");
 
-	oldIonChamberDetector_ = new AMBasicControlDetectorEmulator("OldIonDetector", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
-	oxfordI0IonChamberDetector_ = new AMBasicControlDetectorEmulator("I0Detector", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
-	oxfordSampleIonChamberDetector_ = new AMBasicControlDetectorEmulator("SampleDetector", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
-	oxfordReferenceIonChamberDetector_ = new AMBasicControlDetectorEmulator("ReferenceDetector", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, this);
+	oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("OldIonDetector", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I0Detector", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("SampleDetector", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("ReferenceDetector", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 }
 
 void IDEASBeamline::setupControlSets()
