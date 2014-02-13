@@ -82,6 +82,23 @@ protected:
 
 	/// Constructor. This is a singleton class; access it through IDEASBeamline::ideas().
 	IDEASBeamline();
+
+
+	/// Control for the mono
+	AMPVwStatusControl *monoEnergy_;
+
+	/// The synchronized dwell time app for IDEAS
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	AMReadOnlyPVControl *oldIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
+
+	AMDetector *oldIonChamberDetector_;
+	AMDetector *oxfordI0IonChamberDetector_;
+	AMDetector *oxfordSampleIonChamberDetector_;
+	AMDetector *oxfordReferenceIonChamberDetector_;
 };
 
 #endif // IDEASSBEAMLINE_H

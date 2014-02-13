@@ -41,6 +41,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -113,11 +115,26 @@ void IDEASAppController::setupUserInterface()
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
+
+	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
+	onSynchronizedDwellTimeConnected(false);
 }
 
 void IDEASAppController::makeConnections()
 {
 
+}
+
+void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
+	Q_UNUSED(connected)
+	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
+		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(IDEASBeamline::ideas()->synchronizedDwellTime());
+		if(clsDwellTime)
+			ideasSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
+
+		mw_->addPane(ideasSynchronizedDwellTimeView_, "Detectors", "IDEAS Sync Dwell", ":/system-software-update.png", true);
+		ideasSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
+	}
 }
 
 void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
