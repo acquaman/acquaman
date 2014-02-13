@@ -77,7 +77,7 @@ void IDEASBeamline::setupControlSets()
 
 void IDEASBeamline::setupMono()
 {
-	monoEnergy_ = new AMPVwStatusControl("energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", this, 0.5, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy");
+	monoEnergy_ = new AMPVwStatusControl("energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", this, 25.0, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy");
 }
 
 void IDEASBeamline::setupSynchronizedDwellTime()
