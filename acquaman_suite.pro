@@ -23,5 +23,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
 	StripToolProject.pro \
-	AMCrashReporter.pro
-
+	AMCrashReporter.pro \
+	IDEASAcquaman.pro

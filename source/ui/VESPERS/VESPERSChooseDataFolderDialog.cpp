@@ -4,7 +4,6 @@
 
 #include <QLabel>
 #include <QFileDialog>
-#include <QLineEdit>
 #include <QCheckBox>
 #include <QStringList>
 #include <QToolButton>
@@ -13,8 +12,10 @@
 #include <QFileInfo>
 #include <QPushButton>
 #include <QStringBuilder>
+#include <QComboBox>
 
- VESPERSChooseDataFolderDialog::~VESPERSChooseDataFolderDialog(){}
+VESPERSChooseDataFolderDialog::~VESPERSChooseDataFolderDialog(){}
+
 VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent)
 	: QDialog(parent)
 {
@@ -23,7 +24,26 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	folder_ = dataFolder;
 
 	QLabel *explanation = new QLabel("Enter the proposal number or the absolute path to where you want your data to be saved.");
-	path_ = new QLineEdit;
+	path_ = new QComboBox;
+	path_->setEditable(true);
+
+	if (folder_.contains("/users")){
+
+		QDir dir(folder_);
+
+		while (dir.dirName() != "users" && !dir.dirName().isEmpty())
+			dir.cdUp();
+
+		directories_ = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+	}
+
+	path_->addItems(directories_);
+
+	pathStatusLabel_ = new QLabel;
+	QFont pathFont(this->font());
+	pathFont.setItalic(true);
+	pathStatusLabel_->setFont(pathFont);
+
 	advancedCheck_ = new QCheckBox("Advanced");
 	QToolButton *folderButton = new QToolButton;
 	folderButton->setIcon(QIcon(":/22x22/folder.png"));
@@ -34,7 +54,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(path_, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
+	connect(path_, SIGNAL(editTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 	connect(advancedCheck_, SIGNAL(toggled(bool)), folderButton, SLOT(setEnabled(bool)));
 
 	advancedCheck_->setChecked(path.isEmpty());
@@ -43,11 +63,11 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	if (path.isEmpty())
 		path = folder_;
 
-	path_->setText(path);
-	okButton_->setEnabled(pathOk(advancedCheck_->isChecked() ? folder_ : VESPERS::getProposalNumber(folder_)));
+	path_->setEditText(path);
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(path_);
+	lineEditLayout->addWidget(pathStatusLabel_);
 	lineEditLayout->addWidget(folderButton);
 	lineEditLayout->addWidget(advancedCheck_);
 
@@ -133,27 +153,39 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 void VESPERSChooseDataFolderDialog::onTextChanged(const QString &text)
 {
 	QPalette palette(this->palette());
+	QPalette pathPalette(this->palette());
+	QString pathStatusString = pathStatus(text);
 
-	if (!pathOk(text)){
+	okButton_->setDisabled(pathStatusString == "Absolute path does not exist!");
 
-		okButton_->setEnabled(false);
+	if (pathStatusString == "Absolute path does not exist!"){
+
 		palette.setColor(QPalette::Text, Qt::red);
+		pathPalette.setColor(QPalette::WindowText, Qt::darkRed);
 	}
 
-	else
-		okButton_->setEnabled(true);
+	else if (pathStatusString.contains("Valid") || pathStatusString.contains("okay"))
+		pathPalette.setColor(QPalette::WindowText, Qt::darkGreen);
 
+	pathStatusLabel_->setText(pathStatusString);
+	pathStatusLabel_->setPalette(pathPalette);
 	path_->setPalette(palette);
 	folder_ = text;
 }
 
-bool VESPERSChooseDataFolderDialog::pathOk(const QString &path) const
+QString VESPERSChooseDataFolderDialog::pathStatus(const QString &path) const
 {
 	if (advancedCheck_->isChecked())
-		return QFileInfo(path).exists();
+		return QFileInfo(path).exists() ? "Absolute path okay!" : "Absolute path does not exist!";
+
+	else if (!VESPERS::getProposalNumber(path).isEmpty())
+		return "Valid proposal number!";
+
+	else if (directories_.contains(path))
+		return "Valid existing experiment!";
 
 	else
-		return !VESPERS::getProposalNumber(path).isEmpty();
+		return "New experiment!";
 }
 
 void VESPERSChooseDataFolderDialog::getFilePath()
@@ -164,5 +196,5 @@ void VESPERSChooseDataFolderDialog::getFilePath()
 	QString dir = QFileDialog::getExistingDirectory(this, "Choose a destination folder for your data.", path, QFileDialog::ShowDirsOnly);
 
 	if (!dir.isEmpty())
-		path_->setText(dir);
+		path_->setEditText(dir);
 }
