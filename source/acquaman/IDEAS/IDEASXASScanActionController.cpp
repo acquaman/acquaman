@@ -27,6 +27,13 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1").arg(scanName));
 	}
+
+	AMDetectorInfoSet ideasDetectors;
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("OldIonDetector")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I0Detector")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("SampleDetector")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("ReferenceDetector")->toInfo());
+	configuration_->setDetectorConfigurations(ideasDetectors);
 }
 
 IDEASXASScanActionController::~IDEASXASScanActionController(){}
