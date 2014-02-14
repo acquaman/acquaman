@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 
 #include "MPlot/MPlot.h"
+#include "MPlot/MPlotPoint.h"
 #include "dataman/AMScanSetModel.h"
 
 #include "ui/dataman/AMCramBarHorizontal.h"
@@ -51,6 +52,10 @@ class QDoubleSpinBox;
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
+<<<<<<< HEAD
+=======
+	virtual ~AMScanViewModeBar();
+>>>>>>> 638b01b... Added the ability to put a cursor on the plot inside of AMScanView.  It can be added to AMScanViewExclusiveView and AMScanViewMultiView.  The cursor can be moved programmatically or from clicking the mouse, but currently the visibility is only toggle-able programmatically.
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
 	QButtonGroup* modeButtons_;
@@ -77,7 +82,15 @@ class AMScanView;
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
+<<<<<<< HEAD
+=======
+	virtual ~AMScanViewInternal();
+>>>>>>> 638b01b... Added the ability to put a cursor on the plot inside of AMScanView.  It can be added to AMScanViewExclusiveView and AMScanViewMultiView.  The cursor can be moved programmatically or from clicking the mouse, but currently the visibility is only toggle-able programmatically.
 	explicit AMScanViewInternal(AMScanView* masterView);
+
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
@@ -233,11 +246,16 @@ public:
 
 	virtual ~AMScanViewExclusiveView();
 
-signals:
-	/// Notifier that the data position marker has changed.
-	void dataPositionChanged(const QPointF &);
-
 public slots:
+
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
 
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
@@ -280,6 +298,9 @@ protected:
 
 	/// Our plot.
 	MPlotGW* plot_;
+
+	/// The plot item that holds the cursor that can be displayed on the screen.
+	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows all of the enabled data sources.
@@ -292,6 +313,16 @@ public:
 	virtual ~AMScanViewMultiView();
 
 public slots:
+
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
+
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
@@ -324,6 +355,9 @@ protected:
 	QList<QList<MPlotItem*> > plotItems_;
 	/// Our plot.
 	MPlotGW* plot_;
+
+	/// The plot item that holds the cursor that can be displayed on the screen.
+	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows every scan in its own plot.
