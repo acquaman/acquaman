@@ -26,12 +26,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+
+#include "beamline/IDEAS/IDEASMonochromatorControl.h"
+#include "beamline/IDEAS/IDEASKETEKDetector.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public AMBeamline
@@ -50,11 +54,35 @@ public:
 	/// Destructor.
 	virtual ~IDEASBeamline();
 
+        /// Returns the overall shutter status.  Returns true if both are open, false otherwise.
+        bool shuttersOpen() const;
+
+        /// Creates an action that opens the shutters to act like a Beam On.
+        AMAction3 *createBeamOnAction() const;
+        /// Creates an action that closes the shutters to act like a Beam Off.
+        AMAction3 *createBeamOffAction() const;
+
+	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
+        /// Returns the monochromator control for the beamline.
+        AMControl *monoEnergyControl() const { return monoEnergy_; }
+        /// \todo THESE NEED TO BE COMMENTED!
+        AMPVControl *masterDwellControl() const { return masterDwell_; }
+
+        /// Returns the KETEK detector pointer.
+        IDEASKETEKDetector *ketek() const { return ketek_; }
+
 signals:
+
+        /// Notifier that the status of the shutters has changed.
+        void overallShutterStatus(bool);
 
 public slots:
 
 protected slots:
+        /// Helper slot that handles emitting the overall shutter status.
+        void onShutterStatusChanged();
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -82,6 +110,31 @@ protected:
 
 	/// Constructor. This is a singleton class; access it through IDEASBeamline::ideas().
 	IDEASBeamline();
+
+        /// The safety shutter for the beamline.
+        CLSBiStateControl *safetyShutter_;
+        /// The second photon shutter.
+        CLSBiStateControl *photonShutter2_;
+
+	/// Control for the mono
+        IDEASMonochromatorControl *monoEnergy_;
+	/// Control for the master dwell time on the synchronized dwell time application
+	AMPVControl *masterDwell_;
+
+	/// The synchronized dwell time app for IDEAS
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	AMReadOnlyPVControl *oldIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
+	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
+
+	AMDetector *oldIonChamberDetector_;
+	AMDetector *oxfordI0IonChamberDetector_;
+	AMDetector *oxfordSampleIonChamberDetector_;
+	AMDetector *oxfordReferenceIonChamberDetector_;
+
+        IDEASKETEKDetector *ketek_;
 };
 
 #endif // IDEASSBEAMLINE_H

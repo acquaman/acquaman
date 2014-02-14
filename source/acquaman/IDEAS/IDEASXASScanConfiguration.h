@@ -1,23 +1,20 @@
-#ifndef SGMXASSCANCONFIGURATION2013_H
-#define SGMXASSCANCONFIGURATION2013_H
+#ifndef IDEASXASSCANCONFIGURATION_H
+#define IDEASXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
-#include "SGMScanConfiguration2013.h"
 
-class SGMXASScanConfiguration2013 : public AMXASScanConfiguration, public SGMScanConfiguration2013
+class IDEASXASScanConfiguration : public AMXASScanConfiguration
 {
 Q_OBJECT
 
-Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
-
-Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration 2013")
+Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XAS Scan Configuration")
 
 public:
 	/// Constructor
-	Q_INVOKABLE SGMXASScanConfiguration2013(QObject *parent = 0);
+	Q_INVOKABLE IDEASXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor
-	SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original);
-	virtual ~SGMXASScanConfiguration2013();
+	IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original);
+	virtual ~IDEASXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -37,4 +34,4 @@ public:
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 };
 
-#endif // SGMXASSCANCONFIGURATION2013_H
+#endif // IDEASXASSCANCONFIGURATION_H

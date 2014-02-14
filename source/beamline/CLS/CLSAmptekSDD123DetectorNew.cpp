@@ -152,13 +152,13 @@ double CLSAmptekSDD123DetectorNew::eVPerBin() const{
 int CLSAmptekSDD123DetectorNew::amptekLowROI(int index){
 	if(!isConnected())
 		return -1;
-	return roiLowIndices_.at(index)->value();
+        return int(roiLowIndices_.at(index)->value());
 }
 
 int CLSAmptekSDD123DetectorNew::amptekHighROI(int index){
 	if(!isConnected())
 		return -1;
-	return roiHighIndices_.at(index)->value();
+        return int(roiHighIndices_.at(index)->value());
 }
 
 AMControl* CLSAmptekSDD123DetectorNew::fastCountsControl(const QObject *privelegedCaller) const{

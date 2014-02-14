@@ -22,7 +22,7 @@ public:
 	/// Returns the energy of the emission line as a double.
 	double energy() const { return energy_; }
 	/// Returns the energy of the emission line as a string.
-	QString energyString(char format = 'f', double precision = 2) const { return QString::number(energy_, format, precision); }
+        QString energyString(char format = 'f', int precision = 2) const { return QString::number(energy_, format, precision); }
 	/// Returns the symbol for the element associated with this emission line.
 	QString elementSymbol() const { return symbol_; }
 	/// Returns the emission line name for the emission line.

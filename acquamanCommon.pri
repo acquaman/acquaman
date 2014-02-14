@@ -21,10 +21,10 @@ macx {
 		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
@@ -32,8 +32,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
 
 		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
 
@@ -42,8 +42,8 @@ macx {
 		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
 		# QwtPlot3d dependencies (Disabled for now...)
-		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/lib
+		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/include
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -229,6 +229,13 @@ contains(USERNAME, helfrij){
 
 	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -635,7 +642,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/actions3/actions/AMControlStopActionInfo.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
-	source/ui/beamline/AMDetectorSelectorRequiredView.h
+	source/ui/beamline/AMDetectorSelectorRequiredView.h \
+    source/beamline/AMAdvancedControlDetectorEmulator.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1042,7 +1050,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/actions3/actions/AMControlStopActionInfo.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
-	source/ui/beamline/AMDetectorSelectorRequiredView.cpp
+	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
+    source/beamline/AMAdvancedControlDetectorEmulator.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

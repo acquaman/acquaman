@@ -23,6 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class CLSSynchronizedDwellTimeView;
+class IDEASXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
+
 class IDEASAppController : public AMAppController
 {
 	Q_OBJECT
@@ -40,6 +44,12 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+protected slots:
+	/// Once the synchronized dwell is connected we can make the view for it
+	void onSynchronizedDwellTimeConnected(bool connected);
+	/// Wait until the energy is connected before making the scan views
+	void onEnergyConnected(bool connected);
+
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
@@ -55,6 +65,15 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+
+protected:
+	/// View for controlling the synchronized dwell time application
+	CLSSynchronizedDwellTimeView *ideasSynchronizedDwellTimeView_;
+
+	/// View for the IDEAS's XAS scan configurations
+	IDEASXASScanConfigurationView *xasScanConfigurationView_;
+	/// View holder for XAS
+	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 };
 
 #endif // IDEASAPPCONTROLLER_H
