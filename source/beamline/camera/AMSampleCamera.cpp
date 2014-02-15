@@ -1698,10 +1698,10 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	QVector<QVector3D> planeCoordinate;
 	for(int i = 0; i < 3; i++)
 	{
-		planeCoordinate.at(i) = bases.at(i) + solution(6 + i)* vectors.at(n);
+		planeCoordinate<<bases.at(i) + solution(6 + i)* vectors.at(i);
 	}
-	QVector3D a = planeCoordinate(1) - planeCoordinate(0);
-	QVector3D b = planeCoordinate(2) - planeCoordinate(0);
+	QVector3D a = planeCoordinate.at(1) - planeCoordinate.at(0);
+	QVector3D b = planeCoordinate.at(2) - planeCoordinate.at(0);
 	QVector3D rotation = (QVector3D::crossProduct(a,b)).normalized();
 	qDebug()<<" rotation is (+,-) "<<rotation<<(-1*rotation);
 	qDebug()<<"Expected it to be "<<directionOfRotation_;

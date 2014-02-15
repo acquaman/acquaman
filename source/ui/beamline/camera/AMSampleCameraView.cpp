@@ -89,6 +89,12 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	mode_ = DRAW;
 
 
+	// doing this broke things horribly, not sure why
+//	/// start them off null, create them and delete them when used
+//	cameraWizard_ = NULL;
+//	beamWizard_ = NULL;
+//	samplePlateWizard_ = NULL;
+//	rotationWizard_ = NULL;
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	view->setScene(shapeScene_->scene());
@@ -643,6 +649,8 @@ void AMSampleCameraView::beamCalibrate()
 	shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(true);
 	refreshSceneView();
+//	delete beamWizard_;
+//	beamWizard_ = NULL;
 
 }
 
@@ -714,6 +722,9 @@ void AMSampleCameraView::samplePlateCreate()
 		}
         shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
+//		delete samplePlateWizard_;
+//		samplePlateWizard_ = NULL;
+
 }
 
 void AMSampleCameraView::rotationConfiguration()
@@ -748,6 +759,8 @@ void AMSampleCameraView::rotationConfiguration()
 
 	shapeModel_->configureRotation( coordinates, points, rotations, rotationWizard_->numberOfPoints());
 	shapeModel_->saveRotationalOffset();
+//	delete rotationWizard_;
+//	rotationWizard_ = NULL;
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const
@@ -1027,6 +1040,8 @@ void AMSampleCameraView::reviewCameraConfiguration()
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
 	}
+//	delete cameraWizard_;
+//	cameraWizard_ = NULL;
 }
 
 void AMSampleCameraView::onMoveToBeamToggled(bool checked)
@@ -1283,7 +1298,10 @@ void AMSampleCameraView::hideCameraParameters(bool hide)
 
 void AMSampleCameraView::startCameraWizard()
 {
-	delete cameraWizard_;
+//	if(cameraWizard_)
+//	{
+		delete cameraWizard_;
+//	}
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
 	connect(cameraWizard_, SIGNAL(done()), this, SIGNAL(cameraWizardFinished()));
@@ -1300,7 +1318,10 @@ void AMSampleCameraView::startCameraWizard()
 
 void AMSampleCameraView::startBeamWizard()
 {
-	delete beamWizard_;
+//	if(beamWizard_)
+//	{
+		delete beamWizard_;
+//	}
 	beamWizard_ = new AMBeamConfigurationWizard();
 	connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
 	connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
@@ -1320,7 +1341,10 @@ void AMSampleCameraView::startBeamWizard()
 
 void AMSampleCameraView::startSampleWizard()
 {
-	delete samplePlateWizard_;
+//	if(samplePlateWizard_)
+//	{
+		delete samplePlateWizard_;
+//	}
 	samplePlateWizard_ = new AMSamplePlateWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
@@ -1341,7 +1365,10 @@ void AMSampleCameraView::startSampleWizard()
 
 void AMSampleCameraView::startRotationWizard()
 {
-	delete rotationWizard_;
+//	if(rotationWizard_)
+//	{
+		delete rotationWizard_;
+//	}
 	rotationWizard_ = new AMRotationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	/// \todo other things here
