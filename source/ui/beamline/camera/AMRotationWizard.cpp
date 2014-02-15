@@ -8,8 +8,8 @@
 AMRotationWizard::AMRotationWizard(QWidget *parent)
 	: AMGraphicsViewWizard(parent)
 {
-	/// need only two points to calculate since the first one (rotation == 0) is inherently known
-	setNumberOfPoints(4);
+//	/ need only two points to calculate since the first one (rotation == 0) is inherently known
+	setNumberOfPoints(3);
 	setNumberOfPages(numberOfPoints());
 	setFreePage(Page_Free);
 	/// allow rotation during wizard operation
@@ -288,6 +288,7 @@ void AMRotationSetPage::initializePage()
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }
 
+/// this happens every time the page is left.
 bool AMRotationSetPage::validatePage()
 {
 	disconnectSignals();
