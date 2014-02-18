@@ -621,7 +621,7 @@ protected:
 	/// the result will be a point along the line and a unit vector in the direction of the line
 	QPair<QVector3D,QVector3D> findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference = QVector3D(0,0,0));
 	MatrixXd constructCentreOfRotationMatrix(const QVector<double> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints);
-	MatrixXd constructCentreOfRotationCoordinateMatrix(const QVector3D &originalCoordinate, QVector<QVector3D> bases, const int &numberOfPoints);
+	MatrixXd constructCentreOfRotationCoordinateMatrix(const QVector<QVector3D> &coordinates, QVector<QVector3D> bases, const int &numberOfPoints);
 	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
 	double degreesToRadians(double degrees);
 	double radiansToDegrees(double radians);

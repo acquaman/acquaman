@@ -24,9 +24,9 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 
 	/// add some rotations
 //	rotationsAppend(-20);
-	rotationsAppend( 20);
+	rotationsAppend( 10);
 	rotationsAppend( 40);
-//	rotationsAppend( 60);
+//	rotationsAppend( 50);
 
 
 
