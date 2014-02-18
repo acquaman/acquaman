@@ -1665,7 +1665,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	for(int i = 0; i < numberOfPoints; i++)
 	{
 
-		lines<<findScreenVector(undistortPoint(points.at(i)),coordinates.at(i),QVector3D(10,10,10));// all coordinates should be 0,0,0 might as well use 10,10,10 as well
+		lines<<findScreenVector((points.at(i)),coordinates.at(i),QVector3D(i+1,i+1,i+1));// all coordinates should be 0,0,0 might as well use 10,10,10 as well
 		qDebug()<<points.at(i);
 	}
 	QVector<QVector3D> bases,vectors;
@@ -1679,7 +1679,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 	qDebug()<<"AMSampleCamera::configureRotation - about to construct matrices";
 	MatrixXd matrix = constructCentreOfRotationMatrix(rotations,vectors, numberOfPoints);
-	MatrixXd coordinateMatrix = constructCentreOfRotationCoordinateMatrix(bases, numberOfPoints);
+	MatrixXd coordinateMatrix = constructCentreOfRotationCoordinateMatrix(coordinates.at(0), bases, numberOfPoints);
 	qDebug()<<"AMSampleCamera::configureRotation - done constructing matrices";
 
 	MatrixXd solution = solveCentreOfRotationMatrix(matrix,coordinateMatrix);
@@ -1696,9 +1696,13 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 	/// direction of rotation test
 	QVector<QVector3D> planeCoordinate;
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < numberOfPoints; i++)
 	{
 		planeCoordinate<<bases.at(i) + solution(6 + i)* vectors.at(i);
+	}
+	if(numberOfPoints < 3)
+	{
+		planeCoordinate<<coordinates.at(0);
 	}
 	QVector3D a = planeCoordinate.at(1) - planeCoordinate.at(0);
 	QVector3D b = planeCoordinate.at(2) - planeCoordinate.at(0);
@@ -1709,7 +1713,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	QVector3D centreOfRotation = QVector3D(solution(0),solution(1),solution(2));
 //	centreOfRotation.normalize();
 	qDebug()<<centreOfRotation;
-	setRotationalOffset(centreOfRotation);
+	setRotationalOffset(centreOfRotation-coordinates.at(0));
 	updateView();
 
 }
@@ -3172,25 +3176,25 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 	for(int i = 0; i < numberOfPoints; i++)
 	{
 		QVector<QVector3D> newVector;
-		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i) - rotations.at(0));
-		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i) - rotations.at(0));
-		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i) - rotations.at(0));
+		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i));// - rotations.at(0));
+		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i));// - rotations.at(0));
+		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i));// - rotations.at(0));
 		rotationRows<<newVector;
 	}
 
 
-//	int rows = dimensions*numberOfPoints + dimensions; // implied first point
-	int rows = dimensions * numberOfPoints;
+	int rows = dimensions*numberOfPoints + dimensions; // implied first point
+//	int rows = dimensions * numberOfPoints;
 	int cols = 2*dimensions + numberOfPoints; // this holds either way, since with implied point there is no t0
 
 	MatrixXd matrix = MatrixXd::Zero(rows,cols);
 //	/// this part is the same, doesn't depend on number of points (always +1 points anyway)
-//	matrix(0,0) = 1;	matrix(0,3) = 1;
-//	matrix(1,1) = 1;	matrix(1,4) = 1;
-//	matrix(2,2) = 1;	matrix(2,5) = 1;
+	matrix(0,0) = 1;	matrix(0,3) = 1;
+	matrix(1,1) = 1;	matrix(1,4) = 1;
+	matrix(2,2) = 1;	matrix(2,5) = 1;
 
 	/// build this dynamically using angles and rotations, and vectors.
-	for(int i = 0; i < rows; i++)
+	for(int i = dimensions; i < rows; i++)
 	{
 		for(int j = 0; j < cols; j++)
 		{
@@ -3206,8 +3210,8 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 			else if(j < 2*dimensions)
 			{
 				/// next section is rotation
-//				int index = i/dimensions - 1; /// have to subtract one to account for implied point
-				int index = i / dimensions; // point number
+				int index = i/dimensions - 1; /// have to subtract one to account for implied point
+//				int index = i / dimensions; // point number
 				int subRow = i%dimensions; // the x, y, or z component of the rotation
 				int element = j%dimensions; // the part of the component that depends on the x, y, or z, element of l0
 				QVector3D rotationSection = rotationRows.at(index).at(subRow);// point index, part subRow (of x=0, y=1  or z=2)(see assignment of rotationRows above)
@@ -3228,8 +3232,8 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 			else
 			{
 				/// tnVn parts
-//				int rowIndex = i/dimensions - 1; // implied point is not included, subtract one
-				int rowIndex = i / dimensions;
+				int rowIndex = i/dimensions - 1; // implied point is not included, subtract one
+//				int rowIndex = i / dimensions;
 				int colIndex = j-2*dimensions; // subtract the first parts off (CoR and l0)
 				if(rowIndex == colIndex) // if point number down == point number across
 				{
@@ -3258,11 +3262,11 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 
 }
 
-MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(QVector<QVector3D> bases, const int &numberOfPoints)
+MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(const QVector3D &originalCoordinate, QVector<QVector3D> bases, const int &numberOfPoints)
 {
 	const int dimensions = 3;
-//	int rows = dimensions*(numberOfPoints+1); // need additional 3 points for implied point
-	int rows = dimensions * numberOfPoints;
+	int rows = dimensions*(numberOfPoints+1); // need additional 3 points for implied point
+//	int rows = dimensions * numberOfPoints;
 	int cols = 1; // row matrix, it is the solution
 	MatrixXd matrix(rows,cols);
 
@@ -3274,17 +3278,17 @@ MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(QVector<QVect
 		for(int i = 0; i < matrix.rows(); i++)
 		{
 			QVector3D element;
-//			int index = i/dimensions - 1; // need to subtract one because of implied point
-			int index = i / dimensions;
-//			if(i < dimensions)
-//			{
-//				element = originalCoordinate;
-//			}
-//			else
-//			{
-//				element = bases.at(index);
-//			}
-			element = bases.at(index);
+			int index = i/dimensions - 1; // need to subtract one because of implied point
+//			int index = i / dimensions;
+			if(i < dimensions)
+			{
+				element = originalCoordinate;
+			}
+			else
+			{
+				element = bases.at(index);
+			}
+//			element = bases.at(index);
 			switch(i%dimensions)
 			{
 			case 0:
