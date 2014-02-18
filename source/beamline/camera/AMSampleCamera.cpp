@@ -1480,12 +1480,7 @@ void AMSampleCamera::setSamplePlate()
 		}
 		// remove from the list of samples.
 		samplePlateShape_ = new AMShapeData();
-		qDebug() << "This is the set sample plate one";
 		samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
-		qDebug() << "Back transforms?";
-		for(int x = 0; x < samplePlateShape_->count(); x++)
-			qDebug() << camera_->transform3Dto2D(samplePlateShape_->coordinate(x));
-		qDebug() << "Done with the set sample plate one";
 
 
 		AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
