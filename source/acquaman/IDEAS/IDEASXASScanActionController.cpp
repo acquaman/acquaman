@@ -12,7 +12,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("ideas2014XAS");
+        scan_->setFileFormat("amRegionAscii2013");
 	scan_->setScanConfiguration(cfg);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
@@ -63,11 +63,11 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	}
 
 
-	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Parallel);
-	initializationStage2->addSubAction(IDEASBeamline::ideas()->createBeamOnAction());
+        //AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Parallel);
+        //initializationStage2->addSubAction(IDEASBeamline::ideas()->createBeamOnAction());
 
 	initializationActions->addSubAction(initializationStage1);
-	initializationActions->addSubAction(initializationStage2);
+        //initializationActions->addSubAction(initializationStage2);
 
 	return initializationActions;
 }
