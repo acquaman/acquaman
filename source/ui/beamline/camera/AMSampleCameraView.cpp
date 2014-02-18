@@ -122,8 +122,11 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
-	crosshairXLine_->setVisible(true);
-	crosshairYLine_->setVisible(true);
+//	crosshairXLine_->setVisible(true);
+//	crosshairYLine_->setVisible(true);
+
+	crosshairXLine_->setVisible(false);
+	crosshairYLine_->setVisible(false);
 
 	QPolygonF polygon(QRectF(5, 5, 0, 0));
 
@@ -1871,15 +1874,21 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	chl->setContentsMargins(itemMargins);
 	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
 	chl->addSpacing(space);
-	chl->addWidget(new QLabel("Color:"));
+	//chl->addWidget(new QLabel("Color:"));
 	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton2(Qt::red));
-	chl->addWidget(new QLabel("Line:"));
+	//chl->addWidget(new QLabel("Line:"));
 	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
 	crosshairThicknessSlider_->setMaximumWidth(80);
 	crosshairThicknessSlider_->setRange(1,6);
 	crosshairThicknessSlider_->setValue(1);
 	chl->addSpacing(space);
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+
+	showCrosshairCheckBox_->setVisible(false);
+	crosshairColorPicker_->setVisible(false);
+	crosshairThicknessSlider_->setVisible(false);
+	lockCrosshairCheckBox_->setVisible(false);
+
 	if(viewType == DEBUG)
 	{
 		chl->addSpacing(space);
