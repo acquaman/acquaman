@@ -111,6 +111,7 @@ protected slots:
 	void onActionSGMSettings();
 	/// Creates the SGM proc serv manager view if necessary and shows it
 	void onActionProcServManager();
+	void onAdvancedCameraOptionsRequested();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);

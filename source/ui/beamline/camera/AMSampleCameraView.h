@@ -295,6 +295,8 @@ public slots:
 
 	void onRotationalOffsetChanged(QVector3D);
 
+	void showAdvancedWindow();
+
 protected slots:
 	void updateCurrentShape();
 
@@ -404,20 +406,13 @@ protected:
 	/// Add and remove shapes from the scene
 public:
 	void addNewShape();
+
 protected:
 	void deleteShape();
-
-
 
 	void createGroupRectangle();
 
 	void destroyGroupRectangle();
-
-
-
-
-
-
 
 
 	/// We catch resize events and re-position the crosshair lines as required

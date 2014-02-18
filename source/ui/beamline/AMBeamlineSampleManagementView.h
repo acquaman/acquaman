@@ -22,6 +22,9 @@ public:
 	/// Constructor takes pointer to beamline to operate on (samplePlate and samplePlateBrowser live in AMBeamline)
 	AMBeamlineSampleManagementView(AMBeamline *beamline, AMMotorGroup *motorGroup, QWidget *parent = 0);
 
+public slots:
+	void requestAdvancedCameraOptionsWindow();
+
 protected slots:
 	/// Handles launching the AMSamplePlateCreationDialog to make a new sample plate. Also, automatically adds the new plate to the samplePlateBrowser and tells the beamline to use this as the current sample plate
 	void onCreateSamplePlateButtonClicked();

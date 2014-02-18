@@ -536,6 +536,11 @@ void SGMAppController::onActionProcServManager(){
 	procServsView_->show();
 }
 
+void SGMAppController::onAdvancedCameraOptionsRequested(){
+	if(sampleManagementView_)
+		sampleManagementView_->requestAdvancedCameraOptionsWindow();
+}
+
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
@@ -570,9 +575,15 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	procServsView_ = 0;
 
+	QAction *advancedSGMCameraOptionsAction = new QAction("SGM Camera Advanced...", mw_);
+	advancedSGMCameraOptionsAction->setStatusTip("Advanced Camera Settings");
+	connect(advancedSGMCameraOptionsAction, SIGNAL(triggered()), this, SLOT(onAdvancedCameraOptionsRequested()));
+
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
 	fileMenu_->addAction(sgmProcServAction);
+
+	viewMenu_->addAction(advancedSGMCameraOptionsAction);
 
 	return true;
 }

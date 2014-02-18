@@ -22,6 +22,7 @@
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	videoWidget_ = 0;
 	if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
 	init(cameraBrowser);
 
@@ -30,6 +31,7 @@ AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *came
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	videoWidget_ = 0;
 	if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
 	init(new AMSampleCameraBrowser());
 }
@@ -176,6 +178,11 @@ void AMSampleCameraBrowserView::setSamplePlateSelected()
 	emit samplePlateSelected();
 }
 
+void AMSampleCameraBrowserView::requestAdvancedCameraOptionsWindow(){
+	if(this->videoWidget_)
+		this->videoWidget_->showAdvancedWindow();
+}
+
 QColor AMSampleCameraBrowserView::crosshairColor() const
 {
 	return videoWidget_->crosshairPen().color();
@@ -249,6 +256,9 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(sourceComboBox_->model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
 
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
+
+	if(urls.count() != 0)
+		sourceComboBox_->setCurrentIndex(0);
 
 	// wizard signals
 	connect(this, SIGNAL(beamWizardPressed()), videoWidget_, SLOT(startBeamWizard()));

@@ -1889,6 +1889,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	crosshairThicknessSlider_->setVisible(false);
 	lockCrosshairCheckBox_->setVisible(false);
 
+	advancedButton_->setVisible(false);
+
 	if(viewType == DEBUG)
 	{
 		chl->addSpacing(space);
@@ -1976,7 +1978,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 	QVBoxLayout *vbl = new QVBoxLayout();
 	vbl->setContentsMargins(frameMargins);
-	vbl->addWidget(crosshairFrame);
+	//vbl->addWidget(crosshairFrame);
 	vbl->addWidget(shapeScene_);
 	QHBoxLayout *toolBarHL = new QHBoxLayout();
 	toolBarHL->addWidget(shapeFrame);
@@ -2363,7 +2365,8 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(shapeModel_, SIGNAL(otherDataOneChanged(QString)), this, SLOT(updateDataOne(QString)));
 	connect(shapeModel_, SIGNAL(otherDataTwoChanged(QString)), this, SLOT(updateDataTwo(QString)));
 
-	connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
+	//connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
+	connect(advancedButton_, SIGNAL(clicked()), this, SLOT(showAdvancedWindow()));
 	connect(moveToBeam_, SIGNAL(toggled(bool)), this, SLOT(onMoveToBeamToggled(bool)));
 	connect(moveOnSamplePlate_, SIGNAL(toggled(bool)), this, SLOT(onMoveOnSamplePlateToggled(bool)));
 
@@ -2467,6 +2470,10 @@ void AMSampleCameraView::onRotationalOffsetChanged(QVector3D offset)
 	refreshSceneView();
 }
 
+void AMSampleCameraView::showAdvancedWindow(){
+	if(advancedWindow_)
+		advancedWindow_->show();
+}
 
 
 
