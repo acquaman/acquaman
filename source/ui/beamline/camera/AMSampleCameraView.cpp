@@ -2218,7 +2218,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 		drawOnShapeCheckBox_->setChecked(false);
 		drawOnShapePushButton_->setDisabled(true);
-		enableMotorMovement_->setChecked(false);
+
+		if(QApplication::instance()->arguments().contains("--enableMotorMovement"))
+			enableMotorMovement_->setChecked(true);
+		else
+			enableMotorMovement_->setChecked(false);
+
 		enableMotorTracking_->setChecked(false);
 
 

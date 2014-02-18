@@ -29,7 +29,7 @@
 
 #include "beamline/camera/AMRotationalOffset.h"
 
-
+#include <QApplication>
 
 #define TOPLEFT 0
 #define TOPRIGHT 1
@@ -1979,7 +1979,11 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	centerOfRotation_ = QVector3D(0,0,0);
 	directionOfRotation_ = QVector3D(0,-1,0);
 
-	enableMotorMovement_ = false;
+	if(QApplication::instance()->arguments().contains("--enableMotorMovement"))
+		enableMotorMovement_ = true;
+	else
+		enableMotorMovement_ = false;
+
 	drawOnShapeEnabled_ = false;
 	drawOnShapeSelected_ = false;
 	samplePlateSelected_ = false;

@@ -179,8 +179,8 @@ void AMSampleCameraBrowserView::setSamplePlateSelected()
 }
 
 void AMSampleCameraBrowserView::requestAdvancedCameraOptionsWindow(){
-	if(this->videoWidget_)
-		this->videoWidget_->showAdvancedWindow();
+	if(videoWidget_)
+		videoWidget_->showAdvancedWindow();
 }
 
 QColor AMSampleCameraBrowserView::crosshairColor() const
