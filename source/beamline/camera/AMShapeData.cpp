@@ -252,6 +252,25 @@ void AMShapeData::copy(const AMShapeData *other)
     {
         qDebug()<<"AMShapeData::copy - counts not equal";
     }
+
+    qDebug() << "\b\bStart of copy info";
+    qDebug() << name();
+    qDebug() << otherDataFieldOne();
+    qDebug() << idNumber();
+    qDebug() << rotation();
+    qDebug() << tilt();
+    qDebug() << yAxisRotation();
+    qDebug() << visible();
+    for(int x = 0; x < shape()->count(); x++)
+	    qDebug() << shape()->at(x);
+
+    for(int i = 0; i < other->count(); i++)
+    {
+	qDebug() << other->coordinate(i);
+
+    }
+    qDebug() << "End of copy info\n";
+
 	emit shapeDataChanged(this);
 }
 

@@ -2342,6 +2342,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 	connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
 	connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
+	connect(shapeModel_, SIGNAL(drawOnShapeEnabledChanged(bool)), drawOnShapeCheckBox_, SLOT(setChecked(bool)));
 
 
 	connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));

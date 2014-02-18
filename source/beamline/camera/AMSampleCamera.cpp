@@ -1385,6 +1385,8 @@ void AMSampleCamera::setDrawOnSamplePlate()
 void AMSampleCamera::setDrawOnShapeEnabled(bool enable)
 {
 	drawOnShapeEnabled_ = enable;
+
+	emit drawOnShapeEnabledChanged(drawOnShapeEnabled_);
 }
 
 /// Adds a new beam marker at the specified position.  Deletes the old one.
@@ -1471,31 +1473,38 @@ void AMSampleCamera::setSamplePlate()
 				return;
 			}
 		}
-                // Make sure to delete the old shape if there is one.
-                if(samplePlateShape_)
-                {
-                    delete(samplePlateShape_);
-                }
-                // remove from the list of samples.
-                samplePlateShape_ = new AMShapeData();
-                samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
+		// Make sure to delete the old shape if there is one.
+		if(samplePlateShape_)
+		{
+		    delete(samplePlateShape_);
+		}
+		// remove from the list of samples.
+		samplePlateShape_ = new AMShapeData();
+		qDebug() << "This is the set sample plate one";
+		samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
+		qDebug() << "Back transforms?";
+		for(int x = 0; x < samplePlateShape_->count(); x++)
+			qDebug() << camera_->transform3Dto2D(samplePlateShape_->coordinate(x));
+		qDebug() << "Done with the set sample plate one";
 
 
-                AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
-                AMSample *currentSample = currentPlate->sampleFromShape(currentShape(currentIndex_));
-                AMShapeData* currentShape = takeItem(currentIndex_);
-                currentShape->deleteLater();
-                if(currentSample)
-                {
-                    currentPlate->removeSample(currentSample);
-                }
+		AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
+		AMSample *currentSample = currentPlate->sampleFromShape(currentShape(currentIndex_));
+		AMShapeData* currentShape = takeItem(currentIndex_);
+		currentShape->deleteLater();
+		if(currentSample)
+		{
+		    currentPlate->removeSample(currentSample);
+		}
 
 		samplePlateShape_->setName("Sample Plate");
-                qDebug()<<"AMSampleCamera::setSamplePlate - getting name";
-                qDebug()<<"AMSampleCamera::setSamplePlate - sample plate name is "<<samplePlateShape_->name();
+		qDebug()<<"AMSampleCamera::setSamplePlate - getting name";
+		qDebug()<<"AMSampleCamera::setSamplePlate - sample plate name is "<<samplePlateShape_->name();
 		samplePlateShape_->setOtherDataFieldOne("Sample Plate");
-                samplePlateSelected_ = true;
-                setDrawOnSamplePlate();
+		samplePlateSelected_ = true;
+		setDrawOnSamplePlate();
+
+		setDrawOnShapeEnabled(true);
 
 
 
@@ -2000,6 +2009,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	emit rotationalOffsetChanged(rotationalOffset());
 
 	oldRotation_ = 0;
+	samplePlateShape_ = 0; //NULL
 
 
 	for(int i= 0; i < SAMPLEPOINTS; i++)

@@ -464,6 +464,7 @@ signals:
 	void enableMotorMovementChanged(bool enabled);
 	void enableMotorTrackingChanged(bool enabled);
 
+	void drawOnShapeEnabledChanged(bool enabled);
 
 protected slots:
 	/// tracks the motor location

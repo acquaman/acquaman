@@ -655,7 +655,7 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed on database %3 (%4). Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text()).arg(connectionName()).arg(dbAccessString())));
 		return false;
 	}
 }
