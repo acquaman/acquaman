@@ -137,9 +137,9 @@ protected:
 
 protected:
 	/// View to manage the sample positioner and the sample plates
-	AMSampleManagementPre2013Widget *samplePositionView_;
+	//AMSampleManagementPre2013Widget *samplePositionView_;
 	/// camera widget
-	AMSampleCameraBrowserView *cameraBrowserView_;
+	//AMSampleCameraBrowserView *cameraBrowserView_;
 	AMSamplePlateView *samplePlateView_;
 	AMBeamlineSampleManagementView *sampleManagementView_;
 

@@ -2152,7 +2152,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	editAction_->setCheckable(true);
 	shiftAction_ = new QAction("Shift", actionGroup);
 	shiftAction_->setCheckable(true);
-	operationAction_ = new QAction("Operation", actionGroup);
+	//operationAction_ = new QAction("Operation", actionGroup);
+	operationAction_ = new QAction("Click to Move", actionGroup);
 	operationAction_->setCheckable(true);
 	groupAction_ = new QAction("Group", actionGroup);
 	groupAction_->setCheckable(true);
