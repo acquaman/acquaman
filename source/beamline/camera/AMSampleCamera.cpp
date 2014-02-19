@@ -2139,7 +2139,6 @@ void AMSampleCamera::applyMotorRotation(int index, double rotation)
 
 QVector<QVector3D> AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
 {
-//	if
 	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_)->coordinates();
 }
 
@@ -2342,12 +2341,18 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 //	qDebug()<<"AMSampleCamera::motorMovement"<<x<<y<<z<<r;
         QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
-	QVector3D centerOfRotation = newPosition + rotationalOffset();
+
+	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
+	QVector3D effectiveRotationalOffset = rotationalOffset();
+	if(r < 0)
+		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
+	//QVector3D centerOfRotation = newPosition + rotationalOffset();
+
+	QVector3D centerOfRotation = newPosition + effectiveRotationalOffset;
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
 	directionOfRotation_ = directionOfRotation;
 	double rotation = r/180*M_PI;
-
 
 
 	for(int i = 0; i <= index_; i++)
