@@ -697,17 +697,17 @@ void AMSampleCameraView::samplePlateCreate()
 	/// interleave the created lists
 	while(!samplePointListEmpty(list,numberOfPoints))
 	{
-            for(int i = 0; i < numberOfPoints; i++)
-            {
-                if(!list[i].isEmpty())
-                {
-                    combinedPoints<<(list[i].takeFirst());
-                }
-                else
-                {
-                    qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
-                }
-            }
+		for(int i = 0; i < numberOfPoints; i++)
+		{
+			if(!list[i].isEmpty())
+			{
+				combinedPoints<<(list[i].takeFirst());
+			}
+			else
+			{
+				qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
+			}
+		}
 	}
 
 	const QList<QVector3D*>* coordinateList = samplePlateWizard_->getCoordinateList();
@@ -717,16 +717,16 @@ void AMSampleCameraView::samplePlateCreate()
 		sampleCoordinateList<<*coordinate;
 	}
 
-		const QList<double> *rotationsList = samplePlateWizard_->getRotationList();
-		QVector<double> rotations;
-		foreach(double angle, *rotationsList)
-		{
-			rotations<<angle;
-		}
-        shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
+	const QList<double> *rotationsList = samplePlateWizard_->getRotationList();
+	QVector<double> rotations;
+	foreach(double angle, *rotationsList)
+	{
+		rotations<<angle;
+	}
+	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
-//		delete samplePlateWizard_;
-//		samplePlateWizard_ = NULL;
+	//		delete samplePlateWizard_;
+	//		samplePlateWizard_ = NULL;
 
 }
 

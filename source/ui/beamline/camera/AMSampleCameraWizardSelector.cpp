@@ -25,37 +25,51 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	QFrame* rotationWizardFrame = new QFrame();
 	QHBoxLayout* rotationWizardLayout = new QHBoxLayout();
 
+	QFrame *reloadAllFrame = new QFrame();
+	QHBoxLayout *reloadAllLayout = new QHBoxLayout();
+
 	sampleCameraWizardSelectorLayout->setContentsMargins(0,0,0,0);
 	beamWizardLayout->setContentsMargins(0,0,0,0);
 	cameraWizardLayout->setContentsMargins(0,0,0,0);
 	samplePlateWizardLayout->setContentsMargins(0,0,0,0);
 	rotationWizardLayout->setContentsMargins(0,0,0,0);
-
-	beamWizardLayout->addWidget(beamWizardButton_ = new QPushButton("Setup Beam"));
-	beamWizardLayout->addStretch();
-	beamWizardLayout->addWidget(loadBeamConfigurationButton_ = new QPushButton("Load"));
-	beamWizardFrame->setLayout(beamWizardLayout);
+	reloadAllLayout->setContentsMargins(0,0,0,0);
 
 	cameraWizardLayout->addWidget(cameraWizardButton_ = new QPushButton("Setup Camera"));
 	cameraWizardLayout->addStretch();
 	cameraWizardLayout->addWidget(loadCameraConfigurationButton_ = new QPushButton("Load"));
 	cameraWizardFrame->setLayout(cameraWizardLayout);
 
-	samplePlateWizardLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Setup Sample Plate"));
-	samplePlateWizardLayout->addStretch();
-	samplePlateWizardLayout->addWidget(loadSamplePlateButton_ = new QPushButton("Load"));
-	samplePlateWizardFrame->setLayout(samplePlateWizardLayout);
-
 	rotationWizardLayout->addWidget(rotationWizardButton_ = new QPushButton("Setup Rotation"));
 	rotationWizardLayout->addStretch();
 	rotationWizardLayout->addWidget(loadRotationConfigurationButton_ = new QPushButton("Load"));
 	rotationWizardFrame->setLayout(rotationWizardLayout);
+	rotationWizardButton_->setEnabled(false);
+	loadRotationConfigurationButton_->setEnabled(false);
 
+	samplePlateWizardLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Setup Sample Plate"));
+	samplePlateWizardLayout->addStretch();
+	samplePlateWizardLayout->addWidget(loadSamplePlateButton_ = new QPushButton("Load"));
+	samplePlateWizardFrame->setLayout(samplePlateWizardLayout);
+	samplePlateWizardButton_->setEnabled(false);
+	loadSamplePlateButton_->setEnabled(false);
+
+	beamWizardLayout->addWidget(beamWizardButton_ = new QPushButton("Setup Beam"));
+	beamWizardLayout->addStretch();
+	beamWizardLayout->addWidget(loadBeamConfigurationButton_ = new QPushButton("Load"));
+	beamWizardFrame->setLayout(beamWizardLayout);
+	beamWizardButton_->setEnabled(false);
+	loadBeamConfigurationButton_->setEnabled(false);
+
+	reloadAllLayout->addStretch();
+	reloadAllLayout->addWidget(loadAllConfigurationsButton_ = new QPushButton("Reload All"));
+	reloadAllFrame->setLayout(reloadAllLayout);
 
 	sampleCameraWizardSelectorLayout->addWidget(cameraWizardFrame);
-	sampleCameraWizardSelectorLayout->addWidget(beamWizardFrame);
 	sampleCameraWizardSelectorLayout->addWidget(rotationWizardFrame);
 	sampleCameraWizardSelectorLayout->addWidget(samplePlateWizardFrame);
+	sampleCameraWizardSelectorLayout->addWidget(beamWizardFrame);
+	sampleCameraWizardSelectorLayout->addWidget(reloadAllFrame);
 	sampleCameraWizardSelectorLayout->addStretch();
 	setLayout(sampleCameraWizardSelectorLayout);
 
@@ -73,6 +87,8 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	connect(loadCameraConfigurationButton_, SIGNAL(clicked()), this, SIGNAL(requestLoadCameraConfiguration()));
 	connect(loadSamplePlateButton_, SIGNAL(clicked()), this, SIGNAL(requestLoadSamplePlate()));
 	connect(loadRotationConfigurationButton_, SIGNAL(clicked()), this, SIGNAL(requestLoadRotationConfiguration()));
+
+	connect(loadAllConfigurationsButton_, SIGNAL(clicked()), this, SLOT(onLoadAllConfigurationsButtonClicked()));
 
 	connect(this, SIGNAL(beamCompleteChanged()), this, SLOT(onBeamCompleteChanged()));
 	connect(this, SIGNAL(cameraCompleteChanged()), this, SLOT(onCameraCompleteChanged()));
@@ -176,6 +192,9 @@ void AMSampleCameraWizardSelector::onCameraCompleteChanged()
 	if(cameraWizardComplete())
 	{
 		cameraWizardButton_->setIcon(QIcon(":/22x22/greenLEDOn.png"));
+
+		rotationWizardButton_->setEnabled(true);
+		loadRotationConfigurationButton_->setEnabled(true);
 	}
 	else
 	{
@@ -188,6 +207,9 @@ void AMSampleCameraWizardSelector::onSamplePlateCompleteChanged()
 	if(samplePlateWizardComplete())
 	{
 		samplePlateWizardButton_->setIcon(QIcon(":/22x22/greenLEDOn.png"));
+
+		beamWizardButton_->setEnabled(true);
+		loadBeamConfigurationButton_->setEnabled(true);
 	}
 	else
 	{
@@ -200,6 +222,9 @@ void AMSampleCameraWizardSelector::onRotationCompleteChanged()
 	if(rotationWizardComplete())
 	{
 		rotationWizardButton_->setIcon(QIcon(":/22x22/greenLEDOn.png"));
+
+		samplePlateWizardButton_->setEnabled(true);
+		loadSamplePlateButton_->setEnabled(true);
 	}
 	else
 	{
@@ -207,3 +232,9 @@ void AMSampleCameraWizardSelector::onRotationCompleteChanged()
 	}
 }
 
+void AMSampleCameraWizardSelector::onLoadAllConfigurationsButtonClicked(){
+	emit requestLoadCameraConfiguration();
+	emit requestLoadRotationConfiguration();
+	emit requestLoadSamplePlate();
+	emit requestLoadBeamConfiguration();
+}
