@@ -1622,14 +1622,10 @@ void AMSampleCamera::saveSamplePlate()
 	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
 	if(samplePositioner){
 		QString positionAsNote;
-		for(int x = 0; x < samplePositioner->count(); x++){
-			qDebug() << "At " << x;
-			qDebug() << samplePositioner->at(x)->name();
+		for(int x = 0; x < samplePositioner->count(); x++)
 			positionAsNote.append(QString("%1;").arg(samplePositioner->at(x)->value()));
-		}
-		samplePlate->setNotes(positionAsNote);
 
-		qDebug() << "Just saved position data as " << samplePlate->notes();
+		samplePlate->setNotes(positionAsNote);
 	}
         samplePlate->storeToDb(AMDatabase::database("user"));
     }

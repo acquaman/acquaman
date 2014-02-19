@@ -1186,12 +1186,9 @@ bool AMSampleCameraView::loadSamplePlate()
 	AMSample* samplePlate = new AMSample();
 	samplePlate->loadFromDb(db,matchList.last());
 
-	qDebug() << "RELOADING SAMPLE PLATE RIGHT NOW, NOTES SAY " << samplePlate->notes();
-
 	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
 	if(!samplePositioner){
 		QMessageBox::warning(this, "Cannot Reload Sample Plate", "Sorry, Acquaman doesn't seem to be able to reload the sample plate because the beamline sample manipulator isn't connected", QMessageBox::Ok);
-		qDebug() << "Can't reload sample plate, there's no positioner";
 		return false;
 	}
 
@@ -1207,18 +1204,14 @@ bool AMSampleCameraView::loadSamplePlate()
 			int retVal = QMessageBox::warning(this, "Cannot Reload Sample Plate", QString("%1\n\n%2\n\n%3").arg(initialMessageString).arg(failureMessageString).arg(suggestedActionString), QMessageBox::Ok, QMessageBox::Cancel);
 			switch(retVal){
 			case QMessageBox::Ok:
-				qDebug() << "User wants us to fix it";
-
 				for(int y = 0; y < samplePositioner->count(); y++)
 					samplePositioner->at(y)->move(positionsInNote.at(y).toDouble());
 
 				break;
 			case QMessageBox::Cancel:
-				qDebug() << "User says don't do anything about it";
 				break;
 			}
 
-			qDebug() << "Can't reload sample plate, control " << samplePositioner->at(x)->name() << " is at " << samplePositioner->at(x)->value() << " not within tolerance (" <<  samplePositioner->at(x)->tolerance() << ") of " << positionsInNote.at(x).toDouble();
 			return false;
 		}
 	}
