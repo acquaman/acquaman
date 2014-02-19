@@ -45,8 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/beamline/AMXRFDetailedDetectorView.h"
-
+#include "ui/beamline/AMXRFDetailedDetectorViewWithSave.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
@@ -146,7 +145,7 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-        AMXRFDetailedDetectorView *view = new AMXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+        AMXRFDetailedDetectorViewWithSave *view = new AMXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
 //        view->setEnergyRange(1500, 20480);
         view->buildDetectorView();
         mw_->addPane(view, "Detectors", "KETEK", ":/system-search.png");
@@ -193,7 +192,7 @@ void IDEASAppController::onEnergyConnected(bool connected){
 		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
 		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
 		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
-		xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
@@ -202,10 +201,10 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-
+    Q_UNUSED(action)
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-
+    Q_UNUSED(action)
 }
