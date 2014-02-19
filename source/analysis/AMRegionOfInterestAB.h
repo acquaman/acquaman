@@ -13,8 +13,9 @@ class AMRegionOfInterestAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AMRegionOfInterestAB();
 	Q_INVOKABLE AMRegionOfInterestAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMRegionOfInterestAB();
 
 	/// Returns the description of the analysis block.
 	virtual QString infoDescription() const { return QString(); }
