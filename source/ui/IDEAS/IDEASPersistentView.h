@@ -5,6 +5,7 @@
 
 class QPushButton;
 class QLabel;
+class QProgressBar;
 
 class AMExtendedControlEditor;
 
@@ -29,6 +30,23 @@ protected slots:
     /// Handles changing the state of the beam on and beam off buttons based on the state of the shutters.
     void onShutterStatusChanged(bool state);
 
+    /// Handles updating Old ion chamber current bar
+    void onOldCountsChanged();
+    /// Handles updating I0 ion chamber current bar
+    void onI0CountsChanged();
+    /// Handles updating Sample ion chamber current bar
+    void onSampleCountsChanged();
+    /// Handles updating Reference ion chamber current bar
+    void onReferenceCountsChanged();
+
+    /// Handles updating displayed crystal and energy range
+    void onCrystalChanged(double);
+
+    /// Handles updating displayed ring current
+    void onRingCurrentChanged(double);
+
+
+
 protected:
     /// The beam on button.
     QPushButton *beamOnButton_;
@@ -38,6 +56,28 @@ protected:
     QLabel *beamStatusLabel_;
 
     AMExtendedControlEditor *energyControlEditor_;
+
+    QLabel *ringCurrent_;
+    QLabel *monoCrystal_;
+    QLabel *monoEnergyRange_;
+
+    QLabel *IOldLabel_;
+    QLabel *I0Label_;
+    QLabel *ISampleLabel_;
+    QLabel *IReferenceLabel_;
+
+    QLabel *IOldValueLabel_;
+    QLabel *I0ValueLabel_;
+    QLabel *ISampleValueLabel_;
+    QLabel *IReferenceValueLabel_;
+
+    QProgressBar *IOldBar_;
+    QProgressBar *I0Bar_;
+    QProgressBar *ISampleBar_;
+    QProgressBar *IReferenceBar_;
+
+
+
 };
 
 #endif // IDEASPERSISTENTVIEW_H

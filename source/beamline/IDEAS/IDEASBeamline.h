@@ -68,6 +68,11 @@ public:
         /// Returns the monochromator control for the beamline.
         AMControl *monoEnergyControl() const { return monoEnergy_; }
         /// \todo THESE NEED TO BE COMMENTED!
+        AMControl *monoCrystal() const { return monoCrystal_; }
+        AMControl *monoHighEV() const { return monoHighEV_; }
+        AMControl *monoLowEV() const { return monoLowEV_; }
+        AMControl *ringCurrent() const { return ringCurrent_; }
+
         AMPVControl *masterDwellControl() const { return masterDwell_; }
 
         /// Returns the KETEK detector pointer.
@@ -135,6 +140,8 @@ protected:
 	AMDetector *oxfordReferenceIonChamberDetector_;
 
         IDEASKETEKDetector *ketek_;
+
+        AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_;
 };
 
 #endif // IDEASSBEAMLINE_H

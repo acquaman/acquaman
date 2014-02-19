@@ -44,7 +44,7 @@ IDEASBeamline::IDEASBeamline()
 
 void IDEASBeamline::setupDiagnostics()
 {
-
+    ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
 }
 
 void IDEASBeamline::setupSampleStage()
@@ -80,6 +80,11 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
     monoEnergy_ = new IDEASMonochromatorControl(this);
+    monoCrystal_ = new AMReadOnlyPVControl("monoCrystal","BL08B2-1:Crystal:Type",this,"Currently Select Monochromator Crystal");
+    monoHighEV_ = new AMReadOnlyPVControl("monoHighEV", "BL08B2-1:Crystal:EvHigh", this, "Maximum Ebergy for current Crystal");
+    monoLowEV_ = new AMReadOnlyPVControl("monoLowEV", "BL08B2-1:Crystal:EvLow", this, "Minimum Ebergy for current Crystal");
+
+
 }
 
 void IDEASBeamline::setupSynchronizedDwellTime()
@@ -111,8 +116,12 @@ void IDEASBeamline::setupControlsAsDetectors()
 
 void IDEASBeamline::setupExposedControls()
 {
-	addExposedControl(monoEnergy_);
+        addExposedControl(ringCurrent_);
+        addExposedControl(monoEnergy_);
 	addExposedControl(masterDwell_);
+        addExposedControl(monoCrystal_);
+        addExposedControl(monoHighEV_);
+        addExposedControl(monoLowEV_);
 }
 
 void IDEASBeamline::setupExposedDetectors()

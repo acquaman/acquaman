@@ -619,6 +619,7 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
+        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.h \
 	source/util/AMNameAndRangeValidator.h \
 	source/dataman/AMRegionOfInterest.h \
 	source/analysis/AMnDDeadTimeAB.h \
@@ -1027,8 +1028,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
-	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-	source/util/AMNameAndRangeValidator.cpp \
+        source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.cpp \
+        source/util/AMNameAndRangeValidator.cpp \
 	source/dataman/AMRegionOfInterest.cpp \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/ui/AMSelectionDialog.cpp \
