@@ -16,6 +16,7 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 #include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 
@@ -53,7 +54,7 @@
 
 #include "beamline/camera/AMRotationalOffset.h"
 
-
+#include "beamline/AMBeamline.h"
 
 #define SAMPLEPOINTS 6
 
@@ -1184,6 +1185,44 @@ bool AMSampleCameraView::loadSamplePlate()
 
 	AMSample* samplePlate = new AMSample();
 	samplePlate->loadFromDb(db,matchList.last());
+
+	qDebug() << "RELOADING SAMPLE PLATE RIGHT NOW, NOTES SAY " << samplePlate->notes();
+
+	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
+	if(!samplePositioner){
+		QMessageBox::warning(this, "Cannot Reload Sample Plate", "Sorry, Acquaman doesn't seem to be able to reload the sample plate because the beamline sample manipulator isn't connected", QMessageBox::Ok);
+		qDebug() << "Can't reload sample plate, there's no positioner";
+		return false;
+	}
+
+	QStringList positionsInNote = samplePlate->notes().split(';');
+	for(int x = 0; x < samplePositioner->count(); x++){
+		if(!samplePositioner->at(x)->withinTolerance(positionsInNote.at(x).toDouble())){
+
+			QString initialMessageString = QString("Sorry, Acquaman doesn't seem to be able to reload the sample plate because the sample manipulator is at a different position");
+			QString failureMessageString = QString("Motor:%1 Current:%2 Original:%3 Tolerance:%4").arg(samplePositioner->at(x)->name()).arg(samplePositioner->at(x)->value()).arg(positionsInNote.at(x).toDouble()).arg(samplePositioner->at(x)->tolerance());
+			QString suggestedActionString = QString("Acquaman can solve this problem by moving the sample manipulator to ");
+			for(int y = 0; y < samplePositioner->count(); y++)
+				suggestedActionString.append(QString("%1: %2 ").arg(samplePositioner->at(y)->description()).arg(positionsInNote.at(y).toDouble()));
+			int retVal = QMessageBox::warning(this, "Cannot Reload Sample Plate", QString("%1\n\n%2\n\n%3").arg(initialMessageString).arg(failureMessageString).arg(suggestedActionString), QMessageBox::Ok, QMessageBox::Cancel);
+			switch(retVal){
+			case QMessageBox::Ok:
+				qDebug() << "User wants us to fix it";
+
+				for(int y = 0; y < samplePositioner->count(); y++)
+					samplePositioner->at(y)->move(positionsInNote.at(y).toDouble());
+
+				break;
+			case QMessageBox::Cancel:
+				qDebug() << "User says don't do anything about it";
+				break;
+			}
+
+			qDebug() << "Can't reload sample plate, control " << samplePositioner->at(x)->name() << " is at " << samplePositioner->at(x)->value() << " not within tolerance (" <<  samplePositioner->at(x)->tolerance() << ") of " << positionsInNote.at(x).toDouble();
+			return false;
+		}
+	}
+
 	AMShapeData* samplePlateShape = samplePlate->sampleShapePositionData();
 	drawOnShapeCheckBox_->setChecked(true);
 	setDrawOnShapeEnabled(true);
@@ -1482,11 +1521,11 @@ void AMSampleCameraView::requestLoadSamplePlate()
 	{
 		emit samplePlateWizardFinished();
 	}
-	else
-	{
-		qDebug()<<"Loading default sample plate";
-		shapeModel_->loadDefaultSamplePlate();
-	}
+//	else
+//	{
+//		qDebug()<<"Loading default sample plate";
+//		shapeModel_->loadDefaultSamplePlate();
+//	}
 }
 
 void AMSampleCameraView::requestLoadRotationConfiguration()
