@@ -2024,6 +2024,11 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	toolBarHL->addWidget(toolFrame);
 	toolBarHL->setContentsMargins(frameMargins);
 	vbl->addLayout(toolBarHL);
+	QHBoxLayout *drawOverlaysLayout = new QHBoxLayout();
+	drawOverlaysLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show Beam"));
+	drawOverlaysLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
+	drawOverlaysLayout->addStretch();
+	vbl->addLayout(drawOverlaysLayout);
 	//vbl->addWidget(shapeFrame);
 	//vbl->addWidget(toolFrame);
 	setLayout(vbl);
@@ -2041,12 +2046,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(saveSamplePlate_ = new QPushButton("Save Sample Plate"));
-	samplePlateLayout->addSpacing(space);
-	samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
+	//samplePlateLayout->addSpacing(space);
+	//samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
-	samplePlateLayout->addStretch(space);
-	samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
+	//samplePlateLayout->addStretch(space);
+	//samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
 	samplePlateLayout->addStretch();
 	samplePlateFrame->setLayout(samplePlateLayout);
 
