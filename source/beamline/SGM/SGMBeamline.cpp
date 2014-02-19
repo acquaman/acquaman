@@ -605,9 +605,9 @@ AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
 	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
 	gotoTransferPositionAction1->setSetpoint(0.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoTransferPositionAction2->setSetpoint(-13.17);
+	gotoTransferPositionAction2->setSetpoint(-9.1);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoTransferPositionAction3->setSetpoint(-77.0);
+	gotoTransferPositionAction3->setSetpoint(151.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
 	gotoTransferPositionAction4->setSetpoint(0.0);
 

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QPushButton;
+class QVBoxLayout;
 
 class AMBeamline;
 class AMSamplePlate;
@@ -62,6 +63,11 @@ protected:
 	QPushButton *createSamplePlateButton_;
 	/// Button to request reloading a sample plate from the database
 	QPushButton *loadSamplePlateButton_;
+
+	/// Left hand vertical layout
+	QVBoxLayout *leftVL_;
+	/// Right hand vertical layout
+	QVBoxLayout *rightVL_;
 };
 
 #endif // AMBEAMLINESAMPLEMANAGEMENTVIEW_H
