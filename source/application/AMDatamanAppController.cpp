@@ -97,6 +97,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
+#include "dataman/AMDbUpgrade1Pt3.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -126,6 +127,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// Append the AM upgrade 1.2 to the list for the user database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+
+	// Append the AM upgrade 1.3 to the list for the user, actions, and scanActions database.
+	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("user", this);
+	appendDatabaseUpgrade(am1Pt3UserDb);
+	AMDbUpgrade *am1Pt3ActionsDb = new AMDbUpgrade1Pt3("actions", this);
+	appendDatabaseUpgrade(am1Pt3ActionsDb);
+	AMDbUpgrade *am1Pt3ScanActionsDb = new AMDbUpgrade1Pt3("scanActions", this);
+	appendDatabaseUpgrade(am1Pt3ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {

@@ -57,7 +57,7 @@ void AMRegionScanActionController::buildScanController()
 		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 		// If using just the basic ascii files.
-		if (scan_->fileFormat() == "sgm2013XAS" || scan_->fileFormat() == "amRegionAscii2013"){
+		if (scan_->fileFormat() == "amRegionAscii2013"){
 
 			scan_->setFilePath(fullPath.filePath() % ".dat");	// relative path and extension (is what the database wants)
 
