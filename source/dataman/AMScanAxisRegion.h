@@ -9,8 +9,9 @@ class AMScanAxisRegion : public AMDbObject
 Q_OBJECT
 public:
 	/// Constructor. Takes values for start, step, end, and time. Defaults are AMNumbers in the AMNumber::Null state
- 	virtual ~AMScanAxisRegion();
 	AMScanAxisRegion(AMNumber start = AMNumber(AMNumber::Null), AMNumber step = AMNumber(AMNumber::Null), AMNumber end = AMNumber(AMNumber::Null), AMNumber time = AMNumber(AMNumber::Null), QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMScanAxisRegion();
 
 	/// Returns the start of the region as an AMNumber (which may be in the state AMNumber::Null)
 	AMNumber regionStart() const;
