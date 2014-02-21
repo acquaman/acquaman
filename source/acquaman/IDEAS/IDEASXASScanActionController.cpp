@@ -3,6 +3,8 @@
 #include "dataman/AMXASScan.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 
 #include "actions3/AMListAction3.h"
 
@@ -35,6 +37,30 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("ReferenceDetector")->toInfo());
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
+
+        QList<AMDataSource*> rawDataSources;
+        for(int i=0, cc=scan_->rawDataSourceCount(); i<cc; ++i)
+                rawDataSources << scan_->rawDataSources()->at(i);
+
+        AM1DExpressionAB* ab = new AM1DExpressionAB("NormSample");
+        ab->setDescription("NormSample");
+        ab->setInputDataSources(rawDataSources);
+        ab->setExpression("ln(I0Detector/SampleDetector)");
+        scan_->addAnalyzedDataSource(ab);
+
+        ab = new AM1DExpressionAB("NormRef");
+        ab->setDescription("NormRef");
+        ab->setInputDataSources(rawDataSources);
+        ab->setExpression("ln(SampleDetector/ReferenceDetector)");
+        scan_->addAnalyzedDataSource(ab);
+
+        AM2DSummingAB* sumAb = new AM2DSummingAB("XRF Sum");
+        sumAb->setDescription("XRF Sum");
+        sumAb->setInputDataSources(rawDataSources);
+        sumAb->setSumAxis(1);
+        scan_->addAnalyzedDataSource(sumAb);
+
+
 }
 
 IDEASXASScanActionController::~IDEASXASScanActionController(){}
