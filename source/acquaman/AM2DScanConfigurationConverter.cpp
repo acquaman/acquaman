@@ -1,0 +1,45 @@
+#include "AM2DScanConfigurationConverter.h"
+
+#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AM2DScanConfiguration.h"
+#include "beamline/AMBeamline.h"
+#include "util/AMErrorMonitor.h"
+
+AM2DScanConfigurationConverter::AM2DScanConfigurationConverter(AMScanActionControllerScanAssembler *scanAssembler, AM2DScanConfiguration *scanConfiguration, QObject *parent)
+	: AMScanActionControllerScanConfigurationConverter(scanAssembler, scanConfiguration, parent)
+{
+}
+
+bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControllerScanAssembler *scanAssembler, AMScanConfiguration *scanConfiguration)
+{
+//	AM2DScanConfiguration *configuration = qobject_cast<AM2DScanConfiguration *>(scanConfiguration);
+
+//	if (!configuration){
+
+//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_CONFIGURATION, "The 2D scan configuration was invalid.");
+//		return false;
+//	}
+
+//	if (!configuration->validXAxis()){
+
+//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_XAXIS, "Invalid x-axis.");
+//		return false;
+//	}
+
+//	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+//	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
+
+//	if (!configuration->validYAxis()){
+
+//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_YAXIS, "Invalid y-axis.");
+//		return false;
+//	}
+
+//	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+//	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
+
+//	if (!scanAssembler->appendAxis(xAxis))
+
+//	return true;
+	return false;
+}

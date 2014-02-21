@@ -26,7 +26,7 @@ bool AMDbUpgrade1Pt3::upgradeImplementation()
 
 	if (!databaseToUpgrade_->update("AMScan_table", "fileFormat='sgm2013XAS'", "fileFormat", "amRegionAscii2013")){
 
-		AMErrorMon::alert(this, 0, "Failed to update the fileFormat column.");
+		AMErrorMon::alert(this, AMDBUPGRADE1PT3_COULD_NOT_UPDATE_DB, "Failed to update the fileFormat column.");
 		databaseToUpgrade_->rollbackTransaction();
 		return false;
 	}
@@ -39,9 +39,9 @@ bool AMDbUpgrade1Pt3::upgradeImplementation()
 
 	QProcess changingFiles;
 	changingFiles.start("bash", QStringList() << "-c" << QString("grep -lr -e 'Version: SGM Generic 0.1' %1/* | xargs sed -i 's/Version: SGM Generic 0.1/Acquaman Generic Linear Step 0.1/g'").arg(pathToData));
-	AMErrorMon::information(this, 0, "Finding and updating data files.");
+	AMErrorMon::information(this, AMDBUPGRADE1PT3_BEGINNING_MESSAGE, "Finding and updating data files.");
 	changingFiles.waitForFinished(-1);
-	AMErrorMon::information(this, 0, "Finished updating data files.");
+	AMErrorMon::information(this, AMDBUPGRADE1PT3_END_MESSAGE, "Finished updating data files.");
 
 	return true;
 }

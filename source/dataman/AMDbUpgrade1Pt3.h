@@ -3,6 +3,10 @@
 
 #include "dataman/database/AMDbUpgrade.h"
 
+#define AMDBUPGRADE1PT3_COULD_NOT_UPDATE_DB 978000
+#define AMDBUPGRADE1PT3_BEGINNING_MESSAGE 978001
+#define AMDBUPGRADE1PT3_END_MESSAGE 978002
+
 /// This class is used to upgrade the database from using the old file format used in alpha and beta testing of the new scan action controller.  It also goes through every data file and replaces the Version text in the header.
 class AMDbUpgrade1Pt3 : public AMDbUpgrade
 {

@@ -5,6 +5,11 @@
 
 class AMRegionScanConfiguration;
 
+#define AMREGIONSCANCONFIGURATIONCONVERTER_INVALID_CONFIGURATION 688000
+#define AMREGIONSCANCONFIGURATIONCONVERTER_INVALID_REGION 688001
+#define AMREGIONSCANCONFIGURATIONCONVERTER_INVALID_SCAN_AXIS 688002
+#define AMREGIONSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_DETECTOR 688003
+
 /// This class extends the functionality of the AMScanActionControllerScanConfigurationConverter to turn any AMRegionScanConfiguration into a viable and runnable scan.
 class AMRegionScanConfigurationConverter : public AMScanActionControllerScanConfigurationConverter
 {

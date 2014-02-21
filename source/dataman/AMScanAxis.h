@@ -42,12 +42,8 @@ public:
 
 	/// Returns the start of the axis. That is, the start of the first region. If this type of axis doesn't have a start, then an AMNumber with state of AMNumber::Null will be returned.
 	AMNumber axisStart() const;
-	/// Returns the step of the axis if all of the regions have the same step. If this axis has more than one step size for its regions then an AMNumber with state of AMNumber::Null will be returned.
-	AMNumber axisStep() const;
 	/// Returns the end of the axis. That is, the end of the final region. If this type of axis doesn't have a end, then an AMNumber with state of AMNumber::Null will be returned.
 	AMNumber axisEnd() const;
-	/// Returns the time of the axis if all of the regions have the same time. If this axis has more than one time for its regions then an AMNumber with state of AMNumber::Null will be returned.
-	AMNumber axisTime() const;
 
 public slots:
 	/// Inserts a the region at the index and returns true if successful. If this axis type cannot support more than one region, false is returned. If the axis would become invalid by inserting this region, the region is not inserted and false is returned.
