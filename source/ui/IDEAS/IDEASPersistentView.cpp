@@ -49,20 +49,20 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     IOldBar_ = new QProgressBar;
     IOldBar_->setTextVisible(false);
-    IOldBar_->setRange(0,2);
+    IOldBar_->setRange(100,145);
 
 
     I0Bar_ = new QProgressBar;
     I0Bar_->setTextVisible(false);
-    I0Bar_->setRange(0,2);
+    I0Bar_->setRange(100,145);
 
     ISampleBar_ = new QProgressBar;
     ISampleBar_->setTextVisible(false);
-    ISampleBar_->setRange(0,2);
+    ISampleBar_->setRange(100,145);
 
     IReferenceBar_ = new QProgressBar;
     IReferenceBar_->setTextVisible(false);
-    IReferenceBar_->setRange(0,2);
+    IReferenceBar_->setRange(100,145);
 
     connect(IDEASBeamline::bl()->exposedDetectorByName("OldIonDetector"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I0Detector"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
@@ -141,7 +141,9 @@ void IDEASPersistentView::onOldCountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("OldIonDetector")->data(&value);
-    IOldBar_->setValue(int(-3.25/log(qAbs(value))));
+    IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
+    //qDebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));
+    //qDebug() << "I_Old" << value << "log10(I_Old)" << log10(value) << log10(qAbs(value));
     IOldValueLabel_->setText(QString::number(value, 'e', 2));
 }
 
@@ -149,7 +151,8 @@ void IDEASPersistentView::onI0CountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("I0Detector")->data(&value);
-    I0Bar_->setValue(int(-3.25/log(qAbs(value))));
+    I0Bar_->setValue(int(200 + 10*log10(qAbs(value))));
+    //qDebug() << "I_0" << int(-3.25/log10(qAbs(value)));
     I0ValueLabel_->setText(QString::number(value, 'e', 2));
 
    // ui->signalI0Bar->setValue(int(counts*600./1.e6));
@@ -160,7 +163,7 @@ void IDEASPersistentView::onSampleCountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("SampleDetector")->data(&value);
-    ISampleBar_->setValue(int(-3.25/log(qAbs(value))));
+    ISampleBar_->setValue(int(200 + 10*log10(qAbs(value))));
     ISampleValueLabel_->setText(QString::number(value, 'e', 2));
 }
 
@@ -168,7 +171,7 @@ void IDEASPersistentView::onReferenceCountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("ReferenceDetector")->data(&value);
-    IReferenceBar_->setValue(int(-3.25/log(qAbs(value))));
+    IReferenceBar_->setValue(int(200 + 10*log10(qAbs(value))));
     IReferenceValueLabel_->setText(QString::number(value, 'e', 2));
 }
 
