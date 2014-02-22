@@ -714,7 +714,7 @@ bool AMDatamanAppController::startupInstallActions()
 	// make/install actions:
 	/////////////////////////////////
 	QAction *saveAllAction = new QAction("Save All Scans", mw_);
-	saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
+	saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S)); //+ Qt::SHIFT
 	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
 	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
 
