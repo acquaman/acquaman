@@ -37,47 +37,11 @@ AMNumber AMScanAxis::axisStart() const{
 	return regionAt(0).regionStart();
 }
 
-AMNumber AMScanAxis::axisStep() const{
-	if(axisType_ != AMScanAxis::StepAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	if(regionCount() == 1)
-		return regionAt(0).regionStep();
-
-	AMNumber firstStepSize = regionAt(0).regionStep();
-	bool multipleStepSizes = firstStepSize.state() != AMNumber::Valid;
-	for(int x = 1; x < regionCount(); x++)
-		if(firstStepSize != regionAt(x).regionStep() || regionAt(x).regionStep().state() != AMNumber::Valid)
-			multipleStepSizes = true;
-
-	if(multipleStepSizes)
-		return AMNumber(AMNumber::Null);
-	return regionAt(0).regionStep();
-}
-
 AMNumber AMScanAxis::axisEnd() const{
 	if(axisType_ == AMScanAxis::ContinuousDwellAxis || regionCount() == 0)
 		return AMNumber(AMNumber::Null);
 
 	return regionAt(regionCount()-1).regionEnd();
-}
-
-AMNumber AMScanAxis::axisTime() const{
-	if(axisType_ == AMScanAxis::ContinuousMoveAxis || regionCount() == 0)
-		return AMNumber(AMNumber::Null);
-
-	if(regionCount() == 1)
-		return regionAt(0).regionTime();
-
-	AMNumber firstRegionTime = regionAt(0).regionTime();
-	bool multipleRegionTimes = firstRegionTime.state() != AMNumber::Valid;
-	for(int x = 1; x < regionCount(); x++)
-		if(firstRegionTime != regionAt(x).regionTime() || regionAt(x).regionTime().state() != AMNumber::Valid)
-			multipleRegionTimes = true;
-
-	if(multipleRegionTimes)
-		return AMNumber(AMNumber::Null);
-	return regionAt(0).regionTime();
 }
 
 bool AMScanAxis::insertRegion(int index, const AMScanAxisRegion &region){

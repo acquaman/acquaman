@@ -644,7 +644,9 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
-    source/beamline/AMAdvancedControlDetectorEmulator.h
+    source/beamline/AMAdvancedControlDetectorEmulator.h \
+    source/dataman/AMDbUpgrade1Pt3.h \
+    source/acquaman/AM2DScanConfigurationConverter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1053,7 +1055,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
-    source/beamline/AMAdvancedControlDetectorEmulator.cpp
+    source/beamline/AMAdvancedControlDetectorEmulator.cpp \
+    source/dataman/AMDbUpgrade1Pt3.cpp \
+    source/acquaman/AM2DScanConfigurationConverter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1077,3 +1081,7 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+

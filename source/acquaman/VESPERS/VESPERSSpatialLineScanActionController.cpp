@@ -101,7 +101,26 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 
 void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 {
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMXRFDetector *detector = 0;
 
+	if (xrfDetector.testFlag(VESPERS::SingleElement))
+		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex"));
+
+	else if (xrfDetector.testFlag(VESPERS::FourElement))
+		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex"));
+
+	if (detector){
+
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
+			scan_->addAnalyzedDataSource(newRegion);
+		}
+	}
 }
 
 AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()

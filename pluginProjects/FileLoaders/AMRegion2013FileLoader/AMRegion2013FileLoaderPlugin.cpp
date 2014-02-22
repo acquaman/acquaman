@@ -1,4 +1,4 @@
-#include "SGM2013XASFileLoaderPlugin.h"
+#include "AMRegion2013FileLoaderPlugin.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -11,14 +11,12 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMTextStream.h"
 
-bool SGM2013XASFileLoaderPlugin::accepts(AMScan *scan){
-
-	if(scan->fileFormat() == "sgm2013XAS" || scan->fileFormat() == "amRegionAscii2013")
-		return true;
-	return false;
+bool AMRegion2013FileLoaderPlugin::accepts(AMScan *scan)
+{
+	 return scan->fileFormat() == "amRegionAscii2013";
 }
 
-bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
+bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 	if(!scan)
 		return false;
 
@@ -33,7 +31,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// open the file:
 	QFile f(sourceFileInfo.filePath());
 	if(!f.open(QIODevice::ReadOnly)) {
-		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2013XASFILELOADERPLUGIN_CANNOT_OPEN_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. Missing file."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMREGION2013FILELOADERPLUGIN_CANNOT_OPEN_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. Missing file."));
 		return false;
 	}
 	QTextStream fs(&f);
@@ -111,7 +109,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			if(afp.contains("_spectra.dat"))
 				spectraFile = afp;
 		if(spectraFile == ""){
-			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2013XASFILELOADERPLUGIN_NO_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMREGION2013FILELOADERPLUGIN_NO_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format; no spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
@@ -119,7 +117,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
-			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2013XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMREGION2013FILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
 			return false;
 		}
 
@@ -146,7 +144,7 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, SGM2013XASFILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, AMREGION2013FILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
 			scan->deleteRawDataSource(i);
 		}
 	}
@@ -156,10 +154,10 @@ bool SGM2013XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	return true;
 }
 
-bool SGM2013XASFileLoaderFactory::accepts(AMScan *scan)
+bool AMRegion2013FileLoaderFactory::accepts(AMScan *scan)
 {
-	return (scan->fileFormat() == "sgm2013XAS" || scan->fileFormat() == "amRegionAscii2013");
+	return scan->fileFormat() == "amRegionAscii2013";
 }
 
-Q_EXPORT_PLUGIN2(SGM2013XASFileLoaderFactory, SGM2013XASFileLoaderFactory)
+Q_EXPORT_PLUGIN2(AMRegion2013FileLoaderFactory, AMRegion2013FileLoaderFactory)
 

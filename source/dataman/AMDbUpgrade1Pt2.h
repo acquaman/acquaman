@@ -4,15 +4,15 @@
 #include "dataman/database/AMDbUpgrade.h"
 
 /// This class is used to upgrade databases from AMDetectorInfoSet to AMOldDetectorInfoSet. This is necessary to upgrade to the new AMDetector suite.
-
-
 class AMDbUpgrade1Pt2 : public AMDbUpgrade
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
 	/// Constructor calls the base constructor for AMDbUpgrade
- 	virtual ~AMDbUpgrade1Pt2();
 	AMDbUpgrade1Pt2(QString databaseNameToUpgrade, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDbUpgrade1Pt2();
 
 	/// This upgrade depends on AMDbUpgrade1.1
 	virtual QStringList upgradeFromTags() const;

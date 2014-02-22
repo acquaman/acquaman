@@ -13,7 +13,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("sgm2013XAS");
+	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setScanConfiguration(cfg);
 	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setIndexType("fileSystem");
