@@ -1,12 +1,19 @@
 #include "IDEASXASScanActionController.h"
+#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMScanActionControllerScanConfigurationConverter.h"
+
+
 
 #include "dataman/AMXASScan.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
+#include "application/IDEAS/IDEASAppController.h"
 
 #include "actions3/AMListAction3.h"
+
+#include <QDebug>
 
 IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent) :
 	AMRegionScanActionController(cfg, parent)
@@ -30,37 +37,54 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 		scan_->setName(QString("%1").arg(scanName));
 	}
 
+
 	AMDetectorInfoSet ideasDetectors;
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("OldIonDetector")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I0Detector")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("SampleDetector")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("ReferenceDetector")->toInfo());
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_vac")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_0")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_sample")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_ref")->toInfo());
+        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
-        QList<AMDataSource*> rawDataSources;
-        for(int i=0, cc=scan_->rawDataSourceCount(); i<cc; ++i)
-                rawDataSources << scan_->rawDataSources()->at(i);
-
-        AM1DExpressionAB* ab = new AM1DExpressionAB("NormSample");
-        ab->setDescription("NormSample");
-        ab->setInputDataSources(rawDataSources);
-        ab->setExpression("ln(I0Detector/SampleDetector)");
-        scan_->addAnalyzedDataSource(ab);
-
-        ab = new AM1DExpressionAB("NormRef");
-        ab->setDescription("NormRef");
-        ab->setInputDataSources(rawDataSources);
-        ab->setExpression("ln(SampleDetector/ReferenceDetector)");
-        scan_->addAnalyzedDataSource(ab);
-
-        AM2DSummingAB* sumAb = new AM2DSummingAB("XRF Sum");
-        sumAb->setDescription("XRF Sum");
-        sumAb->setInputDataSources(rawDataSources);
-        sumAb->setSumAxis(1);
-        scan_->addAnalyzedDataSource(sumAb);
+//        for(int i=0, cc=scan_->rawData()->measurementCount(); i<cc; ++i)
+//                scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
 
 
+//        QList<AMDataSource*> rawDataSources;
+//        for(int i=0, cc=scan_->rawDataSourceCount(); i<cc; ++i)
+//                rawDataSources << scan_->rawDataSources()->at(i);
+
+
+//        AM1DExpressionAB* ab = new AM1DExpressionAB("NormSample");
+//        ab->setDescription("NormSample");
+//        ab->setInputDataSources(rawDataSources);
+//        ab->setExpression("ln(I_0/I_sample)");
+//        scan_->addAnalyzedDataSource(ab);
+
+//        ab = new AM1DExpressionAB("NormRef");
+//        ab->setDescription("NormRef");
+//        ab->setInputDataSources(rawDataSources);
+//        ab->setExpression("ln(I_sample/I_ref)");
+//        scan_->addAnalyzedDataSource(ab);
+
+//        AM2DSummingAB* sumAb = new AM2DSummingAB("XRF Sum");
+//        sumAb->setDescription("XRF Sum");
+//        sumAb->setInputDataSources(rawDataSources);
+//        sumAb->setSumAxis(1);
+//        scan_->addAnalyzedDataSource(sumAb);
+
+        double longestTime = 0;
+        for(int i=0, cc=configuration_->regionCount(); i<cc; ++i)
+            if(configuration_->regionTime(i) > longestTime) longestTime = configuration_->regionTime(i);
+
+        pokeSyncDwell_ = new QTimer(this);
+
+        pokeSyncDwell_->setInterval((longestTime + 5) *1000);
+        pokeSyncDwell_->setSingleShot(true);
+
+        //connect(pokeSyncDwell_, SIGNAL(timeout()), this, SLOT(onPokeSyncDwell());
+        connect(pokeSyncDwell_, SIGNAL(timeout()), IDEASBeamline::ideas()->synchronizedDwellTime(), SLOT(start()));
+        connect(IDEASBeamline::ideas()->synchronizedDwellTime(),SIGNAL(statusChanged(bool)), this, SLOT(onSyncDwellStatusChanged(bool)));
 }
 
 IDEASXASScanActionController::~IDEASXASScanActionController(){}
@@ -99,5 +123,13 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 }
 
 AMAction3* IDEASXASScanActionController::createCleanupActions(){
-	return 0;
+
+    return 0;
+}
+
+void IDEASXASScanActionController::onSyncDwellStatusChanged(bool unused){
+    Q_UNUSED(unused);
+    if(isRunning())
+        pokeSyncDwell_->start();
+    qDebug() << "timer restarted";
 }

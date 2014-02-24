@@ -64,12 +64,12 @@ void IDEASBeamline::setupDetectors()
 	oxfordSampleIonChamberAmmeter_ = new AMReadOnlyPVControl("Sample", "A1608-10-06:A:fbk", this, "Sample Ion Chamber");
 	oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference", "A1608-10-07:A:fbk", this, "Reference Ion Chamber");
 
-	oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("OldIonDetector", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-	oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I0Detector", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-	oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("SampleDetector", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-	oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("ReferenceDetector", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+        oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_vac", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+        oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_0", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+        oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_sample", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+        oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_ref", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 
-        ketek_ = new IDEASKETEKDetector("KETEK", "KETEK XRF Detector", this);
+        ketek_ = new IDEASKETEKDetector("XRF", "KETEK XRF Detector", this);
 }
 
 void IDEASBeamline::setupControlSets()

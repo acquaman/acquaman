@@ -154,7 +154,7 @@ void IDEASAppController::setupUserInterface()
 //        view->setEnergyRange(1500, 20480);
         view->buildDetectorView();
         view->setEnergyRange(1500, 20480);
-        mw_->addPane(view, "Detectors", "KETEK", ":/system-search.png");
+        mw_->addPane(view, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 
