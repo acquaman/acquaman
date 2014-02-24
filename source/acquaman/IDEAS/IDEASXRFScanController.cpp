@@ -24,9 +24,10 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
     scan_->setFileFormat("vespers2011XRF");
     scan_->setRunId(AMUser::user()->currentRunId());
 
-    QString notes = "This is a test note";
 
-    scan_->setNotes(notes);
+    scan_->setNotes(scanConfig->scanNotes());
+    scan_->setName(scanConfig->scanName());
+    scan_->setNumber(scanConfig->scanNumber());
 
     scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw"), QString("RAW XRF Data"), "eV", detector_->axes()));
     scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 0), true, false);
