@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/beamline/AMXRFDetailedDetectorViewWithSave.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
+#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
@@ -56,10 +57,12 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-	// Start up the main program.
+        getUserDataFolderFromDialog();
+        // Start up the main program.
 	if(AMAppController::startup()) {
 
-		// Initialize central beamline object
+
+                // Initialize central beamline object
 		IDEASBeamline::ideas();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
@@ -102,6 +105,8 @@ void IDEASAppController::shutdown()
 void IDEASAppController::registerClasses()
 {
     AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
+    AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
+
 }
 
 void IDEASAppController::setupExporterOptions()
@@ -148,7 +153,8 @@ void IDEASAppController::setupUserInterface()
         AMXRFDetailedDetectorViewWithSave *view = new AMXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
 //        view->setEnergyRange(1500, 20480);
         view->buildDetectorView();
-        mw_->addPane(view, "Detectors", "KETEK", ":/system-search.png");
+        view->setEnergyRange(1500, 20480);
+        mw_->addPane(view, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

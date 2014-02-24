@@ -4,6 +4,8 @@
 #include "acquaman/AMRegionScanActionController.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 
+#include <QTimer>
+
 class IDEASXASScanActionController : public AMRegionScanActionController
 {
 	Q_OBJECT
@@ -22,9 +24,15 @@ protected:
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
 
+        QTimer* pokeSyncDwell_;
+
+
 protected:
 	/// Specific scan configuration with all the SGM specific information inside.
 	IDEASXASScanConfiguration *configuration_;
+
+protected slots:
+        void onSyncDwellStatusChanged(bool);
 };
 
 #endif // IDEASXASSCANACTIONCONTROLLER_H
