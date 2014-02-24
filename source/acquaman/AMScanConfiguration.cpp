@@ -108,10 +108,20 @@ void AMScanConfiguration::setExpectedDuration(double duration)
 	}
 }
 
-void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet detectorConfigurations){
+void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &detectorConfigurations){
 	if(detectorConfigurations_ != detectorConfigurations){
 		detectorConfigurations_ = detectorConfigurations;
 		setModified(true);
 		emit detectorConfigurationsChanged();
+	}
+}
+
+void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisControlInfos)
+{
+	if (axisControlInfos_ != axisControlInfos){
+
+		axisControlInfos_ = axisControlInfos;
+		setModified(true);
+		emit axisControlInfosChanged();
 	}
 }

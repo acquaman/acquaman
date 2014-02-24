@@ -42,11 +42,9 @@ bool AMRegionScanConfigurationConverter::convertImplementation(AMScanActionContr
 		return false;
 	}
 
-	AMDetector *oneDetector;
-
 	for (int x = 0; x < regionScanConfiguration->detectorConfigurations().count(); x++){
 
-		oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionScanConfiguration->detectorConfigurations().at(x));
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionScanConfiguration->detectorConfigurations().at(x));
 
 		if (oneDetector && !scanAssembler->addDetector(oneDetector)){
 

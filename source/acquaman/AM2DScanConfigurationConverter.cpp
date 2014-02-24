@@ -12,34 +12,54 @@ AM2DScanConfigurationConverter::AM2DScanConfigurationConverter(AMScanActionContr
 
 bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControllerScanAssembler *scanAssembler, AMScanConfiguration *scanConfiguration)
 {
-//	AM2DScanConfiguration *configuration = qobject_cast<AM2DScanConfiguration *>(scanConfiguration);
+	AM2DScanConfiguration *configuration = qobject_cast<AM2DScanConfiguration *>(scanConfiguration);
 
-//	if (!configuration){
+	if (!configuration){
 
-//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_CONFIGURATION, "The 2D scan configuration was invalid.");
-//		return false;
-//	}
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_CONFIGURATION, "The 2D scan configuration was invalid.");
+		return false;
+	}
 
-//	if (!configuration->validXAxis()){
+	if (!configuration->validXAxis()){
 
-//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_XAXIS, "Invalid x-axis.");
-//		return false;
-//	}
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_XAXIS, "Invalid x-axis.");
+		return false;
+	}
 
-//	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
-//	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
+	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
 
-//	if (!configuration->validYAxis()){
+	if (!configuration->validYAxis()){
 
-//		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_YAXIS, "Invalid y-axis.");
-//		return false;
-//	}
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_INVALID_YAXIS, "Invalid y-axis.");
+		return false;
+	}
 
-//	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
-//	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
+	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
 
-//	if (!scanAssembler->appendAxis(xAxis))
+	if (!scanAssembler->appendAxis(AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(0)), xAxis)){
 
-//	return true;
-	return false;
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_X_AXIS, "Could not add x-axis.");
+		return false;
+	}
+
+	if (!scanAssembler->appendAxis(AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(1)), yAxis)){
+
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_Y_AXIS, "Could not add y-axis.");
+		return false;
+	}
+
+	for (int i = 0, size = configuration->detectorConfigurations().count(); i < size; i++){
+
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(configuration->detectorConfigurations().at(i));
+
+		if (oneDetector && !scanAssembler->addDetector(oneDetector)){
+
+			AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_DETECTOR, QString("Could not add the following detector to the assembler: %1").arg(oneDetector != 0 ? oneDetector->name() : "Not found"));
+			return false;
+		}
+	}
+
+	return true;
 }
