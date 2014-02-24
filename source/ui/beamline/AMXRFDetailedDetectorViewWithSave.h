@@ -16,6 +16,9 @@
 
 
 #include <QSignalMapper>
+#include <QtGui/QPlainTextEdit>
+#include <QLineEdit>
+
 
 class AMXRFDetailedDetectorViewWithSave : public AMXRFDetailedDetectorView
 {
@@ -33,6 +36,17 @@ protected:
     /// The button for saving the scan.
     QPushButton *saveScanButton_;
 
+    /// A  scan configuration notes editor
+    QPlainTextEdit *notesEdit;
+
+    QGridLayout *scanInfoGridLayout;
+    QLabel *scanNameLabel;
+    QLineEdit *scanName;
+    QLabel *scanNumberLabel;
+    QSpinBox *scanNumber;
+
+
+
     /// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
     IDEASXRFScanConfiguration *config_;
 
@@ -44,6 +58,9 @@ public slots:
 
 private slots:
     void onSaveScanButtonClicked();
+    void onNotesTextChanged(){ config_->setScanNotes(notesEdit->toPlainText()); }
+    void onScanNameChanged(QString name){ config_->setScanName(name); }
+    void onScanNumberChanged(int number){ config_->setScanNumber(number); }
 
 };
 

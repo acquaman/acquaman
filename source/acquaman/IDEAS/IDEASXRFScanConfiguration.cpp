@@ -9,6 +9,9 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo
 {
     xrfDetectorInfo_ = detectorInfo;
     setAutoExportEnabled(false);
+    scanName_ = "XRF Scan";
+    scanNumber_ = 0;
+    scanNotes_ = "";
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)

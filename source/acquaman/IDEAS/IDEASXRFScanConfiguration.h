@@ -2,6 +2,7 @@
 #define IDEASXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
+#include <QDebug>
 
 class IDEASXRFScanConfiguration : public AMScanConfiguration
 {
@@ -42,6 +43,14 @@ public:
     /// Returns the peaking time.
     double peakingTime() const { return peakingTime_; }
 
+    /// Returns the scan notes
+    QString scanNotes() const { return scanNotes_; }
+    /// Returns the scan name
+    QString scanName() const { return scanName_; }
+    /// Returns the scan number
+    int scanNumber() const { return scanNumber_; }
+
+
 public slots:
     /// Sets the detector info to the given detector info.
     void setDetectorInfo(AMDetectorInfo info) { xrfDetectorInfo_ = info; /*setIntegrationTime(info.integrationTime()); setMaximumEnergy(info.maximumEnergy()); setPeakingTime(info.peakingTime());*/ }
@@ -51,6 +60,15 @@ public slots:
     void setMaximumEnergy(double energy) { maxEnergy_ = energy; }
     /// Sets the peaking time.
     void setPeakingTime(double time) { peakingTime_ = time; }
+
+    /// Sets the scan notes
+    void setScanNotes(QString notes)  {  scanNotes_ = notes; }
+    /// Sets the scan name
+    void setScanName(QString name)  {  scanName_ = name; }
+    /// Sets the scan number
+    void setScanNumber(int number)  {  scanNumber_ = number;}
+
+
 
 protected:
     /// Returns an AMDbObject pointer to the detector info.
@@ -68,6 +86,13 @@ protected:
     double maxEnergy_;
     /// The peaking time.
     double peakingTime_;
+
+    /// The scan notes
+    QString scanNotes_;
+    /// The scan name
+    QString scanName_;
+    /// the scan number
+    int scanNumber_;
 
 signals:
 
