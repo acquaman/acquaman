@@ -22,8 +22,9 @@ class AMXRFDetailedDetectorView : public AMXRFBaseDetectorView
 
 public:
 	/// Constructor.  Builds a more detailed view for AMXRFDetectors.
- 	virtual ~AMXRFDetailedDetectorView();
 	AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMXRFDetailedDetectorView();
 
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();

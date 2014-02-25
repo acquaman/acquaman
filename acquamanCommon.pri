@@ -619,7 +619,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
-        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.h \
 	source/util/AMNameAndRangeValidator.h \
 	source/dataman/AMRegionOfInterest.h \
 	source/analysis/AMnDDeadTimeAB.h \
@@ -644,10 +643,10 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
-    source/beamline/AMAdvancedControlDetectorEmulator.h \
-    source/dataman/AMDbUpgrade1Pt3.h \
-    source/acquaman/AM2DScanConfigurationConverter.h \
-    source/acquaman/AM2DScanActionController.h
+	source/beamline/AMAdvancedControlDetectorEmulator.h \
+	source/dataman/AMDbUpgrade1Pt3.h \
+	source/acquaman/AM2DScanConfigurationConverter.h \
+	source/acquaman/AM2DScanActionController.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1031,9 +1030,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
-        source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.cpp \
-        source/util/AMNameAndRangeValidator.cpp \
+		source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+		source/util/AMNameAndRangeValidator.cpp \
 	source/dataman/AMRegionOfInterest.cpp \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/ui/AMSelectionDialog.cpp \
@@ -1056,10 +1054,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
-    source/beamline/AMAdvancedControlDetectorEmulator.cpp \
-    source/dataman/AMDbUpgrade1Pt3.cpp \
-    source/acquaman/AM2DScanConfigurationConverter.cpp \
-    source/acquaman/AM2DScanActionController.cpp
+	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
+	source/dataman/AMDbUpgrade1Pt3.cpp \
+	source/acquaman/AM2DScanConfigurationConverter.cpp \
+	source/acquaman/AM2DScanActionController.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1083,6 +1081,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

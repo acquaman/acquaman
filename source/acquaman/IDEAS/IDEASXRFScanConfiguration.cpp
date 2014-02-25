@@ -1,23 +1,21 @@
 #include "IDEASXRFScanConfiguration.h"
 
-
 #include "acquaman/IDEAS/IDEASXRFScanController.h"
 
-
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo, QObject *parent) :
-    AMScanConfiguration(parent)
+	AMScanConfiguration(parent)
 {
-    xrfDetectorInfo_ = detectorInfo;
-    setAutoExportEnabled(false);
-    scanName_ = "XRF Scan";
-    scanNumber_ = 0;
-    scanNotes_ = "";
+	xrfDetectorInfo_ = detectorInfo;
+	setAutoExportEnabled(false);
+	scanName_ = "XRF Scan";
+	scanNumber_ = 0;
+	scanNotes_ = "";
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)
-        : AMScanConfiguration(parent)
+		: AMScanConfiguration(parent)
 {
-        setAutoExportEnabled(false);
+		setAutoExportEnabled(false);
 }
 
 IDEASXRFScanConfiguration::~IDEASXRFScanConfiguration()
@@ -27,18 +25,18 @@ IDEASXRFScanConfiguration::~IDEASXRFScanConfiguration()
 
 AMScanConfiguration *IDEASXRFScanConfiguration::createCopy() const
 {
-        return new IDEASXRFScanConfiguration(*this);
+		return new IDEASXRFScanConfiguration(*this);
 }
 
 AMScanController *IDEASXRFScanConfiguration::createController()
 {
-        return new IDEASXRFScanController(this);
+		return new IDEASXRFScanController(this);
 }
 
 QString IDEASXRFScanConfiguration::detailedDescription() const
 {
-        if (!xrfDetectorInfo_.name().isEmpty())
-                return QString("XRF Scan\nDetector: %!").arg(xrfDetectorInfo_.name());
+		if (!xrfDetectorInfo_.name().isEmpty())
+				return QString("XRF Scan\nDetector: %!").arg(xrfDetectorInfo_.name());
 
-        return QString();
+		return QString();
 }

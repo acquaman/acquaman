@@ -45,49 +45,51 @@ class IDEASBeamline : public AMBeamline
 public:
 
 	/// Returns the instance of the beamline that has been created.
-	static IDEASBeamline* ideas() {
+	static IDEASBeamline* ideas()
+	{
 		if(!instance_)
 			instance_ = new IDEASBeamline();
+
 		return static_cast<IDEASBeamline*>(instance_);
 	}
 
 	/// Destructor.
 	virtual ~IDEASBeamline();
 
-        /// Returns the overall shutter status.  Returns true if both are open, false otherwise.
-        bool shuttersOpen() const;
+		/// Returns the overall shutter status.  Returns true if both are open, false otherwise.
+		bool shuttersOpen() const;
 
-        /// Creates an action that opens the shutters to act like a Beam On.
-        AMAction3 *createBeamOnAction() const;
-        /// Creates an action that closes the shutters to act like a Beam Off.
-        AMAction3 *createBeamOffAction() const;
+		/// Creates an action that opens the shutters to act like a Beam On.
+		AMAction3 *createBeamOnAction() const;
+		/// Creates an action that closes the shutters to act like a Beam Off.
+		AMAction3 *createBeamOffAction() const;
 
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
-        /// Returns the monochromator control for the beamline.
-        AMControl *monoEnergyControl() const { return monoEnergy_; }
-        /// \todo THESE NEED TO BE COMMENTED!
-        AMControl *monoCrystal() const { return monoCrystal_; }
-        AMControl *monoHighEV() const { return monoHighEV_; }
-        AMControl *monoLowEV() const { return monoLowEV_; }
-        AMControl *ringCurrent() const { return ringCurrent_; }
+		/// Returns the monochromator control for the beamline.
+		AMControl *monoEnergyControl() const { return monoEnergy_; }
+		/// \todo THESE NEED TO BE COMMENTED!
+		AMControl *monoCrystal() const { return monoCrystal_; }
+		AMControl *monoHighEV() const { return monoHighEV_; }
+		AMControl *monoLowEV() const { return monoLowEV_; }
+		AMControl *ringCurrent() const { return ringCurrent_; }
 
-        AMPVControl *masterDwellControl() const { return masterDwell_; }
+		AMPVControl *masterDwellControl() const { return masterDwell_; }
 
-        /// Returns the KETEK detector pointer.
-        IDEASKETEKDetector *ketek() const { return ketek_; }
+		/// Returns the KETEK detector pointer.
+		IDEASKETEKDetector *ketek() const { return ketek_; }
 
 signals:
 
-        /// Notifier that the status of the shutters has changed.
-        void overallShutterStatus(bool);
+		/// Notifier that the status of the shutters has changed.
+		void overallShutterStatus(bool);
 
 public slots:
 
 protected slots:
-        /// Helper slot that handles emitting the overall shutter status.
-        void onShutterStatusChanged();
+		/// Helper slot that handles emitting the overall shutter status.
+		void onShutterStatusChanged();
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -116,13 +118,13 @@ protected:
 	/// Constructor. This is a singleton class; access it through IDEASBeamline::ideas().
 	IDEASBeamline();
 
-        /// The safety shutter for the beamline.
-        CLSBiStateControl *safetyShutter_;
-        /// The second photon shutter.
-        CLSBiStateControl *photonShutter2_;
+		/// The safety shutter for the beamline.
+		CLSBiStateControl *safetyShutter_;
+		/// The second photon shutter.
+		CLSBiStateControl *photonShutter2_;
 
 	/// Control for the mono
-        IDEASMonochromatorControl *monoEnergy_;
+		IDEASMonochromatorControl *monoEnergy_;
 	/// Control for the master dwell time on the synchronized dwell time application
 	AMPVControl *masterDwell_;
 
@@ -139,9 +141,9 @@ protected:
 	AMDetector *oxfordSampleIonChamberDetector_;
 	AMDetector *oxfordReferenceIonChamberDetector_;
 
-        IDEASKETEKDetector *ketek_;
+		IDEASKETEKDetector *ketek_;
 
-        AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_;
+		AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_;
 };
 
 #endif // IDEASSBEAMLINE_H

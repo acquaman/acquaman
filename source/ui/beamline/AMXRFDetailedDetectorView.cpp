@@ -14,7 +14,8 @@
 
 #include "ui/AMHeaderButton.h"
 
- AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
+AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
+
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
