@@ -7,7 +7,7 @@
 AMXRFDetailedDetectorViewWithSave::AMXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent) :
     AMXRFDetailedDetectorView(detector, parent)
 {
-    config_ = new IDEASXRFScanConfiguration;
+    config_ = new IDEASXRFScanConfiguration();
 }
 
 void AMXRFDetailedDetectorViewWithSave::buildDetectorView()
