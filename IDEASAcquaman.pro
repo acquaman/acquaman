@@ -1,6 +1,6 @@
 include ( acquamanCommon.pri )
 
-TARGET = IDEASSAcquaman
+TARGET = IDEASAcquaman
 
 FORMS +=
 
