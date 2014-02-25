@@ -184,6 +184,30 @@ CONFIG(jenkins_build) {
 
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build_newXRFDetector) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+
+		# Disable Qt Mobility Video until the Jenkins-machine supports that
+		CONFIG -= mobility
+
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = /jobs/AcquamanOnLinux_newXRFDetector/workspace
+
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
+		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+
+}
 
 QT += core gui sql opengl network
 
