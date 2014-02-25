@@ -72,8 +72,12 @@ public:
         AMControl *monoHighEV() const { return monoHighEV_; }
         AMControl *monoLowEV() const { return monoLowEV_; }
         AMControl *ringCurrent() const { return ringCurrent_; }
+        AMControl *monoBraggAngle() const { return monoBraggAngle_; }
+        AMControl *mono2d() const { return mono2d_; }
+        AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
         AMPVControl *masterDwellControl() const { return masterDwell_; }
+        AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
 
         /// Returns the KETEK detector pointer.
         IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -125,6 +129,8 @@ protected:
         IDEASMonochromatorControl *monoEnergy_;
 	/// Control for the master dwell time on the synchronized dwell time application
 	AMPVControl *masterDwell_;
+        /// Control for the mode of the IDEAS Ammeter Group
+        AMPVControl *ammeterGroupMode_;
 
 	/// The synchronized dwell time app for IDEAS
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
@@ -141,7 +147,7 @@ protected:
 
         IDEASKETEKDetector *ketek_;
 
-        AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_;
+        AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 };
 
 #endif // IDEASSBEAMLINE_H

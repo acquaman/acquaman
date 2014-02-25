@@ -29,6 +29,9 @@ protected slots:
     void onBeamOffClicked();
     /// Handles changing the state of the beam on and beam off buttons based on the state of the shutters.
     void onShutterStatusChanged(bool state);
+    /// Calls dialogue to calibrate beamline energy
+    void onCalibrateClicked();
+
 
     /// Handles updating Old ion chamber current bar
     void onOldCountsChanged();
@@ -54,6 +57,9 @@ protected:
     QPushButton *beamOffButton_;
     /// The label for the beam status.
     QLabel *beamStatusLabel_;
+    /// The beam on button.
+    QPushButton *calibrateButton_;
+
 
     AMExtendedControlEditor *energyControlEditor_;
 

@@ -11,6 +11,8 @@
 #include <QGroupBox>
 #include <QProgressBar>
 #include <QGridLayout>
+#include <QInputDialog>
+#include <QDebug>
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -24,6 +26,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffClicked()));
 
     connect(IDEASBeamline::ideas(), SIGNAL(overallShutterStatus(bool)), this, SLOT(onShutterStatusChanged(bool)));
+
+    calibrateButton_ = new QPushButton("Calibrate Energy");
+    connect(calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateClicked()));
 
     ringCurrent_ = new QLabel("     mA");
     ringCurrent_->setAlignment(Qt::AlignCenter);
@@ -83,6 +88,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addLayout(beamChangeLayout);
     mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
     mainPanelLayout->addWidget(energyControlEditor_);
+    mainPanelLayout->addWidget(calibrateButton_);
     mainPanelLayout->addWidget(monoCrystal_);
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
@@ -184,4 +190,30 @@ void IDEASPersistentView::onCrystalChanged(double crystal)
 void IDEASPersistentView::onRingCurrentChanged(double current)
 {
     ringCurrent_->setText(QString("%1 mA").arg(current));
+}
+
+void IDEASPersistentView::onCalibrateClicked()
+{
+    //QInputDialog  *calibrateDialog_ = new QInputDialog();
+
+    bool ok;
+    double newE = QInputDialog::getDouble(this,"Monochromator Energy Calibration","Enter Current Calibrated Energy:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+
+    if(ok)
+    {
+        double oldAngleOffset = IDEASBeamline::ideas()->monoAngleOffset()->value();
+        double currentE = IDEASBeamline::ideas()->monoEnergyControl()->value();
+        double mono2d = IDEASBeamline::ideas()->mono2d()->value();
+        double braggAngle = IDEASBeamline::ideas()->monoBraggAngle()->value();
+
+        double dE = newE - currentE;
+
+        double angleDetla = -12398.4193 / (mono2d * currentE * currentE * cos(braggAngle * M_PI / 180)) * dE * 180 / M_PI;
+
+        IDEASBeamline::ideas()->monoAngleOffset()->move(oldAngleOffset + angleDetla);
+        //qDebug() << newE << oldAngleOffset << currentE << mono2d << braggAngle << dE << angleDetla << oldAngleOffset + angleDetla;
+
+
+    }
+
 }

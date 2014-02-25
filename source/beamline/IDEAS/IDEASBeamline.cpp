@@ -62,14 +62,14 @@ void IDEASBeamline::setupDetectors()
 	oldIonChamberAmmeter_ = new AMReadOnlyPVControl("OldIon", "A1608-10-01:A:fbk", this, "Old Ion Chamber");
 	oxfordI0IonChamberAmmeter_ = new AMReadOnlyPVControl("I0", "A1608-10-05:A:fbk", this, "I0 Ion Chamber");
 	oxfordSampleIonChamberAmmeter_ = new AMReadOnlyPVControl("Sample", "A1608-10-06:A:fbk", this, "Sample Ion Chamber");
-	oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference", "A1608-10-07:A:fbk", this, "Reference Ion Chamber");
+        oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference", "A1608-10-07:A:fbk", this, "Reference Ion Chamber");
 
         oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_vac", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
         oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_0", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
         oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_sample", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
         oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_ref", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 
-        ketek_ = new IDEASKETEKDetector("XRF", "KETEK XRF Detector", this);
+        ketek_ = new IDEASKETEKDetector("XRF1E", "KETEK XRF Detector", this);
 }
 
 void IDEASBeamline::setupControlSets()
@@ -83,6 +83,10 @@ void IDEASBeamline::setupMono()
     monoCrystal_ = new AMReadOnlyPVControl("monoCrystal","BL08B2-1:Crystal:Type",this,"Currently Select Monochromator Crystal");
     monoHighEV_ = new AMReadOnlyPVControl("monoHighEV", "BL08B2-1:Crystal:EvHigh", this, "Maximum Ebergy for current Crystal");
     monoLowEV_ = new AMReadOnlyPVControl("monoLowEV", "BL08B2-1:Crystal:EvLow", this, "Minimum Ebergy for current Crystal");
+    monoBraggAngle_ = new AMReadOnlyPVControl("monoBraggAngle", "BL08B2-1:Energy:EV:fbk:tr.C", this, "Current Mono Bragg Angle");
+    mono2d_ = new AMReadOnlyPVControl("mono2d","BL08B2-1:Crystal:2d", this, "2d spacing of current mono crystals");
+    monoAngleOffset_ = new AMPVControl("monoAngleOffset","BL08B2-1:Energy:angleOffset","BL08B2-1:Energy:angleOffset",QString(), this);
+    monoAngleOffset_->setDescription("Current mono calibration offset angle");
 
 
 }
@@ -98,6 +102,7 @@ void IDEASBeamline::setupSynchronizedDwellTime()
         synchronizedDwellTime_->addElement(5);
 
 	masterDwell_ = new AMPVControl("masterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
+        ammeterGroupMode_ = new AMPVControl("ammeterGroupMode", "A1608B2:configure", "A1608B2:configure", QString(),this,0.5);
 }
 
 void IDEASBeamline::setupComponents()
