@@ -45,7 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/beamline/AMXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
@@ -57,12 +57,12 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-        getUserDataFolderFromDialog();
-        // Start up the main program.
+		getUserDataFolderFromDialog();
+		// Start up the main program.
 	if(AMAppController::startup()) {
 
 
-                // Initialize central beamline object
+				// Initialize central beamline object
 		IDEASBeamline::ideas();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
@@ -78,7 +78,7 @@ bool IDEASAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-                        AMRun firstRun("IDEAS", 5);	/// \todo For now, we know that 5 is the ID of the IDEAS facility, but this is a hardcoded hack.
+						AMRun firstRun("IDEAS", 5);	/// \todo For now, we know that 5 is the ID of the IDEAS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -87,7 +87,7 @@ bool IDEASAppController::startup()
 		makeConnections();
 
 		// Github setup for adding VESPERS specific comment.
-                additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
+				additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
 		return true;
 	}
@@ -104,39 +104,39 @@ void IDEASAppController::shutdown()
 
 void IDEASAppController::registerClasses()
 {
-    AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
-    AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
 
 }
 
 void IDEASAppController::setupExporterOptions()
-{   
-    QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "IDEAS Default XAS");
+{
+	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "IDEAS Default XAS");
 
-    AMExporterOptionGeneralAscii *ideasDefaultXAS = new AMExporterOptionGeneralAscii();
+	AMExporterOptionGeneralAscii *ideasDefaultXAS = new AMExporterOptionGeneralAscii();
 
-    if (matchIDs.count() != 0)
-            ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+	if (matchIDs.count() != 0)
+			ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-    ideasDefaultXAS->setName("IDEAS Default XAS");
-    ideasDefaultXAS->setFileName("$name_$fsIndex.dat");
-    ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
-    ideasDefaultXAS->setHeaderIncluded(true);
-    ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-    ideasDefaultXAS->setColumnHeaderIncluded(true);
-    ideasDefaultXAS->setColumnHeaderDelimiter("");
-    ideasDefaultXAS->setSectionHeader("");
-    ideasDefaultXAS->setSectionHeaderIncluded(true);
-    ideasDefaultXAS->setIncludeAllDataSources(true);
-    ideasDefaultXAS->setFirstColumnOnly(true);
-    ideasDefaultXAS->setIncludeHigherDimensionSources(true);
-    ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
-    ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-    ideasDefaultXAS->setHigherDimensionsInRows(true);
-    ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
+	ideasDefaultXAS->setName("IDEAS Default XAS");
+	ideasDefaultXAS->setFileName("$name_$fsIndex.dat");
+	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+	ideasDefaultXAS->setHeaderIncluded(true);
+	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	ideasDefaultXAS->setColumnHeaderIncluded(true);
+	ideasDefaultXAS->setColumnHeaderDelimiter("");
+	ideasDefaultXAS->setSectionHeader("");
+	ideasDefaultXAS->setSectionHeaderIncluded(true);
+	ideasDefaultXAS->setIncludeAllDataSources(true);
+	ideasDefaultXAS->setFirstColumnOnly(true);
+	ideasDefaultXAS->setIncludeHigherDimensionSources(true);
+	ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
+	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	ideasDefaultXAS->setHigherDimensionsInRows(true);
+	ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
 
-    if(ideasDefaultXAS->id() > 0)
-            AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(ideasDefaultXAS->id());
+	if(ideasDefaultXAS->id() > 0)
+			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(ideasDefaultXAS->id());
 
 }
 
@@ -150,16 +150,16 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-        AMXRFDetailedDetectorViewWithSave *view = new AMXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+		IDEASXRFDetailedDetectorViewWithSave *view = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
 //        view->setEnergyRange(1500, 20480);
-        view->buildDetectorView();
-        view->setEnergyRange(1500, 20480);
-        mw_->addPane(view, "Detectors", "XRF Detector", ":/system-search.png");
+		view->buildDetectorView();
+		view->setEnergyRange(1500, 20480);
+		mw_->addPane(view, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 
-        IDEASPersistentView *persistentPanel = new IDEASPersistentView;
-        mw_->addRightWidget(persistentPanel);
+		IDEASPersistentView *persistentPanel = new IDEASPersistentView;
+		mw_->addRightWidget(persistentPanel);
 
 	ideasSynchronizedDwellTimeView_ = 0; //NULL
 	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
@@ -198,7 +198,7 @@ void IDEASAppController::onEnergyConnected(bool connected){
 		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
 		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
 		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
-                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+				xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
@@ -207,10 +207,10 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-    Q_UNUSED(action)
+	Q_UNUSED(action)
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-    Q_UNUSED(action)
+	Q_UNUSED(action)
 }

@@ -184,6 +184,30 @@ CONFIG(jenkins_build) {
 
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build_newXRFDetector) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+
+		# Disable Qt Mobility Video until the Jenkins-machine supports that
+		CONFIG -= mobility
+
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = /jobs/AcquamanOnLinux_newXRFDetector/workspace
+
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
+		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+
+}
 
 QT += core gui sql opengl network
 
@@ -619,7 +643,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
-        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.h \
 	source/util/AMNameAndRangeValidator.h \
 	source/dataman/AMRegionOfInterest.h \
 	source/analysis/AMnDDeadTimeAB.h \
@@ -644,9 +667,10 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
-    source/beamline/AMAdvancedControlDetectorEmulator.h \
-    source/dataman/AMDbUpgrade1Pt3.h \
-    source/acquaman/AM2DScanConfigurationConverter.h
+	source/beamline/AMAdvancedControlDetectorEmulator.h \
+	source/dataman/AMDbUpgrade1Pt3.h \
+	source/acquaman/AM2DScanConfigurationConverter.h \
+	source/acquaman/AM2DScanActionController.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1030,9 +1054,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
-        source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-        source/ui/beamline/AMXRFDetailedDetectorViewWithSave.cpp \
-        source/util/AMNameAndRangeValidator.cpp \
+		source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+		source/util/AMNameAndRangeValidator.cpp \
 	source/dataman/AMRegionOfInterest.cpp \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/ui/AMSelectionDialog.cpp \
@@ -1055,9 +1078,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
-    source/beamline/AMAdvancedControlDetectorEmulator.cpp \
-    source/dataman/AMDbUpgrade1Pt3.cpp \
-    source/acquaman/AM2DScanConfigurationConverter.cpp
+	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
+	source/dataman/AMDbUpgrade1Pt3.cpp \
+	source/acquaman/AM2DScanConfigurationConverter.cpp \
+	source/acquaman/AM2DScanActionController.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1081,6 +1105,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 
