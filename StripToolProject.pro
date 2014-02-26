@@ -23,10 +23,15 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/TimeEntryWidget.cpp \
     source/StripChart/StripToolControlsPanel.cpp \
     source/StripChart/StripToolSidePanel.cpp \
-    source/StripChart/PlotOptionsDialog.cpp \
     source/StripChart/WaterfallEntryWidget.cpp \
     source/StripChart/StripToolSeries.cpp \
-    source/StripChart/StripToolVariable.cpp
+    source/StripChart/StripTool0DVariableInfo.cpp \
+    source/StripChart/StripToolVariableInfoEditor.cpp \
+    source/StripChart/StripToolAbstractVariableInfo.cpp \
+    source/StripChart/StripToolBasicVariableInfo.cpp \
+    source/StripChart/StripToolBasicVariable.cpp \
+    source/StripChart/StripToolAbstractVariable.cpp \
+    source/StripChart/StripTool0DVariable.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -44,9 +49,14 @@ HEADERS  += \
     source/StripChart/TimeEntryWidget.h \
     source/StripChart/StripToolControlsPanel.h \
     source/StripChart/StripToolSidePanel.h \
-    source/StripChart/PlotOptionsDialog.h \
     source/StripChart/WaterfallEntryWidget.h \
     source/StripChart/StripToolSeries.h \
-    source/StripChart/StripToolVariable.h
+    source/StripChart/StripTool0DVariableInfo.h \
+    source/StripChart/StripToolVariableInfoEditor.h \
+    source/StripChart/StripToolAbstractVariableInfo.h \
+    source/StripChart/StripToolBasicVariableInfo.h \
+    source/StripChart/StripToolBasicVariable.h \
+    source/StripChart/StripToolAbstractVariable.h \
+    source/StripChart/StripTool0DVariable.h
 
 OTHER_FILES +=

@@ -191,137 +191,137 @@ bool StripToolDataController::dataExists(const QString &pvName)
 
 void StripToolDataController::toSavePVData(QObject *toSave)
 {
-    StripToolPV *pv = (StripToolPV *) toSave;
+//    StripToolPV *pv = (StripToolPV *) toSave;
 
-    // check that metadata exists for this pv.
-    if (!metaDataExists(pv->name()))
-        savePVMetaData(pv);
+//    // check that metadata exists for this pv.
+//    if (!metaDataExists(pv->name()))
+//        savePVMetaData(pv);
 
     // write the new data to the pv's data file.
-    qDebug() << "Saving collected data for pv" << pv->name() << ":" << savePVData(pv);
+//    qDebug() << "Saving collected data for pv" << pv->name() << ":" << savePVData(pv);
 }
 
 
 
 void StripToolDataController::toSavePVMetaData(QObject *toSave)
 {
-    StripToolPV *pv = (StripToolPV*) toSave;
+//    StripToolPV *pv = (StripToolPV*) toSave;
 
-    // check that collected data exists for this pv.
-    if (!dataExists(pv->name()))
-        savePVData(pv);
+//    // check that collected data exists for this pv.
+//    if (!dataExists(pv->name()))
+//        savePVData(pv);
 
     // write the new meta data to the pv's reload file.
-    qDebug() << "Saving meta data for pv" << pv->name() << ":" << savePVMetaData(pv);
+//    qDebug() << "Saving meta data for pv" << pv->name() << ":" << savePVMetaData(pv);
 }
 
 
 
 bool StripToolDataController::metaDataHeaderCheck(StripToolPV *toSave)
 {
-    int headerCount = toSave->metaDataHeaders().size();
-    int dataCount = toSave->metaData().size();
+//    int headerCount = toSave->metaDataHeaders().size();
+//    int dataCount = toSave->metaData().size();
 
-    if (headerCount != dataCount)
-    {
-        qDebug() << "ERROR : number of metadata entries do not match the number of headers for this pv : " << toSave->name();
-        return false;
-    }
+//    if (headerCount != dataCount)
+//    {
+//        qDebug() << "ERROR : number of metadata entries do not match the number of headers for this pv : " << toSave->name();
+//        return false;
+//    }
 
     return true;
 }
 
 
 
-bool StripToolDataController::savePVMetaData(StripToolPV *toSave)
-{
-    setDirectories("pvs");
+//bool StripToolDataController::savePVMetaData(StripToolPV *toSave)
+//{
+//    setDirectories("pvs");
 
-    QString filename = pvNameToFilename(toSave->name());
+//    QString filename = pvNameToFilename(toSave->name());
 
-    if (filename.isEmpty())
-        return false;
+//    if (filename.isEmpty())
+//        return false;
 
-    QFile file(filename);
+//    QFile file(filename);
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        qDebug() << file.errorString();
-        return false;
-    }
+//    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+//    {
+//        qDebug() << file.errorString();
+//        return false;
+//    }
 
-    if (!metaDataHeaderCheck(toSave))
-        return false;
+//    if (!metaDataHeaderCheck(toSave))
+//        return false;
 
-    // create list of data to replace the (possibly already stored) meta data.
+//    // create list of data to replace the (possibly already stored) meta data.
 
-    QList<QString> headers = toSave->metaDataHeaders();
-    QList<QString> metaData = toSave->metaData();
-    QList<QString> fileContents;
+//    QList<QString> headers = toSave->metaDataHeaders();
+//    QList<QString> metaData = toSave->metaData();
+//    QList<QString> fileContents;
 
-    for (int i = 0; i < metaData.count(); i++)
-    {
-        QString entry = headers.at(i) + "\t" + metaData.at(i);
-        fileContents.append(entry);
-    }
+//    for (int i = 0; i < metaData.count(); i++)
+//    {
+//        QString entry = headers.at(i) + "\t" + metaData.at(i);
+//        fileContents.append(entry);
+//    }
 
-    // write data to file.
+//    // write data to file.
 
-    QTextStream out(&file);
+//    QTextStream out(&file);
 
-    foreach(QString fileEntry, fileContents)
-        out << fileEntry << "\n";
+//    foreach(QString fileEntry, fileContents)
+//        out << fileEntry << "\n";
 
-    file.close();
+//    file.close();
 
-    if (getReloadList().contains(toSave->name()))
-    {
-        return true;
-    }
+//    if (getReloadList().contains(toSave->name()))
+//    {
+//        return true;
+//    }
 
-    return false;
-}
+//    return false;
+//}
 
 
 
-bool StripToolDataController::savePVData(StripToolPV *toSave)
-{
-    setDirectories("data");
-    QString filename = pvNameToFilename(toSave->name());
+//bool StripToolDataController::savePVData(StripToolPV *toSave)
+//{
+//    setDirectories("data");
+//    QString filename = pvNameToFilename(toSave->name());
 
-    if (filename.isEmpty())
-        return false;
+//    if (filename.isEmpty())
+//        return false;
 
-    QFile file(filename);
+//    QFile file(filename);
 
-    if (!file.open(QIODevice::Append | QIODevice::Text))
-    {
-        qDebug() << file.errorString();
-        return false;
-    }
+//    if (!file.open(QIODevice::Append | QIODevice::Text))
+//    {
+//        qDebug() << file.errorString();
+//        return false;
+//    }
 
-    // identify lists of data to be added to data file.
+//    // identify lists of data to be added to data file.
 
-    QList<QString> timesToSave = toSave->saveMasterTimes().toList();
+//    QList<QString> timesToSave = toSave->saveMasterTimes().toList();
 
-    QList<double> dataToSave = toSave->saveMasterValues().toList();
+//    QList<double> dataToSave = toSave->saveMasterValues().toList();
 
-    // write data to file.
+//    // write data to file.
 
-    QTextStream out(&file);
+//    QTextStream out(&file);
 
-    for (int i = 0; i < dataToSave.size(); i++)
-    {
-        out << timesToSave.at(i) << "\t" << dataToSave.at(i) << "\n";
-    }
+//    for (int i = 0; i < dataToSave.size(); i++)
+//    {
+//        out << timesToSave.at(i) << "\t" << dataToSave.at(i) << "\n";
+//    }
 
-    file.close();
+//    file.close();
 
-    if (getDataList().contains(toSave->name()))
-        return true;
-    else
-        return false;
-}
+//    if (getDataList().contains(toSave->name()))
+//        return true;
+//    else
+//        return false;
+//}
 
 
 

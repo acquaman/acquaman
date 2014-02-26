@@ -15,35 +15,26 @@ class StripToolListView : public QListView
 public:
     explicit StripToolListView(QWidget *parent = 0);
     ~StripToolListView();
+    friend class StripToolSidePanel;
     
 signals:
     void setCurrentSelection(const QModelIndex &modelSelection);
 //    void editPV(QList<QModelIndex> indicesToEdit);
+    void listSelectionChanged(const QModelIndex &selectedIndex);
     void editPV(const QModelIndex &index);
     void deletePV(const QModelIndex &index);
     void setPVUpdating(const QModelIndex &index, bool isUpdating);
     void colorPV(const QModelIndex &index, const QColor &color);
 
 protected:
-    StripToolModel *model_;
-
-    QAction *edit_;
-    QAction *delete_;
-    QAction *pause_;
-    QAction *resume_;
-    QAction *setColor_;
-
-public:
-    /// This function sets the view's model and makes sure all the connections are correct.
-    void setPVModel(StripToolModel *model);
-    
-protected:
+//    /// This function sets the view's model and makes sure all the connections are correct.
+//    void setPVModel(StripToolModel *model);
     /// Creates the actions that a user can use to manipulate a pv: edit, delete, show less, show more, pause, resume.
     void createActions();
     /// To view a color picker.
     QColor colorPicker();
-
-private:
+    void setSelectedIndex(const QModelIndex &newSelection);
+    QModelIndex selectedIndex() const;
 
 protected slots:
     /// Creates the menu that appears when a user right-clicks on a pv, displays the available actions.
@@ -59,7 +50,16 @@ protected slots:
     /// Sets the series color for all of the selected pvs, using the color selected from color picker.
     void toSetPVColor();
 
-    void onModelSelectionChange();
+//    void onModelSelectionChange();
+
+private:
+    StripToolModel *model_;
+
+    QAction *edit_;
+    QAction *delete_;
+    QAction *pause_;
+    QAction *resume_;
+    QAction *setColor_;
 
 };
 

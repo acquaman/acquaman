@@ -43,8 +43,8 @@ protected:
     bool metaDataExists(const QString &pvName);
     bool dataExists(const QString &pvName);
     bool metaDataHeaderCheck(StripToolPV *toSave);
-    bool savePVMetaData(StripToolPV *toSave);
-    bool savePVData(StripToolPV *toSave);
+//    bool savePVMetaData(StripToolPV *toSave);
+//    bool savePVData(StripToolPV *toSave);
     bool deleteMetaData(const QString &pvName);
     bool deleteData(const QString &pvName);
     QList<QString> loadMetaData(const QString &pvName);

@@ -25,6 +25,7 @@ void StripToolSelector::setSelection(MPlotItem *newSelection)
 
             selectedItem_ = 0;
             emit deselected();
+            emit itemSelected(selectedItem_);
 
         } else {
 

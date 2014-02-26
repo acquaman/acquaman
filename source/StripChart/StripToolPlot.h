@@ -20,6 +20,7 @@ class StripToolPlot : public MPlotWidget
 public:
     explicit StripToolPlot(QWidget *parent = 0);
     ~StripToolPlot();
+    friend class StripToolView;
     
 signals:
     void addSeries(const QModelIndex &parent, int rowStart, int rowFinish);
@@ -41,28 +42,38 @@ protected:
     /// Returns true if a given series is in the plot, false otherwise.
     bool contains(MPlotItem *series);
     /// Adds a given series to the plot, if it hasn't been added already. Returns true if the unique series was successfully added.
-    bool addSeriesToPlot(MPlotItem *newSeries);
+    bool addPlotItem(MPlotItem *newSeries);
     /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
-    bool removeSeriesFromPlot(MPlotItem *toRemove);
+    bool removePlotItem(MPlotItem *toRemove);
+
+    void setLeftAxisName(const QString &newName);
+    void setLeftAxisRange(const MPlotAxisRange *newAxisRange);
+    void setBottomAxisName(const QString &newName);
+    void setSelectedItem(MPlotItem *newSelection);
+    MPlotItem* selectedItem() const;
+
+    void setWaterfall(bool waterfallOn);
 
 protected slots:
     /// Adds series to the plot when the rowsInserted() signal is emitted from the model.
-    void toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+//    void toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish);
 
     /// Removes series from the plot when the rowsAboutToBeRemoved() signal is emitted from the model.
-    void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
+//    void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
 
     /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
     void onSeriesChanged(Qt::CheckState seriesState, int rowChanged);
 
-    /// Causes a series to become de/selected to match the model's selected pv.
-    void onModelSelectionChange();
+//    /// Causes a series to become de/selected to match the model's selected pv.
+//    void onModelSelectionChange();
 
-    void toUpdateXAxisLabel(const QString &newLabel);
 
-    void toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange);
-    void toUpdateYAxisLabel(const QString &newLabel);
-    void onWaterfallStateChange(bool waterfallOn);
+
+//    void toUpdateXAxisLabel(const QString &newLabel);
+
+//    void toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange);
+//    void toUpdateYAxisLabel(const QString &newLabel);
+//    void onWaterfallStateChange(bool waterfallOn);
 
 };
 

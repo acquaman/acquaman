@@ -12,7 +12,7 @@ public:
     ~StripToolSelector();
 
 protected slots:
-    void setSelection(MPlotItem* newSelection);
+    void setSelection(MPlotItem *newSelection);
 
 };
 

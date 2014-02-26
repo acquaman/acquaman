@@ -6,104 +6,99 @@
 
 #include "MPlot/MPlotAxisScale.h"
 
+#include "StripChart/StripToolBasicVariableInfo.h"
+
 /// This is a dialog that pops up when the user indicates they want to edit a single/group of pvs. The pvs to edit are displayed, then space is provided for new description, points, unit to be entered. The entered values are applied to all selected pvs.
 
 class EditPVDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    EditPVDialog(QStringList pvNames, QWidget *parent = 0);
-    ~EditPVDialog();
     friend class StripToolModel;
-    
-signals:
-    void restoreSelectedDefaults();
 
-private:
-    QString description_;
-    bool descriptionChanged_;
-    QLineEdit *descriptionEntry_;
+public:
+    EditPVDialog(StripToolBasicVariableInfo *info, QWidget *parent = 0);
+//    ~EditPVDialog();
 
-    QString units_;
-    bool unitsChanged_;
-    QLineEdit *unitsEntry_;
+//protected:
+//    /// Returns the description entered by the user, an empty string if nothing entered.
+//    QString description();
+//    bool descriptionChanged();
 
-    QString gran_;
-    bool granChanged_;
-    QLineEdit *granularityEntry_;
+//    /// Returns the units entered by the user, an empty string if nothing entered.
+//    QString units();
+//    bool unitsChanged();
 
-    QString color_;
-    bool colorChanged_;
-    QLineEdit *colorEntry_;
+//    QString granularity();
+//    bool granularityChanged();
 
-    QString displayMax_;
-    bool yMaxChanged_;
-    QLineEdit *displayMaxEntry_;
-    QLabel *currentDisplayMax_;
-    QCheckBox *automaticMax_;
+//    QString color();
+//    bool colorChanged();
 
-    QString displayMin_;
-    bool yMinChanged_;
-    QLineEdit *displayMinEntry_;
-    QLabel *currentDisplayMin_;
-    QCheckBox *automaticMin_;
+//    QString displayMax();
+//    bool displayMaxChanged();
 
-//    QString shiftAmount_;
-//    bool shiftAmountChanged_;
-//    QLineEdit *shiftAmountEntry_;
+//    QString displayMin();
+//    bool displayMinChanged();
 
-    QPushButton *okButton_;
-    QPushButton *cancelButton_;
-    QPushButton *restoreButton_;
+//private slots:
+//    /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
+//    void descriptionEntered(const QString &newDescription);
 
-protected:
-    /// Returns the description entered by the user, an empty string if nothing entered.
-    QString description();
-    bool descriptionChanged();
+//    /// When the user finishes editing the text in unitsEntry_, the new text is saved to units_.
+//    void unitsEntered(const QString &units);
+//    void granularityEntered(const QString &gran);
+//    void colorEntered(const QString &newColor);
+//    void displayMaxEntered(const QString &max);
+//    void displayMinEntered(const QString &min);
 
-    /// Returns the units entered by the user, an empty string if nothing entered.
-    QString units();
-    bool unitsChanged();
+//    void automaticDisplayMaxChanged(Qt::CheckState checkState);
+//    void automaticDisplayMinChanged(Qt::CheckState checkState);
+//    void setMaxCheckState(const QString &textEntered);
+//    void setMinCheckState(const QString &textEntered);
+//    void toClearMaxEntry(int checkState);
+//    void toClearMinEntry(int checkState);
 
-    QString granularity();
-    bool granularityChanged();
+//    void toUpdateDataRange(MPlotAxisRange *newRange);
 
-    QString color();
-    bool colorChanged();
+//private:
+//    QLayout* createFormGui();
+//    QLayout* createButtonGui();
 
-    QString displayMax();
-    bool displayMaxChanged();
+//private:
+//    StripToolVariableInfo* info_;
 
-    QString displayMin();
-    bool displayMinChanged();
+//    QString description_;
+//    bool descriptionChanged_;
+//    QLineEdit *descriptionEntry_;
 
-//    QString shiftAmount();
-//    bool shiftAmountChanged();
+//    QString units_;
+//    bool unitsChanged_;
+//    QLineEdit *unitsEntry_;
 
-protected slots:
-    /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
-    void descriptionEntered(const QString &newDescription);
+//    QString gran_;
+//    bool granChanged_;
+//    QLineEdit *granularityEntry_;
 
-    /// When the user finishes editing the text in unitsEntry_, the new text is saved to units_.
-    void unitsEntered(const QString &units);
-    void granularityEntered(const QString &gran);
-    void colorEntered(const QString &newColor);
-    void displayMaxEntered(const QString &max);
-    void displayMinEntered(const QString &min);
-//    void shiftAmountEntered(const QString &shift);
+//    QString color_;
+//    bool colorChanged_;
+//    QLineEdit *colorEntry_;
 
-    void automaticDisplayMaxChanged(Qt::CheckState checkState);
-    void automaticDisplayMinChanged(Qt::CheckState checkState);
-    void setMaxCheckState(const QString &textEntered);
-    void setMinCheckState(const QString &textEntered);
-    void toClearMaxEntry(int checkState);
-    void toClearMinEntry(int checkState);
+//    QString displayMax_;
+//    bool yMaxChanged_;
+//    QLineEdit *displayMaxEntry_;
+//    QLabel *currentDisplayMax_;
+//    QCheckBox *automaticMax_;
 
-    void toUpdateDataRange(MPlotAxisRange *newRange);
+//    QString displayMin_;
+//    bool yMinChanged_;
+//    QLineEdit *displayMinEntry_;
+//    QLabel *currentDisplayMin_;
+//    QCheckBox *automaticMin_;
 
-//    void toUpdateDataMax(double currentMax);
-//    void toUpdateDataMin(double currentMin);
+//    QPushButton *okButton_;
+//    QPushButton *cancelButton_;
+//    QPushButton *restoreButton_;
     
 };
 

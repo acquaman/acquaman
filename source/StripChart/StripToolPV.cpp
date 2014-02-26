@@ -1,8 +1,14 @@
 #include "StripToolPV.h"
 
-StripToolPV::StripToolPV(AMDataSource *dataSource, QObject *parent)
-    : StripToolVariable(dataSource, parent)
+StripToolPV::StripToolPV(StripTool0DVariableInfo *info, AMDataSource *dataSource, QObject *parent)
+    : StripToolBasicVariable(info, dataSource, parent)
 {
+    int defaultGranularity = 2;
+
+    info_ = info;
+
+    setGranularity(defaultGranularity);
+
     updateIndex_ = 0;
     updateGranularity_ = 2;
     timeFactor_ = 0.001; // for conversion from different time units (initially ms) into seconds.
@@ -17,7 +23,7 @@ StripToolPV::StripToolPV(AMDataSource *dataSource, QObject *parent)
 
     isUpdating_ = true;
     checkState_ = Qt::Checked;
-    pvColor_ = QColor(Qt::red);
+    color_ = QColor(Qt::red);
 
     maxTimeBetweenUpdates_ = 1500; // ms
 
@@ -35,12 +41,14 @@ StripToolPV::StripToolPV(AMDataSource *dataSource, QObject *parent)
     pvSeries_->setModel(pvData_, true);
     pvSeries_->setDescription(" ");
     pvSeries_->setMarker(MPlotMarkerShape::None);
-    pvSeries_->setLinePen(QPen(pvColor_));
+    pvSeries_->setLinePen(QPen(color_));
 
-    setMetaDataHeaders();
+//    setMetaDataHeaders();
 
 //    connect( this, SIGNAL(dataSourceUpdated(double)), this, SLOT(toUpdateValues(double)) );
 //    connect( this, SIGNAL(manuallyUpdatePV(double)), this, SLOT(toUpdateValues(double)) );
+
+    connect( this, SIGNAL(colorNameChanged(QString)), this, SLOT(toSetColor(QString)) );
 
     qDebug() << "Instance of StripToolPV created.";
 }
@@ -49,6 +57,15 @@ StripToolPV::StripToolPV(AMDataSource *dataSource, QObject *parent)
 
 StripToolPV::~StripToolPV()
 {
+}
+
+
+
+StripTool0DVariableInfo* StripToolPV::info() const {
+    if (isValid())
+        return info_;
+    else
+        return 0;
 }
 
 
@@ -69,7 +86,7 @@ Qt::CheckState StripToolPV::checkState()
 
 QColor StripToolPV::color()
 {
-    return pvColor_;
+    return color_;
 }
 
 
@@ -146,9 +163,15 @@ MPlotVectorSeriesData* StripToolPV::data()
 
 
 
-StripToolSeries* StripToolPV::series()
-{
+StripToolSeries* StripToolPV::series() const {
     return pvSeries_;
+}
+
+
+
+MPlotItem* StripToolPV::plotItem() const
+{
+    return series();
 }
 
 
@@ -219,94 +242,36 @@ QVector<double> StripToolPV::saveMasterValues()
 
 
 
-void StripToolPV::setMetaDataHeaders()
-{
-    headers_.clear();
-
-    headers_ << "Name ";
-    headers_ << "Description ";
-    headers_ << "Units ";
-    headers_ << "Color ";
-    headers_ << "Granularity ";
-    headers_ << "Date ";
-}
-
-
-
-QList<QString> StripToolPV::metaDataHeaders()
-{
-    return headers_;
-}
-
-
-
-QList<QString> StripToolPV::metaData()
-{
-    QList<QString> metaData;
-
-    metaData << name();
-    metaData << description();
-    metaData << units();
-    metaData << color().name();
-    metaData << QString::number(updateGranularity());
-    metaData << creationDateTime();
-
-    return metaData;
-}
-
-
-
-QList<QString> StripToolPV::editPVDialogData()
-{
-    QList<QString> editPVData;
-
-    editPVData << name();
-    editPVData << creationDateTime();
-    editPVData << description();
-    editPVData << units();
-    editPVData << QString::number(updateGranularity());
-    editPVData << color().name();
-    editPVData << customDisplayedYMax();
-    editPVData << customDisplayedYMin();
-
-    qDebug() << "StripToolPV :: PV information to be displayed in EditPVDialog : " << editPVData;
-
-
-    return editPVData;
-}
-
-
-
 bool StripToolPV::setMetaData(QList<QString> metaData)
 {
-    qDebug() << "StripToolPV :: Attempting to set meta data for pv named" << metaData.at(0);
+//    qDebug() << "StripToolPV :: Attempting to set meta data for pv named" << metaData.at(0);
 
-    if (metaData.at(0) != name())
-    {
-        qDebug() << "StripToolPV :: The meta data name" << metaData.at(0) << "and pv name" << name() << "don't match!";
-        return false;
-    }
+//    if (metaData.at(0) != name())
+//    {
+//        qDebug() << "StripToolPV :: The meta data name" << metaData.at(0) << "and pv name" << name() << "don't match!";
+//        return false;
+//    }
 
-    if (metaData.size() != metaDataHeaders().size())
-    {
-        qDebug() << "StripToolPV :: The number of meta data entries" << QString::number(metaData.size()) << "and the number of headers" << QString::number(metaDataHeaders().size()) << "don't match!";
-        return false;
-    }
+//    if (metaData.size() != metaDataHeaders().size())
+//    {
+//        qDebug() << "StripToolPV :: The number of meta data entries" << QString::number(metaData.size()) << "and the number of headers" << QString::number(metaDataHeaders().size()) << "don't match!";
+//        return false;
+//    }
 
-    QString description = metaData.at(1);
-    QString yUnits = metaData.at(2);
-    QString color = metaData.at(3);
-    int granularity = metaData.at(4).toInt();
+//    QString description = metaData.at(1);
+//    QString yUnits = metaData.at(2);
+//    QString color = metaData.at(3);
+//    int granularity = metaData.at(4).toInt();
 
-    setDescription(description);
-    setUnits(yUnits);
-    setSeriesColor(color);
+//    setDescription(description);
+//    setUnits(yUnits);
+//    setColor(color);
 
-    if (granularity > 0) {
-        setUpdateGranularity(QString::number(granularity));
-    } else {
-        setUpdateGranularity(QString::number(2));
-    }
+//    if (granularity > 0) {
+//        setUpdateGranularity(QString::number(granularity));
+//    } else {
+//        setUpdateGranularity(QString::number(2));
+//    }
 
     return true;
 }
@@ -407,38 +372,42 @@ void StripToolPV::setTimeDisplayed(int seconds)
 
 
 
-void StripToolPV::setCheckState(Qt::CheckState isChecked)
+void StripToolPV::setColor(const QString &colorName)
 {
-    checkState_ = isChecked;
+    if (isValid())
+        this->info()->setColorName(colorName);
+
+    if (this->info()->hasColor())
+        emit savePVMetaData();
+
+//    color_ = QColor(colorName);
+//    series()->setLinePen( QPen(color_) );
+
+//    emit savePVMetaData();
 }
 
 
 
-void StripToolPV::setSeriesColor(const QColor &color)
+void StripToolPV::setGranularity(const QString &newVal)
 {
-    if (!color.isValid()) {
-        qDebug() << "StripToolPV :: New color selection for" << name() << "is invalid. No change made.";
-        return;
-    }
+    if (isValid())
+        info()->setGranularity(newVal.toInt());
 
-    pvColor_ = color;
-    series()->setLinePen( QPen(pvColor_) );
-    qDebug() << "Setting new color for pv" << name() << ":" << color.name();
-    emit savePVMetaData();
+//    if (newVal.toInt() <= 0) {
+//        qDebug() << "StripToolPV :: Cannot display a pv with update granularity of zero or less! Must be positive, nonzero integer. No change made.";
+//        return;
+//    }
+
+//    updateGranularity_ = newVal.toInt();
+//    qDebug() << "StripToolPV :: Setting new update granularity for pv" << name() << ":" << updateGranularity();
+//    emit savePVMetaData();
 }
 
 
 
-void StripToolPV::setUpdateGranularity(const QString &newVal)
-{
-    if (newVal.toInt() <= 0) {
-        qDebug() << "StripToolPV :: Cannot display a pv with update granularity of zero or less! Must be positive, nonzero integer. No change made.";
-        return;
-    }
-
-    updateGranularity_ = newVal.toInt();
-    qDebug() << "StripToolPV :: Setting new update granularity for pv" << name() << ":" << updateGranularity();
-    emit savePVMetaData();
+void StripToolPV::setGranularity(int newVal) {
+    if (isValid())
+        info()->setGranularity(newVal);
 }
 
 
@@ -473,6 +442,12 @@ void StripToolPV::toManuallyUpdatePV()
 
 
 
+void StripToolPV::onInfoChanged() {
+    qDebug() << "The information for" << name() << "has changed.";
+}
+
+
+
 void StripToolPV::saveCheck()
 {
     if (updateIndex_ > 0 && updateIndex_ % savePoint_ == 0) {
@@ -495,22 +470,21 @@ void StripToolPV::dataVectorSizeCheck()
 
 
 
-void StripToolPV::onDataSourceChanged(AMnDIndex start, AMnDIndex end)
+void StripToolPV::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    qDebug() << "StripToolPV::onDataSourceChanged(...) : value update :" << start.toString() << "," << end.toString();
+    Q_UNUSED(start)
+    Q_UNUSED(end)
 
-    double* newValue = 0;
-    dataSource()->values(start, end, newValue);
+//    qDebug() << "StripToolPV :: data source value update detected.";
 
-    emit dataSourceUpdated(*newValue);
+    double newValue = (double) dataSource()->value(AMnDIndex());
+    toUpdateValues(newValue);
 }
 
 
 
 void StripToolPV::toUpdateValues(double newValue)
 {
-    qDebug() << "StripToolPV::toUpdateValues(...) : value update :" << newValue;
-
     // stop the interval timer.
     updateIntervalTimer_->stop();
 
@@ -527,10 +501,11 @@ void StripToolPV::toUpdateValues(double newValue)
     masterUpdateTimes_[updateIndex_] = latestTime;
     masterUpdateValues_[updateIndex_] = latestValue;
 
-    qDebug() << "PV" << name() << "value update :" << latestValue;
+    qDebug() << "StripToolPV::toUpdateValues(...) : PV" << name() << "value update :" << latestValue;
 
     //  if the pv is updating on the plot, display the correct updated information.
     if (isUpdating_ && (updateIndex_ % updateGranularity() == 0)) {
+
         // set a 'now' time that will be used to generate the x-axis display values.
         QTime nowish = QTime::currentTime();
 
@@ -562,8 +537,8 @@ void StripToolPV::toUpdateValues(double newValue)
         }
     }
 
-//    qDebug() << "StripToolPV :: Displayed times : " << displayedTimes_;
-//    qDebug() << "StripToolPV :: Displayed values : " << displayedValues_;
+    qDebug() << "StripToolPV :: Displayed times : " << displayedTimes_;
+    qDebug() << "StripToolPV :: Displayed values : " << displayedValues_;
 
     //  update the displayed data with the new vectors.
     pvData_->setValues(displayedTimes_, displayedValues_);
@@ -574,14 +549,14 @@ void StripToolPV::toUpdateValues(double newValue)
 
     emit pvValueUpdated();
 
-    // restart the interval timer.
+    // restart the update interval timer.
     updateIntervalTimer_->start(maxTimeBetweenUpdates_);
 
     // if the pv is selected (and plotted) then the axis labels should reflect the data of this pv.
     if (isSelected() && checkState() == Qt::Checked) {
 
 //        qDebug() << "StripToolPV :: dataRangeChanged emitted with lower limit" << series()->dataRange()->min() << "and upper limit" << series()->dataRange()->max();
-//        emit dataRangeChanged(series()->dataRange());
+        emit dataRangeChanged(series()->dataRange());
 
         qreal max = series()->displayedRange()->max();
         qreal min = series()->displayedRange()->min();
@@ -595,14 +570,14 @@ void StripToolPV::toUpdateValues(double newValue)
                 series()->setCustomLimits(min, max);
 
             } else {
-//                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
-//                min *= 0.95;
-//                max *= 1.05;
-//                series()->setCustomLimits(min, max);
+                qDebug() << "StripToolPV :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
+                min *= 0.95;
+                max *= 1.05;
+                series()->setCustomLimits(min, max);
             }
         }
 
-//        emit displayRangeChanged(new MPlotAxisRange(min, max));
+        emit displayRangeChanged(new MPlotAxisRange(min, max));
     }
 
 }

@@ -24,21 +24,21 @@ StripToolListView::~StripToolListView()
 
 
 
-void StripToolListView::setPVModel(StripToolModel *model)
-{
-    model_ = model;
+//void StripToolListView::setPVModel(StripToolModel *model)
+//{
+//    model_ = model;
 
-    setModel(model_);
+//    setModel(model_);
 
-    connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
+//    connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
 
-    connect( this->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), model_, SLOT(listItemSelected(QModelIndex, QModelIndex)) );
+//    connect( this->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), model_, SLOT(listItemSelected(QModelIndex, QModelIndex)) );
 
-    connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
-    connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
+//    connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
+//    connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
 //    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
-    connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
-}
+//    connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
+//}
 
 
 
@@ -121,6 +121,26 @@ QColor StripToolListView::colorPicker()
 
 
 
+void StripToolListView::setSelectedIndex(const QModelIndex &newSelection) {
+    // an invalid index indicates something has been deselected.
+    if (newSelection == QModelIndex()) {
+        qDebug() << "List view item deselected.";
+        emit setCurrentSelection(QModelIndex());
+
+    } else if (newSelection.isValid()) {
+        qDebug() << "Setting list view selection...";
+        emit setCurrentSelection(newSelection);
+    }
+}
+
+
+
+QModelIndex StripToolListView::selectedIndex() const {
+    return currentIndex();
+}
+
+
+
 void StripToolListView::toSetPVColor()
 {
     QColor newColor = colorPicker();
@@ -131,18 +151,18 @@ void StripToolListView::toSetPVColor()
 
 
 
-void StripToolListView::onModelSelectionChange()
-{
-    QModelIndex modelSelection = model_->selectedIndex();
+//void StripToolListView::onModelSelectionChange()
+//{
+//    QModelIndex modelSelection = model_->selectedIndex();
 
-    // an invalid index indicates that there is no model selection--something has been deselected.
-    if (modelSelection == QModelIndex())
-    {
-        qDebug() << "List view item deselected.";
-        emit setCurrentSelection(modelSelection);
+//    // an invalid index indicates that there is no model selection--something has been deselected.
+//    if (modelSelection == QModelIndex())
+//    {
+//        qDebug() << "List view item deselected.";
+//        emit setCurrentSelection(modelSelection);
 
-    } else if (modelSelection.isValid()) {
-        qDebug() << "Setting list view selection...";
-        emit setCurrentSelection(modelSelection);
-    }
-}
+//    } else if (modelSelection.isValid()) {
+//        qDebug() << "Setting list view selection...";
+//        emit setCurrentSelection(modelSelection);
+//    }
+//}

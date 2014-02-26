@@ -20,19 +20,40 @@ class StripToolView : public QWidget
 public:
     explicit StripToolView(QWidget *parent = 0, StripToolModel *model = 0);
     ~StripToolView();
+    friend class StripTool;
 
 signals:
-    void reloadPVs(bool reload);
+    //    void reloadPVs(bool reload);
+    void viewSelectionChange();
+    void plotSelectionChanged(MPlotItem *newSelection);
+    void listSelectionChanged(const QModelIndex &newSelection);
 
-protected:
+private:
+    StripToolModel* model() const;
+    StripToolPlot* plotView() const;
+    StripToolSidePanel* sidePanel() const;
+    StripToolControlsPanel* controlPanel() const;
+
+    /// Creates instances of StripToolPlot, StripToolSidePanel, and StripToolControlsPanel.
+    void buildUI();
+    void setPlotLeftAxisName(const QString &newName);
+    void setPlotBottomAxisName(const QString &newName);
+    void setPlotSelection(MPlotItem *newSelection);
+    MPlotItem* plotSelection();
+    void addPlotItem(MPlotItem *newItem);
+    void removePlotItem(MPlotItem *oldItem);
+
+    void setListSelection(const QModelIndex &selectedIndex);
+    QModelIndex listSelection() const;
+
+private slots:
+    void onSeriesDeselected();
+
+private:
     StripToolModel *model_;
     StripToolPlot *plotView_;
     StripToolSidePanel *sidePanel_;
     StripToolControlsPanel *controlPanel_;
-
-protected:
-    /// Creates instances of StripToolPlot, StripToolSidePanel, and StripToolControlsPanel.
-    void buildUI();
 
 };
 

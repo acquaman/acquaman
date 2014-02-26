@@ -10,6 +10,7 @@ class StripToolSeries : public MPlotSeriesBasic
 public:
     StripToolSeries();
     friend class StripToolPV;
+    friend class StripTool0DVariable;
 
 
 public:
