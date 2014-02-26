@@ -731,7 +731,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-	deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime(), 0, 'f', 0));
+        deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
