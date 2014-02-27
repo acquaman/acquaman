@@ -1,5 +1,5 @@
-#ifndef AMREGIONSCANACTIONCONTROLLERBASICFILEWRITER_H
-#define AMREGIONSCANACTIONCONTROLLERBASICFILEWRITER_H
+#ifndef AMSCANACTIONCONTROLLERBASICFILEWRITER_H
+#define AMSCANACTIONCONTROLLERBASICFILEWRITER_H
 
 #include <QString>
 #include <QObject>
@@ -7,7 +7,7 @@
 class QFile;
 
 /// This class is used for basic file writing needs of a scan controller.
-class AMRegionScanActionControllerBasicFileWriter : public QObject
+class AMScanActionControllerBasicFileWriter : public QObject
 {
 	Q_OBJECT
 
@@ -21,8 +21,8 @@ public:
 	};
 
 	/// Constructor.  Requires the file path for where the files should be stored.  \param filePath should have everything for the data file except the extension.  Also needs to be told whether it needs to open a separate file for spectral data.
-	AMRegionScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
-	virtual ~AMRegionScanActionControllerBasicFileWriter();
+	AMScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
+	virtual ~AMScanActionControllerBasicFileWriter();
 
 public slots:
 	/// Writes the given string to a file.  You need to provide either 0 or 1 for the file rank (scaler data or spectral data).
@@ -32,13 +32,13 @@ public slots:
 
 signals:
 	/// Notifier that there was a write error.  Passes the error.
-	void fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Notifier on whether the file writer is busy or not.
 	void fileWriterIsBusy(bool isBusy);
 
 protected slots:
 	/// Handles all the work for emitting the given error.
-	void emitError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void emitError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles emitting all the errors that have been accumulated so far.
 	void emitErrors();
 	/// Handles emitting changes in the file writer busy state.
@@ -56,9 +56,7 @@ protected:
 	QFile *spectraFile_;
 
 	/// A list of errors.
-	QList<AMRegionScanActionControllerBasicFileWriter::FileWriterError> errorsList_;
+	QList<AMScanActionControllerBasicFileWriter::FileWriterError> errorsList_;
 };
 
-//Q_DECLARE_METATYPE(SGMXASScanActionControllerFileWriter::FileWriterError)
-
-#endif // AMREGIONSCANACTIONCONTROLLERBASICFILEWRITER_H
+#endif // AMSCANACTIONCONTROLLERBASICFILEWRITER_H
