@@ -162,7 +162,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -170,8 +170,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
 
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
@@ -262,7 +262,7 @@ DEFINES += AM_ENABLE_BOUNDS_CHECKING
 
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
-QMAKE_CXXFLAGS += -Wextra
+QMAKE_CXXFLAGS += -Wextra -g
 
 # Specify RPATH (runtime library search paths) so that libraries can be found without requiring LD_LIBRARY_PATH
 # For Qt 4.7.1 and earlier, need to use this instead:
@@ -746,6 +746,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/camera/AMBeamConfigurationWizard.h \
 	source/ui/beamline/camera/AMSamplePlateWizard.h \
 	source/ui/beamline/camera/AMGraphicsViewWizard.h \
+	source/ui/beamline/camera/AMRotationWizard.h \
 	source/ui/AMColorPickerButton2.h \
 	source/ui/util/AMSamplePeriodicTableDialog.h \
 	source/beamline/camera/AMGraphicsVideoSceneCopier.h \
@@ -763,7 +764,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMGraphicsTextItem.h \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.h \
 	source/ui/dataman/AMSampleEditor.h \
-	source/ui/beamline/camera/AMRotationWizard.h
+	source/beamline/camera/AMRotationalOffset.h
 
 
 # OS-specific files:
@@ -1252,6 +1253,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/camera/AMBeamConfigurationWizard.cpp \
 	source/ui/beamline/camera/AMSamplePlateWizard.cpp \
 	source/ui/beamline/camera/AMGraphicsViewWizard.cpp \
+	source/ui/beamline/camera/AMRotationWizard.cpp \
 	source/ui/AMColorPickerButton2.cpp \
 	source/ui/util/AMSamplePeriodicTableDialog.cpp \
 	source/beamline/camera/AMGraphicsVideoSceneCopier.cpp \
@@ -1269,7 +1271,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMGraphicsTextItem.cpp \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp \
 	source/ui/dataman/AMSampleEditor.cpp \
-	source/ui/beamline/camera/AMRotationWizard.cpp
+	source/beamline/camera/AMRotationalOffset.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1293,8 +1295,6 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
 
 
 

@@ -37,6 +37,9 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);
 
+	crosshairXLine_->setVisible(false);
+	crosshairYLine_->setVisible(false);
+
 	reviewCrosshairLinePositions();
 
 	doubleClickInProgress_ = false;
@@ -73,8 +76,8 @@ void AMCrosshairOverlayVideoWidget::reviewCrosshairLinePositions()
 	qreal xSceneCoord = activeRect.left() + crosshairX_*activeRect.width();
 	qreal ySceneCoord = activeRect.top() + crosshairY_*activeRect.height();
 
-	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
-	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
+//	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
+//	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 }
 
 QPen AMCrosshairOverlayVideoWidget::crosshairPen() const

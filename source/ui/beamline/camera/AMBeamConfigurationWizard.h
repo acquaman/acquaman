@@ -12,50 +12,50 @@ class QCheckBox;
 /// two dimensional points.  Access these points to reposition the beam.
 class AMBeamConfigurationWizard : public AMGraphicsViewWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    enum {Page_Intro, Page_Check_One, Page_Check_Two, Page_Check_Three, Page_Set_One,
-          Page_Set_Two, Page_Set_Three, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Final,
-          Wait_One_Again, Wait_Two_Again, Wait_Three_Again, Skip_Check, Page_Option};
+	enum {Page_Intro, Page_Check_One, Page_Check_Two, Page_Check_Three, Page_Set_One,
+		Page_Set_Two, Page_Set_Three, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Final,
+		Wait_One_Again, Wait_Two_Again, Wait_Three_Again, Skip_Check, Page_Option};
 
 
-    AMBeamConfigurationWizard(QWidget* parent = 0);
+	AMBeamConfigurationWizard(QWidget* parent = 0);
 	virtual ~AMBeamConfigurationWizard();
 
 	virtual int nextId() const;
 
 	virtual QString message(int);
 
-    int relativeId();
+	int relativeId();
 
-//	virtual void waitPage();
+	//	virtual void waitPage();
 
-    void showBeamShape();
+	void showBeamShape();
 
-    bool setting();
+	bool setting();
 
-    bool reviewBeamShape();
+	bool reviewBeamShape();
 
 public slots:
-    void back();
+	void back();
 
-    void next();
+	void next();
 
 	virtual void addPoint(QPointF position);
 
-    void endPoint();
+	void endPoint();
 
 signals:
-    void showShape(int);
+	void showShape(int);
 
-    void showBeamMarker(int);
+	void showBeamMarker(int);
 
 protected:
-    bool setting_;
+	bool setting_;
 
-    bool reviewBeamShape_;
+	bool reviewBeamShape_;
 
-    bool topLeft_;
+	bool topLeft_;
 };
 
 class AMBeamIntroPage : public AMWizardPage
@@ -70,25 +70,25 @@ public:
 
 class AMBeamCheckPage : public AMCheckPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 protected:
 };
 
 class AMBeamWaitPage : public AMWaitPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 };
 
 class AMBeamSelectPage : public AMViewPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 
-    void initializePage();
+	void initializePage();
 
 };
 

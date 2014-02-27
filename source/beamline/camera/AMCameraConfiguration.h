@@ -119,7 +119,7 @@ protected:
     QPointF imageCentre_;
     QVector<QVector3D> cameraMatrix_;
     /// the matrix form of cameraMatrix
-    /// calculated form setCameraMatrixFromMatrix
+    /// calculated from setCameraMatrixFromMatrix
     MatrixXd cameraTransformMatrix_;
     bool matrixCalculated_;
 };

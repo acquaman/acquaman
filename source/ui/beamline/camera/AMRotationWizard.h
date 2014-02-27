@@ -42,10 +42,15 @@ class AMRotationSetPage: public AMViewPage
 {
 	Q_OBJECT
 public:
-	void initializePage();
+	virtual void initializePage();
+	virtual bool validatePage();
+	virtual void cleanupPage();
 
 public slots:
 	void addPoint(QPointF position);
+
+protected:
+	void disconnectSignals();
 };
 
 class AMRotationCheckPage : public AMCheckPage

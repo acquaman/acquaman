@@ -88,7 +88,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/camera/AMSampleCameraBrowserView.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
-#include "ui/beamline/AMBeamlineSampleManagementView.h"
+#include "ui/SGM/SGMSampleManagementView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -101,7 +101,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-        if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae") )
+	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 
@@ -431,6 +431,11 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
+
+		AMDetectorGeneralDetailedView *failView = 0;
+		failView->layout();
+
+
 		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
 		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
 	}
@@ -531,6 +536,11 @@ void SGMAppController::onActionProcServManager(){
 	procServsView_->show();
 }
 
+void SGMAppController::onAdvancedCameraOptionsRequested(){
+	if(sampleManagementView_)
+		sampleManagementView_->requestAdvancedCameraOptionsWindow();
+}
+
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
@@ -565,9 +575,15 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	procServsView_ = 0;
 
+	QAction *advancedSGMCameraOptionsAction = new QAction("SGM Camera Advanced...", mw_);
+	advancedSGMCameraOptionsAction->setStatusTip("Advanced Camera Settings");
+	connect(advancedSGMCameraOptionsAction, SIGNAL(triggered()), this, SLOT(onAdvancedCameraOptionsRequested()));
+
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
 	fileMenu_->addAction(sgmProcServAction);
+
+	viewMenu_->addAction(advancedSGMCameraOptionsAction);
 
 	return true;
 }
@@ -1222,15 +1238,16 @@ bool SGMAppController::setupSGMPeriodicTable(){
 bool SGMAppController::setupSGMViews(){
 	// Create panes in the main window:
 	mw_->insertHeading("Beamline Control", 0);
-	samplePositionView_ = new AMSampleManagementPre2013Widget(new SGMSampleManipulatorView(),
-							   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-							   "Sample Camera",
-							   SGMBeamline::sgm()->currentSamplePlate(),
-							   SGMBeamline::sgm()->sampleManipulator());
-	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
+//	samplePositionView_ = new AMSampleManagementPre2013Widget(new SGMSampleManipulatorView(),
+//							   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
+//							   "Sample Camera",
+//							   SGMBeamline::sgm()->currentSamplePlate(),
+//							   SGMBeamline::sgm()->sampleManipulator());
+//	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
+//	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
-	sampleManagementView_ = new AMBeamlineSampleManagementView(SGMBeamline::sgm(), SGMBeamline::sgm()->motorGroup());
+	//sampleManagementView_ = new AMBeamlineSampleManagementView(SGMBeamline::sgm(), SGMBeamline::sgm()->motorGroup());
+	sampleManagementView_ = new SGMSampleManagementView();
 	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
 	// Jan 11, 2013: I don't think this is necessary at all anymore
@@ -1249,6 +1266,7 @@ bool SGMAppController::setupSGMViews(){
 	mw_->insertHeading("Beamline Detectors", 1);
 
 	newAmptekSDD1View_ = 0;
+	//newAmptekSDD1View_->layout();
 	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
 	onSGMNewAmptekSDD1Connected(false);
 

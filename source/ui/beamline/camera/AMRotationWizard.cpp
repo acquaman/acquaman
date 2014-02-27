@@ -3,27 +3,32 @@
 #include <QWizard>
 #include "AMSampleCameraGraphicsView.h"
 #include <QAbstractButton>
+#include <QDebug>
 
 AMRotationWizard::AMRotationWizard(QWidget *parent)
 	: AMGraphicsViewWizard(parent)
 {
-	/// need only two points to calculate since the first one (rotation == 0) is inherently known
+//	/ need only two points to calculate since the first one (rotation == 0) is inherently known
 	setNumberOfPoints(2);
 	setNumberOfPages(numberOfPoints());
 	setFreePage(Page_Free);
 	/// allow rotation during wizard operation
 	setRotationEnabled(true);
 	/// place two zero coordinates in the list
-	coordinateListAppend(new QVector3D(0,0,0));
-	coordinateListAppend(new QVector3D(0,0,0));
+	for(int i = 0; i < numberOfPoints(); i ++)
+	{
+		coordinateListAppend(new QVector3D(0,0,0));
+		pointListAppend(new QPointF(0,0));
+
+	}
 
 	/// add some rotations
-	rotationsAppend(15);
-	rotationsAppend(30);
+//	rotationsAppend(-20);
+	rotationsAppend( 10);
+	rotationsAppend( 40);
+//	rotationsAppend( 50);
 
 
-	pointListAppend(new QPointF(0,0));
-	pointListAppend(new QPointF(0,0));
 
 	setPage(Page_Intro, new AMWizardPage);
 	setPage(Page_Check, new AMRotationCheckPage);
@@ -179,7 +184,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Select Page %d ").arg(relativeId()));
+				return QString(tr("Select Page %1 ")).arg(relativeId());
 			case Text:
 			case Help:
 			case Other:
@@ -193,7 +198,7 @@ QString AMRotationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Wait Page %d").arg(relativeId()));
+				return QString(tr("Wait Page %1")).arg(relativeId());
 			case Text:
 			case Help:
 			case Other:
@@ -254,6 +259,11 @@ void AMRotationWizard::addPoint(QPointF position)
 		newPoint = pointList()->at(index);
 		QPointF newPosition = mapPointToVideo(position);
 		*newPoint = newPosition;
+		for(int i = 0; i < pointList()->count(); i++)
+		{
+			qDebug()<<*pointList()->at(i);
+		}
+
 		next();
 	}
 }
@@ -275,11 +285,27 @@ void AMRotationCheckPage::checkBoxChanged(bool state)
 void AMRotationSetPage::initializePage()
 {
 	AMViewPage::initializePage();
-	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+}
+
+/// this happens every time the page is left.
+bool AMRotationSetPage::validatePage()
+{
+	disconnectSignals();
+	return AMViewPage::validatePage();
+}
+
+void AMRotationSetPage::cleanupPage()
+{
+	disconnectSignals();
 }
 
 void AMRotationSetPage::addPoint(QPointF position)
 {
 	((AMRotationWizard*)viewWizard())->addPoint(position);
+}
+
+void AMRotationSetPage::disconnectSignals()
+{
+	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 }

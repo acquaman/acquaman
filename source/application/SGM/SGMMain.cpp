@@ -17,22 +17,38 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 #include <QApplication>
 #include <QDebug>
 #include <QHostInfo>
+#include <QProcess>
+#include <QDir>
 #include "application/SGM/SGMAppController.h"
+
+#include <signal.h>
+
+void handle_signal(int signum);
+qint64 crashReporterPID;
+QFile *errorFile;
 
 int main(int argc, char *argv[])
 {
+	signal(SIGSEGV, handle_signal);
+
+	QFile localErrorFile("ErrorFile.txt");
+	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
+	errorFile = &localErrorFile;
 
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
+
+	QStringList arguments;
+	arguments << "-m";
+	arguments << app.applicationFilePath();
+	//arguments << "/home/chevrid/testingCoreDumps/runAcquamanCoreBackTraceCommands.txt";
+	arguments << QString("%1").arg(getpid());
+	QProcess::startDetached("/home/sgm/beamline/programming/acquamanTestSandbox/build/AMCrashReporter", arguments, QDir::currentPath(), &crashReporterPID);
 
 	qDebug() << "Local host? " << QHostInfo::localHostName();
 	QString pathEnv = getenv(QString("PATH").toAscii().data());
@@ -82,3 +98,21 @@ int main(int argc, char *argv[])
 	return retVal;
 }
 
+#include <execinfo.h>
+
+void handle_signal(int signum){
+	void *array[100];
+	size_t size;
+
+	size = backtrace(array, 100);
+	//fprintf(stderr, "Error: ");
+	//backtrace_symbols_fd(array, size, STDERR_FILENO);
+	backtrace_symbols_fd(array, size, errorFile->handle());
+	//exit(1);
+
+	qDebug() << "Handling SIGSEV, hopefully on PID " << getpid() << " need to notify PID " << crashReporterPID;
+
+	kill(crashReporterPID, SIGUSR1);
+	signal(signum, SIG_DFL);
+	kill(getpid(), signum);
+}

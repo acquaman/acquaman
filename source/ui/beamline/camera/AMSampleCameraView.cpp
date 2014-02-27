@@ -16,6 +16,7 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 #include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 
@@ -51,7 +52,9 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSample.h"
 
+#include "beamline/camera/AMRotationalOffset.h"
 
+#include "beamline/AMBeamline.h"
 
 #define SAMPLEPOINTS 6
 
@@ -87,6 +90,12 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	mode_ = DRAW;
 
 
+	// doing this broke things horribly, not sure why
+//	/// start them off null, create them and delete them when used
+//	cameraWizard_ = NULL;
+//	beamWizard_ = NULL;
+//	samplePlateWizard_ = NULL;
+//	rotationWizard_ = NULL;
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	view->setScene(shapeScene_->scene());
@@ -114,8 +123,11 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
-	crosshairXLine_->setVisible(true);
-	crosshairYLine_->setVisible(true);
+//	crosshairXLine_->setVisible(true);
+//	crosshairYLine_->setVisible(true);
+
+	crosshairXLine_->setVisible(false);
+	crosshairYLine_->setVisible(false);
 
 	QPolygonF polygon(QRectF(5, 5, 0, 0));
 
@@ -641,6 +653,8 @@ void AMSampleCameraView::beamCalibrate()
 	shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(true);
 	refreshSceneView();
+//	delete beamWizard_;
+//	beamWizard_ = NULL;
 
 }
 
@@ -684,17 +698,17 @@ void AMSampleCameraView::samplePlateCreate()
 	/// interleave the created lists
 	while(!samplePointListEmpty(list,numberOfPoints))
 	{
-            for(int i = 0; i < numberOfPoints; i++)
-            {
-                if(!list[i].isEmpty())
-                {
-                    combinedPoints<<(list[i].takeFirst());
-                }
-                else
-                {
-                    qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
-                }
-            }
+		for(int i = 0; i < numberOfPoints; i++)
+		{
+			if(!list[i].isEmpty())
+			{
+				combinedPoints<<(list[i].takeFirst());
+			}
+			else
+			{
+				qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
+			}
+		}
 	}
 
 	const QList<QVector3D*>* coordinateList = samplePlateWizard_->getCoordinateList();
@@ -704,13 +718,16 @@ void AMSampleCameraView::samplePlateCreate()
 		sampleCoordinateList<<*coordinate;
 	}
 
-		const QList<double> *rotationsList = samplePlateWizard_->getRotationList();
-		QVector<double> rotations;
-		foreach(double angle, *rotationsList)
-		{
-			rotations<<angle;
-		}
-        shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
+	const QList<double> *rotationsList = samplePlateWizard_->getRotationList();
+	QVector<double> rotations;
+	foreach(double angle, *rotationsList)
+	{
+		rotations<<angle;
+	}
+	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
+
+	//		delete samplePlateWizard_;
+	//		samplePlateWizard_ = NULL;
 
 }
 
@@ -744,7 +761,10 @@ void AMSampleCameraView::rotationConfiguration()
 		qDebug()<<"AMSampleCameraView::rotationConfiguration - Incorrect number of points";
 	}
 
-	shapeModel_->configureRotation( coordinates, points, rotations);
+	shapeModel_->configureRotation( coordinates, points, rotations, rotationWizard_->numberOfPoints());
+	shapeModel_->saveRotationalOffset();
+//	delete rotationWizard_;
+//	rotationWizard_ = NULL;
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const
@@ -1019,11 +1039,13 @@ void AMSampleCameraView::reviewCameraConfiguration()
 			coordinates[i] = *coordinateList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
-                shapeModel_->deleteCalibrationPoints();
+		shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
 	}
+//	delete cameraWizard_;
+//	cameraWizard_ = NULL;
 }
 
 void AMSampleCameraView::onMoveToBeamToggled(bool checked)
@@ -1163,12 +1185,64 @@ bool AMSampleCameraView::loadSamplePlate()
 
 	AMSample* samplePlate = new AMSample();
 	samplePlate->loadFromDb(db,matchList.last());
+
+	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
+	if(!samplePositioner){
+		QMessageBox::warning(this, "Cannot Reload Sample Plate", "Sorry, Acquaman doesn't seem to be able to reload the sample plate because the beamline sample manipulator isn't connected", QMessageBox::Ok);
+		return false;
+	}
+
+	QStringList positionsInNote = samplePlate->notes().split(';');
+	for(int x = 0; x < samplePositioner->count(); x++){
+		if(!samplePositioner->at(x)->withinTolerance(positionsInNote.at(x).toDouble())){
+
+			QString initialMessageString = QString("Sorry, Acquaman doesn't seem to be able to reload the sample plate because the sample manipulator is at a different position");
+			QString failureMessageString = QString("Motor:%1 Current:%2 Original:%3 Tolerance:%4").arg(samplePositioner->at(x)->name()).arg(samplePositioner->at(x)->value()).arg(positionsInNote.at(x).toDouble()).arg(samplePositioner->at(x)->tolerance());
+			QString suggestedActionString = QString("Acquaman can solve this problem by moving the sample manipulator to ");
+			for(int y = 0; y < samplePositioner->count(); y++)
+				suggestedActionString.append(QString("%1: %2 ").arg(samplePositioner->at(y)->description()).arg(positionsInNote.at(y).toDouble()));
+			int retVal = QMessageBox::warning(this, "Cannot Reload Sample Plate", QString("%1\n\n%2\n\n%3").arg(initialMessageString).arg(failureMessageString).arg(suggestedActionString), QMessageBox::Ok, QMessageBox::Cancel);
+			switch(retVal){
+			case QMessageBox::Ok:
+				for(int y = 0; y < samplePositioner->count(); y++)
+					samplePositioner->at(y)->move(positionsInNote.at(y).toDouble());
+
+				break;
+			case QMessageBox::Cancel:
+				break;
+			}
+
+			return false;
+		}
+	}
+
 	AMShapeData* samplePlateShape = samplePlate->sampleShapePositionData();
 	drawOnShapeCheckBox_->setChecked(true);
 	setDrawOnShapeEnabled(true);
 	shapeModel_->setSamplePlate(samplePlateShape);
 	refreshSceneView();
 	return true;
+
+}
+
+bool AMSampleCameraView::loadRotationalOffset()
+{
+	QString rotationalOffsetName = "LastRotationalOffset";
+	AMDatabase *db = AMDatabase::database("user");
+	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
+
+	if(matchList.count() <= 0)
+	{
+		return false;
+	}
+
+	AMRotationalOffset *rotationalOffset = new AMRotationalOffset();
+	rotationalOffset->loadFromDb(db,matchList.last());
+	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
+	delete rotationalOffset;
+	refreshSceneView();
+	return true;
+
 
 }
 
@@ -1259,7 +1333,10 @@ void AMSampleCameraView::hideCameraParameters(bool hide)
 
 void AMSampleCameraView::startCameraWizard()
 {
-	delete cameraWizard_;
+//	if(cameraWizard_)
+//	{
+		delete cameraWizard_;
+//	}
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
 	connect(cameraWizard_, SIGNAL(done()), this, SIGNAL(cameraWizardFinished()));
@@ -1276,7 +1353,10 @@ void AMSampleCameraView::startCameraWizard()
 
 void AMSampleCameraView::startBeamWizard()
 {
-	delete beamWizard_;
+//	if(beamWizard_)
+//	{
+		delete beamWizard_;
+//	}
 	beamWizard_ = new AMBeamConfigurationWizard();
 	connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
 	connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
@@ -1296,7 +1376,10 @@ void AMSampleCameraView::startBeamWizard()
 
 void AMSampleCameraView::startSampleWizard()
 {
-	delete samplePlateWizard_;
+//	if(samplePlateWizard_)
+//	{
+		delete samplePlateWizard_;
+//	}
 	samplePlateWizard_ = new AMSamplePlateWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
@@ -1317,7 +1400,10 @@ void AMSampleCameraView::startSampleWizard()
 
 void AMSampleCameraView::startRotationWizard()
 {
-	delete rotationWizard_;
+//	if(rotationWizard_)
+//	{
+		delete rotationWizard_;
+//	}
 	rotationWizard_ = new AMRotationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	/// \todo other things here
@@ -1428,16 +1514,24 @@ void AMSampleCameraView::requestLoadSamplePlate()
 	{
 		emit samplePlateWizardFinished();
 	}
-	else
-	{
-		qDebug()<<"Loading default sample plate";
-		shapeModel_->loadDefaultSamplePlate();
-	}
+//	else
+//	{
+//		qDebug()<<"Loading default sample plate";
+//		shapeModel_->loadDefaultSamplePlate();
+//	}
 }
 
 void AMSampleCameraView::requestLoadRotationConfiguration()
 {
-	qDebug()<<"AMSampleCameraView::requestLoadRotationConfiguration";
+	bool success = loadRotationalOffset();
+	if(success)
+	{
+		emit rotationWizardFinished();
+	}
+	else
+	{
+		qDebug()<<"Need to load default rotational offset";
+	}
 }
 
 
@@ -1813,15 +1907,23 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	chl->setContentsMargins(itemMargins);
 	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
 	chl->addSpacing(space);
-	chl->addWidget(new QLabel("Color:"));
+	//chl->addWidget(new QLabel("Color:"));
 	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton2(Qt::red));
-	chl->addWidget(new QLabel("Line:"));
+	//chl->addWidget(new QLabel("Line:"));
 	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
 	crosshairThicknessSlider_->setMaximumWidth(80);
 	crosshairThicknessSlider_->setRange(1,6);
 	crosshairThicknessSlider_->setValue(1);
 	chl->addSpacing(space);
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+
+	showCrosshairCheckBox_->setVisible(false);
+	crosshairColorPicker_->setVisible(false);
+	crosshairThicknessSlider_->setVisible(false);
+	lockCrosshairCheckBox_->setVisible(false);
+
+	advancedButton_->setVisible(false);
+
 	if(viewType == DEBUG)
 	{
 		chl->addSpacing(space);
@@ -1909,13 +2011,18 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 	QVBoxLayout *vbl = new QVBoxLayout();
 	vbl->setContentsMargins(frameMargins);
-	vbl->addWidget(crosshairFrame);
+	//vbl->addWidget(crosshairFrame);
 	vbl->addWidget(shapeScene_);
 	QHBoxLayout *toolBarHL = new QHBoxLayout();
 	toolBarHL->addWidget(shapeFrame);
 	toolBarHL->addWidget(toolFrame);
 	toolBarHL->setContentsMargins(frameMargins);
 	vbl->addLayout(toolBarHL);
+	QHBoxLayout *drawOverlaysLayout = new QHBoxLayout();
+	drawOverlaysLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show Beam"));
+	drawOverlaysLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
+	drawOverlaysLayout->addStretch();
+	vbl->addLayout(drawOverlaysLayout);
 	//vbl->addWidget(shapeFrame);
 	//vbl->addWidget(toolFrame);
 	setLayout(vbl);
@@ -1933,12 +2040,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(saveSamplePlate_ = new QPushButton("Save Sample Plate"));
-	samplePlateLayout->addSpacing(space);
-	samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
+	//samplePlateLayout->addSpacing(space);
+	//samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
-	samplePlateLayout->addStretch(space);
-	samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
+	//samplePlateLayout->addStretch(space);
+	//samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
 	samplePlateLayout->addStretch();
 	samplePlateFrame->setLayout(samplePlateLayout);
 
@@ -2039,7 +2146,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	editAction_->setCheckable(true);
 	shiftAction_ = new QAction("Shift", actionGroup);
 	shiftAction_->setCheckable(true);
-	operationAction_ = new QAction("Operation", actionGroup);
+	//operationAction_ = new QAction("Operation", actionGroup);
+	operationAction_ = new QAction("Click to Move", actionGroup);
 	operationAction_->setCheckable(true);
 	groupAction_ = new QAction("Group", actionGroup);
 	groupAction_->setCheckable(true);
@@ -2149,7 +2257,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 		drawOnShapeCheckBox_->setChecked(false);
 		drawOnShapePushButton_->setDisabled(true);
-		enableMotorMovement_->setChecked(false);
+
+		if(QApplication::instance()->arguments().contains("--enableMotorMovement"))
+			enableMotorMovement_->setChecked(true);
+		else
+			enableMotorMovement_->setChecked(false);
+
 		enableMotorTracking_->setChecked(false);
 
 
@@ -2268,6 +2381,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 	connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
 	connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
+	connect(shapeModel_, SIGNAL(drawOnShapeEnabledChanged(bool)), drawOnShapeCheckBox_, SLOT(setChecked(bool)));
 
 
 	connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
@@ -2296,7 +2410,8 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(shapeModel_, SIGNAL(otherDataOneChanged(QString)), this, SLOT(updateDataOne(QString)));
 	connect(shapeModel_, SIGNAL(otherDataTwoChanged(QString)), this, SLOT(updateDataTwo(QString)));
 
-	connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
+	//connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
+	connect(advancedButton_, SIGNAL(clicked()), this, SLOT(showAdvancedWindow()));
 	connect(moveToBeam_, SIGNAL(toggled(bool)), this, SLOT(onMoveToBeamToggled(bool)));
 	connect(moveOnSamplePlate_, SIGNAL(toggled(bool)), this, SLOT(onMoveOnSamplePlateToggled(bool)));
 
@@ -2337,6 +2452,9 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 		return QColor(Qt::yellow);
 	case SAMPLEPLATEINTERSECTION:
 		return QColor(Qt::green);
+	case SAMPLEBORDER:
+		return QColor(Qt::cyan);
+	case SAMPLEFILL:
 	case HIDEINTERSECTION:
 	case BACKWARDSFILL:
 	case FILL:
@@ -2347,8 +2465,8 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 
 void AMSampleCameraView::drawSamplePlate()
 {
-	QPen pen(colour(BORDER));
-	QBrush brush(colour(FILL));
+	QPen pen(colour(SAMPLEBORDER));
+	QBrush brush(colour(SAMPLEFILL));
 	QPolygonF samplePlate = shapeModel_->samplePlate();
 	if(!samplePlate.isEmpty())
 	{
@@ -2397,6 +2515,10 @@ void AMSampleCameraView::onRotationalOffsetChanged(QVector3D offset)
 	refreshSceneView();
 }
 
+void AMSampleCameraView::showAdvancedWindow(){
+	if(advancedWindow_)
+		advancedWindow_->show();
+}
 
 
 

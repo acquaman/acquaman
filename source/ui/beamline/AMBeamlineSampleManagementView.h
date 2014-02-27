@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QPushButton;
+class QVBoxLayout;
 
 class AMBeamline;
 class AMSamplePlate;
@@ -21,6 +22,9 @@ Q_OBJECT
 public:
 	/// Constructor takes pointer to beamline to operate on (samplePlate and samplePlateBrowser live in AMBeamline)
 	AMBeamlineSampleManagementView(AMBeamline *beamline, AMMotorGroup *motorGroup, QWidget *parent = 0);
+
+public slots:
+	void requestAdvancedCameraOptionsWindow();
 
 protected slots:
 	/// Handles launching the AMSamplePlateCreationDialog to make a new sample plate. Also, automatically adds the new plate to the samplePlateBrowser and tells the beamline to use this as the current sample plate
@@ -59,6 +63,11 @@ protected:
 	QPushButton *createSamplePlateButton_;
 	/// Button to request reloading a sample plate from the database
 	QPushButton *loadSamplePlateButton_;
+
+	/// Left hand vertical layout
+	QVBoxLayout *leftVL_;
+	/// Right hand vertical layout
+	QVBoxLayout *rightVL_;
 };
 
 #endif // AMBEAMLINESAMPLEMANAGEMENTVIEW_H

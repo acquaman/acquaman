@@ -66,6 +66,8 @@ public slots:
 
 	void setSamplePlateSelected();
 
+	void requestAdvancedCameraOptionsWindow();
+
 signals:
 	void requestLoadBeam();
 	void requestLoadCamera();

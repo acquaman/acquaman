@@ -61,13 +61,16 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
     {
 		pointListAppend(new QPointF(0,0));
     }
-    /// set the coordinates
-	coordinateListAppend(new  QVector3D(0,6,0));
-	coordinateListAppend(new  QVector3D(-5,6,0));
-	coordinateListAppend(new  QVector3D(0,6,-20));
-	coordinateListAppend(new  QVector3D(10,2,-8));
-	coordinateListAppend(new  QVector3D(-10,2,-8));
-	coordinateListAppend(new  QVector3D(0,2,8.5));
+	/// set the coordinates - make sure that the calibration point can always be seen.
+	coordinateListAppend(new  QVector3D(0,0,0));		// centre
+	coordinateListAppend(new  QVector3D(-10,0,14));		// close top left corner
+	coordinateListAppend(new  QVector3D(10,10,-7.5));	// far bottomr right corner
+	coordinateListAppend(new  QVector3D(-10,0,0));		// x-axis
+	coordinateListAppend(new  QVector3D(0,10,0));		// y-axis
+	coordinateListAppend(new  QVector3D(0,0,-7.5));		// z-axis
+//	coordinateListAppend(new  QVector3D(10,5,-5));
+//	coordinateListAppend(new  QVector3D(4,2,-1.9));
+//	coordinateListAppend(new  QVector3D(-6,4,0));
 
     //qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
@@ -123,19 +126,19 @@ int AMCameraConfigurationWizard::nextId() const
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
-    qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
-    QPointF* newPoint;
+	qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
+	QPointF* newPoint;
 	int index = relativeId();
 	if (!isSetPage(currentId()))
 	{
 		return;
 	}
 
-    if(checked(Page_Check))
-    {
+	if(checked(Page_Check))
+	{
 		clearPoints();
-        return;
-    }
+		return;
+	}
 	else if(index < 0)
 	{
 		return;
@@ -158,17 +161,17 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 
 double AMCameraConfigurationWizard::coordinateX(int id)
 {
-    return coordinateList()->at(id-1)->x();
+    return coordinateList()->at(id)->x();
 }
 
 double AMCameraConfigurationWizard::coordinateY(int id)
 {
-    return coordinateList()->at(id-1)->y();
+    return coordinateList()->at(id)->y();
 }
 
 double AMCameraConfigurationWizard::coordinateZ(int id)
 {
-	return coordinateList()->at(id-1)->z();
+	return coordinateList()->at(id)->z();
 }
 
 void AMCameraConfigurationWizard::clearPoints()

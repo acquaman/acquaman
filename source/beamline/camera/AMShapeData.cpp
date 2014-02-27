@@ -252,6 +252,7 @@ void AMShapeData::copy(const AMShapeData *other)
     {
         qDebug()<<"AMShapeData::copy - counts not equal";
     }
+
 	emit shapeDataChanged(this);
 }
 
@@ -338,7 +339,7 @@ bool AMShapeData::isEqual(const AMShapeData &other) const
     return true;
 }
 
-bool AMShapeData::removeShape()
+void AMShapeData::removeShape()
 {
     qDebug()<<"AMShapeData::removeShape";
     emit shapeDataRemoved(this);

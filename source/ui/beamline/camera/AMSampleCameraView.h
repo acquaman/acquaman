@@ -48,7 +48,7 @@ class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
 public:
-	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION};
+	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION, SAMPLEFILL, SAMPLEBORDER};
 	enum ViewType {DEBUG, CONDENSED};
 	/// Constructor.
 	explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
@@ -113,6 +113,8 @@ public:
 	bool loadCamera();
 	/// load last sample plate
 	bool loadSamplePlate();
+	/// load last rotational offset
+	bool loadRotationalOffset();
 
 	AMSampleCamera* sampleCamera();
 
@@ -293,6 +295,8 @@ public slots:
 
 	void onRotationalOffsetChanged(QVector3D);
 
+	void showAdvancedWindow();
+
 protected slots:
 	void updateCurrentShape();
 
@@ -402,20 +406,13 @@ protected:
 	/// Add and remove shapes from the scene
 public:
 	void addNewShape();
+
 protected:
 	void deleteShape();
-
-
 
 	void createGroupRectangle();
 
 	void destroyGroupRectangle();
-
-
-
-
-
-
 
 
 	/// We catch resize events and re-position the crosshair lines as required

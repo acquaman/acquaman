@@ -111,6 +111,7 @@ protected slots:
 	void onActionSGMSettings();
 	/// Creates the SGM proc serv manager view if necessary and shows it
 	void onActionProcServManager();
+	void onAdvancedCameraOptionsRequested();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
@@ -136,9 +137,9 @@ protected:
 
 protected:
 	/// View to manage the sample positioner and the sample plates
-	AMSampleManagementPre2013Widget *samplePositionView_;
+	//AMSampleManagementPre2013Widget *samplePositionView_;
 	/// camera widget
-	AMSampleCameraBrowserView *cameraBrowserView_;
+	//AMSampleCameraBrowserView *cameraBrowserView_;
 	AMSamplePlateView *samplePlateView_;
 	AMBeamlineSampleManagementView *sampleManagementView_;
 

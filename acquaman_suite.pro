@@ -22,4 +22,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSBendingMirrors.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-        EthanAcquacam.pro
+	EthanAcquacam.pro
+#	AMCrashReporter.pro

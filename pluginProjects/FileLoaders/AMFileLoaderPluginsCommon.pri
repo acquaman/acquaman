@@ -56,7 +56,7 @@ linux-g++-32 {
 		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
@@ -64,8 +64,8 @@ linux-g++-32 {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
@@ -83,7 +83,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -91,8 +91,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
 
 		# CDFlib dependencies
 		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
@@ -154,9 +154,6 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.h \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.h \
-		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
-		$$AM_INCLUDE_DIR/dataman/AMSample.h \
-		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.h \
 		$$AM_INCLUDE_DIR/util/AMSettings.h \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.h \
@@ -169,7 +166,10 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.h \
 		$$AM_INCLUDE_DIR/dataman/AMTextStream.h \
-		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h \
+		$$AM_INCLUDE_DIR/dataman/AMSample.h \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
@@ -194,9 +194,6 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
-		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.cpp \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.cpp \
 		$$AM_INCLUDE_DIR/util/AMSettings.cpp \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.cpp \
@@ -209,4 +206,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp \
-		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.cpp
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp

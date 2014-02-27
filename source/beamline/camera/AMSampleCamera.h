@@ -33,6 +33,7 @@ class AMControl;
 class AMCamera;
 class AMSample;
 class AMSamplePlate;
+class AMRotationalOffset;
 
 using namespace Eigen;
 
@@ -387,7 +388,8 @@ public slots:
 
 	void setCameraConfigurationShape();
 
-	void configureRotation(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations);
+	void configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints);
+	void saveRotationalOffset();
 
 	void moveSamplePlateTo(const QVector3D &coordinate);
 
@@ -420,6 +422,10 @@ public slots:
 	void loadDefaultCamera();
 	/// Loads the "default" sample plate configuration
 	void loadDefaultSamplePlate();
+
+	void setSamplePlateOffsetPlate();
+	void setSamplePlateOffsetWafer();
+	void setSamplePlateOffset(double offset);
 
 
 signals:
@@ -462,6 +468,7 @@ signals:
 	void enableMotorMovementChanged(bool enabled);
 	void enableMotorTrackingChanged(bool enabled);
 
+	void drawOnShapeEnabledChanged(bool enabled);
 
 protected slots:
 	/// tracks the motor location
@@ -606,7 +613,8 @@ protected:
 	bool moveMotors(double x, double y, double z, double rotation);
 
 
-	QPair<QVector3D,QVector3D> findSamplePlateCoordinate(QVector3D originCoordinate, QVector3D shiftCoordinate, QPair<QPointF, QPointF> points, QPair<double,double> rotations);
+	QVector<QVector3D> findSamplePlateCoordinate(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints) const;
+	MatrixXd constructSampleCoefficientMatrix(const QVector<QVector3D> vectors, const QVector<QVector3D> rotationX, const QVector<QVector3D> rotationY, const QVector<QVector3D> rotationZ, const int numberOfPoints) const;
 	/// these three functions each generate a row of a rotation matrix
 	QVector3D findRotationMatrixXRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixYRow(QVector3D rotationVector, double angleOfRotation) const;
@@ -616,8 +624,8 @@ protected:
 	/// using the provided coordinates for depth
 	/// the result will be a point along the line and a unit vector in the direction of the line
 	QPair<QVector3D,QVector3D> findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference = QVector3D(0,0,0));
-	MatrixXd constructCentreOfRotationMatrix(QVector<double> rotations, QVector3D v1, QVector3D v2);
-	MatrixXd constructCentreOfRotationCoordinateMatrix(QVector3D originalCoordinate, QVector3D B1, QVector3D B2);
+	MatrixXd constructCentreOfRotationMatrix(const QVector<double> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints);
+	MatrixXd constructCentreOfRotationCoordinateMatrix(const QVector<QVector3D> &coordinates, QVector<QVector3D> bases, const int &numberOfPoints);
 	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
 	double degreesToRadians(double degrees);
 	double radiansToDegrees(double radians);
@@ -625,6 +633,10 @@ protected:
 	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
 	/// computes the SVD homogenous solution for the largest singular value
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
+
+	void debugPrintMatrix(const MatrixXd matrix) const;
+
+
 protected:
 
 	/// Members
@@ -700,7 +712,7 @@ protected:
 
 	/// center and direction of rotation
 	QVector3D centerOfRotation_;
-	QVector3D rotationalOffset_;
+	AMRotationalOffset *rotationalOffset_;
 	QVector3D directionOfRotation_;
 
 	/// list of points used in camera calibration
@@ -715,6 +727,10 @@ protected:
 
         /// true if drawOnShape_ is a valid shape
 	bool drawOnShapeSelected_;
+
+	/// the offset from the shape to draw on
+	/// i.e. draw on a parallel plane this distance from the shape
+	double sampleOffset_;
 
 	/// the polygon currently being drawn
 	QPolygonF currentPolygon_;
