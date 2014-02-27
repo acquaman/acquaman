@@ -339,7 +339,7 @@ bool AMShapeData::isEqual(const AMShapeData &other) const
     return true;
 }
 
-bool AMShapeData::removeShape()
+void AMShapeData::removeShape()
 {
     qDebug()<<"AMShapeData::removeShape";
     emit shapeDataRemoved(this);

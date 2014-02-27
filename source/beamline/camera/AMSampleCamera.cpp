@@ -1925,6 +1925,26 @@ void AMSampleCamera::loadDefaultSamplePlate()
 	saveSamplePlate();
 }
 
+void AMSampleCamera::setSamplePlateOffsetPlate()
+{
+	/// maybe make this an option
+	sampleOffset_ = 0.75;
+	/// \todo this is a rough guess
+	/// 1mm precision is not good enough to measure this
+}
+
+void AMSampleCamera::setSamplePlateOffsetWafer()
+{
+	sampleOffset_ = 0.80;
+	/// once again, rough guess
+	/// need a more accurate measurement
+}
+
+void AMSampleCamera::setSamplePlateOffset(double offset)
+{
+	sampleOffset_ = offset;
+}
+
 
 /// tracks motor movement and shifts drawings accordingly
 void AMSampleCamera::motorTracking(double)
@@ -2005,6 +2025,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	drawOnShapeEnabled_ = false;
 	drawOnShapeSelected_ = false;
 	samplePlateSelected_ = false;
+	sampleOffset_ = 0;
 
 	distortion_ = true;
 
@@ -2665,7 +2686,8 @@ QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPoint
 		distance = numerator/denominator;
 	}
 	QVector3D pointOnShape = l0 + distance*lVector;
-	return pointOnShape;
+	/// add offset.
+	return pointOnShape + sampleOffset_*nHat;
 }
 
 QVector3D AMSampleCamera::getPointOnShape(const AMShapeData* shape, const QPointF &position) const
@@ -2699,7 +2721,7 @@ void AMSampleCamera::insertItem(AMShapeData *item)
 	connect(item, SIGNAL(otherDataFieldOneChanged(QString)), this, SIGNAL(otherDataOneChanged(QString)));
 	connect(item, SIGNAL(otherDataFieldTwoChanged(QString)), this, SIGNAL(otherDataTwoChanged(QString)));
 	connect(item, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(updateShape(AMShapeData*)));
-        connect(item, SIGNAL(shapeDataRemoved(AMShapeData*)), this, SLOT(removeShapeData(AMShapeData*)));
+	connect(item, SIGNAL(shapeDataRemoved(AMShapeData*)), this, SLOT(removeShapeData(AMShapeData*)));
 	updateShape(index_);
 	emit shapesChanged();
 }

@@ -423,6 +423,10 @@ public slots:
 	/// Loads the "default" sample plate configuration
 	void loadDefaultSamplePlate();
 
+	void setSamplePlateOffsetPlate();
+	void setSamplePlateOffsetWafer();
+	void setSamplePlateOffset(double offset);
+
 
 signals:
 	/// used to change the beam
@@ -723,6 +727,10 @@ protected:
 
         /// true if drawOnShape_ is a valid shape
 	bool drawOnShapeSelected_;
+
+	/// the offset from the shape to draw on
+	/// i.e. draw on a parallel plane this distance from the shape
+	double sampleOffset_;
 
 	/// the polygon currently being drawn
 	QPolygonF currentPolygon_;

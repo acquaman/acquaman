@@ -26,27 +26,21 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 	coordinateListAppend(new QVector3D(5,5,2));
 	coordinateListAppend(new QVector3D(2.5,-4,2.5));
 	coordinateListAppend(new QVector3D(-5,2,1));
-//	for(int i = coordinateListCount() - 1; i < numberOfPoints(); i++ )
-//    {
-//		coordinateListAppend(new QVector3D(0,0,0));
-//    }
 
 	rotationsAppend(0);
-	rotationsAppend(0);
-	rotationsAppend(0);
-	rotationsAppend(0);
-//    for(int i = 0; i < numberOfPoints(); i++)
-//    {
-//		rotationsAppend(0);
-//    }
+	rotationsAppend(-20);
+	rotationsAppend(20);
+	rotationsAppend(40);
 
 
 
 
+	/// Add the pages
     setPage(Page_Intro, new AMWizardPage);
     setPage(Page_Check, new AMSampleCheckPage);
     setPage(Page_Option, new AMWizardOptionPage);
     setPage(Page_Final, new AMWizardPage);
+	/// Add the automatic set and wait pages
 	for(int i = 0; i < numberOfPages(); i++)
     {
         setPage(pageWait(i),new AMSampleWaitPage);
@@ -65,16 +59,15 @@ AMSamplePlateWizard::AMSamplePlateWizard(QWidget* parent)
 
     setMinimumSize(600,600);
 
+	/// Add the options button to the intro page
     addOptionPage(Page_Intro);
 	for(int i = 0; i < numberOfPages(); i++)
     {
         addResetPointsButton(pageSet(i));
     }
+	/// make sure the reset button isn't shown right away
     showResetButton(currentId());
 
-
-	/// We don't know how many points there will be, so in addPoint, make sure point
-	/// exists before initializing it. (sample plate may be any shape)
 }
 
 AMSamplePlateWizard::~AMSamplePlateWizard()
@@ -108,6 +101,7 @@ int AMSamplePlateWizard::nextId() const
                 {
 					if(j != id)
                     {
+						/// make sure all the click signals are disconnected
                         ((AMSampleSetPage*)page(pageSet(j)))->disconnectMouseSignal();
                     }
                 }
@@ -146,17 +140,6 @@ void AMSamplePlateWizard::waitPage()
 	emit moveTo(*coordinateList()->at(relativeId()),rotations()->at(relativeId()));
 }
 
-//int AMSamplePlateWizard::relativeId()
-//{
-//        for(int i = 0; i < numberOfPoints(); i++)
-//        {
-//            if(currentId() == pageSet(i) || currentId() == pageWait(i))
-//            {
-//				return i;
-//            }
-//        }
-//		return -1;
-//}
 
 QString AMSamplePlateWizard::message(int type)
 {
@@ -216,16 +199,19 @@ QString AMSamplePlateWizard::message(int type)
 		switch(type)
 		{
 		case Title:
-			return QString(tr("Final page"));
+			return QString(tr("Calibration Complete"));
 		case Text:
-			return QString(tr("Final page text"));
+			return QString(tr("Calibration is complete.  If the sample plate does not line up, ")
+						   +tr("ensure that the camera and rotation are correctly configured."));
 		case Help:
-			return QString(tr("Final Page Help"));
+			return QString(tr("The sample plate calibration depends on the camera and rotation to ")
+						   +tr("be correctly configured before it will work.  If you have run both")
+						   +tr("configurations already, make sure that the direction of rotation is correct."));
 		case Other:
 		case Default:
 			return QString(tr("Error message - final page - unknown message type"));
 		}
-        /// handle the wait and set pages here, as they must be in a for loop
+		/// handle the wait and set pages here
         default:
 			int id = relativeId(pageId);
 			if(isWaitPage(id))
@@ -260,7 +246,7 @@ QString AMSamplePlateWizard::message(int type)
 									return QString(tr("Select the plate corresponding to the coordinate: %1, %2, %3")).arg(coordinateX(relativeId())).arg(coordinateY(relativeId())).arg(coordinateZ(relativeId()));
 					case Help:
 						return QString(tr("To configure the sample plate, select each corner of the sample plate on this page.")
-									   +tr("When you click a point, a small square should appear whose top right corner is aligned with")
+									   +tr("When you click a point, a small square should appear whose top left corner is aligned with")
 									   +tr("where you have clicked.  You may press reset to clear all the points selected on this")
 									   +tr("page (it will keep all points selected on other pages"));
 					case Other:
@@ -273,45 +259,6 @@ QString AMSamplePlateWizard::message(int type)
     }
     return QString(tr("Error message - unknown page type."));
 }
-
-
-///// gets the page number for each wait page
-//int AMSamplePlateWizard::pageWait(int index) const
-//{
-//    if(index > numberOfPoints())
-//    {
-//        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Max index is "<<numberOfPoints() - 1;
-//    }
-//    else if (index < 0)
-//    {
-//        qDebug()<<"AMSamplePlateWizard::pageWait - Cannot index wait page"<<index<<". Must be between 1 and "<<numberOfPoints() - 1;
-//    }
-//    return Page_Free + index;
-//}
-
-///// gets the page number for each set page
-//int AMSamplePlateWizard::pageSet(int index) const
-//{
-//    if(index > numberOfPoints())
-//    {
-//        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Max index is "<<numberOfPoints() - 1;
-//    }
-//    else if (index < 0)
-//    {
-//        qDebug()<<"AMSamplePlateWizard::pageSet - Cannot index set page"<<index<<". Must be between 0 and "<<numberOfPoints() - 1;
-//    }
-//    return Page_Free + numberOfPoints() + index;
-//}
-
-//bool AMSamplePlateWizard::isWaitPage(int pageNumber) const
-//{
-//    return pageNumber >= Page_Free && pageNumber < Page_Free + numberOfPoints();
-//}
-
-//bool AMSamplePlateWizard::isSetPage(int pageNumber) const
-//{
-//    return pageNumber >= Page_Free + numberOfPoints() && pageNumber < Page_Free + 2*numberOfPoints();
-//}
 
 
 void AMSamplePlateWizard::back()
@@ -368,7 +315,7 @@ void AMSamplePlateWizard::back()
 
 void AMSamplePlateWizard::addPoint(QPointF position)
 {
-	/// This should add a point to the list every time the view is clicked.  Need to add a clear button, and visual indicators to show what points have been added.
+	/// This should add a point to the list every time the view is clicked.
         int pageId = relativeId();
 
 	QPointF* newPoint = new QPointF(position);
@@ -385,6 +332,8 @@ void AMSamplePlateWizard::addPoint(QPointF position)
 				pointListAppend(new QPointF(0,0));
             }
         }
+		/// shift if it is (0,0) so that it is not confused with padding
+		/// shifting over by 0.00001 is much less than the minimum mouse movement
         if(*newPoint == QPointF(0,0))
         {
             *newPoint = *newPoint + QPointF(0.00001,0);
@@ -404,18 +353,12 @@ void AMSamplePlateWizard::addPoint(QPointF position)
         defaultPen = getDefaultPen();
 
 	QRectF rectangle(view()->mapVideoToScene(*newPoint), defaultSize); /// need to map new point to the actual screen position
+	/// add a square to show where the mouse was clicked
 	QGraphicsRectItem* rectItem = view()->scene()->addRect(rectangle, defaultPen);
 	samplePointShapes_<<rectItem;
 
 
 	((AMSampleSetPage*)currentPage())->insertPoint(newPoint);
-	qDebug()<<"AMSamplePlateWizard::addPoint - points";
-	foreach(QPointF* point, *pointList())
-	{
-		qDebug()<<*point;
-	}
-
-//        rotations_[relativeId() -1] = requestMotorRotation();
 
 }
 
@@ -445,7 +388,6 @@ void AMSamplePlateWizard::removePoint(QPointF *point)
 			qDebug()<<rect->rect().topLeft()<<*point;
 			if(rect->rect().topLeft() == view()->mapVideoToScene(*point))
 			{
-				qDebug()<<"Removing rect";
 				samplePointShapes_.remove(samplePointShapes_.indexOf(rect));
 				view()->scene()->removeItem(rect);
 				delete rect;
@@ -470,8 +412,10 @@ void AMSampleSetPage::initializePage()
 {
     AMViewPage::initializePage();
 	/// disconnect and reconnect addPoint.
-	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+//	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+	disconnectMouseSignal();
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+
 }
 
 void AMSampleSetPage::addPoint(QPointF position)
