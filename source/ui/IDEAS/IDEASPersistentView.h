@@ -43,7 +43,7 @@ protected slots:
     void onReferenceCountsChanged();
 
     /// Handles updating displayed crystal and energy range
-    void onCrystalChanged(double);
+    void onCrystalChanged();
 
     /// Handles updating displayed ring current
     void onRingCurrentChanged(double);
