@@ -258,7 +258,13 @@ void AMRegionScanActionController::writeHeaderToFile()
 	QString rank1String;
 	rank1String.append("Start Info\n");
 	rank1String.append("Version: Acquaman Generic Linear Step 0.1\n");
-	rank1String.append(QString("-1%1eV\n").arg(separator));
+
+	rank1String.append(QString("-1%1").arg(separator));
+	QString axisInfoString;
+	AMTextStream axisInfoStream(&axisInfoString);
+	axisInfoStream.write(scan_->rawData()->scanAxisAt(0));
+	rank1String.append(axisInfoString);
+	rank1String.append("\n");
 
 	for (int x = 0; x < scan_->rawData()->measurementCount(); x++){
 
