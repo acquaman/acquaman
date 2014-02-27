@@ -8,7 +8,7 @@ contains(user,ludbae){
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
 		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source

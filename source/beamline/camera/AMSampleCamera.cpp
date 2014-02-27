@@ -2408,8 +2408,12 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 	QVector3D nHat = QVector3D::normal(wHat,hHat);
 	hHat = QVector3D::normal(nHat,wHat);
 	int count = beamModel_->count();
-	QVector3D l0 [count];
-	QVector3D lHat [count];
+	//QVector3D l0[count];
+	QVector<QVector3D> l0;
+	l0.resize(count);
+	//QVector3D lHat[count];
+	QVector<QVector3D> lHat;
+	lHat.resize(count);
 	double distance[count];
 	double numerator;
 	double denominator;

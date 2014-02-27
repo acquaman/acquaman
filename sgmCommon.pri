@@ -8,7 +8,7 @@ HOME_FOLDER = $$system(echo $HOME)
 
 macx {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 }
 linux-g++ {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.

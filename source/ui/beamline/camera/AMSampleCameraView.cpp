@@ -1781,7 +1781,8 @@ void AMSampleCameraView::currentSelectionChanged()
 
 void AMSampleCameraView::createGroupRectangle()
 {
-	QBrush penBrush(QColor(Qt::magenta));
+	//QBrush penBrush(QColor(Qt::magenta));
+	QBrush penBrush(Qt::magenta);
 	QPen pen(penBrush,1,Qt::DotLine);
 	QBrush brush(Qt::transparent);
 	groupRectangle_ = shapeScene_->scene()->addPolygon(QPolygonF(QRectF(5,5,20,20)),pen,brush);

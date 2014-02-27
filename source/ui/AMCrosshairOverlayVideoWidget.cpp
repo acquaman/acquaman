@@ -31,7 +31,8 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
 
-	QPen pen(QColor(Qt::red));
+	//QPen pen(QColor(Qt::red));
+	QPen pen(Qt::red);
 
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);

@@ -23,7 +23,7 @@ macx {
 		#CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
 		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
@@ -58,9 +58,15 @@ macx {
                 #Eigen
                 EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
 
-		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
+		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
 		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include
+		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
+					$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
+
+		QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+		QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+		QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 linux-g++ {
 
@@ -756,7 +762,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.h \
 	source/ui/AMGraphicsTextItem.h \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.h \
-    source/ui/dataman/AMSampleEditor.h
+	source/ui/dataman/AMSampleEditor.h \
+	source/ui/beamline/camera/AMRotationWizard.h
 
 
 # OS-specific files:
@@ -1261,7 +1268,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/beamline/camera/AMSampleCameraGraphicsView.cpp \
 	source/ui/AMGraphicsTextItem.cpp \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp \
-    source/ui/dataman/AMSampleEditor.cpp
+	source/ui/dataman/AMSampleEditor.cpp \
+	source/ui/beamline/camera/AMRotationWizard.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
