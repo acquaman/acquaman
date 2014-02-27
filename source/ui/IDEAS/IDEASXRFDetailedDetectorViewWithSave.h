@@ -4,6 +4,8 @@
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+
 
 #include <QSignalMapper>
 #include <QPlainTextEdit>
@@ -46,6 +48,9 @@ protected:
 
 	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
 	IDEASXRFScanConfiguration *config_;
+
+        /// The scan action created when a scan is saved
+        AMAction3* scanAction_;
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H

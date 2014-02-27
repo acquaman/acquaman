@@ -1,12 +1,13 @@
 #include "IDEASXRFDetailedDetectorViewWithSave.h"
 
-#include "actions3/actions/AMScanAction.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
 	config_ = new IDEASXRFScanConfiguration;
+
+        scanAction_ = 0; //NULL
 }
 
 IDEASXRFDetailedDetectorViewWithSave::~IDEASXRFDetailedDetectorViewWithSave(){}
@@ -103,8 +104,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 {
 	config_->setDetectorInfo(detector_->toInfo());
-	AMAction3* action = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
-	action->start();
+        scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
+        scanAction_->start();
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()

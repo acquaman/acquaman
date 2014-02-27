@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSSynchronizedDwellTimeView;
 class IDEASXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class IDEASXRFDetailedDetectorViewWithSave;
 
 class IDEASAppController : public AMAppController
 {
@@ -74,6 +75,11 @@ protected:
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+        /// View for the IDEAS's XRF scan configurations
+        IDEASXRFDetailedDetectorViewWithSave *IDEASXRFDetailedDetectorViewWithSave_;
+
+
+
 };
 
 #endif // IDEASAPPCONTROLLER_H
