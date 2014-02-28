@@ -69,6 +69,10 @@ protected:
 	QString xAxisName_;
 	/// The name of the y-axis control.
 	QString yAxisName_;
+	/// The current x-axis value.
+	double currentXAxisValue_;
+	/// The current y-axis value.
+	double currentYAxisValue_;
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;

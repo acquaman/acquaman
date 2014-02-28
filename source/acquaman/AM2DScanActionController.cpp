@@ -27,6 +27,8 @@ AM2DScanActionController::AM2DScanActionController(AM2DScanConfiguration *config
 	currentAxisValueIndex_ = AMnDIndex(0, 0);
 	xAxisName_ = "";
 	yAxisName_ = "";
+	currentXAxisValue_ = 0.0;
+	currentYAxisValue_ = 0.0;
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
 }
 
@@ -205,36 +207,49 @@ bool AM2DScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 
-//			scan_->rawData()->endInsertRows();
-//			writeDataToFiles();
-//			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
+			scan_->rawData()->endInsertRows();
+			writeDataToFiles();
+			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
 
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 
-//			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
 
-//				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-//				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValue_);
-//			}
+				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
+				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentXAxisValue_);
+				scan_->rawData()->setAxisValue(1, currentAxisValueIndex_.j(), currentYAxisValue_);
+			}
 
-//			QVector<double> localDetectorData;
-//			QVariantList detectorDataValues = message.value("DetectorData").toList();
+			QVector<double> localDetectorData;
+			QVariantList detectorDataValues = message.value("DetectorData").toList();
 
-//			for(int x = 0; x < detectorDataValues.count(); x++)
-//				localDetectorData.append(detectorDataValues.at(x).toDouble());
+			for(int x = 0; x < detectorDataValues.count(); x++)
+				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
-//			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
 
-//			if(message.value("ControlMovementType") == "Absolute")
-//				currentAxisValue_ = message.value("ControlMovementValue").toDouble();
+			if (message.uniqueID() == xAxisName_){
 
-//			else if(message.value("ControlMovementType") == "Relative")
-//				currentAxisValue_ += message.value("ControlMovementValue").toDouble();
+				if(message.value("ControlMovementType") == "Absolute")
+					currentXAxisValue_ = message.value("ControlMovementValue").toDouble();
+
+				else if(message.value("ControlMovementType") == "Relative")
+					currentXAxisValue_ += message.value("ControlMovementValue").toDouble();
+			}
+
+			else if (message.uniqueID() == yAxisName_){
+
+				if(message.value("ControlMovementType") == "Absolute")
+					currentYAxisValue_ = message.value("ControlMovementValue").toDouble();
+
+				else if(message.value("ControlMovementType") == "Relative")
+					currentYAxisValue_ += message.value("ControlMovementValue").toDouble();
+			}
 
 			break;
 
@@ -260,7 +275,20 @@ void AM2DScanActionController::writeHeaderToFile()
 	QString rank1String;
 	rank1String.append("Start Info\n");
 	rank1String.append("Version: Acquaman Generic Linear Step 0.1\n");
-	rank1String.append(QString("-1%1eV\n").arg(separator));
+
+	QString axisInfoString;
+	rank1String.append(QString("-2%1").arg(separator));
+	AMTextStream axisInfoStream(&axisInfoString);
+	axisInfoStream.write(scan_->rawData()->scanAxisAt(0));
+	rank1String.append(axisInfoString);
+	rank1String.append("\n");
+
+	rank1String.append(QString("-1%1").arg(separator));
+	axisInfoString = "";
+	axisInfoStream.setString(&axisInfoString);
+	axisInfoStream.write(scan_->rawData()->scanAxisAt(1));
+	rank1String.append(axisInfoString);
+	rank1String.append("\n");
 
 	for (int x = 0; x < scan_->rawData()->measurementCount(); x++){
 
@@ -287,27 +315,28 @@ void AM2DScanActionController::writeDataToFiles()
 	QTime startTime  = QTime::currentTime();
 	*/
 
-//	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(1, currentAxisValueIndex_.j())));
 
-//	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
+	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
-//		if (oneRawDataSource->rank() == 1)
-//			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
+		if (oneRawDataSource->rank() == 1)
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
 
-//		if (oneRawDataSource->rank() == 2){
+		if (oneRawDataSource->rank() == 2){
 
-//			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
-//			double outputValues[dataSourceSize];
-//			AMnDIndex startIndex = AMnDIndex(currentAxisValueIndex_.i(), 0);
-//			AMnDIndex endIndex = AMnDIndex(currentAxisValueIndex_.i(), dataSourceSize-1);
-//			oneRawDataSource->values(startIndex, endIndex, outputValues);
+			int dataSourceSize = oneRawDataSource->size(oneRawDataSource->rank()-1);
+			double outputValues[dataSourceSize];
+			AMnDIndex startIndex = AMnDIndex(currentAxisValueIndex_.i(), currentAxisValueIndex_.j(), 0);
+			AMnDIndex endIndex = AMnDIndex(currentAxisValueIndex_.i(), currentAxisValueIndex_.j(), dataSourceSize-1);
+			oneRawDataSource->values(startIndex, endIndex, outputValues);
 
-//			for(int y = 0; y < dataSourceSize; y++)
-//				rank2String.append(QString("%1 ").arg(outputValues[y]));
+			for(int y = 0; y < dataSourceSize; y++)
+				rank2String.append(QString("%1 ").arg(outputValues[y]));
 
-//			rank2String.append("\n");
-//		}
-//	}
+			rank2String.append("\n");
+		}
+	}
 
 	rank1String.append("\n");
 
