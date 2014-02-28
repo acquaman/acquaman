@@ -785,20 +785,31 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
-		success &= fs5Settings.storeToDb(dbSGM);
-		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-		success &= fsp5->storeToDb(dbSGM);
+//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
+//		success &= fs5Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+//		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
 
 		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 5800, 20.0, 200, 970);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
+//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
+//		success &= fs120Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+//		success &= fsp120->storeToDb(dbSGM);
+
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-		elementInfo->addFastScanParameters(fsp5);
+//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
+		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
 	}
 
@@ -819,20 +830,31 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
-		success &= fs5Settings.storeToDb(dbSGM);
-		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-		success &= fsp5->storeToDb(dbSGM);
+//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
+//		success &= fs5Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+//		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
 
 		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 3800, 20.0, 800, 825);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
+//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
+//		success &= fs120Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+//		success &= fsp120->storeToDb(dbSGM);
+
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-		elementInfo->addFastScanParameters(fsp5);
+//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
+		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
 	}
 
@@ -853,12 +875,12 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1600);
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1450);
 		success &= fs5Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
 		success &= fsp5->storeToDb(dbSGM);
 
-		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1100, 20.0, 800, 330);
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1050, 20.0, 800, 330);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);

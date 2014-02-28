@@ -104,6 +104,8 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
+	qDebug() << "Undulator tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
+
 	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
 	AMControlInfo exitSlitTrackingSetpoint = tmpControl->toInfo();
 	exitSlitTrackingSetpoint.setValue(configuration_->trackingGroup().controlNamed(tmpControl->name()).value());
@@ -111,12 +113,16 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
+	qDebug() << "Exitslit tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
+
 	tmpControl = SGMBeamline::sgm()->monoTracking();
 	AMControlInfo monoTrackingSetpoint = tmpControl->toInfo();
 	monoTrackingSetpoint.setValue(configuration_->trackingGroup().controlNamed(tmpControl->name()).value());
 	moveActionInfo = new AMControlMoveActionInfo3(monoTrackingSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
+
+	qDebug() << "Mono tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
 	//really? here?
 	tmpControl = SGMBeamline::sgm()->harmonic();

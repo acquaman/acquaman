@@ -238,8 +238,8 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 	if(isJogging_)
 		mVerticalCtrl_->move(mVerticalCtrl_->value()+jogStep_);
 	else{
-		mVerticalCtrl_->setStepVelocity(10000);
-		mVerticalCtrl_->setStepAcceleration(5000);
+		mVerticalCtrl_->setStepVelocity(3000);
+		mVerticalCtrl_->setStepAcceleration(2000);
 		mVerticalCtrl_->move(152);
 	}
 }
@@ -256,8 +256,8 @@ void SGMSampleManipulatorView::onMDownButtonPressed(){
 	if(isJogging_)
 		mVerticalCtrl_->move(mVerticalCtrl_->value()-jogStep_);
 	else{
-		mVerticalCtrl_->setStepVelocity(10000);
-		mVerticalCtrl_->setStepAcceleration(5000);
+		mVerticalCtrl_->setStepVelocity(3000);
+		mVerticalCtrl_->setStepAcceleration(2000);
 		mVerticalCtrl_->move(-7.5);
 	}
 }
