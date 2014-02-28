@@ -1,4 +1,5 @@
 #include "IDEASMonochromatorControl.h"
+#include "IDEASBeamline.h"
 
 IDEASMonochromatorControl::IDEASMonochromatorControl(QObject *parent)
     : AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "SMTR1608-9-B20-05:brag.DMOV", "BL08B2-1:Energy:stop", parent, AMCONTROL_TOLERANCE_DONT_CARE, 2.0, new AMControlStatusCheckerDefault(0), 1, "Mono Energy")
@@ -10,18 +11,29 @@ IDEASMonochromatorControl::IDEASMonochromatorControl(QObject *parent)
 void IDEASMonochromatorControl::onAllControlsConnected()
 {
     setUnits("eV");
+//    lastPositiveMove = IDEASBeamline::ideas()->monoEnergyControl()->value();
 }
 #include <QDebug>
 AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 {
 
-    //qDebug() << "setpoint: "<< setpoint <<", setpoint_: " <<setpoint_;
     if (qAbs(setpoint-setpoint_) < 0.1){
 
-        //qDebug() << "Faked it";
                 emit moveSucceeded();
                 return AMControl::NoFailure;
         }
-    //qDebug() << "Commanded move to: " << setpoint;
         return AMPVwStatusControl::move(setpoint);
 }
+
+
+
+//AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
+//{
+
+//    if (qAbs(setpoint-setpoint_) < 0.1){
+
+//                emit moveSucceeded();
+//                return AMControl::NoFailure;
+//        }
+//        return AMPVwStatusControl::move(setpoint);
+//}
