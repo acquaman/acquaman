@@ -73,8 +73,13 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged(double)));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
+
+    connect(IDEASBeamline::bl()->exposedControlByName("monoLowEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::bl()->exposedControlByName("monoHighEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+
 
 
 
@@ -181,9 +186,9 @@ void IDEASPersistentView::onReferenceCountsChanged()
     IReferenceValueLabel_->setText(QString::number(value, 'e', 2));
 }
 
-void IDEASPersistentView::onCrystalChanged(double crystal)
+void IDEASPersistentView::onCrystalChanged()
 {
-    monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(crystal));
+    monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
     monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::bl()->exposedControlByName("monoLowEV")->value()).arg(IDEASBeamline::bl()->exposedControlByName("monoHighEV")->value()));
 }
 

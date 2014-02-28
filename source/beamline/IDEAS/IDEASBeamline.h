@@ -80,17 +80,7 @@ public:
 
         AMPVControl *masterDwellControl() const { return masterDwell_; }
         AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
-//=======
-//		/// Returns the monochromator control for the beamline.
-//		AMControl *monoEnergyControl() const { return monoEnergy_; }
-//		/// \todo THESE NEED TO BE COMMENTED!
-//		AMControl *monoCrystal() const { return monoCrystal_; }
-//		AMControl *monoHighEV() const { return monoHighEV_; }
-//		AMControl *monoLowEV() const { return monoLowEV_; }
-//		AMControl *ringCurrent() const { return ringCurrent_; }
 
-//		AMPVControl *masterDwellControl() const { return masterDwell_; }
-//>>>>>>> 511db44c6c40ef653b8c0e3c05c51dfa8eb2c1a3
 
 		/// Returns the KETEK detector pointer.
 		IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -161,9 +151,7 @@ protected:
 		IDEASKETEKDetector *ketek_;
 
         AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
-//=======
-//		AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_;
-//>>>>>>> 511db44c6c40ef653b8c0e3c05c51dfa8eb2c1a3
+
 };
 
 #endif // IDEASSBEAMLINE_H

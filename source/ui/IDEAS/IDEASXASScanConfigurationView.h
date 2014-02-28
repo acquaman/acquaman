@@ -3,6 +3,8 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 
+#include <QPushButton>
+
 class AMScanController;
 class IDEASXASScanConfiguration;
 class AMRegionsView;
@@ -23,6 +25,10 @@ protected:
 
 	AMTopFrame *topFrame_;
 	AMRegionsView *regionsView_;
+        QPushButton *autoRegionButton_;
+
+protected slots:
+        void onAutoRegionButtonClicked();
 };
 
 #endif // IDEASXASSCANCONFIGURATIONVIEW_H

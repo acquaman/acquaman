@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/IDEAS/IDEASPersistentView.h"
+#include "dataman/AMScan.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -150,11 +151,10 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-		IDEASXRFDetailedDetectorViewWithSave *view = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
-//        view->setEnergyRange(1500, 20480);
-		view->buildDetectorView();
-		view->setEnergyRange(1500, 20480);
-		mw_->addPane(view, "Detectors", "XRF Detector", ":/system-search.png");
+            IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+                IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
+                IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1500, 20480);
+                mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 
@@ -175,7 +175,6 @@ void IDEASAppController::setupUserInterface()
 
 void IDEASAppController::makeConnections()
 {
-
 }
 
 void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
@@ -198,7 +197,8 @@ void IDEASAppController::onEnergyConnected(bool connected){
 		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
 		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
 		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
-				xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+                                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy + 10, 1);
+
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
@@ -214,3 +214,11 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 {
 	Q_UNUSED(action)
 }
+
+
+//AMScan *scan = action->controller()->scan();
+//openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
+
+//scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
+//connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+//updateScanEditorModelItem();
