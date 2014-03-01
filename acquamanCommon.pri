@@ -626,7 +626,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMDeadTimeButton.h \
 	source/analysis/AMRegionOfInterestAB.h \
 	source/ui/beamline/AMRegionOfInterestView.h \
-	source/acquaman/AMRegionScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMRegionScanConfigurationConverter.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
@@ -645,7 +644,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
-	source/acquaman/AM2DScanActionController.h
+	source/acquaman/AM2DScanActionController.h \
+    source/acquaman/AMScanActionControllerBasicFileWriter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1038,7 +1038,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMDeadTimeButton.cpp \
 	source/analysis/AMRegionOfInterestAB.cpp \
 	source/ui/beamline/AMRegionOfInterestView.cpp \
-	source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMRegionScanConfigurationConverter.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
@@ -1056,7 +1055,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \
-	source/acquaman/AM2DScanActionController.cpp
+	source/acquaman/AM2DScanActionController.cpp \
+    source/acquaman/AMScanActionControllerBasicFileWriter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1080,6 +1080,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

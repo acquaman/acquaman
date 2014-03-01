@@ -92,10 +92,10 @@ void AMRegionScanActionController::buildScanController()
 			flushToDiskTimer_.start();
 		}
 
-		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
+		qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+		AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
 		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
+		connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
 		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
@@ -137,7 +137,7 @@ void AMRegionScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-void AMRegionScanActionController::onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error)
+void AMRegionScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
 	qDebug() << "Got a file writer error " << error;
 
@@ -145,12 +145,12 @@ void AMRegionScanActionController::onFileWriterError(AMRegionScanActionControlle
 
 	switch(error){
 
-	case AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError:
+	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
 		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
-	case AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError:
+	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;

@@ -11,8 +11,8 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
-#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
-Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
+#include "acquaman/AMScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 
 #define AM2DSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 264002
 #define AM2DSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 264003
@@ -43,7 +43,7 @@ signals:
 
 protected slots:
 	/// Handles dealing with file writer errors.
-	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterBusy(bool isBusy);
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting the data files.
@@ -69,6 +69,10 @@ protected:
 	QString xAxisName_;
 	/// The name of the y-axis control.
 	QString yAxisName_;
+	/// The current x-axis value.
+	double currentXAxisValue_;
+	/// The current y-axis value.
+	double currentYAxisValue_;
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;

@@ -1,12 +1,14 @@
-#include "AMRegionScanActionControllerBasicFileWriter.h"
+#include "AMScanActionControllerBasicFileWriter.h"
 
 #include <QTimer>
 #include <QFile>
 #include <QFileInfo>
+
 #include "dataman/AMTextStream.h"
 
- AMRegionScanActionControllerBasicFileWriter::~AMRegionScanActionControllerBasicFileWriter(){}
-AMRegionScanActionControllerBasicFileWriter::AMRegionScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData, QObject *parent)
+AMScanActionControllerBasicFileWriter::~AMScanActionControllerBasicFileWriter(){}
+
+AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData, QObject *parent)
 	: QObject(parent)
 {
 	filePath_ = filePath;
@@ -15,12 +17,12 @@ AMRegionScanActionControllerBasicFileWriter::AMRegionScanActionControllerBasicFi
 	QFileInfo dataFileInfo(filePath+".dat");
 
 	if(dataFileInfo.exists())
-		emitError(AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError);
+		emitError(AMScanActionControllerBasicFileWriter::AlreadyExistsError);
 
 	dataFile_ = new QFile(dataFileInfo.filePath());
 
 	if(!dataFile_->open(QIODevice::WriteOnly | QIODevice::Text))
-		emitError(AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError);
+		emitError(AMScanActionControllerBasicFileWriter::CouldNotOpenError);
 
 	else
 		QTimer::singleShot(0, this, SLOT(emitFileWriterIsBusy()));
@@ -32,16 +34,16 @@ AMRegionScanActionControllerBasicFileWriter::AMRegionScanActionControllerBasicFi
 		QFileInfo spectraFileInfo(filePath+"_spectra.dat");
 
 		if(spectraFileInfo.exists())
-			emitError(AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError);
+			emitError(AMScanActionControllerBasicFileWriter::AlreadyExistsError);
 
 		spectraFile_ = new QFile(spectraFileInfo.filePath());
 
 		if(!spectraFile_->open(QIODevice::WriteOnly | QIODevice::Text))
-			emitError(AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError);
+			emitError(AMScanActionControllerBasicFileWriter::CouldNotOpenError);
 	}
 }
 
-void AMRegionScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QString &textToWrite)
+void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QString &textToWrite)
 {
 	switch(fileRank){
 
@@ -83,7 +85,7 @@ void AMRegionScanActionControllerBasicFileWriter::writeToFile(int fileRank, cons
 	}
 }
 
-void AMRegionScanActionControllerBasicFileWriter::finishWriting()
+void AMScanActionControllerBasicFileWriter::finishWriting()
 {
 	dataFile_->close();
 
@@ -93,19 +95,19 @@ void AMRegionScanActionControllerBasicFileWriter::finishWriting()
 	emit fileWriterIsBusy(false);
 }
 
-void AMRegionScanActionControllerBasicFileWriter::emitError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error)
+void AMScanActionControllerBasicFileWriter::emitError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
 	errorsList_.append(error);
 	QTimer::singleShot(0, this, SLOT(emitErrors()));
 }
 
-void AMRegionScanActionControllerBasicFileWriter::emitErrors()
+void AMScanActionControllerBasicFileWriter::emitErrors()
 {
 	while(!errorsList_.isEmpty())
 		emit fileWriterError(errorsList_.takeFirst());
 }
 
-void AMRegionScanActionControllerBasicFileWriter::emitFileWriterIsBusy()
+void AMScanActionControllerBasicFileWriter::emitFileWriterIsBusy()
 {
 	emit fileWriterIsBusy(true);
 }
