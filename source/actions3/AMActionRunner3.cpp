@@ -38,13 +38,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
-AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, QObject *parent) :
+AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
 	QObject(parent)
 {
 	loggingDatabase_ = loggingDatabase;
 	cachedLogCount_ = 0;
 	currentAction_ = 0;
 	isPaused_ = true;
+	actionRunnerTitle_ = actionRunnerTitle;
 	queueModel_ = new AMActionRunnerQueueModel3(this, this);
 }
 
@@ -57,7 +58,7 @@ AMActionRunner3::~AMActionRunner3() {
 AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!workflowInstance_)
-		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"));
+		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
 	return workflowInstance_;
 }
 
@@ -68,10 +69,8 @@ void AMActionRunner3::releaseWorkflow()
 }
 
 AMActionRunner3* AMActionRunner3::scanActionRunner(){
-	if(!scanActionRunnerInstance_){
-		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"));
-		//scanActionRunnerInstance_ = new AMActionRunner3(0, 0);
-	}
+	if(!scanActionRunnerInstance_)
+		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"), "Scan Actions");
 	return scanActionRunnerInstance_;
 }
 

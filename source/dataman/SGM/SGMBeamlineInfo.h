@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "util/AMOrderedSet.h"
+#include "util/AMRange.h"
 
 class SGMEnergyParameters;
 
@@ -82,7 +83,7 @@ public:
 	bool energyRangeValidForSettings(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic, double minEnergy, double maxEnergy);
 
 	QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
-	QPair<double, double> energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic);
+	AMRange energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic);
 
 	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
 	QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;

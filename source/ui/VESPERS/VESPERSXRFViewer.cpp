@@ -143,9 +143,11 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	minMaxLayout->addStretch();
 
 	table_ = new AMSelectablePeriodicTable(this);
-	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
-	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	table_->buildPeriodicTable();
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
 
 	setPlotRange(3110, 20480);
 
@@ -182,30 +184,28 @@ VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	setLayout(fullLayout);
 }
 
-void VESPERSXRFViewer::onElementSelected(int atomicNumber)
+void VESPERSXRFViewer::onElementSelected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
-	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QList<AMEmissionLine> lines = element->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
 	MPlotPoint *newLine;
-	QPair<QString, QString> line;
 
-	foreach(line, lines){
+	foreach(AMEmissionLine line, lines){
 
-		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
-				&& line.first.contains("1") && line.first.compare("-"))	{
+		if (range_.withinRange(line.energy())
+				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
-			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine = new MPlotPoint(QPointF(line.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(symbol % " " % line.first);
+			newLine->setDescription(line.greekName());
 			plot_->addItem(newLine);
 		}
 	}
 }
 
-void VESPERSXRFViewer::onElementDeselected(int atomicNumber)
+void VESPERSXRFViewer::onElementDeselected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QString symbol = element->symbol();
 
 	foreach(MPlotItem *item, plot_->plotItems()){
 
@@ -217,24 +217,24 @@ void VESPERSXRFViewer::onElementDeselected(int atomicNumber)
 
 void VESPERSXRFViewer::setPlotRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
-	tableView_->setRange(low, high);
+	range_ = AMRange(low, high);
+	tableView_->setEnergyRange(low, high);
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementDeselected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementSelected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementSelected(element);
 }
 
 void VESPERSXRFViewer::setMinimum(double min)
 {
-	setPlotRange(min*1000, range_.second);
+	setPlotRange(min*1000, range_.maximum());
 }
 
 void VESPERSXRFViewer::setMaximum(double max)
 {
-	setPlotRange(range_.first, max*1000);
+	setPlotRange(range_.minimum(), max*1000);
 }
 
 void VESPERSXRFViewer::setupPlot()

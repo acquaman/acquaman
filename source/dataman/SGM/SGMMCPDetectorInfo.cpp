@@ -66,9 +66,9 @@ double SGMMCPDetectorInfo::hvSetpointRangeMax() const
 	return hvSetpointRangeMax_;
 }
 
-QPair<double, double> SGMMCPDetectorInfo::hvSetpointRange() const
+AMRange SGMMCPDetectorInfo::hvSetpointRange() const
 {
-	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
+	return AMRange(hvSetpointRangeMin_, hvSetpointRangeMax_);
 }
 
 QDebug SGMMCPDetectorInfo::qDebugPrint(QDebug &d) const{
@@ -96,8 +96,8 @@ void SGMMCPDetectorInfo::setHVSetpointRangeMax(double max) {
 	setModified(true);
 }
 
-void SGMMCPDetectorInfo::setHVSetpointRange(QPair<double, double> range){
-	hvSetpointRangeMin_ = range.first;
-	hvSetpointRangeMax_ = range.second;
+void SGMMCPDetectorInfo::setHVSetpointRange(const AMRange &range){
+	hvSetpointRangeMin_ = range.minimum();
+	hvSetpointRangeMax_ = range.maximum();
 	setModified(true);
 }

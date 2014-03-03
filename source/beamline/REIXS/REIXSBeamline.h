@@ -22,7 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
+#include "acquaman/REIXS/REIXSXESMCPDetectorPre2013.h"	///< \todo Move this to beamline, not acquaman.
+#include "beamline/REIXS/REIXSXESMCPDetector.h"
 #include "dataman/REIXS/REIXSXESCalibration2.h"
 #include "beamline/AMCompositeControl.h"
 #include "beamline/CLS/CLSMDriveMotorControl.h"
@@ -32,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class AMSADetector;
+class AMDetector;
+class CLSSIS3820Scaler;
 
 class AMSamplePlatePre2013;
 
@@ -54,9 +57,11 @@ public:
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
+	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
+	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_; //DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
 
 };
@@ -153,7 +158,7 @@ protected:
 
 };
 
-class AMListAction;
+class AMListAction3;
 
 /// The REIXSSpectrometer control is a high-level abstraction for controlling the spectrometer energy.  It's also a container for the set of (low-level, physical) controls which make up the spectrometer:
 /*!
@@ -233,6 +238,7 @@ public:
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
 	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
+	AMControl* gratingMask() { return gratingMask_; } //DAVID ADDED 005
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
@@ -246,7 +252,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
+	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_, *gratingMask_;  //DAVID ADDED 001, 005
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration2 calibration_;
@@ -259,7 +265,7 @@ protected:
 	double specifiedEV_;
 
 	/// It takes lots of steps to move the detector into position. This is the action we use to run a detector move. Valid if a move is in progress, and 0 otherwise.
-	AMListAction* moveAction_;
+	AMListAction3 *moveAction_;
 
 	/// Holds the values for all the motors we need to move, to reach an energy position.
 	AMControlInfoList moveSetpoint_;
@@ -318,7 +324,7 @@ class REIXSBrokenMonoControl : public AMControl {
 	Q_OBJECT
 public:
 	/// Construct with the AMPVwStatusControl to wrap \c control, the threshold to trigger multiple sub-moves, the number of sub-move attempts, the move settling time after each sub-move, the low energy threshold, and the low energy step size. We take ownership of the control.
-	REIXSBrokenMonoControl(AMPVwStatusControl* underlyingControl, double repeatMoveThreshold = 1.05, int repeatMoveAttempts = 3, double repeatMoveSettlingTime = 0.3, double singleMoveSettlingTime = 0.05, double lowEnergyThreshold = 100, double lowEnergyStepSize = 1.0, double actualTolerance = 0.1, QObject* parent = 0);
+	REIXSBrokenMonoControl(AMPVwStatusControl* underlyingControl, double repeatMoveThreshold = 1.05, int repeatMoveAttempts = 3, double repeatMoveSettlingTime = 0.3, double singleMoveSettlingTime = 0.05, double lowEnergyThreshold = 150, double lowEnergyStepSize = 1.0, double actualTolerance = 0.1, QObject* parent = 0);
 
 	/// Destructor: deletes the underlying control.
 	virtual ~REIXSBrokenMonoControl();
@@ -391,7 +397,7 @@ protected:
 	bool stopInProgress_;
 
 	/// Used to run the steps of a move. 0 if one of our special moves is not in progress.
-	AMListAction* moveAction_;
+	AMListAction3 *moveAction_;
 
 	/// Used for change detection of isMoving()
 	bool wasMoving_;
@@ -423,6 +429,7 @@ public:
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
+	//REIXSXESMCPDetectorPre2013* mcpDetector() { return mcpDetector_; }
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
@@ -431,6 +438,7 @@ public:
 	int currentSamplePlateId() const;
 	/// Returns the id of the sample on the current plate that is in position.
 	int currentSampleId();
+	virtual AMControlSet* currentSamplePositioner() { return sampleManipulatorSet_; }
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
@@ -440,10 +448,14 @@ public:
 	/// All the controls for positioning the Spectrometer
 	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	AMControlSet* allControlsSet() { return allControlsSet_; }
+	//AMControlSet* allControlsSet() { return allControlsSet_; }
+	AMControlSet* allControlsSet() { return 0; }
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
+	CLSSIS3820Scaler *scaler() { return scaler_; }
 
+	/// Build a list of actions that opens/closes necessary shutters.
+	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
 
 signals:
 
@@ -454,6 +466,11 @@ protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
 
+	void setupExposedControls();
+	void setupExposedDetectors();
+
+protected:
+
 	/// A group of controls making up the EPU and mono
 	REIXSPhotonSource* photonSource_;
 	/// A hierarchichal group of controls making up the spectrometer
@@ -461,6 +478,7 @@ protected:
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
+	//REIXSXESMCPDetectorPre2013* mcpDetector_;
 	REIXSXESMCPDetector* mcpDetector_;
 	/// A group of valve and shutter controls
 	REIXSValvesAndShutters* valvesAndShutters_;
@@ -472,7 +490,7 @@ protected:
 	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
 	AMControlSet* spectrometerPositionSet_;
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	AMControlSet* allControlsSet_;
+	//AMControlSet* allControlsSet_;
 
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
@@ -481,6 +499,12 @@ protected:
 	/// List of detectors used in XAS scans
 	REIXSXASDetectors* xasDetectors_;
 
+	CLSSIS3820Scaler *scaler_;
+
+	AMDetector* i0Detector_;
+	AMDetector* teyDetector_;
+	AMDetector* tfyDetector_;
+	AMDetector* pfyDetector_;
 };
 
 #endif // REIXSBEAMLINE_H

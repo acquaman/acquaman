@@ -16,9 +16,9 @@ AMSamplePeriodicTableDialog::AMSamplePeriodicTableDialog(QList<const AMElement *
     if(ptView)
     {
         QToolButton* elementButton;
-        foreach(const AMElement* element, elements)
+	foreach(const AMElement* element, elements)
         {
-            elementButton = ptView->button(element);
+	    elementButton = ptView->button(const_cast<AMElement*>(element));
             elementButton->setCheckable(true);
             elementButton->setChecked(true);
         }

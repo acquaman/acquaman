@@ -56,8 +56,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMAgnosticDataAPI.h"
 
+#include "beamline/AMProcessVariablePrivate.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
+{
+	overrideCloseCheck_ = false;
+}
+
+AMAppController::~AMAppController()
 {
 }
 
@@ -99,6 +106,12 @@ bool AMAppController::startup(){
 	}
 	else
 		return false;
+}
+
+void AMAppController::shutdown()
+{
+	AMDatamanAppController::shutdown();
+	AMProcessVariableSupport::shutdownChannelAccess();
 }
 
 bool AMAppController::startupCreateUserInterface() {
@@ -304,6 +317,8 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
 	if(o == mw_ && e->type() == QEvent::Close) {
+		if(overrideCloseCheck_)
+			qApp->quit();
 		if(!canCloseScanEditors()) {
 			e->ignore();
 			return true;
@@ -379,23 +394,33 @@ void AMAppController::showScanActionsView(){
 	scanActionRunnerView_->raise();
 }
 
+void AMAppController::forceQuitAcquaman(){
+	overrideCloseCheck_ = true;
+	mw_->close();
+}
+
 #include <QMenu>
 #include <QMenuBar>
 bool AMAppController::startupInstallActions()
 {
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
 
-		QAction* changeRunAction = new QAction("Change Run...", mw_);
+		QAction *changeRunAction = new QAction("Change Run...", mw_);
 		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
-		QAction* openScanActionsViewAction = new QAction("See Scan Actions...", mw_);
+		QAction *openScanActionsViewAction = new QAction("See Scan Actions...", mw_);
 		openScanActionsViewAction->setStatusTip("Open the view to see all actions done by scans");
 		connect(openScanActionsViewAction, SIGNAL(triggered()), this, SLOT(showScanActionsView()));
 
+		QAction *forceQuitAction = new QAction("Force Quit Acquaman", mw_);
+		forceQuitAction->setStatusTip("Acquaman is behaving poorly, force a quit and loose any unsaved changes or currently running scans");
+		connect(forceQuitAction, SIGNAL(triggered()), this, SLOT(forceQuitAcquaman()));
+
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
+		fileMenu_->addAction(forceQuitAction);
 
 		viewMenu_ = menuBar_->addMenu("View");
 		viewMenu_->addAction(openScanActionsViewAction);
@@ -406,3 +431,11 @@ bool AMAppController::startupInstallActions()
 		return false;
 }
 
+void AMAppController::setActionRunnerCancelPromptVisibility(bool showPrompt)
+{
+	workflowView_->currentView()->setCancelPromptVisibility(showPrompt);
+	AMAppBottomPanel *bottom = qobject_cast<AMAppBottomPanel *>(bottomPanel_);
+
+	if (bottom)
+		bottom->workFlowView()->setCancelPromptVisibility(showPrompt);
+}

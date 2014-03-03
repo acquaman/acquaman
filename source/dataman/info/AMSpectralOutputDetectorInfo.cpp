@@ -78,12 +78,9 @@ double AMSpectralOutputDetectorInfo::integrationTime() const
 	return integrationTime_;
 }
 
-QPair<double, double> AMSpectralOutputDetectorInfo::integrationTimeRange() const
+AMRange AMSpectralOutputDetectorInfo::integrationTimeRange() const
 {
-	QPair<double, double> rVal;
-	rVal.first = integrationTimeRangeMin_;
-	rVal.second =integrationTimeRangeMax_;
-	return rVal;
+	return AMRange(integrationTimeRangeMin_, integrationTimeRangeMax_);
 }
 
 double AMSpectralOutputDetectorInfo::integrationTimeRangeMin() const
@@ -161,10 +158,10 @@ void AMSpectralOutputDetectorInfo::setIntegrationTimeRangeMax(double max)
 	setModified(true);
 }
 
-void AMSpectralOutputDetectorInfo::setIntegrationTimeRange(QPair<double, double> range)
+void AMSpectralOutputDetectorInfo::setIntegrationTimeRange(const AMRange &range)
 {
-	integrationTimeRangeMin_ = range.first;
-	integrationTimeRangeMax_ = range.second;
+	integrationTimeRangeMin_ = range.minimum();
+	integrationTimeRangeMax_ = range.maximum();
 	setModified(true);
 }
 

@@ -20,6 +20,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSMarCCDDetector.h"
 
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSCCDDetector(name, description, "ccd1607-002:cam1", AMnDIndex(2048, 2048), parent)
+	: VESPERSCCDDetector(name, description, parent)
 {
+	axes_ << AMAxisInfo("X-axis", 2048, "X dimension in pixels", "Counts")
+		  << AMAxisInfo("Y-axis", 2048, "Y dimension in pixels", "Counts");
+
+	acquireControl_ = new AMPVControl("Acquisition", "ccd1607-002:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", "PAD1607-B21-05:cam1:Acquire", this, 0.1, 10.0, 0);
+	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "ccd1607-002:cam1:AcquireTime", this, 0.1);
+	acquisitionStatusControl_ = new AMSinglePVControl("Detector Status", "ccd1607-002:cam1:Acquire", this, 0.1);
+	ccdFilePathControl_ = new AMSinglePVControl("File Path", "ccd1607-002:cam1:FilePath", this);
+	ccdFileBaseNameControl_ = new AMSinglePVControl("File Base Name", "ccd1607-002:cam1:FileName", this);
+	ccdFileNumberControl_ = new AMSinglePVControl("File Number","ccd1607-002:cam1:FileNumber", this);
+
+	allControlsCreated();
+}
+
+QString VESPERSMarCCDDetector::synchronizedDwellKey() const
+{
+	return "ccd1607-002:cam1:Acquire NPP NMS";
 }

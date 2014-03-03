@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSPECTRALOUTPUTDETECTORINFO_H
 
 #include "AMOldDetectorInfo.h"
+#include "util/AMRange.h"
 
 class AMSpectralOutputDetectorInfo : public AMOldDetectorInfo
 {
@@ -53,7 +54,7 @@ public:
 	QStringList binNames() const;
 	/// The sampling/integration time, in seconds
 	double integrationTime() const;
-	QPair<double, double> integrationTimeRange() const;
+	AMRange integrationTimeRange() const;
 	double integrationTimeRangeMin() const;
 	double integrationTimeRangeMax() const;
 	/// The integration mode (describes the integration time: real, ____, or \todo )
@@ -77,7 +78,7 @@ public slots:
 	void setIntegrationTime(double integrationTime);
 	void setIntegrationTimeRangeMin(double min);
 	void setIntegrationTimeRangeMax(double max);
-	void setIntegrationTimeRange(QPair<double, double> range);
+	void setIntegrationTimeRange(const AMRange &range);
 	void setIntegrationMode(const QString& integrationMode);
 
 protected:

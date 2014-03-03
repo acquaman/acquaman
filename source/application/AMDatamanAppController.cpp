@@ -91,6 +91,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
 #include "analysis/AMOrderReductionAB.h"
+#include "analysis/AM1DDeadTimeAB.h"
+#include "analysis/AM2DDeadTimeCorrectionAB.h"
+#include "analysis/AM3DDeadTimeCorrectionAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -561,6 +564,9 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMOrderReductionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -1392,6 +1398,20 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 
 	if(newFolder.isEmpty())
 		return;	// user cancelled; do nothing.
+
+	//If User chose a folder in the old actions to data folder, alter user and prompt for new folder
+
+	while(newFolder.contains("XES DATA (old acquaman)")){
+		QMessageBox wrongFolderWarning;
+		wrongFolderWarning.setWindowTitle("Warning");
+		wrongFolderWarning.setText("This folder contains data for the previous version of Acquaman.");
+		wrongFolderWarning.setInformativeText("Please choose a different folder.");
+		wrongFolderWarning.setStandardButtons(QMessageBox::Ok);
+		wrongFolderWarning.setDefaultButton(QMessageBox::Ok);
+		wrongFolderWarning.exec();
+
+		newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your NEW Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
+	}
 
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");

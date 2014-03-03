@@ -106,7 +106,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	fl->addRow("Start from", startFromCurrentPositionOption_);
 	fl->addRow("Do not clear", doNotClearExistingCountsOption_);
-	fl->addRow("Calibration", calibrationSelector_);
+	//fl->addRow("Calibration", calibrationSelector_);
 
 	detectorOptions->setLayout(fl);
 

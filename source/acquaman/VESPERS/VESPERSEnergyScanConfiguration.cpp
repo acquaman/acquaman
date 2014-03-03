@@ -22,12 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "acquaman/VESPERS/VESPERSEnergyScanActionController.h"
 
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	: AMXASScanConfiguration(parent), VESPERSScanConfiguration()
 {
-	setName("Energy Scan");
-	setUserScanName("Energy Scan");
+	setName("EnergyScan");
+	setUserScanName("EnergyScan");
 	dbObject_->setParent(this);
 	regions_->setSensibleRange(10000, 20000);
 	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energy());
@@ -39,7 +40,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("");
 	goToPosition_ = false;
-	position_ = qMakePair(0.0, 0.0);
+	position_ = QPointF(0.0, 0.0);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 }
 
@@ -71,7 +72,10 @@ AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
 
 AMScanController *VESPERSEnergyScanConfiguration::createController()
 {
-	return new VESPERSEnergyDacqScanController(this);
+	AMScanActionController *controller = new VESPERSEnergyScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERSEnergyScanConfiguration::createView()
@@ -95,6 +99,12 @@ QString VESPERSEnergyScanConfiguration::headerText() const
 
 		header.append(QString("Horizontal Position:\t%1 mm\n").arg(x()));
 		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
+	}
+
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
 	}
 
 	header.append("\n");
@@ -141,17 +151,17 @@ void VESPERSEnergyScanConfiguration::setGoToPosition(bool state)
 	}
 }
 
-void VESPERSEnergyScanConfiguration::setPosition(QPair<double, double> pos)
+void VESPERSEnergyScanConfiguration::setPosition(const QPointF &pos)
 {
-	setX(pos.first);
-	setY(pos.second);
+	setX(pos.x());
+	setY(pos.y());
 }
 
 void VESPERSEnergyScanConfiguration::setX(double xPos)
 {
-	if (position_.first != xPos){
+	if (position_.x() != xPos){
 
-		position_.first = xPos;
+		position_.setX(xPos);
 		emit xPositionChanged(xPos);
 		setModified(true);
 	}
@@ -159,9 +169,9 @@ void VESPERSEnergyScanConfiguration::setX(double xPos)
 
 void VESPERSEnergyScanConfiguration::setY(double yPos)
 {
-	if (position_.second != yPos){
+	if (position_.y() != yPos){
 
-		position_.second = yPos;
+		position_.setY(yPos);
 		emit yPositionChanged(yPos);
 		setModified(true);
 	}

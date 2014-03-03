@@ -20,11 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "XRFElement.h"
 
-XRFElement::XRFElement(const AMElement *el, QObject *parent)
-	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), toStringList(el->edges()), toStringList(el->emissionLines()), parent)
+XRFElement::XRFElement(AMElement *el, QObject *parent)
+	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), interimEdgeList(el->absorptionEdges()), interimLineList(el->emissionLines()), parent)
 {
 	for (int i = 0; i < el->emissionLines().size(); i++)
-		lineMap_.insert(el->emissionLines().at(i).first, el->emissionLines().at(i).second.toDouble());
+		lineMap_.insert(el->emissionLines().at(i).greekLineName(), el->emissionLines().at(i).energy());
 }
 
 bool XRFElement::addLine(QString line)
@@ -57,6 +57,26 @@ QStringList XRFElement::toStringList(QList<QPair<QString, QString> > list)
 
 	for (int i = 0; i < list.size(); i++)
 		sList << list.at(i).second;
+
+	return sList;
+}
+
+QStringList XRFElement::interimEdgeList(QList<AMAbsorptionEdge> list)
+{
+	QStringList sList;
+
+	for (int i = 0; i < list.size(); i++)
+		sList << list.at(i).energyString();
+
+	return sList;
+}
+
+QStringList XRFElement::interimLineList(QList<AMEmissionLine> list)
+{
+	QStringList sList;
+
+	for (int i = 0; i < list.size(); i++)
+		sList << list.at(i).energyString();
 
 	return sList;
 }

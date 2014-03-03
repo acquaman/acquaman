@@ -54,7 +54,7 @@ public slots:
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text()); }
+	void onScanNameEdited();
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
@@ -66,7 +66,7 @@ protected slots:
 	/// Handles choosing a new element when the element button is clicked.
 	void onElementChoiceClicked();
 	/// Fills in the combo box with lines that can be scanned.
-	void fillLinesComboBox(const AMElement *el);
+	void fillLinesComboBox(AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.
@@ -88,6 +88,8 @@ protected slots:
 	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
+	/// Helper slot that sets whether we export spectra in rows or columns.
+	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.

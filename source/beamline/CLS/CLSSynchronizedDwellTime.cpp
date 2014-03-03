@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSynchronizedDwellTime.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "util/AMErrorMonitor.h"
 
 CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *parent)
 	: AMSynchronizedDwellTime(parent)
@@ -83,18 +84,8 @@ void CLSSynchronizedDwellTime::addElement(int index)
 	connect(elements_.last(), SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
-AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double time)
+AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time)
 {
-	if (!dwellTime_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(dwellTime_);
-	action->setSetpoint(time);
-
-	return action;
-}
-
-AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time){
 	if (!dwellTime_->isConnected())
 		return 0;
 
@@ -106,36 +97,14 @@ AMAction3 *CLSSynchronizedDwellTime::createMasterTimeAction3(double time){
 	return action;
 }
 
-AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
-{
-	if (!startScan_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
-	action->setSetpoint(scan == true ? 1.0 : 0.0);
-
-	return action;
-}
-
 AMAction3 *CLSSynchronizedDwellTime::createScanningAction3(bool scan){
 	if (!startScan_->isConnected())
 		return 0;
 
 	AMControlInfo setpoint = startScan_->toInfo();
-	setpoint.setValue(scan == true ? 1.0 : 0.0);
+	setpoint.setValue(scan ? 1.0 : 0.0);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 	AMAction3 *action = new AMControlMoveAction3(actionInfo, startScan_);
-
-	return action;
-}
-
-AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronizedDwellTime::Mode mode)
-{
-	if (!mode_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(mode_);
-	action->setSetpoint(mode == Continuous ? 0.0 : 1.0);
 
 	return action;
 }
@@ -159,7 +128,7 @@ AMAction3* CLSSynchronizedDwellTime::createEnableAtAction3(int index, bool isEna
 }
 
 void CLSSynchronizedDwellTime::onScanningChanged(double status){
-	emit scanningChanged((int)status == 1 ? true : false);
+	emit scanningChanged((int)status == 1);
 	if((int)status == 0)
 		triggerSource_->setSucceeded();
 }
@@ -235,17 +204,6 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 	connect(trigger_, SIGNAL(valueChanged(QString)), this, SIGNAL(triggerChanged(QString)));
 }
 
-AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double time)
-{
-	if (!time_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(time_);
-	action->setSetpoint(time);
-
-	return action;
-}
-
 AMAction3 *CLSSynchronizedDwellTimeElement::createTimeAction3(double time)
 {
 	if (!time_->isConnected())
@@ -255,17 +213,6 @@ AMAction3 *CLSSynchronizedDwellTimeElement::createTimeAction3(double time)
 	setpoint.setValue(time);
 	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
 	AMAction3 *action = new AMControlMoveAction3(actionInfo, time_);
-
-	return action;
-}
-
-AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool enable)
-{
-	if (!enable_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(enable_);
-	action->setSetpoint(enable == true ? 1.0 : 0.0);
 
 	return action;
 }

@@ -41,6 +41,9 @@ public slots:
 protected slots:
 	void onStopButtonClicked();
 
+private slots:
+
+
 private:
     Ui::REIXSSampleChamberButtonPanel *ui;
 };

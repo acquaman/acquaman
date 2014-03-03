@@ -31,7 +31,7 @@ SGMFastScanSettingsView::SGMFastScanSettingsView(SGMFastScanSettings *fastScanSe
 	setTitle("Fast Scan Settings");
 
 	runSecondsSpinBox_ = new QDoubleSpinBox();
-	runSecondsSpinBox_->setMaximum(60);
+	runSecondsSpinBox_->setMaximum(10000);
 	runSecondsSpinBox_->setMinimum(5);
 
 	motorSettingsSpinBox_ = new QSpinBox();

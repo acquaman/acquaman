@@ -382,9 +382,11 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	table_ = new AMSelectablePeriodicTable(this);
-	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
-	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	table_->buildPeriodicTable();
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(plot_);
@@ -456,35 +458,33 @@ void AMScanViewSingleSpectrumView::setupPlot()
 	plot_->plot()->addTool(new MPlotWheelZoomerTool());
 }
 
-void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
-	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QList<AMEmissionLine> lines = element->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
 	MPlotPoint *newLine;
-	QPair<QString, QString> line;
 
-	foreach(line, lines){
+	foreach(AMEmissionLine line, lines){
 
-		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
-				&& line.first.contains("1") && line.first.compare("-"))	{
+		if (range_.withinRange(line.energy())
+				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
-			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine = new MPlotPoint(QPointF(line.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(symbol % " " % line.first);
+			newLine->setDescription(line.greekName() % ": " % line.energyString() % " eV");
 			plot_->plot()->addItem(newLine);
 		}
 	}
 }
 
-void AMScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QString symbol = element->symbol();
 	MPlot *plot = plot_->plot();
 
 	foreach(MPlotItem *item, plot->plotItems()){
 
-		if (item->description().contains(symbol))
+		if (item->description().contains(symbol % " "))
 			if (plot->removeItem(item))
 				delete item;
 	}
@@ -509,8 +509,8 @@ void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 
 void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
-	tableView_->setRange(low, high);
+	range_ = AMRange(low, high);
+	tableView_->setEnergyRange(low, high);
 
 	if (low != minimum_->value()){
 
@@ -526,21 +526,21 @@ void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 		maximum_->blockSignals(false);
 	}
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementDeselected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementSelected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementSelected(element);
 }
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
-	setPlotRange(minimum_->value(), range_.second);
+	setPlotRange(minimum_->value(), range_.maximum());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
-	setPlotRange(range_.first, maximum_->value());
+	setPlotRange(range_.minimum(), maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
@@ -668,10 +668,14 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 {
 	AMDataSource *source = sources_.at(id);
 
+	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
 	if (!addMultipleSpectra_){
 
 		QVector<double> data(source->size(source->rank()-1));
-		source->values(startIndex_, endIndex_, data.data());
+
+		if (!source->values(startIndex_, endIndex_, data.data()))
+			data.fill(0);
+
 		models_.at(id)->setValues(x_, data);
 	}
 
@@ -682,12 +686,9 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 		case 1:{	// 1D data source.  0D scan rank.
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
 
-			source->values(AMnDIndex(0), AMnDIndex(output.size()-1), data.data());
-
-			for (int i = 0, iSize = output.size(); i < iSize; i++)
-				output[i] = data.at(i);
+			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
@@ -698,14 +699,18 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize; i++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
 
-				source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
+				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
 
-				for (int j = 0, jSize = output.size(); j < jSize; j++)
+				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
 					output[j] += data.at(j);
 			}
+
+			if (!valuesSuccess)
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
@@ -716,15 +721,19 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 
 			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = startIndex_.i() + endIndex_.i()-startIndex_.i()+1; i < iSize; i++)
-				for (int j = startIndex_.j(), jSize = startIndex_.j() + endIndex_.j()-startIndex_.j()+1; j < jSize; j++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
 
-					source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
+					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
 
-					for (int k = 0, kSize = output.size(); k < kSize; k++)
+					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
 						output[k] += data.at(k);
 				}
+
+			if (!valuesSuccess)
+				output.fill(0);
 
 			models_.at(id)->setValues(x_, output);
 
@@ -773,6 +782,10 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 	// Fill in the button groups and models.
 	sources_ = sources;
+
+	foreach (AMDataSource *source, sources_)
+		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
+
 	QAbstractButton *button = 0;
 	AMDataSource *source = 0;
 	MPlotVectorSeriesData *model = 0;
@@ -797,21 +810,26 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 	// Setup the plot's independant axis.
 	if (!sources_.isEmpty()){
 
-		AMAxisInfo info = sources_.last()->axisInfoAt(sources_.last()->rank()-1);
-
-		if (info.units.isEmpty())
-			plot_->plot()->axisBottom()->setAxisName(info.name);
-
-		else
-			plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
-
-		x_.resize(info.size);
-
-		for (int i = 0; i < info.size; i++)
-			x_[i] = double(info.start) + i*double(info.increment);
-
-		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+		onAxisInfoChanged();
 	}
+}
+
+void AMScanViewSingleSpectrumView::onAxisInfoChanged()
+{
+	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 #include <QFileDialog>

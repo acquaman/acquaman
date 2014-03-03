@@ -3,9 +3,6 @@
 AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod, QObject *parent) :
 	AMDetector(name, description, parent)
 {
-	data_ = new double[1];
-	data_[0] = 0;
-
 	waitingForNewData_ = false;
 	waitingForStatusChange_ = false;
 
@@ -32,7 +29,8 @@ AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &na
 		connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlValueChanged(double)));
 }
 
-AMNumber AMBasicControlDetectorEmulator::reading(const AMnDIndex &indexes) const{
+AMNumber AMBasicControlDetectorEmulator::reading(const AMnDIndex &indexes) const
+{
 	if(!isConnected())
 		return AMNumber(AMNumber::Null);
 	// We want an "invalid" AMnDIndex for this 0D detector
@@ -46,8 +44,10 @@ AMNumber AMBasicControlDetectorEmulator::singleReading() const{
 	return reading(AMnDIndex());
 }
 
-const double* AMBasicControlDetectorEmulator::data() const{
-	return data_;
+bool AMBasicControlDetectorEmulator::data(double *outputValues) const
+{
+	outputValues[0] = control_->value();
+	return true;
 }
 
 AMAction3* AMBasicControlDetectorEmulator::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){
@@ -71,7 +71,6 @@ void AMBasicControlDetectorEmulator::onControlsTimedOut(){
 
 void AMBasicControlDetectorEmulator::onControlValueChanged(double value){
 	Q_UNUSED(value)
-	data_[0] = singleReading();
 	emit newValuesAvailable();
 	if(waitingForNewData_){
 		waitingForNewData_ = false;

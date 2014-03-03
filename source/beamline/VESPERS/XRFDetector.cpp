@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetector.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMOldDetector(name)

@@ -39,6 +39,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/SGM/SGMSampleManipulatorMotorGroup.h"
 
+#include "beamline/AMOldDetector.h"
+#include "beamline/AMSingleControlDetector.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+#include "beamline/CLS/CLSPGTDetector.h"
+#include "beamline/CLS/CLSOceanOptics65000Detector.h"
+#include "beamline/CLS/CLSAmptekSDD123Detector.h"
+
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "beamline/CLS/CLSQE65000Detector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
+
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
@@ -133,6 +147,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	scaler_->channelAt(7)->setCustomChannelName("FPD2");
 	scaler_->channelAt(8)->setCustomChannelName("FPD3");
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
+	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
 	detectorMap_ = new QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> >();
 
@@ -156,8 +171,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	FastDetectors_ = new AMOldDetectorSet(this);
 	FastDetectors_->setName("Fast Scan Detectors");
 
-	teyScalerDetector_ = new AMSingleReadOnlyControlDetector("teyScaler", "BL1611-ID-1:mcs00:fbk", AMOldDetector::WaitRead, this);
-	teyScalerDetector_->setDescription("TEY");
+	teyScalerDetector_ = new AMSingleReadOnlyControlDetector("OLDteyScaler", "BL1611-ID-1:mcs00:fbk", AMOldDetector::WaitRead, this);
+	teyScalerDetector_->setDescription("OLD TEY");
 	detectorRegistry_.append(teyScalerDetector_);
 	detectorMap_->insert(teyScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(teyScalerDetector_, qMakePair(XASDetectors(), true));
@@ -167,8 +182,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
 
-	tfyScalerDetector_ = new AMSingleReadOnlyControlDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", AMOldDetector::WaitRead, this);
-	tfyScalerDetector_->setDescription("TFY Diode");
+	tfyScalerDetector_ = new AMSingleReadOnlyControlDetector("OLDtfyScaler", "BL1611-ID-1:mcs02:fbk", AMOldDetector::WaitRead, this);
+	tfyScalerDetector_->setDescription("OLD TFY Diode");
 	detectorRegistry_.append(tfyScalerDetector_);
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), true));
@@ -178,25 +193,28 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	//connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 
-	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMOldDetector::WaitRead, this);
-	pgtDetector_->setDescription("SDD");
+	/*
+	pgtDetector_ = new CLSPGTDetector("OLDpgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMOldDetector::WaitRead, this);
+	pgtDetector_->setDescription("OLD SDD");
 	detectorRegistry_.append(pgtDetector_);
 	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
-	criticalDetectorsSet_->addDetector(pgtDetector_);
+	// PGT looks broken, so don't include it as a critical detector any more
+	//criticalDetectorsSet_->addDetector(pgtDetector_);
 	rawDetectorsSet_->addDetector(pgtDetector_);
+	*/
 
-	oos65000Detector_ = new CLSOceanOptics65000Detector("oos65000", "SA0000-03", AMOldDetector::WaitRead, this);
-	oos65000Detector_->setDescription("OceanOptics 65000");
+	oos65000Detector_ = new CLSOceanOptics65000Detector("OLDoos65000", "SA0000-03", AMOldDetector::WaitRead, this);
+	oos65000Detector_->setDescription("OLD OceanOptics 65000");
 	detectorRegistry_.append(oos65000Detector_);
 	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	detectorMap_->insert(oos65000Detector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(oos65000Detector_, qMakePair(XASDetectors(), false));
 	rawDetectorsSet_->addDetector(oos65000Detector_);
 
-	i0ScalerDetector_ = new AMSingleReadOnlyControlDetector("I0Scaler", "BL1611-ID-1:mcs01:fbk", AMOldDetector::WaitRead, this);
-	i0ScalerDetector_->setDescription("I0");
+	i0ScalerDetector_ = new AMSingleReadOnlyControlDetector("OLDI0Scaler", "BL1611-ID-1:mcs01:fbk", AMOldDetector::WaitRead, this);
+	i0ScalerDetector_->setDescription("OLD I0");
 	detectorRegistry_.append(i0ScalerDetector_);
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(feedbackDetectors(), false));
@@ -204,8 +222,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	rawDetectorsSet_->addDetector(i0ScalerDetector_);
 	connect(i0ScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	eVFbkDetector_ = new AMSingleReadOnlyControlDetector("eVFbk", "BL1611-ID-1:Energy:fbk", AMOldDetector::ImmediateRead, this);
-	eVFbkDetector_->setDescription("Energy Feedback");
+	eVFbkDetector_ = new AMSingleReadOnlyControlDetector("OLDeVFbk", "BL1611-ID-1:Energy:fbk", AMOldDetector::ImmediateRead, this);
+	eVFbkDetector_->setDescription("OLD Energy Feedback");
 	detectorRegistry_.append(eVFbkDetector_);
 	detectorMap_->insert(eVFbkDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(eVFbkDetector_, qMakePair(feedbackDetectors(), false));
@@ -213,8 +231,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	rawDetectorsSet_->addDetector(eVFbkDetector_);
 	connect(eVFbkDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	photodiodeScalerDetector_ = new AMSingleReadOnlyControlDetector("photodiodeScaler", "BL1611-ID-1:mcs03:fbk", AMOldDetector::WaitRead, this);
-	photodiodeScalerDetector_->setDescription("Photodiode");
+	photodiodeScalerDetector_ = new AMSingleReadOnlyControlDetector("OLDphotodiodeScaler", "BL1611-ID-1:mcs03:fbk", AMOldDetector::WaitRead, this);
+	photodiodeScalerDetector_->setDescription("OLD Photodiode");
 	detectorRegistry_.append(photodiodeScalerDetector_);
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(feedbackDetectors(), false));
@@ -222,102 +240,93 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	rawDetectorsSet_->addDetector(photodiodeScalerDetector_);
 	connect(photodiodeScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	encoderUpDetector_ = new AMSingleReadOnlyControlDetector("encoderUp", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
-	encoderUpDetector_->setDescription("Encoder Up Counts");
+	encoderUpDetector_ = new AMSingleReadOnlyControlDetector("OLDencoderUp", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
+	encoderUpDetector_->setDescription("OLD Encoder Up Counts");
 	detectorRegistry_.append(encoderUpDetector_);
 	detectorMap_->insert(encoderUpDetector_, qMakePair(allDetectors(), false));
 	rawDetectorsSet_->addDetector(encoderUpDetector_);
 	connect(encoderUpDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	encoderDownDetector_ = new AMSingleReadOnlyControlDetector("encoderDown", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
-	encoderDownDetector_->setDescription("Encoder Down Counts");
+	encoderDownDetector_ = new AMSingleReadOnlyControlDetector("OLDencoderDown", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
+	encoderDownDetector_->setDescription("OLD Encoder Down Counts");
 	detectorRegistry_.append(encoderDownDetector_);
 	rawDetectorsSet_->addDetector(encoderDownDetector_);
 	detectorMap_->insert(encoderDownDetector_, qMakePair(allDetectors(), false));
 	connect(encoderDownDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("ringCurrent", "PCT1402-01:mA:fbk", AMOldDetector::ImmediateRead, this);
-	ringCurrentDetector_->setDescription("Ring Current");
+	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("OLDringCurrent", "PCT1402-01:mA:fbk", AMOldDetector::ImmediateRead, this);
+	ringCurrentDetector_->setDescription("OLD Ring Current");
 	detectorRegistry_.append(ringCurrentDetector_);
 	rawDetectorsSet_->addDetector(ringCurrentDetector_);
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(feedbackDetectors(), false));
 	connect(ringCurrentDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMOldDetector::ImmediateRead, this);
-	filterPD1ScalarDetector_->setDescription("Aux 1 Diode");
+	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("OLDfilterPD1Current", "BL1611-ID-1:mcs06:fbk", AMOldDetector::ImmediateRead, this);
+	filterPD1ScalarDetector_->setDescription("OLD Aux 1 Diode");
 	detectorRegistry_.append(filterPD1ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD1ScalarDetector_);
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMOldDetector::ImmediateRead, this);
-	filterPD2ScalarDetector_->setDescription("Aux 2 Diode");
+	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("OLDfilterPD2Current", "BL1611-ID-1:mcs07:fbk", AMOldDetector::ImmediateRead, this);
+	filterPD2ScalarDetector_->setDescription("OLD Aux 2 Diode");
 	detectorRegistry_.append(filterPD2ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD2ScalarDetector_);
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMOldDetector::ImmediateRead, this);
-	filterPD3ScalarDetector_->setDescription("Aux 3 Diode");
+	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("OLDfilterPD3Current", "BL1611-ID-1:mcs08:fbk", AMOldDetector::ImmediateRead, this);
+	filterPD3ScalarDetector_->setDescription("OLD Aux 3 Diode");
 	detectorRegistry_.append(filterPD3ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD3ScalarDetector_);
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMOldDetector::ImmediateRead, this);
-	filterPD4ScalarDetector_->setDescription("Aux 4 Diode");
+	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("OLDfilterPD4Current", "BL1611-ID-1:mcs09:fbk", AMOldDetector::ImmediateRead, this);
+	filterPD4ScalarDetector_->setDescription("OLD Aux 4 Diode");
 	detectorRegistry_.append(filterPD4ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD4ScalarDetector_);
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMOldDetector::WaitRead, this);
-	detectorRegistry_.append(amptekSDD1_);
-	rawDetectorsSet_->addDetector(amptekSDD1_);
-	detectorMap_->insert(amptekSDD1_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(amptekSDD1_, qMakePair(XASDetectors(), false));
-	connect(amptekSDD1_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
+	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
+	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("AmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
+	newAmptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd3", this);
+	newAmptekSDD4_ = new CLSAmptekSDD123DetectorNew("AmptekSDD4", "Amptek SDD 4", "amptek:sdd4", this);
+	newAmptekSDD5_ = new CLSAmptekSDD123DetectorNew("AmptekSDD5", "Amptek SDD 5", "amptek:sdd5", this);
+	newAmptekSDD5_->setEVPerBin(2.25);
 
-	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", AMOldDetector::WaitRead, this);
-	detectorRegistry_.append(amptekSDD2_);
-	rawDetectorsSet_->addDetector(amptekSDD2_);
-	detectorMap_->insert(amptekSDD2_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
-	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
+	//newPGTDetector_ = new CLSPGTDetectorV2("PGT", "PGT", "MCA1611-01", this);
+	newQE65000Detector_ = new CLSQE65000Detector("QE65000", "QE 65000", "SA0000-03", this);
+	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
+	newTFYDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
+	newI0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
+	newPDDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
+	newFilteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 6, this);
+	newFilteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);
+	newFilteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 8, this);
+	newFilteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 9, this);
+	newFilteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
 
-	newAmptekSDD1_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
-	newAmptekSDD2_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD2", "Amptek SDD 2", "amptek:sdd2", this);
-	newAmptekSDD3_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD3", "Amptek SDD 3", "amptek:sdd3", this);
-	newAmptekSDD4_ = new CLSAmptekSDD123DetectorNew("NEWAmptekSDD4", "Amptek SDD 4", "amptek:sdd4", this);
-	newPGTDetector_ = new CLSPGTDetectorV2("NEWPGT", "PGT", "MCA1611-01", this);
-	newQE65000Detector_ = new CLSQE65000Detector("NEWQE65000", "QE 65000", "SA0000-03", this);
-	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTEY", "TEY", scaler_, 0, this);
-	newTFYDetector_ = new CLSAdvancedScalerChannelDetector("NEWTFY", "TFY", scaler_, 2, this);
-	newI0Detector_ = new CLSAdvancedScalerChannelDetector("NEWI0", "I0", scaler_, 1, this);
-	newPDDetector_ = new CLSAdvancedScalerChannelDetector("NEWPD", "PD", scaler_, 3, this);
-	newFilteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD1", "FilteredPD1", scaler_, 6, this);
-	newFilteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD2", "FilteredPD2", scaler_, 7, this);
-	newFilteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD3", "FilteredPD3", scaler_, 8, this);
-	newFilteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("NEWFilteredPD4", "FilteredPD4", scaler_, 9, this);
-
-	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderUp", "Encoder Up", scaler_, 5, this);
-	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("NEWEncoderDown", "Encoder Down", scaler_, 4, this);
+	newEncoderUpDetector_ = new CLSAdvancedScalerChannelDetector("EncoderUp", "Encoder Up", scaler_, 5, this);
+	newEncoderDownDetector_ = new CLSAdvancedScalerChannelDetector("EncoderDown", "Encoder Down", scaler_, 4, this);
 	AMControl *energyFeedbackControl = new AMReadOnlyPVControl("EnergyFeedback", "BL1611-ID-1:Energy:fbk", this, "Energy Feedback");
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", gratingEncoderFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	newDetectorSet_ = new AMDetectorGroup("New Detectors", this);
+	newDetectorSet_ = new AMDetectorGroup("All Detectors", this);
 	newDetectorSet_->addDetector(newAmptekSDD1_);
 	newDetectorSet_->addDetector(newAmptekSDD2_);
 	newDetectorSet_->addDetector(newAmptekSDD3_);
 	newDetectorSet_->addDetector(newAmptekSDD4_);
-	newDetectorSet_->addDetector(newPGTDetector_);
+	newDetectorSet_->addDetector(newAmptekSDD5_);
+	//newDetectorSet_->addDetector(newPGTDetector_);
 	newDetectorSet_->addDetector(newQE65000Detector_);
 	newDetectorSet_->addDetector(newTEYDetector_);
 	newDetectorSet_->addDetector(newTFYDetector_);
@@ -329,7 +338,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newAmptekSDD2_);
 	XASDetectorGroup_->addDetector(newAmptekSDD3_);
 	XASDetectorGroup_->addDetector(newAmptekSDD4_);
-	XASDetectorGroup_->addDetector(newPGTDetector_);
+	XASDetectorGroup_->addDetector(newAmptekSDD5_);
+	//XASDetectorGroup_->addDetector(newPGTDetector_);
 	XASDetectorGroup_->addDetector(newQE65000Detector_);
 	XASDetectorGroup_->addDetector(newTEYDetector_);
 	XASDetectorGroup_->addDetector(newTFYDetector_);
@@ -339,6 +349,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newFilteredPD2Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
+	XASDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
 
 	FastDetectorGroup_ = new AMDetectorGroup("Fast Detectors", this);
@@ -350,6 +361,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	FastDetectorGroup_->addDetector(newFilteredPD2Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD3Detector_);
 	FastDetectorGroup_->addDetector(newFilteredPD4Detector_);
+	FastDetectorGroup_->addDetector(newFilteredPD5Detector_);
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -450,45 +462,11 @@ QString SGMBeamline::currentEndstation() const{
 		return infoObject_->sgmEndstationName((SGMBeamlineInfo::sgmEndstation)272727);
 }
 
-bool SGMBeamline::isSDD1Enabled() const{
-	if(amptekSDD1_->isConnected()){
-		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD1_);
-		return sddAsAmptek->isEnabled();
-	}
-	return false;
-}
-
-AMBeamlineActionItem* SGMBeamline::createSDD1EnableAction(bool setEnabled){
-	if(amptekSDD1_->isConnected()){
-		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD1_);
-		return sddAsAmptek->createEnableAction(setEnabled);
-	}
-	return 0;
-}
-
-bool SGMBeamline::isSDD2Enabled() const{
-	if(amptekSDD2_->isConnected()){
-		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD2_);
-		return sddAsAmptek->isEnabled();
-	}
-	return false;
-}
-
-AMBeamlineActionItem* SGMBeamline::createSDD2EnableAction(bool setEnabled){
-	if(amptekSDD2_->isConnected()){
-		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD2_);
-		return sddAsAmptek->createEnableAction(setEnabled);
-	}
-	return 0;
-}
-
 int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const{
-	if(detector == pgtDetector_)
+	/*if(detector == pgtDetector_)
 		return 2;
-	else if(detector == oos65000Detector_)
+	else*/ if(detector == oos65000Detector_)
 		return 3;
-	else if((detector == amptekSDD1_) || (detector == amptekSDD2_) )
-		return 4;
 	else
 		return -1;
 }
@@ -539,6 +517,146 @@ QString SGMBeamline::currentSampleDescription(){
 		return "<Unknown Sample>";
 	else
 		return AMSamplePre2013(currentId, AMUser::user()->database()).name();
+}
+
+AMOldDetector* SGMBeamline::teyDetector() const {
+	return teyScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::tfyDetector() const {
+	return tfyScalerDetector_;
+}
+
+/*
+AMOldDetector* SGMBeamline::pgtDetector() const {
+	return pgtDetector_;
+}
+*/
+
+AMOldDetector* SGMBeamline::oos65000Detector() const {
+	return oos65000Detector_;
+}
+
+AMOldDetector* SGMBeamline::i0Detector() const {
+	return i0ScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::eVFbkDetector() const {
+	return eVFbkDetector_;
+}
+
+AMOldDetector* SGMBeamline::photodiodeDetector() const {
+	return photodiodeScalerDetector_;
+}
+
+AMOldDetector* SGMBeamline::encoderUpDetector() const {
+	return encoderUpDetector_;
+}
+
+AMOldDetector* SGMBeamline::encoderDownDetector() const {
+	return encoderDownDetector_;
+}
+
+AMOldDetector* SGMBeamline::ringCurrentDetector() const {
+	return ringCurrentDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD1ScalarDetector() const {
+	return filterPD1ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD2ScalarDetector() const {
+	return filterPD2ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD3ScalarDetector() const {
+	return filterPD3ScalarDetector_;
+}
+
+AMOldDetector* SGMBeamline::filterPD4ScalarDetector() const {
+	return filterPD4ScalarDetector_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD1() const {
+	return newAmptekSDD1_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD2() const {
+	return newAmptekSDD2_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD3() const {
+	return newAmptekSDD3_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD4() const {
+	return newAmptekSDD4_;
+}
+
+AMDetector* SGMBeamline::newAmptekSDD5() const {
+	return newAmptekSDD5_;
+}
+
+/*
+AMDetector* SGMBeamline::newPGTDetector() const {
+	return newPGTDetector_;
+}
+*/
+
+AMDetector* SGMBeamline::newQE65000Detector() const {
+	return newQE65000Detector_;
+}
+
+AMDetector* SGMBeamline::newTEYDetector() const {
+	return newTEYDetector_;
+}
+
+AMDetector* SGMBeamline::newTFYDetector() const {
+	return newTFYDetector_;
+}
+
+AMDetector* SGMBeamline::newI0Detector() const {
+	return newI0Detector_;
+}
+
+AMDetector* SGMBeamline::newPDDetector() const {
+	return newPDDetector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD1Detector() const {
+	return newFilteredPD1Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD2Detector() const {
+	return newFilteredPD2Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD3Detector() const {
+	return newFilteredPD3Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD4Detector() const {
+	return newFilteredPD4Detector_;
+}
+
+AMDetector* SGMBeamline::newFilteredPD5Detector() const {
+	return newFilteredPD5Detector_;
+}
+
+AMDetector* SGMBeamline::newEncoderUpDetector() const {
+	return newEncoderUpDetector_;
+}
+
+AMDetector* SGMBeamline::newEncoderDownDetector() const {
+	return newEncoderDownDetector_;
+}
+
+AMDetector* SGMBeamline::energyFeedbackDetector() const {
+	return energyFeedbackDetector_;
+}
+
+AMDetector* SGMBeamline::gratingEncoderDetector() const {
+	return gratingEncoderDetector_;
 }
 
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
@@ -687,7 +805,7 @@ CLSSIS3820Scaler* SGMBeamline::rawScaler(){
 	return scaler_;
 }
 
-bool SGMBeamline::isBeamlineScanning(){
+bool SGMBeamline::isBeamlineScanning() const{
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
 		return true;
 	return false;
@@ -979,7 +1097,8 @@ void SGMBeamline::setupControls(){
 	amNames2pvNames_.resetLookup();
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	energySpacingParam_ = new AMReadOnlyPVControl("energySpacingParam", sgmPVName, this);
@@ -1031,15 +1150,15 @@ void SGMBeamline::setupControls(){
 
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	((AMPVwStatusControl*)(grating_))->setMoveStartTolerance(0.1);
 	grating_->setDescription("Grating Selection");
+	grating_->setAttemptMoveWhenWithinTolerance(false);
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
-	((AMPVwStatusControl*)(harmonic_))->setMoveStartTolerance(0.1);
 	harmonic_->setDescription("Harmonic");
+	harmonic_->setAttemptMoveWhenWithinTolerance(false);
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
-	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20, 20 );
+	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", sgmPVName+":stop", this, 20, 20 );
 	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
 	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
 	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
@@ -1168,6 +1287,29 @@ void SGMBeamline::setupControls(){
 	undulatorRelativeStep_ = new AMPVControl("undulatorRelativeStep", "SMTR1411-01:step:rel", "SMTR1411-01:step:rel", QString(), this, 5);
 	undulatorRelativeStep_->setDescription("Undulator Relative Step");
 
+	m2VerticalUpstreamStep_ = new AMReadOnlyPVControl("m2VerticalUpstreamStep", "SMTR16113I1010:step:fbk", this);
+	m2VerticalDownstreamStep_ = new AMReadOnlyPVControl("m2VerticalDownstreamStep", "SMTR16113I1011:step:fbk", this);
+	m2HorizontalUpstreamStep_ = new AMReadOnlyPVControl("m2HorizontalUpstreamsStep", "SMTR16113I1012:step:fbk", this);
+	m2HorizontalDownstreamStep_ = new AMReadOnlyPVControl("m2HorizontalDownstreamStep_", "SMTR16113I1013:step:fbk", this);
+	m2RotationalStep_ = new AMReadOnlyPVControl("m2RotationalStep_", "SMTR16113I1014:step:fbk", this);
+	m3VerticalUpstreamStep_ = new AMReadOnlyPVControl("m3VerticalUpstreamStep", "SMTR16113I1015:step:sp", this);
+	m3VerticalDownstreamStep_ = new AMReadOnlyPVControl("m3VerticalDownstreamStep", "SMTR16113I1016:step:sp", this);
+	m3HorizontalUpstreamStep_ = new AMReadOnlyPVControl("m3HorizontalUpstreamStep", "SMTR16113I1017:step:sp", this);
+	m3HorizontalDownstreamStep_ = new AMReadOnlyPVControl("m3HorizontalDownstreamStep", "SMTR16113I1018:step:sp", this);
+	m3RotationalStep_ = new AMReadOnlyPVControl("m3RotationalStep", "SMTR16113I1019:step:fbk", this);
+
+	m2VerticalUpstreamEncoder_ = new AMReadOnlyPVControl("m2VerticalUpstreamEncoder", "SMTR16113I1010:encod:fbk", this);
+	m2VerticalDownstreamEncoder_ = new AMReadOnlyPVControl("m2VerticalDownstreamEncoder", "SMTR16113I1011:encod:fbk", this);
+	m2HorizontalUpstreamEncoder_ = new AMReadOnlyPVControl("m2HorizontalUpstreamsEncoder", "SMTR16113I1012:encod:fbk", this);
+	m2HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m2HorizontalDownstreamEncoder_", "SMTR16113I1013:encod:fbk", this);
+	m2RotationalEncoder_ = new AMReadOnlyPVControl("m2RotationalEncoder_", "SMTR16113I1014:encod:fbk", this);
+	m3VerticalUpstreamEncoder_ = new AMReadOnlyPVControl("m3VerticalUpstreamEncoder", "SMTR16113I1015:enc:fbk", this);
+	m3VerticalDownstreamEncoder_ = new AMReadOnlyPVControl("m3VerticalDownstreamEncoder", "SMTR16113I1016:enc:fbk", this);
+	m3HorizontalUpstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalUpstreamEncoder", "SMTR16113I1017:enc:fbk", this);
+	m3HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalDownstreamEncoder", "SMTR16113I1018:enc:fbk", this);
+	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
+
+
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
 
@@ -1197,7 +1339,8 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD2_);
 	addExposedDetector(newAmptekSDD3_);
 	addExposedDetector(newAmptekSDD4_);
-	addExposedDetector(newPGTDetector_);
+	addExposedDetector(newAmptekSDD5_);
+	//addExposedDetector(newPGTDetector_);
 	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);
 	addExposedDetector(newI0Detector_);
@@ -1207,6 +1350,7 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newFilteredPD2Detector_);
 	addExposedDetector(newFilteredPD3Detector_);
 	addExposedDetector(newFilteredPD4Detector_);
+	addExposedDetector(newFilteredPD5Detector_);
 	addExposedDetector(newEncoderUpDetector_);
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);

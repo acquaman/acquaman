@@ -106,6 +106,9 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
+	if (!action)
+		return false;
+
 	if (subActionMode() == Parallel && !action->canParallelize())
 		return false;
 
@@ -113,9 +116,6 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING, "Cannot add sub-actions once the action is already running.");
 		return false;
 	}
-
-	if (!action)
-		return false;
 
 	if(action->isValid() == AMAction3::ActionNeverValid)
 		return false;
@@ -342,7 +342,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 		}
 		else{
-			if(internalShouldLogSubAction(generalAction)){
+			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
 				int parentLogId = logActionId();
 				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
 				//AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);

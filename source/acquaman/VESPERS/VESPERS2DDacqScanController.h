@@ -44,7 +44,7 @@ public:
 	/// Constructor.  \param cfg is the 2D scan configuration that the controller will run.
 	VESPERS2DDacqScanController(VESPERS2DScanConfiguration *cfg, QObject *parent = 0);
 	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERS2DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	~VESPERS2DDacqScanController() { }
 
 	/// Returns the PV name that will be used for the x-axis.
 	virtual QString xAxisPVName() const { return xAxisPVName_; }

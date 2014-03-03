@@ -26,10 +26,13 @@ class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
 class AMAction3;
 class AMControl;
+class AMReadOnlyPVControl;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
+class CLSSR570;
 
 #include "dataman/info/AMDetectorInfo.h"
+#include "util/AMRange.h"
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -197,6 +200,8 @@ public:
 	bool isEnabled() const;
 	/// Returns the current value of the channel.
 	int reading() const;
+	/// Returns the current voltage.  \note Not high voltage.
+	double voltage() const;
 	/// Returns the index of this channel.
 	int index() const { return index_; }
 
@@ -208,40 +213,86 @@ public:
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }
 
+	/// Sets a SR570 to this particular channel.  It is assumed that the SR570 ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
+	void setSR570(CLSSR570 *sr570);
+	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
+	CLSSR570 *sr570() const { return sr570_; }
+
+	/// Returns the minimum voltage range for the ion chamber.
+	double minimumVoltage() const { return voltageRange_.minimum(); }
+	/// Returns the maximum voltage range for the ion chamber.
+	double maximumVoltage() const { return voltageRange_.maximum(); }
+	/// Returns the voltage range for the ion chamber.
+	const AMRange &voltageRange() const { return voltageRange_; }
+
+	/// Returns whether the voltage is within the linear range of the ion chamber.
+	virtual bool withinLinearRange() const { return voltage() <= maximumVoltage() && voltage() >= minimumVoltage(); }
+	/// Specific helper function that returns whether the voltage is too low.  Returns false if withinLinearRange is true.
+	virtual bool voltageTooLow() const { return !withinLinearRange() && voltage() < minimumVoltage(); }
+	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
+	virtual bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
+
 public slots:
 	/// Sets whether the channel is enabled or not.
 	void setEnabled(bool isEnabled);
-
 	/// Sets the custom channel name, default is an empty string
 	void setCustomChannelName(const QString &customChannelName);
+
+	/// Sets the minimum voltage for the linear range for the detector.
+	void setMinimumVoltage(double min);
+	/// Sets the maximum voltage for the linear range for the detector.
+	void setMaximumVoltage(double max);
+	/// Sets the linear voltage range.
+	void setVoltagRange(const AMRange &range);
+	/// Overloaded.  Sets the linear voltage range.
+	void setVoltagRange(double min, double max);
 
 signals:
 	/// Notifier that the enabled state of the channel has changed.  Passes the new state.
 	void enabledChanged(bool isEnabled);
 	/// Notifier that the current reading of the channel has changed.  Passes the new reading.
 	void readingChanged(int reading);
+	/// Notifier that the voltage reading of the channel has changed.  Passes the new voltage.  \note This value will be meaningless if the EPICS app isn't configured properly.
+	void voltageChanged(double);
 	/// Notifier that the connectivity of the channel has changed.  Passes the new state.
 	void connected(bool isConnected);
+	/// Notifier that a (new) SR570 mapping has been established.
+	void sr570Attached();
+	/// Notifier that the custom name of the scaler channel has been changed.  Passes the new name.
+	void customNameChanged(const QString &);
+	/// Notifier that the voltage range has changed.  Passes the new range.
+	void voltageRangeChanged(const AMRange &);
 
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
 	void onChannelEnabledChanged();
 	/// Helper slot that emits the readingChanged() signal.
 	void onChannelReadingChanged(double reading);
+	/// Handles figuring out whether the entire scalar channel is connected or not.
+	void onConnectedChanged();
 
 protected:
 	/// Index of this scaler channel.
 	int index_;
+	/// Flag to help minimize signal traffic when connecting to controls.
+	bool wasConnected_;
+	/// The linear voltage range of the detector.
+	AMRange voltageRange_;
 
 	/// Control that handles the enabled flag of the individual channel.
 	AMControl *channelEnable_;
 	/// Control that handles reading the value of the channel.
 	AMControl *channelReading_;
+	/// Control that holds the voltage value.  PV name is the "userRate", but that is just a generic term in the EPICS app. \note This is NOT the high voltage.
+	AMReadOnlyPVControl *channelVoltage_;
 	/// Control set that holds the above two controls.
 	AMControlSet *allControls_;
 
 	/// Holds a custom setable name for the channel
 	QString customChannelName_;
+
+	/// Holds the pointer to the CLSSR570 (if it has one), which controls the sensitivity of the scalar channel.
+	CLSSR570 *sr570_;
 };
 
 #endif // CLSSIS3820SCALER_H

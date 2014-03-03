@@ -158,7 +158,7 @@ namespace VESPERS {
 	}
 
 	/// Builds the standard exporter option used for all exported scans.
-	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage)
+	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
 	{
 		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", name);
 
@@ -186,6 +186,7 @@ namespace VESPERS {
 		vespersDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->setHigherDimensionsInRows(exportSpectraInRows);
 		vespersDefault->storeToDb(AMDatabase::database("user"));
 
 		return vespersDefault;
@@ -201,7 +202,7 @@ namespace VESPERS {
 			QStringList files = dir.entryList();
 
 			foreach (QString file, files)
-				if (file.mid(0, file.lastIndexOf("_")) == name)
+				if (file.startsWith(name))
 					return true;
 		}
 
@@ -227,7 +228,7 @@ namespace VESPERS {
 	}
 
 	/// Converts the bizarre string output of the pv to a real QString.
-	inline QString pvToString(AMProcessVariable *pv)
+	inline QString pvToString(const AMProcessVariable *pv)
 	{
 		int current;
 		QString name;

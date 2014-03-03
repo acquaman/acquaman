@@ -385,7 +385,7 @@ void AMMotorGroupView::setMotorGroupView(const QString &name)
 		foreach(AMMotorGroupObjectView *view, motorGroupViews_.values())
 			view->hide();
 
-		currentMotorGroupObject_ = qMakePair(name, motorGroupViews_.value(name));
+		currentMotorGroupObjectView_ = motorGroupViews_.value(name);
 		motorGroupViews_.value(name)->show();
 
 		if (availableMotorGroupObjects_->currentIndex() != availableMotorGroupObjects_->findText(name)){
@@ -409,7 +409,7 @@ void AMMotorGroupView::setMotorGroupView(const QString &name)
 			visibleMotorGroupObjectViews_.insert(name, view);
 
 		view->setVisible(!view->isVisible());
-		emit motorGroupVisibilityChanged();
+		emit motorGroupVisibilityChanged(name);
 	}
 }
 
@@ -430,8 +430,8 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 
 		if (viewMode_ == Exclusive){
 
-			currentMotorGroupObject_.second->show();
-			emit currentMotorGroupObjectViewChanged(currentMotorGroupObject_.first);
+			currentMotorGroupObjectView_->show();
+			emit currentMotorGroupObjectViewChanged(currentMotorGroupObjectView_->motorGroupObject()->name());
 		}
 
 		else if (viewMode_ == Multiple){
@@ -439,15 +439,15 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 			// This is just in case there isn't a selected view yet.
 			if (visibleMotorGroupObjectViews_.isEmpty()){
 
-				visibleMotorGroupObjectViews_.insert(currentMotorGroupObject_.first, currentMotorGroupObject_.second);
-				currentMotorGroupObject_.second->show();
+				visibleMotorGroupObjectViews_.insert(currentMotorGroupObjectView_->motorGroupObject()->name(), currentMotorGroupObjectView_);
+				currentMotorGroupObjectView_->show();
 			}
 
 			else
 				foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews_.values())
 					view->show();
 
-			emit motorGroupVisibilityChanged();
+			emit motorGroupVisibilityChanged("");
 		}
 	}
 }
@@ -476,12 +476,12 @@ void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
 
 QString AMMotorGroupView::currentMotorGroupObjectName() const
 {
-	return viewMode_ == Exclusive ? currentMotorGroupObject_.first : "";
+	return viewMode_ == Exclusive ? currentMotorGroupObjectView_->motorGroupObject()->name() : "";
 }
 
 AMMotorGroupObjectView *AMMotorGroupView::currentMotorGroupObjectView() const
 {
-	return viewMode_ == Exclusive ? currentMotorGroupObject_.second : 0;
+	return viewMode_ == Exclusive ? currentMotorGroupObjectView_ : 0;
 }
 
 QStringList AMMotorGroupView::visibleMotorGroupObjectNames() const

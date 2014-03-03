@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "analysis/AM1DDeadTimeAB.h"
 
 #include "dataman/export/AMExporterAthena.h"
 #include "application/AMAppControllerSupport.h"
@@ -66,7 +67,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", config_->exportSpectraSources(), true, true);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", config_->exportSpectraSources(), true, true, config_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
@@ -247,14 +248,24 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		if (edge.contains(QRegExp("L\\d$")))
 			edge.chop(1);
 
+		AMDataSource *rawDataSource = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
 			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
+				rawDataSource = scan_->rawDataSources()->at(i);
+				correctedROI = new AM1DDeadTimeAB("corrected_" % rawDataSource->name());
+				correctedROI->setDescription("Corrected " % rawDataSource->description());
+				correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+				scan_->addAnalyzedDataSource(correctedROI, false, true);
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
-				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i));
-				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+				normPFY->setInputDataSources(QList<AMDataSource *>() << correctedROI << scan_->rawDataSources()->at(i));
+				normPFY->setExpression(QString("%1/%2").arg(correctedROI->name()).arg(scan_->rawDataSources()->at(0)->name()));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
 			}
 		}
@@ -433,51 +444,51 @@ void VESPERSEXAFSDacqScanController::addExtraDatasources()
 
 bool VESPERSEXAFSDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->regionTime(0));
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	buildBaseInitializationAction(config_->regionTime(0));
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-	// Add the rest of the stuff needed for XAS.
-	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
+//	// Add the rest of the stuff needed for XAS.
+//	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
 
-		int regionCount = config_->regionCount();
-		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
-																													  time,
-																													  config_->regionStart(regionCount - 1),
-																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
-																													  config_->regionStart(regionCount - 1),
-																													  config_->regionEnd(regionCount - 1),
-																													  config_->regionTime(regionCount - 1)));
-	}
+//		int regionCount = config_->regionCount();
+//		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
+//																													  time,
+//																													  config_->regionStart(regionCount - 1),
+//																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
+//																													  config_->regionStart(regionCount - 1),
+//																													  config_->regionEnd(regionCount - 1),
+//																													  config_->regionTime(regionCount - 1)));
+//	}
 
-	// Move the mono, and if necessary, move the sample stage.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+//	// Move the mono, and if necessary, move the sample stage.
+//	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
-	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
+//	if (config_->goToPosition() && config_->motor() == (VESPERS::H | VESPERS::V)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
+//	else if (config_->goToPosition() && config_->motor() == (VESPERS::X | VESPERS::Z)){
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
-	}
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->x()));
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->y()));
+//	}
 
-	// Change the edge energy.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
+//	// Change the edge energy.
+//	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//	setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -592,9 +603,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 void VESPERSEXAFSDacqScanController::cleanup()
 {
 	buildCleanupAction(true);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERSEXAFSDacqScanController::onCleanupFinished()
@@ -645,7 +656,7 @@ void VESPERSEXAFSDacqScanController::onInitializationActionsFailed(int explanati
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, 0, "XAS scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

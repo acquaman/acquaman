@@ -126,7 +126,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
 	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
 
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
+	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
 	configureCCDButton_->setEnabled(config_->ccdDetector());
 	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
@@ -175,7 +175,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
-	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
+	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -202,9 +202,11 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources());
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources(), config_->exportSpectraInRows());
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
+	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -254,18 +256,28 @@ void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
 		QString path;
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
+
+	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+
+		QPalette palette = scanName_->palette();
+		palette.setColor(QPalette::Base, Qt::red);
+		scanName_->setPalette(palette);
+	}
+
+	else
+		scanName_->setPalette(this->palette());
 }
 
 void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &name) const
@@ -274,16 +286,16 @@ void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &n
 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
-		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
-		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Pilatus)
-		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
 
@@ -388,19 +400,20 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 		QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		config_->setCCDFileName(name);
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		checkCCDFileNames(name);
 	}
 
+	onScanNameEdited();
 	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
 }
@@ -521,62 +534,72 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 {
 	double position = 0;
 	double otherPosition = 0;
+	double n = 0;
 
 	switch(int(config_->motor())){
 
 	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::AttoH:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
 		break;
 
 	case VESPERS::AttoV:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
 		break;
 
 	case VESPERS::AttoX:
 		position = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
-		otherPosition = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::AttoZ:
 		position = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
-		otherPosition = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::AttoRz:
 		position = VESPERSBeamline::vespers()->attoStageRz()->value();
 		otherPosition = -123456789.0;
+		n = 888888.88;
 		break;
 
 	case VESPERS::AttoRy:
 		position = VESPERSBeamline::vespers()->attoStageRy()->value();
 		otherPosition = -123456789.0;
+		n = 888888.88;
 		break;
 
 	case VESPERS::AttoRx:
 		position = VESPERSBeamline::vespers()->attoStageRx()->value();
 		otherPosition = -123456789.0;
+		n = 888888.88;
 		break;
 	}
 

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include "util/AMSelectablePeriodicTable.h"
 #include "ui/util/AMSelectablePeriodicTableView.h"
+#include "util/AMRange.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -56,9 +57,9 @@ protected slots:
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val) { plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0))); }
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
+	void onElementSelected(AMElement *element);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
+	void onElementDeselected(AMElement *element);
 	/// Sets the plot range used for placing markers inside the plot.
 	void setPlotRange(double low, double high);
 	/// Sets the minimim for the plot range used for placing markers inside the plot.
@@ -126,7 +127,7 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// Spin box holding the minimum value for the range.
 	QDoubleSpinBox *minimum_;
 	/// Spin box holding the maximum value for the range.

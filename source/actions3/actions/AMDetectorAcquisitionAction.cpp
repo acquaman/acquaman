@@ -85,7 +85,9 @@ void AMDetectorAcquisitionAction::onAcquisitionSucceeded(){
 		}
 
 		QList<double> detectorData;
-		const double *detectorDataPointer = detector_->data();
+		QVector<double> detectorDataPointer = QVector<double>(detector_->size().product());
+		detector_->data(detectorDataPointer.data());
+
 		if(detector_->rank() == 0)
 			detectorData.append(detectorDataPointer[0]);
 		else{

@@ -79,7 +79,7 @@ protected:
 	/// Add the time offset label.
 	QGroupBox *addTimeOffsetLabel(double time);
 	/// Add the export options view.  Returns a pointer to the widget.
-	QGroupBox *addExporterOptionsView(QStringList list, bool exportSpectra);
+	QGroupBox *addExporterOptionsView(QStringList list, bool exportSpectra, bool exportSpectraInRows);
 	/// Add the dwell time box.  Returns a pointer to the widget.
 	QDoubleSpinBox *addDwellTimeWidget(double time);
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
@@ -110,6 +110,8 @@ protected:
 	QPushButton *setCurrentPositionButton_;
 	/// Check box for enabling/disabling whether or not spectra should be exported or not.
 	QCheckBox *autoExportSpectra_;
+	/// Check box for deciding whether the spectra should be exported in columns or rows.
+	QCheckBox *exportSpectraInRows_;
 	/// A label holding text for the the time offset spin box.
 	QLabel *timeOffsetLabel_;
 	/// A spin box holding the time offset.

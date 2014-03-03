@@ -43,7 +43,7 @@ public:
 	/// This constructor is empty. Call AMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMAppController(QObject *parent = 0);
 	/// The destructor is empty.  Call AMAppController::shutdown() to delete all objects and clean up.
-	virtual ~AMAppController() {}
+	virtual ~AMAppController();
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -53,8 +53,8 @@ public:
 	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
 	virtual bool startupInstallActions();
 
-	// Shutdown: nothing special to do except use the base class shutdown().
-//	virtual void shutdown();
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
 
 signals:
 
@@ -69,7 +69,7 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();
 
-	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
+	/// Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
@@ -77,6 +77,9 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 
 	/// Displays the view for the scanActions or brings it to the front
 	void showScanActionsView();
+
+	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
+	void forceQuitAcquaman();
 
 	///////////////////////////////////
 
@@ -107,6 +110,8 @@ protected:
 	void setAutomaticBringScanEditorToFront(bool flag) { automaticBringScanEditorToFrontWithRunningScans_ = flag; }
 	/// Returns the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
 	bool automaticBringScanEditorToFrontWithRunningScans() const { return automaticBringScanEditorToFrontWithRunningScans_; }
+	/// Set whether the action runner cancel prompt should be shown.
+	void setActionRunnerCancelPromptVisibility(bool showPrompt);
 
 	/// Top-level panes in the main window
 	AMWorkflowView3* workflowView_;
@@ -116,6 +121,9 @@ protected:
 
 	/// Menus
 	QMenu *viewMenu_;
+
+	/// Flag for overriding check on eventfilter for QEvent::Close
+	bool overrideCloseCheck_;
 };
 
 #endif // AMAPPCONTROLLER_H

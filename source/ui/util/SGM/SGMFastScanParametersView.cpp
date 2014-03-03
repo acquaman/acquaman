@@ -303,11 +303,11 @@ SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGM
 	}
 
 	elementsComboBox_ = new QComboBox();
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	SGMElementInfo *tempElementInfo;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);
-		if( (tempElement->KEdge().second.toDouble() > 200 && tempElement->KEdge().second.toDouble() < 2000) || (tempElement->L2Edge().second.toDouble() > 200 && tempElement->L2Edge().second.toDouble() < 2000) || (tempElement->M3Edge().second.toDouble() > 200 && tempElement->M3Edge().second.toDouble() < 2000) ){
+		if( (tempElement->KEdge().energy() > 200 && tempElement->KEdge().energy() < 2000) || (tempElement->L2Edge().energy() > 200 && tempElement->L2Edge().energy() < 2000) || (tempElement->M3Edge().energy() > 200 && tempElement->M3Edge().energy() < 2000) ){
 			tempElementInfo = SGMPeriodicTable::sgmTable()->elementInfoByName(tempElement->name());
 			if(tempElementInfo)
 				elementsComboBox_->addItem(tempElement->name(), QVariant(tempElement->atomicNumber()));

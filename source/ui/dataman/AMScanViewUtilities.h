@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
+#include "util/AMRange.h"
 
 /// This file contains some common classes that are used with AMScanView classes.
 
@@ -235,9 +236,9 @@ protected slots:
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
 	void updatePlot(int id);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
+	void onElementSelected(AMElement *element);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
+	void onElementDeselected(AMElement *element);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
@@ -248,6 +249,8 @@ protected slots:
 	void onMaximumChanged();
 	/// Slot that handles when the log enabled button is toggled.
 	void onLogScaleEnabled(bool enable);
+	/// Slot that handles if the axis info for a data source changes.
+	void onAxisInfoChanged();
 
 protected:
 	/// Sets up the plot.
@@ -283,7 +286,7 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// Double spin box that holds the minimum energy of the range.
 	QDoubleSpinBox *minimum_;
 	/// Double spin box that holds the maximum energy of the range.

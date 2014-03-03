@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DDeadTimeAB.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "analysis/AM1DDeadTimeAB.h"
 
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
 #include "application/AMAppControllerSupport.h"
@@ -55,7 +56,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources(), false, false);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources(), false, false, config_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
@@ -261,23 +262,30 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	case VESPERS::SingleElement:{
 
 		AMDataSource *rawDataSource = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AM1DNormalizationAB *normROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 
 			rawDataSource = scan_->rawDataSources()->at(i+1);
+			correctedROI = new AM1DDeadTimeAB("corrected_" % rawDataSource->name());
+			correctedROI->setDescription("Corrected " % rawDataSource->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			normROI = new AM1DNormalizationAB("norm_"+rawDataSource->name());
 			normROI->setDescription("Normalized "+rawDataSource->description());
-			normROI->setDataName(rawDataSource->name());
+			normROI->setDataName(correctedROI->name());
 			normROI->setNormalizationName(i0Name);
-			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+			normROI->setInputDataSources(QList<AMDataSource *>() << correctedROI << i0List);
 			scan_->addAnalyzedDataSource(normROI, true, false);
 		}
 
 		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
 		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
-		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << fastPeakSource << slowPeakSource);
 		scan_->addAnalyzedDataSource(correctedSpectra1El, true, false);
 
 		break;
@@ -332,6 +340,9 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 		AMDataSource *roi1 = 0;
 		AMDataSource *roi4 = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AM1DSummingAB *sumAB = 0;
 		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		QStringList roiNames;
@@ -340,12 +351,16 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		for (int i = 0, count = sameRois.size(); i < count; i++){
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+1);
+			correctedROI = new AM1DDeadTimeAB("corrected_" % roi1->name());
+			correctedROI->setDescription("Corrected " % roi1->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << roi1 << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+1+singleElRoiCount);
 			QString name = roi1->name().left(roi1->name().size()-4);
 			roiNames << name;
 			sumAB = new AM1DSummingAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
-			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
+			sumAB->setInputDataSources(QList<AMDataSource *>() << correctedROI << roi4);
 			scan_->addAnalyzedDataSource(sumAB, false, true);
 		}
 
@@ -448,101 +463,62 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 
 bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->time());
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	buildBaseInitializationAction(config_->time());
 
-	if (config_->ccdDetector() == VESPERS::Roper){
+//	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+//	if (config_->ccdFileName() != ccdName)
+//		config_->setCCDFileName(ccdName);
 
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
+//	if (config_->hasOtherPosition()){
 
-	else if (config_->ccdDetector() == VESPERS::Mar){
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 
-		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+//		switch(config_->otherMotor(config_->motor())){
 
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
+//		case VESPERS::H:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
+//		case VESPERS::V:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-	else if (config_->ccdDetector() == VESPERS::Pilatus){
+//		case VESPERS::X:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+//		case VESPERS::Z:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
+//		case VESPERS::AttoH:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		case VESPERS::AttoV:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		QString dataFolder = AMUserSettings::userDataFolder;
+//		case VESPERS::AttoX:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+//			break;
 
-		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+//		case VESPERS::AttoZ:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+//			break;
 
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
+//		default:
+//			break;
+//		}
+//	}
 
-	if (config_->hasOtherPosition()){
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-
-		switch(config_->otherMotor(config_->motor())){
-
-		case VESPERS::H:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::V:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::X:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::Z:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::AttoH:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::AttoV:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::AttoX:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
-			break;
-
-		case VESPERS::AttoZ:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
-			break;
-
-		default:
-			break;
-		}
-	}
-
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -581,9 +557,9 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 void VESPERSSpatialLineDacqScanController::cleanup()
 {
 	buildCleanupAction(false);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERSSpatialLineDacqScanController::onCleanupFinished()
@@ -614,7 +590,7 @@ void VESPERSSpatialLineDacqScanController::onInitializationActionsFailed(int exp
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Line scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

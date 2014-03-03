@@ -63,11 +63,14 @@ public:
 	/// Returns false, because the PGT detector does not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
+
+	/// Returns the integration mode control if the caller is of a privileged type (CLSPGTDetectorV2View)
+	AMControl* privilegedIntegrationModeControl(const QObject *caller);
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
@@ -87,9 +90,6 @@ protected slots:
 	void onControlsConnected(bool connected);
 	/// Handles if one or more the controls times out
 	void onControlsTimedOut();
-
-	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged(double newValue);
 
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
@@ -130,9 +130,6 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSPGTDETECTORV2_H

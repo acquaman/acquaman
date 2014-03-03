@@ -186,8 +186,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	defaultLayout->addStretch();
 
 	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources());
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources(), config_->exportSpectraInRows());
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
+	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -233,6 +235,29 @@ void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	updateRoiText();
 }
 
+void VESPERSEXAFSScanConfigurationView::onScanNameEdited()
+{
+	config_->setName(scanName_->text());
+	config_->setUserScanName(scanName_->text());
+
+	double n = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+	}
+
+	config_->setNormalPosition(n);
+}
+
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
 	switch((int)config_->fluorescenceDetector()){
@@ -271,7 +296,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 {
-	const AMElement *el = AMPeriodicTableDialog::getElement(this);
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 
@@ -281,20 +306,20 @@ void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 	}
 }
 
-void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
+void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(AMElement *el)
 {
 	if (!el)
 		return;
 
-	QPair<QString, QString> edge;
+	AMAbsorptionEdge edge;
 	lineChoice_->clear();
 
-	for (int i = 0; i < el->edges().size(); i++){
+	for (int i = 0; i < el->absorptionEdges().size(); i++){
 
-		edge = el->edges().at(i);
+		edge = el->absorptionEdges().at(i);
 
-		if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
-			lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
+		if (edge.energy() <= 30000 && edge.energy() >= 6700)
+			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());
 	}
 
 	lineChoice_->setCurrentIndex(-1);

@@ -5,40 +5,57 @@
 #include <QVariant>
 #include <QEvent>
 
-namespace AMAgnosticDataAPIDefinitions{
-	enum MessageType{
-		AxisStarted = 0,
-		AxisFinished = 1,
-		LoopIncremented = 2,
-		DataAvailable = 3,
-		ControlMoved = 4,
-		InvalidMessage = 5
+/// The namespace that defines many common messages used by the AMAgnosticDataAPI.
+namespace AMAgnosticDataAPIDefinitions
+{
+	/// The message type enum.  Provides an easy way to know what kind of message is coming.
+	enum MessageType
+	{
+		AxisStarted = 0,		///< Used to denote a new axis has been started.  In higher dimensional scans, this message would occur at the beginning of every scan loop.
+		AxisFinished = 1,		///< Used to denote that the current axis has finished.  In higher dimensional scans, this message would appear at the end of every scan loop.
+		LoopIncremented = 2,	///< Used to denote that the scan has stepped.
+		DataAvailable = 3,		///< Provides the data for a single detector of any dimensionality.
+		ControlMoved = 4,		///< Provides the data for a single control that was moved.
+		InvalidMessage = 5		///< Catch all error message.
 	};
 
-	enum InputType{
-		UniqueID = 0,
-		NextLoopValue = 1,
-		DetectorData = 2,
-		DetectorDimensionalitySize = 3,
-		DetectorDimensionalityName = 4,
-		DetectorDimensionalityUnit = 5,
-		ControlMovementType = 6,
-		ControlMovementValue = 7,
-		InvalidType = 8
+	/// The input type enum.  Used for getting data out of the message.
+	enum InputType
+	{
+		UniqueID = 0,						///< The unique identifier to ensure that there is no ambiguity on what the message is about.
+		NextLoopValue = 1,					///< The next loop value.
+		DetectorData = 2,					///< The data for the detector.  Can be almost anything since detectors have many configurations and dimensionalities.
+		DetectorDimensionalitySize = 3,		///< The size of the detector.
+		DetectorDimensionalityName = 4,		///< The name of the detector.
+		DetectorDimensionalityUnit = 5,		///< The units of the detector.
+		ControlMovementType = 6,			///< Which type of control was moved.
+		ControlMovementValue = 7,			///< The value of the control, regardless of what type of control it is.
+		ControlMovementFeedback = 8,		///< The feedback value of the control, regardless of what type of control it is.
+		InvalidType = 9						///< Catch all error type.
 	};
 
-	enum EventType{
-		MessageEvent = QEvent::User+1212
+	/// The event type enum.  There is only one event type because there is only one message.
+	enum EventType
+	{
+		MessageEvent = QEvent::User+1212		///< Defines the unique event type for messages.
 	};
 
+	/// The mapping between the MessageType definitions and the string used by json.
 	extern QMap<AMAgnosticDataAPIDefinitions::MessageType, QString> MessageTypeToNames_;
+	/// The mapping between the InputType to their respective names.
 	extern QMap<AMAgnosticDataAPIDefinitions::InputType, QString> InputTypeToNames_;
+	/// The mapping between the InputType and their respective data types (as a string).
 	extern QMap<AMAgnosticDataAPIDefinitions::InputType, QString> InputTypeToValueTypes_;
+	/// Flag used to know whether the all of the maps have been built.
 	extern bool definitionsPopulated_;
 
+	/// Builds all the maps between enums and strings.
 	bool ensureDefinitionsPopulated();
+	/// Returns the mapped message type based on the enum provided.
 	QString nameFromMessageType(AMAgnosticDataAPIDefinitions::MessageType messageType);
+	/// Returns the mapped input type name based on the enum provided.
 	QString nameFromInputType(AMAgnosticDataAPIDefinitions::InputType inputType);
+	/// Returns the mapped input type value based on the enum provided.
 	QString valueTypeFromInputtype(AMAgnosticDataAPIDefinitions::InputType inputType);
 }
 
@@ -139,7 +156,7 @@ class AMAgnosticDataAPIControlMovedMessage : public AMAgnosticDataAPIMessage
 {
 public:
 	/// Constructs a "Control Moved" message with the given initial values
-	AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue);
+	AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue, double movementFeedback);
 
 	/// Returns the control's movement type as a string. If the value is invalid a string containing "INVALIDMOVEMENTTYPE" is returned
 	QString controlMovementType() const;
@@ -147,11 +164,17 @@ public:
 	/// Returns the control's movement value as a double. If the value is invalid 0 is returned.
 	double controlMovementValue() const;
 
+	/// Returns the controls' movement feedback value as a double.  If the value is invalid, 0 is returned.
+	double controlMovementFeedback() const;
+
 	/// Sets the control movement type to the given string
 	void setControlMovementType(const QString &movementType);
 
 	/// Sets the control movement value to the given double
 	void setControlMovementValue(double movementValue);
+
+	/// Sets the control movement feedback value to given double.
+	void setControlMovementFeedback(double movementFeedback);
 };
 
 class AMAgnositicDataEvent : public QEvent

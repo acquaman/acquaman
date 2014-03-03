@@ -28,6 +28,7 @@ class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
 class AMOldDetectorView;
 class AMDetectorGeneralDetailedView;
+class AMXRFDetailedDetectorView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -49,6 +50,7 @@ class AMDetectorSelectorView;
 class AMSampleCameraBrowserView;
 class AMSamplePlateView;
 class AMBeamlineSampleManagementView;
+class SGMAdvancedMirrorView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -98,6 +100,7 @@ protected slots:
 	void onSGMNewAmptekSDD2Connected(bool connected);
 	void onSGMNewAmptekSDD3Connected(bool connected);
 	void onSGMNewAmptekSDD4Connected(bool connected);
+	void onSGMNewAmptekSDD5Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
@@ -111,7 +114,10 @@ protected slots:
 	void onActionSGMSettings();
 	/// Creates the SGM proc serv manager view if necessary and shows it
 	void onActionProcServManager();
+
 	void onAdvancedCameraOptionsRequested();
+	/// Create the SGM Advanced mirror veiw if necessary and shows it
+	void onActionMirrorVeiw();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
@@ -153,6 +159,11 @@ protected:
 	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
 	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
+	AMXRFDetailedDetectorView *amptekSDD1XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD4XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD5XRFView_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;
@@ -173,6 +184,8 @@ protected:
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls
 	SGMAdvancedControlsView *SGMAdvancedControls_;
+	/// Window for SGM mirrors
+	SGMAdvancedMirrorView *SGMAdvancedMirror_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;

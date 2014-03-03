@@ -23,6 +23,9 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
+	Q_PROPERTY(double normalPosition READ normalPosition WRITE setNormalPosition)
+
+	Q_CLASSINFO("normalPosition", "upgradeDefault=888888.88")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS Scan Configuration Database Object")
 
@@ -50,6 +53,8 @@ public:
 	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
 	void dbLoadROIInfoList(AMDbObject *) {}
+	/// Returns the normal position.
+	double normalPosition() const { return normalPosition_; }
 
 signals:
 	/// Notifier that the incoming choice has changed.
@@ -74,6 +79,8 @@ signals:
 	void ccdDetectorChanged(int);
 	/// Notifier that the name of the CCD file name has changed.
 	void ccdFileNameChanged(QString);
+	/// Notifier that the normal position has changed.
+	void normalPositionChanged(double);
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
@@ -100,6 +107,8 @@ public slots:
 	void setCCDFileName(const QString &name);
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list);
+	/// Sets the normal position.
+	void setNormalPosition(double newPosition);
 
 protected:
 	/// I0 ion chamber choice.
@@ -116,6 +125,8 @@ protected:
 	QString ccdFileName_;
 	/// The list holding all the current ROIs for the detector.
 	AMROIInfoList roiInfoList_;
+	/// The normal position of the scan.
+	double normalPosition_;
 };
 
 #endif // VESPERSSCANCONFIGURATIONDBOBJECT_H

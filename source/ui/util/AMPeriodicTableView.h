@@ -30,10 +30,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
 
+/*!
+	This class builds a view for the periodic table made to look like the stereotypical view used by every scientist.  When an element is clicked, it emits a signal containing the pointer to that element.
+  */
 class AMPeriodicTableView : public QWidget
 {
-	/*! This function builds a view for the periodic table made to look like the stereotypical view used by every scientist.  When an element is clicked, it emits a signal containing the pointer to that element.
-	  */
 	Q_OBJECT
 
 public:
@@ -45,36 +46,36 @@ public:
 	QToolButton *button(int atomicNumber) { return qobject_cast<QToolButton *>(elementMapper_->mapping(atomicNumber)); }
 	/// Returns the mapped QToolButton for a given element.
 	QToolButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
-	/// Returns the mapped QToolButton for a given element.
-	QToolButton *button(const AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// Mapped signal that passes the atomic number of an element.
 	void clicked(int);
 	/// When an element is clicked on, this signal will be emitted carrying a pointer to the element.
-	void elementSelected(const AMElement *);
+	void elementSelected(AMElement *);
 
 protected slots:
 	/// Slot that emits a signal carrying a pointer to the particular Element.
-	void showElement(int number);
+	void onElementClicked(int number);
 
 protected:
 	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
-	QToolButton *mapElement(const AMElement *element)
+	QToolButton *mapElement(AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
 		button->setFont(QFont("Times New Roman", 12));
 		button->setText(element->symbol());
 		button->setFixedSize(30, 25);
-		if (element->emissionLines().isEmpty() && element->edges().isEmpty())
+
+		if (element->emissionLines().isEmpty() && element->absorptionEdges().isEmpty())
 			button->setEnabled(false);
+
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 		elementMapper_->setMapping(button, element->atomicNumber());
+
 		return button;
 	}
 
-	// Member variables.
-	// The signal mapper.
+	/// The signal mapper that maps a button to an element.
 	QSignalMapper *elementMapper_;
 };
 

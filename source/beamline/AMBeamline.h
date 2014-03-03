@@ -112,7 +112,7 @@ public:
 	bool addExposedDetectorGroup(AMDetectorGroup *detectorGroup);
 
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
-	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return 0; }
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return 0; }
 
 	/// Call to check on the validity of a potential workflow action. Returns an ActionValidity enum (CurrentlyValid by default).
 	virtual AMAction3::ActionValidity validateAction(AMAction3 *action) { Q_UNUSED(action); return AMAction3::ActionCurrentlyValid; }

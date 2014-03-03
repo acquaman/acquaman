@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
@@ -45,6 +44,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
+#include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 #define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
 #define VESPERSBEAMLINE_VALVES_CLOSED 67801
@@ -91,17 +95,17 @@ public:
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
+	AMDetector *roperCCD() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
-	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	VESPERSRoperCCDDetector *vespersRoperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
 	/// Returns a general AMDetector pointer of the Mar CCD.
-	AMOldDetector *marCCDDetector() const { return marCCD_; }
+	AMDetector *marCCD() const { return roperCCD_; }
 	/// Returns the specific pointer to the Mar CCD.
-	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+	VESPERSMarCCDDetector *vespersMarCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
 	/// Returns a general AMDetector pointer of the Pilatus CCD.
-	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	AMDetector *pilatusAreaDetector() const { return pilatusAreaDetector_; }
 	/// Returns the specific pointer to the Pilatus CCD.
-	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
+	VESPERSPilatusCCDDetector *vespersPilatusAreaDetector() const { return (VESPERSPilatusCCDDetector *)pilatusAreaDetector_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMOldDetector *iSplitDetector() const { return iSplit_; }
@@ -122,6 +126,15 @@ public:
 	/// Returns the ion chamber detector set.
 	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
 
+	/// Returns the single element vortex detector.
+	AMDetector *singleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the single element vortex detector as its full type.
+	VESPERSSingleElementVortexDetector *vespersSingleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the four element vortex detector.
+	AMDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+	/// Returns the four element vortex detector as its full type.
+	VESPERSFourElementVortexDetector *vespersFourElementVortexDetector() const { return fourElementVortexDetector_; }
+
 	// Accessing control elements:
 
 	// The monochromator abstraction.
@@ -138,7 +151,7 @@ public:
 
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
-	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 	/// Returns the synchronized dwell time configuration info's list.
 	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
 	/// Returns a synchronized dwell time configuration info from the index provided.
@@ -544,7 +557,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
+	AMAction3 *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -643,6 +656,8 @@ protected:
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the exposed detectors.
+	void setupExposedDetectors();
 	/// Sets up the motor group for the various sample stages.
 	void setupMotorGroup();
 
@@ -652,13 +667,20 @@ protected:
 	// Detectors.
 	AMOldDetector *vortex1E_;
 	AMOldDetector *vortex4E_;
-	AMOldDetector *roperCCD_;
-	AMOldDetector *marCCD_;
-	AMOldDetector *pilatusCCD_;
 	AMOldDetector *iSplit_;
 	AMOldDetector *iPreKB_;
 	AMOldDetector *iMini_;
 	AMOldDetector *iPost_;
+
+	CLSBasicCompositeScalerChannelDetector *splitIonChamber_;
+	CLSBasicScalerChannelDetector *preKBIonChamber_;
+	CLSBasicScalerChannelDetector *miniIonChamber_;
+	CLSBasicScalerChannelDetector *postIonChamber_;
+	VESPERSSingleElementVortexDetector *singleElementVortexDetector_;
+	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
+	VESPERSRoperCCDDetector *roperCCD_;
+	VESPERSMarCCDDetector *marCCD_;
+	VESPERSPilatusCCDDetector *pilatusAreaDetector_;
 
 	// End detectors.
 

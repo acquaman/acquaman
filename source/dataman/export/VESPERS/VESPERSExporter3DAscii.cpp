@@ -76,7 +76,6 @@ QString VESPERSExporter3DAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -208,42 +207,78 @@ void VESPERSExporter3DAscii::writeSeparateSections()
 
 bool VESPERSExporter3DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 {
-	for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
+	if (option_->higherDimensionsInRows()){
 
-		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
-		AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
+		for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
 
-		QFile output;
-		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-		if(!openFile(&output, separateFileName)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
-			return false;
-		}
+			QFile output;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
 
-		int spectraSize = source->size(3);
-		QString columnDelimiter = option_->columnDelimiter();
-		QString newLineDelimiter = option_->newlineDelimiter();
-		QTextStream out(&output);
+			if(!openFile(&output, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
+			}
 
-		for (int y = 0, ySize = source->size(1); y < ySize; y++){
+			int spectraSize = source->size(3);
+			QString columnDelimiter = option_->columnDelimiter();
+			QString newLineDelimiter = option_->newlineDelimiter();
+			QTextStream out(&output);
 
-			for (int x = 0, xSize = source->size(0); x < xSize; x++){
+			for (int y = 0, ySize = source->size(1); y < ySize; y++){
 
-				for (int z = 0, zSize = source->size(2); z < zSize; z++){
+				for (int x = 0, xSize = source->size(0); x < xSize; x++){
 
-					QVector<double> data(spectraSize);
-					source->values(AMnDIndex(x, y, z, 0), AMnDIndex(x, y, z, spectraSize-1), data.data());
+					for (int z = 0, zSize = source->size(2); z < zSize; z++){
 
-					for (int i = 0; i < spectraSize; i++)
-						out << data.at(i) << columnDelimiter;
+						QVector<double> data(spectraSize);
+						source->values(AMnDIndex(x, y, z, 0), AMnDIndex(x, y, z, spectraSize-1), data.data());
 
-					out << newLineDelimiter;
+						for (int i = 0; i < spectraSize; i++)
+							out << data.at(i) << columnDelimiter;
+
+						out << newLineDelimiter;
+					}
 				}
 			}
-		}
 
-		output.close();
+			output.close();
+		}
+	}
+
+	else{
+
+		for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
+
+			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+			AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+			QFile output;
+			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+
+			if(!openFile(&output, separateFileName)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+				return false;
+			}
+
+			int spectraSize = source->size(2);
+			QString columnDelimiter = option_->columnDelimiter();
+			QString newLineDelimiter = option_->newlineDelimiter();
+			QTextStream out(&output);
+
+			for (int i = 0; i < spectraSize; i++){
+
+				for (int y = 0, ySize = source->size(1); y < ySize; y++)
+					for (int x = 0, xSize = source->size(0); x < xSize; x++)
+						out << double(source->value(AMnDIndex(x, y, i))) << columnDelimiter;
+
+				out << newLineDelimiter;
+			}
+
+			output.close();
+		}
 	}
 
 	return true;

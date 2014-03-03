@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 
 #include "beamline/AMPVControl.h"
+#include "util/AMRange.h"
 
 class VESPERSEndstation : public QObject
 {
@@ -53,7 +54,7 @@ public:
 	/// Returns a control based on the name.  Returns 0 if invalid.
 	AMControl *control(QString name) const;
 	/// Returns the soft limits for the given control (if any) as a QPair<double, double>.
-	QPair<double, double> getLimits(AMControl *control) const { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
+	AMRange getLimits(AMControl *control) const { return softLimits_.value(control); }
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
@@ -61,8 +62,8 @@ public:
 	double distanceToSingleElementVortex() const { return singleElControl_->value(); }
 	/// Returns the current distance of the four element vortex from the sample.
 	double distanceToFourElementVortex() const { return fourElControl_->value(); }
-	/// Returns the current distancce of the Roper CCD to the sample.
-	double distanceToRoperCCD() const { return ccdControl_->value(); }
+	/// Returns the current distancce of the CCD to the sample.
+	double distanceToCCD() const { return ccdControl_->value(); }
 	/// Returns the current thickness of the filters in um.
 	int filterThickness() const { return filterThickness_; }
 	/// Returns the current value of the laser sensor.
@@ -73,6 +74,8 @@ public:
 	bool heliumBufferAttached() const { return heliumBufferAttached_; }
 	/// Returns whether the CCD is at 90 degrees or not.
 	bool ccdAt90Degrees() const { return ccdAt90Degrees_; }
+	/// Returns the safe position for the CCD when the buffer is attached.
+	double ccdSafePositionwHeliumBuffer() const { return upperCcdSoftLimitwHeliumBuffer_; }
 
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
@@ -146,7 +149,7 @@ protected:
 	bool wasConnected_;
 
 	// Control map to soft limits.
-	QMap<AMControl *, QPair<double, double> > softLimits_;
+	QMap<AMControl *, AMRange> softLimits_;
 	// Names of microscope positions.
 	QPair<QString, QString> microscopeNames_;
 	/// Flag holding whether or not the helium buffer is attached to the CCD or not.

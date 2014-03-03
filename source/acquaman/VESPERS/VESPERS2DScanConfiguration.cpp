@@ -38,6 +38,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
@@ -56,6 +57,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	dbObject_->setParent(this);
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
+	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
@@ -108,6 +110,12 @@ QString VESPERS2DScanConfiguration::headerText() const
 	header.append("Y Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
+
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
 
 	return header;
 }
@@ -202,4 +210,12 @@ void VESPERS2DScanConfiguration::setExportSpectraSources(bool exportSpectra)
 		return;
 
 	exportSpectraSources_ = exportSpectra;
+}
+
+void VESPERS2DScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }

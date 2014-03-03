@@ -128,7 +128,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
+	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(qobject_cast<CLSSynchronizedDwellTime *>(VESPERSBeamline::vespers()->synchronizedDwellTime()));
 
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
@@ -187,12 +187,12 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 		return;
 
 	QString name(control->name());
-	QPair<double, double> pair(endstation_->getLimits(control));
+	AMRange range(endstation_->getLimits(control));
 
 	if (name == "CCD motor" || name == "1-Element Vortex motor" || name == "4-Element Vortex motor")
-		window_->setControl(control, pair.first, pair.second);
+		window_->setControl(control, range.minimum(), range.maximum());
 	else if (name == "Microscope motor")
-		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);
+		window_->setControl(control, range.minimum(), range.maximum(), endstation_->microscopeNames().first, endstation_->microscopeNames().second);
 }
 
 void VESPERSEndstationView::laserPowerUpdate()
@@ -303,8 +303,8 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	QFormLayout *ccdLayout = new QFormLayout;
 	ccdLayout->addRow("Low Limit", ccdLowLayout);
 	ccdLayout->addRow("High Limit", ccdHighLayout);
-	ccdLayout->addRow("Safe Position", ccdHomeLayout);
-	ccdLayout->addRow("Buffer Position", ccdBufferSafeLayout);
+	ccdLayout->addRow("Home Position", ccdHomeLayout);
+	ccdLayout->addRow("Safe w/ Buffer Position", ccdBufferSafeLayout);
 	ccdLayout->addRow(usingBuffer_, at90Deg_);
 	ccdGB->setLayout(ccdLayout);
 

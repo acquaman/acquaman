@@ -3,9 +3,8 @@
 
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 #include "dataman/AMScan.h"
-#include "actions/AMBeamlineActionItem.h"
-#include "actions/AMBeamlineListAction.h"
-#include "beamline/VESPERS/VESPERSCCDDetector.h"
+#include "actions3/AMAction3.h"
+#include "dataman/info/AMDetectorInfoSet.h"
 
 class QEpicsAdvAcq;
 
@@ -19,19 +18,15 @@ class VESPERSScanController
 
 public:
 	/// Constructor.
-	VESPERSScanController(VESPERSScanConfiguration *config);
-	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERSScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	VESPERSScanController(VESPERSScanConfiguration *configuration);
 
 protected:
 	/// Helper method that builds the base initialization actions.
-	void buildBaseInitializationAction(double timeStep);
+	AMAction3 *buildBaseInitializationAction(const AMDetectorInfoSet &detectorConfigurations);
+	/// Helper method that builds the CCD file path, name, and number for the beginning of a scan.  Requires the detector enum, ccd file name from the configuration, AND must be called after buildInitializationActions() because it assumes the list has already been created.
+	AMAction3 *buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.
-	void buildCleanupAction(bool usingMono);
-	/// Helper method that cleans up the intializationAction.
-	void onInitializationActionFinished();
-	/// Helper method that cleans up the cleanupAction.
-	void onCleanupActionFinished();
+	AMAction3 *buildCleanupAction(bool usingMono);
 
 	/// Helper method that adds the standard extra PVs to the advAcq_.
 	void addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK);
@@ -71,11 +66,6 @@ protected:
 
 	/// Pointer to the configuration.
 	VESPERSScanConfiguration *config_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *initializationAction_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupAction_;
 };
 
 #endif // VESPERSSCANCONTROLLER_H

@@ -16,8 +16,9 @@ public:
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
-	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 1024.
-	virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 3648.
+	//virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	virtual AMnDIndex size() const { return AMnDIndex(3648); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const;
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
@@ -63,8 +64,8 @@ public:
 	/// Returns false, because the QE65000 detector does not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
@@ -87,9 +88,6 @@ protected slots:
 	void onControlsConnected(bool connected);
 	/// Handles if one or more the controls times out
 	void onControlsTimedOut();
-
-	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged(double newValue);
 
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
@@ -122,9 +120,6 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSQE65000DETECTOR_H

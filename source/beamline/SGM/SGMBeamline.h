@@ -24,20 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "dataman/SGM/SGMBeamlineInfo.h"
 
-#include "beamline/AMOldDetector.h"
-#include "beamline/AMSingleControlDetector.h"
-#include "beamline/SGM/SGMMCPDetector.h"
-#include "beamline/CLS/CLSPGTDetector.h"
-#include "beamline/CLS/CLSOceanOptics65000Detector.h"
-#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
-#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "beamline/CLS/CLSPGTDetectorV2.h"
-#include "beamline/CLS/CLSQE65000Detector.h"
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -64,6 +52,13 @@ class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
 class AMMotorGroup;
 
+class AMOldDetector;
+class CLSAmptekSDD123DetectorNew;
+class CLSPGTDetectorV2;
+class CLSQE65000Detector;
+class CLSAdvancedScalerChannelDetector;
+class AMBasicControlDetectorEmulator;
+
 class SGMBeamline : public AMBeamline
 {
 Q_OBJECT
@@ -74,7 +69,7 @@ public:
 
 	bool isConnected() const;
 	bool isReady() const;
-	bool isBeamlineScanning();
+	bool isBeamlineScanning() const;
 	bool isVisibleLightOn() const;
 
 	QStringList unconnectedCriticals() const;
@@ -144,11 +139,55 @@ public:
 
 	AMMotorGroup *motorGroup() const { return motorGroup_;}
 
+	/// Returns the vertical upstream step for M2
+	AMControl* m2VerticalUpstreamStep() const { return m2VerticalUpstreamStep_; }
+	/// Returns the vertical downstream step for M2
+	AMControl* m2VerticalDownstreamStep() const { return m2VerticalDownstreamStep_; }
+	/// Returns the horizontal upstream step for M2
+	AMControl* m2HorizontalUpstreamStep() const { return m2HorizontalUpstreamStep_; }
+	/// Returns the horizontal downstream step for M2
+	AMControl* m2HorizontalDownstreamStep() const { return m2HorizontalDownstreamStep_; }
+	/// Returns the rotational step for M2
+	AMControl* m2RotationalStep() const { return m2RotationalStep_; }
+	/// Returns the vertical upstream step for M3
+	AMControl* m3VerticalUpstreamStep() const { return m3VerticalUpstreamStep_; }
+	/// Returns the vertical downstream step for M3
+	AMControl* m3VerticalDownstreamStep() const { return m3VerticalDownstreamStep_; }
+	/// Returns the horizontal upstream step for M3
+	AMControl* m3HorizontalUpstreamStep() const { return m3HorizontalUpstreamStep_; }
+	/// Returns the horizontal downstream step for M3
+	AMControl* m3HorizontalDownstreamStep() const { return m3HorizontalDownstreamStep_; }
+	/// Returns the rotational step for M3
+	AMControl* m3RotationalStep() const { return m3RotationalStep_; }
+
+	/// Returns the vertical upstream encoder for M2
+	AMControl* m2VerticalUpstreamEncoder() const { return m2VerticalUpstreamEncoder_; }
+	/// Returns the vertical downstream encoder for M2
+	AMControl* m2VerticalDownstreamEncoder() const { return m2VerticalDownstreamEncoder_; }
+	/// Returns the horizontal upstream encoder for M2
+	AMControl* m2HorizontalUpstreamEncoder() const { return m2HorizontalUpstreamEncoder_; }
+	/// Returns the horizontal downstream encoder for M2
+	AMControl* m2HorizontalDownstreamEncoder() const { return m2HorizontalDownstreamEncoder_; }
+	/// Returns the rotational encoder for M2
+	AMControl* m2RotationalEncoder() const { return m2RotationalEncoder_; }
+	/// Returns the vertical upstream encoder for M3
+	AMControl* m3VerticalUpstreamEncoder() const { return m3VerticalUpstreamEncoder_; }
+	/// Returns the vertical downstream encoder for M3
+	AMControl* m3VerticalDownstreamEncoder() const { return m3VerticalDownstreamEncoder_; }
+	/// Returns the horizontal upstream encoder for M3
+	AMControl* m3HorizontalUpstreamEncoder() const { return m3HorizontalUpstreamEncoder_; }
+	/// Returns the horizontal downstream encoder for M3
+	AMControl* m3HorizontalDownstreamEncoder() const { return m3HorizontalDownstreamEncoder_; }
+	/// Returns the rotational encoder for M3
+	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
+
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
+
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
-	virtual AMSynchronizedDwellTime* synchronizedDwellTime() { return synchronizedDwellTime_;}
+	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+
 	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
 	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.
@@ -178,45 +217,41 @@ public:
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
-	AMOldDetector* teyDetector() const { return teyScalerDetector_;}
-	AMOldDetector* tfyDetector() const { return tfyScalerDetector_;}
-	AMOldDetector* pgtDetector() const { return pgtDetector_;}
-	AMOldDetector* oos65000Detector() const { return oos65000Detector_;}
-	AMOldDetector* i0Detector() const { return i0ScalerDetector_;}
-	AMOldDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMOldDetector* photodiodeDetector() const { return photodiodeScalerDetector_;}
-	AMOldDetector* encoderUpDetector() const { return encoderUpDetector_;}
-	AMOldDetector* encoderDownDetector() const { return encoderDownDetector_;}
-	AMOldDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
-	AMOldDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
-	AMOldDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
-	AMOldDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
-	AMOldDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
-	AMOldDetector* amptekSDD1() const { return amptekSDD1_;}
-	AMOldDetector* amptekSDD2() const { return amptekSDD2_;}
-	AMDetector* newAmptekSDD1() const { return newAmptekSDD1_;}
-	AMDetector* newAmptekSDD2() const { return newAmptekSDD2_;}
-	AMDetector* newAmptekSDD3() const { return newAmptekSDD3_;}
-	AMDetector* newAmptekSDD4() const { return newAmptekSDD4_;}
-	AMDetector* newPGTDetector() const { return newPGTDetector_;}
-	AMDetector* newQE65000Detector() const { return newQE65000Detector_;}
-	AMDetector* newTEYDetector() const { return newTEYDetector_;}
-	AMDetector* newTFYDetector() const { return newTFYDetector_;}
-	AMDetector* newI0Detector() const { return newI0Detector_;}
-	AMDetector* newPDDetector() const { return newPDDetector_;}
-	AMDetector* newFilteredPD1Detector() const { return newFilteredPD1Detector_;}
-	AMDetector* newFilteredPD2Detector() const { return newFilteredPD2Detector_;}
-	AMDetector* newFilteredPD3Detector() const { return newFilteredPD3Detector_;}
-	AMDetector* newFilteredPD4Detector() const { return newFilteredPD4Detector_;}
-	AMDetector* newEncoderUpDetector() const { return newEncoderUpDetector_; }
-	AMDetector* newEncoderDownDetector() const { return newEncoderDownDetector_; }
-	AMDetector* energyFeedbackDetector() const { return energyFeedbackDetector_; }
-	AMDetector* gratingEncoderDetector() const { return gratingEncoderDetector_; }
+	AMOldDetector* teyDetector() const;
+	AMOldDetector* tfyDetector() const;
+	//AMOldDetector* pgtDetector() const;
+	AMOldDetector* oos65000Detector() const;
+	AMOldDetector* i0Detector() const;
+	AMOldDetector* eVFbkDetector() const;
+	AMOldDetector* photodiodeDetector() const;
+	AMOldDetector* encoderUpDetector() const;
+	AMOldDetector* encoderDownDetector() const;
+	AMOldDetector* ringCurrentDetector() const;
+	AMOldDetector* filterPD1ScalarDetector() const;
+	AMOldDetector* filterPD2ScalarDetector() const;
+	AMOldDetector* filterPD3ScalarDetector() const;
+	AMOldDetector* filterPD4ScalarDetector() const;
 
-	bool isSDD1Enabled() const;
-	bool isSDD2Enabled() const;
-	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
-	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
+	AMDetector* newAmptekSDD1() const;
+	AMDetector* newAmptekSDD2() const;
+	AMDetector* newAmptekSDD3() const;
+	AMDetector* newAmptekSDD4() const;
+	AMDetector* newAmptekSDD5() const;
+	//AMDetector* newPGTDetector() const;
+	AMDetector* newQE65000Detector() const;
+	AMDetector* newTEYDetector() const;
+	AMDetector* newTFYDetector() const;
+	AMDetector* newI0Detector() const;
+	AMDetector* newPDDetector() const;
+	AMDetector* newFilteredPD1Detector() const;
+	AMDetector* newFilteredPD2Detector() const;
+	AMDetector* newFilteredPD3Detector() const;
+	AMDetector* newFilteredPD4Detector() const;
+	AMDetector* newFilteredPD5Detector() const;
+	AMDetector* newEncoderUpDetector() const;
+	AMDetector* newEncoderDownDetector() const;
+	AMDetector* energyFeedbackDetector() const;
+	AMDetector* gratingEncoderDetector() const;
 
 	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
 	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
@@ -385,6 +420,28 @@ protected:
 
 	AMMotorGroup *motorGroup_;
 
+	AMControl *m2VerticalUpstreamStep_;
+	AMControl *m2VerticalDownstreamStep_;
+	AMControl *m2HorizontalUpstreamStep_;
+	AMControl *m2HorizontalDownstreamStep_;
+	AMControl *m2RotationalStep_;
+	AMControl *m3VerticalUpstreamStep_;
+	AMControl *m3VerticalDownstreamStep_;
+	AMControl *m3HorizontalUpstreamStep_;
+	AMControl *m3HorizontalDownstreamStep_;
+	AMControl *m3RotationalStep_;
+
+	AMControl *m2VerticalUpstreamEncoder_;
+	AMControl *m2VerticalDownstreamEncoder_;
+	AMControl *m2HorizontalUpstreamEncoder_;
+	AMControl *m2HorizontalDownstreamEncoder_;
+	AMControl *m2RotationalEncoder_;
+	AMControl *m3VerticalUpstreamEncoder_;
+	AMControl *m3VerticalDownstreamEncoder_;
+	AMControl *m3HorizontalUpstreamEncoder_;
+	AMControl *m3HorizontalDownstreamEncoder_;
+	AMControl *m3RotationalEncoder_;
+
 	AMOldDetector *teyScalerDetector_;
 	AMOldDetector *tfyScalerDetector_;
 	AMOldDetector *pgtDetector_;
@@ -399,13 +456,12 @@ protected:
 	AMOldDetector *filterPD2ScalarDetector_;
 	AMOldDetector *filterPD3ScalarDetector_;
 	AMOldDetector *filterPD4ScalarDetector_;
-	AMOldDetector* amptekSDD1_;
-	AMOldDetector* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
-	CLSPGTDetectorV2 *newPGTDetector_;
+	CLSAmptekSDD123DetectorNew *newAmptekSDD5_;
+	//CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSAdvancedScalerChannelDetector *newTFYDetector_;
@@ -415,6 +471,7 @@ protected:
 	CLSAdvancedScalerChannelDetector *newFilteredPD2Detector_;
 	CLSAdvancedScalerChannelDetector *newFilteredPD3Detector_;
 	CLSAdvancedScalerChannelDetector *newFilteredPD4Detector_;
+	CLSAdvancedScalerChannelDetector *newFilteredPD5Detector_;
 	CLSAdvancedScalerChannelDetector *newEncoderUpDetector_;
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;

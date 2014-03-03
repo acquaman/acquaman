@@ -129,7 +129,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
 	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
 
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure CCD");
+	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
 	configureCCDButton_->setEnabled(config_->ccdDetector());
 	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
@@ -169,7 +169,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
-	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
+	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -196,9 +196,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", config_->exportSpectraSources());
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", config_->exportSpectraSources(), config_->exportSpectraInRows());
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
+	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 	autoExportButtonGroup_->button(config_->exportAsAscii() ? 0 : 1)->click();
 
 	// Setting up the layout.
@@ -243,18 +245,28 @@ void VESPERS2DScanConfigurationView::onScanNameEdited()
 		QString path;
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
+
+	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+
+		QPalette palette = scanName_->palette();
+		palette.setColor(QPalette::Base, Qt::red);
+		scanName_->setPalette(palette);
+	}
+
+	else
+		scanName_->setPalette(this->palette());
 }
 
 void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) const
@@ -263,21 +275,21 @@ void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
-		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
-		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Pilatus)
-		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
 
 		ccdHelpText_->show();
-		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
+		ccdHelpText_->setText(QString("The scan name you have chosen conflicts with existing CCD file names.\nIf you don't change the name a random suffix will be added to avoid name conflicts.\neg. %1").arg(VESPERS::appendUniqueIdentifier(name)));
 	}
 
 	else{
@@ -313,19 +325,20 @@ void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int id)
 		QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		config_->setCCDFileName(name);
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		checkCCDFileNames(name);
 	}
 
+	onScanNameEdited();
 	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
 	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
 }
@@ -375,6 +388,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 {
 	double h = 0;
 	double v = 0;
+	double n = 0;
 
 	switch(int(config_->motor())){
 
@@ -382,24 +396,28 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::X | VESPERS::Z:
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 
 	case VESPERS::AttoH | VESPERS::AttoV:
 
 		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
 		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
 		break;
 
 	case VESPERS::AttoX | VESPERS::AttoZ:
 
 		h = VESPERSBeamline::vespers()->attoStageX()->value();
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
 	}
 
@@ -407,6 +425,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 	hStart_->setValue(h);
 	config_->setYStart(v);
 	vStart_->setValue(v);
+	config_->setNormalPosition(n);
 	updateMapInfo();
 	axesAcceptable();
 }

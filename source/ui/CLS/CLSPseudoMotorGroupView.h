@@ -36,12 +36,21 @@ public:
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.
 	virtual void onCustomContextMenuRequested(const QPoint &pos);
+	/// Handles checking if the new exclusive view needs to emit the pseudo motor recommendation.
+	void onNewExclusiveViewMotorGroupViewChange(const QString &name);
+	/// Handles checking if the new selected motor needs to be zeroed.  Only checks if it is visible since if it's not visible then it won't be used.
+	void onNewMultipleViewMotorGroupViewChange(const QString &name);
 
 protected:
 	/// Adds the additional options to the popup menu.
 	void buildCLSPseudoMotorGroupMenuItems(QMenu *menu);
 	/// Handles the additional options of the popup menu.
-	void handleCLSPseudoMotorGroupMenuItems(const QString &command);
+	void resetCLSPseudoMotorGroupMenuItems(const QString &command);
+	/// Pops up a message when switching to a new CLSPseudoMotorGroupObject, recommending reseting the object before using it.
+	void recommendResettingCLSPseudoMotorGroupObject(CLSPseudoMotorGroupObject *motorObject);
+
+	/// An initialize flag.  Required to stop the intialization (choosing the first motor group view programmatically) happens during startup.  Maybe a better solution exists, but this will do for now.
+	bool initialized_;
 };
 
 #endif // CLSPSEUDOMOTORGROUPVIEW_H

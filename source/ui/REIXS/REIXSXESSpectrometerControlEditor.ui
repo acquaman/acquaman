@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>285</width>
-    <height>254</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,6 +128,17 @@
      </property>
     </widget>
    </item>
+   <item row="6" column="0">
+    <widget class="QPushButton" name="stopButton">
+     <property name="text">
+      <string>Stop!</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../icons/icons.qrc">
+       <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="1">
     <widget class="QPushButton" name="moveNowButton">
      <property name="text">
@@ -139,14 +150,51 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QPushButton" name="stopButton">
+   <item row="8" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Stop!</string>
+      <string>Grating Mask</string>
      </property>
-     <property name="icon">
-      <iconset resource="../../icons/icons.qrc">
-       <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QComboBox" name="maskComboBox">
+     <item>
+      <property name="text">
+       <string>Pin Hole</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>LEG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Impurity</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MEG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>HRMEG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Out</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="maskFeedbackLabel">
+     <property name="text">
+      <string>Currently: Unknown</string>
      </property>
     </widget>
    </item>

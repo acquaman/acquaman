@@ -74,7 +74,14 @@ void AMDetectorReadAction::internalSetSucceeded(){
 		}
 
 		QList<double> detectorData;
-		const double *detectorDataPointer = detector_->data();
+		int detectorDataPointerSize;
+		if(detector_->readMode() == AMDetectorDefinitions::SingleRead)
+			detectorDataPointerSize = detector_->size().product();
+		else
+			detectorDataPointerSize = detector_->lastContinuousSize();
+		QVector<double> detectorDataPointer = QVector<double>(detectorDataPointerSize);
+		detector_->data(detectorDataPointer.data());
+
 		if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::SingleRead)
 			detectorData.append(detectorDataPointer[0]);
 		else if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::ContinuousRead){

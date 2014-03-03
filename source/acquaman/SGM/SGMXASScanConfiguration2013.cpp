@@ -44,8 +44,12 @@ AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const{
 
 #include "SGMXASScanActionController.h"
 
-AMScanController* SGMXASScanConfiguration2013::createController(){
-	return new SGMXASScanActionController(this);
+AMScanController* SGMXASScanConfiguration2013::createController()
+{
+	SGMXASScanActionController *controller = new SGMXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 #include "ui/SGM/SGMXASScanConfiguration2013View.h"

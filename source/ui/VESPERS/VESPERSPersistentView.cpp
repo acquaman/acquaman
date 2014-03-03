@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
 #include "ui/beamline/AMIonChamberView.h"
+#include "ui/VESPERS/VESPERSScalerView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -88,7 +89,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
 	experimentReadyLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Gain Setup");
 	ionChamberLabel->setFont(font);
 
 	// Shutter layout.
@@ -165,7 +166,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	experimentReadyLayout->addWidget(experimentReady_);
 	experimentReadyLayout->addWidget(experimentReadyLabel);
 	experimentReadyLayout->setSpacing(10);
-	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
+	experimentReadyLayout->setContentsMargins(15, 0, 11, 0);
 	experimentReadyLayout->addStretch();
 
 	// Endstation shutter control.
@@ -239,11 +240,12 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setToolTip("Water Indicator");
 
 	// Ion chambers.
-	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
-	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+//	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+//	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
+//	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+//	ionChamberLayout->setContentsMargins(10, 0, 10, 0);
 
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
@@ -256,7 +258,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(waterLabel_, 1, 2);
 	statusLayout->addWidget(valvesStatus_, 1, 3);
 	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
-	statusLayout->setContentsMargins(15, 7, 11, 7);
+	statusLayout->setContentsMargins(15, 0, 11, 0);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
@@ -270,7 +272,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
 	persistentLayout->addWidget(ionChamberLabel);
-	persistentLayout->addLayout(ionChamberLayout);
+//	persistentLayout->addLayout(ionChamberLayout);
+	persistentLayout->addWidget(new VESPERSScalerView());
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
@@ -282,9 +285,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	//setFixedSize(325, 1000);
-	setFixedSize(325, 900);
-//    setFixedSize(325, 800);
+	setFixedSize(350, 900);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)

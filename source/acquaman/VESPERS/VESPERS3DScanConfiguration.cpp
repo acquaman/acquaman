@@ -8,8 +8,8 @@
 VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	: AM3DScanConfiguration(parent), VESPERSScanConfiguration()
 {
-	setName("3D Map");
-	setUserScanName("3D Map");
+	setName("3DMap");
+	setUserScanName("3DMap");
 	dbObject_->setParent(this);
 	setXPriority(1);
 	setYPriority(0);
@@ -22,6 +22,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
@@ -46,6 +47,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(const VESPERS3DScanConfig
 	setZPriority(original.zPriority());
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
+	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
@@ -101,6 +103,12 @@ QString  VESPERS3DScanConfiguration::headerText() const
 	header.append("Wire Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(zStart()).arg(zEnd()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(zStep()));
+
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
 
 	return header;
 }
@@ -170,4 +178,12 @@ void  VESPERS3DScanConfiguration::setExportSpectraSources(bool exportSpectra)
 		return;
 
 	exportSpectraSources_ = exportSpectra;
+}
+
+void VESPERS3DScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }

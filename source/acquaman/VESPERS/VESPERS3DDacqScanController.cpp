@@ -14,6 +14,7 @@
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "dataman/export/VESPERS/VESPERSExporter3DAscii.h"
+#include "analysis/AM3DDeadTimeCorrectionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -43,7 +44,7 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", config_->exportSpectraSources(), false, false);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS3DDefault", config_->exportSpectraSources(), false, false, config_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERS3DScanConfiguration, VESPERSExporter3DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
@@ -157,17 +158,24 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		AMDataSource *rawDataSource = 0;
 		AMOrderReductionAB *reducedROI = 0;
 		AM2DNormalizationAB *normROI = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 		QList<AMDataSource *> roiList;
 
 		for (int i = 0; i < roiCount; i++){
 
 			rawDataSource = scan_->rawDataSources()->at(i+3);
+			correctedROI = new AM3DDeadTimeCorrectionAB("corrected_" % rawDataSource->name());
+			correctedROI->setDescription("Corrected " % rawDataSource->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			reducedROI = new AMOrderReductionAB("reduced_"+rawDataSource->name());
 			reducedROI->setDescription("Reduced "+rawDataSource->description());
-			reducedROI->setSelectedName(rawDataSource->name());
+			reducedROI->setSelectedName(correctedROI->name());
 			reducedROI->setReducedAxis(2);
-			reducedROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource);
+			reducedROI->setInputDataSources(QList<AMDataSource *>() << correctedROI);
 			roiList << reducedROI;
 			scan_->addAnalyzedDataSource(reducedROI, false, true);
 		}
@@ -222,6 +230,9 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 
 		AMDataSource *roi1 = 0;
 		AMDataSource *roi4 = 0;
+		AMDataSource *fastPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks"));
+		AMDataSource *slowPeakSource = scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks"));
+		AMAnalysisBlock *correctedROI = 0;
 		AMOrderReductionAB *reducedRoi1 = 0;
 		AMOrderReductionAB *reducedRoi4 = 0;
 		AM2DAdditionAB *sumAB = 0;
@@ -234,11 +245,15 @@ VESPERS3DDacqScanController::VESPERS3DDacqScanController(VESPERS3DScanConfigurat
 		for (int i = 0, count = sameRois.size(); i < count; i++){
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+3);
+			correctedROI = new AM3DDeadTimeCorrectionAB("corrected_" % roi1->name());
+			correctedROI->setDescription("Corrected " % roi1->description());
+			correctedROI->setInputDataSources(QList<AMDataSource *>() << roi1 << fastPeakSource << slowPeakSource);
+			scan_->addAnalyzedDataSource(correctedROI, false, true);
 			reducedRoi1 = new AMOrderReductionAB("reduced_"+roi1->name());
 			reducedRoi1->setDescription("Reduced "+roi1->description());
-			reducedRoi1->setSelectedName(roi1->name());
+			reducedRoi1->setSelectedName(correctedROI->name());
 			reducedRoi1->setReducedAxis(2);
-			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << roi1);
+			reducedRoi1->setInputDataSources(QList<AMDataSource *>() << correctedROI);
 			scan_->addAnalyzedDataSource(reducedRoi1, false, true);
 
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+3+singleElRoiCount);
@@ -355,52 +370,17 @@ void VESPERS3DDacqScanController::addExtraDatasources()
 
 bool VESPERS3DDacqScanController::initializeImplementation()
 {
-	buildBaseInitializationAction(config_->timeStep());
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	buildBaseInitializationAction(config_->timeStep());
 
-	if (config_->ccdDetector() == VESPERS::Roper){
+//	QString ccdName = buildCCDInitializationAction(config_->ccdDetector(), config_->ccdFileName());
 
-		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
+//	if (config_->ccdFileName() != ccdName)
+//		config_->setCCDFileName(ccdName);
 
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Mar){
-
-		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	else if (config_->ccdDetector() == VESPERS::Pilatus){
-
-		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
-		QString name = getUniqueCCDName(ccd->ccdFilePath(), config_->name());
-
-		if (name != config_->ccdFileName())
-			config_->setCCDFileName(name);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(config_->ccdFileName()));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
-	}
-
-	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	initializationAction_->start();
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
 
 	return true;
 }
@@ -431,9 +411,9 @@ bool VESPERS3DDacqScanController::startImplementation()
 void VESPERS3DDacqScanController::cleanup()
 {
 	buildCleanupAction(false);
-	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupAction_->start();
+//	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+//	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+//	cleanupAction_->start();
 }
 
 void VESPERS3DDacqScanController::onCleanupFinished()
@@ -464,7 +444,7 @@ void VESPERS3DDacqScanController::onInitializationActionsFailed(int explanation)
 	Q_UNUSED(explanation)
 
 	AMErrorMon::alert(this, VESPERS3DDACQSCANCONTROLLER_CANT_INTIALIZE, "3D scan failed to initialize.");
-	onInitializationActionFinished();
+//	onInitializationActionFinished();
 	setFailed();
 }
 

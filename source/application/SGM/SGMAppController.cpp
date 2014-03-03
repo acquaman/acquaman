@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/SGM/SGMSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementPre2013Widget.h"
 
@@ -51,6 +51,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSOceanOptics65000DetectorView.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 #include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -89,6 +92,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include "ui/dataman/AMSamplePlateView.h"
 #include "ui/SGM/SGMSampleManagementView.h"
+#include "ui/CLS/CLSPGTDetectorV2View.h"
+#include "ui/CLS/CLSAmptekSDD123DetectorNewView.h"
+
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/SGM/SGMAxis2000Exporter.h"
+
+#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "ui/SGM/SGMAdvancedMirrorView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -101,7 +112,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid") )
+	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid" || userName == "helfrij") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 
@@ -135,8 +146,6 @@ bool SGMAppController::startup() {
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!AMAppController::startup())
 		return false;
-
-	//splashScreen_->setNumberOfStages(splashScreen_->numberOfStages()+1);
 
 	// Places the SGM specific actions in the menu bar
 	if(!startupSGMInstallActions())
@@ -301,28 +310,50 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
 		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
+		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
 		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
 		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
 
 		xasDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
 		QStringList preferentialOrdering;
-		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
-		preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		if(SGMBeamline::sgm()->newAmptekSDD1()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD2()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD3()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD4()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD5()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD5()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), true);
+		}
+		if(SGMBeamline::sgm()->newI0Detector()){
+			preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+		}
+		if(SGMBeamline::sgm()->newTEYDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		}
+		if(SGMBeamline::sgm()->newTFYDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+		}
+		if(SGMBeamline::sgm()->newPDDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		}
+
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
-		xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
 		xasDetectorSelector_->setDefaultsSelected();
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
@@ -356,8 +387,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		//do nothing
 	}
 	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013Holder3_->isEnabled() && !fastScanConfiguration2013Holder3_->isEnabled()){
-		//xasScanConfigurationHolder3_->setEnabled(true);
-		//fastScanConfigurationHolder3_->setEnabled(true);
 		xasScanConfiguration2013Holder3_->setEnabled(true);
 		fastScanConfiguration2013Holder3_->setEnabled(true);
 	}
@@ -365,6 +394,14 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfiguration2013Holder3_->setEnabled(false);
 		fastScanConfiguration2013Holder3_->setEnabled(false);
 	}
+	/*
+	else if(SGMBeamline::sgm()->isConnected()){
+		qDebug() << "About to open testMirrorView";
+		SGMAdvancedMirrorView *testMirrorView = new SGMAdvancedMirrorView();
+		testMirrorView->show();
+		testMirrorView->move(0, 1081);
+		qDebug() << "Just opened testMirrorView";
+	}*/
 
 	if(!checkedBadStartupSettings_){
 		checkedBadStartupSettings_ = true;
@@ -408,7 +445,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
-		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
@@ -418,10 +455,8 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 	if(SGMBeamline::sgm()->synchronizedDwellTime() && SGMBeamline::sgm()->synchronizedDwellTime()->isConnected() && !sgmSynchronizedDwellTimeView_){
 
 		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
-		if(clsDwellTime){
+		if(clsDwellTime)
 			sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
-		}
-		//sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
 
 		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Control", "SGM Sync Dwell", ":/system-software-update.png", true);
 		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
@@ -430,54 +465,70 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 
 void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !newAmptekSDD1View_){
-
-		AMDetectorGeneralDetailedView *failView = 0;
-		failView->layout();
-
-
-		newAmptekSDD1View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD1());
-		mw_->addPane(newAmptekSDD1View_, "Beamline Detectors", "NEW SGM Amptek1", ":/system-software-update.png");
+	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !amptekSDD1XRFView_){
+		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
+		amptekSDD1XRFView_->buildDetectorView();
+		amptekSDD1XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD1XRFView_, "Beamline Detectors", "SGM Amptek1 XRF", ":/system-software-update.png");
 	}
 }
 
 void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !newAmptekSDD2View_){
-		newAmptekSDD2View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD2());
-		mw_->addPane(newAmptekSDD2View_, "Beamline Detectors", "NEW SGM Amptek2", ":/system-software-update.png");
+	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !amptekSDD2XRFView_){
+		amptekSDD2XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
+		amptekSDD2XRFView_->buildDetectorView();
+		amptekSDD2XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD2XRFView_, "Beamline Detectors", "SGM Amptek2 XRF", ":/system-software-update.png");
 	}
 }
 
 void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
 	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !newAmptekSDD3View_){
-		newAmptekSDD3View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD3());
-		mw_->addPane(newAmptekSDD3View_, "Beamline Detectors", "NEW SGM Amptek3", ":/system-software-update.png");
+	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !amptekSDD3XRFView_){
+		amptekSDD3XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
+		amptekSDD3XRFView_->buildDetectorView();
+		amptekSDD3XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD3XRFView_, "Beamline Detectors", "SGM Amptek3 XRF", ":/system-software-update.png");
 	}
 }
 
 void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
 	Q_UNUSED(connected)
-	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !newAmptekSDD4View_){
-		newAmptekSDD4View_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newAmptekSDD4());
-		mw_->addPane(newAmptekSDD4View_, "Beamline Detectors", "NEW SGM Amptek4", ":/system-software-update.png");
+	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !amptekSDD4XRFView_){
+		amptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		amptekSDD4XRFView_->buildDetectorView();
+		amptekSDD4XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD5Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD5() && SGMBeamline::sgm()->newAmptekSDD5()->isConnected() && !amptekSDD5XRFView_){
+		amptekSDD5XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5()));
+		amptekSDD5XRFView_->buildDetectorView();
+		amptekSDD5XRFView_->setEnergyRange(270, 2000);
+		mw_->addPane(amptekSDD5XRFView_, "Beamline Detectors", "SGM Amptek5 XRF", ":/system-software-update.png");
 	}
 }
 
 void SGMAppController::onSGMNewPGTDetectorConnected(bool connected){
 	Q_UNUSED(connected)
+	/*
 	if(SGMBeamline::sgm()->newPGTDetector() && SGMBeamline::sgm()->newPGTDetector()->isConnected() && !newPGTDetectorView_){
-		newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
-		mw_->addPane(newPGTDetectorView_, "Beamline Detectors", "NEW SGM PGT", ":/system-software-update.png");
+		//newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
+		newPGTDetectorView_ = new CLSPGTDetectorV2View(qobject_cast<CLSPGTDetectorV2*>(SGMBeamline::sgm()->newPGTDetector()));
+		mw_->addPane(newPGTDetectorView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
 	}
+	*/
 }
 
 void SGMAppController::onSGMNewQE65000DetectorConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newQE65000Detector() && SGMBeamline::sgm()->newQE65000Detector()->isConnected() && !newQE65000DetectorView_){
 		newQE65000DetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newQE65000Detector());
-		mw_->addPane(newQE65000DetectorView_, "Beamline Detectors", "NEW SGM QE 65000", ":/system-software-update.png");
+		mw_->addPane(newQE65000DetectorView_, "Beamline Detectors", "SGM QE 65000", ":/system-software-update.png");
 	}
 }
 
@@ -485,7 +536,7 @@ void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->newTEYDetector() && SGMBeamline::sgm()->newTEYDetector()->isConnected() && !newTEYDetectorView_){
 		newTEYDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newTEYDetector());
-		mw_->addPane(newTEYDetectorView_, "Beamline Detectors", "NEW SGM TEY", ":/system-software-update.png");
+		mw_->addPane(newTEYDetectorView_, "Beamline Detectors", "SGM TEY", ":/system-software-update.png");
 	}
 }
 
@@ -536,9 +587,16 @@ void SGMAppController::onActionProcServManager(){
 	procServsView_->show();
 }
 
+
 void SGMAppController::onAdvancedCameraOptionsRequested(){
 	if(sampleManagementView_)
 		sampleManagementView_->requestAdvancedCameraOptionsWindow();
+}
+
+void SGMAppController::onActionMirrorVeiw(){
+	if(!SGMAdvancedMirror_)
+		SGMAdvancedMirror_ = new SGMAdvancedMirrorView();
+	SGMAdvancedMirror_->show();
 }
 
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
@@ -579,11 +637,19 @@ bool SGMAppController::startupSGMInstallActions(){
 	advancedSGMCameraOptionsAction->setStatusTip("Advanced Camera Settings");
 	connect(advancedSGMCameraOptionsAction, SIGNAL(triggered()), this, SLOT(onAdvancedCameraOptionsRequested()));
 
+	QAction *SGMMirrorAction = new QAction("SGM Beamline Mirrors...", mw_);
+	SGMMirrorAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_M));
+	SGMMirrorAction->setStatusTip("View or Change SGM Beamline Mirrors");
+	connect(SGMMirrorAction, SIGNAL(triggered()), this, SLOT(onActionMirrorVeiw()));
+
+	SGMAdvancedMirror_ = 0;
+
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
 	fileMenu_->addAction(sgmProcServAction);
 
 	viewMenu_->addAction(advancedSGMCameraOptionsAction);
+	viewMenu_->addAction(SGMMirrorAction);
 
 	return true;
 }
@@ -646,6 +712,8 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
+	AMExportController::registerExporter<SGMAxis2000Exporter>();
+
 	bool success = true;
 
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
@@ -669,7 +737,6 @@ bool SGMAppController::setupSGMExporterOptions(){
 		sgmDefault->setColumnHeaderDelimiter("==========");
 		sgmDefault->setSectionHeader("");
 		sgmDefault->setSectionHeaderIncluded(true);
-		//sgmDefault->setIncludeAllDataSources(false);
 		if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
 			sgmDefault->removeDataSourceAt(0);
 		sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
@@ -735,24 +802,35 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
-		success &= fs5Settings.storeToDb(dbSGM);
-		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-		success &= fsp5->storeToDb(dbSGM);
+//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
+//		success &= fs5Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+//		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
 
 		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 5800, 20.0, 200, 970);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
+//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
+//		success &= fs120Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+//		success &= fsp120->storeToDb(dbSGM);
+
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-		elementInfo->addFastScanParameters(fsp5);
+//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
+		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
 	}
 
@@ -769,24 +847,35 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
-		success &= fs5Settings.storeToDb(dbSGM);
-		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-		success &= fsp5->storeToDb(dbSGM);
+//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
+//		success &= fs5Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+//		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
 
 		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 3800, 20.0, 800, 825);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
+//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
+//		success &= fs120Settings.storeToDb(dbSGM);
+//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+//		success &= fsp120->storeToDb(dbSGM);
+
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-		elementInfo->addFastScanParameters(fsp5);
+//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
+		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
 	}
 
@@ -803,16 +892,16 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1600);
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1450);
 		success &= fs5Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
 		success &= fsp5->storeToDb(dbSGM);
 
-		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1100, 20.0, 800, 330);
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1050, 20.0, 800, 330);
 		success &= fs20Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
@@ -837,8 +926,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -871,8 +960,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -905,8 +994,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -939,8 +1028,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -973,8 +1062,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		//SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -1007,8 +1096,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
@@ -1041,8 +1130,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 3000, 5.0, 200, 1000);
@@ -1075,8 +1164,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 6000, 5.0, 200, 3500);
@@ -1109,8 +1198,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1143,8 +1232,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1177,8 +1266,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1211,8 +1300,8 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
 
-		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
-		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
 		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
@@ -1250,9 +1339,6 @@ bool SGMAppController::setupSGMViews(){
 	sampleManagementView_ = new SGMSampleManagementView();
 	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
-	// Jan 11, 2013: I don't think this is necessary at all anymore
-	//connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
-
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");
 
@@ -1266,25 +1352,44 @@ bool SGMAppController::setupSGMViews(){
 	mw_->insertHeading("Beamline Detectors", 1);
 
 	newAmptekSDD1View_ = 0;
-	//newAmptekSDD1View_->layout();
-	connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
-	onSGMNewAmptekSDD1Connected(false);
+	amptekSDD1XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD1()){
+		connect(SGMBeamline::sgm()->newAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD1Connected(bool)));
+		onSGMNewAmptekSDD1Connected(false);
+	}
 
 	newAmptekSDD2View_ = 0;
-	connect(SGMBeamline::sgm()->newAmptekSDD2(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD2Connected(bool)));
-	onSGMNewAmptekSDD2Connected(false);
+	amptekSDD2XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD2()){
+		connect(SGMBeamline::sgm()->newAmptekSDD2(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD2Connected(bool)));
+		onSGMNewAmptekSDD2Connected(false);
+	}
 
 	newAmptekSDD3View_ = 0;
-	connect(SGMBeamline::sgm()->newAmptekSDD3(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD3Connected(bool)));
-	onSGMNewAmptekSDD3Connected(false);
+	amptekSDD3XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD3()){
+		connect(SGMBeamline::sgm()->newAmptekSDD3(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD3Connected(bool)));
+		onSGMNewAmptekSDD3Connected(false);
+	}
 
 	newAmptekSDD4View_ = 0;
-	connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
-	onSGMNewAmptekSDD4Connected(false);
+	amptekSDD4XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD4()){
+		connect(SGMBeamline::sgm()->newAmptekSDD4(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD4Connected(bool)));
+		onSGMNewAmptekSDD4Connected(false);
+	}
+
+	amptekSDD5XRFView_ = 0;
+	if(SGMBeamline::sgm()->newAmptekSDD5()){
+		connect(SGMBeamline::sgm()->newAmptekSDD5(), SIGNAL(connected(bool)), this, SLOT(onSGMNewAmptekSDD5Connected(bool)));
+		onSGMNewAmptekSDD5Connected(false);
+	}
 
 	newPGTDetectorView_ = 0;
+	/*
 	connect(SGMBeamline::sgm()->newPGTDetector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewPGTDetectorConnected(bool)));
 	onSGMNewPGTDetectorConnected(false);
+	*/
 
 	newQE65000DetectorView_ = 0;
 	connect(SGMBeamline::sgm()->newQE65000Detector(), SIGNAL(connected(bool)), this, SLOT(onSGMNewQE65000DetectorConnected(bool)));
@@ -1300,11 +1405,11 @@ bool SGMAppController::setupSGMViews(){
 
 	xasScanConfiguration2013View_ = 0; //NULL
 	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
-	mw_->addPane(xasScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM XAS Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(xasScanConfiguration2013Holder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	fastScanConfiguration2013View_ = 0; //NULL
 	fastScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
-	mw_->addPane(fastScanConfiguration2013Holder3_, "Experiment Setup", "NEW SGM Fast Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(fastScanConfiguration2013Holder3_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));

@@ -46,10 +46,16 @@ class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
+class AMListAction3;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
+
+// Helper classes that technically shouldn't need to exist.
+#include "util/VESPERS/ROIHelper.h"
+#include "util/VESPERS/VESPERSAttoCubeHack.h"
+
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -118,6 +124,8 @@ protected:
 	void moveImmediately(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
+	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
+	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Methods that know what is acceptable for which scan type.
 	/// Returns whether the given motor is acceptable for EXAFS.
@@ -156,7 +164,7 @@ protected:
 	/// Mar CCD detector view.
 	VESPERSCCDDetectorView *marCCDView_;
 	/// Pilatus CCD detector view.
-	VESPERSPilatusCCDDetectorView *pilatusCCDView_;
+	VESPERSPilatusCCDDetectorView *pilatusView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
@@ -194,7 +202,7 @@ protected:
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
-	AMBeamlineListAction *moveImmediatelyAction_;
+	AMListAction3 *moveImmediatelyAction_;
 
 	/// Pointer to the persistent view.
 	VESPERSPersistentView *persistentView_;
@@ -207,6 +215,10 @@ protected:
 	bool marCCDStartup_;
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
+
+
+	ROIHelper *roiHelper_;
+	VESPERSAttoCubeHack *attoHack_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

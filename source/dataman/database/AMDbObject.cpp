@@ -251,6 +251,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 					if( (!obj->modified() && (obj->id() >= 1)) ||  constStore){
 						if(obj->modified() && constStore)
 							qDebug() << "Found a case where constStore is necessary because the object is modified";
+
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 					}
 					else{

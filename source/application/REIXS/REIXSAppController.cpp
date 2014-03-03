@@ -25,10 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
-#include "ui/REIXS/REIXSScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
-
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
 
 #include "util/AMErrorMonitor.h"
@@ -48,19 +47,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 
-#include "actions2/AMActionRegistry.h"
-
-#include "actions2/actions/REIXS/REIXSControlMoveAction.h"
-#include "actions2/actions/REIXS/REIXSXESScanAction.h"
-#include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
-#include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
-#include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
-#include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
-#include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
-#include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
-#include "actions2/editors/REIXS/REIXSSampleMoveActionEditor.h"
-#include "actions2/actions/REIXS/REIXSXASScanAction.h"
-
 #include "analysis/REIXS/REIXSXESImageAB.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
@@ -73,13 +59,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 REIXSAppController::REIXSAppController(QObject *parent) :
-	AMAppControllerForActions2(parent)
+	AMAppController(parent)
 {
 }
 
 // Re-implemented to create the REIXSBeamline object
 bool REIXSAppController::startupBeforeAnything() {
-	if(!AMAppControllerForActions2::startupBeforeAnything()) return false;
+	if(!AMAppController::startupBeforeAnything()) return false;
 
 	// If a command-line option has been specified to choose a new userDataFolder:
 	if(qApp->arguments().contains("--ChooseUserDataFolder"))
@@ -93,7 +79,7 @@ bool REIXSAppController::startupBeforeAnything() {
 
 // Re-implemented to register REIXS-specific database classes
 bool REIXSAppController::startupRegisterDatabases() {
-	if(!AMAppControllerForActions2::startupRegisterDatabases()) return false;
+	if(!AMAppController::startupRegisterDatabases()) return false;
 
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -101,36 +87,36 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 
-	AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
+	//AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
 
 	// Register Actions:
 	////////////////////////////////
 
 	/// \todo Move common ones to main app controller.
-	AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample", "This action moves the REIXS sample manipulator to a defined position, or switches between samples on the current sample plate.", ":/32x32/gnome-display-properties.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move to Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
-	AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action turns the beam on or off.");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample", "This action moves the REIXS sample manipulator to a defined position, or switches between samples on the current sample plate.", ":/32x32/gnome-display-properties.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move to Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
+	//AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action turns the beam on or off.");
 
 
-	AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
+	//AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
 	/// \todo Editor for XAS Scan actions...
-	AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
-	AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
-	AMActionRegistry::s()->registerInfoAndEditor<REIXSSampleMoveActionInfo, REIXSSampleMoveActionEditor>();
+	//AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
+	//AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
+	//AMActionRegistry::s()->registerInfoAndEditor<REIXSSampleMoveActionInfo, REIXSSampleMoveActionEditor>();
 
 	return true;
 }
 
 // Re-implemented to add REIXS-specific user interfaces
 bool REIXSAppController::startupCreateUserInterface() {
-	if(!AMAppControllerForActions2::startupCreateUserInterface()) return false;
+	if(!AMAppController::startupCreateUserInterface()) return false;
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -138,16 +124,19 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	mw_->insertHeading("Experiment Setup", 1);
 	//////////
-	REIXSScanConfigurationViewHolder* scanConfigurationHolder;
+	AMScanConfigurationViewHolder3* scanConfigurationHolder;
 
 	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
-	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView();
-	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xasConfigView);
+	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
+	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
+	qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
+	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
@@ -208,7 +197,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 
 bool REIXSAppController::startupAfterEverything() {
-	if(!AMAppControllerForActions2::startupAfterEverything()) return false;
+	if(!AMAppController::startupAfterEverything()) return false;
 
 	// Checking for and making the first run in the database, if there isn't one already.
 	////////////////////////////////////////
@@ -224,9 +213,9 @@ bool REIXSAppController::startupAfterEverything() {
 
 void REIXSAppController::shutdown() {
 
-    // Make sure we release/clean-up the beamline interface
-    AMBeamline::releaseBl();
-	AMAppControllerForActions2::shutdown();
+	// Make sure we release/clean-up the beamline interface
+	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 #include "dataman/AMScan.h"
@@ -264,7 +253,7 @@ void REIXSAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	REIXSScanConfigurationViewHolder* holder = new REIXSScanConfigurationViewHolder(view);
+	AMScanConfigurationViewHolder3* holder = new AMScanConfigurationViewHolder3(view);
 	holder->setAttribute(Qt::WA_DeleteOnClose, true);
 	holder->show();
 }

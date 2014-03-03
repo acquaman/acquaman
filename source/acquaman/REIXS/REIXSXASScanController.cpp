@@ -23,9 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "dataman/AMUser.h"
 
-#include "actions2/AMListAction.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
-
 REIXSXASScanController::REIXSXASScanController(REIXSXASScanConfiguration* configuration, QObject *parent) :
 	AMSA1DScanController(REIXSBeamline::bl()->photonSource()->energy(), REIXSBeamline::bl()->xasDetectors()->saDetectors(), configuration, parent)
 {
@@ -53,6 +50,12 @@ void REIXSXASScanController::createAnalysisBlocks()
 	ab->setDescription("Normalized TFY");
 	ab->setInputDataSources(rawDataSources);
 	ab->setExpression("TFY/I0");
+	scan_->addAnalyzedDataSource(ab);
+
+	ab = new AM1DExpressionAB("PFYNorm");
+	ab->setDescription("Normalized PFY");
+	ab->setInputDataSources(rawDataSources);
+	ab->setExpression("PFY/I0");
 	scan_->addAnalyzedDataSource(ab);
 }
 
@@ -100,52 +103,52 @@ void REIXSXASScanController::initializeScanMetaData()
 bool REIXSXASScanController::customInitializeImplementation()
 {
 	// remember the state of the beamline at the beginning of the scan.
-	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
-	scan_->scanInitialConditions()->setValuesFrom(positions);
+//	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
+//	scan_->scanInitialConditions()->setValuesFrom(positions);
 
-	// Need to move the mono, epu, or exit slit into position?
-	if(config_->applyMonoGrating() || config_->applyMonoMirror() || config_->applyPolarization() || config_->applySlitWidth()) {
-		initialMoveAction_ = new AMListAction(new AMActionInfo("REIXS XAS Initial Move"), AMListAction::ParallelMode);
-		if(config_->applyMonoGrating())
-			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoGratingSelector(), config_->monoGrating()));
-		if(config_->applyMonoMirror())
-			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoMirrorSelector(), config_->monoMirror()));
-		if(config_->applySlitWidth())
-			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), config_->slitWidth()));
-		if(config_->applyPolarization()) {
-			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), config_->polarization()));
-			if(config_->polarization() == 5)
-				initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), config_->polarizationAngle()));
-		}
+//	// Need to move the mono, epu, or exit slit into position?
+//	if(config_->applyMonoGrating() || config_->applyMonoMirror() || config_->applyPolarization() || config_->applySlitWidth()) {
+//		initialMoveAction_ = new AMListAction(new AMActionInfo("REIXS XAS Initial Move"), AMListAction::ParallelMode);
+//		if(config_->applyMonoGrating())
+//			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoGratingSelector(), config_->monoGrating()));
+//		if(config_->applyMonoMirror())
+//			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoMirrorSelector(), config_->monoMirror()));
+//		if(config_->applySlitWidth())
+//			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), config_->slitWidth()));
+//		if(config_->applyPolarization()) {
+//			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), config_->polarization()));
+//			if(config_->polarization() == 5)
+//				initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), config_->polarizationAngle()));
+//		}
 
-		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitializationMoveSucceeded()));
-		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitializationMoveFailed()));
+//		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitializationMoveSucceeded()));
+//		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitializationMoveFailed()));
 
-		initialMoveAction_->start();
-	}
-	else {
-		setCustomInitializationFinished(true);
-	}
+//		initialMoveAction_->start();
+//	}
+//	else {
+//		setCustomInitializationFinished(true);
+//	}
 
 	return true;
 }
 
 void REIXSXASScanController::onInitializationMoveSucceeded()
 {
-	disconnect(initialMoveAction_, 0, this, 0);
-	initialMoveAction_->deleteLater();
-	initialMoveAction_ = 0;
+//	disconnect(initialMoveAction_, 0, this, 0);
+//	initialMoveAction_->deleteLater();
+//	initialMoveAction_ = 0;
 
 	setCustomInitializationFinished(true);
 }
 
 void REIXSXASScanController::onInitializationMoveFailed()
 {
-	disconnect(initialMoveAction_, 0, this, 0);
-	initialMoveAction_->deleteLater();
-	initialMoveAction_ = 0;
+//	disconnect(initialMoveAction_, 0, this, 0);
+//	initialMoveAction_->deleteLater();
+//	initialMoveAction_ = 0;
 
-	AMErrorMon::alert(this, -300, "Could not start the scan because there was an error moving the mono grating, mirror, EPU polarization, or slit width to the starting positions. Please report this problem to the beamline staff.");
+//	AMErrorMon::alert(this, -300, "Could not start the scan because there was an error moving the mono grating, mirror, EPU polarization, or slit width to the starting positions. Please report this problem to the beamline staff.");
 	setCustomInitializationFinished(false);
 }
 

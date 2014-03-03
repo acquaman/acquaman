@@ -90,13 +90,13 @@ Q_OBJECT
 public:
 	/// This enum describes the states a detector can take on with regard to acquisition
 	enum AcqusitionState { NotReadyForAcquisition = 0,
-			       ReadyForAcquisition = 1,
-			       Acquiring = 2,
-			       Cancelling = 3,
-			       Cancelled = 4,
-			       Succeeded = 5,
-			       Failed = 6
-			     };
+				   ReadyForAcquisition = 1,
+				   Acquiring = 2,
+				   Cancelling = 3,
+				   Cancelled = 4,
+				   Succeeded = 5,
+				   Failed = 6
+				 };
 
 	/// This enum describes the states a detector can take on with regard to initialization
 	enum InitializationState { InitializationRequired = 0,
@@ -106,8 +106,8 @@ public:
 
 	/// This enum describes the states a detector can take on with regard to cleanup
 	enum CleanupState { CleanupRequired = 0,
-			    CleaningUp = 1,
-			    CleanedUp = 2
+				CleaningUp = 1,
+				CleanedUp = 2
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
@@ -124,13 +124,13 @@ public:
 	QString units() const { return units_; }
 
 	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
-	virtual int rank() const { return 0; }
+	virtual int rank() const { return axes_.size(); }
 	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
-	virtual AMnDIndex size() const { return AMnDIndex(); }
+	virtual AMnDIndex size() const;
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const = 0;
+	virtual int size(int axisNumber) const;
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
-	virtual QList<AMAxisInfo>  axes() const { return QList<AMAxisInfo>(); }
+	virtual QList<AMAxisInfo>  axes() const { return axes_; }
 
 	/// Returns (or casts) this AMDetector as an AMMeasurementInfo, which contains the bare-bones dimensional information.
 	operator AMMeasurementInfo();
@@ -227,21 +227,20 @@ public:
 int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
-	// FINISH IMPLEMENTING THESE
 	virtual bool reading0D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 	virtual bool reading1D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 	virtual bool reading2D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
-	/// Convenience call to access the three previous calls from a common interface. Pass 0, 1, or 2 into the dimensionality variable.
-	bool readingND(int dimensionality, const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+	/// Convenience call to access the three previous calls from a common interface.
+	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
 	// FLESH THIS ONE OUT
 	/// Returns the data from the last continuous reading in the outputValues
 	virtual bool lastContinuousReading(double *outputValues) const;
 	virtual int lastContinuousSize() const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const = 0;
+	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
+	virtual bool data(double *outputValues) const = 0;
 
 	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
 	virtual AMAction3* createInitializationActions();
@@ -259,6 +258,16 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
+
+	/// Handles the default visibility of the detector when added to a scan.
+	bool isVisible() const { return isVisible_; }
+	/// Handles the default accessibility of the detector when added to a scan.  If true, this detector will be completely hidden within the user interface.
+	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+
+	/// Changes the default visibility of the detector when added to a scan.
+	void setIsVisible(bool visible);
+	/// Changes the default accessibility of the detector when added to a scan.
+	void setHiddenFromUsers(bool hidden);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()
@@ -338,6 +347,14 @@ signals:
 	void acquisitionTimeChanged(double seconds);
 	void newValuesAvailable();
 
+	/// Indicates that the axis values have changed.  This would affect things like size() and axes().
+	void axisValuesChanged();
+
+	/// Notifier that the default visibility of the detector has changed.
+	void isVisibleChanged(bool);
+	/// Notifier that the default accessibility of the detector has changed.
+	void hiddenFromUsersChanged(bool);
+
 protected slots:
 	///
 	void setInitializing();
@@ -409,6 +426,12 @@ protected:
 	QString description_;
 	/// Units describing this detector's readings (ex: "counts", "milliAmps", etc.)
 	QString units_;
+	/// The axes that describe the dimensionality of the detector.
+	QList<AMAxisInfo> axes_;
+	/// The flag for the visibility of the detector when added to a scan.
+	bool isVisible_;
+	/// The flag for the default accessibility off the detector when added to a scan.
+	bool hiddenFromUsers_;
 
 private:
 	/// Changes states in the acquisition state (if possible)
