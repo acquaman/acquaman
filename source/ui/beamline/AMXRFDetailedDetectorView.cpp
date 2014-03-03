@@ -281,7 +281,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-		if (item->description().contains(QRegExp(symbol % " (K|L|M)")))
+                if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
