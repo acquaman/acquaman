@@ -16,13 +16,10 @@ bool AMRegion2013FileLoaderPlugin::accepts(AMScan *scan)
 	 return scan->fileFormat() == "amRegionAscii2013";
 }
 
-bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
+bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor)
+{
 	if(!scan)
 		return false;
-
-	// Clear the old scan axes to ensure we don't have any extras.
-//	scan->clearRawDataCompletely();
-//	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -80,7 +77,22 @@ bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFol
 						measurementOrderByRank.insert(oneMeasurementInfo.rank(), newRankList);
 					}
 
-//					scan->rawData()->addMeasurement(oneMeasurementInfo);
+					scan->rawData()->addMeasurement(oneMeasurementInfo);
+				}
+
+				else {
+
+					QString oneString = lp.at(1);
+					AMTextStream axisInfoStreamOut(&oneString);
+					AMAxisInfo axisInfo = AMAxisInfo("tempName", 0);
+					axisInfoStreamOut.read(axisInfo);
+
+					// This is a catch all for old scans before we properly saved the scan axes.
+					if (axisInfo.name == "tempName")
+						scan->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+					else
+						scan->rawData()->addScanAxis(axisInfo);
 				}
 			}
 		}

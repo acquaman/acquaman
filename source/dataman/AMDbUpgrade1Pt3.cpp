@@ -19,7 +19,7 @@ bool AMDbUpgrade1Pt3::upgradeNecessary() const
 	QList<int> hasOldTags = databaseToUpgrade_->objectsMatching("AMScan_table", "fileFormat", "sgm2013XAS");
 	return !hasOldTags.isEmpty();
 }
-#include <QDebug>
+
 bool AMDbUpgrade1Pt3::upgradeImplementation()
 {
 	databaseToUpgrade_->startTransaction();
