@@ -110,11 +110,11 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
         sumAb->setDescription("XRFSum");
         sumAb->setInputDataSources(raw2DDataSources);
         sumAb->setSumAxis(1);
-        sumAb->setSumRangeMin(350);
-        sumAb->setSumRangeMin(1500);
+//        sumAb->setSumRangeMin(350);
+//        sumAb->setSumRangeMin(1500);
         scan_->addAnalyzedDataSource(sumAb);
 
-        QList<AMDataSource*> all1DDataSources;
+          QList<AMDataSource*> all1DDataSources;
 
 
         for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
@@ -129,7 +129,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
         AM1DExpressionAB* NormXRF = new AM1DExpressionAB("NormXRF");
         NormXRF->setDescription("NormXRF");
         NormXRF->setInputDataSources(all1DDataSources);
-        NormXRF->setExpression("ln(sqrt(I_0^2)/XRFSum)");
+        NormXRF->setExpression("XRFSum/sqrt(I_0^2)");
         scan_->addAnalyzedDataSource(NormXRF);
 
 

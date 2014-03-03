@@ -17,6 +17,10 @@ public slots:
 protected slots:
     /// Handles setting the units of the control after all the controls have initialized.
     void onAllControlsConnected();
+
+//private:
+//    double lastPositiveMove;
 };
 
 #endif // IDEASMONOCHROMATORCONTROL_H
+
