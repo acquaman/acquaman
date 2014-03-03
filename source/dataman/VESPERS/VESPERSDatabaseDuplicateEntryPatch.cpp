@@ -14,7 +14,7 @@ VESPERSDatabaseDuplicateEntryPatch::VESPERSDatabaseDuplicateEntryPatch(QObject *
 
 bool VESPERSDatabaseDuplicateEntryPatch::start()
 {
-	AMDatabase *database = AMDatabase::createDatabase("Patch", "/home/hunterd/beamline/programming/databases/t17-5255/userData/userdata.db");
+	AMDatabase *database = AMDatabase::createDatabase("Patch", "/nas/vespers/users/17-5255/userData/userdata.db");
 
 	QSqlQuery query = database->query();
 	query.prepare("SELECT id, measurementId, name FROM AMRawDataSource_table;");
