@@ -52,10 +52,7 @@ class QDoubleSpinBox;
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
-<<<<<<< HEAD
-=======
-	virtual ~AMScanViewModeBar();
->>>>>>> 638b01b... Added the ability to put a cursor on the plot inside of AMScanView.  It can be added to AMScanViewExclusiveView and AMScanViewMultiView.  The cursor can be moved programmatically or from clicking the mouse, but currently the visibility is only toggle-able programmatically.
+	//virtual ~AMScanViewModeBar();
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
 	QButtonGroup* modeButtons_;
@@ -82,10 +79,7 @@ class AMScanView;
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
-<<<<<<< HEAD
-=======
-	virtual ~AMScanViewInternal();
->>>>>>> 638b01b... Added the ability to put a cursor on the plot inside of AMScanView.  It can be added to AMScanViewExclusiveView and AMScanViewMultiView.  The cursor can be moved programmatically or from clicking the mouse, but currently the visibility is only toggle-able programmatically.
+	//virtual ~AMScanViewInternal();
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 signals:
@@ -170,8 +164,18 @@ public:
 signals:
 	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
 	void dataPositionChanged(const QPoint &);
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 
 public slots:
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
 
 	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 3 for one plot per data source.
 	void changeViewMode(int newMode);
