@@ -135,14 +135,14 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	loadXASData_ = new QPushButton();
 	loadXASData_->setText("Load XAS Scan");
 
-	queueScan_ = new QPushButton();
-	queueScan_->setText("Add This Energy");
+//	queueScan_ = new QPushButton();
+//	queueScan_->setText("Add This Energy");
 
 	// Add scan view (plots)
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	scanView_->changeViewMode(AMScanView::Tabs);
-
+	scanView_->setPlotCursorVisibility(true);
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
@@ -194,7 +194,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	XASScanViewLayout->addWidget(scanView_,0,0,1,5);
 	XASScanViewLayout->addWidget(energyBoxLabel_,1,0);
 	XASScanViewLayout->addWidget(energyBox_,1,1);
-	XASScanViewLayout->addWidget(queueScan_,1,2);
+//	XASScanViewLayout->addWidget(queueScan_,1,2);
 	XASScanViewLayout->addWidget(loadXASData_,1,4);
 	XASEnergySelect->setLayout(XASScanViewLayout);
 
@@ -252,7 +252,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	connect(sampleSelector_, SIGNAL(currentSampleChanged(int)), configuration_, SLOT(setSampleId(int)));
 	connect(autoNamingCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setNamedAutomatically(bool)));
 
-	connect(scanView_, SIGNAL(dataPositionDataChanged(QPointF)), this, SLOT(onDataPositionToolChanged(QPointF)));
+	connect(scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionToolChanged(QPointF)));
 }
 
 REIXSRIXSScanConfigurationView::~REIXSRIXSScanConfigurationView()
@@ -414,5 +414,6 @@ void REIXSRIXSScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 
 void REIXSRIXSScanConfigurationView::onDataPositionToolChanged(const QPointF &newData)
 {
-		energyBox_->setValue(newData.x());
+	qDebug()<<newData.x();
+	energyBox_->setValue(newData.x());
 }

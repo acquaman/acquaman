@@ -116,7 +116,7 @@ protected:
 	QCheckBox* autoNamingCheckBox_;
 
 	QLabel* XASScanName_;
-	QPushButton* queueScan_;
+//	QPushButton* queueScan_;
 	QPushButton* loadXASData_;
 
 //	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
