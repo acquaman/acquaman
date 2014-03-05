@@ -1,4 +1,4 @@
-#include "AMRegionScanActionController.h"
+#include "AMTimedScanActionController.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -7,7 +7,7 @@
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
-#include "acquaman/AMRegionScanConfigurationConverter.h"
+#include "acquaman/AMTimedScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
 #include "dataman/AMXASScan.h"
@@ -19,36 +19,35 @@
 #include "ui/util/AMMessageBoxWTimeout.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
-AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfiguration *configuration, QObject *parent)
+AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
 	fileWriterIsBusy_ = false;
-	regionsConfiguration_ = configuration;
+	timedRegionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
 	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
-	useFeedback_ = false;
 }
 
-AMRegionScanActionController::~AMRegionScanActionController()
+AMTimedScanActionController::~AMTimedScanActionController()
 {
 	delete fileWriterThread_;
 }
 
-void AMRegionScanActionController::buildScanController()
+void AMTimedScanActionController::buildScanController()
 {
-	AMRegionScanConfigurationConverter regionScanConfigurationConverter(newScanAssembler_, regionsConfiguration_, this);
+	AMTimedScanConfigurationConverter timedScanConfigurationConverter(newScanAssembler_, timedRegionsConfiguration_, this);
 
-	if(regionScanConfigurationConverter.convert()){
+	if (timedScanConfigurationConverter.convert()){
 
 		// Handle some general scan stuff, including setting the default file path.
 		scan_->setRunId(AMUser::user()->currentRunId());
 
 		bool has1DDetectors = false;
 
-		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size && !has1DDetectors; i++){
+		for (int i = 0, size = timedRegionsConfiguration_->detectorConfigurations().count(); i < size && !has1DDetectors; i++){
 
-			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(timedRegionsConfiguration_->detectorConfigurations().at(i));
 
 			if (detector && detector->rank() == 1)
 				has1DDetectors = true;
@@ -107,9 +106,9 @@ void AMRegionScanActionController::buildScanController()
 		fileWriterThread_->start();
 
 		// Get all the detectors added to the scan.
-		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+		for (int i = 0, size = timedRegionsConfiguration_->detectorConfigurations().count(); i < size; i++){
 
-			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(timedRegionsConfiguration_->detectorConfigurations().at(i));
 
 			if(oneDetector && scan_->rawData()->addMeasurement(AMMeasurementInfo(*oneDetector)))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
@@ -122,22 +121,22 @@ void AMRegionScanActionController::buildScanController()
 	}
 
 	else
-		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION, QString("Error, the %1 Scan Action Controller failed to convert the configuration into a scan action tree. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
+		AMErrorMon::alert(this, AMTIMEDSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION, QString("Error, the %1 Scan Action Controller failed to convert the configuration into a scan action tree. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
 }
 
-bool AMRegionScanActionController::isReadyForDeletion() const
+bool AMTimedScanActionController::isReadyForDeletion() const
 {
 	return !fileWriterIsBusy_;
 }
 
-void AMRegionScanActionController::flushCDFDataStoreToDisk()
+void AMTimedScanActionController::flushCDFDataStoreToDisk()
 {
 	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
 	if(dataStore && !dataStore->flushToDisk())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-void AMRegionScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
+void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
 	qDebug() << "Got a file writer error " << error;
 
@@ -146,17 +145,17 @@ void AMRegionScanActionController::onFileWriterError(AMScanActionControllerBasic
 	switch(error){
 
 	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
-		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
+		AMErrorMon::alert(this, AMTIMEDSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
 	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
-		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
+		AMErrorMon::alert(this, AMTIMEDSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
 	default:
-		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, the %1 Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
+		AMErrorMon::alert(this, AMTIMEDSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, the %1 Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 	}
@@ -176,13 +175,13 @@ void AMRegionScanActionController::onFileWriterError(AMScanActionControllerBasic
 	box.execWTimeout();
 }
 
-void AMRegionScanActionController::onFileWriterIsBusy(bool isBusy)
+void AMTimedScanActionController::onFileWriterIsBusy(bool isBusy)
 {
 	fileWriterIsBusy_ = isBusy;
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
-bool AMRegionScanActionController::event(QEvent *e)
+bool AMTimedScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
 
@@ -192,6 +191,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 			writeHeaderToFile();
+			scanElapsedTime_.start();
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
@@ -204,6 +204,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
+			currentAxisValue_ = scanElapsedTime_.elapsed();
 
 			break;
 
@@ -223,16 +224,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
 
-			if (!useFeedback_){
-				if(message.value("ControlMovementType") == "Absolute")
-					currentAxisValue_ = message.value("ControlMovementValue").toDouble();
-				else if(message.value("ControlMovementType") == "Relative")
-					currentAxisValue_ += message.value("ControlMovementValue").toDouble();
-			}
-
-			else
-				currentAxisValue_ = message.value("ControlMovementFeedback").toDouble();
-
+			// There are no controls in this scan.
 			break;
 
 		case AMAgnosticDataAPIDefinitions::InvalidMessage:
@@ -250,7 +242,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 		return AMScanActionController::event(e);
 }
 
-void AMRegionScanActionController::writeHeaderToFile()
+void AMTimedScanActionController::writeHeaderToFile()
 {
 	AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
 	QString separator = "|!|!|";
@@ -281,7 +273,7 @@ void AMRegionScanActionController::writeHeaderToFile()
 	emit requestWriteToFile(0, rank1String);
 }
 
-void AMRegionScanActionController::writeDataToFiles()
+void AMTimedScanActionController::writeDataToFiles()
 {
 	QString rank1String;
 	QString rank2String;

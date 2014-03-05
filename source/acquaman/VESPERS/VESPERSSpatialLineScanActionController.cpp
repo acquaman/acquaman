@@ -1,11 +1,10 @@
 #include "VESPERSSpatialLineScanActionController.h"
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/AMLineScan.h"
 #include "actions3/AMListAction3.h"
 #include "application/AMAppControllerSupport.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "dataman/AMLineScan.h"
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
-#include "application/AMAppControllerSupport.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
@@ -35,7 +34,6 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
-
 
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 

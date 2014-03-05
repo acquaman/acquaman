@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXASScanActionController.h"
 
- VESPERSEXAFSScanConfiguration::~VESPERSEXAFSScanConfiguration(){}
+VESPERSEXAFSScanConfiguration::~VESPERSEXAFSScanConfiguration(){}
+
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	: AMEXAFSScanConfiguration(parent), VESPERSScanConfiguration()
 {

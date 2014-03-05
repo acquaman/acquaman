@@ -1,33 +1,40 @@
-#include "VESPERSXASScanActionController.h"
+#include "VESPERS2DScanActionController.h"
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
-#include "dataman/export/AMExporterAthena.h"
 #include "application/AMAppControllerSupport.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "dataman/AM2DScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
-VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
-
-VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
+VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
+	: AM2DScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
-	scan_ = new AMXASScan();
+	scan_ = new AM2DScan();
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", configuration_->exportSpectraSources(), true, true, configuration_->exportSpectraInRows());
-	if(vespersDefault->id() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	if (configuration_->exportAsAscii()){
 
-	useFeedback_ = true;
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	}
+
+	else{
+
+		// SMAK format requires a specific spectra file format.
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, true);
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	}
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
@@ -35,8 +42,6 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergySetpoint")->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("KEnergy")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
 
@@ -77,6 +82,17 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
 	}
 
+	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
+
+	if (ccdDetector == VESPERS::Roper)
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+
+	if (ccdDetector == VESPERS::Mar)
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+
+	if (ccdDetector == VESPERS::Pilatus)
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
@@ -91,7 +107,7 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
-void VESPERSXASScanActionController::buildScanControllerImplementation()
+void VESPERS2DScanActionController::buildScanControllerImplementation()
 {
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 	AMXRFDetector *detector = 0;
@@ -115,30 +131,18 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 	}
 }
 
-AMAction3* VESPERSXASScanActionController::createInitializationActions()
+
+AMAction3* VESPERS2DScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(configuration_->detectorConfigurations()));
-
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));
-
-	return initializationAction;
+	return buildBaseInitializationAction(configuration_->detectorConfigurations());
 }
 
-AMAction3* VESPERSXASScanActionController::createCleanupActions()
+AMAction3* VESPERS2DScanActionController::createCleanupActions()
 {
-	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
-
-	AMListAction3 *monoCleanupAction = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
-	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-
-	cleanupAction->addSubAction(monoCleanupAction);
-
-	return cleanupAction;
+	return buildCleanupAction();
 }
 
-void VESPERSXASScanActionController::onScanTimerUpdate()
+void VESPERS2DScanActionController::onScanTimerUpdate()
 {
 	if (elapsedTime_.isActive()){
 
