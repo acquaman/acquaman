@@ -657,6 +657,7 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setTimeStep(config->timeStep());
 		mapScanConfiguration_->setMotor(config->motor());
 		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
+		mapScanConfiguration_->setNormalPosition(config->normalPosition());
 		mapScanConfigurationView_->updateMapInfo();
 	}
 
