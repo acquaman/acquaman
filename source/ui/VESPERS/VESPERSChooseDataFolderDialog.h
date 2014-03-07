@@ -19,8 +19,9 @@ class VESPERSChooseDataFolderDialog : public QDialog
 
 public:
 	/// Constructor.  Builds the dialog.
-	virtual ~VESPERSChooseDataFolderDialog();
 	VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSChooseDataFolderDialog();
 
 	/// Static method that makes and pops up the dialog.  Returns whether it was successful at updating the user settings or not.
 	static bool getDataFolder(QWidget *parent = 0);

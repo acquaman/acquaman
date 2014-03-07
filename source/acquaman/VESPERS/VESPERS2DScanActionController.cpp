@@ -18,6 +18,7 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
+//	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
