@@ -27,6 +27,8 @@
 #include "dataman/AMSamplePlate.h"
 #include "source/beamline/AMBeamline.h"
 
+#include "source/beamline/camera/AMAngle.h"
+
 #include "beamline/camera/AMRotationalOffset.h"
 
 #include <QApplication>
@@ -86,22 +88,27 @@ QPolygonF AMSampleCamera::groupRectangle() const
 	return screenShape(groupRectangle_);
 }
 
+QVector3D AMSampleCamera::motorCoordinate() const
+{
+	return motorCoordinate_;
+}
+
 /// returns motor x coordinate
 double AMSampleCamera::motorX() const
 {
-	return motorCoordinate_.x();
+	return motorCoordinate().x();
 }
 
 /// returns motor y coordinate
 double AMSampleCamera::motorY() const
 {
-	return motorCoordinate_.y();
+	return motorCoordinate().y();
 }
 
 /// returns motor z coordinate
 double AMSampleCamera::motorZ() const
 {
-	return motorCoordinate_.z();
+	return motorCoordinate().z();
 }
 
 /// returns the motor rotation
@@ -180,6 +187,11 @@ QPolygonF AMSampleCamera::samplePlate()
 		return screenShape(subShape(samplePlateShape_));
 	else return QPolygonF();
 
+}
+
+bool AMSampleCamera::useSampleOffset()
+{
+	return useSampleOffset_;
 }
 
 /// return the current name
@@ -391,8 +403,8 @@ void AMSampleCamera::setMotorCoordinate()
 		AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
         if(currentPlate)
         {
-            currentPlate->setPlatePosition(motorCoordinate_);
-            currentPlate->setPlateRotation(motorRotation_);
+			currentPlate->setPlatePosition(motorCoordinate());
+			currentPlate->setPlateRotation(motorRotation());
         }
 }
 
@@ -556,10 +568,15 @@ void AMSampleCamera::setMoveOnShape(bool moveOnShape)
 	moveOnShape_ = moveOnShape;
 }
 
+void AMSampleCamera::setUseSampleOffset(bool useSampleOffset)
+{
+	useSampleOffset_ = useSampleOffset;
+}
+
 void AMSampleCamera::setRotationalOffset(const QVector3D &offset)
 {
 	rotationalOffset_->setRotationalOffset(offset);
-	centerOfRotation_ = motorCoordinate_ + rotationalOffset();
+	centerOfRotation_ = motorCoordinate() + rotationalOffset();
 	emit rotationalOffsetChanged(rotationalOffset());
 }
 
@@ -589,21 +606,21 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	/// sample plate has been loaded out of the database, must correct the positions
 	// get the shift and rotation
 	QVector3D platePosition = plate->platePosition();
-	QVector3D currentPosition = motorCoordinate_;
+	QVector3D currentPosition = motorCoordinate();
 	QVector3D shiftAmount = currentPosition - platePosition;
-	oldRotation_ = plate->plateRotation()/180*M_PI;
+	oldRotation_->setDegrees(plate->plateRotation());
         qDebug()<<"AMSampleCamera::onSamplePlateLoaded - old position"<<platePosition;
         qDebug()<<"AMSampleCamera::onSamplePlateLoaded - cur position"<<currentPosition;
-	qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_;
-	double rotation = motorRotation()/180*M_PI;
+		qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_->radians();
+	AMAngle rotation (motorRotation(), AMAngle::DEG);
 	foreach(AMShapeData* shape, shapeList_)
 	{
 		shape->shift(shiftAmount);
-		shape->setCoordinateShape(applyMotorRotation(shape, rotation));
+		shape->setCoordinateShape(applyMotorRotation(shape, rotation.radians()));
 	}
-	oldRotation_ = rotation;
-	emit motorCoordinateChanged(motorCoordinate_);
-	emit motorRotationChanged(motorRotation_);
+	oldRotation_->setAngle(rotation);
+	emit motorCoordinateChanged(motorCoordinate());
+	emit motorRotationChanged(motorRotation());
 }
 
 /// checks if an index is valid
@@ -814,7 +831,7 @@ void AMSampleCamera::startRectangle(QPointF position)
 		QVector3D widthNormal = getWidthNormal(drawOnShape_);
 		QVector3D normal = getNormal(heightNormal, widthNormal);
 		QVector3D rightNormal = getNormal(normal,heightNormal);
-		QVector3D startPoint = getPointOnShape(position, normal);
+		QVector3D startPoint = getPointOnShape(position, normal, useSampleOffset());
 		coordinate[TOPLEFT] = startPoint;
 		coordinate[TOPRIGHT] = startPoint + 0.01*rightNormal;
 		coordinate[BOTTOMRIGHT] =  startPoint + 0.01*rightNormal - 0.01*heightNormal;
@@ -863,7 +880,7 @@ void AMSampleCamera::finishRectangle(QPointF position)
 	QVector3D bottomLeft;
 	if(drawOnShapeEnabled_ && drawOnShapeSelected_)
 	{
-		bottomRight = getPointOnShape(position,getNormal(drawOnShape_));
+		bottomRight = getPointOnShape(position,getNormal(drawOnShape_), useSampleOffset());
 		topRight = getWidthNormal(drawOnShape_);
 		bottomLeft = QVector3D::normal(topRight,getNormal(drawOnShape_));
 	}
@@ -981,6 +998,7 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		QVector3D shift;
 		if(moveOnShape() && samplePlateSelected_)
 		{
+			/// don't need to offset as just calculating the shift
 			newPosition = getPointOnShape(samplePlateShape_,position);
 			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
 			shift = newPosition - oldPosition;
@@ -1070,6 +1088,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
 	position = undistortPoint(position);
 	AMShapeData* shape;
+
 	if(isValid(currentIndex_))
 	{
 		shape = shapeList_[currentIndex_];
@@ -1080,7 +1099,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	}
 	else return;
 		QVector3D oldCoordinate = shape->coordinate(TOPLEFT);
-		QVector3D currentPosition = getPointOnShape(shape, position);
+		QVector3D currentPosition = getPointOnShape(shape, position);/// don't use sample offset, will either click on sample or plate
 		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 		if(moveToBeam())
 			newPosition = beamIntersectionPoint(currentPosition);
@@ -1100,14 +1119,14 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			if(samplePlateSelected_)
 				shiftCoordinates(shift,samplePlateShape_);
 			motorCoordinate_ += shift;
-			inboardOutboard = motorCoordinate_.x();
-			upStreamDownStream = motorCoordinate_.y();
-			upDown = motorCoordinate_.z();
+			inboardOutboard = motorCoordinate().x();
+			upStreamDownStream = motorCoordinate().y();
+			upDown = motorCoordinate().z();
 
 		}
 		else
 		{
-			shift += motorCoordinate_;
+			shift += motorCoordinate();
 			inboardOutboard = shift.x();
 			upStreamDownStream = shift.y();
 			upDown = shift.z();
@@ -1115,8 +1134,8 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 			moveMotors(inboardOutboard, upStreamDownStream, upDown);
 
 		}
-		emit motorCoordinateChanged(motorCoordinate_);
-		emit motorRotationChanged(motorRotation_);
+		emit motorCoordinateChanged(motorCoordinate());
+		emit motorRotationChanged(motorRotation());
 
 
 }
@@ -1163,7 +1182,7 @@ void AMSampleCamera::finishShape()
 		currentPolygon_[i] = undistortPoint(currentPolygon_.at(i));
 		if(drawOnShapeEnabled_ && drawOnShapeSelected_)
 		{
-			 coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_));
+			 coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_), useSampleOffset());
 		}
 		else
 		{
@@ -1642,7 +1661,7 @@ void AMSampleCamera::setCameraConfigurationShape()
 }
 
 /// Solve for the centre of rotation
-void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints)
+void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<AMAngle *> rotations, const int numberOfPoints)
 {
 	typedef QPair<QVector3D,QVector3D> VectorPair;
 	qDebug()<<"AMSampleCamera::configureRotation";
@@ -1729,7 +1748,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 //	qDebug()<<" rotation is (+,-) "<<rotation<<(-1*rotation);
 //	qDebug()<<"Expected it to be "<<directionOfRotation_;
 
-	QVector3D centreOfRotation = -1*QVector3D(solution(0),solution(1),solution(2));
+	QVector3D centreOfRotation = -1*matrixToVector(solution);
 	qDebug()<<centreOfRotation;
 	setRotationalOffset(centreOfRotation);
 	updateView();
@@ -1954,8 +1973,8 @@ void AMSampleCamera::motorTracking(double)
 	double motorX = ssaManipulatorX_->value();
 	double motorZ = ssaManipulatorZ_->value();
 	double motorY = ssaManipulatorY_->value();
-	double motorRotation = ssaManipulatorRot_->value();
-	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance && fabs(motorRotation-motorRotation_) < tolerance)
+	double currentMotorRotation = ssaManipulatorRot_->value();
+	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance && fabs(currentMotorRotation-motorRotation()) < tolerance)
 	{
 		return;
 	}
@@ -2038,7 +2057,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	emit rotationalOffsetChanged(rotationalOffset());
 
-	oldRotation_ = 0;
+	oldRotation_->setRadians(0);
 	samplePlateShape_ = 0; //NULL
 
 
@@ -2168,7 +2187,7 @@ void AMSampleCamera::applyMotorRotation(int index, double rotation)
 
 QVector<QVector3D> AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
 {
-	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_)->coordinates();
+	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_->radians())->coordinates();
 }
 
 
@@ -2225,6 +2244,11 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 /// \param rotation: the amount to rotate by, in radians
 QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const
 {
+	/// try using a matrix approach instead, it is much cleaner and easier to follow
+	return rotateCoordinateByMatrix(coordinate, center, direction, rotation);
+	/// not sure if the approach below is correct, it is based off the the general
+	/// rotation matrix, but since it is done without any matrices, it is hard
+	/// to find errors.
 	double u = direction.x();
 	double v = direction.y();
 	double w = direction.z();
@@ -2291,6 +2315,18 @@ QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D cente
 
 }
 
+QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const
+{
+	MatrixXd rotationMatrix = constructRotationMatrix(direction,rotation);
+	/// subtract the centre of rotation to the coordinate to shift the frame
+		// the rotation matrix is centred at 0, so must shift
+	MatrixXd originalPosition = vectorToMatrix(coordinate - center);
+	MatrixXd newPosition = rotationMatrix * originalPosition;
+	/// add center back to shift back to 0-centered coordinates
+	QVector3D newCoordinate = matrixToVector(newPosition) + center;
+	return newCoordinate;
+}
+
 /// applies rotation, tilt, and distortion to the shape
 QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 {
@@ -2314,7 +2350,7 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
 	}
 
-//	if(motorRotation_ != 0)
+//	if(motorRotation() != 0)
 //	{
 //		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
 //	}
@@ -2381,7 +2417,7 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 	QVector3D directionOfRotation = QVector3D(0,0,1);
 	centerOfRotation_ = centerOfRotation;
 	directionOfRotation_ = directionOfRotation;
-	double rotation = r/180*M_PI;
+	AMAngle rotation (r); // default is degrees
 
 
 	for(int i = 0; i <= index_; i++)
@@ -2389,18 +2425,18 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 		if(shapeList_[i] != beamMarkers_[0] && shapeList_[i] != beamMarkers_[1] && shapeList_[i] != beamMarkers_[2])
 		{
 			shiftCoordinates(shift,i);
-			applyMotorRotation(i, rotation);
+			applyMotorRotation(i, rotation.radians());
 			updateShape(i);
 		}
 	}
 	if(samplePlateSelected_)
 	{
 		shiftCoordinates(shift,samplePlateShape_);
-		samplePlateShape_->setCoordinateShape(applyMotorRotation(samplePlateShape_, rotation));
+		samplePlateShape_->setCoordinateShape(applyMotorRotation(samplePlateShape_, rotation.radians()));
 		updateShape(samplePlateShape_);
 	}
 
-	oldRotation_ = rotation;
+	oldRotation_->setAngle(rotation);
 
 
 }
@@ -2654,12 +2690,12 @@ QVector3D AMSampleCamera::getNormal(const AMShapeData* shape) const
 	return getNormal(getHeightNormal(shape),getWidthNormal(shape));
 }
 
-QVector3D AMSampleCamera::getPointOnShape(const QPointF &position, const QVector3D &nHat) const
+QVector3D AMSampleCamera::getPointOnShape(const QPointF &position, const QVector3D &nHat, bool useOffset) const
 {
-	return getPointOnShape(drawOnShape_, position, nHat);
+	return getPointOnShape(drawOnShape_, position, nHat, useOffset);
 }
 
-QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPointF &position, const QVector3D &nHat) const
+QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPointF &position, const QVector3D &nHat, bool useOffset) const
 {
 	/// figure out line
 	/// pick a depth to use, doesn't really matter what it is
@@ -2687,12 +2723,16 @@ QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPoint
 	}
 	QVector3D pointOnShape = l0 + distance*lVector;
 	/// add offset.
-	return pointOnShape + sampleOffset_*nHat;
+	if(useOffset)
+	{
+		pointOnShape += sampleOffset_*nHat;
+	}
+	return pointOnShape;
 }
 
-QVector3D AMSampleCamera::getPointOnShape(const AMShapeData* shape, const QPointF &position) const
+QVector3D AMSampleCamera::getPointOnShape(const AMShapeData* shape, const QPointF &position, bool useOffset) const
 {
-	return getPointOnShape(shape,position,getNormal(shape));
+	return getPointOnShape(shape,position,getNormal(shape), useOffset);
 }
 
 QVector3D AMSampleCamera::downVector() const
@@ -2952,14 +2992,14 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 
 	QVector<QVector3D> centreOfRotations;
 	QVector3D unitRotation;
-	QVector<double> referenceRotations;
+	QVector<AMAngle *> referenceRotations;
 	QVector<QVector3D> lnx;
 	QVector<QVector3D> lny;
 	QVector<QVector3D> lnz;
 
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		referenceRotations<<(rotations.at(i)-rotations.first())*M_PI/180;
+		referenceRotations<<new AMAngle(rotations.at(i)-rotations.first(), AMAngle::DEG);// assign in degrees
 	}
 
 	unitRotation = directionOfRotation_.normalized();
@@ -2971,9 +3011,14 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 
 	for(int i = 0 ; i < numberOfPoints; i++)
 	{
-		lnx<<findRotationMatrixXRow(unitRotation,referenceRotations.at(i));
-		lny<<findRotationMatrixYRow(unitRotation,referenceRotations.at(i));
-		lnz<<findRotationMatrixZRow(unitRotation,referenceRotations.at(i));
+		lnx<<findRotationMatrixXRow(unitRotation,referenceRotations.at(i)->radians());
+		lny<<findRotationMatrixYRow(unitRotation,referenceRotations.at(i)->radians());
+		lnz<<findRotationMatrixZRow(unitRotation,referenceRotations.at(i)->radians());
+	}
+	/// delete the angles when done with them
+	foreach(AMAngle *angle, referenceRotations)
+	{
+		delete angle;
 	}
 
 
@@ -3194,6 +3239,19 @@ QVector3D AMSampleCamera::findRotationMatrixZRow(QVector3D rotationVector, doubl
 	return rotationParameter;
 }
 
+MatrixXd AMSampleCamera::constructRotationMatrix(QVector3D rotationVector, double angleOfRotation) const
+{
+	MatrixXd rotationMatrix (3,3);
+	QVector3D rotationMatrixX = findRotationMatrixXRow(rotationVector,angleOfRotation);
+	QVector3D rotationMatrixY = findRotationMatrixYRow(rotationVector,angleOfRotation);
+	QVector3D rotationMatrixZ = findRotationMatrixZRow(rotationVector,angleOfRotation);
+
+	rotationMatrix<<	rotationMatrixX.x(),rotationMatrixX.y(), rotationMatrixX.z(),
+						rotationMatrixY.x(),rotationMatrixY.y(), rotationMatrixY.z(),
+						rotationMatrixZ.x(),rotationMatrixZ.y(), rotationMatrixZ.z();
+	return rotationMatrix;
+}
+
 /// returns a base point and a unit vector that defines a line that appears at point "point" on the camera
 QPair<QVector3D, QVector3D> AMSampleCamera::findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference)
 {
@@ -3208,18 +3266,13 @@ QPair<QVector3D, QVector3D> AMSampleCamera::findScreenVector(QPointF point, QVec
 
 }
 
-MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints)
+MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints)
 {
 	const int dimensions = 3;
-	// convert rotations to radians
-	QVector<double> angles;
+
 
 	qDebug()<<"AMSampleCamera::constructCentreOfRotationMatrix";
 
-	foreach (double rotation, rotations)
-	{
-		angles<<degreesToRadians(rotation);
-	}
 
 	QVector3D rotationVector = directionOfRotation_;
 
@@ -3227,90 +3280,16 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<double> &
 	for(int i = 0; i < numberOfPoints; i++)
 	{
 		QVector<QVector3D> newVector;
-		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i));// - rotations.at(0));
-		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i));// - rotations.at(0));
-		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i));// - rotations.at(0));
+		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i)->radians());
+		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i)->radians());
+		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i)->radians());
 		rotationRows<<newVector;
 	}
 
-
-//	int rows = dimensions*numberOfPoints + dimensions; // implied first point
-//	int rows = dimensions * numberOfPoints;
-//	int cols = 2*dimensions + numberOfPoints; // this holds either way, since with implied point there is no t0
 	int rows = dimensions * numberOfPoints;
 	int cols = dimensions + numberOfPoints;
 
 	MatrixXd matrix = MatrixXd::Zero(rows,cols);
-//	/// this part is the same, doesn't depend on number of points (always +1 points anyway)
-//	matrix(0,0) = 1;	matrix(0,3) = 1;
-//	matrix(1,1) = 1;	matrix(1,4) = 1;
-//	matrix(2,2) = 1;	matrix(2,5) = 1;
-
-	/// build this dynamically using angles and rotations, and vectors.
-//	for(int i = 0; i < rows; i++)
-//	{
-//		for(int j = 0; j < cols; j++)
-//		{
-//			if(j < dimensions)
-//			{
-//				/// centre of rotation is the first three columns
-//				/// each equations starts with CoR (3 by 3 Identity matrix)
-
-//				if(i%dimensions == j%dimensions)
-//				{
-//					matrix(i,j) = 1;
-//				}
-//
-//			}
-//			else if(j < 2*dimensions)
-//			{
-//				/// next section is rotation
-//				int index = i/dimensions - 1; /// have to subtract one to account for implied point
-////				int index = i / dimensions; // point number
-//				int subRow = i%dimensions; // the x, y, or z component of the rotation
-//				int element = j%dimensions; // the part of the component that depends on the x, y, or z, element of l0
-//				QVector3D rotationSection = rotationRows.at(index).at(subRow);// point index, part subRow (of x=0, y=1  or z=2)(see assignment of rotationRows above)
-//				switch(element)
-//				{
-//				case 0:
-//					matrix(i,j) = rotationSection.x();
-//					break;
-//				case 1:
-//					matrix(i,j) = rotationSection.y();
-//					break;
-//				case 2:
-//					matrix(i,j) = rotationSection.z();
-//					break;
-
-//				}
-//			}
-//			else
-//			{
-//				/// tnVn parts
-//				int rowIndex = i/dimensions - 1; // implied point is not included, subtract one
-////				int rowIndex = i / dimensions;
-//				int colIndex = j-2*dimensions; // subtract the first parts off (CoR and l0)
-//				if(rowIndex == colIndex) // if point number down == point number across
-//				{
-//					int rowElement = i%3;
-//					QVector3D element = -1*vectors.at(rowIndex);
-//					switch(rowElement)
-//					{
-//					case 0:
-//						matrix(i,j) = element.x();
-//						break;
-//					case 1:
-//						matrix(i,j) = element.y();
-//						break;
-//					case 2:
-//						matrix(i,j) = element.z();
-//						break;
-//					}
-//				}
-
-//			}
-//		}
-//	}
 
 	for(int i = 0; i < rows; i++)
 	{
@@ -3447,25 +3426,35 @@ MatrixXd AMSampleCamera::solveCentreOfRotationMatrix(MatrixXd coeffMatrix, Matri
 	return solution;
 }
 
-double AMSampleCamera::degreesToRadians(double degrees)
-{
-	return degrees*M_PI/180.0;
-}
 
-double AMSampleCamera::radiansToDegrees(double radians)
-{
-	return radians*180.0/M_PI;
-}
-
+/// computes the SVD least squares solution
 MatrixXd AMSampleCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 {
 	return camera_->computeSVDLeastSquares(A,Y);
 }
 
+/// computes the SVD homogenous solution for the largest singular value
 MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	// solution is first column of V matrix - solution for maximum singular value of m
 	return camera_->computeSVDHomogenous(leftHandSide);
+}
+
+MatrixXd AMSampleCamera::vectorToMatrix(QVector3D vector) const
+{
+	MatrixXd vectorMatrix (3,1);
+	vectorMatrix<< vector.x(),vector.y(),vector.z();
+	return vectorMatrix;
+}
+
+QVector3D AMSampleCamera::matrixToVector(MatrixXd matrix) const
+{
+	// need at least three rows
+	if(matrix.rows() < 3)
+	{
+		return QVector3D(0,0,0);
+	}
+	return QVector3D(matrix(0), matrix(1), matrix(2));
 }
 
 void AMSampleCamera::debugPrintMatrix(const Eigen::MatrixXd matrix) const
