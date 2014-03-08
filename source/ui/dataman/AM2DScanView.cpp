@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPrintDialog>
+
 
  AM2DScanBar::~AM2DScanBar(){}
 AM2DScanBar::AM2DScanBar(QWidget *parent)
@@ -543,6 +545,25 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 		painter.end();
 		image.save(fileName);
 	}
+}
+
+void AM2DScanView::printGraphics()
+{
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
+
+		QPrintDialog *dialog = new QPrintDialog(&printer, this);
+		    dialog->setWindowTitle(tr("Print Spectra"));
+		    if (dialog->exec() != QDialog::Accepted)
+			return;
+
+		QPainter painter(&printer);
+		gExclusiveView_->render(&painter);
+
+		painter.end();
+
 }
 
 // AM2DScanViewInternal

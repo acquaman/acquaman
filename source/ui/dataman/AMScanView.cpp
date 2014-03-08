@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QGroupBox>
 #include <QStringBuilder>
+#include <QPrintDialog>
 
 AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
 	: QWidget(parent) {
@@ -2173,6 +2174,27 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 		painter.end();
 		image.save(fileName);
 	}
+}
+
+void AMScanView::printGraphics()
+{
+
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
+
+		QPrintDialog *dialog = new QPrintDialog(&printer, this);
+		    dialog->setWindowTitle(tr("Print Spectra"));
+		    if (dialog->exec() != QDialog::Accepted)
+			return;
+
+		QPainter painter(&printer);
+		gview_->render(&painter);
+
+		painter.end();
+
+
 }
 
 QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)

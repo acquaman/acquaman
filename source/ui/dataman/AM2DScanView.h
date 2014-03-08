@@ -161,6 +161,8 @@ public slots:
 
 	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it exists.
 	void exportGraphicsFile(const QString& outputFileName);
+	void printGraphics();
+
 
 
 signals:

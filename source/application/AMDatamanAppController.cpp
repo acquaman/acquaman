@@ -744,6 +744,11 @@ bool AMDatamanAppController::startupInstallActions()
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
 
+	printGraphicsAction_ = new QAction("Print Plot...", mw_);
+	printGraphicsAction_->setStatusTip("Print the current plot.");
+	connect(printGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionPrintGraphics()));
+
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -758,6 +763,7 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(exportGraphicsAction_);
+	fileMenu_->addAction(printGraphicsAction_);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
@@ -822,6 +828,8 @@ void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
+	printGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
+
 }
 
 void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
@@ -1361,6 +1369,19 @@ void AMDatamanAppController::onActionExportGraphics()
 
 	if(scanEditor) {
 		scanEditor->exportGraphicsToFile();
+	}
+	else {
+		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.
+		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
+	}
+}
+
+void AMDatamanAppController::onActionPrintGraphics()
+{
+	AMGenericScanEditor* scanEditor = qobject_cast<AMGenericScanEditor*>(mw_->currentPane());
+
+	if(scanEditor) {
+		scanEditor->printGraphics();
 	}
 	else {
 		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.

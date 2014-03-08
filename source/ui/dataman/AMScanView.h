@@ -178,6 +178,10 @@ public slots:
 	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it already exists.
 	void exportGraphicsFile(const QString& outputFileName);
 
+	/// Print the current view via print dialog.
+	void printGraphics();
+
+
 	/// Set the visibility of the data-source button bars.
 	void setScanBarsVisible(bool areVisible);
 
