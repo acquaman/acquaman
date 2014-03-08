@@ -69,6 +69,8 @@ public:
 
         /// Returns the monochromator control for the beamline.
         AMControl *monoEnergyControl() const { return monoEnergy_; }
+	AMControl *monoDirectEnergyControl() const { return monoDirectEnergy_; }
+
         /// \todo THESE NEED TO BE COMMENTED!
         AMControl *monoCrystal() const { return monoCrystal_; }
         AMControl *monoHighEV() const { return monoHighEV_; }
@@ -130,6 +132,7 @@ protected:
 
 	/// Control for the mono
 		IDEASMonochromatorControl *monoEnergy_;
+		IDEASDirectMonochromatorControl *monoDirectEnergy_;
 	/// Control for the master dwell time on the synchronized dwell time application
 	AMPVControl *masterDwell_;
         /// Control for the mode of the IDEAS Ammeter Group
