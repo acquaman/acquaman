@@ -1,30 +1,40 @@
-#include "VESPERSSpatialLineScanActionController.h"
+#include "VESPERS2DScanActionController.h"
 
 #include "actions3/AMListAction3.h"
 #include "application/AMAppControllerSupport.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/AMLineScan.h"
-#include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
+#include "dataman/AM2DScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
-VESPERSSpatialLineScanActionController::~VESPERSSpatialLineScanActionController(){}
-
-VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(VESPERSSpatialLineScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
+VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
+	: AM2DScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
-	scan_ = new AMLineScan();
+	scan_ = new AM2DScan();
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
-	if(vespersDefault->id() > 0)
-		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	if (configuration_->exportAsAscii()){
+
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	}
+
+	else{
+
+		// SMAK format requires a specific spectra file format.
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, true);
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
+	}
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
@@ -97,7 +107,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
-void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
+void VESPERS2DScanActionController::buildScanControllerImplementation()
 {
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 	AMXRFDetector *detector = 0;
@@ -121,17 +131,18 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 	}
 }
 
-AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
+
+AMAction3* VESPERS2DScanActionController::createInitializationActions()
 {
 	return buildBaseInitializationAction(configuration_->detectorConfigurations());
 }
 
-AMAction3* VESPERSSpatialLineScanActionController::createCleanupActions()
+AMAction3* VESPERS2DScanActionController::createCleanupActions()
 {
 	return buildCleanupAction();
 }
 
-void VESPERSSpatialLineScanActionController::onScanTimerUpdate()
+void VESPERS2DScanActionController::onScanTimerUpdate()
 {
 	if (elapsedTime_.isActive()){
 

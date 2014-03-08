@@ -22,11 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <cmath>
 
-#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
+//#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
+#include "acquaman/VESPERS/VESPERS2DScanActionController.h"
 
+VESPERS2DScanConfiguration::~VESPERS2DScanConfiguration(){}
 
- VESPERS2DScanConfiguration::~VESPERS2DScanConfiguration(){}
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	: AM2DScanConfiguration(parent), VESPERSScanConfiguration()
 {
@@ -80,7 +81,10 @@ AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
 AMScanController *VESPERS2DScanConfiguration::createController()
 {
 //	return new VESPERS2DDacqScanController(this);
-	return 0; //NULL
+	AMScanActionController *controller = new VESPERS2DScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERS2DScanConfiguration::createView()

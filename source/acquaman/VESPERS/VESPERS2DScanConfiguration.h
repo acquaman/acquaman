@@ -46,10 +46,11 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration, public VESPERSS
 
 public:
 	/// Constructor.
- 	virtual ~VESPERS2DScanConfiguration();
 	Q_INVOKABLE VESPERS2DScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
 	VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERS2DScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

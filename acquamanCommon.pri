@@ -645,7 +645,10 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
 	source/acquaman/AM2DScanActionController.h \
-    source/acquaman/AMScanActionControllerBasicFileWriter.h
+    source/acquaman/AMScanActionControllerBasicFileWriter.h \
+    source/acquaman/AMTimedScanActionController.h \
+    source/acquaman/AMTimedRegionScanConfiguration.h \
+    source/acquaman/AMTimedScanConfigurationConverter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1056,7 +1059,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \
 	source/acquaman/AM2DScanActionController.cpp \
-    source/acquaman/AMScanActionControllerBasicFileWriter.cpp
+    source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
+    source/acquaman/AMTimedScanActionController.cpp \
+    source/acquaman/AMTimedRegionScanConfiguration.cpp \
+    source/acquaman/AMTimedScanConfigurationConverter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1080,6 +1086,16 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
 
 
 
