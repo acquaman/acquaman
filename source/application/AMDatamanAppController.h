@@ -241,6 +241,10 @@ The Drag is accepted when:
 
 	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
 	void onActionExportGraphics();
+	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
+	void onActionPrintGraphics();
+
+
 
 protected slots:
 
@@ -321,6 +325,8 @@ protected:
 	QMenu *fileMenu_, *helpMenu_;
 	/// The action that triggers saving the current AMScanView image.
 	QAction* exportGraphicsAction_;
+	QAction* printGraphicsAction_;
+
 
 	/// Top-level panes in the main window
 	AMBottomPanel *bottomPanel_;

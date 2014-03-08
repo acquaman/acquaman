@@ -225,7 +225,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
-	if(!rv.isValid()) {
+        if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
 		double newVal = 0.0;	/// \todo preserve int/double nature of values
 		if(sumAxis_ == 0)
 			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
@@ -258,6 +258,9 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
 #endif
+
+        if (sumRangeMin_ > sumRangeMax_)
+            return false;
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	int offset = indexStart.i();

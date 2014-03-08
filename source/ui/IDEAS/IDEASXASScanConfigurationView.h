@@ -26,9 +26,12 @@ protected:
 	AMTopFrame *topFrame_;
 	AMRegionsView *regionsView_;
         QPushButton *autoRegionButton_;
+	QPushButton *pseudoXAFSButton_;
+
 
 protected slots:
         void onAutoRegionButtonClicked();
+	void onXAFSRegionButtonClicked();
 };
 
 #endif // IDEASXASSCANCONFIGURATIONVIEW_H

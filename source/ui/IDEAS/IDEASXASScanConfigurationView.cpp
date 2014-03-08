@@ -18,13 +18,24 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
         regionsView_ = new AMRegionsView(configuration_->regions(), this);
 
-        autoRegionButton_ = new QPushButton("Auto Set Regions");
+	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
         connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(onAutoRegionButtonClicked()));
+
+	pseudoXAFSButton_ = new QPushButton("Auto Set XAFS Regions");
+	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
+
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
 	mainVL->addWidget(regionsView_);
-        mainVL->addWidget(autoRegionButton_);
+
+	QHBoxLayout *regionsHL = new QHBoxLayout();
+	regionsHL->addStretch();
+	regionsHL->addWidget(autoRegionButton_);
+	regionsHL->addWidget(pseudoXAFSButton_);
+
+	mainVL->addStretch();
+	mainVL->addLayout(regionsHL);
 
 	mainVL->setContentsMargins(0,0,0,0);
 	mainVL->setSpacing(1);
@@ -57,7 +68,43 @@ void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
         configuration_->addRegion(2, edgeEnergy + 40 , 5, edgeEnergy + 300, 1);
 
     }
+}
 
+void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
+{
+    bool ok;
+    bool ok2;
+    double edgeEnergy = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+
+    double kValue = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Scan out to k = " ,9 ,0 , 99,1,&ok2);
+
+    if(ok && ok2)
+    {
+	while (configuration_->regionCount() != 0)
+    	    configuration_->deleteRegion(0);
+
+	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
+	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 40, 1);
+
+	double maxE = 3.80998 * kValue * kValue + edgeEnergy;
+
+	qDebug() << "maxE = " << maxE;
+
+	double E = edgeEnergy + 40;
+	int region = 2;
+	double regionSize = 50;
+
+	while (E + regionSize < maxE)
+	{
+	    configuration_->addRegion(region++, E, 2, E+regionSize, 1);
+	    E+=regionSize;
+	}
+
+
+	configuration_->addRegion(region, E, 2, floor(maxE), 1);
+
+
+    }
 
 
 }
