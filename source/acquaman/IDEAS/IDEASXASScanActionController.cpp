@@ -70,7 +70,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
     QList<AMDataSource*> raw1DDataSources;
     for(int i=0; i<scan_->rawDataSources()->count(); i++)
-            if(scan_->rawDataSources()->at(i)->rank() == 1)
+	    if(scan_->rawDataSources()->at(i)->rank() == 1)
                     raw1DDataSources << scan_->rawDataSources()->at(i);
 
     int rawIvacIndex = scan_->rawDataSources()->indexOfKey("I_vac");
@@ -110,11 +110,11 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
         sumAb->setDescription("XRFSum");
         sumAb->setInputDataSources(raw2DDataSources);
         sumAb->setSumAxis(1);
-//        sumAb->setSumRangeMin(350);
-//        sumAb->setSumRangeMin(1500);
+	sumAb->setSumRangeMin(350);
+	sumAb->setSumRangeMax(1500);
         scan_->addAnalyzedDataSource(sumAb);
 
-          QList<AMDataSource*> all1DDataSources;
+	  QList<AMDataSource*> all1DDataSources;
 
 
         for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
@@ -161,7 +161,7 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 			initializationStage1->addSubAction(syncDwell->elementAt(x)->createEnableAction3(true));
 	}
 
-        tmpControl = IDEASBeamline::ideas()->monoEnergyControl();
+	tmpControl = IDEASBeamline::ideas()->monoDirectEnergyControl();
         AMControlInfo monoEnergy = tmpControl->toInfo();
 
         double startE = configuration_->startEnergy();
@@ -230,6 +230,13 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
     moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
     cleanupActions->addSubAction(moveAction);
 
+    tmpControl = IDEASBeamline::ideas()->masterDwellControl();
+    AMControlInfo masterDwell = tmpControl->toInfo();
+    masterDwell.setValue(1);
+    moveActionInfo = new AMControlMoveActionInfo3(masterDwell);
+    moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+    cleanupActions->addSubAction(moveAction);
+
     return cleanupActions;
 }
 
@@ -237,4 +244,13 @@ void IDEASXASScanActionController::onSyncDwellStatusChanged(bool unused){
     Q_UNUSED(unused);
     if(isRunning())
         pokeSyncDwell_->start();
+}
+
+void IDEASXASScanActionController::cancelImplementation(){
+
+    AMAction3 *cleanupActions = createCleanupActions();
+
+    cleanupActions->start();
+
+    AMScanActionController::cancelImplementation();
 }
