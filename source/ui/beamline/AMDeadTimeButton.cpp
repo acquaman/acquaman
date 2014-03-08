@@ -3,7 +3,8 @@
 #include <QPainter>
 #include <QStyleOption>
 
- AMDeadTimeButton::~AMDeadTimeButton(){}
+AMDeadTimeButton::~AMDeadTimeButton(){}
+
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent)
 	: QToolButton(parent)
 {
@@ -18,7 +19,7 @@ AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource 
 
 void AMDeadTimeButton::onDeadTimeUpdated()
 {
-	setToolTip(QString("%1%").arg((1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())))));
+	setToolTip(QString("%1%").arg(100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex()))), 0, 'f', 0));
 	update();
 }
 
@@ -36,9 +37,10 @@ void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 
 	if (!isEnabled())
 		option.palette = QPalette(Qt::black, QColor(170, 170, 170, 100), Qt::gray, Qt::gray, QColor(170, 170, 170), Qt::gray, Qt::gray, Qt::gray, QColor(170, 170, 170));
+
 	else if (!isChecked()){
 
-		double newValue = (1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
+		double newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
 
 		if (newValue < goodReferencePoint_)
 			option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
@@ -47,6 +49,7 @@ void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 		else
 			option.palette = QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0));
 	}
+
 	else
 		option.palette = QPalette(Qt::black, QColor(225, 225, 225, 100), Qt::gray, Qt::gray, QColor(225, 225, 225), Qt::gray, Qt::gray, Qt::gray, QColor(225, 225, 225));
 

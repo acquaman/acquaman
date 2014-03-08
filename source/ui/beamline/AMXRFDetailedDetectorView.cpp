@@ -77,7 +77,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements; i++){
+	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements && deadTimeEnabled; i++){
 
 		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 		deadTimeButton->setCheckable(true);
@@ -731,7 +731,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-        deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
+		deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()

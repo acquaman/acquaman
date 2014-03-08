@@ -75,11 +75,6 @@ bool VESPERSSingleElementVortexDetector::setReadMode(AMDetectorDefinitions::Read
 	return false;
 }
 
-//const double *VESPERSSingleElementVortexDetector::data() const
-//{
-//	return 0;
-//}
-
 void VESPERSSingleElementVortexDetector::setMaximumEnergy(double energy)
 {
 	if (maximumEnergyControl_->value() != energy)
