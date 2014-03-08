@@ -517,8 +517,8 @@ protected:
 	AMShapeData* applySpecifiedRotation(const AMShapeData* shape, AxisDirection direction) const;
 
 	/// general rotation of a point about a point along the direction
-	QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const;
-	QVector3D rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const;
+	QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const;
+	QVector3D rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const;
 
 
 	/// rotates, tilts, and distorts the shape at index

@@ -1,7 +1,6 @@
 #ifndef AMANGLE_H
 #define AMANGLE_H
 
-#include <QObject>
 
 
 /// AMAngle represents an angle
@@ -9,24 +8,24 @@
 /// needed and forces accesses to
 /// request type (degrees, radians, ...)
 
-class AMAngle : public QObject
+class AMAngle
 {
-	Q_OBJECT
 public:
 	enum angleState {DEG, RAD};
-	explicit AMAngle(QObject *parent = 0);
-	AMAngle(double value, angleState state = DEG, QObject *parent = 0);
+	explicit AMAngle();
+	AMAngle(double value, angleState state = DEG);
+	AMAngle(const AMAngle& angle);
 
 	double radians();
 	double degrees();
 
+	double getDegrees() const;
+
 	/// conversion functions
-	double radToDeg(double angle);
-	double degToRad(double angle);
+	double radToDeg(double angle) const;
+	double degToRad(double angle) const;
 	
-signals:
-	
-public slots:
+
 	/// set angle in radians
 	void setRadians(double angle);
 	/// set angle in pi radians (specify multiple of pi)
@@ -37,8 +36,8 @@ public slots:
 	void setAngle(AMAngle &angle);
 
 protected:
-	angleState  state();
-	double angle();
+	angleState  state() const;
+	double angle() const;
 
 	void setState(angleState state);
 	void setAngle(double angle);

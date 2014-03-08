@@ -764,6 +764,12 @@ void AMSampleCameraView::rotationConfiguration()
 
 	shapeModel_->configureRotation( coordinates, points, rotations, rotationWizard_->numberOfPoints());
 	shapeModel_->saveRotationalOffset();
+
+	foreach(AMAngle *angle, rotations)
+	{
+		delete angle;
+	}
+
 //	delete rotationWizard_;
 //	rotationWizard_ = NULL;
 }

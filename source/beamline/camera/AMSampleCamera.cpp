@@ -2197,7 +2197,7 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData *shape, QV
 	newShape->copy(shape);
 	for(int i = 0; i < newShape->count(); i++)
 	{
-		newShape->setCoordinate(rotateCoordinate(newShape->coordinate(i),centre,direction,angle),i);
+		newShape->setCoordinate(rotateCoordinate(newShape->coordinate(i),centre,direction,AMAngle(angle,AMAngle::RAD)),i);
 	}
 	return newShape;
 }
@@ -2242,7 +2242,7 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 /// \param center: the point about which to rotate the coordinate
 /// \param direction: the direction of the axis of rotation
 /// \param rotation: the amount to rotate by, in radians
-QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const
+QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const
 {
 	/// try using a matrix approach instead, it is much cleaner and easier to follow
 	return rotateCoordinateByMatrix(coordinate, center, direction, rotation);
@@ -2262,7 +2262,7 @@ QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D cente
 	/// to simplify the math, they will be computed as 3D vectors
 	/// the xyz components will be the dot product of the terms with the trig terms
 
-	QVector3D trigTerms(1-cos(rotation),cos(rotation),sin(rotation));
+	QVector3D trigTerms(1-cos(rotation.radians()),cos(rotation.radians()),sin(rotation.radians()));
 
 	/// as well, all terms contain a -coordinate.direction component
 
@@ -2315,9 +2315,9 @@ QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D cente
 
 }
 
-QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const
+QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const
 {
-	MatrixXd rotationMatrix = constructRotationMatrix(direction,rotation);
+	MatrixXd rotationMatrix = constructRotationMatrix(direction,rotation.radians());
 	/// subtract the centre of rotation to the coordinate to shift the frame
 		// the rotation matrix is centred at 0, so must shift
 	MatrixXd originalPosition = vectorToMatrix(coordinate - center);

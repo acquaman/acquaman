@@ -3,18 +3,21 @@
 #include <QDebug>
 #include <math.h>
 
-AMAngle::AMAngle(QObject *parent) :
-	QObject(parent)
+AMAngle::AMAngle()
 {
 	setState(DEG);
 	setAngle(0);
 }
 
-AMAngle::AMAngle(double value, AMAngle::angleState state, QObject *parent) :
-	QObject(parent)
+AMAngle::AMAngle(double value, AMAngle::angleState state)
 {
 	setState(state);
 	setAngle(value);
+}
+
+AMAngle::AMAngle(const AMAngle& angle)
+{
+	setDegrees(angle.getDegrees());
 }
 
 double AMAngle::radians()
@@ -61,14 +64,34 @@ double AMAngle::degrees()
 	}
 }
 
+double AMAngle::getDegrees() const
+{
+	if(state() == DEG)
+	{
+		return angle();
+	}
+	else
+	{
+		if(state() == RAD)
+		{
+			return radToDeg(angle());
+		}
+		else
+		{
+			qDebug()<<"AMAngle::getDegrees - unkown state";
+			return 0;
+		}
+	}
+}
+
 /// converts radians to degrees
-double AMAngle::radToDeg(double angle)
+double AMAngle::radToDeg(double angle) const
 {
 	return 180.0*angle/M_PI;
 }
 
 /// converts degrees to radians
-double AMAngle::degToRad(double angle)
+double AMAngle::degToRad(double angle) const
 {
 	return M_PI*angle/180.0;
 }
@@ -100,12 +123,12 @@ void AMAngle::setAngle(AMAngle &angle)
 	setDegrees(angle.degrees());// arbitarary, could do radians as well
 }
 
-AMAngle::angleState AMAngle::state()
+AMAngle::angleState AMAngle::state() const
 {
 	return state_;
 }
 
-double AMAngle::angle()
+double AMAngle::angle() const
 {
 	return angle_;
 }
