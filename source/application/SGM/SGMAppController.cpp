@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
+#include "ui/actions3/AMWorkflowView3.h"
+
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
@@ -95,6 +97,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSPGTDetectorV2.h"
 #include "ui/SGM/SGMAdvancedMirrorView.h"
+
+#include "actions3/actions/AMControlMoveAction3.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -604,6 +608,15 @@ void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *d
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE,  "Waiting");
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
+	}
+}
+
+void SGMAppController::onWorkflowActionAddedFromDialog(AMAction3 *action){
+	AMControlMoveAction3 *controlMoveAction = qobject_cast<AMControlMoveAction3*>(action);
+	if(controlMoveAction){
+		AMControlMoveActionInfo3 *controlMoveActionInfo = qobject_cast<AMControlMoveActionInfo3*>(controlMoveAction->info());
+		if(controlMoveActionInfo)
+			controlMoveActionInfo->setIsRelativeMove(true);
 	}
 }
 
@@ -1405,6 +1418,8 @@ bool SGMAppController::setupSGMViews(){
 //	sgmPeriodicTableView->show();
 //	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
 //	fastScanWizard->show();
+
+	connect(workflowView_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SLOT(onWorkflowActionAddedFromDialog(AMAction3*)));
 
 	return true;
 }
