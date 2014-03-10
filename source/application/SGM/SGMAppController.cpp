@@ -366,6 +366,11 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTFYDetector(), true);
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newPDDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD1Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD2Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD3Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD4Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD5Detector(), true);
 		fastDetectorSelector_->setDefaultsSelected();
 
 		fastScanConfiguration2013View_ = new SGMFastScanConfiguration2013View(fastScanConfiguration2013);
