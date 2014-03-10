@@ -39,6 +39,7 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 
 		sources_.clear();
 		setDescription("-- No input data --");
+		axes_.clear();
 	}
 
 	// we know that this will only be called with valid input source
@@ -48,9 +49,10 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		sources_ = dataSources;
 
 		setDescription(name());
+		axes_.clear();
 
 		for (int i = 0, size = spectrum_->rank()-1; i < size; i++)
-			axes_[i] = spectrum_->axisInfoAt(i);
+			axes_.append(spectrum_->axisInfoAt(i));
 
 		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -113,6 +115,7 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	return AMNumber(AMNumber::InvalidError);
 }
 
+
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != rank() || indexEnd.rank() != indexStart.rank())
@@ -135,8 +138,8 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	int maximum = int(binningRange_.maximum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
 	int axisLength = maximum - minimum + 1;
 
-	AMnDIndex start = AMnDIndex(indexStart.rank()+1);
-	AMnDIndex end = AMnDIndex(indexEnd.rank()+1);
+	AMnDIndex start = AMnDIndex(indexStart.rank()+1, AMnDIndex::DoNotInit);
+	AMnDIndex end = AMnDIndex(indexEnd.rank()+1, AMnDIndex::DoNotInit);
 
 	for (int i = 0, size = indexStart.rank(); i < size; i++){
 
@@ -144,8 +147,8 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 		end[i] = indexEnd.at(i);
 	}
 
-	start[start.rank()-1] = minimum;
-	end[end.rank()-1] = maximum;
+	start[indexStart.rank()] = minimum;
+	end[indexEnd.rank()] = maximum;
 
 	QVector<double> data = QVector<double>(start.totalPointsTo(end));
 
@@ -161,19 +164,23 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 				value += data.at(i);
 
 			*outputValues = value;
+
+			break;
 		}
 
 		case 1:{
 
-			for (int i = 0, size = start.totalPointsTo(end); i < size; i++){
+			for (int i = 0, size = indexStart.totalPointsTo(indexEnd); i < size; i++){
 
 				double value = 0;
 
-				for (int j = minimum; j <= maximum; j++)
+				for (int j = 0, jSize = maximum - minimum + 1; j < jSize; j++)
 					value += data.at(i*axisLength+j);
 
 				outputValues[i] = value;
 			}
+
+			break;
 		}
 
 		case 2:{
@@ -184,12 +191,14 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 					double value = 0;
 
-					for (int k = minimum; k <= maximum; k++)
+					for (int k = 0, kSize = maximum - minimum + 1; j < kSize; k++)
 						value += data.at(i*jSize*axisLength+j*axisLength+k);
 
 					outputValues[i*jSize+j] = value;
 				}
 			}
+
+			break;
 		}
 		}
 
@@ -243,7 +252,14 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 
 void AMRegionOfInterestAB::onInputSourceSizeChanged()
 {
-	emitSizeChanged();
+	for (int i = 0, size = axes_.size(); i < size; i++){
+
+		if (axes_.at(i).size != spectrum_->size(i)){
+
+			axes_[i].size = spectrum_->size(i);
+			emitSizeChanged(i);
+		}
+	}
 }
 
 void AMRegionOfInterestAB::onInputSourceStateChanged()

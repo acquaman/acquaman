@@ -45,7 +45,7 @@ protected slots:
 	/// Handles dealing with file writer errors.
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
-	void onFileWriterBusy(bool isBusy);
+	void onFileWriterIsBusy(bool isBusy);
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting the data files.
 	void flushCDFDataStoreToDisk();
 
@@ -57,6 +57,9 @@ protected:
 	void writeHeaderToFile();
 	/// Method that writes out the current data to the scanning file.
 	void writeDataToFiles();
+
+	/// Method that fleshes out the scan's raw data store with all of the points it will need.
+	void prefillScanPoints();
 
 	/// The assembler that takes the scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *newScanAssembler_;

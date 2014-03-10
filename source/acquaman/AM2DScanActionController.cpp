@@ -117,6 +117,8 @@ void AM2DScanActionController::buildScanController()
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 		}
 
+		prefillScanPoints();
+
 		connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
 		newScanAssembler_->generateActionTree();
 
@@ -179,7 +181,7 @@ void AM2DScanActionController::onFileWriterError(AMScanActionControllerBasicFile
 	box.execWTimeout();
 }
 
-void AM2DScanActionController::onFileWriterBusy(bool isBusy)
+void AM2DScanActionController::onFileWriterIsBusy(bool isBusy)
 {
 	fileWriterIsBusy_ = isBusy;
 	emit readyForDeletion(!fileWriterIsBusy_);
@@ -200,27 +202,32 @@ bool AM2DScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
-			scan_->rawData()->endInsertRows();
+//			scan_->rawData()->endInsertRows();
+//			currentAxisValueIndex_[1] = currentAxisValueIndex_.j()+1;
 			writeDataToFiles();
 			emit finishWritingToFile();
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:
 
-			scan_->rawData()->endInsertRows();
+//			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
-			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
+
+			if (message.uniqueID().contains("H"))
+				currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
+			if (message.uniqueID().contains("V"))
+				currentAxisValueIndex_[1] = currentAxisValueIndex_.j()+1;
 
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 
-			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+//			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
 
-				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentXAxisValue_);
-				scan_->rawData()->setAxisValue(1, currentAxisValueIndex_.j(), currentYAxisValue_);
-			}
+////				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
+//				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentXAxisValue_);
+//				scan_->rawData()->setAxisValue(1, currentAxisValueIndex_.j(), currentYAxisValue_);
+//			}
 
 			QVector<double> localDetectorData;
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
@@ -229,6 +236,7 @@ bool AM2DScanActionController::event(QEvent *e)
 				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
 			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
@@ -347,4 +355,44 @@ void AM2DScanActionController::writeDataToFiles()
 
 	emit requestWriteToFile(0, rank1String);
 	emit requestWriteToFile(1, rank2String);
+}
+
+void AM2DScanActionController::prefillScanPoints()
+{
+	AMnDIndex insertIndex;
+	double xStart = configuration2D_->xStart();
+	double xStep = configuration2D_->xStep();
+	double xEnd = configuration2D_->xEnd();
+	double yStart = configuration2D_->yStart();
+	double yStep = configuration2D_->yStep();
+	double yEnd = configuration2D_->yEnd();
+	int xCount = ceil((xEnd-xStart)/xStep);
+	int yCount = ceil((yEnd-yStart)/yStep);
+
+	if (scan_->rawData()->scanSize(0) == 0)
+		scan_->rawData()->beginInsertRows(xCount, -1);
+
+	for (int j = 0; j < yCount; j++){
+
+		for (int i = 0; i < xCount; i++){
+
+			insertIndex = AMnDIndex(i, j);
+			scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
+			scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
+
+			for (int di = 0; di < scan_->rawDataSourceCount(); di++){
+
+				if (scan_->rawDataSources()->at(di)->rank() == 0)
+					scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+				else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+					QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+					scan_->rawData()->setValue(insertIndex, di, data.constData());
+				}
+			}
+		}
+	}
+
+	scan_->rawData()->endInsertRows();
 }

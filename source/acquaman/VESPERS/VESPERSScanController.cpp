@@ -46,7 +46,7 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetector
 			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
 	}
 
-	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
+	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	stage3->addSubAction(scaler->createStartAction3(false));

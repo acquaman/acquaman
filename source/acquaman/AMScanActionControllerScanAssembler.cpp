@@ -12,9 +12,9 @@ AMScanActionControllerScanAssembler::AMScanActionControllerScanAssembler(QObject
 
 bool AMScanActionControllerScanAssembler::insertAxis(int index, AMControl *axisControl, AMScanAxis *scanAxis)
 {
-	if(!scanAxis)
+	if(!scanAxis || !axisControl)
 		return false;
-	if((axisControl && controls_->contains(axisControl->name())) || axes_.contains(scanAxis))
+	if(controls_->contains(axisControl->name()) || axes_.contains(scanAxis))
 		return false;
 	if(index < 0 || index > controls_->count())
 		return false;
@@ -187,11 +187,12 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(axisControl->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())));
 	axisLoop->setGenerateScanActionMessage(true);
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
-	AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-	controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion.regionStep());
+	axisLoop->addSubAction(nextLevelHolderAction);
 
 	if (axisControl){
 
+		AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
+		controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion.regionStep());
 		AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 		controlLoopMoveInfo->setIsRelativeMove(true);
 		controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
@@ -200,7 +201,6 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 		axisLoop->addSubAction(controlLoopMove);
 	}
 
-	axisLoop->addSubAction(nextLevelHolderAction);
 	regionList->addSubAction(axisLoop);
 
 	if(isFinalRegion){

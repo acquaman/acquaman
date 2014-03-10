@@ -22,6 +22,63 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
+	VESPERS::Motors motor = configuration_->motor();
+
+	if (motor.testFlag(VESPERS::H)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::V)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::X)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::Z)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoH)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoV)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoX)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoZ)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoRx)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("Rx", 0, "Rotational Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoRy)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("Ry", 0, "Rotational Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoRz)){
+
+		scan_->rawData()->addScanAxis(AMAxisInfo("Rz", 0, "Rotational Position", "mm"));
+	}
+
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
@@ -97,6 +154,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
+
 void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 {
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
@@ -113,10 +171,10 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			scan_->addAnalyzedDataSource(newRegion, true, false);
 		}
 	}
 }

@@ -27,7 +27,9 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 	}
 
 	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	xAxisRegion.setName("x-axis region");
 	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
+	xAxis->setName("x-axis");
 
 	if (!configuration->validYAxis()){
 
@@ -36,17 +38,19 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 	}
 
 	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	yAxisRegion.setName("y-axis region");
 	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
-
-	if (!scanAssembler->appendAxis(AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(0)), xAxis)){
-
-		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_X_AXIS, "Could not add x-axis.");
-		return false;
-	}
+	yAxis->setName("y-axis");
 
 	if (!scanAssembler->appendAxis(AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(1)), yAxis)){
 
 		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_Y_AXIS, "Could not add y-axis.");
+		return false;
+	}
+
+	if (!scanAssembler->appendAxis(AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(0)), xAxis)){
+
+		AMErrorMon::alert(this, AM2DSCANCONFIGURATIONCONVERTER_COULD_NOT_ADD_X_AXIS, "Could not add x-axis.");
 		return false;
 	}
 
