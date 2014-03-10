@@ -68,6 +68,11 @@ IDEASXASScanActionController::~IDEASXASScanActionController(){}
 void IDEASXASScanActionController::buildScanControllerImplementation()
 {
 
+    AMXRFDetector *detector = 0;
+
+	    detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("XRF1E"));
+
+
     QList<AMDataSource*> raw1DDataSources;
     for(int i=0; i<scan_->rawDataSources()->count(); i++)
 	    if(scan_->rawDataSources()->at(i)->rank() == 1)
@@ -102,8 +107,20 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
             if(scan_->rawDataSources()->at(i)->rank() == 2)
                     raw2DDataSources << scan_->rawDataSources()->at(i);
 
-    int rawXRFIndex = scan_->rawDataSources()->indexOfKey("XRF1E");
+	if (detector){
 
+    	    foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+
+		    AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		    AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+		    newRegion->setBinningRange(regionAB->binningRange());
+		    newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
+		    scan_->addAnalyzedDataSource(newRegion);
+    	    }
+	}
+
+
+    int rawXRFIndex = scan_->rawDataSources()->indexOfKey("XRF1E");
 
     if(rawXRFIndex != -1) {
         AM2DSummingAB* sumAb = new AM2DSummingAB("XRFSum");

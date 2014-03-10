@@ -82,6 +82,8 @@ void IDEASBeamline::setupMono()
     monoEnergy_ = new IDEASMonochromatorControl(this);
     monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
+    monoDirectEnergy_->setSettlingTime(3);
+
     monoCrystal_ = new AMReadOnlyPVControl("monoCrystal","BL08B2-1:Crystal:Type",this,"Currently Select Monochromator Crystal");
     monoHighEV_ = new AMReadOnlyPVControl("monoHighEV", "BL08B2-1:Crystal:EvHigh", this, "Maximum Ebergy for current Crystal");
     monoLowEV_ = new AMReadOnlyPVControl("monoLowEV", "BL08B2-1:Crystal:EvLow", this, "Minimum Ebergy for current Crystal");

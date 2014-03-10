@@ -84,24 +84,29 @@ void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
     	    configuration_->deleteRegion(0);
 
 	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 40, 1);
+	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 34, 1);
 
-	double maxE = 3.80998 * kValue * kValue + edgeEnergy;
+	//double maxE = 3.80998 * kValue * kValue + edgeEnergy;
 
-	qDebug() << "maxE = " << maxE;
+	//qDebug() << "maxE = " << maxE;
 
-	double E = edgeEnergy + 40;
-	int region = 2;
-	double regionSize = 50;
+//	double E = edgeEnergy + 34;
+	//int region = 2;
+	//double regionSize = 50;
 
-	while (E + regionSize < maxE)
+	for (int k = 3; k < kValue; k++)
 	{
-	    configuration_->addRegion(region++, E, 2, E+regionSize, 1);
-	    E+=regionSize;
+	    configuration_->addRegion(k-1, floor(3.80998 * k * k + edgeEnergy), floor(3.80998 * k * k * 0.05), floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy), qMin(int(0.13 * k * k),10));
 	}
 
+//	while (E + regionSize < maxE)
+//	{
+//	    configuration_->addRegion(region++, E, 2, E+regionSize, 1);
+//	    E+=regionSize;
+//	}
 
-	configuration_->addRegion(region, E, 2, floor(maxE), 1);
+
+//	configuration_->addRegion(region, E, 2, floor(maxE), 1);
 
 
     }

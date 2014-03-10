@@ -153,7 +153,7 @@ void IDEASAppController::setupUserInterface()
 
             IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
                 IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
-                IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1500, 20480);
+		IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
                 mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
