@@ -1317,6 +1317,7 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(energy_);
 	addExposedControl(masterDwell_);
+	addExposedControl(exitSlitGap_);
 }
 
 void SGMBeamline::setupExposedDetectors(){
