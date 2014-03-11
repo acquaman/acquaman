@@ -22,6 +22,8 @@ protected:
 	AMAction3* createCleanupActions();
 	/// Re-implemented due to the extra complexity of setting up IDEAS.
 	virtual void cancelImplementation();
+	/// Reimplemented to populate scan initial conditions
+	void onInitializationActionsListSucceeded();
 
 
 

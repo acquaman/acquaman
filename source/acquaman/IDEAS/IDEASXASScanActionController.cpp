@@ -46,6 +46,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_sample")->toInfo());
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_ref")->toInfo());
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1ERealTime")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
 
@@ -56,7 +57,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
         pokeSyncDwell_ = new QTimer(this);
 
         pokeSyncDwell_->setInterval((longestTime + 2) *1000);
-        pokeSyncDwell_->setSingleShot(true);
+	pokeSyncDwell_->setSingleShot(true);
 
         //connect(pokeSyncDwell_, SIGNAL(timeout()), this, SLOT(onPokeSyncDwell());
         connect(pokeSyncDwell_, SIGNAL(timeout()), IDEASBeamline::ideas()->synchronizedDwellTime(), SLOT(start()));
@@ -161,7 +162,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	    AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
 	    NormXRF->setDescription(QString("Norm%1").arg(regionName));
 	    NormXRF->setInputDataSources(all1DDataSources);
-	    NormXRF->setExpression(QString("%1/sqrt(%2^2)").arg(regionName).arg(configuration_->I0Channel()));
+	    NormXRF->setExpression(QString("%1/sqrt(%2^2)/XRF1ERealTime").arg(regionName).arg(configuration_->I0Channel()));
 	    scan_->addAnalyzedDataSource(NormXRF);
 	}
     }
@@ -242,6 +243,28 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 
 	return initializationActions;
 }
+
+
+void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
+
+	AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
+	positions.remove(positions.indexOf("masterDwell"));
+	positions.remove(positions.indexOf("DirectEnergy"));
+	positions.remove(positions.indexOf("Energy"));
+
+	if(!configuration_->isXRFScan())
+	{
+	    positions.remove(positions.indexOf("XRF1E Peaking Time"));
+	    positions.remove(positions.indexOf("XRF1E Trigger Level"));
+	    positions.remove(positions.indexOf("XRF1E Baseline Threshold"));
+	    positions.remove(positions.indexOf("XRF1E Preamp Gain"));
+	}
+
+	scan_->scanInitialConditions()->setValuesFrom(positions);
+	AMScanActionController::onInitializationActionsListSucceeded();
+
+}
+
 
 AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
