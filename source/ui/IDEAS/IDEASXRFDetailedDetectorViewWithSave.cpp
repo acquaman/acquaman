@@ -115,7 +115,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
 
 void IDEASXRFDetailedDetectorViewWithSave::onScanNameChanged(QString name)
 {
-	config_->setScanName(name);
+	config_->setUserScanName(name);
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)

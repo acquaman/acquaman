@@ -22,10 +22,12 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
+	if(scanConfig->userScanName() == "") scan_->setName(QString("XRF Scan"));
+	else scan_->setName(scanConfig->userScanName());
 
-	scan_->setNotes(scanConfig->scanNotes());
-	scan_->setName(scanConfig->scanName());
+
 	scan_->setNumber(scanConfig->scanNumber());
+	scan_->setNotes(scanConfig->scanNotes());
 
 	scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw"), QString("RAW XRF Data"), "eV", detector_->axes()));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 0), true, false);
@@ -58,6 +60,15 @@ bool IDEASXRFScanController::startImplementation()
 		scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), detector_->inputCountSourceAt(0)->value(AMnDIndex()));
 		scan_->rawData()->setValue(AMnDIndex(), 2, AMnDIndex(), detector_->outputCountSourceAt(0)->value(AMnDIndex()));
 
+
+		AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
+		positions.remove(positions.indexOf("masterDwell"));
+		positions.remove(positions.indexOf("DirectEnergy"));
+		//positions.remove(positions.indexOf("Energy"));
+
+
+		scan_->scanInitialConditions()->setValuesFrom(positions);
+
 		scan()->setScanController(0);
 
 		saveData();
@@ -74,7 +85,9 @@ bool IDEASXRFScanController::startImplementation()
 void IDEASXRFScanController::onDetectorAcquisitionFinished()
 {
 
-		setFinished();
+
+
+	    setFinished();
 }
 
 void IDEASXRFScanController::saveData()
