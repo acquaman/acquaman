@@ -15,6 +15,13 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	regions_->setSensibleRange(2000, 12000);
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
+
+	I0Channel_ = "I_0";
+	ItChannel_ = "I_sample";
+	IrChannel_ = "I_ref";
+	isXRFScan_ = true;
+	isTransScan_ = true;
+
 }
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
@@ -32,6 +39,14 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 
 	for(int x = 0; x < original.regionCount(); x++)
 		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
+
+	I0Channel_ = original.I0Channel();
+	ItChannel_ = original.ItChannel();
+	IrChannel_ = original.IrChannel();
+	isXRFScan_ = original.isXRFScan();
+	isTransScan_ = original.isTransScan();
+
+
 }
 
 IDEASXASScanConfiguration::~IDEASXASScanConfiguration()

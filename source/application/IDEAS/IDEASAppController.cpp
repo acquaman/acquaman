@@ -154,7 +154,10 @@ void IDEASAppController::setupUserInterface()
             IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
                 IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
 		IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-                mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
+		IDEASXRFDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
+		IDEASXRFDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+		IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+		mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

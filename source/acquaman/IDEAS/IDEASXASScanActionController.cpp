@@ -83,22 +83,33 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
     int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("I_sample");
     int rawIrefIndex = scan_->rawDataSources()->indexOfKey("I_ref");
 
+    if (detector && configuration_->isXRFScan()){
 
-    if(rawI0Index != -1 && rawIsampleIndex != -1) {
+	foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+
+		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().replace(" ","_"));
+		newRegion->setBinningRange(regionAB->binningRange());
+		newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
+		scan_->addAnalyzedDataSource(newRegion);
+	}
+    }
+
+    if(rawI0Index != -1 && rawIsampleIndex != -1 && configuration_->isTransScan()) {
 
         AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
         NormSample->setDescription("NormSample");
         NormSample->setInputDataSources(raw1DDataSources);
-        NormSample->setExpression("ln(I_0/I_sample)");
+	NormSample->setExpression(QString("ln(%1/%2)").arg(configuration_->I0Channel()).arg(configuration_->ItChannel()));
         scan_->addAnalyzedDataSource(NormSample);
      }
 
-    if(rawIrefIndex != -1 && rawIsampleIndex != -1) {
+    if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->isTransScan() && configuration_->IrChannel() != "None") {
 
         AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
         NormRef->setDescription("NormRef");
         NormRef->setInputDataSources(raw1DDataSources);
-        NormRef->setExpression("ln(I_sample/I_ref)");
+	NormRef->setExpression(QString("ln(%1/%2)").arg(configuration_->ItChannel()).arg(configuration_->IrChannel()));
         scan_->addAnalyzedDataSource(NormRef);
     }
 
@@ -107,50 +118,55 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
             if(scan_->rawDataSources()->at(i)->rank() == 2)
                     raw2DDataSources << scan_->rawDataSources()->at(i);
 
-	if (detector){
 
-    	    foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 
-		    AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-		    AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
-		    newRegion->setBinningRange(regionAB->binningRange());
-		    newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-		    scan_->addAnalyzedDataSource(newRegion);
-    	    }
+//    int rawXRFIndex = scan_->rawDataSources()->indexOfKey("XRF1E");
+
+//    if(rawXRFIndex != -1) {
+//        AM2DSummingAB* sumAb = new AM2DSummingAB("XRFSum");
+//        sumAb->setDescription("XRFSum");
+//        sumAb->setInputDataSources(raw2DDataSources);
+//        sumAb->setSumAxis(1);
+//	sumAb->setSumRangeMin(350);
+//	sumAb->setSumRangeMax(1500);
+//        scan_->addAnalyzedDataSource(sumAb);
+
+
+
+
+
+
+//        AM1DExpressionAB* NormXRF = new AM1DExpressionAB("NormXRF");
+//        NormXRF->setDescription("NormXRF");
+//        NormXRF->setInputDataSources(all1DDataSources);
+//        NormXRF->setExpression("XRFSum/sqrt(I_0^2)");
+//        scan_->addAnalyzedDataSource(NormXRF);
+
+
+//    }
+
+    QList<AMDataSource*> all1DDataSources;
+    for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
+	    if(scan_->analyzedDataSources()->at(i)->rank() == 1)
+		    all1DDataSources << scan_->analyzedDataSources()->at(i);
+    for(int i=0; i<scan_->rawDataSources()->count(); i++)
+	    if(scan_->rawDataSources()->at(i)->rank() == 1)
+		    all1DDataSources << scan_->rawDataSources()->at(i);
+
+    if (detector && configuration_->isXRFScan()){
+
+	foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+	    AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+	    QString regionName = regionAB->name().replace(" ","_");
+	    AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
+	    NormXRF->setDescription(QString("Norm%1").arg(regionName));
+	    NormXRF->setInputDataSources(all1DDataSources);
+	    NormXRF->setExpression(QString("%1/sqrt(%2^2)").arg(regionName).arg(configuration_->I0Channel()));
+	    scan_->addAnalyzedDataSource(NormXRF);
 	}
-
-
-    int rawXRFIndex = scan_->rawDataSources()->indexOfKey("XRF1E");
-
-    if(rawXRFIndex != -1) {
-        AM2DSummingAB* sumAb = new AM2DSummingAB("XRFSum");
-        sumAb->setDescription("XRFSum");
-        sumAb->setInputDataSources(raw2DDataSources);
-        sumAb->setSumAxis(1);
-	sumAb->setSumRangeMin(350);
-	sumAb->setSumRangeMax(1500);
-        scan_->addAnalyzedDataSource(sumAb);
-
-	  QList<AMDataSource*> all1DDataSources;
-
-
-        for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
-                if(scan_->analyzedDataSources()->at(i)->rank() == 1)
-                        all1DDataSources << scan_->analyzedDataSources()->at(i);
-        for(int i=0; i<scan_->rawDataSources()->count(); i++)
-                if(scan_->rawDataSources()->at(i)->rank() == 1)
-                        all1DDataSources << scan_->rawDataSources()->at(i);
-
-
-
-        AM1DExpressionAB* NormXRF = new AM1DExpressionAB("NormXRF");
-        NormXRF->setDescription("NormXRF");
-        NormXRF->setInputDataSources(all1DDataSources);
-        NormXRF->setExpression("XRFSum/sqrt(I_0^2)");
-        scan_->addAnalyzedDataSource(NormXRF);
-
-
     }
+
+
 
 }
 
