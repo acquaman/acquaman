@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QLineEdit>
 
 class AMScanController;
 class IDEASXASScanConfiguration;
@@ -35,6 +36,8 @@ protected:
 	QComboBox *I0ChannelComboBox_;
 	QComboBox *ItChannelComboBox_;
 	QComboBox *IrChannelComboBox_;
+
+	QLineEdit *scanName_;
 
 
 

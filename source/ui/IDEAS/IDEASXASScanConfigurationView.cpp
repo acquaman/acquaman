@@ -22,8 +22,16 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
         connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(onAutoRegionButtonClicked()));
 
-	pseudoXAFSButton_ = new QPushButton("Auto Set XAFS Regions");
+	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
+
+	scanName_ = new QLineEdit();
+	if(configuration->name() == "Unnamed Object")
+	    scanName_->setText("");
+	else
+	    scanName_->setText(configuration->name());
+
+	connect(scanName_, SIGNAL(textChanged(QString)), configuration_, SLOT(setUserScanName(QString)));
 
 	isXRFScanCheckBox_ = new QCheckBox("XRF");
 	isXRFScanCheckBox_->setChecked(configuration->isXRFScan());
@@ -77,11 +85,13 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	QFormLayout *configFL = new QFormLayout();
 	configFL->setAlignment(Qt::AlignLeft);
-	configFL->addRow("I_0 Chamber:", I0ChannelComboBox_);
-	configFL->addRow("Include:",isXRFScanCheckBox_);
+	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+	configFL->addRow("Scan Name: ", scanName_);
+	configFL->addRow("I_0 Chamber: ", I0ChannelComboBox_);
+	configFL->addRow("Include: ",isXRFScanCheckBox_);
 	configFL->addRow("", isTransScanCheckBox_);
-	configFL->addRow("Sample Chamber:", ItChannelComboBox_);
-	configFL->addRow("Reference Chamber:", IrChannelComboBox_);
+	configFL->addRow("Sample Chamber: ", ItChannelComboBox_);
+	configFL->addRow("Reference Chamber: ", IrChannelComboBox_);
 
 	QHBoxLayout *regionsHL = new QHBoxLayout();
 	regionsHL->addStretch();
