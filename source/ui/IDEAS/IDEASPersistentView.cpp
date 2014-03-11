@@ -32,6 +32,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     ringCurrent_ = new QLabel("     mA");
     ringCurrent_->setAlignment(Qt::AlignCenter);
+    ringCurrent_->setFont(QFont("Lucida Grande", 16, QFont::Bold));
 
     energyControlEditor_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->monoEnergyControl());
     energyControlEditor_->setMaximumWidth(200);
@@ -189,7 +190,8 @@ void IDEASPersistentView::onReferenceCountsChanged()
 void IDEASPersistentView::onCrystalChanged()
 {
     monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
-    monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::bl()->exposedControlByName("monoLowEV")->value()).arg(IDEASBeamline::bl()->exposedControlByName("monoHighEV")->value()));
+    monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
+
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)

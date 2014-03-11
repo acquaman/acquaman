@@ -36,7 +36,7 @@ AMScanController *IDEASXRFScanConfiguration::createController()
 QString IDEASXRFScanConfiguration::detailedDescription() const
 {
 		if (!xrfDetectorInfo_.name().isEmpty())
-				return QString("XRF Scan\nDetector: %!").arg(xrfDetectorInfo_.name());
+				return QString("XRF Scan\nDetector: %1").arg(xrfDetectorInfo_.name());
 
 		return QString();
 }

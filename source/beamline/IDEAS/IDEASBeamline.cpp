@@ -69,7 +69,19 @@ void IDEASBeamline::setupDetectors()
         oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_sample", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
         oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_ref", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 
-        ketek_ = new IDEASKETEKDetector("XRF1E", "KETEK XRF Detector", this);
+	ketek_ = new IDEASKETEKDetector("XRF1E", "Single Element XRF Detector", this);
+
+	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+	ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+	ketekPreampGain_ = new AMPVControl("XRF1E Preamp Gain","dxp1608-1002:dxp1:PreampGain_RBV","dxp1608-1002:dxp1:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+	\
+	ketekRealTimeControl_ = new AMReadOnlyPVControl("XRF1E Real Time", "dxp1608-1002:mca1.ERTM", this);
+	\
+	ketekRealTime_ = new AMBasicControlDetectorEmulator("XRF1ERealTime", "Single Element XRF Real Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ketekRealTime_->setHiddenFromUsers(true);
+	ketekRealTime_->setIsVisible(false);
+
 }
 
 void IDEASBeamline::setupControlSets()
@@ -84,13 +96,13 @@ void IDEASBeamline::setupMono()
 
     monoDirectEnergy_->setSettlingTime(3);
 
-    monoCrystal_ = new AMReadOnlyPVControl("monoCrystal","BL08B2-1:Crystal:Type",this,"Currently Select Monochromator Crystal");
-    monoHighEV_ = new AMReadOnlyPVControl("monoHighEV", "BL08B2-1:Crystal:EvHigh", this, "Maximum Ebergy for current Crystal");
-    monoLowEV_ = new AMReadOnlyPVControl("monoLowEV", "BL08B2-1:Crystal:EvLow", this, "Minimum Ebergy for current Crystal");
+    monoCrystal_ = new AMReadOnlyPVControl("monoCrystal","BL08B2-1:Crystal:Type",this,"Mono Crystals");
+    monoHighEV_ = new AMReadOnlyPVControl("monoHighEV", "BL08B2-1:Crystal:EvHigh", this, "Maximum Energy for current Crystal");
+    monoLowEV_ = new AMReadOnlyPVControl("monoLowEV", "BL08B2-1:Crystal:EvLow", this, "Minimum Energy for current Crystal");
     monoBraggAngle_ = new AMReadOnlyPVControl("monoBraggAngle", "BL08B2-1:Energy:EV:fbk:tr.C", this, "Current Mono Bragg Angle");
     mono2d_ = new AMReadOnlyPVControl("mono2d","BL08B2-1:Crystal:2d", this, "2d spacing of current mono crystals");
     monoAngleOffset_ = new AMPVControl("monoAngleOffset","BL08B2-1:Energy:angleOffset","BL08B2-1:Energy:angleOffset",QString(), this);
-    monoAngleOffset_->setDescription("Current mono calibration offset angle");
+    monoAngleOffset_->setDescription("Mono offset angle");
 
 
 }
@@ -130,8 +142,14 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(monoDirectEnergy_);
 	addExposedControl(masterDwell_);
         addExposedControl(monoCrystal_);
-        addExposedControl(monoHighEV_);
-        addExposedControl(monoLowEV_);
+	addExposedControl(monoAngleOffset_);
+
+	addExposedControl(ketekPeakingTime_);
+	addExposedControl(ketekTriggerLevel_);
+	addExposedControl(ketekBaselineThreshold_);
+	addExposedControl(ketekPreampGain_);
+
+
 }
 
 void IDEASBeamline::setupExposedDetectors()
@@ -141,6 +159,7 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(oxfordSampleIonChamberDetector_);
 	addExposedDetector(oxfordReferenceIonChamberDetector_);
         addExposedDetector(ketek_);
+	addExposedDetector(ketekRealTime_);
 }
 
 

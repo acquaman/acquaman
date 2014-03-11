@@ -80,6 +80,12 @@ public:
         AMControl *mono2d() const { return mono2d_; }
         AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
+	AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
+	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
+	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
+	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
+
+
         AMPVControl *masterDwellControl() const { return masterDwell_; }
         AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
 
@@ -145,13 +151,23 @@ protected:
 	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
 	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
 	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
+	AMReadOnlyPVControl *ketekRealTimeControl_;
+	AMControl *ketekPeakingTime_;
+	AMControl *ketekTriggerLevel_;
+	AMControl *ketekBaselineThreshold_;
+	AMControl *ketekPreampGain_;
 
 	AMDetector *oldIonChamberDetector_;
 	AMDetector *oxfordI0IonChamberDetector_;
 	AMDetector *oxfordSampleIonChamberDetector_;
 	AMDetector *oxfordReferenceIonChamberDetector_;
+	AMDetector *ketekRealTime_;
 
-		IDEASKETEKDetector *ketek_;
+
+
+
+
+	IDEASKETEKDetector *ketek_;
 
         AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 

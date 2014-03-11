@@ -613,6 +613,9 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	vespers.storeToDb(db);
 	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
 	reixs.storeToDb(db);
+	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
+	ideas.storeToDb(db);
+
 
 	return true;
 }

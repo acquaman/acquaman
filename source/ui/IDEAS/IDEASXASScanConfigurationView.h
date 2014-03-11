@@ -4,6 +4,9 @@
 #include "ui/acquaman/AMScanConfigurationView.h"
 
 #include <QPushButton>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QLineEdit>
 
 class AMScanController;
 class IDEASXASScanConfiguration;
@@ -27,6 +30,15 @@ protected:
 	AMRegionsView *regionsView_;
         QPushButton *autoRegionButton_;
 	QPushButton *pseudoXAFSButton_;
+
+	QCheckBox *isXRFScanCheckBox_;
+	QCheckBox *isTransScanCheckBox_;
+	QComboBox *I0ChannelComboBox_;
+	QComboBox *ItChannelComboBox_;
+	QComboBox *IrChannelComboBox_;
+
+	QLineEdit *scanName_;
+
 
 
 protected slots:
