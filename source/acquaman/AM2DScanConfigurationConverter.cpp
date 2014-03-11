@@ -37,7 +37,7 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 		return false;
 	}
 
-	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	AMScanAxisRegion yAxisRegion(configuration->yStart(), configuration->yStep(), configuration->yEnd(), configuration->timeStep());
 	yAxisRegion.setName("y-axis region");
 	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
 	yAxis->setName("y-axis");

@@ -37,7 +37,7 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
 
-	int yPoints = ceil((configuration_->yEnd() - configuration_->yStart())/configuration_->yStep());
+	int yPoints = round((configuration_->yEnd() - configuration_->yStart())/configuration_->yStep()) + 1;
 
 	VESPERS::Motors motor = configuration_->motor();
 	AMControlInfoList list;
@@ -163,7 +163,7 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion);
