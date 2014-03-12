@@ -76,10 +76,13 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
+    connect(IDEASBeamline::bl()->exposedControlByName("monoLowEV"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::bl()->exposedControlByName("monoHighEV"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+
     connect(IDEASBeamline::bl()->exposedControlByName("monoLowEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("monoHighEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 
 
 
@@ -197,6 +200,10 @@ void IDEASPersistentView::onCrystalChanged()
 void IDEASPersistentView::onRingCurrentChanged(double current)
 {
     ringCurrent_->setText(QString("%1 mA").arg(current));
+    if(current < 10) ringCurrent_->setStyleSheet("QLabel { background-color : red; color : white}");
+    else ringCurrent_->setStyleSheet("QLabel { color : black; }");
+
+
 }
 
 void IDEASPersistentView::onCalibrateClicked()
