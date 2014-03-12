@@ -26,12 +26,10 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
 
 	scanName_ = new QLineEdit();
-	if(configuration->name() == "Unnamed Object")
-	    scanName_->setText("");
-	else
-	    scanName_->setText(configuration->name());
+	scanName_->setText(configuration_->userScanName());
 
-	connect(scanName_, SIGNAL(textChanged(QString)), configuration_, SLOT(setUserScanName(QString)));
+	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
 	isXRFScanCheckBox_ = new QCheckBox("XRF");
 	isXRFScanCheckBox_->setChecked(configuration->isXRFScan());
@@ -169,4 +167,9 @@ void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
 
 }
 
+void IDEASXASScanConfigurationView::onScanNameEdited()
+{
+	configuration_->setName(scanName_->text());
+	configuration_->setUserScanName(scanName_->text());
+}
 
