@@ -132,8 +132,8 @@ void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
                 configuration_->deleteRegion(0);
 
         configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-        configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 40, 1);
-        configuration_->addRegion(2, edgeEnergy + 40 , 5, edgeEnergy + 300, 1);
+	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
+	configuration_->addRegion(2, edgeEnergy + 45 , 5, edgeEnergy + 300, 1);
 
     }
 }
@@ -152,12 +152,24 @@ void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
     	    configuration_->deleteRegion(0);
 
 	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 34, 1);
+	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
 
+	int k = 3;
+	double start = edgeEnergy + 45;
+	double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
+	double idealDelta = floor(3.80998 * k * k * 0.05);
+	double delta = (end - start)/ceil((end - start)/idealDelta);
 
-	for (int k = 3; k < kValue; k++)
+	configuration_->addRegion(2, start, delta, end, qMin(int(0.13 * k * k),10));
+
+	for (k = 4; k < kValue; k++)
 	{
-	    configuration_->addRegion(k-1, floor(3.80998 * k * k + edgeEnergy), floor(3.80998 * k * k * 0.05), floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy), qMin(int(0.13 * k * k),10));
+	    double start = floor(3.80998 * k * k + edgeEnergy);
+	    double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
+	    double idealDelta = floor(3.80998 * k * k * 0.05);
+	    double delta = (end - start)/ceil((end - start)/idealDelta);
+
+	    configuration_->addRegion(k-1, start, delta, end, qMin(int(0.13 * k * k),10));
 	}
 
 
