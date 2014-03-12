@@ -41,6 +41,7 @@ class AM1DDerivativeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AM1DDerivativeAB();
 	Q_INVOKABLE AM1DDerivativeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

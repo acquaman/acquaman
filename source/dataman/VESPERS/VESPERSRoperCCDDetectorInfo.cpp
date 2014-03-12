@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSRoperCCDDetectorInfo.h"
 
+ VESPERSRoperCCDDetectorInfo::~VESPERSRoperCCDDetectorInfo(){}
 VESPERSRoperCCDDetectorInfo::VESPERSRoperCCDDetectorInfo(const QString &name, const QString &description, QObject *parent)
 	: AMOldDetectorInfo(name, description, parent)
 {

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QList>
 
+ AMScanEditorModelItem::~AMScanEditorModelItem(){}
 AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, AMDatamanAppController* controller)
 	: AMDragDropItem()
 {

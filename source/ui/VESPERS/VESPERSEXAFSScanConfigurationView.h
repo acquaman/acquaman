@@ -45,6 +45,7 @@ class VESPERSEXAFSScanConfigurationView : public VESPERSScanConfigurationView
 public:
 	/// Constructor.
 	/// \param config is the EXAFS configuration that the view will modify.
+ 	virtual ~VESPERSEXAFSScanConfigurationView();
 	VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.
@@ -66,7 +67,7 @@ protected slots:
 	/// Handles choosing a new element when the element button is clicked.
 	void onElementChoiceClicked();
 	/// Fills in the combo box with lines that can be scanned.
-	void fillLinesComboBox(const AMElement *el);
+	void fillLinesComboBox(AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.

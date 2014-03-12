@@ -22,12 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSMAXVMOTOR_H
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
 
 /// This function object provides the moving check for the CLSMAXvMotors
 class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+ 	virtual ~AMControlStatusCheckerCLSMAXv();
 	AMControlStatusCheckerCLSMAXv() {}
 
 	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
@@ -91,6 +92,7 @@ public:
 	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
 	  \param parent QObject parent class
 	  */
+ 	virtual ~CLSMAXvMotor();
 	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
 
 	/// Indicates that all process variables for this motor are connected
@@ -168,66 +170,66 @@ public:
 
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createMotorMoveAction(double position);
+	AMAction3* createMotorMoveAction(double position);
 
 	/// Returns a newly created action to move this motor in EGU terms. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEGUMoveAction(double EGUPosition);
+	AMAction3 *createEGUMoveAction(double EGUPosition);
 	/// Returns a newly created action to change the EGU velocity. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEGUVelocityAction(double EGUVelocity);
+	AMAction3 *createEGUVelocityAction(double EGUVelocity);
 	/// Returns a newly created action to change the EGU base velocity. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEGUBaseVelocityAction(double EGUBaseVelocity);
+	AMAction3 *createEGUBaseVelocityAction(double EGUBaseVelocity);
 	/// Returns a newly created action to change the EGU acceleration. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEGUAccelerationAction(double EGUAcceleration);
+	AMAction3 *createEGUAccelerationAction(double EGUAcceleration);
 	/// Returns a newly created action to change the EGU offset. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEGUOffsetAction(double EGUOffset);
+	AMAction3 *createEGUOffsetAction(double EGUOffset);
 
 	/// Returns a newly created action to change move this motor in step terms. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepMoveAction(double stepPosition);
+	AMAction3 *createStepMoveAction(double stepPosition);
 	/// Returns a newly created action to change the step velocity. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepVelocityAction(double stepVelocity);
+	AMAction3 *createStepVelocityAction(double stepVelocity);
 	/// Returns a newly created action to change the step base velocity. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepBaseVelocityAction(double stepBaseVelocity);
+	AMAction3 *createStepBaseVelocityAction(double stepBaseVelocity);
 	/// Returns a newly created action to change the step acceleration. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepAccelerationAction(double stepAcceleration);
+	AMAction3 *createStepAccelerationAction(double stepAcceleration);
 
 	/// Returns a newly created action to stop the motor. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStopAction();
+	AMAction3 *createStopAction();
 
 	/// Returns a newly created action to change the encoder calibration slope. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderCalibrationSlopeAction(double encoderCalibrationSlope);
+	AMAction3 *createEncoderCalibrationSlopeAction(double encoderCalibrationSlope);
 	/// Returns a newly created action to change the step calibration slope. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepCalibrationSlopeAction(double stepCalibrationSlope);
+	AMAction3 *createStepCalibrationSlopeAction(double stepCalibrationSlope);
 	/// Returns a newly created action to change the encoder calibration offset. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderCalibrationOffsetAction(double encoderCalibrationAbsoluteOffset);
+	AMAction3 *createEncoderCalibrationOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the step calibration offset. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createStepCalibrationOffsetAction(double stepCalibrationOffset);
+	AMAction3 *createStepCalibrationOffsetAction(double stepCalibrationOffset);
 
 	/// Returns a newly created action to change the motor type. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createMotorTypeAction(CLSMAXvMotor::MotorType motorType);
+	AMAction3 *createMotorTypeAction(CLSMAXvMotor::MotorType motorType);
 
 	/// Returns a newly created action to change the limit active state. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState);
+	AMAction3 *createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState);
 	/// Returns a newly created action to change the limit disabled state. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createLimitDisabledAction(bool limitDisabled);
+	AMAction3 *createLimitDisabledAction(bool limitDisabled);
 	/// Returns a newly created action to change the closed loop enabled mode. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createClosedLoopEnabledAction(bool closedLoopEnabled);
+	AMAction3 *createClosedLoopEnabledAction(bool closedLoopEnabled);
 	/// Returns a newly created action to change the servo PID enabled mode. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createServoPIDEnabledAction(bool servoPIDEnabled);
+	AMAction3 *createServoPIDEnabledAction(bool servoPIDEnabled);
 
 	/// Returns a newly created action to move the motor directly in encoder terms. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderMoveAction(double encoderPosition);
+	AMAction3 *createEncoderMoveAction(double encoderPosition);
 	/// Returns a newly created action to change the encoder movement type. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMovementType encoderMovementType);
+	AMAction3 *createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMovementType encoderMovementType);
 	/// Returns a newly created action to change the pre-deadband setting. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createPreDeadBandAction(double preDeadBand);
+	AMAction3 *createPreDeadBandAction(double preDeadBand);
 	/// Returns a newly created action to change the post-deadband setting. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createPostDeadBandAction(double postDeadBand);
+	AMAction3 *createPostDeadBandAction(double postDeadBand);
 	/// Returns a newly created action to change the max retries. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createMaxRetriesAction(double maxRetries);
+	AMAction3 *createMaxRetriesAction(double maxRetries);
 	/// Returns a newly created action to change the encoder percent approach. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderPercentApproachAction(double encoderPercentApproach);
+	AMAction3 *createEncoderPercentApproachAction(double encoderPercentApproach);
 	/// Returns a newly created action to change the encoder/step soft ratio. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderStepSoftRatioAction(double encoderStepSoftRatio);
+	AMAction3 *createEncoderStepSoftRatioAction(double encoderStepSoftRatio);
 
 public slots:
 	/// Sets the (EGU) velocity setting for the velocity profile

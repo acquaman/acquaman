@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include "util/AMDateTimeUtils.h"
 
+ AMSampleSelector::~AMSampleSelector(){}
 AMSampleSelector::AMSampleSelector(AMDatabase* db, QWidget *parent) :
     QComboBox(parent)
 {

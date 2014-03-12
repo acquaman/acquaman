@@ -1,5 +1,6 @@
 #include "CLSSynchronizedDwellTimeConfigurationInfo.h"
 
+ CLSSynchronizedDwellTimeConfigurationInfo::~CLSSynchronizedDwellTimeConfigurationInfo(){}
 CLSSynchronizedDwellTimeConfigurationInfo::CLSSynchronizedDwellTimeConfigurationInfo(QObject *parent)
 	: QObject(parent)
 {

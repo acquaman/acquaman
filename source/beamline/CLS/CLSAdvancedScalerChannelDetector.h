@@ -8,6 +8,7 @@ class CLSAdvancedScalerChannelDetector : public CLSBasicScalerChannelDetector
 Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the channel index to use (index 0 - 31 for SIS3820)
+ 	virtual ~CLSAdvancedScalerChannelDetector();
 	CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
 
 	/// Advanced scaler channels are designed to implement continuous acquire.
@@ -20,8 +21,8 @@ public:
 	virtual bool lastContinuousReading(double *outputValues) const;
 	virtual int lastContinuousSize() const;
 
-	/// Returns a (hopefully) valid pointer to a single double with our current value
-	virtual const double* data() const;
+	/// Fills the (hopefully) valid pointer to a single double with our current value
+	virtual bool data(double *outputValues) const;
 
 public slots:
 	/// Note that this will change the read mode for the entire scaler, not just this channel. The read mode can be changed to either SingleRead or ContinuousRead. Requesting to change to the same readMode returns true and the readModeChanged() signal is immediately emitted

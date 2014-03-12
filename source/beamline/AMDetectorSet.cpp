@@ -4,11 +4,13 @@
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorSet::~AMDetectorSet(){}
 AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
 {
 	wasConnected_ = false;
-	QTimer::singleShot(AMDETECTORSET_DETECTOR_TIMEOUT_MS, this, SLOT(onTimedOut()));
+	allHaveResponded_ = false;
+//	QTimer::singleShot(AMDETECTORSET_DEFAULT_DETECTOR_TIMEOUT_MS, this, SLOT(onUnrespondedTimedOut()));
 }
 
 QString AMDetectorSet::name() const{
@@ -42,6 +44,24 @@ QStringList AMDetectorSet::unconnectedDetectors() const{
 	return retVal;
 }
 
+QList<const AMDetector*> AMDetectorSet::timedOutDetectors() const{
+	QList<const AMDetector*> retVal;
+	for(int x = 0, size = count(); x < size; x++){
+		if(at(x)->isTimedOut())
+			retVal.append(at(x));
+	}
+	return retVal;
+}
+
+QList<const AMDetector*> AMDetectorSet::unrespondedDetectors() const{
+	QList<const AMDetector*> retVal;
+	for(int x = 0, size = count(); x < size; x++){
+		if(!at(x)->isConnected() && !at(x)->isTimedOut())
+			retVal.append(at(x));
+	}
+	return retVal;
+}
+
 int AMDetectorSet::indexOf(AMDetector *detector) const{
 	return indexOfValue(detector);
 }
@@ -69,6 +89,7 @@ bool AMDetectorSet::addDetector(AMDetector *detector){
 
 	if( append(detector, detector->name()) ){
 		connect(detector, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
+		connect(detector, SIGNAL(timedOut()), this, SLOT(onTimedOut()));
 		onConnectedChanged(detector->isConnected());
 		return true;
 	}
@@ -128,6 +149,11 @@ void AMDetectorSet::onConnectedChanged(bool detectorConnected){
 	if(!wasConnected_ && isConnnected()){
 		wasConnected_ = true;
 		emit connected(true);
+	}
+
+	if(!allHaveResponded_ && unrespondedDetectors().count() == 0){
+		emit allDetectorsResponded();
+		allHaveResponded_ = true;
 	}
 }
 

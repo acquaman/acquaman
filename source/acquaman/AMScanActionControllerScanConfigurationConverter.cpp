@@ -3,6 +3,7 @@
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 #include "acquaman/AMScanConfiguration.h"
 
+ AMScanActionControllerScanConfigurationConverter::~AMScanActionControllerScanConfigurationConverter(){}
 AMScanActionControllerScanConfigurationConverter::AMScanActionControllerScanConfigurationConverter(AMScanActionControllerScanAssembler *scanAssembler, AMScanConfiguration *scanConfiguration, QObject *parent) :
 	QObject(parent)
 {

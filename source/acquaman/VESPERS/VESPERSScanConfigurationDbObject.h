@@ -31,6 +31,7 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 
 public:
 	/// Constructor.
+	virtual ~VESPERSScanConfigurationDbObject();
 	Q_INVOKABLE VESPERSScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy Constructor.
 	VESPERSScanConfigurationDbObject(const VESPERSScanConfigurationDbObject &original);
@@ -40,11 +41,11 @@ public:
 	/// Returns the current It ion chamber choice.
 	VESPERS::IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
+	VESPERS::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current motor choice.
-	VESPERS::Motor motor() const { return motor_; }
+	VESPERS::Motors motor() const { return motor_; }
 	/// Returns what CCD the scan is using, if any.
-	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
+	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return ccdFileName_; }
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
@@ -66,15 +67,15 @@ signals:
 	/// Same signal.  Just passing as an int.
 	void transmissionChoiceChanged(int);
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChanged(VESPERS::FluorescenceDetector);
+	void fluorescenceDetectorChanged(VESPERS::FluorescenceDetectors);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 	/// Notifier that the motors choice has changed.
-	void motorChanged(VESPERS::Motor);
+	void motorChanged(VESPERS::Motors);
 	/// Same signal.  Just passing as an int.
 	void motorChanged(int);
 	/// Notifier that the flag for whether the CCD will be used has changed.
-	void ccdDetectorChanged(VESPERS::CCDDetector);
+	void ccdDetectorChanged(VESPERS::CCDDetectors);
 	/// Same signal.  Just passing as an int.
 	void ccdDetectorChanged(int);
 	/// Notifier that the name of the CCD file name has changed.
@@ -92,17 +93,17 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector);
+	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotor(VESPERS::Motor choice);
+	void setMotor(VESPERS::Motors choice);
 	/// Overloaded.  Used for database loading.
-	void setMotor(int choice) { setMotor((VESPERS::Motor)choice); }
+	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
 	/// Sets whether the scan should be using the CCD or not.
-	void setCCDDetector(VESPERS::CCDDetector ccd);
+	void setCCDDetector(VESPERS::CCDDetectors ccd);
 	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetector)ccd); }
+	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name);
 	/// Sets the ROI list.
@@ -116,11 +117,11 @@ protected:
 	/// It ion chamber choice.
 	VESPERS::IonChamber It_;
 	/// Fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector_;
+	VESPERS::FluorescenceDetectors fluorescenceDetector_;
 	/// Motor choice for which set of motors will be used.
-	VESPERS::Motor motor_;
+	VESPERS::Motors motor_;
 	/// CCD choice whether the scan should use a CCD detector or not.
-	VESPERS::CCDDetector ccdDetector_;
+	VESPERS::CCDDetectors ccdDetector_;
 	/// The file name (minus number, path and extension of the file) for the CCD.
 	QString ccdFileName_;
 	/// The list holding all the current ROIs for the detector.

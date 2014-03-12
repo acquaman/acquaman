@@ -42,6 +42,7 @@ class AMErrorReport {
 public:
 	enum Level {Information, Alert, Serious, Debug} ;
 
+ 	virtual ~AMErrorReport();
 	AMErrorReport(const QObject* src=0, Level l=Alert, int code=0, const QString& desc = "") : source(src), level(l), errorCode(code), description(desc) {}
 
 	const QObject* source;
@@ -251,6 +252,7 @@ protected slots:
 
 private:
 	/// Singleton class.  Private Constructor:
+ 	virtual ~AMErrorMon();
 	explicit AMErrorMon();
 
 	/// class-wide instance variable

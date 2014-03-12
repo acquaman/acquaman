@@ -35,6 +35,7 @@ class AMControl;
 class AMExtendedControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
+ 	virtual ~AMExtendedControlEditorStyledInputDialog();
 	AMExtendedControlEditorStyledInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 	double setpoint() const;

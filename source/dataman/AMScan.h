@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCAN_H
-#define ACQMAN_SCAN_H
+#ifndef AM_SCAN_H
+#define AM_SCAN_H
 
 
 #include <QObject>

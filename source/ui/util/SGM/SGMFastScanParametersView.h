@@ -33,6 +33,7 @@ class SGMFastScanParametersView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersView();
 	SGMFastScanParametersView(SGMFastScanParameters *fastScanParameters, bool disableCopy = false, QWidget *parent = 0);
 
 	bool hasUnsavedChanges() const;
@@ -82,6 +83,7 @@ class SGMFastScanParametersDatabaseSaveView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersDatabaseSaveView();
 	SGMFastScanParametersDatabaseSaveView(SGMFastScanParameters *fastScanParameters, QWidget *parent = 0);
 
 protected slots:

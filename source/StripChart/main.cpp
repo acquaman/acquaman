@@ -3,9 +3,9 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    StripTool s;
-    s.show();
+	QApplication app(argc, argv);
+	StripTool s;
+	s.show();
     
-    return app.exec();
+	return app.exec();
 }

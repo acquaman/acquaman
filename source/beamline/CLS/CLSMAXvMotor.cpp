@@ -20,9 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSMAXvMotor.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlStopAction.h"
 
+ CLSMAXvMotor::~CLSMAXvMotor(){}
 CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
 	AMPVwStatusControl(name, hasEncoder ? baseName+":mm:fbk" : baseName+":mm:sp", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
@@ -451,250 +452,346 @@ double CLSMAXvMotor::encoderStepSoftRatio() const{
 	return 0;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createMotorMoveAction(double position){
+AMAction3 *CLSMAXvMotor::createMotorMoveAction(double position)
+{
 	return createEGUMoveAction(position);
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEGUMoveAction(double EGUPosition){
+AMAction3 *CLSMAXvMotor::createEGUMoveAction(double EGUPosition)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(this);
-	action->setSetpoint(EGUPosition);
+	AMControlInfo setpoint = toInfo();
+	setpoint.setValue(EGUPosition);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, this);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEGUVelocityAction(double EGUVelocity){
+AMAction3 *CLSMAXvMotor::createEGUVelocityAction(double EGUVelocity)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(EGUVelocity_);
-	action->setSetpoint(EGUVelocity);
+	AMControlInfo setpoint = EGUVelocity_->toInfo();
+	setpoint.setValue(EGUVelocity);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUVelocity_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEGUBaseVelocityAction(double EGUBaseVelocity){
+AMAction3 *CLSMAXvMotor::createEGUBaseVelocityAction(double EGUBaseVelocity)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(EGUBaseVelocity_);
-	action->setSetpoint(EGUBaseVelocity);
+	AMControlInfo setpoint = EGUBaseVelocity_->toInfo();
+	setpoint.setValue(EGUBaseVelocity);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUBaseVelocity_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration){
+AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(EGUAcceleration_);
-	action->setSetpoint(EGUAcceleration);
+	AMControlInfo setpoint = EGUAcceleration_->toInfo();
+	setpoint.setValue(EGUAcceleration);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUAcceleration_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEGUOffsetAction(double EGUOffset){
+AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(EGUOffset_);
-	action->setSetpoint(EGUOffset);
+	AMControlInfo setpoint = EGUOffset_->toInfo();
+	setpoint.setValue(EGUOffset);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUOffset_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepMoveAction(double stepPosition){
+AMAction3 *CLSMAXvMotor::createStepMoveAction(double stepPosition)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(step_);
-	action->setSetpoint(stepPosition);
+	AMControlInfo setpoint = step_->toInfo();
+	setpoint.setValue(stepPosition);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, step_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepVelocityAction(double stepVelocity){
+AMAction3 *CLSMAXvMotor::createStepVelocityAction(double stepVelocity)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(stepVelocity_);
-	action->setSetpoint(stepVelocity);
+	AMControlInfo setpoint = stepVelocity_->toInfo();
+	setpoint.setValue(stepVelocity);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepVelocity_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepBaseVelocityAction(double stepBaseVelocity){
+AMAction3 *CLSMAXvMotor::createStepBaseVelocityAction(double stepBaseVelocity)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(stepBaseVelocity_);
-	action->setSetpoint(stepBaseVelocity);
+	AMControlInfo setpoint = stepBaseVelocity_->toInfo();
+	setpoint.setValue(stepBaseVelocity);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepBaseVelocity_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepAccelerationAction(double stepAcceleration){
+AMAction3 *CLSMAXvMotor::createStepAccelerationAction(double stepAcceleration)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(stepAcceleration_);
-	action->setSetpoint(stepAcceleration);
+	AMControlInfo setpoint = stepAcceleration_->toInfo();
+	setpoint.setValue(stepAcceleration);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepAcceleration_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStopAction(){
+AMAction3 *CLSMAXvMotor::createStopAction()
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlStopAction *action = new AMBeamlineControlStopAction(this);
+	AMControlInfo info = toInfo();
+	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
+	AMAction3 *action = new AMControlStopAction(actionInfo, this);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderCalibrationSlopeAction(double encoderCalibrationSlope){
+AMAction3 *CLSMAXvMotor::createEncoderCalibrationSlopeAction(double encoderCalibrationSlope)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderCalibrationSlope_);
-	action->setSetpoint(encoderCalibrationSlope);
+	AMControlInfo setpoint = encoderCalibrationSlope_->toInfo();
+	setpoint.setValue(encoderCalibrationSlope);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderCalibrationSlope_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepCalibrationSlopeAction(double stepCalibrationSlope){
+AMAction3 *CLSMAXvMotor::createStepCalibrationSlopeAction(double stepCalibrationSlope)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(stepCalibrationSlope_);
-	action->setSetpoint(stepCalibrationSlope);
+	AMControlInfo setpoint = stepCalibrationSlope_->toInfo();
+	setpoint.setValue(stepCalibrationSlope);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepCalibrationSlope_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCalibrationOffset){
+AMAction3 *CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCalibrationOffset)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderCalibrationOffset_);
-	action->setSetpoint(encoderCalibrationOffset);
+	AMControlInfo setpoint = encoderCalibrationOffset_->toInfo();
+	setpoint.setValue(encoderCalibrationOffset);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderCalibrationOffset_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibrationOffset){
+AMAction3 *CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibrationOffset)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(stepCalibrationOffset_);
-	action->setSetpoint(stepCalibrationOffset);
+	AMControlInfo setpoint = stepCalibrationOffset_->toInfo();
+	setpoint.setValue(stepCalibrationOffset);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepCalibrationOffset_);
+
 	return action;
 }
 
 
-AMBeamlineActionItem* CLSMAXvMotor::createMotorTypeAction(CLSMAXvMotor::MotorType motorType){
+AMAction3 *CLSMAXvMotor::createMotorTypeAction(CLSMAXvMotor::MotorType motorType)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(motorType_);
-	action->setSetpoint(motorType);
+	AMControlInfo setpoint = motorType_->toInfo();
+	setpoint.setValue(double(motorType));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, motorType_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState){
+AMAction3 *CLSMAXvMotor::createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(limitActiveState_);
-	action->setSetpoint(limitActiveState);
+	AMControlInfo setpoint = limitActiveState_->toInfo();
+	setpoint.setValue(double(limitActiveState));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, limitActiveState_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createLimitDisabledAction(bool limitDisabled){
+AMAction3 *CLSMAXvMotor::createLimitDisabledAction(bool limitDisabled)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(limitDisabled_);
-	if(limitDisabled)
-		action->setSetpoint(1);
-	else
-		action->setSetpoint(0);
+	AMControlInfo setpoint = limitDisabled_->toInfo();
+	setpoint.setValue(limitDisabled ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, limitDisabled_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createClosedLoopEnabledAction(bool closedLoopEnabled){
+AMAction3 *CLSMAXvMotor::createClosedLoopEnabledAction(bool closedLoopEnabled)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(closedLoopEnabled_);
-	if(closedLoopEnabled)
-		action->setSetpoint(1);
-	else
-		action->setSetpoint(0);
+	AMControlInfo setpoint = closedLoopEnabled_->toInfo();
+	setpoint.setValue(closedLoopEnabled ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, closedLoopEnabled_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createServoPIDEnabledAction(bool servoPIDEnabled){
+AMAction3 *CLSMAXvMotor::createServoPIDEnabledAction(bool servoPIDEnabled)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(servoPIDEnabled_);
-	if(servoPIDEnabled)
-		action->setSetpoint(1);
-	else
-		action->setSetpoint(0);
+	AMControlInfo setpoint = servoPIDEnabled_->toInfo();
+	setpoint.setValue(servoPIDEnabled ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, servoPIDEnabled_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderMoveAction(double encoderPosition){
+AMAction3 *CLSMAXvMotor::createEncoderMoveAction(double encoderPosition)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderTarget_);
-	action->setSetpoint(encoderPosition);
+	AMControlInfo setpoint = encoderTarget_->toInfo();
+	setpoint.setValue(encoderPosition);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderTarget_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMovementType encoderMovementType){
+AMAction3 *CLSMAXvMotor::createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMovementType encoderMovementType)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderMovementType_);
-	action->setSetpoint(encoderMovementType);
+	AMControlInfo setpoint = encoderMovementType_->toInfo();
+	setpoint.setValue(double(encoderMovementType));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderMovementType_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createPreDeadBandAction(double preDeadBand){
+AMAction3 *CLSMAXvMotor::createPreDeadBandAction(double preDeadBand)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(preDeadBand_);
-	action->setSetpoint(preDeadBand);
+	AMControlInfo setpoint = preDeadBand_->toInfo();
+	setpoint.setValue(preDeadBand);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, preDeadBand_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createPostDeadBandAction(double postDeadBand){
+AMAction3 *CLSMAXvMotor::createPostDeadBandAction(double postDeadBand)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(postDeadBand_);
-	action->setSetpoint(postDeadBand);
+	AMControlInfo setpoint = postDeadBand_->toInfo();
+	setpoint.setValue(postDeadBand);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, postDeadBand_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createMaxRetriesAction(double maxRetries){
+AMAction3 *CLSMAXvMotor::createMaxRetriesAction(double maxRetries)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(maxRetries_);
-	action->setSetpoint(maxRetries);
+	AMControlInfo setpoint = maxRetries_->toInfo();
+	setpoint.setValue(maxRetries);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, maxRetries_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderPercentApproachAction(double encoderPercentApproach){
+AMAction3 *CLSMAXvMotor::createEncoderPercentApproachAction(double encoderPercentApproach)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderPercentApproach_);
-	action->setSetpoint(encoderPercentApproach);
+	AMControlInfo setpoint = encoderPercentApproach_->toInfo();
+	setpoint.setValue(encoderPercentApproach);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderPercentApproach_);
+
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderStepSoftRatioAction(double encoderStepSoftRatio){
+AMAction3 *CLSMAXvMotor::createEncoderStepSoftRatioAction(double encoderStepSoftRatio)
+{
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderStepSoftRatio_);
-	action->setSetpoint(encoderStepSoftRatio);
+	AMControlInfo setpoint = encoderStepSoftRatio_->toInfo();
+	setpoint.setValue(encoderStepSoftRatio);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderStepSoftRatio_);
+
 	return action;
 }
 
@@ -984,3 +1081,4 @@ void CLSMAXvMotor::onEncoderMovementTypeChanged(double value){
 	}
 
 }
+ AMControlStatusCheckerCLSMAXv::~AMControlStatusCheckerCLSMAXv(){}

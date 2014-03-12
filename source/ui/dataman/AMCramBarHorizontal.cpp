@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScrollBar>
 
 
+ AMCramBarHorizontal::~AMCramBarHorizontal(){}
 AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	QWidget(parent)
 {
@@ -131,3 +132,4 @@ void AMCramBarHorizontal::reviewScrollButtonsRequired()
 		}
 	}
 }
+ AMScrollArea::~AMScrollArea(){}

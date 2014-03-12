@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/database/AMDbObjectSupport.h"
 
+ SGMEnergyPositionView::~SGMEnergyPositionView(){}
 SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -220,6 +221,7 @@ void SGMEnergyPositionView::onViewModeChanged(){
 
 #include "beamline/SGM/SGMBeamline.h"
 
+ SGMEnergyPositionWBeamlineView::~SGMEnergyPositionWBeamlineView(){}
 SGMEnergyPositionWBeamlineView::SGMEnergyPositionWBeamlineView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	SGMEnergyPositionView(energyPosition, alternateViewMode, parent)
 {
@@ -241,6 +243,7 @@ void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
 	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
 }
 
+ SGMEnergyPositionDisassociateFromDbDialog::~SGMEnergyPositionDisassociateFromDbDialog(){}
 SGMEnergyPositionDisassociateFromDbDialog::SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent) :
 	QDialog(parent)
 {
@@ -309,6 +312,7 @@ void SGMEnergyPositionDisassociateFromDbDialog::onNewNameLineEditTextEdited(cons
 	newNameLineEdit_->setPalette(editPalette);
 }
 
+ SGMEnergyPositionWBeamlineAndDatabaseView::~SGMEnergyPositionWBeamlineAndDatabaseView(){}
 SGMEnergyPositionWBeamlineAndDatabaseView::SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	SGMEnergyPositionWBeamlineView(energyPosition, alternateViewMode, parent)
 {

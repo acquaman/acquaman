@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Sets the title of the group box based on the name() function of the AMControlSet.
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
+ AMControlSetView::~AMControlSetView(){}
 AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QWidget *parent) :
 		QGroupBox(parent)
 {

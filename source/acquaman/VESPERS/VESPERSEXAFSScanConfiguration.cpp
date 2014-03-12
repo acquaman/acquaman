@@ -21,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "acquaman/VESPERS/VESPERSXASScanActionController.h"
+
+VESPERSEXAFSScanConfiguration::~VESPERSEXAFSScanConfiguration(){}
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	: AMEXAFSScanConfiguration(parent), VESPERSScanConfiguration()
@@ -46,7 +49,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	numberOfScans_ = 1;
 
 	goToPosition_ = false;
-	position_ = qMakePair(0.0, 0.0);
+	position_ = QPointF(0.0, 0.0);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
@@ -104,7 +107,10 @@ AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
 
 AMScanController *VESPERSEXAFSScanConfiguration::createController()
 {
-	return new VESPERSEXAFSDacqScanController(this);
+	AMScanActionController *controller = new VESPERSXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()
@@ -266,17 +272,17 @@ void VESPERSEXAFSScanConfiguration::setGoToPosition(bool state)
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::setPosition(QPair<double, double> pos)
+void VESPERSEXAFSScanConfiguration::setPosition(const QPointF &pos)
 {
-	setX(pos.first);
-	setY(pos.second);
+	setX(pos.x());
+	setY(pos.y());
 }
 
 void VESPERSEXAFSScanConfiguration::setX(double xPos)
 {
-	if (position_.first != xPos){
+	if (position_.x() != xPos){
 
-		position_.first = xPos;
+		position_.setX(xPos);
 		emit xPositionChanged(xPos);
 		setModified(true);
 	}
@@ -284,9 +290,9 @@ void VESPERSEXAFSScanConfiguration::setX(double xPos)
 
 void VESPERSEXAFSScanConfiguration::setY(double yPos)
 {
-	if (position_.second != yPos){
+	if (position_.y() != yPos){
 
-		position_.second = yPos;
+		position_.setY(yPos);
 		emit yPositionChanged(yPos);
 		setModified(true);
 	}

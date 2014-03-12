@@ -35,6 +35,7 @@ class VESPERSBendingMirrorsElementView : public QWidget
 
 public:
 	/// Constructor.  Takes a control and connects all the aspects of it to the widget levels.
+ 	virtual ~VESPERSBendingMirrorsElementView();
 	explicit VESPERSBendingMirrorsElementView(AMControl *control, QWidget *parent = 0);
 
 protected slots:
@@ -73,6 +74,7 @@ class VESPERSBendingMirrorsView : public QWidget
 
 public:
 	/// Constructor.  Builds all the motors and the layout.
+ 	virtual ~VESPERSBendingMirrorsView();
 	explicit VESPERSBendingMirrorsView(QWidget *parent = 0);
 };
 

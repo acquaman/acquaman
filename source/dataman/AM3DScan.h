@@ -12,6 +12,7 @@ class AM3DScan : public AMScan
 
 public:
 	/// Creates a new 3D scan.
+ 	virtual ~AM3DScan();
 	Q_INVOKABLE explicit AM3DScan(QObject *parent = 0);
 };
 

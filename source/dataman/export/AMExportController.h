@@ -33,6 +33,7 @@ class QStandardItemModel;
 class AMExporterInfo {
 public:
 	/// Constructor (Default values make an invalid AMExporterInfo)
+ 	virtual ~AMExporterInfo();
 	AMExporterInfo(const QMetaObject* exporterMetaObject = 0, QString exporterDescription = QString(), QString exporterOptionClassName = QString(), QString exporterLongDescription = QString() )
 		: description(exporterDescription),
 		  optionClassName(exporterOptionClassName),
@@ -94,7 +95,7 @@ public:
 
 	explicit AMExportController(const QList<AMScan*>& scansToExport);
 
-	~AMExportController();
+	virtual ~AMExportController();
 
 	/// The export system lets the user choose from the set of available "file formats", where each file format is defined by an AMExporter subclass.  Call this static function to register all available AMExporter subclasses with the export system first, before actually using an AMExportController instance.
 	template <class T>

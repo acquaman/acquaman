@@ -30,6 +30,7 @@ class AMDbUpgrade : public QObject
 Q_OBJECT
 public:
 	/// The general constructor. The \c databaseNameToUpgrade is the name of the AMDatabases that you wish to apply this upgrade to.
+ 	virtual ~AMDbUpgrade();
 	AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent = 0);
 
 	/// The tags that this upgrade depends on. If a particular upgrade cannot be attempted if certain upgrades haven't already happened, the list of tags should be returned by this function. This function can return an empty list (it has no dependencies).

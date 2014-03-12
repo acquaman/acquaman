@@ -31,6 +31,7 @@ class AM3DDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AM3DDeadTimeAB();
 	Q_INVOKABLE AM3DDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.

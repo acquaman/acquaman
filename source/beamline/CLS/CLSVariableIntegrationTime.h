@@ -23,14 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
 
 /*!
   The following is meant to be an abstraction to the Variable Integration time app used at the CLS.  Currently, only knowledge of how it works is based on
   VESPERS, however my understanding is that all of the apps were made by the same person (Ru) and therefore will likely be very similar, if not identical,
   to each other in naming conventions and other aspects.  To use the class, the idea will be to pass the base name and the constructor will build the
   necessary controls.  The functionality of the class will be similar to the new trend for AM classes to have getters, setters, and action getters.  Getters
-  and setters for immediate actions on the beamline, and action getters that return an AMBeamlineActionItem that handles all the necessary setup and can be
+  and setters for immediate actions on the beamline, and action getters that return an action that handles all the necessary setup and can be
   started at any time and behave according the Acquaman actions framework (useful for intialization or clean up procedures that need to wait for other actions
   to complete before starting).  One final thing, although most things use seconds as the default unit of time, the CLS app uses milliseconds.  Therefore,
   I have mapped all of the values from milliseconds to seconds for consistency within AM.
@@ -45,6 +45,7 @@ public:
 	enum Function { Default = 0, Geometric, Exponential, Linear, Quadratic, SmoothStep, Logarithmic };
 
 	/// Constructor.  Takes in the base name and parent and builds a variable integration time object.
+ 	virtual ~CLSVariableIntegrationTime();
 	explicit CLSVariableIntegrationTime(const QString &baseName, QObject *parent = 0);
 
 	/// Returns the current mode of the variable integration time app.
@@ -130,23 +131,23 @@ public:
 
 	// Action getters.  Returns an action equivalent of a setter.
 	/// Returns an action that changes the mode to \param mode.
-	AMBeamlineActionItem *createModeAction(Mode mode);
+	AMAction3 *createModeAction(Mode mode);
 	/// Returns an action that changes the default time to \param time (in seconds).
-	AMBeamlineActionItem *createDefaultTimeAction(double time);
+	AMAction3 *createDefaultTimeAction(double time);
 	/// Returns an action that changes the threshold to \param threshold.
-	AMBeamlineActionItem *createThresholdAction(double threshold);
+	AMAction3 *createThresholdAction(double threshold);
 	/// Returns an action that changes the function to \param function.
-	AMBeamlineActionItem *createFunctionAction(Function function);
+	AMAction3 *createFunctionAction(Function function);
 	/// Returns an action that changes the low value to \param low.
-	AMBeamlineActionItem *createLowValueAction(double low);
+	AMAction3 *createLowValueAction(double low);
 	/// Returns an action that changes the high value to \param high.
-	AMBeamlineActionItem *createHighValueAction(double high);
+	AMAction3 *createHighValueAction(double high);
 	/// Returns an action that changes the maximum time to \param time (in seconds).
-	AMBeamlineActionItem *createMaximumTimeAction(double time);
+	AMAction3 *createMaximumTimeAction(double time);
 	/// Returns an action that intiates a compute action.
-	AMBeamlineActionItem *createComputeAction();
+	AMAction3 *createComputeAction();
 	/// Returns an action that sets up the entire variable dwell time app.
-	AMBeamlineActionItem *createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime);
+	AMAction3 *createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime);
 
 signals:
 	/// Notifier that the mode has changed.  Passes the new mode.

@@ -7,6 +7,7 @@ class SGMAxis2000Exporter : public AMExporterGeneralAscii
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMAxis2000Exporter();
     Q_INVOKABLE SGMAxis2000Exporter(QObject *parent = 0);
 
     virtual QString description() const { return "aXis 2000 SGM (plain text file)"; }

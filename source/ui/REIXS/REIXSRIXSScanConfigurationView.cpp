@@ -34,7 +34,6 @@
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMSampleSelector.h"
 #include "dataman/AMScan.h"
-#include "actions/AMBeamlineScanAction.h"
 
 
 #include "source/actions3/AMActionRunner3.h"

@@ -34,7 +34,7 @@ class AMTopFrame2 : public QWidget
 
 public:
 	explicit AMTopFrame2(const QString& title, const QIcon& icon = QIcon(), QWidget *parent = 0);
-    ~AMTopFrame2();
+    virtual ~AMTopFrame2();
 
 	QString title() const;
 	QString leftSubText() const;

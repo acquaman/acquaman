@@ -1,5 +1,6 @@
 #include "AM3DNormalizationAB.h"
 
+ AM3DNormalizationAB::~AM3DNormalizationAB(){}
 AM3DNormalizationAB::AM3DNormalizationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

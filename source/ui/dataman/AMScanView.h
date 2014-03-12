@@ -52,7 +52,8 @@ class QDoubleSpinBox;
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
-	//virtual ~AMScanViewModeBar();
+	virtual ~AMScanViewModeBar();
+
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
 	QButtonGroup* modeButtons_;
@@ -79,7 +80,9 @@ class AMScanView;
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
-	//virtual ~AMScanViewInternal();
+
+	virtual ~AMScanViewInternal();
+
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 signals:
@@ -187,6 +190,10 @@ public slots:
 
 	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it already exists.
 	void exportGraphicsFile(const QString& outputFileName);
+
+	/// Print the current view via print dialog.
+	void printGraphics();
+
 
 	/// Set the visibility of the data-source button bars.
 	void setScanBarsVisible(bool areVisible);

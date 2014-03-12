@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControl.h"
 
+ AMControlButton::~AMControlButton(){}
 AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 		QToolButton(parent)
 {

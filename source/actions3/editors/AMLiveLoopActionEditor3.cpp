@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+ AMLiveLoopActionEditor3::~AMLiveLoopActionEditor3(){}
 AMLiveLoopActionEditor3::AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget *parent)
 	: QFrame(parent)
 {

@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataSource.h"
 #include <QDebug>
 
+ AMDataSourceSignalSource::~AMDataSourceSignalSource(){}
 AMDataSourceSignalSource::AMDataSourceSignalSource(AMDataSource *parent)
 	: QObject() {
 	data_ = parent;

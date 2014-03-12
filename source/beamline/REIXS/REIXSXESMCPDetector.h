@@ -25,6 +25,7 @@ public:
 	Q_DECLARE_FLAGS(XESMCPFinishedConditions, XESMCPFinishedCondition)
 
 	/// Default constructor. It builds all of the PVs and connec to them accordingly.
+ 	virtual ~REIXSXESMCPDetector();
 	REIXSXESMCPDetector(QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a image detector, so it has a rank of 2.
@@ -74,8 +75,8 @@ public:
 	/// Returns false, because the XES MCP detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a REIXSXESMCPDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return image_; }
@@ -151,9 +152,6 @@ protected:
 
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The master set of controls
 	AMControlSet *allControls_;
 

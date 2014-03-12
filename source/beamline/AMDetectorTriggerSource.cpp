@@ -1,5 +1,6 @@
 #include "AMDetectorTriggerSource.h"
 
+ AMDetectorTriggerSource::~AMDetectorTriggerSource(){}
 AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *parent) :
 	QObject(parent)
 {
@@ -18,6 +19,7 @@ void AMDetectorTriggerSource::setFailed(){
 	emit failed();
 }
 
+ AMDetectorDwellTimeSource::~AMDetectorDwellTimeSource(){}
 AMDetectorDwellTimeSource::AMDetectorDwellTimeSource(const QString &name, QObject *parent) :
 	QObject(parent)
 {

@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMRawDataSource.h"
 
 
+ AMRawDataSource::~AMRawDataSource(){}
 AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent)
 	: AMDbObject(parent), AMDataSource( dataStore->measurementAt(measurementId).name )
 {

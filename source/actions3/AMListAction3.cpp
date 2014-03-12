@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "ui/actions3/AMActionHistoryModel.h"
 
-#include <QDebug>
-
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -71,8 +69,9 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 AMListAction3::~AMListAction3() {
 	//qDeleteAll(subActions_);
 	//subActions_.clear();
-	while(subActions_.count() > 0)
-		delete subActions_.takeLast();
+
+//	while(subActions_.count() > 0)
+//		delete subActions_.takeLast();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
@@ -106,6 +105,9 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
+	if (!action)
+		return false;
+
 	if (subActionMode() == Parallel && !action->canParallelize())
 		return false;
 
@@ -113,9 +115,6 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING, "Cannot add sub-actions once the action is already running.");
 		return false;
 	}
-
-	if (!action)
-		return false;
 
 	if(action->isValid() == AMAction3::ActionNeverValid)
 		return false;
@@ -717,3 +716,5 @@ bool AMListAction3::internalShouldLogSubAction(AMAction3 *action)
 	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }
+ AMSequentialListAction3::~AMSequentialListAction3(){}
+ AMParallelListAction3::~AMParallelListAction3(){}

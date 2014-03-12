@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMCrosshairOverlayVideoWidget.h"
 
+ AMBeamlineCameraBrowser::~AMBeamlineCameraBrowser(){}
 AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGlViewport) :
 	AMBeamlineCameraWidget(parent, useOpenGlViewport)
 {

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMOLDDETECTORINFOSET_H
 
 #include <QObject>
-#include <beamline/AMOldDetector.h>
+#include <dataman/info/AMOldDetectorInfo.h>
 #include <util/AMOrderedSet.h>
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
@@ -47,7 +47,7 @@ public:
 	AMOldDetectorInfoSet& operator=(const AMOldDetectorInfoSet& other);
 
 	/// Destructor
-	~AMOldDetectorInfoSet() {}
+	virtual ~AMOldDetectorInfoSet() {}
 
 	friend QDebug operator<<(QDebug d, const AMOldDetectorInfoSet& dis);
 

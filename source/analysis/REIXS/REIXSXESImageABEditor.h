@@ -50,6 +50,7 @@ class REIXSXESImageABEditorShiftModel : public QObject, public MPlotAbstractSeri
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+ 	virtual ~REIXSXESImageABEditorShiftModel();
 	REIXSXESImageABEditorShiftModel(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
@@ -82,6 +83,7 @@ class REIXSXESImageABEditorEllipticalMask : public QObject, public MPlotAbstract
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+ 	virtual ~REIXSXESImageABEditorEllipticalMask();
 	REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
@@ -124,7 +126,7 @@ public:
 	explicit REIXSXESImageABEditor(REIXSXESImageAB* analysisBlock, QWidget *parent = 0);
 
 	/// Destructor
-	~REIXSXESImageABEditor();
+	virtual ~REIXSXESImageABEditor();
 
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
 	enum smoothBoxType { None, Poly, Median, Average };

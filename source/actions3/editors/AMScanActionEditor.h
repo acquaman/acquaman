@@ -34,7 +34,7 @@ public:
 	/// Constructor: Must be Q_INVOKABLE, and accept an AMScanActionInfo as argument
 	Q_INVOKABLE AMScanActionEditor(AMScanActionInfo *info, QWidget *parent = 0);
 	/// Destructor.
-	~AMScanActionEditor();
+	virtual ~AMScanActionEditor();
 
 signals:
 

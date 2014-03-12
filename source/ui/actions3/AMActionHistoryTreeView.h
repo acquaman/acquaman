@@ -36,6 +36,7 @@ class AMActionHistoryTreeView3 : public QTreeView
 Q_OBJECT
 public:
 	/// Standard constructor simply sets the internal variables to their initial states and makes connections.
+ 	virtual ~AMActionHistoryTreeView3();
 	AMActionHistoryTreeView3(QWidget *parent = 0);
 
 public slots:
@@ -89,6 +90,7 @@ class AMActionLogItemDelegate3 : public QStyledItemDelegate {
 public:
 	/// Constructor takes a pointer to the AMActionHistoryTreeView viewing it (not great coupling). This is necessary to check with the log item to see if its parentSelected flag is on for a particular view.
 	/*! This could likely be changed to a more generic QAbstractItemView pointer, but the coupling is still needed in this design. */
+ 	virtual ~AMActionLogItemDelegate3();
 	explicit AMActionLogItemDelegate3(AMActionHistoryTreeView3 *viewer, QObject* parent = 0);
 
 protected:

@@ -2,15 +2,12 @@
 
 #include <QStringBuilder>
 
+ CLSQE65000Detector::~CLSQE65000Detector(){}
 CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {
 	baseName_ = baseName;
 	units_ = "Counts";
-
-	data_ = new double[1024];
-	for(int x = 0; x < 1024; x++)
-		data_[x] = 0;
 
 	allControls_ = new AMControlSet(this);
 
@@ -39,7 +36,6 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
-	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
 
@@ -112,8 +108,9 @@ bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
 	return false;
 }
 
-const double* CLSQE65000Detector::data() const{
-	return data_;
+bool CLSQE65000Detector::data(double *outputValues) const
+{
+	return spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);
 }
 
 bool CLSQE65000Detector::setAcquisitionTime(double seconds){
@@ -166,22 +163,6 @@ void CLSQE65000Detector::onControlsConnected(bool connected){
 
 void CLSQE65000Detector::onControlsTimedOut(){
 	setConnected(false);
-}
-
-void CLSQE65000Detector::onSpectrumControlChanged(double newValue){
-	Q_UNUSED(newValue)
-
-	if(isConnected()){
-		AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
-
-		memcpy(data_, tmpControl->readPV()->lastFloatingPointValues().constData(), 1024*sizeof(double));
-		/*
-		QVector<int> values = tmpControl->readPV()->lastIntegerValues();
-		//QVector<double> values = tmpControl->readPV()->lastFloatingPointValues();
-		for(int x = 0; x < values.count(); x++)
-			data_[x] = values.at(x);
-		*/
-	}
 }
 
 void CLSQE65000Detector::onStatusControlChanged(double value){

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMElementListEdit.h"
 
+ AMElementsModel::~AMElementsModel(){}
 AMElementsModel::AMElementsModel(QObject *parent)
 	: QStandardItemModel(parent) {
 
@@ -106,6 +107,7 @@ void AMElementsModel::updateIndexes() {
 #include <QRegExp>
 
 
+ AMElementValidator::~AMElementValidator(){}
 AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 	: QValidator(parent) {
 	model_ = model;
@@ -218,6 +220,7 @@ bool AMElementsModel::validSymbolStartsWith(const QString &string) {
 
    */
 
+ AMElementListEdit::~AMElementListEdit(){}
 AMElementListEdit::AMElementListEdit(QWidget *parent) :
 		QLineEdit(parent)
 {

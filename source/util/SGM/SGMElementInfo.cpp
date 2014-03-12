@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+ SGMEnergyPosition::~SGMEnergyPosition(){}
 SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
 	setName(name);
@@ -142,6 +143,7 @@ void SGMEnergyPosition::setSGMGrating(int sgmGrating) {
 	}
 }
 
+ SGMScanInfo::~SGMScanInfo(){}
 SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAndEnergy, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -153,6 +155,19 @@ SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAnd
 		hasEdge_ = false;
 	edge_ = edgeAndEnergy.first;
 	energy_ = edgeAndEnergy.second;
+	setStart(start);
+	setMiddle(middle);
+	setEnd(end);
+}
+
+SGMScanInfo::SGMScanInfo(const QString &scanName, AMAbsorptionEdge edge, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent)
+	: AMDbObject(parent)
+{
+	setName(scanName);
+	setScanName(scanName);
+	hasEdge_ = !edge.isNull();
+	edge_ = edge.edgeName().left(1);
+	energy_ = edge.energy();
 	setStart(start);
 	setMiddle(middle);
 	setEnd(end);
@@ -294,14 +309,15 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId) {
 	}
 }
 
-SGMElementInfo::SGMElementInfo(const QString &name, const AMElement *element, QObject *parent) :
+ SGMElementInfo::~SGMElementInfo(){}
+SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	element_ = element;
 }
 
-const AMElement* SGMElementInfo::element() const{
+AMElement* SGMElementInfo::element() const{
 	return element_;
 }
 
@@ -368,6 +384,7 @@ void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastSc
 }
 
 
+ SGMFastScanSettings::~SGMFastScanSettings(){}
 SGMFastScanSettings::SGMFastScanSettings(const QString &name, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -483,6 +500,7 @@ void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
 	}
 }
 
+ SGMFastScanParameters::~SGMFastScanParameters(){}
 SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString &element, const SGMScanInfo &scanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent) :
 		AMDbObject(parent)
 {
@@ -715,7 +733,6 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 	if(fastScanSettings_ != fastScanSettings){
 		disconnect(&fastScanSettings_, 0);
 		fastScanSettings_ = fastScanSettings;
-		qDebug() << "Setting modified true in SGMFastScanParameters";
 		setModified(true);
 		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
@@ -726,8 +743,6 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
 		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
 	}
-	else
-		qDebug() << "No need to setModified(true), they were the same";
 }
 
 void SGMFastScanParameters::onStartChanged(){

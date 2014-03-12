@@ -18,10 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSVariableIntegrationTime.h"
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+
+ CLSVariableIntegrationTime::~CLSVariableIntegrationTime(){}
 CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, QObject *parent)
 	: QObject(parent)
 {
@@ -49,95 +50,111 @@ CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, 
 	connect(a2_, SIGNAL(valueChanged(double)), this, SIGNAL(a2Changed(double)));
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createModeAction(Mode mode)
+AMAction3 *CLSVariableIntegrationTime::createModeAction(Mode mode)
 {
 	if (!mode_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(mode_);
-	action->setSetpoint(mode);
+	AMControlInfo setpoint = mode_->toInfo();
+	setpoint.setValue(double(mode));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, mode_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createDefaultTimeAction(double time)
+AMAction3 *CLSVariableIntegrationTime::createDefaultTimeAction(double time)
 {
 	if (!defaultTime_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(defaultTime_);
-	action->setSetpoint(time*1000);
+	AMControlInfo setpoint = defaultTime_->toInfo();
+	setpoint.setValue(time);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, defaultTime_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createThresholdAction(double threshold)
+AMAction3 *CLSVariableIntegrationTime::createThresholdAction(double threshold)
 {
 	if (!threshold_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(threshold_);
-	action->setSetpoint(threshold);
+	AMControlInfo setpoint = threshold_->toInfo();
+	setpoint.setValue(threshold);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, threshold_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createFunctionAction(Function function)
+AMAction3 *CLSVariableIntegrationTime::createFunctionAction(Function function)
 {
 	if (!function_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(function_);
-	action->setSetpoint(function);
+	AMControlInfo setpoint = function_->toInfo();
+	setpoint.setValue(double(function));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, function_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createLowValueAction(double low)
+AMAction3 *CLSVariableIntegrationTime::createLowValueAction(double low)
 {
 	if (!lowVal_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(lowVal_);
-	action->setSetpoint(low);
+	AMControlInfo setpoint = lowVal_->toInfo();
+	setpoint.setValue(low);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, lowVal_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createHighValueAction(double high)
+AMAction3 *CLSVariableIntegrationTime::createHighValueAction(double high)
 {
 	if (!highVal_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(highVal_);
-	action->setSetpoint(high);
+	AMControlInfo setpoint = highVal_->toInfo();
+	setpoint.setValue(high);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, highVal_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createMaximumTimeAction(double time)
+AMAction3 *CLSVariableIntegrationTime::createMaximumTimeAction(double time)
 {
 	if (!maxTime_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(maxTime_);
-	action->setSetpoint(time*1000);
+	AMControlInfo setpoint = maxTime_->toInfo();
+	setpoint.setValue(time);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, maxTime_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createComputeAction()
+AMAction3 *CLSVariableIntegrationTime::createComputeAction()
 {
 	if (!compute_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(compute_);
-	action->setSetpoint(1);
+	AMControlInfo setpoint = compute_->toInfo();
+	setpoint.setValue(1.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, compute_);
 
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime)
+AMAction3 *CLSVariableIntegrationTime::createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime)
 {
 	if (!(mode_->isConnected()
 		  && defaultTime_->isConnected()
@@ -150,20 +167,18 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, d
 		return 0;
 
 	// This is a two stage setup.  The first stage is setting all of the appropriate values to all of the fields.  Once those are all done, then the app needs to compute the new values.
-	AMBeamlineParallelActionsList *setupActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *setupAction = new AMBeamlineListAction(setupActionsList);
+	AMListAction3 *valueSetupAction = new AMListAction3(new AMListActionInfo3("Handles all the settings", "Handles setting all the setup values in a parallel list."), AMListAction3::Parallel);
+	valueSetupAction->addSubAction(createModeAction(mode));
+	valueSetupAction->addSubAction(createDefaultTimeAction(defaultTime));
+	valueSetupAction->addSubAction(createThresholdAction(threshold));
+	valueSetupAction->addSubAction(createFunctionAction(function));
+	valueSetupAction->addSubAction(createLowValueAction(low));
+	valueSetupAction->addSubAction(createHighValueAction(high));
+	valueSetupAction->addSubAction(createMaximumTimeAction(maximumTime));
 
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	setupActionsList->appendAction(0, createModeAction(mode));
-	setupActionsList->appendAction(0, createDefaultTimeAction(defaultTime));
-	setupActionsList->appendAction(0, createThresholdAction(threshold));
-	setupActionsList->appendAction(0, createFunctionAction(function));
-	setupActionsList->appendAction(0, createLowValueAction(low));
-	setupActionsList->appendAction(0, createHighValueAction(high));
-	setupActionsList->appendAction(0, createMaximumTimeAction(maximumTime));
-
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	setupActionsList->appendAction(1, createComputeAction());
+	AMListAction3 *setupAction = new AMListAction3(new AMListActionInfo3("Full variable integration time setup", "This action does all the setup for the variable integration time."), AMListAction3::Sequential);
+	setupAction->addSubAction(valueSetupAction);
+	setupAction->addSubAction(createComputeAction());
 
 	return setupAction;
 }

@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageDatawDefault.h"
 
+ AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault(){}
 AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent)
 	: AMDataSourceImageData(dataSource, parent)
 {

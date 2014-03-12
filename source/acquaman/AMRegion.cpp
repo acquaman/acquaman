@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMRegion
 /////////////////////////////////////////////////////////
 
+ AMRegion::~AMRegion(){}
 AMRegion::AMRegion(QObject *parent) :
 	QObject(parent)
 {
@@ -134,6 +135,7 @@ bool AMRegion::isValid() const
 // AMRegionsListModel
 /////////////////////////////////////////////////////////////////////////////
 
+ AMRegionsListModel::~AMRegionsListModel(){}
 AMRegionsListModel::AMRegionsListModel(QObject *parent)
 	: QAbstractTableModel(parent)
 {
@@ -817,3 +819,7 @@ QVariant AMEXAFSRegionsListModel::headerData(int section, Qt::Orientation orient
 
 	return header;
 }
+ AMXASRegion::~AMXASRegion(){}
+ AMXASRegionsListModel::~AMXASRegionsListModel(){}
+ AMEXAFSRegion::~AMEXAFSRegion(){}
+ AMEXAFSRegionsListModel::~AMEXAFSRegionsListModel(){}

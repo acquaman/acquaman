@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3DDeadTimeAB.h"
 
+ AM3DDeadTimeAB::~AM3DDeadTimeAB(){}
 AM3DDeadTimeAB::AM3DDeadTimeAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

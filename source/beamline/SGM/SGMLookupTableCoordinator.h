@@ -28,6 +28,7 @@ class SGMLookupTableCoordinator : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMLookupTableCoordinator();
 	SGMLookupTableCoordinator(const QString &inputControlName, const QString &outputControlName, const QString &linkageControlName, const QString &loadLookupTableControlName, QObject *parent = 0);
 
 protected slots:

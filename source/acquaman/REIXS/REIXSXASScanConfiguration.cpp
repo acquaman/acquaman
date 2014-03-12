@@ -18,7 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSXASScanConfiguration.h"
-#include <QDebug>
 
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMXASScanConfiguration(parent)
@@ -86,7 +85,11 @@ AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 AMScanController * REIXSXASScanConfiguration::createController()
 {
 	//return new REIXSXASScanController(this);
-	return new REIXSXASScanActionController(this);
+//	return new REIXSXASScanActionController(this);
+	AMScanActionController *controller = new REIXSXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 #include "ui/dataman/AMRegionScanConfigurationView.h"

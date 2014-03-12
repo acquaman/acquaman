@@ -55,7 +55,7 @@ class AMScan;
 
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE 270201
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE 270202
-#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE 270220
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE 270230
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE 270203
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_LOAD_FAILURE 270204
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND 270205
@@ -243,6 +243,10 @@ The Drag is accepted when:
 
 	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
 	void onActionExportGraphics();
+	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
+	void onActionPrintGraphics();
+
+
 
 protected slots:
 
@@ -323,6 +327,8 @@ protected:
 	QMenu *fileMenu_, *helpMenu_;
 	/// The action that triggers saving the current AMScanView image.
 	QAction* exportGraphicsAction_;
+	QAction* printGraphicsAction_;
+
 
 	/// Top-level panes in the main window
 	AMBottomPanel *bottomPanel_;

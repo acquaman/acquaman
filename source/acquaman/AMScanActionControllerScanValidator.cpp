@@ -1,5 +1,6 @@
 #include "AMScanActionControllerScanValidator.h"
 
+ AMScanActionControllerScanValidator::~AMScanActionControllerScanValidator(){}
 AMScanActionControllerScanValidator::AMScanActionControllerScanValidator(AMAction3 *scanActionTree, QObject *parent) :
 	QObject(parent)
 {

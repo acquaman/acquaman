@@ -22,12 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include <QStringBuilder>
+
+ XRFFreeRun::~XRFFreeRun(){}
 XRFFreeRun::XRFFreeRun(XRFDetector *detector, QObject *parent)
 	: QObject(parent)
 {
 	detector_ = detector;
 	config_ = new VESPERSXRFScanConfiguration(detector_->toXRFInfo());
-	xrfTable_ = new XRFPeriodicTable(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy(), this);
+	xrfTable_ = new XRFPeriodicTable(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), detector_->maximumEnergy(), this);
 	xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
 
 	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
@@ -134,13 +137,13 @@ void XRFFreeRun::addRegionOfInterestToTable(QString name)
 
 		for (int j = 0; j < el->emissionLines().count(); j++){
 
-			if (temp.compare(el->symbol()+" "+GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0){
+			if (temp.compare(el->symbol()%" "%el->emissionLines().at(j).lineName()) == 0){
 
 				xrfTable_->blockSignals(true);
 				xrfTable_->setCurrentElement(el);
 				xrfTable_->blockSignals(false);
-				xrfTable_->addLineToList(el->emissionLines().at(j).first);
-				detector_->addRegionOfInterest(el, el->emissionLines().at(j).first, false);
+				xrfTable_->addLineToList(el->emissionLines().at(j).greekLineName());
+				detector_->addRegionOfInterest(el, el->emissionLines().at(j).greekLineName(), false);
 			}
 		}
 	}

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileSystemModel>
 #include <QDir>
 
+ AMFolderPathLineEdit::~AMFolderPathLineEdit(){}
 AMFolderPathLineEdit::AMFolderPathLineEdit(QWidget *parent) :
 	QLineEdit(parent)
 {
@@ -64,3 +65,4 @@ QValidator::State AMFolderPathValidator::validate(QString &input, int &pos) cons
 	emit validChanged(false);
 	return QValidator::Intermediate;
 }
+ AMFolderPathValidator::~AMFolderPathValidator(){}

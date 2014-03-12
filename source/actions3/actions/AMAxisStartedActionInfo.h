@@ -12,6 +12,7 @@ Q_PROPERTY(int axisType READ dbAxisType WRITE setDbAxisType)
 
 public:
 	/// Constructor
+ 	virtual ~AMAxisStartedActionInfo();
 	Q_INVOKABLE AMAxisStartedActionInfo(const QString &axisName, AMScanAxis::AxisType axisType, QObject *parent = 0);
 
 	/// Copy Constructor

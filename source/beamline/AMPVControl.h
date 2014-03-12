@@ -70,6 +70,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
+	virtual ~AMReadOnlyPVControl();
 	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
 	/// \name Reimplemented Public Functions:
@@ -182,6 +183,7 @@ public:
   \param parent QObject parent class
   \param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
   */
+	virtual ~AMPVControl();
 	AMPVControl(const QString& name,
 				const QString& readPVname,
 				const QString& writePVname,
@@ -226,8 +228,8 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but possible abberant behivour is possibles.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
 	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts.  The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
@@ -305,6 +307,8 @@ protected slots:
 
 	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 
 };
@@ -328,6 +332,7 @@ public:
   \param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
   \param parent QObject parent class
   */
+	virtual ~AMSinglePVControl();
 	AMSinglePVControl(const QString& name,
 					  const QString& PVname,
 					  QObject* parent = 0,
@@ -349,6 +354,7 @@ public:
 class AMControlStatusCheckerDefault : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compared to \c isMovingValue, and return true if the status value is equal to isMovingValue.
+	virtual ~AMControlStatusCheckerDefault();
 	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
 
 	/// Returns true (moving) if the \c statusValue matches isMovingValue_;
@@ -362,6 +368,7 @@ protected:
 class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	virtual ~AMControlStatusCheckerStopped();
 	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
 
 	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
@@ -530,6 +537,7 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   */
+	virtual ~AMPVwStatusControl();
 	AMPVwStatusControl(const QString& name,
 					   const QString& readPVname,
 					   const QString& writePVname,
@@ -576,8 +584,8 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	virtual double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but abberant behaviour could be the result.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
 	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
@@ -667,6 +675,8 @@ protected slots:
 
 	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 };
 
@@ -688,6 +698,7 @@ public:
 class AMScaleAndOffsetUnitConverter : public AMAbstractUnitConverter {
 public:
 	/// Constructor
+	virtual ~AMScaleAndOffsetUnitConverter();
 	AMScaleAndOffsetUnitConverter(const QString& units, double scale = 1.0, double offset = 0.0) :
 		units_(units), scale_(scale), offset_(offset) {}
 	/// Convert raw units to output units
@@ -742,7 +753,7 @@ public:
 										const QString &description = "");
 
 	/// Destructor: deletes the unit converter
-	~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
+	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
 
 	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
@@ -817,6 +828,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
+	virtual ~AMReadOnlyWaveformBinningPVControl();
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
 									   const QString& readPVname,
 									   int lowIndex = 0,

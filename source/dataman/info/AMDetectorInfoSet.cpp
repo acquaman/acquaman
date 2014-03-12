@@ -1,5 +1,6 @@
 #include "AMDetectorInfoSet.h"
 
+ AMDetectorInfoSet::~AMDetectorInfoSet(){}
 AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent) :
 	AMDbObject(parent), AMOrderedSet<QString, AMDetectorInfo>(false)
 {

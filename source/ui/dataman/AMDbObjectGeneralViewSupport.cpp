@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObject.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 
+ AMDbObjectGeneralViewObjectInfo::~AMDbObjectGeneralViewObjectInfo(){}
 AMDbObjectGeneralViewObjectInfo::AMDbObjectGeneralViewObjectInfo(AMDbObject *prototypeObject, AMDbObjectGeneralView *prototypeGeneralView){
 	initWithMetaObject(prototypeObject->metaObject(), prototypeGeneralView->metaObject());
 }

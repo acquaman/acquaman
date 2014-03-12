@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "ui/AMBottomBar.h"
 #include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMDataViewWithActionButtons.h"
@@ -97,9 +96,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
+#include "dataman/AMRegionOfInterest.h"
+#include "analysis/AMRegionOfInterestAB.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
+#include "dataman/AMDbUpgrade1Pt3.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -129,6 +131,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// Append the AM upgrade 1.2 to the list for the user database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+
+	// Append the AM upgrade 1.3 to the list for the user, actions, and scanActions database.
+	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("user", this);
+	appendDatabaseUpgrade(am1Pt3UserDb);
+	AMDbUpgrade *am1Pt3ActionsDb = new AMDbUpgrade1Pt3("actions", this);
+	appendDatabaseUpgrade(am1Pt3ActionsDb);
+	AMDbUpgrade *am1Pt3ScanActionsDb = new AMDbUpgrade1Pt3("scanActions", this);
+	appendDatabaseUpgrade(am1Pt3ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -572,6 +582,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
@@ -605,6 +617,9 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	vespers.storeToDb(db);
 	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
 	reixs.storeToDb(db);
+	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
+	ideas.storeToDb(db);
+
 
 	return true;
 }
@@ -744,6 +759,11 @@ bool AMDatamanAppController::startupInstallActions()
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
 
+	printGraphicsAction_ = new QAction("Print Plot...", mw_);
+	printGraphicsAction_->setStatusTip("Print the current plot.");
+	connect(printGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionPrintGraphics()));
+
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -760,6 +780,7 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(exportGraphicsAction_);
+	fileMenu_->addAction(printGraphicsAction_);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
@@ -824,6 +845,8 @@ void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
 
 	// This is okay because both AMScanView and AM2DScanView have export capabilities.
 	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
+	printGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
+
 }
 
 void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
@@ -1386,6 +1409,19 @@ void AMDatamanAppController::onActionExportGraphics()
 
 	if(scanEditor) {
 		scanEditor->exportGraphicsToFile();
+	}
+	else {
+		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.
+		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
+	}
+}
+
+void AMDatamanAppController::onActionPrintGraphics()
+{
+	AMGenericScanEditor* scanEditor = qobject_cast<AMGenericScanEditor*>(mw_->currentPane());
+
+	if(scanEditor) {
+		scanEditor->printGraphics();
 	}
 	else {
 		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.

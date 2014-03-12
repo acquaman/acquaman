@@ -29,13 +29,11 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXASScanController.h \
 	source/ui/REIXS/REIXSXASScanConfigurationView.h \
     source/acquaman/REIXS/REIXSXASScanActionController.h \
-	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.h \
     source/beamline/REIXS/REIXSXESMCPDetector.h \
     source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.h \
     source/dataman/datasource/REIXS/REIXSXESMCPDataSource.h \
     source/acquaman/REIXS/REIXSXESScanActionController.h \
-    source/ui/REIXS/REIXSRIXSScanConfigurationView.h
-
+	source/ui/REIXS/REIXSRIXSScanConfigurationView.h
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/application/REIXS/REIXSMain.cpp \
@@ -59,27 +57,8 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/acquaman/REIXS/REIXSXASScanController.cpp \
 	source/ui/REIXS/REIXSXASScanConfigurationView.cpp \
     source/acquaman/REIXS/REIXSXASScanActionController.cpp \
-	source/acquaman/SGM/SGMXASScanActionControllerFileWriter.cpp \
     source/beamline/REIXS/REIXSXESMCPDetector.cpp \
     source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.cpp \
     source/dataman/datasource/REIXS/REIXSXESMCPDataSource.cpp \
     source/acquaman/REIXS/REIXSXESScanActionController.cpp \
     source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

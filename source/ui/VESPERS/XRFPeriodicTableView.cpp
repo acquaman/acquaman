@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QMessageBox>
 
+ XRFPeriodicTableView::~XRFPeriodicTableView(){}
 XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent)
 	: QWidget(parent)
 {
@@ -59,7 +60,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 
 	disableElements();
 
-	connect(tableView_, SIGNAL(elementSelected(const AMElement*)), this, SLOT(onElementSelected(const AMElement*)));
+	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);
@@ -89,8 +90,8 @@ void XRFPeriodicTableView::disableElements()
 		// Resets the button state.
 		tableView_->button(temp)->setEnabled(true);
 
-		if (temp->Kalpha().second.toDouble() < min
-			|| (temp->Kalpha().second.toDouble() > max && temp->Lalpha().second.toDouble() < min)
+		if (temp->Kalpha().energy() < min
+			|| (temp->Kalpha().energy() > max && temp->Lalpha().energy() < min)
 			|| temp->emissionLines().isEmpty())
 
 			tableView_->button(temp)->setEnabled(false);

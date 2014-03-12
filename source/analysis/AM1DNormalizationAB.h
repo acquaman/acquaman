@@ -43,6 +43,7 @@ class AM1DNormalizationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AM1DNormalizationAB();
 	Q_INVOKABLE AM1DNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

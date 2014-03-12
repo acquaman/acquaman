@@ -63,6 +63,7 @@ class AM1DExpressionAB : public AMAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
+ 	virtual ~AM1DExpressionAB();
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
@@ -177,13 +178,12 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
-
+	/// Method that checks whether all the sizes of used variables match.
+	bool allUsedSizesMatch() const;
 	/// caches whether the current expressions are valid. Set by setExpression(), setXExpression().
 	bool expressionValid_, xExpressionValid_;
 
-	/// caches whether the input sizes match. Set by setInputDataSourcesImplementation and updated in onInputSourceSizeChanged().
-	bool sizesMatch_;
-	/// Caches the size of the input/output data. Only meaningful when sizesMatch_ = true.
+	/// Caches the size of the input/output data.
 	int size_;
 
 	/// the combined state of the inputs. Set by setInputDataSourcesImplementation and updated in onInputSourceStateChanged().

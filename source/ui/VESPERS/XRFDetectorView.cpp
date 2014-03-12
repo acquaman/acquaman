@@ -34,10 +34,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QToolButton>
 #include <QTimer>
+#include <QStringBuilder>
 
 // Brief detector view
 /////////////////////////////////////////////
 
+ XRFBriefDetectorView::~XRFBriefDetectorView(){}
 XRFBriefDetectorView::XRFBriefDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
 	: AMBriefOldDetectorView(configureOnly, parent)
 {
@@ -87,6 +89,7 @@ void XRFBriefDetectorView::onDeadTimeUpdate()
 
 // Detailed detector view
 ///////////////////////////////////////////////////
+ XRFDetailedDetectorView::~XRFDetailedDetectorView(){}
 XRFDetailedDetectorView::XRFDetailedDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
 {
@@ -546,24 +549,24 @@ void XRFDetailedDetectorView::showEmissionLines()
 	if (showEmissionLines_){
 
 		MPlotPoint *newLine;
-		QString line;
-		double lineEnergy;
 
 		for (int i = 0; i < currentElement_->emissionLines().size(); i++){
 
-			line = currentElement_->emissionLines().at(i).first;
-			lineEnergy = currentElement_->lineEnergy(line);
+			AMEmissionLine currentLine = currentElement_->emissionLines().at(i);
 
-			if (withinEnergyRange(lineEnergy)
-				&& line.contains("1") != 0 && line.compare("-")){
+			if (withinEnergyRange(currentLine.energy())
+				&& currentLine.name().contains("1") != 0 && currentLine.name().compare("-")){
 
-				newLine = new MPlotPoint(QPointF(currentElement_->lineEnergy(line), 0));
-				newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(line)), QBrush(getColor(line)));
-				newLine->setDescription(line + ": " + QString::number(currentElement_->lineEnergy(line)) + " eV");
+				newLine = new MPlotPoint(QPointF(currentLine.energy(), 0));
+				newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(currentLine.greekLineName())), QBrush(getColor(currentLine.greekLineName())));
+				newLine->setDescription(currentLine.greekName() % ": " % currentLine.energyString() % " eV");
+
 				if (isWaterfall_)
 					plot_->insertItem(newLine, lines_.size()+detector_->elements());
+
 				else
 					plot_->insertItem(newLine, lines_.size()+1);
+
 				lines_ << newLine;
 			}
 		}
@@ -635,8 +638,8 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 		return;
 
 	// Check to see if each line is possibly visible by the detector.
-	if (!withinEnergyRange(el1->emissionLines().at(line1).second.toDouble())
-			|| !withinEnergyRange(el2->emissionLines().at(line2).second.toDouble()))
+	if (!withinEnergyRange(el1->emissionLines().at(line1).energy())
+			|| !withinEnergyRange(el2->emissionLines().at(line2).energy()))
 		return;
 
 	MPlotPoint *newLine;
@@ -650,8 +653,8 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 	if (el1 != el2)
 		isCombinationPeak = true;
 
-	name1 = el1->emissionLines().at(line1).first;
-	name2 = el2->emissionLines().at(line2).first;
+	name1 = el1->emissionLines().at(line1).greekLineName();
+	name2 = el2->emissionLines().at(line2).greekLineName();
 
 	if (name1.contains("-") || name2.contains("-"))
 		return;
@@ -662,7 +665,7 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 	else
 		offset = pileUpLines_.size() + lines_.size();
 
-	lineEnergy = el1->emissionLines().at(line1).second.toDouble() + el2->emissionLines().at(line2).second.toDouble();
+	lineEnergy = el1->emissionLines().at(line1).energy() + el2->emissionLines().at(line2).energy();
 
 	// There should be no peaks below the primary peak since it is its double counting that causes pile up peaks.
 	if (isCombinationPeak && !lines_.isEmpty() && lineEnergy < lines_.first()->value().x())

@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMAppController.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/export/AMExporter.h"
@@ -56,10 +55,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMAgnosticDataAPI.h"
 
+#include "beamline/AMProcessVariablePrivate.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
 	overrideCloseCheck_ = false;
+}
+
+AMAppController::~AMAppController()
+{
 }
 
 bool AMAppController::startup(){
@@ -100,6 +105,12 @@ bool AMAppController::startup(){
 	}
 	else
 		return false;
+}
+
+void AMAppController::shutdown()
+{
+	AMDatamanAppController::shutdown();
+	AMProcessVariableSupport::shutdownChannelAccess();
 }
 
 bool AMAppController::startupCreateUserInterface() {
@@ -228,9 +239,11 @@ void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
 {
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+
 	// It is possible to cancel a scan just before it starts, so we need to check this to see if there's any controller at all
 	if(action->controller())
 		updateScanEditorModelItem();
+
 	onCurrentScanActionFinishedImplementation(action);
 }
 
@@ -255,9 +268,7 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 

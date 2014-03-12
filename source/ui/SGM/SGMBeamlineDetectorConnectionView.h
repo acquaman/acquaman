@@ -20,23 +20,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMBEAMLINEDETECTORCONNECTIONVIEW_H
 #define SGMBEAMLINEDETECTORCONNECTIONVIEW_H
 
-#include <QWidget>
+//#include <QWidget>
 
-class QFormLayout;
-class AMOldDetector;
+//class QFormLayout;
+//class AMDetector;
 
-class SGMBeamlineDetectorConnectionView : public QWidget
-{
-Q_OBJECT
+//class SGMBeamlineDetectorConnectionView : public QWidget
+//{
+//Q_OBJECT
 
-public:
-	SGMBeamlineDetectorConnectionView(QWidget *parent = 0);
+//public:
+//	SGMBeamlineDetectorConnectionView(QWidget *parent = 0);
 
-protected slots:
-	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+//protected slots:
+//	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
-protected:
-	QFormLayout *fl_;
-};
+//protected:
+//	QFormLayout *fl_;
+//};
 
 #endif // SGMBEAMLINEDETECTORCONNECTIONVIEW_H

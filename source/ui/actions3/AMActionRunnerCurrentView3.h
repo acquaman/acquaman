@@ -44,6 +44,7 @@ class AMActionRunnerCurrentModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMActionRunnerCurrentModel3();
 	AMActionRunnerCurrentModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -77,6 +78,7 @@ class AMActionRunnerCurrentItemDelegate3 : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
+ 	virtual ~AMActionRunnerCurrentItemDelegate3();
 	explicit AMActionRunnerCurrentItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
 
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -113,6 +115,7 @@ class AMActionRunnerCurrentView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor. Should pass in AMActionRunner::s() for \c actionRunner
+ 	virtual ~AMActionRunnerCurrentView3();
 	AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
 
 	/// Sets whether the cancel prompt should be shown.

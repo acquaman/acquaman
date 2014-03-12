@@ -24,13 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QMessageBox>
-#include <QDebug>
 
 #include "beamline/AMBeamline.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
 
+ AMSamplePlateMoveActionEditor::~AMSamplePlateMoveActionEditor(){}
 AMSamplePlateMoveActionEditor::AMSamplePlateMoveActionEditor(AMSamplePlateMoveActionInfo *info, QWidget *parent) :
 	QFrame(parent)
 {

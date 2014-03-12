@@ -36,6 +36,7 @@ class AMStandardAnalysisBlock : public AMAnalysisBlock
 	Q_OBJECT
 public:
 	/// Create a new AMAnalysisBlock. The block is also an AMDataSource of output data; \c outputName is the name for this AMDataSource.
+ 	virtual ~AMStandardAnalysisBlock();
 	AMStandardAnalysisBlock(const QString& outputName, QObject *parent = 0);
 
 	// Access to input data sources

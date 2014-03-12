@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDateTimeUtils.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
+ SGMPeriodicTableView::~SGMPeriodicTableView(){}
 SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, QWidget *parent) :
 	QWidget(parent)
 {
@@ -48,11 +49,11 @@ SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, Q
 
 	availableScansMenu_ = 0;
 
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);
 		periodicTableView_->button(tempElement)->setEnabled(false);
-		if( (tempElement->KEdge().second.toDouble() > 200 && tempElement->KEdge().second.toDouble() < 2000) || (tempElement->L2Edge().second.toDouble() > 200 && tempElement->L2Edge().second.toDouble() < 2000) || (tempElement->M3Edge().second.toDouble() > 200 && tempElement->M3Edge().second.toDouble() < 2000) )
+		if( (tempElement->KEdge().energy() > 200 && tempElement->KEdge().energy() < 2000) || (tempElement->L2Edge().energy() > 200 && tempElement->L2Edge().energy() < 2000) || (tempElement->M3Edge().energy() > 200 && tempElement->M3Edge().energy() < 2000) )
 			periodicTableView_->button(tempElement)->setEnabled(true);
 	}
 
@@ -109,6 +110,7 @@ void SGMPeriodicTableView::onTriggerAvailableScansMenu(){
 }
 
 
+ SGMFastScanParametersModificationWizardPeriodicTablePage::~SGMFastScanParametersModificationWizardPeriodicTablePage(){}
 SGMFastScanParametersModificationWizardPeriodicTablePage::SGMFastScanParametersModificationWizardPeriodicTablePage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -160,6 +162,7 @@ void SGMFastScanParametersModificationWizardPeriodicTablePage::checkIsComplete()
 	isComplete();
 }
 
+ SGMFastScanParametersModificationWizardEditOrCopyPage::~SGMFastScanParametersModificationWizardEditOrCopyPage(){}
 SGMFastScanParametersModificationWizardEditOrCopyPage::SGMFastScanParametersModificationWizardEditOrCopyPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -245,6 +248,7 @@ void SGMFastScanParametersModificationWizardEditOrCopyPage::onButtonClicked(QAbs
 	emit completeChanged();
 }
 
+ SGMFastScanParametersModificationWizardEditPage::~SGMFastScanParametersModificationWizardEditPage(){}
 SGMFastScanParametersModificationWizardEditPage::SGMFastScanParametersModificationWizardEditPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -402,6 +406,7 @@ void SGMFastScanParametersModificationWizardEditPage::onAnySettingsChanged(){
 }
 
 
+ SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::~SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(){}
 SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -560,10 +565,10 @@ void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::initia
 		}
 	}
 
-	const AMElement *tempElement;
+	AMElement *tempElement;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
 		tempElement = AMPeriodicTable::table()->elements().at(x);
-		if( (tempElement->KEdge().second.toDouble() > 200 && tempElement->KEdge().second.toDouble() < 2000) || (tempElement->L2Edge().second.toDouble() > 200 && tempElement->L2Edge().second.toDouble() < 2000) || (tempElement->M3Edge().second.toDouble() > 200 && tempElement->M3Edge().second.toDouble() < 2000) )
+		if( (tempElement->KEdge().energy() > 200 && tempElement->KEdge().energy() < 2000) || (tempElement->L2Edge().energy() > 200 && tempElement->L2Edge().energy() < 2000) || (tempElement->M3Edge().energy() > 200 && tempElement->M3Edge().energy() < 2000) )
 			elementsComboBox_->addItem(tempElement->name(), QVariant(tempElement->atomicNumber()));
 	}
 	elementsComboBox_->setCurrentIndex(elementsComboBox_->findData(AMPeriodicTable::table()->elementByName(originatingFastScanParameters_->element())->atomicNumber()));
@@ -609,6 +614,7 @@ void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::checkV
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::~SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(){}
 SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -687,6 +693,7 @@ void SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::onButt
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditScanInfoPage::~SGMFastScanParametersModificationWizardCopyEditScanInfoPage(){}
 SGMFastScanParametersModificationWizardCopyEditScanInfoPage::SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -752,6 +759,7 @@ int SGMFastScanParametersModificationWizardCopyEditScanInfoPage::nextId() const{
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::~SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(){}
 SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -831,6 +839,7 @@ void SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::~SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(){}
 SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -919,6 +928,7 @@ int SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::nextId()
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::~SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(){}
 SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -975,6 +985,7 @@ int SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::nextId(
 
 /////////////////////////////
 
+ SGMFastScanParametersModificationWizardCopyConfirmationPage::~SGMFastScanParametersModificationWizardCopyConfirmationPage(){}
 SGMFastScanParametersModificationWizardCopyConfirmationPage::SGMFastScanParametersModificationWizardCopyConfirmationPage(QWidget *parent) :
 	QWizardPage(parent)
 {
@@ -1044,7 +1055,7 @@ AMDatabase* SGMFastScanParametersModificationWizard::newDatabase(){
 	return newDatabase_;
 }
 
-const AMElement* SGMFastScanParametersModificationWizard::newElement(){
+AMElement* SGMFastScanParametersModificationWizard::newElement(){
 	return newElement_;
 }
 
@@ -1065,7 +1076,7 @@ void SGMFastScanParametersModificationWizard::setOriginatingFastScanIndex(int in
 	originatingFastScanParameters_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName()).at(indexOfOriginatingFastScan_);
 }
 
-void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element){
+void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNew(AMDatabase *database, AMElement *element){
 	newDatabase_ = database;
 	newElement_ = element;
 
@@ -1094,19 +1105,19 @@ void SGMFastScanParametersModificationWizard::createNewElementInfo(){
 }
 
 void SGMFastScanParametersModificationWizard::createNewScanInfo(){
-	QPair<QString, QString> edgeEnergyPair;
+	AMAbsorptionEdge edge;
 	QString elementEdge = "K";
-	if(newElement_->KEdge().second.toDouble() > 200 && newElement_->KEdge().second.toDouble() < 2000){
+	if(newElement_->KEdge().energy() > 200 && newElement_->KEdge().energy() < 2000){
 		elementEdge = "K";
-		edgeEnergyPair = AMPeriodicTable::table()->elementByName(newElement_->name())->KEdge();
+		edge = AMPeriodicTable::table()->elementByName(newElement_->name())->KEdge();
 	}
-	else if(newElement_->L2Edge().second.toDouble() > 200 && newElement_->L2Edge().second.toDouble() < 2000){
+	else if(newElement_->L2Edge().energy() > 200 && newElement_->L2Edge().energy() < 2000){
 		elementEdge = "L";
-		edgeEnergyPair = AMPeriodicTable::table()->elementByName(newElement_->name())->L2Edge();
+		edge = AMPeriodicTable::table()->elementByName(newElement_->name())->L2Edge();
 	}
-	else if(newElement_->M3Edge().second.toDouble() > 200 && newElement_->M3Edge().second.toDouble() < 2000){
+	else if(newElement_->M3Edge().energy() > 200 && newElement_->M3Edge().energy() < 2000){
 		elementEdge = "M";
-		edgeEnergyPair = AMPeriodicTable::table()->elementByName(newElement_->name())->M3Edge();
+		edge = AMPeriodicTable::table()->elementByName(newElement_->name())->M3Edge();
 	}
 
 	QString appendDatabaseName = "";
@@ -1120,7 +1131,7 @@ void SGMFastScanParametersModificationWizard::createNewScanInfo(){
 	SGMEnergyPosition startPosition = newFastScanParameters_->scanInfo().start();
 	SGMEnergyPosition middlePosition = newFastScanParameters_->scanInfo().middle();
 	SGMEnergyPosition endPosition = newFastScanParameters_->scanInfo().end();
-	newScanInfo_ = new SGMScanInfo(newElement_->name()%" "%elementEdge%" "%appendDatabaseName, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), startPosition, middlePosition, endPosition);
+	newScanInfo_ = new SGMScanInfo(newElement_->name()%" "%elementEdge%" "%appendDatabaseName, edge, startPosition, middlePosition, endPosition);
 
 	qDebug() << "Just created new scanInfo";
 }

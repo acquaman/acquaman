@@ -1,5 +1,6 @@
 #include "AMAxisFinishedActionInfo.h"
 
+ AMAxisFinishedActionInfo::~AMAxisFinishedActionInfo(){}
 AMAxisFinishedActionInfo::AMAxisFinishedActionInfo(const QString &axisName, QObject *parent) :
 	AMActionInfo3("Finish Axis", "Finish Axis", ":/system-run.png", parent)
 {

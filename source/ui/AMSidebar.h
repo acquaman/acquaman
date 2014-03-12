@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMSIDEBAR_H
-#define ACQMAN_AMSIDEBAR_H
+#ifndef AM_AMSIDEBAR_H
+#define AM_AMSIDEBAR_H
 
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSidebarItem : public QStandardItem {
 public:
 	/// Default constructor
+ 	virtual ~AMSidebarItem();
 	explicit AMSidebarItem(const QString& name, const QVariant& link, const QIcon& icon = QIcon(), double weight = 0)
 		: QStandardItem(icon, name) {
 		setWeight(weight);
@@ -97,6 +98,7 @@ public:
 /// DEPRECATED CLASS -- AMSidebarHeadings are restricted version of AMSidebarItems, that are only used to act as headings (or category titles) in a sidebar.
 class AMSidebarHeading : public AMSidebarItem {
 public:
+ 	virtual ~AMSidebarHeading();
 	explicit AMSidebarHeading(const QString& name, double weight = 0)
 		: AMSidebarItem(name, QVariant(), QIcon(), weight) {
 		setFlags(Qt::ItemIsEnabled);

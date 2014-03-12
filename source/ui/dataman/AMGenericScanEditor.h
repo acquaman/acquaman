@@ -124,6 +124,10 @@ public slots:
 
 	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
 	void exportGraphicsToFile();
+	/// Call this to print the currently-visible plot.
+	void printGraphics();
+
+
 
 	/// Call this to update the window title when a scan is added or removed
 	void refreshWindowTitle();

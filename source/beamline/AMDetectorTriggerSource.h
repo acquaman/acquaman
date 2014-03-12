@@ -9,6 +9,7 @@ class AMDetectorTriggerSource : public QObject
 Q_OBJECT
 public:
 	/// Constructor takes the programmer unique name for identification
+ 	virtual ~AMDetectorTriggerSource();
 	AMDetectorTriggerSource(const QString &name, QObject *parent = 0);
 
 	/// Returns the programmer name
@@ -37,6 +38,7 @@ class AMDetectorDwellTimeSource : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDetectorDwellTimeSource();
 	AMDetectorDwellTimeSource(const QString &name, QObject *parent = 0);
 
 	QString name() const { return name_; }

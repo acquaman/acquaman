@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMGithubManager.h"
 
+ AMGithubManager::~AMGithubManager(){}
 AMGithubManager::AMGithubManager(QObject *parent) :
 	QObject(parent)
 {

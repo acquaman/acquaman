@@ -1,5 +1,6 @@
 #include "AMDatamanAppBottomPanel.h"
 
+ AMDatamanAppBottomPanel::~AMDatamanAppBottomPanel(){}
 AMDatamanAppBottomPanel::AMDatamanAppBottomPanel(QWidget *parent)
 	: AMBottomPanel(parent)
 {

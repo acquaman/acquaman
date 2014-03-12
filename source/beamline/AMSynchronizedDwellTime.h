@@ -3,8 +3,7 @@
 
 #include <QObject>
 
-//class AMAction3;
-class AMBeamlineActionItem;
+class AMAction3;
 class AMDetector;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
@@ -14,6 +13,7 @@ class AMSynchronizedDwellTime : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMSynchronizedDwellTime();
 	AMSynchronizedDwellTime(QObject *parent = 0);
 
 	/// Return the overall dwell time.  Value is in seconds.
@@ -49,12 +49,10 @@ public:
 	virtual AMDetectorDwellTimeSource* dwellTimeSource() = 0;
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
-	//virtual AMAction3* createMasterTimeAction(double time) = 0;
-	virtual AMBeamlineActionItem* createMasterTimeAction(double time) = 0;
+	virtual AMAction3* createMasterTimeAction3(double time) = 0;
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
-	//virtual AMAction3* createScanningAction(bool scan) = 0;
-	virtual AMBeamlineActionItem* createScanningAction(bool scan) = 0;
-
+	virtual AMAction3* createScanningAction3(bool scan) = 0;
+	/// Returns a newly created action that changes the enabled state of the synchronized dwell time.
 	virtual AMAction3* createEnableAtAction3(int index, bool isEnabled) = 0;
 
 signals:

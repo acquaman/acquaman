@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QToolButton>
 
+ VESPERSXRFElementView::~VESPERSXRFElementView(){}
 VESPERSXRFElementView::VESPERSXRFElementView(XRFElement *el, QWidget *parent)
 	: QWidget(parent)
 {
@@ -80,7 +81,7 @@ void VESPERSXRFElementView::setElement(XRFElement *el)
 
 void VESPERSXRFElementView::fillEmissionLines()
 {
-	QList<QPair<QString, QString> > list(element_->emissionLines());
+	QList<AMEmissionLine> list(element_->emissionLines());
 
 	int lineIndex = 0;
 
@@ -88,9 +89,9 @@ void VESPERSXRFElementView::fillEmissionLines()
 
 		for (int i = 0; i < list.size(); i++){
 
-			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble())){
+			if (list.at(i).lineName().contains("1") && energyWithinTolerance(list.at(i).energy())){
 
-				if (element_->linesSelected().contains(list.at(i).first))
+				if (element_->linesSelected().contains(list.at(i).greekLineName()))
 					lines_.at(lineIndex++)->setLine(list.at(i), true);
 				else
 					lines_.at(lineIndex++)->setLine(list.at(i), false);
@@ -101,13 +102,13 @@ void VESPERSXRFElementView::fillEmissionLines()
 
 		for (int i = 0; i < list.size(); i++){
 
-			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble()))
+			if (list.at(i).lineName().contains("1") && energyWithinTolerance(list.at(i).energy()))
 				lines_.at(lineIndex++)->setLine(list.at(i), false);
 		}
 	}
 
 	for ( ; lineIndex < lines_.size(); lineIndex++)
-		lines_.at(lineIndex)->setLine(qMakePair(QString(), QString()));
+		lines_.at(lineIndex)->setLine(AMEmissionLine());
 }
 
 void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
@@ -117,3 +118,4 @@ void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
 	else
 		emit removeLine(lineName);
 }
+ LineView::~LineView(){}

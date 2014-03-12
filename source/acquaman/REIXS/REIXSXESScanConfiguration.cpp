@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESScanConfiguration.h"
 
+ REIXSXESScanConfiguration::~REIXSXESScanConfiguration(){}
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
@@ -64,7 +65,11 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 // Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 AMScanController* REIXSXESScanConfiguration::createController() {
 	//return new REIXSXESScanController(this);
-	return new REIXSXESScanActionController(this);
+//	return new REIXSXESScanActionController(this);
+	AMScanActionController *controller = new REIXSXESScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 QString REIXSXESScanConfiguration::description() const

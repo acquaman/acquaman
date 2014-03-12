@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBiHash<QString, QString> ALSBL8XASFileLoader::columns2fileFormatHeaders_;
 
 
+ ALSBL8XASFileLoader::~ALSBL8XASFileLoader(){}
 ALSBL8XASFileLoader::ALSBL8XASFileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.

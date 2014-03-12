@@ -37,6 +37,7 @@ public:
 	enum PlotStyle { WireFrameStyle = 1, WireFrameWithHiddenLinesStyle, ColorStyle, WireFrameWithColorStyle, PointsStyle };
 	enum FloorStyle { NoFloor, ContourFloor, ColoredFloor };
 
+ 	virtual ~AM3dDataSourceView();
 	explicit AM3dDataSourceView(const AMScan* scan = 0, int dataSourceIndex = 0, QWidget *parent = 0);
 
 	bool setScanAndDataSource(const AMScan* scan, int dataSourceIndex);

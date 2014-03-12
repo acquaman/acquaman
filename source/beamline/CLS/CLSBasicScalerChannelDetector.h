@@ -10,6 +10,7 @@ class CLSBasicScalerChannelDetector : public AMDetector
 Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the channel index to use (index 0 - 31 for SIS3820)
+ 	virtual ~CLSBasicScalerChannelDetector();
 	CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector
@@ -55,8 +56,8 @@ public:
 	/// Returns false, because the scaler channels do not support continuous reads (in this class)
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a single double with our current value
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a single double with our current value
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
@@ -89,19 +90,10 @@ protected:
 	void checkReadyForAcquisition();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The pointer to the scaler object
 	CLSSIS3820Scaler *scaler_;
 	/// The channel index
 	int channelIndex_;
-
-	///// The list of all the raw spectrum data sources.
-	//AM1DProcessVariableDataSource *spectrumDataSource_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSBASICSCALERCHANNELDETECTOR_H

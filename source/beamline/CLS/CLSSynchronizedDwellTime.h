@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineControlMoveAction.h"
 #include "dataman/info/AMDetectorInfo.h"
 #include "dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h"
 #include "beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h"
@@ -50,6 +49,7 @@ public:
 	  \param baseName is the base name used to build all the process varaibles.
 	  \param index is the index in the list of the current synchronized dwell time.
 	  */
+	virtual ~CLSSynchronizedDwellTimeElement();
 	explicit CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent = 0);
 
 	/// Returns the name.
@@ -72,11 +72,8 @@ public:
 	void configure(const CLSSynchronizedDwellTimeConfigurationInfo &info);
 
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
-	AMBeamlineActionItem *createTimeAction(double time);
 	AMAction3 *createTimeAction3(double time);
-
 	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
-	AMBeamlineActionItem *createEnableAction(bool enable);
 	AMAction3 *createEnableAction3(bool enable);
 
 public slots:
@@ -199,18 +196,20 @@ public:
 	virtual AMDetectorDwellTimeSource* dwellTimeSource();
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
-	AMBeamlineActionItem* createMasterTimeAction(double time);
 	AMAction3* createMasterTimeAction3(double time);
-
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
-	AMBeamlineActionItem* createScanningAction(bool scan);
 	AMAction3* createScanningAction3(bool scan);
-
 	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
-	AMBeamlineActionItem* createModeAction(CLSSynchronizedDwellTime::Mode mode);
 	AMAction3* createModeAction3(CLSSynchronizedDwellTime::Mode mode);
-
+	/// Returns a newly created action that changes the enabled state of the synchronized dwell time.
 	AMAction3* createEnableAtAction3(int index, bool isEnabled);
+
+	/// Returns the control for the master dwell time.
+	AMControl *dwellTimeControl() const { return dwellTime_; }
+	/// Returns the scan trigger control.
+	AMControl *startScanControl() const { return startScan_; }
+	/// Returns the scan mode control.
+	AMControl *scanModeControl() const { return mode_; }
 
 signals:
 	/// Notifier that the Mode has changed.

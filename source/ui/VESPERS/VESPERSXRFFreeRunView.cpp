@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
+ VESPERSXRFFreeRunView::~VESPERSXRFFreeRunView(){}
 VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	: QWidget(parent)
 {
@@ -295,7 +296,7 @@ void VESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 
 void VESPERSXRFFreeRunView::getCombinationElement()
 {
-	const AMElement *el = AMPeriodicTableDialog::getElement(this);
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 

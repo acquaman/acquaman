@@ -1,6 +1,7 @@
 #include "SGMFastScanActionController.h"
 
 #include <QFileInfo>
+#include <QApplication>
 
 #include "dataman/AMFastScan.h"
 #include "actions3/AMActionRunner3.h"
@@ -20,7 +21,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 {
 	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
-	masterListSucceeded_ = false;
+	insertionIndex_ = AMnDIndex(0);
 
 	scan_ = new AMFastScan();
 	scan_->rawData()->addScanAxis(AMAxisInfo("ev", 0, "Incident Energy", "eV"));
@@ -46,9 +47,15 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+}
 
-	insertionIndex_ = AMnDIndex(0);
+SGMFastScanActionController::~SGMFastScanActionController()
+{
+	delete fileWriterThread_;
+}
 
+void SGMFastScanActionController::buildScanController()
+{
 	for(int x = 0; x < configuration_->detectorConfigurations().count(); x++)
 		if(scan_->rawData()->addMeasurement(AMMeasurementInfo(*(SGMBeamline::sgm()->exposedDetectorByInfo(configuration_->detectorConfigurations().detectorInfoAt(x))))))
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1));
@@ -58,79 +65,26 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 	fileWriterThread_ = new QThread();
 
-	qRegisterMetaType<SGMXASScanActionControllerFileWriter::FileWriterError>("FileWriterError");
-	SGMXASScanActionControllerFileWriter *fileWriter = new SGMXASScanActionControllerFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
+	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+	AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
 	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)), this, SLOT(onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError)));
+	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
 	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 }
 
-void SGMFastScanActionController::onInitializationActionsListSucceeded(){
-	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-
-	setInitialized();
-}
-
-void SGMFastScanActionController::onInitializationActionsListFailed(){
-	disconnect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	disconnect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onMasterActionsListSucceeded(){
-	masterListSucceeded_ = true;
-	disconnect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	disconnect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onMasterActionsListFailed(){
-	disconnect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	disconnect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
-
-	connect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	connect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsCleanupList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-}
-
-void SGMFastScanActionController::onCleanupActionsListSucceeded(){
-	disconnect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	if(masterListSucceeded_)
-		setFinished();
-	else
-		setFailed();
-}
-
-void SGMFastScanActionController::onCleanupActionsListFailed(){
-	disconnect(fastActionsCleanupList_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
-	disconnect(fastActionsCleanupList_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
-	setFailed();
-}
-
 #include "ui/util/AMMessageBoxWTimeout.h"
-void SGMFastScanActionController::onFileWriterError(SGMXASScanActionControllerFileWriter::FileWriterError error){
+void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error){
 	qDebug() << "Got a file writer error in Fast Scan" << error;
 	QString userErrorString;
 	switch(error){
-	case SGMXASScanActionControllerFileWriter::AlreadyExistsError:
+	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
 		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM Fast Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
-	case SGMXASScanActionControllerFileWriter::CouldNotOpenError:
+	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM Fast Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
@@ -160,24 +114,6 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
-bool SGMFastScanActionController::initializeImplementation(){
-	AMAction3 *cleanupActions = createCleanupActions();
-	if(qobject_cast<AMListAction3*>(cleanupActions))
-		fastActionsCleanupList_ = qobject_cast<AMListAction3*>(cleanupActions);
-
-	AMAction3 *initializationActions = createInitializationActions();
-	if(qobject_cast<AMListAction3*>(initializationActions))
-		fastActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
-
-
-	connect(fastActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	connect(fastActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsInitializationList_);
-	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
-
-	return true;
-}
-
 bool SGMFastScanActionController::startImplementation(){
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
@@ -194,7 +130,7 @@ bool SGMFastScanActionController::startImplementation(){
 	// MASTER LIST ///
 	/////////////////
 
-	fastActionsMasterList_ = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
+	AMListAction3 *masterFastScanActionList = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
 
 	// Undulator Trigger Propogate to 1
 	tmpControl = SGMBeamline::sgm()->undulatorFastTrackingTrigger();
@@ -202,20 +138,20 @@ bool SGMFastScanActionController::startImplementation(){
 	undulatorFastTrackingTriggerSetpoint.setValue(1);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorFastTrackingTriggerSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	fastActionsMasterList_->addSubAction(moveAction);
+	masterFastScanActionList->addSubAction(moveAction);
 
 	// Read grating encoder start point
 	AMAction3 *readAction;
 	readAction = SGMBeamline::sgm()->gratingEncoderDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
-	fastActionsMasterList_->addSubAction(readAction);
+	masterFastScanActionList->addSubAction(readAction);
 
 	// Start Axis
 	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("SGM Fast Axis"), AMScanAxis::ContinuousMoveAxis));
-	fastActionsMasterList_->addSubAction(axisStartAction);
+	masterFastScanActionList->addSubAction(axisStartAction);
 
 	// Wait 1.0 seconds
-	fastActionsMasterList_->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	masterFastScanActionList->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
 
 	// Energy and Scaler:
 	// Energy to end energy
@@ -228,7 +164,7 @@ bool SGMFastScanActionController::startImplementation(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsEnergyAndScaler->addSubAction(moveAction);
 	fastActionsEnergyAndScaler->addSubAction(SGMBeamline::sgm()->newTEYDetector()->createTriggerAction(AMDetectorDefinitions::ContinuousRead));
-	fastActionsMasterList_->addSubAction(fastActionsEnergyAndScaler);
+	masterFastScanActionList->addSubAction(fastActionsEnergyAndScaler);
 	// End Energy and Scaler
 
 	// Read Detectors:
@@ -247,21 +183,22 @@ bool SGMFastScanActionController::startImplementation(){
 	readAction = SGMBeamline::sgm()->newEncoderDownDetector()->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	fastActionsReadDetectors->addSubAction(readAction);
-	fastActionsMasterList_->addSubAction(fastActionsReadDetectors);
+	masterFastScanActionList->addSubAction(fastActionsReadDetectors);
 	// End Read Detectors
 
 	// Finish Axis
 	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("SGM Fast Axis")));
-	fastActionsMasterList_->addSubAction(axisFinishAction);
+	masterFastScanActionList->addSubAction(axisFinishAction);
 
 	///////////////////////
 	// END MASTER LIST ///
 	/////////////////////
 
-	connect(fastActionsMasterList_, SIGNAL(succeeded()), this, SLOT(onMasterActionsListSucceeded()));
-	connect(fastActionsMasterList_, SIGNAL(failed()), this, SLOT(onMasterActionsListFailed()));
+	scanningActions_ = masterFastScanActionList;
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
 
-	AMActionRunner3::scanActionRunner()->addActionToQueue(fastActionsMasterList_);
+	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	setStarted();
@@ -298,7 +235,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 			int currentEncoderValue = encoderStartValue_;
 			double energyFeedback;
 
-			
+
 			for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
 				currentEncoderValue += allDataMap_.value("EncoderUp").at(x);
 				currentEncoderValue -= allDataMap_.value("EncoderDown").at(x);
@@ -314,18 +251,18 @@ bool SGMFastScanActionController::event(QEvent *e){
 			}
 			/*
 			for(int x = 0; x < allDataMap_.value("NEWEncoderUp").count(); x++){
-                                currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);  
-                                currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
-                                energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
-                                
-                                scan_->rawData()->beginInsertRows(1, -1);
-                                scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);  
-                                for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
-                                        scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
-                                
-                                scan_->rawData()->endInsertRows();
-                                insertionIndex_[0] = insertionIndex_.i()+1;
-                        }
+								currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);
+								currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
+								energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
+
+								scan_->rawData()->beginInsertRows(1, -1);
+								scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);
+								for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+										scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+
+								scan_->rawData()->endInsertRows();
+								insertionIndex_[0] = insertionIndex_.i()+1;
+						}
 			*/
 			writeDataToFiles();
 			setFinished();
@@ -386,7 +323,7 @@ void SGMFastScanActionController::writeHeaderToFile(){
 	rank1String.append(QString("SParam: %1\n").arg(SGMBeamline::sgm()->energySParam()->value()));
 	rank1String.append(QString("ThetaParam: %1\n").arg(SGMBeamline::sgm()->energyThetaParam()->value()));
 	rank1String.append("End Info\n");
-	emit requestWriteToFile(1, rank1String);
+	emit requestWriteToFile(0, rank1String);
 }
 
 void SGMFastScanActionController::writeDataToFiles(){
@@ -415,7 +352,7 @@ void SGMFastScanActionController::writeDataToFiles(){
 		qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 		*/
 
-		emit requestWriteToFile(1, rank1String);
+		emit requestWriteToFile(0, rank1String);
 		requestIndex[0] = requestIndex.i()+1;
 	}
 }
@@ -578,7 +515,13 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	// Total Scans to 1000
 	// Turn off synchronized dwell coordination for the scaler
 	AMListAction3 *fastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings", "SGM Fast Actions Scaler Settings"), AMListAction3::Parallel);
-	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
+	qDebug() << "settings->scalerTime is " << settings->scalerTime();
+	qDebug() << "settings->fastScanSettings->runSeconds is " << settings->fastScanSettings().runSeconds();
+	qDebug() << "arguments: " << QApplication::instance()->arguments();
+	if(QApplication::instance()->arguments().contains("--advanced"))
+		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->fastScanSettings().runSeconds()/1000));
+	else
+		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->scalerTime()/1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createScansPerBufferAction3(1000));
 	fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createTotalScansAction3(1000));
 	retVal->addSubAction(fastActionsScalerSettings);

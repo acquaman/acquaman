@@ -11,6 +11,9 @@
 #include "actions3/AMActionRunner3.h"
 
 
+
+ REIXSXESScanActionController::~REIXSXESScanActionController(){}
+
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration_, parent)
 {
@@ -31,7 +34,10 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	// set the scan configuration within the scan:
 	scan_->setScanConfiguration(configuration_);
 	///////////////////////////
+}
 
+void REIXSXESScanActionController::buildScanController()
+{
 	AMMeasurementInfo configuredDetector(REIXSBeamline::bl()->mcpDetector()->name(), REIXSBeamline::bl()->mcpDetector()->description(), REIXSBeamline::bl()->mcpDetector()->units(), REIXSBeamline::bl()->mcpDetector()->axes());
 	if(REIXSBeamline::bl()->mcpDetector()->isConnected()) {
 		configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
@@ -51,15 +57,19 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
 	scan_->addRawDataSource(totalCountsDataSource, false, false);
 
+	buildScanControllerImplementation();
+}
+
+void REIXSXESScanActionController::buildScanControllerImplementation()
+{
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
-	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
+	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
 	xesSpectrum->setSumRangeMaxY(58);
 	xesSpectrum->setSumRangeMinY(5);
 	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
 	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
-
 
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	updateTimer_->stop();

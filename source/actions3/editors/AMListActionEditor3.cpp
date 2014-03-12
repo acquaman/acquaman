@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QLabel>
 
+ AMListActionEditor3::~AMListActionEditor3(){}
 AMListActionEditor3::AMListActionEditor3(AMListActionInfo3 *info, QWidget *parent) :
 	QFrame(parent)
 {

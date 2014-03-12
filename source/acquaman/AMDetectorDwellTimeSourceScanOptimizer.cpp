@@ -4,6 +4,7 @@
 #include "actions3/actions/AMDetectorDwellTimeAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ AMDetectorDwellTimeSourceScanOptimizer::~AMDetectorDwellTimeSourceScanOptimizer(){}
 AMDetectorDwellTimeSourceScanOptimizer::AMDetectorDwellTimeSourceScanOptimizer(AMAction3 *scanActionTree, QObject *parent) :
 	AMScanActionControllerScanOptimizer(scanActionTree, parent)
 {

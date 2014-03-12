@@ -2,6 +2,7 @@
 
 #include "actions3/AMListAction3.h"
 
+ AMScanActionControllerScanOptimizer::~AMScanActionControllerScanOptimizer(){}
 AMScanActionControllerScanOptimizer::AMScanActionControllerScanOptimizer(AMAction3 *scanActionTree, QObject *parent) :
 	QObject(parent)
 {

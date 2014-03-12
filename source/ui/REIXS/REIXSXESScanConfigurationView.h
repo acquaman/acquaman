@@ -41,6 +41,7 @@ class REIXSXESScanConfigurationView : public AMScanConfigurationView
 	Q_OBJECT
 public:
 	/// Constructor.  If \c config is 0, we create our own (and delete it, when destroyed).  If a valid \c config is provided, we will operate on that one, but not take ownership of it. It must remain valid as long as this widget exists.
+ 	virtual ~REIXSXESScanConfigurationView();
 	explicit REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config = 0, QWidget *parent = 0);
 
 	virtual const AMScanConfiguration* configuration() const { return configuration_; }

@@ -31,6 +31,7 @@ class XRFPeriodicTableView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Needs the table for viewing.  Does not create a new instance of the table.
+ 	virtual ~XRFPeriodicTableView();
 	explicit XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent = 0);
 
 protected slots:
@@ -39,7 +40,7 @@ protected slots:
 	/// Resets all the colors of the buttons to their original state.  Called when the trash button is clicked.
 	void resetAllColors();
 	/// Handles the element clicked signal.
-	void onElementSelected(const AMElement *el) { xrfTable_->setCurrentElement(xrfTable_->elementByAtomicNumber(el->atomicNumber())); }
+	void onElementSelected(AMElement *el) { xrfTable_->setCurrentElement(xrfTable_->elementByAtomicNumber(el->atomicNumber())); }
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.
 	void disableElements();
 	/// Helper slot that takes in an element that has recently had a region of interest added to or removed from it and changes the colour accordingly.

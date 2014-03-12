@@ -23,6 +23,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Configuration Databas
 
 public:
 	/// Constructor
+ 	virtual ~SGMSScanConfigurationDbObject();
 	Q_INVOKABLE SGMSScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy Constructor
 	SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original);

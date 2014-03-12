@@ -43,6 +43,7 @@ public:
 
 	  Implementation note: We need to use separate readUnitConverters and writeUnitConverters, since the feedback PV (readPV) is in encoder counts at 4000lines/rev, and the move PV (writePV) is in steps (ie: 200*microsteps/rev).
 	  */
+ 	virtual ~CLSMDriveMotorControl();
 	CLSMDriveMotorControl(const QString &name, const QString &basePVName, const QString& units, double unitsPerRev, double offset, int microsteps, const QString &description, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
 
 	/// A non-zero moveStartTolerance() allows "null moves" (moves with setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. (By default, this is 0 and has no effect.)

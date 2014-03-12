@@ -5,10 +5,10 @@ HOME_FOLDER = $$system(echo $HOME)
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
@@ -16,8 +16,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -39,6 +39,20 @@ linux-g++ {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+		# GSL Dependencies
+		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
+		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
 }
 linux-g++-32 {
 
@@ -160,6 +174,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.h \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
+		$$AM_INCLUDE_DIR/util/AMEmissionLine.h \
+		$$AM_INCLUDE_DIR/util/AMAbsorptionEdge.h \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
@@ -196,6 +212,8 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.cpp \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
+		$$AM_INCLUDE_DIR/util/AMEmissionLine.cpp \
+		$$AM_INCLUDE_DIR/util/AMAbsorptionEdge.cpp \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \

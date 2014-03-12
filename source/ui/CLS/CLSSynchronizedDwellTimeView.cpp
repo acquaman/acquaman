@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QAction>
 
+ CLSSynchronizedDwellTimeElementView::~CLSSynchronizedDwellTimeElementView(){}
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)
 	: QWidget(parent)
 {
@@ -94,6 +95,7 @@ void CLSSynchronizedDwellTimeElementView::setTime()
 		element_->setTime(newTime);
 }
 
+ CLSSynchronizedDwellTimeView::~CLSSynchronizedDwellTimeView(){}
 CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellTime *dwellTime, QWidget *parent)
 	: QWidget(parent)
 {

@@ -28,6 +28,7 @@ class AMOldDetectorView;
 class AMOldDetectorViewObjectInfo{
 public:
 	/// The default constructor creates an invalid AMDbObject.
+ 	virtual ~AMOldDetectorViewObjectInfo();
 	AMOldDetectorViewObjectInfo() {
 		viewMetaObject = 0;
 	}

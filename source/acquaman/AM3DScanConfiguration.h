@@ -2,6 +2,7 @@
 #define AM3DSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
+#include "util/AMRange.h"
 
 /// An AM3DScanConfiguration is the parent class for any scan that wants to implement a simple parallelpiped 3D scan.
 /*!
@@ -52,6 +53,7 @@ class AM3DScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Constructor.
+ 	virtual ~AM3DScanConfiguration();
 	AM3DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	AM3DScanConfiguration(const AM3DScanConfiguration &original);
@@ -62,11 +64,11 @@ public:
 	/// Returns the pointer to the meta object.
 	virtual const QMetaObject* getMetaObject() { return metaObject(); }
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("3D Scan over %1, %2, and %3").arg(xAxisName()).arg(yAxisName()).arg(zAxisName());
 	}
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("3D Scan over %1, %2, and %3 from (%4,%5) %6, (%7,%8) %9, and (%10,%11) %12")
 				.arg(xAxisName())
@@ -104,25 +106,25 @@ public:
 	/////////////////////////////////////////////////////
 
 	/// Returns the start position of the x axis.
-	double xStart() const { return xRange_.first; }
+	double xStart() const { return xRange_.minimum(); }
 	/// Returns the step size of the x axis.
 	double xStep() const { return steps_.at(0); }
 	/// Returns the end position of the x axis.
-	double xEnd() const { return xRange_.second; }
+	double xEnd() const { return xRange_.maximum(); }
 
 	/// Returns the start position of the y axis.
-	double yStart() const { return yRange_.first; }
+	double yStart() const { return yRange_.minimum(); }
 	/// Returns the step size of the y axis.
 	double yStep() const { return steps_.at(1); }
 	/// Returns the end position of the y axis.
-	double yEnd() const { return yRange_.second; }
+	double yEnd() const { return yRange_.maximum(); }
 
 	/// Returns the start position of the z axis.
-	double zStart() const { return zRange_.first; }
+	double zStart() const { return zRange_.minimum(); }
 	/// Returns the step size of the z axis.
 	double zStep() const { return steps_.at(2); }
 	/// Returns the end position of the z axis.
-	double zEnd() const { return zRange_.second; }
+	double zEnd() const { return zRange_.maximum(); }
 
 	/// Returns the time step per point.
 	double timeStep() const { return time_; }
@@ -138,11 +140,11 @@ public:
 	/////////////////////////////////////////////////////
 
 	/// Returns the range of the x axis <min, max>.
-	QPair<double, double> xRange() const { return xRange_; }
+	AMRange xRange() const { return xRange_; }
 	/// Returns the range of the y axis <min, max>.
-	QPair<double, double> yRange() const { return yRange_; }
+	AMRange yRange() const { return yRange_; }
 	/// Returns the range of the y axis <min, max>.
-	QPair<double, double> zRange() const { return zRange_; }
+	AMRange zRange() const { return zRange_; }
 	/// Returns the step size as a list.  Order is {xStep, yStep, zStep}.
 	QList<double> steps() const { return steps_; }
 
@@ -222,15 +224,15 @@ public slots:
 	///////////////////////////////////
 
 	/// Sets the range for the x axis.
-	void setXRange(QPair<double, double> x);
+	void setXRange(AMRange x);
 	/// Overloaded.  Sets the range for the x axis.
 	void setXRange(double start, double end);
 	/// Sets the range for the y axis.
-	void setYRange(QPair<double, double> y);
+	void setYRange(AMRange y);
 	/// Overloaded.  Sets the range for the y axis.
 	void setYRange(double start, double end);
 	/// Sets the range for the z axis.
-	void setZRange(QPair<double, double> z);
+	void setZRange(AMRange z);
 	/// Overloaded.  Sets the range for the z axis.
 	void setZRange(double start, double end);
 	/// Sets the step size of all axes.
@@ -240,11 +242,11 @@ public slots:
 
 protected:
 	/// Holds the range for the x axis. <min, max>
-	QPair<double, double> xRange_;
+	AMRange xRange_;
 	/// Holds the range for the y axis. <min, max>
-	QPair<double, double> yRange_;
+	AMRange yRange_;
 	/// Holds the range for the z axis. <min, max>
-	QPair<double, double> zRange_;
+	AMRange zRange_;
 	/// Holds the steps for all axes. <xStep, yStep, zStep>
 	QList<double> steps_;
 	/// Holds the time per point.

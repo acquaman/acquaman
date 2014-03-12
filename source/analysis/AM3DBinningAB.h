@@ -38,6 +38,7 @@ class AM3DBinningAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
+ 	virtual ~AM3DBinningAB();
 	AM3DBinningAB(const QString &outputName, QObject *parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM3DBinningAB(AMDatabase* db, int id);

@@ -2,6 +2,7 @@
 
 #include <QStringBuilder>
 
+ CLSSynchronizedDwellTimeConfiguration::~CLSSynchronizedDwellTimeConfiguration(){}
 CLSSynchronizedDwellTimeConfiguration::CLSSynchronizedDwellTimeConfiguration(const QString &name, int number, QObject *parent)
 	: QObject(parent)
 {

@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //#include "ui/AMElementListEdit.h"
 #include <QListView>
 
+ AMSampleEditor::~AMSampleEditor(){}
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {
@@ -316,11 +317,11 @@ QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
 	foreach(QString s, elements) {
 		s = s.toLower();
 		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
-		const AMElement* element;
-		if((element = AMPeriodicTable::table()->elementByName(s)))
-			rv << element->atomicNumber();
-		else if((element = AMPeriodicTable::table()->elementBySymbol(s)))
-			rv << element->atomicNumber();
+		AMElement element;
+		if(!(element = AMPeriodicTable::table()->elementByName(s)).isNull())
+			rv << element.atomicNumber();
+		else if(!(element = AMPeriodicTable::table()->elementBySymbol(s)).isNull())
+			rv << element.atomicNumber();
 	}
 
 	return rv;

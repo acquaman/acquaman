@@ -34,6 +34,7 @@ class AMROI : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.  Takes a base name, number of elements, the region to be added and creates all the PVs.
+ 	virtual ~AMROI();
 	explicit AMROI(QString baseName, int elements, int number, QObject *parent = 0);
 
 	/// Takes an AMROIInfo and sets the AMROI to match it.

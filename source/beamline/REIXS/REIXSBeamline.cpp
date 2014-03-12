@@ -188,6 +188,7 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	return list;
 }
 
+ REIXSPhotonSource::~REIXSPhotonSource(){}
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
@@ -234,6 +235,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 
 }
 
+ REIXSValvesAndShutters::~REIXSValvesAndShutters(){}
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
 {
 	beamIsOn_ = false;
@@ -280,6 +282,7 @@ void REIXSValvesAndShutters::reviewIsBeamOn()
 }
 
 
+ REIXSSampleChamber::~REIXSSampleChamber(){}
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	: AMCompositeControl("sampleChamber", "", parent) {
 
@@ -333,6 +336,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 }
 
 
+ REIXSHexapod::~REIXSHexapod(){}
 REIXSHexapod::REIXSHexapod(QObject* parent)
 	: AMCompositeControl("hexapod", "", parent) {
 
@@ -394,6 +398,7 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 
 }
 
+ REIXSSpectrometer::~REIXSSpectrometer(){}
 REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	: AMCompositeControl("spectrometer", "eV", parent) {
 
@@ -890,6 +895,7 @@ REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	control_ = 0;
 }
 
+ REIXSXASDetectors::~REIXSXASDetectors(){}
 REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
 {
 	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");

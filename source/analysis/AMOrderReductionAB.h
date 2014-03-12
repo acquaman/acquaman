@@ -19,6 +19,7 @@ class AMOrderReductionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AMOrderReductionAB();
 	Q_INVOKABLE AMOrderReductionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

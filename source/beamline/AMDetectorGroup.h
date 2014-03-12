@@ -14,6 +14,7 @@ class AMDetectorGroup : public QObject
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorGroup();
 	AMDetectorGroup(const QString &name = "Invalid Name", QObject *parent = 0);
 
 	/// Returns the name for this detector set
@@ -58,6 +59,9 @@ signals:
 	void detectorAddedToGroup(AMDetector *detector);
 	/// Emitted when a detector is removed from the group
 	void detectorRemovedFromGroup(AMDetector *detector);
+
+	/// Emitted once all of the detectors have responded (even if that means one or more have timed out)
+	void allDetectorsResponded();
 
 protected slots:
 	/// Handles moving detectors from the connected set to the unconnected set

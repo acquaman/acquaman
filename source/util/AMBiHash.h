@@ -32,6 +32,7 @@ class AMBiHash
 {
 public:
 	/// Default constructor
+ 	virtual ~AMBiHash(){}
 	AMBiHash<T1, T2>() {}
 
 	/// return the value for a key (forward lookup)
@@ -94,6 +95,7 @@ class AMBiHashWChecking : public AMBiHash<T1, T2>
 {
 public:
 	/// Default constructor
+ 	virtual ~AMBiHashWChecking(){}
 	AMBiHashWChecking<T1, T2>() :
 		AMBiHash<T1, T2>()
 	{

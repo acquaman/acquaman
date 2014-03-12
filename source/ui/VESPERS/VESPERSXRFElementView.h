@@ -35,7 +35,8 @@ class LineView : public QWidget
 
 public:
 	/// Constructor.  Takes a Line in the form of a QPair<QString, QString> and creates a custom line widget.
-	LineView(QPair<QString, QString> line = qMakePair(QString(), QString()), QWidget *parent = 0)
+ 	virtual ~LineView();
+	LineView(AMEmissionLine line = AMEmissionLine(), QWidget *parent = 0)
 		: QWidget(parent)
 	{
 		lineLabel_ = new QLabel;
@@ -57,21 +58,17 @@ public:
 	bool checked() const { return checkBox_->isChecked(); }
 
 	/// Returns the line as a QPair<QString, QString>
-	QPair<QString, QString> line() const { return line_; }
+	AMEmissionLine line() const { return line_; }
 	/// Returns the line in the form of a QLabel.
 	QLabel *lineLabel() const { return lineLabel_; }
 	/// Sets the view with a new line.  Does not emit any signals while setting the all the values.
-	void setLine(QPair<QString, QString> line, bool alreadyChecked = false)
+	void setLine(AMEmissionLine line, bool alreadyChecked = false)
 	{
 		blockSignals(true);
-		if (line.first.isEmpty() || line.second.compare("-") == 0)
-			hide();
-		else
-			show();
-
+		setVisible(!line.isNull());
 		line_ = line;
 		checkBox_->setChecked(alreadyChecked);
-		lineLabel_->setText(line.first + ": " + line.second + " eV");
+		lineLabel_->setText(line.greekLineName() + ": " + line.energyString() + " eV");
 		blockSignals(false);
 	}
 
@@ -81,13 +78,13 @@ signals:
 
 private slots:
 	/// Helper slot used to emit the lineChecked signal.
-	void onChecked() { emit lineCheckedChanged(checkBox_->isChecked(), line_.first); }
+	void onChecked() { emit lineCheckedChanged(checkBox_->isChecked(), line_.greekLineName()); }
 
 private:
 	// Member variables.
 	QCheckBox *checkBox_;
 	QLabel *lineLabel_;
-	QPair<QString, QString> line_;
+	AMEmissionLine line_;
 };
 
 /*! Builds a view for an XRFElement.
@@ -97,6 +94,7 @@ class VESPERSXRFElementView : public QWidget
 	Q_OBJECT
 public:
 	/// This constructor builds an element view for the fluorescence detector.  Only the emission lines are displayed.
+ 	virtual ~VESPERSXRFElementView();
 	explicit VESPERSXRFElementView(XRFElement *el = 0, QWidget *parent = 0);
 
 	/// Returns the element.

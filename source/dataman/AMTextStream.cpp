@@ -2,6 +2,7 @@
 
 #include <QStringList>
 
+ AMTextStream::~AMTextStream(){}
 AMTextStream::AMTextStream() :
 	QTextStream()
 {
@@ -87,14 +88,14 @@ void AMTextStream::read(AMAxisInfo &axisInfo){
 	fullString.remove(terminator_);
 	allStrings = fullString.split(separator_);
 
+	if (allStrings.size() != 7)
+		return;
+
 	axisInfo.name = allStrings.at(0);
 	axisInfo.size = allStrings.at(1).toLong();
 	axisInfo.description = allStrings.at(2);
 	axisInfo.units = allStrings.at(3);
-	if(allStrings.at(4).toInt() == 1)
-		axisInfo.isUniform = true;
-	else
-		axisInfo.isUniform = false;
+	axisInfo.isUniform = (allStrings.at(4).toInt() == 1);
 	axisInfo.start = allStrings.at(5).toDouble();
 	axisInfo.increment = allStrings.at(6).toDouble();
 }

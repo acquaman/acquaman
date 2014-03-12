@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlOptimizationView.h"
 
+ AMQuickDataSet::~AMQuickDataSet(){}
 AMQuickDataSet::AMQuickDataSet(QMap<double, double> dataMap, QObject *parent) : QObject(parent){
 	model_ = NULL;
 	setDataMap(dataMap);
@@ -66,6 +67,7 @@ void AMQuickDataSet::setDataMap(QMap<double, double> dataMap){
 		setupModel();
 }
 
+ AMControlOptimizationSetView::~AMControlOptimizationSetView(){}
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
 		AMOldControlSetView((AMControlSet*)viewSet, parent)
 {
@@ -197,6 +199,7 @@ void AMControlOptimizationSetView::onConfigValuesChanged(){
 }
 
 
+ AMCompactControlOptimizationSetView::~AMCompactControlOptimizationSetView(){}
 AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
@@ -408,6 +411,7 @@ void AMCompactControlOptimizationSetView::nonOptimumValues(bool optimumValues){
 	}
 }
 
+ CCOSVItem::~CCOSVItem(){}
 CCOSVItem::CCOSVItem(int width, int height, QColor curveColor, bool invert, bool log)
 {
 	curve_ = NULL;
@@ -478,6 +482,7 @@ void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 
 
+ AMColorControlOptimizationSetView::~AMColorControlOptimizationSetView(){}
 AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
@@ -544,6 +549,7 @@ bool AMColorControlOptimizationSetView::adjustSlider(int val){
 /// Sets the title of the group box based on the name() function of the AMControlSet.
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
+ AMOldControlSetView::~AMOldControlSetView(){}
 AMOldControlSetView::AMOldControlSetView(AMControlSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {

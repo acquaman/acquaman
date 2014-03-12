@@ -44,7 +44,7 @@ public:
 
 protected:
 	/// Holds the additional SGM Information for elements
-	AMOrderedSet<AMDatabase *, AMOrderedSet<const AMElement*, SGMElementInfo*>* > sgmPeriodicTableInfo_;
+	AMOrderedSet<AMDatabase *, AMOrderedSet<AMElement*, SGMElementInfo*>* > sgmPeriodicTableInfo_;
 
 	/// Singleton instance variable
 	static SGMPeriodicTable *instance_;
@@ -52,6 +52,7 @@ protected:
 	static QString SGMPeriodicTableAllDatabasesConnectionName_;
 
 	/// Constructor: Builds the SGM Element info attached to the periodic table (protected: access via sgmTable())
+ 	virtual ~SGMPeriodicTable();
 	explicit SGMPeriodicTable(QObject *parent = 0);
 };
 

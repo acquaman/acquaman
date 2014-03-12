@@ -35,6 +35,7 @@ Q_PROPERTY(int samplePositionIndex READ samplePositionIndex WRITE setSamplePosit
 
 public:
 	/// Constructor. You should always specify the paramaters, but we provide the default for database reload
+ 	virtual ~AMSamplePlateMoveActionInfo();
 	Q_INVOKABLE AMSamplePlateMoveActionInfo(int samplePlateId = -1, int samplePositionIndex = -1, QObject *parent = 0);
 
 	/// Copy constructor

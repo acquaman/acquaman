@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+ AMDbUpgrade::~AMDbUpgrade(){}
 AMDbUpgrade::AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent) :
 	QObject(parent)
 {

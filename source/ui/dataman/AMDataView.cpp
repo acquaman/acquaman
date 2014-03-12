@@ -1298,6 +1298,7 @@ void AMDataViewSectionThumbnailView::populate() {
 	setVisible(true);
 }
 
+ AMLayoutControlledGraphicsWidget::~AMLayoutControlledGraphicsWidget(){}
 AMLayoutControlledGraphicsWidget::AMLayoutControlledGraphicsWidget(QGraphicsItem *parent, Qt::WindowFlags wFlags) : QGraphicsWidget(parent, wFlags)
 {
 }
@@ -1865,3 +1866,5 @@ AMDataViewEmptyHeader::AMDataViewEmptyHeader(const QString &message, double init
 
 
 
+ AMAbstractDataViewSection::~AMAbstractDataViewSection(){}
+ AMIgnoreScrollTableView::~AMIgnoreScrollTableView(){}

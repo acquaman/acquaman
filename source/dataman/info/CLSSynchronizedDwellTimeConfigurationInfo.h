@@ -15,6 +15,7 @@ public:
 	enum WaitFor { Nothing = 0, Delay = 1, Value = 2 };
 
 	/// Constructor.  Creates an empty info.
+ 	virtual ~CLSSynchronizedDwellTimeConfigurationInfo();
 	CLSSynchronizedDwellTimeConfigurationInfo(QObject *parent = 0);
 
 	/// Returns the name of the element.

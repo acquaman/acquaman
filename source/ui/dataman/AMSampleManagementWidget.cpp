@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 
+ AMSampleManagementWidget::~AMSampleManagementWidget(){}
 AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
 	QWidget(parent)
 {

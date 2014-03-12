@@ -35,9 +35,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSSR570 : public QObject
 {
 	Q_OBJECT
+
 public:
 	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
 	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
+	virtual ~CLSSR570();
 
 	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).
 	int value() const { return indexToValue(value_->getInt()); }
@@ -72,16 +74,17 @@ signals:
 
 public slots:
 	/// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-	void setValue(int value) { setValue(valueToIndex(value)); }
+	void setValue(int value);
 	/// Sets the value index.  Must be between 0 and 8.
-	void setValueIndex(int index) { if (valueOkay(index)) value_->setValue(index); }
+	void setValueIndex(int index);
 	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
-	void setUnits(QString units) { if (unitsOkay(units)) units_->setValue(units); }
+	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
 	bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
 	bool decreaseSensitivity();
+
 
 protected slots:
 	/// Turns the sensitivity value from an index to the value.
@@ -93,22 +96,9 @@ protected slots:
 
 protected:
 	/// Determines if the new sensitivity value is acceptable.
-	bool valueOkay(int value)
-	{
-		if (value >= 0 && value <= 8)
-			return true;
-
-		return false;
-	}
-
+	bool valueOkay(int value) const;
 	/// Determines if the new sensitivity units are acceptable.
-	bool unitsOkay(QString units)
-	{
-		if (units == "pA/V" || units == "nA/V" || units == "uA/V" || units == "mA/V")
-			return true;
-
-		return false;
-	}
+	bool unitsOkay(QString units) const;
 
 	/// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
 	AMProcessVariable *value_;

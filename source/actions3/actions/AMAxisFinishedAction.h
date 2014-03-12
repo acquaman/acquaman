@@ -9,6 +9,7 @@ class AMAxisFinishedAction : public AMAction3
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMAxisFinishedAction();
 	Q_INVOKABLE AMAxisFinishedAction(AMAxisFinishedActionInfo *info, QObject *parent = 0);
 	/// Copy Constructor
 	AMAxisFinishedAction(const AMAxisFinishedAction &other);

@@ -22,9 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include <QFile>
 
+ SGMLookupTableCoordinator::~SGMLookupTableCoordinator(){}
 SGMLookupTableCoordinator::SGMLookupTableCoordinator(const QString &inputControlName, const QString &outputControlName, const QString &linkageControlName, const QString &loadLookupTableControlName, QObject *parent) :
 	QObject(parent)
 {
+	Q_UNUSED(linkageControlName)
+	Q_UNUSED(loadLookupTableControlName)
 	connectedOnce_ = false;
 	inputControl_ = new AMPVControl("inputControl", inputControlName, inputControlName, QString() , this, 0.01);
 	outputControl_ = new AMPVControl("outputControl", outputControlName, outputControlName, QString(), this, 0.01);

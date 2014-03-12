@@ -50,6 +50,7 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VES
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSEnergyScanConfiguration();
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original);
@@ -65,17 +66,17 @@ public:
 
 	/// Returns the technique string.
 	QString technique() const { return "Energy Scan"; }
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the scan should move to a new position before starting the scan.
 	bool goToPosition() const { return goToPosition_; }
 	/// Returns the position that the scan should move to.
-	QPair<double, double> position() const { return position_; }
+	QPointF position() const { return position_; }
 	/// Returns the x coordinate of the scan position.
-	double x() const { return position_.first; }
+	double x() const { return position_.x(); }
 	/// Returns the y coordinate of the scan position.
-	double y() const { return position_.second; }
+	double y() const { return position_.y(); }
 
 	/// Returns the AMControlInfo for the scanned region control.
 	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
@@ -99,9 +100,9 @@ public slots:
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
-	void setPosition(QPair<double, double> pos);
+	void setPosition(const QPointF &pos);
 	/// Overloaded.  Takes the x and y position explicitly.
-	void setPosition(double xPos, double yPos) { setPosition(qMakePair(xPos, yPos)); }
+	void setPosition(double xPos, double yPos) { setPosition(QPointF(xPos, yPos)); }
 	/// Sets the x coordinate of the starting position of the scan.
 	void setX(double xPos);
 	/// Sets the y coordinate of the starting position of the scan.
@@ -118,7 +119,7 @@ protected:
 	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
 	bool goToPosition_;
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
-	QPair<double, double> position_;
+	QPointF position_;
 };
 
 #endif // VESPERSENERGYSCANCONFIGURATION_H

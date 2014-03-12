@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSAmptekSDD123DetectorInfo.h"
 
+ CLSAmptekSDD123DetectorInfo::~CLSAmptekSDD123DetectorInfo(){}
 CLSAmptekSDD123DetectorInfo::CLSAmptekSDD123DetectorInfo(const QString &name, const QString &description, QObject *parent) :
 	AMBasicXRFDetectorInfo(name, description, parent)
 {

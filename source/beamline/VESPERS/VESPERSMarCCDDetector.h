@@ -33,7 +33,11 @@ class VESPERSMarCCDDetector : public VESPERSCCDDetector
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSMarCCDDetector();
 	VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
+
+	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
+	virtual QString synchronizedDwellKey() const;
 };
 
 #endif // VESPERSMARCCDDETECTOR_H

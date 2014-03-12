@@ -49,6 +49,7 @@ public:
 \param sampleCameraDescription The title the user will see for the camera view (ex: "Endstation Top View").
 \param samplePlate A pointer that will be passed to the AMSamplePlateView constructor as the sample plate to work with; it can be 0 if the plate view should create its own plate.
 \param manipulator [Optional] If you want the AMSamplePlateView to be able to mark and move sample positions, you should include an AMSampleManipulator instance \c manipulator, which will be passed to the AMSamplePlateView.*/
+ 	virtual ~AMSampleManagementWidget();
 	AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate = 0, AMSampleManipulator* manipulator = 0, QWidget *parent = 0);
 
 	/// Accesses the sample plate view

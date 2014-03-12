@@ -32,6 +32,7 @@ class AMScanConfigurationView : public QWidget {
 
 public:
 	/// Default constructor
+ 	virtual ~AMScanConfigurationView(){}
 	explicit AMScanConfigurationView(QWidget* parent = 0) : QWidget(parent) {}
 
 	/// This function must return a pointer to the scan configuration, that is being configure within your view.

@@ -39,6 +39,7 @@ class AMSampleEditor : public QWidget
 Q_OBJECT
 public:
 	/// Default constructor
+ 	virtual ~AMSampleEditor();
 	explicit AMSampleEditor(AMDatabase* db, QWidget *parent = 0);
 
 	/// Returns the id of the currently-selected sample, or -1 if it's a non-existent/invalid sample

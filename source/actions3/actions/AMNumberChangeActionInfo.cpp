@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMNumberChangeActionInfo.h"
 
+ AMNumberChangeActionInfo::~AMNumberChangeActionInfo(){}
 AMNumberChangeActionInfo::AMNumberChangeActionInfo(int newNumber, int indexToChange, QObject *parent) :
 	AMActionInfo3("Number Change", "Number Change", ":/system-run.png", parent)
 {

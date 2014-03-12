@@ -785,3 +785,19 @@ void AMGenericScanEditor::exportGraphicsToFile()
 		}
 	}
 }
+
+void AMGenericScanEditor::printGraphics()
+{
+
+
+		if(!using2DScanView()) {
+			scanView_->printGraphics();
+			AMErrorMon::information(this, 0, QString("Current plot sent to printer."));
+		}
+
+		else {
+			scanView2D_->printGraphics();
+			AMErrorMon::information(this, 0, QString("Current plot sent to printer."));
+		}
+
+}

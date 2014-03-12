@@ -654,6 +654,7 @@ void REIXSXESImageABEditor::placeRangeRectangle()
 //}
 
 
+ REIXSXESImageABEditorEllipticalMask::~REIXSXESImageABEditorEllipticalMask(){}
 REIXSXESImageABEditorEllipticalMask::REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {
@@ -865,6 +866,7 @@ void REIXSXESImageABEditorEllipticalMask::yValues(unsigned indexStart, unsigned 
 
 
 
+ REIXSXESImageABEditorShiftModel::~REIXSXESImageABEditorShiftModel(){}
 REIXSXESImageABEditorShiftModel::REIXSXESImageABEditorShiftModel(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {
@@ -950,12 +952,10 @@ void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
 #include <QProgressDialog>
 #include <QUrl>
 
-#include <QDebug>
 void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 {
 	disconnect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
 
-	qDebug() << "Calling applyToOtherScansChosen.";
 	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
 	if(scans.isEmpty()) {
 		chooseScanDialog_->close();

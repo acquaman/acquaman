@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlSet.h"
 
+ AMControlSet::~AMControlSet(){}
 AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMControl*>(false)
 {

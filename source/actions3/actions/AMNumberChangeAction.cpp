@@ -48,6 +48,7 @@ namespace AMNumberChangeActionSupport{
 	}
 }
 
+ AMNumberChangeAction::~AMNumberChangeAction(){}
 AMNumberChangeAction::AMNumberChangeAction(AMNumberChangeActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {

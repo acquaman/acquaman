@@ -40,7 +40,7 @@ class AMNewRunDialog: public QDialog
 
 public:
 	AMNewRunDialog(AMDatabase* db, QWidget *parent = 0); //constructor
-	~AMNewRunDialog();
+	virtual ~AMNewRunDialog();
 
 protected slots:
 	void facilitySelectCbChanged(int index);

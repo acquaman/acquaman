@@ -13,6 +13,7 @@ class VESPERSPilatusCCDDetectorView : public VESPERSCCDDetectorView
 
 public:
 	/// Constructor.  Extends the standard CCD detector view.
+ 	virtual ~VESPERSPilatusCCDDetectorView();
 	Q_INVOKABLE explicit VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDetector *detector, QWidget *parent = 0);
 
 protected slots:
@@ -24,6 +25,8 @@ protected:
 	QProgressBar *diskUsageBar_;
 	/// Label that has a light in it to indicate relative fullness.  Green from 0-60%, yellow from 60-80%, and red for >80%.
 	QLabel *status_;
+	/// Label that holds the ratio of disk space occupied vs total.
+	QLabel *spaceLabel_;
 };
 
 #endif // VESPERSPILATUSCCDDETECTORVIEW_H

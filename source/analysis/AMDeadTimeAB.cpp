@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDeadTimeAB.h"
 
+ AMDeadTimeAB::~AMDeadTimeAB(){}
 AMDeadTimeAB::AMDeadTimeAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

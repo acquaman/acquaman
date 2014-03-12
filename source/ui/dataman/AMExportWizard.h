@@ -40,6 +40,7 @@ class AMExportWizardProgressPage : public QWizardPage {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMExportWizardProgressPage();
 	explicit AMExportWizardProgressPage(QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -63,6 +64,7 @@ class AMExportWizardOptionPage : public QWizardPage {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMExportWizardOptionPage();
 	explicit AMExportWizardOptionPage(QWidget* parent = 0);
 
 	virtual void initializePage();
@@ -102,6 +104,7 @@ protected:
 class AMExportWizardChooseExporterPage : public QWizardPage {
 	Q_OBJECT
 public:
+ 	virtual ~AMExportWizardChooseExporterPage();
 	explicit AMExportWizardChooseExporterPage(QWidget* parent = 0);
 
 	virtual bool validatePage();

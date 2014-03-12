@@ -89,6 +89,7 @@ void AMExportWizard::done(int result) {
 	QWizard::done(result);
 }
 
+ AMExportWizardChooseExporterPage::~AMExportWizardChooseExporterPage(){}
 AMExportWizardChooseExporterPage::AMExportWizardChooseExporterPage(QWidget *parent)
 	: QWizardPage(parent)
 {
@@ -182,6 +183,7 @@ void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
 }
 
 
+ AMExportWizardOptionPage::~AMExportWizardOptionPage(){}
 AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 {
 	Q_UNUSED(parent)
@@ -422,6 +424,7 @@ void AMExportWizardOptionPage::populateOptionSelector()
 // AMExportWizardProgressPage
 /////////////////////////////////
 
+ AMExportWizardProgressPage::~AMExportWizardProgressPage(){}
 AMExportWizardProgressPage::AMExportWizardProgressPage(QWidget *parent)
 {
 	Q_UNUSED(parent)

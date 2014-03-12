@@ -36,6 +36,7 @@ Q_OBJECT
 
 public:
 	/// Constructor
+ 	virtual ~AMSamplePlateMoveActionEditor();
 	Q_INVOKABLE AMSamplePlateMoveActionEditor(AMSamplePlateMoveActionInfo *info, QWidget *parent = 0);
 
 protected slots:

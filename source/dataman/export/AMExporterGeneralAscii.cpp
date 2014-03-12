@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 #include "util/AMErrorMonitor.h"
 
+ AMExporterGeneralAscii::~AMExporterGeneralAscii(){}
 AMExporterGeneralAscii::AMExporterGeneralAscii(QObject *parent) :
 	AMExporter(parent)
 {
@@ -91,7 +92,6 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -154,17 +154,27 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 
 	else if (option_->includeAllDataSources() && option_->firstColumnOnly()){
 
+		bool includeFirstColumn = true;
+
 		// assumptions: 1D goes in main table. 0D, 2D and higher goes in separate section.
 		for(int i=0; i<currentScan_->dataSourceCount(); i++) {
+
 			switch(currentScan_->dataSourceAt(i)->rank()) {
+
 			case 0:
 				separateSectionDataSources_ << i;
 				separateSectionIncludeX_ << false;	// default false for 0D (scalar point) data
 				break;
+
 			case 1:
 				mainTableDataSources_ << i;
-				mainTableIncludeX_ << (i == 0 ? true : false);
+				mainTableIncludeX_ << includeFirstColumn;
+
+				if (includeFirstColumn)
+					includeFirstColumn = false;
+
 				break;
+
 			default:
 
 				if (option_->includeHigherDimensionSources()){

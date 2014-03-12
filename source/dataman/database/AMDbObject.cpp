@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 // Default constructor
+ AMDbThumbnail::~AMDbThumbnail(){}
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
 	: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {
 }
@@ -70,6 +71,7 @@ QString AMDbThumbnail::typeString() const {
 	}
 }
 
+ AMDbObject::~AMDbObject(){}
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	isReloading_ = false;
 	id_ = 0;
@@ -226,7 +228,6 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
-					qDebug() << "obj->modified() is " << obj->modified() << " and obj->id() is " << obj->id() << " for " << obj->name() << obj->dbObjectInfo()->className;
 					if(!obj->modified() && (obj->id() >= 1) )
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 					else{
@@ -761,6 +762,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 	}
 }
 
+ AMDbThumbnailsGeneratedEvent::~AMDbThumbnailsGeneratedEvent(){}
 AMDbThumbnailsGeneratedEvent::AMDbThumbnailsGeneratedEvent(const QList<AMDbThumbnail> &_thumbnails, AMDatabase *_db, const QString &_dbTableName, int _dbObjectId, bool _neverSavedHereBefore)
 	: QEvent((QEvent::Type)AM::ThumbnailsGeneratedEvent), thumbnails(_thumbnails), db(_db), dbTablename(_dbTableName), dbObjectId(_dbObjectId), neverSavedHereBefore(_neverSavedHereBefore)
 {

@@ -40,6 +40,7 @@ class VESPERSSpatialLineScanConfigurationView : public VESPERSScanConfigurationV
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~VESPERSSpatialLineScanConfigurationView();
 	explicit VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

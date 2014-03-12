@@ -46,6 +46,7 @@ class REIXSBrokenMonoControl;
 class REIXSPhotonSource : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSPhotonSource();
 	REIXSPhotonSource(QObject* parent = 0);
 
 	REIXSBrokenMonoControl* energy() { return energy_; }
@@ -71,6 +72,7 @@ protected:
 class REIXSValvesAndShutters : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSValvesAndShutters();
 	REIXSValvesAndShutters(QObject* parent = 0);
 
 	/// Safety shutter 1
@@ -106,6 +108,7 @@ protected:
 class REIXSXASDetectors : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSXASDetectors();
 	REIXSXASDetectors(QObject* parent = 0);
 
 	/// Feedback for I0
@@ -138,6 +141,7 @@ protected:
 class REIXSHexapod : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSHexapod();
 	REIXSHexapod(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
@@ -171,6 +175,7 @@ class AMListAction3;
 class REIXSSpectrometer : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSSpectrometer();
 	REIXSSpectrometer(QObject* parent = 0);
 
 	/// The spectrometer calibration object we are using
@@ -304,6 +309,7 @@ protected slots:
 class REIXSSampleChamber : public AMCompositeControl {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
@@ -423,7 +429,7 @@ public:
 	}
 
 	/// Destructor
-	~REIXSBeamline();
+	virtual ~REIXSBeamline();
 
 	// Accessing control elements:
 

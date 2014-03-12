@@ -10,6 +10,7 @@
 
 // AMMotorGroupObjectView
 //////////////////////////////////////////////
+ AMMotorGroupObjectView::~AMMotorGroupObjectView(){}
 AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent)
 	: QWidget(parent)
 {
@@ -262,6 +263,7 @@ void AMMotorGroupObjectView::onThirdControlSetpoint()
 
 // AMMotorGroupView
 /////////////////////////////////////////////
+ AMMotorGroupView::~AMMotorGroupView(){}
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 	: QWidget(parent)
 {

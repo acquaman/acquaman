@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DInterpolationAB.h"
 
+ AM1DInterpolationAB::~AM1DInterpolationAB(){}
 AM1DInterpolationAB::AM1DInterpolationAB(int interpolationPoints, const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {

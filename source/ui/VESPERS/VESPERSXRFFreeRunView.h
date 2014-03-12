@@ -30,13 +30,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "acquaman/VESPERS/XRFFreeRun.h"
-#include "actions/AMBeamlineScanAction.h"
+//#include "actions/AMBeamlineScanAction.h"
 
 class VESPERSXRFFreeRunView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~VESPERSXRFFreeRunView();
 	explicit VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent = 0);
 
 protected slots:
@@ -45,8 +46,8 @@ protected slots:
 	{
 		start_->setDisabled(true);
 		detector_->setTime(integrationTime_->value());
-		AMBeamlineScanAction *action = new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy());
-		action->start();
+		//AMBeamlineScanAction *action = new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy());
+		//action->start();
 	}
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();

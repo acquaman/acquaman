@@ -22,14 +22,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QIcon>
+
 #include "util/AMFontSizes.h"
 
-AMTopFrame::AMTopFrame(const QString &title, QWidget *parent) :
-		QFrame(parent)
+ AMTopFrame::~AMTopFrame(){}
+AMTopFrame::AMTopFrame(const QString &title, const QIcon &icon, QWidget *parent)
+	: QFrame(parent)
 {
+	icon_ = icon;
 	iconLabel_ = new QLabel();
-	iconLabel_->setPixmap(QIcon(":/system-software-update.png").pixmap(36,36));
+	iconLabel_->setPixmap(icon_.pixmap(36,36));
 	iconLabel_->setFixedSize(36, 36);
 	iconLabel_->setScaledContents(true);
 
@@ -77,4 +79,14 @@ void AMTopFrame::setTitle(const QString &title){
 
 void AMTopFrame::setIcon(const QIcon &icon){
 	iconLabel_->setPixmap(icon.pixmap(36, 36));
+}
+
+const QString AMTopFrame::title() const
+{
+	return titleLabel_->text();
+}
+
+const QIcon AMTopFrame::icon() const
+{
+	return icon_;
 }

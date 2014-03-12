@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROLSTATE_H
-#define ACQMAN_CONTROLSTATE_H
+#ifndef AM_CONTROLSTATE_H
+#define AM_CONTROLSTATE_H
 
 #include <QObject>
 #include <QList>
@@ -43,6 +43,7 @@ public:
 	/// Should be able to move/measure defaults to no ("0")
 	/// Value defaults to -1, which could be a legitimate value ... ?
 	/// Tolerance defaults to 0, which is not a legitimate value
+ 	virtual ~AMControlStatus();
 	explicit AMControlStatus(QString name = "", int can = 0, int should = 0, double value = -1, double tolerance = 0, QObject *parent = 0) : QObject(parent){
 		name_ = name;
 		can_ = can;
@@ -88,6 +89,7 @@ class AMControlState : public QObject
 Q_OBJECT
 public:
 	/// Constructor, takes an AMControl and saves its current state. Also takes a QObject as a parent.
+ 	virtual ~AMControlState();
 	explicit AMControlState(AMControl *ctrl, QObject *parent = 0);
 
 signals:
@@ -116,4 +118,4 @@ protected:
 	bool restoreListInternal(AMControl * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
 };
 
-#endif // ACQMAN_CONTROLSTATE_H
+#endif // AM_CONTROLSTATE_H

@@ -12,6 +12,7 @@ class AM3DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AM3DDeadTimeCorrectionAB();
 	Q_INVOKABLE AM3DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.

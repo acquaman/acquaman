@@ -31,6 +31,7 @@ class AMLoopActionEditor3 : public QFrame
 	Q_OBJECT
 public:
 	/// Constructor: Must be Q_INVOKABLE, and accept an AMLoopActionInfo as argument
+ 	virtual ~AMLoopActionEditor3();
 	Q_INVOKABLE AMLoopActionEditor3(AMLoopActionInfo3* info, QWidget *parent = 0);
 
 signals:

@@ -1,188 +1,152 @@
 #include "VESPERSScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "acquaman/dacq3_3/qepicsadvacq.h"
+//#include "acquaman/dacq3_3/qepicsadvacq.h"
+#include "actions3/AMListAction3.h"
+#include "beamline/CLS/CLSSR570.h"
 
 #include <QStringBuilder>
 
-VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *config)
-{
-	config_ = config;
 
-	initializationAction_ = 0;
-	cleanupAction_ = 0;
+VESPERSScanController::~VESPERSScanController(){}
+
+VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configuration)
+{
+	config_ = configuration;
 }
 
-void VESPERSScanController::buildBaseInitializationAction(double timeStep)
+AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetectorInfoSet &detectorConfigurations)
 {
 	// To initialize the XAS scan, there are four stages.
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot,set the time on the synchronized dwell time.
 	 */
-	AMBeamlineParallelActionsList *setupActionsList = new AMBeamlineParallelActionsList;
+	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("VESPERS Scan Initialization Actions", "VESPERS Scan Initialization Actions"));
+	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-	if (!initializationAction_)
-		onInitializationActionFinished();
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
+	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::SingleShot));
+	stage1->addSubAction(synchronizedDwell->createScanningAction3(false));
 
-	initializationAction_ = new AMBeamlineListAction(setupActionsList);
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
+	QStringList dwellKeys;
 
-	// First stage.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Scalar
-	setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Scaler")->createEnableAction(true));
-	// Single element vortex
-	if ((config_->fluorescenceDetector() == VESPERS::SingleElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(true));
-	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("1-El Vortex")->createEnableAction(false));
-	// Roper CCD
-	if (config_->ccdDetector() == VESPERS::Roper)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(true));
-	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Roper CCD")->createEnableAction(false));
+	for (int i = 0, size = detectorConfigurations.count(); i < size; i++)
+		dwellKeys << VESPERSBeamline::vespers()->exposedDetectorByInfo(detectorConfigurations.at(i))->synchronizedDwellKey();
 
-	// Pilatus CCD
-	if (config_->ccdDetector() == VESPERS::Pilatus)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(true));
-	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Pilatus CCD")->createEnableAction(false));
+	dwellKeys.removeDuplicates();
 
-	// Four element vortex
-	if ((config_->fluorescenceDetector() == VESPERS::FourElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(true));
-	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("4-El Vortex")->createEnableAction(false));
-	// Mar CCD
-	if (config_->ccdDetector() == VESPERS::Mar)
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(true));
-	else
-		setupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementByName("Mar CCD")->createEnableAction(false));
+	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++){
 
-	// Second stage.
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(timeStep));
+		if (synchronizedDwell->enabledAt(i) && !dwellKeys.contains(synchronizedDwell->keyAt(i)))
+			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(false));
+
+		else if (!synchronizedDwell->enabledAt(i) && dwellKeys.contains(synchronizedDwell->keyAt(i)))
+			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
+	}
+
+	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
+
+	stage3->addSubAction(scaler->createStartAction3(false));
+	stage3->addSubAction(scaler->createScansPerBufferAction3(1));
+	stage3->addSubAction(scaler->createTotalScansAction3(1));
+
+	initializationAction->addSubAction(stage1);
+	initializationAction->addSubAction(stage2);
+	initializationAction->addSubAction(stage3);
+
+	return initializationAction;
 }
 
-QString VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetector ccdChoice, const QString &ccdName)
+AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName)
 {
-	QString name = "";
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+	AMParallelListAction3 *action = new AMParallelListAction3(new AMParallelListActionInfo3("CCD Setup Action", "Sets the path, base file name and file number to the detector."));
 
-	if (ccdChoice == VESPERS::Roper){
+	if (ccdChoice.testFlag(VESPERS::Roper)){
 
-		VESPERSRoperCCDDetector *ccd = VESPERSBeamline::vespers()->roperCCD();
-		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersRoperCCD();
+		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+		if (config_->ccdFileName() != uniqueName)
+			config_->setCCDFileName(uniqueName);
+
+		action->addSubAction(ccd->createFileNameAction(uniqueName));
+		action->addSubAction(ccd->createFileNumberAction(1));
 	}
 
-	else if (ccdChoice == VESPERS::Mar){
+	if (ccdChoice.testFlag(VESPERS::Mar)){
 
-		VESPERSMarCCDDetector *ccd = VESPERSBeamline::vespers()->marCCD();
-		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersMarCCD();
+		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
 
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+		if (config_->ccdFileName() != uniqueName)
+			config_->setCCDFileName(uniqueName);
+
+		action->addSubAction(ccd->createFileNameAction(uniqueName));
+		action->addSubAction(ccd->createFileNumberAction(1));
 	}
 
-	else if (ccdChoice == VESPERS::Pilatus){
+	if (ccdChoice.testFlag(VESPERS::Pilatus)){
 
-		VESPERSPilatusCCDDetector *ccd = VESPERSBeamline::vespers()->pilatusCCD();
-		name = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
-
-		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		VESPERSCCDDetector *ccd = VESPERSBeamline::vespers()->vespersPilatusAreaDetector();
 
 		QString dataFolder = AMUserSettings::userDataFolder;
 
 		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+			action->addSubAction(ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
 
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNameAction(name));
-		setupActionsList->appendAction(setupActionsList->stageCount()-1, ccd->createFileNumberAction(1));
+		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
+
+		if (config_->ccdFileName() != uniqueName)
+			config_->setCCDFileName(uniqueName);
+
+		action->addSubAction(ccd->createFileNameAction(uniqueName));
+		action->addSubAction(ccd->createFileNumberAction(1));
 	}
 
-	return name;
+	return action;
 }
 
-void VESPERSScanController::buildCleanupAction(bool usingMono)
+AMAction3 *VESPERSScanController::buildCleanupAction()
 {
 	// To cleanup the XAS scan, there is one stage.
 	/*
 		First: Only have the scalar running in the syncrhonized dwell time.
-		Second: Set the dwell time to 1 second.  Disables the variable integration time.  Set the relative energy PV to 0.
-		Third: Set the scan mode to continuous.  This starts the synchronized dwell time.
+		Second: Set the dwell time to 1 second.  Set the scan mode to continuous.  This starts the synchronized dwell time.
+		Third: Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
-	AMBeamlineParallelActionsList *cleanupActionsList = new AMBeamlineParallelActionsList;
+	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
+	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-	if (!cleanupAction_)
-		onCleanupActionFinished();
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
+	stage1->addSubAction(synchronizedDwell->createMasterTimeAction3(1));
+	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::Continuous));
 
-	cleanupAction_ = new AMBeamlineListAction(cleanupActionsList);
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "Disabling all but the scaler in the synchronized dwell."), AMListAction3::Parallel);
 
-	// First stage.
-	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Scalar
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
-	// Single element vortex
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-	// CCD
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
-	// Picoammeters
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
-	// Four element vortex
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
-	// Mar CCD
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
+	// The scaler is always first.  Therefore, we know this will always only ensure the scaler is still enabled.
+	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++)
+		stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(i == 0));
 
-	// Second stage.
-	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Synchronized dwell time.
-	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+	cleanup->addSubAction(stage1);
+	cleanup->addSubAction(stage2);
 
-	if (usingMono){
-		// Variable integration time.
-		cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-		// Energy.
-		cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	}
-
-	// Third stage.
-	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	// Start the synchronized dwell time.
-	cleanupActionsList->appendAction(2, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	return cleanup;
 }
 
 QString VESPERSScanController::buildNotes()
 {
 	// Build the notes for the scan.
 	QString notes;
+	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
-	switch ((int)config_->fluorescenceDetector()){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
-		break;
-
-	case VESPERS::FourElement:
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
+	if (xrfFlag == VESPERS::SingleElement)
 		notes.append(QString("\nFluorescence detector (1-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
+
+	if (xrfFlag == VESPERS::FourElement)
 		notes.append(QString("\nFluorescence detector (4-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
-		break;
-	}
 
 	if (config_->ccdDetector() == VESPERS::Pilatus)
 		notes.append(QString("\nPilatus distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToCCD(), 0, 'f', 1));
@@ -215,14 +179,15 @@ QString VESPERSScanController::buildNotes()
 	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
 	notes.append(QString("Gas used in ion chambers:\tN2\n"));
 	notes.append(QString("\nIon Chamber Gain Settings\n"));
-	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
-	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
-	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iMini();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iPost();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+
+	CLSSIS3820ScalerChannel *channel = VESPERSBeamline::vespers()->scaler()->channelAt(5);
+	notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(7);
+	notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(8);
+	notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
+	channel = VESPERSBeamline::vespers()->scaler()->channelAt(9);
+	notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(channel->sr570()->value()).arg(channel->sr570()->units()));
 
 	return notes;
 }
@@ -367,120 +332,82 @@ void VESPERSScanController::addFourElementSpectraMeasurments(AMScan *scan, const
 	}
 }
 
-void VESPERSScanController::addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK)
-{
-	if (addEaAndDwellTime && addK){
+//void VESPERSScanController::addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK)
+//{
+//	if (addEaAndDwellTime && addK){
 
-		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-		advAcq->appendRecord("07B2_Mono_SineB_K", true, false, 0);
-		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	}
+//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+//		advAcq->appendRecord("07B2_Mono_SineB_K", true, false, 0);
+//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+//	}
 
-	else if (addEaAndDwellTime){
+//	else if (addEaAndDwellTime){
 
-		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	}
+//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+//	}
 
-	advAcq->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
-}
+//	advAcq->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+//}
 
-void VESPERSScanController::addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
-	advAcq->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
-}
+//void VESPERSScanController::addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
+//	advAcq->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
+//}
 
-void VESPERSScanController::addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-{
-	for (int i = 0; i < roiCount; i++)
-		advAcq->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
-}
+//void VESPERSScanController::addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
+//{
+//	for (int i = 0; i < roiCount; i++)
+//		advAcq->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
+//}
 
-void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("IOC1607-004:mca1", true, true, 1);
-}
+//void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("IOC1607-004:mca1", true, true, 1);
+//}
 
-void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:Triggers", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
-}
+//void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Triggers", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
+//	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
+//}
 
-void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-{
-	for (int i = 0; i < roiCount; i++)
-		advAcq->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
-}
+//void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
+//{
+//	for (int i = 0; i < roiCount; i++)
+//		advAcq->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
+//}
 
-void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
-{
-	advAcq->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
-}
-
-void VESPERSScanController::onInitializationActionFinished()
-{
-	if (initializationAction_ == 0)
-		return;
-
-	// Disconnect all signals and return all memory.
-	initializationAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = initializationAction_->list();
-
-	for (int i = 0; i < actionList->stageCount(); i++){
-
-		while (actionList->stage(i)->size())
-			actionList->stage(i)->takeAt(0)->deleteLater();
-	}
-
-	initializationAction_->deleteLater();
-	initializationAction_ = 0;
-}
-
-void VESPERSScanController::onCleanupActionFinished()
-{
-	if (cleanupAction_ == 0)
-		return;
-
-	// Disconnect all signals and return all memory.
-	cleanupAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = cleanupAction_->list();
-
-	for (int i = 0; i < actionList->stageCount(); i++){
-
-		while (actionList->stage(i)->size())
-			actionList->stage(i)->takeAt(0)->deleteLater();
-	}
-
-	cleanupAction_->deleteLater();
-	cleanupAction_ = 0;
-}
+//void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
+//{
+//	advAcq->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
+//	advAcq->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
+//}
 
 QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
 {
@@ -501,10 +428,8 @@ QString VESPERSScanController::getUniqueCCDName(const QString &path, const QStri
 
 	QString newName = name;
 
-	while (VESPERS::fileNameExists(newPath, newName)){
-
+	while (VESPERS::fileNameExists(newPath, newName))
 		newName = VESPERS::appendUniqueIdentifier(name);
-	}
 
 	return newName;
 }

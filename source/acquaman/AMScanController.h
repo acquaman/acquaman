@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCANCONTROLLER_H
-#define ACQMAN_SCANCONTROLLER_H
+#ifndef AM_SCANCONTROLLER_H
+#define AM_SCANCONTROLLER_H
 
 #include <QObject>
 
@@ -29,7 +29,7 @@ class QDateTime;
 #include "dataman/AMScan.h"
 #include "util/AMErrorMonitor.h"
 
-/// This class defines the interface for all Scan Controllers.  The Scan Controller API is modeled as a state machine, with the states such as initialized, running, paused, finished, etc.  To use a scan controller, call the public functions (initialize(), start(), pause(), etc.) or use an AMBeamlineScanAction to run it automatically.  Pay attention to the public signals (started(), paused(), cancelled(), finished(), etc.) to monitor the status of the scan.
+/// This class defines the interface for all Scan Controllers.  The Scan Controller API is modeled as a state machine, with the states such as initialized, running, paused, finished, etc.  To use a scan controller, call the public functions (initialize(), start(), pause(), etc.) or use an scan action to run it automatically.  Pay attention to the public signals (started(), paused(), cancelled(), finished(), etc.) to monitor the status of the scan.
 /*!
 <b>Implementing Custom Scan Controllers</b>
 
@@ -238,4 +238,4 @@ protected:
 	AMScanController *currentScanController_;
 };
 
-#endif // ACQMAN_SCANCONTROLLER_H
+#endif // AM_SCANCONTROLLER_H

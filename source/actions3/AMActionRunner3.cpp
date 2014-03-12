@@ -377,14 +377,6 @@ void AMActionRunner3::internalDoNextAction()
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){
-			if(this == AMActionRunner3::scanActionRunner()){
-				qDebug() << "\n\nI AM THE SCAN ACTION RUNNER, logging database: ";
-				qDebug() << loggingDatabase_->connectionName();
-			}
-			if(this == AMActionRunner3::workflow()){
-				qDebug() << "\n\nI AM THE WORKFLOW ACTION RUNNER, logging database: ";
-				qDebug() << loggingDatabase_->connectionName();
-			}
 			listAction->setLoggingDatabase(loggingDatabase_);
 
 			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
@@ -534,6 +526,7 @@ int AMActionRunner3::indexOfQueuedAction(const AMAction3 *action) {
 	return -1;
 }
 
+ AMActionRunnerQueueModel3::~AMActionRunnerQueueModel3(){}
 AMActionRunnerQueueModel3::AMActionRunnerQueueModel3(AMActionRunner3 *actionRunner, QObject *parent) : QAbstractItemModel(parent)
 {
 	actionRunner_ = actionRunner;
@@ -1038,3 +1031,4 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	return true;
 }
 
+ AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}

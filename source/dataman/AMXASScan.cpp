@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMXASScan.h"
 
+ AMXASScan::~AMXASScan(){}
 AMXASScan::AMXASScan(QObject *parent)
 	: AMScan(parent)
 {

@@ -7,6 +7,7 @@
 #include "util/AMErrorMonitor.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ REIXSXESMCPDetector::~REIXSXESMCPDetector(){}
 REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	AMDetector("XESMCPDetector", "REIXS XES MCP Detector", parent)
 {
@@ -85,12 +86,14 @@ bool REIXSXESMCPDetector::lastContinuousReading(double *outputValues) const{
 	return false;
 }
 
-const double* REIXSXESMCPDetector::data() const{
+bool REIXSXESMCPDetector::data(double *outputValues) const
+{
 	QVector<int> intVal = imageControl_->readPV()->lastIntegerValues();
-	QVector<double> retVal(intVal.size());
+
 	for(int x = 0, size = intVal.size(); x < size; x++)
-		retVal[x] = intVal.at(x);
-	return retVal.constData();
+		outputValues[x] = double(intVal.at(x));
+
+	return true;
 }
 
 QVector<int> REIXSXESMCPDetector::imageData() const{

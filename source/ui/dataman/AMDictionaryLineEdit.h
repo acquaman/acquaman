@@ -30,6 +30,7 @@ class AMDictionaryLineEdit : public QLineEdit
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDictionaryLineEdit();
 	AMDictionaryLineEdit(AMOldScanParametersDictionary *dictionary, QLabel *exampleLabel = 0, QWidget *parent = 0);
 
 public slots:

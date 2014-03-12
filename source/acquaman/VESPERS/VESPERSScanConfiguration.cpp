@@ -1,5 +1,6 @@
 #include "VESPERSScanConfiguration.h"
 
+ VESPERSScanConfiguration::~VESPERSScanConfiguration(){}
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;
@@ -22,25 +23,21 @@ void VESPERSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *obje
 		dbObject_ = dbo;
 }
 
-QString VESPERSScanConfiguration::fluorescenceHeaderString(VESPERS::FluorescenceDetector detector) const
+QString VESPERSScanConfiguration::fluorescenceHeaderString(VESPERS::FluorescenceDetectors detector) const
 {
 	QString string = "";
 
-	switch((int)detector){
-
-	case VESPERS::NoXRF:
+	if (detector == VESPERS::NoXRF)
 		string.append("Fluorescence Detector:\tNone\n");
-		break;
-	case VESPERS::SingleElement:
+
+	else if (detector == VESPERS::SingleElement)
 		string.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
-		break;
-	case VESPERS::FourElement:
+
+	else if (detector == VESPERS::FourElement)
 		string.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
-		break;
-	case VESPERS::SingleElement | VESPERS::FourElement:
+
+	else if (detector == (VESPERS::SingleElement | VESPERS::FourElement))
 		string.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
-		break;
-	}
 
 	return string;
 }
@@ -103,59 +100,45 @@ QString VESPERSScanConfiguration::regionOfInterestHeaderString(AMROIInfoList lis
 	return string;
 }
 
-QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motor motor) const
+QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motors motor) const
 {
 	QString string = "";
 
-	switch(int(motor)){
-
-	case VESPERS::H:
+	if (motor == VESPERS::H)
 		string.append("Using horizontal (H) pseudo motor.\n");
-		break;
 
-	case VESPERS::X:
+	else if (motor == VESPERS::X)
 		string.append("Using horizontal (X) real motor.\n");
-		break;
 
-	case VESPERS::V:
+	else if (motor == VESPERS::V)
 		string.append("Using vertical (V) pseudo motor.\n");
-		break;
 
-	case VESPERS::Z:
+	else if (motor == VESPERS::Z)
 		string.append("Using vertical (Z) real motor.\n");
-		break;
 
-	case VESPERS::H | VESPERS::V:
+	else if (motor == (VESPERS::H | VESPERS::V))
 		string.append("Using pseudo motors: H and V.\n");
-		break;
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motor == (VESPERS::X | VESPERS::Z))
 		string.append("Using real motors: X and Z.\n");
-		break;
-	}
 
 	return string;
 }
 
-QString VESPERSScanConfiguration::ccdDetectorHeaderString(VESPERS::CCDDetector detector) const
+QString VESPERSScanConfiguration::ccdDetectorHeaderString(VESPERS::CCDDetectors detector) const
 {
 	QString string = "";
-	if (detector != VESPERS::NoCCD){
 
-		switch (int(detector)){
+	if (!detector.testFlag(VESPERS::NoCCD)){
 
-		case VESPERS::Roper:
+		if (detector == VESPERS::Roper)
 			string.append(QString("CCD detector used: Roper\n").arg("Roper"));
-			break;
 
-		case VESPERS::Mar:
+		else if (detector == VESPERS::Mar)
 			string.append("CCD detector used: Mar\n");
-			break;
 
-		case VESPERS::Pilatus:
+		else if (detector == VESPERS::Pilatus)
 			string.append("CCD detector used: Pilatus\n");
-			break;
-		}
 
 		string.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
 	}

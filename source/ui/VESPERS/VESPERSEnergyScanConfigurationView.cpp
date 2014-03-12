@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
+ VESPERSEnergyScanConfigurationView::~VESPERSEnergyScanConfigurationView(){}
 VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -67,7 +68,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
-	connect(VESPERSBeamline::vespers()->pilatusCCD(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
+	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -156,13 +157,13 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 		QString path;
 
 		if (config_->ccdDetector() == VESPERS::Roper)
-			path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Mar)
-			path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 		else if (config_->ccdDetector() == VESPERS::Pilatus)
-			path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		config_->setCCDFileName(name);
@@ -180,19 +181,13 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 		scanName_->setPalette(this->palette());
 
 	double n = 0;
+	VESPERS::Motors motor = config_->motor();
 
-	switch(int(config_->motor())){
-
-	case VESPERS::H | VESPERS::V:
-
+	if (motor == (VESPERS::H | VESPERS::V))
 		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
-		break;
 
-	case VESPERS::X | VESPERS::Z:
-
+	else if (motor == (VESPERS::X | VESPERS::Z))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
-		break;
-	}
 
 	config_->setNormalPosition(n);
 }
@@ -203,16 +198,16 @@ void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) 
 
 	if (config_->ccdDetector() == VESPERS::Roper){
 
-		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
-		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Pilatus)
-		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
 
@@ -235,13 +230,13 @@ void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 	QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
 
 	if (config_->ccdDetector() == VESPERS::Roper)
-		path = VESPERSBeamline::vespers()->roperCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Mar)
-		path = VESPERSBeamline::vespers()->marCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
 	else if (config_->ccdDetector() == VESPERS::Pilatus)
-		path = VESPERSBeamline::vespers()->pilatusCCD()->ccdFilePath();
+		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	config_->setCCDFileName(name);
 	ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
@@ -273,41 +268,38 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 {
 	double x = 0;
 	double y = 0;
+	VESPERS::Motors motor = config_->motor();
 
-	switch(int(config_->motor())){
-
-	case VESPERS::H | VESPERS::V:
+	if (motor == (VESPERS::H | VESPERS::V)){
 
 		x = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motor == (VESPERS::X | VESPERS::Z)){
 
 		x = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoH | VESPERS::AttoV:
+	else if (motor == (VESPERS::AttoH | VESPERS::AttoV)){
 
 		x = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoX | VESPERS::AttoZ:
-
+	else if (motor == (VESPERS::AttoX | VESPERS::AttoZ)){
 
 		x = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
 	}
 
 	config_->setPosition(x, y);

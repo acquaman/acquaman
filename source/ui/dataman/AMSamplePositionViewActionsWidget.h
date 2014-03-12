@@ -35,7 +35,7 @@ class AMSamplePositionViewActionsWidget : public QFrame
 public:
 	/// Constructor.  \c row is the row index that we are acting as the editor for.
 	explicit AMSamplePositionViewActionsWidget(int row, QWidget *parent = 0);
-	~AMSamplePositionViewActionsWidget();
+	virtual ~AMSamplePositionViewActionsWidget();
 
 signals:
 	/// Emitted with the row number when the 'Mark' button is pressed

@@ -31,7 +31,8 @@ class XRFElement : public AMElement
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in an AMElement and builds a copy of it with the inclusion of selected lines for regions of interest.
-	XRFElement(const AMElement *el, QObject *parent = 0);
+ 	virtual ~XRFElement();
+	XRFElement(AMElement *el, QObject *parent = 0);
 
 	/// Returns the list of checked off lines.  Contains the names of the lines (ie: Ka1).
 	QStringList linesSelected() const { return selected_; }
@@ -59,6 +60,8 @@ protected:
 private:
 	// This turns the list that AMElements make into a string list so I can use the constructor.
 	QStringList toStringList(QList<QPair<QString, QString> > list);
+	QStringList interimEdgeList(QList<AMAbsorptionEdge> list);
+	QStringList interimLineList(QList<AMEmissionLine> list);
 };
 
 #endif // XRFELEMENT_H
