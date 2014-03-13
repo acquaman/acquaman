@@ -430,14 +430,14 @@ void REIXSXESImageABEditor::onCSmoothBoxChanged()
 	case Median:
 		smoothModeBox_->setEnabled(true);
 		smoothModeBox_->setMinimum(1);
-		smoothModeBox_->setMaximum(99);
+		smoothModeBox_->setMaximum(63);
 		smoothModeBox_->setSingleStep(2);
 		smoothModeBox_->setValue(3);
 		break;
 	case Average:
 		smoothModeBox_->setEnabled(true);
 		smoothModeBox_->setMinimum(1);
-		smoothModeBox_->setMaximum(99);
+		smoothModeBox_->setMaximum(63);
 		smoothModeBox_->setSingleStep(2);
 		smoothModeBox_->setValue(3);
 		break;
