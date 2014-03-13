@@ -163,6 +163,10 @@ protected slots:
 	/// Pushes x value from scan view clisk to energy spin box
 	void onDataPositionToolChanged(const QPointF &newData);
 
+	/// Pushes x value from scan view clisk to energy spin box
+	void onEnergySpinBoxChanged(double enegry);
+
+
 
 
 public slots:

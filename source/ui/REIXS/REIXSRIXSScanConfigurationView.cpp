@@ -141,7 +141,6 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	scanView_->changeViewMode(AMScanView::Tabs);
-	scanView_->setPlotCursorVisibility(true);
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
@@ -252,6 +251,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	connect(autoNamingCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setNamedAutomatically(bool)));
 
 	connect(scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionToolChanged(QPointF)));
+	connect(energyBox_, SIGNAL(valueChanged(double)), this, SLOT(onEnergySpinBoxChanged(double)));
 }
 
 REIXSRIXSScanConfigurationView::~REIXSRIXSScanConfigurationView()
@@ -314,6 +314,8 @@ bool REIXSRIXSScanConfigurationView::dropScanURLs(const QList<QUrl>& urls) {
 
 		if(!scan)
 			continue;
+		if(scan->type().compare("AMXASScan"))  //.compare() returns 0 if same
+			continue;
 
 		// success!
 		addScan(scan);
@@ -324,6 +326,7 @@ bool REIXSRIXSScanConfigurationView::dropScanURLs(const QList<QUrl>& urls) {
 }
 
 void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
+	scanView_->setPlotCursorVisibility(false);
 	currentScan_ = scanSetModel_->scanAt(0);
 	scanSetModel_->removeScan(currentScan_);
 	scanSetModel_->addScan(newScan);
@@ -336,7 +339,10 @@ void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
 			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
 	}
 	scanView_->setScanBarsVisible(true);
-	energyBox_->setValue(392);
+	energyBox_->setValue(currentScan_->dataSourceAt(0)->axisValue(0,currentScan_->dataSourceAt(0)->size(0)/2));
+	scanView_->setPlotCursorCoordinates(currentScan_->dataSourceAt(0)->axisValue(0,currentScan_->dataSourceAt(0)->size(0)/2));
+	scanView_->setPlotCursorVisibility(true);
+
 
 //	QList<AMDataSource*> raw1DDataSources;
 //	if(scan->rawDataSources()->at(i)->rank() == 1)
@@ -413,6 +419,13 @@ void REIXSRIXSScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 
 void REIXSRIXSScanConfigurationView::onDataPositionToolChanged(const QPointF &newData)
 {
-	qDebug()<<newData.x();
 	energyBox_->setValue(newData.x());
 }
+
+void REIXSRIXSScanConfigurationView::onEnergySpinBoxChanged(double enegry)
+{
+	scanView_->blockSignals(true);
+	scanView_->setPlotCursorCoordinates(enegry);
+	scanView_->blockSignals(false);
+}
+
