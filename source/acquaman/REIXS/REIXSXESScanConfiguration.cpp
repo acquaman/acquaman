@@ -55,6 +55,42 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	namedAutomatically_ = true;
 }
 
+REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original)
+	: AMScanConfiguration()
+{
+	mcpDetectorInfo_ = *(original.mcpDetectorInfo());
+
+	setAutoExportEnabled(false);
+
+	gratingNumber_ = original.gratingNumber();
+	centerEV_ = original.centerEV();
+
+	slitWidth_ = original.slitWidth();
+	applySlitWidth_ = original.applySlitWidth();
+	energy_ = original.energy();
+	applyEnergy_ = original.applyEnergy();
+
+	polarization_ = original.polarization();
+	polarizationAngle_ = original.polarizationAngle();
+	applyPolarization_ = original.applyPolarization();
+
+
+	defocusDistanceMm_ = original.defocusDistanceMm();
+	spectrometerCalibrationId_ = original.spectrometerCalibrationId();
+	detectorTiltOffset_ = original.detectorTiltOffset();
+	// removed: detectorOrientation_ = 0;
+	shouldStartFromCurrentPosition_ = original.shouldStartFromCurrentPosition();
+	doNotClearExistingCounts_ = original.doNotClearExistingCounts();
+
+
+	maximumTotalCounts_ = original.maximumTotalCounts();
+	maximumDurationSeconds_ = original.maximumDurationSeconds();
+
+	scanNumber_ = original.scanNumber();
+	sampleId_ = original.sampleId();
+	namedAutomatically_ = original.namedAutomatically();
+}
+
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 	return new REIXSXESScanConfiguration(*this);	// can use the default auto-generated copy-constructor.

@@ -58,8 +58,9 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Default Constructor
- 	virtual ~REIXSXESScanConfiguration();
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
+	REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original);
+	virtual ~REIXSXESScanConfiguration();
 
 	virtual QString description() const;
 
@@ -73,7 +74,7 @@ public:
 	/// Energy to set beamline to before scan
 	double energy() const { return energy_; }
 	/// A flag indicating that the energy should be changed before starting the scan
-	bool applyEnergy() const { return applyEnergy_; };
+	bool applyEnergy() const { return applyEnergy_; }
 
 	/// Slit Width to set before scan
 	double slitWidth() const { return slitWidth_; }
