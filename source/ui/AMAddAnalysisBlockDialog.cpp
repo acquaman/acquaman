@@ -142,6 +142,9 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Calibrated Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input and allows for energy calibration.");
 
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "Interpolated Curve Correction", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool interpolates between two shift curves for finer correction.");
+
 }
 
 void AMAddAnalysisBlockDialog::populateWith2D()
