@@ -61,12 +61,12 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	energyBox_->setDecimals(2);
 	energyBox_->setEnabled(false);
 	energyBox_->setRange(92,2000);
-	energyBox_->setValue(400);
+	energyBox_->setValue(configuration_->energy());
 	applyEnergyBox_ = new QCheckBox("Beamline Energy");
 
 	slitWidthBox_= new QDoubleSpinBox();
 	slitWidthBox_->setRange(5,500);
-	slitWidthBox_->setValue(25);
+	slitWidthBox_->setValue(configuration_->slitWidth());
 	slitWidthBox_->setSingleStep(5);
 	slitWidthBox_->setDecimals(0);
 	slitWidthBox_->setEnabled(false);
@@ -80,7 +80,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	polarizationBox_->addItem("Linear Vertical +");
 	polarizationBox_->addItem("Linear Vertical -");
 	polarizationBox_->addItem("Linear Inclined");
-	polarizationBox_->setCurrentIndex(1);
+	polarizationBox_->setCurrentIndex(configuration_->polarization());
 	polarizationBox_->setEnabled(false);
 	applyPolarizationBox_ = new QCheckBox("Polarization");
 
@@ -88,7 +88,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	polarizationAngleBox_->setDecimals(0);
 	polarizationAngleBox_->setEnabled(false);
 	polarizationAngleBox_->setRange(-180,180);
-	polarizationAngleBox_->setValue(0);
+	polarizationAngleBox_->setValue(configuration_->polarizationAngle());
 	polarizationAngleBox_->setSingleStep(10);
 	polarizationAngleBox_->setEnabled(false);
 
@@ -111,6 +111,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	numberEdit_ = new QSpinBox();
 	numberEdit_->setRange(0, 10000);
 	nameEdit_ = new QLineEdit();
+	nameEdit_->setText(configuration_->userScanName());
 	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");
 
@@ -127,6 +128,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	maximumTotalCounts_->setDecimals(0);
 	maximumTotalCounts_->setRange(10, 1000000000);
+	maximumTotalCounts_->setValue(configuration_->maximumTotalCounts());
 	maximumTimeEdit_->setDisplayFormat("hh:mm:ss");
 
 	//////////////////////
