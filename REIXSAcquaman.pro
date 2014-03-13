@@ -25,6 +25,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/ui/REIXS/REIXSActionBasedControlEditor.h \
 	source/analysis/REIXS/REIXSXESImageAB.h \
 	source/analysis/REIXS/REIXSXESImageABEditor.h \
+	source/analysis/REIXS/REIXSXESImageInterpolationAB.h \
+	source/analysis/REIXS/REIXSXESImageInterpolationABEditor.h \
 	source/acquaman/REIXS/REIXSXASScanConfiguration.h \
 	source/acquaman/REIXS/REIXSXASScanController.h \
 	source/ui/REIXS/REIXSXASScanConfigurationView.h \
@@ -51,6 +53,8 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/beamline/REIXS/REIXSSampleManipulator.cpp \
 	source/ui/REIXS/REIXSSidebar.cpp \
 	source/ui/REIXS/REIXSActionBasedControlEditor.cpp \
+	source/analysis/REIXS/REIXSXESImageInterpolationAB.cpp \
+	source/analysis/REIXS/REIXSXESImageInterpolationABEditor.cpp \
 	source/analysis/REIXS/REIXSXESImageAB.cpp \
 	source/analysis/REIXS/REIXSXESImageABEditor.cpp \
 	source/acquaman/REIXS/REIXSXASScanConfiguration.cpp \
@@ -61,4 +65,4 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.cpp \
     source/dataman/datasource/REIXS/REIXSXESMCPDataSource.cpp \
     source/acquaman/REIXS/REIXSXESScanActionController.cpp \
-    source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp
+	source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp
