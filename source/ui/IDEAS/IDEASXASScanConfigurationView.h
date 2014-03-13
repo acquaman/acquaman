@@ -23,6 +23,10 @@ public:
 
 	virtual const AMScanConfiguration* configuration() const;
 
+protected slots:
+	/// Handles setting the name of the configuration from the line edit.
+	void onScanNameEdited();
+
 protected:
 	IDEASXASScanConfiguration *configuration_;
 

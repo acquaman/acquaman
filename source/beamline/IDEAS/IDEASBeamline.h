@@ -162,6 +162,7 @@ protected:
 	AMDetector *oxfordSampleIonChamberDetector_;
 	AMDetector *oxfordReferenceIonChamberDetector_;
 	AMDetector *ketekRealTime_;
+	AMDetector *masterDwellTime_;
 
 
 

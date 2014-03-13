@@ -46,7 +46,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_sample")->toInfo());
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_ref")->toInfo());
         ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1ERealTime")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("DwellTime")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
 
@@ -162,7 +162,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	    AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
 	    NormXRF->setDescription(QString("Norm%1").arg(regionName));
 	    NormXRF->setInputDataSources(all1DDataSources);
-	    NormXRF->setExpression(QString("%1/sqrt(%2^2)/XRF1ERealTime").arg(regionName).arg(configuration_->I0Channel()));
+	    NormXRF->setExpression(QString("%1/sqrt(%2^2)/DwellTime").arg(regionName).arg(configuration_->I0Channel()));
 	    scan_->addAnalyzedDataSource(NormXRF);
 	}
     }
@@ -251,6 +251,7 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
 	positions.remove(positions.indexOf("masterDwell"));
 	positions.remove(positions.indexOf("DirectEnergy"));
 	positions.remove(positions.indexOf("Energy"));
+	positions.remove(positions.indexOf("XRF1E Real Time"));
 
 	if(!configuration_->isXRFScan())
 	{

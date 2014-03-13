@@ -75,9 +75,9 @@ void IDEASBeamline::setupDetectors()
 	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekPreampGain_ = new AMPVControl("XRF1E Preamp Gain","dxp1608-1002:dxp1:PreampGain_RBV","dxp1608-1002:dxp1:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-	\
+
 	ketekRealTimeControl_ = new AMReadOnlyPVControl("XRF1E Real Time", "dxp1608-1002:mca1.ERTM", this);
-	\
+
 	ketekRealTime_ = new AMBasicControlDetectorEmulator("XRF1ERealTime", "Single Element XRF Real Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ketekRealTime_->setHiddenFromUsers(true);
 	ketekRealTime_->setIsVisible(false);
@@ -117,8 +117,12 @@ void IDEASBeamline::setupSynchronizedDwellTime()
         synchronizedDwellTime_->addElement(4);
         synchronizedDwellTime_->addElement(5);
 
-	masterDwell_ = new AMPVControl("masterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
+	masterDwell_ = new AMPVControl("MasterDwell", "BL08B2-1:dwell:setTime", "BL08B2-1:dwell:setTime", QString(), this, 0.5);
         ammeterGroupMode_ = new AMPVControl("ammeterGroupMode", "A1608B2:configure", "A1608B2:configure", QString(),this,0.5);
+	masterDwellTime_ = new AMBasicControlDetectorEmulator("DwellTime", "Dwell Time", masterDwell_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	masterDwellTime_->setHiddenFromUsers(true);
+	masterDwellTime_->setIsVisible(false);
+
 }
 
 void IDEASBeamline::setupComponents()
@@ -144,10 +148,12 @@ void IDEASBeamline::setupExposedControls()
         addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
+	addExposedControl(ketekRealTimeControl_);
 	addExposedControl(ketekPeakingTime_);
 	addExposedControl(ketekTriggerLevel_);
 	addExposedControl(ketekBaselineThreshold_);
 	addExposedControl(ketekPreampGain_);
+
 
 
 }
@@ -160,6 +166,7 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(oxfordReferenceIonChamberDetector_);
         addExposedDetector(ketek_);
 	addExposedDetector(ketekRealTime_);
+	addExposedDetector(masterDwellTime_);
 }
 
 
