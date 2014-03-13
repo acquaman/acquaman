@@ -85,7 +85,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/beamline/VESPERS/VESPERSMonochomatorControl.h \
     source/dataman/VESPERS/VESPERSUserConfiguration.h \
     source/beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h \
-    source/acquaman/VESPERS/VESPERS2DScanActionController.h
+    source/acquaman/VESPERS/VESPERS2DScanActionController.h \
+    source/acquaman/VESPERS/VESPERSTimeScanConfiguration.h \
+    source/acquaman/VESPERS/VESPERSTimeScanActionController.h \
+    source/ui/VESPERS/VESPERSTimeScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -168,10 +171,19 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/VESPERSMonochomatorControl.cpp \
     source/dataman/VESPERS/VESPERSUserConfiguration.cpp \
     source/beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.cpp \
-    source/acquaman/VESPERS/VESPERS2DScanActionController.cpp
+    source/acquaman/VESPERS/VESPERS2DScanActionController.cpp \
+    source/acquaman/VESPERS/VESPERSTimeScanConfiguration.cpp \
+    source/acquaman/VESPERS/VESPERSTimeScanActionController.cpp \
+    source/ui/VESPERS/VESPERSTimeScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
 
 
 

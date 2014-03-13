@@ -204,7 +204,7 @@ bool AMTimedScanActionController::event(QEvent *e)
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
-			currentAxisValue_ = scanElapsedTime_.elapsed();
+			currentAxisValue_ = scanElapsedTime_.elapsed()/1000;
 
 			break;
 

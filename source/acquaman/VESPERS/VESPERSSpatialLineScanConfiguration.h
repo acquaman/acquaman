@@ -60,10 +60,10 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, pu
 
 public:
 	/// Constructor.
-	virtual ~VESPERSSpatialLineScanConfiguration();
 	Q_INVOKABLE VESPERSSpatialLineScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original);
+	virtual ~VESPERSSpatialLineScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
