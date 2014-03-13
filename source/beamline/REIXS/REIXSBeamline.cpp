@@ -143,7 +143,8 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(spectrometer()->detectorTiltDrive());
 
 
-	if(QApplication::instance()->arguments().contains("--admin")){
+//	if(QApplication::instance()->arguments().contains("--admin"))
+	{
 		addExposedControl(spectrometer()->hexapod()->x());
 		addExposedControl(spectrometer()->hexapod()->y());
 		addExposedControl(spectrometer()->hexapod()->z());
@@ -197,10 +198,10 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 0.251, 3, 0.5, 0.5, 180, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 1.0);  //DAVID changed tolerance from 0.1->0.5
 	monoSlit_->setDescription("Mono Slit Width");
 
 	M5Pitch_ = new AMPVwStatusControl("M5Pitch", "SMTR1610-4-I20-02:mm:fbk", "SMTR1610-4-I20-02:mm","SMTR1610-4-I20-02:status","SMTR1610-4-I20-02:stop",this,0.5); //DAVID ADDED
@@ -408,17 +409,16 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 0.15);
+														"SMTR1610-4-I21-01:stop", this, 1.0);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
 	spectrometerRotationDrive_->setSettlingTime(0.2);
-
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 0.15);
+												  "SMTR1610-4-I21-04:stop", this, 1.0);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTranslation_->setSettlingTime(0.2);
@@ -813,7 +813,9 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 	}
 	else {
-		control_->setSettlingTime(singleMoveSettlingTime_);
+		//control_->setSettlingTime(singleMoveSettlingTime_);
+		control_->setSettlingTime(0);
+		setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);
 		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
 		qDebug() << "Small move " << setpoint_;
 	}
