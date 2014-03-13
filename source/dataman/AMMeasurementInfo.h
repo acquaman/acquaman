@@ -30,13 +30,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMMeasurementInfo {
 public:
 	/// Create a measurement description by specifying the axes that it has. The default creates a 0-dimensional (scalar) measurement.
- 	virtual ~AMMeasurementInfo(){}
 	AMMeasurementInfo(const QString& mName, const QString& mDescription, const QString& mUnits = QString(), const QList<AMAxisInfo>& mAxes = QList<AMAxisInfo>()) {
 		name = mName;
 		description = mDescription;
 		units = mUnits;
 		axes = mAxes;
 	}
+	/// Destructor.
+	virtual ~AMMeasurementInfo(){}
 
 	/// A unique, variable-style name for this measurement
 	QString name;
