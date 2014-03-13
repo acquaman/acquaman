@@ -49,8 +49,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
+
 
 #include "ui/REIXS/REIXSSidebar.h"
+
+#include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
 
 #include <QMessageBox>
 
@@ -69,8 +73,13 @@ bool REIXSAppController::startupBeforeAnything() {
 	if(!AMAppController::startupBeforeAnything()) return false;
 
 	// If a command-line option has been specified to choose a new userDataFolder:
-	if(qApp->arguments().contains("--ChooseUserDataFolder"))
+	//if(qApp->arguments().contains("--ChooseUserDataFolder"))
 		getUserDataFolderFromDialog();
+
+
+
+//	if (!VESPERSChooseDataFolderDialog::getDataFolder())
+//		return false;
 
 	// Initialize the central beamline object
 	REIXSBeamline::bl();
@@ -88,6 +97,8 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
+
 
 	//AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
 	//AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
@@ -151,7 +162,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
 	AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
-																				  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
 																				  "Sample Camera: down beam path",
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),
