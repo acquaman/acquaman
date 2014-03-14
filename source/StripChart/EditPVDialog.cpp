@@ -1,70 +1,182 @@
 #include "EditPVDialog.h"
 
-EditPVDialog::EditPVDialog(StripToolBasicVariableInfo *info, QWidget *parent) :
+EditPVDialog::EditPVDialog(QWidget *parent) :
     QDialog(parent)
 {
-//    info_ = info;
+    componentCount_ = 0;
+    componentLayout_ = new QGridLayout();
 
-//    descriptionChanged_ = false;
-//    unitsChanged_ = false;
-//    granChanged_ = false;
-//    colorChanged_ = false;
-//    yMaxChanged_ = false;
-//    yMinChanged_ = false;
+    descriptionChanged_ = false;
+    unitsChanged_ = false;
 
-//    QVBoxLayout *dialogLayout = new QVBoxLayout();
-//    dialogLayout->addLayout(createFormGui());
-//    dialogLayout->addLayout(createButtonGui());
+    QVBoxLayout *dialogLayout = new QVBoxLayout();
+    dialogLayout->addLayout(componentLayout_);
+    dialogLayout->addLayout(createButtonGui());
 
-//    setLayout(dialogLayout);
-//    setWindowTitle("Edit Info");
-//    setModal(true);
+    setLayout(dialogLayout);
+    setWindowTitle("Edit Info");
+    setModal(true);
+}
+
+
+
+void EditPVDialog::displayName(const QString &infoName, bool editEnabled) {
+    QLabel *nameLabel = new QLabel("Name : ");
+    QLineEdit *nameEntry = new QLineEdit(infoName);
+    nameEntry->setEnabled(editEnabled);
+    componentLayout_->addWidget(nameLabel, componentCount_, 0);
+    componentLayout_->addWidget(nameEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+void EditPVDialog::displayCreationDateTime(const QString &infoCreation, bool editEnabled) {
+    QLabel *creationLabel = new QLabel("Date added : ");
+    QLineEdit *creationEntry = new QLineEdit(infoCreation);
+    creationEntry->setEnabled(editEnabled);
+    componentLayout_->addWidget(creationLabel, componentCount_, 0);
+    componentLayout_->addWidget(creationEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+void EditPVDialog::displayDescription(const QString &infoDescription, bool editEnabled) {
+    QLabel *descriptionLabel = new QLabel("Description : ");
+    QLineEdit *descriptionEntry = new QLineEdit(infoDescription);
+    descriptionEntry->setEnabled(editEnabled);
+    connect( descriptionEntry, SIGNAL(textChanged(QString)), this, SLOT(descriptionEntered(QString)) );
+
+    componentLayout_->addWidget(descriptionLabel, componentCount_, 0);
+    componentLayout_->addWidget(descriptionEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+
+bool EditPVDialog::descriptionChanged() const {
+    return descriptionChanged_;
+}
+
+
+
+QString EditPVDialog::description() const {
+    return description_;
+}
+
+
+
+void EditPVDialog::displayUnits(const QString &infoUnits, bool editEnabled) {
+    QLabel *unitsLabel = new QLabel("Units : ");
+    QLineEdit *unitsEntry = new QLineEdit(infoUnits);
+    unitsEntry->setEnabled(editEnabled);
+    connect( unitsEntry, SIGNAL(textChanged(QString)), this, SLOT(unitsEntered(QString)) );
+    componentLayout_->addWidget(unitsLabel, componentCount_, 0);
+    componentLayout_->addWidget(unitsEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::unitsChanged() const {
+    return unitsChanged_;
+}
+
+
+
+QString EditPVDialog::units() const {
+    return units_;
+}
+
+
+
+void EditPVDialog::displayGranularity(const QString &infoGranularity, bool editEnabled) {
+    QLabel *granLabel = new QLabel("Granularity : ");
+    QLineEdit *granEntry = new QLineEdit(infoGranularity);
+    granEntry->setEnabled(editEnabled);
+    connect( granEntry, SIGNAL(textChanged(QString)), this, SLOT(granularityEntered(QString)) );
+    componentLayout_->addWidget(granLabel, componentCount_, 0);
+    componentLayout_->addWidget(granEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::granularityChanged() const {
+    return granularityChanged_;
+}
+
+
+
+QString EditPVDialog::granularity() const {
+    return granularity_;
+}
+
+
+
+void EditPVDialog::displayColorName(const QString &infoColorName, bool editEnabled) {
+    QLabel *colorLabel = new QLabel("Color : ");
+    QLineEdit *colorEntry = new QLineEdit(infoColorName);
+    colorEntry->setEnabled(editEnabled);
+    connect( colorEntry, SIGNAL(textChanged(QString)), this, SLOT(colorNameEntered(QString)) );
+    componentLayout_->addWidget(colorLabel, componentCount_, 0);
+    componentLayout_->addWidget(colorEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::colorNameChanged() const {
+    return colorNameChanged_;
+}
+
+
+
+QString EditPVDialog::colorName() const {
+    return colorName_;
+}
+
+
+
+void EditPVDialog::descriptionEntered(const QString &newDescription)
+{
+    description_ = newDescription;
+    descriptionChanged_ = true;
+}
+
+
+
+void EditPVDialog::unitsEntered(const QString &newUnits) {
+    units_ = newUnits;
+    unitsChanged_ = true;
+}
+
+
+
+void EditPVDialog::granularityEntered(const QString &newGran) {
+    granularity_ = newGran;
+    granularityChanged_ = true;
+}
+
+
+
+void EditPVDialog::colorNameEntered(const QString &newColor) {
+    colorName_ = newColor;
+    colorNameChanged_ = true;
 }
 
 
 
 //QLayout* EditPVDialog::createFormGui()
 //{
-//    QGridLayout *formLayout = new QGridLayout();
-
-//    QString pvName = info_->name();
-//    QLabel *nameLabel = new QLabel("Name : ");
-//    QLabel *nameEntry = new QLabel(pvName);
-//    formLayout->addWidget(nameLabel, 0, 0);
-//    formLayout->addWidget(nameEntry, 0, 1);
-
-//    QString pvDateAdded = info_->creationDateTime();
-//    QLabel *dateTimeLabel = new QLabel("Date added : ");
-//    QLabel *dateTime = new QLabel(pvDateAdded);
-//    formLayout->addWidget(dateTimeLabel, 1, 0);
-//    formLayout->addWidget(dateTime, 1, 1);
-
-//    QString pvDescription = info_->description();
-//    QLabel *descriptionLabel = new QLabel("Description : ");
-//    descriptionEntry_ = new QLineEdit();
-//    descriptionEntry_->setText(pvDescription);
-//    descriptionLabel->setBuddy(descriptionEntry_);
-//    connect( descriptionEntry_, SIGNAL(textEdited(QString)), this, SLOT(descriptionEntered(QString)) );
-//    formLayout->addWidget(descriptionLabel, 2, 0);
-//    formLayout->addWidget(descriptionEntry_, 2, 1);
-
-//    QString pvUnits = info_->units();
-//    QLabel *unitsLabel = new QLabel("Units : ");
-//    unitsEntry_ = new QLineEdit();
-//    unitsEntry_->setText(pvUnits);
-//    unitsLabel->setBuddy(unitsEntry_);
-//    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(unitsEntered(QString)) );
-//    formLayout->addWidget(unitsLabel, 3, 0);
-//    formLayout->addWidget(unitsEntry_, 3, 1);
-
-////    QString pvGranularity = info_->granularity();
-////    QLabel *granularityLabel = new QLabel("Granularity :");
-////    granularityEntry_ = new QLineEdit();
-////    granularityEntry_->setText(pvGranularity);
-////    granularityLabel->setBuddy(granularityEntry_);
-////    connect( granularityEntry_, SIGNAL(textChanged(QString)), this, SLOT(granularityEntered(QString)) );
-////    formLayout->addWidget(granularityLabel, 4, 0);
-////    formLayout->addWidget(granularityEntry_, 4, 1);
 
 ////    QString pvColorHex = info_->colorName();
 //    QString pvColorHex = "";
@@ -130,169 +242,20 @@ EditPVDialog::EditPVDialog(StripToolBasicVariableInfo *info, QWidget *parent) :
 
 
 
-//QLayout* EditPVDialog::createButtonGui() {
-//    QHBoxLayout *buttonLayout = new QHBoxLayout();
+QLayout* EditPVDialog::createButtonGui() {
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
 
-//    okButton_ = new QPushButton("Ok");
-//    okButton_->setDefault(true);
-//    connect( okButton_, SIGNAL(clicked()), this, SLOT(accept()) );
-//    buttonLayout->addWidget(okButton_);
+    okButton_ = new QPushButton("Ok");
+    okButton_->setDefault(true);
+    connect( okButton_, SIGNAL(clicked()), this, SLOT(accept()) );
+    buttonLayout->addWidget(okButton_);
 
-//    cancelButton_ = new QPushButton("Cancel");
-//    connect( cancelButton_, SIGNAL(clicked()), this, SLOT(reject()) );
-//    buttonLayout->addWidget(cancelButton_);
+    cancelButton_ = new QPushButton("Cancel");
+    connect( cancelButton_, SIGNAL(clicked()), this, SLOT(reject()) );
+    buttonLayout->addWidget(cancelButton_);
 
-//    return buttonLayout;
-//}
-
-
-
-//EditPVDialog::~EditPVDialog()
-//{
-//}
-
-
-
-//bool EditPVDialog::descriptionChanged()
-//{
-//    return descriptionChanged_;
-//}
-
-
-
-//QString EditPVDialog::description()
-//{
-//    return description_;
-//}
-
-
-
-//bool EditPVDialog::unitsChanged()
-//{
-//    return unitsChanged_;
-//}
-
-
-
-//QString EditPVDialog::units()
-//{
-//    return units_;
-//}
-
-
-
-//bool EditPVDialog::granularityChanged()
-//{
-//    return granChanged_;
-//}
-
-
-
-//QString EditPVDialog::granularity()
-//{
-//    return gran_;
-//}
-
-
-
-//bool EditPVDialog::colorChanged()
-//{
-//    return colorChanged_;
-//}
-
-
-
-//QString EditPVDialog::color()
-//{
-//    return color_;
-//}
-
-
-
-//bool EditPVDialog::displayMaxChanged()
-//{
-//    return yMaxChanged_;
-//}
-
-
-//QString EditPVDialog::displayMax()
-//{
-//    return displayMax_;
-//}
-
-
-//bool EditPVDialog::displayMinChanged()
-//{
-//    return yMinChanged_;
-//}
-
-
-
-//QString EditPVDialog::displayMin()
-//{
-//    return displayMin_;
-//}
-
-
-
-////bool EditPVDialog::shiftAmountChanged()
-////{
-////    return shiftAmountChanged_;
-////}
-
-
-
-////QString EditPVDialog::shiftAmount()
-////{
-////    return shiftAmount_;
-////}
-
-
-
-//void EditPVDialog::descriptionEntered(const QString &newDescription)
-//{
-//    description_ = newDescription;
-
-//    if (description_ == "")
-//        descriptionChanged_ = false;
-//    else
-//        descriptionChanged_ = true;
-//}
-
-
-
-//void EditPVDialog::unitsEntered(const QString &newUnits)
-//{
-//    units_ = newUnits;
-
-//    if (units_ == "")
-//        unitsChanged_ = false;
-//    else
-//        unitsChanged_ = true;
-//}
-
-
-
-//void EditPVDialog::granularityEntered(const QString &gran)
-//{
-//    gran_ = gran;
-
-//    if (gran_ == "")
-//        granChanged_ = false;
-//    else
-//        granChanged_ = true;
-//}
-
-
-//void EditPVDialog::colorEntered(const QString &newColor)
-//{
-//    color_ = newColor;
-
-//    if (color_ == "")
-//        colorChanged_ = false;
-//    else
-//        colorChanged_ = true;
-//}
+    return buttonLayout;
+}
 
 
 //void EditPVDialog::displayMaxEntered(const QString &max)
@@ -311,18 +274,6 @@ EditPVDialog::EditPVDialog(StripToolBasicVariableInfo *info, QWidget *parent) :
 //    qDebug() << "EditPVDialog :: new display min entered :" << min;
 //    yMinChanged_ = true;
 //}
-
-
-
-////void EditPVDialog::shiftAmountEntered(const QString &shift)
-////{
-////    shiftAmount_ = shift;
-
-////    if (shiftAmount_ == "")
-////        shiftAmountChanged_ = false;
-////    else
-////        shiftAmountChanged_ = true;
-////}
 
 
 

@@ -1,145 +1,60 @@
-#include "StripToolSeries.h"
+#include "StripToolSeries2.h"
 
-StripToolSeries::StripToolSeries()
-    : MPlotSeriesBasic()
+StripToolSeries2::StripToolSeries2(QObject *parent) :
+    QObject(parent)
 {
+    series_ = 0;
+
+    buildComponents();
+    makeConnections();
     defaultSettings();
 
-//    connect( model()->signalSource(), SIGNAL(dataChanged()), this, SLOT(onModelDataChanged()));
+    qDebug() << "StripToolSeries2 object created.";
 }
 
 
 
-bool StripToolSeries::customMinDefined()
+MPlotSeriesBasic* StripToolSeries2::series() const
 {
-    return customMinDefined_;
+    return series_;
 }
 
 
 
-bool StripToolSeries::customMaxDefined()
+MPlotAxisRange* StripToolSeries2::displayedRange()
 {
-    return customMaxDefined_;
-}
+    MPlotAxisRange* displayedRange = 0;
 
-
-
-bool StripToolSeries::customLimitsDefined()
-{
-    return customMinDefined() || customMaxDefined();
-}
-
-
-
-void StripToolSeries::setCustomLimits(qreal min, qreal max)
-{
-    if (max <= min) {
-        qDebug() << "StripToolSeries :: Invalid display limits entered. No change made.";
-        return;
-    }
-
-    customMinDefined_ = true;
-    customMaxDefined_ = true;
-
-    customMin_ = min;
-    customMax_ = max;
-}
-
-
-
-void StripToolSeries::eraseCustomLimits()
-{
-    customMinDefined_ = false;
-    customMaxDefined_ = false;
-
-    customMin_ = 0.0;
-    customMax_ = 0.0;
-}
-
-
-
-bool StripToolSeries::waterfallApplied()
-{
-    return waterfallApplied_;
-}
-
-
-
-double StripToolSeries::waterfallMin()
-{
-    return waterfallMin_;
-}
-
-
-
-void StripToolSeries::setWaterfallMin(double min)
-{
-    waterfallMin_ = min;
-}
-
-
-
-double StripToolSeries::waterfallMax()
-{
-    return waterfallMax_;
-}
-
-
-
-void StripToolSeries::setWaterfallMax(double max)
-{
-    waterfallMax_ = max;
-}
-
-
-
-void StripToolSeries::setWaterfallLimits(double min, double max)
-{
-    if (min < max) {
-
-        if (!waterfallApplied_) {
-            qDebug() << "StripToolSeries :: waterfall added.";
-            waterfallApplied_ = true;
-        }
-
-        setWaterfallMin(min);
-        setWaterfallMax(max);
-
-//        qDebug() << "StripToolSeries :: waterfall min =" << min;
-//        qDebug() << "StripToolSeries :: waterfall max =" << max;
+    if (displayedMax() - displayedMin() == 0) {
+        displayedRange = new MPlotAxisRange(-1, 1);
 
     } else {
-
-        qDebug() << "StripToolSeries :: the minimum waterfall limit cannot be greater than or equal to the maximum! No change made.";
+        displayedRange = new MPlotAxisRange(dataMin(), dataMax());
     }
+
+    return displayedRange;
 }
 
 
 
-void StripToolSeries::eraseWaterfallLimits()
+MPlotAxisRange* StripToolSeries2::dataRange()
 {
-    if (waterfallApplied_) {
-        qDebug() << "StripToolSeries :: waterfall removed.";
-    }
-
-    waterfallApplied_ = false;
-    setWaterfallMin(0.0);
-    setWaterfallMax(0.0);
+    return new MPlotAxisRange(dataMin(), dataMax());
 }
 
 
 
-qreal StripToolSeries::dataMin()
+qreal StripToolSeries2::dataMin() const
 {
-    int count = model()->count();
+    int count = series_->model()->count();
 
     if (count > 0) {
 
-        qreal min = model()->y(0);
+        qreal min = series_->model()->y(0);
 
         for (int i = 0; i < count; i++) {
-            if (min > model()->y(i))
-                min = model()->y(i);
+            if (min > series_->model()->y(i))
+                min = series_->model()->y(i);
         }
 
         return min;
@@ -151,17 +66,17 @@ qreal StripToolSeries::dataMin()
 
 
 
-qreal StripToolSeries::dataMax()
+qreal StripToolSeries2::dataMax() const
 {
-    int count = model()->count();
+    int count = series_->model()->count();
 
     if (count > 0) {
 
-        qreal max = model()->y(0);
+        qreal max = series_->model()->y(0);
 
         for (int i = 0; i < count; i++) {
-            if (max < model()->y(i))
-                max = model()->y(i);
+            if (max < series_->model()->y(i))
+                max = series_->model()->y(i);
         }
 
         return max;
@@ -173,81 +88,54 @@ qreal StripToolSeries::dataMax()
 
 
 
-void StripToolSeries::setCustomMin(qreal min)
+bool StripToolSeries2::customMinDefined() const
 {
-    qDebug() << "StripToolSeries :: setting custom y axis minimum :" << min;
-    customMinDefined_ = true;
-    customMin_ = min;
+    return customMinDefined_;
 }
 
 
 
-void StripToolSeries::eraseCustomMin()
+bool StripToolSeries2::customMaxDefined() const
 {
-    customMinDefined_ = false;
-    customMin_ = 0.0;
+    return customMaxDefined_;
 }
 
 
 
-double StripToolSeries::customMin()
+double StripToolSeries2::customMin() const
 {
     return customMin_;
 }
 
 
 
-void StripToolSeries::setCustomMax(qreal max)
-{
-    qDebug() << "StripToolSeries :: setting custom y axis maximum :" << max;
-    customMaxDefined_ = true;
-    customMax_ = max;
-}
-
-
-
-void StripToolSeries::eraseCustomMax()
-{
-    customMaxDefined_ = false;
-    customMax_ = 0.0;
-}
-
-
-
-double StripToolSeries::customMax()
+double StripToolSeries2::customMax() const
 {
     return customMax_;
 }
 
 
 
-double StripToolSeries::displayedMin()
+double StripToolSeries2::displayedMin() const
 {
     double displayedMin;
-    QString source;
 
     if (waterfallApplied()) {
         displayedMin = waterfallMin();
-        source = "waterfall";
 
     } else if (customMinDefined()) {
         displayedMin = customMin();
-        source = "custom";
 
     } else {
         displayedMin = dataMin();
-        source = "data";
-
     }
-
-//    qDebug() << "Displayed min : " << source << ":" << displayedMin;
 
     return displayedMin;
 }
 
 
 
-double StripToolSeries::displayedMax()
+double StripToolSeries2::displayedMax() const
 {
     double displayedMax;
     QString source;
@@ -272,42 +160,95 @@ double StripToolSeries::displayedMax()
 
 
 
-MPlotAxisRange* StripToolSeries::displayedRange()
+bool StripToolSeries2::waterfallApplied() const
 {
-    MPlotAxisRange* displayedRange = 0;
+    return waterfallApplied_;
+}
 
-    if (displayedMax() - displayedMin() == 0) {
-        displayedRange = new MPlotAxisRange(-1, 1);
 
-    } else {
-        displayedRange = new MPlotAxisRange(dataMin(), dataMax());
+
+qreal StripToolSeries2::waterfallMin() const
+{
+    return waterfallMin_;
+}
+
+
+
+qreal StripToolSeries2::waterfallMax() const
+{
+    return waterfallMax_;
+}
+
+
+
+void StripToolSeries2::setData(MPlotVectorSeriesData *newData)
+{
+    series_->setModel(newData, true);
+    connect( newData->signalSource(), SIGNAL(dataChanged()), this, SLOT(onDataUpdate()) );
+}
+
+
+
+void StripToolSeries2::setCustomMin(qreal min)
+{
+    customMinDefined_ = true;
+    customMin_ = min;
+}
+
+
+
+void StripToolSeries2::setCustomMax(qreal max)
+{
+    customMaxDefined_ = true;
+    customMax_ = max;
+}
+
+
+
+void StripToolSeries2::eraseCustomMin()
+{
+    customMinDefined_ = false;
+    customMin_ = 0;
+}
+
+
+
+void StripToolSeries2::eraseCustomMax()
+{
+    customMaxDefined_ = false;
+    customMax_ = 0;
+}
+
+
+
+void StripToolSeries2::setWaterfallMin(double min)
+{
+    waterfallMin_ = min;
+}
+
+
+
+void StripToolSeries2::setWaterfallMax(double max)
+{
+    waterfallMax_ = max;
+}
+
+
+
+void StripToolSeries2::eraseWaterfallLimits()
+{
+    if (waterfallApplied_) {
+        qDebug() << "StripToolSeries2 :: waterfall removed.";
     }
 
-    return displayedRange;
+    waterfallApplied_ = false;
+    setWaterfallMin(0.0);
+    setWaterfallMax(0.0);
 }
 
 
 
-MPlotAxisRange* StripToolSeries::dataRange()
-{
-    return new MPlotAxisRange(dataMin(), dataMax());
-}
-
-
-
-void StripToolSeries::enableWaterfall(bool waterfallOn, int itemPosition, int itemCount)
-{
-    if (waterfallOn) {
-        applyWaterfall(itemPosition, itemCount);
-
-    } else {
-        eraseWaterfallLimits();
-    }
-}
-
-
-
-void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal ymax_axis)
+void StripToolSeries2::enableYNormalization(bool normOn, qreal ymin_axis, qreal ymax_axis)
 {
     // we will be effectively mapping the current display properties of this series into the current axis coordinates (ymin_axis, ymax_axis). the current axis coordinates will depend on which pv is selected.
     // if this is working, the plot itself should look the same independent of which pv is selected--the pvs should appear to be unaffected by the change in axis scale. Only the y axis scale appears to change.
@@ -315,13 +256,15 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
     // seriesMin_axis, seriesMax_axis are the boundaries of this series, in the axis coordinates. these are what we are trying to find.
     double seriesMin_axis, seriesMax_axis;
 
-    if (!customLimitsDefined() && dataMin() == dataMax() && model()->count() > 2) {
+//    if (!customLimitsDefined() && dataMin() == dataMax() && model()->count() > 2) {
+    if (!customMinDefined_ && !customMaxDefined_ && dataMin() == dataMax() && series_->model()->count() > 2) {
         qDebug() << "StripToolSeries :: dataMin and dataMax for this series are identical, and there are no custom limits defined. We are defining custom limits automatically (+/- 5) so that this series will display properly!";
-        setCustomLimits(dataMin() - 5, dataMax() + 5);
+        setCustomMin(dataMin() - 5);
+        setCustomMax(dataMax() + 5);
     }
 
     // if we have special limits defined (either custom limits, or waterfall is enabled) then the range of values that this series is mapped to will depend on them.
-    if (waterfallApplied() || customLimitsDefined()) {
+    if (waterfallApplied() || (customMinDefined() || customMaxDefined())) {
 
         // the space that the series occupies will appear to be sandwiched between empty gaps of size seriesMin/MaxBuffer_series, and the buns should be conserved in the new coordinates. I... honestly can't think of a better way to explain this.
         // okay : we want the 'buffer' distance between the minimum data value and the minimum of the displayed range of the series to be conserved. This value is in series coordinates.
@@ -357,34 +300,52 @@ void StripToolSeries::enableYNormalization(bool normOn, qreal ymin_axis, qreal y
         seriesMax_axis = 1;
 
     // and now we normalize this series to be between the seriesMin/Max_axis values! ta da!
-    enableYAxisNormalization(normOn, seriesMin_axis, seriesMax_axis);
-
+    series_->enableYAxisNormalization(normOn, seriesMin_axis, seriesMax_axis);
 }
 
 
 
-void StripToolSeries::applyWaterfall(int itemPosition, int itemCount)
+void StripToolSeries2::enableWaterfall(bool waterfallOn, int itemPosition, int itemCount)
+{
+    if (waterfallOn) {
+        applyWaterfall(itemPosition, itemCount);
+
+    } else {
+        eraseWaterfallLimits();
+    }
+}
+
+
+
+void StripToolSeries2::applyWaterfall(int itemPosition, int itemCount)
 {
     // we begin by dividing the series' axis into 'itemCount' pieces of size 'sectionSize'.
     // the min and max values are either the dataMin/Max or the customMin/Max for that pv.
     double sectionSize, min, max;
 
-    if (!customLimitsDefined() && dataMin() == dataMax()) {
+    if ((!customMinDefined() && !customMaxDefined()) && dataMin() == dataMax()) {
         qDebug() << "StripToolSeries :: The data min and max values for this pv are identical! This will not allow the waterfall to display properly.";
         qDebug() << "StripToolSeries :: Automatically introducing a difference in the form of custom min and max values for this pv.";
-        setCustomLimits(dataMin() - 5, dataMax() + 5);
+        setCustomMin(dataMin() - 5);
+        setCustomMax(dataMax() + 5);
 
-    } else if (!customLimitsDefined()) {
-        min = dataMin();
-        max = dataMax();
+    } else {
+
+        if (!customMinDefined()) {
+            min = dataMin();
+
+        } else if (!customMaxDefined()) {
+            max = dataMax();
+        }
     }
 
-    if (customLimitsDefined()) {
+    if (customMinDefined() && customMaxDefined()) {
 
         if (customMin() == customMax()) {
             qDebug() << "StripToolSeries :: The user defined max and min for this pv are identical! This will not allow the waterfall to display properly.";
             qDebug() << "StripToolSeries :: Automatically introducing a difference in custom min and max for this pv.";
-            setCustomLimits(customMin() - 5, customMax() + 5);
+            setCustomMin(customMin() - 5);
+            setCustomMax(customMax() + 5);
         }
 
         min = customMin();
@@ -432,22 +393,45 @@ void StripToolSeries::applyWaterfall(int itemPosition, int itemCount)
     double waterfallMin = min + (itemPosition - itemCount + 1) * sectionSize;
     double waterfallMax = max + itemPosition * sectionSize;
 
-    setWaterfallLimits(waterfallMin, waterfallMax);
+    setWaterfallMin(waterfallMin);
+    setWaterfallMax(waterfallMax);
+
+//    setWaterfallLimits(waterfallMin, waterfallMax);
 }
 
 
 
-void StripToolSeries::defaultSettings()
+void StripToolSeries2::onDataUpdate()
+{
+    emit displayRangeUpdated( new MPlotAxisRange(displayedMin(), displayedMax()) );
+    emit dataRangeUpdated( new MPlotAxisRange(dataMin(), dataMax()) );
+}
+
+
+
+void StripToolSeries2::buildComponents()
+{
+    series_ = new MPlotSeriesBasic();
+}
+
+
+
+void StripToolSeries2::makeConnections()
+{
+    // data connections made in setData(...).
+}
+
+
+
+void StripToolSeries2::defaultSettings()
 {
     customMinDefined_ = false;
     customMaxDefined_ = false;
-
-    customMin_ = 0.0;
-    customMax_ = 0.0;
-
     waterfallApplied_ = false;
 
-    waterfallMin_ = 0.0;
-    waterfallMax_ = 0.0;
-}
+    customMin_ = 0;
+    customMax_ = 0;
 
+    waterfallMin_ = 0;
+    waterfallMax_ = 0;
+}

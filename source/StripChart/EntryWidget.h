@@ -12,25 +12,23 @@ public:
     ~EntryWidget();
 
 signals:
-    void entryEnabled(bool isEnabled);
-    void clearEntry();
+    void reset();
     void entryComplete(const QString &textEntered);
 
-protected:
-    QLineEdit *lineEdit_;
-    QPushButton *button_;
-    QString textEntered_;
-
 public:
-    void setLineEditText(const QString &text);
-    void setButtonText(const QString &text);
-    void setWidthMax(int maxWidth);
-    void setWidthMin(int minWidth);
 
-protected slots:
-    void toSaveEntry(const QString &newText);
-    void addClicked();
+public slots:
+    void onAddButtonClicked();
     void toTestSignal(const QString &textEntered);
+
+private:
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
+    QLineEdit *lineEdit_;
+    QPushButton *addButton_;
 
 };
 

@@ -22,5 +22,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSBendingMirrors.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-	StripToolProject.pro
+	StripToolProject.pro \
+	BioXASShutterTool.pro
 

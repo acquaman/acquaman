@@ -18,21 +18,16 @@ public:
     friend class StripToolView;
     
 signals:
-    void pausePVs();
-    void resumePVs();
-    void listSelectionChanged(const QModelIndex &newSelection);
 
-protected:
-    void setModel(StripToolModel *newModel);
-    void setSelectedIndex(const QModelIndex &newSelection);
-    QModelIndex selectedIndex() const;
-
-private:
-    StripToolModel* model() const;
+public:
     StripToolListView* listView() const;
 
 private:
-    StripToolModel *model_;
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
     StripToolListView *listView_;
 
 };

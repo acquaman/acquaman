@@ -9,27 +9,25 @@ class StripToolSeries : public MPlotSeriesBasic
 
 public:
     StripToolSeries();
-    friend class StripToolPV;
-    friend class StripTool0DVariable;
-
 
 public:
     MPlotAxisRange* displayedRange();
+    MPlotAxisRange* dataRange();
+
+public slots:
     void enableYNormalization(bool normOn, qreal ymin_axis, qreal ymax_axis);
     void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
-
+    void setCustomLimits(qreal min, qreal max);
 
 protected:
     qreal dataMin();
     qreal dataMax();
-    MPlotAxisRange* dataRange();
 
     bool customLimitsDefined();
     bool customMinDefined();
     bool customMaxDefined();
     double customMin();
     double customMax();
-    void setCustomLimits(qreal min, qreal max);
     void eraseCustomLimits();
 
     bool waterfallApplied();
@@ -41,7 +39,7 @@ protected:
     double displayedMax();
 
 
-private:
+protected:
     void setWaterfallMin(qreal min);
     void setWaterfallMax(qreal max);
     void setWaterfallLimits(qreal min, qreal max);
@@ -52,13 +50,13 @@ private:
     void eraseCustomMin();
     void eraseCustomMax();
 
+private:
+    void defaultSettings();
+
 
 private:
     bool customMinDefined_;
     bool customMaxDefined_;
-
-    double dataMin_;
-    double dataMax_;
 
     double customMin_;
     double customMax_;

@@ -3,17 +3,28 @@
 
 #include <QObject>
 
-#include "StripChart/StripToolBasicVariableInfo.h"
+#include "StripChart/StripToolVariableInfo.h"
 #include "StripChart/EditPVDialog.h"
 
 class StripToolVariableInfoEditor : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit StripToolVariableInfoEditor(StripToolBasicVariableInfo *info, QObject *parent = 0);
+    explicit StripToolVariableInfoEditor(QObject *parent = 0);
+    friend class StripTool;
+
+protected:
+    void editInfo(StripToolVariableInfo* toEdit);
 
 private:
-    StripToolBasicVariableInfo* info_;
+    StripToolVariableInfo* info() const;
+    EditPVDialog* dialog();
+    void setDialogFromInfo();
+    void executeDialog();
+
+private:
+    StripToolVariableInfo* info_;
     EditPVDialog* dialog_;
 
 };

@@ -14,26 +14,30 @@ class EditPVDialog : public QDialog
 {
     Q_OBJECT
 
-    friend class StripToolModel;
+public:
+    EditPVDialog(QWidget *parent = 0);
 
 public:
-    EditPVDialog(StripToolBasicVariableInfo *info, QWidget *parent = 0);
-//    ~EditPVDialog();
+    void displayName(const QString &infoName, bool editEnabled);
 
-//protected:
-//    /// Returns the description entered by the user, an empty string if nothing entered.
-//    QString description();
-//    bool descriptionChanged();
+    void displayCreationDateTime(const QString &infoCreation, bool editEnabled);
 
-//    /// Returns the units entered by the user, an empty string if nothing entered.
-//    QString units();
-//    bool unitsChanged();
+    void displayDescription(const QString &infoDescription, bool editEnabled);
+    bool descriptionChanged() const;
+    QString description() const;
 
-//    QString granularity();
-//    bool granularityChanged();
+    void displayUnits(const QString &infoUnits, bool editEnabled);
+    bool unitsChanged() const;
+    QString units() const;
 
-//    QString color();
-//    bool colorChanged();
+    void displayGranularity(const QString &infoGranularity, bool editEnabled);
+    bool granularityChanged() const;
+    QString granularity() const;
+
+    void displayColorName(const QString &infoColorName, bool editEnabled);
+    bool colorNameChanged() const;
+    QString colorName() const;
+
 
 //    QString displayMax();
 //    bool displayMaxChanged();
@@ -41,14 +45,12 @@ public:
 //    QString displayMin();
 //    bool displayMinChanged();
 
-//private slots:
-//    /// When the user finishes editing the text in descriptionEntry_, the new text is saved to description_.
-//    void descriptionEntered(const QString &newDescription);
+public slots:
+    void descriptionEntered(const QString &newDescription);
+    void unitsEntered(const QString &newUnits);
+    void granularityEntered(const QString &newGran);
+    void colorNameEntered(const QString &newColor);
 
-//    /// When the user finishes editing the text in unitsEntry_, the new text is saved to units_.
-//    void unitsEntered(const QString &units);
-//    void granularityEntered(const QString &gran);
-//    void colorEntered(const QString &newColor);
 //    void displayMaxEntered(const QString &max);
 //    void displayMinEntered(const QString &min);
 
@@ -61,20 +63,26 @@ public:
 
 //    void toUpdateDataRange(MPlotAxisRange *newRange);
 
-//private:
+private:
 //    QLayout* createFormGui();
-//    QLayout* createButtonGui();
+    QLayout* createButtonGui();
 
-//private:
+private:
 //    StripToolVariableInfo* info_;
+    int componentCount_;
+    QGridLayout *componentLayout_;
 
-//    QString description_;
-//    bool descriptionChanged_;
-//    QLineEdit *descriptionEntry_;
+    QString description_;
+    bool descriptionChanged_;
 
-//    QString units_;
-//    bool unitsChanged_;
-//    QLineEdit *unitsEntry_;
+    QString units_;
+    bool unitsChanged_;
+
+    QString granularity_;
+    bool granularityChanged_;
+
+    QString colorName_;
+    bool colorNameChanged_;
 
 //    QString gran_;
 //    bool granChanged_;
@@ -96,9 +104,9 @@ public:
 //    QLabel *currentDisplayMin_;
 //    QCheckBox *automaticMin_;
 
-//    QPushButton *okButton_;
-//    QPushButton *cancelButton_;
-//    QPushButton *restoreButton_;
+    QPushButton *okButton_;
+    QPushButton *cancelButton_;
+    QPushButton *restoreButton_;
     
 };
 

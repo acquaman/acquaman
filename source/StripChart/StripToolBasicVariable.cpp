@@ -1,132 +1,132 @@
-#include "StripToolBasicVariable.h"
-#include <QDebug>
+//#include "StripToolBasicVariable.h"
+//#include <QDebug>
 
-StripToolBasicVariable::StripToolBasicVariable(StripToolBasicVariableInfo *info, AMDataSource *dataSource, QObject *parent) :
-    StripToolAbstractVariable(info, dataSource, parent)
-{
-    QString defaultCreationDateTime = QDateTime::currentDateTime().toString();
-    Qt::CheckState defaultCheckState = Qt::Checked;
-    bool defaultSelectionState = false;
+//StripToolBasicVariable::StripToolBasicVariable(StripToolBasicVariableInfo *info, AMDataSource *dataSource, QObject *parent) :
+//    StripToolAbstractVariable(info, dataSource, parent)
+//{
+//    QString defaultCreationDateTime = QDateTime::currentDateTime().toString();
+//    Qt::CheckState defaultCheckState = Qt::Checked;
+//    bool defaultSelectionState = false;
 
-    info_ = info;
+//    info_ = info;
 
-    setCreationDateTime(defaultCreationDateTime);
-    setCheckState(defaultCheckState);
-    setSelectionState(defaultSelectionState);
+//    setCreationDateTime(defaultCreationDateTime);
+//    setCheckState(defaultCheckState);
+//    setSelectionState(defaultSelectionState);
 
-    qDebug() << "StripToolBasicVariable object created for" << name();
-}
-
-
-
-StripToolBasicVariableInfo* StripToolBasicVariable::info() const {
-    return info_;
-}
+//    qDebug() << "StripToolBasicVariable object created for" << name();
+//}
 
 
 
-void StripToolBasicVariable::setCreationDateTime(const QString &newCreationInfo) {
-    info()->setCreationDateTime(newCreationInfo);
-}
+//StripToolBasicVariableInfo* StripToolBasicVariable::info() const {
+//    return info_;
+//}
 
 
 
-QString StripToolBasicVariable::creationDateTime() const {
-    if (isValid() && info()->hasCreationDateTime())
-        return info()->creationDateTime();
-    else
-        return "";
-}
+//void StripToolBasicVariable::setCreationDateTime(const QString &newCreationInfo) {
+//    info()->setCreationDateTime(newCreationInfo);
+//}
 
 
 
-void StripToolBasicVariable::setDescription(const QString &newDescription) {
-    if (isValid()) {
-        info()->setDescription(newDescription);
-        emit descriptionChanged(description());
-        emit infoChanged();
-    }
-}
+//QString StripToolBasicVariable::creationDateTime() const {
+//    if (isValid() && info()->hasCreationDateTime())
+//        return info()->creationDateTime();
+//    else
+//        return "";
+//}
 
 
 
-QString StripToolBasicVariable::description() const {
-    if (isValid() && info()->hasDescription())
-        return info()->description();
-    else
-        return "";
-}
+//void StripToolBasicVariable::setDescription(const QString &newDescription) {
+//    if (isValid()) {
+//        info()->setDescription(newDescription);
+//        emit descriptionChanged(description());
+//        emit infoChanged();
+//    }
+//}
 
 
 
-void StripToolBasicVariable::setUnits(const QString &newUnits) {
-    if (isValid()) {
-        info()->setUnits(newUnits);
-        emit unitsChanged(units());
-        emit infoChanged();
-    }
-}
+//QString StripToolBasicVariable::description() const {
+//    if (isValid() && info()->hasDescription())
+//        return info()->description();
+//    else
+//        return "";
+//}
 
 
 
-QString StripToolBasicVariable::units() const {
-    if (isValid() && info()->hasUnits())
-        return info()->units();
-    else
-        return "";
-}
+//void StripToolBasicVariable::setUnits(const QString &newUnits) {
+//    if (isValid()) {
+//        info()->setUnits(newUnits);
+//        emit unitsChanged(units());
+//        emit infoChanged();
+//    }
+//}
 
 
 
-void StripToolBasicVariable::setCheckState(Qt::CheckState &newState) {
-    if (isValid()) {
-        info()->setCheckState(newState);
-    }
-
-    if (info()->hasCheckState())
-        emit checkStateChanged(info()->checkState());
-}
+//QString StripToolBasicVariable::units() const {
+//    if (isValid() && info()->hasUnits())
+//        return info()->units();
+//    else
+//        return "";
+//}
 
 
 
-Qt::CheckState StripToolBasicVariable::checkState() const {
-    if (isValid() && info()->hasCheckState()) {
-        return info()->checkState();
+//void StripToolBasicVariable::setCheckState(Qt::CheckState &newState) {
+//    if (isValid()) {
+//        info()->setCheckState(newState);
+//    }
 
-    } else {
-        qDebug() << "StripToolBasicVariable :: attempting to retrieve checkstate information for" << name() << "that is not valid!! Big problem!!";
-        return Qt::Unchecked;
-    }
-}
-
-
-
-void StripToolBasicVariable::setSelectionState(bool isSelected)
-{
-    if (isValid())
-        info()->setSelectionState(isSelected);
-
-    if (info()->hasSelectionState())
-        emit selectionStateChanged(info()->selectionState());
-}
+//    if (info()->hasCheckState())
+//        emit checkStateChanged(info()->checkState());
+//}
 
 
 
-bool StripToolBasicVariable::selectionState() const {
-    if (isValid() && info()->hasSelectionState()) {
-        return info()->selectionState();
+//Qt::CheckState StripToolBasicVariable::checkState() const {
+//    if (isValid() && info()->hasCheckState()) {
+//        return info()->checkState();
 
-    } else {
-        qDebug() << "StripToolBasicVariable :: attempting to retrieve selection state information for" << name() << "that is not valid!! Big problem!!";
-        return false;
-    }
-}
+//    } else {
+//        qDebug() << "StripToolBasicVariable :: attempting to retrieve checkstate information for" << name() << "that is not valid!! Big problem!!";
+//        return Qt::Unchecked;
+//    }
+//}
 
 
 
-void StripToolBasicVariable::onInfoChanged() {
-    // TODO code for updating the pv meta data saved to file goes here.
-}
+//void StripToolBasicVariable::setSelectionState(bool isSelected)
+//{
+//    if (isValid())
+//        info()->setSelectionState(isSelected);
+
+//    if (info()->hasSelectionState())
+//        emit selectionStateChanged(info()->selectionState());
+//}
+
+
+
+//bool StripToolBasicVariable::selectionState() const {
+//    if (isValid() && info()->hasSelectionState()) {
+//        return info()->selectionState();
+
+//    } else {
+//        qDebug() << "StripToolBasicVariable :: attempting to retrieve selection state information for" << name() << "that is not valid!! Big problem!!";
+//        return false;
+//    }
+//}
+
+
+
+//void StripToolBasicVariable::onInfoChanged() {
+//    // TODO code for updating the pv meta data saved to file goes here.
+//}
 
 
 

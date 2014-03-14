@@ -18,31 +18,23 @@ public:
     explicit StripToolControlsPanel(QWidget *parent = 0);
     ~StripToolControlsPanel();
 
-signals:
-    void showSidebar();
-    void hideSidebar();
-    void requestTimeUpdate();
-
 public:
-    void setModel(StripToolModel *newModel);
+    EntryWidget* nameEntry() const;
+    QPushButton* sidebarButton() const;
 
-protected:
-    bool sidebarShown_;
-    StripToolModel *model_;
+public slots:
+
+private:
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
     EntryWidget *nameEntry_;
     DoubleButtonWidget *pauseResume_;
     TimeEntryWidget *timeEntry_;
     QPushButton *sidebarButton_;
     WaterfallEntryWidget *waterfallEntry_;
-
-protected:
-
-protected slots:
-    void onPauseButtonClicked();
-    void onResumeButtonClicked();
-    void toToggleSidebar();
-
-    void toTestSignal(const QString &signalText);
 
 };
 

@@ -3,25 +3,18 @@
 EntryWidget::EntryWidget(QWidget *parent) :
     QWidget(parent)
 {
-    lineEdit_ = new QLineEdit();
-    lineEdit_->setMinimumWidth(100);
-    connect( this, SIGNAL(entryEnabled(bool)), lineEdit_, SLOT(setEnabled(bool)) );
-    connect( this, SIGNAL(clearEntry()), lineEdit_, SLOT(clear()) );
-    connect( lineEdit_, SIGNAL(textChanged(QString)), this, SLOT(toSaveEntry(QString)) );
-    connect( lineEdit_, SIGNAL(returnPressed()), this, SLOT(addClicked()) );
+    lineEdit_ = 0;
+    addButton_ = 0;
 
-    button_ = new QPushButton();
-    button_->setText("Add");
-    connect( button_, SIGNAL(clicked()), this, SLOT(addClicked()) );
-    connect( this, SIGNAL(entryEnabled(bool)), button_, SLOT(setEnabled(bool)) );
+    buildComponents();
+    makeConnections();
+    defaultSettings();
 
     QHBoxLayout *entryLayout = new QHBoxLayout();
     entryLayout->addWidget(lineEdit_);
-    entryLayout->addWidget(button_);
+    entryLayout->addWidget(addButton_);
 
     setLayout(entryLayout);
-
-    connect( this, SIGNAL(entryComplete(QString)), this, SLOT(toTestSignal(QString)) );
 }
 
 
@@ -32,60 +25,49 @@ EntryWidget::~EntryWidget()
 
 
 
-void EntryWidget::setLineEditText(const QString &text)
+void EntryWidget::onAddButtonClicked()
 {
-    lineEdit_->setText(text);
-}
+    QString textEntered = lineEdit_->text();
 
-
-
-void EntryWidget::setButtonText(const QString &text)
-{
-    button_->setText(text);
-}
-
-
-
-void EntryWidget::setWidthMax(int maxWidth)
-{
-    setMaximumWidth(maxWidth);
-}
-
-
-
-void EntryWidget::setWidthMin(int minWidth)
-{
-    setMinimumWidth(minWidth);
-}
-
-
-
-void EntryWidget::toSaveEntry(const QString &newText)
-{
-    textEntered_ = newText;
-}
-
-
-
-void EntryWidget::addClicked() {
-
-    if (textEntered_ == "")
-    {
+    if (textEntered == ""){
         QMessageBox errorBox;
         errorBox.setText("Entry cannot be empty.");
         errorBox.exec();
 
     } else {
-
-        emit entryComplete(textEntered_);
+        emit entryComplete(textEntered);
     }
 
-    emit clearEntry();
+    emit reset();
 }
 
 
 
 void EntryWidget::toTestSignal(const QString &textEntered)
 {
-    qDebug() << "Entry complete. Text saved :" << textEntered;
+    qDebug() << "NameEntryWidget :: name entered : " << textEntered;
+}
+
+
+
+void EntryWidget::buildComponents()
+{
+    lineEdit_ = new QLineEdit();
+    addButton_ = new QPushButton("Add");
+}
+
+
+
+void EntryWidget::makeConnections()
+{
+    connect( lineEdit_, SIGNAL(returnPressed()), this, SLOT(onAddButtonClicked()) );
+    connect( this, SIGNAL(reset()), lineEdit_, SLOT(clear()) );
+    connect( addButton_, SIGNAL(clicked()), this, SLOT(onAddButtonClicked()) );
+    connect( this, SIGNAL(entryComplete(QString)), this, SLOT(toTestSignal(QString)) );
+}
+
+
+
+void EntryWidget::defaultSettings()
+{
 }

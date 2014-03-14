@@ -4,6 +4,9 @@
 #include "StripChart/StripToolModel.h"
 #include "StripChart/StripToolDataController.h"
 #include "StripChart/StripToolView.h"
+#include "StripChart/StripToolVariableInfoEditor.h"
+#include "StripChart/StripToolVariableInfoImporter.h"
+#include "StripChart/StripToolVariableInfoExporter.h"
 
 /// This class is the basic application class for StripTool: it creates an instance of the model and passes it along to a new instance of the application view.
 
@@ -19,30 +22,49 @@ public:
 
 signals:
 
-protected:
+public:
     StripToolModel* model() const;
     StripToolView* mainView() const;
+    StripToolVariableInfoEditor* editor() const;
+    StripToolVariableInfoImporter* importer() const;
+    StripToolVariableInfoExporter* exporter() const;
+    QDir appDirectory() const;
+    QDir infoImportDirectory() const;
+    QDir infoExportDirectory() const;
+    QDir dataExportDirectory() const;
 
-private:
-    void buildComponents();
-    void defaultSettings();
 
-private slots:
+public slots:
+    void setAppDirectory(const QDir &newDir);
+
+protected slots:
     void onModelItemAdded(const QModelIndex &parent, int rowStart, int rowFinish);
     void onModelItemRemoved(const QModelIndex &parent, int rowStart, int rowFinish);
     void onModelSelectionChanged();
-    void onPlotSelectionChanged(MPlotItem *newSelection);
-    void onListSelectionChanged(const QModelIndex &newSelection);
+    void onPlotSelectionChanged(MPlotItem *plotSelection);
+    void onListSelectionChanged(const QModelIndex &listSelection);
     void onModelSelectionInfoChanged();
+    void toImportVariables();
+    void toExportVariables(StripToolVariableInfo* toExport);
+    void toEditListItem(const QModelIndex &listItem);
+    void onModelVariableCheckStateChanged(const QModelIndex &index);
+    void addVariableToModel(const QString &name);
+
+private:
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
     
 private:
+    QDir appDirectory_;
+
     StripToolModel *model_;
-    //StripToolVariableImporter *importer_;
-    //StripToolVariableInfoEditor *editor_;
-    //StripToolDataSaver *dataSaver_;
-    StripToolDataController *dataController_;
     StripToolView *mainView_;
-    
+
+    StripToolVariableInfoImporter *importer_;
+    StripToolVariableInfoExporter *exporter_;
+    StripToolVariableInfoEditor *editor_;
+    //StripToolVariableDataSaver *dataSaver_;
 };
 
 #endif // STRIPTOOL_H

@@ -1,23 +1,73 @@
 #include "StripToolControlsPanel.h"
+#include <QDebug>
 
 StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent)
 {
-    nameEntry_ = new EntryWidget(this);
+    nameEntry_ = 0;
+    pauseResume_ = 0;
+    timeEntry_ = 0;
+    sidebarButton_ = 0;
+    waterfallEntry_ = 0;
 
+    buildComponents();
+    makeConnections();
+    defaultSettings();
+
+    qDebug() << "StripToolControlsPanel object created.";
+}
+
+
+
+StripToolControlsPanel::~StripToolControlsPanel()
+{
+}
+
+
+
+EntryWidget* StripToolControlsPanel::nameEntry() const {
+    return nameEntry_;
+}
+
+
+
+QPushButton* StripToolControlsPanel::sidebarButton() const {
+    return sidebarButton_;
+}
+
+
+
+void StripToolControlsPanel::buildComponents()
+{
+    nameEntry_ = new EntryWidget(this);
     pauseResume_ = new DoubleButtonWidget(this);
     pauseResume_->setLeftButtonText("Pause");
     pauseResume_->setRightButtonText("Resume");
-    connect( pauseResume_, SIGNAL(leftButtonClicked()), this, SLOT(onPauseButtonClicked()) );
-    connect( pauseResume_, SIGNAL(rightButtonClicked()), this, SLOT(onResumeButtonClicked()) );
-
     timeEntry_ = new TimeEntryWidget(this);
+    sidebarButton_ = new QPushButton(this);
+    waterfallEntry_ = new WaterfallEntryWidget(this);
+}
 
-    sidebarShown_ = false;
-    sidebarButton_ = new QPushButton(">");
-    connect( sidebarButton_, SIGNAL(clicked()), this, SLOT(toToggleSidebar()) );
 
-    waterfallEntry_ = new WaterfallEntryWidget();
 
+void StripToolControlsPanel::makeConnections()
+{
+
+//    connect( pauseResume_, SIGNAL(leftButtonClicked()), this, SIGNAL(pauseButtonClicked()) );
+//    connect( pauseResume_, SIGNAL(rightButtonClicked()), this, SLOT(resumeButtonClicked()) );
+
+//    connect( timeEntry_, SIGNAL(timeAmountChanged(int)), model_, SLOT(toUpdateTime(int)) );
+//    connect( timeEntry_, SIGNAL(timeUnitsChanged(QString)), model_, SLOT(toUpdateTimeUnits(QString)) );
+//    connect( model_, SIGNAL(requestTimeUpdate()), timeEntry_, SLOT(timeUpdateRequested()) );
+
+//    connect( waterfallEntry_, SIGNAL(waterfallOn(bool)), model_, SIGNAL(waterfallStateChanged(bool)) );
+//    connect( model_, SIGNAL(changeWaterfallCheckState(bool)), waterfallEntry_, SLOT(setWaterfallCheckState(bool)) );
+
+}
+
+
+
+void StripToolControlsPanel::defaultSettings()
+{
     QGridLayout *panelLayout = new QGridLayout();
     panelLayout->addWidget(nameEntry_, 0, 0);
     panelLayout->addWidget(pauseResume_, 0, 1);
@@ -33,73 +83,7 @@ StripToolControlsPanel::StripToolControlsPanel(QWidget *parent) : QWidget(parent
     widgetLayout->addWidget(controlsGroup);
 
     setLayout(widgetLayout);
-
 }
 
-
-
-StripToolControlsPanel::~StripToolControlsPanel()
-{
-}
-
-
-
-void StripToolControlsPanel::setModel(StripToolModel *newModel)
-{
-    model_ = newModel;
-
-    connect( nameEntry_, SIGNAL(entryComplete(QString)), model_, SLOT(toAddPV(QString)) );
-
-    connect( pauseResume_, SIGNAL(leftButtonClicked()), model_, SLOT(toPausePVs()) );
-    connect( pauseResume_, SIGNAL(rightButtonClicked()), model_, SLOT(toResumePVs()) );
-
-    connect( timeEntry_, SIGNAL(timeAmountChanged(int)), model_, SLOT(toUpdateTime(int)) );
-    connect( timeEntry_, SIGNAL(timeUnitsChanged(QString)), model_, SLOT(toUpdateTimeUnits(QString)) );
-    connect( model_, SIGNAL(requestTimeUpdate()), timeEntry_, SLOT(timeUpdateRequested()) );
-
-//    connect( waterfallEntry_, SIGNAL(waterfallChanged(double)), model_, SIGNAL(waterfallChanged(double)) );
-//    connect( model_, SIGNAL(selectedWaterfall(double)), waterfallEntry_, SLOT(toSetWaterfallDisplayed(double)) );
-
-    connect( waterfallEntry_, SIGNAL(waterfallOn(bool)), model_, SIGNAL(waterfallStateChanged(bool)) );
-    connect( model_, SIGNAL(changeWaterfallCheckState(bool)), waterfallEntry_, SLOT(setWaterfallCheckState(bool)) );
-}
-
-
-
-void StripToolControlsPanel::onPauseButtonClicked()
-{
-    pauseResume_->setRightButtonDefault(true);
-}
-
-
-
-void StripToolControlsPanel::onResumeButtonClicked()
-{
-    pauseResume_->setRightButtonDefault(false);
-}
-
-
-
-void StripToolControlsPanel::toToggleSidebar()
-{
-    if (sidebarShown_)
-    {
-        sidebarButton_->setText(">");
-        sidebarShown_ = false;
-        emit hideSidebar();
-
-    } else {
-        sidebarButton_->setText("<");
-        sidebarShown_ = true;
-        emit showSidebar();
-    }
-}
-
-
-
-void StripToolControlsPanel::toTestSignal(const QString &signalText)
-{
-    qDebug() << "Controls panel received signal text :" << signalText;
-}
 
 

@@ -1,53 +1,56 @@
-#ifndef STRIPTOOLABSTRACTVARIABLEINFO_H
-#define STRIPTOOLABSTRACTVARIABLEINFO_H
+//#ifndef STRIPTOOLABSTRACTVARIABLEINFO_H
+//#define STRIPTOOLABSTRACTVARIABLEINFO_H
 
-#include <QObject>
+//#include <QObject>
 
-class StripToolAbstractVariableInfo : public QObject
-{
-    Q_OBJECT
+//class StripToolAbstractVariableInfo : public QObject
+//{
+//    Q_OBJECT
 
-    friend class StripToolAbstractVariable;
-    friend class StripToolVariableInfoEditor;
+//    friend class StripToolAbstractVariable;
+//    friend class StripToolModel;
+//    friend class StripToolVariableInfoEditor;
+//    friend class StripToolVariableInfoImporter;
+//    friend class StripToolVariableInfoExporter;
 
-public:
-    explicit StripToolAbstractVariableInfo(QObject *parent = 0);
+//public:
+//    explicit StripToolAbstractVariableInfo(QObject *parent = 0);
 
-signals:
-    void infoChanged();
+//signals:
+//    void infoChanged();
 
-protected:
-    virtual bool hasName() const;
-    virtual bool hasCreationDateTime() const;
-    virtual bool hasDescription() const;
-    virtual bool hasUnits() const;
-    virtual bool hasGranularity() const;
-    virtual bool hasColor() const;
-    virtual bool hasSelectionState() const;
-    virtual bool hasCheckState() const;
-    virtual bool hasTimeUnits() const;
+//public:
+//    virtual bool hasName() const;
+//    virtual bool hasCreationDateTime() const;
+//    virtual bool hasDescription() const;
+//    virtual bool hasUnits() const;
+//    virtual bool hasGranularity() const;
+//    virtual bool hasColor() const;
+//    virtual bool hasSelectionState() const;
+//    virtual bool hasCheckState() const;
+//    virtual bool hasTimeUnits() const;
 
-    QString name() const;
-    void setName(const QString &sourceName);
+//    QString name() const;
+//    QString description() const;
 
-    QString description() const;
-    void setDescription(const QString &newDescription);
+//public slots:
+//    void setName(const QString &sourceName);
+//    void setDescription(const QString &newDescription);
 
-protected:
-    bool hasName_;
-    bool hasCreationDateTime_;
-    bool hasDescription_;
-    bool hasUnits_;
-    bool hasGranularity_;
-    bool hasColor_;
-    bool hasSelectionState_;
-    bool hasCheckState_;
-    bool hasTimeUnits_;
+//private:
+//    QString name_;
+//    QString description_;
 
-private:
-    QString name_;
-    QString description_;
+//    bool hasName_;
+//    bool hasCreationDateTime_;
+//    bool hasDescription_;
+//    bool hasUnits_;
+//    bool hasGranularity_;
+//    bool hasColor_;
+//    bool hasSelectionState_;
+//    bool hasCheckState_;
+//    bool hasTimeUnits_;
 
-};
+//};
 
-#endif // STRIPTOOLABSTRACTVARIABLEINFO_H
+//#endif // STRIPTOOLABSTRACTVARIABLEINFO_H

@@ -3,17 +3,15 @@
 StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
-    model_ = 0;
+    edit_ = 0;
+    delete_ = 0;
+    color_ = 0;
 
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    setMaximumWidth(200);
+    buildComponents();
+    makeConnections();
+    defaultSettings();
 
-    createActions();
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    setMovement(QListView::Static); // right now, user cannot reorder list view items -- they can't be moved!
-
-    connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
-    connect( this, SIGNAL(setCurrentSelection(QModelIndex)), this, SLOT(setCurrentIndex(QModelIndex)) );
+    qDebug() << "StripToolListView object created.";
 }
 
 
@@ -24,90 +22,30 @@ StripToolListView::~StripToolListView()
 
 
 
-//void StripToolListView::setPVModel(StripToolModel *model)
-//{
-//    model_ = model;
-
-//    setModel(model_);
-
-//    connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
-
-//    connect( this->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), model_, SLOT(listItemSelected(QModelIndex, QModelIndex)) );
-
-//    connect( this, SIGNAL(editPV(QModelIndex)), model_, SLOT(editPV(QModelIndex)) );
-//    connect( this, SIGNAL(deletePV(QModelIndex)), model_, SLOT(toDeletePV(QModelIndex)) );
-//    connect( this, SIGNAL(setPVUpdating(QModelIndex, bool)), model_, SLOT(setPVUpdating(QModelIndex,bool)) );
-//    connect( this, SIGNAL(colorPV(QModelIndex,QColor)), model_, SLOT(colorPV(QModelIndex, QColor)) );
-//}
-
-
-
-void StripToolListView::createActions()
+QModelIndex StripToolListView::selectedIndex() const
 {
-    edit_ = new QAction("Edit", this);
-    connect( edit_, SIGNAL(triggered()), this, SLOT(editSelection()) );
-
-    delete_ = new QAction("Delete", this);
-    connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
-
-    pause_ = new QAction("Pause", this);
-    pause_->setEnabled(false);
-//    connect( pause_, SIGNAL(triggered()), this, SLOT(pauseSelection()) );
-
-    resume_ = new QAction("Resume", this);
-    resume_->setEnabled(false);
-//    connect( resume_, SIGNAL(triggered()), this, SLOT(resumeSelection()) );
-
-    setColor_ = new QAction("Line color", this);
-    connect( setColor_, SIGNAL(triggered()), this, SLOT(toSetPVColor()) );
+    if (selectionModel()->selectedIndexes().size() > 0)
+        return selectionModel()->selectedIndexes().at(0);
+    else
+        return QModelIndex();
 }
 
 
 
-void StripToolListView::updateContextMenu(const QPoint &position)
+void StripToolListView::setSelectedIndex(const QModelIndex &newSelection)
 {
-    QMenu menu(this);
+    if (newSelection != selectedIndex()) {
 
-    menu.addAction(edit_);
-    menu.addAction(delete_);
-    menu.addSeparator();
-    menu.addAction(setColor_);
+        // an empty QModelIndex indicates something has been deselected elsewhere.
+        if (newSelection == QModelIndex()) {
+            selectionModel()->clearSelection();
+            qDebug() << "StripToolListView :: List item deselected.";
 
-    menu.exec(mapToGlobal(position));
-}
-
-
-
-void StripToolListView::deleteSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-    {
-        emit deletePV(index);
+        } else if (newSelection.isValid()) {
+            selectionModel()->select(QItemSelection(newSelection, newSelection), QItemSelectionModel::ClearAndSelect);
+            qDebug() << "StripToolListView :: Index " << newSelection.row() << " selected.";
+        }
     }
-}
-
-
-
-void StripToolListView::editSelection()
-{
-    foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
-        emit editPV(index);
-}
-
-
-
-void StripToolListView::pauseSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-        emit setPVUpdating(index, false);
-}
-
-
-
-void StripToolListView::resumeSelection()
-{
-    foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-          emit setPVUpdating(index, true);
 }
 
 
@@ -121,48 +59,85 @@ QColor StripToolListView::colorPicker()
 
 
 
-void StripToolListView::setSelectedIndex(const QModelIndex &newSelection) {
-    // an invalid index indicates something has been deselected.
-    if (newSelection == QModelIndex()) {
-        qDebug() << "List view item deselected.";
-        emit setCurrentSelection(QModelIndex());
+void StripToolListView::updateContextMenu(const QPoint &position)
+{
+    QMenu menu(this);
 
-    } else if (newSelection.isValid()) {
-        qDebug() << "Setting list view selection...";
-        emit setCurrentSelection(newSelection);
+    menu.addAction(edit_);
+    menu.addAction(delete_);
+    menu.addSeparator();
+    menu.addAction(color_);
+
+    menu.exec(mapToGlobal(position));
+}
+
+
+
+void StripToolListView::editSelection()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes()) {
+        emit itemToEdit(index);
     }
 }
 
 
 
-QModelIndex StripToolListView::selectedIndex() const {
-    return currentIndex();
+void StripToolListView::deleteSelection()
+{
+    foreach(const QModelIndex &index, selectionModel()->selectedIndexes()) {
+        emit itemToDelete(index);
+    }
 }
 
 
 
-void StripToolListView::toSetPVColor()
+void StripToolListView::colorSelection()
 {
     QColor newColor = colorPicker();
 
     foreach(const QModelIndex &index, selectionModel()->selectedIndexes())
-        emit colorPV(index, newColor);
+        emit itemToColor(index, newColor);
 }
 
 
 
-//void StripToolListView::onModelSelectionChange()
-//{
-//    QModelIndex modelSelection = model_->selectedIndex();
+void StripToolListView::onSelectionChanged(QItemSelection newSelection, QItemSelection oldSelection)
+{
+    if (newSelection == oldSelection) {
+        return;
+    }
 
-//    // an invalid index indicates that there is no model selection--something has been deselected.
-//    if (modelSelection == QModelIndex())
-//    {
-//        qDebug() << "List view item deselected.";
-//        emit setCurrentSelection(modelSelection);
+    QList<QModelIndex> selectedIndices = newSelection.indexes();
+    emit listSelectionChanged(selectedIndices.at(0));
+}
 
-//    } else if (modelSelection.isValid()) {
-//        qDebug() << "Setting list view selection...";
-//        emit setCurrentSelection(modelSelection);
-//    }
-//}
+
+
+void StripToolListView::buildComponents()
+{
+    edit_ = new QAction("Edit", this);
+    delete_ = new QAction("Delete", this);
+    color_ = new QAction("Line color", this);
+}
+
+
+
+void StripToolListView::makeConnections()
+{
+    connect( edit_, SIGNAL(triggered()), this, SLOT(editSelection()) );
+    connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
+    connect( color_, SIGNAL(triggered()), this, SLOT(colorSelection()) );
+
+    connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
+}
+
+
+
+void StripToolListView::defaultSettings()
+{
+    setViewMode(QListView::ListMode);
+    setSelectionMode(QListView::SingleSelection);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setMaximumWidth(200);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+}

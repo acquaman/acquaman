@@ -18,39 +18,34 @@ class StripToolView : public QWidget
     Q_OBJECT
     
 public:
-    explicit StripToolView(QWidget *parent = 0, StripToolModel *model = 0);
+    explicit StripToolView(QWidget *parent = 0);
     ~StripToolView();
-    friend class StripTool;
 
 signals:
-    //    void reloadPVs(bool reload);
-    void viewSelectionChange();
+    void nameEntered(const QString &newName);
     void plotSelectionChanged(MPlotItem *newSelection);
     void listSelectionChanged(const QModelIndex &newSelection);
+    void listItemToEdit(const QModelIndex &toEdit);
 
-private:
-    StripToolModel* model() const;
+public:
     StripToolPlot* plotView() const;
+    StripToolListView* listView() const;
+    EntryWidget* nameEntry() const;
+
+protected:
     StripToolSidePanel* sidePanel() const;
     StripToolControlsPanel* controlPanel() const;
 
-    /// Creates instances of StripToolPlot, StripToolSidePanel, and StripToolControlsPanel.
-    void buildUI();
-    void setPlotLeftAxisName(const QString &newName);
-    void setPlotBottomAxisName(const QString &newName);
-    void setPlotSelection(MPlotItem *newSelection);
-    MPlotItem* plotSelection();
-    void addPlotItem(MPlotItem *newItem);
-    void removePlotItem(MPlotItem *oldItem);
-
-    void setListSelection(const QModelIndex &selectedIndex);
-    QModelIndex listSelection() const;
-
-private slots:
-    void onSeriesDeselected();
+protected slots:
+    void toggleSidePanel();
 
 private:
-    StripToolModel *model_;
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
+    bool sidePanelShown_;
     StripToolPlot *plotView_;
     StripToolSidePanel *sidePanel_;
     StripToolControlsPanel *controlPanel_;

@@ -17,7 +17,6 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/EditPVDialog.cpp \
     source/StripChart/StripToolSelector.cpp \
     source/StripChart/ReloadPVDialog.cpp \
-    source/StripChart/StripToolDataController.cpp \
     source/StripChart/EntryWidget.cpp \
     source/StripChart/DoubleButtonWidget.cpp \
     source/StripChart/TimeEntryWidget.cpp \
@@ -25,17 +24,15 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripToolSidePanel.cpp \
     source/StripChart/WaterfallEntryWidget.cpp \
     source/StripChart/StripToolSeries.cpp \
-    source/StripChart/StripTool0DVariableInfo.cpp \
     source/StripChart/StripToolVariableInfoEditor.cpp \
-    source/StripChart/StripToolAbstractVariableInfo.cpp \
-    source/StripChart/StripToolBasicVariableInfo.cpp \
-    source/StripChart/StripToolBasicVariable.cpp \
-    source/StripChart/StripToolAbstractVariable.cpp \
-    source/StripChart/StripTool0DVariable.cpp
+    source/StripChart/StripToolVariableInfoImporter.cpp \
+    source/StripChart/StripToolVariableInfoExporter.cpp \
+    source/StripChart/StripToolVariableInfo.cpp \
+    source/StripChart/StripToolVariable.cpp \
+    source/StripChart/StripToolSeries2.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
-    source/StripChart/StripToolPV.h \
     source/StripChart/StripToolView.h \
     source/StripChart/StripTool.h \
     source/StripChart/StripToolModel.h \
@@ -43,7 +40,6 @@ HEADERS  += \
     source/StripChart/EditPVDialog.h \
     source/StripChart/StripToolSelector.h \
     source/StripChart/ReloadPVDialog.h \
-    source/StripChart/StripToolDataController.h \
     source/StripChart/EntryWidget.h \
     source/StripChart/DoubleButtonWidget.h \
     source/StripChart/TimeEntryWidget.h \
@@ -51,12 +47,11 @@ HEADERS  += \
     source/StripChart/StripToolSidePanel.h \
     source/StripChart/WaterfallEntryWidget.h \
     source/StripChart/StripToolSeries.h \
-    source/StripChart/StripTool0DVariableInfo.h \
     source/StripChart/StripToolVariableInfoEditor.h \
-    source/StripChart/StripToolAbstractVariableInfo.h \
-    source/StripChart/StripToolBasicVariableInfo.h \
-    source/StripChart/StripToolBasicVariable.h \
-    source/StripChart/StripToolAbstractVariable.h \
-    source/StripChart/StripTool0DVariable.h
+    source/StripChart/StripToolVariableInfoImporter.h \
+    source/StripChart/StripToolVariableInfoExporter.h \
+    source/StripChart/StripToolVariableInfo.h \
+    source/StripChart/StripToolVariable.h \
+    source/StripChart/StripToolSeries2.h
 
 OTHER_FILES +=
