@@ -205,6 +205,32 @@ QString StripToolVariableInfo::timeUnits() const
 
 
 
+int StripToolVariableInfo::displayedTimeMS() const
+{
+    // want to return the number of milliseconds of data to display at a given time.
+    // this is a function of the current amount and units.
+
+    int displayedTime;
+
+    if (timeUnits_ == "sec") {
+        displayedTime = timeAmount_ * 1000;
+
+    } else if (timeUnits_ == "min") {
+        displayedTime = timeAmount_ * 60 * 1000;
+
+    } else if (timeUnits_ == "hr") {
+        displayedTime = timeAmount_ * 60 * 60 * 1000;
+
+    } else {
+        qDebug() << "StripToolVariableInfo :: unable to identify an appropriate display time from amount " << timeAmount_ << " and units " << timeUnits_ << ".";
+        displayedTime = -1;
+    }
+
+    return displayedTime;
+}
+
+
+
 void StripToolVariableInfo::setName(const QString &sourceName)
 {
     if (sourceName == "") {
@@ -356,14 +382,14 @@ void StripToolVariableInfo::setCheckState(Qt::CheckState checked)
 
 void StripToolVariableInfo::setTimeAmount(int newTime)
 {
-
+    timeAmount_ = newTime;
 }
 
 
 
 void StripToolVariableInfo::setTimeUnits(const QString &newUnits)
 {
-
+    timeUnits_ = newUnits;
 }
 
 

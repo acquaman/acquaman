@@ -53,7 +53,7 @@ private:
     StripToolSeries2* series_;
 
     int updateCount_;
-    int displayedTime_;
+//    int displayedTime_;
     QVector<QTime> totalUpdateTimes_;
     QVector<double> totalUpdateValues_;
 

@@ -108,18 +108,22 @@ void StripTool::onModelItemAdded(const QModelIndex &parent, int rowStart, int ro
 {
     Q_UNUSED(parent)
 
+    bool addComplete = false;
+    int row = rowStart;
+
+    // first, we make sure the new item has valid time units/amount to display.
+    StripToolVariableInfo *infoAdded = model()->findVariable(row)->info();
+    infoAdded->setTimeAmount(mainView()->timeEntry()->timeAmount());
+    infoAdded->setTimeUnits(mainView()->timeEntry()->timeUnits());
+
     // the list view handles adding new items automatically.
 
     // but we need to deal with the plot view ourselves!
     // add each new item to the plot, if it is checked.
 
-    bool addComplete = false;
-    int row = rowStart;
-
     while (!addComplete && row <= rowFinish) {
-        StripToolVariableInfo *info = model()->findVariable(row)->info();
 
-        if (info->checkState() == Qt::Checked) {
+        if (infoAdded->checkState() == Qt::Checked) {
             mainView()->plotView()->addPlotItem(model()->plotItem(row));
         }
 

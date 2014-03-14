@@ -8,10 +8,16 @@
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
+
 class StripToolVariableInfo : public QObject
 {
     Q_OBJECT
 public:
+    enum TimeUnits { Seconds = 0,
+                     Minutes,
+                     Hours
+                   };
+
     explicit StripToolVariableInfo(QObject *parent = 0);
 
 signals:
@@ -53,6 +59,7 @@ public:
     Qt::CheckState checkState() const;
     int timeAmount() const;
     QString timeUnits() const;
+    int displayedTimeMS() const;
 
 public slots:
     void setName(const QString &sourceName);

@@ -179,7 +179,7 @@ void StripToolVariable::updateDisplayValues()
                 double displayTime = latestTime.msecsTo(measurementTime);
 
                 // if the display time falls within the range we'd like to see on the plot, add the time and value to the display vectors.
-                if (qAbs(displayTime) <= qAbs(displayedTime_)) {
+                if (qAbs(displayTime) <= qAbs(info()->displayedTimeMS())) {
                     displayedTimes.prepend(displayTime);
                     displayedValues.prepend(measurement);
 
@@ -256,7 +256,7 @@ void StripToolVariable::defaultSettings()
 {
     index_ = QModelIndex();
     updateCount_ = 0;
-    displayedTime_ = 1000; // milliseconds
+//    displayedTime_ = 1000; // milliseconds
 
     info()->setCreationDateTime(QDateTime::currentDateTime().toString());
 }
