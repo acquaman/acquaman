@@ -65,6 +65,8 @@ private:
     StripToolVariableInfoExporter *exporter_;
     StripToolVariableInfoEditor *editor_;
     //StripToolVariableDataSaver *dataSaver_;
+
+
 };
 
 #endif // STRIPTOOL_H

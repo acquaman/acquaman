@@ -184,7 +184,8 @@ qreal StripToolSeries2::waterfallMax() const
 void StripToolSeries2::setData(MPlotVectorSeriesData *newData)
 {
     series_->setModel(newData, true);
-    connect( newData->signalSource(), SIGNAL(dataChanged()), this, SLOT(onDataUpdate()) );
+//    connect( newData->signalSource(), SIGNAL(dataChanged()), this, SLOT(onDataUpdate()) );
+
 }
 
 
@@ -401,11 +402,12 @@ void StripToolSeries2::applyWaterfall(int itemPosition, int itemCount)
 
 
 
-void StripToolSeries2::onDataUpdate()
-{
-    emit displayRangeUpdated( new MPlotAxisRange(displayedMin(), displayedMax()) );
-    emit dataRangeUpdated( new MPlotAxisRange(dataMin(), dataMax()) );
-}
+//void StripToolSeries2::onDataUpdate()
+//{
+//    qDebug() << "StripToolSeries2 :: data update.";
+//    emit displayRangeUpdated( new MPlotAxisRange(displayedMin(), displayedMax()) );
+//    emit dataRangeUpdated( new MPlotAxisRange(dataMin(), dataMax()) );
+//}
 
 
 

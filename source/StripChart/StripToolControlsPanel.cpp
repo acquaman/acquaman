@@ -30,6 +30,18 @@ EntryWidget* StripToolControlsPanel::nameEntry() const {
 
 
 
+WaterfallEntryWidget* StripToolControlsPanel::waterfallEntry() const {
+    return waterfallEntry_;
+}
+
+
+
+TimeEntryWidget* StripToolControlsPanel::timeEntry() const {
+    return timeEntry_;
+}
+
+
+
 QPushButton* StripToolControlsPanel::sidebarButton() const {
     return sidebarButton_;
 }

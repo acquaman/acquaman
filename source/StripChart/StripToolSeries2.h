@@ -55,7 +55,7 @@ protected:
     void applyWaterfall(int itemPosition, int itemCount);
 
 protected slots:
-    void onDataUpdate();
+//    void onDataUpdate();
 
 private:
     void buildComponents();

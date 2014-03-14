@@ -21,7 +21,7 @@ public:
 
 signals:
 //    void dataRangeUpdated(MPlotAxisRange* newRange);
-//    void displayedRangeUpdated(MPlotAxisRange* newRange);
+    void displayRangeUpdated(const MPlotAxisRange* newRange);
 
 public:
     QModelIndex index() const;
@@ -36,6 +36,7 @@ public slots:
 
 protected slots:
     void onDataSourceValuesChanged(QTime measurementTime, double measurementValue);
+    void onDisplayRangeUpdated(const MPlotAxisRange* newRange);
 
 private:
     void totalVectorSizeCheck();

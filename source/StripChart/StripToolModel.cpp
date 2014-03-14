@@ -330,9 +330,37 @@ void StripToolModel::setSelectedVariable(StripToolVariable *newSelection)
 
 
 
+void StripToolModel::enableWaterfall(bool isEnabled)
+{
+    foreach (StripToolVariable *variable, variables_) {
+        variable->series()->enableWaterfall(isEnabled, variable->index().row(), variables_.size());
+    }
+}
+
+
+
+void StripToolModel::changeDisplayedTimeAmount(int amount)
+{
+    foreach (StripToolVariable *variable, variables_) {
+        variable->info()->setTimeAmount(amount);
+    }
+}
+
+
+
+void StripToolModel::changeDisplayedTimeUnits(const QString &units)
+{
+    foreach (StripToolVariable *variable, variables_) {
+        variable->info()->setTimeUnits(units);
+    }
+}
+
+
+
 void StripToolModel::deselectSelectedVariable()
 {
     disconnectSelectedVariable();
+    selectedVariable_->info()->setSelectionState(false);
     selectedVariable_ = 0;
     qDebug() << "StripToolModel :: variable deselected.";
 }
@@ -342,7 +370,6 @@ void StripToolModel::deselectSelectedVariable()
 void StripToolModel::disconnectSelectedVariable()
 {
     if (selectedVariable_ != 0) {
-        selectedVariable_->info()->setSelectionState(false);
 
         disconnect( selectedVariable_->info(), SIGNAL(infoChanged()), this, SIGNAL(selectedVariableInfoChanged()) );
         disconnect( selectedVariable_->series(), SIGNAL(dataRangeUpdated(MPlotAxisRange*)), this, SIGNAL(selectedVariableDataRangeChanged(MPlotAxisRange*)) );
@@ -356,6 +383,7 @@ void StripToolModel::selectVariable(StripToolVariable *newSelection)
 {
     if (contains(newSelection)) {
         selectedVariable_ = newSelection;
+        selectedVariable_->info()->setSelectionState(true);
         connectSelectedVariable();
         qDebug() << "StripToolModel :: variable selected : " << selectedVariable_->info()->name();
     }
@@ -365,11 +393,10 @@ void StripToolModel::selectVariable(StripToolVariable *newSelection)
 void StripToolModel::connectSelectedVariable()
 {
     if (selectedVariable_ != 0) {
-        selectedVariable_->info()->setSelectionState(true);
 
         connect( selectedVariable_->info(), SIGNAL(infoChanged()), this, SIGNAL(selectedVariableInfoChanged()) );
-        connect( selectedVariable_->series(), SIGNAL(dataRangeUpdated(MPlotAxisRange*)), this, SIGNAL(selectedVariableDataRangeChanged(MPlotAxisRange*)) );
-        connect( selectedVariable_->series(), SIGNAL(displayRangeUpdated(const MPlotAxisRange*)), this, SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)) );
+//        connect( selectedVariable_, SIGNAL(dataRangeUpdated(MPlotAxisRange*)), this, SIGNAL(selectedVariableDataRangeChanged(MPlotAxisRange*)) );
+        connect( selectedVariable_, SIGNAL(displayRangeUpdated(const MPlotAxisRange*)), this, SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)) );
     }
 }
 

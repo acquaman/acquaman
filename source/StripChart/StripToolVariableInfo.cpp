@@ -191,6 +191,20 @@ Qt::CheckState StripToolVariableInfo::checkState() const
 
 
 
+int StripToolVariableInfo::timeAmount() const
+{
+    return timeAmount_;
+}
+
+
+
+QString StripToolVariableInfo::timeUnits() const
+{
+    return timeUnits_;
+}
+
+
+
 void StripToolVariableInfo::setName(const QString &sourceName)
 {
     if (sourceName == "") {
@@ -340,6 +354,20 @@ void StripToolVariableInfo::setCheckState(Qt::CheckState checked)
 
 
 
+void StripToolVariableInfo::setTimeAmount(int newTime)
+{
+
+}
+
+
+
+void StripToolVariableInfo::setTimeUnits(const QString &newUnits)
+{
+
+}
+
+
+
 void StripToolVariableInfo::onDataSourceValueUpdate(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
@@ -364,7 +392,6 @@ void StripToolVariableInfo::defaultSettings()
     hasColor_ = false;
     hasSelectionState_ = false;
     hasCheckState_ = false;
-    hasTimeUnits_ = false;
 
     setUnits("");
     setGranularity(1);

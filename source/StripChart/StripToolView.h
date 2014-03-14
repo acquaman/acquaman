@@ -31,6 +31,8 @@ public:
     StripToolPlot* plotView() const;
     StripToolListView* listView() const;
     EntryWidget* nameEntry() const;
+    WaterfallEntryWidget* waterfallEntry() const;
+    TimeEntryWidget* timeEntry() const;
 
 protected:
     StripToolSidePanel* sidePanel() const;

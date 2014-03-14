@@ -38,6 +38,18 @@ EntryWidget* StripToolView::nameEntry() const {
 
 
 
+WaterfallEntryWidget* StripToolView::waterfallEntry() const {
+    return controlPanel_->waterfallEntry();
+}
+
+
+
+TimeEntryWidget* StripToolView::timeEntry() const {
+    return controlPanel_->timeEntry();
+}
+
+
+
 StripToolSidePanel* StripToolView::sidePanel() const {
     return sidePanel_;
 }

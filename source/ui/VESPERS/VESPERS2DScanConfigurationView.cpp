@@ -89,6 +89,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	stepSizeLayout->addWidget(vStep_);
 	stepSizeLayout->addStretch();
 
+	normalPosition_ = buildPositionDoubleSpinBox("N: ", " mm", config_->normalPosition(), 3);
+	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
+	connect(config_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+
+	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
+	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
+
+	QHBoxLayout *normalLayout = new QHBoxLayout;
+	normalLayout->addWidget(new QLabel("Focus Position:"));
+	normalLayout->addWidget(normalPosition_);
+	normalLayout->addWidget(updateNormalPosition);
+
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
@@ -96,6 +108,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	positionsLayout->addLayout(startPointLayout);
 	positionsLayout->addLayout(endPointLayout);
 	positionsLayout->addLayout(stepSizeLayout);
+	positionsLayout->addLayout(normalLayout);
 	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
@@ -470,6 +483,37 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 	axesAcceptable();
 }
 
+void VESPERS2DScanConfigurationView::onSetNormalPosition()
+{
+	double n = 0;
+
+	switch(int(config_->motor())){
+
+	case VESPERS::H | VESPERS::V:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::X | VESPERS::Z:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+
+	case VESPERS::AttoH | VESPERS::AttoV:
+
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		break;
+
+	case VESPERS::AttoX | VESPERS::AttoZ:
+
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+	}
+
+	config_->setNormalPosition(n);
+	updateMapInfo();
+}
+
 void VESPERS2DScanConfigurationView::onXStartChanged()
 {
 	config_->setXStart(hStart_->value());
@@ -510,6 +554,12 @@ void VESPERS2DScanConfigurationView::onYStepChanged()
 	config_->setYStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
+}
+
+void VESPERS2DScanConfigurationView::onNormalPositionChanged()
+{
+	config_->setNormalPosition(normalPosition_->value());
+	updateMapInfo();
 }
 
 void VESPERS2DScanConfigurationView::onDwellTimeChanged()

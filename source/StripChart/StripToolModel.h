@@ -61,6 +61,10 @@ public slots:
     bool deleteVariable(StripToolVariable *variable);
     void setSelectedVariable(StripToolVariable *newSelection);
 
+    void enableWaterfall(bool isEnabled);
+    void changeDisplayedTimeAmount(int amount);
+    void changeDisplayedTimeUnits(const QString &units);
+
 protected:
     /// Returns the item flags for the entry at the given index.
     Qt::ItemFlags flags(const QModelIndex &index) const;

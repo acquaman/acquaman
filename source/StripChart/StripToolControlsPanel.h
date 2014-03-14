@@ -20,6 +20,8 @@ public:
 
 public:
     EntryWidget* nameEntry() const;
+    WaterfallEntryWidget* waterfallEntry() const;
+    TimeEntryWidget* timeEntry() const;
     QPushButton* sidebarButton() const;
 
 public slots:

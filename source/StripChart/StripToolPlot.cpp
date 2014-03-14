@@ -104,7 +104,6 @@ void StripToolPlot::setLeftAxisName(const QString &newName) {
 
 
 void StripToolPlot::setLeftAxisRange(const MPlotAxisRange *newAxisRange) {
-    qDebug() << "StripToolPlot :: Updating left axis range...";
     qreal rangeMin = newAxisRange->min();
     qreal rangeMax = newAxisRange->max();
 
@@ -113,9 +112,9 @@ void StripToolPlot::setLeftAxisRange(const MPlotAxisRange *newAxisRange) {
     int itemCount = plot_->plotItems().size();
 
     for (int i = 0; i < itemCount; i++) {
-        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
-        series->enableWaterfall(waterfallOn_, i, itemCount);
-        series->enableYNormalization(true, rangeMin, rangeMax);
+//        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+//        series->enableWaterfall(waterfallOn_, i, itemCount);
+//        series->enableYNormalization(true, rangeMin, rangeMax);
     }
 }
 

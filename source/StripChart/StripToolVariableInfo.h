@@ -51,6 +51,8 @@ public:
     QString colorName() const;
     bool selectionState() const;
     Qt::CheckState checkState() const;
+    int timeAmount() const;
+    QString timeUnits() const;
 
 public slots:
     void setName(const QString &sourceName);
@@ -62,6 +64,8 @@ public slots:
     void setColor(const QColor &newColor);
     void setSelectionState(const bool isSelected);
     void setCheckState(Qt::CheckState checked);
+    void setTimeAmount(int newTime);
+    void setTimeUnits(const QString &newUnits);
 
 protected slots:
     void onDataSourceValueUpdate(const AMnDIndex &start, const AMnDIndex &end);
@@ -79,6 +83,8 @@ private:
     QColor color_;
     bool selectionState_;
     Qt::CheckState checkState_;
+    int timeAmount_;
+    QString timeUnits_;
 
 
     bool hasName_;
@@ -90,8 +96,6 @@ private:
     bool hasColor_;
     bool hasSelectionState_;
     bool hasCheckState_;
-    bool hasTimeUnits_;
-
 };
 
 #endif // STRIPTOOLVARIABLEINFO_H

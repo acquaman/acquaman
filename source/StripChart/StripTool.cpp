@@ -279,7 +279,12 @@ void StripTool::makeConnections() {
     connect( model(), SIGNAL(variableCheckStateChanged(QModelIndex)), this, SLOT(onModelVariableCheckStateChanged(QModelIndex)) );
     connect( model(), SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)), mainView()->plotView(), SLOT(setLeftAxisRange(const MPlotAxisRange*)) );
 
+    connect( model(), SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)), mainView()->plotView(), SLOT(setLeftAxisRange(const MPlotAxisRange*)) );
+
     connect( mainView()->nameEntry(), SIGNAL(entryComplete(QString)), this, SLOT(addVariableToModel(QString)) );
+    connect( mainView()->waterfallEntry(), SIGNAL(waterfallOn(bool)), model(), SLOT(enableWaterfall(bool)) );
+    connect( mainView()->timeEntry(), SIGNAL(timeAmountChanged(int)), model(), SLOT(changeDisplayedTimeAmount(int)) );
+    connect( mainView()->timeEntry(), SIGNAL(timeUnitsChanged(QString)), model(), SLOT(changeDisplayedTimeUnits(QString)) );
     connect( mainView()->plotView(), SIGNAL(selectionChanged(MPlotItem*)), this, SLOT(onPlotSelectionChanged(MPlotItem*)) );
     connect( mainView()->listView(), SIGNAL(itemToEdit(QModelIndex)), this, SLOT(toEditListItem(QModelIndex)) );
     connect( mainView()->listView(), SIGNAL(clicked(QModelIndex)), this, SLOT(onListSelectionChanged(QModelIndex)) );
@@ -289,7 +294,7 @@ void StripTool::makeConnections() {
 
 
 
-void StripTool::defaultSettings() {
+void StripTool::defaultSettings() {    
     mainView()->plotView()->setBottomAxisName("Time []");
     mainView()->plotView()->setLeftAxisName("");
 

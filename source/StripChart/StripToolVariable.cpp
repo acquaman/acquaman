@@ -90,7 +90,20 @@ void StripToolVariable::onDataSourceValuesChanged(QTime measurementTime, double 
 {
 //    qDebug() << "StripToolVariable :: value update for " << info()->name();
     updateTotalValues(measurementTime, measurementValue);
-    updateDisplayValues();
+
+    if (info()->checkState() == Qt::Checked)
+        updateDisplayValues();
+}
+
+
+
+void StripToolVariable::onDisplayRangeUpdated(const MPlotAxisRange *newRange)
+{
+    Q_UNUSED(newRange)
+//    if (info()->checkState() == Qt::Checked) {
+//        qDebug() << "StripToolVariable :: display range updated.";
+//        emit displayRangeUpdated(newRange);
+//    }
 }
 
 
@@ -181,7 +194,7 @@ void StripToolVariable::updateDisplayValues()
 
         // update the series values plotted on the graph.
         data()->setValues(displayedTimes, displayedValues);
-//        emit displayedRangeUpdated(series()->displayedRange());
+        emit displayRangeUpdated(series()->displayedRange());
     }
 
 
