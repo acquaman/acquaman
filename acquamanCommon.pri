@@ -648,7 +648,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/acquaman/AMScanActionControllerBasicFileWriter.h \
     source/acquaman/AMTimedScanActionController.h \
     source/acquaman/AMTimedRegionScanConfiguration.h \
-    source/acquaman/AMTimedScanConfigurationConverter.h
+    source/acquaman/AMTimedScanConfigurationConverter.h \
+    source/util/AMVariableIntegrationTime.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1062,7 +1063,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
     source/acquaman/AMTimedScanActionController.cpp \
     source/acquaman/AMTimedRegionScanConfiguration.cpp \
-    source/acquaman/AMTimedScanConfigurationConverter.cpp
+    source/acquaman/AMTimedScanConfigurationConverter.cpp \
+    source/util/AMVariableIntegrationTime.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1086,6 +1088,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

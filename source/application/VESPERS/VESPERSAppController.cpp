@@ -122,8 +122,31 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMDbUpgrade *vespers1P5ActionDb = new VESPERSDbUpgrade1Pt5("actions", this);
 	appendDatabaseUpgrade(vespers1P5ActionDb);
 }
+#include "util/AMVariableIntegrationTime.h"
 
-bool VESPERSAppController::startup() {
+bool VESPERSAppController::startup()
+{
+	AMVariableIntegrationTime time = AMVariableIntegrationTime(AMVariableIntegrationTime::Constant, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Constant:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::Linear, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Linear:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::Quadratic, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Quadratic:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::Geometric, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Geometric:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::Exponential, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Exponential:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::Logarithmic, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Logarithmic:" << time.a0() << time.a1();
+	time = AMVariableIntegrationTime(AMVariableIntegrationTime::SmoothStep, 1.0, 10.0, 3.24, 10.0, 2.0);
+	time.variableTimeAt(5.0);
+	qDebug() << "Smooth Step:" << time.a0() << time.a1();
 
 	// Get a destination folder.
 	if (!VESPERSChooseDataFolderDialog::getDataFolder())

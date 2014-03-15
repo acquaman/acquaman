@@ -90,7 +90,8 @@ void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType){
 	checkAxisValidity();
 }
 
-bool AMScanAxis::sanityCheckRegionsAndAxisType() const{
+bool AMScanAxis::sanityCheckRegionsAndAxisType() const
+{
 	if(axisType_ != AMScanAxis::StepAxis && regionCount() != 1)
 		return false;
 
@@ -126,19 +127,20 @@ bool AMScanAxis::sanityCheckRegionsAndAxisType() const{
 			return false;
 	}
 
-	if(axisType_ == AMScanAxis::ContinuousDwellAxis){
+	if(axisType_ == AMScanAxis::StepAxis){
+
 		for(int x = 0; x < regions_.count(); x++){
 			// We need a start for each region
-			if(regionAt(0).regionStart().state() == AMNumber::Null)
+			if(regionAt(x).regionStart().state() == AMNumber::Null)
 				return false;
 			// We need a step for each region
-			if(regionAt(0).regionStep().state() == AMNumber::Null)
+			if(regionAt(x).regionStep().state() == AMNumber::Null)
 				return false;
 			// We need an end for each region
-			if(regionAt(0).regionEnd().state() == AMNumber::Null)
+			if(regionAt(x).regionEnd().state() == AMNumber::Null)
 				return false;
 			// We need a time for each region
-			if(regionAt(0).regionTime().state() == AMNumber::Null)
+			if(regionAt(x).regionTime().state() == AMNumber::Null)
 				return false;
 		}
 	}
