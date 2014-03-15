@@ -188,14 +188,20 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
 
-				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; i++){
+				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
 
 					double value = 0;
 
-					for (int k = 0, kSize = maximum - minimum + 1; j < kSize; k++)
-						value += data.at(i*jSize*axisLength+j*axisLength+k);
+					if (data.at(i*jSize*axisLength+j*axisLength) == -1)
+						outputValues[i*jSize+j] = -1;
 
-					outputValues[i*jSize+j] = value;
+					else {
+
+						for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
+							value += data.at(i*jSize*axisLength+j*axisLength+k);
+
+						outputValues[i*jSize+j] = value;
+					}
 				}
 			}
 

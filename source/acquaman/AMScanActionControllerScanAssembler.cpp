@@ -12,16 +12,21 @@ AMScanActionControllerScanAssembler::AMScanActionControllerScanAssembler(QObject
 
 bool AMScanActionControllerScanAssembler::insertAxis(int index, AMControl *axisControl, AMScanAxis *scanAxis)
 {
-	if(!scanAxis || !axisControl)
+	if(!scanAxis)
 		return false;
-	if(controls_->contains(axisControl->name()) || axes_.contains(scanAxis))
+	if((axisControl && controls_->contains(axisControl->name())) || axes_.contains(scanAxis))
 		return false;
 	if(index < 0 || index > controls_->count())
 		return false;
 	if(controls_->count() != axes_.count())
 		return false;
 
-	controls_->insert(index, axisControl, axisControl->name());
+	if (axisControl)
+		controls_->insert(index, axisControl, axisControl->name());
+
+	else
+		controls_->insert(index, axisControl, "");
+
 	axes_.insert(index, scanAxis);
 
 	return true;
@@ -137,7 +142,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 		axisActions->addSubAction(initializationActions);
 	}
 
-	AMListAction3 *allRegionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(axisControl->name()), QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(axisControl->name())), AMListAction3::Sequential);
+	AMListAction3 *allRegionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name()), QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name())), AMListAction3::Sequential);
 
 	for(int x = 0; x < stepScanAxis->regionCount(); x++)
 		allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
@@ -159,7 +164,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 
 AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion, bool isFinalRegion)
 {
-	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(stepScanAxisRegion.name()), QString("Region from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())), AMListAction3::Sequential);
+	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(stepScanAxisRegion.name()), QString("Region from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(stepScanAxisRegion.name())), AMListAction3::Sequential);
 
 	if (axisControl){
 
@@ -183,8 +188,8 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	regionList->addSubAction(detectorSetDwellList);
 
 	// generate axis loop for region
-	int loopIterations = ceil(( ((double)stepScanAxisRegion.regionEnd()) - ((double)stepScanAxisRegion.regionStart()) )/ ((double)stepScanAxisRegion.regionStep()) );
-	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(axisControl->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(axisControl->name())));
+	int loopIterations = round(( ((double)stepScanAxisRegion.regionEnd()) - ((double)stepScanAxisRegion.regionStart()) )/ ((double)stepScanAxisRegion.regionStep()) );
+	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion.name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(stepScanAxisRegion.name())));
 	axisLoop->setGenerateScanActionMessage(true);
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);
