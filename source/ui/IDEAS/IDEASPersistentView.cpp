@@ -76,15 +76,19 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
-    connect(IDEASBeamline::bl()->exposedControlByName("monoLowEV"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoHighEV"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 
-    connect(IDEASBeamline::bl()->exposedControlByName("monoLowEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoHighEV"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
-    connect(IDEASBeamline::bl()->exposedControlByName("monoCrystal"), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
+    connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 
-
+//	Not needed when above connect statements actually connect.
+//    crystalTimer_ = new QTimer();
+//    crystalTimer_->setInterval(1000);
+//    crystalTimer_->setSingleShot(true);
+//    connect(crystalTimer_, SIGNAL(timeout()),this,SLOT(onCrystalChanged()));
 
 
 
@@ -192,9 +196,14 @@ void IDEASPersistentView::onReferenceCountsChanged()
 
 void IDEASPersistentView::onCrystalChanged()
 {
+
     monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
     monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 
+//    if(IDEASBeamline::ideas()->monoLowEV()->value() == -1 || IDEASBeamline::ideas()->monoHighEV()->value() == -1){
+//	qDebug() << "Rechecking Energy Range";
+//	crystalTimer_->start();
+//    }
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)
