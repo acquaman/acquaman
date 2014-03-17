@@ -63,6 +63,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	energyBox_->setRange(92,2000);
 	energyBox_->setValue(configuration_->energy());
 	applyEnergyBox_ = new QCheckBox("Beamline Energy");
+	applyEnergyBox_->setChecked(configuration_->applyEnergy());
 
 	slitWidthBox_= new QDoubleSpinBox();
 	slitWidthBox_->setRange(5,500);
@@ -71,6 +72,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	slitWidthBox_->setDecimals(0);
 	slitWidthBox_->setEnabled(false);
 	applySlitWidthBox_ = new QCheckBox("Slit Width");
+	applySlitWidthBox_->setChecked(configuration_->applySlitWidth());
 
 
 	polarizationBox_ = new QComboBox();
@@ -83,6 +85,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	polarizationBox_->setCurrentIndex(configuration_->polarization());
 	polarizationBox_->setEnabled(false);
 	applyPolarizationBox_ = new QCheckBox("Polarization");
+	applyPolarizationBox_->setChecked(configuration_->applyPolarization());
 
 	polarizationAngleBox_ = new QDoubleSpinBox();
 	polarizationAngleBox_->setDecimals(0);
