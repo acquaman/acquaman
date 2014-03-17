@@ -59,16 +59,16 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 		VESPERS::Motor motor = VESPERS::Motor(AMDatabase::database("user")->retrieve(ids.last(), "VESPERSScanConfigurationDbObject_table", "motor").toInt());
 
-		if (motor & VESPERS::H)
+		if ((motor & VESPERS::H) || (motor & VESPERS::V))
 			motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 
-		else if (motor & VESPERS::X)
+		else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
 			motorGroupView_->setMotorGroupView("Sample Stage - X, Z, Y");
 
-		else if (motor & VESPERS::AttoH)
+		else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
 			motorGroupView_->setMotorGroupView("Attocube Stage - H, V, N");
 
-		else if (motor & VESPERS::AttoX)
+		else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
 			motorGroupView_->setMotorGroupView("Attocube Stage - X, Z, Y");
 
 		else if (motor & VESPERS::AttoRx)
