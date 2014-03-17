@@ -129,8 +129,6 @@ REIXSBeamline::~REIXSBeamline() {
 void REIXSBeamline::setupExposedControls(){
 	addExposedControl(photonSource()->ringCurrent());
 	addExposedControl(photonSource()->energy());
-	addExposedControl(photonSource()->monoGratingSelector());
-	addExposedControl(photonSource()->monoMirrorSelector());
 	addExposedControl(photonSource()->monoSlit());
 	addExposedControl(sampleChamber()->x());
 	addExposedControl(sampleChamber()->y());
@@ -138,13 +136,15 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(sampleChamber()->r());
 	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 	addExposedControl(spectrometer());
-	addExposedControl(spectrometer()->spectrometerRotationDrive());
-	addExposedControl(spectrometer()->detectorTranslation());
-	addExposedControl(spectrometer()->detectorTiltDrive());
 
 
-//	if(QApplication::instance()->arguments().contains("--admin"))
+	if(QApplication::instance()->arguments().contains("--admin"))
 	{
+		addExposedControl(photonSource()->monoGratingSelector());
+		addExposedControl(photonSource()->monoMirrorSelector());
+		addExposedControl(spectrometer()->spectrometerRotationDrive());
+		addExposedControl(spectrometer()->detectorTranslation());
+		addExposedControl(spectrometer()->detectorTiltDrive());
 		addExposedControl(spectrometer()->hexapod()->x());
 		addExposedControl(spectrometer()->hexapod()->y());
 		addExposedControl(spectrometer()->hexapod()->z());
