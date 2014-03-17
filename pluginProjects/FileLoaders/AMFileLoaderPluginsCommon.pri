@@ -5,7 +5,7 @@ HOME_FOLDER = $$system(echo $HOME)
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
 		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
@@ -121,6 +121,13 @@ contains(USERNAME, helfrij){
 
 	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
 
 	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"

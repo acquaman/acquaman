@@ -21,7 +21,7 @@ macx {
 		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
 		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
@@ -236,6 +236,13 @@ contains(USERNAME, helfrij){
 
 	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
