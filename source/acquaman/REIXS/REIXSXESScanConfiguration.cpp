@@ -50,6 +50,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
 
+	userScanName_ = "XES";
 	scanNumber_ = 0;
 	sampleId_ = -1;
 	namedAutomatically_ = true;
@@ -86,6 +87,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 	maximumTotalCounts_ = original.maximumTotalCounts();
 	maximumDurationSeconds_ = original.maximumDurationSeconds();
 
+	userScanName_ = original.userScanName();
 	scanNumber_ = original.scanNumber();
 	sampleId_ = original.sampleId();
 	namedAutomatically_ = original.namedAutomatically();
