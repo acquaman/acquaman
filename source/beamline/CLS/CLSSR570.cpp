@@ -44,8 +44,10 @@ CLSSR570::CLSSR570(const QString &valueName, const QString &unitsName, QObject *
 
 void CLSSR570::onConnectedChanged()
 {
-	if ((value_->isConnected() && units_->isConnected()) != connected_)
+	if ((value_->isConnected() && units_->isConnected()) != connected_){
 		emit connected(connected_ = (value_->isConnected() && units_->isConnected()));
+		onSensitivityChanged();
+	}
 }
 
 void CLSSR570::onValueChanged(int index)
@@ -220,10 +222,12 @@ void CLSSR570::onSensitivityChanged()
 	else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
 		emit maximumSensitivity(atMaximumSensitivity_ = false);
 
-	else if (!atMinimumSensitivity_ && (value_->getInt() == 8 && units_->getString() == "mA/V"))
+	//else if (!atMinimumSensitivity_ && (value_->getInt() == 8 && units_->getString() == "mA/V"))
+	else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
 		emit minimumSensitivity(atMinimumSensitivity_ = true);
 
-	else if (atMinimumSensitivity_ && (value_->getInt() != 8 || units_->getString() != "mA/V"))
+	//else if (atMinimumSensitivity_ && (value_->getInt() != 8 || units_->getString() != "mA/V"))
+	else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
 		emit minimumSensitivity(atMinimumSensitivity_ = false);
 }
 
