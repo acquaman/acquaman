@@ -350,12 +350,16 @@ void SGMSidebar::onVisibleLightClicked(){
 
 		AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
 		if(SGMBeamline::sgm()->gratingVelocity()->value() != 10000){
-			AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(10000);
-			AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, SGMBeamline::gratingVelocity());
+			AMControlInfo gratingControlInfo = SGMBeamline::sgm()->gratingVelocity()->toInfo();
+			gratingControlInfo.setValue(10000);
+			AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(gratingControlInfo);
+			AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, SGMBeamline::sgm()->gratingVelocity());
 			visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
 		}
 
-		AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(1);
+		AMControlInfo visibleLightToggleInfo = SGMBeamline::sgm()->visibleLightToggle()->toInfo();
+		visibleLightToggleInfo.setValue(1);
+		AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(visibleLightToggleInfo);
 		AMControlMoveAction3 *visibleLightToggleAction = new AMControlMoveAction3(visibleLightToggleActionInfo, SGMBeamline::sgm()->visibleLightToggle());
 		visibleLightOnListAction->addSubAction(visibleLightToggleAction);
 
