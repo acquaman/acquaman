@@ -228,7 +228,7 @@ void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(cons
 	if (arg1 == "Pinhole")
 		spectrometer_->gratingMask()->move(8.5);
 	else if (arg1 == "Slit")
-		spectrometer_->gratingMask()->move(12.9);
+		spectrometer_->gratingMask()->move(13);
 	else if (arg1 == "Out")
 		spectrometer_->gratingMask()->move(1.0);
 }
