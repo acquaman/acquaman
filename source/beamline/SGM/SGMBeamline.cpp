@@ -50,6 +50,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "beamline/CLS/CLSSR570.h"
+
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
@@ -133,11 +135,30 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	CLSSR570 *tempSR570;
+
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+
+	tempSR570 = new CLSSR570("Amp1611-4-21:sens_num.VAL", "Amp1611-4-21:sens_unit.VAL", this);
+	scaler_->channelAt(0)->setSR570(tempSR570);
+	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
+
+	tempSR570 = new CLSSR570("Amp1611-4-22:sens_num.VAL", "Amp1611-4-22:sens_unit.VAL", this);
+	scaler_->channelAt(1)->setSR570(tempSR570);
+	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
+
+	tempSR570 = new CLSSR570("Amp1611-4-23:sens_num.VAL", "Amp1611-4-23:sens_unit.VAL", this);
+	scaler_->channelAt(2)->setSR570(tempSR570);
+	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+
+	tempSR570 = new CLSSR570("Amp1611-4-24:sens_num.VAL", "Amp1611-4-24:sens_unit.VAL", this);
+	scaler_->channelAt(3)->setSR570(tempSR570);
+	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");
+
 	scaler_->channelAt(4)->setCustomChannelName("UP");
 	scaler_->channelAt(5)->setCustomChannelName("DOWN");
 	scaler_->channelAt(6)->setCustomChannelName("FPD1");
@@ -1317,6 +1338,7 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(energy_);
 	addExposedControl(masterDwell_);
+	addExposedControl(exitSlitGap_);
 }
 
 void SGMBeamline::setupExposedDetectors(){

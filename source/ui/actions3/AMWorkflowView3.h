@@ -47,6 +47,7 @@ public:
 	AMActionHistoryView3* historyView() { return historyView_; }
 
 signals:
+	void actionAddedFromDialog(AMAction3 *action);
 
 public slots:
 

@@ -48,6 +48,7 @@ class AMDetectorSelector;
 class AMDetectorSelectorView;
 
 class SGMAdvancedMirrorView;
+class AMAction3;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -116,6 +117,8 @@ protected slots:
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
 	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+
+	void onWorkflowActionAddedFromDialog(AMAction3 *action);
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
