@@ -14,12 +14,16 @@ CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minus_, SIGNAL(clicked()), sr570_, SLOT(decreaseSensitivity()));
 	connect(sr570_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
+	if(sr570_->isConnected() && sr570_->atMinimumSensitivity())
+		minus_->setDisabled(true);
 
 	plus_ = new QToolButton;
 	plus_->setMaximumSize(25, 25);
 	plus_->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plus_, SIGNAL(clicked()), sr570_, SLOT(increaseSensitivity()));
 	connect(sr570_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
+	if(sr570_->isConnected() && sr570_->atMaximumSensitivity())
+		plus_->setDisabled(true);
 
 	value_ = new QComboBox;
 	value_->hide();
