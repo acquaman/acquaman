@@ -52,7 +52,35 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
-	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
+
+	QList<int> ids = AMDatabase::database("user")->objectsWhere("VESPERSScanConfigurationDbObject_table");
+
+	if (!ids.isEmpty()){
+
+		VESPERS::Motor motor = VESPERS::Motor(AMDatabase::database("user")->retrieve(ids.last(), "VESPERSScanConfigurationDbObject_table", "motor").toInt());
+
+		if (motor & VESPERS::H)
+			motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
+
+		else if (motor & VESPERS::X)
+			motorGroupView_->setMotorGroupView("Sample Stage - X, Z, Y");
+
+		else if (motor & VESPERS::AttoH)
+			motorGroupView_->setMotorGroupView("Attocube Stage - H, V, N");
+
+		else if (motor & VESPERS::AttoX)
+			motorGroupView_->setMotorGroupView("Attocube Stage - X, Z, Y");
+
+		else if (motor & VESPERS::AttoRx)
+			motorGroupView_->setMotorGroupView("Attocube Stage - Rx");
+
+		else if (motor & VESPERS::AttoRy)
+			motorGroupView_->setMotorGroupView("Attocube Stage - Ry");
+
+		else if (motor & VESPERS::AttoRz)
+			motorGroupView_->setMotorGroupView("Attocube Stage - Rz");
+	}
+
 
 	// PID control view widgets.
 	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
