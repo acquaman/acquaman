@@ -27,6 +27,7 @@ public slots:
 
 protected slots:
 	void onDetectorAcquisitionSucceeded();
+	void onDetectorAcquisitionFailed();
 
 	/// Called when the data values of the detector image change (during a scan)
 	void onNewImageValues();
