@@ -124,6 +124,35 @@ void AMVariableIntegrationTime::setA2(double a2)
 	}
 }
 
+QString AMVariableIntegrationTime::equationString() const
+{
+	switch(equation_){
+
+	case Constant:
+		return "t = a0";
+
+	case Linear:
+		return "t = a0 + a1*k";
+
+	case Quadratic:
+		return "t = a0 + a1*k^2";
+
+	case Geometric:
+		return "t = a0 + a1*k^a2";
+
+	case Exponential:
+		return "t = a0 + a1*exp(a2*k)";
+
+	case Logarithmic:
+		return "t = a0 + a1*log10(|k + a2|)";
+
+	case SmoothStep:
+		return "t = a0 + a1/(1 + exp(-a2*(k - kmax/2)/2))";
+	}
+
+	return "";
+}
+
 double AMVariableIntegrationTime::variableTimeAt(double k) const
 {
 	if (!isValid_ && !computeCoefficients())
@@ -161,7 +190,7 @@ double AMVariableIntegrationTime::variableTimeAt(double k) const
 
 		case Logarithmic:
 
-			time = a0_ + a1_*log(fabs(k + a2_));
+			time = a0_ + a1_*log10(fabs(k + a2_));
 			break;
 
 		case SmoothStep:
@@ -233,14 +262,14 @@ bool AMVariableIntegrationTime::variableTime(double *k) const
 	case Logarithmic:
 
 		for (int k = k0_; k <= kf_; k++)
-			variableTimes_.insert(k, a0_ + a1_*log(fabs(k + a2_)));
+			variableTimes_.insert(k, a0_ + a1_*log10(fabs(k + a2_)));
 
 		break;
 
 	case SmoothStep:
 
 		for (int k = k0_; k <= kf_; k++)
-			variableTimes_.insert(k, a0_ + a1_/(1 + exp(-1.0*a2_*k)));
+			variableTimes_.insert(k, a0_ + a1_/(1 + exp(-1.0*a2_*(k - kf_/2)/2)));
 
 		break;
 	}
@@ -295,14 +324,14 @@ bool AMVariableIntegrationTime::computeCoefficients() const
 
 		case Logarithmic:
 
-			k0Calculated = log(fabs(k0_ + a2_));
-			kfCalculated = log(fabs(kf_ + a2_));
+			k0Calculated = log10(fabs(k0_ + a2_));
+			kfCalculated = log10(fabs(kf_ + a2_));
 			break;
 
 		case SmoothStep:
 
-			k0Calculated = 1/(1 + exp(-1.0*a2_*k0_));
-			kfCalculated = 1/(1 + exp(-1.0*a2_*kf_));
+			k0Calculated = 1/(1 + exp(-1.0*a2_*(k0_ - kf_/2)/2));
+			kfCalculated = 1/(1 + exp(-1.0*a2_*(kf_ - kf_/2)/2));
 			break;
 		}
 

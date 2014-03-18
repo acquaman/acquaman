@@ -2,6 +2,7 @@
 #define AMVARIABLEINTEGRATIONTIME_H
 
 #include <QMap>
+#include <QString>
 
 /// This class computes the appropriate dwell time, given an equation and min/max values.
 class AMVariableIntegrationTime
@@ -31,6 +32,8 @@ public:
 
 	/// Returns the current equation.
 	Equation equation() const { return equation_; }
+	/// Returns the current equation as a string.
+	QString equationString() const;
 	/// Returns the intial time.
 	double t0() const { return t0_; }
 	/// Returns the final time.
