@@ -8,9 +8,10 @@ TARGET = BioXASShutterTool
 TEMPLATE = app
 
 
-SOURCES += source/BioXASShutterTool/main.cpp \
+SOURCES += \
 	source/BioXASShutterTool/MainWindow.cpp \
-	source/BioXASShutterTool/Model.cpp
+	source/BioXASShutterTool/Model.cpp \
+    source/BioXASShutterTool/BioXASShutterToolMain.cpp
 
 HEADERS  += source/BioXASShutterTool/MainWindow.h \
 	source/BioXASShutterTool/Model.h

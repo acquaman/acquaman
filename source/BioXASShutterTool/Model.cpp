@@ -3,12 +3,15 @@
 
 Model::Model(QObject *parent) : QObject(parent)
 {
-    controlEnabledStatus_ = 0;
+    // the pvs we will be connecting to.
+    aodShutterControl_ = 0;
     safetyShutter_ = 0;
     photonShutter_ = 0;
 
-    automaticControlOn_ = false;
+    // the application status: will shutters automatically open when AOD enables shutter control?
+    automaticShuttersOpen_ = false;
 
+    // the actions responsible for physically opening and closing the shutters.
     openAction_ = 0;
     closeAction_ = 0;
 
@@ -18,14 +21,19 @@ Model::Model(QObject *parent) : QObject(parent)
 
 
 
-bool Model::isConnected()
+bool Model::aodShutterControlConnected()
 {
-    if (controlEnabledStatus_->isConnected() && safetyShutter_->isConnected() && photonShutter_->isConnected()) {
-        return true;
+    return aodShutterControl_->isConnected();
+}
 
-    } else {
+
+
+bool Model::shuttersConnected()
+{
+    if (safetyShutter_->isConnected() && photonShutter_->isConnected())
+        return true;
+    else
         return false;
-    }
 }
 
 
@@ -79,19 +87,24 @@ void Model::closeShutters()
 
 
 
-void Model::setAutomaticControl(bool controlOn)
+void Model::setAutomaticShuttersOpen(bool enabled)
 {
-    automaticControlOn_ = controlOn;
+    automaticShuttersOpen_ = enabled;
+
+    if (enabled)
+        qDebug() << "Model :: automatic shutters open feature is enabled.";
+    else
+        qDebug() << "Model :: automatic shutters open feature is disabled.";
 }
 
 
 
-void Model::onShutterControlEnabledConnected(bool isConnected)
+void Model::onAODShutterControlConnected(bool isConnected)
 {
     if (isConnected) {
-        qDebug() << "Model :: Connected to beamlines enabled/disabled pv.";
+        qDebug() << "Model :: Connected to AOD shutters enabled/disabled pv.";
     } else {
-        qDebug() << "Model :: Disconnected from the beamlines enabled/disabled pv.";
+        qDebug() << "Model :: Disconnected from AOD shutters enabled/disabled pv.";
     }
 
     connectedCheck();
@@ -99,15 +112,22 @@ void Model::onShutterControlEnabledConnected(bool isConnected)
 
 
 
-void Model::onShutterControlEnabledValueChanged(double controlPVState)
+void Model::onAODShutterControlValueChanged(double enabledState)
 {
-    if (controlPVState == Model::Enabled && automaticControlOn_) {
-        qDebug() << "Model :: Beamline control of shutters is enabled.";
-        openShutters();
+    // if beamline control of shutters is enabled and the automatic open feature is enabled, open the beamline shutters.
+    if (enabledState == Model::Enabled) {
+        qDebug() << "Model :: Beamline control of shutters is enabled (likely after injection).";
+        emit postInjectionControlsEnabled();
+
+        if (automaticShuttersOpen_)
+            openShutters();
+
+    } else if (enabledState == Model::Disabled) {
+        qDebug() << "Model :: Beamline control of shutters is disabled (likely for injection?).";
+        emit preInjectionControlsDisabled();
 
     } else {
-        qDebug() << "Model :: Beamline control of shutters is disabled.";
-
+        qDebug() << "Model :: Beamline control of shutters is in an unknown state. (!!)";
     }
 }
 
@@ -129,7 +149,13 @@ void Model::onSafetyShutterConnected(bool isConnected)
 
 void Model::onSafetyShutterStateChanged(int newState)
 {
-    qDebug() << "Model :: Safety shutter in state " << newState;
+    if (newState == Model::Open)
+        qDebug() << "Model :: Safety shutter is open.";
+    else if (newState == Model::Closed)
+        qDebug() << "Model :: Safety shutter is closed.";
+    else
+        qDebug() << "Model :: Safety shutter is in an unknown state. (!!)";
+
     shutterStateCheck();
 }
 
@@ -151,7 +177,13 @@ void Model::onPhotonShutterConnected(bool isConnected)
 
 void Model::onPhotonShutterStateChanged(int newState)
 {
-    qDebug() << "Model :: Photon shutter is in state " << newState;
+    if (newState == Model::Open)
+        qDebug() << "Model :: Photon shutter is open.";
+    else if (newState == Model::Closed)
+        qDebug() << "Model :: Photon shutter is closed.";
+    else
+        qDebug() << "Model :: Photon shutter is in an unknown state. (!!)";
+
     shutterStateCheck();
 }
 
@@ -193,7 +225,7 @@ void Model::onErrorReported(const QString &errorInfo)
 
 void Model::createComponents()
 {
-    controlEnabledStatus_ = new AMReadOnlyPVControl("SRStatus:shutters", "SRStatus:shutters", this);
+    aodShutterControl_ = new AMReadOnlyPVControl("SRStatus:shutters", "SRStatus:shutters", this);
     safetyShutter_ = new CLSBiStateControl("safety shutter", "safety shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
     photonShutter_ = new CLSBiStateControl("photon shutter", "photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 }
@@ -202,9 +234,9 @@ void Model::createComponents()
 
 void Model::makeConnections()
 {
-    connect( controlEnabledStatus_, SIGNAL(connected(bool)), this, SLOT(onShutterControlEnabledConnected(bool)) );
-    connect( controlEnabledStatus_, SIGNAL(valueChanged(double)), this, SLOT(onShutterControlEnabledValueChanged(double)) );
-    connect( controlEnabledStatus_, SIGNAL(error(QString)), this, SLOT(onErrorReported(QString)) );
+    connect( aodShutterControl_, SIGNAL(connected(bool)), this, SLOT(onAODShutterControlConnected(bool)) );
+    connect( aodShutterControl_, SIGNAL(valueChanged(double)), this, SLOT(onAODShutterControlValueChanged(double)) );
+    connect( aodShutterControl_, SIGNAL(error(QString)), this, SLOT(onErrorReported(QString)) );
 
     connect( safetyShutter_, SIGNAL(connected(bool)), this, SLOT(onSafetyShutterConnected(bool)) );
     connect( safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onSafetyShutterStateChanged(int)) );
@@ -219,13 +251,17 @@ void Model::makeConnections()
 
 void Model::connectedCheck()
 {
-    if (controlEnabledStatus_->isConnected() && safetyShutter_->isConnected() && photonShutter_->isConnected()) {
-        emit connected(true);
-        shutterStateCheck();
+    // check that we are connected to the aod pv for telling us beamline shutter controls are en/disabled.
+    if (aodShutterControl_->isConnected())
+        emit aodShutterControlConnected(true);
+    else
+        emit aodShutterControlConnected(false);
 
-    } else {
-        emit connected(false);
-    }
+    // check that we are connected to the appropriate shutter control pvs.
+    if (safetyShutter_->isConnected() && photonShutter_->isConnected())
+        emit shuttersConnected(true);
+    else
+        emit shuttersConnected(false);
 }
 
 

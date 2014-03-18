@@ -25,14 +25,18 @@ public:
     explicit Model(QObject *parent = 0);
 
 signals:
-    void connected(bool isConnected);
+    void aodShutterControlConnected(bool isConnected);
+    void preInjectionControlsDisabled();
+    void postInjectionControlsEnabled();
+    void shuttersConnected(bool areConnected);
     void shuttersOpen();
     void shuttersClosed();
     void shuttersBetween();
     void errorReported();
 
 public:
-    bool isConnected();
+    bool aodShutterControlConnected();
+    bool shuttersConnected();
     bool isOpen();
     bool isClosed();
     bool isBetween();
@@ -40,11 +44,11 @@ public:
 public slots:
     void openShutters();
     void closeShutters();
-    void setAutomaticControl(bool controlOn);
+    void setAutomaticShuttersOpen(bool enabled);
 
 protected slots:
-    void onShutterControlEnabledConnected(bool isConnected);
-    void onShutterControlEnabledValueChanged(double controlPVState);
+    void onAODShutterControlConnected(bool isConnected);
+    void onAODShutterControlValueChanged(double controlPVState);
 
     void onSafetyShutterConnected(bool isConnected);
     void onSafetyShutterStateChanged(int newState);
@@ -65,10 +69,10 @@ private:
     AMAction3* createCloseShuttersAction();
 
 private:
-    AMReadOnlyPVControl* controlEnabledStatus_;
+    AMReadOnlyPVControl* aodShutterControl_;
     CLSBiStateControl* safetyShutter_;
     CLSBiStateControl* photonShutter_;
-    bool automaticControlOn_;
+    bool automaticShuttersOpen_;
     AMAction3* openAction_;
     AMAction3* closeAction_;
 

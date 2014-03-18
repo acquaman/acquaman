@@ -6,26 +6,19 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     model_ = 0;
-    mainLayout_ = new QVBoxLayout();
+    mainLayout_ = 0;
 
     appStatusLabel_ = 0;
-    enableButton_ = 0;
-    enableButton_ = 0;
+    enableAutomaticShuttersOpenButton_ = 0;
+    enableAutomaticShuttersOpenButton_ = 0;
 
-    shuttersStatus_ = 0;
-    openButton_ = 0;
-    closeButton_ = 0;
+    shuttersStatusLabel_ = 0;
+    openShuttersButton_ = 0;
+    closeShuttersButton_ = 0;
 
     createComponents();
+    defaultSettings();
     makeConnections();
-
-    QGroupBox *mainWidget = new QGroupBox();
-    mainWidget->setLayout(mainLayout_);
-
-    setWindowTitle("Shutter Tool");
-    setCentralWidget(mainWidget);
-
-    turnAutomaticShutterControlOff();
 }
 
 
@@ -46,6 +39,7 @@ Model* MainWindow::model()
 
 void MainWindow::onEnableButtonClicked()
 {
+    qDebug() << "MainWindow :: enable button clicked.";
     turnAutomaticShutterControlOn();
 }
 
@@ -72,37 +66,67 @@ void MainWindow::onCloseButtonClicked()
 
 
 
-void MainWindow::onModelConnected(bool isConnected)
-{
-    if (isConnected) {
-        enableButton_->setEnabled(true);
-        turnAutomaticShutterControlOn();
-
-    } else {
-        enableButton_->setEnabled(false);
-        turnAutomaticShutterControlOff();
-    }
-}
-
-
-
 void MainWindow::onModelOpened()
 {
-    shuttersStatus_->setText("Shutters are open.");
+    shuttersStatusLabel_->setText("Shutters are open.");
 }
 
 
 
 void MainWindow::onModelClosed()
 {
-    shuttersStatus_->setText("Shutters are closed.");
+    shuttersStatusLabel_->setText("Shutters are closed.");
 }
 
 
 
 void MainWindow::onModelBetween()
 {
-    shuttersStatus_->setText("Shutters are between.");
+    shuttersStatusLabel_->setText("Shutters are between.");
+}
+
+
+
+void MainWindow::enableAutomaticShuttersOpenGUI(bool enabled)
+{
+    enableAutomaticShuttersOpenButton_->setEnabled(enabled);
+
+    if (enabled) {
+        qDebug() << "MainWindow :: automatic shutters open gui is enabled.";
+
+    } else {
+        qDebug() << "MainWindow :: automatic shutters open gui is disabled.";
+    }
+}
+
+
+
+void MainWindow::enableShutterControlGUI(bool enabled)
+{
+    openShuttersButton_->setEnabled(enabled);
+    closeShuttersButton_->setEnabled(enabled);
+
+    if (enabled)
+        qDebug() << "MainWindow :: shutter control gui is enabled.";
+    else
+        qDebug() << "MainWindow :: shutter control gui is disabled.";
+}
+
+
+
+void MainWindow::onInjection()
+{
+    enableShutterControlGUI(false);
+}
+
+
+
+void MainWindow::onPostInjection()
+{
+    if (model()->shuttersConnected())
+        enableShutterControlGUI(true);
+    else
+        enableShutterControlGUI(false);
 }
 
 
@@ -110,6 +134,7 @@ void MainWindow::onModelBetween()
 void MainWindow::createComponents()
 {
     model_ = new Model(this);
+    mainLayout_ = new QVBoxLayout();
 
     // create gui -- allow user to turn on and off automatic shutter control
     QWidget *appStatusDisplay = createAppStatusDisplay();
@@ -123,15 +148,51 @@ void MainWindow::createComponents()
 
 
 
+void MainWindow::makeConnections()
+{
+    connect( model(), SIGNAL(aodShutterControlConnected(bool)), this, SLOT(enableAutomaticShuttersOpenGUI(bool)) );
+    connect( model(), SIGNAL(shuttersConnected(bool)), this, SLOT(enableShutterControlGUI(bool)) );
+    connect( model(), SIGNAL(preInjectionControlsDisabled()), this, SLOT(onInjection()) );
+    connect( model(), SIGNAL(postInjectionControlsEnabled()), this, SLOT(onPostInjection()) );
+
+    connect( enableAutomaticShuttersOpenButton_, SIGNAL(clicked()), this, SLOT(onEnableButtonClicked()) );
+    connect( disableAutomaticShuttersOpenButton_, SIGNAL(clicked()), this, SLOT(onDisableButtonClicked()) );
+
+    connect( openShuttersButton_, SIGNAL(clicked()), this, SLOT(onOpenButtonClicked()) );
+    connect( closeShuttersButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()) );
+
+    connect( model(), SIGNAL(shuttersOpen()), this, SLOT(onModelOpened()) );
+    connect( model(), SIGNAL(shuttersClosed()), this, SLOT(onModelClosed()) );
+    connect( model(), SIGNAL(shuttersBetween()), this, SLOT(onModelBetween()) );
+}
+
+
+
+void MainWindow::defaultSettings()
+{
+    QGroupBox *mainWidget = new QGroupBox();
+    mainWidget->setLayout(mainLayout_);
+
+    setWindowTitle("Shutter Tool");
+    setCentralWidget(mainWidget);
+
+    enableAutomaticShuttersOpenGUI(false);
+    enableShutterControlGUI(false);
+
+    turnAutomaticShutterControlOff();
+}
+
+
+
 QWidget* MainWindow::createAppStatusDisplay()
 {
     appStatusLabel_ = new QLabel();
-    enableButton_ = new QPushButton("Enable");
-    disableButton_ = new QPushButton("Disable");
+    enableAutomaticShuttersOpenButton_ = new QPushButton("Enable");
+    disableAutomaticShuttersOpenButton_ = new QPushButton("Disable");
 
     QHBoxLayout *onOffButtons = new QHBoxLayout();
-    onOffButtons->addWidget(enableButton_);
-    onOffButtons->addWidget(disableButton_);
+    onOffButtons->addWidget(enableAutomaticShuttersOpenButton_);
+    onOffButtons->addWidget(disableAutomaticShuttersOpenButton_);
 
     QVBoxLayout *appStatusLayout = new QVBoxLayout();
     appStatusLayout->addWidget(appStatusLabel_);
@@ -147,17 +208,17 @@ QWidget* MainWindow::createAppStatusDisplay()
 
 QWidget* MainWindow::createShutterDisplay()
 {
-    shuttersStatus_ = new QLabel("---");
+    shuttersStatusLabel_ = new QLabel("Shutters are ---");
 
     QVBoxLayout *statusDisplayLayout = new QVBoxLayout();
-    statusDisplayLayout->addWidget(shuttersStatus_);
+    statusDisplayLayout->addWidget(shuttersStatusLabel_);
 
-    openButton_ = new QPushButton("Open");
-    closeButton_ = new QPushButton("Close");
+    openShuttersButton_ = new QPushButton("Open");
+    closeShuttersButton_ = new QPushButton("Close");
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(openButton_);
-    buttonLayout->addWidget(closeButton_);
+    buttonLayout->addWidget(openShuttersButton_);
+    buttonLayout->addWidget(closeShuttersButton_);
 
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->addLayout(statusDisplayLayout);
@@ -171,41 +232,16 @@ QWidget* MainWindow::createShutterDisplay()
 
 
 
-void MainWindow::makeConnections()
-{
-    connect( enableButton_, SIGNAL(clicked()), this, SLOT(onEnableButtonClicked()) );
-    connect( disableButton_, SIGNAL(clicked()), this, SLOT(onDisableButtonClicked()) );
-
-    connect( openButton_, SIGNAL(clicked()), this, SLOT(onOpenButtonClicked()) );
-    connect( closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()) );
-
-    connect( model(), SIGNAL(connected(bool)), this, SLOT(onModelConnected(bool)) );
-    connect( model(), SIGNAL(shuttersOpen()), this, SLOT(onModelOpened()) );
-    connect( model(), SIGNAL(shuttersClosed()), this, SLOT(onModelClosed()) );
-    connect( model(), SIGNAL(shuttersBetween()), this, SLOT(onModelBetween()) );
-}
-
-
-
 void MainWindow::turnAutomaticShutterControlOn()
 {
-    model()->setAutomaticControl(true);
-
+    model()->setAutomaticShuttersOpen(true);
     appStatusLabel_->setText("Automatic shutter control is enabled.");
-
-    enableButton_->setEnabled(true);
-    openButton_->setEnabled(true);
-    closeButton_->setEnabled(true);
 }
 
 
 
 void MainWindow::turnAutomaticShutterControlOff()
 {
-    model()->setAutomaticControl(false);
-
+    model()->setAutomaticShuttersOpen(false);
     appStatusLabel_->setText("Automatic shutter control is disabled.");
-
-    openButton_->setEnabled(false);
-    closeButton_->setEnabled(false);
 }

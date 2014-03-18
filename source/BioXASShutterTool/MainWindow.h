@@ -29,16 +29,23 @@ protected slots:
     void onOpenButtonClicked();
     void onCloseButtonClicked();
 
-    void onModelConnected(bool isConnected);
     void onModelOpened();
     void onModelClosed();
     void onModelBetween();
 
+    void enableAutomaticShuttersOpenGUI(bool enabled);
+    void enableShutterControlGUI(bool enabled);
+
+    void onInjection();
+    void onPostInjection();
+
 private:
     void createComponents();
+    void makeConnections();
+    void defaultSettings();
+
     QWidget* createAppStatusDisplay();
     QWidget* createShutterDisplay();
-    void makeConnections();
     void turnAutomaticShutterControlOn();
     void turnAutomaticShutterControlOff();
 
@@ -47,12 +54,12 @@ private:
     QVBoxLayout *mainLayout_;
 
     QLabel *appStatusLabel_;
-    QPushButton *enableButton_;
-    QPushButton *disableButton_;
+    QPushButton *enableAutomaticShuttersOpenButton_;
+    QPushButton *disableAutomaticShuttersOpenButton_;
 
-    QLabel *shuttersStatus_;
-    QPushButton *openButton_;
-    QPushButton *closeButton_;
+    QLabel *shuttersStatusLabel_;
+    QPushButton *openShuttersButton_;
+    QPushButton *closeShuttersButton_;
 };
 
 #endif // MAINWINDOW_H
