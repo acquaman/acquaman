@@ -47,8 +47,11 @@ protected slots:
     void toImportVariables();
     void toExportVariables(StripToolVariableInfo* toExport);
     void toEditListItem(const QModelIndex &listItem);
+    void toRemoveListItem(const QModelIndex &listItem);
+    void toDeleteListItem(const QModelIndex &listItem);
     void onModelVariableCheckStateChanged(const QModelIndex &index);
     void addVariableToModel(const QString &name);
+    void onTimeUnitsChanged(TimeEntryWidget::TimeUnits units);
 
 private:
     void buildComponents();

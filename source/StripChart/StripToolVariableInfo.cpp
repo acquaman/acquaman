@@ -198,7 +198,7 @@ int StripToolVariableInfo::timeAmount() const
 
 
 
-QString StripToolVariableInfo::timeUnits() const
+TimeEntryWidget::TimeUnits StripToolVariableInfo::timeUnits() const
 {
     return timeUnits_;
 }
@@ -208,25 +208,66 @@ QString StripToolVariableInfo::timeUnits() const
 int StripToolVariableInfo::displayedTimeMS() const
 {
     // want to return the number of milliseconds of data to display at a given time.
-    // this is a function of the current amount and units.
+    // this is a function of the current time amount and units.
 
     int displayedTime;
 
-    if (timeUnits_ == "sec") {
-        displayedTime = timeAmount_ * 1000;
+    switch (timeUnits_) {
+    case (TimeEntryWidget::Seconds) :
+        displayedTime = timeAmount_ * 1000.0;
+        break;
 
-    } else if (timeUnits_ == "min") {
-        displayedTime = timeAmount_ * 60 * 1000;
+    case (TimeEntryWidget::Minutes) :
+        displayedTime = timeAmount_ * 1000.0 * 60 * 60;
+        break;
 
-    } else if (timeUnits_ == "hr") {
-        displayedTime = timeAmount_ * 60 * 60 * 1000;
+    case (TimeEntryWidget::Hours) :
+        displayedTime = timeAmount_ * 1000.0 * 60 * 60;
+        break;
 
-    } else {
-        qDebug() << "StripToolVariableInfo :: unable to identify an appropriate display time from amount " << timeAmount_ << " and units " << timeUnits_ << ".";
-        displayedTime = -1;
+    default:
+        displayedTime = 0;
+        qDebug() << "StripToolVariableInfo::displayedTimeMS() : unknown units encountered!! Setting displayed time to zero.";
+        break;
     }
 
     return displayedTime;
+}
+
+
+
+double StripToolVariableInfo::timeMSToTimeUnits(int measurementTimeMS) const
+{
+    // want to take a value in milliseconds and return a 'proper' time--original value converted into timeUnits_.
+    double properTime;
+
+    switch (timeUnits_) {
+    case (TimeEntryWidget::Seconds) :
+        properTime = measurementTimeMS / 1000.0;
+        break;
+
+    case (TimeEntryWidget::Minutes) :
+        properTime = measurementTimeMS / 1000.0 / 60;
+        break;
+
+    case (TimeEntryWidget::Hours) :
+        properTime = measurementTimeMS / 1000.0 / 60 / 60;
+        break;
+
+    default:
+        properTime = 0;
+        qDebug() << "StripToolVariableInfo::timeMSToTimeUnits(...) : unknown units encountered!! Setting proper time to zero.";
+        break;
+    }
+
+    return properTime;
+}
+
+
+
+bool StripToolVariableInfo::importAutomatically() const
+{
+    return importAutomatically_;
 }
 
 
@@ -387,9 +428,16 @@ void StripToolVariableInfo::setTimeAmount(int newTime)
 
 
 
-void StripToolVariableInfo::setTimeUnits(const QString &newUnits)
+void StripToolVariableInfo::setTimeUnits(TimeEntryWidget::TimeUnits units)
 {
-    timeUnits_ = newUnits;
+    timeUnits_ = units;
+}
+
+
+
+void StripToolVariableInfo::setToImportAutomatically(const bool import)
+{
+    importAutomatically_ = import;
 }
 
 
@@ -424,4 +472,5 @@ void StripToolVariableInfo::defaultSettings()
     setColor(QColor(Qt::red));
     setSelectionState(false);
     setCheckState(Qt::Unchecked);
+    setToImportAutomatically(true);
 }

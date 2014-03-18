@@ -8,6 +8,8 @@
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
+#include "StripChart/TimeEntryWidget.h"
+
 
 class StripToolVariableInfo : public QObject
 {
@@ -58,8 +60,10 @@ public:
     bool selectionState() const;
     Qt::CheckState checkState() const;
     int timeAmount() const;
-    QString timeUnits() const;
+    TimeEntryWidget::TimeUnits timeUnits() const;
     int displayedTimeMS() const;
+    double timeMSToTimeUnits(int measurementTimeMS) const;
+    bool importAutomatically() const;
 
 public slots:
     void setName(const QString &sourceName);
@@ -72,7 +76,8 @@ public slots:
     void setSelectionState(const bool isSelected);
     void setCheckState(Qt::CheckState checked);
     void setTimeAmount(int newTime);
-    void setTimeUnits(const QString &newUnits);
+    void setTimeUnits(TimeEntryWidget::TimeUnits units);
+    void setToImportAutomatically(const bool import);
 
 protected slots:
     void onDataSourceValueUpdate(const AMnDIndex &start, const AMnDIndex &end);
@@ -91,8 +96,8 @@ private:
     bool selectionState_;
     Qt::CheckState checkState_;
     int timeAmount_;
-    QString timeUnits_;
-
+    TimeEntryWidget::TimeUnits timeUnits_;
+    bool importAutomatically_;
 
     bool hasName_;
     bool hasDataSource_;

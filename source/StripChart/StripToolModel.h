@@ -4,13 +4,10 @@
 #include <QAbstractListModel>
 #include <QDebug>
 
-#include "StripChart/EditPVDialog.h"
-#include "StripChart/StripToolPV.h"
 #include "StripChart/StripToolVariableInfo.h"
 #include "StripChart/StripToolVariable.h"
+#include "StripChart/TimeEntryWidget.h"
 
-
-class StripTool0DVariableInfo;
 
 /// This class keeps track of all of the application's stored information. Each time a pv is created, the model creates an instance of StripToolPV and adds it to a QList. It carries out any changes the user makes to a particular pv and notifies views of the changes: plot and listview. Through the StripToolDataController, it also writes pv information to file so that pvs can be optionally reloaded when the application starts up again.
 
@@ -57,13 +54,15 @@ public slots:
     bool addVariable(StripToolVariable *variable);
     bool addVariable(StripToolVariableInfo *infoSource);
 
-    bool removeVariable(StripToolVariable *variable);
+//    bool removeVariable(StripToolVariable *variable);
+    bool removeVariable(const QModelIndex &index);
     bool deleteVariable(StripToolVariable *variable);
     void setSelectedVariable(StripToolVariable *newSelection);
 
     void enableWaterfall(bool isEnabled);
     void changeDisplayedTimeAmount(int amount);
-    void changeDisplayedTimeUnits(const QString &units);
+//    void changeDisplayedTimeUnits(const QString &units);
+    void changeDisplayedTimeUnits(TimeEntryWidget::TimeUnits units);
 
 protected:
     /// Returns the item flags for the entry at the given index.

@@ -7,26 +7,29 @@
 class TimeEntryWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     enum TimeUnits { Seconds = 0,
                      Minutes,
                      Hours
                    };
-
     explicit TimeEntryWidget(QWidget *parent = 0);
     ~TimeEntryWidget();
 
 signals:
     void timeAmountChanged(int newAmount);
-    void timeUnitsChanged(int newUnitIndex);
+    void timeUnitsChanged(TimeEntryWidget::TimeUnits newUnits);
 
 public:
     int timeAmount() const;
-    QString timeUnits() const;
+    TimeEntryWidget::TimeUnits timeUnits() const;
 
 public slots:
     void setTimeAmount(int amount);
-    void setTimeUnits(const QString &units);
+    void setTimeUnits(TimeEntryWidget::TimeUnits newUnits);
+
+protected slots:
+    void onTimeUnitsChanged(int newUnitsIndex);
 
 private:
     void buildComponents();

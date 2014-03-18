@@ -180,7 +180,10 @@ void StripTool::onModelSelectionChanged() {
 
 
 
-void StripTool::onPlotSelectionChanged(MPlotItem* plotSelection) {
+void StripTool::onPlotSelectionChanged(MPlotItem* plotSelection)
+{
+    qDebug() << "StripTool::onPlotSelectionChanged(MPlotItem*) : selection change from plot detected. Preparing to update model selection to reflect change.";
+
     // update the model's selection.
     StripToolVariable *newSelection = model()->findVariable(plotSelection);
     model()->setSelectedVariable(newSelection);
@@ -189,7 +192,8 @@ void StripTool::onPlotSelectionChanged(MPlotItem* plotSelection) {
 
 
 
-void StripTool::onListSelectionChanged (const QModelIndex &listSelection) {
+void StripTool::onListSelectionChanged (const QModelIndex &listSelection)
+{
     // update the model's selection.
     StripToolVariable *newSelection = model()->findVariable(listSelection);
     model()->setSelectedVariable(newSelection);
@@ -197,7 +201,8 @@ void StripTool::onListSelectionChanged (const QModelIndex &listSelection) {
 
 
 
-void StripTool::onModelSelectionInfoChanged() {
+void StripTool::onModelSelectionInfoChanged()
+{
     StripToolVariableInfo *changedInfo = model()->selectedVariable()->info();
 
 //    qDebug() << "StripTool::onModelSelectionInfoChanged() : variable info to export to file : " << changedInfo->name();
@@ -226,9 +231,28 @@ void StripTool::toExportVariables(StripToolVariableInfo *toExport)
 
 
 
-void StripTool::toEditListItem(const QModelIndex &listItem) {
+void StripTool::toEditListItem(const QModelIndex &listItem)
+{
     editor_->editInfo( model()->findVariable(listItem)->info() );
     qDebug() << "StripTool :: editing complete.";
+}
+
+
+
+void StripTool::toRemoveListItem(const QModelIndex &listItem)
+{
+//    StripToolVariable *toRemove = model()->findVariable(listItem);
+    model()->removeVariable(listItem);
+    qDebug() << "StripTool :: remove complete.";
+}
+
+
+
+void StripTool::toDeleteListItem(const QModelIndex &listItem)
+{
+    StripToolVariable *toDelete = model()->findVariable(listItem);
+    model()->deleteVariable(toDelete);
+    qDebug() << "StripTool :: delete complete.";
 }
 
 
@@ -265,6 +289,35 @@ void StripTool::addVariableToModel(const QString &name)
 
 
 
+void StripTool::onTimeUnitsChanged(TimeEntryWidget::TimeUnits units)
+{
+    QString newUnits;
+    model()->changeDisplayedTimeUnits(units);
+
+    switch (units) {
+    case (TimeEntryWidget::Seconds) :
+        newUnits = "sec";
+        break;
+
+    case (TimeEntryWidget::Minutes) :
+        newUnits = "min";
+        break;
+
+    case (TimeEntryWidget::Hours) :
+        newUnits = "hr";
+        break;
+
+    default:
+        newUnits = "???";
+        qDebug() << "StripTool::onTimeUnitsChanged(int) : unknown units encountered!!";
+        break;
+    }
+
+    mainView()->plotView()->setBottomAxisName("Time [" + newUnits + "]");
+}
+
+
+
 void StripTool::buildComponents() {
     model_ = new StripToolModel(this);
     mainView_ = new StripToolView(this);
@@ -288,9 +341,12 @@ void StripTool::makeConnections() {
     connect( mainView()->nameEntry(), SIGNAL(entryComplete(QString)), this, SLOT(addVariableToModel(QString)) );
     connect( mainView()->waterfallEntry(), SIGNAL(waterfallOn(bool)), model(), SLOT(enableWaterfall(bool)) );
     connect( mainView()->timeEntry(), SIGNAL(timeAmountChanged(int)), model(), SLOT(changeDisplayedTimeAmount(int)) );
-    connect( mainView()->timeEntry(), SIGNAL(timeUnitsChanged(QString)), model(), SLOT(changeDisplayedTimeUnits(QString)) );
+    connect( mainView()->timeEntry(), SIGNAL(timeUnitsChanged(TimeEntryWidget::TimeUnits)), this, SLOT(onTimeUnitsChanged(TimeEntryWidget::TimeUnits)) );
+
     connect( mainView()->plotView(), SIGNAL(selectionChanged(MPlotItem*)), this, SLOT(onPlotSelectionChanged(MPlotItem*)) );
     connect( mainView()->listView(), SIGNAL(itemToEdit(QModelIndex)), this, SLOT(toEditListItem(QModelIndex)) );
+    connect( mainView()->listView(), SIGNAL(itemToRemove(QModelIndex)), this, SLOT(toRemoveListItem(QModelIndex)) );
+    connect( mainView()->listView(), SIGNAL(itemToDelete(QModelIndex)), this, SLOT(toDeleteListItem(QModelIndex)) );
     connect( mainView()->listView(), SIGNAL(clicked(QModelIndex)), this, SLOT(onListSelectionChanged(QModelIndex)) );
 
     connect( importer(), SIGNAL(importedInfo(StripToolVariableInfo*)), model(), SLOT(addVariable(StripToolVariableInfo*)) );
@@ -298,11 +354,14 @@ void StripTool::makeConnections() {
 
 
 
-void StripTool::defaultSettings() {    
+void StripTool::defaultSettings() {
+    mainView()->listView()->setModel(model());
+
     mainView()->plotView()->setBottomAxisName("Time []");
     mainView()->plotView()->setLeftAxisName("");
 
-    mainView()->listView()->setModel(model());
+    mainView()->timeEntry()->setTimeAmount(10);
+    mainView()->timeEntry()->setTimeUnits(TimeEntryWidget::Seconds);
 
     importer()->setImportDirectory(infoImportDirectory());
     exporter()->setExportDirectory(infoExportDirectory());

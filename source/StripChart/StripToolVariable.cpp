@@ -176,11 +176,11 @@ void StripToolVariable::updateDisplayValues()
 
             // we want to ignore 'filler' values that don't represent actual measurements.
             if (measurementTime != QTime()) {
-                double displayTime = latestTime.msecsTo(measurementTime);
+                double displayTimeMS = latestTime.msecsTo(measurementTime);
 
                 // if the display time falls within the range we'd like to see on the plot, add the time and value to the display vectors.
-                if (qAbs(displayTime) <= qAbs(info()->displayedTimeMS())) {
-                    displayedTimes.prepend(displayTime);
+                if (qAbs(displayTimeMS) <= qAbs(info()->displayedTimeMS())) {
+                    displayedTimes.prepend(info()->timeMSToTimeUnits(displayTimeMS)); // convert the millisecond time to amount considering current units.
                     displayedValues.prepend(measurement);
 
                 } else {

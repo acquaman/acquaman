@@ -30,7 +30,9 @@ void StripToolVariableInfoImporter::importInfos() {
 
     foreach (QString file, filesToAdd) {
         StripToolVariableInfo* variableInfo = loadInfoFromFile(file);
-        emit importedInfo(variableInfo);
+
+        if (variableInfo->importAutomatically())
+            emit importedInfo(variableInfo);
     }
 }
 

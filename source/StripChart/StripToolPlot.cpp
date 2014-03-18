@@ -168,16 +168,20 @@ void StripToolPlot::setWaterfall(bool waterfallOn)
 
 void StripToolPlot::onSelectionChange()
 {
-    if (selector_->selectedItem() == 0) {
+    MPlotItem *newSelection = selector_->selectedItem();
+
+    if (newSelection == 0) {
+        qDebug() << "StripToolPlot::onSelectionChange() : item was just deselected.";
         plot_->axisLeft()->showTickLabels(false);
         plot_->axisLeft()->showAxisName(false);
+        emit selectionChanged(0);
 
     } else {
+        qDebug() << "StripToolPlot::onSelectionChange() : item was just selected.";
         plot_->axisLeft()->showTickLabels(true);
         plot_->axisLeft()->showAxisName(true);
+        emit selectionChanged(newSelection);
     }
-
-    emit selectionChanged(selector_->selectedItem());
 }
 
 
@@ -199,6 +203,7 @@ void StripToolPlot::buildComponents()
 void StripToolPlot::makeConnections()
 {
     connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onSelectionChange()) );
+    connect( selector_, SIGNAL(deselected()), this, SLOT(onSelectionChange()) );
 }
 
 
