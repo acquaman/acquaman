@@ -20,34 +20,42 @@ AMScanAxisRegion::AMScanAxisRegion(const AMScanAxisRegion &original)
 	setRegionTime(original.regionTime());
 }
 
-AMNumber AMScanAxisRegion::regionStart() const{
+AMNumber AMScanAxisRegion::regionStart() const
+{
 	return regionStart_;
 }
 
-AMNumber AMScanAxisRegion::regionStep() const{
+AMNumber AMScanAxisRegion::regionStep() const
+{
 	return regionStep_;
 }
 
-AMNumber AMScanAxisRegion::regionEnd() const{
+AMNumber AMScanAxisRegion::regionEnd() const
+{
 	return regionEnd_;
 }
 
-AMNumber AMScanAxisRegion::regionTime() const{
+AMNumber AMScanAxisRegion::regionTime() const
+{
 	return regionTime_;
 }
 
-void AMScanAxisRegion::setRegionStart(AMNumber regionStart){
+void AMScanAxisRegion::setRegionStart(AMNumber regionStart)
+{
 	regionStart_ = regionStart;
 }
 
-void AMScanAxisRegion::setRegionStep(AMNumber regionStep){
+void AMScanAxisRegion::setRegionStep(AMNumber regionStep)
+{
 	regionStep_ = regionStep;
 }
 
-void AMScanAxisRegion::setRegionEnd(AMNumber regionEnd){
+void AMScanAxisRegion::setRegionEnd(AMNumber regionEnd)
+{
 	regionEnd_ = regionEnd;
 }
 
-void AMScanAxisRegion::setRegionTime(AMNumber regionTime){
+void AMScanAxisRegion::setRegionTime(AMNumber regionTime)
+{
 	regionTime_ = regionTime;
 }

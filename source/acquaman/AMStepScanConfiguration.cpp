@@ -6,9 +6,10 @@ AMStepScanConfiguration::AMStepScanConfiguration(QObject *parent)
 }
 
 AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &original)
-	: AMScanConfiguration()
+	: AMScanConfiguration(original)
 {
-
+	foreach (AMScanAxis *axis, original.scanAxes())
+		scanAxes_.append(new AMScanAxis(*axis));
 }
 
 AMStepScanConfiguration::~AMStepScanConfiguration()
