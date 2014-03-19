@@ -162,14 +162,14 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxis(AM
 	return axisActions;
 }
 
-AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisRegion(AMControl *axisControl, const AMScanAxisRegion &stepScanAxisRegion, bool isFinalRegion)
+AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisRegion(AMControl *axisControl, AMScanAxisRegion *stepScanAxisRegion, bool isFinalRegion)
 {
-	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(stepScanAxisRegion.name()), QString("Region from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(stepScanAxisRegion.name())), AMListAction3::Sequential);
+	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(stepScanAxisRegion->name()), QString("Region from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())), AMListAction3::Sequential);
 
 	if (axisControl){
 
 		AMControlInfo regionStartSetpoint = axisControl->toInfo();
-		regionStartSetpoint.setValue(stepScanAxisRegion.regionStart());
+		regionStartSetpoint.setValue(stepScanAxisRegion->regionStart());
 		AMControlMoveAction3 *regionStart = new AMControlMoveAction3(new AMControlMoveActionInfo3(regionStartSetpoint), axisControl);
 		regionStart->setGenerateScanActionMessage(true);
 		regionList->addSubAction(regionStart);
@@ -179,7 +179,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 
 	for(int x = 0; x < detectors_->count(); x++){
 
-		AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(stepScanAxisRegion.regionTime());
+		AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(stepScanAxisRegion->regionTime());
 
 		if(detectorSetDwellAction)
 			detectorSetDwellList->addSubAction(detectorSetDwellAction);
@@ -188,8 +188,8 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	regionList->addSubAction(detectorSetDwellList);
 
 	// generate axis loop for region
-	int loopIterations = round(( ((double)stepScanAxisRegion.regionEnd()) - ((double)stepScanAxisRegion.regionStart()) )/ ((double)stepScanAxisRegion.regionStep()) );
-	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion.name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion.regionStart().toString()).arg(stepScanAxisRegion.regionEnd().toString()).arg(stepScanAxisRegion.regionStep().toString()).arg(stepScanAxisRegion.name())));
+	int loopIterations = round(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) );
+	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())));
 	axisLoop->setGenerateScanActionMessage(true);
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);
@@ -197,7 +197,7 @@ AMAction3* AMScanActionControllerScanAssembler::generateActionTreeForStepAxisReg
 	if (axisControl){
 
 		AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-		controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion.regionStep());
+		controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion->regionStep());
 		AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 		controlLoopMoveInfo->setIsRelativeMove(true);
 		controlLoopMoveInfo->setIsRelativeFromSetpoint(true);

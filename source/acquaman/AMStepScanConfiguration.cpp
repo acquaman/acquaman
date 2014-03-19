@@ -13,15 +13,64 @@ AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &
 
 AMStepScanConfiguration::~AMStepScanConfiguration()
 {
+	for (int i = 0, size = scanAxes_.count(); i < size; i++)
+		delete scanAxes_.at(i);
 
+	scanAxes_.clear();
 }
 
 AMDbObjectList AMStepScanConfiguration::dbReadScanAxes()
 {
+	AMDbObjectList list;
 
+	foreach (AMScanAxis *axis, scanAxes_.toList())
+		list << axis;
+
+	return list;
 }
 
 void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 {
+	scanAxes_.clear();
 
+	foreach (AMDbObject *object, newScanAxes){
+
+		AMScanAxis *axis = qobject_cast<AMScanAxis *>(object);
+
+		if (axis)
+			scanAxes_.append(axis);
+	}
+}
+
+void AMStepScanConfiguration::insertScanAxis(int index, AMScanAxis *newAxis)
+{
+	scanAxes_.insert(index, newAxis);
+}
+
+void AMStepScanConfiguration::appendScanAxis(AMScanAxis *newAxis)
+{
+	scanAxes_.append(newAxis);
+}
+
+bool AMStepScanConfiguration::removeScanAxis(AMScanAxis *axis)
+{
+	int index = -1;
+
+	for (int i = 0, size = scanAxes_.count(); i < size; i++)
+		if (scanAxes_.at(i) == axis)
+			index = i;
+
+	if (index != -1){
+
+		AMScanAxis *axis = scanAxes_.takeAt(index);
+		delete axis;
+		return true;
+	}
+
+	return false;
+}
+
+AMScanAxis *AMStepScanConfiguration::removeScanAxis(int index)
+{
+	return scanAxes_.takeAt(index);
 }

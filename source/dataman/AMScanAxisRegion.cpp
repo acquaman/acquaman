@@ -1,6 +1,7 @@
 #include "AMScanAxisRegion.h"
 
- AMScanAxisRegion::~AMScanAxisRegion(){}
+AMScanAxisRegion::~AMScanAxisRegion(){}
+
 AMScanAxisRegion::AMScanAxisRegion(AMNumber start, AMNumber step, AMNumber end, AMNumber time, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -8,6 +9,15 @@ AMScanAxisRegion::AMScanAxisRegion(AMNumber start, AMNumber step, AMNumber end, 
 	setRegionStep(step);
 	setRegionEnd(end);
 	setRegionTime(time);
+}
+
+AMScanAxisRegion::AMScanAxisRegion(const AMScanAxisRegion &original)
+	: AMDbObject(original)
+{
+	setRegionStart(original.regionStart());
+	setRegionStep(original.regionStep());
+	setRegionEnd(original.regionEnd());
+	setRegionTime(original.regionTime());
 }
 
 AMNumber AMScanAxisRegion::regionStart() const{

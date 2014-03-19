@@ -24,7 +24,9 @@ public:
 	};
 
 	/// Constructor requires an axisType (defaults to StepAxis) and the first region (in the case of continuous regions, the first region is the only region)
-	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, const AMScanAxisRegion &firstRegion = AMScanAxisRegion(), QObject *parent = 0);
+	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, AMScanAxisRegion *firstRegion = 0, QObject *parent = 0);
+	/// Copy constructor.
+	AMScanAxis(const AMScanAxis &original);
 	/// Destructor.
 	virtual ~AMScanAxis();
 
@@ -34,9 +36,9 @@ public:
 	AMScanAxis::AxisValid axisValid() const;
 
 	/// Returns the list of regions
-	const AMOrderedList<AMScanAxisRegion> regions() const;
+	const AMOrderedList<AMScanAxisRegion *> regions() const;
 	/// Returns the region at the given index (must be between 0 and regionCount()-1)
-	const AMScanAxisRegion& regionAt(int index) const;
+	AMScanAxisRegion *regionAt(int index) const;
 	/// Returns the number of regions
 	int regionCount() const;
 
@@ -47,11 +49,11 @@ public:
 
 public slots:
 	/// Inserts a the region at the index and returns true if successful. If this axis type cannot support more than one region, false is returned. If the axis would become invalid by inserting this region, the region is not inserted and false is returned.
-	bool insertRegion(int index, const AMScanAxisRegion &region);
+	bool insertRegion(int index, AMScanAxisRegion *region);
 	/// Appends a the region at the end of the list and returns true if successful. If this axis type cannot support more than one region, false is returned. If the axis would become invalid by appending this region, the region is not appended and false is returned.
-	bool appendRegion(const AMScanAxisRegion &region);
+	bool appendRegion(AMScanAxisRegion *region);
 	/// Overwrite the region at the index and returns true if successful. If this axis would become invalid by using the new region, then the list of regions remains unchanged and false is returned.
-	bool overwriteRegion(int index, const AMScanAxisRegion &region);
+	bool overwriteRegion(int index, AMScanAxisRegion *region);
 
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.
@@ -70,7 +72,7 @@ protected:
 	AMScanAxis::AxisValid axisValid_;
 
 	/// Holds the current list of regions
-	AMOrderedList<AMScanAxisRegion> regions_;
+	AMOrderedList<AMScanAxisRegion *> regions_;
 };
 
 #endif // AMSCANAXIS_H
