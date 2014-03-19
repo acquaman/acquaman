@@ -188,3 +188,36 @@ void AMScanAxis::checkAxisValidity()
 	else
 		axisValid_ = AMScanAxis::InvalidAxis;
 }
+
+int AMScanAxis::dbReadAxisType() const
+{
+	return int(axisType_);
+}
+
+void AMScanAxis::dbLoadAxisType(int newAxisType)
+{
+	setAxisType(AMScanAxis::AxisType(newAxisType));
+}
+
+AMDbObjectList AMScanAxis::dbReadRegions() const
+{
+	AMDbObjectList list;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		list << region;
+
+	return list;
+}
+
+void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
+{
+	regions_.clear();
+
+	foreach (AMDbObject *object, newAxisRegions){
+
+		AMScanAxisRegion *region = qobject_cast<AMScanAxisRegion *>(object);
+
+		if (region)
+			regions_.append(region);
+	}
+}

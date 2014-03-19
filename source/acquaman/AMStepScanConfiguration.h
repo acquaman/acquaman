@@ -42,7 +42,7 @@ protected:
 	/// Returns a list of the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 	AMDbObjectList dbReadScanAxes();
 	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects.
-	void dbLoadScanAxes(const AMDbObjectList& newScanAxes);
+	void dbLoadScanAxes(const AMDbObjectList &newScanAxes);
 
 	/// The list of scan axes.
 	AMOrderedList<AMScanAxis *> scanAxes_;

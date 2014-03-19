@@ -8,6 +8,11 @@ class AMScanAxis : public AMDbObject
 {
 	Q_OBJECT
 
+	Q_PROPERTY(int axisType READ dbReadAxisType WRITE dbLoadAxisType)
+	Q_PROPERTY(AMDbObjectList axisRegions READ dbReadRegions WRITE dbLoadRegions)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Describes a single axis of an n-dimensional scan.")
+
 public:
 	/// Enum for the possible axis types
 	enum AxisType{
@@ -64,6 +69,15 @@ protected:
 	bool sanityCheckRegionsAndAxisType() const;
 	/// Helper function to set the axisValid variable based on the return of the sanityCheck
 	void checkAxisValidity();
+
+	/// For database saving of the axis type.
+	int dbReadAxisType() const;
+	/// For database loading of the axis type.
+	void dbLoadAxisType(int newAxisType);
+	/// For saving the regions list to the database.
+	AMDbObjectList dbReadRegions() const;
+	/// For database loading (never called).
+	void dbLoadRegions(const AMDbObjectList &newAxisRegions);
 
 protected:
 	/// Holds the axis type for this axis
