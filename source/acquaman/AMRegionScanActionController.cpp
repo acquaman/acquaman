@@ -6,7 +6,7 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
-#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
@@ -26,7 +26,7 @@ AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfigura
 	regionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
-	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 	useFeedback_ = false;
 }
 
