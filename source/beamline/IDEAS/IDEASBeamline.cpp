@@ -60,14 +60,14 @@ void IDEASBeamline::setupMotorGroup()
 void IDEASBeamline::setupDetectors()
 {
 	oldIonChamberAmmeter_ = new AMReadOnlyPVControl("OldIon", "A1608-10-01:A:fbk", this, "Old Ion Chamber");
-	oxfordI0IonChamberAmmeter_ = new AMReadOnlyPVControl("I0", "A1608-10-05:A:fbk", this, "I0 Ion Chamber");
-	oxfordSampleIonChamberAmmeter_ = new AMReadOnlyPVControl("Sample", "A1608-10-06:A:fbk", this, "Sample Ion Chamber");
-        oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference", "A1608-10-07:A:fbk", this, "Reference Ion Chamber");
+	oxfordI0IonChamberAmmeter_ = new AMReadOnlyPVControl("I0_6485", "A1608-10-02:A:fbk", this, "I0 Ion Chamber");
+	oxfordSampleIonChamberAmmeter_ = new AMReadOnlyPVControl("Sample_6485", "A1608-10-03:A:fbk", this, "Sample Ion Chamber");
+	oxfordReferenceIonChamberAmmeter_ = new AMReadOnlyPVControl("Reference_6485", "A1608-10-04:A:fbk", this, "Reference Ion Chamber");
 
-        oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_vac", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-        oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_0", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-        oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_sample", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
-        oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_ref", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oldIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_vac_6485", "Old Ion Chamber Detector", oldIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::RequestRead, "A1608-10-01:start_read", this);
+	oxfordI0IonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_0_6485", "I0 Detector", oxfordI0IonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oxfordSampleIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_sample_6485", "Sample Detector", oxfordSampleIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
+	oxfordReferenceIonChamberDetector_ = new AMAdvancedControlDetectorEmulator("I_ref_6485", "Reference Detector", oxfordReferenceIonChamberAmmeter_, 0, 0, 0, AMDetectorDefinitions::WaitRead, "A1608B2:start_read NPP NMS", this);
 
 	ketek_ = new IDEASKETEKDetector("XRF1E", "Single Element XRF Detector", this);
 
@@ -81,6 +81,11 @@ void IDEASBeamline::setupDetectors()
 	ketekRealTime_ = new AMBasicControlDetectorEmulator("XRF1ERealTime", "Single Element XRF Real Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ketekRealTime_->setHiddenFromUsers(true);
 	ketekRealTime_->setIsVisible(false);
+
+	I0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
+	SampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
+	ReferenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
+
 
 }
 
@@ -132,6 +137,24 @@ void IDEASBeamline::setupComponents()
 
     connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
     connect(photonShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
+
+    scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
+
+    scaler_->channelAt(0)->setCustomChannelName("I_0");
+    CLSSR570 *tempSR570 = new CLSSR570("AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
+    scaler_->channelAt(0)->setSR570(tempSR570);
+    scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 4.5));
+
+    scaler_->channelAt(1)->setCustomChannelName("Sample");
+    tempSR570 = new CLSSR570("AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
+    scaler_->channelAt(1)->setSR570(tempSR570);
+    scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 4.5));
+
+    scaler_->channelAt(2)->setCustomChannelName("Ref");
+    tempSR570 = new CLSSR570("AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
+    scaler_->channelAt(2)->setSR570(tempSR570);
+    scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 4.5));
+
 }
 
 void IDEASBeamline::setupControlsAsDetectors()
@@ -160,6 +183,9 @@ void IDEASBeamline::setupExposedControls()
 
 void IDEASBeamline::setupExposedDetectors()
 {
+	addExposedDetector(I0IonChamberScaler_);
+	addExposedDetector(SampleIonChamberScaler_);
+	addExposedDetector(ReferenceIonChamberScaler_);
 	addExposedDetector(oldIonChamberDetector_);
 	addExposedDetector(oxfordI0IonChamberDetector_);
 	addExposedDetector(oxfordSampleIonChamberDetector_);

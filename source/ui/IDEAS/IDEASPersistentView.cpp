@@ -1,6 +1,8 @@
 #include "IDEASPersistentView.h"
 
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "ui/IDEAS/IDEASScalerView.h"
+
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 
@@ -70,7 +72,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setTextVisible(false);
     IReferenceBar_->setRange(100,145);
 
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
+    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
@@ -106,6 +108,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
+    QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
+    scalerPanelLayout->addWidget(new IDEASScalerView());
+
     QGridLayout *detectorPanelLayout = new QGridLayout;
     detectorPanelLayout->addWidget(IOldLabel_,0,0);
     detectorPanelLayout->addWidget(IOldBar_,0,1,1,2);
@@ -124,11 +129,15 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
+    QGroupBox *scalerPanel = new QGroupBox("Scaler Settings");
+    scalerPanel->setLayout(scalerPanelLayout);
+
     QGroupBox *detectorPanel = new QGroupBox("Ion Chamber Currents");
     detectorPanel->setLayout(detectorPanelLayout);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
+    layout->addWidget(scalerPanel);
     layout->addWidget(detectorPanel);
 
     setLayout(layout);
@@ -159,20 +168,24 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 void IDEASPersistentView::onOldCountsChanged()
 {
     double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_vac")->data(&value);
+    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
     IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
+    //IOldBar_->setValue(value/1000000);
     //qDebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));
     //qDebug() << "I_Old" << value << "log10(I_Old)" << log10(value) << log10(qAbs(value));
     IOldValueLabel_->setText(QString::number(value, 'e', 2));
+    //IOldValueLabel_->setText(value);
 }
 
 void IDEASPersistentView::onI0CountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("I_0")->data(&value);
-    I0Bar_->setValue(int(200 + 10*log10(qAbs(value))));
+    //I0Bar_->setValue(int(200 + 10*log10(qAbs(value))));
+    I0Bar_->setValue(int(value/1000000));
     //qDebug() << "I_0" << int(-3.25/log10(qAbs(value)));
-    I0ValueLabel_->setText(QString::number(value, 'e', 2));
+    //I0ValueLabel_->setText(QString::number(value, 'e', 2));
+    I0ValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
 
    // ui->signalI0Bar->setValue(int(counts*600./1.e6));
     //ui->signalI0Value->setText(QString::number(counts, 'e', 2));
@@ -182,16 +195,20 @@ void IDEASPersistentView::onSampleCountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("I_sample")->data(&value);
-    ISampleBar_->setValue(int(200 + 10*log10(qAbs(value))));
-    ISampleValueLabel_->setText(QString::number(value, 'e', 2));
+    //ISampleBar_->setValue(int(200 + 10*log10(qAbs(value))));
+    ISampleBar_->setValue(int(value/1000000));
+    //ISampleValueLabel_->setText(QString::number(value, 'e', 2));
+    ISampleValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
 }
 
 void IDEASPersistentView::onReferenceCountsChanged()
 {
     double value = 0;
     IDEASBeamline::bl()->exposedDetectorByName("I_ref")->data(&value);
-    IReferenceBar_->setValue(int(200 + 10*log10(qAbs(value))));
-    IReferenceValueLabel_->setText(QString::number(value, 'e', 2));
+    //IReferenceBar_->setValue(int(200 + 10*log10(qAbs(value))));
+    IReferenceBar_->setValue(int(value/1000000));
+    //IReferenceValueLabel_->setText(QString::number(value, 'e', 2));
+    IReferenceValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
 }
 
 void IDEASPersistentView::onCrystalChanged()

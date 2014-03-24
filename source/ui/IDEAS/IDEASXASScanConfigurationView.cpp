@@ -42,7 +42,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	I0ChannelComboBox_ = new QComboBox();
 	I0ChannelComboBox_->addItem("I_0");
-	I0ChannelComboBox_->addItem("I_vac");
+	I0ChannelComboBox_->addItem("I_vac_6485");
 	I0ChannelComboBox_->addItem("I_sample");
 	I0ChannelComboBox_->addItem("I_ref");
 	I0ChannelComboBox_->setCurrentIndex(0);
@@ -51,7 +51,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	ItChannelComboBox_ = new QComboBox();
 	ItChannelComboBox_->addItem("I_0");
-	ItChannelComboBox_->addItem("I_vac");
+	ItChannelComboBox_->addItem("I_vac_6485");
 	ItChannelComboBox_->addItem("I_sample");
 	ItChannelComboBox_->addItem("I_ref");
 	ItChannelComboBox_->setCurrentIndex(2);
@@ -62,7 +62,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	IrChannelComboBox_ = new QComboBox();
 	IrChannelComboBox_->addItem("I_0");
-	IrChannelComboBox_->addItem("I_vac");
+	IrChannelComboBox_->addItem("I_vac_6485");
 	IrChannelComboBox_->addItem("I_sample");
 	IrChannelComboBox_->addItem("I_ref");
 	IrChannelComboBox_->addItem("None");

@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -90,8 +92,22 @@ public:
         AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
 
 
-		/// Returns the KETEK detector pointer.
-		IDEASKETEKDetector *ketek() const { return ketek_; }
+	/// Returns the KETEK detector pointer.
+	IDEASKETEKDetector *ketek() const { return ketek_; }
+
+	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
+	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
+	CLSBasicScalerChannelDetector *Reference() const {return ReferenceIonChamberScaler_;}
+
+	// The scaler.
+	/// Returns the scaler.
+	CLSSIS3820Scaler *scaler() const { return scaler_; }
+
+	// End of scaler.
+
+
+
+
 
 signals:
 
@@ -164,7 +180,12 @@ protected:
 	AMDetector *ketekRealTime_;
 	AMDetector *masterDwellTime_;
 
+	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
+	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;
+	CLSBasicScalerChannelDetector *ReferenceIonChamberScaler_;
 
+	// Scaler.
+	CLSSIS3820Scaler *scaler_;
 
 
 

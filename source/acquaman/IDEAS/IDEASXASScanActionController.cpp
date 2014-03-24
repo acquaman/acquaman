@@ -41,14 +41,13 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 
 
 	AMDetectorInfoSet ideasDetectors;
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_vac")->toInfo());
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_0")->toInfo());
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_sample")->toInfo());
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_ref")->toInfo());
-        ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("DwellTime")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_vac_6485")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->I_0()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
+//	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("DwellTime")->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
-
 
         double longestTime = 0;
         for(int i=0, cc=configuration_->regionCount(); i<cc; ++i)
@@ -60,8 +59,8 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	pokeSyncDwell_->setSingleShot(true);
 
         //connect(pokeSyncDwell_, SIGNAL(timeout()), this, SLOT(onPokeSyncDwell());
-        connect(pokeSyncDwell_, SIGNAL(timeout()), IDEASBeamline::ideas()->synchronizedDwellTime(), SLOT(start()));
-        connect(IDEASBeamline::ideas()->synchronizedDwellTime(),SIGNAL(statusChanged(bool)), this, SLOT(onSyncDwellStatusChanged(bool)));
+//        connect(pokeSyncDwell_, SIGNAL(timeout()), IDEASBeamline::ideas()->synchronizedDwellTime(), SLOT(start()));
+//        connect(IDEASBeamline::ideas()->synchronizedDwellTime(),SIGNAL(statusChanged(bool)), this, SLOT(onSyncDwellStatusChanged(bool)));
 }
 
 IDEASXASScanActionController::~IDEASXASScanActionController(){}
@@ -79,7 +78,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	    if(scan_->rawDataSources()->at(i)->rank() == 1)
                     raw1DDataSources << scan_->rawDataSources()->at(i);
 
-    int rawIvacIndex = scan_->rawDataSources()->indexOfKey("I_vac");
+    int rawIvacIndex = scan_->rawDataSources()->indexOfKey("I_vac_6485");
     int rawI0Index = scan_->rawDataSources()->indexOfKey("I_0");
     int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("I_sample");
     int rawIrefIndex = scan_->rawDataSources()->indexOfKey("I_ref");
