@@ -215,12 +215,15 @@ void IDEASPersistentView::onRingCurrentChanged(double current)
 
 }
 
+
+
 void IDEASPersistentView::onCalibrateClicked()
 {
     //QInputDialog  *calibrateDialog_ = new QInputDialog();
 
     bool ok;
     double newE = QInputDialog::getDouble(this,"Monochromator Energy Calibration","Enter Current Calibrated Energy:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+
 
     if(ok)
     {
