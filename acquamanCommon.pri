@@ -97,6 +97,10 @@ linux-g++ {
                 CDF_LIB = -L$$CDF_LIB_DIR -lcdf
                 CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
 
+message($$CDF_LIB_DIR)
+message($$CDF_LIB)
+message($$CDF_INCLUDE_DIR)
+
                 #Qt Mobility Dependencies
                 MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
                 MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
@@ -246,6 +250,8 @@ LIBS += $$GSL_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB
+
+message($$LIBS)
 
 CONFIG(mobility) {
         INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR

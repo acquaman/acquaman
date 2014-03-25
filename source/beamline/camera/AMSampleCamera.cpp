@@ -2057,6 +2057,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	emit rotationalOffsetChanged(rotationalOffset());
 
+	oldRotation_ = new AMAngle();
 	oldRotation_->setRadians(0);
 	samplePlateShape_ = 0; //NULL
 
