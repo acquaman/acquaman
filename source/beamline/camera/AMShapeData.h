@@ -57,8 +57,7 @@ public:
 
     bool isEqual(const AMShapeData& other) const;
 
-    /// causes the shape to be removed from the camera view
-    bool removeShape();
+
 
 public slots:
 
@@ -74,6 +73,9 @@ public slots:
     void setTilt(double xAxisRotation);
     void setYAxisRotation(double yAxisRotation);
     void setVisible(bool visible);
+
+	/// causes the shape to be removed from the camera view
+	void removeShape();
 
 signals:
     void nameChanged(QString name);

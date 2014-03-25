@@ -32,23 +32,23 @@ QFile *errorFile;
 
 int main(int argc, char *argv[])
 {
-	signal(SIGSEGV, handle_signal);
+//	signal(SIGSEGV, handle_signal);
 
-	QFile localErrorFile("ErrorFile.txt");
-	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
-	errorFile = &localErrorFile;
+//	QFile localErrorFile("ErrorFile.txt");
+//	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
+//	errorFile = &localErrorFile;
 
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-	QStringList arguments;
-	arguments << "-m";
-	arguments << app.applicationFilePath();
-	//arguments << "/home/chevrid/testingCoreDumps/runAcquamanCoreBackTraceCommands.txt";
-	arguments << QString("%1").arg(getpid());
-	QProcess::startDetached("/home/sgm/beamline/programming/acquamanTestSandbox/build/AMCrashReporter", arguments, QDir::currentPath(), &crashReporterPID);
+//	QStringList arguments;
+//	arguments << "-m";
+//	arguments << app.applicationFilePath();
+//	//arguments << "/home/chevrid/testingCoreDumps/runAcquamanCoreBackTraceCommands.txt";
+//	arguments << QString("%1").arg(getpid());
+//	QProcess::startDetached("/home/sgm/beamline/programming/acquamanTestSandbox/build/AMCrashReporter", arguments, QDir::currentPath(), &crashReporterPID);
 
 	qDebug() << "Local host? " << QHostInfo::localHostName();
 	QString pathEnv = getenv(QString("PATH").toAscii().data());

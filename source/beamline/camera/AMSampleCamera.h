@@ -34,6 +34,7 @@ class AMCamera;
 class AMSample;
 class AMSamplePlate;
 class AMRotationalOffset;
+class AMAngle;
 
 using namespace Eigen;
 
@@ -73,6 +74,7 @@ public:
 	QPolygonF groupRectangle() const;
 
 	/// gets each component of the motor coordinate
+	QVector3D motorCoordinate() const;
 	double motorX() const;
 	double motorY() const;
 	double motorZ() const;
@@ -106,6 +108,9 @@ public:
 
 	/// the sample plate screen shape
 	QPolygonF samplePlate();
+
+	/// true if using an offset for samples
+	bool useSampleOffset();
 
 	/// ------------------------------------------------------------------------------------------------
 
@@ -218,6 +223,9 @@ public slots:
 	/// set to move parallel to the selected shape's plane (usually the sample plate shape)
 	/// (rather than parallel to the camera view plane)
 	void setMoveOnShape(bool moveOnShape);
+
+	/// set whether to use the sampleOffset
+	void setUseSampleOffset(bool useSampleOffset);
 
 	/// set the offset of rotation (the centre of rotation at 0,0,0)
 	void setRotationalOffset(const QVector3D &offset);
@@ -388,7 +396,7 @@ public slots:
 
 	void setCameraConfigurationShape();
 
-	void configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints);
+	void configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<AMAngle *> rotations, const int numberOfPoints);
 	void saveRotationalOffset();
 
 	void moveSamplePlateTo(const QVector3D &coordinate);
@@ -422,6 +430,10 @@ public slots:
 	void loadDefaultCamera();
 	/// Loads the "default" sample plate configuration
 	void loadDefaultSamplePlate();
+
+	void setSamplePlateOffsetPlate();
+	void setSamplePlateOffsetWafer();
+	void setSamplePlateOffset(double offset);
 
 
 signals:
@@ -505,7 +517,8 @@ protected:
 	AMShapeData* applySpecifiedRotation(const AMShapeData* shape, AxisDirection direction) const;
 
 	/// general rotation of a point about a point along the direction
-	QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, double rotation) const;
+	QVector3D rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const;
+	QVector3D rotateCoordinateByMatrix(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const;
 
 
 	/// rotates, tilts, and distorts the shape at index
@@ -578,10 +591,10 @@ protected:
 	/// returns the vector normal to the given shape
 	QVector3D getNormal(const AMShapeData* shape) const;
 	/// returns the 3D point that lies under position and on the plane defined by the drawOnShape_ shape
-	QVector3D getPointOnShape(const QPointF &position, const QVector3D &normal) const;
+	QVector3D getPointOnShape(const QPointF &position, const QVector3D &normal, bool useOffset = false) const;
 	/// returns the 3D point that lies under position and on the plane defined by shape
-	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position, const QVector3D &normal) const;
-	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position) const;
+	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position, const QVector3D &normal, bool useOffset = false) const;
+	QVector3D getPointOnShape(const AMShapeData* shape, const QPointF &position, bool useOffset = false) const;
 
 	/// returns the unit vector in the direction of the top of the screen to the bottom
 	QVector3D downVector() const;
@@ -615,21 +628,27 @@ protected:
 	QVector3D findRotationMatrixXRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixYRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixZRow(QVector3D rotationVector, double angleOfRotation) const;
+	/// construct a general rotation matrix
+	MatrixXd constructRotationMatrix(QVector3D rotationVector, double angleOfRotation) const;
 
 	/// returns two vectors describing the line that lies along point
 	/// using the provided coordinates for depth
 	/// the result will be a point along the line and a unit vector in the direction of the line
 	QPair<QVector3D,QVector3D> findScreenVector(QPointF point, QVector3D referenceCoordinate, QVector3D optionalReference = QVector3D(0,0,0));
-	MatrixXd constructCentreOfRotationMatrix(const QVector<double> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints);
+	MatrixXd constructCentreOfRotationMatrix(const QVector<AMAngle *> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints);
 	MatrixXd constructCentreOfRotationCoordinateMatrix(const QVector<QVector3D> &coordinates, QVector<QVector3D> bases, const int &numberOfPoints);
 	MatrixXd solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix);
-	double degreesToRadians(double degrees);
-	double radiansToDegrees(double radians);
 	/// computes the SVD least squares solution
 	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
 	/// computes the SVD homogenous solution for the largest singular value
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 
+	/// convert a QVector3D to a 3x1 matrix
+	MatrixXd vectorToMatrix(QVector3D vector) const;
+	/// convert a 3 element matrix to a QVector3D
+	QVector3D matrixToVector(MatrixXd matrix) const;
+
+	/// prints out a matrix using qDebug, according to rows and columns
 	void debugPrintMatrix(const MatrixXd matrix) const;
 
 
@@ -724,6 +743,12 @@ protected:
         /// true if drawOnShape_ is a valid shape
 	bool drawOnShapeSelected_;
 
+	/// the offset from the shape to draw on
+	/// i.e. draw on a parallel plane this distance from the shape
+	double sampleOffset_;
+	/// true if using the sampleOffset
+	bool useSampleOffset_;
+
 	/// the polygon currently being drawn
 	QPolygonF currentPolygon_;
 
@@ -749,7 +774,7 @@ protected:
 
 	double videoTop_;
 
-	double oldRotation_;
+	AMAngle *oldRotation_;
 
 	AMDeferredFunctionCall motorUpdateDeferredFunction_;
 

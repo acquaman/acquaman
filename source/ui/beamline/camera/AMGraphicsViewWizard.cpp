@@ -78,10 +78,13 @@ QPointF AMGraphicsViewWizard::scale() const
 	return *scale_;
 }
 
+/// Sets the scale of the video
 void AMGraphicsViewWizard::setScale(QPointF scale)
 {
+	/// first undo previous scaling
 	view_->scale(1/scale_->x(), 1/scale_->y());
 	*scale_ = scale;
+	/// apply the new scaling
 	view_->scale(scale_->x(),scale_->y());
 }
 
@@ -168,13 +171,15 @@ QString AMGraphicsViewWizard::message(int type)
 	}
 }
 
+/// get a point in relative coordinates, so that it may be mapped correctly in the coordinate space
 QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 {
 	QList<QGraphicsItem*> list = view()->items();
 	QGraphicsVideoItem* videoItem;
-	// will break if can't find video?
+	// might break if can't find video
 	foreach(QGraphicsItem* item, list)
 	{
+		/// QGraphicsVideoItem has type QGraphicsItem::UserType
 		if(item->type() == QGraphicsItem::UserType)
 		{
 			videoItem = (QGraphicsVideoItem*)item;
@@ -223,6 +228,8 @@ void AMGraphicsViewWizard::setOptionPage(int id)
 	optionsPage_ = id;
 }
 
+/// after checking motorMovementEnabled set it to false
+/// this prevents accidently moving when you shouldn't
 bool AMGraphicsViewWizard::motorMovementEnabled()
 {
 	bool returnValue = motorMovementEnabled_;
@@ -230,9 +237,9 @@ bool AMGraphicsViewWizard::motorMovementEnabled()
 	return returnValue;
 }
 
+/// call this prior to motorMovementEnabled to set the state correctly
 void AMGraphicsViewWizard::checkMotorMovementState()
 {
-	qDebug()<<"AMGraphicsViewWizard::checkMotorMovementState - emitting request for enabled state";
 	emit requestMotorMovementEnabled();
 }
 
@@ -246,7 +253,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	view_->setScene(copier->scene());
 	view_->scene()->setObjectName("AMGraphicsViewWizard scene 1");
 
-	/// This item prevents the screen from flashing or going blank
+	/// fixItem_ prevents the screen from flashing or going blank
 	/// when there is a QGraphicsItem or a descendent in less than
 	/// all the views, but at least one.
 	/// It seems that placing a QGraphicsTextItem with it's bounding rectangle
@@ -254,7 +261,9 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	/// stop the behaviour.
 	fixItem_ = new QGraphicsTextItem("Fix");
 	fixItem_->setObjectName("Fix");
+	// make sure it is at the back
 	fixItem_->setZValue(INT_MAX);
+	// keep it just above the top left corner
 	fixItem_->setPos(-1*fixItem_->boundingRect().width(), -1*fixItem_->boundingRect().height());
 	view_->scene()->addItem(fixItem_);
 
@@ -282,7 +291,6 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 		}
 	}
 
-	//    connect(mediaPlayer_, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(mediaPlayerStateChanged(QMediaPlayer::MediaStatus)));
 	connect(mediaPlayer_, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(mediaPlayerErrorChanged(QMediaPlayer::Error)));
 
 }
@@ -301,12 +309,14 @@ void AMGraphicsViewWizard::addPoint(QPointF position)
 	pointList_->append(newPoint);
 }
 
+/// updates the wizard scene to match view
 void AMGraphicsViewWizard::updateScene(AMSampleCameraGraphicsView *view)
 {
 	view_->scene()->removeItem(fixItem_);
 
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->updateChange(view_->scene(),view->scene());
+	delete(copier);
 
 	view_->scene()->addItem(fixItem_);
 
@@ -316,27 +326,13 @@ void AMGraphicsViewWizard::updateShape(QGraphicsPolygonItem *item)
 {
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->updateShape(item,view_->scene());
+	delete(copier);
 }
 
 
+/// Readjusts the "fix text"
 void AMGraphicsViewWizard::fixText()
 {
-	//    QList<QGraphicsItem*> list = this->view()->items();
-	//    QGraphicsTextItem* fixTextItem;
-	//    foreach(QGraphicsItem* item, list)
-	//    {
-
-	//        if(item->type() == QGraphicsTextItem::Type)
-	//        {
-	//            QGraphicsTextItem* textItem = (QGraphicsTextItem*)(item);
-	//            if(textItem->objectName() == "Fix")
-	//            {
-	//                fixTextItem = textItem;
-	//            }
-	//        }
-	//    }
-
-
 	QRect visibleRect = view_->viewport()->rect();
 
 	visibleRect.moveTopLeft((QPoint(view_->horizontalScrollBar()->value(),
@@ -395,6 +391,7 @@ void AMGraphicsViewWizard::mediaPlayerStateChanged(QMediaPlayer::MediaStatus sta
 	if(state == QMediaPlayer::InvalidMedia)
 	{
 		qDebug()<<"State is InvalidMedia";
+		// attempt to reload
 		QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
 		mediaPlayer_->stop();
 		mediaPlayer_->setMedia(mediaUrl);
@@ -423,6 +420,7 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 
 		mediaPlayer_->stop();
 		mediaPlayer_->setMedia(QMediaContent());
+		// attempt to restart player
 		if(success)
 		{
 			qDebug()<<"Deleting and adding new video";
@@ -434,8 +432,6 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 		}
 
 
-		//        mediaPlayer_->setMedia(mediaUrl);
-		//        mediaPlayer_->play();
 	}
 
 }

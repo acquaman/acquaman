@@ -55,6 +55,7 @@
 #include "beamline/camera/AMRotationalOffset.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/camera/AMAngle.h"
 
 #define SAMPLEPOINTS 6
 
@@ -740,7 +741,7 @@ void AMSampleCameraView::rotationConfiguration()
 	int numberOfPoints = rotationWizard_->numberOfPoints();
 	QVector<QVector3D> coordinates;
 	QVector<QPointF> points;
-	QVector<double> rotations;
+	QVector<AMAngle *> rotations;
 	foreach (QVector3D *coordinate, coordinateList)
 	{
 		coordinates<<*coordinate;
@@ -753,7 +754,7 @@ void AMSampleCameraView::rotationConfiguration()
 
 	foreach (double rotation, rotationList)
 	{
-		rotations<<rotation;
+		rotations<<new AMAngle(rotation, AMAngle::DEG);/// in degrees, from motor coord
 	}
 
 	if(pointList.count() != numberOfPoints || rotationList.count() != numberOfPoints)
@@ -763,6 +764,12 @@ void AMSampleCameraView::rotationConfiguration()
 
 	shapeModel_->configureRotation( coordinates, points, rotations, rotationWizard_->numberOfPoints());
 	shapeModel_->saveRotationalOffset();
+
+	foreach(AMAngle *angle, rotations)
+	{
+		delete angle;
+	}
+
 //	delete rotationWizard_;
 //	rotationWizard_ = NULL;
 }

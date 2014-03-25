@@ -19,9 +19,9 @@ class QLineEdit;
 /// Wizard class
 /// contains a Graphics view with a video.
 /// Also contains the common functionality
-/// of the Camera, Beam, and Sample plate wizards
+/// of the Camera, Beam, Sample plate, and rotation wizards
 /// such as move sample plate to point,
-/// mapping point to the video and as well as
+/// mapping point to the video as well as
 /// common wizard functionality that makes it
 /// faster to create a wizard with less extra classes and methods
 
@@ -36,8 +36,6 @@ class AMGraphicsViewWizard : public QWizard
     Q_OBJECT
 public:
 	/// Default page numbers.  If using a different scheme, define own page numbers
-	/// If not using default page numbers, will have to redefine auto-generation type
-	/// functions (pageWait,pageSet)
 	enum
 	{
 		Default_Intro,
@@ -125,6 +123,8 @@ public:
 	/// in order to get the true value
 	void checkMotorMovementState();
 
+	/// checks if rotation is enabled as a part of the wizard
+	/// if it is not, no rotation will happen
 	bool rotationEnabled() const;
 
 	/// returns the list of coordinates
@@ -148,6 +148,8 @@ public slots:
     /// sets the coordinate in coordinateList at index to coordinate
     virtual void setCoordinate(QVector3D coordinate, int index);
 
+	/// sets the rotation in rotationList at index
+	/// this is only relevant if rotation is enabled
 	virtual void setRotation(double rotation, int index);
 
 
@@ -166,6 +168,7 @@ public slots:
     /// updates the scene
     void updateScene(AMSampleCameraGraphicsView* view);
 
+	/// updates a shape in the scene
     void updateShape(QGraphicsPolygonItem* item);
 
     /// repositions the "fix text".
@@ -175,10 +178,15 @@ public slots:
     void testMoveSlot();
 
 signals:
+	/// emitted when finished
     void done();
+	/// emitted when non-rotating move requested
     void moveTo(QVector3D);
+	/// emitted when rotating move requested
 	void moveTo(QVector3D,double);
+	/// requests motor movement state
     void requestMotorMovementEnabled();
+	/// emitted when move has finished
     void moveSucceeded();
 
 protected slots:
@@ -200,8 +208,11 @@ protected slots:
 	void setFreePage(int freePage);
 
 protected:
+	/// number of coordinates
 	virtual int coordinateListCount() const;
+	/// the relative id of the current page
 	virtual int relativeId() const;
+	/// the relative id of the specified page
 	virtual int relativeId(int pageId) const;
 	/// get the page number of wait or set page
 	/// based on its relative id (should be 0<=relativeId<numberOfPages)
@@ -210,6 +221,7 @@ protected:
 	/// returns the free page number. Must set it if not using default pages
 	virtual int freePage() const;
 
+	/// checks to see if the page is a wait page or free page
 	virtual bool isWaitPage(int pageNumber) const;
 	virtual bool isSetPage(int pageNumber) const;
 

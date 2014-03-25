@@ -29,24 +29,11 @@ public:
 
 	virtual void waitPage();
 
-//    int relativeId();
-
     virtual QString message(int type);
 
     double currentRotation();
 
 protected:
-//    /// returns the page number of the nth wait page
-//    int pageWait(int index) const;
-
-//    /// returns the page number of the nth set page
-//    int pageSet(int index) const;
-
-//    /// returns true if pageNumber is a wait page
-//    bool isWaitPage(int pageNumber) const;
-
-//    /// returns true if pageNumber is a set page
-//    bool isSetPage(int pageNumber) const;
 
     double requestMotorRotation();
 
@@ -72,7 +59,7 @@ protected:
 	double coordinateY(int id);
 	double coordinateZ(int id);
 	void addResetPointsButton(int id);
-        QPen getDefaultPen();
+	QPen getDefaultPen();
 
 protected slots:
 	void triggerReset(int id);
