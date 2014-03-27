@@ -709,8 +709,10 @@ bool AMSampleCamera::findIntersections()
 	for(int i = 0; i <= index_; i++)
 	{
 		QVector<QVector3D> intersectionShape = findIntersectionShape(i);
-		if(!intersectionShape.isEmpty())
+		if(!intersectionShape.isEmpty()){
+			qDebug() << "We have an intersection on the shapeData named " << shapeList_.at(i)->name();
 			intersections_<<intersectionScreenShape(intersectionShape);
+		}
 	}
 
 	if(samplePlateSelected_)
@@ -2045,6 +2047,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	drawOnShapeSelected_ = false;
 	samplePlateSelected_ = false;
 	sampleOffset_ = 0;
+//	sampleOffset_ = 0.80;
+//	useSampleOffset_ = true;
 
 	distortion_ = true;
 
@@ -2410,7 +2414,7 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 
 	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
 	QVector3D effectiveRotationalOffset = rotationalOffset();
-	if(r < 0)
+//	if(r < 0)
 		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
 	//QVector3D centerOfRotation = newPosition + rotationalOffset();
 

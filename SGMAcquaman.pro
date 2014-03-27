@@ -10,11 +10,7 @@ RESOURCES += \
 	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
 
 SOURCES += \
-	source/application/SGM/SGMMain.cpp \
-    source/beamline/camera/AMAngle.cpp
-
-HEADERS += \
-    source/beamline/camera/AMAngle.h
+	source/application/SGM/SGMMain.cpp
 
 
 

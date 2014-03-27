@@ -166,7 +166,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.h \
 		$$AM_INCLUDE_DIR/dataman/AMTextStream.h \
-		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDataSourcePlotSettings.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
