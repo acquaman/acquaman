@@ -29,7 +29,7 @@ public:
 	};
 
 	/// Constructor requires an axisType (defaults to StepAxis) and the first region (in the case of continuous regions, the first region is the only region)
-	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, AMScanAxisRegion *firstRegion = 0, QObject *parent = 0);
+	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, AMScanAxisRegion *firstRegion = new AMScanAxisRegion, QObject *parent = 0);
 	/// Copy constructor.
 	AMScanAxis(const AMScanAxis &original);
 	/// Destructor.

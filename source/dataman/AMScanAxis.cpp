@@ -6,6 +6,10 @@ AMScanAxis::AMScanAxis(AMScanAxis::AxisType axisType, AMScanAxisRegion *firstReg
 	: AMDbObject(parent)
 {
 	setAxisType(axisType);
+
+	if (firstRegion->name() == "Unnamed Object")
+		firstRegion->setName(name());
+
 	regions_.append(firstRegion);
 	axisValid_ = AMScanAxis::InvalidAxis;
 	checkAxisValidity();
