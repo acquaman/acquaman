@@ -120,7 +120,7 @@ public:
 	QString name(int index) const;
 	QString currentInfo() const;
 	QString otherDataOne(int index) const;
-    QString otherDataTwo(int index) const;
+	QString otherDataTwo(int index) const;
 	double idNumber(int index) const;
 	bool visible() const;
 	bool visible(int index) const;
@@ -196,16 +196,16 @@ public slots:
 
 
 	/// mutators for shape elements
-    void setCurrentName(QString name);
+	void setCurrentName(QString name);
 	void setCurrentInfo(const QString &info);
-    void setRotation(double rotation, int index = -1);
-    void setTilt(double tilt, int index = -1);
-    void setName(QString name, int index);
+	void setRotation(double rotation, int index = -1);
+	void setTilt(double tilt, int index = -1);
+	void setName(QString name, int index);
 	void setOtherDataOne(const QString &data, int index);
-    void setOtherDataTwo(QString data, int index);
-    void setIdNumber(double number, int index);
-    void setVisible(bool visible);
-    void setVisible(bool visible, int index);
+	void setOtherDataTwo(QString data, int index);
+	void setIdNumber(double number, int index);
+	void setVisible(bool visible);
+	void setVisible(bool visible, int index);
 
 
 	/// sets whether to use camera matrix for transforms
@@ -317,6 +317,8 @@ public slots:
 
 	/// apply zoom, by moving mouse up/down
 	void zoomShape(QPointF);
+
+	void moveToSampleRequested(AMShapeData *shapeData);
 
 	/// shifts all shapes so that position coincides with crosshairPosition
 	void shiftToPoint(QPointF position, QPointF crosshairPosition);

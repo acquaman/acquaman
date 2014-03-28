@@ -1088,9 +1088,55 @@ void AMSampleCamera::zoomShape(QPointF position)
 
 }
 
+void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
+	qDebug() << "Heard a request in AMSampleCamera to move to a particular shapeData named " << shapeData->name();
+	if(!moveToBeam())
+		return;
+
+	QVector3D currentPosition = getPointOnShape(shapeData, shapeData->shape()->at(0));
+	QVector3D newPosition = beamIntersectionPoint(currentPosition);
+
+	qDebug() << "CurrentPosition " << currentPosition;
+	qDebug() << "newPosition " << newPosition;
+
+	QVector3D shift = newPosition - currentPosition;
+
+	/// current
+	double inboardOutboard;
+	double upStreamDownStream;
+	double upDown;
+	if(!enableMotorMovement_)
+	{
+		for(int i = 0; i <= index_; i++)
+		{
+			shiftCoordinates(shift,i);
+		}
+		if(samplePlateSelected_)
+			shiftCoordinates(shift,samplePlateShape_);
+		motorCoordinate_ += shift;
+		inboardOutboard = motorCoordinate().x();
+		upStreamDownStream = motorCoordinate().y();
+		upDown = motorCoordinate().z();
+
+	}
+	else
+	{
+		shift += motorCoordinate();
+		inboardOutboard = shift.x();
+		upStreamDownStream = shift.y();
+		upDown = shift.z();
+
+		moveMotors(inboardOutboard, upStreamDownStream, upDown);
+
+	}
+	emit motorCoordinateChanged(motorCoordinate());
+	emit motorRotationChanged(motorRotation());
+}
+
 /// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate
 void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
+	qDebug() << "Position coming in is " << position;
 	position = undistortPoint(position);
 	AMShapeData* shape;
 
@@ -1102,45 +1148,52 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	{
 		shape = samplePlateShape_;
 	}
-	else return;
-		QVector3D oldCoordinate = shape->coordinate(TOPLEFT);
-		QVector3D currentPosition = getPointOnShape(shape, position);/// don't use sample offset, will either click on sample or plate
-		QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
-		if(moveToBeam())
-			newPosition = beamIntersectionPoint(currentPosition);
-//		newPosition = currentPosition;
-		QVector3D shift = newPosition - currentPosition;
+	else
+		return;
 
-		/// current
-		double inboardOutboard;
-		double upStreamDownStream;
-		double upDown;
-		if(!enableMotorMovement_)
+	QVector3D oldCoordinate = shape->coordinate(TOPLEFT);
+	QVector3D currentPosition = getPointOnShape(shape, position);/// don't use sample offset, will either click on sample or plate
+	QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
+	if(moveToBeam())
+		newPosition = beamIntersectionPoint(currentPosition);
+	//		newPosition = currentPosition;
+	QVector3D shift = newPosition - currentPosition;
+
+	qDebug() << "CurrentPosition: " << currentPosition;
+	qDebug() << "NewPosition: " << newPosition;
+	qDebug() << "Manipulator: " << ssaManipulatorX_->value() << ssaManipulatorY_->value() << ssaManipulatorZ_->value();
+	qDebug() << "Shift: " << shift;
+
+	/// current
+	double inboardOutboard;
+	double upStreamDownStream;
+	double upDown;
+	if(!enableMotorMovement_)
+	{
+		for(int i = 0; i <= index_; i++)
 		{
-			for(int i = 0; i <= index_; i++)
-			{
-				shiftCoordinates(shift,i);
-			}
-			if(samplePlateSelected_)
-				shiftCoordinates(shift,samplePlateShape_);
-			motorCoordinate_ += shift;
-			inboardOutboard = motorCoordinate().x();
-			upStreamDownStream = motorCoordinate().y();
-			upDown = motorCoordinate().z();
-
+			shiftCoordinates(shift,i);
 		}
-		else
-		{
-			shift += motorCoordinate();
-			inboardOutboard = shift.x();
-			upStreamDownStream = shift.y();
-			upDown = shift.z();
+		if(samplePlateSelected_)
+			shiftCoordinates(shift,samplePlateShape_);
+		motorCoordinate_ += shift;
+		inboardOutboard = motorCoordinate().x();
+		upStreamDownStream = motorCoordinate().y();
+		upDown = motorCoordinate().z();
 
-			moveMotors(inboardOutboard, upStreamDownStream, upDown);
+	}
+	else
+	{
+		shift += motorCoordinate();
+		inboardOutboard = shift.x();
+		upStreamDownStream = shift.y();
+		upDown = shift.z();
 
-		}
-		emit motorCoordinateChanged(motorCoordinate());
-		emit motorRotationChanged(motorRotation());
+		moveMotors(inboardOutboard, upStreamDownStream, upDown);
+
+	}
+	emit motorCoordinateChanged(motorCoordinate());
+	emit motorRotationChanged(motorRotation());
 
 
 }

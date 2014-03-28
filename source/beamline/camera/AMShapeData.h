@@ -17,101 +17,101 @@ class QVector3D;
 /// of the 3D shape.
 class AMShapeData : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    /// constructors
-    AMShapeData(QObject* parent = 0);
-    AMShapeData(QPolygonF shape, QString name = "Name", QString otherDataFieldOne = " ", QString otherDataFieldTwo = " ",  double idNumber = 0, QObject* parent = 0);
+	/// constructors
+	AMShapeData(QObject* parent = 0);
+	AMShapeData(QPolygonF shape, QString name = "Name", QString otherDataFieldOne = " ", QString otherDataFieldTwo = " ",  double idNumber = 0, QObject* parent = 0);
 
-    ~AMShapeData();
+	~AMShapeData();
 
-    /// accessors
-    QPolygonF* shape() const;
-    QString name() const;
-    QString otherDataFieldOne() const;
-    QString otherDataFieldTwo() const;
-    double idNumber() const;
-    QVector3D coordinate(int index) const;
-    QVector<QVector3D> coordinates() const;
-    double rotation() const;
-    double tilt() const;
-    double yAxisRotation() const;
-    bool visible() const;
+	/// accessors
+	QPolygonF* shape() const;
+	QString name() const;
+	QString otherDataFieldOne() const;
+	QString otherDataFieldTwo() const;
+	double idNumber() const;
+	QVector3D coordinate(int index) const;
+	QVector<QVector3D> coordinates() const;
+	double rotation() const;
+	double tilt() const;
+	double yAxisRotation() const;
+	bool visible() const;
 
-    /// copies all the data from other to this AMShapeData
-    void copy(const AMShapeData* other);
+	/// copies all the data from other to this AMShapeData
+	void copy(const AMShapeData* other);
 
-    /// returns the center of the 3D shape
-    QVector3D centerCoordinate() const;
+	/// returns the center of the 3D shape
+	QVector3D centerCoordinate() const;
 
-    /// shifts the shape by shift
+	/// shifts the shape by shift
 	void shift(const QVector3D &shift);
-    /// shifts the shape to shift
+	/// shifts the shape to shift
 	void shiftTo(const QVector3D &shift);
 
-    /// number of coordinates
-    int count() const;
+	/// number of coordinates
+	int count() const;
 
-    /// checks the direction
+	/// checks the direction
 	bool backwards() const;
 
-    bool isEqual(const AMShapeData& other) const;
+	bool isEqual(const AMShapeData& other) const;
 
 
 
 public slots:
 
-    /// mutators
-    void setShape(const QPolygonF shape);
-    void setName(QString name);
+	/// mutators
+	void setShape(const QPolygonF shape);
+	void setName(QString name);
 	void setOtherDataFieldOne(const QString &otherDataFieldOne);
-    void setOtherDataFieldTwo(QString otherDataFieldTwo);
-    void setIdNumber(double idNumber);
-    void setCoordinate(QVector3D coordinate, int index);
+	void setOtherDataFieldTwo(QString otherDataFieldTwo);
+	void setIdNumber(double idNumber);
+	void setCoordinate(QVector3D coordinate, int index);
 	void setCoordinateShape(QVector<QVector3D> coordinates);
-    void setRotation(double zAxisRotation);
-    void setTilt(double xAxisRotation);
-    void setYAxisRotation(double yAxisRotation);
-    void setVisible(bool visible);
+	void setRotation(double zAxisRotation);
+	void setTilt(double xAxisRotation);
+	void setYAxisRotation(double yAxisRotation);
+	void setVisible(bool visible);
 
 	/// causes the shape to be removed from the camera view
 	void removeShape();
 
 signals:
-    void nameChanged(QString name);
-    void otherDataFieldOneChanged(QString data);
-    void otherDataFieldTwoChanged(QString data);
-    void idNumberChanged(double idNumber);
-    void shapeDataChanged(AMShapeData* shape);
-    void shapeDataRemoved(AMShapeData* shape);
+	void nameChanged(QString name);
+	void otherDataFieldOneChanged(QString data);
+	void otherDataFieldTwoChanged(QString data);
+	void idNumberChanged(double idNumber);
+	void shapeDataChanged(AMShapeData* shape);
+	void shapeDataRemoved(AMShapeData* shape);
 
 protected slots:
 
 
 protected:
-    /// the 2D shape to store
-    QPolygonF* shape_;
-    /// the shapes name
-    QString name_;
-    /// other data
-    QString otherDataFieldOne_;
-    QString otherDataFieldTwo_;
-    /// an id number
-    double idNumber_;
-    /// the 3D shape to store
-    QVector<QVector3D> coordinate_;
-    /// z-axis rotation
-    double zAxisRotation_;
-    /// x-axis rotation
-    double xAxisRotation_;
-    /// y-axis rotation
-    double yAxisRotation_;
-    /// the number of coordinates
-    int coordinateCount_;
+	/// the 2D shape to store
+	QPolygonF* shape_;
+	/// the shapes name
+	QString name_;
+	/// other data
+	QString otherDataFieldOne_;
+	QString otherDataFieldTwo_;
+	/// an id number
+	double idNumber_;
+	/// the 3D shape to store
+	QVector<QVector3D> coordinate_;
+	/// z-axis rotation
+	double zAxisRotation_;
+	/// x-axis rotation
+	double xAxisRotation_;
+	/// y-axis rotation
+	double yAxisRotation_;
+	/// the number of coordinates
+	int coordinateCount_;
 
-    bool visible_;
+	bool visible_;
 
-    bool validIndex(int index) const;
+	bool validIndex(int index) const;
 
 };
 

@@ -1676,6 +1676,7 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
 	else if (mode_ == OPERATION)
 	{
 		emit mouseOperationSelect((position));
+		qDebug() << "Position: " << position << " crosshair: " << shapeModel_->crosshair();
 		emit mouseOperationPressed((position),shapeModel_->crosshair());
 		currentSelectionChanged();
 	}
