@@ -706,17 +706,17 @@ bool AMSampleCamera::findIntersections()
 		return false;
 	}
 	intersections_.clear();
+	QList<AMSample*> allIntersectedSamples;
 	for(int i = 0; i <= index_; i++)
 	{
 		QVector<QVector3D> intersectionShape = findIntersectionShape(i);
 		if(!intersectionShape.isEmpty()){
-			AMSample *intersectionSample = 0;
 			if(AMBeamline::bl()->samplePlate())
-				intersectionSample = AMBeamline::bl()->samplePlate()->sampleFromShape(shapeList_.at(i));
-			AMBeamline::bl()->setCurrentSample(intersectionSample);
+				allIntersectedSamples.append(AMBeamline::bl()->samplePlate()->sampleFromShape(shapeList_.at(i)));
 			intersections_<<intersectionScreenShape(intersectionShape);
 		}
 	}
+	AMBeamline::bl()->setCurrentSample(allIntersectedSamples);
 
 	if(samplePlateSelected_)
 	{
