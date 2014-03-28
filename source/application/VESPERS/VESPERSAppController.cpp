@@ -320,8 +320,8 @@ void VESPERSAppController::setupUserInterface()
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
-	mapScanConfiguration_->setStepSize(0.005, 0.005);
-	mapScanConfiguration_->setTimeStep(1);
+//	mapScanConfiguration_->setStepSize(0.005, 0.005);
+//	mapScanConfiguration_->setTimeStep(1);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 
@@ -691,11 +691,11 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setName(config->name());
 		mapScanConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
 		mapScanConfiguration_->setIncomingChoice(config->incomingChoice());
-		mapScanConfiguration_->setFastAxis(config->fastAxis());
-		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
-		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
-		mapScanConfiguration_->setStepSize(config->steps());
-		mapScanConfiguration_->setTimeStep(config->timeStep());
+//		mapScanConfiguration_->setFastAxis(config->fastAxis());
+//		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
+//		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
+//		mapScanConfiguration_->setStepSize(config->steps());
+//		mapScanConfiguration_->setTimeStep(config->timeStep());
 		mapScanConfiguration_->setMotor(config->motor());
 		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
 		mapScanConfiguration_->setNormalPosition(config->normalPosition());

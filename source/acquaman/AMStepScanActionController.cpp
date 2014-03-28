@@ -35,18 +35,21 @@ AMStepScanActionController::~AMStepScanActionController()
 
 void AMStepScanActionController::buildScanController()
 {
-	currentAxisValues_ << 0;
+	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
 
+	// Setup all the axes.
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
+		currentAxisValues_ << 0;
 		stepConfiguration_->scanAxisAt(i)->setName(scan_->rawData()->scanAxisAt(i).name);
 
 		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++)
 			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(0).name).arg("region").arg(j+1));
+
+		newScanAssembler_->appendAxis(AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
 	}
 
-	newScanAssembler_->appendAxis(AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(0)), stepConfiguration_->scanAxisAt(0));
-
+	// Add all the detectors.
 	for (int i = 0, size = stepConfiguration_->detectorConfigurations().count(); i < size; i++){
 
 		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(stepConfiguration_->detectorConfigurations().at(i));
@@ -132,6 +135,9 @@ void AMStepScanActionController::buildScanController()
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 	}
 
+	if (scan_->rawData()->scanAxesCount() >= 2)
+		prefillScanPoints();
+
 	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
 	newScanAssembler_->generateActionTree();
 
@@ -205,7 +211,8 @@ bool AMStepScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{qDebug() << "Axis Started" << message.uniqueID();
 
-			writeHeaderToFile();
+			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
+				writeHeaderToFile();
 
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
 				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
@@ -214,14 +221,22 @@ bool AMStepScanActionController::event(QEvent *e)
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{qDebug() << "Axis Finished" << message.uniqueID();
-			scan_->rawData()->endInsertRows();
+
 			writeDataToFiles();
-			emit finishWritingToFile();
+
+			if (scan_->rawData()->scanAxesCount() == 1){
+
+				scan_->rawData()->endInsertRows();
+				emit finishWritingToFile();
+			}
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::LoopIncremented:qDebug() << "Loop Incremented" << message.uniqueID();
 
-			scan_->rawData()->endInsertRows();
+			if (scan_->rawData()->scanAxesCount() == 1)
+				scan_->rawData()->endInsertRows();
+
 			writeDataToFiles();
 
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
@@ -231,24 +246,28 @@ bool AMStepScanActionController::event(QEvent *e)
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+
+			if(scan_->rawData()->scanAxesCount() == 1 && currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+
 				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
 				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
 			}
 
-			QVector<double> localDetectorData;
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
+			QVector<double> localDetectorData = QVector<double>(detectorDataValues.size());
+
 			for(int x = 0; x < detectorDataValues.count(); x++)
-				localDetectorData.append(detectorDataValues.at(x).toDouble());
+				localDetectorData[x] = detectorDataValues.at(x).toDouble();
 
 			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:qDebug() << "Control Moved" << message.uniqueID();
 
-			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++){
+			for (int i = 0, size = stepConfiguration_->axisControlInfos().count(); i < size; i++){
 
-				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name)){
+				if (message.uniqueID().contains(stepConfiguration_->axisControlInfos().at(i).name())){
 
 					if (!useFeedback_){
 						if(message.value("ControlMovementType") == "Absolute")
@@ -370,7 +389,7 @@ void AMStepScanActionController::prefillScanPoints()
 		QVector<double> ends;
 		QVector<double> counts;
 
-		// This assumes only one region per axis in
+		// This assumes only one region per axis for now.
 		foreach (AMScanAxis *axis, stepConfiguration_->scanAxes()){
 
 			AMScanAxisRegion *region = axis->regionAt(0);
