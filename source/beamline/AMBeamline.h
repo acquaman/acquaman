@@ -123,11 +123,15 @@ public:
 	AMSamplePlateBrowser* samplePlateBrowser();
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
+	AMSample* currentSample() const;
+	void setCurrentSample(AMSample *sample);
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
 	void samplePlateAboutToChange(AMSamplePlate *lastSamplePlate);
 	void samplePlateChanged(AMSamplePlate *samplePlate);
+	void currentSampleChanged(AMSample *currentSample);
 
 
 protected:
@@ -146,6 +150,7 @@ protected:
 
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateBrowser *samplePlateBrowser_;
+	AMSample *currentSample_;
 };
 
 #endif /*BEAMLINE_H_*/

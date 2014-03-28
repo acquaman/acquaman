@@ -710,7 +710,10 @@ bool AMSampleCamera::findIntersections()
 	{
 		QVector<QVector3D> intersectionShape = findIntersectionShape(i);
 		if(!intersectionShape.isEmpty()){
-			qDebug() << "We have an intersection on the shapeData named " << shapeList_.at(i)->name();
+			AMSample *intersectionSample = 0;
+			if(AMBeamline::bl()->samplePlate())
+				intersectionSample = AMBeamline::bl()->samplePlate()->sampleFromShape(shapeList_.at(i));
+			AMBeamline::bl()->setCurrentSample(intersectionSample);
 			intersections_<<intersectionScreenShape(intersectionShape);
 		}
 	}

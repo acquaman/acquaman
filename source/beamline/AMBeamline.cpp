@@ -33,7 +33,8 @@ AMBeamline::AMBeamline(const QString& controlName)
 	exposedControls_ = new AMControlSet(this);
 	exposedDetectors_ = new AMDetectorSet(this);
 	samplePlate_ = 0; //NULL
-	samplePlateBrowser_ = 0;
+	samplePlateBrowser_ = 0; //NULL
+	currentSample_ = 0; //NULL
 }
 
 AMBeamline::~AMBeamline()
@@ -79,6 +80,20 @@ void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 	if(samplePlate_)
 		samplePlate_->storeToDb(AMDatabase::database("user"));
 	emit samplePlateChanged(samplePlate_);
+}
+
+AMSample* AMBeamline::currentSample() const{
+	return currentSample_;
+}
+
+void AMBeamline::setCurrentSample(AMSample *sample){
+	if(sample != currentSample_){
+		currentSample_ = sample;
+		emit currentSampleChanged(currentSample_);
+
+		if(currentSample_)
+			qDebug() << "AMBeamline knows it has a new current sample named " << currentSample_->name();
+	}
 }
 
 bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){
