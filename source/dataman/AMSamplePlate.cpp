@@ -138,6 +138,10 @@ void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
 		sample->storeToDb(database());
 }
 
+void AMSamplePlate::requestSampleMoveTo(int index){
+	emit sampleMoveToRequested(sampleAt(index)->sampleShapePositionData());
+}
+
 void AMSamplePlate::setPlatePosition(QVector3D position)
 {
 	if(position != platePosition_)

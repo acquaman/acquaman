@@ -4,6 +4,7 @@ contains(user,ludbae){
     HOME_FOLDER=/home/ludbae
 }
 
+USERNAME = $$system(whoami)
 
 macx {
 
@@ -126,6 +127,16 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 LIBS +=	$$CDF_LIB \
 		-L$$MPLOT_LIB_DIR -lMPlot
 
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 
@@ -169,7 +180,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h \
 		$$AM_INCLUDE_DIR/dataman/AMSample.h \
 		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
-		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
+		$$AM_INCLUDE_DIR/util/AMDataSourcePlotSettings.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \

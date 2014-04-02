@@ -59,6 +59,8 @@ public slots:
 	/// Called when a shapeData claims to update properties definitely. We call storeToDb() on the associated sample.
 	void onShapeDataPropertyUpdated(AMShapeData *shapeData);
 
+	void requestSampleMoveTo(int index);
+
 	void setPlatePosition(QVector3D position);
 	void setPlateRotation(double rotation);
 
@@ -69,6 +71,8 @@ signals:
 	void sampleRemoved(int index);
 	void sampleAboutToBeAdded(int index);
 	void sampleAboutToBeRemoved(int index);
+
+	void sampleMoveToRequested(AMShapeData *shapeData);
 
 	// GET RID OF THIS?
 	void sampleAddedThroughCamera(AMSample *sample);

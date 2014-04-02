@@ -17,6 +17,8 @@ contains(user,ludbae){
     HOME_FOLDER=/home/ludbae
 }
 
+USERNAME = $$system(whoami)
+
 macx {
 
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
@@ -268,6 +270,17 @@ QMAKE_CXXFLAGS += -Wextra -g
 # For Qt 4.7.1 and earlier, need to use this instead:
 								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+
+	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
@@ -764,7 +777,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/AMGraphicsTextItem.h \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.h \
 	source/ui/dataman/AMSampleEditor.h \
-	source/beamline/camera/AMRotationalOffset.h
+	source/beamline/camera/AMRotationalOffset.h \
+	source/beamline/camera/AMAngle.h
 
 
 # OS-specific files:
@@ -1271,7 +1285,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMGraphicsTextItem.cpp \
 	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp \
 	source/ui/dataman/AMSampleEditor.cpp \
-	source/beamline/camera/AMRotationalOffset.cpp
+	source/beamline/camera/AMRotationalOffset.cpp \
+	source/beamline/camera/AMAngle.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1295,61 +1310,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
