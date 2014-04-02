@@ -603,6 +603,8 @@ protected:
 
 	QLineEdit* rotationalOffset_ [3];
 
+	bool showGrid_;
+
 };
 
 #endif // AMCROSSHAIROVERLAYVIDEOWIDGET2_H

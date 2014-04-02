@@ -178,6 +178,8 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	connect(shapeModel_, SIGNAL(enableMotorMovementChanged(bool)), this, SLOT(onEnableMotorMovementChanged(bool)));
 	connect(shapeModel_, SIGNAL(enableMotorTrackingChanged(bool)), this, SLOT(onEnableMotorTrackingChanged(bool)));
+
+	showGrid_ = false;
 }
 
 AMSampleCameraView::~AMSampleCameraView()
@@ -1178,6 +1180,7 @@ bool AMSampleCameraView::loadCamera()
 	cameraToLoad->loadFromDb(db,id);
 	shapeModel_->setCameraModel(cameraToLoad);
 	refreshSceneView();
+
 	return true;
 }
 
@@ -1248,6 +1251,51 @@ bool AMSampleCameraView::loadRotationalOffset()
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
 	delete rotationalOffset;
 	refreshSceneView();
+
+	if(showGrid_){
+
+		AMShapeData *shapeData;
+		QVector<QVector3D> *coordinates;
+
+		for(int x = 1, size = 11; x < size; x+=2){
+			shapeData = new AMShapeData();
+			coordinates = new QVector<QVector3D>();
+			coordinates->append(QVector3D(-11.5, -rotationalOffset->rotationalOffset().y(), x+0.5));
+			coordinates->append(QVector3D( 11.5, -rotationalOffset->rotationalOffset().y(), x+0.5));
+			coordinates->append(QVector3D( 11.5, -rotationalOffset->rotationalOffset().y(), x-0.5));
+			coordinates->append(QVector3D(-11.5, -rotationalOffset->rotationalOffset().y(), x-0.5));
+			shapeData->setCoordinateShape(*coordinates);
+			shapeModel_->insertItem(shapeData);
+
+			shapeData = new AMShapeData();
+			coordinates = new QVector<QVector3D>();
+			coordinates->append(QVector3D(-11.5, -rotationalOffset->rotationalOffset().y(), -x+0.5));
+			coordinates->append(QVector3D( 11.5, -rotationalOffset->rotationalOffset().y(), -x+0.5));
+			coordinates->append(QVector3D( 11.5, -rotationalOffset->rotationalOffset().y(), -x-0.5));
+			coordinates->append(QVector3D(-11.5, -rotationalOffset->rotationalOffset().y(), -x-0.5));
+			shapeData->setCoordinateShape(*coordinates);
+			shapeModel_->insertItem(shapeData);
+
+			shapeData = new AMShapeData();
+			coordinates = new QVector<QVector3D>();
+			coordinates->append(QVector3D(x+0.5, -rotationalOffset->rotationalOffset().y(), 11.5));
+			coordinates->append(QVector3D(x+0.5, -rotationalOffset->rotationalOffset().y(), 11.5));
+			coordinates->append(QVector3D(x-0.5, -rotationalOffset->rotationalOffset().y(), -11.5));
+			coordinates->append(QVector3D(x-0.5, -rotationalOffset->rotationalOffset().y(), -11.5));
+			shapeData->setCoordinateShape(*coordinates);
+			shapeModel_->insertItem(shapeData);
+
+			shapeData = new AMShapeData();
+			coordinates = new QVector<QVector3D>();
+			coordinates->append(QVector3D(-x+0.5, -rotationalOffset->rotationalOffset().y(), 11.5));
+			coordinates->append(QVector3D(-x+0.5, -rotationalOffset->rotationalOffset().y(), 11.5));
+			coordinates->append(QVector3D(-x-0.5, -rotationalOffset->rotationalOffset().y(), -11.5));
+			coordinates->append(QVector3D(-x-0.5, -rotationalOffset->rotationalOffset().y(), -11.5));
+			shapeData->setCoordinateShape(*coordinates);
+			shapeModel_->insertItem(shapeData);
+		}
+	}
+
 	return true;
 
 

@@ -605,8 +605,10 @@ protected:
 
 	/// inserts an item into the shape list - use this rather than inserting
 	/// manually into the list - keeps the model updated
+public:
 	void insertItem(AMShapeData* item);
 
+protected:
 	/// removes an item from the shape list - use this rather than
 	/// removing items manually - keeps the model updated
 //	void removeItem(int index);
