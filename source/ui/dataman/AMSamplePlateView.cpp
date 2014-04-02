@@ -359,7 +359,7 @@ void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 }
 
 void AMSamplePlateView::onRowMoveToPressed(int row){
-
+	samplePlate_->requestSampleMoveTo(row);
 }
 
 void AMSamplePlateView::onRowMoreInfoPressed(int row){

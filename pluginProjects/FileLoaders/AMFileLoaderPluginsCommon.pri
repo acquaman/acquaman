@@ -6,6 +6,7 @@ contains(user,ludbae){
     HOME_FOLDER=/home/ludbae
 }
 
+USERNAME = $$system(whoami)
 
 macx {
 
@@ -193,7 +194,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h \
 		$$AM_INCLUDE_DIR/dataman/AMSample.h \
 		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
-		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
+		$$AM_INCLUDE_DIR/util/AMDataSourcePlotSettings.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \

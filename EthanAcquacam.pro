@@ -95,11 +95,16 @@ macx {
                 ##MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
                 #MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.2-osx/include/QtMobility
 
-                MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/Library/Frameworks/QtMultimediaKit.framework
-                MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-                MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMultimediaKit
-                #MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
-                MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMobility
+#                MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/Library/Frameworks/QtMultimediaKit.framework
+#                MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+#                MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMultimediaKit
+#                #MULTIMEDIA_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-opensource-src-1.1.3/src/multimedia
+#                MOBILITY_QT_INCLUDE_SRC_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-osx/include/QtMobility
+
+		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
+		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
+						$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
 
                 #Eigen
                 EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen

@@ -19,6 +19,8 @@ contains(user,ludbae){
     HOME_FOLDER=/home/ludbae
 }
 
+USERNAME = $$system(whoami)
+
 macx {
 
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
@@ -63,7 +65,7 @@ macx {
 		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
 		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
 		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
-					$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
+						$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
 
 		QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
 
@@ -791,7 +793,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/CLS/CLSSR570CompositeView.h \
 	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
 	source/actions3/actions/AMControlStopAction.h \
-	source/actions3/actions/AMControlStopActionInfo.h
+	source/actions3/actions/AMControlStopActionInfo.h \
+	source/beamline/camera/AMAngle.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1300,7 +1303,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/CLS/CLSSR570CompositeView.cpp \
 	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
 	source/actions3/actions/AMControlStopAction.cpp \
-	source/actions3/actions/AMControlStopActionInfo.cpp
+	source/actions3/actions/AMControlStopActionInfo.cpp \
+	source/beamline/camera/AMAngle.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
