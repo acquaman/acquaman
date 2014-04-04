@@ -32,7 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
- VESPERSEnergyScanConfigurationView::~VESPERSEnergyScanConfigurationView(){}
+VESPERSEnergyScanConfigurationView::~VESPERSEnergyScanConfigurationView(){}
+
 VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -40,9 +41,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMTopFrame *frame = new AMTopFrame("VESPERS Energy Scan Configuration");
 
 	// Regions setup
-	regionsView_ = new AMRegionsView(config_->regions());
-	regionsView_->setMinimumWidth(400);
-	regionsView_->setMaximumHeight(100);
 
 	// The CCD detector setup.
 	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
@@ -112,7 +110,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Setting up the layout.
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
 	topRowLayout->addStretch();
-	topRowLayout->addWidget(regionsView_, 0, Qt::AlignLeft);
 	topRowLayout->addWidget(ccdDetectorGroupBox);
 	topRowLayout->addWidget(goToPositionGroupBox);
 	topRowLayout->addStretch();

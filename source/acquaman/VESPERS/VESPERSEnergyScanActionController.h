@@ -1,19 +1,20 @@
 #ifndef VESPERSENERGYSCANACTIONCONTROLLER_H
 #define VESPERSENERGYSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific subclass for XRD energy scans.
-class VESPERSEnergyScanActionController : public AMRegionScanActionController, public VESPERSScanController
+class VESPERSEnergyScanActionController : public AMStepScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the VESPERS beamline.
-	virtual ~VESPERSEnergyScanActionController();
 	VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSEnergyScanActionController();
 
 protected slots:
 	/// Helper slot that handles the progress update.

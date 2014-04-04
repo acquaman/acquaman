@@ -19,52 +19,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEnergyScanConfiguration.h"
 
-#include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanActionController.h"
 
 VESPERSEnergyScanConfiguration::~VESPERSEnergyScanConfiguration(){}
 
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
-	: AMXASScanConfiguration(parent), VESPERSScanConfiguration()
+	: AMStepScanConfiguration(parent), VESPERSScanConfiguration()
 {
 	setName("EnergyScan");
 	setUserScanName("EnergyScan");
 	dbObject_->setParent(this);
-	regions_->setSensibleRange(10000, 20000);
-	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energy());
-	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	regions_->setDefaultUnits(" eV");
-	regions_->setDefaultTimeUnits(" s");
+
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
 
 	setMotor(VESPERS::H | VESPERS::V);
 	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("");
 	goToPosition_ = false;
 	position_ = QPointF(0.0, 0.0);
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 }
 
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original)
-	: AMXASScanConfiguration(original), VESPERSScanConfiguration(original)
+	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	dbObject_->setParent(this);
-	regions_->setSensibleRange(original.regions()->sensibleStart(), original.regions()->sensibleEnd());
-	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energy());
-	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	regions_->setDefaultUnits(original.regions()->defaultUnits());
-	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
-
-	for (int i = 0; i < original.regionCount(); i++)
-		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i), original.regionTime(i));
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
 	computeTotalTime();
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
@@ -112,13 +99,13 @@ QString VESPERSEnergyScanConfiguration::headerText() const
 	header.append("\n");
 	header.append("Regions Scanned\n");
 
-	for (int i = 0; i < regionCount(); i++){
+	for (int i = 0; i < scanAxisAt(0)->regionCount(); i++){
 
 		header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-						  .arg(regionStart(i))
-						  .arg(regionDelta(i))
-						  .arg(regionEnd(i))
-						  .arg(regionTime(i)));
+						  .arg(double(scanAxisAt(0)->regionAt(i)->regionStart()))
+						  .arg(double(scanAxisAt(0)->regionAt(i)->regionStep()))
+						  .arg(double(scanAxisAt(0)->regionAt(i)->regionEnd()))
+						  .arg(double(scanAxisAt(0)->regionAt(i)->regionTime())));
 	}
 
 	return header;
@@ -135,8 +122,8 @@ void VESPERSEnergyScanConfiguration::computeTotalTimeImplementation()
 	else if (ccdDetector() == VESPERS::Mar)
 		extraOffset = 3;
 
-	for (int i = 0; i < regions_->count(); i++)
-		time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
+		time += ((double(region->regionEnd()) - double(region->regionStart()))/double(region->regionStep()))*(double(region->regionTime()) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	setExpectedDuration(totalTime_);

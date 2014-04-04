@@ -69,10 +69,11 @@ public:
 	enum Type { Integer, FloatingPoint };
 
 	/// Default constructor creates a Null AMNumber
- 	virtual ~AMNumber();
 	AMNumber();
 	/// Constructs an invalid number with a given State. (\c state should not be Valid, otherwise it will be changed to Null.  This constructor is useful, for ex, in returning an OutOfBoundsError number from an array accessed outside its range.
 	AMNumber(State errorState);
+	/// Destructor.
+	virtual ~AMNumber();
 
 	/// Conversion constructor from int
 	AMNumber(int fromInt);

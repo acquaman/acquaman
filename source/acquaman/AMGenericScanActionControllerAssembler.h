@@ -3,6 +3,7 @@
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 
+/// Builds the list of actions that can run an entire scan.  Has the base code for all simple scans.
 class AMGenericScanActionControllerAssembler : public AMScanActionControllerScanAssembler
 {
 	Q_OBJECT
@@ -10,6 +11,8 @@ class AMGenericScanActionControllerAssembler : public AMScanActionControllerScan
 public:
 	/// Constructor.
 	AMGenericScanActionControllerAssembler(QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMGenericScanActionControllerAssembler() {}
 
 protected:
 	/// Does all the work of building the action tree.

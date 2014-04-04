@@ -42,8 +42,9 @@ class VESPERSEnergyScanConfigurationView : public VESPERSScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuration that this view will modify.
- 	virtual ~VESPERSEnergyScanConfigurationView();
 	VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSEnergyScanConfigurationView();
 
 	/// Getter for the configuration.
 	const AMScanConfiguration *configuration() const { return config_; }
@@ -74,8 +75,6 @@ protected:
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEnergyScanConfiguration *config_;
 
-	/// This lets you setup regions.
-	AMRegionsView *regionsView_;
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.

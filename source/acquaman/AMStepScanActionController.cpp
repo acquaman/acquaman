@@ -22,9 +22,8 @@
 AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
-	fileWriterIsBusy_ = false;
 	stepConfiguration_ = configuration;
-	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+	fileWriterIsBusy_ = false;
 	useFeedback_ = false;
 }
 
@@ -33,8 +32,16 @@ AMStepScanActionController::~AMStepScanActionController()
 	delete fileWriterThread_;
 }
 
+void AMStepScanActionController::createScanAssembler()
+{
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+}
+
 void AMStepScanActionController::buildScanController()
 {
+	// Build the scan assembler.
+	createScanAssembler();
+
 	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
 
 	// Setup all the axes.
@@ -46,7 +53,7 @@ void AMStepScanActionController::buildScanController()
 		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++)
 			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(0).name).arg("region").arg(j+1));
 
-		newScanAssembler_->appendAxis(AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
+		scanAssembler_->appendAxis(AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
 	}
 
 	// Add all the detectors.
@@ -54,7 +61,7 @@ void AMStepScanActionController::buildScanController()
 
 		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(stepConfiguration_->detectorConfigurations().at(i));
 
-		if (oneDetector && !newScanAssembler_->addDetector(oneDetector)){
+		if (oneDetector && !scanAssembler_->addDetector(oneDetector)){
 
 			AMErrorMon::alert(this, AMSTEPSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR, QString("Could not add the following detector to the assembler: %1").arg(oneDetector != 0 ? oneDetector->name() : "Not found"));
 			return;
@@ -138,8 +145,8 @@ void AMStepScanActionController::buildScanController()
 	if (scan_->rawData()->scanAxesCount() >= 2)
 		prefillScanPoints();
 
-	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
-	newScanAssembler_->generateActionTree();
+	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
+	scanAssembler_->generateActionTree();
 
 	buildScanControllerImplementation();
 }

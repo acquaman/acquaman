@@ -54,6 +54,9 @@ protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
 	virtual bool event(QEvent *e);
 
+	/// Creates the scan assembler that builds all the actions used to run the scan.
+	virtual void createScanAssembler();
+
 	/// Method that writes out the header information into the scanning file.
 	void writeHeaderToFile();
 	/// Method that writes out the current data to the scanning file.
@@ -63,7 +66,7 @@ protected:
 	void prefillScanPoints();
 
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
-	AMScanActionControllerScanAssembler *newScanAssembler_;
+	AMScanActionControllerScanAssembler *scanAssembler_;
 	/// The pointer to the region scan configuration to provide the subclass information.
 	AMStepScanConfiguration *stepConfiguration_;
 

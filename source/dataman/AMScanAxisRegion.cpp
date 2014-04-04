@@ -2,22 +2,22 @@
 
 AMScanAxisRegion::~AMScanAxisRegion(){}
 
-AMScanAxisRegion::AMScanAxisRegion(AMNumber start, AMNumber step, AMNumber end, AMNumber time, QObject *parent) :
-	AMDbObject(parent)
+AMScanAxisRegion::AMScanAxisRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, QObject *parent)
+	: AMDbObject(parent)
 {
-	setRegionStart(start);
-	setRegionStep(step);
-	setRegionEnd(end);
-	setRegionTime(time);
+	regionStart_ = start;
+	regionStep_ = step;
+	regionEnd_ = end;
+	regionTime_ = time;
 }
 
 AMScanAxisRegion::AMScanAxisRegion(const AMScanAxisRegion &original)
 	: AMDbObject(original)
 {
-	setRegionStart(original.regionStart());
-	setRegionStep(original.regionStep());
-	setRegionEnd(original.regionEnd());
-	setRegionTime(original.regionTime());
+	regionStart_ = original.regionStart();
+	regionStep_ = original.regionStep();
+	regionEnd_ = original.regionEnd();
+	regionTime_ = original.regionTime();
 }
 
 AMNumber AMScanAxisRegion::regionStart() const
@@ -40,22 +40,22 @@ AMNumber AMScanAxisRegion::regionTime() const
 	return regionTime_;
 }
 
-void AMScanAxisRegion::setRegionStart(AMNumber regionStart)
+void AMScanAxisRegion::setRegionStart(const AMNumber &regionStart)
 {
-	regionStart_ = regionStart;
+	emit regionStartChanged(regionStart_ = regionStart);
 }
 
-void AMScanAxisRegion::setRegionStep(AMNumber regionStep)
+void AMScanAxisRegion::setRegionStep(const AMNumber &regionStep)
 {
-	regionStep_ = regionStep;
+	emit regionStepChanged(regionStep_ = regionStep);
 }
 
-void AMScanAxisRegion::setRegionEnd(AMNumber regionEnd)
+void AMScanAxisRegion::setRegionEnd(const AMNumber &regionEnd)
 {
-	regionEnd_ = regionEnd;
+	emit regionEndChanged(regionEnd_ = regionEnd);
 }
 
-void AMScanAxisRegion::setRegionTime(AMNumber regionTime)
+void AMScanAxisRegion::setRegionTime(const AMNumber &regionTime)
 {
-	regionTime_ = regionTime;
+	emit regionTimeChanged(regionTime_ = regionTime);
 }
