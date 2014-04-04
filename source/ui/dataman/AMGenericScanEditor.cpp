@@ -292,8 +292,17 @@ void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &nam
 		scanView2D_->setSingleSpectrumDataSource(name);
 }
 
+
+#include "dataman/AMSample.h"
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
+
+	qDebug() << "In AMGSE::addScan";
+	if(newScan->sample())
+		qDebug() << "There is a sample set for this scan, its name is "  << newScan->sample()->name();
+	else
+		qDebug() << "There is no sample set for this scan.";
+
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
 
 	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
@@ -496,7 +505,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 // Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
-	if(	event->possibleActions() & Qt::CopyAction
+	if(event->possibleActions() & Qt::CopyAction
 			&& event->mimeData()->hasUrls()
 			&& event->mimeData()->urls().count() > 0
 			&& event->mimeData()->urls().at(0).scheme() == "amd"
@@ -522,7 +531,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
   */
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
-	if(	!( event->possibleActions() & Qt::CopyAction
+	if(!( event->possibleActions() & Qt::CopyAction
 		   && event->mimeData()->hasUrls()) )
 		return;
 
@@ -533,7 +542,7 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
 bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 
-	if(	!urls.count() )
+	if(!urls.count())
 		return false;
 
 	bool accepted = false;

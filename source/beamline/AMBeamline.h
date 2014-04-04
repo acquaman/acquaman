@@ -124,9 +124,11 @@ public:
 	void setSamplePlate(AMSamplePlate *samplePlate);
 
 	/// The current sample as a list. There better be either 0 or 1 items in it ... otherwise there are mutltiple samples currently under the beam
-	QList<AMSample*> currentSample() const;
+	QList<AMSample*> currentSamples() const;
+	/// Returns the current sample if there is only one item in the list, otherwise returns null. If there are 0 samples or more than one we don't know which is the current sample.
+	AMSample* currentSample() const;
 	/// Sets the current sample as a list. If you pass an empty list, then there is no current sample under the beam. If there is more than 1 item, then multiple samples are under the beam.
-	void setCurrentSample(QList<AMSample*> sample);
+	void setCurrentSamples(QList<AMSample*> sample);
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
@@ -135,7 +137,7 @@ signals:
 	void samplePlateChanged(AMSamplePlate *samplePlate);
 
 	/// Emitted when the current sample
-	void currentSampleChanged(QList<AMSample*> currentSample);
+	void currentSampleChanged(QList<AMSample*> currentSamples);
 
 
 protected:
@@ -155,7 +157,7 @@ protected:
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateBrowser *samplePlateBrowser_;
 	/// The current sample as a list. There better be either 0 or 1 items in it ... otherwise there are mutltiple samples currently under the beam
-	QList<AMSample*> currentSample_;
+	QList<AMSample*> currentSamples_;
 };
 
 #endif /*BEAMLINE_H_*/

@@ -34,7 +34,7 @@ AMBeamline::AMBeamline(const QString& controlName)
 	exposedDetectors_ = new AMDetectorSet(this);
 	samplePlate_ = 0; //NULL
 	samplePlateBrowser_ = 0; //NULL
-	currentSample_ = QList<AMSample*>();
+	currentSamples_ = QList<AMSample*>();
 }
 
 AMBeamline::~AMBeamline()
@@ -82,29 +82,35 @@ void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
 	emit samplePlateChanged(samplePlate_);
 }
 
-QList<AMSample*> AMBeamline::currentSample() const{
-	return currentSample_;
+QList<AMSample*> AMBeamline::currentSamples() const{
+	return currentSamples_;
 }
 
-void AMBeamline::setCurrentSample(QList<AMSample*> sample){
+AMSample* AMBeamline::currentSample() const{
+	if(currentSamples_.count() == 1)
+		return currentSamples_.at(0);
+	return 0; //NULL
+}
+
+void AMBeamline::setCurrentSamples(QList<AMSample*> sample){
 	bool sameSampleList = true;
 
-	if(sample.count() != currentSample_.count())
+	if(sample.count() != currentSamples_.count())
 		sameSampleList = false;
 	else
 		for(int x = 0, size = sample.count(); x < size; x++)
-			if(sample.at(x) != currentSample_.at(x))
+			if(sample.at(x) != currentSamples_.at(x))
 				sameSampleList = false;
 
 	if(!sameSampleList){
-		currentSample_ = sample;
-		emit currentSampleChanged(currentSample_);
+		currentSamples_ = sample;
+		emit currentSampleChanged(currentSamples_);
 
-		if(currentSample_.count() == 0)
+		if(currentSamples_.count() == 0)
 			qDebug() << "AMBeamline knows it has no current sample";
 		else
-			for(int x = 0, size = currentSample_.count(); x < size; x++)
-				qDebug() << "AMBeamline knows it has a new current sample named " << currentSample_.at(x)->name();
+			for(int x = 0, size = currentSamples_.count(); x < size; x++)
+				qDebug() << "AMBeamline knows it has a new current sample named " << currentSamples_.at(x)->name();
 	}
 }
 
