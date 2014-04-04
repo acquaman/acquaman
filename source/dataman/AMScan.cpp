@@ -729,12 +729,8 @@ bool AMScan::loadData()
 	// find the available file loaders that claim to work for our fileFormat:
 	QList<AMFileLoaderFactory*> acceptingFileLoaders = AMPluginsManager::s()->availableFileLoaderPlugins().values(fileFormat());
 
-	for(int x = 0, size = AMPluginsManager::s()->availableFileLoaderPlugins().count(); x < size; x++)
-		qDebug() << "File loaders: " << AMPluginsManager::s()->availableFileLoaderPlugins().values().at(x)->acceptedFileFormats();
 
-	qDebug() << "We have " << acceptingFileLoaders.count() << " that might";
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
-		qDebug() << "Trying " << acceptingFileLoaders.at(x)->acceptedFileFormats();
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
 			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());

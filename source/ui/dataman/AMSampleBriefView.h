@@ -13,11 +13,15 @@ class AMSampleBriefView : public QWidget
 Q_OBJECT
 public:
 	/// Constructor takes a sample to view (or a null pointer)
-	AMSampleBriefView(AMSample *sample, QWidget *parent = 0);
+	AMSampleBriefView(const AMSample *sample = 0, QWidget *parent = 0);
+
+public slots:
+	/// Sets the sample
+	void setSample(const AMSample *sample);
 
 protected:
 	/// The sample we intend to view
-	AMSample *sample_;
+	const AMSample *sample_;
 
 	/// Label that holds the name of the sample
 	QLabel *nameLabel_;

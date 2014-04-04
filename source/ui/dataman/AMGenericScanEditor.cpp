@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/dataman/AMRunSelector.h"
 #include "ui/dataman/AMSamplePre2013Editor.h"
+#include "ui/dataman/AMSampleBriefView.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
@@ -96,8 +97,13 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
-	sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	qDebug() << "We have a sampleBriefView at " << (intptr_t)sampleBriefView_;
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
+
+
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
@@ -199,7 +205,10 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
-	sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	qDebug() << "We have a sampleBriefView at " << (intptr_t)sampleBriefView_;
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
@@ -405,6 +414,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
 		sampleEditor_->setCurrentSampleFromId(scan->sampleId());
+		sampleBriefView_->setSample(scan->sample());
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
@@ -427,6 +437,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		// what to set run selector to?
 
 		sampleEditor_->setCurrentSampleFromId(-1);
+		sampleBriefView_->setSample(0);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
 
