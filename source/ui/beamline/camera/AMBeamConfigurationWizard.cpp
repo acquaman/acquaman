@@ -19,19 +19,33 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 {
 	/// two points for each square, three squares.
 	setNumberOfPoints(6);
+	setNumberOfPages(numberOfPoints());
+	setFreePage(Page_Free);
+
+	setRotationEnabled(false);
 
 	setPage(Page_Intro, new AMWizardPage);
-	setPage(Page_Check_One, new AMBeamCheckPage);
-	setPage(Page_Check_Two, new AMBeamCheckPage);
-	setPage(Page_Check_Three, new AMBeamCheckPage);
-	setPage(Page_Wait_One, new AMBeamWaitPage);
-	setPage(Page_Wait_Two, new AMBeamWaitPage);
-	setPage(Page_Wait_Three, new AMBeamWaitPage);
-	setPage(Page_Set_One, new AMBeamSelectPage);
-	setPage(Page_Set_Two, new AMBeamSelectPage);
-	setPage(Page_Set_Three, new AMBeamSelectPage);
+//	setPage(Page_Check_One, new AMBeamCheckPage);
+//	setPage(Page_Check_Two, new AMBeamCheckPage);
+//	setPage(Page_Check_Three, new AMBeamCheckPage);
+//	setPage(Page_Wait_One, new AMBeamWaitPage);
+//	setPage(Page_Wait_Two, new AMBeamWaitPage);
+//	setPage(Page_Wait_Three, new AMBeamWaitPage);
+//	setPage(Page_Set_One, new AMBeamSelectPage);
+//	setPage(Page_Set_Two, new AMBeamSelectPage);
+//	setPage(Page_Set_Three, new AMBeamSelectPage);
 	setPage(Page_Final, new AMWizardPage);
 	setPage(Page_Option, new AMWizardOptionPage);
+	for(int i = 0; i < numberOfPages(); i++)
+	{
+		setPage(pageWait(i), new AMBeamWaitPage);
+		/* kind of a dirty hack here, but this makes the
+		   wait logic cleaner */
+		if(i < 3)
+			setPage(pageSet(i), new AMBeamCheckPage);
+		else
+			setPage(pageSet(i), new AMBeamSelectPage);
+	}
 	setStartId(Page_Intro);
 	setOption(HaveHelpButton, true);
 	connect(this, SIGNAL(helpRequested()), this, SLOT(showHelp()));
@@ -74,95 +88,94 @@ AMBeamConfigurationWizard::~AMBeamConfigurationWizard()
 
 int AMBeamConfigurationWizard::nextId() const
 {
-	switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
 	{
 	case Page_Intro:
 		if(showOptionPage())
 			return Page_Option;
 		else
-			return Page_Wait_One;
-	case Page_Check_One:
-		return Page_Wait_Two;
-	case Page_Check_Two:
-		return Page_Wait_Three;
-	case Page_Check_Three:
-		if(checked(Page_Check_One) && checked(Page_Check_Two) && checked(Page_Check_Three))
-			return Page_Final;
-		else
-			return Wait_One_Again;
-	case Page_Wait_One:
-		if(setting_) return Page_Set_One;
-		else return Page_Check_One;
-	case Page_Wait_Two:
-		if(setting_) return Page_Set_Two;
-		else return Page_Check_Two;
-	case Page_Wait_Three:
-		if(setting_) return Page_Set_Three;
-		else return Page_Check_Three;
-	case Page_Set_One:
-		return Wait_Two_Again;
-	case Page_Set_Two:
-		return Wait_Three_Again;
-	case Page_Set_Three:
-		return Page_Final;
+			return pageWait(0);
 	default:
-		return -1;
+		if(isWaitPage(pageId))
+		{
+			return pageSet(relativeId());
+		}
+		else if(isSetPage(pageId))
+		{
+			if((lastCheckPage() && allChecked()) || (relativeId() >= (numberOfPages() - 1)))
+			{
+					return Page_Final;
+			}
+			else if(isCheckPage() && !allChecked())/* change this to check all lower number pages */
+			{
+				return pageWait(numberOfPages()/2);
+			}
+			else
+			{
+				return pageWait(relativeId() + 1);
+			}
+		}
+		else
+		{
+			return -1;
+		}
 	}
 }
 
-void AMBeamConfigurationWizard::next()
-{
-	if(nextId() == Wait_One_Again)
-	{
-		setting_ = true;
-		reviewBeamShape_ = false;
-		while(currentId() != Page_Wait_One)
-			QWizard::back();
-		if(currentId() == Page_Wait_One)
-			initializePage(Page_Wait_One);
-	}
-	else if (nextId() == Wait_Two_Again)
-	{
-		setting_ = false;
-		QWizard::back();
-		while(currentId() != Page_Wait_Two)
-			QWizard::next();
-		if(currentId() == Page_Wait_Two)
-		{
-			setting_ = true;
-			initializePage(Page_Wait_Two);
-		}
-	}
-	else if(nextId() == Wait_Three_Again)
-	{
-		setting_ = false;
-		QWizard::back();
-		while(currentId() != Page_Wait_Three)
-			QWizard::next();
-		if(currentId() == Page_Wait_Three)
-		{
-			setting_ = true;
-			initializePage(Page_Wait_Three);
-		}
-	}
-	else if((currentId() == Page_Check_One && !(field(QString("configured%1").arg(Page_Check_One)).toBool()))
-			|| (currentId() == Page_Check_Two && !(field(QString("configured%1").arg(Page_Check_Two)).toBool())))
-	{
-		while(currentId() != Page_Check_Three)
-		{
-			QWizard::next();
-		}
-		next();
-	}
-	else AMGraphicsViewWizard::next();
-}
+//void AMBeamConfigurationWizard::next()
+//{
+////	if(nextId() == Wait_One_Again)
+////	{
+////		setting_ = true;
+////		reviewBeamShape_ = false;
+////		while(currentId() != Page_Wait_One)
+////			QWizard::back();
+////		if(currentId() == Page_Wait_One)
+////			initializePage(Page_Wait_One);
+////	}
+////	else if (nextId() == Wait_Two_Again)
+////	{
+////		setting_ = false;
+////		QWizard::back();
+////		while(currentId() != Page_Wait_Two)
+////			QWizard::next();
+////		if(currentId() == Page_Wait_Two)
+////		{
+////			setting_ = true;
+////			initializePage(Page_Wait_Two);
+////		}
+////	}
+////	else if(nextId() == Wait_Three_Again)
+////	{
+////		setting_ = false;
+////		QWizard::back();
+////		while(currentId() != Page_Wait_Three)
+////			QWizard::next();
+////		if(currentId() == Page_Wait_Three)
+////		{
+////			setting_ = true;
+////			initializePage(Page_Wait_Three);
+////		}
+////	}
+////	else if((currentId() == Page_Check_One && !(field(QString("configured%1").arg(Page_Check_One)).toBool()))
+////			|| (currentId() == Page_Check_Two && !(field(QString("configured%1").arg(Page_Check_Two)).toBool())))
+////	{
+////		while(currentId() != Page_Check_Three)
+////		{
+////			QWizard::next();
+////		}
+////		next();
+////	}
+//	else AMGraphicsViewWizard::next();
+//}
 
 QString AMBeamConfigurationWizard::message(int type)
 {
 	if(type == Wizard_Title) return QString(tr("Beam Configuration Wizard"));
 	else if(type == Help_Title) return QString(tr("Help"));
-
-	switch(currentId())
+	int pageId = currentId();
+	switch(pageId)
 	{
 	case Page_Intro:
 		switch(type)
@@ -194,63 +207,63 @@ QString AMBeamConfigurationWizard::message(int type)
 		}
 		break;
 
-	case Page_Check_One:
-	case Page_Check_Two:
-	case Page_Check_Three:
-		switch(type)
-		{
-		case Title:
-			return QString(tr("Confirm Beam"));
-		case Text:
-			return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId() + 1);
-		case Help:
-			return QString(tr("Check to see if the rectangle appears around the beamspot.  \n") +
-				       tr("If the beamspot is not visible, ensure that visible light has been turned on.  \n") +
-				       tr("If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  ") +
-				       tr("This may require changing of the coordinates on the options page, accessible from the introduction page."));
-		case Other:
-			return QString(tr("Is the beam correct?"));
-		case Default:
-		default:
-			break;
-		}
-		break;
-	case Page_Set_One:
-	case Page_Set_Two:
-	case Page_Set_Three:
-		switch(type)
-		{
-		case Title:
-			return QString(tr("Set Beam"));
-		case Text:
-			return QString(tr("Draw a box over beam position %1")).arg(relativeId() + 1);
-		case Help:
-			return QString(tr("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  "))
-					+ tr("Try to fit the box to best encompass the entire beamspot.");
-		case Other:
-		case Default:
-		default:
-			break;
-		}
-		break;
-	case Page_Wait_One:
-	case Page_Wait_Two:
-	case Page_Wait_Three:
-		switch(type)
-		{
-		case Title:
-			return QString(tr("Please Wait"));
-		case Text:
-			return QString(tr("Moving to position %1")).arg(relativeId() + 1);
-		case Help:
-			return QString(tr("If the configuration is stuck here please check to make sure that motor movement is enabled.")
-				       + tr(" If movement is enabled there may be a problem communicating with the sample manipulator motors."));
-		case Other:
-		case Default:
-		default:
-			break;
-		}
-		break;
+//	case Page_Check_One:
+//	case Page_Check_Two:
+//	case Page_Check_Three:
+//		switch(type)
+//		{
+//		case Title:
+//			return QString(tr("Confirm Beam"));
+//		case Text:
+//			return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId() + 1);
+//		case Help:
+//			return QString(tr("Check to see if the rectangle appears around the beamspot.  \n") +
+//				       tr("If the beamspot is not visible, ensure that visible light has been turned on.  \n") +
+//				       tr("If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  ") +
+//				       tr("This may require changing of the coordinates on the options page, accessible from the introduction page."));
+//		case Other:
+//			return QString(tr("Is the beam correct?"));
+//		case Default:
+//		default:
+//			break;
+//		}
+//		break;
+//	case Page_Set_One:
+//	case Page_Set_Two:
+//	case Page_Set_Three:
+//		switch(type)
+//		{
+//		case Title:
+//			return QString(tr("Set Beam"));
+//		case Text:
+//			return QString(tr("Draw a box over beam position %1")).arg(relativeId() + 1);
+//		case Help:
+//			return QString(tr("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  "))
+//					+ tr("Try to fit the box to best encompass the entire beamspot.");
+//		case Other:
+//		case Default:
+//		default:
+//			break;
+//		}
+//		break;
+//	case Page_Wait_One:
+//	case Page_Wait_Two:
+//	case Page_Wait_Three:
+//		switch(type)
+//		{
+//		case Title:
+//			return QString(tr("Please Wait"));
+//		case Text:
+//			return QString(tr("Moving to position %1")).arg(relativeId() + 1);
+//		case Help:
+//			return QString(tr("If the configuration is stuck here please check to make sure that motor movement is enabled.")
+//				       + tr(" If movement is enabled there may be a problem communicating with the sample manipulator motors."));
+//		case Other:
+//		case Default:
+//		default:
+//			break;
+//		}
+//		break;
 	case Page_Final:
 		switch(type)
 		{
@@ -283,6 +296,66 @@ QString AMBeamConfigurationWizard::message(int type)
 		}
 
 	default:
+		if(isWaitPage(pageId))
+		{
+			switch(type)
+			{
+			case Title:
+				return QString(tr("Please Wait"));
+			case Text:
+				return QString(tr("Moving to position %1")).arg(relativeId() + 1);
+			case Help:
+				return QString(tr("If the configuration is stuck here please check to make sure that motor movement is enabled.")
+					       + tr(" If movement is enabled there may be a problem communicating with the sample manipulator motors."));
+			case Other:
+			case Default:
+			default:
+				break;
+			}
+			break;
+		}
+		else if(isSetPage(pageId))
+		{
+			if(relativeId(pageId) < numberOfPages()/2)
+			{
+				switch(type)
+				{
+				case Title:
+					return QString(tr("Confirm Beam"));
+				case Text:
+					return QString(tr("Check to see if beam %1 is in the correct configuration.")).arg(relativeId() + 1);
+				case Help:
+					return QString(tr("Check to see if the rectangle appears around the beamspot.  \n") +
+						       tr("If the beamspot is not visible, ensure that visible light has been turned on.  \n") +
+						       tr("If the beamspot is still not visible, the beam may be moved drastically away from its usual spot.  ") +
+						       tr("This may require changing of the coordinates on the options page, accessible from the introduction page."));
+				case Other:
+					return QString(tr("Is the beam correct?"));
+				case Default:
+				default:
+					break;
+				}
+				break;
+			}
+			else
+			{
+				switch(type)
+				{
+				case Title:
+					return QString(tr("Set Beam"));
+				case Text:
+					return QString(tr("Draw a box over beam position %1")).arg(relativeId()%3 + 1);
+				case Help:
+					return QString(tr("Draw a box over the visible beamspot.  To draw a box click and drag to create the corners.  "))
+							+ tr("Try to fit the box to best encompass the entire beamspot.");
+				case Other:
+				case Default:
+				default:
+					break;
+				}
+				break;
+			}
+		}
 		return QString(tr("Error - unknown page."));
 	}
 
@@ -294,7 +367,7 @@ QString AMBeamConfigurationWizard::message(int type)
 void AMBeamConfigurationWizard::addPoint(QPointF position)
 {
 
-	int index = relativeId();
+	int index = relativeId() - numberOfPoints()/2;
 	QPointF* newPoint;
 
 	if(topLeft_)
@@ -323,31 +396,6 @@ void AMBeamConfigurationWizard::endPoint()
 }
 
 
-int AMBeamConfigurationWizard::relativeId()
-{
-	switch(currentId())
-	{
-	case Page_Check_One:
-	case Page_Wait_One:
-	case Page_Set_One:
-		return 0;
-	case Page_Check_Two:
-	case Page_Wait_Two:
-	case Page_Set_Two:
-		return 1;
-	case Page_Check_Three:
-	case Page_Wait_Three:
-	case Page_Set_Three:
-		return 2;
-	default:
-		return -1;
-	}
-}
-
-//void AMBeamConfigurationWizard::waitPage()
-//{
-//	emit moveTo(*coordinateList()->at(relativeId()));
-//}
 
 void AMBeamConfigurationWizard::showBeamShape()
 {
@@ -368,88 +416,98 @@ bool AMBeamConfigurationWizard::reviewBeamShape()
 
 void AMBeamConfigurationWizard::back()
 {
-	switch(currentId())
+	int pageId = currentId();
+	int targetPage;
+	switch(pageId)
 	{
-	case Page_Check_One:
-		while(currentId() != Page_Intro)
+	case Page_Final:
+		targetPage = pageWait(numberOfPages() - 1);
+		while(currentId() != targetPage)
 			QWizard::back();
+		if(currentId() == targetPage)
+			initializePage(targetPage);
 		break;
-	case Page_Check_Two:
-		while(currentId() != Page_Wait_One)
-			QWizard::back();
-		if(currentId() == Page_Wait_One)
-			initializePage(Page_Wait_One);
-		break;
-	case Page_Check_Three:
-		while(currentId() != Page_Wait_Two)
-			QWizard::back();
-		if(currentId() == Page_Wait_Two)
-			initializePage(Page_Wait_Two);
-		break;
-	case Page_Wait_One:
-		((AMWaitPage*)page(currentId()))->stopTimer();
-		if(setting_)
+	default:
+		if(isWaitPage(pageId))
 		{
-			setting_ = false;
-			while(currentId() != Page_Wait_Three)
-				next();
-			if(currentId() == Page_Wait_Three)
-				initializePage(Page_Wait_Three);
+			bool reinitialize = true;
 
+			((AMWaitPage*)page(pageId))->stopTimer();
+
+			if(relativeId(pageId) == 0)
+			{
+				targetPage = Page_Intro;
+				reinitialize = false;
+			}
+			else
+			{
+				targetPage = pageWait(relativeId(pageId) - 1);
+			}
+
+			while(currentId() != targetPage)
+			{
+				QWizard::back();
+			}
+
+			if(currentId() == targetPage && reinitialize)
+			{
+				initializePage(targetPage);
+			}
+		}
+		else if(isSetPage(pageId))
+		{
+			bool reinitialize = true;
+			if(relativeId(pageId) == 0)
+			{
+				targetPage = Page_Intro;
+				reinitialize = false;
+			}
+			else
+			{
+				targetPage = pageWait(relativeId(pageId) - 1);
+			}
+			while(currentId() != targetPage)
+			{
+				QWizard::back();
+			}
+			if(currentId() == targetPage && reinitialize)
+			{
+				initializePage(targetPage);
+			}
 		}
 		else
 		{
-			QWizard::back();
+			AMGraphicsViewWizard::back();
 		}
-		break;
-	case Page_Wait_Two:
-		((AMWaitPage*)page(currentId()))->stopTimer();
-		while(currentId() != Page_Wait_One)
-			QWizard::back();
-		if(currentId() == Page_Wait_One)
-			initializePage(Page_Wait_One);
-		break;
-	case Page_Wait_Three:
-		((AMWaitPage*)page(currentId()))->stopTimer();
-		while(currentId() != Page_Wait_Two)
-			QWizard::back();
-		if(currentId() == Page_Wait_Two)
-			initializePage(Page_Wait_Two);
-		break;
-	case Page_Set_One:
-		setting_ = false;
-		reviewBeamShape_ = true;
-		QWizard::back();
-		while(currentId() != Page_Wait_Three)
-			QWizard::next();
-		if(currentId() == Page_Wait_Three)
-			initializePage(Page_Wait_Three);
-		break;
-	case Page_Set_Two:
-		setting_ = true;
-		while(currentId() != Page_Wait_One)
-			QWizard::back();
-		if(currentId() == Page_Wait_One)
-			initializePage(Page_Wait_One);
-		break;
-	case Page_Set_Three:
-		setting_ = true;
-		while(currentId() != Page_Wait_Two)
-			QWizard::back();
-		if(currentId() == Page_Wait_Two)
-			initializePage(Page_Wait_Two);
-		break;
-	case Page_Final:
-		while(currentId() != Page_Wait_Three)
-			QWizard::back();
-		if(currentId() == Page_Wait_Three)
-			initializePage(Page_Wait_Three);
-		break;
-	default:
-		AMGraphicsViewWizard::back();
 		break;
 	}
 
+}
+
+bool AMBeamConfigurationWizard::allChecked() const
+{
+	bool checkedSet = true;
+	for(int i = 0; i < numberOfPages()/2; i++)
+	{
+		checkedSet *= checked(pageSet(i));
+	}
+
+	return checkedSet;
+}
+
+bool AMBeamConfigurationWizard::lastCheckPage() const
+{
+	return relativeId() == (numberOfPages()/2 - 1);
+}
+
+bool AMBeamConfigurationWizard::lastSetPage() const
+{
+	return relativeId() >= (numberOfPages() - 1);
+}
+
+bool AMBeamConfigurationWizard::isCheckPage() const
+{
+	return currentId() < numberOfPages()/2;
 }
 
 
@@ -497,6 +555,14 @@ void AMBeamSelectPage::initializePage()
 
 
 }
+
+
+
+
+
+
+
+
 
 
 
