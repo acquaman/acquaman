@@ -97,10 +97,11 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	sampleEditor_->hide();
 	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
 	sampleBriefView_ = new AMSampleBriefView();
-	qDebug() << "We have a sampleBriefView at " << (intptr_t)sampleBriefView_;
 	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 
@@ -205,10 +206,11 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	sampleEditor_->hide();
 	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
 	sampleBriefView_ = new AMSampleBriefView();
-	qDebug() << "We have a sampleBriefView at " << (intptr_t)sampleBriefView_;
 	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
@@ -413,8 +415,20 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
-		sampleEditor_->setCurrentSampleFromId(scan->sampleId());
-		sampleBriefView_->setSample(scan->sample());
+		if(scan->samplePre2013()){
+			sampleEditor_->setCurrentSampleFromId(scan->sampleId());
+			if(sampleEditor_->isHidden()){
+				sampleEditor_->show();
+				sampleBriefView_->hide();
+			}
+		}
+		else{
+			sampleBriefView_->setSample(scan->sample());
+			if(sampleBriefView_->isHidden()){
+				sampleBriefView_->show();
+				sampleEditor_->hide();
+			}
+		}
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
