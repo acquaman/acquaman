@@ -16,7 +16,7 @@ class AMBeamConfigurationWizard : public AMGraphicsViewWizard
 public:
 	enum {Page_Intro, Page_Check_One, Page_Check_Two, Page_Check_Three, Page_Set_One,
 		Page_Set_Two, Page_Set_Three, Page_Wait_One, Page_Wait_Two, Page_Wait_Three, Page_Final,
-		Wait_One_Again, Wait_Two_Again, Wait_Three_Again, Skip_Check, Page_Option};
+		Wait_One_Again, Wait_Two_Again, Wait_Three_Again, Skip_Check, Page_Option, Page_Free};
 
 
 	AMBeamConfigurationWizard(QWidget* parent = 0);
@@ -26,7 +26,7 @@ public:
 
 	virtual QString message(int);
 
-	int relativeId();
+//	int relativeId();
 
 	//	virtual void waitPage();
 
@@ -39,7 +39,7 @@ public:
 public slots:
 	void back();
 
-	void next();
+//	void next();
 
 	virtual void addPoint(QPointF position);
 
@@ -49,6 +49,12 @@ signals:
 	void showShape(int);
 
 	void showBeamMarker(int);
+
+protected:
+	bool allChecked() const;
+	bool lastCheckPage() const;
+	bool lastSetPage() const;
+	bool isCheckPage() const;
 
 protected:
 	bool setting_;

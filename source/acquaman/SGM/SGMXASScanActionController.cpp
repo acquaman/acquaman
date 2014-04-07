@@ -16,7 +16,8 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	scan_->setFileFormat("sgm2013XAS");
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(cfg);
-	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	//scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	scan_->setSample(SGMBeamline::sgm()->currentSample());
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
@@ -24,6 +25,8 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	QString sampleName;
 	if(scan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
+	else if(scan_->sample())
+		sampleName = scan_->sample()->name();
 	else
 		sampleName = AMSample(scan_->sampleId(), AMUser::user()->database()).name();
 	if(configuration_->userScanName() == ""){

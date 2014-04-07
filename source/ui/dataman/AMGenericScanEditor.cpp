@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/dataman/AMRunSelector.h"
 #include "ui/dataman/AMSamplePre2013Editor.h"
+#include "ui/dataman/AMSampleBriefView.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
@@ -96,8 +97,14 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
-	sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleEditor_->hide();
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
+
+
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
@@ -199,7 +206,11 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
-	sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleEditor_->hide();
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
@@ -292,8 +303,17 @@ void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &nam
 		scanView2D_->setSingleSpectrumDataSource(name);
 }
 
+
+#include "dataman/AMSample.h"
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
+
+	qDebug() << "In AMGSE::addScan";
+	if(newScan->sample())
+		qDebug() << "There is a sample set for this scan, its name is "  << newScan->sample()->name();
+	else
+		qDebug() << "There is no sample set for this scan.";
+
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
 
 	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
@@ -395,7 +415,20 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
-		sampleEditor_->setCurrentSampleFromId(scan->sampleId());
+		if(scan->samplePre2013()){
+			sampleEditor_->setCurrentSampleFromId(scan->sampleId());
+			if(sampleEditor_->isHidden()){
+				sampleEditor_->show();
+				sampleBriefView_->hide();
+			}
+		}
+		else{
+			sampleBriefView_->setSample(scan->sample());
+			if(sampleBriefView_->isHidden()){
+				sampleBriefView_->show();
+				sampleEditor_->hide();
+			}
+		}
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
@@ -418,6 +451,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		// what to set run selector to?
 
 		sampleEditor_->setCurrentSampleFromId(-1);
+		sampleBriefView_->setSample(0);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
 
@@ -496,7 +530,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 // Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
-	if(	event->possibleActions() & Qt::CopyAction
+	if(event->possibleActions() & Qt::CopyAction
 			&& event->mimeData()->hasUrls()
 			&& event->mimeData()->urls().count() > 0
 			&& event->mimeData()->urls().at(0).scheme() == "amd"
@@ -522,7 +556,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
   */
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
-	if(	!( event->possibleActions() & Qt::CopyAction
+	if(!( event->possibleActions() & Qt::CopyAction
 		   && event->mimeData()->hasUrls()) )
 		return;
 
@@ -533,7 +567,7 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
 bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 
-	if(	!urls.count() )
+	if(!urls.count())
 		return false;
 
 	bool accepted = false;

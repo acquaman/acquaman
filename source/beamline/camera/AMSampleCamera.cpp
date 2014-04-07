@@ -716,7 +716,7 @@ bool AMSampleCamera::findIntersections()
 			intersections_<<intersectionScreenShape(intersectionShape);
 		}
 	}
-	AMBeamline::bl()->setCurrentSample(allIntersectedSamples);
+	AMBeamline::bl()->setCurrentSamples(allIntersectedSamples);
 
 	if(samplePlateSelected_)
 	{
