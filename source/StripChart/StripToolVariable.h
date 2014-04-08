@@ -20,28 +20,38 @@ public:
     explicit StripToolVariable(StripToolVariableInfo *info = 0, QObject *parent = 0);
 
 signals:
-//    void dataRangeUpdated(MPlotAxisRange* newRange);
+    void dataMaxUpdated(double newMax);
+    void dataMinUpdated(double newMin);
     void displayRangeUpdated(const MPlotAxisRange* newRange);
 
 public:
     QModelIndex index() const;
     StripToolVariableInfo* info() const;
     MPlotVectorSeriesData* data() const;
-    StripToolSeries2 *series() const;
-    MPlotSeriesBasic *plotItem() const;
+    StripToolSeries *series() const;
 
 public slots:
     void setIndex(const QModelIndex &index);
     void setInfo(StripToolVariableInfo* newInfo);
+    void setCustomAxisMax(double newMax);
+    void setCustomAxisMin(double newMin);
+    void eraseCustomAxisMax();
+    void eraseCustomAxisMin();
 
 protected slots:
-    void onDataSourceValuesChanged(QTime measurementTime, double measurementValue);
-    void onDisplayRangeUpdated(const MPlotAxisRange* newRange);
+    virtual void onDataSourceValuesChanged(QTime measurementTime, double measurementValue);
+    void toUpdateSeriesColor(const QString &colorName);
+
+protected:
+    void updateTotalValues(QTime latestTime, double latestValue);
+    void updateDisplayValues(QTime latestTime, QVector<QTime> totalTimes, QVector<double> totalValues);
 
 private:
     void totalVectorSizeCheck();
-    void updateTotalValues(QTime latestTime, double latestValue);
-    void updateDisplayValues();
+
+    QVector<double> applyAverage(QVector<double> toAverage);
+    QVector<double> applyGranularity(QVector<double> toGranulize);
+
     void buildComponents();
     void makeConnections();
     void defaultSettings();
@@ -50,10 +60,9 @@ private:
     QModelIndex index_;
     StripToolVariableInfo* info_;
     MPlotVectorSeriesData* data_;
-    StripToolSeries2* series_;
+    StripToolSeries* series_;
 
     int updateCount_;
-//    int displayedTime_;
     QVector<QTime> totalUpdateTimes_;
     QVector<double> totalUpdateValues_;
 

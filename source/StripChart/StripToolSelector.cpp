@@ -19,11 +19,13 @@ void StripToolSelector::setSelection(MPlotItem *newSelection)
     if (newSelection != selectedItem()) {
         if (newSelection == 0) {
             deselectItem();
+
             qDebug() << "StripToolSelector :: plot item deselected.";
             emit deselected();
 
         } else {
             selectItem(newSelection);
+
             qDebug() << "StripToolSelector :: plot item selected.";
             emit itemSelected(selectedItem_);
         }

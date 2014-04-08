@@ -35,29 +35,32 @@ MPlotItem* StripToolPlot::selectedItem() const {
 
 bool StripToolPlot::addPlotItem(MPlotItem *newSeries)
 {    
+    bool success = false;
+
     if (newSeries == 0) {
         qDebug() << "StripToolPlot :: cannot add a series with an empty pointer! No changes made.";
-        return false;
-    }
+        success = false;
 
-    if (contains(newSeries)) {
+    } else if (contains(newSeries)) {
         qDebug() << "StripToolPlot :: cannot add duplicate series to plot. No changes made.";
-        return false;
-    }
-
-    int oldItemNum = plot_->plotItems().size();
-    plot()->addItem(newSeries);
-    int newItemNum = plot_->plotItems().size();
-
-    if (contains(newSeries) && newItemNum == oldItemNum + 1) {
-        qDebug() << "StripToolPlot :: added new series to plot successfully.";
-        return true;
+        success = false;
 
     } else {
-        qDebug() << "StripToolPlot :: adding new series to plot failed.";
-        return false;
+        int oldItemNum = plot_->plotItems().size();
+        plot()->addItem(newSeries);
+        int newItemNum = plot_->plotItems().size();
+
+        if (contains(newSeries) && newItemNum == oldItemNum + 1) {
+            qDebug() << "StripToolPlot :: added new series to plot successfully.";
+            success = true;
+
+        } else {
+            qDebug() << "StripToolPlot :: adding new series to plot failed.";
+            success = false;
+        }
     }
 
+    return success;
 }
 
 
@@ -90,8 +93,12 @@ bool StripToolPlot::removePlotItem(MPlotItem *toRemove)
 
 
 
-void StripToolPlot::setSelectedItem(MPlotItem *newSelection) {
-    selector_->setSelection(newSelection);
+void StripToolPlot::setSelectedItem(MPlotItem *newSelection)
+{
+    if (contains(newSelection)) {
+        selector_->setSelection(newSelection);
+        qDebug() << "StripToolPlot::setSelectedItem(...) : selection changed.";
+    }
 }
 
 
@@ -112,9 +119,9 @@ void StripToolPlot::setLeftAxisRange(const MPlotAxisRange *newAxisRange) {
     int itemCount = plot_->plotItems().size();
 
     for (int i = 0; i < itemCount; i++) {
-//        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
-//        series->enableWaterfall(waterfallOn_, i, itemCount);
-//        series->enableYNormalization(true, rangeMin, rangeMax);
+        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+        series->enableWaterfall(waterfallOn_, i, itemCount);
+        series->enableYNormalization(true, rangeMin, rangeMax);
     }
 }
 
@@ -146,38 +153,16 @@ void StripToolPlot::setWaterfall(bool waterfallOn)
 
 
 
-//void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange)
-//{
-//    qDebug() << "Updating left axis range...";
-//    qreal rangeMin = newAxisRange->min();
-//    qreal rangeMax = newAxisRange->max();
-
-//    plot_->axisScaleLeft()->setDataRange(newAxisRange->normalized(), true);
-
-////    int itemCount = plot_->plotItems().size();
-
-////    for (int i = 0; i < itemCount; i++) {
-////        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
-////        series->enableWaterfall(waterfallOn_, i, itemCount);
-////        series->enableYNormalization(true, rangeMin, rangeMax);
-////    }
-//}
-
-
-
-
 void StripToolPlot::onSelectionChange()
 {
     MPlotItem *newSelection = selector_->selectedItem();
 
     if (newSelection == 0) {
-        qDebug() << "StripToolPlot::onSelectionChange() : item was just deselected.";
         plot_->axisLeft()->showTickLabels(false);
         plot_->axisLeft()->showAxisName(false);
         emit selectionChanged(0);
 
     } else {
-        qDebug() << "StripToolPlot::onSelectionChange() : item was just selected.";
         plot_->axisLeft()->showTickLabels(true);
         plot_->axisLeft()->showAxisName(true);
         emit selectionChanged(newSelection);

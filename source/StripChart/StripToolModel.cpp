@@ -27,15 +27,16 @@ StripToolVariable *StripToolModel::selectedVariable() const
 
 
 
-MPlotItem* StripToolModel::plotItem(int row) const
-{
-    MPlotItem *series = 0;
+//MPlotItem* StripToolModel::plotItem(int row) const
+//{
+//    MPlotItem *series = 0;
 
-    if (row >= 0 && row < variables_.size())
-        series = variables_.at(row)->plotItem();
+//    if (row >= 0 && row < variables_.size())
+//        series = variables_.at(row)->series();
+////        series = variables_.at(row)->plotItem();
 
-    return series;
-}
+//    return series;
+//}
 
 
 
@@ -188,10 +189,12 @@ StripToolVariable* StripToolModel::findVariable(MPlotItem *plotItem) const
         while (variableIndex < variableNumber && !matchFound) {
             StripToolVariable *variable = variables_.at(variableIndex);
 
-            if (variable->plotItem() == plotItem) {
+            if (variable->series() == plotItem) {
                 matchFound = true;
                 match = variable;
             }
+
+            variableIndex++;
         }
 
         if (!matchFound)
@@ -275,6 +278,8 @@ bool StripToolModel::addVariable(StripToolVariable* variable)
     variables_.insert(position, variable); // add new pv to the model.
     endInsertRows();
 
+    qDebug() << "StripToolModel :: new variable added to model.";
+
     if (position + count == variables_.size()) {
         setSelectedVariable(variable);
         qDebug() << "StripToolModel :: successfully added new variable to model.";
@@ -346,8 +351,6 @@ bool StripToolModel::deleteVariable(StripToolVariable *variable)
 
 void StripToolModel::setSelectedVariable(StripToolVariable *newSelection)
 {
-    qDebug() << "StripToolModel :: preparing to change model's selected item.";
-
     if (selectedVariable_ != newSelection) {
 
         if (selectedVariable_ != 0) {
@@ -357,7 +360,7 @@ void StripToolModel::setSelectedVariable(StripToolVariable *newSelection)
 
         if (newSelection != 0 && contains(newSelection)) {
             selectVariable(newSelection);
-            qDebug() << "StripToolModel :: variable selected.";
+            qDebug() << "StripToolModel :: variable selected : " << selectedVariable_->info()->name();
         }
 
         emit modelSelectionChange();
@@ -366,12 +369,12 @@ void StripToolModel::setSelectedVariable(StripToolVariable *newSelection)
 
 
 
-void StripToolModel::enableWaterfall(bool isEnabled)
-{
-    foreach (StripToolVariable *variable, variables_) {
-        variable->series()->enableWaterfall(isEnabled, variable->index().row(), variables_.size());
-    }
-}
+//void StripToolModel::enableWaterfall(bool isEnabled)
+//{
+//    foreach (StripToolVariable *variable, variables_) {
+//        variable->series()->enableWaterfall(isEnabled, variable->index().row(), variables_.size());
+//    }
+//}
 
 
 
@@ -409,8 +412,7 @@ void StripToolModel::disconnectSelectedVariable()
     if (selectedVariable_ != 0) {
 
         disconnect( selectedVariable_->info(), SIGNAL(infoChanged()), this, SIGNAL(selectedVariableInfoChanged()) );
-        disconnect( selectedVariable_->series(), SIGNAL(dataRangeUpdated(MPlotAxisRange*)), this, SIGNAL(selectedVariableDataRangeChanged(MPlotAxisRange*)) );
-        disconnect( selectedVariable_->series(), SIGNAL(displayRangeUpdated(const MPlotAxisRange*)), this, SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)) );
+        disconnect( selectedVariable_, SIGNAL(displayRangeUpdated(const MPlotAxisRange*)), this, SIGNAL(selectedVariableDisplayRangeChanged(const MPlotAxisRange*)) );
     }
 }
 
@@ -426,7 +428,6 @@ void StripToolModel::selectVariable(StripToolVariable *newSelection)
         selectedVariable_ = newSelection;
         selectedVariable_->info()->setSelectionState(true);
         connectSelectedVariable();
-        qDebug() << "StripToolModel :: variable selected : " << selectedVariable_->info()->name();
 
     } else {
         qDebug() << "StripToolModel :: cannot select a variable that isn't in the model. Item deselected.";
@@ -444,13 +445,13 @@ void StripToolModel::connectSelectedVariable()
 
 
 
-void StripToolModel::colorPV(const QModelIndex &index, const QColor &color)
-{
-    if (index.isValid() && index.row() < variables_.size()) {
-        StripToolVariable *toEdit = variables_.at(index.row());
-        toEdit->info()->setColor(color);
-    }
-}
+//void StripToolModel::colorPV(const QModelIndex &index, const QColor &color)
+//{
+//    if (index.isValid() && index.row() < variables_.size()) {
+//        StripToolVariable *toEdit = variables_.at(index.row());
+//        toEdit->info()->setColor(color);
+//    }
+//}
 
 
 
@@ -469,6 +470,5 @@ void StripToolModel::makeConnections()
 
 void StripToolModel::defaultSettings()
 {
-
 }
 

@@ -10,13 +10,6 @@ TimeEntryWidget::TimeEntryWidget(QWidget *parent) :
     buildComponents();
     makeConnections();
     defaultSettings();
-
-    QHBoxLayout *timeLayout = new QHBoxLayout();
-    timeLayout->addWidget(timeLabel_);
-    timeLayout->addWidget(timeAmount_);
-    timeLayout->addWidget(timeUnits_);
-
-    setLayout(timeLayout);
 }
 
 
@@ -95,7 +88,6 @@ void TimeEntryWidget::setTimeUnits(TimeEntryWidget::TimeUnits newUnits)
         setTimeUnits(TimeEntryWidget::Seconds);
         break;
     }
-
 }
 
 
@@ -154,4 +146,11 @@ void TimeEntryWidget::defaultSettings()
     timeUnits_->addItem("hr");
 
     setTimeUnits(TimeEntryWidget::Seconds);
+
+    QHBoxLayout *timeLayout = new QHBoxLayout();
+//    timeLayout->addWidget(timeLabel_);
+    timeLayout->addWidget(timeAmount_);
+    timeLayout->addWidget(timeUnits_);
+
+    setLayout(timeLayout);
 }

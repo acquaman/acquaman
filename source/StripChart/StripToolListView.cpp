@@ -116,6 +116,15 @@ void StripToolListView::colorSelection()
 
 
 
+void StripToolListView::findSelectionDerivative()
+{
+    foreach( const QModelIndex &index, selectionModel()->selectedIndexes()) {
+        emit itemToFindDerivative(index);
+    }
+}
+
+
+
 void StripToolListView::onSelectionChanged(QItemSelection newSelection, QItemSelection oldSelection)
 {
     if (newSelection == oldSelection) {
@@ -137,7 +146,7 @@ void StripToolListView::buildComponents()
     importAutomatically_->setEnabled(false);
     color_ = new QAction("Line color", this);
     plotDerivative_ = new QAction("Plot derivative", this);
-    plotDerivative_->setEnabled(false);
+//    plotDerivative_->setEnabled(false);
 }
 
 
@@ -148,6 +157,7 @@ void StripToolListView::makeConnections()
     connect( remove_, SIGNAL(triggered()), this, SLOT(removeSelection()) );
     connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
     connect( color_, SIGNAL(triggered()), this, SLOT(colorSelection()) );
+    connect( plotDerivative_, SIGNAL(triggered()), this, SLOT(findSelectionDerivative()) );
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
 }

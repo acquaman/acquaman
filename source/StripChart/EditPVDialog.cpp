@@ -20,7 +20,8 @@ EditPVDialog::EditPVDialog(QWidget *parent) :
 
 
 
-void EditPVDialog::displayName(const QString &infoName, bool editEnabled) {
+void EditPVDialog::displayName(const QString &infoName, bool editEnabled)
+{
     QLabel *nameLabel = new QLabel("Name : ");
     QLineEdit *nameEntry = new QLineEdit(infoName);
     nameEntry->setEnabled(editEnabled);
@@ -32,7 +33,38 @@ void EditPVDialog::displayName(const QString &infoName, bool editEnabled) {
 
 
 
-void EditPVDialog::displayCreationDateTime(const QString &infoCreation, bool editEnabled) {
+void EditPVDialog::displayAutoImport(const QString autoImportEnabled, bool editEnabled)
+{
+    QCheckBox *importState = new QCheckBox("Auto import");
+    if (autoImportEnabled == "true")
+        importState->setCheckState(Qt::Checked);
+    else
+        importState->setCheckState(Qt::Unchecked);
+    importState->setEnabled(editEnabled);
+    connect( importState, SIGNAL(stateChanged(int)), this, SLOT(autoImportStateChanged(int)) );
+    componentLayout_->addWidget(importState, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::importStateChanged() const
+{
+    return importStateChanged_;
+}
+
+
+
+QString EditPVDialog::importState() const
+{
+    return importState_;
+}
+
+
+
+void EditPVDialog::displayCreationDateTime(const QString &infoCreation, bool editEnabled)
+{
     QLabel *creationLabel = new QLabel("Date added : ");
     QLineEdit *creationEntry = new QLineEdit(infoCreation);
     creationEntry->setEnabled(editEnabled);
@@ -44,7 +76,8 @@ void EditPVDialog::displayCreationDateTime(const QString &infoCreation, bool edi
 
 
 
-void EditPVDialog::displayDescription(const QString &infoDescription, bool editEnabled) {
+void EditPVDialog::displayDescription(const QString &infoDescription, bool editEnabled)
+{
     QLabel *descriptionLabel = new QLabel("Description : ");
     QLineEdit *descriptionEntry = new QLineEdit(infoDescription);
     descriptionEntry->setEnabled(editEnabled);
@@ -59,19 +92,22 @@ void EditPVDialog::displayDescription(const QString &infoDescription, bool editE
 
 
 
-bool EditPVDialog::descriptionChanged() const {
+bool EditPVDialog::descriptionChanged() const
+{
     return descriptionChanged_;
 }
 
 
 
-QString EditPVDialog::description() const {
+QString EditPVDialog::description() const
+{
     return description_;
 }
 
 
 
-void EditPVDialog::displayUnits(const QString &infoUnits, bool editEnabled) {
+void EditPVDialog::displayUnits(const QString &infoUnits, bool editEnabled)
+{
     QLabel *unitsLabel = new QLabel("Units : ");
     QLineEdit *unitsEntry = new QLineEdit(infoUnits);
     unitsEntry->setEnabled(editEnabled);
@@ -84,19 +120,22 @@ void EditPVDialog::displayUnits(const QString &infoUnits, bool editEnabled) {
 
 
 
-bool EditPVDialog::unitsChanged() const {
+bool EditPVDialog::unitsChanged() const
+{
     return unitsChanged_;
 }
 
 
 
-QString EditPVDialog::units() const {
+QString EditPVDialog::units() const
+{
     return units_;
 }
 
 
 
-void EditPVDialog::displayGranularity(const QString &infoGranularity, bool editEnabled) {
+void EditPVDialog::displayGranularity(const QString &infoGranularity, bool editEnabled)
+{
     QLabel *granLabel = new QLabel("Granularity : ");
     QLineEdit *granEntry = new QLineEdit(infoGranularity);
     granEntry->setEnabled(editEnabled);
@@ -109,19 +148,50 @@ void EditPVDialog::displayGranularity(const QString &infoGranularity, bool editE
 
 
 
-bool EditPVDialog::granularityChanged() const {
+bool EditPVDialog::granularityChanged() const
+{
     return granularityChanged_;
 }
 
 
 
-QString EditPVDialog::granularity() const {
+QString EditPVDialog::granularity() const
+{
     return granularity_;
 }
 
 
 
-void EditPVDialog::displayColorName(const QString &infoColorName, bool editEnabled) {
+void EditPVDialog::displayAverageOverPoints(const QString &infoAverage, bool editEnabled)
+{
+    QLabel *averageLabel = new QLabel("Average : ");
+    QLineEdit *averageEntry = new QLineEdit(infoAverage);
+    averageEntry->setEnabled(editEnabled);
+    connect( averageEntry, SIGNAL(textChanged(QString)), this, SLOT(averageOverPointsEntered(QString)) );
+    componentLayout_->addWidget(averageLabel, componentCount_, 0);
+    componentLayout_->addWidget(averageEntry, componentCount_, 1);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::averageOverPointsChanged() const
+{
+    return averageOverPointsChanged_;
+}
+
+
+
+QString EditPVDialog::averageOverPoints() const
+{
+    return averageOverPoints_;
+}
+
+
+
+void EditPVDialog::displayColorName(const QString &infoColorName, bool editEnabled)
+{
     QLabel *colorLabel = new QLabel("Color : ");
     QLineEdit *colorEntry = new QLineEdit(infoColorName);
     colorEntry->setEnabled(editEnabled);
@@ -134,14 +204,97 @@ void EditPVDialog::displayColorName(const QString &infoColorName, bool editEnabl
 
 
 
-bool EditPVDialog::colorNameChanged() const {
+bool EditPVDialog::colorNameChanged() const
+{
     return colorNameChanged_;
 }
 
 
 
-QString EditPVDialog::colorName() const {
+QString EditPVDialog::colorName() const
+{
     return colorName_;
+}
+
+
+
+void EditPVDialog::displayAxisMax(const QString &axisMax, bool editEnabled)
+{
+    QLabel *maxLabel = new QLabel("Axis max : ");
+
+    QLineEdit *maxEntry = new QLineEdit(axisMax);
+    maxEntry->setEnabled(editEnabled);
+    connect( maxEntry, SIGNAL(textChanged(QString)), this, SLOT(axisMaxEntered(QString)) );
+
+    QLabel *currentMax = new QLabel("---");
+    connect( this, SIGNAL(dataMaxUpdated(double)), currentMax, SLOT(setNum(double)) );
+
+    componentLayout_->addWidget(maxLabel, componentCount_, 0);
+    componentLayout_->addWidget(maxEntry, componentCount_, 1);
+    componentLayout_->addWidget(currentMax, componentCount_, 2);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::axisMaxChanged() const
+{
+    return axisMaxChanged_;
+}
+
+
+
+QString EditPVDialog::axisMax() const
+{
+    return axisMax_;
+}
+
+
+
+void EditPVDialog::displayAxisMin(const QString &axisMin, bool editEnabled)
+{
+    QLabel *minLabel = new QLabel("Axis min : ");
+
+    QLineEdit *minEntry = new QLineEdit(axisMin);
+    minEntry->setEnabled(editEnabled);
+    connect( minEntry, SIGNAL(textChanged(QString)), this, SLOT(axisMinEntered(QString)) );
+
+    QLabel *currentMin = new QLabel("---");
+    connect( this, SIGNAL(dataMinUpdated(double)), currentMin, SLOT(setNum(double)) );
+
+    componentLayout_->addWidget(minLabel, componentCount_, 0);
+    componentLayout_->addWidget(minEntry, componentCount_, 1);
+    componentLayout_->addWidget(currentMin, componentCount_, 2);
+
+    componentCount_++;
+}
+
+
+
+bool EditPVDialog::axisMinChanged() const
+{
+    return axisMinChanged_;
+}
+
+
+
+QString EditPVDialog::axisMin() const
+{
+    return axisMin_;
+}
+
+
+
+void EditPVDialog::autoImportStateChanged(const int state)
+{
+    if (state == Qt::Checked) {
+        importStateChanged_ = true;
+        importState_ = "true";
+    } else {
+        importStateChanged_ = true;
+        importState_ = "false";
+    }
 }
 
 
@@ -154,91 +307,51 @@ void EditPVDialog::descriptionEntered(const QString &newDescription)
 
 
 
-void EditPVDialog::unitsEntered(const QString &newUnits) {
+void EditPVDialog::unitsEntered(const QString &newUnits)
+{
     units_ = newUnits;
     unitsChanged_ = true;
 }
 
 
 
-void EditPVDialog::granularityEntered(const QString &newGran) {
+void EditPVDialog::granularityEntered(const QString &newGran)
+{
     granularity_ = newGran;
     granularityChanged_ = true;
 }
 
 
 
-void EditPVDialog::colorNameEntered(const QString &newColor) {
+void EditPVDialog::averageOverPointsEntered(const QString &newAverage)
+{
+    averageOverPoints_ = newAverage;
+    averageOverPointsChanged_ = true;
+}
+
+
+
+void EditPVDialog::colorNameEntered(const QString &newColor)
+{
     colorName_ = newColor;
     colorNameChanged_ = true;
 }
 
 
 
-//QLayout* EditPVDialog::createFormGui()
-//{
-
-////    QString pvColorHex = info_->colorName();
-//    QString pvColorHex = "";
-//    QLabel *colorLabel = new QLabel("Color : ");
-//    colorEntry_ = new QLineEdit();
-//    colorEntry_->setText(pvColorHex);
-//    colorLabel->setBuddy(colorEntry_);
-//    connect( colorEntry_, SIGNAL(textChanged(QString)), this, SLOT(colorEntered(QString)) );
-//    formLayout->addWidget(colorLabel, 5, 0);
-//    formLayout->addWidget(colorEntry_, 5, 1);
-
-//    QLabel *maxLabel = new QLabel("Displayed max : ");
-//    formLayout->addWidget(maxLabel, 6, 0);
-
-////    QString displayedMax = pvInfo.at(6);
-//    QString displayedMax = "";
-//    displayMaxEntry_ = new QLineEdit();
-//    displayMaxEntry_->setText(displayedMax);
-//    maxLabel->setBuddy(displayMaxEntry_);
-//    connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMaxEntered(QString)) );
-//    formLayout->addWidget(displayMaxEntry_, 6, 1);
-
-//    currentDisplayMax_ = new QLabel("---");
-//    formLayout->addWidget(currentDisplayMax_, 6, 2);
-
-//    automaticMax_ = new QCheckBox("Automatically update max");
-//    formLayout->addWidget(automaticMax_, 7, 1);
-//    connect( displayMaxEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMaxCheckState(QString)) );
-//    connect( automaticMax_, SIGNAL(stateChanged(int)), this, SLOT(toClearMaxEntry(int)) );
-//    if (displayedMax == "")
-//        automaticMax_->setCheckState(Qt::Checked);
-//    else
-//        automaticMax_->setCheckState(Qt::Unchecked);
+void EditPVDialog::axisMaxEntered(const QString &newMax)
+{
+    axisMax_ = newMax;
+    axisMaxChanged_ = true;
+}
 
 
-//    QLabel *minLabel = new QLabel("Displayed min : ");
-//    formLayout->addWidget(minLabel, 8, 0);
 
-////    QString displayedMin = pvInfo.at(7);
-//    QString displayedMin = "";
-//    displayMinEntry_ = new QLineEdit();
-//    displayMinEntry_->setText(displayedMin);
-//    minLabel->setBuddy(displayMinEntry_);
-//    connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(displayMinEntered(QString)) );
-//    formLayout->addWidget(displayMinEntry_, 8, 1);
-
-//    currentDisplayMin_ = new QLabel("---");
-//    formLayout->addWidget(currentDisplayMin_, 8, 2);
-
-//    automaticMin_ = new QCheckBox("Automatically update min");
-//    formLayout->addWidget(automaticMin_, 9, 1);
-//    connect( displayMinEntry_, SIGNAL(textChanged(QString)), this, SLOT(setMinCheckState(QString)) );
-//    connect( automaticMin_, SIGNAL(stateChanged(int)), this, SLOT(toClearMinEntry(int)) );
-//    if (displayedMin == "")
-//        automaticMin_->setCheckState(Qt::Checked);
-//    else
-//        automaticMin_->setCheckState(Qt::Unchecked);
-
-
-//    return formLayout;
-
-//}
+void EditPVDialog::axisMinEntered(const QString &newMin)
+{
+    axisMin_ = newMin;
+    axisMinChanged_ = true;
+}
 
 
 
@@ -258,92 +371,15 @@ QLayout* EditPVDialog::createButtonGui() {
 }
 
 
-//void EditPVDialog::displayMaxEntered(const QString &max)
-//{
-//    displayMax_ = max;
-//    qDebug() << "EditPVDialog :: new display max entered :" << max << ".";
-//    yMaxChanged_ = true;
 
-//}
-
-
-//void EditPVDialog::displayMinEntered(const QString &min)
-//{
-//    displayMin_ = min;
-
-//    qDebug() << "EditPVDialog :: new display min entered :" << min;
-//    yMinChanged_ = true;
-//}
-
-
-
-//void EditPVDialog::toUpdateDataRange(MPlotAxisRange *newRange)
-//{
-//    qreal min = newRange->min();
-//    qreal max = newRange->max();
-
-//    if (min < max) {
-//        currentDisplayMax_->setText(QString::number(max, 'f', 2));
-//        currentDisplayMin_->setText(QString::number(min, 'f', 2));
-
-//    } else {
-//        currentDisplayMax_->setText(QString::number(min, 'f', 2));
-//        currentDisplayMin_->setText(QString::number(max, 'f', 2));
-//    }
-//}
-
-
-
-
-//void EditPVDialog::automaticDisplayMaxChanged(Qt::CheckState checkState)
-//{
-//    if (checkState == Qt::Checked)
-//        displayMax_ = "";
-//    else
-//        displayMax_ = displayMaxEntry_->text();
-//}
-
-
-
-//void EditPVDialog::automaticDisplayMinChanged(Qt::CheckState checkState)
-//{
-//    if (checkState == Qt::Checked)
-//        displayMin_ = "";
-//    else
-//        displayMin_ = displayMinEntry_->text();
-//}
-
-
-
-//void EditPVDialog::setMaxCheckState(const QString &textEntered)
-//{
-//    if (textEntered == "")
-//        automaticMax_->setCheckState(Qt::Checked);
-//    else
-//        automaticMax_->setCheckState(Qt::Unchecked);
-//}
-
-
-
-//void EditPVDialog::setMinCheckState(const QString &textEntered)
-//{
-//    if (textEntered == "")
-//        automaticMin_->setCheckState(Qt::Checked);
-//    else
-//        automaticMin_->setCheckState(Qt::Unchecked);
-//}
-
-
-//void EditPVDialog::toClearMaxEntry(int checkState)
-//{
-//    if (checkState == Qt::Checked)
-//        displayMaxEntry_->setText("");
-//}
-
-
-
-//void EditPVDialog::toClearMinEntry(int checkState)
-//{
-//    if (checkState == Qt::Checked)
-//        displayMinEntry_->setText("");
-//}
+void EditPVDialog::defaultSettings()
+{
+    importStateChanged_ = false;
+    descriptionChanged_ = false;
+    unitsChanged_ = false;
+    granularityChanged_ = false;
+    averageOverPointsChanged_ = false;
+    colorNameChanged_ = false;
+    axisMaxChanged_ = false;
+    axisMinChanged_ = false;
+}

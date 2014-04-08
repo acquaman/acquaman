@@ -21,6 +21,7 @@ signals:
     void itemToRemove(const QModelIndex &index);
     void itemToDelete(const QModelIndex &index);
     void itemToColor(const QModelIndex &index, const QColor &color);
+    void itemToFindDerivative(const QModelIndex &index);
     void listSelectionChanged(const QModelIndex &index);
 
 public:
@@ -38,12 +39,12 @@ protected slots:
     void updateContextMenu(const QPoint &position);
     /// Triggered by edit_ action. Emits the itemToEdit(QList<QModelIndex>) signal, letting the model know that items need to be edited.
     void editSelection();
-
     void removeSelection();
     /// Triggered by delete_ action. Emits the itemToDelete(QModelIndex) signal, letting the model know that this pv needs to be removed.
     void deleteSelection();
     /// Triggered by color_ action. Sets the series color for all of the selected pvs, using the color selected from color picker.
     void colorSelection();
+    void findSelectionDerivative();
 
     void onSelectionChanged(QItemSelection newSelection, QItemSelection oldSelection);
 

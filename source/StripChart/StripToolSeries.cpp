@@ -4,8 +4,6 @@ StripToolSeries::StripToolSeries()
     : MPlotSeriesBasic()
 {
     defaultSettings();
-
-//    connect( model()->signalSource(), SIGNAL(dataChanged()), this, SLOT(onModelDataChanged()));
 }
 
 
@@ -277,10 +275,10 @@ MPlotAxisRange* StripToolSeries::displayedRange()
     MPlotAxisRange* displayedRange = 0;
 
     if (displayedMax() - displayedMin() == 0) {
-        displayedRange = new MPlotAxisRange(-1, 1);
+        displayedRange = new MPlotAxisRange(displayedMin() - 1, displayedMax() + 1);
 
     } else {
-        displayedRange = new MPlotAxisRange(dataMin(), dataMax());
+        displayedRange = new MPlotAxisRange(displayedMin(), displayedMax());
     }
 
     return displayedRange;

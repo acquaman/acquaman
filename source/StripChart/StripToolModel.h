@@ -23,10 +23,6 @@ signals:
 //    void savePVData(QObject *toSave);
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void modelSelectionChange();
-//    void pvUpdating(const QModelIndex &index, bool isUpdating);
-//    void updateTime(int newTime);
-//    void updateTimeUnits(const QString &newUnits);
-//    void updateXAxisLabel(const QString &newUnits);
     void selectedVariableDataRangeChanged(MPlotAxisRange *newRange);
     void selectedVariableDisplayRangeChanged(const MPlotAxisRange *newRange);
     void selectedVariableInfoChanged();
@@ -48,7 +44,7 @@ public:
 
     StripToolVariable* selectedVariable() const;
 
-    MPlotItem* plotItem(int row) const;
+//    MPlotItem* plotItem(int row) const;
 
 public slots:
     bool addVariable(StripToolVariable *variable);
@@ -59,7 +55,7 @@ public slots:
     bool deleteVariable(StripToolVariable *variable);
     void setSelectedVariable(StripToolVariable *newSelection);
 
-    void enableWaterfall(bool isEnabled);
+//    void enableWaterfall(bool isEnabled);
     void changeDisplayedTimeAmount(int amount);
 //    void changeDisplayedTimeUnits(const QString &units);
     void changeDisplayedTimeUnits(TimeEntryWidget::TimeUnits units);
@@ -91,7 +87,7 @@ protected:
 protected slots:
 
     /// Apply new line color selection.
-    void colorPV(const QModelIndex &index, const QColor &color);
+//    void colorPV(const QModelIndex &index, const QColor &color);
 
     /// Handles propagating the change in check state from the view's checkbox to the StripToolPV checkstate, and lets both the plot and the list view know a change has happened.
     void onCheckStateChanged(const QModelIndex &index, Qt::CheckState checked);

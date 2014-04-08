@@ -14,10 +14,14 @@ public:
     MPlotAxisRange* displayedRange();
     MPlotAxisRange* dataRange();
 
-public slots:
+public:
     void enableYNormalization(bool normOn, qreal ymin_axis, qreal ymax_axis);
     void enableWaterfall(bool waterfallOn, int itemPosition, int itemCount);
     void setCustomLimits(qreal min, qreal max);
+    void setCustomMin(qreal min);
+    void setCustomMax(qreal max);
+    void eraseCustomMin();
+    void eraseCustomMax();
 
 protected:
     qreal dataMin();
@@ -44,11 +48,6 @@ protected:
     void setWaterfallMax(qreal max);
     void setWaterfallLimits(qreal min, qreal max);
     void applyWaterfall(int itemPosition, int itemCount);
-
-    void setCustomMin(qreal min);
-    void setCustomMax(qreal max);
-    void eraseCustomMin();
-    void eraseCustomMax();
 
 private:
     void defaultSettings();

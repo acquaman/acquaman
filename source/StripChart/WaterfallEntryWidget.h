@@ -15,11 +15,11 @@ public:
 signals:
     void waterfallOn(bool on);
 
-protected:
-    QCheckBox *waterfallCheckBox_;
-
-protected slots:
+public slots:
     void setWaterfallCheckState(bool on);
+
+private:
+    QCheckBox *waterfallCheckBox_;
 
 };
 
