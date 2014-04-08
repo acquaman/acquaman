@@ -58,10 +58,6 @@ protected:
 private:
 	/// Switches the start, step, and end position based on what the current state of the inKSpace flag is set to.  Assumes all values are appropriate.
 	void switchSpace();
-	/// Takes a value in energy and returns the k-value.  Assumes edgeEnergy_ is valid.
-	AMNumber toKSpace(const AMNumber &energy) const;
-	/// Takes a value in k-space and returns the value in energy.  Assumes edgeEnergy_ is valid.
-	AMNumber toEnergy(const AMNumber &k) const;
 };
 
 #endif // AMSCANAXISEXAFSREGION_H

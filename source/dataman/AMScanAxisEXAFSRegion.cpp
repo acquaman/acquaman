@@ -1,5 +1,7 @@
 #include "AMScanAxisEXAFSRegion.h"
 
+#include "util/AMEnergyToKSpaceCalculator.h"
+
 #include <math.h>
 
 AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(bool inKSpace, const AMNumber &edgeEnergy, const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, const AMNumber &maximumTime, QObject *parent)
@@ -47,25 +49,15 @@ void AMScanAxisEXAFSRegion::switchSpace()
 	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
 	if (inKSpace_ && edgeEnergy_.isValid()){
 
-		setRegionStart(toKSpace(regionStart_));
-		setRegionStep(toKSpace(regionStep_));
-		setRegionEnd(toKSpace(regionEnd_));
+		setRegionStart(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionStart_));
+		setRegionStep(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionStep_));
+		setRegionEnd(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionEnd_));
 	}
 
 	else if (edgeEnergy_.isValid()){
 
-		setRegionStart(toEnergy(regionStart_));
-		setRegionStep(toEnergy(regionStep_));
-		setRegionEnd(toEnergy(regionEnd_));
+		setRegionStart(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionStart_));
+		setRegionStep(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionStep_));
+		setRegionEnd(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionEnd_));
 	}
-}
-
-AMNumber AMScanAxisEXAFSRegion::toKSpace(const AMNumber &energy) const
-{
-	return AMNumber(sqrt((double(energy)-double(edgeEnergy_))/3.810945497));
-}
-
-AMNumber AMScanAxisEXAFSRegion::toEnergy(const AMNumber &k) const
-{
-	return AMNumber(double(edgeEnergy_) + 3.810945497*double(k)*double(k));
 }

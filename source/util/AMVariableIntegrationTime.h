@@ -29,6 +29,8 @@ public:
 	AMVariableIntegrationTime(Equation equation, double t0, double tf, double k0, double kf, double a2);
 	/// Constructor.  Builds the calculator and fully configures it.
 	AMVariableIntegrationTime(Equation equation, double t0, double tf, double k0, double kStep, double kf, double a2);
+	/// Destructor.
+	virtual ~AMVariableIntegrationTime() {}
 
 	/// Returns the current equation.
 	Equation equation() const { return equation_; }

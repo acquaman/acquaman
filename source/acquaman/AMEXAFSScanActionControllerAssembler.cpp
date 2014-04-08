@@ -105,6 +105,41 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 		regionList->addSubAction(regionStart);
 	}
 
+	// If there is no difference in time and maximumTime or if maximumTime is invalid then we only need to set the time once.
+	if (!exafsRegion->maximumTime().isValid() || double(exafsRegion->regionTime()) == double(exafsRegion->maximumTime())){
+
+		AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
+
+		for(int x = 0; x < detectors_->count(); x++){
+
+			AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(exafsRegion->regionTime());
+
+			if(detectorSetDwellAction)
+				detectorSetDwellList->addSubAction(detectorSetDwellAction);
+		}
+
+		regionList->addSubAction(detectorSetDwellList);
+
+		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+
+		for (int i = 0; i < extendedPoints; i++){
+
+			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
+			controlLoopMoveInfoSetpoint.setValue(exafsRegion->regionStep());
+			AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
+			controlLoopMoveInfo->setIsRelativeMove(true);
+			controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
+			AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
+			controlLoopMove->setGenerateScanActionMessage(true);
+//			axisLoop->addSubAction(controlLoopMove);
+		}
+	}
+
+	// Otherwise, we need a detector dwell set action and a control move position for each point in the region.
+	else {
+
+
+	}
 //	AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
 
 //	for(int x = 0; x < detectors_->count(); x++){
