@@ -142,6 +142,14 @@ void AM1DDarkCurrentCorrectionAB::setDarkCurrent(const double newValue)
     }
 }
 
+void AM1DDarkCurrentCorrectionAB::setTimeUnitMultiplier(double newMultiplier)
+{
+    if (timeUnitMultiplier_ != newMultiplier && newMultiplier >= 0) {
+        timeUnitMultiplier_ = newMultiplier;
+        setModified(true);
+    }
+}
+
 void AM1DDarkCurrentCorrectionAB::setInputSources()
 {
     if (data_){
@@ -233,7 +241,7 @@ AMNumber AM1DDarkCurrentCorrectionAB::value(const AMnDIndex &indexes) const
     if (double(dwellTime_->value(indexes)) < 0)
         return AMNumber(AMNumber::CalculationError);
 
-    return double(data_->value(indexes))/double(dwellTime_->value(indexes)) - darkCurrent_;
+    return double(data_->value(indexes))/(double(dwellTime_->value(indexes)) * timeUnitMultiplier_) - darkCurrent_;
 }
 
 bool AM1DDarkCurrentCorrectionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -265,7 +273,7 @@ bool AM1DDarkCurrentCorrectionAB::values(const AMnDIndex &indexStart, const AMnD
         if (dwellTimes.at(i) == 0 || dwellTimes.at(i) < 0)
             return false;
 
-        outputValues[i] = data.at(i)/dwellTimes.at(i) - darkCurrent_;
+        outputValues[i] = data.at(i)/(dwellTimes.at(i) * timeUnitMultiplier_) - darkCurrent_;
     }
 
     return true;

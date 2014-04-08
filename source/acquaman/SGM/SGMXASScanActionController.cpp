@@ -6,6 +6,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
  SGMXASScanActionController::~SGMXASScanActionController(){}
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
@@ -38,6 +39,30 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
+
+//    int teyIndex = scan_->rawData()->idOfMeasurement(SGMBeamline::sgm()->newTEYDetector()->name());
+//    int dwellTimeIndex = scan_->rawData()->idOfMeasurement(SGMBeamline::sgm()->dwellTimeDetector()->name());
+
+    int teyIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->newTEYDetector()->name());
+    int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+
+    if (dwellTimeIndex != -1 && teyIndex != -1) {
+        AMDataSource* teySource = scan_->dataSourceAt(teyIndex);
+        AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+
+        AM1DDarkCurrentCorrectionAB *teyCorrection = new AM1DDarkCurrentCorrectionAB("TEY_DarkCorrect");
+        teyCorrection->setDescription("TEY Dark Current Correction");
+        teyCorrection->setDataName(teySource->name());
+        teyCorrection->setDwellTimeName(dwellTimeSource->name());
+        teyCorrection->setInputDataSources(QList<AMDataSource*>() << teySource << dwellTimeSource);
+        teyCorrection->setDarkCurrent(SGMBeamline::sgm()->newTEYDetector()->darkCurrentCorrection());
+        teyCorrection->setTimeUnitMultiplier(.001);
+        scan_->addAnalyzedDataSource(teyCorrection, true, false);
+    }
+
+//    for (int x = 0; x < scan_->dataSourceCount(); x++) {
+//        qDebug() << scan_->dataSourceAt(x)->name();
+//    }
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){

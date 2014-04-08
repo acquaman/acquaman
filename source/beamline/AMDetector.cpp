@@ -36,6 +36,8 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	isVisible_ = true;
 	hiddenFromUsers_ = false;
 
+    darkCurrentCorrection_ = 0;
+
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
 
@@ -380,7 +382,7 @@ bool AMDetector::clear(){
 
 void AMDetector::setAsDarkCurrentCorrection(){
     if (canDoDarkCurrentCorrection()){
-        darkCurrentCorrection_ = singleReading();
+        darkCurrentCorrection_ = double(singleReading()) / acquisitionTime();
         qDebug() << "Set dark current correction as " << darkCurrentCorrection_;
     }
 }

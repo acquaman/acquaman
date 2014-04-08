@@ -23,6 +23,7 @@ class AM1DDarkCurrentCorrectionAB : public AMStandardAnalysisBlock
     Q_PROPERTY(QString dataName READ dataName WRITE setDataName)
     Q_PROPERTY(QString dwellTimeName READ dwellTimeName WRITE setDwellTimeName)
     Q_PROPERTY(double darkCurrent READ darkCurrent WRITE setDarkCurrent)
+    Q_PROPERTY(double timeUnitMultiplier READ timeUnitMultiplier WRITE setTimeUnitMultiplier)
 
     Q_CLASSINFO("AMDbObject_Attributes", "description=1D Normalization Block")
 
@@ -56,9 +57,12 @@ public:
     bool canAnalyze(const QString &dataName, const QString &dwellTimeName) const;
 
     /// Set the dark current correction value.
-    void setDarkCurrent(const double newValue);
-    /// Returns the current dark current value.
+    void setDarkCurrent(double newValue);
+    /// Returns the current dark current value in units/time (you need to pick the appropriate units of time).
     double darkCurrent() const {return darkCurrent_;}
+    /// Set the time unit multiplier, for the case where the time units for measurement and for dark current value are not the same.
+    void setTimeUnitMultiplier(double newMultiplier);
+    double timeUnitMultiplier() const {return timeUnitMultiplier_;}
 
     // Data Retrieval
 
@@ -110,6 +114,8 @@ protected:
     QString dwellTimeName_;
     /// Flag holding whether or not the data source can be analyzed.
     bool canAnalyze_;
+
+    double timeUnitMultiplier_;
 };
 
 
