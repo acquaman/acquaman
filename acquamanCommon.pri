@@ -639,7 +639,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
     source/actions3/actions/AMControlWaitActionInfo.h \
-    source/actions3/actions/AMControlWaitAction.h
+    source/actions3/actions/AMControlWaitAction.h \
+    source/analysis/AM1DDarkCurrentCorrectionAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1050,7 +1051,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
     source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
     source/actions3/actions/AMControlWaitActionInfo.cpp \
-    source/actions3/actions/AMControlWaitAction.cpp
+    source/actions3/actions/AMControlWaitAction.cpp \
+    source/analysis/AM1DDarkCurrentCorrectionAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
