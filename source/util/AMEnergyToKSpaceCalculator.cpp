@@ -41,7 +41,7 @@ bool AMEnergyToKSpaceCalculator::kValues(const AMNumber &start, const AMNumber &
 		double energyStart = double(start);
 		double energyStep = double(step);
 		double energyEnd = double(end);
-		int points = round((energyEnd-energyStart)/energyStep) + 1;
+		int points = round((energyEnd-energyStart)/energyStep);
 
 		for (int i = 0; i < points; i++)
 			kValues[i] = sqrt(((energyStart + i*energyStep) - edge)/3.810945497);
@@ -76,7 +76,7 @@ bool AMEnergyToKSpaceCalculator::energyValues(const AMNumber &start, const AMNum
 		double kStart = double(start);
 		double kStep = double(step);
 		double kEnd = double(end);
-		int points = round((kEnd-kStart)/kStep) + 1;
+		int points = round((kEnd-kStart)/kStep);
 
 		for (int i = 0; i < points; i++){
 

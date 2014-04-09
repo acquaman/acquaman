@@ -74,7 +74,7 @@ public:
 	/// Returns a time for given k value.  Returns -1.0 if not configured.
 	double variableTimeAt(double k) const;
 	/// Sets all the times to the given double pointer of capacity size().  Returns false if array was unable to complete.
-	bool variableTime(double *k) const;
+	bool variableTime(double *times) const;
 
 protected:
 	/// Computes the two coefficients based on the current configuration.

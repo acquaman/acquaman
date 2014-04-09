@@ -8,6 +8,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 #include "util/AMErrorMonitor.h"
 #include "util/AMVariableIntegrationTime.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
 
 AMEXAFSScanActionControllerAssembler::AMEXAFSScanActionControllerAssembler(QObject *parent)
 	: AMGenericScanActionControllerAssembler(parent)
@@ -121,61 +122,65 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 		regionList->addSubAction(detectorSetDwellList);
 
 		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+		QVector<double> points = QVector<double>(extendedPoints);
+		AMEnergyToKSpaceCalculator calculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
+		calculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), points.data());
 
 		for (int i = 0; i < extendedPoints; i++){
 
 			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(exafsRegion->regionStep());
-			AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-			controlLoopMoveInfo->setIsRelativeMove(true);
-			controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
-			AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
-			controlLoopMove->setGenerateScanActionMessage(true);
-//			axisLoop->addSubAction(controlLoopMove);
+			controlLoopMoveInfoSetpoint.setValue(points.at(i));
+			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
+			controlMoveInfo->setIsRelativeMove(false);
+			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			controlMove->setGenerateScanActionMessage(true);
+			regionList->addSubAction(controlMove);
+			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
+			regionList->addSubAction(nextLevelHolderAction);
 		}
 	}
 
 	// Otherwise, we need a detector dwell set action and a control move position for each point in the region.
 	else {
 
+		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+		QVector<double> energyPositions = QVector<double>(extendedPoints);
+		AMEnergyToKSpaceCalculator kCalculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
+		kCalculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), energyPositions.data());
+		AMVariableIntegrationTime timeCalculator = AMVariableIntegrationTime(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
+		QVector<double> variableIntegrationTimes = QVector<double>(extendedPoints);
+		timeCalculator.variableTime(variableIntegrationTimes.data());
 
+		for (int i = 0; i < extendedPoints; i++){
+
+			AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
+
+			for(int x = 0; x < detectors_->count(); x++){
+
+				AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(variableIntegrationTimes.at(i));
+
+				if(detectorSetDwellAction)
+					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+			}
+
+			regionList->addSubAction(detectorSetDwellList);
+
+			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
+			controlLoopMoveInfoSetpoint.setValue(energyPositions.at(i));
+			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
+			controlMoveInfo->setIsRelativeMove(false);
+			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			controlMove->setGenerateScanActionMessage(true);
+			regionList->addSubAction(controlMove);
+			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
+			regionList->addSubAction(nextLevelHolderAction);
+		}
 	}
-//	AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
-
-//	for(int x = 0; x < detectors_->count(); x++){
-
-//		AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(exafsRegion->regionTime());
-
-//		if(detectorSetDwellAction)
-//			detectorSetDwellList->addSubAction(detectorSetDwellAction);
-//	}
-
-//	regionList->addSubAction(detectorSetDwellList);
-
-//	// generate axis loop for region
-//	int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
-//	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(extendedPoints, QString("Loop %1").arg(exafsRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(exafsRegion->regionStart().toString()).arg(exafsRegion->regionEnd().toString()).arg(exafsRegion->regionStep().toString()).arg(exafsRegion->name())));
-//	axisLoop->setGenerateScanActionMessage(true);
-//	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
-//	axisLoop->addSubAction(nextLevelHolderAction);
-
-//	if (axisControl){
-
-//		AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-//		controlLoopMoveInfoSetpoint.setValue(exafsRegion->regionStep());
-//		AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-//		controlLoopMoveInfo->setIsRelativeMove(true);
-//		controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
-//		AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
-//		controlLoopMove->setGenerateScanActionMessage(true);
-//		axisLoop->addSubAction(controlLoopMove);
-//	}
-
-//	regionList->addSubAction(axisLoop);
 
 	if(isFinalRegion){
 		AMListAction3 *nextLevelFinalHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 		regionList->addSubAction(nextLevelFinalHolderAction);
 	}
 
-	return regionList;}
+	return regionList;
+}

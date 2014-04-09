@@ -4,12 +4,14 @@
 
 #include <math.h>
 
-AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(bool inKSpace, const AMNumber &edgeEnergy, const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, const AMNumber &maximumTime, QObject *parent)
+AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(bool inKSpace, const AMNumber &edgeEnergy, const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, const AMNumber &maximumTime, const AMNumber &a2, AMVariableIntegrationTime::Equation equation, QObject *parent)
 	: AMScanAxisRegion(start, step, end, time, parent)
 {
 	inKSpace_ = inKSpace;
 	edgeEnergy_ = edgeEnergy;
 	maximumTime_ = maximumTime;
+	a2_ = a2;
+	equation_ = equation;
 }
 
 AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, QObject *parent)
@@ -18,6 +20,8 @@ AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMNumber &start, const AMNumb
 	inKSpace_ = false;
 	edgeEnergy_ = AMNumber(AMNumber::Null);
 	maximumTime_ = AMNumber(AMNumber::Null);
+	a2_ = AMNumber(2.0);
+	equation_ = AMVariableIntegrationTime::Geometric;
 }
 
 AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMScanAxisEXAFSRegion &original)
@@ -26,22 +30,44 @@ AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMScanAxisEXAFSRegion &origin
 	inKSpace_ = original.inKSpace();
 	edgeEnergy_ = original.edgeEnergy();
 	maximumTime_ = original.maximumTime();
+	a2_ = original.a2();
+	equation_ = original.equation();
 }
 
 void AMScanAxisEXAFSRegion::setInKSpace(bool flag)
 {
 	emit inKSpaceChanged(inKSpace_ = flag);
+	setModified(true);
 	switchSpace();
 }
 
 void AMScanAxisEXAFSRegion::setEdgeEnergy(const AMNumber &energy)
 {
 	emit edgeEnergyChanged(edgeEnergy_ = energy);
+	setModified(true);
 }
 
 void AMScanAxisEXAFSRegion::setMaximumTime(const AMNumber &newMaximumTime)
 {
-	emit maximumTimeChanged(newMaximumTime);
+	emit maximumTimeChanged(maximumTime_ = newMaximumTime);
+	setModified(true);
+}
+
+void AMScanAxisEXAFSRegion::setA2(const AMNumber &newA2)
+{
+	emit a2Changed(a2_ = newA2);
+	setModified(true);
+}
+
+void AMScanAxisEXAFSRegion::setEquation(AMVariableIntegrationTime::Equation newEquation)
+{
+	emit equationChanged(equation_ = newEquation);
+	setModified(true);
+}
+
+void AMScanAxisEXAFSRegion::setEquation(int newEquation)
+{
+	setEquation(AMVariableIntegrationTime::Equation(newEquation));
 }
 
 void AMScanAxisEXAFSRegion::switchSpace()

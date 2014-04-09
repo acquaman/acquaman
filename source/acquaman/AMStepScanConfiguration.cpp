@@ -46,11 +46,13 @@ void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 void AMStepScanConfiguration::insertScanAxis(int index, AMScanAxis *newAxis)
 {
 	scanAxes_.insert(index, newAxis);
+	emit scanAxisAdded();
 }
 
 void AMStepScanConfiguration::appendScanAxis(AMScanAxis *newAxis)
 {
 	scanAxes_.append(newAxis);
+	emit scanAxisAdded();
 }
 
 bool AMStepScanConfiguration::removeScanAxis(AMScanAxis *axis)
@@ -64,7 +66,7 @@ bool AMStepScanConfiguration::removeScanAxis(AMScanAxis *axis)
 	if (index != -1){
 
 		AMScanAxis *axis = scanAxes_.takeAt(index);
-		delete axis;
+		emit scanAxisRemoved(axis);
 		return true;
 	}
 
@@ -73,5 +75,7 @@ bool AMStepScanConfiguration::removeScanAxis(AMScanAxis *axis)
 
 AMScanAxis *AMStepScanConfiguration::removeScanAxis(int index)
 {
-	return scanAxes_.takeAt(index);
+	AMScanAxis *scanAxis = scanAxes_.takeAt(index);
+	emit scanAxisRemoved(scanAxis);
+	return scanAxis;
 }

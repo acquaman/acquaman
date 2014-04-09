@@ -28,6 +28,12 @@ public:
 	/// Returns the list of scan axes.
 	QList<AMScanAxis *> scanAxes() const { return scanAxes_.toList(); }
 
+signals:
+	/// Notifier that an axis has been added to the scan configuration.
+	void scanAxisAdded();
+	/// Notifier that an axis has been removed from the scan configuration.
+	void scanAxisRemoved();
+
 public slots:
 	/// Inserts a scan axis into the list.
 	void insertScanAxis(int index, AMScanAxis *newAxis);

@@ -203,13 +203,13 @@ double AMVariableIntegrationTime::variableTimeAt(double k) const
 	return time;
 }
 
-bool AMVariableIntegrationTime::variableTime(double *k) const
+bool AMVariableIntegrationTime::variableTime(double *times) const
 {
 	// If all the data is good already, just copy it.
 	if (isValid_){
 
 		QVector<double> data = variableTimes_.values().toVector();
-		memcpy(k, data.constData(), data.size()*sizeof(double));
+		memcpy(times, data.constData(), data.size()*sizeof(double));
 
 		return true;
 	}
@@ -217,7 +217,7 @@ bool AMVariableIntegrationTime::variableTime(double *k) const
 	if (!isValid_ && !computeCoefficients())
 		return false;
 
-	if (kStep_ <= 0.0 || kStep_ > kf_)
+	if (kStep_ <= 0.0 || k0_ > kf_)
 		return false;
 
 	variableTimes_.clear();
@@ -275,7 +275,7 @@ bool AMVariableIntegrationTime::variableTime(double *k) const
 	}
 
 	QVector<double> data = variableTimes_.values().toVector();
-	memcpy(k, data.constData(), data.size()*sizeof(double));
+	memcpy(times, data.constData(), data.size()*sizeof(double));
 
 	return true;
 }
