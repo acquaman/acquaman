@@ -56,8 +56,6 @@ public:
     /// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param dwellTimeName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
     bool canAnalyze(const QString &dataName, const QString &dwellTimeName) const;
 
-    /// Set the dark current correction value.
-    void setDarkCurrent(double newValue);
     /// Returns the current dark current value in units/time (you need to pick the appropriate units of time).
     double darkCurrent() const {return darkCurrent_;}
     /// Set the time unit multiplier, for the case where the time units for measurement and for dark current value are not the same.
@@ -79,6 +77,7 @@ public:
     /// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
     virtual AMNumber axisValue(int axisNumber, int index) const;
 
+
     //////////////////////////////////////////////
 
     /// Reimplement the create widget method.
@@ -86,6 +85,10 @@ public:
 
     /// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
     bool loadFromDb(AMDatabase *db, int id);
+
+public slots:
+    /// Set the dark current correction value.
+    void setDarkCurrent(double newValue);
 
 protected slots:
     /// Connected to be called when the values of the input data source change

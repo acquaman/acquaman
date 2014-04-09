@@ -79,6 +79,7 @@ AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(dou
     darkCurrentCorrectionActions->addSubAction(scaler_->createStartAction3(true));
     darkCurrentCorrectionActions->addSubAction(scaler_->createWaitForDwellFinishedAction());
     darkCurrentCorrectionActions->addSubAction(createSetAsDarkCurrentCorrectionAction());
+    darkCurrentCorrectionActions->addSubAction(scaler_->createDwellTimeAction3(scaler_->dwellTime()));
 
     return darkCurrentCorrectionActions;
 }

@@ -375,6 +375,9 @@ signals:
 	/// Notifier that the default accessibility of the detector has changed.
 	void hiddenFromUsersChanged(bool);
 
+    /// New dark current correction value ready
+    void newDarkCurrentCorrectionReady(double newValue);
+
 protected slots:
 	///
 	void setInitializing();
