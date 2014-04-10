@@ -32,6 +32,7 @@ class CLSSR570;
 
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
+#include "actions3/actions/AMDoingDarkCurrentCorrectionAction.h"
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -89,6 +90,8 @@ public:
 
     AMAction3* createWaitForDwellFinishedAction();
 
+    AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
+
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -118,6 +121,8 @@ signals:
 	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
 
+    void darkCurrentTimeChanged(int dwellSeconds);
+
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
 	void onScanningToggleChanged();
@@ -140,6 +145,7 @@ protected slots:
 	void onReadingChanged(double value);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+    void onDwellTimeSourceSetDarkCurrentCorrectionTime(int timeSeconds);
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();

@@ -30,6 +30,19 @@ void AMDetectorDwellTimeSource::requestSetDwellTime(double dwellSeconds){
 	emit setDwellTime(dwellSeconds);
 }
 
+#include <QDebug>
+void AMDetectorDwellTimeSource:: requestSetDarkCurrentCorrectionTime(int timeSeconds) {
+    qDebug() << "Want to emit darkCurrentCorrectionTime as " << timeSeconds << " in " << name();
+    emit setDarkCurrentCorrectionTime(timeSeconds);
+
+    emit darkCurrentTimeChanged(timeSeconds);
+}
+
+//AMAction* AMDetectorDwellTimeSource::doingDarkCurrentCorrection(int newTime)
+//{
+//    AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo();
+//}
+
 void AMDetectorDwellTimeSource::setSucceeded(){
 	emit succeeded();
 }

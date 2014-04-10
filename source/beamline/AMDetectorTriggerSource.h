@@ -45,12 +45,16 @@ public:
 
 public slots:
 	void requestSetDwellTime(double dwellSeconds);
+    void requestSetDarkCurrentCorrectionTime(int timeSeconds);
+//    AMAction3* doingDarkCurrentCorrection(int newTime);
 
 	void setSucceeded();
 	void setFailed();
 
 signals:
 	void setDwellTime(double dwellSeconds);
+    void setDarkCurrentCorrectionTime(int timeSeconds);
+    void darkCurrentTimeChanged(int timeSeconds);
 
 	void succeeded();
 	void failed();

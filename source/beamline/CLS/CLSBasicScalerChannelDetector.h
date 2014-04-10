@@ -85,6 +85,8 @@ protected slots:
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
 
+    void onScalerDarkCurrentTimeChanged(int dwellSeconds);
+
 protected:
 	bool initializeImplementation();
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);

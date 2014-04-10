@@ -12,6 +12,8 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
+
+    connect(scaler_->dwellTimeSource(), SIGNAL(darkCurrentTimeChanged(int)), this, SLOT(onScalerDarkCurrentTimeChanged(int)) );
 }
 
 int CLSBasicScalerChannelDetector::size(int axisNumber) const{
@@ -78,6 +80,7 @@ AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(dou
     darkCurrentCorrectionActions->addSubAction(scaler_->createDwellTimeAction3(dwellTime));
     darkCurrentCorrectionActions->addSubAction(scaler_->createStartAction3(true));
     darkCurrentCorrectionActions->addSubAction(scaler_->createWaitForDwellFinishedAction());
+    darkCurrentCorrectionActions->addSubAction(scaler_->createDoingDarkCurrentCorrectionAction(dwellTime));
     darkCurrentCorrectionActions->addSubAction(createSetAsDarkCurrentCorrectionAction());
     darkCurrentCorrectionActions->addSubAction(scaler_->createDwellTimeAction3(scaler_->dwellTime()));
 
@@ -130,6 +133,13 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 	scaler_->setScanning(true);
 	return true;
 }
+
+
+void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(int dwellSeconds) {
+    qDebug() << "Detector doing dark current correction : " << name();
+    setLastDarkCurrentCorrectionTime(dwellSeconds);
+}
+
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){
 	//setInitializing();

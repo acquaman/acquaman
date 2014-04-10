@@ -38,8 +38,10 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+    connect(dwellTimeSource_, SIGNAL(setDarkCurrentCorrectionTime(int)), this, SLOT(onDwellTimeSourceSetDarkCurrentCorrectionTime(int)) );
 
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
@@ -250,6 +252,17 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
     return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTime)
+{
+    AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo(dwellTimeSource(), dwellTime);
+    AMDoingDarkCurrentCorrectionAction *action = new AMDoingDarkCurrentCorrectionAction(actionInfo);
+
+    if (!action)
+        return 0;
+
+    return action;
+}
+
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
 	if(!isConnected())
@@ -442,6 +455,14 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(int dwellSeconds) {
+    if (!isConnected() || isScanning())
+        return;
+
+    emit darkCurrentTimeChanged(dwellSeconds);
+    dwellTimeSource_->setSucceeded();
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){

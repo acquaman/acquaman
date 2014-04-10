@@ -162,6 +162,7 @@ public:
     virtual bool canDoDarkCurrentCorrection() const { return false;}
 
     virtual double darkCurrentCorrection() const;
+    virtual int lastDarkCurrentCorrectionTime() const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
@@ -316,6 +317,8 @@ public slots:
 	bool clear();
 
     virtual void setAsDarkCurrentCorrection();
+    virtual void setLastDarkCurrentCorrectionTime(int lastTime);
+
 
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
@@ -460,6 +463,7 @@ protected:
 	bool hiddenFromUsers_;
 
     double darkCurrentCorrection_;
+    int lastDarkCurrentCorrectionTime_;
 
 private:
 	/// Changes states in the acquisition state (if possible)

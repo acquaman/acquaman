@@ -37,6 +37,7 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	hiddenFromUsers_ = false;
 
     darkCurrentCorrection_ = 0;
+    lastDarkCurrentCorrectionTime_ = 0;
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
@@ -59,6 +60,13 @@ AMDetector::operator AMMeasurementInfo() {
 double AMDetector::darkCurrentCorrection() const {
     if (canDoDarkCurrentCorrection())
         return darkCurrentCorrection_;
+
+    return -1;
+}
+
+int AMDetector::lastDarkCurrentCorrectionTime() const {
+    if (canDoDarkCurrentCorrection())
+        return lastDarkCurrentCorrectionTime_;
 
     return -1;
 }
@@ -385,6 +393,12 @@ void AMDetector::setAsDarkCurrentCorrection(){
         darkCurrentCorrection_ = double(singleReading()) / acquisitionTime();
 //        qDebug() << "Set dark current correction as " << darkCurrentCorrection_;
         emit newDarkCurrentCorrectionReady(darkCurrentCorrection_);
+    }
+}
+
+void AMDetector::setLastDarkCurrentCorrectionTime(int lastTime) {
+    if (canDoDarkCurrentCorrection()) {
+        lastDarkCurrentCorrectionTime_ = lastTime;
     }
 }
 
