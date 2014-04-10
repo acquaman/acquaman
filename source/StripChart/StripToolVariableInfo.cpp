@@ -5,7 +5,6 @@ StripToolVariableInfo::StripToolVariableInfo(QObject *parent) :
     QObject(parent)
 {
     dataSource_ = 0;
-
     defaultSettings();
 
     qDebug() << "StripToolVariableInfo object created.";
