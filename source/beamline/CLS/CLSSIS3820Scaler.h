@@ -33,6 +33,7 @@ class CLSSR570;
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
 #include "actions3/actions/AMDoingDarkCurrentCorrectionAction.h"
+#include "actions3/AMListAction3.h"
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -44,6 +45,14 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+    enum DarkCurrentCorrectionState {
+        READY = 0,
+        NOT_READY,
+        STARTED,
+        SUCCEEDED,
+        FAILED
+    };
+
 	/// Constructor.  Takes the baseName of the PV's as parameters.
  	virtual ~CLSSIS3820Scaler();
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
@@ -92,6 +101,9 @@ public:
 
     AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
 
+    /// Creates the actions needed to perform a dark current correction and executes them.
+    void doDarkCurrentCorrection(double dwellSeconds);
+
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -121,7 +133,12 @@ signals:
 	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
 
-    void darkCurrentTimeChanged(int dwellSeconds);
+    /// Emitted on completion of a dark current measurement, passes the new measurement value.
+    void newDarkCurrentCorrectionValue();
+    /// Emitted on completion of a dark current measurement, passes the dwell time of the measurement.
+    void newDarkCurrentCorrectionTime(double dwellSeconds);
+    /// Emitted when the DarkCurrentCorrectionState changes, passes the new state.
+    void darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
@@ -146,6 +163,10 @@ protected slots:
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
     void onDwellTimeSourceSetDarkCurrentCorrectionTime(int timeSeconds);
+
+    void onDarkCurrentCorrectionDwellTimeReset();
+    void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
+    void onDarkCurrentCorrectionFailed();
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
@@ -181,6 +202,10 @@ protected:
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;
+
+    bool doingDarkCurrentCorrection_;
+    double lastDwellTime_;
+
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.
@@ -261,6 +286,7 @@ signals:
 	/// Notifier that the voltage range has changed.  Passes the new range.
 	void voltageRangeChanged(const AMRange &);
 
+
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
 	void onChannelEnabledChanged();
@@ -274,6 +300,7 @@ protected:
 	int index_;
 	/// Flag to help minimize signal traffic when connecting to controls.
 	bool wasConnected_;
+
 	/// The linear voltage range of the detector.
 	AMRange voltageRange_;
 

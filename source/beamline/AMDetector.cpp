@@ -396,7 +396,7 @@ void AMDetector::setAsDarkCurrentCorrection(){
     }
 }
 
-void AMDetector::setLastDarkCurrentCorrectionTime(int lastTime) {
+void AMDetector::setLastDarkCurrentCorrectionTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
         lastDarkCurrentCorrectionTime_ = lastTime;
     }

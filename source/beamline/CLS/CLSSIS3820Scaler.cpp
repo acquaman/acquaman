@@ -26,15 +26,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
+#include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
+
+
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
- CLSSIS3820Scaler::~CLSSIS3820Scaler(){}
 CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
 	switchingReadModes_ = false;
+    doingDarkCurrentCorrection_ = false;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
@@ -77,6 +80,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connect(reading_, SIGNAL(valueChanged(double)), this, SLOT(onReadingChanged(double)));
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
+
+CLSSIS3820Scaler::~CLSSIS3820Scaler(){}
 
 bool CLSSIS3820Scaler::isConnected() const{
 
@@ -263,6 +268,28 @@ AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTim
     return action;
 }
 
+void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
+{
+    lastDwellTime_ = dwellTime();
+    doingDarkCurrentCorrection_ = true;
+    emit darkCurrentCorrectionStateChanged(STARTED);
+
+    AMListActionInfo3 *actionInfo = new AMListActionInfo3("Perform dark current correction.", "Perform dark current correction.");
+    AMListAction3 *action = new AMListAction3(actionInfo, AMListAction3::Sequential);
+
+    action->addSubAction(createDwellTimeAction3(dwellSeconds));
+    action->addSubAction(createStartAction3(true));
+
+    connect( action, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
+    connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+    connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+    connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+
+    action->start();
+
+    qDebug() << "CLSSIS3820Scaler::doDarkCurrentCorrection executing.";
+}
+
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
 	if(!isConnected())
@@ -326,6 +353,24 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 		emit scanningChanged(false);
 		//triggerSource_->setSucceeded();
 	}
+
+    /////////////
+    if (startToggle_->withinTolerance(0) && doingDarkCurrentCorrection_) {
+        emit newDarkCurrentCorrectionValue();
+        emit newDarkCurrentCorrectionTime(dwellTime_->value());
+
+        qDebug() << "CLSSIS3820Scaler::onScanningToggleChanged -- dark current measurement has finished, reseting dwell time.";
+
+        AMAction3 *resetDwellTime = createDwellTimeAction3(lastDwellTime_);
+        connect( resetDwellTime, SIGNAL(succeeded()), this, SLOT(onDarkCurrentCorrectionDwellTimeReset()) );
+        connect( resetDwellTime, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
+
+        connect( resetDwellTime, SIGNAL(failed()), resetDwellTime, SLOT(deleteLater()) );
+        connect( resetDwellTime, SIGNAL(succeeded()), resetDwellTime, SLOT(deleteLater()) );
+        connect( resetDwellTime, SIGNAL(cancelled()), resetDwellTime, SLOT(deleteLater()) );
+
+        resetDwellTime->start();
+    }
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged(){
@@ -461,8 +506,28 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(int dwellSe
     if (!isConnected() || isScanning())
         return;
 
-    emit darkCurrentTimeChanged(dwellSeconds);
+//    emit darkCurrentTimeChanged(dwellSeconds);
+    emit newDarkCurrentCorrectionTime(dwellSeconds);
     dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionDwellTimeReset() {
+    doingDarkCurrentCorrection_ = false;
+    emit darkCurrentCorrectionStateChanged(SUCCEEDED);
+    disconnect(this, SLOT(onDarkCurrentCorrectionDwellTimeReset()));
+
+    qDebug() << "Dark current correction dwell time reset.";
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState) {
+
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionFailed() {
+    doingDarkCurrentCorrection_ = false;
+    emit darkCurrentCorrectionStateChanged(FAILED);
+
+    // reset original params?
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){

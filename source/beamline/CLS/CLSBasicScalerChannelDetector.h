@@ -2,6 +2,7 @@
 #define CLSBASICSCALERCHANNELDETECTOR_H
 
 #include "beamline/AMDetector.h"
+#include "beamline/AMBeamline.h"
 
 class CLSSIS3820Scaler;
 
@@ -85,7 +86,8 @@ protected slots:
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
 
-    void onScalerDarkCurrentTimeChanged(int dwellSeconds);
+    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
+    void onScalerDarkCurrentValueChanged();
 
 protected:
 	bool initializeImplementation();

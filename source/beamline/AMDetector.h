@@ -317,7 +317,7 @@ public slots:
 	bool clear();
 
     virtual void setAsDarkCurrentCorrection();
-    virtual void setLastDarkCurrentCorrectionTime(int lastTime);
+    virtual void setLastDarkCurrentCorrectionTime(double lastTime);
 
 
 signals:

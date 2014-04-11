@@ -7,6 +7,7 @@
 class AMDoingDarkCurrentCorrectionAction : public AMAction3
 {
     Q_OBJECT
+
 public:
     explicit AMDoingDarkCurrentCorrectionAction(AMDoingDarkCurrentCorrectionActionInfo *info, QObject *parent = 0);
     AMDoingDarkCurrentCorrectionAction(const AMDoingDarkCurrentCorrectionAction &other);
