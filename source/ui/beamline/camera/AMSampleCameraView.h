@@ -28,6 +28,7 @@ class QMediaPlayer;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
+class AMSimpleSamplePlateWizard;
 class AMRotationWizard;
 class AMShapeDataListView;
 class AMShapeData;
@@ -575,7 +576,7 @@ protected:
 	QPushButton* saveSamplePlate_;
 
 	QPushButton* samplePlateWizardButton_;
-	AMSamplePlateWizard* samplePlateWizard_;
+	AMSimpleSamplePlateWizard* samplePlateWizard_;
 	int samplePlateMovement_;
 
 	AMRotationWizard* rotationWizard_;

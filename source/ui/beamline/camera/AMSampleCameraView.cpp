@@ -45,6 +45,7 @@
 #include "ui/beamline/camera/AMCameraConfigurationWizard.h"
 #include "ui/beamline/camera/AMBeamConfigurationWizard.h"
 #include "ui/beamline/camera/AMSamplePlateWizard.h"
+#include "ui/beamline/camera/AMSimpleSamplePlateWizard.h"
 #include "ui/beamline/camera/AMRotationWizard.h"
 
 #include <limits>
@@ -105,7 +106,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	beamWizard_ = new AMBeamConfigurationWizard();
 	beamWizard_->setView(view);
 
-	samplePlateWizard_ = new AMSamplePlateWizard();
+	samplePlateWizard_ = new AMSimpleSamplePlateWizard();
 	samplePlateWizard_->setView(view);
 
 	rotationWizard_ = new AMRotationWizard();
@@ -1435,7 +1436,7 @@ void AMSampleCameraView::startSampleWizard()
 //	{
 		delete samplePlateWizard_;
 //	}
-	samplePlateWizard_ = new AMSamplePlateWizard();
+	samplePlateWizard_ = new AMSimpleSamplePlateWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
 	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));

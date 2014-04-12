@@ -1,0 +1,61 @@
+#ifndef AMSIMPLESAMPLEPLATEWIZARD_H
+#define AMSIMPLESAMPLEPLATEWIZARD_H
+
+#include "AMGraphicsViewWizard.h"
+
+class AMShapeData;
+class QVector3D;
+class QPointF;
+
+class AMSimpleSamplePlateWizard : public AMGraphicsViewWizard
+{
+	Q_OBJECT
+public:
+	enum
+	{
+		Page_Intro = 0, // description
+		Page_Final = 1, // confirmation
+		Page_Option = 2, // set coordinate
+		Page_Free = 3 // for wizard use
+	};
+	AMSimpleSamplePlateWizard(QWidget *parent = 0);
+	virtual ~AMSimpleSamplePlateWizard();
+	virtual int nextId() const;
+	virtual void waitPage();
+	virtual QString message(int type);
+	bool isPointInShape(QPointF point);
+public slots:
+	void back();
+	void addShape(AMShapeData *shape);
+	void shiftSampleShape(QVector3D shift);
+	void shiftSampleShape(QPointF shift);
+	void initializeShape();
+private:
+	AMShapeData *sampleShape_;
+	QGraphicsPolygonItem* sampleShapeItem_;
+};
+
+class AMSimpleSampleSetPage : public AMViewPage
+{
+	Q_OBJECT
+public:
+	void initializePage();
+	bool pointInShape(QPointF);
+protected slots:
+	void selectShape(QPointF);
+	void releaseShape();
+	void moveShape(QPointF);
+	void disconnectMouseSignal();
+
+private:
+	QPointF oldPosition_;
+};
+
+class AMSimpleSampleWaitPage : public AMWaitPage
+{
+	Q_OBJECT
+public:
+	virtual void initializePage();
+};
+
+#endif // AMSIMPLESAMPLEPLATEWIZARD_H
