@@ -155,6 +155,9 @@ public:
 	double rotationalOffsetY() const;
 	double rotationalOffsetZ() const;
 
+	/// returns whether distortion is being used
+	bool distortion();
+
 	/// -----------------------------------------------------------------------------------
 
 
@@ -178,8 +181,16 @@ public slots:
 	/// sets the motor cooridinates using the current motor values
 	void setMotorCoordinate();
 
+	void setMotorX(double x);
+	void setMotorY(double y);
+	void setMotorZ(double z);
+	void setMotorR(double r);
+
 	/// toggles distortion on or off
 	void toggleDistortion();
+
+	void setDistortion(bool distortion);
+
 
 	/// crosshair
 	void setCrosshair(QPointF crosshair);
@@ -278,6 +289,13 @@ public:
 	/// the line is given by two points, the first is the centroid of
 	/// all the points and the second is another point on the line
 	QVector<QVector3D> lineOfBestFit(const QList<QVector3D> &points) const;
+
+	/// returns true if there is a shape to draw on, and it has been enabled
+	bool drawOnShapeValid();
+	/// returns true if the draw on shape option is enabled
+	bool drawOnShapeEnabled();
+	/// returns true if a shape to draw on has been selected
+	bool drawOnShapeSelected();
 
 
 
@@ -390,6 +408,7 @@ public slots:
 
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
+	void setSimpleSamplePlate();
 	/// Create the sample plate using selected points \todo
 	void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations, int numberOfPoints);
 
@@ -405,6 +424,8 @@ public slots:
 
 	/// move the sample plate by a small amount, proportional to movement
 	void moveSamplePlate(int movement);
+	/// move the sample plate under the mouse
+	void moveSamplePlate(QPointF shift);
 
 	/// adds the beam marker, to mark the beam on the sample plate
 	void addBeamMarker(int index);
@@ -497,6 +518,12 @@ protected:
 	/// Constructor
 	explicit AMSampleCamera(QObject *parent = 0);
 
+
+	/// Sample Manipulator access
+	double manipulatorX();
+	double manipulatorY();
+	double manipulatorZ();
+	double manipulatorR();
 
 	/// Manipulations
 

@@ -29,6 +29,7 @@ AMSimpleSamplePlateWizard::AMSimpleSamplePlateWizard(QWidget *parent)
 	{
 		setPage(pageWait(i), new AMSimpleSampleWaitPage);
 		setPage(pageSet(i), new AMSimpleSampleSetPage);
+		connect(page(pageSet(i)), SIGNAL(signalMousePressed(QPointF)), this, SLOT(setPageMousePressedHandler(QPointF)));
 	}
 
 	setStartId(Page_Intro);
@@ -242,37 +243,44 @@ void AMSimpleSamplePlateWizard::shiftSampleShape(QVector3D shift)
 
 void AMSimpleSamplePlateWizard::shiftSampleShape(QPointF shift)
 {
-/// \todo	figure out the mapping
-	qDebug()<<"translation is"<<shift;
-
-	shift = view()->mapVideoToScene(shift);
-	qDebug()<<"shift is"<<shift;
-	shift = view()->mapFromScene(shift);
-	qDebug()<<"ashift is"<<shift;
-	qDebug()<<"===============";
-	sampleShapeItem_->moveBy(shift.x(),shift.y());
+	emit signalShiftSampleShape(shift);
+///// \todo	figure out the mapping
+//	sampleShape_->
+//	qDebug()<<"translation is"<<shift;
+//	shift = view()->mapFromGlobal(shift.toPoint());
+//	qDebug()<<"shift is"<<shift;
+////	shift = view()->mapFromScene(shift);
+////	qDebug()<<"ashift is"<<shift;
+//	qDebug()<<"===============";
+//	sampleShapeItem_->moveBy(shift.x(),shift.y());
 }
 
 void AMSimpleSamplePlateWizard::initializeShape()
 {
-	sampleShape_ = new AMShapeData();
-	QVector3D baseCoordinate = *coordinateList()->at(0);
-	QVector3D plateWidth = QVector3D(20,0,0);
-	QVector3D plateHeight = QVector3D(0,0,-20);
-	QVector<QVector3D> shape;
-	shape<<QVector3D(baseCoordinate)
-		 <<QVector3D(baseCoordinate + plateWidth)
-		 <<QVector3D(baseCoordinate + plateWidth + plateHeight)
-		 <<QVector3D(baseCoordinate + plateHeight);
-	sampleShape_->setCoordinateShape(shape);
-//	sampleShapeItem_ = view()->scene()->addPolygon(*sampleShape_->shape());
-	QVector<QPointF> points;
-	for(int i = 0; i < 4; i++)
-		points<<QPointF(shape.at(i).toPointF());
-	QBrush brush = QBrush(Qt::green);
-	QPen pen = QPen(Qt::green);
-	QPolygonF polygon(QRectF(5, 5, 20, 20));
-	sampleShapeItem_ = view()->scene()->addPolygon(polygon,pen, brush);
+	emit signalInitializeSampleShape();
+//	sampleShape_ = new AMShapeData();
+//	QVector3D baseCoordinate = *coordinateList()->at(0);
+//	QVector3D plateWidth = QVector3D(20,0,0);
+//	QVector3D plateHeight = QVector3D(0,0,-20);
+//	QVector<QVector3D> shape;
+//	shape<<QVector3D(baseCoordinate)
+//		 <<QVector3D(baseCoordinate + plateWidth)
+//		 <<QVector3D(baseCoordinate + plateWidth + plateHeight)
+//		 <<QVector3D(baseCoordinate + plateHeight);
+//	sampleShape_->setCoordinateShape(shape);
+////	sampleShapeItem_ = view()->scene()->addPolygon(*sampleShape_->shape());
+//	QVector<QPointF> points;
+//	for(int i = 0; i < 4; i++)
+//		points<<QPointF(shape.at(i).toPointF());
+//	QBrush brush = QBrush(Qt::green);
+//	QPen pen = QPen(Qt::green);
+//	QPolygonF polygon(QRectF(5, 5, 20, 20));
+	//	sampleShapeItem_ = view()->scene()->addPolygon(polygon,pen, brush);
+}
+
+void AMSimpleSamplePlateWizard::setPageMousePressedHandler(QPointF point)
+{
+	emit signalSamplePlateWizardMousePressed(point);
 }
 
 
@@ -282,9 +290,8 @@ void AMSimpleSampleSetPage::initializePage()
 	AMViewPage::initializePage();
 	disconnectMouseSignal();
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(selectShape(QPointF)));
-	connect(view(), SIGNAL(mouseReleased(QPointF)), this, SLOT(releaseShape()));
+	connect(view(), SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(releaseShape()));
 	((AMSimpleSamplePlateWizard*)wizard())->initializeShape();
-	qDebug()<<"Initialized shape";
 }
 
 bool AMSimpleSampleSetPage::pointInShape(QPointF point)
@@ -296,7 +303,7 @@ void AMSimpleSampleSetPage::selectShape(QPointF point)
 {
 	if(pointInShape(point) || true)
 	{
-		oldPosition_ = point;
+		emit signalMousePressed(point);
 		connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(moveShape(QPointF)));
 	}
 }
@@ -308,10 +315,8 @@ void AMSimpleSampleSetPage::releaseShape()
 
 void AMSimpleSampleSetPage::moveShape(QPointF point)
 {
-	QPointF shift = point - oldPosition_;
 
-	((AMSimpleSamplePlateWizard*)wizard())->shiftSampleShape(shift);
-	oldPosition_ = point;
+	((AMSimpleSamplePlateWizard*)wizard())->shiftSampleShape(point);
 }
 
 void AMSimpleSampleSetPage::disconnectMouseSignal()

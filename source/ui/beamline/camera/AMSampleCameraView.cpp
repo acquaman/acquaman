@@ -42,6 +42,7 @@
 #include <QMediaPlayer>
 #include <QPainterPath>
 
+#include "ui/beamline/camera/AMGraphicsViewWizard.h"
 #include "ui/beamline/camera/AMCameraConfigurationWizard.h"
 #include "ui/beamline/camera/AMBeamConfigurationWizard.h"
 #include "ui/beamline/camera/AMSamplePlateWizard.h"
@@ -98,6 +99,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 //	beamWizard_ = NULL;
 //	samplePlateWizard_ = NULL;
 //	rotationWizard_ = NULL;
+	setSamplePlateWizardType(SIMPLE);
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	view->setScene(shapeScene_->scene());
@@ -106,7 +108,10 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	beamWizard_ = new AMBeamConfigurationWizard();
 	beamWizard_->setView(view);
 
-	samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+	if(samplePlateWizardType() == SIMPLE)
+		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+	else if(samplePlateWizardType() == FULL)
+		samplePlateWizard_ = new AMSamplePlateWizard();
 	samplePlateWizard_->setView(view);
 
 	rotationWizard_ = new AMRotationWizard();
@@ -784,7 +789,17 @@ bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfP
     {
         empty &= list[i].isEmpty();
     }
-    return empty;
+	return empty;
+}
+
+void AMSampleCameraView::setSamplePlateWizardType(AMSampleCameraView::SampleWizardType type)
+{
+	samplePlateWizardType_ = type;
+}
+
+AMSampleCameraView::SampleWizardType AMSampleCameraView::samplePlateWizardType()
+{
+	return samplePlateWizardType_;
 }
 
 /// moves the sample plate to the requested point.
@@ -1436,7 +1451,15 @@ void AMSampleCameraView::startSampleWizard()
 //	{
 		delete samplePlateWizard_;
 //	}
-	samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+	if(samplePlateWizardType() == FULL)
+	{
+		samplePlateWizard_ = new AMSamplePlateWizard();
+	}
+	else if(samplePlateWizardType() == SIMPLE)
+	{
+		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+	}
+
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
 	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));
@@ -1447,6 +1470,9 @@ void AMSampleCameraView::startSampleWizard()
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
 	connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SLOT(transmitMotorRotation()));
 	connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
+	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SLOT(initializeSampleShape()));
+	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SLOT(shiftSampleShape(QPointF)));
+	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SLOT(sampleShapeMousePressed(QPointF)));
 	view->setScene(shapeScene_->scene());
 	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
 	samplePlateWizard_->setView(view);
@@ -1533,6 +1559,27 @@ void AMSampleCameraView::shapeDrawingFinished()
    */
 		}
 	}
+}
+
+void AMSampleCameraView::initializeSampleShape()
+{
+	qDebug()<<"Initializing sample Shape!";
+	shapeModel_->setSimpleSamplePlate();
+	refreshSceneView();
+	samplePlateWizard_->updateScene(shapeScene_);
+}
+
+void AMSampleCameraView::shiftSampleShape(QPointF shift)
+{
+	qDebug()<<"Shifting sample Shape!"<<shift;
+	shapeModel_->moveSamplePlate(shift);
+	refreshSceneView();
+	samplePlateWizard_->updateScene(shapeScene_);
+}
+
+void AMSampleCameraView::sampleShapeMousePressed(QPointF position)
+{
+	shapeModel_->setShapeVectors(position);
 }
 
 void AMSampleCameraView::requestLoadBeam()

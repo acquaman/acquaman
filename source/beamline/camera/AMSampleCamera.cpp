@@ -347,6 +347,11 @@ double AMSampleCamera::rotationalOffsetZ() const
 	return rotationalOffset().z();
 }
 
+bool AMSampleCamera::distortion()
+{
+	return distortion_;
+}
+
 
 /// set the current index
 void AMSampleCamera::setCurrentIndex(int current)
@@ -376,36 +381,48 @@ void AMSampleCamera::setBeamModel(AMBeamConfiguration *model)
 void AMSampleCamera::setMotorCoordinate(double x, double y, double z, double r)
 {
 	motorMovement(x,y,z,r);
-	motorCoordinate_.setX(x);
-	motorCoordinate_.setY(y);
-	motorCoordinate_.setZ(z);
-
-	motorRotation_ = r;
+	setMotorX(x);
+	setMotorY(y);
+	setMotorZ(z);
+	setMotorR(r);
 }
 
 /// sets the motor coordinate to xyzr (the current motor value)
 void AMSampleCamera::setMotorCoordinate()
 {
-	double x = ssaManipulatorX_->value();
-	double y = ssaManipulatorY_->value();
-	double z = ssaManipulatorZ_->value();
-	double r = ssaManipulatorRot_->value();
-	motorMovement(x,y,z,r);
+	double x = manipulatorX();
+	double y = manipulatorY();
+	double z = manipulatorZ();
+	double r = manipulatorR();
+	setMotorCoordinate(x,y,z,r);
+
+	// update the sample plate
+	AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
+	if(currentPlate)
+	{
+		currentPlate->setPlatePosition(motorCoordinate());
+		currentPlate->setPlateRotation(motorRotation());
+	}
+}
+
+void AMSampleCamera::setMotorX(double x)
+{
 	motorCoordinate_.setX(x);
+}
+
+void AMSampleCamera::setMotorY(double y)
+{
 	motorCoordinate_.setY(y);
+}
+
+void AMSampleCamera::setMotorZ(double z)
+{
 	motorCoordinate_.setZ(z);
+}
 
-
-
+void AMSampleCamera::setMotorR(double r)
+{
 	motorRotation_ = r;
-
-        // update the sample plate
-		AMSamplePlate* currentPlate = AMBeamline::bl()->samplePlate();
-        if(currentPlate)
-        {
-			currentPlate->setPlatePosition(motorCoordinate());
-			currentPlate->setPlateRotation(motorRotation());
-        }
 }
 
 
@@ -413,18 +430,24 @@ void AMSampleCamera::setMotorCoordinate()
 void AMSampleCamera::toggleDistortion()
 {
 
-	bool newValue = !distortion_;
-	distortion_ = newValue;
-        if(distortion_)
-        {
-                qDebug()<<"Distortion on";
-        }
-        if(!distortion_)
-        {
-                qDebug()<<"Distortion off";
-        }
+	setDistortion(!distortion());
+	if(distortion())
+	{
+		qDebug()<<"Distortion on";
+	}
+	else
+	{
+		qDebug()<<"Distortion off";
+	}
 	updateAllShapes();
 }
+
+void AMSampleCamera::setDistortion(bool distortion)
+{
+	distortion_ = distortion;
+}
+
+
 
 /// set the crosshair point
 void AMSampleCamera::setCrosshair(QPointF crosshair)
@@ -701,6 +724,7 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 /// finds all the intersections, returns false if there is no valid beam
 bool AMSampleCamera::findIntersections()
 {
+	/// Cannot find the beam with an incomplete beam model
 	if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
 	{
 		return false;
@@ -724,7 +748,7 @@ bool AMSampleCamera::findIntersections()
 		if(!intersectionShape.isEmpty())
 			intersections_<<intersectionScreenShape(intersectionShape);
 	}
-		return true;
+	return true;
 }
 
 void AMSampleCamera::deleteShape(int index)
@@ -819,6 +843,21 @@ QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points)
 
 }
 
+bool AMSampleCamera::drawOnShapeValid()
+{
+	return drawOnShapeEnabled() && drawOnShapeSelected() && (drawOnShape_ != NULL);
+}
+
+bool AMSampleCamera::drawOnShapeEnabled()
+{
+	return drawOnShapeEnabled_;
+}
+
+bool AMSampleCamera::drawOnShapeSelected()
+{
+	return drawOnShapeSelected_;
+}
+
 
 /// creates a new rectangle, and initializes its data
 void AMSampleCamera::startRectangle(QPointF position)
@@ -830,7 +869,7 @@ void AMSampleCamera::startRectangle(QPointF position)
 	double depth = camera_->focalLength();
 	/// if drawing on shape, the point to start at lies
 	/// on the shape to draw on.
-	if(drawOnShapeEnabled_ && drawOnShapeSelected_)
+	if(drawOnShapeValid())
 	{
 		QVector3D heightNormal = getHeightNormal(drawOnShape_);
 		QVector3D widthNormal = getWidthNormal(drawOnShape_);
@@ -1238,7 +1277,7 @@ void AMSampleCamera::finishShape()
 	for(int i = 0; i < currentPolygon_.count(); i++)
 	{
 		currentPolygon_[i] = undistortPoint(currentPolygon_.at(i));
-		if(drawOnShapeEnabled_ && drawOnShapeSelected_)
+		if(drawOnShapeValid())
 		{
 			 coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_), useSampleOffset());
 		}
@@ -1557,7 +1596,7 @@ void AMSampleCamera::setSamplePlate()
 		}
 		// remove from the list of samples.
 		samplePlateShape_ = new AMShapeData();
-		samplePlateShape_->copy(currentShape());//     takeItem(currentIndex_);
+		samplePlateShape_->copy(currentShape());
 
 
 		AMSamplePlate *currentPlate = AMBeamline::bl()->samplePlate();
@@ -1594,7 +1633,25 @@ void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
     }
     samplePlateShape_->setOtherDataFieldOne("Sample Plate");
     samplePlateSelected_ = true;
-    setDrawOnSamplePlate();
+	setDrawOnSamplePlate();
+}
+
+void AMSampleCamera::setSimpleSamplePlate()
+{
+	/// Construct the shape
+	QVector3D simpleSamplePlateBase = QVector3D(0,0,0);
+	QVector3D simpleSamplePlateWidth = QVector3D(20,0,0);
+	QVector3D simpleSamplePlateHeight = QVector3D(0,0,-20);
+	QVector<QVector3D> simpleSamplePlateShape;
+	simpleSamplePlateShape <<simpleSamplePlateBase
+							<<simpleSamplePlateBase + simpleSamplePlateWidth
+							<<simpleSamplePlateBase + simpleSamplePlateWidth + simpleSamplePlateHeight
+							<<simpleSamplePlateBase + simpleSamplePlateHeight;
+	/// set the sample shape data
+	AMShapeData *simpleSamplePlate = new AMShapeData();
+	simpleSamplePlate->setCoordinateShape(simpleSamplePlateShape);
+	/// set the shape data as a sample plate
+	setSamplePlate(simpleSamplePlate);
 }
 
 /// Create the sample plate using the 3D and 2D information, plus rotations, provided by the
@@ -1840,6 +1897,19 @@ void AMSampleCamera::moveSamplePlate(int movement)
 		samplePlateShape_->shift(shiftMovement);
 		updateShape(samplePlateShape_);
 	}
+}
+
+void AMSampleCamera::moveSamplePlate(QPointF position)
+{
+	QVector3D newPosition;
+	QVector3D oldPosition;
+	QVector3D plateShift;
+	position = undistortPoint(position);
+	newPosition = getPointOnShape(samplePlateShape_,position);
+	oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
+	plateShift = newPosition - oldPosition;
+	samplePlateShape_->shift(plateShift);
+	currentVector_ = position;
 }
 
 void AMSampleCamera::addBeamMarker(int index)
@@ -2215,6 +2285,26 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
 
 
+}
+
+double AMSampleCamera::manipulatorX()
+{
+	return ssaManipulatorX_->value();
+}
+
+double AMSampleCamera::manipulatorY()
+{
+	return ssaManipulatorY_->value();
+}
+
+double AMSampleCamera::manipulatorZ()
+{
+	return ssaManipulatorZ_->value();
+}
+
+double AMSampleCamera::manipulatorR()
+{
+	return ssaManipulatorRot_->value();
 }
 
 

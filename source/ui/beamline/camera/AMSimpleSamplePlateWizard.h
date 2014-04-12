@@ -30,9 +30,12 @@ public slots:
 	void shiftSampleShape(QVector3D shift);
 	void shiftSampleShape(QPointF shift);
 	void initializeShape();
+	void setPageMousePressedHandler(QPointF);
+signals:
+	void signalInitializeSampleShape();
+	void signalShiftSampleShape(QPointF);
+	void signalSamplePlateWizardMousePressed(QPointF);
 private:
-	AMShapeData *sampleShape_;
-	QGraphicsPolygonItem* sampleShapeItem_;
 };
 
 class AMSimpleSampleSetPage : public AMViewPage
@@ -46,6 +49,9 @@ protected slots:
 	void releaseShape();
 	void moveShape(QPointF);
 	void disconnectMouseSignal();
+
+signals:
+	void signalMousePressed(QPointF);
 
 private:
 	QPointF oldPosition_;
