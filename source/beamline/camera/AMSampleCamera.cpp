@@ -908,7 +908,6 @@ void AMSampleCamera::startRectangle(QPointF position)
 
 	newShapeData->setCoordinateShape(newShape);
 	insertItem(newShapeData);
-//    updateShape(index_);
 
 	setCurrentIndex(index_);
 }
@@ -922,7 +921,7 @@ void AMSampleCamera::finishRectangle(QPointF position)
 	QVector3D bottomRight = camera_->transform2Dto3D(position,depth(topLeft));
 	QVector3D topRight;
 	QVector3D bottomLeft;
-	if(drawOnShapeEnabled_ && drawOnShapeSelected_)
+	if(drawOnShapeValid())
 	{
 		bottomRight = getPointOnShape(position,getNormal(drawOnShape_), useSampleOffset());
 		topRight = getWidthNormal(drawOnShape_);
@@ -1044,8 +1043,10 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		{
 			/// don't need to offset as just calculating the shift
 			newPosition = getPointOnShape(samplePlateShape_,position);
-			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
+//			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
+			oldPosition = oldVector_;
 			shift = newPosition - oldPosition;
+			oldVector_ = newPosition;
 		}
 		else
 		{
@@ -1057,7 +1058,7 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		}
 		shiftCoordinates(shift,index);
 	}
-	currentVector_ = (position);
+	currentVector_ = position;
 }
 
 /// moves all rectangles by position + rectangleVector_[index]
@@ -1081,6 +1082,8 @@ void AMSampleCamera::setShapeVectors(QPointF position)
 {
 	position = undistortPoint(position);
 	currentVector_ = position;
+	oldVector_ = getPointOnShape(samplePlateShape_, position);
+
 }
 
 /// changes the depth of all shapes by the same amount
@@ -1254,11 +1257,13 @@ void AMSampleCamera::startGroupRectangle(QPointF position)
 	groupRectangle_ = polygon;
 }
 
+/// adds points to the current polygon being drawn
 void AMSampleCamera::drawShape(QPointF position)
 {
 	currentPolygon_<<position;
 }
 
+///  completes the current polygon being drawn
 void AMSampleCamera::finishShape()
 {
 	if(currentPolygon_.count() < 3)
@@ -1319,6 +1324,7 @@ void AMSampleCamera::updateShape(int index)
 
 }
 
+/// updates the visible shape of an AMShapeData
 void AMSampleCamera::updateShape(AMShapeData *data)
 {
 	data->blockSignals(true);
@@ -1906,10 +1912,10 @@ void AMSampleCamera::moveSamplePlate(QPointF position)
 	QVector3D plateShift;
 	position = undistortPoint(position);
 	newPosition = getPointOnShape(samplePlateShape_,position);
-	oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
+	oldPosition = oldVector_;
 	plateShift = newPosition - oldPosition;
 	samplePlateShape_->shift(plateShift);
-	currentVector_ = position;
+	oldVector_ = newPosition;
 }
 
 void AMSampleCamera::addBeamMarker(int index)

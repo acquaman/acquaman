@@ -735,6 +735,8 @@ protected:
 
 	/// vector for calculating shape movement
 	QPointF currentVector_;
+	/// 3D vector for calculating shape movement
+	QVector3D oldVector_;
 
 	/// mouse location at start of a zoom process
 	QPointF zoomPoint_;
