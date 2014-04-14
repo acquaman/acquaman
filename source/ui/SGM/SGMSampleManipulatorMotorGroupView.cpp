@@ -2,9 +2,13 @@
 
 #include <QGridLayout>
 
+#include "ui/beamline/AMExtendedControlEditor.h"
+
 SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent) :
 	AMMotorGroupObjectView(motorGroupObject, parent)
 {
+	controlTolerane_ = 0.02;
+
 	rotateCW_ = new QToolButton();
 	rotateCCW_ = new QToolButton();
 
@@ -39,6 +43,69 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 	if(controlSetpoints_.size() > 3)
 		connect(controlSetpoints_.at(3), SIGNAL(editingFinished()), this, SLOT(onFourthControlSetpoint()));
+
+	for(int x = 0, size = controlSetpoints_.count(); x < size; x++){
+//		disconnect(motorGroupObject_->controlAt(x), SIGNAL(valueChanged(double)), controlSetpoints_.at(x), SLOT(setValue(double)));
+//		connect(motorGroupObject_->controlAt(x), SIGNAL(valueChanged(double)), this, SLOT(onMotorGroupObjectValueChanged(double)));
+	}
+
+	for(int x = 0, size = controlSetpointLayouts_.count(); x < size; x++){
+		controlSetpointLayouts_.at(x)->itemAt(0)->widget()->hide();
+		controlSetpointLayouts_.at(x)->itemAt(1)->widget()->hide();
+	}
+
+//	for(int x = absoluteValueLayout_->count()-2; x >= 0; x--)
+//		absoluteValueLayout_->removeItem(absoluteValueLayout_->itemAt(x));
+
+	AMExtendedControlEditor *oneControlEditor;
+	for(int x = 0, size = motorGroupObject_->size(); x < size; x++){
+		oneControlEditor = new AMExtendedControlEditor(motorGroupObject_->controlAt(x));
+		oneControlEditor->setControlFormat('f', 2);
+		controlEditors_.append(oneControlEditor);
+
+		absoluteValueLayout_->addWidget(oneControlEditor);
+	}
+}
+
+
+void SGMSampleManipulatorMotorGroupObjectView::onUpClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onDownClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onLeftClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onRightClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onInClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onOutClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onStopClicked(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onFirstControlSetpoint(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onSecondControlSetpoint(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onThirdControlSetpoint(){
+
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCWClicked(){
@@ -63,6 +130,23 @@ void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
 	rotateCCW_->setDisabled(isMoving);
 
 	AMMotorGroupObjectView::onMovingChanged();
+}
+
+#include <QDebug>
+void SGMSampleManipulatorMotorGroupObjectView::onMotorGroupObjectValueChanged(double newValue){
+	Q_UNUSED(newValue)
+	QObject *sender = QObject::sender();
+	AMControl *motorGroupControl = qobject_cast<AMControl*>(sender);
+	if(motorGroupControl){
+		for(int x = 0, size = motorGroupObject_->controls().count(); x < size; x++){
+			if(motorGroupControl == motorGroupObject_->controls().at(x) && fabs(motorGroupControl->value() - motorGroupControl->setpoint()) > controlTolerane_ && fabs(controlSetpoints_.at(x)->value()-motorGroupControl->value()) > controlTolerane_){
+			//if(motorGroupControl == motorGroupObject_->controls().at(x) && fabs(controlSetpoints_.at(x)->value()-motorGroupControl->value()) > controlTolerane_){
+				qDebug() << "It exceeds the tolerane, so set it " << motorGroupControl->value() << motorGroupControl->setpoint() << fabs(motorGroupControl->value() - motorGroupControl->setpoint()) << " on " << motorGroupControl->name();
+				controlSetpoints_.at(x)->setValue(motorGroupControl->value());
+				return;
+			}
+		}
+	}
 }
 
 SGMSampleManipulatorMotorGroupView::SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent) :

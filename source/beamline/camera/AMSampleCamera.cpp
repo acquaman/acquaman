@@ -606,6 +606,7 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	/// sample plate has been loaded out of the database, must correct the positions
 	// get the shift and rotation
 	QVector3D platePosition = plate->platePosition();
+
 	QVector3D currentPosition = motorCoordinate();
 	QVector3D shiftAmount = currentPosition - platePosition;
 	oldRotation_->setDegrees(plate->plateRotation());

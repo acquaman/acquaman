@@ -55,7 +55,7 @@ public:
 	QByteArray image() const;
 	QList<const AMElement*> elements() const;
 	QList<AMScan*> scanList() const;
-    const QStringList tags() const;
+	const QStringList tags() const;
 	AMSamplePlatePre2013* samplePlate() const;
 	AMDbObject* dbGetSamplePlate() const;
 	QString samplePlateName() const;

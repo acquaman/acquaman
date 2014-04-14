@@ -5,6 +5,8 @@
 
 class QGridLayout;
 
+class AMExtendedControlEditor;
+
 class SGMSampleManipulatorMotorGroupObjectView : public AMMotorGroupObjectView
 {
 Q_OBJECT
@@ -12,15 +14,44 @@ public:
 	SGMSampleManipulatorMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent = 0);
 
 protected slots:
-	void onRotateCWClicked();
-	void onRotateCCWClicked();
-	void onFourthControlSetpoint();
+	/// Slot that handles going up.
+	virtual void onUpClicked();
+	/// Slot that handles going down.
+	virtual void onDownClicked();
+	/// Slot that handles going left.
+	virtual void onLeftClicked();
+	/// Slot that handles going right.
+	virtual void onRightClicked();
+	/// Slot that handles going in.
+	virtual void onInClicked();
+	/// Slot that handles going out.
+	virtual void onOutClicked();
+	/// Slot that handles stopping.
+	void onStopClicked();
+	/// Slot that handles the first motor setpoint.
+	virtual void onFirstControlSetpoint();
+	/// Slot that handles the second motor setpoint.
+	virtual void onSecondControlSetpoint();
+	/// Slot that handles the third motor setpoint.
+	virtual void onThirdControlSetpoint();
+
+	virtual void onRotateCWClicked();
+	virtual void onRotateCCWClicked();
+	virtual void onFourthControlSetpoint();
 
 	virtual void onMovingChanged();
+
+	/// Handles checking if we need to update the spin box values given the tolerance (old style, not using signal mapper)
+	void onMotorGroupObjectValueChanged(double newValue);
 
 protected:
 	QToolButton *rotateCW_;
 	QToolButton *rotateCCW_;
+
+	/// The tolerance below which we don't care that the motor moved so we don't get jittering updates
+	double controlTolerane_;
+
+	QList<AMExtendedControlEditor*> controlEditors_;
 };
 
 class SGMSampleManipulatorMotorGroupView : public AMMotorGroupView

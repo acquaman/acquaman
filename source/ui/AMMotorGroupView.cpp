@@ -15,6 +15,8 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 {
 	motorGroupObject_ = motorGroupObject;
 
+	controlSetpointsPrecision_ = 3;
+
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -150,7 +152,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
 		setpoint->setSingleStep(0.001);
 		setpoint->setRange(-100, 100);
-		setpoint->setDecimals(3);
+		setpoint->setDecimals(controlSetpointsPrecision_);
 		setpoint->setAlignment(Qt::AlignCenter);
 		setpoint->setFixedWidth(110);
 		controlSetpoints_ << setpoint;
@@ -158,6 +160,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		QHBoxLayout *hLayout = new QHBoxLayout;
 		hLayout->addWidget(prefixLabels_.at(i), 0, Qt::AlignRight);
 		hLayout->addWidget(setpoint, 0, Qt::AlignRight);
+		controlSetpointLayouts_ << hLayout;
 
 		absoluteValueLayout_->addLayout(hLayout);
 	}
@@ -168,6 +171,9 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 
 		connect(motorGroupObject_->controlAt(i), SIGNAL(valueChanged(double)), controlSetpoints_.at(i), SLOT(setValue(double)));
 		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
+
+		if(motorGroupObject_->controlAt(i)->isConnected())
+			controlSetpoints_.at(i)->setValue(motorGroupObject_->controlAt(i)->value());
 	}
 
 	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
@@ -188,6 +194,12 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	fullLayout->addLayout(motorGroupLayout_);
 
 	setLayout(fullLayout);
+}
+
+void AMMotorGroupObjectView::setControlSetpointPrecision(int controlSetpointsPrecision){
+	controlSetpointsPrecision_ = controlSetpointsPrecision;
+	for(int x = 0, size = controlSetpoints_.count(); x < size; x++)
+		controlSetpoints_.at(x)->setDecimals(controlSetpointsPrecision_);
 }
 
 void AMMotorGroupObjectView::onUpClicked()
