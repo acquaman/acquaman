@@ -41,21 +41,10 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
 	connect(rotateCCW_, SIGNAL(clicked()), this, SLOT(onRotateCCWClicked()));
 
-	if(controlSetpoints_.size() > 3)
-		connect(controlSetpoints_.at(3), SIGNAL(editingFinished()), this, SLOT(onFourthControlSetpoint()));
-
-	for(int x = 0, size = controlSetpoints_.count(); x < size; x++){
-//		disconnect(motorGroupObject_->controlAt(x), SIGNAL(valueChanged(double)), controlSetpoints_.at(x), SLOT(setValue(double)));
-//		connect(motorGroupObject_->controlAt(x), SIGNAL(valueChanged(double)), this, SLOT(onMotorGroupObjectValueChanged(double)));
-	}
-
 	for(int x = 0, size = controlSetpointLayouts_.count(); x < size; x++){
 		controlSetpointLayouts_.at(x)->itemAt(0)->widget()->hide();
 		controlSetpointLayouts_.at(x)->itemAt(1)->widget()->hide();
 	}
-
-//	for(int x = absoluteValueLayout_->count()-2; x >= 0; x--)
-//		absoluteValueLayout_->removeItem(absoluteValueLayout_->itemAt(x));
 
 	AMExtendedControlEditor *oneControlEditor;
 	for(int x = 0, size = motorGroupObject_->size(); x < size; x++){
@@ -69,31 +58,33 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 
 void SGMSampleManipulatorMotorGroupObjectView::onUpClicked(){
-
+	int index = motorGroupObject_->verticalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onDownClicked(){
-
+	int index = motorGroupObject_->verticalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onLeftClicked(){
-
+	int index = motorGroupObject_->horizontalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRightClicked(){
-
+	int index = motorGroupObject_->horizontalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onInClicked(){
-
+	int index = motorGroupObject_->normalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onOutClicked(){
-
-}
-
-void SGMSampleManipulatorMotorGroupObjectView::onStopClicked(){
-
+	int index = motorGroupObject_->normalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onFirstControlSetpoint(){
@@ -109,15 +100,11 @@ void SGMSampleManipulatorMotorGroupObjectView::onThirdControlSetpoint(){
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCWClicked(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value() + jog_->value());
+	motorGroupObject_->controlAt(3)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCCWClicked(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value() - jog_->value());
-}
-
-void SGMSampleManipulatorMotorGroupObjectView::onFourthControlSetpoint(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value());
+	motorGroupObject_->controlAt(3)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
@@ -130,23 +117,6 @@ void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
 	rotateCCW_->setDisabled(isMoving);
 
 	AMMotorGroupObjectView::onMovingChanged();
-}
-
-#include <QDebug>
-void SGMSampleManipulatorMotorGroupObjectView::onMotorGroupObjectValueChanged(double newValue){
-	Q_UNUSED(newValue)
-	QObject *sender = QObject::sender();
-	AMControl *motorGroupControl = qobject_cast<AMControl*>(sender);
-	if(motorGroupControl){
-		for(int x = 0, size = motorGroupObject_->controls().count(); x < size; x++){
-			if(motorGroupControl == motorGroupObject_->controls().at(x) && fabs(motorGroupControl->value() - motorGroupControl->setpoint()) > controlTolerane_ && fabs(controlSetpoints_.at(x)->value()-motorGroupControl->value()) > controlTolerane_){
-			//if(motorGroupControl == motorGroupObject_->controls().at(x) && fabs(controlSetpoints_.at(x)->value()-motorGroupControl->value()) > controlTolerane_){
-				qDebug() << "It exceeds the tolerane, so set it " << motorGroupControl->value() << motorGroupControl->setpoint() << fabs(motorGroupControl->value() - motorGroupControl->setpoint()) << " on " << motorGroupControl->name();
-				controlSetpoints_.at(x)->setValue(motorGroupControl->value());
-				return;
-			}
-		}
-	}
 }
 
 SGMSampleManipulatorMotorGroupView::SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent) :

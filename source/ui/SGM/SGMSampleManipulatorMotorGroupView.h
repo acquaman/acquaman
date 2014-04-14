@@ -26,8 +26,7 @@ protected slots:
 	virtual void onInClicked();
 	/// Slot that handles going out.
 	virtual void onOutClicked();
-	/// Slot that handles stopping.
-	void onStopClicked();
+
 	/// Slot that handles the first motor setpoint.
 	virtual void onFirstControlSetpoint();
 	/// Slot that handles the second motor setpoint.
@@ -37,12 +36,8 @@ protected slots:
 
 	virtual void onRotateCWClicked();
 	virtual void onRotateCCWClicked();
-	virtual void onFourthControlSetpoint();
 
 	virtual void onMovingChanged();
-
-	/// Handles checking if we need to update the spin box values given the tolerance (old style, not using signal mapper)
-	void onMotorGroupObjectValueChanged(double newValue);
 
 protected:
 	QToolButton *rotateCW_;
