@@ -10,11 +10,7 @@
 #include <QVector3D>
 #include <QVector>
 
-
 class AMShapeData;
-
-//typedef QVector<QVector3D> AMQVector3DVector;
-//Q_DECLARE_METATYPE(AMQVector3DVector)
 
 /// Represents a sample to be scanned.  Holds the sample plate it is on, the scans
 /// that have been performed on it, as well as an element list, notes, image, dateTime.
@@ -26,24 +22,21 @@ class AMSample : public AMDbObject
 	Q_PROPERTY(QByteArray image READ rawImage WRITE setRawImage)
 	Q_PROPERTY(QStringList tags READ tags WRITE setTags)
 	Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
-	Q_PROPERTY(AMDbObject* samplePlate READ dbGetSamplePlate WRITE dbSetSamplePlate)
 	Q_PROPERTY(AMDbObjectList scanList READ dbReadScanList WRITE dbLoadScanList)
 	Q_PROPERTY(AMQVector3DVector shapeData READ dbReadShapeData WRITE dbLoadShapeData)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
 	Q_CLASSINFO("elementIds", "hidden=true")
 public:
-	/// default constructor
+	/// Default constructor
 	Q_INVOKABLE explicit AMSample(QObject* parent = 0);
 	/// This constructor initializes a sample with a given name.
 	AMSample(const QString& sampleName, QObject* parent = 0);
-	/// this constructor immediately loads a stored sample from the database.
+	/// This constructor immediately loads a stored sample from the database.
 	AMSample(int databaseId, AMDatabase *database, QObject *parent = 0);
-
+	/// Destructor
 	virtual ~AMSample();
 
-
-	/// sample management interface
 	void destroySample();
 	static void destroySample(AMDatabase* db, int sampleId);
 
@@ -56,21 +49,16 @@ public:
 	QList<const AMElement*> elements() const;
 	QList<AMScan*> scanList() const;
 	const QStringList tags() const;
-	AMSamplePlatePre2013* samplePlate() const;
-	AMDbObject* dbGetSamplePlate() const;
 	QString samplePlateName() const;
 	/// returns the elements as a list of atomic numbers
 	QList<int> elementList() const;
 	AMShapeData* sampleShapePositionData() const;
 	AMDbObjectList dbReadScanList() const;
 
-
 	/// thumbnails
 	int thumbnailCount() const;
 	AMDbThumbnail thumbnail(int index) const;
 	QByteArray rawImage() const;
-
-
 
 	/// returns true if string is in tags_, else returns false
 	bool hasTag(QString tag) const;
@@ -78,7 +66,6 @@ public:
 	bool hasScan(AMScan* scan) const;
 	/// returns a string list of the element symbols
 	QString elementString() const;
-
 
 public slots:
 
@@ -92,8 +79,6 @@ public slots:
 	void setElements(const QList<const AMElement*> elements);
 	void setScanList(const QList<AMScan*> scanList);
 	void setTags(const QStringList tags);
-	void setSamplePlate(AMSamplePlatePre2013* samplePlate);
-	void dbSetSamplePlate(AMDbObject* samplePlate);
 	void dbLoadScanList(const AMDbObjectList& newScanList);
 
 	/// sets the element list from a list of atomic numbers
@@ -133,7 +118,6 @@ public slots:
 
 	void onShapeDataChanged();
 
-
 signals:
 	void sampleNameChanged(const QString &name);
 	void dateTimeChanged(const QDateTime &dateTime);
@@ -149,9 +133,6 @@ signals:
 
 	void sampleAboutToBeRemoved();
 
-
-
-
 protected:
 	/// format string used to format the dateTime
 	QString dateTimeFormat() const;
@@ -163,6 +144,9 @@ protected:
 
 	AMQVector3DVector dbReadShapeData() const;
 	void dbLoadShapeData(AMQVector3DVector newShapeData);
+
+//	AMConstDbObject* dbReadSamplePlate() const;
+//	void dbWriteSamplePlate(AMConstDbObject *newSamplePlate);
 
 protected:
 
@@ -178,13 +162,12 @@ protected:
 	QList<AMScan*> scanList_;
 	/// tags for this sample
 	QStringList tags_;
-	/// sample plate this sample is associated with
-	AMSamplePlatePre2013* samplePlate_;
+
+//	/// A constDbObject referece to our sample plate
+//	AMConstDbObject *samplePlate_;
 
 	AMShapeData* sampleShapePositionData_;
 	QString currentTag_;
-
-
 };
 
 #endif // AMSAMPLE_H

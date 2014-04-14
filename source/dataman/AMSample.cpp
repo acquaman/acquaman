@@ -78,21 +78,12 @@ const QStringList AMSample::tags() const
 	return tags_;
 }
 
-AMSamplePlatePre2013 *AMSample::samplePlate() const
-{
-	return samplePlate_;
-}
-
-AMDbObject *AMSample::dbGetSamplePlate() const
-{
-	return (AMDbObject*)samplePlate_;
-}
-
 QString AMSample::samplePlateName() const
 {
-	if(samplePlate_)
-		return samplePlate_->name();
-	else return "";
+//	if(samplePlate_)
+//		return samplePlate_->name();
+//	else return "";
+	return "";
 }
 
 QList<int> AMSample::elementList() const
@@ -242,18 +233,6 @@ void AMSample::setTags(const QStringList tags)
 		emit tagsChanged(tags_);
 		emit sampleDetailsChanged();
 	}
-}
-
-void AMSample::setSamplePlate(AMSamplePlatePre2013 *samplePlate)
-{
-	samplePlate_ = samplePlate;
-	setModified(true);
-}
-
-void AMSample::dbSetSamplePlate(AMDbObject *samplePlate)
-{
-	AMSamplePlatePre2013* newPlate = (AMSamplePlatePre2013*)samplePlate;
-	setSamplePlate(newPlate);
 }
 
 void AMSample::dbLoadScanList(const AMDbObjectList &newScanList)
@@ -497,9 +476,6 @@ void AMSample::init(QString name)
 	currentTag_ = "";
 	setName(name);
 	setCurrentDateTime();
-	setSamplePlate(new AMSamplePlatePre2013());
-
-
 }
 
 void AMSample::makeConnections()
@@ -522,4 +498,10 @@ void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
         emit sampleShapeDataChanged();
 }
 
+//AMConstDbObject* AMSample::dbReadSamplePlate() const{
+//	return samplePlate_;
+//}
 
+//void AMSample::dbWriteSamplePlate(AMConstDbObject *newSamplePlate){
+//	samplePlate_ = newSamplePlate;
+//}

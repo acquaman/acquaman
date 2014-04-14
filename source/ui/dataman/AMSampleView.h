@@ -4,23 +4,26 @@
 #include <QWidget>
 
 class QLineEdit;
-class AMSample;
+class QHBoxLayout;
+class QVBoxLayout;
 class QPushButton;
 class QCompleter;
 class QStringListModel;
 class QComboBox;
 class QTextEdit;
+
+class AMSample;
 class AMElementListEdit;
 class AMPeriodicTableDialog;
 class AMShapeDataView;
 
-/// This class is the view for an AMSampleEthan.
+/// This class is the view for an AMSample.
 /// It can be used to load or save a sample to the database,
 /// as well as to set or view the name, date, notes, tags, elements,
 /// and sample plate of the sample.
 class AMSampleView : public QWidget
 {
-	Q_OBJECT
+Q_OBJECT
 public:
 	AMSampleView(QWidget* parent = 0);
 	AMSampleView(AMSample* sample, QWidget* parent = 0);
@@ -49,8 +52,6 @@ public slots:
 
 	void updateTags(QStringList);
 
-	void onSampleShapeDataChanged();
-
 	void onSampleAboutToBeRemoved();
 
 signals:
@@ -61,11 +62,7 @@ protected slots:
 	/// update the fields in the view
 	void updateFrames();
 	/// save the sample to the database
-	void saveToDb();
-	/// load a sample from the database
-	void loadSample(QString);
-	/// change the sample plate associated with this sample
-	//    void changeSamplePlate(QString);
+	virtual void saveToDb();
 	void onSampleNameChanged(QString);
 
 
@@ -74,18 +71,14 @@ protected:
 	void setUpGui();
 	/// make the views connections
 	void makeConnections();
-	/// populate the sample plate combobox
-	//    void populateSamplePlateLoader();
 	/// load the sample from the database
 	void loadFromDb();
-	/// populate the sample combo box.
-	void populateSampleLoader();
 	/// get the taglist from the database
 	void databaseTags();
 
 	virtual void closeEvent(QCloseEvent *event);
 
-private:
+protected:
 	/// text box current tag
 	QLineEdit* tagText_;
 	/// text box showing name
@@ -112,16 +105,39 @@ private:
 
 	/// text box showing the sample plate name
 	QLineEdit* samplePlateName_;
-	/// combo box used to load a sample plate from the database
-	//    QComboBox* samplePlateLoader_;
 
-	/// combo box used to load a sample from the database
-	QComboBox* sampleLoader_;
 	/// push button used to save the current sample to the database
 	QPushButton* saveToDb_;
 
 	/// the sample that is being viewed by this view
 	AMSample* sample_;
+
+	QHBoxLayout* viewLayout_;
+	QVBoxLayout* sampleViewLayout_;
+};
+
+class AMSampleAdvancedView : public AMSampleView
+{
+Q_OBJECT
+public:
+	AMSampleAdvancedView(AMSample *sample, QWidget *parent = 0);
+
+protected slots:
+	void onSampleShapeDataChanged();
+
+	/// load a sample from the database
+	void loadSample(QString);
+
+	/// save the sample to the database
+	virtual void saveToDb();
+
+protected:
+	/// populate the sample combo box.
+	void populateSampleLoader();
+
+protected:
+	/// combo box used to load a sample from the database
+	QComboBox* sampleLoader_;
 
 	/// view for visualizing the sample's AMShapeData
 	AMShapeDataView* shapeDataView_;
