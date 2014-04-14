@@ -27,7 +27,6 @@ public:
 public slots:
 	void back();
 	void addShape(AMShapeData *shape);
-	void shiftSampleShape(QVector3D shift);
 	void shiftSampleShape(QPointF shift);
 	void initializeShape();
 	void setPageMousePressedHandler(QPointF);

@@ -112,7 +112,7 @@ double AMSampleCamera::motorZ() const
 }
 
 /// returns the motor rotation
-double AMSampleCamera::motorRotation() const
+AMAngle *AMSampleCamera::motorRotation() const
 {
 	return motorRotation_;
 }
@@ -401,7 +401,7 @@ void AMSampleCamera::setMotorCoordinate()
 	if(currentPlate)
 	{
 		currentPlate->setPlatePosition(motorCoordinate());
-		currentPlate->setPlateRotation(motorRotation());
+		currentPlate->setPlateRotation(motorRotation()->degrees());
 	}
 }
 
@@ -422,7 +422,7 @@ void AMSampleCamera::setMotorZ(double z)
 
 void AMSampleCamera::setMotorR(double r)
 {
-	motorRotation_ = r;
+	motorRotation_->setDegrees(r);
 }
 
 
@@ -635,7 +635,7 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
         qDebug()<<"AMSampleCamera::onSamplePlateLoaded - old position"<<platePosition;
         qDebug()<<"AMSampleCamera::onSamplePlateLoaded - cur position"<<currentPosition;
 		qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_->radians();
-	AMAngle rotation (motorRotation(), AMAngle::DEG);
+	AMAngle rotation (motorRotation()->degrees(), AMAngle::DEG);
 	foreach(AMShapeData* shape, shapeList_)
 	{
 		shape->shift(shiftAmount);
@@ -643,7 +643,7 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	}
 	oldRotation_->setAngle(rotation);
 	emit motorCoordinateChanged(motorCoordinate());
-	emit motorRotationChanged(motorRotation());
+	emit motorRotationChanged(motorRotation()->degrees());
 }
 
 /// checks if an index is valid
@@ -1172,7 +1172,7 @@ void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
 
 	}
 	emit motorCoordinateChanged(motorCoordinate());
-	emit motorRotationChanged(motorRotation());
+	emit motorRotationChanged(motorRotation()->degrees());
 }
 
 /// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate
@@ -1235,7 +1235,7 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 
 	}
 	emit motorCoordinateChanged(motorCoordinate());
-	emit motorRotationChanged(motorRotation());
+	emit motorRotationChanged(motorRotation()->degrees());
 
 
 }
@@ -1642,20 +1642,24 @@ void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
 	setDrawOnSamplePlate();
 }
 
-void AMSampleCamera::setSimpleSamplePlate()
+void AMSampleCamera::setSimpleSamplePlate(QVector3D base, QVector3D width, QVector3D height)
 {
 	/// Construct the shape
-	QVector3D simpleSamplePlateBase = QVector3D(0,0,0);
-	QVector3D simpleSamplePlateWidth = QVector3D(20,0,0);
-	QVector3D simpleSamplePlateHeight = QVector3D(0,0,-20);
+
 	QVector<QVector3D> simpleSamplePlateShape;
-	simpleSamplePlateShape <<simpleSamplePlateBase
-							<<simpleSamplePlateBase + simpleSamplePlateWidth
-							<<simpleSamplePlateBase + simpleSamplePlateWidth + simpleSamplePlateHeight
-							<<simpleSamplePlateBase + simpleSamplePlateHeight;
+	simpleSamplePlateShape <<base
+							<<base + width
+							<<base + width + height
+							<<base + height
+							<<base;
 	/// set the sample shape data
 	AMShapeData *simpleSamplePlate = new AMShapeData();
 	simpleSamplePlate->setCoordinateShape(simpleSamplePlateShape);
+	/// have to zero the old rotation so that the new shape may be properly rotated.
+	oldRotation_->setDegrees(0);
+	simpleSamplePlate->setCoordinateShape(applyMotorRotation(simpleSamplePlate,motorRotation()->radians()));
+	qDebug()<<"Motor rotation is "<<motorRotation()->degrees();
+	updateShape(simpleSamplePlate);
 	/// set the shape data as a sample plate
 	setSamplePlate(simpleSamplePlate);
 }
@@ -2108,7 +2112,7 @@ void AMSampleCamera::motorTracking(double)
 	double motorZ = ssaManipulatorZ_->value();
 	double motorY = ssaManipulatorY_->value();
 	double currentMotorRotation = ssaManipulatorRot_->value();
-	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance && fabs(currentMotorRotation-motorRotation()) < tolerance)
+	if(fabs(motorX-motorCoordinate_.x()) < tolerance && fabs(motorY-motorCoordinate_.y()) < tolerance && fabs(motorZ-motorCoordinate_.z()) < tolerance && fabs(currentMotorRotation-motorRotation()->degrees()) < tolerance)
 	{
 		return;
 	}
@@ -2180,6 +2184,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	samplePlateSelected_ = false;
 	sampleOffset_ = 0;
 //	sampleOffset_ = 0.80;
+//	sampleOffset_ = 8.80;
 //	useSampleOffset_ = true;
 
 	distortion_ = true;
@@ -2194,6 +2199,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	emit rotationalOffsetChanged(rotationalOffset());
 
 	oldRotation_ = new AMAngle();
+
 	oldRotation_->setRadians(0);
 	samplePlateShape_ = 0; //NULL
 
@@ -2278,7 +2284,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	//ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
 	//ssaManipulatorRot_->setContextKnownDescription("R");
-
+	motorRotation_ = new AMAngle();
+	motorRotation_->setDegrees(ssaManipulatorRot_->value());
 
 	connect(&motorUpdateDeferredFunction_, SIGNAL(executed()), this, SLOT(setMotorCoordinate()));//(double,double,double,double)));
 
@@ -2863,8 +2870,13 @@ QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPoint
 	double depth = camera_->focalLength();
 	QVector3D l0 = camera_->transform2Dto3D(position,depth);
 	QVector3D lVector = camera_->transform2Dto3D(position,2*depth) - l0;
+	/// got the line, now do some geometry
 	QVector<QVector3D> rotatedShape = rotateShape(shape);
-	double numerator = dot((rotatedShape.at(TOPLEFT) - l0), nHat);
+	double offsetCoefficient = 0;
+	if(useOffset)
+		offsetCoefficient = 1.0;
+	// if using offset, use a point that is offset from the actual shape
+	double numerator = dot(((rotatedShape.at(TOPLEFT)+(offsetCoefficient*sampleOffset_*nHat)) - l0), nHat);
 	double denominator = dot(lVector,nHat);
 	double distance = 0;
 	if(denominator == 0)
@@ -2883,11 +2895,6 @@ QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPoint
 		distance = numerator/denominator;
 	}
 	QVector3D pointOnShape = l0 + distance*lVector;
-	/// add offset.
-	if(useOffset)
-	{
-		pointOnShape += sampleOffset_*nHat;
-	}
 	return pointOnShape;
 }
 

@@ -78,7 +78,7 @@ public:
 	double motorX() const;
 	double motorY() const;
 	double motorZ() const;
-	double motorRotation() const;
+	AMAngle *motorRotation() const;
 
 	/// get a list of all the intersections with the beam
 	QVector<QPolygonF> intersections() const;
@@ -408,7 +408,7 @@ public slots:
 
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);
-	void setSimpleSamplePlate();
+	void setSimpleSamplePlate(QVector3D base, QVector3D width, QVector3D height);
 	/// Create the sample plate using selected points \todo
 	void createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations, int numberOfPoints);
 
@@ -715,7 +715,7 @@ protected:
 	QVector3D motorCoordinate_;
 
 	/// motor rotation
-	double motorRotation_;
+	AMAngle *motorRotation_;
 
 	/// if true show distortion
 	bool distortion_;

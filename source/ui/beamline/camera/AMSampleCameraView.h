@@ -378,7 +378,9 @@ protected slots:
 
 	void beamCalibrate();
 
+	/// create the sample plate from the wizard
 	void samplePlateCreate();
+	void simpleSamplePlateCreate();
 
 	void rotationConfiguration();
 
@@ -469,6 +471,11 @@ protected:
 
 	/// beam settings window
 	AMBeamConfigurationView *beamConfiguration_;
+
+	/// simple sample plate settings window
+	QFrame *simpleSamplePlateConfiguration_;
+	QLineEdit *simpleSamplePlateLineEdit_ [9];
+	QPushButton *showSimpleSamplePlateConfigurationButton_;
 
 
 	//    QColor borderColour_;

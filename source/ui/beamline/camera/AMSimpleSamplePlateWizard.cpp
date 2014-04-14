@@ -236,23 +236,9 @@ void AMSimpleSamplePlateWizard::addShape(AMShapeData *shape)
 	view()->scene()->addItem(sampleShapeItem);
 }
 
-void AMSimpleSamplePlateWizard::shiftSampleShape(QVector3D shift)
-{
-
-}
-
 void AMSimpleSamplePlateWizard::shiftSampleShape(QPointF shift)
 {
-	emit signalShiftSampleShape(shift);
-///// \todo	figure out the mapping
-//	sampleShape_->
-//	qDebug()<<"translation is"<<shift;
-//	shift = view()->mapFromGlobal(shift.toPoint());
-//	qDebug()<<"shift is"<<shift;
-////	shift = view()->mapFromScene(shift);
-////	qDebug()<<"ashift is"<<shift;
-//	qDebug()<<"===============";
-//	sampleShapeItem_->moveBy(shift.x(),shift.y());
+	emit signalShiftSampleShape(mapPointToVideo(shift));
 }
 
 void AMSimpleSamplePlateWizard::initializeShape()
