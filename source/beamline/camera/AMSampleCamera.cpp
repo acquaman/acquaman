@@ -738,6 +738,7 @@ void AMSampleCamera::deleteShape(int index)
 
 int AMSampleCamera::rowCount(const QModelIndex &parent) const
 {
+	Q_UNUSED(parent)
 	return shapeList_.count();
 }
 
