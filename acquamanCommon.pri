@@ -795,7 +795,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/actions3/actions/AMControlStopAction.h \
 	source/actions3/actions/AMControlStopActionInfo.h \
 	source/beamline/camera/AMAngle.h \
-    source/ui/dataman/AMSampleBriefView.h
+	source/ui/dataman/AMSampleBriefView.h \
+	source/ui/beamline/camera/AMSimpleSamplePlateWizard.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1306,7 +1307,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/actions3/actions/AMControlStopAction.cpp \
 	source/actions3/actions/AMControlStopActionInfo.cpp \
 	source/beamline/camera/AMAngle.cpp \
-    source/ui/dataman/AMSampleBriefView.cpp
+	source/ui/dataman/AMSampleBriefView.cpp \
+	source/ui/beamline/camera/AMSimpleSamplePlateWizard.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
