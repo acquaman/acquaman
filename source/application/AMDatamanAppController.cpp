@@ -99,6 +99,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -574,6 +575,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisEXAFSRegion>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();

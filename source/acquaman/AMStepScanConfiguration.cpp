@@ -9,7 +9,7 @@ AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &
 	: AMScanConfiguration(original)
 {
 	foreach (AMScanAxis *axis, original.scanAxes())
-		scanAxes_.append(new AMScanAxis(*axis));
+		scanAxes_.append(axis->createCopy());
 }
 
 AMStepScanConfiguration::~AMStepScanConfiguration()
@@ -46,13 +46,13 @@ void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 void AMStepScanConfiguration::insertScanAxis(int index, AMScanAxis *newAxis)
 {
 	scanAxes_.insert(index, newAxis);
-	emit scanAxisAdded();
+	emit scanAxisAdded(newAxis);
 }
 
 void AMStepScanConfiguration::appendScanAxis(AMScanAxis *newAxis)
 {
 	scanAxes_.append(newAxis);
-	emit scanAxisAdded();
+	emit scanAxisAdded(newAxis);
 }
 
 bool AMStepScanConfiguration::removeScanAxis(AMScanAxis *axis)

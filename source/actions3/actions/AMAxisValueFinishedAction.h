@@ -1,22 +1,23 @@
-#ifndef AMAXISSTARTEDACTION_H
-#define AMAXISSTARTEDACTION_H
+#ifndef AMAXISVALUEFINISHEDACTION_H
+#define AMAXISVALUEFINISHEDACTION_H
 
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMAxisStartedActionInfo.h"
+#include "actions3/actions/AMAxisValueFinishedActionInfo.h"
 
-class AMAxisStartedAction : public AMAction3
+class AMAxisValueFinishedAction : public AMAction3
 {
-Q_OBJECT
-public:
-	/// Constructor
-	Q_INVOKABLE AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject *parent = 0);
-	/// Copy Constructor
-	AMAxisStartedAction(const AMAxisStartedAction &other);
-	/// Destructor.
-	virtual ~AMAxisStartedAction();
+	Q_OBJECT
 
-	/// Virtual copy constructor
-	virtual AMAction3* createCopy() const { return new AMAxisStartedAction(*this); }
+public:
+	/// Constructor.
+	Q_INVOKABLE AMAxisValueFinishedAction(AMAxisValueFinishedActionInfo *info, QObject *parent = 0);
+	/// Copy constructor.
+	AMAxisValueFinishedAction(const AMAxisValueFinishedAction &other);
+	/// Destructor.
+	virtual ~AMAxisValueFinishedAction() {}
+
+	/// Virtual copy constructor.
+	virtual AMAction3 *createCopy() const { return new AMAxisValueFinishedAction(*this); }
 
 	/// Specify that we cannot pause
 	virtual bool canPause() const { return false; }
@@ -47,9 +48,9 @@ protected:
 
 protected:
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMAxisStartedActionInfo. This makes it easier to access.
-	const AMAxisStartedActionInfo* axisStartedInfo() const { return qobject_cast<const AMAxisStartedActionInfo*>(info()); }
+	const AMAxisValueFinishedActionInfo *axisValueFinishedInfo() const { return qobject_cast<const AMAxisValueFinishedActionInfo*>(info()); }
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMAxisStartedActionInfo. This makes it easier to access.
-	AMAxisStartedActionInfo* axisStartedInfo() { return qobject_cast<AMAxisStartedActionInfo*>(info()); }
+	AMAxisValueFinishedActionInfo *axisValueFinishedInfo() { return qobject_cast<AMAxisValueFinishedActionInfo*>(info()); }
 };
 
-#endif // AMAXISSTARTEDACTION_H
+#endif // AMAXISVALUEFINISHEDACTION_H

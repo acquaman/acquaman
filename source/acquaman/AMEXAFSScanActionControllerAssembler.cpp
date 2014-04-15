@@ -5,6 +5,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
+#include "actions3/actions/AMAxisValueFinishedAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "util/AMErrorMonitor.h"
 #include "util/AMVariableIntegrationTime.h"
@@ -90,21 +91,43 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(axis->name())));
 	axisActions->addSubAction(axisFinishAction);
 
-	return axisActions;
+	actionTree_ = axisActions;
+
+	QList<AMAction3*> detectorInsertionPoints = findInsertionPoints(actionTree_);
+
+	for(int x = 0; x < detectorInsertionPoints.count(); x++){
+
+		AMListAction3 *castParentToListAction = qobject_cast<AMListAction3*>(detectorInsertionPoints.at(x)->parentAction());
+
+		if(castParentToListAction){
+
+			int indexOfAction = castParentToListAction->indexOfSubAction(detectorInsertionPoints.at(x));
+			castParentToListAction->insertSubAction(generateActionListForDetectorAcquisition(), indexOfAction);
+			castParentToListAction->deleteSubAction(indexOfAction+1);
+		}
+	}
+
+	AMListAction3 *castRetValToListAction = qobject_cast<AMListAction3*>(actionTree_);
+
+	if(castRetValToListAction){
+
+		AMListAction3 *castFirstToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(1));
+
+		if(castFirstToListAction)
+			castFirstToListAction->addSubAction(generateActionListForDetectorInitialization());
+
+		AMListAction3 *castLastToListAction = qobject_cast<AMListAction3*>(castRetValToListAction->subActionAt(castRetValToListAction->subActionCount()-2));
+
+		if(castLastToListAction)
+			castLastToListAction->addSubAction(generateActionListForDetectorCleanup());
+	}
+
+	return true;
 }
 
 AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion, bool isFinalRegion)
 {
 	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(exafsRegion->name()), QString("Region from %1 to %2 by %3 on %4").arg(exafsRegion->regionStart().toString()).arg(exafsRegion->regionEnd().toString()).arg(exafsRegion->regionStep().toString()).arg(exafsRegion->name())), AMListAction3::Sequential);
-
-	if (axisControl){
-
-		AMControlInfo regionStartSetpoint = axisControl->toInfo();
-		regionStartSetpoint.setValue(exafsRegion->regionStart());
-		AMControlMoveAction3 *regionStart = new AMControlMoveAction3(new AMControlMoveActionInfo3(regionStartSetpoint), axisControl);
-		regionStart->setGenerateScanActionMessage(true);
-		regionList->addSubAction(regionStart);
-	}
 
 	// If there is no difference in time and maximumTime or if maximumTime is invalid then we only need to set the time once.
 	if (!exafsRegion->maximumTime().isValid() || double(exafsRegion->regionTime()) == double(exafsRegion->maximumTime())){
@@ -122,14 +145,14 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 		regionList->addSubAction(detectorSetDwellList);
 
 		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
-		QVector<double> points = QVector<double>(extendedPoints);
+		QVector<double> energyPositions = QVector<double>(extendedPoints);
 		AMEnergyToKSpaceCalculator calculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
-		calculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), points.data());
+		calculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), energyPositions.data());
 
 		for (int i = 0; i < extendedPoints; i++){
 
 			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(points.at(i));
+			controlLoopMoveInfoSetpoint.setValue(energyPositions.at(i));
 			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 			controlMoveInfo->setIsRelativeMove(false);
 			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
@@ -137,13 +160,17 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 			regionList->addSubAction(nextLevelHolderAction);
+			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+			axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(exafsRegion->name()));
+			AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+			regionList->addSubAction(axisValueFinishedAction);
 		}
 	}
 
 	// Otherwise, we need a detector dwell set action and a control move position for each point in the region.
 	else {
 
-		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) ) + 1;
 		QVector<double> energyPositions = QVector<double>(extendedPoints);
 		AMEnergyToKSpaceCalculator kCalculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
 		kCalculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), energyPositions.data());
@@ -174,12 +201,11 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 			regionList->addSubAction(nextLevelHolderAction);
+			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+			axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(exafsRegion->name()));
+			AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+			regionList->addSubAction(axisValueFinishedAction);
 		}
-	}
-
-	if(isFinalRegion){
-		AMListAction3 *nextLevelFinalHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
-		regionList->addSubAction(nextLevelFinalHolderAction);
 	}
 
 	return regionList;

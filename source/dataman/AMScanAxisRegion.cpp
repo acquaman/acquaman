@@ -20,6 +20,11 @@ AMScanAxisRegion::AMScanAxisRegion(const AMScanAxisRegion &original)
 	regionTime_ = original.regionTime();
 }
 
+AMScanAxisRegion *AMScanAxisRegion::createCopy() const
+{
+	return new AMScanAxisRegion(*this);
+}
+
 AMNumber AMScanAxisRegion::regionStart() const
 {
 	return regionStart_;

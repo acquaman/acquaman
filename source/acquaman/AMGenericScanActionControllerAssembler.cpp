@@ -5,6 +5,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
+#include "actions3/actions/AMAxisValueFinishedAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
 AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
@@ -154,7 +155,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	// generate axis loop for region
 	int loopIterations = round(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) );
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())));
-	axisLoop->setGenerateScanActionMessage(true);
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);
 
@@ -168,6 +168,10 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 		AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
 		controlLoopMove->setGenerateScanActionMessage(true);
 		axisLoop->addSubAction(controlLoopMove);
+		AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+		axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(stepScanAxisRegion->name()));
+		AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+		axisLoop->addSubAction(axisValueFinishedAction);
 	}
 
 	regionList->addSubAction(axisLoop);
@@ -175,6 +179,10 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	if(isFinalRegion){
 		AMListAction3 *nextLevelFinalHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 		regionList->addSubAction(nextLevelFinalHolderAction);
+		AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+		axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(stepScanAxisRegion->name()));
+		AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+		regionList->addSubAction(axisValueFinishedAction);
 	}
 
 	return regionList;

@@ -268,7 +268,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 			setFinished();
 
 			break;}
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
 			break;
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{

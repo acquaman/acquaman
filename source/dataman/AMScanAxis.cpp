@@ -21,9 +21,14 @@ AMScanAxis::AMScanAxis(const AMScanAxis &original)
 	setAxisType(original.axisType());
 
 	foreach (AMScanAxisRegion *region, original.regions().toList())
-		regions_.append(new AMScanAxisRegion(*region));
+		regions_.append(region->createCopy());
 
 	checkAxisValidity();
+}
+
+AMScanAxis *AMScanAxis::createCopy() const
+{
+	return new AMScanAxis(*this);
 }
 
 AMScanAxis::AxisType AMScanAxis::axisType() const

@@ -314,7 +314,7 @@ void VESPERSAppController::setupUserInterface()
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
-	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
+//	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
 	exafsConfigViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigView_);
 
@@ -429,10 +429,10 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	QString fileFormat(action->controller()->scan()->fileFormat());
+//	QString fileFormat(action->controller()->scan()->fileFormat());
 
-	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
-		return;
+//	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+//		return;
 
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
@@ -634,33 +634,33 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 		exafsScanConfig_->setIncomingChoice(config->incomingChoice());
 	}
 
-	while (exafsScanConfig_->regionCount() != 1)
-		exafsScanConfig_->deleteRegion(0);
+//	while (exafsScanConfig_->regionCount() != 1)
+//		exafsScanConfig_->deleteRegion(0);
 
-	if (setupEXAFS){
+//	if (setupEXAFS){
 
-		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
-		exafsScanConfig_->setRegionStart(0, -200);
-		exafsScanConfig_->setRegionDelta(0, 10);
-		exafsScanConfig_->setRegionEnd(0, -30);
-		exafsScanConfig_->setRegionTime(0, 1);
+//		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+//		exafsScanConfig_->setRegionStart(0, -200);
+//		exafsScanConfig_->setRegionDelta(0, 10);
+//		exafsScanConfig_->setRegionEnd(0, -30);
+//		exafsScanConfig_->setRegionTime(0, 1);
 
-		exafsScanConfig_->regions()->addRegion(1, -30, 0.5, 40, 1);
-		exafsScanConfig_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
+//		exafsScanConfig_->regions()->addRegion(1, -30, 0.5, 40, 1);
+//		exafsScanConfig_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
 
-		exafsScanConfig_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
-		exafsScanConfig_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
-		exafsScanConfig_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
-	}
+//		exafsScanConfig_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
+//		exafsScanConfig_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
+//		exafsScanConfig_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
+//	}
 
-	else {
+//	else {
 
-		exafsScanConfig_->setRegionStart(0, -30);
-		exafsScanConfig_->setRegionDelta(0, 0.5);
-		exafsScanConfig_->setRegionEnd(0, 40);
-		exafsScanConfig_->setRegionTime(0, 1);
-		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
-	}
+//		exafsScanConfig_->setRegionStart(0, -30);
+//		exafsScanConfig_->setRegionDelta(0, 0.5);
+//		exafsScanConfig_->setRegionEnd(0, 40);
+//		exafsScanConfig_->setRegionTime(0, 1);
+//		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+//	}
 
 	mw_->undock(exafsConfigViewHolder3_);
 }

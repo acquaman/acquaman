@@ -206,7 +206,7 @@ double AMVariableIntegrationTime::variableTimeAt(double k) const
 bool AMVariableIntegrationTime::variableTime(double *times) const
 {
 	// If all the data is good already, just copy it.
-	if (isValid_){
+	if (isValid_ && !variableTimes_.isEmpty()){
 
 		QVector<double> data = variableTimes_.values().toVector();
 		memcpy(times, data.constData(), data.size()*sizeof(double));
@@ -226,49 +226,49 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Constant:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, t0_);
 
 		break;
 
 	case Linear:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_*k);
 
 		break;
 
 	case Quadratic:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_*k*k);
 
 		break;
 
 	case Geometric:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
 
 		break;
 
 	case Exponential:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_*exp(a2_*k));
 
 		break;
 
 	case Logarithmic:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_*log10(fabs(k + a2_)));
 
 		break;
 
 	case SmoothStep:
 
-		for (int k = k0_; k <= kf_; k++)
+		for (double k = k0_; k <= kf_; k += kStep_)
 			variableTimes_.insert(k, a0_ + a1_/(1 + exp(-1.0*a2_*(k - kf_/2)/2)));
 
 		break;

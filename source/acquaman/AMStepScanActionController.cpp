@@ -146,9 +146,13 @@ void AMStepScanActionController::buildScanController()
 		prefillScanPoints();
 
 	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
-	scanAssembler_->generateActionTree();
 
-	buildScanControllerImplementation();
+	if (scanAssembler_->generateActionTree())
+		buildScanControllerImplementation();
+
+	else
+		setFailed();
+
 }
 
 bool AMStepScanActionController::isReadyForDeletion() const
@@ -239,7 +243,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:qDebug() << "Loop Incremented" << message.uniqueID();
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:qDebug() << "Axis Value Finished:" << message.uniqueID();
 
 			if (scan_->rawData()->scanAxesCount() == 1)
 				scan_->rawData()->endInsertRows();

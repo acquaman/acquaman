@@ -30,9 +30,9 @@ public:
 
 signals:
 	/// Notifier that an axis has been added to the scan configuration.
-	void scanAxisAdded();
+	void scanAxisAdded(AMScanAxis *);
 	/// Notifier that an axis has been removed from the scan configuration.
-	void scanAxisRemoved();
+	void scanAxisRemoved(AMScanAxis *);
 
 public slots:
 	/// Inserts a scan axis into the list.

@@ -42,8 +42,13 @@ bool AMScanActionControllerScanAssembler::addDetector(AMDetector *detector)
 	return detectors_->addDetector(detector);
 }
 
-void AMScanActionControllerScanAssembler::generateActionTree()
+bool AMScanActionControllerScanAssembler::generateActionTree()
 {
-	if (generateActionTreeImplmentation())
+	if (generateActionTreeImplmentation()){
+
 		emit actionTreeGenerated(actionTree_);
+		return true;
+	}
+
+	return false;
 }

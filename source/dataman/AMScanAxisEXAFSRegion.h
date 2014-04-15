@@ -19,13 +19,23 @@ class AMScanAxisEXAFSRegion : public AMScanAxisRegion
 
 public:
 	/// Constructor.  Allows for maximum customization.  Extends the normal region by having a flag for knowing whether the region is in k-space or not.
-	AMScanAxisEXAFSRegion(bool inKSpace = false, const AMNumber &edgeEnergy = AMNumber(AMNumber::Null), const AMNumber &start = AMNumber(AMNumber::Null), const AMNumber &step = AMNumber(AMNumber::Null), const AMNumber &end = AMNumber(AMNumber::Null), const AMNumber &time = AMNumber(AMNumber::Null), const AMNumber &maximumTime = AMNumber(AMNumber::Null), const AMNumber &a2 = AMNumber(2.0), AMVariableIntegrationTime::Equation equation = AMVariableIntegrationTime::Geometric, QObject *parent = 0);
-	/// Constructor.  Creates a standard energy based region.
-	AMScanAxisEXAFSRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, QObject *parent = 0);
+	Q_INVOKABLE AMScanAxisEXAFSRegion(const AMNumber &start = AMNumber(AMNumber::Null),
+									  const AMNumber &step = AMNumber(AMNumber::Null),
+									  const AMNumber &end = AMNumber(AMNumber::Null),
+									  const AMNumber &time = AMNumber(AMNumber::Null),
+									  bool inKSpace = false,
+									  const AMNumber &edgeEnergy = AMNumber(AMNumber::Null),
+									  const AMNumber &maximumTime = AMNumber(AMNumber::Null),
+									  const AMNumber &a2 = AMNumber(2.0),
+									  AMVariableIntegrationTime::Equation equation = AMVariableIntegrationTime::Geometric,
+									  QObject *parent = 0);
 	/// Copy constructor.
 	AMScanAxisEXAFSRegion(const AMScanAxisEXAFSRegion &original);
 	/// Destructor.
 	virtual ~AMScanAxisEXAFSRegion(){}
+
+	/// Method that creates an exact copy of the current object.  Caller is responisible for memory.
+	virtual AMScanAxisRegion *createCopy() const;
 
 	/// Returns whether this region is in k-space.
 	bool inKSpace() const { return inKSpace_; }

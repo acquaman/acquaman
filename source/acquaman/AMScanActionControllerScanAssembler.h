@@ -24,7 +24,7 @@ public:
 	bool addDetector(AMDetector *detector);
 
 	/// Does all the work of generating a scan action tree.  Calls the generateActionTreeImplementation for all specific behaviour.
-	void generateActionTree();
+	bool generateActionTree();
 
 signals:
 	/// Notifier that an action tree was generated.  Passes a pointer of the tree.

@@ -200,7 +200,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 			emit finishWritingToFile();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;

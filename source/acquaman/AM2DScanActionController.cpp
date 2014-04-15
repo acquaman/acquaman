@@ -209,7 +209,7 @@ bool AM2DScanActionController::event(QEvent *e)
 			emit finishWritingToFile();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
 			writeDataToFiles();
 

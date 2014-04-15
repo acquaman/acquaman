@@ -17,11 +17,14 @@ class AMScanAxisRegion : public AMDbObject
 
 public:
 	/// Constructor. Takes values for start, step, end, and time. Defaults are AMNumbers in the AMNumber::Null state
-	AMScanAxisRegion(const AMNumber &start = AMNumber(AMNumber::Null), const AMNumber &step = AMNumber(AMNumber::Null), const AMNumber &end = AMNumber(AMNumber::Null), const AMNumber &time = AMNumber(AMNumber::Null), QObject *parent = 0);
+	Q_INVOKABLE AMScanAxisRegion(const AMNumber &start = AMNumber(AMNumber::Null), const AMNumber &step = AMNumber(AMNumber::Null), const AMNumber &end = AMNumber(AMNumber::Null), const AMNumber &time = AMNumber(AMNumber::Null), QObject *parent = 0);
 	/// Copy constructor.
 	AMScanAxisRegion(const AMScanAxisRegion &original);
 	/// Destructor.
 	virtual ~AMScanAxisRegion();
+
+	/// Method that creates an exact copy of the current object.  Caller is responisible for memory.
+	virtual AMScanAxisRegion *createCopy() const;
 
 	/// Returns the start of the region as an AMNumber (which may be in the state AMNumber::Null)
 	AMNumber regionStart() const;

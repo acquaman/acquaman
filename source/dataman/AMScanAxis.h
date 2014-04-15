@@ -29,11 +29,14 @@ public:
 	};
 
 	/// Constructor requires an axisType (defaults to StepAxis) and the first region (in the case of continuous regions, the first region is the only region)
-	AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, AMScanAxisRegion *firstRegion = new AMScanAxisRegion, QObject *parent = 0);
+	Q_INVOKABLE AMScanAxis(AMScanAxis::AxisType axisType = AMScanAxis::StepAxis, AMScanAxisRegion *firstRegion = new AMScanAxisRegion, QObject *parent = 0);
 	/// Copy constructor.
 	AMScanAxis(const AMScanAxis &original);
 	/// Destructor.
 	virtual ~AMScanAxis();
+
+	/// Method that creates an exact copy of the current object.  Caller is responsible for memory.
+	virtual AMScanAxis *createCopy() const;
 
 	/// Returns the type of axis
 	AMScanAxis::AxisType axisType() const;

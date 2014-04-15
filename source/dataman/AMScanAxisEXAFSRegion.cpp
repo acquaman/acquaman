@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(bool inKSpace, const AMNumber &edgeEnergy, const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, const AMNumber &maximumTime, const AMNumber &a2, AMVariableIntegrationTime::Equation equation, QObject *parent)
+AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, bool inKSpace, const AMNumber &edgeEnergy, const AMNumber &maximumTime, const AMNumber &a2, AMVariableIntegrationTime::Equation equation, QObject *parent)
 	: AMScanAxisRegion(start, step, end, time, parent)
 {
 	inKSpace_ = inKSpace;
@@ -12,16 +12,6 @@ AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(bool inKSpace, const AMNumber &edge
 	maximumTime_ = maximumTime;
 	a2_ = a2;
 	equation_ = equation;
-}
-
-AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, QObject *parent)
-	: AMScanAxisRegion(start, step, end, time, parent)
-{
-	inKSpace_ = false;
-	edgeEnergy_ = AMNumber(AMNumber::Null);
-	maximumTime_ = AMNumber(AMNumber::Null);
-	a2_ = AMNumber(2.0);
-	equation_ = AMVariableIntegrationTime::Geometric;
 }
 
 AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMScanAxisEXAFSRegion &original)
@@ -32,6 +22,11 @@ AMScanAxisEXAFSRegion::AMScanAxisEXAFSRegion(const AMScanAxisEXAFSRegion &origin
 	maximumTime_ = original.maximumTime();
 	a2_ = original.a2();
 	equation_ = original.equation();
+}
+
+AMScanAxisRegion *AMScanAxisEXAFSRegion::createCopy() const
+{
+	return new AMScanAxisEXAFSRegion(*this);
 }
 
 void AMScanAxisEXAFSRegion::setInKSpace(bool flag)

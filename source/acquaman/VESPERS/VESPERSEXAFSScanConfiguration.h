@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSEXAFSSCANCONFIGURATION_H
 #define VESPERSEXAFSSCANCONFIGURATION_H
 
-#include "acquaman/AMEXAFSScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -39,7 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	you want to queue up.
   */
 
-class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration, public VESPERSScanConfiguration
+class VESPERSEXAFSScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -102,13 +102,6 @@ public:
 	/// Returns the number of times this scan will be run.
 	int numberOfScans() const { return numberOfScans_; }
 
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
-	/// returns the AMControlInfo for the k-control.
-	AMControlInfo kControlInfo() const { return exafsRegions()->defaultKControl()->toInfo(); }
-
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
 
@@ -160,8 +153,6 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
-	/// Makes sure that the variable integration time app is properly updated after a k-space region has been updated.
-	void onEXAFSRegionsChanged();
 
 protected:
 	/// Computes the total estimated time for the scan.
