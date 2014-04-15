@@ -38,6 +38,7 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 
     darkCurrentCorrection_ = 0;
     lastDarkCurrentCorrectionTime_ = 0;
+    requiresNewDarkCurrentCorrection_ = false;
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
@@ -69,6 +70,13 @@ int AMDetector::lastDarkCurrentCorrectionTime() const {
         return lastDarkCurrentCorrectionTime_;
 
     return -1;
+}
+
+bool AMDetector::requiresNewDarkCurrentCorrection() const {
+    if (canDoDarkCurrentCorrection())
+        return requiresNewDarkCurrentCorrection_;
+
+    return false;
 }
 
 QString AMDetector::acquisitionStateDescription(AMDetector::AcqusitionState state){
@@ -399,6 +407,16 @@ void AMDetector::setAsDarkCurrentCorrection(){
 void AMDetector::setLastDarkCurrentCorrectionTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
         lastDarkCurrentCorrectionTime_ = lastTime;
+
+    }
+}
+
+void AMDetector::setRequiresNewDarkCurrentCorrection(bool needsNewDCC) {
+    if (canDoDarkCurrentCorrection()) {
+        requiresNewDarkCurrentCorrection_ = needsNewDCC;
+
+        if (requiresNewDarkCurrentCorrection_)
+            emit requiresNewDarkCurrentCorrection();
     }
 }
 

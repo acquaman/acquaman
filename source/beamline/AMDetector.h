@@ -164,6 +164,8 @@ public:
     virtual double darkCurrentCorrection() const;
     virtual int lastDarkCurrentCorrectionTime() const;
 
+    virtual bool requiresNewDarkCurrentCorrection() const;
+
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
 	/// Returns a string describing the given state
@@ -318,6 +320,7 @@ public slots:
 
     virtual void setAsDarkCurrentCorrection();
     virtual void setLastDarkCurrentCorrectionTime(double lastTime);
+    virtual void setRequiresNewDarkCurrentCorrection(bool needsNewDCC);
 
 
 signals:
@@ -380,6 +383,8 @@ signals:
 
     /// New dark current correction value ready
     void newDarkCurrentCorrectionReady(double newValue);
+    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+    void requiresNewDarkCurrentCorrection();
 
 protected slots:
 	///
@@ -461,9 +466,12 @@ protected:
 	bool isVisible_;
 	/// The flag for the default accessibility off the detector when added to a scan.
 	bool hiddenFromUsers_;
-
+    /// The most up-to-date value of the dark current for this detector.
     double darkCurrentCorrection_;
-    int lastDarkCurrentCorrectionTime_;
+    /// The dwell time used to for the darkCurrentCorrection_ measurement.
+    double lastDarkCurrentCorrectionTime_;
+    /// Flag indicating whether or not darkCurrentCorrection_ needs to be updated.d
+    bool requiresNewDarkCurrentCorrection_;
 
 private:
 	/// Changes states in the acquisition state (if possible)
