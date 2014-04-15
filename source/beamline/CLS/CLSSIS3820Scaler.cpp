@@ -53,6 +53,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+        connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -502,7 +503,7 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		dwellTimeSource_->setSucceeded();
 }
 
-void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(int dwellSeconds) {
+void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(double dwellSeconds) {
     if (!isConnected() || isScanning())
         return;
 
@@ -651,11 +652,14 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 
 void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
 {
-	if (sr570_)
+    if (sr570_) {
 		disconnect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( sr570_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+    }
 
 	sr570_ = sr570;
 	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+    connect( sr570_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
 	emit sr570Attached();
 }
 

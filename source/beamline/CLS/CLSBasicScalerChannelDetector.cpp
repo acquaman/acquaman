@@ -15,6 +15,7 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
     connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
     connect( scaler_, SIGNAL(newDarkCurrentCorrectionTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
+    connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -143,6 +144,11 @@ void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
     qDebug() << "Dark current value changed : " << name();
     setAsDarkCurrentCorrection();
     qDebug() << "New dark current value : " << darkCurrentCorrection();
+}
+
+void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {
+    qDebug() << "Scaler has reported sensitivity change.";
+    setRequiresNewDarkCurrentCorrection(true);
 }
 
 

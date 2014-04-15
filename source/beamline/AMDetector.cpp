@@ -399,20 +399,26 @@ bool AMDetector::clear(){
 void AMDetector::setAsDarkCurrentCorrection(){
     if (canDoDarkCurrentCorrection()){
         darkCurrentCorrection_ = double(singleReading()) / acquisitionTime();
-//        qDebug() << "Set dark current correction as " << darkCurrentCorrection_;
+        qDebug() << name() << " has new dark current correction measurement: " << darkCurrentCorrection_;
         emit newDarkCurrentCorrectionReady(darkCurrentCorrection_);
     }
 }
 
 void AMDetector::setLastDarkCurrentCorrectionTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
+
+        if (lastTime > lastDarkCurrentCorrectionTime_)
+            setRequiresNewDarkCurrentCorrection(true);
+
         lastDarkCurrentCorrectionTime_ = lastTime;
 
+        qDebug() << name() << " has new last dark current correction time: " << lastTime;
     }
 }
 
 void AMDetector::setRequiresNewDarkCurrentCorrection(bool needsNewDCC) {
     if (canDoDarkCurrentCorrection()) {
+        qDebug() << name() << "requires new dark current correction measurement.";
         requiresNewDarkCurrentCorrection_ = needsNewDCC;
 
         if (requiresNewDarkCurrentCorrection_)

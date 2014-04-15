@@ -45,12 +45,13 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+    /// This enum describes the states this detector can take on when performing a dark current correction measurement.
     enum DarkCurrentCorrectionState {
         READY = 0,
-        NOT_READY,
-        STARTED,
-        SUCCEEDED,
-        FAILED
+        NOT_READY = 1,
+        STARTED = 2,
+        SUCCEEDED = 3,
+        FAILED = 4
     };
 
 	/// Constructor.  Takes the baseName of the PV's as parameters.
@@ -139,6 +140,8 @@ signals:
     void newDarkCurrentCorrectionTime(double dwellSeconds);
     /// Emitted when the DarkCurrentCorrectionState changes, passes the new state.
     void darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
+    /// Emitted when the scaler channel sr570 sensitivity changes.
+    void sensitivityChanged();
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
@@ -162,7 +165,7 @@ protected slots:
 	void onReadingChanged(double value);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
-    void onDwellTimeSourceSetDarkCurrentCorrectionTime(int timeSeconds);
+    void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
 
     void onDarkCurrentCorrectionDwellTimeReset();
     void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
@@ -285,6 +288,8 @@ signals:
 	void customNameChanged(const QString &);
 	/// Notifier that the voltage range has changed.  Passes the new range.
 	void voltageRangeChanged(const AMRange &);
+    /// Notifier that the SR570 sensitivity has changed.
+    void sensitivityChanged();
 
 
 protected slots:
