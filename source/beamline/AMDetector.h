@@ -384,7 +384,7 @@ signals:
     /// New dark current correction value ready
     void newDarkCurrentCorrectionReady(double newValue);
     /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
-    void requiresNewDarkCurrentCorrection();
+    void requiresNewDarkCurrentCorrection(bool needsUpdate);
 
 protected slots:
 	///

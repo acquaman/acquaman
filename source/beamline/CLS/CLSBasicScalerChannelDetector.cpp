@@ -78,7 +78,7 @@ AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(dou
     if (dwellTime <= 0)
         return 0;
 
-    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannel Dark Current Correction", "BasicScalerChannel Dark Current Correction"), AMListAction3::Sequential);
+    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
     darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
     AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
     AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
