@@ -7,7 +7,7 @@ class AMShapeData;
 class QLineEdit;
 class QPushButton;
 class QSlider;
-class AMSampleView;
+class AMSampleAdvancedView;
 class QFrame;
 class QScrollArea;
 

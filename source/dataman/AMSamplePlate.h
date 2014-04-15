@@ -10,8 +10,8 @@ class AMSamplePlate : public AMDbObject
 Q_OBJECT
 Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
 Q_PROPERTY(AMDbObjectList samples READ dbGetSamples WRITE dbLoadSamples)
-	Q_PROPERTY(QVector3D platePosition READ platePosition WRITE setPlatePosition)
-	Q_PROPERTY(double plateRotation READ plateRotation WRITE setPlateRotation)
+Q_PROPERTY(QVector3D platePosition READ platePosition WRITE setPlatePosition)
+Q_PROPERTY(double plateRotation READ plateRotation WRITE setPlateRotation)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples on a Sample Plate")
 Q_CLASSINFO("dateTime", "createIndex=true")

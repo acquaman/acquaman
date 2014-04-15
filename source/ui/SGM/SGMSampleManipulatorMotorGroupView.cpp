@@ -2,9 +2,13 @@
 
 #include <QGridLayout>
 
+#include "ui/beamline/AMExtendedControlEditor.h"
+
 SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent) :
 	AMMotorGroupObjectView(motorGroupObject, parent)
 {
+	controlTolerane_ = 0.02;
+
 	rotateCW_ = new QToolButton();
 	rotateCCW_ = new QToolButton();
 
@@ -37,20 +41,70 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
 	connect(rotateCCW_, SIGNAL(clicked()), this, SLOT(onRotateCCWClicked()));
 
-	if(controlSetpoints_.size() > 3)
-		connect(controlSetpoints_.at(3), SIGNAL(editingFinished()), this, SLOT(onFourthControlSetpoint()));
+	for(int x = 0, size = controlSetpointLayouts_.count(); x < size; x++){
+		controlSetpointLayouts_.at(x)->itemAt(0)->widget()->hide();
+		controlSetpointLayouts_.at(x)->itemAt(1)->widget()->hide();
+	}
+
+	AMExtendedControlEditor *oneControlEditor;
+	for(int x = 0, size = motorGroupObject_->size(); x < size; x++){
+		oneControlEditor = new AMExtendedControlEditor(motorGroupObject_->controlAt(x));
+		oneControlEditor->setControlFormat('f', 2);
+		controlEditors_.append(oneControlEditor);
+
+		absoluteValueLayout_->addWidget(oneControlEditor);
+	}
+}
+
+
+void SGMSampleManipulatorMotorGroupObjectView::onUpClicked(){
+	int index = motorGroupObject_->verticalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onDownClicked(){
+	int index = motorGroupObject_->verticalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onLeftClicked(){
+	int index = motorGroupObject_->horizontalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onRightClicked(){
+	int index = motorGroupObject_->horizontalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onInClicked(){
+	int index = motorGroupObject_->normalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onOutClicked(){
+	int index = motorGroupObject_->normalIndex();
+	motorGroupObject_->controlAt(index)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onFirstControlSetpoint(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onSecondControlSetpoint(){
+
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onThirdControlSetpoint(){
+
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCWClicked(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value() + jog_->value());
+	motorGroupObject_->controlAt(3)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCCWClicked(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value() - jog_->value());
-}
-
-void SGMSampleManipulatorMotorGroupObjectView::onFourthControlSetpoint(){
-	motorGroupObject_->controlAt(3)->move(controlSetpoints_.at(3)->value());
+	motorGroupObject_->controlAt(3)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){

@@ -207,6 +207,7 @@ protected slots:
 	void rotationsAppend(double rotation);
 	void setFreePage(int freePage);
 
+
 protected:
 	/// number of coordinates
 	virtual int coordinateListCount() const;
@@ -233,6 +234,8 @@ protected:
 
 	/// returns the list of rotations
 	virtual QList<double>* rotations() const;
+
+	void copyView(AMSampleCameraGraphicsView* newView, AMSampleCameraGraphicsView* viewToCopy);
 
 
 
