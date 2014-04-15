@@ -55,14 +55,20 @@ void AMSampleCameraGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void AMSampleCameraGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     AMOverlayVideoWidget2::mouseMoveEvent(event);
-
     if(event->MouseMove)
+	{
         emit mouseMoved(mapSceneToVideo(mapToScene(event->pos())));
+	}
 }
 
 void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
 {
+	if(videoItem_)
+		scene()->removeItem(videoItem_);
+	delete videoItem_;
     videoItem_ = item;
+	scene()->addItem(videoItem_);
+	mediaPlayer()->setVideoOutput(videoItem_);
 }
 
 

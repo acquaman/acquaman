@@ -25,9 +25,11 @@ class AMGraphicsTextItem;
 class QCompleter;
 class QStringListModel;
 class QMediaPlayer;
+class AMGraphicsViewWizard;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
 class AMSamplePlateWizard;
+class AMSimpleSamplePlateWizard;
 class AMRotationWizard;
 class AMShapeDataListView;
 class AMShapeData;
@@ -50,6 +52,7 @@ class AMSampleCameraView : public QWidget
 public:
 	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION, SAMPLEFILL, SAMPLEBORDER};
 	enum ViewType {DEBUG, CONDENSED};
+	enum SampleWizardType {FULL, SIMPLE};
 	/// Constructor.
 	explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
 
@@ -282,6 +285,13 @@ public slots:
 
 	void shapeDrawingFinished();
 
+	/** these slots are for the
+	 *	simpleSamplePlateWizard
+	 */
+	void initializeSampleShape();
+	void shiftSampleShape(QPointF shift);
+	void sampleShapeMousePressed(QPointF position);
+
 
 	// request database loads
 	void requestLoadBeam();
@@ -368,7 +378,9 @@ protected slots:
 
 	void beamCalibrate();
 
+	/// create the sample plate from the wizard
 	void samplePlateCreate();
+	void simpleSamplePlateCreate();
 
 	void rotationConfiguration();
 
@@ -380,7 +392,7 @@ protected slots:
 
 	void transmitMotorMovementEnabled();
 
-        void transmitMotorRotation();
+	void transmitMotorRotation();
 
 	void updateShapeName(QString newName);
 
@@ -431,7 +443,10 @@ protected:
 
 	void drawSamplePlate();
 
-        bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
+	bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
+
+	void setSamplePlateWizardType(SampleWizardType type);
+	SampleWizardType samplePlateWizardType();
 
 
 protected:
@@ -456,6 +471,11 @@ protected:
 
 	/// beam settings window
 	AMBeamConfigurationView *beamConfiguration_;
+
+	/// simple sample plate settings window
+	QFrame *simpleSamplePlateConfiguration_;
+	QLineEdit *simpleSamplePlateLineEdit_ [9];
+	QPushButton *showSimpleSamplePlateConfigurationButton_;
 
 
 	//    QColor borderColour_;
@@ -575,7 +595,8 @@ protected:
 	QPushButton* saveSamplePlate_;
 
 	QPushButton* samplePlateWizardButton_;
-	AMSamplePlateWizard* samplePlateWizard_;
+	AMGraphicsViewWizard* samplePlateWizard_;
+	SampleWizardType samplePlateWizardType_;
 	int samplePlateMovement_;
 
 	AMRotationWizard* rotationWizard_;

@@ -115,6 +115,24 @@ QList<double> *AMGraphicsViewWizard::rotations() const
 	return rotations_;
 }
 
+void AMGraphicsViewWizard::copyView(AMSampleCameraGraphicsView *newView, AMSampleCameraGraphicsView *viewToCopy)
+{
+
+	newView->setAcceptDrops(viewToCopy->acceptDrops());
+	newView->setAccessibleDescription(viewToCopy->accessibleDescription());
+	newView->setAccessibleName(viewToCopy->accessibleName());
+	newView->setAlignment(viewToCopy->alignment());
+	newView->setAutoFillBackground(viewToCopy->autoFillBackground());
+	newView->setBackgroundBrush(viewToCopy->backgroundBrush());
+	newView->setBackgroundRole(viewToCopy->backgroundRole());
+	newView->setBaseSize(viewToCopy->baseSize());
+	newView->setCacheMode(viewToCopy->cacheMode());
+	newView->setContentsMargins(viewToCopy->contentsMargins());
+	newView->setContextMenuPolicy(viewToCopy->contextMenuPolicy());
+	newView->setFrameRect(viewToCopy->frameRect());
+
+}
+
 int AMGraphicsViewWizard::numberOfPoints() const
 {
 	return numberOfPoints_;
@@ -245,12 +263,16 @@ void AMGraphicsViewWizard::checkMotorMovementState()
 
 void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 {
-	view_ = view;
+	view_ = view;//new AMSampleCameraGraphicsView();
+
+//	copyView(view_,view);
+
 	view_->setObjectName("AMGraphicsViewWizard view 1");
 
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->cloneScene(view->scene());
 	view_->setScene(copier->scene());
+	qDebug()<<copier->scene()<<copier->originalScene();
 	view_->scene()->setObjectName("AMGraphicsViewWizard scene 1");
 
 	/// fixItem_ prevents the screen from flashing or going blank
@@ -277,11 +299,13 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	/// get the mediaObject
 	foreach(QGraphicsItem* item, view_->scene()->items())
 	{
+		qDebug()<<"item "<<item->type()<<"::"<<QGraphicsItem::UserType;
 		if(item->type() == QGraphicsItem::UserType)
 		{
 			QGraphicsVideoItem* videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
 			if(videoItem)
 			{
+//				view_->setVideoItem(videoItem);
 				QMediaPlayer* videoPlayer = qobject_cast<QMediaPlayer*>(videoItem->mediaObject());
 				if(videoPlayer)
 				{

@@ -42,9 +42,11 @@
 #include <QMediaPlayer>
 #include <QPainterPath>
 
+#include "ui/beamline/camera/AMGraphicsViewWizard.h"
 #include "ui/beamline/camera/AMCameraConfigurationWizard.h"
 #include "ui/beamline/camera/AMBeamConfigurationWizard.h"
 #include "ui/beamline/camera/AMSamplePlateWizard.h"
+#include "ui/beamline/camera/AMSimpleSamplePlateWizard.h"
 #include "ui/beamline/camera/AMRotationWizard.h"
 
 #include <limits>
@@ -97,6 +99,7 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 //	beamWizard_ = NULL;
 //	samplePlateWizard_ = NULL;
 //	rotationWizard_ = NULL;
+	setSamplePlateWizardType(SIMPLE);
 	cameraWizard_ = new AMCameraConfigurationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	view->setScene(shapeScene_->scene());
@@ -105,7 +108,10 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	beamWizard_ = new AMBeamConfigurationWizard();
 	beamWizard_->setView(view);
 
-	samplePlateWizard_ = new AMSamplePlateWizard();
+	if(samplePlateWizardType() == SIMPLE)
+		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+	else if(samplePlateWizardType() == FULL)
+		samplePlateWizard_ = new AMSamplePlateWizard();
 	samplePlateWizard_->setView(view);
 
 	rotationWizard_ = new AMRotationWizard();
@@ -734,6 +740,10 @@ void AMSampleCameraView::samplePlateCreate()
 
 }
 
+void AMSampleCameraView::simpleSamplePlateCreate()
+{
+}
+
 void AMSampleCameraView::rotationConfiguration()
 {
 	qDebug()<<"Calling configure rotation";
@@ -783,14 +793,24 @@ bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfP
     {
         empty &= list[i].isEmpty();
     }
-    return empty;
+	return empty;
+}
+
+void AMSampleCameraView::setSamplePlateWizardType(AMSampleCameraView::SampleWizardType type)
+{
+	samplePlateWizardType_ = type;
+}
+
+AMSampleCameraView::SampleWizardType AMSampleCameraView::samplePlateWizardType()
+{
+	return samplePlateWizardType_;
 }
 
 /// moves the sample plate to the requested point.
 /// also updates the scene of each wizard
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
-	double rotation = sampleCamera()->motorRotation();
+	double rotation = sampleCamera()->motorRotation()->degrees();
 	moveBeamSamplePlate(coordinate,rotation);
 }
 
@@ -828,7 +848,7 @@ void AMSampleCameraView::transmitMotorMovementEnabled()
 
 void AMSampleCameraView::transmitMotorRotation()
 {
-    emit motorRotation(shapeModel_->motorRotation());
+	emit motorRotation(shapeModel_->motorRotation()->degrees());
 }
 
 void AMSampleCameraView::updateShapeName(QString newName)
@@ -888,7 +908,7 @@ void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double
 
 double AMSampleCameraView::motorRotation() const
 {
-	return (shapeModel_->motorRotation());
+	return (shapeModel_->motorRotation()->degrees());
 }
 
 double AMSampleCameraView::motorX() const
@@ -1202,6 +1222,7 @@ bool AMSampleCameraView::loadSamplePlate()
 		return false;
 	}
 
+	qDebug() << "Sample plate notes: " << samplePlate->notes();
 	QStringList positionsInNote = samplePlate->notes().split(';');
 	for(int x = 0; x < samplePositioner->count(); x++){
 		if(!samplePositioner->at(x)->withinTolerance(positionsInNote.at(x).toDouble())){
@@ -1435,17 +1456,28 @@ void AMSampleCameraView::startSampleWizard()
 //	{
 		delete samplePlateWizard_;
 //	}
-	samplePlateWizard_ = new AMSamplePlateWizard();
+	if(samplePlateWizardType() == FULL)
+	{
+		samplePlateWizard_ = new AMSamplePlateWizard();
+		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
+	}
+	else if(samplePlateWizardType() == SIMPLE)
+	{
+		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
+		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(simpleSamplePlateCreate()));
+	}
+
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
-	connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
 	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));
-	connect(samplePlateWizard_, SIGNAL(movePlate(int)), this, SLOT(moveSamplePlate(int)));
 	connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SLOT(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
 	connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SLOT(transmitMotorRotation()));
 	connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
+	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SLOT(initializeSampleShape()));
+	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SLOT(shiftSampleShape(QPointF)));
+	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SLOT(sampleShapeMousePressed(QPointF)));
 	view->setScene(shapeScene_->scene());
 	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
 	samplePlateWizard_->setView(view);
@@ -1532,6 +1564,40 @@ void AMSampleCameraView::shapeDrawingFinished()
    */
 		}
 	}
+}
+
+void AMSampleCameraView::initializeSampleShape()
+{
+	qDebug()<<"Initializing sample Shape!";
+	bool *ok;
+	bool goodConversion = true;
+	double vectorValues [9];
+	for(int i = 0; i < 3; i++)
+	{
+		for(int j = 0; j < 3; j++)
+		{
+			vectorValues[3*i+j] = simpleSamplePlateLineEdit_[3*i+j]->text().toDouble(ok);
+			goodConversion &= *ok;
+		}
+	}
+	QVector3D simpleSamplePlateBase = QVector3D(vectorValues[0],vectorValues[1],vectorValues[2]);
+	QVector3D simpleSamplePlateWidth = QVector3D(vectorValues[3],vectorValues[4],vectorValues[5]);
+	QVector3D simpleSamplePlateHeight = QVector3D(vectorValues[6],vectorValues[7],vectorValues[8]);
+	shapeModel_->setSimpleSamplePlate(simpleSamplePlateBase, simpleSamplePlateWidth, simpleSamplePlateHeight);
+	refreshSceneView();
+	samplePlateWizard_->updateScene(shapeScene_);
+}
+
+void AMSampleCameraView::shiftSampleShape(QPointF shift)
+{
+	shapeModel_->moveSamplePlate(shift);
+	refreshSceneView();
+	samplePlateWizard_->updateScene(shapeScene_);
+}
+
+void AMSampleCameraView::sampleShapeMousePressed(QPointF position)
+{
+	shapeModel_->setShapeVectors(position);
 }
 
 void AMSampleCameraView::requestLoadBeam()
@@ -2083,6 +2149,34 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	//vbl->addWidget(toolFrame);
 	setLayout(vbl);
 
+	const int numberOfVectors = 3;
+	const int dimensions = 3;
+	simpleSamplePlateConfiguration_ = new QFrame();
+	QVBoxLayout *simpleSamplePlateVerticalLayout = new QVBoxLayout();
+	simpleSamplePlateVerticalLayout->setContentsMargins(frameMargins);
+	QHBoxLayout *simpleSamplePlateHorizontalLayouts [numberOfVectors];
+	QFrame * simpleSamplePlateHorizontalFrame[numberOfVectors];
+	QString labels [3];
+	labels[0] = "Base    ";
+	labels[1] = "Width ";
+	labels[2] = "Height";
+	for(int i = 0; i < numberOfVectors; i++)
+	{
+		simpleSamplePlateHorizontalLayouts[i] = new QHBoxLayout();
+		simpleSamplePlateHorizontalLayouts[i]->addWidget(new QLabel(labels[i]));
+		for(int j = 0; j < dimensions; j++)
+		{
+			simpleSamplePlateHorizontalLayouts[i]->addWidget(simpleSamplePlateLineEdit_[dimensions*i+j]= new QLineEdit("0.0"));
+		}
+		simpleSamplePlateHorizontalFrame[i] = new QFrame();
+		simpleSamplePlateHorizontalFrame[i]->setLayout(simpleSamplePlateHorizontalLayouts[i]);
+		simpleSamplePlateVerticalLayout->addWidget(simpleSamplePlateHorizontalFrame[i]);
+	}
+	simpleSamplePlateConfiguration_->setLayout(simpleSamplePlateVerticalLayout);
+	/// set default width to 20 and height to -20
+	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(20.0));
+	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-20.0));
+
 
 	configurationWindow_ = new QFrame();
 	QVBoxLayout *cvl = new QVBoxLayout();
@@ -2284,6 +2378,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 		middleLayout->addWidget(loadDefaultCamera_ = new QPushButton("Load Default Camera"));
 		middleLayout->addSpacing(space);
 		middleLayout->addWidget(loadDefaultSamplePlate_ = new QPushButton("Load Default Sample Plate"));
+		middleLayout->addSpacing(space);
+		middleLayout->addWidget(showSimpleSamplePlateConfigurationButton_ = new QPushButton("Configure Sample Plate Wizard"));
 		middleLayout->addStretch();
 		middleBar->setLayout(middleLayout);
 
@@ -2482,6 +2578,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(loadDefaultBeam_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultBeam()));
 	connect(loadDefaultCamera_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultCamera()));
 	connect(loadDefaultSamplePlate_, SIGNAL(clicked()), shapeModel_, SLOT(loadDefaultSamplePlate()));
+	connect(showSimpleSamplePlateConfigurationButton_, SIGNAL(clicked()), simpleSamplePlateConfiguration_, SLOT(show()));
 
 	if(viewType == CONDENSED)
 	{
