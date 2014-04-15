@@ -34,6 +34,7 @@ class AMRotationWizard;
 class AMShapeDataListView;
 class AMShapeData;
 class AMSamplePlate;
+class AMWizardManager;
 
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
@@ -52,7 +53,7 @@ class AMSampleCameraView : public QWidget
 public:
 	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION, SAMPLEFILL, SAMPLEBORDER};
 	enum ViewType {DEBUG, CONDENSED};
-	enum SampleWizardType {FULL, SIMPLE};
+//	enum WizardType {FULL, SIMPLE};
 	/// Constructor.
 	explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
 
@@ -445,8 +446,10 @@ protected:
 
 	bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
 
-	void setSamplePlateWizardType(SampleWizardType type);
-	SampleWizardType samplePlateWizardType();
+//	void setBeamWizardType(WizardType type);
+//	WizardType beamWizardType();
+//	void setSamplePlateWizardType(WizardType type);
+//	WizardType samplePlateWizardType();
 
 
 protected:
@@ -582,11 +585,16 @@ protected:
 
 	QGraphicsPathItem* currentShape_;
 
+
+	AMWizardManager *wizardManager_;
+
 	QPushButton* cameraWizardButton_;
-	AMCameraConfigurationWizard* cameraWizard_;
+//	AMCameraConfigurationWizard* cameraWizard_;
 
 	QPushButton* beamWizardButton_;
-	AMBeamConfigurationWizard* beamWizard_;
+//	AMGraphicsViewWizard *beamWizard_;
+//	WizardType beamWizardType_;
+
 
 	QList<QGraphicsPolygonItem*> beamList_;
 	int updateTracker_;
@@ -595,11 +603,11 @@ protected:
 	QPushButton* saveSamplePlate_;
 
 	QPushButton* samplePlateWizardButton_;
-	AMGraphicsViewWizard* samplePlateWizard_;
-	SampleWizardType samplePlateWizardType_;
+//	AMGraphicsViewWizard* samplePlateWizard_;
+//	WizardType samplePlateWizardType_;
 	int samplePlateMovement_;
 
-	AMRotationWizard* rotationWizard_;
+//	AMRotationWizard* rotationWizard_;
 
 	QPushButton* cameraConfigurationShapeButton_;
 

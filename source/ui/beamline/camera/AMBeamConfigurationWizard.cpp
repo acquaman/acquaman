@@ -25,15 +25,6 @@ AMBeamConfigurationWizard::AMBeamConfigurationWizard(QWidget* parent)
 	setRotationEnabled(false);
 
 	setPage(Page_Intro, new AMWizardPage);
-//	setPage(Page_Check_One, new AMBeamCheckPage);
-//	setPage(Page_Check_Two, new AMBeamCheckPage);
-//	setPage(Page_Check_Three, new AMBeamCheckPage);
-//	setPage(Page_Wait_One, new AMBeamWaitPage);
-//	setPage(Page_Wait_Two, new AMBeamWaitPage);
-//	setPage(Page_Wait_Three, new AMBeamWaitPage);
-//	setPage(Page_Set_One, new AMBeamSelectPage);
-//	setPage(Page_Set_Two, new AMBeamSelectPage);
-//	setPage(Page_Set_Three, new AMBeamSelectPage);
 	setPage(Page_Final, new AMWizardPage);
 	setPage(Page_Option, new AMWizardOptionPage);
 	for(int i = 0; i < numberOfPages(); i++)
@@ -124,52 +115,6 @@ int AMBeamConfigurationWizard::nextId() const
 	}
 }
 
-//void AMBeamConfigurationWizard::next()
-//{
-////	if(nextId() == Wait_One_Again)
-////	{
-////		setting_ = true;
-////		reviewBeamShape_ = false;
-////		while(currentId() != Page_Wait_One)
-////			QWizard::back();
-////		if(currentId() == Page_Wait_One)
-////			initializePage(Page_Wait_One);
-////	}
-////	else if (nextId() == Wait_Two_Again)
-////	{
-////		setting_ = false;
-////		QWizard::back();
-////		while(currentId() != Page_Wait_Two)
-////			QWizard::next();
-////		if(currentId() == Page_Wait_Two)
-////		{
-////			setting_ = true;
-////			initializePage(Page_Wait_Two);
-////		}
-////	}
-////	else if(nextId() == Wait_Three_Again)
-////	{
-////		setting_ = false;
-////		QWizard::back();
-////		while(currentId() != Page_Wait_Three)
-////			QWizard::next();
-////		if(currentId() == Page_Wait_Three)
-////		{
-////			setting_ = true;
-////			initializePage(Page_Wait_Three);
-////		}
-////	}
-////	else if((currentId() == Page_Check_One && !(field(QString("configured%1").arg(Page_Check_One)).toBool()))
-////			|| (currentId() == Page_Check_Two && !(field(QString("configured%1").arg(Page_Check_Two)).toBool())))
-////	{
-////		while(currentId() != Page_Check_Three)
-////		{
-////			QWizard::next();
-////		}
-////		next();
-////	}
-//	else AMGraphicsViewWizard::next();
-//}
 
 QString AMBeamConfigurationWizard::message(int type)
 {
