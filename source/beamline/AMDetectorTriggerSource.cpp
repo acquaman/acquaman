@@ -38,11 +38,6 @@ void AMDetectorDwellTimeSource:: requestSetDarkCurrentCorrectionTime(int timeSec
     emit darkCurrentTimeChanged(timeSeconds);
 }
 
-//AMAction* AMDetectorDwellTimeSource::doingDarkCurrentCorrection(int newTime)
-//{
-//    AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo();
-//}
-
 void AMDetectorDwellTimeSource::setSucceeded(){
 	emit succeeded();
 }

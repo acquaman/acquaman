@@ -16,7 +16,7 @@ AMDoingDarkCurrentCorrectionActionInfo::AMDoingDarkCurrentCorrectionActionInfo(c
 
 AMDoingDarkCurrentCorrectionActionInfo::~AMDoingDarkCurrentCorrectionActionInfo() {}
 
-AMDoingDarkCurrentCorrectionActionInfo* AMDoingDarkCurrentCorrectionActionInfo::createCopy() const {
+AMActionInfo3* AMDoingDarkCurrentCorrectionActionInfo::createCopy() const {
     return new AMDoingDarkCurrentCorrectionActionInfo(*this);
 }
 
@@ -29,7 +29,7 @@ AMDetectorDwellTimeSource* AMDoingDarkCurrentCorrectionActionInfo::dwellTimeSour
     return dwellTimeSource_;
 }
 
-int AMDoingDarkCurrentCorrectionActionInfo::dwellTime() const
+double AMDoingDarkCurrentCorrectionActionInfo::dwellTime() const
 {
     return dwellTime_;
 }
@@ -40,7 +40,7 @@ void AMDoingDarkCurrentCorrectionActionInfo::setDwellTimeSource(AMDetectorDwellT
         dwellTimeSource_ = newDwellTimeSource;
 }
 
-void AMDoingDarkCurrentCorrectionActionInfo::setDwellTime(int newTime)
+void AMDoingDarkCurrentCorrectionActionInfo::setDwellTime(double newTime)
 {
     if (newTime > 0 && newTime != dwellTime_)
         dwellTime_ = newTime;

@@ -176,19 +176,30 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	initializationStage3->addSubAction(moveAction);
 
     AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
-//    AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Parallel);
 
     for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
         AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+
+        bool sharedSourceFound = false;
 
         if (detector) {
             int detectorIndex = scan_->indexOfDataSource(detector->name());
 
             if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-                initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+                bool isSourceShared = detector->sharesDetectorTriggerSource();
+
+                if (isSourceShared && !sharedSourceFound) {
+                    sharedSourceFound = true;
+                    initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+
+                } else if (!isSourceShared){
+                    initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+
+                }
             }
         }
     }
+
 
     AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
     initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());

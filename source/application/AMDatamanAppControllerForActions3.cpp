@@ -38,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
 #include "actions3/actions/AMTimedWaitActionInfo3.h"
 #include "actions3/actions/AMControlWaitActionInfo.h"
+#include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
+#include "actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -121,6 +123,9 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMTimedWaitActionInfo3>();
 
     AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
+
+    AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
+    AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
 
 	return true;
 }

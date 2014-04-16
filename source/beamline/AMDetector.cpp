@@ -38,7 +38,7 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 
     darkCurrentCorrection_ = 0;
     lastDarkCurrentCorrectionTime_ = 0;
-    requiresNewDarkCurrentCorrection_ = false;
+    requiresNewDarkCurrentCorrection_ = true;
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
@@ -413,7 +413,7 @@ void AMDetector::setLastDarkCurrentCorrectionTime(double lastTime) {
 
         lastDarkCurrentCorrectionTime_ = lastTime;
 
-        qDebug() << name() << " has new last dark current correction time: " << lastTime;
+        qDebug() << name() << "has new last dark current correction time: " << lastTime;
     }
 }
 
