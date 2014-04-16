@@ -796,7 +796,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/actions3/actions/AMControlStopActionInfo.h \
 	source/beamline/camera/AMAngle.h \
 	source/ui/dataman/AMSampleBriefView.h \
-	source/ui/beamline/camera/AMSimpleSamplePlateWizard.h
+	source/ui/beamline/camera/AMSimpleSamplePlateWizard.h \
+    source/dataman/database/AMDbObjectDefinitions.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {

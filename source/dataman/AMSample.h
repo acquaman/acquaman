@@ -22,8 +22,8 @@ class AMSample : public AMDbObject
 	Q_PROPERTY(QByteArray image READ rawImage WRITE setRawImage)
 	Q_PROPERTY(QStringList tags READ tags WRITE setTags)
 	Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
-	Q_PROPERTY(AMDbObjectList scanList READ dbReadScanList WRITE dbLoadScanList)
 	Q_PROPERTY(AMQVector3DVector shapeData READ dbReadShapeData WRITE dbLoadShapeData)
+	Q_PROPERTY(AMConstDbObjectList scanList READ dbReadScanList WRITE dbLoadScanList)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
 	Q_CLASSINFO("elementIds", "hidden=true")
@@ -47,13 +47,14 @@ public:
 	QString notes() const;
 	QByteArray image() const;
 	QList<const AMElement*> elements() const;
-	QList<AMScan*> scanList() const;
+	//QList<AMScan*> scanList() const;
+	AMConstDbObjectList scanList() const;
 	const QStringList tags() const;
 	QString samplePlateName() const;
 	/// returns the elements as a list of atomic numbers
 	QList<int> elementList() const;
 	AMShapeData* sampleShapePositionData() const;
-	AMDbObjectList dbReadScanList() const;
+	AMConstDbObjectList dbReadScanList() const;
 
 	/// thumbnails
 	int thumbnailCount() const;
@@ -77,9 +78,10 @@ public slots:
 	void setImage(const QImage& image);
 	void setRawImage(const QByteArray& rawPngImage);
 	void setElements(const QList<const AMElement*> elements);
-	void setScanList(const QList<AMScan*> scanList);
+	//void setScanList(const QList<AMScan*> scanList);
+	void setScanList(AMConstDbObjectList scanList);
 	void setTags(const QStringList tags);
-	void dbLoadScanList(const AMDbObjectList& newScanList);
+	void dbLoadScanList(const AMConstDbObjectList& newScanList);
 
 	/// sets the element list from a list of atomic numbers
 	void setElementList(const QList<int>& elements);
@@ -117,6 +119,8 @@ public slots:
 	void removeSample();
 
 	void onShapeDataChanged();
+
+	void forceStoreToDb();
 
 signals:
 	void sampleNameChanged(const QString &name);
@@ -159,7 +163,8 @@ protected:
 	/// list of elements
 	QList<const AMElement*> elements_;
 	/// list of scans
-	QList<AMScan*> scanList_;
+	//QList<AMScan*> scanList_;
+	AMConstDbObjectList scanList_;
 	/// tags for this sample
 	QStringList tags_;
 

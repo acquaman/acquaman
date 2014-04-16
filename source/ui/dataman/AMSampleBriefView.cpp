@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 
 #include "dataman/AMSample.h"
+#include "dataman/database/AMConstDbObject.h"
 
 AMSampleBriefView::AMSampleBriefView(const AMSample *sample, QWidget *parent) :
 	QWidget(parent)

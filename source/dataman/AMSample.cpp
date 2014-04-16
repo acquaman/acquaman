@@ -3,6 +3,7 @@
 #include "util/AMPeriodicTable.h"
 
 #include "beamline/camera/AMShapeData.h"
+#include "dataman/database/AMConstDbObject.h"
 
 AMSample::AMSample(QObject* parent)
 	: AMDbObject(parent)
@@ -68,7 +69,8 @@ QList<const AMElement *> AMSample::elements() const
 	return elements_;
 }
 
-QList<AMScan *> AMSample::scanList() const
+//QList<AMScan *> AMSample::scanList() const
+AMConstDbObjectList AMSample::scanList() const
 {
 	return scanList_;
 }
@@ -104,14 +106,15 @@ AMShapeData *AMSample::sampleShapePositionData() const
 	return sampleShapePositionData_;
 }
 
-AMDbObjectList AMSample::dbReadScanList() const
+AMConstDbObjectList AMSample::dbReadScanList() const
 {
-	AMDbObjectList scanList;
-	foreach(AMScan* scan, scanList_)
-	{
-		scanList<<scan;
-	}
-	return scanList;
+//	AMDbObjectList scanList;
+//	foreach(AMScan* scan, scanList_)
+//	{
+//		scanList<<scan;
+//	}
+//	return scanList;
+	return scanList_;
 }
 
 
@@ -148,7 +151,14 @@ bool AMSample::hasTag(QString tag) const
 /// checks to see if the scan is in the list
 bool AMSample::hasScan(AMScan *scan) const
 {
-	return scanList_.contains(scan);
+//	return scanList_.contains(scan);
+	AMConstDbObject *constScan;
+	for(int x = 0, size = scanList_.count(); x < size; x++){
+		constScan = scanList_.at(x);
+		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id())
+			return true;
+	}
+	return false;
 }
 
 
@@ -218,7 +228,8 @@ void AMSample::setElements(const QList<const AMElement *> elements)
 	emit sampleDetailsChanged();
 }
 
-void AMSample::setScanList(const QList<AMScan *> scanList)
+//void AMSample::setScanList(const QList<AMScan *> scanList)
+void AMSample::setScanList(AMConstDbObjectList scanList)
 {
 	scanList_ = scanList;
 	setModified(true);
@@ -235,25 +246,29 @@ void AMSample::setTags(const QStringList tags)
 	}
 }
 
-void AMSample::dbLoadScanList(const AMDbObjectList &newScanList)
+void AMSample::dbLoadScanList(const AMConstDbObjectList &newScanList)
 {
-	while(!scanList_.isEmpty())
-	{
-		AMScan* deleteMe = scanList_.takeLast();
-		delete deleteMe;
-	}
+	scanList_.clear();
+	foreach(AMConstDbObject *constScan, newScanList)
+		scanList_.append(constScan);
+//	while(!scanList_.isEmpty())
+//	{
+//		AMConstDbObject* deleteMe = scanList_.takeLast();
+//		//delete deleteMe;
+//		deleteMe->deleteLater();
+//	}
 
-	foreach(AMDbObject* newScan, newScanList)
-	{
-		AMScan* scan = qobject_cast<AMScan*>(newScan);
-		if(scan)
-		{
-			scanList_.append(scan);
-		}
-		else
-			qDebug()<<"AMSampleEthan::dbLoadScanList - could not load scan list from db";
-	}
+//	foreach(AMConstDbObject* newScan, newScanList)
+//	{
 
+//		AMScan* scan = qobject_cast<AMScan*>(newScan->object());
+//		if(scan)
+//		{
+//			scanList_.append(scan);
+//		}
+//		else
+//			qDebug()<<"AMSampleEthan::dbLoadScanList - could not load scan list from db";
+//	}
 }
 
 void AMSample::setElementList(const AMIntList& elements)
@@ -356,18 +371,31 @@ void AMSample::addScan(AMScan *scan)
 	/// add scan to the list
 	if(!hasScan(scan))
 	{
-		scanList_.append(scan);
+//		scanList_.append(scan);
+		scanList_.append(new AMConstDbObject(scan));
 		setModified(true);
 	}
 }
 
 void AMSample::removeScan(AMScan *scan)
 {
-	/// remove all instances of scan
-	while(hasScan(scan))
-	{
-		scanList_.removeAt(scanList_.indexOf(scan));
-		setModified(true);
+//	/// remove all instances of scan
+//	while(hasScan(scan))
+//	{
+//		scanList_.removeAt(scanList_.indexOf(scan));
+//		setModified(true);
+//	}
+	if(!hasScan(scan))
+		return;
+
+	AMConstDbObject *constScan;
+	for(int x = 0, size = scanList_.count(); x < size; x++){
+		constScan = scanList_.at(x);
+		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id()){
+			scanList_.removeAt(x);
+			setModified(true);
+			return;
+		}
 	}
 }
 
@@ -460,6 +488,11 @@ void AMSample::removeSample()
 void AMSample::onShapeDataChanged()
 {
 	setModified(true);
+}
+
+void AMSample::forceStoreToDb()
+{
+	storeToDb(database());
 }
 
 
