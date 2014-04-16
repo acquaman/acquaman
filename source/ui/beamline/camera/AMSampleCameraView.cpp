@@ -893,10 +893,11 @@ void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 	refreshSceneView();
 }
 
-void AMSampleCameraView::onSamplePlateWizardFinished()
+void AMSampleCameraView::onSamplePlateWizardFinished(bool requiresSave)
 {
 	showSamplePlate_->setChecked(true);
-	shapeModel_->saveSamplePlate();
+	if(requiresSave)
+		shapeModel_->saveSamplePlate();
 }
 
 void AMSampleCameraView::setMotorCoordinate(double x, double y, double z, double r)
@@ -1634,7 +1635,7 @@ void AMSampleCameraView::requestLoadSamplePlate()
 	bool success = loadSamplePlate();
 	if(success)
 	{
-		emit samplePlateWizardFinished();
+		emit samplePlateWizardFinished(false);
 	}
 //	else
 //	{
@@ -2578,7 +2579,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 
 	connect(shapeModel_, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)), cameraConfiguration_, SLOT(onCameraConfigurationChanged(AMCameraConfiguration*)));
-	connect(this, SIGNAL(samplePlateWizardFinished()), this, SLOT(onSamplePlateWizardFinished()));
+	connect(this, SIGNAL(samplePlateWizardFinished(bool)), this, SLOT(onSamplePlateWizardFinished(bool)));
 
 	connect(shapeModel_, SIGNAL(shapeDataChanged()), this, SLOT(refreshSceneView()));
 

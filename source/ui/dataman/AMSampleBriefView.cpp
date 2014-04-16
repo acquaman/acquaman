@@ -5,11 +5,14 @@
 #include <QBoxLayout>
 
 #include "dataman/AMSample.h"
+#include "dataman/database/AMConstDbObject.h"
+#include "ui/dataman/AMSampleView.h"
 
 AMSampleBriefView::AMSampleBriefView(const AMSample *sample, QWidget *parent) :
 	QWidget(parent)
 {
-	sample_ = 0;
+	sample_ = 0; //NULL
+	sampleReadOnlyView_ = 0; //NULL
 
 	QLabel *nameTitleLabel = new QLabel("Name: ");
 	nameTitleLabel->setObjectName("AMSampleBriefViewLabel");
@@ -25,6 +28,7 @@ AMSampleBriefView::AMSampleBriefView(const AMSample *sample, QWidget *parent) :
 	mainVL->addWidget(showSampleInformationButton_);
 
 	showSampleInformationButton_->hide();
+	connect(showSampleInformationButton_, SIGNAL(clicked()), this, SLOT(onShowSampleInformationButtonClicked()));
 	setSample(sample);
 
 	setLayout(mainVL);
@@ -46,6 +50,14 @@ void AMSampleBriefView::setSample(const AMSample *sample){
 		else{
 			nameLabel_->setText("No Sample");
 			showSampleInformationButton_->hide();
+			sampleReadOnlyView_->deleteLater();
+			sampleReadOnlyView_ = 0;
 		}
 	}
+}
+
+void AMSampleBriefView::onShowSampleInformationButtonClicked(){
+	if(!sampleReadOnlyView_ && sample_)
+		sampleReadOnlyView_ = new AMSampleReadOnlyView(sample_);
+	sampleReadOnlyView_->show();
 }

@@ -85,6 +85,64 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	}
 }
 
+AMDbObjectRetainer::AMDbObjectRetainer(AMDbObject *object, void *watcher, QObject *parent) :
+	QObject(parent)
+{
+	object_ = object;
+	addVoidWatcher(watcher);
+
+	connect(object_, SIGNAL(destroyed()), this, SLOT(onObjectDestroyed()));
+}
+
+AMDbObjectRetainer::AMDbObjectRetainer(AMDbObject *object, QObject *watcher, QObject *parent) :
+	QObject(parent)
+{
+	object_ = object;
+	addWatcher(watcher);
+}
+
+void AMDbObjectRetainer::addWatcher(QObject *watcher){
+	if(watcher && !watchers_.contains(watcher)){
+		connect(watcher, SIGNAL(destroyed(QObject*)), this, SLOT(onWatcherDestroyed(QObject*)));
+		watchers_.append(watcher);
+	}
+}
+
+void AMDbObjectRetainer::removeWatcher(QObject *watcher){
+	if(watcher && watchers_.contains(watcher)){
+		disconnect(watcher, SIGNAL(destroyed(QObject*)), this, SLOT(onWatcherDestroyed(QObject*)));
+		watchers_.removeAll(watcher);
+	}
+
+	if(watchers_.count() == 0){
+		object_->deleteLater();
+		deleteLater();
+	}
+}
+
+void AMDbObjectRetainer::addVoidWatcher(void *watcher){
+	if(watcher && !watchers_.contains(watcher))
+		watchers_.append(watcher);
+}
+
+void AMDbObjectRetainer::removeVoidWatcher(void *watcher){
+	if(watcher && watchers_.contains(watcher))
+		watchers_.removeAll(watcher);
+
+	if(watchers_.count() == 0){
+		object_->deleteLater();
+		deleteLater();
+	}
+}
+
+void AMDbObjectRetainer::onWatcherDestroyed(QObject *watcher){
+	removeWatcher(watcher);
+}
+
+void AMDbObjectRetainer::onObjectDestroyed(){
+	emit objectPrematurelyDestroyed();
+	deleteLater();
+}
 
 AMDbObjectSupport* AMDbObjectSupport::instance_;
 QMutex AMDbObjectSupport::instanceMutex_(QMutex::Recursive);

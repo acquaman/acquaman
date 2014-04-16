@@ -55,7 +55,7 @@ public:
 
 public slots:
 	/// Called when new shapes are available in the sampleCameraView. If there are shapes without samples we make and add the samples.
-	void onSampleCameraShapesChanged();
+	void onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList);
 	/// Called when a shapeData claims to update properties definitely. We call storeToDb() on the associated sample.
 	void onShapeDataPropertyUpdated(AMShapeData *shapeData);
 

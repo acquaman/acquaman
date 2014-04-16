@@ -50,6 +50,7 @@ public:
 
 protected slots:
 	void onSamplePlateChanged(AMSamplePlate *samplePlate);
+	void onCameraShapesChanged();
 
 protected:
 	AMSampleCamera *shapeDataSet_;

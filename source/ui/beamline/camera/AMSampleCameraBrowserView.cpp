@@ -273,7 +273,7 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 
 	connect(videoWidget_, SIGNAL(beamWizardFinished()), this, SIGNAL(beamWizardFinished()));
 	connect(videoWidget_, SIGNAL(cameraWizardFinished()), this, SIGNAL(cameraWizardFinished()));
-	connect(videoWidget_, SIGNAL(samplePlateWizardFinished()), this, SIGNAL(samplePlateWizardFinished()));
+	connect(videoWidget_, SIGNAL(samplePlateWizardFinished(bool)), this, SIGNAL(samplePlateWizardFinished()));
 	connect(videoWidget_, SIGNAL(rotationWizardFinished()), this, SIGNAL(rotationWizardFinished()));
 
 	connect(this, SIGNAL(samplePlateSelected()), videoWidget_, SLOT(samplePlateSelected()));

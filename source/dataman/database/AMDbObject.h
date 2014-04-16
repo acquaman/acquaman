@@ -21,15 +21,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_DBOBJECT_H
 #define ACQMAN_DBOBJECT_H
 
-#include "acquaman.h"
 #include <QObject>
 #include <QDateTime>
 #include <QStringList>
-#include "dataman/database/AMDatabase.h"
-
 #include <QSet>
 #include <QImage>
 #include <QBuffer>
+
+#include "acquaman.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectDefinitions.h"
 
 #define AMDBOBJECT_ERROR_STORING_CHILD_OBJECT -47
 #define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS -57
@@ -50,6 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE -277006
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT -277008
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID -277009
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -357,6 +359,8 @@ signals:
 
 	/// Emitted when this object is fully re-loaded from the database
 	void loadedFromDb();
+	/// Emitted when this object is fully stored to the database
+	void storedToDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 
