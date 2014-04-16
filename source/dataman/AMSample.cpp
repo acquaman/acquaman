@@ -4,6 +4,7 @@
 
 #include "beamline/camera/AMShapeData.h"
 #include "dataman/database/AMConstDbObject.h"
+#include "dataman/AMSamplePlate.h"
 
 AMSample::AMSample(QObject* parent)
 	: AMDbObject(parent)
@@ -32,17 +33,6 @@ AMSample::~AMSample(){
 	}
 }
 
-void AMSample::destroySample()
-{
-	destroySample(database(),id());
-}
-
-void AMSample::destroySample(AMDatabase *db, int sampleId)
-{
-	if(db)
-		db->deleteRow(sampleId,AMDbObjectSupport::s()->tableNameForClass<AMSample>());
-}
-
 QDateTime AMSample::dateTime() const
 {
 	return dateTime_;
@@ -61,31 +51,12 @@ QString AMSample::notes() const
 
 QByteArray AMSample::image() const
 {
-	return rawImage();
+	return image_;
 }
 
 QList<const AMElement *> AMSample::elements() const
 {
 	return elements_;
-}
-
-//QList<AMScan *> AMSample::scanList() const
-AMConstDbObjectList AMSample::scanList() const
-{
-	return scanList_;
-}
-
-const QStringList AMSample::tags() const
-{
-	return tags_;
-}
-
-QString AMSample::samplePlateName() const
-{
-//	if(samplePlate_)
-//		return samplePlate_->name();
-//	else return "";
-	return "";
 }
 
 QList<int> AMSample::elementList() const
@@ -101,22 +72,56 @@ QList<int> AMSample::elementList() const
 	return elementList;
 }
 
+QString AMSample::elementString() const
+{
+	/// output a string listing of the elements
+	QStringList elementStringList;
+	foreach(const AMElement* element, elements_)
+	{
+		elementStringList.append(element->symbol());
+	}
+
+	return elementStringList.join(", ");
+}
+
+AMConstDbObjectList AMSample::scanList() const
+{
+	return scanList_;
+}
+
+const AMScan* AMSample::scanAt(int index) const{
+	if(index < 0 || index >= scanList_.count())
+		return 0;
+
+	const AMScan *retVal = qobject_cast<const AMScan*>(scanList_.at(index)->object());
+	return retVal;
+}
+
+bool AMSample::hasScan(AMScan *scan) const
+{
+	AMConstDbObject *constScan;
+	for(int x = 0, size = scanList_.count(); x < size; x++){
+		constScan = scanList_.at(x);
+		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id())
+			return true;
+	}
+	return false;
+}
+
+const QStringList AMSample::tags() const
+{
+	return tags_;
+}
+
+bool AMSample::hasTag(QString tag) const
+{
+	return tags_.contains(tag,Qt::CaseSensitive);
+}
+
 AMShapeData *AMSample::sampleShapePositionData() const
 {
 	return sampleShapePositionData_;
 }
-
-AMConstDbObjectList AMSample::dbReadScanList() const
-{
-//	AMDbObjectList scanList;
-//	foreach(AMScan* scan, scanList_)
-//	{
-//		scanList<<scan;
-//	}
-//	return scanList;
-	return scanList_;
-}
-
 
 int AMSample::thumbnailCount() const
 {
@@ -137,41 +142,13 @@ AMDbThumbnail AMSample::thumbnail(int index) const
 		return AMDbThumbnail(name(), dateTimeString(), AMDbThumbnail::InvalidType, QByteArray());
 }
 
-QByteArray AMSample::rawImage() const
-{
-	return image_;
+AMConstDbObject* AMSample::constDbSamplePlate() const{
+	return samplePlate_;
 }
 
-/// checks to see if the tag is in the list
-bool AMSample::hasTag(QString tag) const
-{
-	return tags_.contains(tag,Qt::CaseSensitive);
-}
-
-/// checks to see if the scan is in the list
-bool AMSample::hasScan(AMScan *scan) const
-{
-//	return scanList_.contains(scan);
-	AMConstDbObject *constScan;
-	for(int x = 0, size = scanList_.count(); x < size; x++){
-		constScan = scanList_.at(x);
-		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id())
-			return true;
-	}
-	return false;
-}
-
-
-QString AMSample::elementString() const
-{
-	/// output a string listing of the elements
-	QStringList elementStringList;
-	foreach(const AMElement* element, elements_)
-	{
-		elementStringList.append(element->symbol());
-	}
-
-	return elementStringList.join(", ");
+const AMSamplePlate* AMSample::samplePlate() const{
+	const AMSamplePlate *samplePlate = qobject_cast<const AMSamplePlate*>(samplePlate_->object());
+	return samplePlate;
 }
 
 void AMSample::setName(const QString &name)
@@ -190,6 +167,14 @@ void AMSample::setDateTime(const QDateTime dateTime)
 
 	dateTime_ = dateTime;
 	setModified(true);
+}
+
+void AMSample::setCurrentDateTime()
+{
+	setDateTime(QDateTime::currentDateTime());
+	setModified(true);
+	emit dateTimeChanged(dateTime_);
+	emit sampleDetailsChanged();
 }
 
 void AMSample::setNotes(const QString notes)
@@ -228,12 +213,44 @@ void AMSample::setElements(const QList<const AMElement *> elements)
 	emit sampleDetailsChanged();
 }
 
-//void AMSample::setScanList(const QList<AMScan *> scanList)
 void AMSample::setScanList(AMConstDbObjectList scanList)
 {
 	scanList_ = scanList;
 	setModified(true);
 	emit sampleDetailsChanged();
+}
+
+void AMSample::addScan(AMScan *scan)
+{
+	/// add scan to the list
+	if(!hasScan(scan))
+	{
+		//		scanList_.append(scan);
+		scanList_.append(new AMConstDbObject(scan));
+		setModified(true);
+	}
+}
+
+void AMSample::removeScan(AMScan *scan)
+{
+	//	/// remove all instances of scan
+	//	while(hasScan(scan))
+	//	{
+	//		scanList_.removeAt(scanList_.indexOf(scan));
+	//		setModified(true);
+	//	}
+	if(!hasScan(scan))
+		return;
+
+	AMConstDbObject *constScan;
+	for(int x = 0, size = scanList_.count(); x < size; x++){
+		constScan = scanList_.at(x);
+		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id()){
+			scanList_.removeAt(x);
+			setModified(true);
+			return;
+		}
+	}
 }
 
 void AMSample::setTags(const QStringList tags)
@@ -245,92 +262,6 @@ void AMSample::setTags(const QStringList tags)
 		emit sampleDetailsChanged();
 	}
 }
-
-void AMSample::dbLoadScanList(const AMConstDbObjectList &newScanList)
-{
-	scanList_.clear();
-	foreach(AMConstDbObject *constScan, newScanList)
-		scanList_.append(constScan);
-//	while(!scanList_.isEmpty())
-//	{
-//		AMConstDbObject* deleteMe = scanList_.takeLast();
-//		//delete deleteMe;
-//		deleteMe->deleteLater();
-//	}
-
-//	foreach(AMConstDbObject* newScan, newScanList)
-//	{
-
-//		AMScan* scan = qobject_cast<AMScan*>(newScan->object());
-//		if(scan)
-//		{
-//			scanList_.append(scan);
-//		}
-//		else
-//			qDebug()<<"AMSampleEthan::dbLoadScanList - could not load scan list from db";
-//	}
-}
-
-void AMSample::setElementList(const AMIntList& elements)
-{
-	elements_.clear();
-	foreach(int element, elements)
-	{
-		addElement(AMPeriodicTable::table()->elementByAtomicNumber(element));
-	}
-	emit sampleDetailsChanged();
-	emit elementsChanged(elementString());
-}
-
-void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
-{
-	qDebug()<<"AMSample:setSampleShapePositionData";
-    if(sampleShapePositionData_ != sampleShapePositionData)
-    {
-        if(sampleShapePositionData_)
-        {
-            disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
-            disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-            disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
-			disconnect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
-        }
-        sampleShapePositionData_ = sampleShapePositionData;
-        if(sampleShapePositionData_)
-        {
-            sampleShapePositionData_->setName(name());
-			if(!tags_.isEmpty())
-				setCurrentTag(tags_.first());
-            connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
-            // set other Data field one to tags
-            connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
-            connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
-			connect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
-        }
-
-		emit sampleShapeDataChanged();
-		emit requestCurrentTag();
-		emit currentTagChanged(currentTag_);
-		emit elementsChanged(elementString());
-    }
-	qDebug()<<"AMSample:setSampleShapePositionData - done";
-}
-
-/// deletes the sample shape position data.
-void AMSample::removeSampleShapePositionData()
-{
-    qDebug()<<"AMSample::removeSampleShapePositionData";
-    if(sampleShapePositionData_)
-    {
-
-        sampleShapePositionData()->removeShape();
-        setSampleShapePositionData(0);
-    }
-    else
-    {
-        qDebug()<<"AMSample::removeSampleShapePositionData - sample shape is null.";
-    }
-}
-
 
 void AMSample::addTag(const QString tag)
 {
@@ -366,37 +297,43 @@ void AMSample::removeTag(const QString tag)
 
 }
 
-void AMSample::addScan(AMScan *scan)
+void AMSample::setCurrentTag(QString tag)
 {
-	/// add scan to the list
-	if(!hasScan(scan))
+
+	currentTag_ = tag;
+	emit currentTagChanged(currentTag_);
+}
+
+void AMSample::editCurrentTag(QString tag)
+{
+	QString oldTag = currentTag_;
+	int index = tags_.indexOf(oldTag);
+	if(index == -1)
 	{
-//		scanList_.append(scan);
-		scanList_.append(new AMConstDbObject(scan));
-		setModified(true);
+		qDebug()<<"AMSample::editCurrentTag - Cannot edit tag, tag not found.";
+	}
+	else if(index >= 0 && index < tags_.size())
+	{
+		tags_.removeAt(index);
+		tags_.insert(index, tag);
+		emit tagsChanged(tags_);
+		emit sampleDetailsChanged();
+	}
+	else
+	{
+		qDebug()<<"AMSample::editCurrentTag - index out of range.";
 	}
 }
 
-void AMSample::removeScan(AMScan *scan)
+void AMSample::setElementList(const AMIntList& elements)
 {
-//	/// remove all instances of scan
-//	while(hasScan(scan))
-//	{
-//		scanList_.removeAt(scanList_.indexOf(scan));
-//		setModified(true);
-//	}
-	if(!hasScan(scan))
-		return;
-
-	AMConstDbObject *constScan;
-	for(int x = 0, size = scanList_.count(); x < size; x++){
-		constScan = scanList_.at(x);
-		if(constScan->database() == scan->database() && constScan->tableName() == scan->dbTableName() && constScan->id() == scan->id()){
-			scanList_.removeAt(x);
-			setModified(true);
-			return;
-		}
+	elements_.clear();
+	foreach(int element, elements)
+	{
+		addElement(AMPeriodicTable::table()->elementByAtomicNumber(element));
 	}
+	emit sampleDetailsChanged();
+	emit elementsChanged(elementString());
 }
 
 void AMSample::addElement(const AMElement *element)
@@ -434,55 +371,68 @@ void AMSample::toggleElement(const AMElement *element)
 		addElement(element);
 }
 
-void AMSample::setCurrentDateTime()
+void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
-	setDateTime(QDateTime::currentDateTime());
-	setModified(true);
-	emit dateTimeChanged(dateTime_);
-	emit sampleDetailsChanged();
-}
-
-void AMSample::setCurrentTag(QString tag)
-{
-
-	currentTag_ = tag;
-	emit currentTagChanged(currentTag_);
-}
-
-void AMSample::getCurrentTag()
-{
-	emit requestCurrentTag();
-}
-
-void AMSample::editCurrentTag(QString tag)
-{
-	QString oldTag = currentTag_;
-	int index = tags_.indexOf(oldTag);
-	if(index == -1)
+	qDebug()<<"AMSample:setSampleShapePositionData";
+	if(sampleShapePositionData_ != sampleShapePositionData)
 	{
-		qDebug()<<"AMSample::editCurrentTag - Cannot edit tag, tag not found.";
+		if(sampleShapePositionData_)
+		{
+			disconnect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+			disconnect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
+			disconnect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
+			disconnect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
+		}
+		sampleShapePositionData_ = sampleShapePositionData;
+		if(sampleShapePositionData_)
+		{
+			sampleShapePositionData_->setName(name());
+			if(!tags_.isEmpty())
+				setCurrentTag(tags_.first());
+			connect(sampleShapePositionData_, SIGNAL(nameChanged(QString)), this, SLOT(setName(QString)));
+			// set other Data field one to tags
+			connect(this, SIGNAL(currentTagChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldOne(QString)));
+			connect(this, SIGNAL(elementsChanged(QString)), sampleShapePositionData_, SLOT(setOtherDataFieldTwo(QString)));
+			connect(sampleShapePositionData_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(onShapeDataChanged()));
+		}
+
+		emit sampleShapeDataChanged();
+		emit requestCurrentTag();
+		emit currentTagChanged(currentTag_);
+		emit elementsChanged(elementString());
 	}
-	else if(index >= 0 && index < tags_.size())
+	qDebug()<<"AMSample:setSampleShapePositionData - done";
+}
+
+/// deletes the sample shape position data.
+void AMSample::removeSampleShapePositionData()
+{
+	qDebug()<<"AMSample::removeSampleShapePositionData";
+	if(sampleShapePositionData_)
 	{
-		tags_.removeAt(index);
-		tags_.insert(index, tag);
-		emit tagsChanged(tags_);
-		emit sampleDetailsChanged();
+
+		sampleShapePositionData()->removeShape();
+		setSampleShapePositionData(0);
 	}
 	else
 	{
-		qDebug()<<"AMSample::editCurrentTag - index out of range.";
+		qDebug()<<"AMSample::removeSampleShapePositionData - sample shape is null.";
 	}
-
-
-
 }
 
 void AMSample::removeSample()
 {
 	qDebug()<<"AMSample::removeSample - calling removeSampleShapePostion Data";
-        removeSampleShapePositionData();
+	removeSampleShapePositionData();
 	emit sampleAboutToBeRemoved();
+}
+
+void AMSample::setSamplePlate(const AMSamplePlate *samplePlate){
+	if(!samplePlate_)
+		samplePlate_ = new AMConstDbObject(samplePlate);
+	else
+		samplePlate_->setObject(samplePlate);
+	setModified(true);
 }
 
 void AMSample::onShapeDataChanged()
@@ -507,16 +457,34 @@ void AMSample::init(QString name)
 	makeConnections();
 	sampleShapePositionData_ = 0;
 	currentTag_ = "";
+	samplePlate_ = 0; //NULL
 	setName(name);
 	setCurrentDateTime();
 }
 
 void AMSample::makeConnections()
 {
-	connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
+	//connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
+	connect(this, SIGNAL(tagsChanged(QStringList)), this, SIGNAL(requestCurrentTag()));
 	connect(this, SIGNAL(nameChanged(QString)), this, SIGNAL(sampleDetailsChanged()));
 }
 
+QByteArray AMSample::rawImage() const
+{
+	return image_;
+}
+
+AMConstDbObjectList AMSample::dbReadScanList() const
+{
+	return scanList_;
+}
+
+void AMSample::dbLoadScanList(const AMConstDbObjectList &newScanList)
+{
+	scanList_.clear();
+	foreach(AMConstDbObject *constScan, newScanList)
+		scanList_.append(constScan);
+}
 
 AMQVector3DVector AMSample::dbReadShapeData() const{
 	if(sampleShapePositionData_)
@@ -528,13 +496,13 @@ void AMSample::dbLoadShapeData(AMQVector3DVector newShapeData){
 	AMShapeData* shapeData = new AMShapeData(this);
 	setSampleShapePositionData(shapeData);
 	sampleShapePositionData_->setCoordinateShape(newShapeData);
-        emit sampleShapeDataChanged();
+	emit sampleShapeDataChanged();
 }
 
-//AMConstDbObject* AMSample::dbReadSamplePlate() const{
-//	return samplePlate_;
-//}
+AMConstDbObject* AMSample::dbReadSamplePlate() const{
+	return samplePlate_;
+}
 
-//void AMSample::dbWriteSamplePlate(AMConstDbObject *newSamplePlate){
-//	samplePlate_ = newSamplePlate;
-//}
+void AMSample::dbLoadSamplePlate(AMConstDbObject *newSamplePlate){
+	samplePlate_ = newSamplePlate;
+}

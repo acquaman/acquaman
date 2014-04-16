@@ -232,7 +232,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 		else if(columnType == qMetaTypeId<AMConstDbObject*>()){
 			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
-			if(constObject)
+			if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0)
 				values << QString("%1%2%3").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
 				//values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
 			else

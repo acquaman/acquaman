@@ -17,25 +17,168 @@
 
 #include "dataman/AMSample.h"
 #include "ui/util/AMSamplePeriodicTableDialog.h"
-//#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlate.h"
 
-AMSampleView::AMSampleView(QWidget* parent)
-	: QWidget(parent)
+AMSampleReadOnlyView::AMSampleReadOnlyView(const AMSample *sample, QWidget *parent) :
+	QWidget(parent)
 {
-	setSample(0);
-	setUpGui();
-	makeConnections();
-	loadFromDb();
+	constSample_ = sample;
 
+	QStringList wordList;
+	wordList_ = new QStringListModel(wordList);
+	completer_ = new QCompleter();
+	completer_->setModel(wordList_);
+	completer_->setCaseSensitivity(Qt::CaseInsensitive);
+
+	sampleViewLayout_ = new QVBoxLayout();
+	sampleViewLayout_->setContentsMargins(12,4,12,4);
+
+	QHBoxLayout *tempHL;
+	QVBoxLayout *tempVL;
+
+	tempHL = new QHBoxLayout();
+	nameText_ = new QLineEdit();
+	nameText_->setEnabled(false);
+	tempHL->addWidget(new QLabel("Name:"));
+	tempHL->addWidget(nameText_);
+	sampleViewLayout_->addLayout(tempHL);
+	sampleViewLayout_->addSpacing(8);
+
+	tempHL = new QHBoxLayout();
+	dateTimeText_ = new QLineEdit();
+	dateTimeText_->setEnabled(false);
+	tempHL->addWidget(new QLabel("Created:"));
+	tempHL->addWidget(dateTimeText_);
+	sampleViewLayout_->addLayout(tempHL);
+	sampleViewLayout_->addSpacing(8);
+
+	tempHL = new QHBoxLayout();
+	tagBox_ = new QComboBox();
+	tagBox_->setEnabled(false);
+	tempHL->addWidget(new QLabel("Tags:"));
+	tempHL->addWidget(tagBox_);
+	sampleViewLayout_->addLayout(tempHL);
+	tagLayoutItem_ = sampleViewLayout_->itemAt(sampleViewLayout_->count()-1);
+	sampleViewLayout_->addSpacing(8);
+
+	tempVL = new QVBoxLayout();
+	notesText_ = new QTextEdit();
+	notesText_->setEnabled(false);
+	tempVL->addWidget(new QLabel("Notes:"));
+	tempVL->addWidget(notesText_);
+	sampleViewLayout_->addLayout(tempVL);
+	sampleViewLayout_->addSpacing(8);
+
+	tempHL = new QHBoxLayout();
+	elementsText_ = new QLineEdit();
+	elementsText_->setEnabled(false);
+	tempHL->addWidget(new QLabel("Elements:"));
+	tempHL->addWidget(elementsText_);
+	sampleViewLayout_->addLayout(tempHL);
+	elementLayoutItem_ = sampleViewLayout_->itemAt(sampleViewLayout_->count()-1);
+	sampleViewLayout_->addSpacing(8);
+
+	tempHL = new QHBoxLayout();
+	samplePlateName_ = new QLineEdit();
+	samplePlateName_->setEnabled(false);
+	tempHL->addWidget(new QLabel("Sample Plate:"));
+	tempHL->addWidget(samplePlateName_);
+	sampleViewLayout_->addLayout(tempHL);
+	sampleViewLayout_->addSpacing(8);
+
+	tagText_ = new QLineEdit();
+	tagText_->setEnabled(false);
+	tagBox_->setCompleter(completer_);
+	tagText_->setCompleter(completer_);
+	tagBox_->setLineEdit(tagText_);
+
+	setLayout(sampleViewLayout_);
+
+	loadTagsFromDatabase();
+
+	initializeSampleViewData();
 }
 
-AMSampleView::AMSampleView(AMSample *sample, QWidget *parent)
-	: QWidget(parent)
+void AMSampleReadOnlyView::initializeSampleViewData(){
+	if(constSample_){
+		nameText_->setText(constSample_->name());
+		dateTimeText_->setText(constSample_->dateTimeString());
+		tagText_->setText(constSample_->tags().join(", "));
+		notesText_->setText(constSample_->notes());
+		elementsText_->setText(constSample_->elementString());
+		samplePlateName_->setText(constSample_->samplePlate()->name());
+
+		QStringList tagList = constSample_->tags();
+		QStringListModel* tagListModel = new QStringListModel(tagList);
+		tagBox_->setModel(tagListModel);
+	}
+	else{
+		nameText_->setText("");
+		dateTimeText_->setText("");
+		tagText_->setText("");
+		notesText_->setText("");
+		elementsText_->setText("");
+		samplePlateName_->setText("");
+
+		QStringList tagList;
+		QStringListModel* tagListModel = new QStringListModel(tagList);
+		tagBox_->setModel(tagListModel);
+	}
+}
+
+void AMSampleReadOnlyView::loadTagsFromDatabase(){
+	AMDatabase* db = AMDatabase::database("user");
+	QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "tags");
+	QStringList itemList;
+	foreach(QVariant item, matchIDs)
+	{
+		QStringList subList = item.toString().split(AMDbObjectSupport::stringListSeparator());
+		foreach(QString subString, subList)
+		{
+			if(!itemList.contains(subString))
+				itemList<<subString;
+		}
+
+
+	}
+	wordList_->setStringList(itemList);
+}
+
+AMSampleView::AMSampleView(AMSample *sample, QWidget *parent) :
+	AMSampleReadOnlyView(sample, parent)
 {
-	sample_ = sample;
-	setUpGui();
-	makeConnections();
-	loadFromDb();
+	sample_ = 0; //NULL
+
+	/// set up gui
+	removeTagButton_ = new QPushButton("Remove Tag");
+	for(int x = 0, size = sampleViewLayout_->count(); x < size; x++)
+		if(sampleViewLayout_->itemAt(x) == tagLayoutItem_)
+			sampleViewLayout_->insertWidget(x+1, removeTagButton_);
+
+	showElementDialog_ = new QPushButton("Show element dialog");
+	for(int x = 0, size = sampleViewLayout_->count(); x < size; x++)
+		if(sampleViewLayout_->itemAt(x) == elementLayoutItem_)
+			sampleViewLayout_->insertWidget(x+1, showElementDialog_);
+
+	sampleViewLayout_->addWidget(saveToDb_ = new QPushButton("Save to Database"));
+	sampleViewLayout_->addStretch();
+
+	nameText_->setEnabled(true);
+	notesText_->setEnabled(true);
+	tagText_->setEnabled(true);
+	tagBox_->setEnabled(true);
+	elementsText_->setEnabled(true);
+
+	connect(nameText_, SIGNAL(textEdited(QString)), this, SLOT(setName(QString)));
+	connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
+	connect(tagBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentTag()));
+	connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
+	connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
+	connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
+	connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
+	setSample(sample);
+
+	initializeSampleViewData();
 }
 
 void AMSampleView::setSample(AMSample *sample)
@@ -51,7 +194,7 @@ void AMSampleView::setSample(AMSample *sample)
 			disconnect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
 		}
 		sample_ = sample;
-		databaseTags();
+		loadTagsFromDatabase();
 		if(sample_)
 		{
 			connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
@@ -61,7 +204,7 @@ void AMSampleView::setSample(AMSample *sample)
 			connect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
 		}
 
-		updateFrames();
+		initializeSampleViewData();
 	}
 	else if(!sample)
 	{
@@ -71,15 +214,7 @@ void AMSampleView::setSample(AMSample *sample)
 
 void AMSampleView::setName(QString name)
 {
-
 	sample_->setName(name);
-}
-
-void AMSampleView::setDateTime(QString dateTime)
-{
-	QDateTime sampleDateTime;
-	sampleDateTime.fromString(dateTime,"MMM d  (yyyy)");
-	sample_->setDateTime(sampleDateTime);
 }
 
 void AMSampleView::setNotes()
@@ -109,7 +244,7 @@ void AMSampleView::removeTag(int index)
 void AMSampleView::removeTag()
 {
 	removeTag(tagBox_->currentIndex());
-	updateFrames();
+	initializeSampleViewData();
 }
 
 void AMSampleView::showPeriodicTable()
@@ -119,19 +254,7 @@ void AMSampleView::showPeriodicTable()
 	if(element)
 		sample_->toggleElement(element);
 
-
-	updateFrames();
-}
-
-void AMSampleView::updateSampleName(QString name)
-{
-	nameText_->setText(name);
-	if(sample_ && name != sample_->name())
-	{
-		qDebug()<<"AMSampleView::updateSampleName - sample has a different name than what was passed in";
-		qDebug()<<"Sample's name is:"<<sample_->name();
-		qDebug()<<"Updated name is:"<<name;
-	}
+	initializeSampleViewData();
 }
 
 void AMSampleView::setCurrentTag()
@@ -168,195 +291,9 @@ void AMSampleView::onSampleAboutToBeRemoved()
 	deleteLater();
 }
 
-
-
-void AMSampleView::updateFrames()
-{
+void AMSampleView::initializeSampleViewData(){
 	if(sample_)
-	{
-		nameText_->setText(sample_->name());
-		dateTimeText_->setText(sample_->dateTimeString());
-		tagText_->setText(sample_->tags().join(", "));
-		notesText_->setText(sample_->notes());
-		elementsText_->setText(sample_->elementString());
-		qDebug() << "Apparently sample plate name is " << sample_->samplePlateName();
-		samplePlateName_->setText(sample_->samplePlateName());
-
-		QStringList tagList = sample_->tags();
-		QStringListModel* tagListModel = new QStringListModel(tagList);
-		tagBox_->setModel(tagListModel);
-	}
-
-}
-
-void AMSampleView::onSampleNameChanged(QString name)
-{
-	qDebug()<<"AMSampleView::onSampleNameChanged - recieved name changed signal";
-	qDebug()<<"changing sample view name box to "<<name;
-	emit updateName(name);
-}
-
-
-
-
-void AMSampleView::setUpGui()
-{
-	QStringList wordList;
-	wordList_ = new QStringListModel(wordList);
-	completer_ = new QCompleter();
-	completer_->setModel(wordList_);
-	completer_->setCaseSensitivity(Qt::CaseInsensitive);
-
-	/// set up gui
-	QFrame* sampleFrame = new QFrame();
-	QVBoxLayout* sampleViewLayout_ = new QVBoxLayout();
-	sampleViewLayout_->setContentsMargins(12,4,12,4);
-
-	QHBoxLayout *tempHL;
-	QVBoxLayout *tempVL;
-
-	tempHL = new QHBoxLayout();
-	nameText_ = new QLineEdit();
-	tempHL->addWidget(new QLabel("Name:"));
-	tempHL->addWidget(nameText_);
-	sampleViewLayout_->addLayout(tempHL);
-	sampleViewLayout_->addSpacing(8);
-
-	tempHL = new QHBoxLayout();
-	dateTimeText_ = new QLineEdit();
-	tempHL->addWidget(new QLabel("Created:"));
-	tempHL->addWidget(dateTimeText_);
-	sampleViewLayout_->addLayout(tempHL);
-	sampleViewLayout_->addSpacing(8);
-
-	tempHL = new QHBoxLayout();
-	tagBox_ = new QComboBox();
-	tempHL->addWidget(new QLabel("Tags:"));
-	tempHL->addWidget(tagBox_);
-	sampleViewLayout_->addLayout(tempHL);
-	sampleViewLayout_->addWidget(removeTagButton_ = new QPushButton("Remove Tag"));
-	sampleViewLayout_->addSpacing(8);
-
-	tempVL = new QVBoxLayout();
-	notesText_ = new QTextEdit();
-	tempVL->addWidget(new QLabel("Notes:"));
-	tempVL->addWidget(notesText_);
-	sampleViewLayout_->addLayout(tempVL);
-	sampleViewLayout_->addSpacing(8);
-
-	tempHL = new QHBoxLayout();
-	elementsText_ = new QLineEdit();
-	tempHL->addWidget(new QLabel("Elements:"));
-	tempHL->addWidget(elementsText_);
-	sampleViewLayout_->addLayout(tempHL);
-	sampleViewLayout_->addWidget(showElementDialog_ = new QPushButton("Show element dialog"));
-	sampleViewLayout_->addSpacing(8);
-
-	tempHL = new QHBoxLayout();
-	samplePlateName_ = new QLineEdit();
-	tempHL->addWidget(new QLabel("Sample Plate:"));
-	tempHL->addWidget(samplePlateName_);
-	sampleViewLayout_->addLayout(tempHL);
-	sampleViewLayout_->addSpacing(8);
-
-	sampleViewLayout_->addWidget(saveToDb_ = new QPushButton("Save to Database"));
-	sampleViewLayout_->addStretch();
-
-	sampleFrame->setLayout(sampleViewLayout_);
-
-	viewLayout_ = new QHBoxLayout();
-	viewLayout_->setContentsMargins(0,0,0,0);
-	viewLayout_->addWidget(sampleFrame);
-	viewLayout_->addStretch();
-
-	setLayout(viewLayout_);
-
-
-	tagText_ = new QLineEdit();
-
-	tagBox_->setCompleter(completer_);
-
-	tagText_->setCompleter(completer_);
-
-	tagBox_->setLineEdit(tagText_);
-
-	databaseTags();
-	updateFrames();
-}
-
-void AMSampleView::makeConnections()
-{
-	connect(nameText_, SIGNAL(textEdited(QString)), this, SLOT(setName(QString)));
-	connect(dateTimeText_, SIGNAL(textEdited(QString)), this, SLOT(setDateTime(QString)));
-	connect(tagText_, SIGNAL(returnPressed()), this, SLOT(addTag()));
-	connect(tagBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentTag()));
-	connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
-	connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
-	connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
-	connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
-	if(sample_)
-	{
-		connect(sample_, SIGNAL(nameChanged(QString)), nameText_, SLOT(setText(QString)));
-		connect(sample_, SIGNAL(requestCurrentTag()), this, SLOT(setCurrentTag()));
-		connect(sample_, SIGNAL(tagsChanged(QStringList)), this, SLOT(updateTags(QStringList)));
-		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
-		connect(sample_, SIGNAL(sampleAboutToBeRemoved()), this, SLOT(onSampleAboutToBeRemoved()));
-	}
-}
-
-
-#include "beamline/camera/AMShapeData.h"
-void AMSampleView::loadFromDb()
-{
-    qDebug()<<"AMSampleView::loadFromDb";
-
-	AMDatabase* db = AMDatabase::database("user");
-	if(sample_ == 0)
-	{
-		QString defaultName = "defaultSample";
-		QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", defaultName);
-		if(matchIDs.count() == 0)
-		{
-			AMSample* sample = new AMSample();
-			sample->setName(defaultName);
-			sample->setCurrentDateTime();
-			sample->setNotes("Default Notes");
-			setSample(sample);
-			bool success = sample_->storeToDb(db);
-			if(!success)qDebug()<<"AMSampleEthanView::loadFromDb - failed to store new item in database";
-		}
-		else
-		{
-			AMSample* sample = new AMSample();
-			bool success = sample->loadFromDb(db,matchIDs.first());
-			if(!success) qDebug()<<"AMSampleEthanView::loadFromDb - failed to load item from database";
-			setSample(sample);
-		}
-	}
-	else
-	{
-		bool success = sample_->storeToDb(db);
-		if(!success)qDebug()<<"AMSampleEthanView::loadFromDb - failed to store existing item in database";
-	}
-}
-
-void AMSampleView::databaseTags()
-{
-	AMDatabase* db = AMDatabase::database("user");
-	QList<QVariant> matchIDs = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "tags");
-	QStringList itemList;
-	foreach(QVariant item, matchIDs)
-	{
-		QStringList subList = item.toString().split(AMDbObjectSupport::stringListSeparator());
-		foreach(QString subString, subList)
-		{
-			if(!itemList.contains(subString))
-				itemList<<subString;
-		}
-
-
-	}
-	wordList_->setStringList(itemList);
+		AMSampleReadOnlyView::initializeSampleViewData();
 }
 
 void AMSampleView::closeEvent(QCloseEvent *event){
@@ -369,19 +306,23 @@ void AMSampleView::saveToDb()
 	AMDatabase* db = AMDatabase::database("user");
 	bool success = sample_->storeToDb(db);
 	if(!success) qDebug()<<"AMSampleEthanView::saveToDb - failed to store item to db";
-	updateFrames();
+	initializeSampleViewData();
 }
 
 AMSampleAdvancedView::AMSampleAdvancedView(AMSample *sample, QWidget *parent) :
 	AMSampleView(sample, parent)
 {
 	shapeDataView_ = new AMShapeDataView(sample_->sampleShapePositionData());
-	viewLayout_->addWidget(shapeDataView_);
+//	viewLayout_->addWidget(shapeDataView_);
+	sampleViewLayout_->addWidget(shapeDataView_);
 
 	sampleLoader_ = new QComboBox();
 	sampleViewLayout_->addWidget(sampleLoader_);
 	sampleViewLayout_->addSpacing(20);
 	connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
+
+	if(sample_)
+		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
 
 	populateSampleLoader();
 }
@@ -422,7 +363,7 @@ void AMSampleAdvancedView::loadSample(QString sampleName)
 		bool success = sample_->loadFromDb(db,matchIDs.at(sampleId));
 		if(!success) qDebug()<<"AMSampleEthanView::loadSample - Failed to load sample from database.";
 	}
-	updateFrames();
+	initializeSampleViewData();
 }
 
 void AMSampleAdvancedView::saveToDb(){

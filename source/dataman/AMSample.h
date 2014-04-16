@@ -11,6 +11,7 @@
 #include <QVector>
 
 class AMShapeData;
+class AMSamplePlate;
 
 /// Represents a sample to be scanned.  Holds the sample plate it is on, the scans
 /// that have been performed on it, as well as an element list, notes, image, dateTime.
@@ -24,6 +25,7 @@ class AMSample : public AMDbObject
 	Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
 	Q_PROPERTY(AMQVector3DVector shapeData READ dbReadShapeData WRITE dbLoadShapeData)
 	Q_PROPERTY(AMConstDbObjectList scanList READ dbReadScanList WRITE dbLoadScanList)
+	Q_PROPERTY(AMConstDbObject* samplePlate READ dbReadSamplePlate WRITE dbLoadSamplePlate)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
 	Q_CLASSINFO("elementIds", "hidden=true")
@@ -37,142 +39,192 @@ public:
 	/// Destructor
 	virtual ~AMSample();
 
-	void destroySample();
-	static void destroySample(AMDatabase* db, int sampleId);
-
-	/// accessors
+	/// Returns the time of creation for this sample
 	QDateTime dateTime() const;
 	/// formatted string for dateTime
 	QString dateTimeString() const;
+
+	/// Returns any notes associated with this sample
 	QString notes() const;
+
+	/// If an image (picture) is available it returns it
 	QByteArray image() const;
+
+	/// Returns the elements associated with this sample
 	QList<const AMElement*> elements() const;
-	//QList<AMScan*> scanList() const;
-	AMConstDbObjectList scanList() const;
-	const QStringList tags() const;
-	QString samplePlateName() const;
-	/// returns the elements as a list of atomic numbers
+	/// Returns the elements as a list of atomic numbers
 	QList<int> elementList() const;
-	AMShapeData* sampleShapePositionData() const;
-	AMConstDbObjectList dbReadScanList() const;
-
-	/// thumbnails
-	int thumbnailCount() const;
-	AMDbThumbnail thumbnail(int index) const;
-	QByteArray rawImage() const;
-
-	/// returns true if string is in tags_, else returns false
-	bool hasTag(QString tag) const;
-	/// returns true if scan is in scanList_, else returns false
-	bool hasScan(AMScan* scan) const;
 	/// returns a string list of the element symbols
 	QString elementString() const;
 
+	/// Returns a list of scans that were taken on this sample. Since the list is an AMConstDbObjectList, only const AMScan pointers can be returned.
+	AMConstDbObjectList scanList() const;
+	/// Returns a const pointer to the AMScan if the index is valid. Returns 0 otherwise
+	const AMScan* scanAt(int index) const;
+	/// Returns true if scan is in scanList_, else returns false
+	bool hasScan(AMScan* scan) const;
+
+	/// Returns a list of tags related to this sample
+	const QStringList tags() const;
+	/// Returns true if string is in tags_, else returns false
+	bool hasTag(QString tag) const;
+
+	/// Returns the shapeData (2D/3D representation of the position) for this sample
+	AMShapeData* sampleShapePositionData() const;
+
+	/// Thumbnails
+	int thumbnailCount() const;
+	AMDbThumbnail thumbnail(int index) const;
+
+	/// Returns the constDbObject wrapping the sample plate (in case you want to check on the lazy loading status)
+	AMConstDbObject* constDbSamplePlate() const;
+	/// Returns a const pointer to the sample plate we're associated with
+	const AMSamplePlate* samplePlate() const;
+
 public slots:
-
-	/// mutators
+	/// Sets the name of the sample
 	void setName(const QString &name);
+
+	/// Sets the creation time for the sample
 	void setDateTime(const QDateTime dateTime);
+	/// Sets dateTime_ to the current DateTime
+	void setCurrentDateTime();
+
+	/// Sets the notes field for the sample
 	void setNotes(const QString notes);
-	/// set Image from a QImage
+
+	/// Set image from a QImage
 	void setImage(const QImage& image);
+	/// Set image from a raw QByteArray
 	void setRawImage(const QByteArray& rawPngImage);
+
+	/// Sets the entire elements list at once (overwriting any current values)
 	void setElements(const QList<const AMElement*> elements);
-	//void setScanList(const QList<AMScan*> scanList);
-	void setScanList(AMConstDbObjectList scanList);
-	void setTags(const QStringList tags);
-	void dbLoadScanList(const AMConstDbObjectList& newScanList);
-
-	/// sets the element list from a list of atomic numbers
-	void setElementList(const QList<int>& elements);
-
-	void setSampleShapePositionData(AMShapeData* sampleShapePositionData);
-        void removeSampleShapePositionData();
-
-	/// adds a tag to the stringList, if it is not already in it
-	void addTag(const QString tag);
-	/// removes all instances of a tag, if it is in the tag list, else does nothing
-	void removeTag(const QString tag);
-
-	/// adds a scan to the scanList, if it is not already in it
-	void addScan(AMScan* scan);
-	/// removes all instances of a scan, if it is in the scanList, else does nothing
-	void removeScan(AMScan* scan);
-
-	/// adds an element to the element list, if it is not already in it.
-	/// adds it in order of atomic number
+	/// adds an element to the element list, if it is not already in it (adds it in order of atomic number)
 	void addElement(const AMElement* element);
 	/// removes the element from the list.
 	void removeElement(const AMElement* element);
 	/// if the element is in the list, removes it, else adds it
 	void toggleElement(const AMElement* element);
 
-	/// sets dateTime_ to the current DateTime
-	void setCurrentDateTime();
+	/// Sets the entire scan list (overwriting any current values)
+	void setScanList(AMConstDbObjectList scanList);
+	/// Adds a scan to the scanList, if it is not already in it
+	void addScan(AMScan* scan);
+	/// Removes all instances of a scan, if it is in the scanList, else does nothing
+	void removeScan(AMScan* scan);
 
+	/// Sets the entire tags list (overwriting any current values)
+	void setTags(const QStringList tags);
+	/// Adds a tag to the stringList, if it is not already in it
+	void addTag(const QString tag);
+	/// Removes all instances of a tag, if it is in the tag list, else does nothing
+	void removeTag(const QString tag);
 	/// set the current tag
 	void setCurrentTag(QString tag);
-	void getCurrentTag();
 	/// replaces the text of the current tag with the specified text
 	void editCurrentTag(QString tag);
 
+	/// Sets the element list from a list of atomic numbers (overwriting any current values)
+	void setElementList(const QList<int>& elements);
+
+	/// Sets the shape data for this sample
+	void setSampleShapePositionData(AMShapeData* sampleShapePositionData);
+	/// Removes the current shape data from this sample
+	void removeSampleShapePositionData();
+
+	/// Sets the sample plate to be associated with this sample
+	void setSamplePlate(const AMSamplePlate *samplePlate);
+
+	/// Removes the shape data and then emits a request signal
 	void removeSample();
 
-	void onShapeDataChanged();
-
+	/// Forces a store to database call on this sample
 	void forceStoreToDb();
 
+protected slots:
+	/// Handles changes to the shape data
+	void onShapeDataChanged();
+
 signals:
+	/// Emitted when the sample name changes
 	void sampleNameChanged(const QString &name);
+
+	/// Emited when the creation time is changed
 	void dateTimeChanged(const QDateTime &dateTime);
+
+	/// Emitted when the notes are changed
 	void notesChanged(const QString &notes);
+
+	/// Emitted when the list of tags is changed
 	void tagsChanged(const QStringList &tags);
-	/// request for an update to current tag
+	/// Request for an update to current tag
 	void requestCurrentTag();
+	/// Emitted when the current tag changes
 	void currentTagChanged(const QString &tag);
+
+	/// Emitted when the list of elements is changed
 	void elementsChanged(const QString &elementList);
+
+	/// Emitted when the shape data for this sample changes
 	void sampleShapeDataChanged();
 
+	/// Emitted as a general signal to say "something about this sample has changed"
 	void sampleDetailsChanged();
 
+	/// Request signal emitted by calling removeSample()
 	void sampleAboutToBeRemoved();
 
 protected:
 	/// format string used to format the dateTime
 	QString dateTimeFormat() const;
 	/// initialization
+
 	void init(QString name);
 	/// sets up connections for AMSample
 	void makeConnections();
-	/// attempts to get current tag, otherwise returns first tag in list
 
+
+	/// Returns the image as a QByteArray for database saving
+	QByteArray rawImage() const;
+
+	/// Called to save the scan list to the database
+	AMConstDbObjectList dbReadScanList() const;
+	/// Called to load the scan list from the database
+	void dbLoadScanList(const AMConstDbObjectList& newScanList);
+
+	/// Called to save the shape data to the database
 	AMQVector3DVector dbReadShapeData() const;
+	/// Called to load the shape data from the database
 	void dbLoadShapeData(AMQVector3DVector newShapeData);
 
-//	AMConstDbObject* dbReadSamplePlate() const;
-//	void dbWriteSamplePlate(AMConstDbObject *newSamplePlate);
+	/// Called to save the sample plate to the database
+	AMConstDbObject* dbReadSamplePlate() const;
+	/// Called to load the sample plate from the database
+	void dbLoadSamplePlate(AMConstDbObject *newSamplePlate);
 
 protected:
-
-	/// the dateTime of the samples creation
+	/// The dateTime of the samples creation
 	QDateTime dateTime_;
-	/// notes on the sample
+	/// Notes on the sample
 	QString notes_;
-	/// image of the sample
+	/// Image of the sample
 	QByteArray image_;
-	/// list of elements
+	/// List of elements
 	QList<const AMElement*> elements_;
-	/// list of scans
-	//QList<AMScan*> scanList_;
-	AMConstDbObjectList scanList_;
-	/// tags for this sample
+	/// Tags for this sample
 	QStringList tags_;
-
-//	/// A constDbObject referece to our sample plate
-//	AMConstDbObject *samplePlate_;
-
-	AMShapeData* sampleShapePositionData_;
+	/// The currently selected tag
 	QString currentTag_;
+
+	/// List of scans
+	AMConstDbObjectList scanList_;
+
+	/// A constDbObject referece to our sample plate
+	AMConstDbObject *samplePlate_;
+
+	/// The shape data (2D/3D) representation of this sample
+	AMShapeData* sampleShapePositionData_;
 };
 
 #endif // AMSAMPLE_H
