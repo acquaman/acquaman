@@ -1760,21 +1760,21 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 /// and storing it as a sample
 void AMSampleCamera::saveSamplePlate()
 {
-    if(samplePlateSelected_ && samplePlateShape_)
-    {
-        AMSample* samplePlate = new AMSample();
-        samplePlate->setName(samplePlateShape_->name());
-        samplePlate->setSampleShapePositionData(samplePlateShape_);
-	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
-	if(samplePositioner){
-		QString positionAsNote;
-		for(int x = 0; x < samplePositioner->count(); x++)
-			positionAsNote.append(QString("%1;").arg(samplePositioner->at(x)->value()));
+	if(samplePlateSelected_ && samplePlateShape_)
+	{
+		AMSample* samplePlate = new AMSample();
+		samplePlate->setName(samplePlateShape_->name());
+		samplePlate->setSampleShapePositionData(samplePlateShape_);
+		AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
+		if(samplePositioner){
+			QString positionAsNote;
+			for(int x = 0; x < samplePositioner->count(); x++)
+				positionAsNote.append(QString("%1;").arg(samplePositioner->at(x)->value()));
 
-		samplePlate->setNotes(positionAsNote);
+			samplePlate->setNotes(positionAsNote);
+		}
+		samplePlate->storeToDb(AMDatabase::database("user"));
 	}
-        samplePlate->storeToDb(AMDatabase::database("user"));
-    }
 }
 
 void AMSampleCamera::setCameraConfigurationShape()
