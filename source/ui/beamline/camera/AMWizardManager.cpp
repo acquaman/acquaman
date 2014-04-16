@@ -18,7 +18,7 @@ AMWizardManager::AMWizardManager(AMSampleCameraGraphicsView *view, QObject *pare
 {
 	parentView_ = view;
 	setSamplePlateWizardType(SIMPLE);
-	setBeamWizardType(FULL);
+	setBeamWizardType(SIMPLE);
 	cameraWizard_ = 0;
 	beamWizard_ = 0;
 	samplePlateWizard_ = 0;
@@ -68,9 +68,7 @@ const AMGraphicsViewWizard *AMWizardManager::rotationWizard()
 void AMWizardManager::startCameraWizard()
 {
 	cameraWizard_ = new AMCameraConfigurationWizard();
-	connect(cameraWizard_, SIGNAL(done()), this, SLOT(cameraWizardDone()));
-//	connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
-//	connect(cameraWizard_, SIGNAL(done()), this, SIGNAL(cameraWizardFinished()));
+	connect(cameraWizard_, SIGNAL(done(int)), this, SLOT(cameraWizardDone()));
 	connect(cameraWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
 	connect(cameraWizard_, SIGNAL(moveTo(QVector3D)), this, SIGNAL(moveBeamSamplePlate(QVector3D)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), cameraWizard_, SLOT(setMotorMovementEnabled(bool)));
@@ -89,12 +87,13 @@ void AMWizardManager::startBeamWizard()
 	else if(beamWizardType() == SIMPLE)
 		beamWizard_ = new AMSimpleBeamConfigurationWizard();
 	connect(beamWizard_, SIGNAL(showShape(int)), this, SIGNAL(beamShape(int)));
-	connect(beamWizard_, SIGNAL(done()), this, SLOT(beamWizardDone()));
-//	connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
-//	connect(beamWizard_, SIGNAL(done()), this, SIGNAL(beamWizardFinished()));
+	connect(beamWizard_, SIGNAL(done(int)), this, SLOT(beamWizardDone()));
 	connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SIGNAL(moveBeamSamplePlate(QVector3D)));
 	connect(beamWizard_, SIGNAL(showBeamMarker(int)), this, SIGNAL(showBeamMarker(int)));
 	connect(beamWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
+	connect(beamWizard_, SIGNAL(createBeamShape(int)), this, SIGNAL(createBeamShape(int)));
+	connect(beamWizard_, SIGNAL(moveBeamShape(QPointF, int)), this, SIGNAL(moveBeamShape(QPointF,int)));
+	connect(beamWizard_, SIGNAL(mousePressed(QPointF,int)), this, SIGNAL(mousePressed(QPointF,int)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), beamWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), beamWizard_, SIGNAL(moveSucceeded()));
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(0);
@@ -111,16 +110,15 @@ void AMWizardManager::startSampleWizard()
 	if(samplePlateWizardType() == FULL)
 	{
 		samplePlateWizard_ = new AMSamplePlateWizard();
-		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(sampleWizardDone()));
+		connect(samplePlateWizard_, SIGNAL(done(int)), this, SLOT(sampleWizardDone()));
 	}
 	else if(samplePlateWizardType() == SIMPLE)
 	{
 		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
-		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(sampleWizardDone()));
+		connect(samplePlateWizard_, SIGNAL(done(int)), this, SLOT(sampleWizardDone()));
 	}
 
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
-//	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));
 	connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SIGNAL(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
@@ -135,7 +133,6 @@ void AMWizardManager::startSampleWizard()
 	samplePlateWizard_->setView(view);
 	samplePlateWizard_->show();
 	emit showSamplePlate(true);
-//	showSamplePlate_->setChecked(true);
 }
 
 void AMWizardManager::startRotationWizard()
@@ -143,9 +140,7 @@ void AMWizardManager::startRotationWizard()
 	rotationWizard_ = new AMRotationWizard();
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	/// \todo other things here
-	connect(rotationWizard_, SIGNAL(done()), this, SLOT(rotationWizardDone()));
-//	connect(rotationWizard_, SIGNAL(done()), this, SLOT(rotationConfiguration()));
-//	connect(rotationWizard_, SIGNAL(done()), this, SIGNAL(rotationWizardFinished()));
+	connect(rotationWizard_, SIGNAL(done(int)), this, SLOT(rotationWizardDone()));
 	connect(rotationWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
 	connect(rotationWizard_, SIGNAL(moveTo(QVector3D,double)), this, SIGNAL(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), rotationWizard_, SLOT(setMotorMovementEnabled(bool)));

@@ -1580,6 +1580,45 @@ void AMSampleCamera::beamCalibrate()
 
 }
 
+void AMSampleCamera::createBeamShape(int index)
+{
+
+	int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
+	AMShapeData* shapeToDelete;
+	if(isValid(removalIndex))
+	{
+				shapeToDelete = takeItem(removalIndex);
+				shapeToDelete->deleteLater();
+	}
+
+	startRectangle(QPointF(0.5,0.5));
+	beamMarkers_[index] = shapeList_[index_];
+	beamMarkers_[index]->setName(QString("Beam Shape %1").arg(index + 1));
+	QVector3D topRight = getWidthNormal(beamMarkers_[index]);
+	QVector3D base = beamMarkers_[index]->coordinate(TOPLEFT);
+	QVector3D bottomLeft = -0.1*getHeightNormal(beamMarkers_[index]);
+	beamMarkers_[index]->setCoordinate((base+topRight),TOPRIGHT);
+	beamMarkers_[index]->setCoordinate((base+bottomLeft),BOTTOMLEFT);
+	beamMarkers_[index]->setCoordinate(base+bottomLeft+topRight, BOTTOMRIGHT);
+	for(int i = 0; i < 3; i++)
+	{
+		beamMarkers_[i]->setVisible(i == index);
+	}
+}
+
+void AMSampleCamera::moveBeamShape(QPointF point, int index)
+{
+	qDebug()<<"AMSampleCamera::moveBeamShape";
+	int shapeIndex = shapeList().indexOf(beamMarkers_[index]);
+	moveCurrentShape(point,shapeIndex);
+}
+
+void AMSampleCamera::beamMousePressed(QPointF point, int index)
+{
+	qDebug()<<"AMSampleCamera::beamMousePressed";
+	setShapeVectors(point);
+}
+
 /// Sets the sample plate (shape) to be the currently selected sample.  Removes the
 /// sample from the sample plate (class) and uses the sample's shape for the shape of the sample plate.
 void AMSampleCamera::setSamplePlate()

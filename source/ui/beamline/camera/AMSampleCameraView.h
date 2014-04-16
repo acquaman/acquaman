@@ -377,6 +377,9 @@ protected slots:
 
 	void beamShape(int);
 
+	void createBeamShape(int);
+	void moveBeamShape(QPointF point, int index);
+
 	void beamCalibrate();
 
 	/// create the sample plate from the wizard

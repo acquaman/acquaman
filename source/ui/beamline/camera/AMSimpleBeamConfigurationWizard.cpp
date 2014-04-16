@@ -1,5 +1,6 @@
 #include "AMSimpleBeamConfigurationWizard.h"
 
+#include "AMSampleCameraGraphicsView.h"
 #include <QAbstractButton>
 #include <QDebug>
 
@@ -21,6 +22,9 @@ AMSimpleBeamConfigurationWizard::AMSimpleBeamConfigurationWizard(QWidget *parent
 	{
 		setPage(pageWait(i), new AMSimpleBeamConfigurationWaitPage);
 		setPage(pageSet(i), new AMSimpleBeamConfigurationSetPage);
+		connect(page(pageSet(i)), SIGNAL(initBeamShape()), this, SLOT(initBeamShape()));
+		connect(page(pageSet(i)), SIGNAL(signalMousePressed(QPointF)), this, SLOT(mousePressedHandler(QPointF)));
+		connect(page(pageSet(i)), SIGNAL(moveBeamShape(QPointF)), this, SLOT(moveBeamShapeHandler(QPointF)));
 	}
 
 	setStartId(Page_Intro);
@@ -36,6 +40,7 @@ AMSimpleBeamConfigurationWizard::AMSimpleBeamConfigurationWizard(QWidget *parent
 
 	/// Add options button to intro page
 	addOptionPage(Page_Intro);
+
 }
 
 AMSimpleBeamConfigurationWizard::~AMSimpleBeamConfigurationWizard()
@@ -222,21 +227,61 @@ void AMSimpleBeamConfigurationWizard::back()
 	}
 }
 
+void AMSimpleBeamConfigurationWizard::initBeamShape()
+{
+	emit createBeamShape(relativeId());
+}
+
+void AMSimpleBeamConfigurationWizard::mousePressedHandler(QPointF point)
+{
+	qDebug()<<"AMSimpleBeamConfigurationWizard::mousePressedHandler";
+	emit mousePressed(mapPointToVideo(point), relativeId());
+}
+
+void AMSimpleBeamConfigurationWizard::moveBeamShapeHandler(QPointF point)
+{
+	qDebug()<<"AMSimpleBeamConfigurationWizard::moveBeamShapeHandler";
+	emit moveBeamShape(mapPointToVideo(point), relativeId());
+}
+
+void AMSimpleBeamConfigurationSetPage::initializePage()
+{
+	AMViewPage::initializePage();
+	disconnectMouseSignal();
+	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(selectShape(QPointF)));
+	connect(view(), SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(releaseShape()));
+	emit initBeamShape();
+}
 
 void AMSimpleBeamConfigurationWaitPage::initializePage()
 {
-	qDebug()<<"Here in  AMSimpleBeamConfigurationWaitPage::initializePage";
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - calling init";
 	AMWaitPage::initializePage();
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - done calling init";
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - calling startTimer";
 	AMWaitPage::startTimer(1000);
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - done calling startTimer";
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - calling waitPage";
 	viewWizard()->waitPage();
-	qDebug()<<"AMSimpleBeamConfigurationWaitPage::initializePage - done calling waitPage";
-
-	qDebug()<<"Leaving AMSimpleBeamConfigurationWaitPage::initializePage";
 }
+
+
+void AMSimpleBeamConfigurationSetPage::selectShape(QPointF point)
+{
+	emit signalMousePressed(point);
+	connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(moveShape(QPointF)));
+}
+
+void AMSimpleBeamConfigurationSetPage::releaseShape()
+{
+	disconnect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(moveShape(QPointF)));
+}
+
+void AMSimpleBeamConfigurationSetPage::moveShape(QPointF point)
+{
+	emit moveBeamShape(point);
+}
+
+void AMSimpleBeamConfigurationSetPage::disconnectMouseSignal()
+{
+	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(selectShape(QPointF)));
+	disconnect(view(), SIGNAL(mouseReleased(QPointF)), this, SLOT(releaseShape()));
+}
+
 
 

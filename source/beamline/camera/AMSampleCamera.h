@@ -404,6 +404,10 @@ public slots:
 
 	void beamCalibrate();
 
+	void createBeamShape(int index);
+
+	void moveBeamShape(QPointF point, int index);
+	void beamMousePressed(QPointF point, int index);
 
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);

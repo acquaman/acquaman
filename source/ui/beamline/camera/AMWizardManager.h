@@ -38,6 +38,9 @@ signals:
 	void moveBeamSamplePlate(QVector3D);
 	void moveBeamSamplePlate(QVector3D, double);
 	void showBeamMarker(int);
+	void createBeamShape(int);
+	void moveBeamShape(QPointF, int);
+	void mousePressed(QPointF, int);
 
 	/// sample wizard
 	void initializeSampleShape();

@@ -98,35 +98,6 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	wizardManager_ = new AMWizardManager(shapeScene_);
 
-	// doing this broke things horribly, not sure why
-//	/// start them off null, create them and delete them when used
-//	cameraWizard_ = NULL;
-//	beamWizard_ = NULL;
-//	samplePlateWizard_ = NULL;
-//	rotationWizard_ = NULL;
-//	setSamplePlateWizardType(SIMPLE);
-//	setBeamWizardType(SIMPLE);
-//	cameraWizard_ = new AMCameraConfigurationWizard();
-//	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
-//	view->setScene(shapeScene_->scene());
-//	cameraWizard_->setView(view);
-
-//	if(beamWizardType() == FULL)
-//		beamWizard_ = new AMBeamConfigurationWizard();
-//	else if(beamWizardType() == SIMPLE)
-//		beamWizard_ = new AMSimpleBeamConfigurationWizard();
-//	beamWizard_->setView(view);
-
-//	if(samplePlateWizardType() == SIMPLE)
-//		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
-//	else if(samplePlateWizardType() == FULL)
-//		samplePlateWizard_ = new AMSamplePlateWizard();
-//	samplePlateWizard_->setView(view);
-
-//	rotationWizard_ = new AMRotationWizard();
-//	rotationWizard_->setView(view);
-
-
 	showBeamOutline_ = true;
 
 	index_ = 0;
@@ -199,10 +170,6 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 AMSampleCameraView::~AMSampleCameraView()
 {
-//	delete beamWizard_;
-//	delete cameraWizard_;
-//	delete samplePlateWizard_;
-//	delete rotationWizard_;
 }
 
 
@@ -420,7 +387,6 @@ void AMSampleCameraView::setConfigurationMode()
 
 void AMSampleCameraView::setMultiDrawMode()
 {
-	//    if(drawButton_->isDown() || )
 	mode_ = MULTIDRAW;
 	emit modeChange();
 	emit enterMultiDraw();
@@ -667,14 +633,27 @@ qDebug()<<"Leaving AMSampleCameraView::beamShape";
 
 }
 
+void AMSampleCameraView::createBeamShape(int index)
+{
+	shapeModel_->createBeamShape(index);
+	refreshSceneView();
+	wizardManager_->beamWizardUpdate();
+}
+
+void AMSampleCameraView::moveBeamShape(QPointF point, int index)
+{
+	qDebug()<<"AMSampleCameraView::moveBeamShape";
+	shapeModel_->moveBeamShape(point,index);
+	refreshSceneView();
+	wizardManager_->beamWizardUpdate();
+}
+
 void AMSampleCameraView::beamCalibrate()
 {
 	shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(true);
 	refreshSceneView();
 	emit beamWizardFinished();
-//	delete beamWizard_;
-//	beamWizard_ = NULL;
 
 }
 
@@ -810,25 +789,6 @@ bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfP
 	return empty;
 }
 
-//void AMSampleCameraView::setBeamWizardType(AMSampleCameraView::WizardType type)
-//{
-//	beamWizardType_ = type;
-//}
-
-//AMSampleCameraView::WizardType AMSampleCameraView::beamWizardType()
-//{
-//	return beamWizardType_;
-//}
-
-//void AMSampleCameraView::setSamplePlateWizardType(AMSampleCameraView::WizardType type)
-//{
-//	samplePlateWizardType_ = type;
-//}
-
-//AMSampleCameraView::WizardType AMSampleCameraView::samplePlateWizardType()
-//{
-//	return samplePlateWizardType_;
-//}
 
 /// moves the sample plate to the requested point.
 /// also updates the scene of each wizard
@@ -1443,108 +1403,21 @@ void AMSampleCameraView::hideCameraParameters(bool hide)
 void AMSampleCameraView::startCameraWizard()
 {
 	wizardManager_->startCameraWizard();
-//	if(cameraWizard_)
-//	{
-//		delete cameraWizard_;
-//	}
-//	cameraWizard_ = new AMCameraConfigurationWizard();
-//	connect(cameraWizard_, SIGNAL(done()), this, SLOT(reviewCameraConfiguration()));
-//	connect(cameraWizard_, SIGNAL(done()), this, SIGNAL(cameraWizardFinished()));
-//	connect(cameraWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
-//	connect(cameraWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
-//	connect(this, SIGNAL(motorMovementEnabled(bool)), cameraWizard_, SLOT(setMotorMovementEnabled(bool)));
-//	connect(this,SIGNAL(moveSucceeded()), cameraWizard_, SLOT(testMoveSlot()));
-//	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(0);
-//	view->setScene(shapeScene_->scene());
-//	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
-//	cameraWizard_->setView(view);
-//	cameraWizard_->show();
 }
 
 void AMSampleCameraView::startBeamWizard()
 {
 	wizardManager_->startBeamWizard();
-//	if(beamWizard_)
-//	{
-//		delete beamWizard_;
-////	}
-//	if(beamWizardType() == FULL)
-//		beamWizard_ = new AMBeamConfigurationWizard();
-//	else if(beamWizardType() == SIMPLE)
-//		beamWizard_ = new AMSimpleBeamConfigurationWizard();
-//	connect(beamWizard_, SIGNAL(showShape(int)), this, SLOT(beamShape(int)));
-//	connect(beamWizard_, SIGNAL(done()), this, SLOT(beamCalibrate()));
-//	connect(beamWizard_, SIGNAL(done()), this, SIGNAL(beamWizardFinished()));
-//	connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SLOT(moveBeamSamplePlate(QVector3D)));
-//	connect(beamWizard_, SIGNAL(showBeamMarker(int)), this, SLOT(showBeamMarker(int)));
-//	connect(beamWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
-//	connect(this, SIGNAL(motorMovementEnabled(bool)), beamWizard_, SLOT(setMotorMovementEnabled(bool)));
-//	connect(this, SIGNAL(moveSucceeded()), beamWizard_, SIGNAL(moveSucceeded()));
-//	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView(0);
-//	view->setScene(shapeScene_->scene());
-//	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
-//	beamWizard_->setView(view);
-//	beamWizard_->show();
-//	showSamplePlate_->setChecked(true);
 }
 
 void AMSampleCameraView::startSampleWizard()
 {
 	wizardManager_->startSampleWizard();
-//	if(samplePlateWizard_)
-//	{
-//		delete samplePlateWizard_;
-////	}
-//	if(samplePlateWizardType() == FULL)
-//	{
-//		samplePlateWizard_ = new AMSamplePlateWizard();
-//		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(samplePlateCreate()));
-//	}
-//	else if(samplePlateWizardType() == SIMPLE)
-//	{
-//		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
-//		connect(samplePlateWizard_, SIGNAL(done()), this, SLOT(simpleSamplePlateCreate()));
-//	}
-
-//	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
-//	connect(samplePlateWizard_, SIGNAL(done()), this, SIGNAL(samplePlateWizardFinished()));
-//	connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
-//	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SLOT(moveBeamSamplePlate(QVector3D,double)));
-//	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
-//	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
-//	connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SLOT(transmitMotorRotation()));
-//	connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
-//	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SLOT(initializeSampleShape()));
-//	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SLOT(shiftSampleShape(QPointF)));
-//	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SLOT(sampleShapeMousePressed(QPointF)));
-//	view->setScene(shapeScene_->scene());
-//	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
-//	samplePlateWizard_->setView(view);
-//	samplePlateWizard_->show();
-//	showSamplePlate_->setChecked(true);
 }
 
 void AMSampleCameraView::startRotationWizard()
 {
 	wizardManager_->startRotationWizard();
-//	if(rotationWizard_)
-//	{
-//		delete rotationWizard_;
-//	}
-//	rotationWizard_ = new AMRotationWizard();
-//	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
-//	/// \todo other things here
-//	connect(rotationWizard_, SIGNAL(done()), this, SLOT(rotationConfiguration()));
-//	connect(rotationWizard_, SIGNAL(done()), this, SIGNAL(rotationWizardFinished()));
-//	connect(rotationWizard_, SIGNAL(requestMotorMovementEnabled()), this, SLOT(transmitMotorMovementEnabled()));
-//	connect(rotationWizard_, SIGNAL(moveTo(QVector3D,double)), this, SLOT(moveBeamSamplePlate(QVector3D,double)));
-//	connect(this, SIGNAL(motorMovementEnabled(bool)), rotationWizard_, SLOT(setMotorMovementEnabled(bool)));
-//	connect(this, SIGNAL(moveSucceeded()), rotationWizard_, SIGNAL(moveSucceeded()));
-//	view->setScene(shapeScene_->scene());
-//	view->setSceneRect(QRectF(QPointF(0,0),shapeScene_->size()));
-//	rotationWizard_->setView(view);
-//	rotationWizard_->show();
-
 }
 
 
@@ -1566,8 +1439,6 @@ void AMSampleCameraView::moveSamplePlate(int movement)
 	samplePlateMovement_ = movement;
 	shapeModel_->moveSamplePlate(relativeMovement);
 	refreshSceneView();
-//	AMSampleCameraGraphicsView* view = shapeScene_;
-//	samplePlateWizard_->updateScene(view);
 	wizardManager_->sampleWizardUpdate();
 }
 
@@ -2642,6 +2513,9 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(wizardManager_, SIGNAL(beamWizardFinished()), this, SLOT(beamCalibrate()));
 	connect(wizardManager_, SIGNAL(beamShape(int)), this, SLOT(beamShape(int)));
 	connect(wizardManager_, SIGNAL(showBeamMarker(int)), this, SLOT(showBeamMarker(int)));
+	connect(wizardManager_, SIGNAL(createBeamShape(int)), this, SLOT(createBeamShape(int)));
+	connect(wizardManager_, SIGNAL(moveBeamShape(QPointF,int)), this, SLOT(moveBeamShape(QPointF,int)));
+	connect(wizardManager_, SIGNAL(mousePressed(QPointF,int)), shapeModel_, SLOT(beamMousePressed(QPointF,int)));
 	/// sample wizard
 	connect(wizardManager_, SIGNAL(sampleWizardFinished()), this, SLOT(samplePlateCreate()));
 	connect(wizardManager_, SIGNAL(simpleSampleWizardFinished()), this, SLOT(simpleSamplePlateCreate()));

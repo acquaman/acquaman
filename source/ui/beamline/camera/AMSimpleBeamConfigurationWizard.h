@@ -23,11 +23,34 @@ public:
 
 public slots:
 	void back();
+	void initBeamShape();
+	void mousePressedHandler(QPointF);
+	void moveBeamShapeHandler(QPointF);
+
+signals:
+	void createBeamShape(int);
+	void mousePressed(QPointF, int);
+	void moveBeamShape(QPointF, int);
+
 };
 
 class AMSimpleBeamConfigurationSetPage : public AMViewPage
 {
 	Q_OBJECT
+public:
+	void initializePage();
+signals:
+	void initBeamShape();
+	void signalMousePressed(QPointF);
+	void moveBeamShape(QPointF);
+
+protected slots:
+	void selectShape(QPointF);
+	void releaseShape();
+	void moveShape(QPointF);
+	void disconnectMouseSignal();
+
+
 
 };
 
