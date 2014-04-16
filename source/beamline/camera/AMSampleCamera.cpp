@@ -629,6 +629,7 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	/// sample plate has been loaded out of the database, must correct the positions
 	// get the shift and rotation
 	QVector3D platePosition = plate->platePosition();
+
 	QVector3D currentPosition = motorCoordinate();
 	QVector3D shiftAmount = currentPosition - platePosition;
 	oldRotation_->setDegrees(plate->plateRotation());
@@ -762,6 +763,7 @@ void AMSampleCamera::deleteShape(int index)
 
 int AMSampleCamera::rowCount(const QModelIndex &parent) const
 {
+	Q_UNUSED(parent)
 	return shapeList_.count();
 }
 
@@ -1797,21 +1799,21 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 /// and storing it as a sample
 void AMSampleCamera::saveSamplePlate()
 {
-    if(samplePlateSelected_ && samplePlateShape_)
-    {
-        AMSample* samplePlate = new AMSample();
-        samplePlate->setName(samplePlateShape_->name());
-        samplePlate->setSampleShapePositionData(samplePlateShape_);
-	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
-	if(samplePositioner){
-		QString positionAsNote;
-		for(int x = 0; x < samplePositioner->count(); x++)
-			positionAsNote.append(QString("%1;").arg(samplePositioner->at(x)->value()));
+	if(samplePlateSelected_ && samplePlateShape_)
+	{
+		AMSample* samplePlate = new AMSample();
+		samplePlate->setName(samplePlateShape_->name());
+		samplePlate->setSampleShapePositionData(samplePlateShape_);
+		AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
+		if(samplePositioner){
+			QString positionAsNote;
+			for(int x = 0; x < samplePositioner->count(); x++)
+				positionAsNote.append(QString("%1;").arg(samplePositioner->at(x)->value()));
 
-		samplePlate->setNotes(positionAsNote);
+			samplePlate->setNotes(positionAsNote);
+		}
+		samplePlate->storeToDb(AMDatabase::database("user"));
 	}
-        samplePlate->storeToDb(AMDatabase::database("user"));
-    }
 }
 
 void AMSampleCamera::setCameraConfigurationShape()

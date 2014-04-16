@@ -10,8 +10,8 @@ class AMSamplePlate : public AMDbObject
 Q_OBJECT
 Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
 Q_PROPERTY(AMDbObjectList samples READ dbGetSamples WRITE dbLoadSamples)
-	Q_PROPERTY(QVector3D platePosition READ platePosition WRITE setPlatePosition)
-	Q_PROPERTY(double plateRotation READ plateRotation WRITE setPlateRotation)
+Q_PROPERTY(QVector3D platePosition READ platePosition WRITE setPlatePosition)
+Q_PROPERTY(double plateRotation READ plateRotation WRITE setPlateRotation)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples on a Sample Plate")
 Q_CLASSINFO("dateTime", "createIndex=true")
@@ -55,7 +55,7 @@ public:
 
 public slots:
 	/// Called when new shapes are available in the sampleCameraView. If there are shapes without samples we make and add the samples.
-	void onSampleCameraShapesChanged();
+	void onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList);
 	/// Called when a shapeData claims to update properties definitely. We call storeToDb() on the associated sample.
 	void onShapeDataPropertyUpdated(AMShapeData *shapeData);
 

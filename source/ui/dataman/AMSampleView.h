@@ -4,124 +4,149 @@
 #include <QWidget>
 
 class QLineEdit;
-class AMSample;
+class QHBoxLayout;
+class QVBoxLayout;
 class QPushButton;
 class QCompleter;
 class QStringListModel;
 class QComboBox;
 class QTextEdit;
+class QLayoutItem;
+
+class AMSample;
 class AMElementListEdit;
 class AMPeriodicTableDialog;
 class AMShapeDataView;
 
-/// This class is the view for an AMSampleEthan.
-/// It can be used to load or save a sample to the database,
-/// as well as to set or view the name, date, notes, tags, elements,
-/// and sample plate of the sample.
-class AMSampleView : public QWidget
-{
-	Q_OBJECT
+class AMSampleReadOnlyView : public QWidget{
 public:
-	AMSampleView(QWidget* parent = 0);
-	AMSampleView(AMSample* sample, QWidget* parent = 0);
-
-public slots:
-	/// set the sample to view
-	void setSample(AMSample* sample);
-	/// set the name of the current sample
-	void setName(QString name);
-	/// set the dateTime of the current sample
-	void setDateTime(QString dateTime);
-	/// set the notes of the current sample
-	void setNotes();
-	/// add a tag to the current sample
-	void addTag();
-	/// remove a tag from a specified sample
-	void removeTag(int index);
-	/// remove a tag from the current sample
-	void removeTag();
-	/// show the periodic table dialog box
-	void showPeriodicTable();
-
-	void updateSampleName(QString);
-
-	void setCurrentTag();
-
-	void updateTags(QStringList);
-
-	void onSampleShapeDataChanged();
-
-	void onSampleAboutToBeRemoved();
-
-signals:
-	void updateName(QString);
-	void aboutToClose();
-
-protected slots:
-	/// update the fields in the view
-	void updateFrames();
-	/// save the sample to the database
-	void saveToDb();
-	/// load a sample from the database
-	void loadSample(QString);
-	/// change the sample plate associated with this sample
-	//    void changeSamplePlate(QString);
-	void onSampleNameChanged(QString);
-
+	/// Simple constructor takes a const pointer to an AMSample
+	AMSampleReadOnlyView(const AMSample *sample, QWidget *parent = 0);
 
 protected:
-	/// set up the ui elements of the view
-	void setUpGui();
-	/// make the views connections
-	void makeConnections();
-	/// populate the sample plate combobox
-	//    void populateSamplePlateLoader();
-	/// load the sample from the database
-	void loadFromDb();
-	/// populate the sample combo box.
-	void populateSampleLoader();
-	/// get the taglist from the database
-	void databaseTags();
+	/// Called to initialize the data in the widgets
+	virtual void initializeSampleViewData();
+	/// Loads all of the possible tags from the database
+	void loadTagsFromDatabase();
 
-	virtual void closeEvent(QCloseEvent *event);
+protected:
+	/// Const pointer to the AMSample we are viewing
+	const AMSample *constSample_;
 
-private:
+	/// Text box showing name
+	QLineEdit* nameText_;
+	/// Text box showing dateTime
+	QLineEdit* dateTimeText_;
+	/// Text box showing notes
+	QTextEdit* notesText_;
 	/// text box current tag
 	QLineEdit* tagText_;
-	/// text box showing name
-	QLineEdit* nameText_;
-	/// text box showing dateTime
-	QLineEdit* dateTimeText_;
-	/// text box showing notes
-	QTextEdit* notesText_;
-	/// text box showing elements
-	QLineEdit* elementsText_;
-	/// push button to bring up th element dialog
-	QPushButton* showElementDialog_;
-	/// the element dialog window
-	AMPeriodicTableDialog* elementDialog_;
-
 	/// the combobox showing all the current samples tags
 	QComboBox* tagBox_;
 	/// completer for autocompleting tags
 	QCompleter* completer_;
 	/// list of all previously used tags, used for autocomplete
 	QStringListModel* wordList_;
+	/// text box showing elements
+	QLineEdit* elementsText_;
+	/// text box showing the sample plate name
+	QLineEdit* samplePlateName_;
+
+	/// Master layout
+	QVBoxLayout* sampleViewLayout_;
+	/// LayoutItem to help subclasses place other tag widgets properly
+	QLayoutItem *tagLayoutItem_;
+	/// LayoutItem to help subclasses place other element widgets properly
+	QLayoutItem *elementLayoutItem_;
+};
+
+/// This class is the view for an AMSample.
+/// It can be used to load or save a sample to the database,
+/// as well as to set or view the name, date, notes, tags, elements,
+/// and sample plate of the sample.
+class AMSampleView : public AMSampleReadOnlyView
+{
+Q_OBJECT
+public:
+	/// Simple constructor takes a pointer to an AMSample to view
+	AMSampleView(AMSample* sample, QWidget* parent = 0);
+
+signals:
+	/// Used by AMSamplePlate view to automatically delete views
+	void aboutToClose();
+
+protected slots:
+	/// Set the sample to view
+	void setSample(AMSample* sample);
+	/// Set the name of the current sample
+	void setName(QString name);
+	/// Set the notes of the current sample
+	void setNotes();
+	/// Add a tag to the current sample
+	void addTag();
+	/// Remove a tag from a specified sample
+	void removeTag(int index);
+	/// Remove a tag from the current sample
+	void removeTag();
+	/// Show the periodic table dialog box
+	void showPeriodicTable();
+
+	/// Calls setCurrentTag on the sample
+	void setCurrentTag();
+	/// Commented out at the moment
+	void updateTags(QStringList);
+	/// If our sample is removed, then close the window and delete ourselves later
+	void onSampleAboutToBeRemoved();
+
+	/// Save the sample to the database
+	virtual void saveToDb();
+
+
+protected:
+	/// Called to initialize the data in the widgets
+	virtual void initializeSampleViewData();
+
+	/// Reimplemented to make sure that aboutToClose is emitted before closing
+	virtual void closeEvent(QCloseEvent *event);
+
+protected:
+	/// push button to bring up th element dialog
+	QPushButton* showElementDialog_;
+	/// the element dialog window
+	AMPeriodicTableDialog* elementDialog_;
+
 	/// push button used to remove tags from the current sample
 	QPushButton* removeTagButton_;
 
-	/// text box showing the sample plate name
-	QLineEdit* samplePlateName_;
-	/// combo box used to load a sample plate from the database
-	//    QComboBox* samplePlateLoader_;
-
-	/// combo box used to load a sample from the database
-	QComboBox* sampleLoader_;
 	/// push button used to save the current sample to the database
 	QPushButton* saveToDb_;
 
 	/// the sample that is being viewed by this view
 	AMSample* sample_;
+};
+
+class AMSampleAdvancedView : public AMSampleView
+{
+Q_OBJECT
+public:
+	AMSampleAdvancedView(AMSample *sample, QWidget *parent = 0);
+
+protected slots:
+	void onSampleShapeDataChanged();
+
+	/// load a sample from the database
+	void loadSample(QString);
+
+	/// save the sample to the database
+	virtual void saveToDb();
+
+protected:
+	/// populate the sample combo box.
+	void populateSampleLoader();
+
+protected:
+	/// combo box used to load a sample from the database
+	QComboBox* sampleLoader_;
 
 	/// view for visualizing the sample's AMShapeData
 	AMShapeDataView* shapeDataView_;

@@ -4,6 +4,7 @@
 #include <QStyle>
 
 #include "util/AMDateTimeUtils.h"
+#include "beamline/camera/AMShapeData.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
 	AMDbObject(parent)
@@ -58,6 +59,7 @@ double AMSamplePlate::plateRotation()
 
 bool AMSamplePlate::addSample(AMSample *sample){
 	samples_.append(sample);
+	sample->setSamplePlate(this);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 	connect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
 	storeToDb(database());
@@ -98,9 +100,8 @@ bool AMSamplePlate::operator ==(const AMSamplePlate &other){
 	return false;
 }
 
-#include "beamline/camera/AMSampleCamera.h"
-void AMSamplePlate::onSampleCameraShapesChanged(){
-	const QList<AMShapeData*> shapeList = AMSampleCamera::set()->shapeList();
+void AMSamplePlate::onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList){
+	//const QList<AMShapeData*> shapeList = AMSampleCamera::set()->shapeList();
         AMSample *sample;
         // if there aren't enough samples on the sample plate add some.
 	if(shapeList.count() > sampleCount())
@@ -109,10 +110,12 @@ void AMSamplePlate::onSampleCameraShapesChanged(){
 		{
 			if(!sampleFromShape(shape))
 			{
+				shape->blockSignals(true);
 				AMSample* newSample = new AMSample();
 				newSample->setSampleShapePositionData(shape);
 				newSample->setName(shape->name());
 				addSample(newSample);
+				shape->blockSignals(false);
 				emit sampleAddedThroughCamera(newSample);
 			}
 		}
@@ -281,14 +284,19 @@ void AMSamplePlateBrowser::reloadFromDatabase(){
 		for(int x = 0; x < allSamplePlateIds.count(); x++){
 			tempPlate = new AMSamplePlate();
 			tempPlate->loadFromDb(database_, allSamplePlateIds.at(x));
-			allSamplePlates_.append(tempPlate);
+			//allSamplePlates_.append(tempPlate);
+			allSamplePlates_.prepend(tempPlate);
 		}
 	}
 }
 
 void AMSamplePlateBrowser::addSamplePlate(AMSamplePlate *samplePlate){
-	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
-	allSamplePlates_.append(samplePlate);
+//	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
+//	allSamplePlates_.append(samplePlate);
+//	endInsertRows();
+
+	beginInsertRows(QModelIndex(), 0, 0);
+	allSamplePlates_.prepend(samplePlate);
 	endInsertRows();
 }
 

@@ -239,7 +239,7 @@ signals:
 	// signal for each wizard finished
 	void beamWizardFinished();
 	void cameraWizardFinished();
-	void samplePlateWizardFinished();
+	void samplePlateWizardFinished(bool requiresSave);
 	void rotationWizardFinished();
 
 	void samplePlateSelected(AMSamplePlate*);
@@ -406,7 +406,7 @@ protected slots:
 
 	void onShowSamplePlateStateChanged(bool state);
 
-	void onSamplePlateWizardFinished();
+	void onSamplePlateWizardFinished(bool requiresSave);
 
 	void enableMotorMovement(bool isEnabled);
 	void enableMotorTracking(bool isEnabled);
