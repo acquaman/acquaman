@@ -797,7 +797,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/camera/AMAngle.h \
 	source/ui/dataman/AMSampleBriefView.h \
 	source/ui/beamline/camera/AMSimpleBeamConfigurationWizard.h \
-	source/ui/beamline/camera/AMWizardManager.h
+	source/ui/beamline/camera/AMWizardManager.h \
 	source/ui/beamline/camera/AMSimpleSamplePlateWizard.h \
 	source/dataman/database/AMDbObjectDefinitions.h
 
@@ -1312,7 +1312,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/camera/AMAngle.cpp \
 	source/ui/dataman/AMSampleBriefView.cpp \
 	source/ui/beamline/camera/AMSimpleBeamConfigurationWizard.cpp \
-	source/ui/beamline/camera/AMWizardManager.cpp
+	source/ui/beamline/camera/AMWizardManager.cpp \
 	source/ui/beamline/camera/AMSimpleSamplePlateWizard.cpp
 
 # OS-specific files

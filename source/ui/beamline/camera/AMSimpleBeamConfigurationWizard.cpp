@@ -246,18 +246,24 @@ void AMSimpleBeamConfigurationWizard::moveBeamShapeHandler(QPointF point)
 
 void AMSimpleBeamConfigurationSetPage::initializePage()
 {
+	qDebug()<<"Start AMSimpleBeamConfigurationSetPage::initializePage";
 	AMViewPage::initializePage();
 	disconnectMouseSignal();
+	qDebug()<<"AMSimpleBeamConfigurationSetPage::initializePage - done disconnect";
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(selectShape(QPointF)));
 	connect(view(), SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(releaseShape()));
+	qDebug()<<"AMSimpleBeamConfigurationSetPage::initializePage - done connect";
 	emit initBeamShape();
+	qDebug()<<"Done AMSimpleBeamConfigurationSetPage::initializePage";
 }
 
 void AMSimpleBeamConfigurationWaitPage::initializePage()
 {
 	AMWaitPage::initializePage();
 	AMWaitPage::startTimer(1000);
+	qDebug()<<"About to call wait page AMSimpleBeamConfigurationWaitPage::initializePage";
 	viewWizard()->waitPage();
+	qDebug()<<"Done calling wait page AMSimpleBeamConfigurationWaitPage::initializePage";
 }
 
 

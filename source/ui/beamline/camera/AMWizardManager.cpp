@@ -170,6 +170,7 @@ void AMWizardManager::cameraWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		cameraWizard_->updateScene(view);
+		delete view;
 	}
 }
 
@@ -180,6 +181,7 @@ void AMWizardManager::beamWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		beamWizard_->updateScene(view);
+		delete view;
 	}
 }
 
@@ -190,6 +192,7 @@ void AMWizardManager::sampleWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		samplePlateWizard_->updateScene(view);
+		delete view;
 	}
 }
 
@@ -200,6 +203,7 @@ void AMWizardManager::rotationWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		rotationWizard_->updateScene(view);
+		delete view;
 	}
 }
 

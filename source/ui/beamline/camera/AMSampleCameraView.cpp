@@ -635,9 +635,13 @@ qDebug()<<"Leaving AMSampleCameraView::beamShape";
 
 void AMSampleCameraView::createBeamShape(int index)
 {
+	qDebug()<<"Start AMSampleCameraView::createBeamShape";
 	shapeModel_->createBeamShape(index);
+	qDebug()<<"2 AMSampleCameraView::createBeamShape";
 	refreshSceneView();
+	qDebug()<<"3 AMSampleCameraView::createBeamShape";
 	wizardManager_->beamWizardUpdate();
+	qDebug()<<"Done AMSampleCameraView::createBeamShape";
 }
 
 void AMSampleCameraView::moveBeamShape(QPointF point, int index)
@@ -727,13 +731,13 @@ void AMSampleCameraView::samplePlateCreate()
 
 	//		delete samplePlateWizard_;
 	//		samplePlateWizard_ = NULL;
-	emit samplePlateWizardFinished();
+	emit samplePlateWizardFinished(true);
 
 }
 
 void AMSampleCameraView::simpleSamplePlateCreate()
 {
-	emit samplePlateWizardFinished();
+	emit samplePlateWizardFinished(true);
 }
 
 void AMSampleCameraView::rotationConfiguration()

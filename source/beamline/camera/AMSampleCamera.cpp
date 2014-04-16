@@ -1542,6 +1542,13 @@ void AMSampleCamera::beamCalibrate()
 {
 	const int NUMBEROFRAYS = 4;
 	const int NUMBEROFMARKERS = 3;
+
+	for(int i = 0; i < NUMBEROFMARKERS; i++)
+	{
+		if(!beamMarkers_[i])
+			return;
+	}
+
 	QList<QVector3D> ray [NUMBEROFRAYS];
 	QVector<QVector3D> line [NUMBEROFRAYS];
 	for(int i = 0; i < NUMBEROFRAYS; i++)
@@ -1584,40 +1591,45 @@ void AMSampleCamera::beamCalibrate()
 
 void AMSampleCamera::createBeamShape(int index)
 {
-
+	qDebug()<<"Start AMSampleCamera::createBeamShape";
 	int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
 	AMShapeData* shapeToDelete;
+	qDebug()<<"Removing AMSampleCamera::createBeamShape";
 	if(isValid(removalIndex))
 	{
 				shapeToDelete = takeItem(removalIndex);
 				shapeToDelete->deleteLater();
 	}
-
+	qDebug()<<"Done Removing AMSampleCamera::createBeamShape";
 	startRectangle(QPointF(0.5,0.5));
+	qDebug()<<"Done StartRect AMSampleCamera::createBeamShape";
 	beamMarkers_[index] = shapeList_[index_];
 	beamMarkers_[index]->setName(QString("Beam Shape %1").arg(index + 1));
+	qDebug()<<"Done init beammark AMSampleCamera::createBeamShape";
 	QVector3D topRight = getWidthNormal(beamMarkers_[index]);
 	QVector3D base = beamMarkers_[index]->coordinate(TOPLEFT);
 	QVector3D bottomLeft = -0.1*getHeightNormal(beamMarkers_[index]);
+	qDebug()<<"Done setting vectors AMSampleCamera::createBeamShape";
 	beamMarkers_[index]->setCoordinate((base+topRight),TOPRIGHT);
 	beamMarkers_[index]->setCoordinate((base+bottomLeft),BOTTOMLEFT);
 	beamMarkers_[index]->setCoordinate(base+bottomLeft+topRight, BOTTOMRIGHT);
+	qDebug()<<"Done setting shape AMSampleCamera::createBeamShape";
 	for(int i = 0; i < 3; i++)
 	{
-		beamMarkers_[i]->setVisible(i == index);
+		if(beamMarkers_[i] && i != index)
+			beamMarkers_[i]->setVisible(false);
 	}
+	qDebug()<<"Done AMSampleCamera::createBeamShape";
 }
 
 void AMSampleCamera::moveBeamShape(QPointF point, int index)
 {
-	qDebug()<<"AMSampleCamera::moveBeamShape";
 	int shapeIndex = shapeList().indexOf(beamMarkers_[index]);
 	moveCurrentShape(point,shapeIndex);
 }
 
 void AMSampleCamera::beamMousePressed(QPointF point, int index)
 {
-	qDebug()<<"AMSampleCamera::beamMousePressed";
 	setShapeVectors(point);
 }
 
