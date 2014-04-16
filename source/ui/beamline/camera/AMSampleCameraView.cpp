@@ -1576,6 +1576,7 @@ void AMSampleCameraView::initializeSampleShape()
 	{
 		for(int j = 0; j < 3; j++)
 		{
+			qDebug() << "Looking into vector " << 3*i+j;
 			vectorValues[3*i+j] = simpleSamplePlateLineEdit_[3*i+j]->text().toDouble(ok);
 			goodConversion &= *ok;
 		}
@@ -2160,6 +2161,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	labels[0] = "Base    ";
 	labels[1] = "Width ";
 	labels[2] = "Height";
+	qDebug() << "\n\n\n";
 	for(int i = 0; i < numberOfVectors; i++)
 	{
 		simpleSamplePlateHorizontalLayouts[i] = new QHBoxLayout();
@@ -2167,15 +2169,20 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 		for(int j = 0; j < dimensions; j++)
 		{
 			simpleSamplePlateHorizontalLayouts[i]->addWidget(simpleSamplePlateLineEdit_[dimensions*i+j]= new QLineEdit("0.0"));
+			qDebug() << "Instantiating lineEdit " << dimensions*i+j;
 		}
 		simpleSamplePlateHorizontalFrame[i] = new QFrame();
 		simpleSamplePlateHorizontalFrame[i]->setLayout(simpleSamplePlateHorizontalLayouts[i]);
 		simpleSamplePlateVerticalLayout->addWidget(simpleSamplePlateHorizontalFrame[i]);
 	}
+	qDebug() << "\n\n\n";
 	simpleSamplePlateConfiguration_->setLayout(simpleSamplePlateVerticalLayout);
 	/// set default width to 20 and height to -20
-	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(20.0));
-	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-20.0));
+	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(18.0));
+	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-19.0));
+
+	simpleSamplePlateLineEdit_[0]->setText(QString("%1").arg(-0.189115));
+	simpleSamplePlateLineEdit_[1]->setText(QString("%1").arg(1.84485));
 
 
 	configurationWindow_ = new QFrame();
