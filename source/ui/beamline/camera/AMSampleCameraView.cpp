@@ -418,6 +418,11 @@ void AMSampleCameraView::onEnableMotorTrackingChanged(bool isEnabled){
 }
 
 void AMSampleCameraView::onOffsetTypeComboBoxCurrentIndexChanged(const QString &text){
+	if(text == "No Offset")
+		shapeModel_->setUseSampleOffset(false);
+	else
+		shapeModel_->setUseSampleOffset(true);
+
 	if(text == "User Offset")
 		offsetValueSpinBox_->setEnabled(true);
 	else{
@@ -2113,11 +2118,11 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	qDebug() << "\n\n\n";
 	simpleSamplePlateConfiguration_->setLayout(simpleSamplePlateVerticalLayout);
 	/// set default width to 20 and height to -20
-	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(18.0));
+	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(18.5));
 	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-19.0));
 
-	simpleSamplePlateLineEdit_[0]->setText(QString("%1").arg(-0.189115));
-	simpleSamplePlateLineEdit_[1]->setText(QString("%1").arg(1.84485));
+	simpleSamplePlateLineEdit_[0]->setText(QString("%1").arg(0.892415));
+	simpleSamplePlateLineEdit_[1]->setText(QString("%1").arg(2.0568));
 
 
 	configurationWindow_ = new QFrame();

@@ -2244,7 +2244,7 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	sampleOffset_ = 0;
 //	sampleOffset_ = 0.80;
 //	sampleOffset_ = 8.80;
-	useSampleOffset_ = true;
+//	useSampleOffset_ = true;
 
 	distortion_ = true;
 
