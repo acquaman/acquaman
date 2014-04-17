@@ -7,24 +7,27 @@
 
 class QTimer;
 class QGraphicsLineItem;
-class AMSampleCamera;
-class AMCameraConfiguration;
 class QCheckBox;
-class AMColorPickerButton2;
+class QComboBox;
+class QDoubleSpinBox;
 class QSlider;
-class AMSampleCameraGraphicsView;
-class AMShapeDataView;
 class QPushButton;
 class QLineEdit;
-class AMCameraConfigurationView;
-class AMBeamConfigurationView;
 class QColor;
 class QToolBar;
 class QAction;
-class AMGraphicsTextItem;
 class QCompleter;
 class QStringListModel;
 class QMediaPlayer;
+
+class AMSampleCamera;
+class AMCameraConfiguration;
+class AMColorPickerButton2;
+class AMSampleCameraGraphicsView;
+class AMShapeDataView;
+class AMCameraConfigurationView;
+class AMBeamConfigurationView;
+class AMGraphicsTextItem;
 class AMGraphicsViewWizard;
 class AMCameraConfigurationWizard;
 class AMBeamConfigurationWizard;
@@ -414,6 +417,8 @@ protected slots:
 	void onEnableMotorMovementChanged(bool isEnabled);
 	void onEnableMotorTrackingChanged(bool isEnabled);
 
+	void onOffsetTypeComboBoxCurrentIndexChanged(const QString &text);
+
 protected:
 
 
@@ -574,6 +579,11 @@ protected:
 	QAction* viewOtherData_;
 	QAction* viewIdNumber_;
 	QAction* viewHidden_;
+
+	/// Combo box for the type of offset we're using (plate, wafer, or user defined)
+	QComboBox *offsetTypeComboBox_;
+	/// Actual offset value (uneditable when plate or wafer)
+	QDoubleSpinBox *offsetValueSpinBox_;
 
 	QPushButton* distortionButton_;
 
