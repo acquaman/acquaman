@@ -9,7 +9,7 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 	: AMGraphicsViewWizard(parent)
 {
 //	/ need only two points to calculate since the first one (rotation == 0) is inherently known
-	setNumberOfPoints(2);
+	setNumberOfPoints(3);
 	setNumberOfPages(numberOfPoints());
 	setFreePage(Page_Free);
 	/// allow rotation during wizard operation
@@ -23,10 +23,10 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 	}
 
 	/// add some rotations
-//	rotationsAppend(-20);
+	rotationsAppend(-30);
 //	rotationsAppend(-10);
 	rotationsAppend( 10);
-	rotationsAppend( 40);
+	rotationsAppend( 50);
 //	rotationsAppend( 50);
 
 

@@ -1941,9 +1941,10 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	/// This may not make sense - requires that your are clicking on the point 0,0,0
 	QVector3D centreOfRotationOffset = matrixToVector(solution);
 //	centreOfRotation = centreOfRotation
+	QVector3D centreOfRotation = coordinates.at(0) - centreOfRotationOffset;
 //	QVector3D centreOfRotation = coordinates.at(0) + centreOfRotationOffset;
 	qDebug()<<centreOfRotationOffset;
-	setRotationalOffset(centreOfRotationOffset);
+	setRotationalOffset(centreOfRotation - coordinates.at(0));
 	updateView();
 
 }
@@ -2476,6 +2477,7 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 /// \param rotation: the amount to rotate by, in radians
 QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const
 {
+	/* this might be where the rotation problem lies */
 	/// try using a matrix approach instead, it is much cleaner and easier to follow
 	return rotateCoordinateByMatrix(coordinate, center, direction, rotation);
 	/// not sure if the approach below is correct, it is based off the the general
@@ -2639,10 +2641,12 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
         QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
 
+	qDebug()<<"AMSampleCamera::motorMovement centre of rotation is"<<centerOfRotation_;
+
 	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
 	QVector3D effectiveRotationalOffset = rotationalOffset();
 //	if(r < 0)
-		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
+//		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
 	//QVector3D centerOfRotation = newPosition + rotationalOffset();
 
 	QVector3D centerOfRotation = newPosition + effectiveRotationalOffset;
