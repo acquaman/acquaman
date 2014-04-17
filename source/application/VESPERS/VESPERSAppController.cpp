@@ -342,6 +342,10 @@ void VESPERSAppController::setupUserInterface()
 
 	// Setup energy scans for the beamline.  Builds the config, view, and view holder.
 	energyScanConfiguration_ = new VESPERSEnergyScanConfiguration();
+	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
+	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1000);
+	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(20000);
+	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
 //	energyScanConfiguration_->addRegion(0, 10000, 1000, 20000, 1);
 //	energyScanConfiguration_->regions()->setUnits(0, " eV");
 //	energyScanConfiguration_->regions()->setTimeUnits(0, " s");

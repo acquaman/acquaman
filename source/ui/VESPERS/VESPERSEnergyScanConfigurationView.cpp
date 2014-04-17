@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "ui/dataman/AMStepScanAxisView.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -41,6 +42,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMTopFrame *frame = new AMTopFrame("VESPERS Energy Scan Configuration");
 
 	// Regions setup
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView(config_);
 
 	// The CCD detector setup.
 	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
@@ -110,6 +112,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Setting up the layout.
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
 	topRowLayout->addStretch();
+	topRowLayout->addWidget(regionsView);
 	topRowLayout->addWidget(ccdDetectorGroupBox);
 	topRowLayout->addWidget(goToPositionGroupBox);
 	topRowLayout->addStretch();
