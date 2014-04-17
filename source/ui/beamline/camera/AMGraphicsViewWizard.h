@@ -179,7 +179,7 @@ public slots:
 
 signals:
 	/// emitted when finished
-    void done();
+	void done(int result);
 	/// emitted when non-rotating move requested
     void moveTo(QVector3D);
 	/// emitted when rotating move requested
