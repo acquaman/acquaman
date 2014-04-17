@@ -30,19 +30,20 @@ SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 	lightLevelSpinBox_ = new QDoubleSpinBox();
 	lightLevelSpinBox_->setRange(0, 100);
 
-	QHBoxLayout *lightsHL = new QHBoxLayout();
-	lightsHL->addWidget(lightsOffButton_);
-	lightsHL->addWidget(lightsOnButton_);
-	lightsHL->addWidget(new QLabel("Illumination %"));
-	lightsHL->addWidget(lightLevelSpinBox_);
-	lightsHL->addStretch();
+	QHBoxLayout *lightsTopHL = new QHBoxLayout();
+	lightsTopHL->addWidget(lightsOffButton_);
+	lightsTopHL->addWidget(lightsOnButton_);
+	lightsTopHL->addStretch();
+	QHBoxLayout *lightsBottomHL = new QHBoxLayout();
+	lightsBottomHL->addWidget(new QLabel("Illumination %"));
+	lightsBottomHL->addWidget(lightLevelSpinBox_);
+	lightsBottomHL->addStretch();
 
 	QVBoxLayout *lightTransferVL = new QVBoxLayout();
-	lightTransferVL->addLayout(lightsHL);
+	lightTransferVL->addLayout(lightsTopHL);
+	lightTransferVL->addLayout(lightsBottomHL);
 	lightTransferVL->addLayout(transferMeasureHL);
-
-//	leftVL_->addLayout(lightsHL);
-//	leftVL_->addLayout(transferMeasureHL);
+	lightTransferVL->addStretch();
 
 	leftVL_->removeWidget(motorGroupView_);
 	QHBoxLayout *lowerLeftHL = new QHBoxLayout();
