@@ -1,47 +1,45 @@
  #include "AMSampleCameraView.h"
+
+#include <limits>
+
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
-
 #include <QMap>
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
-#include "beamline/camera/AMSampleCamera.h"
-#include "beamline/camera/AMCameraConfiguration.h"
-
+#include <QDoubleSpinBox>
+#include <QComboBox>
 #include <QSlider>
 #include <QCheckBox>
-#include "ui/AMColorPickerButton2.h"
-
 #include <QBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
-
-#include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
-
-#include "ui/beamline/camera/AMShapeDataView.h"
 #include <QPushButton>
 #include <QLineEdit>
-
-#include "ui/beamline/camera/AMCameraConfigurationView.h"
-#include "ui/beamline/camera/AMBeamConfigurationView.h"
 #include <QColor>
-
 #include <QTimer>
 #include <QTextDocument>
-
 #include <QToolBar>
 #include <QAction>
 #include <QActionGroup>
-
 #include <QCompleter>
 #include <QStringListModel>
-
-#include "ui/AMGraphicsTextItem.h"
 #include <QMediaPlayer>
 #include <QPainterPath>
 
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/AMSample.h"
+#include "beamline/camera/AMRotationalOffset.h"
+#include "beamline/AMBeamline.h"
+#include "beamline/camera/AMAngle.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
+#include "ui/beamline/camera/AMShapeDataView.h"
+#include "ui/beamline/camera/AMCameraConfigurationView.h"
+#include "ui/beamline/camera/AMBeamConfigurationView.h"
 #include "ui/beamline/camera/AMGraphicsViewWizard.h"
 #include "ui/beamline/camera/AMCameraConfigurationWizard.h"
 #include "ui/beamline/camera/AMBeamConfigurationWizard.h"
@@ -49,18 +47,9 @@
 #include "ui/beamline/camera/AMSamplePlateWizard.h"
 #include "ui/beamline/camera/AMSimpleSamplePlateWizard.h"
 #include "ui/beamline/camera/AMRotationWizard.h"
-
-#include <limits>
-
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMSample.h"
-
-#include "beamline/camera/AMRotationalOffset.h"
-
-#include "beamline/AMBeamline.h"
-#include "beamline/camera/AMAngle.h"
-
 #include "ui/beamline/camera/AMWizardManager.h"
+#include "ui/AMColorPickerButton2.h"
+#include "ui/AMGraphicsTextItem.h"
 
 #define SAMPLEPOINTS 6
 
@@ -426,6 +415,20 @@ void AMSampleCameraView::onEnableMotorMovementChanged(bool isEnabled){
 void AMSampleCameraView::onEnableMotorTrackingChanged(bool isEnabled){
 	if(enableMotorTracking_->isChecked() != isEnabled)
 		enableMotorTracking_->setChecked(isEnabled);
+}
+
+void AMSampleCameraView::onOffsetTypeComboBoxCurrentIndexChanged(const QString &text){
+	if(text == "User Offset")
+		offsetValueSpinBox_->setEnabled(true);
+	else{
+		offsetValueSpinBox_->setEnabled(false);
+		if(text == "No Offset")
+			offsetValueSpinBox_->setValue(0.00);
+		else if(text == "Wafer Offset")
+			offsetValueSpinBox_->setValue(0.80);
+		else if(text == "Plate Offset")
+			offsetValueSpinBox_->setValue(0.75);
+	}
 }
 
 void AMSampleCameraView::showConfigurationWindow()
@@ -2053,20 +2056,33 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 
 	QVBoxLayout *vbl = new QVBoxLayout();
 	vbl->setContentsMargins(frameMargins);
-	//vbl->addWidget(crosshairFrame);
 	vbl->addWidget(shapeScene_);
+
 	QHBoxLayout *toolBarHL = new QHBoxLayout();
 	toolBarHL->addWidget(shapeFrame);
 	toolBarHL->addWidget(toolFrame);
 	toolBarHL->setContentsMargins(frameMargins);
 	vbl->addLayout(toolBarHL);
+
 	QHBoxLayout *drawOverlaysLayout = new QHBoxLayout();
 	drawOverlaysLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show Beam"));
 	drawOverlaysLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
 	drawOverlaysLayout->addStretch();
-	vbl->addLayout(drawOverlaysLayout);
-	//vbl->addWidget(shapeFrame);
-	//vbl->addWidget(toolFrame);
+	toolBarHL->addLayout(drawOverlaysLayout);
+
+	QHBoxLayout *sampleOffsetLayout = new QHBoxLayout();
+	offsetTypeComboBox_ = new QComboBox();
+	offsetTypeComboBox_->insertItems(0, QStringList() << "No Offset" << "Wafer Offset" << "Plate Offset" << "User Offset");
+	offsetValueSpinBox_ = new QDoubleSpinBox();
+	offsetValueSpinBox_->setRange(-2.5, 2.5);
+	offsetValueSpinBox_->setEnabled(false);
+	offsetValueSpinBox_->setValue(0.00);
+	connect(offsetTypeComboBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onOffsetTypeComboBoxCurrentIndexChanged(QString)));
+	connect(offsetValueSpinBox_, SIGNAL(valueChanged(double)), shapeModel_, SLOT(setSamplePlateOffset(double)));
+	sampleOffsetLayout->addWidget(offsetTypeComboBox_);
+	sampleOffsetLayout->addWidget(offsetValueSpinBox_);
+	toolBarHL->addLayout(sampleOffsetLayout);
+
 	setLayout(vbl);
 
 	const int numberOfVectors = 3;
