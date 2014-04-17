@@ -2064,7 +2064,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	drawOverlaysLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show Beam"));
 	drawOverlaysLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
 	drawOverlaysLayout->addStretch();
-	vbl->addLayout(drawOverlaysLayout);
+	//vbl->addLayout(drawOverlaysLayout);
+	toolBarHL->addLayout(drawOverlaysLayout);
 	//vbl->addWidget(shapeFrame);
 	//vbl->addWidget(toolFrame);
 	setLayout(vbl);
