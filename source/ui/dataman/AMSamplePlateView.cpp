@@ -370,7 +370,7 @@ void AMSamplePlateView::onRowMoreInfoPressed(int row){
 
 void AMSamplePlateView::onRowClosedPressed(int row){
 	emit sampleAboutToBeRemoved(row);
-//	samplePlate_->removeSample(samplePlate_->sampleAt(row));
+	samplePlate_->removeSample(samplePlate_->sampleAt(row));
 }
 
 void AMSamplePlateView::onSamplePlateModifiedChanged(bool isModified){

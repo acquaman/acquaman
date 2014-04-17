@@ -26,10 +26,6 @@ public:
 
 	virtual QString message(int);
 
-//	int relativeId();
-
-	//	virtual void waitPage();
-
 	void showBeamShape();
 
 	bool setting();
@@ -38,8 +34,6 @@ public:
 
 public slots:
 	void back();
-
-//	void next();
 
 	virtual void addPoint(QPointF position);
 

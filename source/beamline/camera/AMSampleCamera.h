@@ -50,8 +50,7 @@ public:
 
 	/// access to the AMSampleCamera
 	static AMSampleCamera* set();
-
-	/// Define axis names for convenience
+ /// Define axis names for convenience
 	enum AxisDirection {XAXIS,YAXIS,ZAXIS};
 
 	/// Accessors
@@ -405,6 +404,10 @@ public slots:
 
 	void beamCalibrate();
 
+	void createBeamShape(int index);
+
+	void moveBeamShape(QPointF point, int index);
+	void beamMousePressed(QPointF point, int index);
 
 	void setSamplePlate();
 	void setSamplePlate(AMShapeData* samplePlate);

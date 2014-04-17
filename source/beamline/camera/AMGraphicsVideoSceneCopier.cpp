@@ -167,7 +167,7 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
 {
     if(itemToUpdate->type() != itemToCopy->type())
     {
-        qDebug()<<itemToUpdate->type()<<"!="<<itemToCopy->type();
+		qDebug()<<"AMGraphicsVideoSceneCopier::updateItem"<<itemToUpdate->type()<<"!="<<itemToCopy->type();
         bool textTypes;
         textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == AMGraphicsTextItem::Type) || (itemToUpdate->type() == AMGraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
         if(!textTypes)
