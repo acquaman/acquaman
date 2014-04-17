@@ -36,6 +36,7 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 	motorGroupLayout_->addLayout(leftVL);
 	motorGroupLayout_->addStretch(10);
+	motorGroupLayout_->addLayout(bottomHL);
 	motorGroupLayout_->addLayout(absoluteValueLayout_);
 
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
@@ -100,11 +101,11 @@ void SGMSampleManipulatorMotorGroupObjectView::onThirdControlSetpoint(){
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCWClicked(){
-	motorGroupObject_->controlAt(3)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
+	motorGroupObject_->controlAt(3)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onRotateCCWClicked(){
-	motorGroupObject_->controlAt(3)->moveRelative(-jog_->value(), AMControl::RelativeMoveFromSetpoint);
+	motorGroupObject_->controlAt(3)->moveRelative(jog_->value(), AMControl::RelativeMoveFromSetpoint);
 }
 
 void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){

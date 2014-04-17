@@ -6,6 +6,7 @@
 #include <QLabel>
 
 #include "beamline/SGM/SGMBeamline.h"
+#include "ui/SGM/SGMSampleManipulatorMotorGroupView.h"
 
 SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 	AMBeamlineSampleManagementView(SGMBeamline::sgm(), SGMBeamline::sgm()->motorGroup(), parent)
@@ -36,8 +37,18 @@ SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 	lightsHL->addWidget(lightLevelSpinBox_);
 	lightsHL->addStretch();
 
-	leftVL_->addLayout(lightsHL);
-	leftVL_->addLayout(transferMeasureHL);
+	QVBoxLayout *lightTransferVL = new QVBoxLayout();
+	lightTransferVL->addLayout(lightsHL);
+	lightTransferVL->addLayout(transferMeasureHL);
+
+//	leftVL_->addLayout(lightsHL);
+//	leftVL_->addLayout(transferMeasureHL);
+
+	leftVL_->removeWidget(motorGroupView_);
+	QHBoxLayout *lowerLeftHL = new QHBoxLayout();
+	lowerLeftHL->addWidget(motorGroupView_);
+	lowerLeftHL->addLayout(lightTransferVL);
+	leftVL_->addLayout(lowerLeftHL);
 
 	connect(transferPositionButton_, SIGNAL(clicked()), this, SLOT(onTransferPositionButtonClicked()));
 	connect(measurePositionButton_, SIGNAL(clicked()), this, SLOT(onMeasurePositionButtonClicked()));
