@@ -899,6 +899,10 @@ void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 void AMSampleCameraView::onSamplePlateWizardFinished(bool requiresSave)
 {
 	showSamplePlate_->setChecked(true);
+
+	drawOnShapeCheckBox_->setChecked(true);
+	setDrawOnShapeEnabled(true);
+
 	if(requiresSave)
 		shapeModel_->saveSamplePlate();
 }

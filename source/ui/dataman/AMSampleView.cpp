@@ -148,6 +148,7 @@ AMSampleView::AMSampleView(AMSample *sample, QWidget *parent) :
 	AMSampleReadOnlyView(sample, parent)
 {
 	sample_ = 0; //NULL
+	advancedView_ = 0; //NULL
 
 	/// set up gui
 	removeTagButton_ = new QPushButton("Remove Tag");
@@ -160,7 +161,11 @@ AMSampleView::AMSampleView(AMSample *sample, QWidget *parent) :
 		if(sampleViewLayout_->itemAt(x) == elementLayoutItem_)
 			sampleViewLayout_->insertWidget(x+1, showElementDialog_);
 
-	sampleViewLayout_->addWidget(saveToDb_ = new QPushButton("Save to Database"));
+	moreInfoButton_ = new QPushButton("More Info");
+	saveToDb_ = new QPushButton("Save to Database");
+
+	sampleViewLayout_->addWidget(moreInfoButton_);
+	sampleViewLayout_->addWidget(saveToDb_);
 	sampleViewLayout_->addStretch();
 
 	nameText_->setEnabled(true);
@@ -174,6 +179,7 @@ AMSampleView::AMSampleView(AMSample *sample, QWidget *parent) :
 	connect(tagBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentTag()));
 	connect(removeTagButton_, SIGNAL(clicked()), this, SLOT(removeTag()));
 	connect(notesText_, SIGNAL(textChanged()), this, SLOT(setNotes()));
+	connect(moreInfoButton_, SIGNAL(clicked()), this, SLOT(onMoreInfoButtonClicked()));
 	connect(saveToDb_, SIGNAL(clicked()), this, SLOT(saveToDb()));
 	connect(showElementDialog_, SIGNAL(clicked()), this, SLOT(showPeriodicTable()));
 	setSample(sample);
@@ -301,6 +307,12 @@ void AMSampleView::closeEvent(QCloseEvent *event){
 	QWidget::closeEvent(event);
 }
 
+void AMSampleView::onMoreInfoButtonClicked(){
+	if(!advancedView_ && sample_)
+		advancedView_ = new AMSampleAdvancedView(sample_);
+	advancedView_->show();
+}
+
 void AMSampleView::saveToDb()
 {
 	AMDatabase* db = AMDatabase::database("user");
@@ -312,83 +324,16 @@ void AMSampleView::saveToDb()
 AMSampleAdvancedView::AMSampleAdvancedView(AMSample *sample, QWidget *parent) :
 	AMSampleView(sample, parent)
 {
-	shapeDataView_ = new AMShapeDataView(sample_->sampleShapePositionData());
-//	viewLayout_->addWidget(shapeDataView_);
-	sampleViewLayout_->addWidget(shapeDataView_);
+	moreInfoButton_->hide();
 
-	sampleLoader_ = new QComboBox();
-	sampleViewLayout_->addWidget(sampleLoader_);
-	sampleViewLayout_->addSpacing(20);
-	connect(sampleLoader_, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadSample(QString)));
+	shapeDataView_ = new AMShapeDataView(sample_->sampleShapePositionData());
+	sampleViewLayout_->addWidget(shapeDataView_);
 
 	if(sample_)
 		connect(sample_, SIGNAL(sampleShapeDataChanged()), this, SLOT(onSampleShapeDataChanged()));
-
-	populateSampleLoader();
 }
 
 void AMSampleAdvancedView::onSampleShapeDataChanged()
 {
 	shapeDataView_->setShapeData(sample_->sampleShapePositionData());
-}
-
-void AMSampleAdvancedView::loadSample(QString sampleName)
-{
-	AMDatabase* db = AMDatabase::database("user");
-	QList<int> matchIDs = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", sampleName);
-	if(matchIDs.count() == 0)
-	{
-		qDebug()<<"AMSampleEthanView::loadSample - No match found for sample: "<<sampleName;
-	}
-	else
-	{
-		int sampleId;
-		if(matchIDs.count() > 1)
-		{
-			int currentIndex = sampleLoader_->currentIndex();
-			QList<int> indexList;
-			for(int i = 0; i < sampleLoader_->count(); i++)
-			{
-				if(sampleLoader_->itemText(i) == sampleName)
-					indexList<<i;
-			}
-			int relativeIndex = indexList.indexOf(currentIndex);
-
-			sampleId = relativeIndex;
-		}
-		else
-		{
-			sampleId = 0;
-		}
-		bool success = sample_->loadFromDb(db,matchIDs.at(sampleId));
-		if(!success) qDebug()<<"AMSampleEthanView::loadSample - Failed to load sample from database.";
-	}
-	initializeSampleViewData();
-}
-
-void AMSampleAdvancedView::saveToDb(){
-	AMSampleView::saveToDb();
-	populateSampleLoader();
-}
-
-void AMSampleAdvancedView::populateSampleLoader()
-{
-	int currentIndex = sampleLoader_->currentIndex();
-	QString currentSampleName = nameText_->text();
-	sampleLoader_->blockSignals(true);
-	sampleLoader_->clear();
-	sampleLoader_->blockSignals(false);
-	AMDatabase* db = AMDatabase::database("user");
-	QList<QVariant> nameList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name");
-	foreach(QVariant item, nameList)
-	{
-		sampleLoader_->addItem(item.toString());
-	}
-	sampleLoader_->setCurrentIndex(currentIndex);
-	if(sampleLoader_->itemText(currentIndex) != currentSampleName)
-	{
-		// samples are in a different order
-		qDebug()<<"AMSampleView::populateSampleLoader - Samples out of order";
-		sampleLoader_->setCurrentIndex(-1);
-	}
 }
