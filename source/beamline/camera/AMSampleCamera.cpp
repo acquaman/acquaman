@@ -1715,6 +1715,8 @@ void AMSampleCamera::setSimpleSamplePlate(QVector3D base, QVector3D width, QVect
 	updateShape(simpleSamplePlate);
 	/// set the shape data as a sample plate
 	setSamplePlate(simpleSamplePlate);
+	/// fix oldRotation_
+	oldRotation_->setDegrees(motorRotation()->degrees());
 }
 
 /// Create the sample plate using the 3D and 2D information, plus rotations, provided by the
@@ -1856,12 +1858,18 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 	/// since a particular point is always known, it should not be used in configuration
 	/// instead, use a series of points in reference to known points
-	/// i.e offset-rotatedOffset=rotatedPoint -original point
-	/// ... offset-rotatedOffset-tnvn=Bn-Cn
+	/// i.e rotatedOffset-offset=rotatedPoint -original point
+	/// ... rotatedOffset-offset-tnvn=Bn-Cn
 	/// need only two points to solve for this
 
-	/// if we cut out the coordinates, can do it arbitarily in 3 points.
-	/// CoR+ln-vntn...=Bn
+	/// better - maybe?
+	/// offset (rotational Offset - vector from motor coordinate to CoR)
+	/// ln (offset of test coordinate from centre of rotation)
+	/// Bn+tnvn (test coordinate, determined through 2D transformation(tn not known))
+	/// MCn motor coordinate at test coordinate n)
+	/// offset - ln -tnvn = Bn -MCn
+	/// rotationalOffset = offset
+
 
 	if(numberOfPoints != coordinates.count() || numberOfPoints != points.count() || numberOfPoints != rotations.count())
 	{
@@ -1884,7 +1892,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	for(int i = 0; i < numberOfPoints; i++)
 	{
 
-		lines<<findScreenVector(undistortPoint(points.at(i)),coordinates.at(i),coordinates.at(i) + QVector3D(i+1,i+1,i+1));
+		lines<<findScreenVector((points.at(i)),coordinates.at(i),coordinates.at(i) + QVector3D(i+1,i+1,i+1));
 		qDebug()<<points.at(i);
 	}
 	QVector<QVector3D> bases,vectors;
@@ -1930,11 +1938,13 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 //	qDebug()<<"Expected it to be "<<directionOfRotation_;
 
 
-	/// This may not make sense
-	QVector3D centreOfRotation = matrixToVector(solution);
+	/// This may not make sense - requires that your are clicking on the point 0,0,0
+	QVector3D centreOfRotationOffset = matrixToVector(solution);
 //	centreOfRotation = centreOfRotation
-	qDebug()<<centreOfRotation;
-	setRotationalOffset(centreOfRotation);
+	QVector3D centreOfRotation = coordinates.at(0) - centreOfRotationOffset;
+//	QVector3D centreOfRotation = coordinates.at(0) + centreOfRotationOffset;
+	qDebug()<<centreOfRotationOffset;
+	setRotationalOffset(centreOfRotation - coordinates.at(0));
 	updateView();
 
 }
@@ -2467,6 +2477,7 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 /// \param rotation: the amount to rotate by, in radians
 QVector3D AMSampleCamera::rotateCoordinate(QVector3D coordinate, QVector3D center, QVector3D direction, AMAngle rotation) const
 {
+	/* this might be where the rotation problem lies */
 	/// try using a matrix approach instead, it is much cleaner and easier to follow
 	return rotateCoordinateByMatrix(coordinate, center, direction, rotation);
 	/// not sure if the approach below is correct, it is based off the the general
@@ -2630,10 +2641,12 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
         QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
 
+	qDebug()<<"AMSampleCamera::motorMovement centre of rotation is"<<centerOfRotation_;
+
 	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
 	QVector3D effectiveRotationalOffset = rotationalOffset();
 //	if(r < 0)
-		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
+//		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
 	//QVector3D centerOfRotation = newPosition + rotationalOffset();
 
 	QVector3D centerOfRotation = newPosition + effectiveRotationalOffset;
