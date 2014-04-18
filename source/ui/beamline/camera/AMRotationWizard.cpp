@@ -125,7 +125,7 @@ QString AMRotationWizard::message(int type)
 		case Title:
 			return QString(tr("Centre of Rotation Configuration Wizard"));
 		case Text:
-			return QString(tr("This wizard is used to determine the centre of rotaiton of")
+			return QString(tr("This wizard is used to determine the centre of rotation of")
 						   +tr(" the sample plate.  This is required for accurate tracking when rotations occur."));
 		case Help:
 			return QString(tr("Rotation Wizard intro page help message"));
