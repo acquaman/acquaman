@@ -246,6 +246,14 @@ public slots:
 	/// handles loading in an old sample plate
 	void onSamplePlateLoaded(AMSamplePlate* plate);
 
+	/// Allows external access so others can set the motor controls we'll use for the X motor
+	void setSSAManipulatorX(AMControl *ssaManipulatorX);
+	/// Allows external access so others can set the motor controls we'll use for the Y motor
+	void setSSAManipulatorY(AMControl *ssaManipulatorY);
+	/// Allows external access so others can set the motor controls we'll use for the Z motor
+	void setSSAManipulatorZ(AMControl *ssaManipulatorZ);
+	/// Allows external access so others can set the motor controls we'll use for the rotation motor
+	void setSSAManipulatorRot(AMControl *ssaManipulatorRot);
 
 
 public:

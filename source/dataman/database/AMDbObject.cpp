@@ -333,8 +333,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 			AMDbObjectList objList = property(columnName).value<AMDbObjectList>();
 			QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
-			// delete old entries for this object and property:
-			db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
+			// delete old entries for this object and property if necessary:
+			QList<int> matchList = db->objectsMatching(auxTableName, "id1", id());
+			if(matchList.count() > 0)
+				db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
 
 			QStringList clist;
 			clist << "id1" << "table1" << "id2" << "table2";
@@ -365,8 +367,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 			AMConstDbObjectList objList = property(columnName).value<AMConstDbObjectList>();
 			QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
-			// delete old entries for this object and property:
-			db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
+			// delete old entries for this object and property if necessary:
+			QList<int> matchList = db->objectsMatching(auxTableName, "id1", id());
+			if(matchList.count() > 0)
+				db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
 
 			QStringList clist;
 			clist << "id1" << "table1" << "id2" << "table2";

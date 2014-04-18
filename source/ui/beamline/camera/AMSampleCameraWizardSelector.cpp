@@ -62,7 +62,8 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	loadBeamConfigurationButton_->setEnabled(false);
 
 	reloadAllLayout->addStretch();
-	reloadAllLayout->addWidget(loadAllConfigurationsButton_ = new QPushButton("Reload All"));
+	loadAllConfigurationsButton_ = new QPushButton("Reload All");
+	reloadAllLayout->addWidget(loadAllConfigurationsButton_);
 	reloadAllFrame->setLayout(reloadAllLayout);
 
 	sampleCameraWizardSelectorLayout->addWidget(cameraWizardFrame);

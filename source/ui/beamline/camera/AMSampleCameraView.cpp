@@ -898,6 +898,10 @@ void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 void AMSampleCameraView::onSamplePlateWizardFinished(bool requiresSave)
 {
 	showSamplePlate_->setChecked(true);
+
+	drawOnShapeCheckBox_->setChecked(true);
+	setDrawOnShapeEnabled(true);
+
 	if(requiresSave)
 		shapeModel_->saveSamplePlate();
 }
@@ -2159,10 +2163,10 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	simpleSamplePlateConfiguration_->setLayout(simpleSamplePlateVerticalLayout);
 	/// set default width to 20 and height to -20
 	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(18.5));
-	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-19.0));
+	simpleSamplePlateLineEdit_[8]->setText(QString("%1").arg(-19.5));
 
-	simpleSamplePlateLineEdit_[0]->setText(QString("%1").arg(0.892415));
-	simpleSamplePlateLineEdit_[1]->setText(QString("%1").arg(2.0568));
+	simpleSamplePlateLineEdit_[0]->setText(QString("%1").arg(0.0));
+	simpleSamplePlateLineEdit_[1]->setText(QString("%1").arg(0.0));
 
 
 	configurationWindow_ = new QFrame();

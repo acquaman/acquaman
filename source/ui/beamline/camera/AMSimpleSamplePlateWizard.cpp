@@ -112,11 +112,13 @@ QString AMSimpleSamplePlateWizard::message(int type)
 		switch(type)
 		{
 			case Title:
-				return QString(tr("Message - intro page - Title"));
+				return QString(tr("Introduction to Sample Plate Wizard"));
 			case Text:
-				return QString(tr("Message - intro page - Text"));
+			return QString(tr("On the first page, grab the box and move it so that the light blue box outlines the sample plate."));
 			case Help:
-				return QString(tr("Message - intro page - Help text"));
+				return QString(tr("This is the sample plate configuration wizard, which is designed to ensure that your plate is properly")
+					       + tr(" aligned in the outer sample holder.  To start the calibration")
+					       + tr(" select next on this page."));
 			case Other:
 			case Default:
 			default:
@@ -140,11 +142,11 @@ QString AMSimpleSamplePlateWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Message - final page - Title"));
+				return QString(tr("Calibration Complete"));
 			case Text:
-				return QString(tr("Message - final page - Text"));
+				return QString(tr("The calibration has been completed and the sample plate is ready.  Select 'Finish' to exit the calibration."));
 			case Help:
-				return QString(tr("Message - final page - Help text"));
+				return QString(tr("The calibration has now been completed.  If you would like to reset the sample plate position simply run the wizard again."));
 			case Other:
 			case Default:
 			default:
@@ -172,11 +174,15 @@ QString AMSimpleSamplePlateWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Message - set page - Title"));
+				return QString(tr("Set the Sample Plate"));
 			case Text:
-				return QString(tr("Message - set page - Text"));
+				return QString(tr("You can align the sample plate by selecting the light blue box and placing it over the sample plate.")
+					       + tr(" The simplest approach is usually to align the left side of the blue box with the left side of the plate")
+					       + tr(" and the top of the blue box with the top of the sample plate."));
 			case Help:
-				return QString(tr("Message - set page - Help text"));
+				return QString(tr("If you have any issues check that the manipulator rotation is set to 0.0. It's often easiest to position the plate")
+					       + tr(" from the Measurement Position. You can make sure this is the case by pressing the 'Measure Position' button located")
+					       + tr(" below the sample camera video."));
 			case Other:
 			case Default:
 			default:

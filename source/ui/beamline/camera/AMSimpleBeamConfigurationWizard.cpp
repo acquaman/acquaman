@@ -100,11 +100,15 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 		switch(type)
 		{
 			case Title:
-				return QString(tr("Message - intro page - Title"));
+				return QString(tr("Introduction to Beam Configuration Wizard"));
 			case Text:
-				return QString(tr("Message - intro page - Text"));
+			return QString(tr("On the first page, check to see if the beam appears to line up correctly with the video image.")
+					  + tr("  If it does, check that it is correct and continue.  If it is not lined up correctly")
+					  + tr(" you will have to run through the calibration.  To perform the calibration simply drag")
+					  + tr(" the box over the visible light for each page the wizard provides."));
 			case Help:
-				return QString(tr("Message - intro page - Help text"));
+			return QString(tr("This is the beam configuration wizard, which is designed to ensure that the beam spot is properly")
+				       + tr(" calibrated. Make sure that the visible light is turned on before you start."));
 			case Other:
 			case Default:
 			default:
@@ -128,11 +132,13 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Message - final page - Title"));
+				return QString(tr("Calibration Completed"));
 			case Text:
-				return QString(tr("Message - final page - Text"));
+				return QString(tr("The calibration has been completed. Select 'Finish' to exit."));
 			case Help:
-				return QString(tr("Message - final page - Help text"));
+				return QString(tr("The calibration has now been completed.  If you would like to reposition any box, simply navigate using 'back'")
+					       + tr(" until you reach the box you wish to reselect.  Any page where you do not click on the screen will")
+					       + tr(" keep the box that you had previously selected."));
 			case Other:
 			case Default:
 			default:
@@ -144,11 +150,14 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Message - wait page - Title"));
+				return QString(tr("Moving to position %1")).arg(relativeId()+1);
 			case Text:
-				return QString(tr("Message - wait page - Text"));
+				return QString(tr("Please wait until the manipulator has finished moving."));
 			case Help:
-				return QString(tr("Message - wait page - Help text"));
+				return QString(tr("The sample manipulator is attempting to move to the next position for calibration.  If")
+					       + tr(" the video does not reappear within a few moments there may be a problem communicating")
+					       + tr(" with the motors.  Please ensure that motor movement is enabled.  You may re-attempt")
+					       + tr(" this movement by selecting back, followed by next."));
 			case Other:
 			case Default:
 			default:
@@ -160,11 +169,13 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 			switch(type)
 			{
 			case Title:
-				return QString(tr("Message - set page - Title"));
+				return QString(tr("Selection Page %1")).arg(relativeId()+1);
 			case Text:
-				return QString(tr("Message - set page - Text"));
+				return QString(tr("Position the box over the beam corresponding to the coordinate: %1, %2, %3")).arg(coordinateList()->at(relativeId())->x()).arg(coordinateList()->at(relativeId())->y()).arg(coordinateList()->at(relativeId())->z());
 			case Help:
-				return QString(tr("Message - set page - Help text"));
+				return QString(tr("For each selection you will need to position the box over the visible beam spot.  Upon clicking next, the")
+							   + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
+							   + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
 			case Other:
 			case Default:
 			default:

@@ -60,6 +60,8 @@ protected:
 	QLayoutItem *elementLayoutItem_;
 };
 
+class AMSampleAdvancedView;
+
 /// This class is the view for an AMSample.
 /// It can be used to load or save a sample to the database,
 /// as well as to set or view the name, date, notes, tags, elements,
@@ -98,9 +100,11 @@ protected slots:
 	/// If our sample is removed, then close the window and delete ourselves later
 	void onSampleAboutToBeRemoved();
 
+	/// Handles clicks from the moreInfoButton to launch the advancedView (or show it, if we already have one)
+	void onMoreInfoButtonClicked();
+
 	/// Save the sample to the database
 	virtual void saveToDb();
-
 
 protected:
 	/// Called to initialize the data in the widgets
@@ -123,32 +127,26 @@ protected:
 
 	/// the sample that is being viewed by this view
 	AMSample* sample_;
+
+	/// Push button to launch the advancedView
+	QPushButton *moreInfoButton_;
+	/// A pointer to an advancedView we'll create if the user requests it. It's our job to manage it.
+	AMSampleAdvancedView *advancedView_;
 };
 
 class AMSampleAdvancedView : public AMSampleView
 {
 Q_OBJECT
 public:
+	/// Simple constructor takes a pointer to an AMSample, extends AMSampleView to include shapeData information in an AMShapeDataView
 	AMSampleAdvancedView(AMSample *sample, QWidget *parent = 0);
 
 protected slots:
+	/// Handles updating when there are changes to the shapeData
 	void onSampleShapeDataChanged();
 
-	/// load a sample from the database
-	void loadSample(QString);
-
-	/// save the sample to the database
-	virtual void saveToDb();
-
 protected:
-	/// populate the sample combo box.
-	void populateSampleLoader();
-
-protected:
-	/// combo box used to load a sample from the database
-	QComboBox* sampleLoader_;
-
-	/// view for visualizing the sample's AMShapeData
+	/// View for visualizing the sample's AMShapeData
 	AMShapeDataView* shapeDataView_;
 };
 
