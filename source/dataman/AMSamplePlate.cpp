@@ -101,7 +101,6 @@ bool AMSamplePlate::operator ==(const AMSamplePlate &other){
 }
 
 void AMSamplePlate::onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList){
-	//const QList<AMShapeData*> shapeList = AMSampleCamera::set()->shapeList();
         AMSample *sample;
         // if there aren't enough samples on the sample plate add some.
 	if(shapeList.count() > sampleCount())

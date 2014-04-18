@@ -22,84 +22,85 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QHostInfo>
 
+#include "application/AMAppControllerSupport.h"
+#include "application/AMPluginsManager.h"
+
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/CLS/CLSProcServManager.h"
+#include "beamline/AMDetectorSelector.h"
+#include "beamline/AMDetectorSet.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
+#include "beamline/camera/AMSampleCamera.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
+#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
-#include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/SGM/SGMSIS3820ScalerView.h"
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
-#include "ui/dataman/AMSampleManagementPre2013Widget.h"
+#include "dataman/SGM/SGMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
+#include "dataman/AMDbUpgrade1Pt3.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/AMRun.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/SGM/SGMAxis2000Exporter.h"
 
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/SGM/SGMXASScanConfigurationView.h"
-#include "ui/SGM/SGMFastScanConfigurationView.h"
-#include "ui/SGM/SGMXASScanConfiguration2013View.h"
-#include "ui/SGM/SGMFastScanConfiguration2013View.h"
+#include "acquaman/AMScanController.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 #include "acquaman/SGM/SGMXASScanActionController.h"
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 #include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
-#include "ui/SGM/SGMSidebar.h"
-#include "ui/SGM/SGMAdvancedControlsView.h"
-#include "acquaman/AMScanController.h"
-#include "ui/beamline/AMOldDetectorView.h"
-#include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/SGM/SGMMCPDetectorView.h"
-#include "ui/CLS/CLSPGTDetectorView.h"
-#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
-#include "ui/CLS/CLSAmptekSDD123DetectorView.h"
-#include "ui/beamline/AMDetectorView.h"
-#include "ui/beamline/AMXRFDetailedDetectorView.h"
-#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "actions3/AMActionRunner3.h"
 
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMRun.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-
-#include "application/AMAppControllerSupport.h"
-
-#include "ui/util/SGM/SGMSettingsMasterView.h"
 #include "util/SGM/SGMSettings.h"
 #include "util/SGM/SGMDacqConfigurationFile.h"
 #include "util/SGM/SGMPluginsLocation.h"
-#include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
-#include "ui/util/AMGithubIssueSubmissionView.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/AMWorkflowManagerView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
 
-#include "beamline/CLS/CLSProcServManager.h"
-
-#include "dataman/SGM/SGMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt3.h"
-
-#include "ui/SGM/SGMPeriodicTableView.h"
-
 #include "ui/beamline/AMDetectorSelectorView.h"
-#include "beamline/AMDetectorSelector.h"
-#include "beamline/AMDetectorSet.h"
-
 #include "ui/beamline/camera/AMSampleCameraBrowserView.h"
-#include "beamline/camera/AMSampleCameraBrowser.h"
+#include "ui/beamline/AMOldDetectorView.h"
+#include "ui/beamline/AMSingleControlDetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
+
+#include "ui/dataman/AMSampleManagementPre2013Widget.h"
 #include "ui/dataman/AMSamplePlateView.h"
-#include "ui/SGM/SGMSampleManagementView.h"
+
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+
+#include "ui/util/SGM/SGMSettingsMasterView.h"
+#include "ui/util/AMGithubIssueSubmissionView.h"
+
+#include "ui/CLS/CLSPGTDetectorView.h"
+#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
+#include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorNewView.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/SGM/SGMAxis2000Exporter.h"
-
-#include "beamline/CLS/CLSPGTDetectorV2.h"
+#include "ui/SGM/SGMAdvancedControlsView.h"
+#include "ui/SGM/SGMMCPDetectorView.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+#include "ui/SGM/SGMXASScanConfiguration2013View.h"
+#include "ui/SGM/SGMFastScanConfiguration2013View.h"
+#include "ui/SGM/SGMSidebar.h"
+#include "ui/SGM/SGMPeriodicTableView.h"
+#include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMAdvancedMirrorView.h"
+#include "ui/SGM/SGMSampleManipulatorView.h"
+#include "ui/SGM/SGMSIS3820ScalerView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -1327,15 +1328,11 @@ bool SGMAppController::setupSGMPeriodicTable(){
 bool SGMAppController::setupSGMViews(){
 	// Create panes in the main window:
 	mw_->insertHeading("Beamline Control", 0);
-//	samplePositionView_ = new AMSampleManagementPre2013Widget(new SGMSampleManipulatorView(),
-//							   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-//							   "Sample Camera",
-//							   SGMBeamline::sgm()->currentSamplePlate(),
-//							   SGMBeamline::sgm()->sampleManipulator());
-//	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-//	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlatePre2013*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlatePre2013*)));
 
-	//sampleManagementView_ = new AMBeamlineSampleManagementView(SGMBeamline::sgm(), SGMBeamline::sgm()->motorGroup());
+	AMSampleCamera::set()->setSSAManipulatorX(SGMBeamline::sgm()->ssaManipulatorX());
+	AMSampleCamera::set()->setSSAManipulatorY(SGMBeamline::sgm()->ssaManipulatorY());
+	AMSampleCamera::set()->setSSAManipulatorZ(SGMBeamline::sgm()->ssaManipulatorZ());
+	AMSampleCamera::set()->setSSAManipulatorRot(SGMBeamline::sgm()->ssaManipulatorRot());
 	sampleManagementView_ = new SGMSampleManagementView();
 	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 

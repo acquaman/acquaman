@@ -1,37 +1,31 @@
 #include "AMSampleCamera.h"
 
+#include <math.h>
+
 #include <QGraphicsRectItem>
 #include <QResizeEvent>
 #include <QVector3D>
-
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 #include <QDebug>
-#include <math.h>
+#include <QVector4D>
+#include <QApplication>
+
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMCamera.h"
-
-
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-//#include "beamline/SGM/SGMMAXvMotor.h"
-
+#include "source/beamline/AMBeamline.h"
+#include "source/beamline/camera/AMAngle.h"
+#include "beamline/camera/AMRotationalOffset.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMSamplePre2013.h"
 #include "dataman/AMSample.h"
-
-#include <QVector4D>
-
 #include "dataman/AMSamplePlate.h"
-#include "source/beamline/AMBeamline.h"
-
-#include "source/beamline/camera/AMAngle.h"
-
-#include "beamline/camera/AMRotationalOffset.h"
-
-#include <QApplication>
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 
 #define TOPLEFT 0
 #define TOPRIGHT 1
@@ -645,6 +639,32 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	oldRotation_->setAngle(rotation);
 	emit motorCoordinateChanged(motorCoordinate());
 	emit motorRotationChanged(motorRotation()->degrees());
+}
+
+void AMSampleCamera::setSSAManipulatorX(AMControl *ssaManipulatorX){
+	ssaManipulatorX_ = ssaManipulatorX;
+	if(ssaManipulatorX_)
+		connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+}
+
+void AMSampleCamera::setSSAManipulatorY(AMControl *ssaManipulatorY){
+	ssaManipulatorY_ = ssaManipulatorY;
+	if(ssaManipulatorY_)
+		connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+}
+
+void AMSampleCamera::setSSAManipulatorZ(AMControl *ssaManipulatorZ){
+	ssaManipulatorZ_ = ssaManipulatorZ;
+	if(ssaManipulatorZ_)
+		connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+}
+
+void AMSampleCamera::setSSAManipulatorRot(AMControl *ssaManipulatorRot){
+	ssaManipulatorRot_ = ssaManipulatorRot;
+	if(ssaManipulatorRot_){
+		motorRotation_->setDegrees(ssaManipulatorRot_->value());
+		connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+	}
 }
 
 /// checks if an index is valid
@@ -2243,18 +2263,15 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	centerOfRotation_ = QVector3D(0,0,0);
 	directionOfRotation_ = QVector3D(0,-1,0);
 
-	if(QApplication::instance()->arguments().contains("--enableMotorMovement"))
-		enableMotorMovement_ = true;
-	else
+	if(QApplication::instance()->arguments().contains("--disableMotorMovement"))
 		enableMotorMovement_ = false;
+	else
+		enableMotorMovement_ = true;
 
 	drawOnShapeEnabled_ = false;
 	drawOnShapeSelected_ = false;
 	samplePlateSelected_ = false;
 	sampleOffset_ = 0;
-//	sampleOffset_ = 0.80;
-//	sampleOffset_ = 8.80;
-//	useSampleOffset_ = true;
 
 	distortion_ = true;
 
@@ -2330,43 +2347,35 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	/// add motor manipulators
 
-	ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
-	ssaManipulatorX_->setContextKnownDescription("X");
+	ssaManipulatorX_ = 0; //NULL
+	ssaManipulatorY_ = 0; //NULL
+	ssaManipulatorZ_ = 0; //NULL
+	ssaManipulatorRot_ = 0; //NULL
 
-	ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
-	ssaManipulatorY_->setContextKnownDescription("Y");
+//	ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+//	ssaManipulatorX_->setContextKnownDescription("X");
 
-	ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
-	ssaManipulatorZ_->setContextKnownDescription("Z");
+//	ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+//	ssaManipulatorY_->setContextKnownDescription("Y");
 
-	ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
-	ssaManipulatorRot_->setContextKnownDescription("R");
+//	ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
+//	ssaManipulatorZ_->setContextKnownDescription("Z");
 
-	//ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
-	//ssaManipulatorX_->setContextKnownDescription("X");
+//	ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
+//	ssaManipulatorRot_->setContextKnownDescription("R");
 
-	//ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
-	//ssaManipulatorY_->setContextKnownDescription("Y");
-
-	//ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
-	//ssaManipulatorZ_->setContextKnownDescription("Z");
-
-	//ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
-	//ssaManipulatorRot_->setContextKnownDescription("R");
 	motorRotation_ = new AMAngle();
-	motorRotation_->setDegrees(ssaManipulatorRot_->value());
+	//motorRotation_->setDegrees(ssaManipulatorRot_->value());
 
 	connect(&motorUpdateDeferredFunction_, SIGNAL(executed()), this, SLOT(setMotorCoordinate()));//(double,double,double,double)));
 
 
 	connect(camera_, SIGNAL(configurationChanged(AMCameraConfiguration*)),this, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)));
 
-	connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-	connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-	connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-	connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-
-
+//	connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+//	connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+//	connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
+//	connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
 }
 
 double AMSampleCamera::manipulatorX()
