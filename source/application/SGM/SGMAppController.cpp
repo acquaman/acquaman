@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt3.h"
+#include "dataman/AMDbUpgrade1Pt4.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -132,7 +132,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt2UserDb);
 
 	// Append the AM upgrade 1.3 to the list for the SGMBeamline database
-	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("SGMBeamline", this);
+	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
 	appendDatabaseUpgrade(am1Pt3UserDb);
 
 	// Add the SGM Beamline database as a source of exporter options

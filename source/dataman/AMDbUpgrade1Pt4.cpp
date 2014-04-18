@@ -1,17 +1,17 @@
-#include "AMDbUpgrade1Pt3.h"
+#include "AMDbUpgrade1Pt4.h"
 
 #include "util/AMErrorMonitor.h"
 
-AMDbUpgrade1Pt3::AMDbUpgrade1Pt3(QString databaseNameToUpgrade, QObject *parent) :
+AMDbUpgrade1Pt4::AMDbUpgrade1Pt4(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }
 
-QStringList AMDbUpgrade1Pt3::upgradeFromTags() const{
+QStringList AMDbUpgrade1Pt4::upgradeFromTags() const{
 	return QStringList() << "AMDbUpgrade1.2";
 }
 
-bool AMDbUpgrade1Pt3::upgradeNecessary() const{
+bool AMDbUpgrade1Pt4::upgradeNecessary() const{
 	QList<int> matchingAMScanType;
 
 	// Check to make sure that this AMDbObjectType is in the AMDbObjectTypes_table
@@ -61,7 +61,7 @@ bool AMDbUpgrade1Pt3::upgradeNecessary() const{
 	return false;
 }
 
-bool AMDbUpgrade1Pt3::upgradeImplementation(){
+bool AMDbUpgrade1Pt4::upgradeImplementation(){
 	bool success = true;
 
 	// Change sampleId to samplePre2013 and sample (AMConstDbObject*) in AMScan and AMSamplePosition
@@ -90,18 +90,18 @@ bool AMDbUpgrade1Pt3::upgradeImplementation(){
 	return success;
 }
 
-AMDbUpgrade* AMDbUpgrade1Pt3::createCopy() const{
-	AMDbUpgrade* retVal = new AMDbUpgrade1Pt3(this->databaseNameToUpgrade());
+AMDbUpgrade* AMDbUpgrade1Pt4::createCopy() const{
+	AMDbUpgrade* retVal = new AMDbUpgrade1Pt4(this->databaseNameToUpgrade());
 	if(this->databaseToUpgrade())
 		retVal->loadDatabaseFromName();
 	return retVal;
 }
 
-QString AMDbUpgrade1Pt3::upgradeToTag() const{
+QString AMDbUpgrade1Pt4::upgradeToTag() const{
 	// Upgrade tag is:
-	return QString("AMDbUpgrade1.3");
+	return QString("AMDbUpgrade1.4");
 }
 
-QString AMDbUpgrade1Pt3::description() const{
+QString AMDbUpgrade1Pt4::description() const{
 	return QString("Upgrade AMScan to use an AMConstDbObject for the sample rather than sampleId.");
 }

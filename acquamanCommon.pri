@@ -714,7 +714,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
 	source/dataman/database/AMConstDbObject.h \
-	source/dataman/AMDbUpgrade1Pt3.h \
+	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
 	source/dataman/AMSamplePlatePre2013.h \
 	source/ui/dataman/AMSamplePlatePre2013View.h \
@@ -1230,7 +1230,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/database/AMConstDbObject.cpp \
-	source/dataman/AMDbUpgrade1Pt3.cpp \
+	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \
 	source/dataman/AMSamplePlatePre2013.cpp \
 	source/ui/dataman/AMSamplePlatePre2013View.cpp \

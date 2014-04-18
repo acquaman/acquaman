@@ -1,14 +1,14 @@
-#ifndef AMDBUPGRADE1PT3_H
-#define AMDBUPGRADE1PT3_H
+#ifndef AMDBUPGRADE1PT4_H
+#define AMDBUPGRADE1PT4_H
 
 #include "dataman/database/AMDbUpgrade.h"
 
-class AMDbUpgrade1Pt3 : public AMDbUpgrade
+class AMDbUpgrade1Pt4 : public AMDbUpgrade
 {
 Q_OBJECT
 public:
 	/// Constructor calls the base constructor for AMDbUpgrade
-	AMDbUpgrade1Pt3(QString databaseNameToUpgrade, QObject *parent = 0);
+	AMDbUpgrade1Pt4(QString databaseNameToUpgrade, QObject *parent = 0);
 
 	/// This upgrade depends on AMDbUpgrade1.2
 	virtual QStringList upgradeFromTags() const;
@@ -32,4 +32,4 @@ public:
 	virtual QString description() const;
 };
 
-#endif // AMDBUPGRADE1PT3_H
+#endif // AMDBUPGRADE1PT4_H
