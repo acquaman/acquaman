@@ -38,18 +38,10 @@ class AMShapeDataListView;
 class AMShapeData;
 class AMSamplePlate;
 class AMWizardManager;
+class AMSampleCameraColorEditor;
 
 
 /// This class is a view for drawing 2D rectangles in 3D space with a configurable camera, with a video in the background
-/*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video,
- *taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display,
- *via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
-
-For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
-
-
-
-
 class AMSampleCameraView : public QWidget
 {
 	Q_OBJECT
@@ -72,8 +64,6 @@ public:
 
 	/// returns whether the crosshair is locked
 	bool crosshairLocked() const;
-
-
 
 	/// Set the current motor coordinates
 	void setMotorCoordinate(double x, double y, double z, double r);
@@ -100,6 +90,17 @@ public:
 	double rotation();
 	double tilt();
 
+	/// Returns the color that will be returned when calling colour(ACTIVEBORDER)
+	QColor activeBorderColor();
+	/// Returns the color that will be returned when calling colour(BORDER)
+	QColor borderColor();
+	/// Returns the color that will be returned when calling colour(INTERSECTION)
+	QColor intersectionColor();
+	/// Returns the color that will be returned when calling colour(SAMPLEPLATEINTERSECTION)
+	QColor samplePlateIntersectionColor();
+	/// Returns the color that will be returned when calling colour(SAMPLEBORDER)
+	QColor sampleBorderColor();
+
 	/// set the media to play
 	void setMedia(QMediaContent url);
 	/// start playing the current media
@@ -123,6 +124,7 @@ public:
 	/// load last rotational offset
 	bool loadRotationalOffset();
 
+	/// Returns the AMSampleCamera that we're using
 	AMSampleCamera* sampleCamera();
 
 public slots:
@@ -132,8 +134,6 @@ public slots:
 
 	/// Set the crosshair line thickness
 	void setCrosshairLineThickness(int thickness);
-
-
 
 	/// Disable the capability to move the cross-hair by double-clicking
 	void setCrosshairLocked(bool doLock = true);
@@ -148,6 +148,17 @@ public slots:
 	void setY(QString y);
 	void setZ(QString z);
 	void setRotation(QString rotation);
+
+	/// Sets the active border color
+	void setActiveBorderColor(QColor activeBorderColor);
+	/// Sets the border color
+	void setBorderColor(QColor borderColor);
+	/// Sets the intersection color
+	void setIntersectionColor(QColor intersectionColor);
+	/// Sets the sample plate intersection color
+	void setSamplePlateIntersectionColor(QColor samplePlateIntersectionColor);
+	/// Sets the sample border color
+	void setSampleBorderColor(QColor sampleBorderColor);
 
 	/// update after motorMovement
 	void onMotorMoved();
@@ -488,11 +499,16 @@ protected:
 	QLineEdit *simpleSamplePlateLineEdit_ [9];
 	QPushButton *showSimpleSamplePlateConfigurationButton_;
 
-
-	//    QColor borderColour_;
-	//    QColor activeBorderColour_;
-
-
+	/// Holds the color that will be returned when calling colour(ACTIVEBORDER)
+	QColor activeBorderColor_;
+	/// Holds the color that will be returned when calling colour(BORDER)
+	QColor borderColor_;
+	/// Holds the color that will be returned when calling colour(INTERSECTION)
+	QColor intersectionColor_;
+	/// Holds the color that will be returned when calling colour(SAMPLEPLATEINTERSECTION)
+	QColor samplePlateIntersectionColor_;
+	/// Holds the color that will be returned when calling colour(SAMPLEBORDER)
+	QColor sampleBorderColor_;
 
 	/// Map of QGraphicsPolygonItem, corresponds to list in AMSampleCamera - should probably just be changed to a list
 	QMap<int,QGraphicsPolygonItem*> shapes_;
@@ -647,6 +663,46 @@ protected:
 
 	bool showGrid_;
 
+	/// A widget to set the color options for the samepleCameraView
+	AMSampleCameraColorEditor *sampleCameraColorEditor_;
+	/// A push button to launch the sampleCameraColorEditor
+	QPushButton *showSampleCameraColorEditor_;
+
+};
+
+class AMSampleCameraColorEditor : public QWidget
+{
+Q_OBJECT
+public:
+	/// Simple constructor takes a pointer to a cameraView that it's going to set the color for
+	AMSampleCameraColorEditor(AMSampleCameraView *cameraView, QWidget *parent = 0);
+
+protected slots:
+	/// Handles button click to set the active border color
+	void onActiveBorderColorButtonClicked();
+	/// Handles button click to set the border color
+	void onBorderColorButtonClicked();
+	/// Handles button click to set the intersection color
+	void onIntersectionColorButtonClicked();
+	/// Handles button click to set the sample plate intersection color
+	void onSamplePlateIntersectionColorButtonClicked();
+	/// Handles button click to set the sample plate color
+	void onSampleBorderColorButtonClicked();
+
+protected:
+	/// Pointer to the cameraView so we can get and set colors
+	AMSampleCameraView *cameraView_;
+
+	/// Button for launching QColorDialog for active border color
+	QPushButton *activeBorderColorButton_;
+	/// Button for launching QColorDialog for border color
+	QPushButton *borderColorButton_;
+	/// Button for launching QColorDialog for intersection color
+	QPushButton *intersectionColorButton_;
+	/// Button for launching QColorDialog for sample plate intersection color
+	QPushButton *samplePlateIntersectionColorButton_;
+	/// Button for launching QColorDialog for sample border color
+	QPushButton *sampleBorderColorButton_;
 };
 
 #endif // AMCROSSHAIROVERLAYVIDEOWIDGET2_H

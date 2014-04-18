@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QColor>
+#include <QColorDialog>
 #include <QTimer>
 #include <QTextDocument>
 #include <QToolBar>
@@ -55,8 +56,6 @@
 
 #define DELAY 1000
 
-
-
 AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
@@ -71,11 +70,11 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	updateTracker_ = -1;
 	samplePlateMovement_ = 0;
 
-
-
-	//    borderColour_ = QColor(Qt::red);
-
-	//    activeBorderColour_ = QColor(Qt::blue);
+	activeBorderColor_ = QColor(Qt::blue);
+	borderColor_ = QColor(Qt::red);
+	intersectionColor_ = QColor(Qt::yellow);
+	samplePlateIntersectionColor_ = QColor(Qt::green);
+	sampleBorderColor_ = QColor(Qt::cyan);
 
 	pressTimer_ = new QTimer();
 	pressTimer_->setInterval(DELAY);
@@ -982,6 +981,26 @@ double AMSampleCameraView::tilt()
 	return shapeModel_->tilt();
 }
 
+QColor AMSampleCameraView::activeBorderColor(){
+	return activeBorderColor_;
+}
+
+QColor AMSampleCameraView::borderColor(){
+	return borderColor_;
+}
+
+QColor AMSampleCameraView::intersectionColor(){
+	return intersectionColor_;
+}
+
+QColor AMSampleCameraView::samplePlateIntersectionColor(){
+	return samplePlateIntersectionColor_;
+}
+
+QColor AMSampleCameraView::sampleBorderColor(){
+	return sampleBorderColor_;
+}
+
 void AMSampleCameraView::setX(QString x)
 {
 
@@ -1010,6 +1029,26 @@ void AMSampleCameraView::setZ(QString z)
 void AMSampleCameraView::setRotation(QString rotation)
 {
 	shapeModel_->setRotation(rotation.toDouble());
+}
+
+void AMSampleCameraView::setActiveBorderColor(QColor activeBorderColor){
+	activeBorderColor_ = activeBorderColor;
+}
+
+void AMSampleCameraView::setBorderColor(QColor borderColor){
+	borderColor_ = borderColor;
+}
+
+void AMSampleCameraView::setIntersectionColor(QColor intersectionColor){
+	intersectionColor_ = intersectionColor;
+}
+
+void AMSampleCameraView::setSamplePlateIntersectionColor(QColor samplePlateIntersectionColor){
+	samplePlateIntersectionColor_ = samplePlateIntersectionColor;
+}
+
+void AMSampleCameraView::setSampleBorderColor(QColor sampleBorderColor){
+	sampleBorderColor_ = sampleBorderColor;
 }
 
 void AMSampleCameraView::onMotorMoved()
@@ -2302,6 +2341,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 		topLayout->addSpacing(space);
 		topLayout->addWidget(configurationWindowButton_ = new QPushButton("Configure Settings"));
 		topLayout->addStretch();
+		sampleCameraColorEditor_ = new AMSampleCameraColorEditor(this);
+		sampleCameraColorEditor_->hide();
+		showSampleCameraColorEditor_ = new QPushButton("Change Camera Colors");
+		connect(showSampleCameraColorEditor_, SIGNAL(clicked()), sampleCameraColorEditor_, SLOT(show()));
+		topLayout->addWidget(showSampleCameraColorEditor_);
+		topLayout->addStretch();
 		topBar->setLayout(topLayout);
 
 		QHBoxLayout* bottomLayout = new QHBoxLayout();
@@ -2573,15 +2618,20 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 	switch(role)
 	{
 	case ACTIVEBORDER:
-		return QColor(Qt::blue);
+		//return QColor(Qt::blue);
+		return activeBorderColor_;
 	case BORDER:
-		return QColor(Qt::red);
+		//return QColor(Qt::red);
+		return borderColor_;
 	case INTERSECTION:
-		return QColor(Qt::yellow);
+		//return QColor(Qt::yellow);
+		return intersectionColor_;
 	case SAMPLEPLATEINTERSECTION:
-		return QColor(Qt::green);
+		//return QColor(Qt::green);
+		return samplePlateIntersectionColor_;
 	case SAMPLEBORDER:
-		return QColor(Qt::cyan);
+		//return QColor(Qt::cyan);
+		return sampleBorderColor_;
 	case SAMPLEFILL:
 	case HIDEINTERSECTION:
 	case BACKWARDSFILL:
@@ -2648,5 +2698,77 @@ void AMSampleCameraView::showAdvancedWindow(){
 		advancedWindow_->show();
 }
 
+
+AMSampleCameraColorEditor::AMSampleCameraColorEditor(AMSampleCameraView *cameraView, QWidget *parent) :
+	QWidget(parent)
+{
+	cameraView_ = cameraView;
+
+	activeBorderColorButton_ = new QPushButton("Set Active Sample Color");
+	borderColorButton_ = new QPushButton("Set Sample Border Color");
+	intersectionColorButton_ = new QPushButton("Set Beam Over Sample Color");
+	samplePlateIntersectionColorButton_ = new QPushButton("Set Beam Over Sample Plate Color");
+	sampleBorderColorButton_ = new QPushButton("Set Sample Plate Color");
+
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addWidget(activeBorderColorButton_);
+	mainVL->addWidget(borderColorButton_);
+	mainVL->addWidget(intersectionColorButton_);
+	mainVL->addWidget(samplePlateIntersectionColorButton_);
+	mainVL->addWidget(sampleBorderColorButton_);
+
+	setLayout(mainVL);
+
+	connect(activeBorderColorButton_, SIGNAL(clicked()), this, SLOT(onActiveBorderColorButtonClicked()));
+	connect(borderColorButton_, SIGNAL(clicked()), this, SLOT(onBorderColorButtonClicked()));
+	connect(intersectionColorButton_, SIGNAL(clicked()), this, SLOT(onIntersectionColorButtonClicked()));
+	connect(samplePlateIntersectionColorButton_, SIGNAL(clicked()), this, SLOT(onSamplePlateIntersectionColorButtonClicked()));
+	connect(sampleBorderColorButton_, SIGNAL(clicked()), this, SLOT(onSampleBorderColorButtonClicked()));
+}
+
+void AMSampleCameraColorEditor::onActiveBorderColorButtonClicked()
+{
+	QColorDialog colorDialog(this);
+	colorDialog.setCurrentColor(cameraView_->activeBorderColor());
+	if(colorDialog.exec() == QDialog::Accepted){
+		cameraView_->setActiveBorderColor(colorDialog.currentColor());
+	}
+}
+
+void AMSampleCameraColorEditor::onBorderColorButtonClicked()
+{
+	QColorDialog colorDialog(this);
+	colorDialog.setCurrentColor(cameraView_->borderColor());
+	if(colorDialog.exec() == QDialog::Accepted){
+		cameraView_->setBorderColor(colorDialog.currentColor());
+	}
+}
+
+void AMSampleCameraColorEditor::onIntersectionColorButtonClicked()
+{
+	QColorDialog colorDialog(this);
+	colorDialog.setCurrentColor(cameraView_->intersectionColor());
+	if(colorDialog.exec() == QDialog::Accepted){
+		cameraView_->setIntersectionColor(colorDialog.currentColor());
+	}
+}
+
+void AMSampleCameraColorEditor::onSamplePlateIntersectionColorButtonClicked()
+{
+	QColorDialog colorDialog(this);
+	colorDialog.setCurrentColor(cameraView_->samplePlateIntersectionColor());
+	if(colorDialog.exec() == QDialog::Accepted){
+		cameraView_->setSamplePlateIntersectionColor(colorDialog.currentColor());
+	}
+}
+
+void AMSampleCameraColorEditor::onSampleBorderColorButtonClicked()
+{
+	QColorDialog colorDialog(this);
+	colorDialog.setCurrentColor(cameraView_->sampleBorderColor());
+	if(colorDialog.exec() == QDialog::Accepted){
+		cameraView_->setSampleBorderColor(colorDialog.currentColor());
+	}
+}
 
 
