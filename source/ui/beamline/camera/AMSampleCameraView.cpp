@@ -661,10 +661,12 @@ void AMSampleCameraView::moveBeamShape(QPointF point, int index)
 
 void AMSampleCameraView::beamCalibrate()
 {
+	qDebug()<<"Start AMSampleCameraView::beamCalibrate";
 	shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(true);
 	refreshSceneView();
 	emit beamWizardFinished();
+	qDebug()<<"End AMSampleCameraView::beamCalibrate";
 
 }
 
