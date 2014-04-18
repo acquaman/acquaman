@@ -1037,22 +1037,27 @@ void AMSampleCameraView::setRotation(QString rotation)
 
 void AMSampleCameraView::setActiveBorderColor(QColor activeBorderColor){
 	activeBorderColor_ = activeBorderColor;
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setBorderColor(QColor borderColor){
 	borderColor_ = borderColor;
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setIntersectionColor(QColor intersectionColor){
 	intersectionColor_ = intersectionColor;
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setSamplePlateIntersectionColor(QColor samplePlateIntersectionColor){
 	samplePlateIntersectionColor_ = samplePlateIntersectionColor;
+	refreshSceneView();
 }
 
 void AMSampleCameraView::setSampleBorderColor(QColor sampleBorderColor){
 	sampleBorderColor_ = sampleBorderColor;
+	refreshSceneView();
 }
 
 void AMSampleCameraView::onMotorMoved()
