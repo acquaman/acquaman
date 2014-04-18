@@ -33,11 +33,16 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 	wizardSelectorView_ = new AMSampleCameraWizardSelector();
 
+	QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
 	leftVL_ = new QVBoxLayout();
 	rightVL_ = new QVBoxLayout();
 
-	leftVL_->addWidget(cameraBrowserView_);
-	leftVL_->addWidget(motorGroupView_);
+	//leftVL_->addWidget(cameraBrowserView_);
+	//leftVL_->addWidget(motorGroupView_);
+	leftSplitter->addWidget(cameraBrowserView_);
+	QWidget *bottomLeftWidget = new QWidget();
+	bottomLeftWidget->setLayout(leftVL_);
+	leftSplitter->addWidget(bottomLeftWidget);
 	leftVL_->setContentsMargins(10,0,0,0);
 
 	rightVL_->addWidget(createSamplePlateButton_);
@@ -49,11 +54,12 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	samplePlateBrowserView_->hide();
 
 	QSplitter *mainSplitter = new QSplitter();
-	QWidget *leftWidget = new QWidget();
+	//QWidget *leftWidget = new QWidget();
 	QWidget *rightWidget = new QWidget();
-	leftWidget->setLayout(leftVL_);
+	//leftWidget->setLayout(leftVL_);
 	rightWidget->setLayout(rightVL_);
-	mainSplitter->addWidget(leftWidget);
+	//mainSplitter->addWidget(leftWidget);
+	mainSplitter->addWidget(leftSplitter);
 	mainSplitter->addWidget(rightWidget);
 
 	QHBoxLayout *mainHL = new QHBoxLayout();
