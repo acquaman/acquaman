@@ -241,7 +241,7 @@ void AMSampleCameraView::refreshSceneView()
 				QPointF first = shapes_[i]->polygon().first();
 				textItems_[i]->setPos(first-point);
 				textItems_[i]->setDefaultTextColor(colour(BORDER));
-				if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
+				if(i == current_)textItems_[i]->setDefaultTextColor(colour(ACTIVEBORDER));
 				if(currentView_ == NAME)
 				{
 					textItems_[i]->setPlainText(shapeModel_->name(i));
@@ -661,12 +661,10 @@ void AMSampleCameraView::moveBeamShape(QPointF point, int index)
 
 void AMSampleCameraView::beamCalibrate()
 {
-	qDebug()<<"Start AMSampleCameraView::beamCalibrate";
 	shapeModel_->beamCalibrate();
 	showSamplePlate_->setChecked(true);
 	refreshSceneView();
 	emit beamWizardFinished();
-	qDebug()<<"End AMSampleCameraView::beamCalibrate";
 
 }
 
@@ -2745,6 +2743,7 @@ void AMSampleCameraColorEditor::onActiveBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setActiveBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onBorderColorButtonClicked()
@@ -2754,6 +2753,7 @@ void AMSampleCameraColorEditor::onBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onIntersectionColorButtonClicked()
@@ -2763,6 +2763,7 @@ void AMSampleCameraColorEditor::onIntersectionColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setIntersectionColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onSamplePlateIntersectionColorButtonClicked()
@@ -2772,6 +2773,7 @@ void AMSampleCameraColorEditor::onSamplePlateIntersectionColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setSamplePlateIntersectionColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onSampleBorderColorButtonClicked()
@@ -2781,6 +2783,29 @@ void AMSampleCameraColorEditor::onSampleBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setSampleBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
+
+void AMSampleCameraView::refreshSceneColours()
+{
+	for(int i = 0; i < shapes_.count(); i++)
+	{
+		if(i == current_)
+		{
+			shapes_[i]->setPen(colour(ACTIVEBORDER));
+			shapes_[i]->setBrush(QBrush(colour(FILL)));
+		}
+		else
+		{
+			shapes_[i]->setPen(colour(BORDER));
+			shapes_[i]->setBrush(QBrush(colour(FILL)));
+		}
+	}
+	samplePlate_->setPen(colour(SAMPLEBORDER));
+	samplePlate_->setBrush(QBrush(colour(SAMPLEFILL)));
+	refreshSceneView();
+}
+
+
 
 

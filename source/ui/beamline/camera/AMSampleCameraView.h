@@ -322,12 +322,16 @@ public slots:
 
 	void showAdvancedWindow();
 
+	void refreshSceneColours();
+
+
 protected slots:
 	void updateCurrentShape();
 
 
 	/// Updates all shapes
 	void refreshSceneView();
+
 
 	/// handles mouse events on the graphics view
 	void mousePressHandler(QPointF position);
