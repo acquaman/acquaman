@@ -105,10 +105,10 @@ protected slots:
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
 
-	/// CURRENTLY UNUSED
-	void onCurrentScanControllerCreated();
-	/// CURRENTLY UNUSED
-	void onCurrentScanControllerDestroyed();
+//	/// CURRENTLY UNUSED
+//	void onCurrentScanControllerCreated();
+//	/// CURRENTLY UNUSED
+//	void onCurrentScanControllerDestroyed();
 
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();

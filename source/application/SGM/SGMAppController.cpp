@@ -544,11 +544,11 @@ void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-void SGMAppController::onCurrentScanControllerCreated(){
-}
+//void SGMAppController::onCurrentScanControllerCreated(){
+//}
 
-void SGMAppController::onCurrentScanControllerDestroyed(){
-}
+//void SGMAppController::onCurrentScanControllerDestroyed(){
+//}
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 
