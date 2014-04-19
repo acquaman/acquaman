@@ -37,7 +37,6 @@
 #include "beamline/camera/AMAngle.h"
 #include "beamline/camera/AMSampleCamera.h"
 #include "beamline/camera/AMCameraConfiguration.h"
-#include "util/AMDateTimeUtils.h"
 #include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 #include "ui/beamline/camera/AMShapeDataView.h"
 #include "ui/beamline/camera/AMCameraConfigurationView.h"
@@ -1715,12 +1714,12 @@ void AMSampleCameraView::requestLoadSamplePlateFromDatabase(){
 	messageBox.layout()->addWidget(beamComboBox);
 
 	AMDatabase* db = AMDatabase::database("user");
-	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), QString("id, name, dateTime"));
+	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("id, name, dateTime"));
 	db->execQuery(query);
 	if (query.first()){
 		do {
 			if(query.value(1).toString() == "Sample Plate")
-				beamComboBox->addItem(AMDateTimeUtils::prettyDate(query.value(2).toDateTime()), query.value(0).toInt());
+				beamComboBox->addItem(query.value(2).toDateTime().toString("dd MM yyyy - hh:mm:ss ap"), query.value(0).toInt());
 		}while(query.next());
 	}
 	query.finish();

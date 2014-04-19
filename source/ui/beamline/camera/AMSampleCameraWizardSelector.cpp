@@ -283,7 +283,7 @@ void AMSampleCameraWizardSelector::onCameraWizardButtonClicked(){
 }
 
 void AMSampleCameraWizardSelector::onRotationWizardButtonClicked(){
-	if(!QApplication::instance()->arguments().contains("--developmentMode"))
+	if(QApplication::instance()->arguments().contains("--developmentMode"))
 		emit rotationWizardPressed();
 	else{
 		QMessageBox messageBox;
