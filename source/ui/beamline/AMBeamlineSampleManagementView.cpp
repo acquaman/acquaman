@@ -84,6 +84,10 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(wizardSelectorView_, SIGNAL(requestLoadCameraConfiguration()), cameraBrowserView_, SIGNAL(requestLoadCamera()));
 	connect(wizardSelectorView_, SIGNAL(requestLoadSamplePlate()), cameraBrowserView_, SIGNAL(requestLoadSamplePlate()));
 	connect(wizardSelectorView_, SIGNAL(requestLoadRotationConfiguration()), cameraBrowserView_, SIGNAL(requestLoadRotationConfiguration()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadBeamConfigurationFromDatabase()), cameraBrowserView_, SIGNAL(requestLoadBeamFromDatabase()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadCameraConfigurationFromDatabase()), cameraBrowserView_, SIGNAL(requestLoadCameraFromDatabase()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadSamplePlateConfigurationFromDatabase()), cameraBrowserView_, SIGNAL(requestLoadSamplePlateFromDatabase()));
+	connect(wizardSelectorView_, SIGNAL(requestLoadRotationConfigurationFromDatabase()), cameraBrowserView_, SIGNAL(requestLoadRotationConfigurationFromDatabase()));
 
 	connect(cameraBrowserView_, SIGNAL(beamWizardFinished()), wizardSelectorView_, SLOT(onBeamWizardFinished()));
 	connect(cameraBrowserView_, SIGNAL(cameraWizardFinished()), wizardSelectorView_, SLOT(onCameraWizardFinished()));

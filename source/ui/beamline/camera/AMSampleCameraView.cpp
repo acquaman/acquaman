@@ -37,6 +37,7 @@
 #include "beamline/camera/AMAngle.h"
 #include "beamline/camera/AMSampleCamera.h"
 #include "beamline/camera/AMCameraConfiguration.h"
+#include "util/AMDateTimeUtils.h"
 #include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 #include "ui/beamline/camera/AMShapeDataView.h"
 #include "ui/beamline/camera/AMCameraConfigurationView.h"
@@ -1210,63 +1211,81 @@ bool AMSampleCameraView::isValid(int index) const
 	return (shapeModel_->isValid(index) && shapes_[index]);
 }
 
-bool AMSampleCameraView::loadBeam()
+bool AMSampleCameraView::loadBeam(int databaseId)
 {
 	AMDatabase* db = AMDatabase::database("SGMPublic");
-	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "id");
+	int id;
+	if(databaseId == -1){
+		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "id");
 
-	if(matchList.count() <= 0)
-		return false;
+		if(matchList.count() <= 0)
+			return false;
 
-	bool* success = new bool(true);
-	int id = matchList.last().toInt(success);
+		bool* success = new bool(true);
+		id = matchList.last().toInt(success);
 
-	if(!(*success))
-		return false;
+		if(!(*success))
+			return false;
+	}
+	else
+		id = databaseId;
 
 	AMBeamConfiguration* beamToLoad = new AMBeamConfiguration();
-	beamToLoad->loadFromDb(db,id);
-	shapeModel_->setBeamModel(beamToLoad);
-	refreshSceneView();
-	return true;
+	if(beamToLoad->loadFromDb(db, id)){
+		shapeModel_->setBeamModel(beamToLoad);
+		refreshSceneView();
+		return true;
+	}
+	return false;
 }
 
-bool AMSampleCameraView::loadCamera()
+bool AMSampleCameraView::loadCamera(int databaseId)
 {
 	AMDatabase* db = AMDatabase::database("SGMPublic");
-	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+	int id;
+	if(databaseId == -1){
+		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 
 
-	if(matchList.count() <= 0)
-	{
-		return false;
+		if(matchList.count() <= 0)
+			return false;
+
+		bool* success = new bool(true);
+		id = matchList.last().toInt(success);
+
+		if(!success)
+			return false;
 	}
+	else
+		id = databaseId;
 
 	AMCameraConfiguration* cameraToLoad = new AMCameraConfiguration();
-	bool* success = new bool(true);
-	int id = matchList.last().toInt(success);
-
-	if(!success)
-		return false;
-
-	cameraToLoad->loadFromDb(db,id);
-	shapeModel_->setCameraModel(cameraToLoad);
-	refreshSceneView();
-
-	return true;
+	if(cameraToLoad->loadFromDb(db,id)){
+		shapeModel_->setCameraModel(cameraToLoad);
+		refreshSceneView();
+		return true;
+	}
+	return false;
 }
 
-bool AMSampleCameraView::loadSamplePlate()
+bool AMSampleCameraView::loadSamplePlate(int databaseId)
 {
-	QString samplePlateName = "Sample Plate";
 	AMDatabase* db = AMDatabase::database("user");
-	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", samplePlateName);
+	int id;
+	if(databaseId == -1){
+		QString samplePlateName = "Sample Plate";
+		QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name", samplePlateName);
 
-	if(matchList.count() <= 0)
-		return false;
+		if(matchList.count() <= 0)
+			return false;
+		id = matchList.last();
+	}
+	else
+		id = databaseId;
 
 	AMSample* samplePlate = new AMSample();
-	samplePlate->loadFromDb(db,matchList.last());
+	if(!samplePlate->loadFromDb(db, id))
+		return false;
 
 	AMControlSet *samplePositioner = AMBeamline::bl()->currentSamplePositioner();
 	if(!samplePositioner){
@@ -1308,19 +1327,30 @@ bool AMSampleCameraView::loadSamplePlate()
 
 }
 
-bool AMSampleCameraView::loadRotationalOffset()
+bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 {
-	QString rotationalOffsetName = "LastRotationalOffset";
+	//QString rotationalOffsetName = "LastRotationalOffset";
 	AMDatabase *db = AMDatabase::database("SGMPublic");
-	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
+	int id;
+	if(databaseId == -1){
+		//QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
+		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 
-	if(matchList.count() <= 0)
-	{
-		return false;
+		if(matchList.count() <= 0)
+			return false;
+
+		bool* success = new bool(true);
+		id = matchList.last().toInt(success);
+
+		if(!success)
+			return false;
 	}
+	else
+		id = databaseId;
 
 	AMRotationalOffset *rotationalOffset = new AMRotationalOffset();
-	rotationalOffset->loadFromDb(db,matchList.last());
+	if(!rotationalOffset->loadFromDb(db, id))
+		return false;
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
 	delete rotationalOffset;
 	refreshSceneView();
@@ -1578,9 +1608,7 @@ void AMSampleCameraView::requestLoadBeam()
 {
 	bool success = loadBeam();
 	if(success)
-	{
 		emit beamWizardFinished();
-	}
 	else
 	{
 		qDebug()<<"Loading default beam configuration.";
@@ -1592,9 +1620,7 @@ void AMSampleCameraView::requestLoadCamera()
 {
 	bool success = loadCamera();
 	if(success)
-	{
 		emit cameraWizardFinished();
-	}
 	else
 	{
 		qDebug()<<"Loading default camera configuration";
@@ -1606,9 +1632,7 @@ void AMSampleCameraView::requestLoadSamplePlate()
 {
 	bool success = loadSamplePlate();
 	if(success)
-	{
 		emit samplePlateWizardFinished(false);
-	}
 //	else
 //	{
 //		qDebug()<<"Loading default sample plate";
@@ -1620,15 +1644,122 @@ void AMSampleCameraView::requestLoadRotationConfiguration()
 {
 	bool success = loadRotationalOffset();
 	if(success)
-	{
 		emit rotationWizardFinished();
-	}
 	else
 	{
 		qDebug()<<"Need to load default rotational offset";
 	}
 }
 
+
+void AMSampleCameraView::requestLoadBeamFromDatabase(){
+	QMessageBox messageBox;
+	messageBox.setText("Which beam would you like to reload?");
+	QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+	messageBox.addButton(QMessageBox::Cancel);
+	QComboBox *beamComboBox = new QComboBox();
+	messageBox.layout()->addWidget(beamComboBox);
+
+	AMDatabase* db = AMDatabase::database("SGMPublic");
+	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), QString("id, name"));
+	db->execQuery(query);
+	if (query.first()){
+		do {
+			beamComboBox->addItem(query.value(1).toString(), query.value(0).toInt());
+		}while(query.next());
+	}
+	query.finish();
+
+	messageBox.exec();
+
+	if (messageBox.clickedButton() == okButton){
+		bool success = loadBeam(beamComboBox->itemData(beamComboBox->currentIndex(), Qt::UserRole).toInt());
+		if(success)
+			emit beamWizardFinished();
+	}
+}
+
+void AMSampleCameraView::requestLoadCameraFromDatabase(){
+	QMessageBox messageBox;
+	messageBox.setText("Which camera configuration would you like to reload?");
+	QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+	messageBox.addButton(QMessageBox::Cancel);
+	QComboBox *cameraConfigurationComboBox = new QComboBox();
+	messageBox.layout()->addWidget(cameraConfigurationComboBox);
+
+	AMDatabase* db = AMDatabase::database("SGMPublic");
+	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), QString("id, name"));
+	db->execQuery(query);
+	if (query.first()){
+		do {
+			cameraConfigurationComboBox->addItem(query.value(1).toString(), query.value(0).toInt());
+		}while(query.next());
+	}
+	query.finish();
+
+	messageBox.exec();
+
+	if (messageBox.clickedButton() == okButton){
+		bool success = loadCamera(cameraConfigurationComboBox->itemData(cameraConfigurationComboBox->currentIndex(), Qt::UserRole).toInt());
+		if(success)
+			emit cameraWizardFinished();
+	}
+}
+
+void AMSampleCameraView::requestLoadSamplePlateFromDatabase(){
+	QMessageBox messageBox;
+	messageBox.setText("Which sample plate configuration would you like to reload?");
+	QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+	messageBox.addButton(QMessageBox::Cancel);
+	QComboBox *beamComboBox = new QComboBox();
+	messageBox.layout()->addWidget(beamComboBox);
+
+	AMDatabase* db = AMDatabase::database("user");
+	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), QString("id, name, dateTime"));
+	db->execQuery(query);
+	if (query.first()){
+		do {
+			if(query.value(1).toString() == "Sample Plate")
+				beamComboBox->addItem(AMDateTimeUtils::prettyDate(query.value(2).toDateTime()), query.value(0).toInt());
+		}while(query.next());
+	}
+	query.finish();
+
+	messageBox.exec();
+
+	if (messageBox.clickedButton() == okButton){
+		bool success = loadSamplePlate(beamComboBox->itemData(beamComboBox->currentIndex(), Qt::UserRole).toInt());
+		if(success)
+			emit samplePlateWizardFinished(false);
+	}
+}
+
+void AMSampleCameraView::requestLoadRotationConfigurationFromDatabase(){
+	QMessageBox messageBox;
+	messageBox.setText("Which rotation would you like to reload?");
+	QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+	messageBox.addButton(QMessageBox::Cancel);
+	QComboBox *rotationComboBox = new QComboBox();
+	messageBox.layout()->addWidget(rotationComboBox);
+
+	AMDatabase* db = AMDatabase::database("SGMPublic");
+	QSqlQuery query = db->select(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), QString("id, name"));
+	db->execQuery(query);
+	if (query.first()){
+		do {
+			rotationComboBox->addItem(query.value(1).toString(), query.value(0).toInt());
+		}while(query.next());
+	}
+	query.finish();
+
+	messageBox.exec();
+
+	if (messageBox.clickedButton() == okButton){
+		bool success = loadRotationalOffset(rotationComboBox->itemData(rotationComboBox->currentIndex(), Qt::UserRole).toInt());
+		if(success)
+			emit rotationWizardFinished();
+	}
+}
 
 void AMSampleCameraView::updateCurrentShape()
 {

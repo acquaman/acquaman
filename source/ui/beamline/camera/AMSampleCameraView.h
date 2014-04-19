@@ -115,14 +115,14 @@ public:
 	/// checks for valid index
 	bool isValid(int index) const;
 
-	/// load last beam
-	bool loadBeam();
-	/// load last camera
-	bool loadCamera();
-	/// load last sample plate
-	bool loadSamplePlate();
-	/// load last rotational offset
-	bool loadRotationalOffset();
+	/// Load beam based on id. Default is -1 which loads the last value.
+	bool loadBeam(int databaseId = -1);
+	/// Load camera based on id. Default is -1 which loads the last value.
+	bool loadCamera(int databaseId = -1);
+	/// Load sample plate based on id. Default is -1 which loads the last value.
+	bool loadSamplePlate(int databaseId = -1);
+	/// Load rotational offset based on id. Default is -1 which loads the last value.
+	bool loadRotationalOffset(int databaseId = -1);
 
 	/// Returns the AMSampleCamera that we're using
 	AMSampleCamera* sampleCamera();
@@ -313,6 +313,11 @@ public slots:
 	void requestLoadCamera();
 	void requestLoadSamplePlate();
 	void requestLoadRotationConfiguration();
+
+	void requestLoadBeamFromDatabase();
+	void requestLoadCameraFromDatabase();
+	void requestLoadSamplePlateFromDatabase();
+	void requestLoadRotationConfigurationFromDatabase();
 
 	void setRotationOffsetX(QString offset);
 	void setRotationOffsetY(QString offset);

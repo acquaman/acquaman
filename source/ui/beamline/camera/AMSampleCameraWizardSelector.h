@@ -2,6 +2,7 @@
 #define AMSAMPLECAMERAWIZARDSELECTOR_H
 
 #include <QWidget>
+#include <QPoint>
 
 class QPushButton;
 
@@ -53,14 +54,31 @@ signals:
 	void requestLoadSamplePlate();
 	void requestLoadRotationConfiguration();
 
+	/// Request to load a database configuration
+	void requestLoadBeamConfigurationFromDatabase();
+	void requestLoadCameraConfigurationFromDatabase();
+	void requestLoadSamplePlateConfigurationFromDatabase();
+	void requestLoadRotationConfigurationFromDatabase();
+
 	void beamCompleteChanged();
 	void cameraCompleteChanged();
 	void samplePlateCompleteChanged();
 	void rotationCompleteChanged();
 
 protected slots:
+	/// Attempts to reload all of the configurations in order (rather than forcing the user to click on each in turn)
 	void onLoadAllConfigurationsButtonClicked();
 
+	/// Handles the camera wizard button click, which behaves differently based on command line arguements
+	void onCameraWizardButtonClicked();
+	/// Handles the rotation wizard button click, which behaves differently based on command line arguements
+	void onRotationWizardButtonClicked();
+
+	/// Handles custom context requests
+	void onLoadBeamConfigurationButtonCustomContextMenuRequested(QPoint point);
+	void onLoadCameraConfigurationButtonCustomContextMenuRequested(QPoint point);
+	void onLoadSamplePlateConfigurationButtonCustomContextMenuRequested(QPoint point);
+	void onLoadRotationConfigurationButtonCustomContextMenuRequested(QPoint point);
 
 protected:
 	/// buttons for the wizards

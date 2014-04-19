@@ -3,8 +3,12 @@
 #include <QFrame>
 #include <QLayout>
 #include <QPushButton>
-#include <QDebug>
-
+#include <QMessageBox>
+#include <QLineEdit>
+#include <QApplication>
+#include <QLabel>
+#include <QMenu>
+#include <QAction>
 
 AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	: QWidget(parent)
@@ -35,31 +39,42 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	rotationWizardLayout->setContentsMargins(0,0,0,0);
 	reloadAllLayout->setContentsMargins(0,0,0,0);
 
-	cameraWizardLayout->addWidget(cameraWizardButton_ = new QPushButton("Setup Camera"));
+	cameraWizardButton_ = new QPushButton("Setup Camera");
+	cameraWizardLayout->addWidget(cameraWizardButton_);
 	cameraWizardLayout->addStretch();
-	cameraWizardLayout->addWidget(loadCameraConfigurationButton_ = new QPushButton("Load"));
+	loadCameraConfigurationButton_ = new QPushButton("Load");
+	cameraWizardLayout->addWidget(loadCameraConfigurationButton_);
 	cameraWizardFrame->setLayout(cameraWizardLayout);
+	loadCameraConfigurationButton_->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	rotationWizardLayout->addWidget(rotationWizardButton_ = new QPushButton("Setup Rotation"));
+	rotationWizardButton_ = new QPushButton("Setup Rotation");
+	rotationWizardLayout->addWidget(rotationWizardButton_);
 	rotationWizardLayout->addStretch();
-	rotationWizardLayout->addWidget(loadRotationConfigurationButton_ = new QPushButton("Load"));
+	loadRotationConfigurationButton_ = new QPushButton("Load");
+	rotationWizardLayout->addWidget(loadRotationConfigurationButton_);
 	rotationWizardFrame->setLayout(rotationWizardLayout);
 	rotationWizardButton_->setEnabled(false);
 	loadRotationConfigurationButton_->setEnabled(false);
+	loadRotationConfigurationButton_->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	samplePlateWizardLayout->addWidget(samplePlateWizardButton_ = new QPushButton("Setup Sample Plate"));
+	samplePlateWizardButton_ = new QPushButton("Setup Sample Plate");
+	samplePlateWizardLayout->addWidget(samplePlateWizardButton_);
 	samplePlateWizardLayout->addStretch();
-	samplePlateWizardLayout->addWidget(loadSamplePlateButton_ = new QPushButton("Load"));
+	loadSamplePlateButton_ = new QPushButton("Load");
+	samplePlateWizardLayout->addWidget(loadSamplePlateButton_);
 	samplePlateWizardFrame->setLayout(samplePlateWizardLayout);
 	samplePlateWizardButton_->setEnabled(false);
 	loadSamplePlateButton_->setEnabled(false);
+	loadSamplePlateButton_->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	beamWizardLayout->addWidget(beamWizardButton_ = new QPushButton("Setup Beam"));
 	beamWizardLayout->addStretch();
-	beamWizardLayout->addWidget(loadBeamConfigurationButton_ = new QPushButton("Load"));
+	loadBeamConfigurationButton_ = new QPushButton("Load");
+	beamWizardLayout->addWidget(loadBeamConfigurationButton_);
 	beamWizardFrame->setLayout(beamWizardLayout);
 	beamWizardButton_->setEnabled(false);
 	loadBeamConfigurationButton_->setEnabled(false);
+	loadBeamConfigurationButton_->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	reloadAllLayout->addStretch();
 	loadAllConfigurationsButton_ = new QPushButton("Reload All");
@@ -80,9 +95,9 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	rotationWizardButton_->setIcon(QIcon(":/22x22/redLEDOn.png"));
 
 	connect(beamWizardButton_, SIGNAL(clicked()), this, SIGNAL(beamWizardPressed()));
-	connect(cameraWizardButton_, SIGNAL(clicked()), this, SIGNAL(cameraWizardPressed()));
+	connect(cameraWizardButton_, SIGNAL(clicked()), this, SLOT(onCameraWizardButtonClicked()));
 	connect(samplePlateWizardButton_, SIGNAL(clicked()), this, SIGNAL(samplePlateWizardPressed()));
-	connect(rotationWizardButton_, SIGNAL(clicked()), this, SIGNAL(rotationWizardPressed()));
+	connect(rotationWizardButton_, SIGNAL(clicked()), this, SLOT(onRotationWizardButtonClicked()));
 
 	connect(loadBeamConfigurationButton_, SIGNAL(clicked()), this, SIGNAL(requestLoadBeamConfiguration()));
 	connect(loadCameraConfigurationButton_, SIGNAL(clicked()), this, SIGNAL(requestLoadCameraConfiguration()));
@@ -96,7 +111,10 @@ AMSampleCameraWizardSelector::AMSampleCameraWizardSelector(QWidget* parent)
 	connect(this, SIGNAL(samplePlateCompleteChanged()), this, SLOT(onSamplePlateCompleteChanged()));
 	connect(this, SIGNAL(rotationCompleteChanged()), this, SLOT(onRotationCompleteChanged()));
 
-
+	connect(loadBeamConfigurationButton_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onLoadBeamConfigurationButtonCustomContextMenuRequested(QPoint)));
+	connect(loadCameraConfigurationButton_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onLoadCameraConfigurationButtonCustomContextMenuRequested(QPoint)));
+	connect(loadSamplePlateButton_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onLoadSamplePlateConfigurationButtonCustomContextMenuRequested(QPoint)));
+	connect(loadRotationConfigurationButton_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onLoadRotationConfigurationButtonCustomContextMenuRequested(QPoint)));
 }
 
 bool AMSampleCameraWizardSelector::beamWizardComplete() const
@@ -238,4 +256,92 @@ void AMSampleCameraWizardSelector::onLoadAllConfigurationsButtonClicked(){
 	emit requestLoadRotationConfiguration();
 	emit requestLoadSamplePlate();
 	emit requestLoadBeamConfiguration();
+}
+
+void AMSampleCameraWizardSelector::onCameraWizardButtonClicked(){
+	if(QApplication::instance()->arguments().contains("--developmentMode"))
+		emit cameraWizardPressed();
+	else{
+		QMessageBox messageBox;
+		messageBox.setText("You don't usually have to set up this feature. If you want to do so, please enter the password.");
+		QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+		messageBox.addButton(QMessageBox::Cancel);
+		QLineEdit *passwordLineEdit = new QLineEdit();
+		passwordLineEdit->setEchoMode(QLineEdit::Password);
+		QHBoxLayout *passwordHL = new QHBoxLayout();
+		passwordHL->addWidget(new QLabel("Password: "));
+		passwordHL->addWidget(passwordLineEdit);
+		QWidget *passwordWidget = new QWidget();
+		passwordWidget->setLayout(passwordHL);
+		messageBox.layout()->addWidget(passwordWidget);
+
+		messageBox.exec();
+
+		if (messageBox.clickedButton() == okButton && passwordLineEdit->text() == "onmyheadbeit")
+			emit cameraWizardPressed();
+	}
+}
+
+void AMSampleCameraWizardSelector::onRotationWizardButtonClicked(){
+	if(!QApplication::instance()->arguments().contains("--developmentMode"))
+		emit rotationWizardPressed();
+	else{
+		QMessageBox messageBox;
+		messageBox.setText("You don't usually have to set up this feature. If you want to do so, please enter the password.");
+		QPushButton *okButton = messageBox.addButton(QMessageBox::Ok);
+		messageBox.addButton(QMessageBox::Cancel);
+		QLineEdit *passwordLineEdit = new QLineEdit();
+		passwordLineEdit->setEchoMode(QLineEdit::Password);
+		QHBoxLayout *passwordHL = new QHBoxLayout();
+		passwordHL->addWidget(new QLabel("Password: "));
+		passwordHL->addWidget(passwordLineEdit);
+		QWidget *passwordWidget = new QWidget();
+		passwordWidget->setLayout(passwordHL);
+		messageBox.layout()->addWidget(passwordWidget);
+
+		messageBox.exec();
+
+		if (messageBox.clickedButton() == okButton && passwordLineEdit->text() == "onmyheadbeit")
+			emit rotationWizardPressed();
+	}
+}
+
+void AMSampleCameraWizardSelector::onLoadBeamConfigurationButtonCustomContextMenuRequested(QPoint point){
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Load A Beam Configuration from the Database");
+	temp = popup.exec(loadBeamConfigurationButton_->mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp)
+		emit requestLoadBeamConfigurationFromDatabase();
+}
+
+void AMSampleCameraWizardSelector::onLoadCameraConfigurationButtonCustomContextMenuRequested(QPoint point){
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Load A Camera Configuration from the Database");
+	temp = popup.exec(loadCameraConfigurationButton_->mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp)
+		emit requestLoadCameraConfigurationFromDatabase();
+}
+
+void AMSampleCameraWizardSelector::onLoadSamplePlateConfigurationButtonCustomContextMenuRequested(QPoint point){
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Load A Sample Plate Configuration from the Database");
+	temp = popup.exec(loadSamplePlateButton_->mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp)
+		emit requestLoadSamplePlateConfigurationFromDatabase();
+}
+
+void AMSampleCameraWizardSelector::onLoadRotationConfigurationButtonCustomContextMenuRequested(QPoint point){
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Load A Rotation Configuration from the Database");
+	temp = popup.exec(loadRotationConfigurationButton_->mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp)
+		emit requestLoadRotationConfigurationFromDatabase();
 }

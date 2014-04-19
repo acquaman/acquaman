@@ -74,6 +74,11 @@ signals:
 	void requestLoadSamplePlate();
 	void requestLoadRotationConfiguration();
 
+	void requestLoadBeamFromDatabase();
+	void requestLoadCameraFromDatabase();
+	void requestLoadSamplePlateFromDatabase();
+	void requestLoadRotationConfigurationFromDatabase();
+
 	void beamWizardPressed();
 	void cameraWizardPressed();
 	void samplePlateWizardPressed();

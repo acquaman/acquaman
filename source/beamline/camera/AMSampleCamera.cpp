@@ -1665,6 +1665,7 @@ void AMSampleCamera::moveBeamShape(QPointF point, int index)
 
 void AMSampleCamera::beamMousePressed(QPointF point, int index)
 {
+	Q_UNUSED(index)
 	setShapeVectors(point);
 }
 
@@ -1986,7 +1987,8 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 void AMSampleCamera::saveRotationalOffset()
 {
-	rotationalOffset_->setName("LastRotationalOffset");
+	//rotationalOffset_->setName("LastRotationalOffset");
+	rotationalOffset_->setName(QDateTime::currentDateTime().toString("dd MM yyyy - hh:mm:ss ap"));
 	rotationalOffset_->storeToDb(AMDatabase::database("SGMPublic"));
 }
 
@@ -2252,8 +2254,9 @@ void AMSampleCamera::saveBeam()
 	{
 		beamModel_->dissociateFromDb();
 		QVariantList beamList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "name");
-		int beamCount = beamList.count();
-		beamModel_->setName("beam"+QString::number(beamCount));
+		//int beamCount = beamList.count();
+		//beamModel_->setName("beam"+QString::number(beamCount));
+		beamModel_->setName(QDateTime::currentDateTime().toString("dd MM yyyy - hh:mm:ss ap"));
 	}
 	beamModel_->storeToDb(db);
 }
@@ -2262,6 +2265,7 @@ void AMSampleCamera::saveCamera()
 {
 	AMCameraConfiguration* cameraConfiguration = camera_->cameraConfiguration();
 	AMDatabase* db = AMDatabase::database("SGMPublic");
+	cameraConfiguration->setName(QDateTime::currentDateTime().toString("dd MM yyyy - hh:mm:ss ap"));
 	cameraConfiguration->storeToDb(db);
 }
 
