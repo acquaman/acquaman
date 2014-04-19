@@ -115,25 +115,35 @@ SGMAppController::SGMAppController(QObject *parent) :
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
 	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid" || userName == "helfrij") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
-
-
 	prependDatabaseUpgrade(sgm1Pt1SGMDb);
+
+	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
+	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid" || userName == "helfrij") )
+		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
+	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
+
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
 	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
 
-	// Append the AM upgrade 1.1 to the list for the SGMBeamline database
+	// Append the AM upgrade 1.1 to the list for the SGMBeamline database and public database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
 	appendDatabaseUpgrade(am1Pt1UserDb);
+	AMDbUpgrade *am1Pt1SGMPublicDb = new AMDbUpgrade1Pt1("SGMPublic", this);
+	appendDatabaseUpgrade(am1Pt1SGMPublicDb);
 
-	// Append the AM upgrade 1.2 to the list for the SGMBeamline database
+	// Append the AM upgrade 1.2 to the list for the SGMBeamline database and public database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+	AMDbUpgrade *am1Pt2SGMPublicDb = new AMDbUpgrade1Pt2("SGMPublic", this);
+	appendDatabaseUpgrade(am1Pt2SGMPublicDb);
 
-	// Append the AM upgrade 1.3 to the list for the SGMBeamline database
-	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt3UserDb);
+	// Append the AM upgrade 1.4 to the list for the SGMBeamline database and public database
+	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
+	appendDatabaseUpgrade(am1Pt4UserDb);
+	AMDbUpgrade *am1Pt4SGMPublicDb = new AMDbUpgrade1Pt4("SGMPublic", this);
+	appendDatabaseUpgrade(am1Pt4SGMPublicDb);
 
 	// Add the SGM Beamline database as a source of exporter options
 	additionalExporterOptionsDatabases_.append("SGMBeamline");
@@ -200,7 +210,14 @@ bool SGMAppController::startupCreateDatabases(){
 	// Create the SGM beamline database
 	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
 	if(!dbSGM) {
-		AMErrorMon::alert(this, -701, "Error creating the SGM Database. Please report this problem to the Acquaman developers.");
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE, "Error creating the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	// Create the public SGM beamline database
+	AMDatabase* dbSGMPublic = AMDatabase::createDatabase("SGMPublic", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMPublicDatabaseFilename());
+	if(!dbSGMPublic) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_PUBLIC_DATABASE, "Error creating the SGM Public Database. Please report this problem to the Acquaman developers.");
 		return false;
 	}
 
@@ -219,7 +236,18 @@ bool SGMAppController::startupRegisterDatabases(){
 
 	// Register the SGM Beamline database
 	if(!AMDbObjectSupport::s()->registerDatabase(dbSGM)) {
-		AMErrorMon::alert(this, -702, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	// Grab the SGM Public database
+	AMDatabase *dbSGMPublic = AMDatabase::database("SGMPublic");
+	if(!dbSGMPublic)
+		return false;
+
+	// Register the SGM Pubilc database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbSGMPublic)) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE, "Error registering the SGM Public Database. Please report this problem to the Acquaman developers.");
 		return false;
 	}
 

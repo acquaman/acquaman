@@ -738,7 +738,7 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 
 	camera_->setCalibrationRun(true);
 
-	camera_->cameraConfiguration()->storeToDb(AMDatabase::database("user"));
+	camera_->cameraConfiguration()->storeToDb(AMDatabase::database("SGMPublic"));
 
 }
 
@@ -1987,7 +1987,7 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 void AMSampleCamera::saveRotationalOffset()
 {
 	rotationalOffset_->setName("LastRotationalOffset");
-	rotationalOffset_->storeToDb(AMDatabase::database("user"));
+	rotationalOffset_->storeToDb(AMDatabase::database("SGMPublic"));
 }
 
 void AMSampleCamera::moveSamplePlateTo(const QVector3D &coordinate)
@@ -2246,7 +2246,7 @@ void AMSampleCamera::onShapeDataChanged()
 
 void AMSampleCamera::saveBeam()
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name", beamModel_->name());
 	if(matchList.count() != 0)
 	{
@@ -2261,8 +2261,7 @@ void AMSampleCamera::saveBeam()
 void AMSampleCamera::saveCamera()
 {
 	AMCameraConfiguration* cameraConfiguration = camera_->cameraConfiguration();
-	AMDatabase* db = AMDatabase::database("user");
-//	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", cameraConfiguration->name());
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	cameraConfiguration->storeToDb(db);
 }
 
@@ -2315,9 +2314,10 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	}
 
 
-	AMDatabase *db = AMDatabase::database("user");
+	AMDatabase *db = AMDatabase::database("SGMPublic");
 
 	if(!db){
+		db = AMDatabase::database("user");
 		// create the database
 		db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
 		if(!db)

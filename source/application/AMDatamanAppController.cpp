@@ -135,9 +135,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
 
-	// Append the AM upgrade 1.3 to the list for the user database
-	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt4("user", this);
-	appendDatabaseUpgrade(am1Pt3UserDb);
+	// Append the AM upgrade 1.4 to the list for the user database
+	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("user", this);
+	appendDatabaseUpgrade(am1Pt4UserDb);
 }
 
 bool AMDatamanAppController::startup() {

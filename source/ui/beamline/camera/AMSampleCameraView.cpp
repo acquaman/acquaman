@@ -1212,7 +1212,7 @@ bool AMSampleCameraView::isValid(int index) const
 
 bool AMSampleCameraView::loadBeam()
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "id");
 
 	if(matchList.count() <= 0)
@@ -1233,7 +1233,7 @@ bool AMSampleCameraView::loadBeam()
 
 bool AMSampleCameraView::loadCamera()
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 
 
@@ -1247,9 +1247,7 @@ bool AMSampleCameraView::loadCamera()
 	int id = matchList.last().toInt(success);
 
 	if(!success)
-	{
 		return false;
-	}
 
 	cameraToLoad->loadFromDb(db,id);
 	shapeModel_->setCameraModel(cameraToLoad);
@@ -1313,7 +1311,7 @@ bool AMSampleCameraView::loadSamplePlate()
 bool AMSampleCameraView::loadRotationalOffset()
 {
 	QString rotationalOffsetName = "LastRotationalOffset";
-	AMDatabase *db = AMDatabase::database("user");
+	AMDatabase *db = AMDatabase::database("SGMPublic");
 	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
 
 	if(matchList.count() <= 0)
@@ -2026,7 +2024,10 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	{
 		chl->addSpacing(space);
 		chl->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
-		enableMotorMovement_->setChecked(false);
+		if(QApplication::instance()->arguments().contains("--disableMotorMovement"))
+			enableMotorMovement_->setChecked(false);
+		else
+			enableMotorMovement_->setChecked(true);
 		chl->addSpacing(space);
 		chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
 		enableMotorTracking_->setChecked(false);
