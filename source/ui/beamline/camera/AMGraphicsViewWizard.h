@@ -1,9 +1,12 @@
 #ifndef AMGRAPHICSVIEWWIZARD_H
 #define AMGRAPHICSVIEWWIZARD_H
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaPlayer>
+#endif
+
 #include <QWizard>
 #include <QVector3D>
-#include <QMediaPlayer>
 
 class AMSampleCameraGraphicsView;
 class QPointF;
@@ -33,7 +36,7 @@ class QLineEdit;
 
 class AMGraphicsViewWizard : public QWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Default page numbers.  If using a different scheme, define own page numbers
 	enum
@@ -44,7 +47,7 @@ public:
 		Default_Final,
 		Default_Free
 	};
-	 /// These are the different message elements
+	/// These are the different message elements
 	enum
 	{
 		Wizard_Title,
@@ -57,59 +60,59 @@ public:
 	};
 	/// next page -1 is always finish
 	enum {FINISHED = -1};
-    AMGraphicsViewWizard(QWidget* parent = 0);
-    virtual ~AMGraphicsViewWizard();
+	AMGraphicsViewWizard(QWidget* parent = 0);
+	virtual ~AMGraphicsViewWizard();
 
-    /// returns the view held by this wizard
-    AMSampleCameraGraphicsView* view() const;
+	/// returns the view held by this wizard
+	AMSampleCameraGraphicsView* view() const;
 
-    /// returns the scaling of the view
-    QPointF scale() const;
+	/// returns the scaling of the view
+	QPointF scale() const;
 
-    /// setting the scale of the view allows it to be zoomed in or out
-    void setScale(QPointF scale);
-    void setScale(double scaleFactor);
+	/// setting the scale of the view allows it to be zoomed in or out
+	void setScale(QPointF scale);
+	void setScale(double scaleFactor);
 
-    /// emits moveTo signal with currentId as the argument
-    virtual void waitPage();
+	/// emits moveTo signal with currentId as the argument
+	virtual void waitPage();
 
 
 
-    /// the number of points for this wizard.
-    /// used to generate the options page
-    int numberOfPoints() const;
+	/// the number of points for this wizard.
+	/// used to generate the options page
+	int numberOfPoints() const;
 	/// number of set/wait type pages in the wizard
 	/// usually the same as number of points
 	int numberOfPages() const;
 
 
 
-    /// used to set all the text for the wizard in one easy to find
-    ///  location.  Must be reimplemented to get desired text.
-    /// Simply do a switch for each page and check for each
-    /// element of the message type enum.
-    virtual QString message(int type);
+	/// used to set all the text for the wizard in one easy to find
+	///  location.  Must be reimplemented to get desired text.
+	/// Simply do a switch for each page and check for each
+	/// element of the message type enum.
+	virtual QString message(int type);
 
-    /// maps a point to the video item, so that point 0,0 is
-    /// the top left corner of the image and 1,1 is the bottom left
-    /// corner.  Note that this does NOT map directly to
-    /// the view/scene in AMSampleCameraView. It needs to be
-    /// remapped from the the video bounding rect to the
-    /// video item.
-    QPointF mapPointToVideo(QPointF) const;
+	/// maps a point to the video item, so that point 0,0 is
+	/// the top left corner of the image and 1,1 is the bottom left
+	/// corner.  Note that this does NOT map directly to
+	/// the view/scene in AMSampleCameraView. It needs to be
+	/// remapped from the the video bounding rect to the
+	/// video item.
+	QPointF mapPointToVideo(QPointF) const;
 
-    /// used to access the state of the checkbox in an AMCheckPage
-    virtual bool checked(int page) const;
+	/// used to access the state of the checkbox in an AMCheckPage
+	virtual bool checked(int page) const;
 
-    /// adds the option page, making it accessible from
-    /// the page with page number 'id'
-    void addOptionPage(int id);
+	/// adds the option page, making it accessible from
+	/// the page with page number 'id'
+	void addOptionPage(int id);
 
-    /// returns true if the page is set to be shown
-    bool showOptionPage() const;
+	/// returns true if the page is set to be shown
+	bool showOptionPage() const;
 
-    /// sets the page to access the options page from
-    void setOptionPage(int id);
+	/// sets the page to access the options page from
+	void setOptionPage(int id);
 
 	// These functions are to protect from accidental motor movement during testing
 
@@ -139,14 +142,14 @@ public:
 
 
 public slots:
-    /// sets the view
-    void setView(AMSampleCameraGraphicsView* view);
+	/// sets the view
+	void setView(AMSampleCameraGraphicsView* view);
 
-    /// sets the point in pointList at index to point
-    virtual void setPoint(QPointF point, int index);
+	/// sets the point in pointList at index to point
+	virtual void setPoint(QPointF point, int index);
 
-    /// sets the coordinate in coordinateList at index to coordinate
-    virtual void setCoordinate(QVector3D coordinate, int index);
+	/// sets the coordinate in coordinateList at index to coordinate
+	virtual void setCoordinate(QVector3D coordinate, int index);
 
 	/// sets the rotation in rotationList at index
 	/// this is only relevant if rotation is enabled
@@ -154,48 +157,52 @@ public slots:
 
 
 
-    /// shows the help message.
-    /// if message is not reimplemented it will only
-    /// display "Default message"
-    /// either reimplement message (and define text
-    /// for each page for the enum Help) or reimplement
-    /// this directly.
-    virtual void showHelp();
+	/// shows the help message.
+	/// if message is not reimplemented it will only
+	/// display "Default message"
+	/// either reimplement message (and define text
+	/// for each page for the enum Help) or reimplement
+	/// this directly.
+	virtual void showHelp();
 
-    /// appends a point to pointList
-    virtual void addPoint(QPointF position);
+	/// appends a point to pointList
+	virtual void addPoint(QPointF position);
 
-    /// updates the scene
-    void updateScene(AMSampleCameraGraphicsView* view);
+	/// updates the scene
+	void updateScene(AMSampleCameraGraphicsView* view);
 
 	/// updates a shape in the scene
-    void updateShape(QGraphicsPolygonItem* item);
+	void updateShape(QGraphicsPolygonItem* item);
 
-    /// repositions the "fix text".
-    void fixText();
+	/// repositions the "fix text".
+	void fixText();
 
-    /// connects the move succeeded signal to a slot.
-    void testMoveSlot();
+	/// connects the move succeeded signal to a slot.
+	void testMoveSlot();
 
 signals:
 	/// emitted when finished
 	void done(int result);
 	/// emitted when non-rotating move requested
-    void moveTo(QVector3D);
+	void moveTo(QVector3D);
 	/// emitted when rotating move requested
 	void moveTo(QVector3D,double);
 	/// requests motor movement state
-    void requestMotorMovementEnabled();
+	void requestMotorMovementEnabled();
 	/// emitted when move has finished
-    void moveSucceeded();
+	void moveSucceeded();
 
 protected slots:
 	virtual void setHasHelpButton(bool hasHelp);
 	virtual void setDefaultWindowTitle();
 	virtual void showOptions(int id);
 	virtual void showOptionsButton(int id);
-    void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
-    void mediaPlayerErrorChanged(QMediaPlayer::Error);
+
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
+	void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
+	void mediaPlayerErrorChanged(QMediaPlayer::Error);
+	#endif
+
 	void setRotationEnabled(bool rotationEnabled);
 	void setNumberOfPages(int numberOfPages);
 	void setNumberOfPoints(int numberOfPoints);
@@ -242,16 +249,18 @@ protected:
 private slots:
 
 	/// sets the state of motorMovementEnabled
-    void setMotorMovementEnabled(bool motorMovementEnabled);
+	void setMotorMovementEnabled(bool motorMovementEnabled);
 
 private:
 	/// used to see if motor movement is actually allowed.
-		// if this is true but motorMovement is not allowed
-		// in the main application, it will hang.
-    bool motorMovementEnabled_;
+	// if this is true but motorMovement is not allowed
+	// in the main application, it will hang.
+	bool motorMovementEnabled_;
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	/// the media player used to display the camera feed
-    QMediaPlayer* mediaPlayer_;
+	QMediaPlayer* mediaPlayer_;
+	#endif
 
 	/// sets whether the wizard controls rotation
 	/// some wizards may need rotation, some may
@@ -300,44 +309,44 @@ private:
 
 class AMWizardPage : public QWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    enum {Title, Text, Help, Other, Default};
-    AMWizardPage(QWidget* parent = 0);
-    AMGraphicsViewWizard* viewWizard() const;
+	enum {Title, Text, Help, Other, Default};
+	AMWizardPage(QWidget* parent = 0);
+	AMGraphicsViewWizard* viewWizard() const;
 
-    virtual void initializePage();
+	virtual void initializePage();
 
-    /// used to set messages using the message function
-    /// in AMGraphicsViewWizard
-    /// simply invokes message with the corresponding type
-    /// (if type == Title calls AMGraphicsViewWizard::message(AMGraphicsViewWizard::Title)
-    virtual QString message(int type);
+	/// used to set messages using the message function
+	/// in AMGraphicsViewWizard
+	/// simply invokes message with the corresponding type
+	/// (if type == Title calls AMGraphicsViewWizard::message(AMGraphicsViewWizard::Title)
+	virtual QString message(int type);
 public slots:
-    void setLabelText(QString text);
+	void setLabelText(QString text);
 protected:
-    QLabel* topLabel_;
+	QLabel* topLabel_;
 
 };
 
 
 class AMWaitPage : public AMWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AMWaitPage(QWidget* parent = 0);
-    void initializePage();
-    bool isComplete() const;
-    void stopTimer();
-    void startTimer(int msec);
+	AMWaitPage(QWidget* parent = 0);
+	void initializePage();
+	bool isComplete() const;
+	void stopTimer();
+	void startTimer(int msec);
 protected slots:
-    void nextPage();
-    bool checkState();
+	void nextPage();
+	bool checkState();
 
 
 private:
-    QTimer* waitTimer_;
-    bool waitingToMove_;
+	QTimer* waitTimer_;
+	bool waitingToMove_;
 
 
 };
@@ -345,63 +354,63 @@ private:
 
 class AMViewPage : public AMWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AMViewPage(QWidget* parent = 0);
+	AMViewPage(QWidget* parent = 0);
 
-    AMSampleCameraGraphicsView* view();
+	AMSampleCameraGraphicsView* view();
 
 public slots:
-    void setView(AMSampleCameraGraphicsView* view);
+	void setView(AMSampleCameraGraphicsView* view);
 
-    void initializePage();
-    void cleanupPage();
+	void initializePage();
+	void cleanupPage();
 
 
 protected slots:
-    void addView();
+	void addView();
 
 private:
-    AMSampleCameraGraphicsView* view_;
+	AMSampleCameraGraphicsView* view_;
 
-    QLayout* layout_;
-    QFrame* viewFrame_;
+	QLayout* layout_;
+	QFrame* viewFrame_;
 
 };
 
 class AMCheckPage : public AMViewPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AMCheckPage(QWidget* parent = 0);
-    virtual void initializePage();
+	AMCheckPage(QWidget* parent = 0);
+	virtual void initializePage();
 
 signals:
-    void checked(bool);
+	void checked(bool);
 
 protected slots:
-    virtual void checkBoxChanged(bool state);
+	virtual void checkBoxChanged(bool state);
 
 protected:
-    QCheckBox* isConfigured_;
+	QCheckBox* isConfigured_;
 };
 
 class AMWizardOptionPage : public AMWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AMWizardOptionPage(QWidget* parent = 0);
-    virtual void initializePage();
+	AMWizardOptionPage(QWidget* parent = 0);
+	virtual void initializePage();
 
-    virtual void cleanupPage();
+	virtual void cleanupPage();
 
-    virtual bool isComplete() const;
+	virtual bool isComplete() const;
 protected slots:
-    void textChanged();
+	void textChanged();
 
 protected:
-    QLineEdit** coordinateEdit_;
-    QFrame* coordinateFrame_;
+	QLineEdit** coordinateEdit_;
+	QFrame* coordinateFrame_;
 };
 
 

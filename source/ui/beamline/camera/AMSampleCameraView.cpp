@@ -2,12 +2,17 @@
 
 #include <limits>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaPlayer>
+#include <QGraphicsVideoItem>
+#include <QMediaObject>
+#endif
+
+#include <QApplication>
 #include <QGraphicsLineItem>
 #include <QResizeEvent>
 #include <QGraphicsItem>
 #include <QMap>
-#include <QMediaObject>
-#include <QGraphicsVideoItem>
 #include <QDebug>
 #include <QDoubleSpinBox>
 #include <QComboBox>
@@ -27,7 +32,6 @@
 #include <QActionGroup>
 #include <QCompleter>
 #include <QStringListModel>
-#include <QMediaPlayer>
 #include <QPainterPath>
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -63,7 +67,9 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	shapeScene_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	shapeScene_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	shapeScene_->videoItem()->setAspectRatioMode(Qt::KeepAspectRatio);
+	#endif
 	cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
 	beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
@@ -166,12 +172,19 @@ void AMSampleCameraView::refreshSceneView()
 
 	QSizeF viewSize = shapeScene_->sceneRect().size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
 	double videoTop = shapeScene_->videoItem()->boundingRect().topLeft().y();
+	#else
+	QSizeF videoSize(1, 1);
+	double videoTop = 0;
+	#endif
 
 	// scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
         scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
+	#endif
 
 	shapeModel_->setViewSize(viewSize);
 	shapeModel_->setScaledSize(scaledSize, videoTop);
@@ -1174,6 +1187,7 @@ void AMSampleCameraView::toggleDistortion()
 	refreshSceneView();
 }
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMSampleCameraView::setMedia(QMediaContent url)
 {
 	shapeScene_->mediaPlayer()->setMedia(url);
@@ -1191,9 +1205,11 @@ QMediaPlayer* AMSampleCameraView::mediaPlayer() const
 {
 	return shapeScene_->mediaPlayer();
 }
+#endif
 
 QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 {
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
 	QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
 	QPointF factor = bottomRight - topLeft;
@@ -1203,6 +1219,9 @@ QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 	newPosition.setY(position.y()*factor.y());
 	newPosition += offset;
 	return newPosition;
+	#else
+	return QPointF(0, 0);
+	#endif
 }
 
 bool AMSampleCameraView::isValid(int index) const

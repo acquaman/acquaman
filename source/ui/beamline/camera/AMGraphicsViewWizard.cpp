@@ -1,22 +1,25 @@
 #include "AMGraphicsViewWizard.h"
 
-#include <QPointF>
-#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
-#include "AMSampleCameraGraphicsView.h"
-#include <QLayout>
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaPlayer>
+#include <QGraphicsVideoItem>
+#endif
 
+#include <QPointF>
+#include <QLayout>
 #include <QTimer>
 #include <QLabel>
 #include <QDebug>
 #include <QVector3D>
 #include <QMessageBox>
 #include <QGraphicsItem>
-#include <QGraphicsVideoItem>
 #include <QScrollBar>
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QMediaPlayer>
+
+#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
+#include "AMSampleCameraGraphicsView.h"
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 	:QWizard(parent)
@@ -33,7 +36,11 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 	optionsPage_ = -1;
 	motorMovementEnabled_ = false;
 	rotationEnabled_ = false;
+
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_ = new QMediaPlayer();
+	#endif
+
 	/// set the default free page. Make sure to set if not using
 	/// default pages.  Set through setFreePage(freePageNumber);
 	freePage_ = Default_Free;
@@ -45,6 +52,7 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 AMGraphicsViewWizard::~AMGraphicsViewWizard()
 {
 	qDebug()<<"AMGraphicsViewWizard::~AMGraphicsViewWizard";
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QGraphicsVideoItem* videoItem = 0;
 	foreach(QGraphicsItem* item, view_->scene()->items())
 	{
@@ -67,6 +75,7 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 		delete player;
 		delete videoItem;
 	}
+	#endif
 	qDebug()<<"End AMGraphicsViewWizard::~AMGraphicsViewWizard";
 }
 
@@ -194,6 +203,7 @@ QString AMGraphicsViewWizard::message(int type)
 /// get a point in relative coordinates, so that it may be mapped correctly in the coordinate space
 QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 {
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QList<QGraphicsItem*> list = view()->items();
 	QGraphicsVideoItem* videoItem;
 	// might break if can't find video
@@ -218,6 +228,9 @@ QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 	double positionY = (point.y() - top)/(bottom - top);
 
 	return QPointF(positionX, positionY);
+	#else
+	return QPointF(0, 0);
+	#endif
 }
 
 bool AMGraphicsViewWizard::checked(int page) const
@@ -298,6 +311,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 
 	fixText();
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	/// get the mediaObject
 	foreach(QGraphicsItem* item, view_->scene()->items())
 	{
@@ -318,7 +332,7 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	}
 
 	connect(mediaPlayer_, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(mediaPlayerErrorChanged(QMediaPlayer::Error)));
-
+	#endif
 }
 
 void AMGraphicsViewWizard::showHelp()
@@ -398,8 +412,6 @@ void AMGraphicsViewWizard::showOptions(int id)
 
 void AMGraphicsViewWizard::showOptionsButton(int id)
 {
-	qDebug()<<"Media player error is"<<mediaPlayer_->error();
-
 	if(id == optionsPage_)
 	{
 		button(CustomButton1)->show();
@@ -410,6 +422,7 @@ void AMGraphicsViewWizard::showOptionsButton(int id)
 	}
 }
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMGraphicsViewWizard::mediaPlayerStateChanged(QMediaPlayer::MediaStatus state)
 {
 	qDebug()<<"AMGraphicsViewWizard::mediaPlayerStateChanged"<<state;
@@ -459,8 +472,8 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 
 
 	}
-
 }
+#endif
 
 void AMGraphicsViewWizard::setRotationEnabled(bool rotationEnabled)
 {

@@ -2,8 +2,14 @@
 #define AMCROSSHAIROVERLAYVIDEOWIDGET2_H
 
 #include "ui/AMOverlayVideoWidget2.h"
+
 #include <QWidget>
 #include <QVector3D>
+#include <QGraphicsPolygonItem>
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+class QMediaPlayer;
+#endif
 
 class QTimer;
 class QGraphicsLineItem;
@@ -18,7 +24,6 @@ class QToolBar;
 class QAction;
 class QCompleter;
 class QStringListModel;
-class QMediaPlayer;
 
 class AMSampleCamera;
 class AMCameraConfiguration;
@@ -101,13 +106,14 @@ public:
 	/// Returns the color that will be returned when calling colour(SAMPLEBORDER)
 	QColor sampleBorderColor();
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	/// set the media to play
 	void setMedia(QMediaContent url);
 	/// start playing the current media
 	void play();
-
 	/// the media player
 	QMediaPlayer* mediaPlayer() const;
+	#endif
 
 	/// maps from other videos to this one
 	QPointF mapPointToVideo(QPointF);
@@ -520,7 +526,7 @@ protected:
 	QColor sampleBorderColor_;
 
 	/// Map of QGraphicsPolygonItem, corresponds to list in AMSampleCamera - should probably just be changed to a list
-	QMap<int,QGraphicsPolygonItem*> shapes_;
+	QMap<int, QGraphicsPolygonItem*> shapes_;
 
 	/// The model for all the shapes displayed
 	AMSampleCamera* shapeModel_;
@@ -619,7 +625,10 @@ protected:
 
 	QFrame* viewPortWindow_;
 	QGraphicsView* viewPortView_;
+
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QMediaPlayer* viewMediaPlayer_;
+	#endif
 
 	QGraphicsPathItem* currentShape_;
 

@@ -1,9 +1,11 @@
 #include "AMOverlayVideoWidget2.h"
-#include <QResizeEvent>
 
-#include <QGLWidget>
-
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QGraphicsVideoItem>
+#endif
+
+#include <QResizeEvent>
+#include <QGLWidget>
 #include <QLayout>
 #include <QDebug>
 
@@ -21,12 +23,14 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	setScene(new QGraphicsScene());
 	scene()->setBackgroundBrush(QBrush(QColor(50,50,50)));
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	videoItem_ = new QGraphicsVideoItem();
 	mediaPlayer_ = new QMediaPlayer();
 	mediaPlayer_->setVideoOutput(videoItem_);
 	videoItem_->setAspectRatioMode(Qt::KeepAspectRatio);
 
 	scene()->addItem(videoItem_);
+	#endif
 	resize(size());
 
 	// Widgets on top!
@@ -42,10 +46,11 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
   QMediaService::~QMediaService()
   QMediaPlayer::~QMediaPlayer()
   */
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
-
 	delete videoItem_;
 	delete mediaPlayer_;
+	#endif
 }
 
 QSize AMOverlayVideoWidget2::sizeHint() const{
@@ -56,7 +61,9 @@ void AMOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
 {
 	if (scene()) {
                 scene()->setSceneRect(QRect(QPoint(0, 0), size()));
+		#ifdef AM_MOBILITY_VIDEO_ENABLED
                 videoItem_->setSize(size());
+		#endif
 
         }
 	QGraphicsView::resizeEvent(event);

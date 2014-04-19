@@ -1,15 +1,18 @@
 #include "AMCameraConfigurationWizard.h"
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaPlayer>
+#include <QGraphicsVideoItem>
+#include <QVideoWidget>
+#endif
+
 #include <QLabel>
 #include <QCheckBox>
 #include <QLayout>
 #include <QMessageBox>
 #include <QVariant>
 #include <QTimer>
-#include <QMediaPlayer>
-#include <QGraphicsVideoItem>
 #include "AMSampleCameraGraphicsView.h"
-#include <QVideoWidget>
 #include <QGraphicsScene>
 #include <QTextDocument>
 #include <QScrollBar>

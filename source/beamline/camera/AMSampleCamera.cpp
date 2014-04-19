@@ -2,11 +2,14 @@
 
 #include <math.h>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaObject>
+#include <QGraphicsVideoItem>
+#endif
+
 #include <QGraphicsRectItem>
 #include <QResizeEvent>
 #include <QVector3D>
-#include <QMediaObject>
-#include <QGraphicsVideoItem>
 #include <QDebug>
 #include <QVector4D>
 #include <QApplication>

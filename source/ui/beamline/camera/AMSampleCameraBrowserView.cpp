@@ -6,6 +6,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QPushButton>
+#include <QUrl>
 
 #include <QMessageBox>
 #include <QStringBuilder>
@@ -46,7 +47,9 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 	if(index < 0) {
 		qDebug() << "Index is < 0";
 		setWindowTitle("AcquaCam");
+		#ifdef AM_MOBILITY_VIDEO_ENABLED
 		videoWidget_->setMedia(QMediaContent());
+		#endif
 	}
 
 	else {
@@ -60,10 +63,12 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 				sourceComboBox_->setItemText(index, url.toString());
 			}
 			setWindowTitle(url.toString());
+			#ifdef AM_MOBILITY_VIDEO_ENABLED
 			videoWidget_->setMedia(url);
 			qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
 			qDebug() << "Have a QApplication? " << QApplication::applicationName();
 			videoWidget_->play();
+			#endif
 		}
 		else {
 			QMessageBox::warning(this, "Invalid camera source address", "Sorry! That doesn't look like a valid URL for a camera or media source:\n\n" % stringUrl);
@@ -137,6 +142,7 @@ void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 	cameraBrowser_->setCurrentURL(sourceURL);
 }
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
 	qDebug() << "Error was " << e;
@@ -147,6 +153,7 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
+#endif
 
 void AMSampleCameraBrowserView::setCrosshairColor(QColor crosshairColor)
 {
@@ -255,7 +262,9 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 	connect(sourceComboBox_->model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));
+	#endif
 
 	if(urls.count() != 0)
 		sourceComboBox_->setCurrentIndex(0);

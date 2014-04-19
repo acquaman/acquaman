@@ -1,6 +1,10 @@
 #ifndef AMBEAMLINECAMERABROWSER2_H
 #define AMBEAMLINECAMERABROWSER2_H
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include <QMediaPlayer>
+#endif
+
 #include <QWidget>
 #include <QVector3D>
 #include <QModelIndex>
@@ -19,7 +23,6 @@ class AMSampleCameraBrowser;
 class AMSamplePlate;
 class QVector3D;
 
-#include <QMediaPlayer>
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMSampleCameraBrowserView : public QWidget
@@ -108,10 +111,10 @@ protected slots:
 
 	void onRowsInserted(const QModelIndex &index, int start, int end);
 
-
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	/// Called when the media player has an error (ex: invalid URL specified)
 	void onMediaPlayerError(QMediaPlayer::Error e);
-
+	#endif
 };
 
 #endif // AMBEAMLINECAMERABROWSER_H
