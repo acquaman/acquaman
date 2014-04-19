@@ -329,12 +329,12 @@ void AMBeamConfigurationView::beamChanged(QObject *newBeam)
 
 void AMBeamConfigurationView::saveBeamConfiguration()
 {
-	beamModel_->storeToDb(AMDatabase::database("user"));
+	beamModel_->storeToDb(AMDatabase::database("SGMPublic"));
 }
 
 void AMBeamConfigurationView::loadBeamConfiguration(int index)
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"id",index + 1);
 	if(!matchList.isEmpty())
 	{
@@ -509,7 +509,7 @@ void AMBeamConfigurationView::updateTwoFour(QVector3D four)
 void AMBeamConfigurationView::populateBeamSelectionBox()
 {
 	beamSelectionBox_->clear();
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QList<QVariant> matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(),"name");
 	foreach(QVariant matchItem, matchList)
 		beamSelectionBox_->addItem(matchItem.toString());

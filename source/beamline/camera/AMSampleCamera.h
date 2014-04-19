@@ -304,6 +304,11 @@ public:
 	/// returns true if a shape to draw on has been selected
 	bool drawOnShapeSelected();
 
+	/// returns true if beam is not fully over sample area
+	bool isBeamCutOff();
+
+	bool samplesOverlap();
+
 
 
 public slots:
@@ -608,8 +613,12 @@ protected:
 	QVector3D depthVector(QVector3D) const;
 
 	/// finds the intersection of the shape with the beam
-	QVector<QVector3D> findIntersectionShape(int index) const;
-	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape, bool boundIntersection = true) const;
+	QVector<QVector3D> findIntersectionShape(int index, bool *isFullyWithinSample = 0) const;
+	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape, bool boundIntersection = true, bool *isFullyWithinSample = 0) const;
+
+	void blockBeam();
+
+	void setBeamCutOff(bool beamCutOff);
 
 	/// converts the intersection shape to a shape on the screen
 	QPolygonF intersectionScreenShape(QVector<QVector3D>) const;
@@ -656,7 +665,7 @@ protected:
 	AMShapeData* takeItem(int index);
 
 	/// used to find the point to move the plate to, to position beneath the beam
-	QVector3D beamIntersectionPoint(QVector3D samplePoint);
+	QVector3D beamIntersectionPoint(QVector3D samplePoint, bool findCorner = false);
 
 	/// move the motors
 	bool moveMotors(double x, double y, double z);
@@ -733,6 +742,7 @@ protected:
 
 	/// intersections
 	QVector<QPolygonF> intersections_;
+	QVector<QVector<QVector3D> > intersectionShapes_;
 
 	/// the position of the crosshair
 	QPointF crosshair_;
@@ -821,6 +831,8 @@ protected:
 	AMAngle *oldRotation_;
 
 	AMDeferredFunctionCall motorUpdateDeferredFunction_;
+
+	bool beamCutOff_;
 
 
 

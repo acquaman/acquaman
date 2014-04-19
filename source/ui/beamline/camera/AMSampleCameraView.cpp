@@ -241,7 +241,7 @@ void AMSampleCameraView::refreshSceneView()
 				QPointF first = shapes_[i]->polygon().first();
 				textItems_[i]->setPos(first-point);
 				textItems_[i]->setDefaultTextColor(colour(BORDER));
-				if(i == current_)textItems_[i]->setDefaultTextColor(Qt::blue);
+				if(i == current_)textItems_[i]->setDefaultTextColor(colour(ACTIVEBORDER));
 				if(currentView_ == NAME)
 				{
 					textItems_[i]->setPlainText(shapeModel_->name(i));
@@ -1212,7 +1212,7 @@ bool AMSampleCameraView::isValid(int index) const
 
 bool AMSampleCameraView::loadBeam()
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMBeamConfiguration>(), "id");
 
 	if(matchList.count() <= 0)
@@ -1233,7 +1233,7 @@ bool AMSampleCameraView::loadBeam()
 
 bool AMSampleCameraView::loadCamera()
 {
-	AMDatabase* db = AMDatabase::database("user");
+	AMDatabase* db = AMDatabase::database("SGMPublic");
 	QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 
 
@@ -1247,9 +1247,7 @@ bool AMSampleCameraView::loadCamera()
 	int id = matchList.last().toInt(success);
 
 	if(!success)
-	{
 		return false;
-	}
 
 	cameraToLoad->loadFromDb(db,id);
 	shapeModel_->setCameraModel(cameraToLoad);
@@ -1313,7 +1311,7 @@ bool AMSampleCameraView::loadSamplePlate()
 bool AMSampleCameraView::loadRotationalOffset()
 {
 	QString rotationalOffsetName = "LastRotationalOffset";
-	AMDatabase *db = AMDatabase::database("user");
+	AMDatabase *db = AMDatabase::database("SGMPublic");
 	QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
 
 	if(matchList.count() <= 0)
@@ -2026,7 +2024,10 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	{
 		chl->addSpacing(space);
 		chl->addWidget(enableMotorMovement_ = new QCheckBox("Enable Motor Movement"));
-		enableMotorMovement_->setChecked(false);
+		if(QApplication::instance()->arguments().contains("--disableMotorMovement"))
+			enableMotorMovement_->setChecked(false);
+		else
+			enableMotorMovement_->setChecked(true);
 		chl->addSpacing(space);
 		chl->addWidget(enableMotorTracking_ = new QCheckBox("Enable Motor Tracking"));
 		enableMotorTracking_->setChecked(false);
@@ -2743,6 +2744,7 @@ void AMSampleCameraColorEditor::onActiveBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setActiveBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onBorderColorButtonClicked()
@@ -2752,6 +2754,7 @@ void AMSampleCameraColorEditor::onBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onIntersectionColorButtonClicked()
@@ -2761,6 +2764,7 @@ void AMSampleCameraColorEditor::onIntersectionColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setIntersectionColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onSamplePlateIntersectionColorButtonClicked()
@@ -2770,6 +2774,7 @@ void AMSampleCameraColorEditor::onSamplePlateIntersectionColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setSamplePlateIntersectionColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
 
 void AMSampleCameraColorEditor::onSampleBorderColorButtonClicked()
@@ -2779,6 +2784,29 @@ void AMSampleCameraColorEditor::onSampleBorderColorButtonClicked()
 	if(colorDialog.exec() == QDialog::Accepted){
 		cameraView_->setSampleBorderColor(colorDialog.currentColor());
 	}
+	cameraView_->refreshSceneColours();
 }
+
+void AMSampleCameraView::refreshSceneColours()
+{
+	for(int i = 0; i < shapes_.count(); i++)
+	{
+		if(i == current_)
+		{
+			shapes_[i]->setPen(colour(ACTIVEBORDER));
+			shapes_[i]->setBrush(QBrush(colour(FILL)));
+		}
+		else
+		{
+			shapes_[i]->setPen(colour(BORDER));
+			shapes_[i]->setBrush(QBrush(colour(FILL)));
+		}
+	}
+	samplePlate_->setPen(colour(SAMPLEBORDER));
+	samplePlate_->setBrush(QBrush(colour(SAMPLEFILL)));
+	refreshSceneView();
+}
+
+
 
 

@@ -16,7 +16,7 @@ public:
 
 	};
 	AMSimpleBeamConfigurationWizard(QWidget *parent = 0);
-	virtual ~AMSimpleBeamConfigurationWizard();
+//	virtual ~AMSimpleBeamConfigurationWizard();
 	virtual int nextId() const;
 	virtual void waitPage();
 	virtual QString message(int type);

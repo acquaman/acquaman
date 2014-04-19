@@ -44,6 +44,7 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 
 AMGraphicsViewWizard::~AMGraphicsViewWizard()
 {
+	qDebug()<<"AMGraphicsViewWizard::~AMGraphicsViewWizard";
 	QGraphicsVideoItem* videoItem = 0;
 	foreach(QGraphicsItem* item, view_->scene()->items())
 	{
@@ -66,6 +67,7 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 		delete player;
 		delete videoItem;
 	}
+	qDebug()<<"End AMGraphicsViewWizard::~AMGraphicsViewWizard";
 }
 
 AMSampleCameraGraphicsView *AMGraphicsViewWizard::view() const
