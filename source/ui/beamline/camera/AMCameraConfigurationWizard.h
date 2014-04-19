@@ -21,7 +21,7 @@ class QVector3D;
 */
 class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	enum
 	{
@@ -32,38 +32,38 @@ public:
 		Page_Free
 	};
 
-    AMCameraConfigurationWizard(QWidget* parent = 0);
+	AMCameraConfigurationWizard(QWidget* parent = 0);
 	virtual ~AMCameraConfigurationWizard();
 
-    /// reimplementation of nextId.
-    /// it is necessary to control the page flow from the wizard
+	/// reimplementation of nextId.
+	/// it is necessary to control the page flow from the wizard
 	/// rather than the pages because there is more than one instance of several pages
 	virtual int nextId() const;
 
-    virtual QString message(int messageType);
+	virtual QString message(int messageType);
 
 	// moved to AMGraphicsViewWizard
-//    / used to correlate Page_Wait_x and Page_Select_x with their order
-//    int relativeId();
+	//    / used to correlate Page_Wait_x and Page_Select_x with their order
+	//    int relativeId();
 
-//	/ moves to the position for Page_Wait_x
-//	virtual void waitPage();
+	//	/ moves to the position for Page_Wait_x
+	//	virtual void waitPage();
 
 
 public slots:
-    /// reimplementation of the back slot, used to move the motor back to the appropriate place
-    /// on going back to a previous page
-    void back();
+	/// reimplementation of the back slot, used to move the motor back to the appropriate place
+	/// on going back to a previous page
+	void back();
 
-    /// sets the appropriate point in the list and goes on to the next page
-    virtual void addPoint(QPointF position);
+	/// sets the appropriate point in the list and goes on to the next page
+	virtual void addPoint(QPointF position);
 
 protected:
 	/// get coordinate (x/y/z) for specified id
 	/// -this is the relative id
-    double coordinateX(int id);
-    double coordinateY(int id);
-    double coordinateZ(int id);
+	double coordinateX(int id);
+	double coordinateY(int id);
+	double coordinateZ(int id);
 	void clearPoints();
 };
 
@@ -71,11 +71,11 @@ protected:
 
 class IntroPage : public AMWizardPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 
-    void timerEvent(QTimerEvent *event);
+	void timerEvent(QTimerEvent *event);
 
 };
 
@@ -83,10 +83,10 @@ public:
 /// so that the wizard may be skipped early on.
 class CheckPage : public AMCheckPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public slots:
 
-    void initializePage();
+	void initializePage();
 
 protected slots:
 };
@@ -94,22 +94,22 @@ protected slots:
 /// SelectPage is where the calibration point is selected.
 class SelectPage : public AMViewPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 
 public slots:
 
-    void addPoint(QPointF position);
+	void addPoint(QPointF position);
 };
 
 /// Wait page causes the user to wait while the motor moves
 /// to the next position
 class WaitPage : public AMWaitPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 
 };
 
