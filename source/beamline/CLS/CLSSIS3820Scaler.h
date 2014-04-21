@@ -137,13 +137,14 @@ signals:
     /// Emitted on completion of a dark current measurement.
     void newDarkCurrentCorrectionValue();
     /// Communicates the detector's new dark current measurement value to the scaler view, passes the new value as an argument.
-    void newDarkCurrentValue(double newMeasurement);
+    void newDarkCurrentMeasurementValue(double newMeasurement);
     /// Emitted on completion of a dark current measurement, passes the dwell time of the measurement.
-    void newDarkCurrentCorrectionTime(double dwellSeconds);
+    void newDarkCurrentMeasurementTime(double dwellSeconds);
     /// Emitted when the DarkCurrentCorrectionState changes, passes the new state.
-    void darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
+    void newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
     /// Emitted when the scaler channel sr570 sensitivity changes.
     void sensitivityChanged();
+
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
@@ -221,8 +222,8 @@ class CLSSIS3820ScalerChannel : public QObject
 
 public:
 	/// Constructor.  Takes in a base name and the index of the channel and builds all the necessary PV's.
- 	virtual ~CLSSIS3820ScalerChannel();
 	CLSSIS3820ScalerChannel(const QString &baseName, int index, QObject *parent = 0);
+    virtual ~CLSSIS3820ScalerChannel();
 
 	/// Returns whether the channel is connected.
 	bool isConnected() const;
@@ -292,6 +293,11 @@ signals:
 	void voltageRangeChanged(const AMRange &);
     /// Notifier that the SR570 sensitivity has changed.
     void sensitivityChanged();
+
+    /// Emitted when the scaler channel is notified of a change in the dark current measurement value. Communicates change to scaler channel view.
+    void newDarkCurrentMeasurementValue(double newValue);
+    /// Emitted when the scaler channel is notified of a change in the dark current measurement status. Communicates change to the scaler channel view.
+    void newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
 
 
 protected slots:

@@ -2,8 +2,8 @@
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
-
 #include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
+#include "actions3/AMListAction3.h"
 
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
@@ -14,10 +14,10 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
     connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
-    connect( scaler_, SIGNAL(newDarkCurrentCorrectionTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
+    connect( scaler_, SIGNAL(newDarkCurrentMeasurementTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
     connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
 
-    connect( this, SIGNAL(newDarkCurrentMeasurementValueReady(double)), scaler_, SIGNAL(newDarkCurrentValue(double)) );
+    connect( this, SIGNAL(newDarkCurrentMeasurementValueReady(double)), scaler_, SIGNAL(newDarkCurrentMeasurementValue(double)) );
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -75,7 +75,6 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
-#include "actions3/AMListAction3.h"
 AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime){
     if (dwellTime <= 0)
         return 0;
@@ -137,15 +136,11 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 
 
 void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(double dwellSeconds) {
-    qDebug() << "Detector doing dark current correction : " << name();
     setAsDarkCurrentMeasurementTime(dwellSeconds);
-    qDebug() << "New dark current time : " << darkCurrentMeasurementTime();
 }
 
 void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
-    qDebug() << "Dark current value changed : " << name();
     setAsDarkCurrentMeasurementValue();
-    qDebug() << "New dark current value : " << darkCurrentMeasurementValue();
 }
 
 void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {

@@ -9,7 +9,6 @@ AMDoDarkCurrentCorrectionAction::AMDoDarkCurrentCorrectionAction(AMDoDarkCurrent
 AMDoDarkCurrentCorrectionAction::AMDoDarkCurrentCorrectionAction(const AMDoDarkCurrentCorrectionAction &other) :
     AMAction3(other)
 {
-
 }
 
 AMDoDarkCurrentCorrectionAction::~AMDoDarkCurrentCorrectionAction() {}
@@ -34,7 +33,7 @@ int AMDoDarkCurrentCorrectionAction::numberOfChildren() const {
     return 0;
 }
 
-void AMDoDarkCurrentCorrectionAction::darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState newState) {
+void AMDoDarkCurrentCorrectionAction::onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState) {
     if (newState == CLSSIS3820Scaler::SUCCEEDED)
         setSucceeded();
     else if (newState == CLSSIS3820Scaler::FAILED)
@@ -45,7 +44,7 @@ void AMDoDarkCurrentCorrectionAction::startImplementation() {
     qDebug() << "AMDoDarkCurrentCorrectionAction::startImplementation is executing.";
 
     CLSSIS3820Scaler *scaler = doDarkCurrentCorrectionInfo()->scaler();
-    connect( scaler, SIGNAL(darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+    connect( scaler, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
     double dwellTime = doDarkCurrentCorrectionInfo()->dwellTime();
 
     setStarted();

@@ -20,7 +20,7 @@ public:
     virtual int numberOfChildren() const;
 
 protected slots:
-    void darkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
+    void onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
 
 private:
     virtual void startImplementation();

@@ -468,9 +468,9 @@ protected:
 	bool hiddenFromUsers_;
     /// The most up-to-date value of the dark current for this detector.
     double darkCurrentMeasurementValue_;
-    /// The dwell time used to for the darkCurrentCorrection_ measurement.
+    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
     double darkCurrentMeasurementTime_;
-    /// Flag indicating whether or not darkCurrentCorrection_ needs to be updated.d
+    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
     bool requiresNewDarkCurrentMeasurement_;
 
 private:

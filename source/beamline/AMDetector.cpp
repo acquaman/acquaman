@@ -11,7 +11,6 @@
 #include "actions3/actions/AMDetectorCleanupAction.h"
 
 
- AMDetector::~AMDetector(){}
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -42,6 +41,8 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
+
+AMDetector::~AMDetector(){}
 
 AMDetectorInfo AMDetector::toInfo() const{
 	return AMDetectorInfo(name(), description(), units(), acquisitionTime(), readMode());
@@ -408,8 +409,10 @@ void AMDetector::setAsDarkCurrentMeasurementValue(){
 void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
 
-        if (lastTime > darkCurrentMeasurementTime_)
-            setRequiresNewDarkCurrentMeasurement(true);
+//      bug (?) ----->
+//        if (lastTime > darkCurrentMeasurementTime_)
+//            setRequiresNewDarkCurrentMeasurement(true);
+//      <---------
 
         darkCurrentMeasurementTime_ = lastTime;
 
