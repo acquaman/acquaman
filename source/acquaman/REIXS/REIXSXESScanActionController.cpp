@@ -77,6 +77,15 @@ void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	setFinished();
 }
 
+
+void REIXSXESScanActionController::onDetectorAcquisitionFailed(){
+	updateTimer_->stop();
+	saveRawData();
+	setFailed();
+}
+
+
+
 void REIXSXESScanActionController::onNewImageValues(){
 	QVector<int> imageData = REIXSBeamline::bl()->mcpDetector()->imageData();
 
@@ -246,6 +255,7 @@ bool REIXSXESScanActionController::startImplementation(){
 	connect(updateTimer_, SIGNAL(timeout()), this, SLOT(saveRawData()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionSucceeded()), this, SLOT(onDetectorAcquisitionSucceeded()));
+	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionFailed()), this, SLOT(onDetectorAcquisitionFailed));
 	return true;
 }
 
@@ -280,26 +290,28 @@ void REIXSXESScanActionController::initializeScanMetaData()
 
 	int sampleId = REIXSBeamline::bl()->currentSampleId();
 
-	if(configuration_->namedAutomatically()) {
+	double energyForName = REIXSBeamline::bl()->photonSource()->energy()->value();
+
+	if(configuration_->applyEnergy()) energyForName = configuration_->energy();
+
+	if(configuration_->namedAutomatically()) {  //Named Automatically
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
 			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
-			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(configuration_->autoScanName()).arg(configuration_->centerEV()));
+			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(configuration_->autoScanName()).arg(energyForName));
 
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
 		else {
-			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(configuration_->centerEV()));
+			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(energyForName));
 
-			scan_->setNumber(0);
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), "")+1);
 			scan_->setSampleId(-1);
 		}
 	}
-	else {
-		scan_->setName(QString("%1 %2 eV").arg(configuration_->userScanName()).arg(configuration_->centerEV()));
-		if(scan_->name().isEmpty())
-			scan_->setName(QString("%1 %2 eV").arg(configuration_->autoScanName()).arg(configuration_->centerEV()));
-
+	else {									//Named Manually
+		scan_->setName(QString("%1 %2 eV").arg(configuration_->userScanName()).arg(energyForName));
+		qDebug() << "Manually named with: " << configuration_->userScanName();
 		if (configuration_->scanNumber() == 0)
 		{
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), "")+1);

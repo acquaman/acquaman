@@ -63,6 +63,23 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	configuration_->setDetectorConfigurations(reixsDetectors);
 
 	connect(this, SIGNAL(initialized()), this, SLOT(onInitializationActionSucceeded()));
+
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = 1;
+	for (int i = 0; i < configuration_->regions()->count(); i++)
+		secondsTotal_ += ((configuration_->regions()->end(i) - configuration_->regions()->start(i))/configuration_->regions()->delta(i))*(configuration_->regions()->time(i) + 0.2);
+	qDebug() << "Seconds Total is:" << secondsTotal_;
+	elapsedTime_.setInterval(1000);
+
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+
 }
 
 void REIXSXASScanActionController::onInitializationActionSucceeded(){
@@ -85,6 +102,16 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(polarizationAngle);
 	}
 
+
+//	AMControlInfo SOEtemp("SOETemp", REIXSBeamline::bl()->spectrometer()->tmSOE(), 0, 0, "C", 0.1, "SOE Temperature");
+//	positions.append(SOEtemp);
+//	AMControlInfo MCPtemp("MCPtemp", REIXSBeamline::bl()->spectrometer()->tmMCPPreamp(), 0, 0, "C", 0.1, "MCP Preamp Temperature");
+//	positions.append(MCPtemp);
+//	AMControlInfo Sampletemp("Sampletemp", REIXSBeamline::bl()->sampleChamber()->tmSample(), 0, 0, "C", 0.1, "Sample Temperature");
+//	positions.append(Sampletemp);
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
 
 	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
@@ -135,6 +162,7 @@ void REIXSXASScanActionController::buildScanControllerImplementation()
 }
 
 AMAction3* REIXSXASScanActionController::createInitializationActions(){
+
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
 	AMControl *tmpControl;
@@ -153,39 +181,52 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 		initializationStage1->addSubAction(moveAction);
 	}
 
-	if(configuration_->applyPolarization()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
-		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
-		polarizationSetpoint.setValue(configuration_->polarization());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationStage1->addSubAction(moveAction);
-
-		/* NEEDS TO BE FIXED TO GO IN SEQUENCE BEFORE POLARIZATION ENUM IS CHOOSEN
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
 		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
 		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
 		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
 		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
 		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 		initializationStage1->addSubAction(moveAction);
-		*/
+
 	}
 
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createStartAction3(false));
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createContinuousEnableAction3(false));
 
 
+
+
+
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 2", "REIXS XAS Initialization Stage 2"), AMListAction3::Parallel);
+
+	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
+		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
+		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
+		polarizationSetpoint.setValue(configuration_->polarization());
+		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		initializationStage2->addSubAction(moveAction);
+	}
+
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createScansPerBufferAction3(1));
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createTotalScansAction3(1));
 
+
+
+
+
 	AMListAction3 *initializationStage3 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 3", "REIXS XAS Initialization Stage 3"), AMListAction3::Parallel);
+
 	tmpControl = REIXSBeamline::bl()->photonSource()->energy();
 	AMControlInfo initialEnergySetpoint = tmpControl->toInfo();
 	initialEnergySetpoint.setValue(configuration_->startEnergy());
 	moveActionInfo = new AMControlMoveActionInfo3(initialEnergySetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
+
+
+
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
@@ -198,9 +239,28 @@ AMAction3* REIXSXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"), AMListAction3::Parallel);
 
 	CLSSIS3820Scaler *scaler = REIXSBeamline::bl()->scaler();
-	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
-	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+//	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isConti/*nuous()));
+//	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
+//	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
+	cleanupActions->addSubAction(scaler->createTotalScansAction3(1));
 
 	return cleanupActions;
+}
+
+
+void REIXSXASScanActionController::onScanTimerUpdate()
+{
+
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+		qDebug() << secondsElapsed_ << " elasped of " << secondsTotal_ ;
+		emit timeRemaining(secondsTotal_-secondsElapsed_);
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }
