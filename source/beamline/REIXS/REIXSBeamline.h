@@ -62,9 +62,12 @@ public:
 	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
 	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
+
 protected:
 	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
+
+
 
 };
 
@@ -248,6 +251,9 @@ public:
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
+	AMControl* tmMCPPreamp() { return tmMCPPreamp_; }
+	AMControl* tmSOE() { return tmSOE_; }
+
 
 public slots:
 	/// Specify which stored calibration to use.  Use a \c databaseId of 0 or -1 to reset to the default calibration (ie: a default-constructed REIXSXESCalibration).  Returns true on success.
@@ -266,6 +272,9 @@ protected:
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration2 calibration_;
+
+//	Temperature
+	AMControl* tmMCPPreamp_, *tmSOE_;
 
 	/// Current grating is -1 if a grating hasn't been positioned yet
 	int currentGrating_, specifiedGrating_;
@@ -319,9 +328,15 @@ public:
 
 	AMControl* loadLockZ() { return loadLockZ_; }
 	AMControl* loadLockR() { return loadLockR_; }
+	AMControl* tmSample() { return tmSample_; }
+
+
 
 protected:
 	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+
+	//	Temperature
+		AMControl* tmSample_;
 };
 
 /// This control provides a wrapper around the beamline energy PV control to correct some of its major deficiencies.
@@ -461,6 +476,8 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	//AMControlSet* allControlsSet() { return allControlsSet_; }
 	AMControlSet* allControlsSet() { return 0; }
+	/// All temperature monitors set
+	AMControlSet* tmset() { return tmSet_; }
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 	CLSSIS3820Scaler *scaler() { return scaler_; }
@@ -502,7 +519,8 @@ protected:
 	AMControlSet* spectrometerPositionSet_;
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	//AMControlSet* allControlsSet_;
-
+	/// All tempertature monitors
+	AMControlSet* tmSet_;
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate_;

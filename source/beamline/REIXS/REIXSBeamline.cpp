@@ -115,12 +115,20 @@ REIXSBeamline::REIXSBeamline() :
 //	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
 //	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
+	tmSet_ = new AMControlSet(this);
+	tmSet_->addControl(spectrometer()->tmSOE());
+	tmSet_->addControl(spectrometer()->tmMCPPreamp());
+	tmSet_->addControl(sampleChamber()->tmSample());
+
+
 	setupExposedControls();
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlate(this);
 
 	xasDetectors_ = new REIXSXASDetectors(this);
+
+
 }
 
 REIXSBeamline::~REIXSBeamline() {
@@ -327,6 +335,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	loadLockR_->setSettlingTime(0.2);
 	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
 
+	tmSample_ = new AMReadOnlyPVControl("SampleTemp", "TM1610-4-I21-04", this, "Sample Temperature");
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -334,6 +343,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	addChildControl(r_);
 	addChildControl(loadLockZ_);
 	addChildControl(loadLockR_);
+	addChildControl(tmSample_);
 }
 
 
@@ -450,12 +460,18 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	hexapod_ = new REIXSHexapod(this);
 
+	tmMCPPreamp_ = new AMReadOnlyPVControl("MCPPreampTemp", "TM1610-4-I21-03", this, "MCP Preamp Temperature");
+	tmSOE_ = new AMReadOnlyPVControl("SOETemp", "TM1609-01", this, "SOE Temperature");
+
+
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
 	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
 	addChildControl(gratingMask_);  //DAVID ADDED 005
+	addChildControl(tmMCPPreamp_);
+	addChildControl(tmSOE_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
 	currentFocusOffset_ = 0; specifiedFocusOffset_ = 0;
