@@ -44,7 +44,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
-    connect(dwellTimeSource_, SIGNAL(setDarkCurrentCorrectionTime(int)), this, SLOT(onDwellTimeSourceSetDarkCurrentCorrectionTime(int)) );
+    connect(dwellTimeSource_, SIGNAL(setDarkCurrentCorrectionTime(int)), this, SLOT(onDwellTimeSourceSetDarkCurrentCorrectionTime(double)) );
 
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 

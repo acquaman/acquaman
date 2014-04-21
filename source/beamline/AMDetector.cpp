@@ -36,9 +36,9 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	isVisible_ = true;
 	hiddenFromUsers_ = false;
 
-    darkCurrentCorrection_ = 0;
-    lastDarkCurrentCorrectionTime_ = 0;
-    requiresNewDarkCurrentCorrection_ = true;
+    darkCurrentMeasurementValue_ = 0;
+    darkCurrentMeasurementTime_ = 0;
+    requiresNewDarkCurrentMeasurement_ = true;
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
@@ -58,23 +58,23 @@ AMDetector::operator AMMeasurementInfo() {
 	*/
 }
 
-double AMDetector::darkCurrentCorrection() const {
+double AMDetector::darkCurrentMeasurementValue() const {
     if (canDoDarkCurrentCorrection())
-        return darkCurrentCorrection_;
+        return darkCurrentMeasurementValue_;
 
     return -1;
 }
 
-int AMDetector::lastDarkCurrentCorrectionTime() const {
+int AMDetector::darkCurrentMeasurementTime() const {
     if (canDoDarkCurrentCorrection())
-        return lastDarkCurrentCorrectionTime_;
+        return darkCurrentMeasurementTime_;
 
     return -1;
 }
 
-bool AMDetector::requiresNewDarkCurrentCorrection() const {
+bool AMDetector::requiresNewDarkCurrentMeasurement() const {
     if (canDoDarkCurrentCorrection())
-        return requiresNewDarkCurrentCorrection_;
+        return requiresNewDarkCurrentMeasurement_;
 
     return false;
 }
@@ -396,31 +396,33 @@ bool AMDetector::clear(){
 	return clearImplementation();
 }
 
-void AMDetector::setAsDarkCurrentCorrection(){
+void AMDetector::setAsDarkCurrentMeasurementValue(){
     if (canDoDarkCurrentCorrection()){
-        darkCurrentCorrection_ = double(singleReading()) / acquisitionTime();
-        qDebug() << name() << " has new dark current correction measurement: " << darkCurrentCorrection_;
-        setRequiresNewDarkCurrentCorrection(false);
-        emit newDarkCurrentCorrectionReady(darkCurrentCorrection_);
+        darkCurrentMeasurementValue_ = double(singleReading()) / acquisitionTime();
+        qDebug() << name() << " has new dark current correction measurement: " << darkCurrentMeasurementValue_;
+        setRequiresNewDarkCurrentMeasurement(false);
+        emit newDarkCurrentMeasurementValueReady(darkCurrentMeasurementValue_);
     }
 }
 
-void AMDetector::setLastDarkCurrentCorrectionTime(double lastTime) {
+void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
 
-        if (lastTime > lastDarkCurrentCorrectionTime_)
-            setRequiresNewDarkCurrentCorrection(true);
+        if (lastTime > darkCurrentMeasurementTime_)
+            setRequiresNewDarkCurrentMeasurement(true);
 
-        lastDarkCurrentCorrectionTime_ = lastTime;
+        darkCurrentMeasurementTime_ = lastTime;
 
         qDebug() << name() << "has new last dark current correction time: " << lastTime;
     }
 }
 
-void AMDetector::setRequiresNewDarkCurrentCorrection(bool needsNewDCC) {
+void AMDetector::setRequiresNewDarkCurrentMeasurement(bool needsNewDCC) {
     if (canDoDarkCurrentCorrection()) {
-        qDebug() << name() << "requires new dark current correction measurement.";
-        emit requiresNewDarkCurrentCorrection(requiresNewDarkCurrentCorrection_ = needsNewDCC);
+        if (needsNewDCC)
+            qDebug() << "AMDetector::setRequiresNewDarkCurrentCorrection : " << name() << "requires new dark current correction measurement.";
+
+        emit requiresNewDarkCurrentMeasurement(requiresNewDarkCurrentMeasurement_ = needsNewDCC);
     }
 }
 

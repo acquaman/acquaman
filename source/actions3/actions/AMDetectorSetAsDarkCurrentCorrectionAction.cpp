@@ -39,7 +39,7 @@ void AMDetectorSetAsDarkCurrentCorrectionAction::startImplementation(){
         return;
     }
 
-    detector_->setAsDarkCurrentCorrection();
+    detector_->setAsDarkCurrentMeasurementValue();
     setStarted();
     setSucceeded();
 }
