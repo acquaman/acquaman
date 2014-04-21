@@ -291,11 +291,11 @@ void REIXSXESScanController::initializeScanMetaData()
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
 			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
-			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(config_->autoScanName()).arg(config_->energy()));
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
 		else {
-			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->energy()));
 			scan_->setNumber(0);
 			scan_->setSampleId(-1);
 		}
@@ -303,7 +303,7 @@ void REIXSXESScanController::initializeScanMetaData()
 	else {
 		scan_->setName(config_->userScanName());
 		if(scan_->name().isEmpty())
-			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->energy()));
 		scan_->setNumber(config_->scanNumber());
 		scan_->setSampleId(config_->sampleId());
 	}
