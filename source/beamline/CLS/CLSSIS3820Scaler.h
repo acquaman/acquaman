@@ -134,8 +134,10 @@ signals:
 	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
 
-    /// Emitted on completion of a dark current measurement, passes the new measurement value.
+    /// Emitted on completion of a dark current measurement.
     void newDarkCurrentCorrectionValue();
+    /// Communicates the detector's new dark current measurement value to the scaler view, passes the new value as an argument.
+    void newDarkCurrentValue(double newMeasurement);
     /// Emitted on completion of a dark current measurement, passes the dwell time of the measurement.
     void newDarkCurrentCorrectionTime(double dwellSeconds);
     /// Emitted when the DarkCurrentCorrectionState changes, passes the new state.

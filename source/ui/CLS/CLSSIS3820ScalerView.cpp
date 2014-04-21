@@ -230,6 +230,7 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 	}
 }
 
+
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
 

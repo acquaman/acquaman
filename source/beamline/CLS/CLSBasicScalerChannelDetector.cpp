@@ -16,6 +16,8 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
     connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
     connect( scaler_, SIGNAL(newDarkCurrentCorrectionTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
     connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
+
+    connect( this, SIGNAL(newDarkCurrentCorrectionReady(double)), scaler_, SIGNAL(newDarkCurrentValue(double)) );
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}

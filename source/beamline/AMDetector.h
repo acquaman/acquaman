@@ -381,7 +381,7 @@ signals:
 	/// Notifier that the default accessibility of the detector has changed.
 	void hiddenFromUsersChanged(bool);
 
-    /// New dark current correction value ready
+    /// New dark current correction value ready, passes new dark current value.
     void newDarkCurrentCorrectionReady(double newValue);
     /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
     void requiresNewDarkCurrentCorrection(bool needsUpdate);
