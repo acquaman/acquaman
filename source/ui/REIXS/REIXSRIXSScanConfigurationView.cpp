@@ -72,18 +72,19 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	energyBox_->setDecimals(2);
 	energyBox_->setEnabled(true);
 	energyBox_->setRange(92,2000);
-	energyBox_->setValue(400);
+	energyBox_->setValue(configuration_->energy());
 	energyBox_->setSingleStep(0.1);
 
 	energyBoxLabel_ = new QLabel("RIXS Excitation Energy:");
 
 	slitWidthBox_= new QDoubleSpinBox();
 	slitWidthBox_->setRange(5,500);
-	slitWidthBox_->setValue(25);
+	slitWidthBox_->setValue(configuration_->slitWidth());
 	slitWidthBox_->setSingleStep(5);
 	slitWidthBox_->setDecimals(0);
-	slitWidthBox_->setEnabled(false);
+	slitWidthBox_->setEnabled(configuration_->applySlitWidth());
 	applySlitWidthBox_ = new QCheckBox("Slit Width");
+	applySlitWidthBox_->setChecked(configuration_->applySlitWidth());
 
 
 	polarizationBox_ = new QComboBox();
@@ -93,17 +94,18 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	polarizationBox_->addItem("Linear Vertical +");
 	polarizationBox_->addItem("Linear Vertical -");
 	polarizationBox_->addItem("Linear Inclined");
-	polarizationBox_->setCurrentIndex(1);
-	polarizationBox_->setEnabled(false);
+	polarizationBox_->setCurrentIndex(configuration_->polarization());
+	polarizationBox_->setEnabled(configuration_->applyPolarization());
 	applyPolarizationBox_ = new QCheckBox("Polarization");
+	applyPolarizationBox_->setChecked(configuration_->applyPolarization());
+
 
 	polarizationAngleBox_ = new QDoubleSpinBox();
 	polarizationAngleBox_->setDecimals(0);
-	polarizationAngleBox_->setEnabled(false);
 	polarizationAngleBox_->setRange(-180,180);
-	polarizationAngleBox_->setValue(0);
+	polarizationAngleBox_->setEnabled((configuration_->applyPolarization() && (configuration_->polarization() == 5)));
+	polarizationAngleBox_->setValue(configuration_->polarizationAngle());
 	polarizationAngleBox_->setSingleStep(10);
-	polarizationAngleBox_->setEnabled(false);
 
 	polarizationAngleLabel_ = new QLabel();
 	polarizationAngleLabel_->setText("      Angle");

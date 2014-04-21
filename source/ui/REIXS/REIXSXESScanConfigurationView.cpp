@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QLabel>
+#include <QDebug>
 
 #include "ui/dataman/AMSampleSelector.h"
 
@@ -59,7 +60,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	energyBox_ = new QDoubleSpinBox();
 	energyBox_->setDecimals(2);
-	energyBox_->setEnabled(false);
+	energyBox_->setEnabled(configuration_->applyEnergy());
 	energyBox_->setRange(92,2000);
 	energyBox_->setValue(configuration_->energy());
 	applyEnergyBox_ = new QCheckBox("Beamline Energy");
@@ -70,7 +71,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	slitWidthBox_->setValue(configuration_->slitWidth());
 	slitWidthBox_->setSingleStep(5);
 	slitWidthBox_->setDecimals(0);
-	slitWidthBox_->setEnabled(false);
+	slitWidthBox_->setEnabled(configuration_->applySlitWidth());
 	applySlitWidthBox_ = new QCheckBox("Slit Width");
 	applySlitWidthBox_->setChecked(configuration_->applySlitWidth());
 
@@ -83,17 +84,16 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	polarizationBox_->addItem("Linear Vertical -");
 	polarizationBox_->addItem("Linear Inclined");
 	polarizationBox_->setCurrentIndex(configuration_->polarization());
-	polarizationBox_->setEnabled(false);
+	polarizationBox_->setEnabled(configuration_->applyPolarization());
 	applyPolarizationBox_ = new QCheckBox("Polarization");
 	applyPolarizationBox_->setChecked(configuration_->applyPolarization());
 
 	polarizationAngleBox_ = new QDoubleSpinBox();
 	polarizationAngleBox_->setDecimals(0);
-	polarizationAngleBox_->setEnabled(false);
 	polarizationAngleBox_->setRange(-180,180);
+	polarizationAngleBox_->setEnabled((configuration_->applyPolarization() && (configuration_->polarization() == 5)));
 	polarizationAngleBox_->setValue(configuration_->polarizationAngle());
 	polarizationAngleBox_->setSingleStep(10);
-	polarizationAngleBox_->setEnabled(false);
 
 	polarizationAngleLabel_ = new QLabel();
 	polarizationAngleLabel_->setText("      Angle");
