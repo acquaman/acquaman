@@ -102,13 +102,13 @@ void REIXSXESCalibration2::dbLoadGratings(const AMDbObjectList& newGratings)
 	}
 }
 
-AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
-{
-	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
-									   scanConfiguration->centerEV(),
-									   scanConfiguration->defocusDistanceMm(),
-									   scanConfiguration->detectorTiltOffset());
-}
+//AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
+//{
+//	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
+//									   scanConfiguration->centerEV(),
+//									   scanConfiguration->defocusDistanceMm(),
+//									   scanConfiguration->detectorTiltOffset());
+//}
 
 AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const {
 

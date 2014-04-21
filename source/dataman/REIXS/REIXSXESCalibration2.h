@@ -253,7 +253,7 @@ public:
 	// Computing spectrometer positions:
 	//////////////////////////////////////
 
-	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
+	//AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
 	AMControlInfoList computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const;
 
 	double computeEVFromSpectrometerPosition(int gratingIndex, double liftHeight, double rPrime, int order = 1) const;
