@@ -50,6 +50,7 @@ public:
 	REIXSPhotonSource(QObject* parent = 0);
 
 	REIXSBrokenMonoControl* energy() { return energy_; }
+	AMControl* userEnergyOffset() {return userEnergyOffset_; }
 	AMControl* directEnergy() { return directEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
@@ -64,7 +65,7 @@ public:
 
 
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
+	AMControl* directEnergy_, *userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
 
 

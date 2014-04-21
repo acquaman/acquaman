@@ -41,7 +41,7 @@ private:
     Ui::REIXSSidebar *ui;
 
 	// Additional UI controls
-	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
+	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
 
 protected slots:
 	// Responding to GUI events

@@ -44,17 +44,21 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
 
 	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
-	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, monoSlitEditor_);
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, monoSlitEditor_);
 
 	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
-	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, gratingSelector_);
+	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
 	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
-	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
+	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
 
 	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
-	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationEditor_);
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationEditor_);
 	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
-	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+	ui->beamlineFormLayout->setWidget(7, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+
+	userEnergyOffestEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->userEnergyOffset());
+	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, userEnergyOffestEditor_);
+
 
 
 	// Make connections

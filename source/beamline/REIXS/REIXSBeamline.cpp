@@ -137,6 +137,7 @@ REIXSBeamline::~REIXSBeamline() {
 void REIXSBeamline::setupExposedControls(){
 	addExposedControl(photonSource()->ringCurrent());
 	addExposedControl(photonSource()->energy());
+	addExposedControl(photonSource()->userEnergyOffset());
 	addExposedControl(photonSource()->monoSlit());
 	addExposedControl(sampleChamber()->x());
 	addExposedControl(sampleChamber()->y());
@@ -201,10 +202,13 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
-	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);//, 2.0,new AMControlStatusCheckerDefault(1),-1);
+	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:user:energy:fbk", "REIXS:user:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);//, 2.0,new AMControlStatusCheckerDefault(1),-1);
 	directEnergy->setSettlingTime(0);
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
+
+	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
+	userEnergyOffset_->setDescription("User Energy Offest");
 
 	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
