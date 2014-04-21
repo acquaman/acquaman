@@ -37,6 +37,12 @@ protected slots:
 	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
 	void initializeScanMetaData();
 	void onInitializationActionsListSucceeded();
+	void onInitializationActionsListFailed();
+
+
+	/// Helper slot that handles the progress update.
+	void onScanTimerUpdate();
+
 
 
 protected:
@@ -49,6 +55,7 @@ protected:
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
 
+
 	AMAction3* createInitializationActions();
 
 
@@ -56,6 +63,13 @@ protected:
 	REIXSXESScanConfiguration *configuration_;
 	QTimer *updateTimer_;
 	AMListAction3 *xesActionsInitializationList_;
+	/// Timer used for determining the elapsed time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
+
 
 
 };

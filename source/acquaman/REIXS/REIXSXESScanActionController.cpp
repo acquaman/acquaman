@@ -15,7 +15,7 @@
  REIXSXESScanActionController::~REIXSXESScanActionController(){}
 
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
-	AMScanActionController(configuration_, parent)
+	AMScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
 
@@ -34,6 +34,18 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	// set the scan configuration within the scan:
 	scan_->setScanConfiguration(configuration_);
 	///////////////////////////
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->maximumDurationSeconds();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+
 }
 
 void REIXSXESScanActionController::buildScanController()
@@ -113,6 +125,10 @@ bool REIXSXESScanActionController::initializeImplementation(){
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
 	positions.insert(9, grating);
 
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
 	scan_->setScanInitialConditions(positions);
 
 
@@ -128,7 +144,7 @@ bool REIXSXESScanActionController::initializeImplementation(){
 		xesActionsInitializationList_ = qobject_cast<AMListAction3*>(initializationActions);
 
 	connect(xesActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	//connect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	connect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 	AMActionRunner3::scanActionRunner()->addActionToQueue(xesActionsInitializationList_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 
@@ -157,16 +173,25 @@ void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
 	positions.append(polarizationAngle);
 	}
 
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
 
 
 	scan_->setScanInitialConditions(positions);
 
 	disconnect(xesActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
-	//disconnect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
+	disconnect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
 
 	setInitialized();
 }
 
+void REIXSXESScanActionController::onInitializationActionsListFailed(){
+
+	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
+	saveRawData();
+	setFailed();
+}
 
 
 AMAction3* REIXSXESScanActionController::createInitializationActions(){
@@ -188,9 +213,8 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 
-	//qDebug() << "applySlitWidth() returns: " << configuration_->applySlitWidth();
 
-	if(configuration_->applyPolarization() && configuration_->polarization() == 5){
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
 		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
 		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
 		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
@@ -200,7 +224,7 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 	}
 
-	if(configuration_->applyPolarization()){
+	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
 		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
 		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
 		polarizationSetpoint.setValue(configuration_->polarization());
@@ -212,7 +236,6 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 	if(configuration_->applySlitWidth()){
-//		qDebug() << "it would have queued a slit move to: " << configuration_->slitWidth();
 		tmpControl = REIXSBeamline::bl()->photonSource()->monoSlit();
 		AMControlInfo monoSlitSetpoint = tmpControl->toInfo();
 		monoSlitSetpoint.setValue(configuration_->slitWidth());
@@ -222,9 +245,7 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 	}
 
 
-	qDebug() << "applyEnergy() returns: " << configuration_->applyEnergy();
 	if(configuration_->applyEnergy()){
-//		qDebug() << "it would have queued an energy move to: " << configuration_->energy();
 		tmpControl = REIXSBeamline::bl()->photonSource()->energy();
 		AMControlInfo energySetpoint = tmpControl->toInfo();
 		energySetpoint.setValue(configuration_->energy());
@@ -255,7 +276,7 @@ bool REIXSXESScanActionController::startImplementation(){
 	connect(updateTimer_, SIGNAL(timeout()), this, SLOT(saveRawData()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionSucceeded()), this, SLOT(onDetectorAcquisitionSucceeded()));
-	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionFailed()), this, SLOT(onDetectorAcquisitionFailed));
+	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionFailed()), this, SLOT(onDetectorAcquisitionFailed()));
 	return true;
 }
 
@@ -267,6 +288,7 @@ void REIXSXESScanActionController::cancelImplementation(){
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
+	saveRawData();
 	setCancelled();
 }
 
@@ -279,6 +301,7 @@ void REIXSXESScanActionController::skip(const QString &command){
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
+	saveRawData();
 	setFinished();
 }
 
@@ -286,7 +309,6 @@ void REIXSXESScanActionController::skip(const QString &command){
 #include "dataman/AMSample.h"
 void REIXSXESScanActionController::initializeScanMetaData()
 {
-	//qDebug() << "For Starters REIXSBeamline::bl()->photonSource()->energy().value(): "<< REIXSBeamline::bl()->photonSource()->energy()->value();
 
 	int sampleId = REIXSBeamline::bl()->currentSampleId();
 
@@ -311,7 +333,6 @@ void REIXSXESScanActionController::initializeScanMetaData()
 	}
 	else {									//Named Manually
 		scan_->setName(QString("%1 %2 eV").arg(configuration_->userScanName()).arg(energyForName));
-		qDebug() << "Manually named with: " << configuration_->userScanName();
 		if (configuration_->scanNumber() == 0)
 		{
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), "")+1);
@@ -326,3 +347,23 @@ void REIXSXESScanActionController::initializeScanMetaData()
 
 	scan_->setRunId(AMUser::user()->currentRunId());
 }
+
+void REIXSXESScanActionController::onScanTimerUpdate()
+{
+	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->totalCounts() / secondsElapsed_;
+	double estimatedTime = configuration_->maximumTotalCounts() / averageCountRate;
+
+	secondsTotal_ = qMin(configuration_->maximumDurationSeconds(), estimatedTime);
+
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
+}
+
+
