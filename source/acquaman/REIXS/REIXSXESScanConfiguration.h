@@ -30,7 +30,6 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_OBJECT
 
 	Q_PROPERTY(int gratingNumber READ gratingNumber WRITE setGratingNumber)
-	Q_PROPERTY(double centerEV READ centerEV WRITE setCenterEV)
 	Q_PROPERTY(double maximumTotalCounts READ maximumTotalCounts WRITE setMaximumTotalCounts)
 	Q_PROPERTY(double maximumDurationSeconds READ maximumDurationSeconds WRITE setMaximumDurationSeconds)
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
@@ -68,8 +67,6 @@ public:
 
 	/// The number of the grating to use for this scan
 	int gratingNumber() const { return gratingNumber_; }
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	double centerEV() const { return centerEV_; }
 
 	/// Energy to set beamline to before scan
 	double energy() const { return energy_; }
@@ -140,8 +137,6 @@ public slots:
 
 	/// Set the number of the grating to use for this scan
 	void setGratingNumber(int gratingNumber) { if(gratingNumber_ == gratingNumber) return; gratingNumber_ = gratingNumber;  setModified(true); emit configurationChanged(); }
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	void setCenterEV(double centerEV) { if(centerEV_ == centerEV) return; centerEV_ = centerEV; setModified(true); emit configurationChanged(); }
 
 	/// Set the desired beamline energy value
 	void setEnergy(double energy) {if(energy_ == energy) return; energy_ = energy; setModified(true); emit configurationChanged(); }
@@ -163,8 +158,6 @@ public slots:
 	void setDefocusDistanceMm(double defocusDistanceMm) { if(defocusDistanceMm_ == defocusDistanceMm) return; defocusDistanceMm_ = defocusDistanceMm; setModified(true); emit configurationChanged(); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { if(spectrometerCalibrationId_ == id) return; spectrometerCalibrationId_ = id; setModified(true); emit configurationChanged(); }
-	// REMOVED: Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	// void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
 	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
 	void setDetectorTiltOffset(double detectorTilt) { if(detectorTiltOffset_ == detectorTilt) return; detectorTiltOffset_ = detectorTilt; setModified(true); emit configurationChanged(); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
@@ -180,10 +173,10 @@ public slots:
 
 protected:
 
+
+
 	/// The number of the grating to use for this scan
 	int gratingNumber_;
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	double centerEV_;
 
 	/// The beamline energy to use for this scan
 	double energy_;
@@ -206,8 +199,6 @@ protected:
 	int maximumDurationSeconds_;
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm_;
-	// REMOVED: The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	// bool detectorOrientation_;
 	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.
 	double detectorTiltOffset_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)

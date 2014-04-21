@@ -27,7 +27,6 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	setAutoExportEnabled(false);
 
 	gratingNumber_ = 0;
-	centerEV_ = 200;
 
 	slitWidth_ = 25;
 	applySlitWidth_ = false;
@@ -64,7 +63,6 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 	setAutoExportEnabled(false);
 
 	gratingNumber_ = original.gratingNumber();
-	centerEV_ = original.centerEV();
 
 	slitWidth_ = original.slitWidth();
 	applySlitWidth_ = original.applySlitWidth();
@@ -127,3 +125,4 @@ AMScanConfigurationView * REIXSXESScanConfiguration::createView()
 {
 	return new REIXSXESScanConfigurationView(this);
 }
+
