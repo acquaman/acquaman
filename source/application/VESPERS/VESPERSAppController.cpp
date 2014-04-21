@@ -70,6 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
 
 #include "dataman/VESPERS/VESPERSUserConfiguration.h"
+#include "actions3/VESPERS/VESPERSSetStringAction.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -226,6 +227,7 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<VESPERS3DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSUserConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERSSetStringActionInfo>();
 
 	AMDbObjectSupport::s()->registerClass<VESPERSTimeScanConfiguration>();
 

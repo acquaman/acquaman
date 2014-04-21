@@ -42,7 +42,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMTopFrame *frame = new AMTopFrame("VESPERS Energy Scan Configuration");
 
 	// Regions setup
-	AMStepScanAxisView *regionsView = new AMStepScanAxisView(config_);
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView("Energy Region Configuration", config_);
 
 	// The CCD detector setup.
 	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();

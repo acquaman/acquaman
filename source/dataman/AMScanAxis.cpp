@@ -121,6 +121,19 @@ bool AMScanAxis::overwriteRegion(int index, AMScanAxisRegion *region)
 	return true;
 }
 
+bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
+{
+	int index = regions_.toList().indexOf(region);
+
+	if (index >= 0){
+
+		regions_.remove(index);
+		return true;
+	}
+
+	return false;
+}
+
 void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType)
 {
 	if(axisType != AMScanAxis::StepAxis)
@@ -170,18 +183,18 @@ bool AMScanAxis::sanityCheckRegionsAndAxisType() const
 
 	if(axisType_ == AMScanAxis::StepAxis){
 
-		for(int x = 0; x < regions_.count(); x++){
+		for(int i = 0; i < regions_.count(); i++){
 			// We need a start for each region
-			if(regions_.at(x)->regionStart().state() == AMNumber::Null)
+			if(regions_.at(i)->regionStart().state() == AMNumber::Null)
 				return false;
 			// We need a step for each region
-			if(regions_.at(x)->regionStep().state() == AMNumber::Null)
+			if(regions_.at(i)->regionStep().state() == AMNumber::Null)
 				return false;
 			// We need an end for each region
-			if(regions_.at(x)->regionEnd().state() == AMNumber::Null)
+			if(regions_.at(i)->regionEnd().state() == AMNumber::Null)
 				return false;
 			// We need a time for each region
-			if(regions_.at(x)->regionTime().state() == AMNumber::Null)
+			if(regions_.at(i)->regionTime().state() == AMNumber::Null)
 				return false;
 		}
 	}

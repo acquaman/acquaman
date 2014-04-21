@@ -62,6 +62,8 @@ public slots:
 	bool appendRegion(AMScanAxisRegion *region);
 	/// Overwrite the region at the index and returns true if successful. If this axis would become invalid by using the new region, then the list of regions remains unchanged and false is returned.
 	bool overwriteRegion(int index, AMScanAxisRegion *region);
+	/// Removes a region.  Returns true if successful.
+	bool removeRegion(AMScanAxisRegion *region);
 
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.
