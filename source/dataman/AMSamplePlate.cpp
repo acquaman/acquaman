@@ -173,6 +173,7 @@ void AMSamplePlate::onSampleDetailsChanged(){
 }
 
 void AMSamplePlate::onSampleModified(bool isModified){
+	Q_UNUSED(isModified)
 	bool modifiedBefore = modified();
 	bool modifiedNow = false;
 	for(int x = 0; x < sampleCount(); x++)

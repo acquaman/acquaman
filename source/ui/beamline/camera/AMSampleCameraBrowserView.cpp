@@ -78,6 +78,7 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 }
 
 void AMSampleCameraBrowserView::onRowsInserted(const QModelIndex &index, int start, int end){
+	Q_UNUSED(end)
 	qDebug() << "Heard that combo box had a new row inserted " << sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index));
 	cameraBrowser_->addURL(sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index)).toString());
 }

@@ -193,11 +193,6 @@ QString AMSimpleSamplePlateWizard::message(int type)
 	}
 }
 
-bool AMSimpleSamplePlateWizard::isPointInShape(QPointF point)
-{
-	return false;
-}
-
 void AMSimpleSamplePlateWizard::back()
 {
 	int pageId = currentId();
@@ -286,18 +281,10 @@ void AMSimpleSampleSetPage::initializePage()
 	((AMSimpleSamplePlateWizard*)wizard())->initializeShape();
 }
 
-bool AMSimpleSampleSetPage::pointInShape(QPointF point)
-{
-	return ((AMSimpleSamplePlateWizard*)wizard())->isPointInShape(point);
-}
-
 void AMSimpleSampleSetPage::selectShape(QPointF point)
 {
-	if(pointInShape(point) || true)
-	{
-		emit signalMousePressed(point);
-		connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(moveShape(QPointF)));
-	}
+	emit signalMousePressed(point);
+	connect(view(), SIGNAL(mouseMoved(QPointF)), this, SLOT(moveShape(QPointF)));
 }
 
 void AMSimpleSampleSetPage::releaseShape()

@@ -868,6 +868,7 @@ void AMSampleCameraView::transmitMotorRotation()
 
 void AMSampleCameraView::updateShapeName(QString newName)
 {
+	Q_UNUSED(newName)
 	if(currentView_ == NAME)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
@@ -879,6 +880,7 @@ void AMSampleCameraView::updateShapeName(QString newName)
 
 void AMSampleCameraView::updateDataOne(QString data)
 {
+	Q_UNUSED(data)
 	if(currentView_ == DATA)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
@@ -892,6 +894,7 @@ void AMSampleCameraView::updateDataOne(QString data)
 
 void AMSampleCameraView::updateDataTwo(QString data)
 {
+	Q_UNUSED(data)
 	if(currentView_ == ID)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
@@ -905,6 +908,7 @@ void AMSampleCameraView::updateDataTwo(QString data)
 
 void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 {
+	Q_UNUSED(state)
 	refreshSceneView();
 }
 

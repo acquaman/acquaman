@@ -6,9 +6,8 @@
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
- REIXSXESScanActionController::~REIXSXESScanActionController(){}
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
-	AMScanActionController(configuration_, parent)
+	AMScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
 
@@ -23,6 +22,8 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	scan_->setScanConfiguration(configuration_);
 	///////////////////////////
 }
+
+REIXSXESScanActionController::~REIXSXESScanActionController(){}
 
 void REIXSXESScanActionController::buildScanController()
 {

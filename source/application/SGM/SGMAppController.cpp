@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMPluginsManager.h"
 
 #include "beamline/SGM/SGMBeamline.h"
-#include "beamline/CLS/CLSProcServManager.h"
+//#include "beamline/CLS/CLSProcServManager.h"
 #include "beamline/AMDetectorSelector.h"
 #include "beamline/AMDetectorSet.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
@@ -176,8 +176,10 @@ bool SGMAppController::startup() {
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
+	/*
 	procServs_.append(new CLSProcServManager("IOC1611-427", 10004, "Scaler", this));
 	procServs_.append(new CLSProcServManager("VIOC1611-446", 10028, "Coordination AddOns", this));
+	*/
 
 	// Set up the GUI portions of the SGMAcquamanAppController
 	if(!setupSGMViews())
@@ -601,11 +603,11 @@ void SGMAppController::onActionSGMSettings(){
 	sgmSettingsMasterView_->show();
 }
 
-void SGMAppController::onActionProcServManager(){
-	if(!procServsView_)
-		procServsView_ = new CLSProcServManagerView(procServs_);
-	procServsView_->show();
-}
+//void SGMAppController::onActionProcServManager(){
+//	if(!procServsView_)
+//		procServsView_ = new CLSProcServManagerView(procServs_);
+//	procServsView_->show();
+//}
 
 
 void SGMAppController::onAdvancedCameraOptionsRequested(){
@@ -654,12 +656,12 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	sgmSettingsMasterView_ = 0;
 
-	QAction *sgmProcServAction = new QAction("SGM Proc Servs...", mw_);
-	sgmProcServAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Y));
-	sgmProcServAction->setStatusTip("Restart stuck servers");
-	connect(sgmProcServAction, SIGNAL(triggered()), this, SLOT(onActionProcServManager()));
+//	QAction *sgmProcServAction = new QAction("SGM Proc Servs...", mw_);
+//	sgmProcServAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Y));
+//	sgmProcServAction->setStatusTip("Restart stuck servers");
+//	connect(sgmProcServAction, SIGNAL(triggered()), this, SLOT(onActionProcServManager()));
 
-	procServsView_ = 0;
+//	procServsView_ = 0;
 
 	QAction *advancedSGMCameraOptionsAction = new QAction("SGM Camera Advanced...", mw_);
 	advancedSGMCameraOptionsAction->setStatusTip("Advanced Camera Settings");
@@ -674,7 +676,7 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
-	fileMenu_->addAction(sgmProcServAction);
+//	fileMenu_->addAction(sgmProcServAction);
 
 	viewMenu_->addAction(advancedSGMCameraOptionsAction);
 	viewMenu_->addAction(SGMMirrorAction);

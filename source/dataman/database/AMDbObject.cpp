@@ -606,27 +606,17 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 			else if(columnType == qMetaTypeId<AMConstDbObject*>()){
 				AMConstDbObject *constObject = 0;
-				AMDbObject* reloadedObject = 0;
 
 				QString columnValue = values.at(ri).toString();
 				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
-
-//					reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, dbId);
-//					if(!reloadedObject){
-//						//NEM
-//						//if(AMErrorMon::lastErrorCode() == AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE)
-//						//loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(databaseToUse->connectionName(), tableName, dbId));
-//					}
-
 					constObject = new AMConstDbObject(db, tableName, dbId);
 				}
 				else
 					constObject = new AMConstDbObject(0);
 
-//				constObject = new AMConstDbObject(reloadedObject);
 				setProperty(columnName, QVariant::fromValue(constObject));
 			}
 			else if(columnType == qMetaTypeId<AMnDIndex>()) {

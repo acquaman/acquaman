@@ -44,8 +44,8 @@ class AMDetectorSelectorView;
 
 class SGMSettingsMasterView;
 class AMGithubManager;
-class CLSProcServManager;
-class CLSProcServManagerView;
+//class CLSProcServManager;
+//class CLSProcServManagerView;
 
 class AMSampleCameraBrowserView;
 class AMSamplePlateView;
@@ -118,7 +118,7 @@ protected slots:
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
 	/// Creates the SGM proc serv manager view if necessary and shows it
-	void onActionProcServManager();
+//	void onActionProcServManager();
 
 	void onAdvancedCameraOptionsRequested();
 	/// Create the SGM Advanced mirror veiw if necessary and shows it
@@ -188,10 +188,10 @@ protected:
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
 
-	/// List of procServs we might want to fiddle with
-	QList<CLSProcServManager*> procServs_;
-	/// View for the proc serv manager
-	CLSProcServManagerView *procServsView_;
+//	/// List of procServs we might want to fiddle with
+//	QList<CLSProcServManager*> procServs_;
+//	/// View for the proc serv manager
+//	CLSProcServManagerView *procServsView_;
 
 	/// Updating list of detectors we have been waiting for on startup
 	QString lastWaitingDetectors_;

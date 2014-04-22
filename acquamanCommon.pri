@@ -538,8 +538,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/datastore/AMCDFDataStore.h \
 	source/util/amlikely.h \
 	source/ui/dataman/AMSimpleDataSourceEditor.h \
-	source/qttelnet/qttelnet.h \
-	source/beamline/CLS/CLSProcServManager.h \
+#	source/qttelnet/qttelnet.h \
+#	source/beamline/CLS/CLSProcServManager.h \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
@@ -992,8 +992,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
-	source/qttelnet/qttelnet.cpp \
-	source/beamline/CLS/CLSProcServManager.cpp \
+#	source/qttelnet/qttelnet.cpp \
+#	source/beamline/CLS/CLSProcServManager.cpp \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
