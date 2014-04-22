@@ -31,6 +31,7 @@ class AMSelectablePeriodicTableView : public AMCustomizablePeriodicTableView
 
 public:
 	/// Constructor.
+ 	virtual ~AMSelectablePeriodicTableView();
 	AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent = 0);
 
 	/// Re-implemented.  Uses AMCustomizeablePeriodicTableView, but then makes every button checkable.

@@ -12,6 +12,7 @@ class CLSQE65000Detector : public AMDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
+ 	virtual ~CLSQE65000Detector();
 	CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
@@ -98,9 +99,6 @@ protected:
 	bool cleanupImplementation();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The status control
 	AMControl *statusControl_;
 	/// The integration time control

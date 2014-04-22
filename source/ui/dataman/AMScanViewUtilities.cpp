@@ -366,6 +366,7 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 #include <QCheckBox>
 #include <QPushButton>
 
+ AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
@@ -484,9 +485,9 @@ void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, plot->plotItems()){
 
-		if (item->description().contains(symbol % " "))
-			if (plot->removeItem(item))
-				delete item;
+            if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+                if (plot->removeItem(item))
+                    delete item;
 	}
 }
 
@@ -887,3 +888,4 @@ bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
 
 	return true;
 }
+ AMScanViewSourceSelector::~AMScanViewSourceSelector(){}

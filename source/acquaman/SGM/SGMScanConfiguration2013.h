@@ -13,6 +13,7 @@ class SGMScanConfiguration2013
 {
 public:
 	/// Constructor
+ 	virtual ~SGMScanConfiguration2013();
 	SGMScanConfiguration2013();
 	/// Copy Constructor
 	SGMScanConfiguration2013(const SGMScanConfiguration2013 &original);

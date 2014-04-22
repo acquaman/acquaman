@@ -48,6 +48,7 @@ public:
 	enum OutputViewMode { Counts = 0, Voltage = 1 };
 
 	/// Constructor.  Takes a CLSSIS3820ScalarChannel and builds a view around it.
+ 	virtual ~CLSSIS3820ScalerChannelView();
 	CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, QWidget *parent = 0);
 
 signals:
@@ -113,6 +114,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Takes a scalar object.
+ 	virtual ~CLSSIS3820ScalerView();
 	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 
 protected slots:

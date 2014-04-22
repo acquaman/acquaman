@@ -5,6 +5,7 @@
 // AMSelectableAbsorptionEdgeView
 ////////////////////////////////////////////////
 
+ AMSelectableAbsorptionEdgeView::~AMSelectableAbsorptionEdgeView(){}
 AMSelectableAbsorptionEdgeView::AMSelectableAbsorptionEdgeView(const AMAbsorptionEdge &edge, QWidget *parent)
 	: AMSelectableItemView(parent)
 {
@@ -36,6 +37,7 @@ void AMSelectableAbsorptionEdgeView::onItemSelectedChanged(bool isSelected)
 // AMSelectableEmissionLineView
 ////////////////////////////////////////////////
 
+ AMSelectableEmissionLineView::~AMSelectableEmissionLineView(){}
 AMSelectableEmissionLineView::AMSelectableEmissionLineView(const AMEmissionLine &line, QWidget *parent)
 	: AMSelectableItemView(parent)
 {
@@ -67,6 +69,7 @@ void AMSelectableEmissionLineView::onItemSelectedChanged(bool isSelected)
 // AMSelectableElementView
 ////////////////////////////////////////////////
 
+ AMSelectableElementView::~AMSelectableElementView(){}
 AMSelectableElementView::AMSelectableElementView(AMSelectableElement *element, QWidget *parent)
 	: QWidget(parent)
 {

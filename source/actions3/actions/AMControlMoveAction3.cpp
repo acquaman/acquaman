@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
+ AMControlMoveAction3::~AMControlMoveAction3(){}
 AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {
@@ -151,7 +152,7 @@ void AMControlMoveAction3::onMoveSucceeded()
 	setProgress(100,100);
 
 	if(generateScanActionMessages_){
-		qDebug() << "Generate message " << controlMoveInfo()->controlInfo()->value() << control_->value();
+
 		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value(), control_->value());
 		if(controlMoveInfo()->isRelativeMove())
 			controlMovedMessage.setControlMovementType("Relative");

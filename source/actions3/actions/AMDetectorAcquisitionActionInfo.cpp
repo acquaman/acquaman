@@ -1,5 +1,6 @@
 #include "AMDetectorAcquisitionActionInfo.h"
 
+ AMDetectorAcquisitionActionInfo::~AMDetectorAcquisitionActionInfo(){}
 AMDetectorAcquisitionActionInfo::AMDetectorAcquisitionActionInfo(const AMDetectorInfo &detectorInfo, AMDetectorDefinitions::ReadMode readMode, QObject *parent) :
 	AMActionInfo3("Detector Acquisition", "Detector Acquisition", ":/system-run.png", parent)
 {

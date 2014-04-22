@@ -9,6 +9,7 @@ class AMDetectorDwellTimeActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorDwellTimeActionInfo();
 	Q_INVOKABLE AMDetectorDwellTimeActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), double dwellSeconds = 1,  QObject *parent = 0);
 
 	/// Copy Constructor

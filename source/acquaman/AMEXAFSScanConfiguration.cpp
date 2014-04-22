@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include <QDebug>
 
+ AMEXAFSScanConfiguration::~AMEXAFSScanConfiguration(){}
 AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(QObject *parent, bool setup)
 	: AMXASScanConfiguration(parent, false)
 {

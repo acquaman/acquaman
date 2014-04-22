@@ -1,6 +1,5 @@
 #include "AMCrashReporter.h"
 
-#include <QDebug>
 #include <QLabel>
 #include <QBoxLayout>
 #include <QDir>
@@ -15,6 +14,7 @@
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];
 
+ AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler(){}
 AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *parent) :
 	QObject(parent)
 {
@@ -56,17 +56,20 @@ void AMCrashReporterUnixSignalHandler::handleSigusr2(){
 }
 
 void AMCrashReporterUnixSignalHandler::sigusr1SignalHandler(int signum){
+	Q_UNUSED(signum)
 	char a = 1;
 	ssize_t retVal = ::write(sigusr1Fd[0], &a, sizeof(a));
 	Q_UNUSED(retVal);
 }
 
 void AMCrashReporterUnixSignalHandler::sigusr2SignalHandler(int signum){
+	Q_UNUSED(signum)
 	char a = 1;
 	ssize_t retVal = ::write(sigusr2Fd[0], &a, sizeof(a));
 	Q_UNUSED(retVal);
 }
 
+ AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol(){}
 AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent) :
 	QObject(parent)
 {
@@ -75,10 +78,12 @@ AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &
 	invalid_ = false;
 }
 
-AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, int watchingPID, QObject *parent) :
+ AMCrashMonitor::~AMCrashMonitor(){}
+AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent) :
 	QObject(parent)
 {
 	executableFullPath_ = executableFullPath;
+	errorFilePath_ = errorFilePath;
 	watchingPID_ = watchingPID;
 
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
@@ -87,10 +92,9 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, int watchingPI
 }
 
 void AMCrashMonitor::onSiguser1Detected(){
-	qDebug() << "Detected SIGUSR1 in AMCrashMonitor, need to launch AMCrashReporter";
-
 	QStringList arguments;
 	arguments << executableFullPath_;
+	arguments << errorFilePath_;
 	arguments << QString("%1").arg(watchingPID_);
 	arguments << QString("%1").arg(getpid());
 	QProcess::startDetached(QCoreApplication::instance()->arguments().at(0), arguments, QDir::currentPath(), &crashReporterPID_);
@@ -102,10 +106,11 @@ void AMCrashMonitor::onSiguser2Detected(){
 	QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
 }
 
-AMCrashReporter::AMCrashReporter(const QString &executableFullPath, int watchingPID, int monitorPID, QWidget *parent) :
+AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent) :
 	QWidget(parent)
 {
 	executableFullPath_ = executableFullPath;
+	errorFilePath_ = errorFilePath;
 	watchingPID_ = watchingPID;
 	monitorPID_ = monitorPID;
 	activeAddressConversion_ = 0;
@@ -218,7 +223,7 @@ void AMCrashReporter::onOneSymbolProcessed(){
 
 void AMCrashReporter::onAllSymbolsProcessed(){
 	//qDebug() << "Processed as: ";
-	QFile reportFile(QString("/home/acquaman/AcquamanApplicationCrashReports/report_%1_%2_%3_%4.txt").arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
+	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){

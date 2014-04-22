@@ -4,6 +4,7 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
+ AMControlStopAction::~AMControlStopAction(){}
 AMControlStopAction::AMControlStopAction(AMControlStopActionInfo *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {

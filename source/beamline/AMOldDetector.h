@@ -18,13 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMOLDDETECTOR_H
-#define ACQMAN_AMOLDDETECTOR_H
+#ifndef AM_AMOLDDETECTOR_H
+#define AM_AMOLDDETECTOR_H
 
 #include <QObject>
 #include "dataman/info/AMOldDetectorInfo.h"
 #include "AMControl.h"
-#include "actions/AMBeamlineActionItem.h"
 
 class AMOldDetector;
 
@@ -44,6 +43,7 @@ protected slots:
 	void emitDeleted();
 
 protected:
+ 	virtual ~AMDetectorSignalSource();
 	AMDetectorSignalSource(AMOldDetector* parent);
 	AMOldDetector* detector_;
 	friend class AMOldDetector;
@@ -125,8 +125,6 @@ public:
 
 	/// Should be implemented such that a turnOnAction is successful. That is, if a detector needs its high voltage set to a given value, then activate performs that operation. The turnOnAction should only "flip the switch" for the detector's high voltage.
 	virtual bool activate() { return false;}
-	/// Returns an action that "flips the switch" to turn on a detector (normally turning on its high voltage channel)
-	virtual AMBeamlineActionItem* turnOnAction() { return 0;}
 
 protected:
 	void setConnected(bool isConnected);

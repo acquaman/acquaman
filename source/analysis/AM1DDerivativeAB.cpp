@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AM1DBasicDerivativeABEditor.h"
 
+ AM1DDerivativeAB::~AM1DDerivativeAB(){}
 AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
@@ -117,7 +118,7 @@ void AM1DDerivativeAB::setAnalyzedName(const QString &name)
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }
-#include <QDebug>
+
 void AM1DDerivativeAB::setInputSource()
 {
 	// disconnect connections from old source, if it exists.

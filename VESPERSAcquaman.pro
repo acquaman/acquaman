@@ -65,7 +65,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSScanController.h \
 	source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h \
 	source/ui/VESPERS/VESPERSChooseDataFolderDialog.h \
-	source/actions/VESPERS/VESPERSBeamlineSetStringAction.h \
 	source/beamline/VESPERS/VESPERSCCDDetector.h \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.h \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
@@ -82,7 +81,14 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSEnergyScanActionController.h \
 	source/actions3/VESPERS/VESPERSSetStringAction.h \
 	source/actions3/VESPERS/VESPERSSetStringActionInfo.h \
-	source/ui/VESPERS/VESPERSScalerView.h
+	source/ui/VESPERS/VESPERSScalerView.h \
+	source/beamline/VESPERS/VESPERSMonochomatorControl.h \
+	source/dataman/VESPERS/VESPERSUserConfiguration.h \
+	source/beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h \
+	source/acquaman/VESPERS/VESPERS2DScanActionController.h \
+	source/acquaman/VESPERS/VESPERSTimeScanConfiguration.h \
+	source/acquaman/VESPERS/VESPERSTimeScanActionController.h \
+	source/ui/VESPERS/VESPERSTimeScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -145,7 +151,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSScanController.cpp \
 	source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.cpp \
 	source/ui/VESPERS/VESPERSChooseDataFolderDialog.cpp \
-	source/actions/VESPERS/VESPERSBeamlineSetStringAction.cpp \
 	source/beamline/VESPERS/VESPERSCCDDetector.cpp \
 	source/acquaman/VESPERS/VESPERS3DScanConfiguration.cpp \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
@@ -162,10 +167,35 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSEnergyScanActionController.cpp \
 	source/actions3/VESPERS/VESPERSSetStringAction.cpp \
 	source/actions3/VESPERS/VESPERSSetStringActionInfo.cpp \
-	source/ui/VESPERS/VESPERSScalerView.cpp
+	source/ui/VESPERS/VESPERSScalerView.cpp \
+	source/beamline/VESPERS/VESPERSMonochomatorControl.cpp \
+	source/dataman/VESPERS/VESPERSUserConfiguration.cpp \
+	source/beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.cpp \
+	source/acquaman/VESPERS/VESPERS2DScanActionController.cpp \
+	source/acquaman/VESPERS/VESPERSTimeScanConfiguration.cpp \
+	source/acquaman/VESPERS/VESPERSTimeScanActionController.cpp \
+	source/ui/VESPERS/VESPERSTimeScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

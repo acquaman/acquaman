@@ -30,40 +30,21 @@ AMSampleEditor::AMSampleEditor(AMDatabase *database, QWidget *parent) :
 	setLayout(vl);
 }
 
+AMSampleEditor::~AMSampleEditor(){}
+
 void AMSampleEditor::setSample(const AMSample *sample){
 	currentSample_ = sample;
 	nameLabel_->setText(currentSample_->name());
 	createdLabel_->setText(AMDateTimeUtils::prettyDateTime(currentSample_->dateTime()));
 }
 
-//<<<<<<< HEAD
 void AMSampleEditor::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
 	currentSamplePre2013_ = samplePre2013;
 	nameLabel_->setText(currentSamplePre2013_->name());
 	createdLabel_->setText(AMDateTimeUtils::prettyDateTime(currentSamplePre2013_->dateTime()));
 }
-//=======
+
 #include "util/AMPeriodicTable.h"
-//QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
-//	QList<int> rv;
-
-
-//	QStringList elements = elementString.split(QRegExp("[\\,\\;\\s]+"), QString::SkipEmptyParts);
-
-//	foreach(QString s, elements) {
-//		s = s.toLower();
-//		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
-//		AMElement element;
-//		if(!(element = AMPeriodicTable::table()->elementByName(s)).isNull())
-//			rv << element.atomicNumber();
-//		else if(!(element = AMPeriodicTable::table()->elementBySymbol(s)).isNull())
-//			rv << element.atomicNumber();
-//	}
-
-//	return rv;
-//	/// \todo Validator / red-green hinting for element editor box
-//>>>>>>> SGM_Release
-//}
 
 void AMSampleEditor::onChangeSampleButtonClicked(){
 	QList<AMSample*> allSamples = AMBeamline::bl()->samplePlateBrowser()->allSamples();

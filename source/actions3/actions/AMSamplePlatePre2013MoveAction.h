@@ -45,6 +45,9 @@ public:
 	Q_INVOKABLE AMSamplePlatePre2013MoveAction(AMSamplePlatePre2013MoveActionInfo *info, QObject *parent = 0);
 	/// Copy constructor
 	AMSamplePlatePre2013MoveAction(const AMSamplePlatePre2013MoveAction &other);
+
+	virtual ~AMSamplePlatePre2013MoveAction();
+
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const;
 

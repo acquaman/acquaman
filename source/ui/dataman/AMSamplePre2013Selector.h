@@ -30,6 +30,7 @@ class AMSamplePre2013Selector : public QComboBox
     Q_OBJECT
 public:
 	explicit AMSamplePre2013Selector(AMDatabase* db, QWidget *parent = 0);
+	virtual ~AMSamplePre2013Selector();
 
 	/// Returns the id of the currently-selected sample, or -1 if no samples / none selected.
 	int currentSample() const;

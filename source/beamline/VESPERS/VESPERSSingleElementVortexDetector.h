@@ -10,6 +10,7 @@ class VESPERSSingleElementVortexDetector : public AMXRFDetector
 
 public:
 	/// Default constructor. Requires the name and description of the detector. It builds all the PV's and connects them accordingly.
+ 	virtual ~VESPERSSingleElementVortexDetector();
 	VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// The Vortex doesn't explicitly require powering on
@@ -42,9 +43,6 @@ public:
 
 	/// Returns false, because the Vortex detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
-
-//	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-//	virtual const double* data() const;
 
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }

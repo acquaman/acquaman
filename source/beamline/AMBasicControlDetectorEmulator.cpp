@@ -1,5 +1,6 @@
 #include "AMBasicControlDetectorEmulator.h"
 
+ AMBasicControlDetectorEmulator::~AMBasicControlDetectorEmulator(){}
 AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod, QObject *parent) :
 	AMDetector(name, description, parent)
 {

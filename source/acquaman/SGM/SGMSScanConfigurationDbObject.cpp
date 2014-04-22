@@ -1,11 +1,11 @@
 #include "SGMSScanConfigurationDbObject.h"
 
-#include <QDebug>
-
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(QObject *parent) :
 	AMDbObject(parent)
 {
 }
+
+SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original) :
 	AMDbObject(original)

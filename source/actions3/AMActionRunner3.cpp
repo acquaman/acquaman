@@ -526,6 +526,7 @@ int AMActionRunner3::indexOfQueuedAction(const AMAction3 *action) {
 	return -1;
 }
 
+ AMActionRunnerQueueModel3::~AMActionRunnerQueueModel3(){}
 AMActionRunnerQueueModel3::AMActionRunnerQueueModel3(AMActionRunner3 *actionRunner, QObject *parent) : QAbstractItemModel(parent)
 {
 	actionRunner_ = actionRunner;
@@ -1030,3 +1031,4 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	return true;
 }
 
+ AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}

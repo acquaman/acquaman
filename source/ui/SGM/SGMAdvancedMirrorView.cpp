@@ -4,11 +4,10 @@
 #include <QDebug>
 #include "beamline/SGM/SGMBeamline.h"
 
+ SGMAdvancedMirrorView::~SGMAdvancedMirrorView(){}
 SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	QWidget(parent)
 {
-	qDebug() << "Start of mirror constructor";
-
 	Mirror2_ = new QGroupBox("Mirror 2");
 	Mirror3_ = new QGroupBox("Mirror 3");
 	m2VerticalUpstream_ = new QLabel("M2 Vertical upstream");
@@ -211,6 +210,4 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	horizontalLayout->addWidget(Mirror2_);
 	horizontalLayout->addWidget(Mirror3_);
 	setLayout(horizontalLayout);
-
-	qDebug() << "End of mirror constructor";
 }

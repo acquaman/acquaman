@@ -12,6 +12,10 @@
 #include "dataman/AMAnalysisBlock.h"
 #include "ui/beamline/AMRegionOfInterestView.h"
 
+#include "ui/AMHeaderButton.h"
+
+AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
+
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
@@ -73,7 +77,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements; i++){
+	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements && deadTimeEnabled; i++){
 
 		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 		deadTimeButton->setCheckable(true);
@@ -214,7 +218,19 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	completeBottomLayout->addLayout(rowAbovePeriodicTableLayout_);
 	completeBottomLayout->addLayout(periodicTableAndElementViewLayout);
 
-	bottomLayout_->addLayout(completeBottomLayout);
+	periodicTableHeaderButton_ = new AMHeaderButton();
+	periodicTableHeaderButton_->setText("Periodic Table");
+	periodicTableHeaderButton_->setArrowType(Qt::DownArrow);
+
+	bottomLayoutWidget_ = new QWidget();
+	bottomLayoutWidget_->setLayout(completeBottomLayout);
+
+	QVBoxLayout *bottomLayoutWithHeader = new QVBoxLayout();
+	bottomLayoutWithHeader->addWidget(periodicTableHeaderButton_);
+	bottomLayoutWithHeader->addWidget(bottomLayoutWidget_);
+
+	bottomLayout_->addLayout(bottomLayoutWithHeader);
+	//bottomLayout_->addLayout(completeBottomLayout);
 
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
@@ -224,6 +240,10 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+
+	connect(periodicTableHeaderButton_, SIGNAL(clicked()), this, SLOT(onPeriodicTableHeaderButtonClicked()));
 }
 
 void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
@@ -261,7 +281,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-		if (item->description().contains(QRegExp(symbol % " (K|L|M)")))
+                if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -355,9 +375,19 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	elementView_->setMaximumEnergy(newMaximum);
 }
 
+void AMXRFDetailedDetectorView::expandPeriodicTableViews(){
+	hidePeriodicTableViews(false);
+}
+
+void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
+	hidePeriodicTableViews(true);
+}
+
 void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
 {
-	detector_->addRegionOfInterest(emissionLine);
+	if (!detector_->regionOfInterest(emissionLine))
+		detector_->addRegionOfInterest(emissionLine);
+
 	AMRegionOfInterest *newRegion = detector_->regionOfInterest(emissionLine);
 	regionOfInterestMapper_->setMapping(newRegion, regionOfInterestMarkers_.size());
 	connect(newRegion, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestMapper_, SLOT(map()));
@@ -377,14 +407,48 @@ void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &e
 
 	if (itemToBeRemoved){
 
-		regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
-		detector_->removeRegionOfInterest(emissionLine);
-		plot_->removeItem(itemToBeRemoved);
-		regionOfInterestMarkers_.remove(emissionLine);
-		delete itemToBeRemoved;
+			regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
+			detector_->removeRegionOfInterest(emissionLine);
+			plot_->removeItem(itemToBeRemoved);
+			regionOfInterestMarkers_.remove(emissionLine);
+			delete itemToBeRemoved;
 
-		updatePeriodicTableButtonColors(emissionLine);
-		editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
+			updatePeriodicTableButtonColors(emissionLine);
+			editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
+	}
+}
+
+void AMXRFDetailedDetectorView::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
+{
+	QString regionName = newRegion->name();
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(regionName.split(" ").first()));
+	AMEmissionLine emissionLine = AMEmissionLine();
+
+	foreach (AMEmissionLine line, element->emissionLines())
+		if (regionName == line.name())
+			emissionLine = line;
+
+	if (!emissionLine.isNull() && !element->isSelected(emissionLine)){
+
+		element->selectEmissionLine(emissionLine);
+		elementView_->updateEmissionLineViewList();
+	}
+}
+
+void AMXRFDetailedDetectorView::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	QString regionName = region->name();
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(regionName.split(" ").first()));
+	AMEmissionLine emissionLine = AMEmissionLine();
+
+	foreach (AMEmissionLine line, element->emissionLines())
+		if (regionName == line.name())
+			emissionLine = line;
+
+	if (!emissionLine.isNull()){
+
+		element->deselectEmissionLine(emissionLine);
+		elementView_->updateEmissionLineViewList();
 	}
 }
 
@@ -667,7 +731,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-	deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime(), 0, 'f', 0));
+		deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
@@ -707,4 +771,28 @@ void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
 
 	plot_->axisScaleLeft()->setLogScaleEnabled(logScale);
 	onWaterfallUpdateRequired();
+}
+
+void AMXRFDetailedDetectorView::onPeriodicTableHeaderButtonClicked(){
+	if(bottomLayoutWidget_->isHidden())
+		hidePeriodicTableViews(false);
+	else
+		hidePeriodicTableViews(true);
+}
+
+void AMXRFDetailedDetectorView::resizeToMinimumHeight(){
+	resize(size().width(), minimumSizeHint().height());
+	emit resized();
+}
+
+void AMXRFDetailedDetectorView::hidePeriodicTableViews(bool setHidden){
+	if(setHidden && !bottomLayoutWidget_->isHidden()){
+		periodicTableHeaderButton_->setArrowType(Qt::RightArrow);
+		bottomLayoutWidget_->hide();
+		QTimer::singleShot(0, this, SLOT(resizeToMinimumHeight()));
+	}
+	else if(!setHidden && bottomLayoutWidget_->isHidden()){
+		periodicTableHeaderButton_->setArrowType(Qt::DownArrow);
+		bottomLayoutWidget_->show();
+	}
 }

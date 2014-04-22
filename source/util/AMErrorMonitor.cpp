@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMErrorMon* AMErrorMon::instance_ = 0;
 QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
+ AMErrorMon::~AMErrorMon(){}
 AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
 
@@ -193,3 +194,4 @@ AMErrorMon * AMErrorMon::mon() {
 	}
 	return instance_;
 }
+ AMErrorReport::~AMErrorReport(){}

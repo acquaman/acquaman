@@ -23,6 +23,11 @@ public:
 	AMRegionOfInterest(const QString &name, double energy, double minimum, double maximum, QObject *parent);
 	/// Copy constructor.
 	AMRegionOfInterest(const AMRegionOfInterest &original);
+	/// Destructor.
+	virtual ~AMRegionOfInterest();
+
+	/// Virtual copy constructor.  Returns a copy of this region of interest.  Caller is responsible for memory.
+	AMRegionOfInterest *createCopy() const;
 
 	/// The assignment operator.  Copies all information from one and sets the values here.
 	AMRegionOfInterest &operator=(const AMRegionOfInterest &other);
@@ -74,7 +79,7 @@ public slots:
 
 protected slots:
 	/// Handles passing on the value changed on.
-	void onValueChanged() const;
+	void onValueChanged();
 
 protected:
 	/// The energy of the region of interest.

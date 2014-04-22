@@ -13,6 +13,7 @@ class AMSynchronizedDwellTime : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMSynchronizedDwellTime();
 	AMSynchronizedDwellTime(QObject *parent = 0);
 
 	/// Return the overall dwell time.  Value is in seconds.

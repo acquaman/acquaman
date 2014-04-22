@@ -28,6 +28,7 @@ class AMControlButton : public QToolButton
 {
 Q_OBJECT
 public:
+ 	virtual ~AMControlButton();
 	AMControlButton(AMControl *control, QWidget *parent = 0);
 
 	int downValue() const;

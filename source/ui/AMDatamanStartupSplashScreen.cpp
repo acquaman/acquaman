@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QTimer>
 
+ AMDatamanStartupSplashScreen::~AMDatamanStartupSplashScreen(){}
 AMDatamanStartupSplashScreen::AMDatamanStartupSplashScreen(QWidget *parent) :
 	QWidget(parent)
 {

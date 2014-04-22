@@ -32,6 +32,7 @@ class AMXASScan;
 class SGM2004FileLoader : public AMAbstractFileLoader
 {
 public:
+ 	virtual ~SGM2004FileLoader();
 	SGM2004FileLoader(AMXASScan* scan = 0);
 
 	QString formatTag() const { return "sgm2004"; }

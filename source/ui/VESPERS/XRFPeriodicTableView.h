@@ -31,6 +31,7 @@ class XRFPeriodicTableView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Needs the table for viewing.  Does not create a new instance of the table.
+ 	virtual ~XRFPeriodicTableView();
 	explicit XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent = 0);
 
 protected slots:

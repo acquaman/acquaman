@@ -21,6 +21,7 @@ public:
 	Q_INVOKABLE AMSamplePlate(QObject *parent = 0);
 	/// Copy constructor
 	AMSamplePlate(const AMSamplePlate &other);
+	virtual ~AMSamplePlate();
 
 	/// Returns the QDateTime when this sample plate was created (for ordering)
 	QDateTime dateTime() const;

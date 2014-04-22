@@ -9,6 +9,7 @@ class AMDetectorAcquisitionActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorAcquisitionActionInfo();
 	Q_INVOKABLE AMDetectorAcquisitionActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead,  QObject *parent = 0);
 
 	/// Copy Constructor

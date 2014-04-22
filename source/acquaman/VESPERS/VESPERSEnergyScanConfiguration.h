@@ -50,6 +50,7 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VES
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSEnergyScanConfiguration();
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original);
@@ -65,7 +66,7 @@ public:
 
 	/// Returns the technique string.
 	QString technique() const { return "Energy Scan"; }
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the scan should move to a new position before starting the scan.

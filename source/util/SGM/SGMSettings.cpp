@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QReadLocker>
 #include <QWriteLocker>
 
+SGMSettings::~SGMSettings(){}
+
 void SGMSettings::load(){
 	QWriteLocker wl(&mutex_);
 

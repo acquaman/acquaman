@@ -6,6 +6,7 @@ class AMRange
 {
 public:
 	/// Constructor.  Builds an AMRange from a the \param minimum and \param maximum values provided.
+ 	virtual ~AMRange();
 	AMRange(double minimum, double maximum);
 	/// Copy constructor.  Builds a copy AMRange from the one provided.
 	AMRange(const AMRange &original);
@@ -33,9 +34,9 @@ public:
 	/// The assignment operator.  Assigns all the values associated with \param other range.
 	AMRange &operator =(const AMRange &other);
 	/// The equivalence operator.  Checks all the values against \param other's values.
-	bool operator ==(const AMRange &other);
+	bool operator ==(const AMRange &other) const;
 	/// The not-equivalence operator.  Checks all the values against \param other's values.
-	bool operator !=(const AMRange &other);
+	bool operator !=(const AMRange &other) const;
 
 protected:
 	/// Flag that holds whether the range is null or not.

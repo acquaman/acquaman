@@ -17,6 +17,7 @@ public:
 	enum ViewMode { Basic = 0, Advanced = 1 };
 
 	/// Constructor.  Requires two valid SR570 pointers.
+ 	virtual ~CLSSR570CompositeView();
 	CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidget *parent = 0);
 
 	/// Returns the pointer to the first SR570 this view is visualizing.

@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSMarCCDDetector.h"
 
+ VESPERSMarCCDDetector::~VESPERSMarCCDDetector(){}
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSCCDDetector(name, description, parent)
 {

@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/dataman/AMSamplePre2013Selector.h"
 
+ REIXSXESScanConfigurationView::~REIXSXESScanConfigurationView(){}
 REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {

@@ -1,10 +1,12 @@
 #include "VESPERS3DScanConfiguration.h"
 
+#include <QStringBuilder>
+#include <cmath>
+
 #include "acquaman/VESPERS/VESPERS3DDacqScanController.h"
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
-#include <QStringBuilder>
-
+ VESPERS3DScanConfiguration::~VESPERS3DScanConfiguration(){}
 VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	: AM3DScanConfiguration(parent), VESPERSScanConfiguration()
 {
@@ -16,7 +18,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setZPriority(2);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
-	setMotor(VESPERS::Motor(VESPERS::H | VESPERS::V));
+	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
 	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("3D Map");
 	setRoiInfoList(AMROIInfoList());
@@ -69,7 +71,8 @@ AMScanConfiguration * VESPERS3DScanConfiguration::createCopy() const
 
 AMScanController * VESPERS3DScanConfiguration::createController()
 {
-	return new VESPERS3DDacqScanController(this);
+//	return new VESPERS3DDacqScanController(this);
+	return 0; //NULL
 }
 
 AMScanConfigurationView * VESPERS3DScanConfiguration::createView()

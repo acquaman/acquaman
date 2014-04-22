@@ -37,6 +37,7 @@ class XRFDetectorInfo : public AMBasicXRFDetectorInfo
 public:
 
 	/// Default constructor.
+ 	virtual ~XRFDetectorInfo();
 	Q_INVOKABLE XRFDetectorInfo(const QString& name = "xrfSpectrum", const QString& description = "XRF Detector", QObject *parent = 0);
 	/// Constructor that takes in a detectorInfo and retrieves all the settings.
 	XRFDetectorInfo(const XRFDetectorInfo &original);

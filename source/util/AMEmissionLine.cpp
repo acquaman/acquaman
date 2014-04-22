@@ -3,6 +3,7 @@
 #include <QStringList>
 #include <QStringBuilder>
 
+ AMEmissionLine::~AMEmissionLine(){}
 AMEmissionLine::AMEmissionLine(const QString &name, double energy)
 {
 	name_ = name;

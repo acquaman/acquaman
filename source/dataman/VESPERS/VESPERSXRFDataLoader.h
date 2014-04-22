@@ -31,6 +31,7 @@ class VESPERSXRFDataLoader : public AMAbstractFileLoader
 {
 public:
 	/// Constructs a file loader to data into \c scan.
+ 	virtual ~VESPERSXRFDataLoader();
 	VESPERSXRFDataLoader(AMXRFScan *scan);
 
 	/// Format tag: a unique string identifying this format.

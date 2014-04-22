@@ -124,6 +124,7 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 	return QValidator::Acceptable;
 }
 
+ AMPrefixSuffixLineEdit::~AMPrefixSuffixLineEdit(){}
 AMPrefixSuffixLineEdit::AMPrefixSuffixLineEdit(const QString& prefix, const QString& suffix, QWidget *parent) :
 		QLineEdit(parent)
 {

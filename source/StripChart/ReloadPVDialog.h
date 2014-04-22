@@ -8,6 +8,7 @@ class ReloadPVDialog : public QDialog
 {
     Q_OBJECT
 public:
+ 	virtual ~ReloadPVDialog();
     explicit ReloadPVDialog(QList<QString> reloadList, QWidget *parent = 0);
 
 public:

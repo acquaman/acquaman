@@ -16,7 +16,7 @@ class StripToolPV : public QObject
 
 public:
     StripToolPV(QObject *parent = 0);
-    ~StripToolPV();
+    virtual ~StripToolPV();
     friend class StripToolModel;
     friend class StripToolDataController;
 

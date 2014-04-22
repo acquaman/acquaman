@@ -20,6 +20,7 @@ class VESPERS3DScanConfigurationView : public VESPERSScanConfigurationView
 
 public:
 	/// Constructor.  \param config is the 3D connfiguration that the view will modify.
+ 	virtual ~VESPERS3DScanConfigurationView();
 	VESPERS3DScanConfigurationView(VESPERS3DScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

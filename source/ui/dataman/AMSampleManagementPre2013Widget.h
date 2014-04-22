@@ -50,6 +50,7 @@ public:
 \param samplePlate A pointer that will be passed to the AMSamplePlateView constructor as the sample plate to work with; it can be 0 if the plate view should create its own plate.
 \param manipulator [Optional] If you want the AMSamplePlateView to be able to mark and move sample positions, you should include an AMSampleManipulator instance \c manipulator, which will be passed to the AMSamplePlateView.*/
 	AMSampleManagementPre2013Widget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlatePre2013* samplePlate = 0, AMSampleManipulator* manipulator = 0, QWidget *parent = 0);
+	virtual ~AMSampleManagementPre2013Widget();
 
 	/// Accesses the sample plate view
 	AMSamplePlatePre2013View* samplePlateView() { return plateView_; }

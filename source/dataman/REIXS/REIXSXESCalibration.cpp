@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+ REIXSXESCalibration::~REIXSXESCalibration(){}
 REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	AMDbObject(parent)
 {

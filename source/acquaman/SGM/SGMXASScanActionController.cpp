@@ -13,8 +13,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
+	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setScanConfiguration(cfg);
 	//scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setSample(SGMBeamline::sgm()->currentSample());
@@ -39,6 +38,12 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+}
+
+SGMXASScanActionController::~SGMXASScanActionController(){}
+
+void SGMXASScanActionController::buildScanControllerImplementation()
+{
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){

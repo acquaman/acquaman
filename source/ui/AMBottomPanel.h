@@ -11,6 +11,7 @@ class AMBottomPanel : public QFrame
 
 public:
 	/// Constructor.  Builds the widget in the current standard style.
+ 	virtual ~AMBottomPanel();
 	AMBottomPanel(QWidget *parent = 0);
 
 protected:

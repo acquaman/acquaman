@@ -27,6 +27,7 @@ class VESPERSDbUpgrade1Pt3 : public AMDbUpgrade
 
 public:
 	/// Constructor.  Need to provide the name of the database to upgrade.
+ 	virtual ~VESPERSDbUpgrade1Pt3();
 	VESPERSDbUpgrade1Pt3(const QString &databaseNameToUpgrade, QObject *parent = 0);
 
 	/// Indicates the dependencies of this upgrade.  There are no dependencies on this upgrade because it is entirely based on a single column which has been static since creation.

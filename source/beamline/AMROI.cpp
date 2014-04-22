@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMROI.h"
 
+ AMROI::~AMROI(){}
 AMROI::AMROI(QString baseName, int elements, int number, QObject *parent)
 	: QObject(parent)
 {

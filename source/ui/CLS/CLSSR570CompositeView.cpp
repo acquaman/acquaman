@@ -4,6 +4,8 @@
 #include <QAction>
 #include <QMenu>
 
+CLSSR570CompositeView::~CLSSR570CompositeView(){}
+
 CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidget *parent)
 	: QWidget(parent)
 {
@@ -11,14 +13,14 @@ CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidg
 	secondSR570_ = sr2;
 
 	minus_ = new QToolButton;
-	minus_->setMaximumSize(25, 25);
+	minus_->setFixedSize(25, 25);
 	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minus_, SIGNAL(clicked()), firstSR570_, SLOT(decreaseSensitivity()));
 	connect(minus_, SIGNAL(clicked()), secondSR570_, SLOT(decreaseSensitivity()));
 	connect(firstSR570_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
 
 	plus_ = new QToolButton;
-	plus_->setMaximumSize(25, 25);
+	plus_->setFixedSize(25, 25);
 	plus_->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plus_, SIGNAL(clicked()), firstSR570_, SLOT(increaseSensitivity()));
 	connect(plus_, SIGNAL(clicked()), secondSR570_, SLOT(increaseSensitivity()));
@@ -26,12 +28,14 @@ CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidg
 
 	value_ = new QComboBox;
 	value_->hide();
+	value_->setFixedHeight(25);
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
 	connect(firstSR570_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)));
 
 	units_ = new QComboBox;
 	units_->hide();
+	units_->setFixedHeight(25);
 	units_->addItems(QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V");
 	connect(units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)));
 	connect(firstSR570_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));

@@ -3,6 +3,7 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorDwellTimeAction::~AMDetectorDwellTimeAction(){}
 AMDetectorDwellTimeAction::AMDetectorDwellTimeAction(AMDetectorDwellTimeActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {

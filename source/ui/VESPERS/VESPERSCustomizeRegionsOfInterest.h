@@ -33,6 +33,7 @@ class VESPERSRegionOfInterestView : public QWidget
 
 public:
 	/// Constructor.  Takes an AMROI and gives access to customizing the low and high values.
+ 	virtual ~VESPERSRegionOfInterestView();
 	explicit VESPERSRegionOfInterestView(AMROI *roi, QWidget *parent = 0);
 
 public slots:
@@ -102,6 +103,7 @@ class VESPERSCustomizeRegionsOfInterest : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in a list of AMROIs and displays the ones that are valid.
+ 	virtual ~VESPERSCustomizeRegionsOfInterest();
 	explicit VESPERSCustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent = 0);
 
 signals:

@@ -11,6 +11,7 @@
 
 #include "ui/AMTopFrame.h"
 
+ SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {

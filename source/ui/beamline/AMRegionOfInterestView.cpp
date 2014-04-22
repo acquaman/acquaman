@@ -5,10 +5,12 @@
 // AMRegionOfInterestElementView
 /////////////////////////////////////////////////////
 
+ AMRegionOfInterestElementView::~AMRegionOfInterestElementView(){}
 AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest *region, QWidget *parent)
 	: QWidget(parent)
 {
 	region_ = region;
+	connect(region_, SIGNAL(destroyed()), this, SLOT(onRegionDestroyed()));
 
 	QLabel *name = new QLabel(region_->name());
 	name->setAlignment(Qt::AlignCenter);
@@ -42,6 +44,7 @@ AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest 
 
 	value_ = new QLabel;
 	value_->setFixedWidth(100);
+	onValueChanged(region_->value());
 	connect(region_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
@@ -51,6 +54,14 @@ AMRegionOfInterestElementView::AMRegionOfInterestElementView(AMRegionOfInterest 
 	elementViewLayout->addWidget(value_, 0, Qt::AlignCenter);
 
 	setLayout(elementViewLayout);
+}
+
+void AMRegionOfInterestElementView::onRegionDestroyed()
+{
+	if (region_ && region_->valueSource() && ((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0))
+		disconnect(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(updateSpinBoxSingleStep()));
+
+	region_ = 0;
 }
 
 void AMRegionOfInterestElementView::onValueChanged(double value)
@@ -80,13 +91,17 @@ void AMRegionOfInterestElementView::updateUpperBound(double value)
 
 void AMRegionOfInterestElementView::updateSpinBoxSingleStep()
 {
-	lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
-	upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+	if (!((AMAnalysisBlock *)region_->valueSource())->inputDataSourceCount() > 0){
+
+		lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+		upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
+	}
 }
 
 // AMRegionOfInterestView
 //////////////////////////////////////////////////////
 
+ AMRegionOfInterestView::~AMRegionOfInterestView(){}
 AMRegionOfInterestView::AMRegionOfInterestView(QList<AMRegionOfInterest *> regions, QWidget *parent)
 	: QWidget(parent)
 {

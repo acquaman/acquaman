@@ -2,6 +2,7 @@
 
 #include "beamline/AMDetector.h"
 
+ AMSynchronizedDwellTime::~AMSynchronizedDwellTime(){}
 AMSynchronizedDwellTime::AMSynchronizedDwellTime(QObject *parent) :
 	QObject(parent)
 {

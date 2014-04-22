@@ -11,6 +11,7 @@ class SGMXASScanActionController : public AMRegionScanActionController
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
+ 	virtual ~SGMXASScanActionController();
 	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
 
 protected:
@@ -19,8 +20,8 @@ protected:
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
 
-	/// Adds anything extra.
-	virtual void buildScanControllerImplementation() {}
+	/// Sets the scan axis and adds anything extra.
+	virtual void buildScanControllerImplementation();
 
 protected:
 	/// Specific scan configuration with all the SGM specific information inside.

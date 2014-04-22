@@ -13,6 +13,8 @@ class VESPERSSpatialLineScanActionController : public AMRegionScanActionControll
 public:
 	/// Constructor.  Builds a runnable scan action controller for the VESPERS beamline.
 	VESPERSSpatialLineScanActionController(VESPERSSpatialLineScanConfiguration *configuration, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSSpatialLineScanActionController();
 
 protected slots:
 	/// Helper slot that handles the progress update.
@@ -25,7 +27,7 @@ protected:
 	AMAction3* createCleanupActions();
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
-	virtual void buildScanControllerImplementation() {}
+	virtual void buildScanControllerImplementation();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERSSpatialLineScanConfiguration *configuration_;

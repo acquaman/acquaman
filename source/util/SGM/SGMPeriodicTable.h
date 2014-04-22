@@ -52,6 +52,7 @@ protected:
 	static QString SGMPeriodicTableAllDatabasesConnectionName_;
 
 	/// Constructor: Builds the SGM Element info attached to the periodic table (protected: access via sgmTable())
+ 	virtual ~SGMPeriodicTable();
 	explicit SGMPeriodicTable(QObject *parent = 0);
 };
 

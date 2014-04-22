@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
-#include <QDebug>
 
 #include "util/AMDeferredFunctionCall.h"
 
@@ -144,7 +143,7 @@ protected:
 	/// constructor: sets up the channel access environement and installs us as the global exception handler.
 	AMProcessVariableSupport();
 	/// Destructor.  Shuts down channel access.
-	~AMProcessVariableSupport();
+	virtual ~AMProcessVariableSupport();
 
 	/// singleton class. Use the s() method to access.
 	static AMProcessVariableSupport* s();

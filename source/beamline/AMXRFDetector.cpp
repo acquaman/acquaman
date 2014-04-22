@@ -4,6 +4,8 @@
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMnDDeadTimeAB.h"
 
+AMXRFDetector::~AMXRFDetector(){}
+
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
 {
@@ -15,8 +17,10 @@ AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QO
 	doDeadTimeCorrection_ = false;
 	units_ = "Counts";
 
-	allControls_ = new AMControlSet(this);
+	regionOfInterestSignalMapper_ = new QSignalMapper(this);
+	connect(regionOfInterestSignalMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(QObject*)));
 
+	allControls_ = new AMControlSet(this);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 }
@@ -288,6 +292,8 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 
 void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
 {
+	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
+	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
 	regionsOfInterest_.append(newRegionOfInterest);
 	newRegionOfInterest->setSpectrumSource(primarySpectrumDataSource_);
 	addRegionOfInterestImplementation(newRegionOfInterest);
@@ -305,9 +311,11 @@ void AMXRFDetector::removeRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
 	if (regionsOfInterest_.removeOne(regionOfInterest)){
 
+		disconnect(regionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
+		regionOfInterestSignalMapper_->removeMappings(regionOfInterest);
 		removeRegionOfInterestImplementation(regionOfInterest);
 		emit removedRegionOfInterest(regionOfInterest);
-		delete regionOfInterest;
+		regionOfInterest->deleteLater();
 	}
 }
 
@@ -341,4 +349,10 @@ void AMXRFDetector::removeRegionOfInterestImplementation(AMRegionOfInterest *reg
 bool AMXRFDetector::data(double *outputValues) const
 {
 	return dataSource()->values(AMnDIndex(0), AMnDIndex(dataSource()->size(0)-1), outputValues);
+}
+
+void AMXRFDetector::onRegionOfInterestBoundingRangeChanged(QObject *region)
+{
+	// This is safe because only regions of interest will be passed into this method.
+	emit regionOfInterestBoundingRangeChanged(qobject_cast<AMRegionOfInterest *>(region));
 }

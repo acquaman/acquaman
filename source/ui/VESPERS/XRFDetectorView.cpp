@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Brief detector view
 /////////////////////////////////////////////
 
+ XRFBriefDetectorView::~XRFBriefDetectorView(){}
 XRFBriefDetectorView::XRFBriefDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
 	: AMBriefOldDetectorView(configureOnly, parent)
 {
@@ -88,6 +89,7 @@ void XRFBriefDetectorView::onDeadTimeUpdate()
 
 // Detailed detector view
 ///////////////////////////////////////////////////
+ XRFDetailedDetectorView::~XRFDetailedDetectorView(){}
 XRFDetailedDetectorView::XRFDetailedDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedOldDetectorView(configureOnly, parent)
 {

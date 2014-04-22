@@ -1,5 +1,6 @@
 #include "AMRange.h"
 
+ AMRange::~AMRange(){}
 AMRange::AMRange(double minimum, double maximum)
 {
 	isNull_ = false;
@@ -48,14 +49,14 @@ AMRange &AMRange::operator =(const AMRange &other)
 	return *this;
 }
 
-bool AMRange::operator ==(const AMRange &other)
+bool AMRange::operator ==(const AMRange &other) const
 {
 	return (isNull_ == other.isNull())
 			&& (minimum_ == other.minimum())
 			&& (maximum_ == other.maximum());
 }
 
-bool AMRange::operator !=(const AMRange &other)
+bool AMRange::operator !=(const AMRange &other) const
 {
 	return !(this->operator ==(other));
 }

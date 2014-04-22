@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SETTINGS_H
-#define ACQMAN_SETTINGS_H
+#ifndef AM_SETTINGS_H
+#define AM_SETTINGS_H
 
 
 #include <QSettings>
@@ -118,6 +118,7 @@ public:
 
 protected:
 	/// This is a singleton class, so the constructor is protected.
+ 	virtual ~AMSettings();
 	AMSettings() : mutex_(QReadWriteLock::Recursive) {}
 
 	QString publicDataFolder_;

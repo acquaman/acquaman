@@ -18,14 +18,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_BEAMLINE_H_
-#define ACQMAN_BEAMLINE_H_
+#ifndef AM_BEAMLINE_H_
+#define AM_BEAMLINE_H_
 
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMDetectorGroup.h"
+#include "beamline/AMXRFDetector.h"
 
 class AMSamplePlate;
 class AMSample;
@@ -106,9 +107,11 @@ public:
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
 
+	/// Returns the list of the exposed detector groups.
 	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }
+	/// Returns an AMDetectorGroup based on the provided name.  Returns 0 if the name is not provided.
 	AMDetectorGroup* exposedDetectorGroupByName(const QString &name) const;
-
+	/// Adds a detector group to the exposed detector group list.
 	bool addExposedDetectorGroup(AMDetectorGroup *detectorGroup);
 
 	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
@@ -130,6 +133,9 @@ public:
 	/// Sets the current sample as a list. If you pass an empty list, then there is no current sample under the beam. If there is more than 1 item, then multiple samples are under the beam.
 	void setCurrentSamples(QList<AMSample*> sample);
 
+	/// Adds an AMXRFDetector to the syncrhonized XRF detector list.
+	void addSynchronizedXRFDetector(AMXRFDetector *detector);
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
@@ -139,6 +145,14 @@ signals:
 	/// Emitted when the current sample
 	void currentSampleChanged(QList<AMSample*> currentSamples);
 
+
+protected slots:
+	/// Slot that handles ensuring all synchronized XRF detectors have added the new region of interest.
+	void onRegionOfInterestAdded(AMRegionOfInterest *newRegion);
+	/// Slot that handles ensuring all synchronized XRF detectors have removed the specified region of interest.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *removedRegion);
+	/// Slot that handles ensuring all the bounding ranges of regions of interest are synchronized across all synchronized XRF detectors.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Singleton classes have a protected constructor; all access is through AMBeamline::bl() or YourBeamline::bl()
@@ -151,13 +165,16 @@ protected:
 
 	/// A detector set that contains all of the publicly (throughout the program) available detectors for a beamline. This is primarily used for settings up scans.
 	AMDetectorSet *exposedDetectors_;
-
+	/// A list of exposed detector groups.  Groups are logical groupings of detectors.
 	QList<AMDetectorGroup*> exposedDetectorGroups_;
 
 	AMSamplePlate *samplePlate_;
 	AMSamplePlateBrowser *samplePlateBrowser_;
 	/// The current sample as a list. There better be either 0 or 1 items in it ... otherwise there are mutltiple samples currently under the beam
 	QList<AMSample*> currentSamples_;
+
+	/// A list of XRF detectors that are synchronized together.  As of right now, they only synchronize the regions of interest, but could be expanded later.
+	QList<AMXRFDetector *> synchronizedXRFDetectors_;
 };
 
 #endif /*BEAMLINE_H_*/

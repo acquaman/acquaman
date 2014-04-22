@@ -4,6 +4,8 @@
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
 
+VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
+
 VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
 	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
@@ -12,17 +14,33 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	scan_ = new AMXASScan();
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
-	scan_->setFileFormat("sgm2013XAS");
-	scan_->setRunId(AMUser::user()->currentRunId());
-//	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
+	useFeedback_ = true;
+	originalEnergy_ = VESPERSBeamline::vespers()->mono()->energy();
+
 	AMDetectorInfoSet detectors;
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(2)->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(3)->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectors()->at(4)->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergySetpoint")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
+
+	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
+
+	if (ccdDetector.testFlag(VESPERS::Roper))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
+
+	if (ccdDetector.testFlag(VESPERS::Mar))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
+
+	if (ccdDetector.testFlag(VESPERS::Pilatus))
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -38,15 +56,26 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
+void VESPERSEnergyScanActionController::buildScanControllerImplementation()
+{
+}
+
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMSequentialListAction3 *initializationList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
+	initializationList->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationList->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+
+	return initializationList;
 }
 
 AMAction3* VESPERSEnergyScanActionController::createCleanupActions()
 {
-	return buildCleanupAction(true);
-}
+	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
+
+	cleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEaAction(originalEnergy_));
+
+	return cleanupAction;}
 
 void VESPERSEnergyScanActionController::onScanTimerUpdate()
 {

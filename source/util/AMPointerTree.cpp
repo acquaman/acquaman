@@ -3,6 +3,7 @@
 // AMPointerTreeNode
 ////////////////////////////
 
+ AMPointerTreeNode::~AMPointerTreeNode(){}
 AMPointerTreeNode::AMPointerTreeNode(void *item, AMPointerTreeNode *parentNode, QObject *parent) :
 	QObject(parent)
 {

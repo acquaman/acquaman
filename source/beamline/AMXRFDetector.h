@@ -8,6 +8,8 @@
 #include "dataman/AMRegionOfInterest.h"
 #include "util/AMEmissionLine.h"
 
+#include <QSignalMapper>
+
 #define AMXRFDETECTOR_SPECTRUMSIZE_DEADTIMESIZE_MISMATCH 678000
 
 /// This is the new base class that all XRF detectors should inherit from.  It should contain all the necessary prerequisites for a quick start up and also provide a basis for more elaborate requirements for more complicated detectors.
@@ -35,6 +37,7 @@ class AMXRFDetector : public AMDetector
 
 public:
 	/// Constructor.
+ 	virtual ~AMXRFDetector();
 	AMXRFDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Returns the number of elements in the detector.
@@ -112,6 +115,8 @@ signals:
 	void addedRegionOfInterest(AMRegionOfInterest *);
 	/// Notifier that a region of interest was removed.  Passes the removed region.
 	void removedRegionOfInterest(AMRegionOfInterest *);
+	/// Notifier that the bounding range of a particular region of interest has changed.  Passes the region.
+	void regionOfInterestBoundingRangeChanged(AMRegionOfInterest *);
 	/// Notifier that the dead time has updated.
 	void deadTimeChanged();
 
@@ -122,6 +127,8 @@ protected slots:
 	virtual void onControlsTimedOut();
 	/// Handles changes in the status control.
 	void onStatusControlChanged();
+	/// Handles emitting the bounding range changed signal for regions of interest.
+	void onRegionOfInterestBoundingRangeChanged(QObject *region);
 
 protected:
 	/// A helper method that adds all of this classes controls to the allControls_ control set.  This is required because we don't know in advance how many elements/spectra will be in the detector.  It also builds all of the spectra data sources and creates analysis blocks if necessary.
@@ -173,6 +180,8 @@ protected:
 	// Regions of interest and their data sources.
 	/// List of all the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;
+	/// The signal mapper that helps manage the signals from the regions of interest.
+	QSignalMapper *regionOfInterestSignalMapper_;
 
 	// Extras
 	/// Flag that holds whether the detector will do dead time corrections or not.

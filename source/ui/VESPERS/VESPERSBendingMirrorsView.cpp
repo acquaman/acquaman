@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 
+ VESPERSBendingMirrorsView::~VESPERSBendingMirrorsView(){}
 VESPERSBendingMirrorsView::VESPERSBendingMirrorsView(QWidget *parent)
 	: QWidget(parent)
 {
@@ -54,6 +55,7 @@ VESPERSBendingMirrorsView::VESPERSBendingMirrorsView(QWidget *parent)
 	setLayout(layout);
 }
 
+ VESPERSBendingMirrorsElementView::~VESPERSBendingMirrorsElementView(){}
 VESPERSBendingMirrorsElementView::VESPERSBendingMirrorsElementView(AMControl *control, QWidget *parent)
 	: QWidget(parent)
 {

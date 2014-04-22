@@ -37,6 +37,8 @@ public:
 	/// Constructor. You should always specify the paramaters, but we provide the default for database reload
 	Q_INVOKABLE AMSamplePlatePre2013MoveActionInfo(int samplePlateId = -1, int samplePositionIndex = -1, QObject *parent = 0);
 
+	virtual ~AMSamplePlatePre2013MoveActionInfo();
+
 	/// Copy constructor
 	AMSamplePlatePre2013MoveActionInfo(const AMSamplePlatePre2013MoveActionInfo &other);
 

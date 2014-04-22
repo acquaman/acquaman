@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+ SGMEnergyPosition::~SGMEnergyPosition(){}
 SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
 	setName(name);
@@ -142,6 +143,7 @@ void SGMEnergyPosition::setSGMGrating(int sgmGrating) {
 	}
 }
 
+ SGMScanInfo::~SGMScanInfo(){}
 SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAndEnergy, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -307,6 +309,7 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId) {
 	}
 }
 
+ SGMElementInfo::~SGMElementInfo(){}
 SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
@@ -381,6 +384,7 @@ void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastSc
 }
 
 
+ SGMFastScanSettings::~SGMFastScanSettings(){}
 SGMFastScanSettings::SGMFastScanSettings(const QString &name, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -497,6 +501,7 @@ void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
 	}
 }
 
+ SGMFastScanParameters::~SGMFastScanParameters(){}
 SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString &element, const SGMScanInfo &scanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent) :
 		AMDbObject(parent)
 {

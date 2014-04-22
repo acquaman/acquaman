@@ -2,6 +2,7 @@
 
 #include "acquaman/AMAgnosticDataAPI.h"
 
+ AMAxisStartedAction::~AMAxisStartedAction(){}
 AMAxisStartedAction::AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {

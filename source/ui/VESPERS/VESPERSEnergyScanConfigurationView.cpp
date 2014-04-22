@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
+ VESPERSEnergyScanConfigurationView::~VESPERSEnergyScanConfigurationView(){}
 VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -180,19 +181,13 @@ void VESPERSEnergyScanConfigurationView::onScanNameEdited()
 		scanName_->setPalette(this->palette());
 
 	double n = 0;
+	VESPERS::Motors motor = config_->motor();
 
-	switch(int(config_->motor())){
-
-	case VESPERS::H | VESPERS::V:
-
+	if (motor == (VESPERS::H | VESPERS::V))
 		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
-		break;
 
-	case VESPERS::X | VESPERS::Z:
-
+	else if (motor == (VESPERS::X | VESPERS::Z))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
-		break;
-	}
 
 	config_->setNormalPosition(n);
 }
@@ -273,41 +268,38 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 {
 	double x = 0;
 	double y = 0;
+	VESPERS::Motors motor = config_->motor();
 
-	switch(int(config_->motor())){
-
-	case VESPERS::H | VESPERS::V:
+	if (motor == (VESPERS::H | VESPERS::V)){
 
 		x = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::X | VESPERS::Z:
+	else if (motor == (VESPERS::X | VESPERS::Z)){
 
 		x = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoH | VESPERS::AttoV:
+	else if (motor == (VESPERS::AttoH | VESPERS::AttoV)){
 
 		x = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("H: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("V: %1 mm").arg(y, 0, 'g', 3));
-		break;
+	}
 
-	case VESPERS::AttoX | VESPERS::AttoZ:
-
+	else if (motor == (VESPERS::AttoX | VESPERS::AttoZ)){
 
 		x = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		y = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
-		break;
 	}
 
 	config_->setPosition(x, y);

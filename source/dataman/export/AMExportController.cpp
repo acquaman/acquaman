@@ -370,3 +370,4 @@ bool AMExportController::resume()
 	return true;
 }
 
+ AMExporterInfo::~AMExporterInfo(){}

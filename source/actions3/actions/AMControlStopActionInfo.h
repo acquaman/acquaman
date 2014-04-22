@@ -13,6 +13,7 @@ class AMControlStopActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.  Builds the action info required to stop a control.
+ 	virtual ~AMControlStopActionInfo();
 	Q_INVOKABLE AMControlStopActionInfo(const AMControlInfo &setpoint = AMControlInfo(), QObject *parent = 0);
 	/// Copy contructor.
 	AMControlStopActionInfo(const AMControlStopActionInfo &other);

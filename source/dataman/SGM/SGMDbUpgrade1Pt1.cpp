@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMDbUpgrade1Pt1.h"
 
+ SGMDbUpgrade1Pt1::~SGMDbUpgrade1Pt1(){}
 SGMDbUpgrade1Pt1::SGMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {

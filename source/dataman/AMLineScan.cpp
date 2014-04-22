@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLineScan.h"
 
+ AMLineScan::~AMLineScan(){}
 AMLineScan::AMLineScan(QObject *parent)
 	: AMScan(parent)
 {

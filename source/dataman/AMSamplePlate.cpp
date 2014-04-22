@@ -19,6 +19,10 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 	connect(samples_.signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(sampleChanged(int)));
 }
 
+AMSamplePlate::~AMSamplePlate()
+{
+}
+
 QDateTime AMSamplePlate::dateTime() const{
 	return dateTime_;
 }

@@ -12,6 +12,7 @@ class VESPERSEnergyScanActionController : public AMRegionScanActionController, p
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the VESPERS beamline.
+	virtual ~VESPERSEnergyScanActionController();
 	VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent = 0);
 
 protected slots:
@@ -25,11 +26,13 @@ protected:
 	AMAction3* createCleanupActions();
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
-	virtual void buildScanControllerImplementation() {}
+	virtual void buildScanControllerImplementation();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERSEnergyScanConfiguration *configuration_;
 
+	/// The energy of the monochromator before the scan started.
+	double originalEnergy_;
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;
 	/// Number of seconds since the timer started.

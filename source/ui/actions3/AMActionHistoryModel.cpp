@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMActionLogItem
 ////////////////////////////
 
+ AMActionLogItem3::~AMActionLogItem3(){}
 AMActionLogItem3::AMActionLogItem3(AMDatabase *db, int id)
 {
 	db_ = db;

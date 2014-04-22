@@ -26,6 +26,7 @@ class SGMFluxOptimization : public AMControlOptimization
 {
 	Q_OBJECT
 public:
+ 	virtual ~SGMFluxOptimization();
 	SGMFluxOptimization(QObject *parent=0);
 
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
@@ -41,6 +42,7 @@ class SGMResolutionOptimization : public AMControlOptimization
 {
 	Q_OBJECT
 public:
+ 	virtual ~SGMResolutionOptimization();
 	SGMResolutionOptimization(QObject *parent=0);
 
 	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);

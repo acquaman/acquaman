@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 
+ AMSelectionDialog::~AMSelectionDialog(){}
 AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &items, QWidget *parent)
 	: QDialog(parent)
 {

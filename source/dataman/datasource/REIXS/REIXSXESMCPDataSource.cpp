@@ -3,6 +3,7 @@
 #include "beamline/AMPVControl.h"
 #include "util/AMErrorMonitor.h"
 
+ REIXSXESMCPDataSource::~REIXSXESMCPDataSource(){}
 REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMReadOnlyPVControl *imagePV, AMReadOnlyPVControl *resolutionXPV, AMReadOnlyPVControl *resolutionYPV, QObject *parent)
 	: QObject(parent), AMDataSource(name) {
 

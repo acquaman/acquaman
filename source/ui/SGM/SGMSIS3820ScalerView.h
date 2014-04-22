@@ -9,6 +9,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Takes a scalar object.
+ 	virtual ~SGMSIS3820ScalerView();
 	SGMSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 };
 

@@ -45,6 +45,7 @@ public:
 	enum IssuesDirection{ IssuesDirectionAscending, IssuesDirectionDescending};
 
 	/// Constructor.  Builds a default Github manager.
+ 	virtual ~AMGithubManager();
 	AMGithubManager(QObject *parent = 0);
 	/// Constructor.  Builds a default Github manager and attempts to connect to Github based on the given username, password, and respository.
 	AMGithubManager(const QString &userName, const QString &password, const QString &repository, QObject *parent = 0);

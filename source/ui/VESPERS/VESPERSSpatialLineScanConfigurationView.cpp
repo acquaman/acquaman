@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QMenu>
 
+ VESPERSSpatialLineScanConfigurationView::~VESPERSSpatialLineScanConfigurationView(){}
 VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -420,21 +421,18 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetector()){
+	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
 
-	case VESPERS::NoXRF:
+	if (xrfFlag == VESPERS::NoXRF)
 		config_->setRoiInfoList(AMROIInfoList());
-		break;
 
-	case VESPERS::SingleElement:
+	else if (xrfFlag == VESPERS::SingleElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		break;
 
-	case VESPERS::FourElement:
+	else if (xrfFlag == VESPERS::FourElement)
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		break;
 
-	case VESPERS::SingleElement | VESPERS::FourElement:{
+	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -447,8 +445,6 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 			list.append(fourElList.at(i));
 
 		config_->setRoiInfoList(list);
-		break;
-	}
 	}
 
 	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));

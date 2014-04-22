@@ -48,6 +48,7 @@ public:
 protected:
 	/// This is a singleton class, so the constructor is protected
 	SGMSettings() : mutex_(QReadWriteLock::Recursive) {}
+	virtual ~SGMSettings();
 
 	QString SGMDataFolder_;
 	QString SGMDatabaseFilename_;

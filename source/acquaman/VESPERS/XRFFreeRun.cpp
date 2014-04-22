@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
+ XRFFreeRun::~XRFFreeRun(){}
 XRFFreeRun::XRFFreeRun(XRFDetector *detector, QObject *parent)
 	: QObject(parent)
 {

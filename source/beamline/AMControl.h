@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROL_H
-#define ACQMAN_CONTROL_H
+#ifndef AM_CONTROL_H
+#define AM_CONTROL_H
 
 #include <QObject>
 #include <QString>
@@ -282,6 +282,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
+ 	virtual ~AMControl();
 	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info

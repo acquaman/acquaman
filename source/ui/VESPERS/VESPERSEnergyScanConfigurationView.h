@@ -42,6 +42,7 @@ class VESPERSEnergyScanConfigurationView : public VESPERSScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuration that this view will modify.
+ 	virtual ~VESPERSEnergyScanConfigurationView();
 	VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

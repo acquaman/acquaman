@@ -38,6 +38,7 @@ class AM3DBinningABEditor : public QWidget
 
 public:
 	/// Construct an editor for the analysis block \c analysisBlock.
+ 	virtual ~AM3DBinningABEditor();
 	explicit AM3DBinningABEditor(AM3DBinningAB *analysisBlock, QWidget *parent = 0);
 
 signals:

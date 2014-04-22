@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 #include "dataman/AMXASScan.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
-#include "acquaman/SGM/SGMXASDacqScanController.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -44,17 +43,6 @@ private slots:
 			QTest::qWait(250);
 		}
 		QVERIFY(SGMBeamline::sgm()->isConnected());
-
-		/*
-		qDebug() << "Prior to waiting";
-		QTest::qWait(2000);
-		qDebug() << "About to action grating";
-		SGMBeamline::sgm()->gratingAction()->start();
-		qDebug() << "After action grating";
-		QTest::qWait(5000);
-		SGMBeamline::sgm()->startTransfer();
-		qDebug() << "After final wait";
-		*/
 	}
 
 	void cleanupTestCase()
@@ -258,131 +246,5 @@ private slots:
 		}
 
 	}
-
-	/// \todo  scanConfigurations() and scanController() Needs to be updated: (Removing March 25 so that test suite builds)
-//	void scanConfigurations()
-//	{
-//		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-//		// List of regions should be created but empty
-//		QCOMPARE(sxsc->regionCount(), 0);
-//		// SGM components should be initialized and be the same as the current beamline values
-//		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
-//		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());
-//		QCOMPARE(sxsc->harmonic(), (SGMBeamline::sgmHarmonic)SGMBeamline::sgm()->harmonic()->value());
-//		QCOMPARE(sxsc->undulatorTracking(), (bool)SGMBeamline::sgm()->undulatorTracking()->value());
-//		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
-//		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
-//		// Should be using the SGM XAS Detectors, check that they are the same
-//		AMDetectorInfoSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
-//		QList<AMDetectorInfo*> xasDefaultDetectors;
-//		for(int x = 0; x < xasDetectors->count(); x++)
-//			if(xasDetectors->isDefaultAt(x))
-//				xasDefaultDetectors << xasDetectors->detectorAt(x);
-//		for(int x = 0; x < xasDefaultDetectors.count(); x++)
-//			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
-//		// Should be using SGM Flux/Resolution ControlSet
-//		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
-//			QCOMPARE(sxsc->fluxResolutionSet()->at(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->at(x)->name());
-//		// Should be using SGM Tracking ControlSet
-//		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
-//			QCOMPARE(sxsc->trackingSet()->at(x)->name(), SGMBeamline::sgm()->trackingSet()->at(x)->name());
-//		QString fileName = "testFile.%03d.dat";
-//		QVERIFY(sxsc->setFileName(fileName));
-//		QCOMPARE(sxsc->fileName(), fileName);
-//		QVERIFY(sxsc->setFilePath(AMUserSettings::userDataFolder));
-//		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
-//	}
-
-//	void scanController()
-//	{
-//		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-//		// List of regions should be created but empty
-//		QCOMPARE(sxsc->regionCount(), 0);
-//		// SGM components should be initialized and be the same as the current beamline values
-//		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
-//		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());
-//		QCOMPARE(sxsc->harmonic(), (SGMBeamline::sgmHarmonic)SGMBeamline::sgm()->harmonic()->value());
-//		QCOMPARE(sxsc->undulatorTracking(), (bool)SGMBeamline::sgm()->undulatorTracking()->value());
-//		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
-//		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
-//		// Should be using the SGM XAS Detectors, check that they are the same
-//		AMDetectorInfoSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
-//		QList<AMDetectorInfo*> xasDefaultDetectors;
-//		for(int x = 0; x < xasDetectors->count(); x++)
-//			if(xasDetectors->isDefaultAt(x))
-//				xasDefaultDetectors << xasDetectors->detectorAt(x);
-//		for(int x = 0; x < xasDefaultDetectors.count(); x++)
-//			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
-//		QVERIFY(sxsc->setUsingPGT(1));
-//		// Should be using SGM Flux/Resolution ControlSet
-//		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
-//			QCOMPARE(sxsc->fluxResolutionSet()->at(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->at(x)->name());
-//		// Should be using SGM Tracking ControlSet
-//		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
-//			QCOMPARE(sxsc->trackingSet()->at(x)->name(), SGMBeamline::sgm()->trackingSet()->at(x)->name());
-//		QString fileName = "testFile.%03d.dat";
-//		QVERIFY(sxsc->setFileName(fileName));
-//		QCOMPARE(sxsc->fileName(), fileName);
-//		QVERIFY(sxsc->setFilePath(AMUserSettings::userDataFolder));
-//		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
-//		QVERIFY(sxsc->addRegion(0, 930, 2, 980));
-
-//		xasCtrl = new SGMXASDacqScanController(sxsc, SGMBeamline::sgm());
-//		xasCtrl->initialize();
-//		xasCtrl->start();
-
-//		QTest::qWait(1000);
-//		bool scanDone = false;
-//		while(!scanDone){
-//			if(xasCtrl->isStopped())
-//				scanDone = true;
-//			QTest::qWait(1000);
-//		}
-
-//		QString filepath = "/home/reixs/beamline/programming/fkbl/fSGMApp/src/Calcium1_2.dat";
-//		QFile f(filepath);
-//		QVERIFY(f.open(QIODevice::ReadOnly));
-//		QTextStream fs(&f);
-//		QRegExp rx("^\\#");
-//		QString line;
-//		QStringList lp;
-//		double eV;
-//		QMap<double, QMap<QString, double> > data;
-//		QMap<QString, double> rowData;
-//		while( !fs.atEnd() && fs.readLine().contains(rx))
-//			;
-//		while( !fs.atEnd() ){
-//			line = fs.readLine();
-//			lp = line.split(',');
-//			eV = lp.at(1).toDouble();
-//			rowData["I0"] = lp.at(4).toDouble();
-//			rowData["TEY"] = lp.at(5).toDouble();
-//			rowData["TFY"] = lp.at(6).toDouble();
-//			data[eV] = rowData;
-//		}
-
-//		AMXASScan *xs = qobject_cast<AMXASScan*>(xasCtrl->scan());
-//		QVERIFY(xs);
-//		/* Must be updated for new scan / data architecture:
-//		int evIndex = xs->indexOfDataSource("eV");
-//		int I0Index = xs->indexOfDataSource("I0");
-//		int teyIndex = xs->indexOfDataSource("TEY");
-//		int tfyIndex = xs->indexOfDataSource("TFY");
-//		for(unsigned int x = 0; x < xs->scanSize(0); x++){
-//			eV = xs->channel(evIndex)->value(x);
-//			rowData = data.value(eV);
-//			QCOMPARE(xs->channel(I0Index)->value(x), rowData.value("I0"));
-//			QCOMPARE(xs->channel(teyIndex)->value(x), rowData.value("TEY"));
-//			QCOMPARE(xs->channel(tfyIndex)->value(x), rowData.value("TFY"));
-//		}*/
-
-
-//		QTest::qWait(5000);
-//	}
-
-
-
-private:
-	SGMXASDacqScanController *xasCtrl;
 };
 

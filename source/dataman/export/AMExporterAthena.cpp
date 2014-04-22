@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
+ AMExporterAthena::~AMExporterAthena(){}
 AMExporterAthena::AMExporterAthena(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {

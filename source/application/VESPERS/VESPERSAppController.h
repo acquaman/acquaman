@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 
 class VESPERSEndstationView;
+class VESPERSDeviceStatusView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
 class VESPERSCCDDetectorView;
@@ -36,8 +37,6 @@ class AMScanConfigurationViewHolder3;
 class VESPERSScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
-class AM2DScanConfigurationViewHolder;
-class AMBeamlineListAction;
 class AMScanAction;
 class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
@@ -47,6 +46,7 @@ class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 class AMListAction3;
+class VESPERSUserConfiguration;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -76,11 +76,9 @@ public:
 protected slots:
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
-	/// Helper slot that pauses scans using the bottom bar.
-	void onPauseScanIssued();
-	/// Helper slot that cancels the current scan.
-	void onCancelScanIssued();
 
+	/// Helper slot that handles moving the status page to the front of the main window stack.
+	void onStatusViewRequrested();
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
@@ -107,6 +105,9 @@ protected slots:
 	void onMarCCDConnected(bool connected);
 	/// Handles setting the path for the Pilatus CCD when it is connected.
 	void onPilatusCCDConnected(bool connected);
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -208,6 +209,8 @@ protected:
 	VESPERSPersistentView *persistentView_;
 	/// Pointer to the endstation view.
 	VESPERSEndstationView *endstationView_;
+	/// Pointer to the status view.
+	VESPERSDeviceStatusView *statusPage_;
 
 	/// Flag for holding the startup flag for the Roper CCD.  This is false until the roper is connected.
 	bool roperCCDStartup_;
@@ -216,6 +219,8 @@ protected:
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
 
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	VESPERSUserConfiguration *userConfiguration_;
 
 	ROIHelper *roiHelper_;
 	VESPERSAttoCubeHack *attoHack_;

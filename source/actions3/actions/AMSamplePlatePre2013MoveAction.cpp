@@ -51,6 +51,8 @@ AMSamplePlatePre2013MoveAction::AMSamplePlatePre2013MoveAction(const AMSamplePla
 	moveListAction_ = 0; //NULL
 }
 
+AMSamplePlatePre2013MoveAction::~AMSamplePlatePre2013MoveAction(){}
+
 AMAction3* AMSamplePlatePre2013MoveAction::createCopy() const{
 	return new AMSamplePlatePre2013MoveAction(*this);
 }

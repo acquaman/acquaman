@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QMenu>
 
+ CLSSR570View::~CLSSR570View(){}
 CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	: QWidget(parent)
 {

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
+ AMElement::~AMElement(){}
 AMElement::AMElement(QString name, QString symbol, QString atomicNumber, QStringList edgeList, QStringList emissionLineList, QObject *parent) :
 	QObject(parent)
 {

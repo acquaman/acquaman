@@ -6,6 +6,8 @@
 
 #include <QStringBuilder>
 
+VESPERSCCDDetector::~VESPERSCCDDetector(){}
+
 VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
 {

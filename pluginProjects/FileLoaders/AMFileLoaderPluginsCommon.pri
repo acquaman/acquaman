@@ -14,7 +14,7 @@ macx {
 		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
@@ -22,8 +22,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -46,12 +46,28 @@ linux-g++ {
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
+<<<<<<< HEAD
                 #CDFLib dependencies
                 #CDF_LIB = -lcdf
                 #CDF_INCLUDE_DIR = /usr/local/include
                 CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
                 CDF_LIB = -L$$CDF_LIB_DIR -lcdf
                 CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+=======
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+		# GSL Dependencies
+		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
+		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
+>>>>>>> newXRFDetector
 }
 linux-g++-32 {
 

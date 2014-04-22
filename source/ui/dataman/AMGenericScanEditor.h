@@ -125,6 +125,10 @@ public slots:
 
 	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
 	void exportGraphicsToFile();
+	/// Call this to print the currently-visible plot.
+	void printGraphics();
+
+
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.

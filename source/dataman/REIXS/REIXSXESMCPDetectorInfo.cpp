@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESMCPDetectorInfo.h"
 
+ REIXSXESMCPDetectorInfo::~REIXSXESMCPDetectorInfo(){}
 REIXSXESMCPDetectorInfo::REIXSXESMCPDetectorInfo(const QString& name, const QString& description, QObject *parent) :
 	AMOldDetectorInfo(name, description, parent)
 {

@@ -34,15 +34,10 @@ HEADERS += \
 	source/application/SGM/SGMAppController.h \
 	source/application/SGM/SGMSSAAppController.h \
 	source/acquaman/SGM/SGMScanConfiguration.h \
-	source/acquaman/SGM/SGMXASDacqScanController.h \
 	source/acquaman/SGM/SGMXASScanConfiguration.h \
-	source/acquaman/SGM/SGMXASScanController.h \
 	source/acquaman/SGM/SGMFastScanConfiguration.h \
-	source/acquaman/SGM/SGMFastDacqScanController.h \
-	source/acquaman/SGM/SGMFastScanController.h \
 	source/beamline/SGM/SGMBeamline.h \
 	source/ui/SGM/SGMXASScanConfigurationView.h \
-	source/ui/SGM/SGMXASScanConfigurationWizard.h \
 	source/ui/SGM/SGMSidebar.h \
 	source/ui/SGM/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
@@ -52,13 +47,11 @@ HEADERS += \
 	source/ui/util/SGM/SGMEnergyPositionView.h \
 	source/analysis/SGM/SGM1DFastScanFilterAB.h \
 	source/util/SGM/SGMSettings.h \
-	source/util/SGM/SGMDacqConfigurationFile.h \
 	source/util/SGM/SGMPluginsLocation.h \
 	source/ui/util/SGM/SGMSettingsMasterView.h \
 	source/beamline/SGM/SGMMAXvMotor.h \
 	source/ui/util/SGM/SGMFastScanSettingsView.h \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.h \
-	source/ui/SGM/SGMBeamlineDetectorConnectionView.h \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
@@ -96,15 +89,10 @@ SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
 	source/application/SGM/SGMSSAAppController.cpp \
 	source/acquaman/SGM/SGMScanConfiguration.cpp \
-	source/acquaman/SGM/SGMXASDacqScanController.cpp \
 	source/acquaman/SGM/SGMXASScanConfiguration.cpp \
-	source/acquaman/SGM/SGMXASScanController.cpp \
 	source/acquaman/SGM/SGMFastScanConfiguration.cpp \
-	source/acquaman/SGM/SGMFastScanController.cpp \
-	source/acquaman/SGM/SGMFastDacqScanController.cpp \
 	source/beamline/SGM/SGMBeamline.cpp \
 	source/ui/SGM/SGMXASScanConfigurationView.cpp \
-	source/ui/SGM/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGM/SGMSidebar.cpp \
 	source/ui/SGM/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
@@ -114,13 +102,11 @@ SOURCES += \
 	source/ui/util/SGM/SGMEnergyPositionView.cpp \
 	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
 	source/util/SGM/SGMSettings.cpp \
-	source/util/SGM/SGMDacqConfigurationFile.cpp \
 	source/util/SGM/SGMPluginsLocation.cpp \
 	source/ui/util/SGM/SGMSettingsMasterView.cpp \
 	source/beamline/SGM/SGMMAXvMotor.cpp \
 	source/ui/util/SGM/SGMFastScanSettingsView.cpp \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.cpp \
-	source/ui/SGM/SGMBeamlineDetectorConnectionView.cpp \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \

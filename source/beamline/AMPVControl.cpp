@@ -19,12 +19,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMPVControl.h"
 
-#include "util/AMErrorMonitor.h"
 #include <QDebug>
+
+#include "util/AMErrorMonitor.h"
 
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
+ AMReadOnlyPVControl::~AMReadOnlyPVControl(){}
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent, const QString description)
 	: AMControl(name, "?", parent, description)  {
 
@@ -77,6 +79,7 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 }
 
 
+ AMPVControl::~AMPVControl(){}
 AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname, QObject* parent, double tolerance, double completionTimeoutSeconds, int stopValue, const QString &description)
 	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -105,7 +108,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
@@ -127,6 +130,12 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; that will break subclasses.
 	if(writePV_->isInitialized())
 		onWritePVInitialized();
+}
+
+void AMPVControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVControl::onWritePVInitialized() {
@@ -259,6 +268,7 @@ void AMPVControl::onCompletionTimeout() {
 // Class AMSinglePVControl
 ///////////////////////////////////////
 
+ AMSinglePVControl::~AMSinglePVControl(){}
 AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
 	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
 {
@@ -315,6 +325,7 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
+ AMPVwStatusControl::~AMPVwStatusControl(){}
 AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue, const QString &description)
 	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
@@ -338,7 +349,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// connect the timer to the timeout handler:
@@ -364,6 +375,12 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	if(movingPV_->readReady())
 		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
 
+}
+
+void AMPVwStatusControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVwStatusControl::onWritePVInitialized() {
@@ -564,6 +581,7 @@ void AMPVwStatusControl::onSettlingTimeFinished()
 }
 
 
+ AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
 AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
 	AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -652,3 +670,6 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 
 
 
+ AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
+ AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
+ AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}

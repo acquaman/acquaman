@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMBeamline.h"
 
+ SGMFluxOptimization::~SGMFluxOptimization(){}
 SGMFluxOptimization::SGMFluxOptimization(QObject *parent) : AMControlOptimization(parent) {
 	name_ = "SGMFlux";
 }
@@ -147,6 +148,7 @@ double SGMFluxOptimization::minimumEnergy(AMRegionsList* regions){
 }
 
 
+ SGMResolutionOptimization::~SGMResolutionOptimization(){}
 SGMResolutionOptimization::SGMResolutionOptimization(QObject *parent) : AMControlOptimization(parent) {
 	name_ = "SGMResolution";
 }

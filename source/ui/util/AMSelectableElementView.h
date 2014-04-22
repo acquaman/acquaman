@@ -17,6 +17,7 @@ class AMSelectableAbsorptionEdgeView : public AMSelectableItemView
 
 public:
 	/// Constructor.  Takes an AMAbsorptionEdge as an argument and builds the view.  If the edge is null, it auto-hides itself.
+ 	virtual ~AMSelectableAbsorptionEdgeView();
 	explicit AMSelectableAbsorptionEdgeView(const AMAbsorptionEdge &edge = AMAbsorptionEdge(), QWidget *parent = 0);
 
 	/// Returns the absorption edge that this view is representing.
@@ -46,6 +47,7 @@ class AMSelectableEmissionLineView : public AMSelectableItemView
 
 public:
 	/// Constructor.  Takes an AMEmissionLine as an argument and builds the view.  If the emission line is null, it auto-hides itself.
+ 	virtual ~AMSelectableEmissionLineView();
 	explicit AMSelectableEmissionLineView(const AMEmissionLine &line = AMEmissionLine(), QWidget *parent = 0);
 
 	/// Returns the emission line that this view is representing.
@@ -83,6 +85,7 @@ class AMSelectableElementView : public QWidget
 
 public:
 	/// Constructor.  Builds an element view around the element provided.  If the element pointer is zero then it will build the view, but not initialize any values.
+ 	virtual ~AMSelectableElementView();
 	explicit AMSelectableElementView(AMSelectableElement *element, QWidget *parent = 0);
 
 	/// Returns the current element that this view is representing.
@@ -135,15 +138,16 @@ public slots:
 	/// Sets a new maximum value for the energy range.
 	void setMaximumEnergy(double newMaximum);
 
+	/// Updates the list of absorption line views based on the current filters.
+	void updateAbsorptionEdgeViewList();
+	/// Updates the list of emission line views based on the current filters.
+	void updateEmissionLineViewList();
+
 protected slots:
 	/// Handles when the check state from an AMSelectableAbsorptionEdgeView changes.
 	void onAbsorptionEdgeSelected(bool isSelected, const AMAbsorptionEdge &edge);
 	/// Handles when the check state from an AMSelectableEmissionLineView changes.
 	void onEmissionLineSelected(bool isSelected, const AMEmissionLine &line);
-	/// Updates the list of absorption line views based on the current filters.
-	void updateAbsorptionEdgeViewList();
-	/// Updates the list of emission line views based on the current filters.
-	void updateEmissionLineViewList();
 
 protected:
 	/// The label for the name of the element.

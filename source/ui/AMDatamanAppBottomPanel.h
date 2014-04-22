@@ -13,6 +13,7 @@ class AMDatamanAppBottomPanel : public AMBottomPanel
 
 public:
 	/// Constructor.
+ 	virtual ~AMDatamanAppBottomPanel();
 	AMDatamanAppBottomPanel(QWidget *parent = 0);
 
 signals:

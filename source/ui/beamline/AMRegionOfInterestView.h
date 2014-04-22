@@ -16,6 +16,7 @@ class AMRegionOfInterestElementView : public QWidget
 
 public:
 	/// Constructor.  Builds a region of interest element view.
+ 	virtual ~AMRegionOfInterestElementView();
 	explicit AMRegionOfInterestElementView(AMRegionOfInterest *region, QWidget *parent = 0);
 
 protected slots:
@@ -28,6 +29,8 @@ protected slots:
 	void updateUpperBound(double value);
 	/// Updates the single step for the upper and lower bound spin boxes based on the increment of the spectrum data source.
 	void updateSpinBoxSingleStep();
+	/// Handles reseting the region pointer to 0 if the region is destroyed.
+	void onRegionDestroyed();
 
 protected:
 	/// The region that this view encapsulates.
@@ -47,6 +50,7 @@ class AMRegionOfInterestView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Builds a view based on the list of regions provided.
+ 	virtual ~AMRegionOfInterestView();
 	explicit AMRegionOfInterestView(QList<AMRegionOfInterest *> regions, QWidget *parent = 0);
 
 signals:

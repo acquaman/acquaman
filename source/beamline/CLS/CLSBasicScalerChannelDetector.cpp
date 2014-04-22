@@ -3,6 +3,7 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
 {
@@ -91,13 +92,16 @@ void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){
 	checkReadyForAcquisition();
 }
 
-void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning){
+void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning)
+{
 	if(isScanning)
 		setAcquiring();
+
 	else{
 
 		if(isAcquiring())
 			setAcquisitionSucceeded();
+
 		checkReadyForAcquisition();
 	}
 }

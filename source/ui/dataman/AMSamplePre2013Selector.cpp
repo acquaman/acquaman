@@ -54,6 +54,8 @@ AMSamplePre2013Selector::AMSamplePre2013Selector(AMDatabase* db, QWidget *parent
 	connect(this, SIGNAL(activated(int)), this, SLOT(onActivated(int)));
 }
 
+AMSamplePre2013Selector::~AMSamplePre2013Selector(){}
+
 void AMSamplePre2013Selector::onCurrentIndexChanged(int)
 {
 	emit currentSampleChanged(currentSample());

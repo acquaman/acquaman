@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QLabel>
 
+ AMLoopActionEditor3::~AMLoopActionEditor3(){}
 AMLoopActionEditor3::AMLoopActionEditor3(AMLoopActionInfo3 *info, QWidget *parent)
 	: QFrame(parent) {
 

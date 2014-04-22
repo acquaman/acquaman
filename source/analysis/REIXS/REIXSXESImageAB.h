@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
-#include <QDebug>
-
 /// Interface to define categories of curve fitting
 class REIXSFunctionFitter {
 public:
@@ -41,7 +39,7 @@ public:
 class REIXSQuadraticFitter : public REIXSFunctionFitter {
 public:
 	REIXSQuadraticFitter();
-	~REIXSQuadraticFitter();
+	virtual ~REIXSQuadraticFitter();
 
 	/// Function to fit a quadratic curve to a set of points, and return new points on the curve.
 	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
@@ -69,7 +67,7 @@ protected:
 class REIXSCubicFitter : public REIXSFunctionFitter {
 public:
 	REIXSCubicFitter();
-	~REIXSCubicFitter();
+	virtual ~REIXSCubicFitter();
 
 	/// Function to fit a Cubic curve to a set of points, and return new points on the curve.
 	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
@@ -97,7 +95,7 @@ protected:
 class REIXSQuarticFitter : public REIXSFunctionFitter {
 public:
 	REIXSQuarticFitter();
-	~REIXSQuarticFitter();
+	virtual ~REIXSQuarticFitter();
 
 	/// Function to fit a Quartic curve to a set of points, and return new points on the curve.
 	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);

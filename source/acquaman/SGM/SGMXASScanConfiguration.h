@@ -18,11 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMXASSCANCONFIGURATION_H
-#define ACQMAN_SGMXASSCANCONFIGURATION_H
+#ifndef AM_SGMXASSCANCONFIGURATION_H
+#define AM_SGMXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
 #include "SGMScanConfiguration.h"
+#include "dataman/info/AMOldDetectorInfoSet.h"
 
 class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
 {
@@ -41,6 +42,7 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 public:
 	/// Standard constructor, queries the SGMBeamline and retrieves some detector information
+ 	virtual ~SGMXASScanConfiguration();
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 	/// Copy constructor
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
@@ -48,19 +50,8 @@ public:
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
-	/// Returns the control set for flux/resolution (exit slit gap, grating, harmonic)
-	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
-	/// Returns the control set for tracking (mono tracking, undulator tracking, exit slit tracking)
-	AMControlSet *trackingSet() const { return trackingSet_;}
-
-	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
-	AMOldDetectorSet* detectorChoices() const { return xasDetectors_; }
-	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
-	AMOldDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
 	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
-	/// Returns the current configuration requested for all of the detectors
-	AMOldDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
 	virtual bool canEnumConvert(const QString &enumName) const;
@@ -71,13 +62,13 @@ public:
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 
-	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	/// Returns a NULL pointer as this scan configuration is no longer supported for running scans
 	virtual AMScanController* createController();
 
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the AMControlInfo for the scanned region control.
@@ -128,20 +119,6 @@ signals:
 	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
 
-	/// Emitted when the requested exit slit gap value changes
-	void exitSlitGapChanged(double exitSlitGap);
-	/// Emitted when the requested grating value changes
-	void gratingChanged(int grating);
-	/// Emitted when the requested harmonic value changes
-	void harmonicChanged(int harmonic);
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
-
-protected slots:
-	/// NOT CURRENTLY IN USE
-	void detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
-
 protected:
 	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
@@ -149,17 +126,8 @@ protected:
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
 
 protected:
-	/// Control Set for flux/resolution (exit slit gap, grating, harmonic)
-	AMControlSet *fluxResolutionSet_;
-	/// Control set for the tracking (mono tracking, undulator tracking, exit slit tracking)
-	AMControlSet *trackingSet_;
-
-	/// The detectors specific to XAS retrieved from the SGM Beamline object
-	AMOldDetectorSet *xasDetectors_;
-	/// All the detectors in this configuration
-	AMOldDetectorSet *allDetectors_;
 	/// The configurations for the detectors
 	AMOldDetectorInfoSet xasDetectorsCfg_;
 };
 
-#endif // ACQMAN_SGMXASSCANCONFIGURATION_H
+#endif // AM_SGMXASSCANCONFIGURATION_H

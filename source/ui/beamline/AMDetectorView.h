@@ -23,6 +23,7 @@ class AMDetectorGeneralBriefView : public QWidget
 Q_OBJECT
 public:
 	/// Default Constructor
+ 	virtual ~AMDetectorGeneralBriefView();
 	AMDetectorGeneralBriefView(AMDetector *detector, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector in use
@@ -49,6 +50,7 @@ class AMDetectorGeneralDetailedView : public QWidget
 Q_OBJECT
 public:
 	/// Default constructor
+ 	virtual ~AMDetectorGeneralDetailedView();
 	AMDetectorGeneralDetailedView(AMDetector *detector, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector in use
@@ -109,6 +111,7 @@ class AMDetectorViewStatusView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDetectorViewStatusView();
 	AMDetectorViewStatusView(AMDetector *detector, QWidget *parent = 0);
 
 protected:

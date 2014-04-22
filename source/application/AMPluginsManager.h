@@ -51,6 +51,7 @@ public:
 
 protected:
 	/// This is a singleton class, so the constructor is protected.
+ 	virtual ~AMPluginsManager();
 	AMPluginsManager() : mutex_(QReadWriteLock::Recursive) {}
 
 	/// registry of available file formats, indexed by file format

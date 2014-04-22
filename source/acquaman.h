@@ -55,6 +55,7 @@ namespace AM {
 
 class AMAcqEvent : public QEvent{
 public:
+	virtual ~AMAcqEvent();
 	AMAcqEvent() : QEvent( (QEvent::Type)AM::AcqEvent)
 	{}
 
@@ -65,6 +66,7 @@ public:
 
 class AMAcqErrorEvent : public QEvent{
 public:
+	virtual ~AMAcqErrorEvent();
 	AMAcqErrorEvent() : QEvent( (QEvent::Type)AM::AcqErrorEvent)
 	{}
 
@@ -75,6 +77,7 @@ public:
 class AMHighPrecisionDateTime
 {
 public:
+	virtual ~AMHighPrecisionDateTime(){}
 	AMHighPrecisionDateTime(){}
 
 	QDateTime dateTime() const { return dateTime_; }

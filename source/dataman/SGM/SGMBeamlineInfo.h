@@ -90,6 +90,7 @@ public:
 
 
 protected:
+ 	virtual ~SGMBeamlineInfo();
 	SGMBeamlineInfo(QObject *parent = 0);
 	static SGMBeamlineInfo *instance_;
 
@@ -101,6 +102,7 @@ class SGMEnergyParameters : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMEnergyParameters();
 	SGMEnergyParameters(QObject *parent = 0);
 	SGMEnergyParameters(double spacingParameter, double c1Parameter, double c2Parameter, double sParameter, double thetaParameter, QObject *parent = 0);
 

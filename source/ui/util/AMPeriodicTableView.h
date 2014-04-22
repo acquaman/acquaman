@@ -40,7 +40,7 @@ class AMPeriodicTableView : public QWidget
 public:
 	/// Builds the periodic table view using the information contained in periodic table.  It sets up the signals such that clicking on a particular element will emit a signal with the element contained within.
 	AMPeriodicTableView(QWidget *parent = 0);
-	~AMPeriodicTableView();
+	virtual ~AMPeriodicTableView();
 
 	/// Returns the mapped QToolButton for a given atomic number.
 	QToolButton *button(int atomicNumber) { return qobject_cast<QToolButton *>(elementMapper_->mapping(atomicNumber)); }

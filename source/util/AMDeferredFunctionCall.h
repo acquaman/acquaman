@@ -43,6 +43,7 @@ class AMDeferredFunctionCall : public QObject {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMDeferredFunctionCall();
 	AMDeferredFunctionCall(QObject* parent = 0);
 
 	/// Returns true if the function call has been scheduled and will execute on the next run loop cycle.

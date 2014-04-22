@@ -2,6 +2,7 @@
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+ CLSAdvancedScalerChannelDetector::~CLSAdvancedScalerChannelDetector(){}
 CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	CLSBasicScalerChannelDetector(name, description, scaler, channelIndex, parent)
 {
@@ -121,6 +122,7 @@ void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 
 	if(isAcquiring())
 		setAcquisitionSucceeded();
+
 	checkReadyForAcquisition();
 }
 

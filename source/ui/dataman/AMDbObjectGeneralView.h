@@ -27,6 +27,7 @@ class AMDbObjectGeneralView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDbObjectGeneralView();
 	Q_INVOKABLE AMDbObjectGeneralView(QWidget *parent = 0);
 
 	void createView(const AMDbObject *dbObject);

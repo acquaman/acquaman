@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DScanConfiguration.h"
 
+ AM2DScanConfiguration::~AM2DScanConfiguration(){}
 AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {

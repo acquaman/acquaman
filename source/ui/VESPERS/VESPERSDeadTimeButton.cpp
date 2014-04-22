@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QStyleOption>
 
+ VESPERSDeadTimeButton::~VESPERSDeadTimeButton(){}
 VESPERSDeadTimeButton::VESPERSDeadTimeButton(double good, double bad, QWidget *parent)
 	: QToolButton(parent)
 {

@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+ VESPERSExporter3DAscii::~VESPERSExporter3DAscii(){}
 VESPERSExporter3DAscii::VESPERSExporter3DAscii(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
@@ -27,6 +28,8 @@ bool VESPERSExporter3DAscii::prepareDataSources()
 
 	if (option_->includeAllDataSources() && option_->firstColumnOnly()){
 
+		bool includeFirstColumn = true;
+
 		for (int i = 0; i < currentScan_->dataSourceCount(); i++){
 
 			switch(currentScan_->dataSourceAt(i)->rank()){
@@ -38,7 +41,11 @@ bool VESPERSExporter3DAscii::prepareDataSources()
 
 			case 3:
 				mainTableDataSources_ << i;
-				mainTableIncludeX_ << (i == 0); // X and Y and Z.
+				mainTableIncludeX_ << includeFirstColumn;  // X and Y and Z.
+
+				if (includeFirstColumn)
+					includeFirstColumn = false;
+
 				break;
 
 			case 4:

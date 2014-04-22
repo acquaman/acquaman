@@ -41,6 +41,7 @@ class AMControlInfo : public AMDbObject {
 
 
 public:
+ 	virtual ~AMControlInfo();
 	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", const QString& enumString = QString(), QObject* parent = 0);
 
 	double value() const { return value_; }

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DRunningAverageFilterAB.h"
 
+ AM1DRunningAverageFilterAB::~AM1DRunningAverageFilterAB(){}
 AM1DRunningAverageFilterAB::AM1DRunningAverageFilterAB(int filterSize, const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {

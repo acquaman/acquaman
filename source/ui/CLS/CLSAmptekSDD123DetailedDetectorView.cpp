@@ -13,6 +13,8 @@ CLSAmptekDetailedDetectorView::CLSAmptekDetailedDetectorView(CLSAmptekSDD123Dete
 	amptekDetector_ = detector;
 }
 
+CLSAmptekDetailedDetectorView::~CLSAmptekDetailedDetectorView(){}
+
 void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	AMXRFDetailedDetectorView::buildDetectorView();
 
@@ -115,6 +117,7 @@ void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperat
 	temperatureLabel_->setText(QString("%1").arg(temperature));
 }
 
+
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -162,6 +165,8 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 
 	setLayout(mainVL);
 }
+
+CLSAmptekDetectorROIView::~CLSAmptekDetectorROIView(){}
 
 void CLSAmptekDetectorROIView::onDetectorConnected(bool isConnected){
 	if(!isConnected)
@@ -256,3 +261,5 @@ CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptek
 
 	setLayout(mainVL);
 }
+
+CLSAmptekDetectorConfigurationView::~CLSAmptekDetectorConfigurationView(){}

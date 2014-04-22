@@ -8,6 +8,7 @@ class AMEmissionLine
 {
 public:
 	/// Builds an emission line from the name and energy provided.  The name is expected to be in the form "Fe Ka1" with no greek letters.
+ 	virtual ~AMEmissionLine();
 	AMEmissionLine(const QString &name, double energy);
 	/// Builds an emission line from the name and  The name is expected to be in the form "Fe Ka1" with no greek letters.
 	AMEmissionLine(const QString &name, const QString &energy);
@@ -21,7 +22,7 @@ public:
 	/// Returns the energy of the emission line as a double.
 	double energy() const { return energy_; }
 	/// Returns the energy of the emission line as a string.
-	QString energyString(char format = 'f', double precision = 2) const { return QString::number(energy_, format, precision); }
+        QString energyString(char format = 'f', int precision = 2) const { return QString::number(energy_, format, precision); }
 	/// Returns the symbol for the element associated with this emission line.
 	QString elementSymbol() const { return symbol_; }
 	/// Returns the emission line name for the emission line.

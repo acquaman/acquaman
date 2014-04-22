@@ -83,6 +83,8 @@ class AMDetectorDwellTimeSource;
 #define AMDETECTOR_NOTIFIED_CLEANEDUP_UNEXPECTEDLY 470012
 #define AMDETECTOR_NOTIFIED_CLEANUPREQUIRED_UNEXPECTEDLY 470013
 
+#define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -111,6 +113,7 @@ public:
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
+ 	virtual ~AMDetector();
 	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
@@ -137,6 +140,10 @@ public:
 
 	/// Returns the current connected state (whether the detector has a connection to its constituent elements)
 	bool isConnected() const { return connected_; }
+	/// Returns whether or not the detector has timed out
+	bool isTimedOut() const { return timedOut_; }
+	/// Returns how long this detector will wait before timing out in milliseconds
+	int timeOutMS() const { return timeOutMS_; }
 	/// Returns the current powered state (whether the detector has it's high voltage on). Also see requiresPower().
 	bool isPowered() const { return powered_; }
 	/// Returns whether a detector requires power (high voltage, likely) to operate. Every detector subclass need to implement this function.
@@ -302,6 +309,8 @@ public slots:
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
+	/// Indicates that the detector failed to connected within the defined timeout
+	void timedOut();
 	/// Indicates that the detector is currently powered (has it's high voltage on). Also see requiresPower().
 	void powered(bool isPowered);
 
@@ -421,6 +430,9 @@ protected:
 	/// Changes the automatic behavior for calls to cleanup()
 	void setAutoSetCleaningUp(bool autoSetCleaningUp) { autoSetCleaningUp_ = autoSetCleaningUp; }
 
+	/// Sets the timeout time to a given value
+	void setTimeOutMS(int timeOutMS);
+
 protected:
 	/// A human-readable description
 	QString description_;
@@ -449,9 +461,26 @@ private:
 	/// Checks whether you canmake the transition to the new cleanup state
 	bool acceptableChangeCleanupState(CleanupState newState) const;
 
+	/// Helper function for cleaning up the timedOutTimer
+	void timedOutTimerCleanup();
+
+private slots:
+	/// Instantiates and starts the timedOutTimer
+	void initiateTimedOutTimer();
+	/// Handles the timedOutTimer finishing and emit the timedOut signal
+	void onTimedOutTimerTimedOut();
+
 private:
 	/// Internal state for connection, which referes to the constituent elements of the detector (likely AMControls) all being connected. Use setConnected(bool) to change so signals are emitted.
 	bool connected_;
+	/// Internal state for connection history. This value will start false and become true on the first connection.
+	bool wasConnected_;
+	/// Internal state for whether or not this detector is timed out
+	bool timedOut_;
+	/// Internal timer that controls the timed out signal
+	QTimer *timedOutTimer_;
+	/// Timeout that will be used in milliseconds
+	int timeOutMS_;
 	/// Internal state for powered, which refers to whether the detector is currently powered (many detectors require a high voltage to operate)
 	bool powered_;
 

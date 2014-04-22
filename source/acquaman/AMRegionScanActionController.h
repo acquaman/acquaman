@@ -10,8 +10,8 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
-#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
-Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
+#include "acquaman/AMScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 
 #define AMREGIONSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 263002
 #define AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 263003
@@ -27,7 +27,7 @@ public:
 	/// Constructor.  Takes in an AMRegionScanConfiguration.
 	AMRegionScanActionController(AMRegionScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
-	~AMRegionScanActionController();
+	virtual ~AMRegionScanActionController();
 
 	/// Returns whether it is safe to be deleted.  This is important due to the multithreaded nature of the file writing.
 	virtual bool isReadyForDeletion() const;
@@ -43,9 +43,11 @@ signals:
 
 protected slots:
 	/// Handles dealing with file writer errors.
-	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
+	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
+	void flushCDFDataStoreToDisk();
 
 protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
@@ -72,6 +74,8 @@ protected:
 	QThread *fileWriterThread_;
 	/// Flag for keeping track of whether the file writer thread is busy or not.
 	bool fileWriterIsBusy_;
+	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
+	QTimer flushToDiskTimer_;
 };
 
 #endif // AMREGIONSCANACTIONCONTROLLER_H

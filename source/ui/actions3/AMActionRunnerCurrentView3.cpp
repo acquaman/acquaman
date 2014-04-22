@@ -44,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QCheckBox>
 
+ AMActionRunnerCurrentView3::~AMActionRunnerCurrentView3(){}
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
@@ -399,6 +400,7 @@ void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
 
 
 
+ AMActionRunnerCurrentModel3::~AMActionRunnerCurrentModel3(){}
 AMActionRunnerCurrentModel3::AMActionRunnerCurrentModel3(AMActionRunner3 *actionRunner, QObject *parent) : QAbstractItemModel(parent)
 {
 	actionRunner_ = actionRunner;
@@ -605,3 +607,4 @@ bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *ev
 	}
 	return QObject::eventFilter(object, event);
 }
+ AMActionRunnerCurrentItemDelegate3::~AMActionRunnerCurrentItemDelegate3(){}

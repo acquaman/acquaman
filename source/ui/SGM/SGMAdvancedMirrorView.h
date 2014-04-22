@@ -11,6 +11,7 @@ class SGMAdvancedMirrorView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMAdvancedMirrorView();
 	SGMAdvancedMirrorView(QWidget *parent = 0);
 
 protected:

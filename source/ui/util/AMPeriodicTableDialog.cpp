@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QHBoxLayout>
 
+ AMPeriodicTableDialog::~AMPeriodicTableDialog(){}
 AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	: QDialog(parent)
 {

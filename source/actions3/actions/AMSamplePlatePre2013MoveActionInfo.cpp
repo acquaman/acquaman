@@ -43,6 +43,8 @@ AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(const AMS
 	samplePosition_ = 0; //NULL
 }
 
+AMSamplePlatePre2013MoveActionInfo::~AMSamplePlatePre2013MoveActionInfo(){}
+
 AMActionInfo3* AMSamplePlatePre2013MoveActionInfo::createCopy() const{
 	return new AMSamplePlatePre2013MoveActionInfo(*this);
 }

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QPushButton>
 
+ AMWorkflowView3::~AMWorkflowView3(){}
 AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent) :
 	QWidget(parent)
 {

@@ -23,33 +23,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class AMSampleManagementPre2013Widget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
-class AMOldDetectorView;
 class AMDetectorGeneralDetailedView;
 class AMXRFDetailedDetectorView;
+
+class AMScanAction;
+class AMScanController;
+
+class AMSampleManagementWidget;
+class SGMSidebar;
+
 class AMScanConfigurationViewHolder3;
-class SGMXASScanConfigurationView;
-class SGMFastScanConfigurationView;
 class SGMXASScanConfiguration2013View;
 class SGMFastScanConfiguration2013View;
-class AMScanController;
-class SGMSidebar;
-class SGMSettingsMasterView;
-class AMGithubManager;
-class AMOldDetector;
-class AMScanAction;
-class CLSProcServManager;
-class CLSProcServManagerView;
-class SGMAdvancedControlsView;
 
+class AMDetector;
 class AMDetectorSelector;
 class AMDetectorSelectorView;
+
+class SGMSettingsMasterView;
+class AMGithubManager;
+class CLSProcServManager;
+class CLSProcServManagerView;
 
 class AMSampleCameraBrowserView;
 class AMSamplePlateView;
 class AMBeamlineSampleManagementView;
+class SGMAdvancedControlsView;
 class SGMAdvancedMirrorView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
@@ -124,7 +125,12 @@ protected slots:
 	void onActionMirrorVeiw();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+	/// Handles listening to size changes from the XRFDetectorViews, which can expand the main window significantly
+	void onXRFDetectorViewResized();
+	/// Actually handles the resize for the above function some time later. Looks like one of the widgets or layouts takes quite a while to recalculate its minimumSizeHint() or its minimumSize()
+	void resizeToMinimum();
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
@@ -133,8 +139,6 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
-	/// Grabs the dacq configuration file locations
-	bool setupSGMConfigurationFiles();
 	/// Determines the plugin locations for file loaders
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
@@ -146,10 +150,6 @@ protected:
 	bool setupSGMViews();
 
 protected:
-	/// View to manage the sample positioner and the sample plates
-	//AMSampleManagementPre2013Widget *samplePositionView_;
-	/// camera widget
-	//AMSampleCameraBrowserView *cameraBrowserView_;
 	AMSamplePlateView *samplePlateView_;
 	AMBeamlineSampleManagementView *sampleManagementView_;
 
@@ -159,10 +159,6 @@ protected:
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 
 	/// View for controlling the new SGM amptek SDD (first)
-	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
 	AMXRFDetailedDetectorView *amptekSDD1XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
 	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
@@ -173,10 +169,8 @@ protected:
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;
 
 	/// View for the SGM's XAS scan configurations
-	SGMXASScanConfigurationView *xasScanConfigurationView_;
-	/// View for the SGM's Fast scan configurations
-	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
 	AMDetectorSelector *xasDetectorSelector_;
 	AMDetectorSelector *fastDetectorSelector_;

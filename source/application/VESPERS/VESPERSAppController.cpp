@@ -69,6 +69,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 #include "dataman/export/VESPERS/VESPERSExporterLineScanAscii.h"
 
+#include "dataman/VESPERS/VESPERSUserConfiguration.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -80,6 +82,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
+#include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
+#include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
 
 // For database registration:
 #include "dataman/VESPERS/XRFDetectorInfo.h"
@@ -92,6 +96,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	roperCCDStartup_ = false;
 	marCCDStartup_ = false;
 	pilatusCCDStartup_ = false;
+
+	userConfiguration_ = new VESPERSUserConfiguration(this);
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -136,14 +142,16 @@ bool VESPERSAppController::startup() {
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
-		////////////////////////////////////////
-
+		// Some first time things.
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-			// no run yet... let's create one.
+
+		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
+		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
+
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
 		}
 
 		if (!ensureProgramStructure())
@@ -152,6 +160,8 @@ bool VESPERSAppController::startup() {
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
+
+//		userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -215,6 +225,9 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<AMLineScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<VESPERS3DScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERSUserConfiguration>();
+
+	AMDbObjectSupport::s()->registerClass<VESPERSTimeScanConfiguration>();
 
 	AMOldDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -259,11 +272,11 @@ void VESPERSAppController::setupUserInterface()
 	// Setup the general endstation control view.
 	endstationView_ = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 	// Setup the general status page.
-	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+	statusPage_ = new VESPERSDeviceStatusView;
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
-	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
+	mw_->addPane(statusPage_, "General", "Device Status", ":/system-software-update.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -283,8 +296,6 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
-//	VESPERSSingleElementVortexDetector *test1 = new VESPERSSingleElementVortexDetector("SingleElement", "Single Element Vortex", this);
-//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
 	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	testView1->buildDetectorView();
 	testView1->setEnergyRange(3000, 20000);
@@ -293,8 +304,6 @@ void VESPERSAppController::setupUserInterface()
 	testView1->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(testView1, "Detectors", "New 1-el Vortex", ":/system-search.png");
 
-//	VESPERSFourElementVortexDetector *test4 = new VESPERSFourElementVortexDetector("FourElement", "Four Element Vortex", this);
-//		AMXRFBaseDetectorView *testView = new AMXRFBaseDetectorView(test);
 	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	testView4->buildDetectorView();
 	testView4->setEnergyRange(3000, 20000);
@@ -308,7 +317,6 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
 	exafsConfigViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigView_);
-	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
@@ -316,7 +324,6 @@ void VESPERSAppController::setupUserInterface()
 	mapScanConfiguration_->setTimeStep(1);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
-	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	map3DScanConfiguration_ = new VESPERS3DScanConfiguration();
@@ -324,7 +331,6 @@ void VESPERSAppController::setupUserInterface()
 	map3DScanConfiguration_->setTimeStep(1);
 	map3DScanConfigurationView_ = new VESPERS3DScanConfigurationView(map3DScanConfiguration_);
 	map3DScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(map3DScanConfigurationView_);
-	connect(map3DScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
 	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
@@ -333,7 +339,6 @@ void VESPERSAppController::setupUserInterface()
 	lineScanConfiguration_->regions()->setTimeUnits(0, "s");
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
 	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
-	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup energy scans for the beamline.  Builds the config, view, and view holder.
 	energyScanConfiguration_ = new VESPERSEnergyScanConfiguration();
@@ -342,7 +347,10 @@ void VESPERSAppController::setupUserInterface()
 	energyScanConfiguration_->regions()->setTimeUnits(0, " s");
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
 	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
-	connect(energyScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+
+	VESPERSTimeScanConfiguration *timeConfig = new VESPERSTimeScanConfiguration;
+	VESPERSTimeScanConfigurationView *timeView = new VESPERSTimeScanConfigurationView(timeConfig);
+	AMScanConfigurationViewHolder3 *timeViewHolder = new AMScanConfigurationViewHolder3(timeView);
 
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
@@ -350,6 +358,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(timeViewHolder, "Scans", "Time Config", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -361,16 +370,36 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
-	// copy ROIs from one detector to another.
+	// copy ROIs from one detector to another.  Soon to be removed.
 	connect(xrf1ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf4ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
 	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
+
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
+
+	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(map3DScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(energyScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Startup connections for the CCD detectors.
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(connected(bool)), this, SLOT(onRoperCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(connected(bool)), this, SLOT(onMarCCDConnected(bool)));
 	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+
+	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
+	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
+}
+
+void VESPERSAppController::onStatusViewRequrested()
+{
+	mw_->setCurrentPane(statusPage_);
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -395,6 +424,7 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 		return;
 
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -405,6 +435,22 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 		return;
 
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+
+	// Save the current configuration to the database.
+	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
+//	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+//	const VESPERSScanConfiguration *lineConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->config());
+//	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(lineConfig->dbObject());
+
+//	if (config){
+
+//		userConfiguration_->setIncomingChoice(config->incomingChoice());
+//		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
+//		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
+//		userConfiguration_->setCCDDetector(config->ccdDetector());
+//		userConfiguration_->setMotor(config->motor());
+//		userConfiguration_->storeToDb(AMDatabase::database("user"));
+//	}
 }
 
 void VESPERSAppController::onBeamDump()
@@ -413,25 +459,6 @@ void VESPERSAppController::onBeamDump()
 
 	if (action && action->canPause() && action->state() == AMAction3::Running)
 		action->pause();
-}
-
-void VESPERSAppController::onPauseScanIssued()
-{
-	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-	if (action && action->canPause() && action->state() == AMAction3::Running)
-		action->pause();
-
-	else if (action && action->canPause() && action->state() == AMAction3::Paused)
-		action->resume();
-}
-
-void VESPERSAppController::onCancelScanIssued()
-{
-	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-	if (action)
-		action->cancel();
 }
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -671,6 +698,7 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setTimeStep(config->timeStep());
 		mapScanConfiguration_->setMotor(config->motor());
 		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
+		mapScanConfiguration_->setNormalPosition(config->normalPosition());
 		mapScanConfigurationView_->updateMapInfo();
 	}
 
@@ -696,53 +724,37 @@ void VESPERSAppController::onSampleStageChoiceChanged(const QString &name)
 
 bool VESPERSAppController::exafsMotorAcceptable(int motor) const
 {
-	if (motor == (VESPERS::H | VESPERS::V)
+	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
-
-		return true;
-
-	return false;
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
 }
 
 bool VESPERSAppController::energyScanMotorAcceptable(int motor) const
 {
-	if (motor == (VESPERS::H | VESPERS::V)
+	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
-
-		return true;
-
-	return false;
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
 }
 
 bool VESPERSAppController::mapMotorAcceptable(int motor) const
 {
-	if (motor == (VESPERS::H | VESPERS::V)
+	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
-
-		return true;
-
-	return false;
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
 }
 
 bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
 {
-	if (motor == (VESPERS::H | VESPERS::V)
+	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
 			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
 			|| motor == VESPERS::AttoRx
 			|| motor == VESPERS::AttoRy
-			|| motor == VESPERS::AttoRz)
-
-		return true;
-
-	return false;
+			|| motor == VESPERS::AttoRz);
 }
 
 int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) const
@@ -911,4 +923,29 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 		if (!proposalNumber.isEmpty())
 			VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->setCCDFilePath(QString("/ramdisk/%1/").arg(proposalNumber));
 	}
+}
+
+void VESPERSAppController::onUserConfigurationLoadedFromDb()
+{
+	QList<VESPERSScanConfiguration *> configurations = QList<VESPERSScanConfiguration *>()
+			<< exafsScanConfig_
+			<< mapScanConfiguration_
+			<< lineScanConfiguration_
+			<< energyScanConfiguration_
+			<< map3DScanConfiguration_;
+
+	persistentView_->motorGroupView()->setMotorGroupView(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
+
+	foreach (VESPERSScanConfiguration *configuration, configurations){
+
+		configuration->setCCDDetector(userConfiguration_->ccdDetector());
+		configuration->setFluorescenceDetector(userConfiguration_->fluorescenceDetector());
+		configuration->setIncomingChoice(userConfiguration_->incomingChoice());
+		configuration->setTransmissionChoice(userConfiguration_->transmissionChoice());
+	}
+
+	AMXRFDetector *detector = VESPERSBeamline::vespers()->vespersSingleElementVortexDetector();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
+		detector->addRegionOfInterest(region->createCopy());
 }

@@ -13,6 +13,7 @@ class AMCancelActionPrompt : public QDialog
 
 public:
 	/// Constructor.
+ 	virtual ~AMCancelActionPrompt();
 	AMCancelActionPrompt(QWidget *parent = 0);
 
 	/// Sets the text for the dialog.

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
+ VESPERSCCDDetectorView::~VESPERSCCDDetectorView(){}
 VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWidget *parent)
 	: QWidget(parent)
 {

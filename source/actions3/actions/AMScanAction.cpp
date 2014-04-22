@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOption.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-#include "acquaman/AMDacqScanController.h"
 #include "acquaman/AM2DDacqScanController.h"
 #include "acquaman/AMScanActionController.h"
 
@@ -130,6 +129,7 @@ void AMScanAction::startImplementation()
 	hasValidScanController_ = true;
 
 	// Set the skip options if it is one of the dacq controllers.
+	/*
 	if (qobject_cast<AMDacqScanController *>(controller_)){
 
 		skipOptions_.append("Stop Now");
@@ -137,6 +137,7 @@ void AMScanAction::startImplementation()
 		if (qobject_cast<AM2DDacqScanController *>(controller_))
 			skipOptions_.append("Stop At The End Of Line");
 	}
+	*/
 
 	if(qobject_cast<AMScanActionController *>(controller_))
 		skipOptions_.append("Stop Now");
@@ -193,19 +194,19 @@ void AMScanAction::skipImplementation(const QString &command)
 	}
 
 	if (command == "Stop Now"){
-
+		/*
 		AMDacqScanController *dacqController = qobject_cast<AMDacqScanController *>(controller_);
 		if(dacqController)
 			dacqController->stopImmediately();
-
-
+		*/
 	}
 
 	else if (command == "Stop At The End Of Line"){
-
+		/*
 		AM2DDacqScanController *dacq2DController = qobject_cast<AM2DDacqScanController *>(controller_);
 		if(dacq2DController)
 			dacq2DController->stopAtTheEndOfLine();
+		*/
 	}
 
 }

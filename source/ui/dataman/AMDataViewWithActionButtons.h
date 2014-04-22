@@ -30,6 +30,7 @@ class AMDataViewWithActionButtons : public QWidget
 	Q_OBJECT
 public:
 	/// Constructs an AMDataView inside a widget that also provides buttons for the user to edit, compare, and export scans.
+ 	virtual ~AMDataViewWithActionButtons();
 	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::database("user"), QWidget *parent = 0);
 
 	/// Access the AMDataView contained inside this widget

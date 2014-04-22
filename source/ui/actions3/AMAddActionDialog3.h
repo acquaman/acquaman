@@ -36,7 +36,7 @@ public:
 	/// Constructor. The view is populated during construction with all actions currently registered in the AMActionRegistry [ActionInfo/Action].
 	explicit AMAddActionDialog3(QWidget *parent = 0);
 
-	~AMAddActionDialog3();
+	virtual ~AMAddActionDialog3();
 
 
 protected slots:

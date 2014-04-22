@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QHBoxLayout>
 
+ AM1DBasicIntegralABEditor::~AM1DBasicIntegralABEditor(){}
 AM1DBasicIntegralABEditor::AM1DBasicIntegralABEditor(AM1DIntegralAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

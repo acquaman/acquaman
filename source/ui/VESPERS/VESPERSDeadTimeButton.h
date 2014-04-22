@@ -30,6 +30,7 @@ class VESPERSDeadTimeButton : public QToolButton
 	Q_OBJECT
 public:
 	/// Constructor.  Need to provide a number between 0 and 100 for the \param good and \param bad because they use those to determine the color.  The color is green if < good, yellow if good < x < bad, and red if > bad.
+ 	virtual ~VESPERSDeadTimeButton();
 	VESPERSDeadTimeButton(double good, double bad, QWidget *parent = 0);
 
 	/// Returns the good setpoint.

@@ -35,6 +35,7 @@ class VESPERSMonochromator : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.
+	virtual ~VESPERSMonochromator();
 	explicit VESPERSMonochromator(QObject *parent = 0);
 
 	/// Returns the energy setpoint.
@@ -55,6 +56,15 @@ public:
 	bool allowScanning() const { return ((int)allowScan_->value() == 1); }
 	/// Returns true if the encoder is using eV for its read back precision and false if using keV.
 	bool usingeV() const { return ((int)encoder_->value() == 1); }
+
+	/// Returns the E0 control.
+	AMControl *EoControl() const { return Eo_; }
+	/// Returns the Ea control.
+	AMControl *EaControl() const { return energy_; }
+	/// Returns the delta E control.
+	AMControl *delEControl() const { return delE_; }
+	/// Returns the K control.
+	AMControl *KControl() const { return K_; }
 
 	/// Returns a newly created action to move the Eo control.  Returns 0 if the control is not connected.
 	AMAction3 *createEoAction(double energy);

@@ -1,5 +1,6 @@
 #include "SGMXASScanConfiguration2013View.h"
 
+ SGMXASScanConfiguration2013View::~SGMXASScanConfiguration2013View(){}
 SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfiguration2013 *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {

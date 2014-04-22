@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_BOTTOMBAR_H
-#define ACQMAN_BOTTOMBAR_H
+#ifndef AM_BOTTOMBAR_H
+#define AM_BOTTOMBAR_H
 
 #include <QtGui/QWidget>
 #include <QTime>
@@ -33,7 +33,7 @@ class AMBottomBar : public QWidget, public Ui::AMBottomBarClass {
 public:
 	AMBottomBar(QWidget *parent = 0);
 
-	~AMBottomBar();
+	virtual ~AMBottomBar();
 
 public slots:
 	/// Set the progress bar fraction completed

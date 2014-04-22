@@ -72,6 +72,7 @@ public:
 	enum DataRoles { FilledRole = AM::UserRole + 20, FillColorRole, ColorMapRole, UseStandardColorMapRole, StandardColorMapRole, FirstColorRole, SecondColorRole, BrightnessRole, ContrastRole, GammaRole };
 
 	/// Default constructor
+ 	virtual ~AMScanSetModel();
 	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
 
 	/// Implemented from QAbstractItemModel.  Use this to create a QModelIndex to access a scan or data source in the data() function.  Scans are found by row-based indexing at the top level of the tree (ie: \c parent is an invalid QModelIndex() ).  Data sources are found by row-based indexing, using a valid \c parent corresponding to their Scan's index().

@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
+ VESPERSXRFFreeRunView::~VESPERSXRFFreeRunView(){}
 VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	: QWidget(parent)
 {

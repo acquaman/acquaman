@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGridLayout>
 
+ VESPERSMotorView::~VESPERSMotorView(){}
 VESPERSMotorView::VESPERSMotorView(QWidget *parent) :
 	QWidget(parent)
 {

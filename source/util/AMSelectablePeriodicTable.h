@@ -30,6 +30,7 @@ class AMSelectablePeriodicTable : public AMCustomizablePeriodicTable
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMSelectablePeriodicTable();
 	explicit AMSelectablePeriodicTable(QObject *parent = 0);
 
 	/// Reimplemented to use AMSelectableElement instead of the base class AMElement.

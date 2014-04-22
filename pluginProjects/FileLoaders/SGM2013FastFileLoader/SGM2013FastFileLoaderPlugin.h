@@ -15,7 +15,7 @@ class SGM2013FastFileLoaderPlugin : public AMFileLoaderInterface
 
 
 public:
-	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2013XAS.
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2013Fast.
 	virtual QStringList acceptedFileFormats() { return QStringList() << "sgm2013Fast"; }
 
 	virtual bool accepts(AMScan *scan);
@@ -31,7 +31,7 @@ class SGM2013FastFileLoaderFactory : public QObject, public AMFileLoaderFactory
 	Q_INTERFACES(AMFileLoaderFactory)
 
 public:
-	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2013XAS.
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2013Fast.
 	virtual QStringList acceptedFileFormats() { return QStringList() << "sgm2013Fast"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);

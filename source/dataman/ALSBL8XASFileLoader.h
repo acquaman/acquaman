@@ -32,6 +32,7 @@ class AMXASScan;
 class ALSBL8XASFileLoader : public AMAbstractFileLoader
 {
 public:
+ 	virtual ~ALSBL8XASFileLoader();
 	ALSBL8XASFileLoader(AMXASScan* scan = 0);
 
 	QString formatTag() const { return "alsBl8Xas"; }

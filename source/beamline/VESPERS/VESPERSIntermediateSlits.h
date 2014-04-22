@@ -34,6 +34,7 @@ class VESPERSIntermediateSlits : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~VESPERSIntermediateSlits();
 	explicit VESPERSIntermediateSlits(QObject *parent = 0);
 
 	/// Returns the X slit gap.

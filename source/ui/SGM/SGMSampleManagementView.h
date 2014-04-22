@@ -5,7 +5,7 @@
 
 class QDoubleSpinBox;
 
-class AMBeamlineListAction;
+class AMAction3;
 
 class SGMSampleManagementView : public AMBeamlineSampleManagementView
 {
@@ -34,9 +34,9 @@ protected:
 	/// Button for measurement position
 	QPushButton *measurePositionButton_;
 	/// Action list for transfer position
-	AMBeamlineListAction *transferPositionActions_;
+	AMAction3 *transferPositionActions_;
 	/// Action list for measurement position
-	AMBeamlineListAction *measurementPositionActions_;
+	AMAction3 *measurementPositionActions_;
 
 	/// Button for lights off
 	QPushButton *lightsOffButton_;

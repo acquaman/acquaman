@@ -106,6 +106,7 @@ private:
 
 public:
 
+ 	virtual ~ParserByteCode();
     ParserByteCode();
     ParserByteCode(const ParserByteCode &a_ByteCode);
     ParserByteCode& operator=(const ParserByteCode &a_ByteCode);

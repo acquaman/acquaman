@@ -45,6 +45,7 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
+ 	virtual ~AMRawDataSource();
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);
 	/// This constructor re-loads a previously-stored source from the database.
 	Q_INVOKABLE AMRawDataSource(AMDatabase* db, int id);

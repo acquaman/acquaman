@@ -2,6 +2,7 @@
 
 #include "util/AMPeriodicTable.h"
 
+ AMSelectableElement::~AMSelectableElement(){}
 AMSelectableElement::AMSelectableElement(const QString &elementName, QObject *parent)
 	: AMElement(*AMPeriodicTable::table()->elementByName(elementName))
 {

@@ -12,6 +12,7 @@ class VESPERSCCDDetector : public AMDetector
 
 public:
 	/// Constructor.
+	virtual ~VESPERSCCDDetector();
 	VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
@@ -58,6 +59,11 @@ public:
 	QString ccdFileBaseName() const;
 	/// Returns the current number that is used for auto indexing of the file names.
 	int ccdFileNumber() const;
+
+	/// Returns the status control for the CCD detector.
+	AMControl *statusControl() const { return acquisitionStatusControl_; }
+	/// Returns the CCD file number control.
+	AMControl *ccdFileNumberControl() const { return ccdFileNumberControl_; }
 
 	/// Creates a newly created action that sets the file path for the detector.  Returns 0 if not connected.
 	AMAction3 *createFilePathAction(const QString &path);

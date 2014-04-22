@@ -10,11 +10,12 @@ class REIXSXASScanActionController : public AMRegionScanActionController
 {
 Q_OBJECT
 public:
+ 	virtual ~REIXSXASScanActionController();
 	REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent = 0);
 
 protected:
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
-	virtual void buildScanControllerImplementation() {}
+	virtual void buildScanControllerImplementation();
 
 	AMAction3* createInitializationActions();
 	AMAction3* createCleanupActions();

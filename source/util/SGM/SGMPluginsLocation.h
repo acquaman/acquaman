@@ -28,6 +28,7 @@ Q_OBJECT
 	Q_PROPERTY(QString pluginFolderPath READ pluginFolderPath WRITE setPluginFolderPath)
 
 public:
+ 	virtual ~SGMPluginsLocation();
 	explicit SGMPluginsLocation(QObject *parent = 0);
 
 	QString pluginFolderPath() const;

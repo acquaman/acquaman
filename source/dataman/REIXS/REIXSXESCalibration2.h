@@ -44,6 +44,7 @@ class REIXSXESGratingInfo : public AMDbObject {
 	Q_PROPERTY(double evRangeMax READ evRangeMax WRITE setEvRangeMax)
 
 public:
+ 	virtual ~REIXSXESGratingInfo();
 	explicit REIXSXESGratingInfo(QObject *parent = 0);
 
 	REIXSXESGratingInfo(const QString& name, double grooveDensity, double radius, double alpha, double r, const QVector3D& centerPosition, const QVector3D& opticalOrigin, const QVector3D& targetUVW, double angleCorrection, double heightCorrection, double endstationTranslation, double evRangeMin, double evRangeMax, QObject* parent = 0) : AMDbObject(parent) {
@@ -146,6 +147,7 @@ class REIXSXESCalibration2 : public AMDbObject
 
 public:
 	/// Default constructor
+ 	virtual ~REIXSXESCalibration2();
     explicit REIXSXESCalibration2(QObject *parent = 0);
 
 	/// returns the number of gratings defined in this calibration

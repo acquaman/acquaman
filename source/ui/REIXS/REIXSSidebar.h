@@ -35,7 +35,7 @@ class REIXSSidebar : public QWidget
 
 public:
     explicit REIXSSidebar(QWidget *parent = 0);
-    ~REIXSSidebar();
+    virtual ~REIXSSidebar();
 
 private:
     Ui::REIXSSidebar *ui;

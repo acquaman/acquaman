@@ -11,6 +11,7 @@ class AMScanActionControllerScanValidator : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMScanActionControllerScanValidator();
 	AMScanActionControllerScanValidator(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 public slots:

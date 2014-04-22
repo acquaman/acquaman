@@ -38,6 +38,8 @@ public:
 	/// Constructor
 	Q_INVOKABLE AMSamplePlatePre2013MoveActionEditor(AMSamplePlatePre2013MoveActionInfo *info, QWidget *parent = 0);
 
+	virtual ~AMSamplePlatePre2013MoveActionEditor();
+
 protected slots:
 	/// Called when the sample position combo box is activated to choose a different sample on the plate.
 	void onSamplePositionSelectorBoxCurrentIndexChanged(int index);

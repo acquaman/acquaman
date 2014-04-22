@@ -10,6 +10,7 @@ class CLSPseudoMotorGroupObject : public AMMotorGroupObject
 
 public:
 	/// Constructor.  Builds a new motor group object which mimics the AMMotorGroupObject with the addition of a reset control.
+ 	virtual ~CLSPseudoMotorGroupObject();
 	CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent = 0);
 	/// Constructor.  Builds a new motor group object which mimics the AMMotorGroupObject with up to three controls.
 	CLSPseudoMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, AMControl *resetControl, QObject *parent = 0);

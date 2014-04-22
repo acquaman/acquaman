@@ -72,6 +72,7 @@ class AMDbObject;
 class AMDbObjectInfo {
 public:
 	/// The default constructor creates an invalid AMDbObject.
+ 	virtual ~AMDbObjectInfo();
 	AMDbObjectInfo() {
 		metaObject = 0;
 	}
@@ -298,6 +299,7 @@ private:
 	QSet<AMDatabase*> registeredDatabases_;
 
 	/// This is a singleton class, so the constructor is private.
+ 	virtual ~AMDbObjectSupport();
 	AMDbObjectSupport() : QObject(), registryMutex_(QReadWriteLock::Recursive) {}
 	/// Single instance of this class.
 	static AMDbObjectSupport* instance_;
@@ -318,6 +320,7 @@ private slots:
 
 class AMDbLoadErrorInfo{
 public:
+ 	virtual ~AMDbLoadErrorInfo();
 	AMDbLoadErrorInfo(QString dbName = QString(), QString tableName = QString(), int dbId = -1);
 
 	QString dbName() const;

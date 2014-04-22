@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMOldDetector.h"
 
+ AMDetectorSignalSource::~AMDetectorSignalSource(){}
 AMDetectorSignalSource::AMDetectorSignalSource(AMOldDetector *parent)
 	: QObject() {
 	detector_ = parent;

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 
+ AMCrosshairOverlayVideoWidget::~AMCrosshairOverlayVideoWidget(){}
 AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
 	AMOverlayVideoWidget(parent, useOpenGlViewport)
 {

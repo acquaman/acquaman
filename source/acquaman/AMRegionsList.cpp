@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMRegionsList
 ///////////////////////////////////////////////////////////
 
+ AMRegionsList::~AMRegionsList(){}
 AMRegionsList::AMRegionsList(QObject *parent, bool setup)
 	: QObject(parent)
 {
@@ -475,3 +476,5 @@ double AMRegionsList::totalAcquisitionTime() const
 	}
 	return rv;
 }
+ AMXASRegionsList::~AMXASRegionsList(){}
+ AMEXAFSRegionsList::~AMEXAFSRegionsList(){}

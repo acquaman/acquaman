@@ -11,6 +11,7 @@ class CLSBasicCompositeScalerChannelDetector : public AMDetector
 
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the twi channel indices to use (index 0 - 31 for SIS3820)
+ 	virtual ~CLSBasicCompositeScalerChannelDetector();
 	CLSBasicCompositeScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex1, int channelIndex2, QObject *parent = 0);
 
 	/// Returns 0, because there are no axes for the single point detector
@@ -90,9 +91,6 @@ protected:
 	void checkReadyForAcquisition();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The pointer to the scaler object
 	CLSSIS3820Scaler *scaler_;
 	/// The channel index of the first channel.

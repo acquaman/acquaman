@@ -30,6 +30,7 @@ class AMLineScan : public AMScan
 
 public:
 	/// Constructor.
+ 	virtual ~AMLineScan();
 	Q_INVOKABLE explicit AMLineScan(QObject *parent = 0);
 };
 

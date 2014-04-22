@@ -1,5 +1,6 @@
 #include "AMRegionOfInterest.h"
 
+ AMRegionOfInterest::~AMRegionOfInterest(){}
 AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, const AMRange &range, QObject *parent)
 	: AMDbObject(parent)
 {
@@ -32,6 +33,11 @@ AMRegionOfInterest::AMRegionOfInterest(const AMRegionOfInterest &original)
 	value_->setBinningRange(originalAB->binningRange());
 	value_->setInputDataSources(originalAB->inputDataSources());
 	connect(value_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onValueChanged()));
+}
+
+AMRegionOfInterest *AMRegionOfInterest::createCopy() const
+{
+	return new AMRegionOfInterest(*this);
 }
 
 AMRegionOfInterest &AMRegionOfInterest::operator =(const AMRegionOfInterest &other)
@@ -107,7 +113,7 @@ void AMRegionOfInterest::setSpectrumSource(AMDataSource *source)
 	value_->setInputDataSources(QList<AMDataSource *>() << source);
 }
 
-void AMRegionOfInterest::onValueChanged() const
+void AMRegionOfInterest::onValueChanged()
 {
-	emit value_->value(AMnDIndex());
+	emit valueChanged(double(value_->value(AMnDIndex())));
 }

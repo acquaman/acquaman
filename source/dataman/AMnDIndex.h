@@ -76,6 +76,8 @@ public:
 	AMnDIndex(long i, long j, long k, long l);
 	/// Create an index for 5D data
 	AMnDIndex(long i, long j, long k, long l, long m);
+	/// Destructor.
+	virtual ~AMnDIndex();
 
 	/// Flag to indicate whether the dimension values should be initialized in the following constructor.
 	enum InitializeFlag { DoNotInit, DoInit };

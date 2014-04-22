@@ -15,6 +15,7 @@ class AM3DNormalizationABEditor : public QWidget
 
 public:
 	/// Constructor.  Takes in an AM3DNormalizationAB pointer.
+ 	virtual ~AM3DNormalizationABEditor();
 	explicit AM3DNormalizationABEditor(AM3DNormalizationAB *analysisBlock, QWidget *parent = 0);
 
 signals:

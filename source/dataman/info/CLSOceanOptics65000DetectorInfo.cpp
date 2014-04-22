@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSOceanOptics65000DetectorInfo.h"
 
+ CLSOceanOptics65000DetectorInfo::~CLSOceanOptics65000DetectorInfo(){}
 CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const QString &name, const QString &description, QObject *parent) :
 		AMOldDetectorInfo(name, description, parent)
 {

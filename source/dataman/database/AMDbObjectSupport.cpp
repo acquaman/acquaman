@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
+ AMDbObjectInfo::~AMDbObjectInfo(){}
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 	initWithMetaObject(prototype->metaObject());
 }
@@ -1004,6 +1005,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 	return true;
 }
 
+ AMDbLoadErrorInfo::~AMDbLoadErrorInfo(){}
 AMDbLoadErrorInfo::AMDbLoadErrorInfo(QString dbName, QString tableName, int dbId)
 {
 	dbName_ = dbName;
@@ -1022,3 +1024,4 @@ QString AMDbLoadErrorInfo::tableName() const{
 int AMDbLoadErrorInfo::dbId() const{
 	return dbId_;
 }
+ AMDbObjectSupport::~AMDbObjectSupport(){}

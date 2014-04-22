@@ -8,8 +8,8 @@
 
 #include <QThread>
 
-#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
-Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
+#include "acquaman/AMScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
@@ -27,7 +27,7 @@ public:
 	/// Constructor.  Takes in a SGMFastScanConfiguration2013.
 	SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent = 0);
 	/// Destructor.
-	~SGMFastScanActionController();
+	virtual ~SGMFastScanActionController();
 
 	/// Builds all the raw data sources and configures and starts up the file writer thread.
 	virtual void buildScanController();
@@ -40,7 +40,7 @@ signals:
 
 protected slots:
 	/// Handles dealing with file writer errors.
-	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
 

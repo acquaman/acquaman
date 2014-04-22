@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMBEAMLINE_H
-#define ACQMAN_SGMBEAMLINE_H
+#ifndef AM_SGMBEAMLINE_H
+#define AM_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
 #include "dataman/SGM/SGMBeamlineInfo.h"
@@ -28,19 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorSet.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
-#include "actions/AMBeamlineControlAction.h"
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlSetMoveAction.h"
-#include "actions/AMBeamlineControlWaitAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
-#include "actions/AMBeamlineUserConfirmAction.h"
-#include "actions/AMBeamlineHighVoltageChannelToggleAction.h"
-#include "actions/AMBeamlineActionsList.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMControlSetSampleManipulator.h"
-#include "beamline/AMOldDetectorSet.h"
 #include "beamline/AMControlOptimization.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
@@ -48,11 +37,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMSamplePlatePre2013;
 class SGMMAXvMotor;
-class CLSCAEN2527HVChannel;
-class CLSPGT8000HVChannel;
 class AMMotorGroup;
 
-class AMOldDetector;
 class CLSAmptekSDD123DetectorNew;
 class CLSPGTDetectorV2;
 class CLSQE65000Detector;
@@ -181,14 +167,7 @@ public:
 	/// Returns the rotational encoder for M3
 	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
 
-	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
-
-	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
-	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
-
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
-
-	int synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const;
 
 	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.
 	virtual AMAction3::ActionValidity validateAction(AMAction3 *action);
@@ -217,27 +196,12 @@ public:
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
-	AMOldDetector* teyDetector() const;
-	AMOldDetector* tfyDetector() const;
-	//AMOldDetector* pgtDetector() const;
-	AMOldDetector* oos65000Detector() const;
-	AMOldDetector* i0Detector() const;
-	AMOldDetector* eVFbkDetector() const;
-	AMOldDetector* photodiodeDetector() const;
-	AMOldDetector* encoderUpDetector() const;
-	AMOldDetector* encoderDownDetector() const;
-	AMOldDetector* ringCurrentDetector() const;
-	AMOldDetector* filterPD1ScalarDetector() const;
-	AMOldDetector* filterPD2ScalarDetector() const;
-	AMOldDetector* filterPD3ScalarDetector() const;
-	AMOldDetector* filterPD4ScalarDetector() const;
-
 	AMDetector* newAmptekSDD1() const;
 	AMDetector* newAmptekSDD2() const;
 	AMDetector* newAmptekSDD3() const;
 	AMDetector* newAmptekSDD4() const;
 	AMDetector* newAmptekSDD5() const;
-	//AMDetector* newPGTDetector() const;
+	AMDetector* newPGTDetector() const;
 	AMDetector* newQE65000Detector() const;
 	AMDetector* newTEYDetector() const;
 	AMDetector* newTFYDetector() const;
@@ -253,42 +217,21 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
-	AMDetectorGroup *newDetectorSet() const { return newDetectorSet_;}
-	AMDetectorGroup *XASDetectorGroup() const { return XASDetectorGroup_;}
-	AMDetectorGroup *FastDetectorGroup() const { return FastDetectorGroup_;}
+	AMDetectorGroup* allDetectorGroup() const { return allDetectorGroup_;}
+	AMDetectorGroup* XASDetectorGroup() const { return XASDetectorGroup_;}
+	AMDetectorGroup* FastDetectorGroup() const { return FastDetectorGroup_;}
+
+	const AMControlSet* criticalControlsSet() const { return criticalControlsSet_; }
+	const AMDetectorSet* criticalDetectorSet() const { return criticalDetectorSet_; }
+	AMDetectorSet* criticalDetectorSet(const QObject *privilegedRequester);
 
 	bool detectorConnectedByName(QString name);
 
-	/// Critical detectors that must be there for the beamline to be considered "connected". Can be altered in the beamline settings view
-	AMOldDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
-	/// All of the detectors on the beamline, regardless of whether they're connnected or not
-	AMOldDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
+	AMAction3* createBeamOnActions3();
+	AMAction3* createStopMotorsActions3();
 
-	/// All of the detectors currently connected on the beamline
-	AMOldDetectorSet* allDetectors() const { return allDetectors_;}
-	/// List of connected feedback detectors
-	AMOldDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
-	/// List of connected detectors availabe for XAS scans
-	AMOldDetectorSet* XASDetectors() const { return XASDetectors_;}
-	/// List of connected detectors available for Fast scans
-	AMOldDetectorSet* FastDetectors() const { return FastDetectors_;}
-
-	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
-	QList<AMOldDetector*> possibleDetectorsForSet(AMOldDetectorSet *set);
-
-	AMBeamlineListAction* createBeamOnActions();
-	AMAction3 *createBeamOnActions3();
-	AMBeamlineListAction* createStopMotorsAction();
-
-	AMBeamlineListAction* createGoToTransferPositionActions();
-	AMBeamlineListAction* createGoToMeasurementPositionActions();
-
-	AMBeamlineHighVoltageChannelToggleAction* createHV106OnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV106OffActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV109OnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHV109OffActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
+	AMAction3* createGoToTransferPositionActions3();
+	AMAction3* createGoToMeasurementPositionActions3();
 
 public slots:
 	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
@@ -308,15 +251,15 @@ signals:
 	void criticalConnectionsChanged();
 	void beamlineReadyChanged();
 
+	void beamlineConnected(bool isConnected);
+	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
 	void visibleLightStatusChanged(const QString& status);
 	void beamlineWarningsChanged(const QString& warnings);
 	void currentSamplePlateChanged(AMSamplePlatePre2013 *newSamplePlate);
 
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
-
-	void detectorHVChanged();
-	void detectorAvailabilityChanged(AMOldDetector *detector, bool available);
 
 	void beamlineInitialized();
 
@@ -327,16 +270,20 @@ protected slots:
 	void onCriticalsConnectedChanged();
 	void onEnergyValueChanged();
 
+	void onCriticalDetectorSetConnectedChanged(bool connected);
+	void onAllDetectorGroupDetectorBecameConnected(AMDetector *detector);
+	void onAllDetectorGroupDetectorBecameUnconnected(AMDetector *detector);
+
 	void onActiveEndstationChanged(double value);
 	void onMirrorStripeChanged(double value);
 
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
-	void onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
-	void ensureDetectorTimeout();
 
 	void computeBeamlineInitialized();
+
+	void onAllDetectorsGroupAllDetectorResponded();
 
 protected:
 	void setupControls();
@@ -347,6 +294,8 @@ protected:
 
 	/// Sets up the exposed detectors for the SGM beamline (accessible through the AMScanConfiguration/Controller interface)
 	void setupExposedDetectors();
+
+	void reviewConnected();
 
 protected:
 	// Singleton implementation:
@@ -378,9 +327,6 @@ protected:
 	AMControl *exitSlitTracking_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
-	CLSCAEN2527HVChannel *hvChannel106_;
-	CLSCAEN2527HVChannel *hvChannel109_;
-	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgtHV_;
 	SGMMAXvMotor *ssaManipulatorX_;
@@ -442,26 +388,12 @@ protected:
 	AMControl *m3HorizontalDownstreamEncoder_;
 	AMControl *m3RotationalEncoder_;
 
-	AMOldDetector *teyScalerDetector_;
-	AMOldDetector *tfyScalerDetector_;
-	AMOldDetector *pgtDetector_;
-	AMOldDetector *oos65000Detector_;
-	AMOldDetector *i0ScalerDetector_;
-	AMOldDetector *eVFbkDetector_;
-	AMOldDetector *photodiodeScalerDetector_;
-	AMOldDetector *encoderUpDetector_;
-	AMOldDetector *encoderDownDetector_;
-	AMOldDetector *ringCurrentDetector_;
-	AMOldDetector *filterPD1ScalarDetector_;
-	AMOldDetector *filterPD2ScalarDetector_;
-	AMOldDetector *filterPD3ScalarDetector_;
-	AMOldDetector *filterPD4ScalarDetector_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD4_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD5_;
-	//CLSPGTDetectorV2 *newPGTDetector_;
+	CLSPGTDetectorV2 *newPGTDetector_;
 	CLSQE65000Detector *newQE65000Detector_;
 	CLSAdvancedScalerChannelDetector *newTEYDetector_;
 	CLSAdvancedScalerChannelDetector *newTFYDetector_;
@@ -476,13 +408,12 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMDetectorGroup *newDetectorSet_;
+	AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
 
 	AMControlSet *criticalControlsSet_;
-	AMOldDetectorSet *criticalDetectorsSet_;
-	AMOldDetectorSet *rawDetectorsSet_;
+	AMDetectorSet *criticalDetectorSet_;
 
 	AMControlSet *beamOnControlSet_;
 
@@ -495,18 +426,6 @@ protected:
 	AMControlSetSampleManipulator *sampleManipulator_;
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
-
-	AMOldDetectorSet *allDetectors_;
-	AMOldDetectorSet *feedbackDetectors_;
-	AMOldDetectorSet *XASDetectors_;
-	AMOldDetectorSet *FastDetectors_;
-
-	/// Mapping detectors to their sets and whether they are default or not
-	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> > *detectorMap_;
-	/// Generally listing all detectors this beamline can have
-	QList<AMOldDetector*> detectorRegistry_;
-	/// Listing the detectors that haven't responded (either as connected or timed out)
-	QList<AMOldDetector*> unrespondedDetectors_;
 
 	/// Holds a boolean for whether everything the beamline cares about has reported back as either connected or timed out ... then we've initialized
 	bool beamlineIsInitialized_;
@@ -526,4 +445,4 @@ protected:
 };
 
 
-#endif // ACQMAN_SGMBEAMLINE_H
+#endif // AM_SGMBEAMLINE_H

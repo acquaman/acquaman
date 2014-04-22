@@ -12,6 +12,7 @@ class CLSAmptekDetailedDetectorView : public AMXRFDetailedDetectorView
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSAmptekDetailedDetectorView();
 	CLSAmptekDetailedDetectorView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent = 0);
 
 	virtual void buildDetectorView();
@@ -49,6 +50,7 @@ class CLSAmptekDetectorROIView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSAmptekDetectorROIView();
 	CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent = 0);
 
 protected slots:
@@ -77,6 +79,7 @@ class CLSAmptekDetectorConfigurationView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSAmptekDetectorConfigurationView();
 	CLSAmptekDetectorConfigurationView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent = 0);
 
 protected:

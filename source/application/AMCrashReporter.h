@@ -13,6 +13,7 @@ class AMCrashReporterUnixSignalHandler : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCrashReporterUnixSignalHandler();
 	AMCrashReporterUnixSignalHandler(QObject *parent = 0);
 
 	static void sigusr1SignalHandler(int signum);
@@ -38,6 +39,7 @@ class AMCrashReporterStackTraceSymbol : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCrashReporterStackTraceSymbol();
 	AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent = 0);
 
 	QString executable() const { return executable_; }
@@ -59,7 +61,8 @@ class AMCrashMonitor : public QObject
 {
 Q_OBJECT
 public:
-	AMCrashMonitor(const QString &executableFullPath, int watchingPID, QObject *parent = 0);
+ 	virtual ~AMCrashMonitor();
+	AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent = 0);
 
 protected slots:
 	void onSiguser1Detected();
@@ -67,6 +70,7 @@ protected slots:
 
 protected:
 	QString executableFullPath_;
+	QString errorFilePath_;
 	int watchingPID_;
 
 	qint64 crashReporterPID_;
@@ -78,7 +82,7 @@ class AMCrashReporter : public QWidget
 {
 Q_OBJECT
 public:
-	AMCrashReporter(const QString &executableFullPath, int watchingPID, int monitorPID, QWidget *parent = 0);
+	AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent = 0);
 	
 protected slots:
 	void onSiguser1Detected();
@@ -90,6 +94,7 @@ protected slots:
 
 protected:
 	QString executableFullPath_;
+	QString errorFilePath_;
 	int watchingPID_;
 	int monitorPID_;
 

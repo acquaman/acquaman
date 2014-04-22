@@ -3,6 +3,7 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetector::~AMDetector(){}
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -10,6 +11,10 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	description_ = description;
 
 	connected_ = false;
+	wasConnected_ = false;
+	timedOut_ = false;
+	timedOutTimer_ = 0; //NULL
+	setTimeOutMS(AMDETECTOR_DEFAULT_TIMEOUT_MS);
 	powered_ = false;
 
 	acquisitionState_ = AMDetector::NotReadyForAcquisition;
@@ -22,6 +27,8 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 
 	isVisible_ = true;
 	hiddenFromUsers_ = false;
+
+	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
 
 AMDetectorInfo AMDetector::toInfo() const{
@@ -106,7 +113,7 @@ int AMDetector::size(int axisNumber) const
 
 bool AMDetector::currentlySynchronizedDwell() const{
 
-	qDebug() << "Has synchronized dwell time: " << AMBeamline::bl()->synchronizedDwellTime();
+//	qDebug() << "Has synchronized dwell time: " << AMBeamline::bl()->synchronizedDwellTime();
 	if(AMBeamline::bl()->synchronizedDwellTime()){
 		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
 		if(index >= 0)
@@ -368,6 +375,10 @@ bool AMDetector::clearImplementation(){
 }
 
 void AMDetector::setConnected(bool isConnected){
+	if(isConnected && !wasConnected_){
+		wasConnected_ = true;
+		timedOutTimerCleanup();
+	}
 	if(isConnected != connected_){
 		connected_ = isConnected;
 		emit connected(connected_);
@@ -396,6 +407,10 @@ bool AMDetector::checkValid(const AMnDIndex &startIndex, const AMnDIndex &endInd
 	}
 #endif
 	return true;
+}
+
+void AMDetector::setTimeOutMS(int timeOutMS){
+	timeOutMS_ = timeOutMS;
 }
 
 void AMDetector::setAcquisitionState(AcqusitionState newState){
@@ -554,6 +569,33 @@ bool AMDetector::acceptableChangeCleanupState(CleanupState newState) const{
 		break;
 	}
 	return canTransition;
+}
+
+void AMDetector::timedOutTimerCleanup(){
+	if(timedOutTimer_){
+		timedOutTimer_->stop();
+		disconnect(timedOutTimer_, SIGNAL(timeout()), this, SLOT(onTimedOutTimerTimedOut()));
+
+		timedOutTimer_->deleteLater();
+		timedOutTimer_ = 0; //NULL
+	}
+}
+
+void AMDetector::initiateTimedOutTimer(){
+	if(!isConnected()){
+		timedOutTimer_ = new QTimer();
+		connect(timedOutTimer_, SIGNAL(timeout()), this, SLOT(onTimedOutTimerTimedOut()));
+		timedOutTimer_->start(timeOutMS_);
+	}
+}
+
+void AMDetector::onTimedOutTimerTimedOut(){
+	timedOutTimerCleanup();
+	if(!wasConnected_){
+		timedOut_ = true;
+		emit timedOut();
+		emit connected(false);
+	}
 }
 
 void AMDetector::setIsVisible(bool visible)

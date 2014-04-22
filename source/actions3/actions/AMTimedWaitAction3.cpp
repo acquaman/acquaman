@@ -1,5 +1,6 @@
 #include "AMTimedWaitAction3.h"
 
+ AMTimedWaitAction3::~AMTimedWaitAction3(){}
 AMTimedWaitAction3::AMTimedWaitAction3(AMTimedWaitActionInfo3 *info, QObject *parent) :
 	AMAction3(info, parent)
 {

@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMnDIndex.h"
 
 // Create an invalid index (rank of 0)
+ AMnDIndex::~AMnDIndex(){}
 AMnDIndex::AMnDIndex() {
 	rank_ = 0;
 	extras_ = 0;

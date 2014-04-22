@@ -32,3 +32,4 @@ bool REIXSSampleManipulator::moveToPosition(const AMControlInfoList &newPosition
 	REIXSBeamline::bl()->currentSamplePositioner()->setFromInfoList(newPosition);
 	return true;
 }
+ REIXSSampleManipulator::~REIXSSampleManipulator(){}

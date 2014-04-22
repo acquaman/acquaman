@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ROIHelper.h"
 #include "beamline/AMProcessVariable.h"
 
+ ROIHelper::~ROIHelper(){}
 ROIHelper::ROIHelper(QObject *parent) :
 	QObject(parent)
 {

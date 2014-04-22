@@ -49,6 +49,7 @@ class AM2DScanBar : public QWidget
 
 public:
 	/// Constructor.
+ 	virtual ~AM2DScanBar();
 	AM2DScanBar(QWidget *parent = 0);
 
 	/// Returns the x axis units.
@@ -160,6 +161,8 @@ public slots:
 
 	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it exists.
 	void exportGraphicsFile(const QString& outputFileName);
+	void printGraphics();
+
 
 
 signals:
@@ -242,6 +245,7 @@ class AM2DScanViewInternal : public QGraphicsWidget
 
 public:
 	/// Constructor.
+ 	virtual ~AM2DScanViewInternal();
 	explicit AM2DScanViewInternal(AM2DScanView *masterView);
 
 protected slots:

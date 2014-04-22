@@ -23,5 +23,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
 	EthanAcquacam.pro \
-#	AMCrashReporter.pro
-	StripToolProject.pro
+#	AMCrashReporter.pro \
+	StripToolProject.pro \
+	IDEASAcquaman.pro

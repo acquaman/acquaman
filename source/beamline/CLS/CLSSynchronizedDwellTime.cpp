@@ -129,6 +129,7 @@ AMAction3* CLSSynchronizedDwellTime::createEnableAtAction3(int index, bool isEna
 
 void CLSSynchronizedDwellTime::onScanningChanged(double status){
 	emit scanningChanged((int)status == 1);
+
 	if((int)status == 0)
 		triggerSource_->setSucceeded();
 }
@@ -179,6 +180,7 @@ void CLSSynchronizedDwellTime::onDwellTimeSourceSetDwellTime(double dwellSeconds
 		dwellTimeSource_->setSucceeded();
 }
 
+ CLSSynchronizedDwellTimeElement::~CLSSynchronizedDwellTimeElement(){}
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
 	: QObject(parent)
 {

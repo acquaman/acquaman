@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QVBoxLayout>
 
+ BeamPositionMonitor::~BeamPositionMonitor(){}
 BeamPositionMonitor::BeamPositionMonitor(QWidget *parent) :
 	QWidget(parent)
 {

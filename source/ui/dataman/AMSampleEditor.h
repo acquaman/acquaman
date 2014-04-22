@@ -15,6 +15,7 @@ class AMSampleEditor : public QWidget
 Q_OBJECT
 public:
 	AMSampleEditor(AMDatabase *database, QWidget *parent = 0);
+	virtual ~AMSampleEditor();
 
 	void setSample(const AMSample *sample);
 	void setSamplePre2013(const AMSamplePre2013 *samplePre2013);

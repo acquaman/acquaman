@@ -2,6 +2,7 @@
 
 #include <QFormLayout>
 
+ AMOrderReductionABEditor::~AMOrderReductionABEditor(){}
 AMOrderReductionABEditor::AMOrderReductionABEditor(AMOrderReductionAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {

@@ -8,6 +8,7 @@ class AMAbsorptionEdge
 {
 public:
 	/// Builds an absorption edge from the name and energy provided.  The name is expected to be in the form "Fe L1".  Failure to use this convention will result in undefined behaviour.
+ 	virtual ~AMAbsorptionEdge();
 	AMAbsorptionEdge(const QString &name, double energy);
 	/// Builds an absorption edge from the name and energy (energy is provided as a string) provided.  The name is expected to be in the form "Fe L1".  Failure to use this convention will result in undefined behaviour.
 	AMAbsorptionEdge(const QString &name, const QString &energy);
@@ -21,7 +22,7 @@ public:
 	/// Returns the energy of the edge as a double.
 	double energy() const { return energy_; }
 	/// Returns the energy of the edge as a string.
-	QString energyString(char format = 'f', double precision = 2) const { return QString::number(energy_, format, precision); }
+        QString energyString(char format = 'f', int precision = 2) const { return QString::number(energy_, format, precision); }
 	/// Returns the symbol for the element associated with this absorption edge.
 	QString elementSymbol() const { return symbol_; }
 	/// Returns the edge name for this absorption edge.

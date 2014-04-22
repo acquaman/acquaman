@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 typedef QPair<int, QString> REIXSXESRawFileException;
 
+ REIXSXESRawFileLoader::~REIXSXESRawFileLoader(){}
 REIXSXESRawFileLoader::REIXSXESRawFileLoader(AMXESScan *scan)
 	: AMAbstractFileLoader(scan)
 {

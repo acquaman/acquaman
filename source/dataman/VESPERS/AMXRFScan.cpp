@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include "util/AMSettings.h"
 
+ AMXRFScan::~AMXRFScan(){}
 AMXRFScan::AMXRFScan(QObject *parent)
 	: AMScan(parent)
 {

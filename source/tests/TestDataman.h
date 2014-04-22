@@ -45,6 +45,7 @@ class AMTestDbObject : public AMDbObject {
 	Q_PROPERTY(QStringList emptyListS READ emptyListS WRITE setEmptyListS)
 
 public:
+ 	virtual ~AMTestDbObject(){}
 			Q_INVOKABLE explicit AMTestDbObject(QObject* parent = 0) : AMDbObject(parent) {
 		mySingleScan_ = 0;
 	}//todo

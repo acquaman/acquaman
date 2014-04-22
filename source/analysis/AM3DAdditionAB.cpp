@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3DAdditionAB.h"
 
+ AM3DAdditionAB::~AM3DAdditionAB(){}
 AM3DAdditionAB::AM3DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

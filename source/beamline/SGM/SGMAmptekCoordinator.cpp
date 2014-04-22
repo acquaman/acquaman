@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMPVControl.h"
 
+ SGMAmptekCoordinator::~SGMAmptekCoordinator(){}
 SGMAmptekCoordinator::SGMAmptekCoordinator(QObject *parent) :
 	QObject(parent)
 {

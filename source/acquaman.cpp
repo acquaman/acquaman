@@ -72,3 +72,6 @@ namespace AM {
 		qRegisterMetaType<AMQVector3DVector>();
 	}
 }
+ AMAcqEvent::~AMAcqEvent(){}
+ AMAcqErrorEvent::~AMAcqErrorEvent(){}
+// AMHighPrecisionDateTime::~AMHighPrecisionDateTime(){}

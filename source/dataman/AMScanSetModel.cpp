@@ -551,3 +551,4 @@ void AMScanSetModel::saveVisibility()
 	}
 }
 
+ AMScanSetModel::~AMScanSetModel(){}

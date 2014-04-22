@@ -2,6 +2,7 @@
 
 #include "util/AMErrorMonitor.h"
 
+ VESPERSDbUpgrade1Pt3::~VESPERSDbUpgrade1Pt3(){}
 VESPERSDbUpgrade1Pt3::VESPERSDbUpgrade1Pt3(const QString &databaseNameToUpgrade, QObject *parent)
 	: AMDbUpgrade(databaseNameToUpgrade, parent)
 {

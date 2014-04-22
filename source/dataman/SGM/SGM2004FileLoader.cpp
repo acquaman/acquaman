@@ -33,9 +33,7 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
-#include <QDebug>
-
-
+ SGM2004FileLoader::~SGM2004FileLoader(){}
 SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.
@@ -203,8 +201,9 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 	}
 	if(postSddFileOffset){
-		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
-			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+		scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset"));
+		//if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
+		//	qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
 
@@ -259,7 +258,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
-		qDebug() << "SPECTRA FILE IS " << spectraFile;
+
 		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {

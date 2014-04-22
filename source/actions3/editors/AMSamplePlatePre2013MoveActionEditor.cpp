@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QMessageBox>
-#include <QDebug>
 
 #include "beamline/AMBeamline.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -55,6 +54,8 @@ AMSamplePlatePre2013MoveActionEditor::AMSamplePlatePre2013MoveActionEditor(AMSam
 	connect(samplePlateSelectorBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSamplePlateSeletectorBoxCurrentIndexChanged(int)));
 	connect(changeSamplePlateCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onChangeSamplePlateCheckBoxToggled(bool)));
 }
+
+AMSamplePlatePre2013MoveActionEditor::~AMSamplePlatePre2013MoveActionEditor(){}
 
 void AMSamplePlatePre2013MoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePlateId(samplePlateSelectorBox_->itemData(index).toInt());

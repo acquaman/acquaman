@@ -2,6 +2,7 @@
 
 #include "beamline/AMBeamline.h"
 
+ SGMXASScanConfiguration2013::~SGMXASScanConfiguration2013(){}
 SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 	AMXASScanConfiguration(parent), SGMScanConfiguration2013()
 {

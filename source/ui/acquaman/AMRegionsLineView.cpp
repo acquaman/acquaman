@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionsLineView.h"
 
+ AMRegionItem::~AMRegionItem(){}
 AMRegionItem::AMRegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
@@ -109,6 +110,7 @@ void AMRegionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 }
 
 
+ AMEnergyIndexItem::~AMEnergyIndexItem(){}
 AMEnergyIndexItem::AMEnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
@@ -139,6 +141,7 @@ void AMEnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + units_, textBox_);
 }
 
+ AMRegionsLineView::~AMRegionsLineView(){}
 AMRegionsLineView::AMRegionsLineView(AMRegionsList *regions, QWidget *parent) : QWidget(parent)
 {
 	regions_ = regions;
@@ -248,6 +251,7 @@ void AMRegionsLineView::redrawRegionsLine(){
 // AMEXAFSLinesView
 ////////////////////////////////////////
 
+ AMEXAFSLineView::~AMEXAFSLineView(){}
 AMEXAFSLineView::AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent)
 	: AMRegionsLineView(regions, parent)
 {

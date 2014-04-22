@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESScanConfiguration.h"
 
+ REIXSXESScanConfiguration::~REIXSXESScanConfiguration(){}
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {

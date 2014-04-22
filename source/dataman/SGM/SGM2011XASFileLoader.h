@@ -31,6 +31,7 @@ class AMXASScan;
 class SGM2011XASFileLoader : public AMAbstractFileLoader
 {
 public:
+ 	virtual ~SGM2011XASFileLoader();
 	SGM2011XASFileLoader(AMXASScan *scan = 0);
 
 	QString formatTag() const { return "sgm2011XAS"; }

@@ -29,6 +29,7 @@ SGMBeamlineInfo* SGMBeamlineInfo::sgmInfo(){
 	return instance_;
 }
 
+ SGMBeamlineInfo::~SGMBeamlineInfo(){}
 SGMBeamlineInfo::SGMBeamlineInfo(QObject *parent) :
 	QObject(parent)
 {
@@ -221,6 +222,7 @@ QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamlineInfo
 		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
 }
 
+ SGMEnergyParameters::~SGMEnergyParameters(){}
 SGMEnergyParameters::SGMEnergyParameters(QObject *parent) : QObject(parent)
 {
 }

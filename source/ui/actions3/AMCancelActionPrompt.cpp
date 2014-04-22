@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+ AMCancelActionPrompt::~AMCancelActionPrompt(){}
 AMCancelActionPrompt::AMCancelActionPrompt(QWidget *parent)
 	: QDialog(parent)
 {

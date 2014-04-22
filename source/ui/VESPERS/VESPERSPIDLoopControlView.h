@@ -35,7 +35,7 @@ public:
 	/// Constructor.  Requires a valid PID loop control.
 	explicit VESPERSPIDLoopControlView(VESPERSPIDLoopControl *pid, QWidget *parent = 0);
 	/// Destructor.
-	~VESPERSPIDLoopControlView();
+	virtual ~VESPERSPIDLoopControlView();
 
 signals:
 

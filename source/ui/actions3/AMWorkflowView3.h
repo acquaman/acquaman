@@ -35,6 +35,7 @@ class AMWorkflowView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMWorkflowView3();
 	explicit AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
 	/// Access the queue view for upcoming actions

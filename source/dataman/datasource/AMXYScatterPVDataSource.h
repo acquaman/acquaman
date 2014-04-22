@@ -30,6 +30,7 @@ class AMXYScatterPVDataSource : public QObject, public AMDataSource
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMXYScatterPVDataSource();
 	explicit AMXYScatterPVDataSource(const AMProcessVariable *x, const AMProcessVariable *y, const QString& name, QObject *parent = 0);
 
 	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.

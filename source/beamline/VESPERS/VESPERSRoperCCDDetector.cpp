@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThreadPool>
 #include <QMutexLocker>
 
+ VESPERSRoperCCDDetector::~VESPERSRoperCCDDetector(){}
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSCCDDetector(name, description, parent)
 {

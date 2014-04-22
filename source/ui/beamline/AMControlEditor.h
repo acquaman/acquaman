@@ -39,6 +39,7 @@ class QPixmap;
 class AMControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
+ 	virtual ~AMControlEditorStyledInputDialog();
 	AMControlEditorStyledInputDialog( QWidget * parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 public slots:
