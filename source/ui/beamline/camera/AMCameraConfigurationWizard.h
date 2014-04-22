@@ -21,7 +21,7 @@ class QVector3D;
 */
 class AMCameraConfigurationWizard : public AMGraphicsViewWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	enum
 	{
@@ -32,22 +32,15 @@ public:
 		Page_Free
 	};
 
-    AMCameraConfigurationWizard(QWidget* parent = 0);
+	AMCameraConfigurationWizard(QWidget* parent = 0);
 	virtual ~AMCameraConfigurationWizard();
 
-    /// reimplementation of nextId.
-    /// it is necessary to control the page flow from the wizard
+	/// reimplementation of nextId.
+	/// it is necessary to control the page flow from the wizard
 	/// rather than the pages because there is more than one instance of several pages
 	virtual int nextId() const;
 
-    virtual QString message(int messageType);
-
-	// moved to AMGraphicsViewWizard
-//    / used to correlate Page_Wait_x and Page_Select_x with their order
-//    int relativeId();
-
-//	/ moves to the position for Page_Wait_x
-//	virtual void waitPage();
+	virtual QString message(int messageType);
 
 
 public slots:

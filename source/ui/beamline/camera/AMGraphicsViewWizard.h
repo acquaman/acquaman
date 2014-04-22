@@ -70,6 +70,8 @@ public:
     void setScale(QPointF scale);
     void setScale(double scaleFactor);
 
+    /// waitPage is called whenever entering a wait page, signals
+    /// for a motor movement
     /// emits moveTo signal with currentId as the argument
     virtual void waitPage();
 
@@ -78,9 +80,10 @@ public:
     /// the number of points for this wizard.
     /// used to generate the options page
     int numberOfPoints() const;
-	/// number of set/wait type pages in the wizard
-	/// usually the same as number of points
-	int numberOfPages() const;
+
+    /// number of set/wait type pages in the wizard
+    /// usually the same as number of points
+    int numberOfPages() const;
 
 
 
@@ -168,7 +171,7 @@ public slots:
     /// updates the scene
     void updateScene(AMSampleCameraGraphicsView* view);
 
-	/// updates a shape in the scene
+    /// updates a shape in the scene
     void updateShape(QGraphicsPolygonItem* item);
 
     /// repositions the "fix text".
@@ -178,34 +181,46 @@ public slots:
     void testMoveSlot();
 
 signals:
-	/// emitted when finished
-	void done(int result);
-	/// emitted when non-rotating move requested
+    /// emitted when finished
+    void done(int result);
+    /// emitted when non-rotating move requested
     void moveTo(QVector3D);
-	/// emitted when rotating move requested
-	void moveTo(QVector3D,double);
-	/// requests motor movement state
+    /// emitted when rotating move requested
+    void moveTo(QVector3D,double);
+    /// requests motor movement state
     void requestMotorMovementEnabled();
-	/// emitted when move has finished
+    /// emitted when move has finished
     void moveSucceeded();
 
 protected slots:
-	virtual void setHasHelpButton(bool hasHelp);
-	virtual void setDefaultWindowTitle();
-	virtual void showOptions(int id);
-	virtual void showOptionsButton(int id);
+    /// enables the help button and sets up the connection
+    virtual void setHasHelpButton(bool hasHelp);
+    /// sets the default title to be determined by message()
+    virtual void setDefaultWindowTitle();
+    /// determines whether or not to show the options page next
+    virtual void showOptions(int id);
+    /// determines whether or not to show the options button
+    virtual void showOptionsButton(int id);
+    /// media player status
     void mediaPlayerStateChanged(QMediaPlayer::MediaStatus);
     void mediaPlayerErrorChanged(QMediaPlayer::Error);
-	void setRotationEnabled(bool rotationEnabled);
-	void setNumberOfPages(int numberOfPages);
-	void setNumberOfPoints(int numberOfPoints);
-	void setShowOptionPage(bool showOptionPage);
+    /// sets whether rotation is enabled  or ignored
+    void setRotationEnabled(bool rotationEnabled);
+    /// sets the number of set/wait pages
+    void setNumberOfPages(int numberOfPages);
+    /// sets the number of motor coordinates that are used in the options page
+    void setNumberOfPoints(int numberOfPoints);
+    /// sets whether to show the option page next
+    void setShowOptionPage(bool showOptionPage);
 
-
-	void coordinateListAppend(QVector3D *coordinate);
-	void pointListAppend(QPointF *point);
-	void rotationsAppend(double rotation);
-	void setFreePage(int freePage);
+	/// append coordinates to the list
+    void coordinateListAppend(QVector3D *coordinate);
+    /// append points to the list
+    void pointListAppend(QPointF *point);
+    /// append rotations to the list
+    void rotationsAppend(double rotation);
+    /// sets the free page; for using pageWait and pageSet
+    void setFreePage(int freePage);
 
 
 protected:
@@ -329,6 +344,8 @@ public:
     void initializePage();
     bool isComplete() const;
     void stopTimer();
+    /// This starts the motor moving by calling
+    /// viewWizard()->waitPage();
     void startTimer(int msec);
 protected slots:
     void nextPage();
@@ -343,6 +360,11 @@ private:
 };
 
 
+/** AMViewPage is used to show the wizard view.
+  * Coordinates from this view can be mapped to the
+  * sampleCamera view by using mapPointToVideo,
+  * in AMGraphicsViewWizard.
+  */
 class AMViewPage : public AMWizardPage
 {
     Q_OBJECT
@@ -353,12 +375,13 @@ public:
 
 public slots:
     void setView(AMSampleCameraGraphicsView* view);
-
+	/// gets the view from the wizard
     void initializePage();
     void cleanupPage();
 
 
 protected slots:
+    /// adds the view to the page
     void addView();
 
 private:

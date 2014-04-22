@@ -321,6 +321,7 @@ QVector3D AMSampleCamera::currentCoordinate() const
 	return coordinate(currentIndex_);
 }
 
+/// The offset of the centre of rotation from the motor coordinate
 QVector3D AMSampleCamera::rotationalOffset() const
 {
 	return rotationalOffset_->rotationalOffset();
@@ -745,9 +746,14 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 /// finds all the intersections, returns false if there is no valid beam
 bool AMSampleCamera::findIntersections()
 {
+	/// This finds all the intersections of the beam with the samples
+	/// and determines how to draw it.
+
+
 	/// Cannot find the beam with an incomplete beam model
 	if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
 	{
+		qDebug()<<"Cannot find beam, beamModel_ is incomplete";
 		return false;
 	}
 	intersections_.clear();
@@ -755,6 +761,9 @@ bool AMSampleCamera::findIntersections()
 	QList<AMSample*> allIntersectedSamples;
 	bool isFullyWithinSample;
 	bool beamInSample = false;
+
+	/// for each shape, find if it intersects the beam, and if it does,
+	/// determine the interseection shape
 	for(int i = 0; i <= index_; i++)
 	{
 		QVector<QVector3D> intersectionShape = findIntersectionShape(i,&isFullyWithinSample);
@@ -767,10 +776,12 @@ bool AMSampleCamera::findIntersections()
 		beamInSample |= isFullyWithinSample;
 	}
 
+	/// set beamCutOff to false if no samples fully contain the beam
 	setBeamCutOff(!beamInSample);
 
 	AMBeamline::bl()->setCurrentSamples(allIntersectedSamples);
 
+	/// Find the intersection with the sample plate
 	if(samplePlateSelected_)
 	{
 		QVector<QVector3D> intersectionShape = findIntersectionShape(samplePlateShape_, false);
@@ -1643,8 +1654,8 @@ void AMSampleCamera::createBeamShape(int index)
 	qDebug()<<"Removing AMSampleCamera::createBeamShape";
 	if(isValid(removalIndex))
 	{
-				shapeToDelete = takeItem(removalIndex);
-				shapeToDelete->deleteLater();
+		shapeToDelete = takeItem(removalIndex);
+		shapeToDelete->deleteLater();
 	}
 	qDebug()<<"Done Removing AMSampleCamera::createBeamShape";
 	startRectangle(QPointF(0.5,0.5));
@@ -1893,9 +1904,6 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	typedef QPair<QVector3D,QVector3D> VectorPair;
 	qDebug()<<"AMSampleCamera::configureRotation";
 	/// solve the following equations:
-//	/ CoR + l0 = C0
-//	/ CoR + l1 - t1v1 = B1
-//	/ CoR + l2 - t2v2 = B2
 	/// CoRn + ln - tnVn = Bn
 	/// CoR = centre of rotation
 	/// ln = vector from CoR to Cn
@@ -1903,19 +1911,36 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	/// tnvn is the vector from Bn to Cn
 	/// Bn is a point that lies along the line corresponding to points[n]
 
-	/// since a particular point is always known, it should not be used in configuration
+	/// l0 = vector from CoR to C0
+	/// ln = vector from CoR to Cn
+	/// MC = motor Coordinate
+	/// C0 == MC
+	/// Cn = rotated C0
+
+
+	/// since a particular point (C0) is always known, it should not be used in configuration
 	/// instead, use a series of points in reference to known points
 	/// i.e rotatedOffset-offset=rotatedPoint -original point
-	/// ... rotatedOffset-offset-tnvn=Bn-Cn
+	/// ... rotatedOffset-offset-tnvn=Bn-MCn
 	/// need only two points to solve for this
 
-	/// better - maybe?
-	/// offset (rotational Offset - vector from motor coordinate to CoR)
-	/// ln (offset of test coordinate from centre of rotation)
-	/// Bn+tnvn (test coordinate, determined through 2D transformation(tn not known))
-	/// MCn motor coordinate at test coordinate n)
-	/// offset - ln -tnvn = Bn -MCn
-	/// rotationalOffset = offset
+	/// the equation is ln-l0-tnvn=Bn-MCn
+	/// the matrix solves for l0, tn
+	/// -l0 is the offset from the motor coordinate to centre of rotation:
+	/// since the motor coordinate is the non-rotated point
+	/// Since C0 must correspond to MC (so that C0 is known)
+	/// l0 is -1*rotationalOffset
+
+	/// Matrix calculation looks like this:
+
+	/// [ r1-I v1 0  0  ] [ l0 ]   [ B1-MC1 ]
+	/// [ r2-I 0  v2 0  ] [ t1 ] = [ B2-MC2 ]
+	/// [ r3-I 0  0  v3 ] [ t2 ]   [ B3-MC3 ]
+	///                   [ t3 ]
+	/// solves for l0,t1,t2,t3...
+	/// then -l0 is the rotational offset, since the motor coordinate is C0
+	/// rn is ~ ln/l0
+
 
 
 	if(numberOfPoints != coordinates.count() || numberOfPoints != points.count() || numberOfPoints != rotations.count())
@@ -1924,23 +1949,13 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 		return;
 	}
 
-//	foreach(QVector3D coordinate, coordinates)
-//	{
-//		if(coordinate != coordinates.first())
-//		{
-//			qDebug()<<"AMSampleCamera::configureRotation - all the coordinates must be the same, cannot continue";
-//			return;
-//		}
-//	}
 
-	// need to find v1, v2, B1, B2
+	// need to find v1, B1, v2, B2 ...
 	// Bn is some point along the line clicked on, vn is a unit vector in the direction of that line
 	QVector<VectorPair> lines;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-
 		lines<<findScreenVector((points.at(i)),coordinates.at(i),coordinates.at(i) + QVector3D(i+1,i+1,i+1));
-		qDebug()<<points.at(i);
 	}
 	QVector<QVector3D> bases,vectors;
 
@@ -1952,10 +1967,14 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 
 	qDebug()<<"AMSampleCamera::configureRotation - about to construct matrices";
+
+	/// Construct the two known matrices
 	MatrixXd matrix = constructCentreOfRotationMatrix(rotations,vectors, numberOfPoints);
 	MatrixXd coordinateMatrix = constructCentreOfRotationCoordinateMatrix(coordinates, bases, numberOfPoints);
+
 	qDebug()<<"AMSampleCamera::configureRotation - done constructing matrices";
 
+	/// solve for the unknown part
 	MatrixXd solution = solveCentreOfRotationMatrix(matrix,coordinateMatrix);
 	qDebug()<<"AMSampleCamera::configureRotation - done solving";
 
@@ -1968,28 +1987,10 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	qDebug()<<"Computed RHS";
 	debugPrintMatrix(matrix*solution);
 
-	/// direction of rotation test
-//	QVector<QVector3D> planeCoordinate;
-//	for(int i = 0; i < numberOfPoints; i++)
-//	{
-//		planeCoordinate<<bases.at(i) + solution(3 + i)* vectors.at(i);
-//	}
-//	if(numberOfPoints < 3)
-//	{
-//		planeCoordinate<<coordinates.at(0);
-//	}
-//	QVector3D a = planeCoordinate.at(1) - planeCoordinate.at(0);
-//	QVector3D b = planeCoordinate.at(2) - planeCoordinate.at(0);
-//	QVector3D rotation = (QVector3D::crossProduct(a,b)).normalized();
-//	qDebug()<<" rotation is (+,-) "<<rotation<<(-1*rotation);
-//	qDebug()<<"Expected it to be "<<directionOfRotation_;
 
-
-	/// This may not make sense - requires that your are clicking on the point 0,0,0
+	/// This requires that your are clicking on the point coordinates.at(0)
 	QVector3D centreOfRotationOffset = matrixToVector(solution);
-//	centreOfRotation = centreOfRotation
 	QVector3D centreOfRotation = coordinates.at(0) - centreOfRotationOffset;
-//	QVector3D centreOfRotation = coordinates.at(0) + centreOfRotationOffset;
 	qDebug()<<centreOfRotationOffset;
 	setRotationalOffset(centreOfRotation - coordinates.at(0));
 	updateView();
@@ -3609,8 +3610,6 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *
 			int element = j%3;
 			if(j < dimensions)
 			{
-				/// centre of rotation is the first three columns
-				/// each equation starts with CoR (3 by 3 Identity matrix)
 				int offsetVal = 0;
 				if(i%dimensions == j%dimensions)
 				{

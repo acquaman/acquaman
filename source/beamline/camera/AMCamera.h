@@ -98,7 +98,7 @@ protected:
     /// checks to see if two numbers are not equal, within the given tolerance
     bool notEqual(double a, double b, double tolerance = 0.001) const;
 
-    /// checks to see if a number is near zero, within the given tolerance
+    /// returns zero if a number is near zero, within the given tolerance
     double nearZero(double a, double tolerance = 0.00001) const;
 
     /// finds the absolute error beteween two numbers
