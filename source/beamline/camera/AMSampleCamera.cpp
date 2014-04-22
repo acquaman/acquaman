@@ -782,7 +782,7 @@ bool AMSampleCamera::findIntersections()
 	}
 
 	/// fix the intersections so that the beam is stopped when it hits something, does not go through it.
-//	blockBeam();
+	blockBeam();
 
 	return true;
 }
@@ -3814,17 +3814,17 @@ MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 	return camera_->computeSVDHomogenous(leftHandSide);
 }
 
-MatrixXd AMSampleCamera::vectorToMatrix(QVector3D vector) const
+MatrixXd AMSampleCamera::vectorToMatrix(QVector3D vector, MatrixXd matrix) const
 {
-	MatrixXd vectorMatrix (3,1);
-	vectorMatrix<< vector.x(),vector.y(),vector.z();
-	return vectorMatrix;
+//	MatrixXd vectorMatrix (3,1);
+	matrix<< vector.x(),vector.y(),vector.z();
+	return matrix;
 }
 
 QVector3D AMSampleCamera::matrixToVector(MatrixXd matrix) const
 {
-	// need at least three rows
-	if(matrix.rows() < 3)
+	// need at least three rows or columns
+	if(matrix.rows() < 3 && matrix.cols() < 3)
 	{
 		return QVector3D(0,0,0);
 	}
@@ -3927,7 +3927,6 @@ void AMSampleCamera::blockBeam()
 
 			MatrixXd matrixOne (3,3);
 			MatrixXd matrixTwo (3,1);
-			qDebug()<<"AMSampleCamera::blockBeam - setting up matrices"<<j;
 			matrixOne<< ab.x(), x1x0.x(), x2x0.x(),
 				    ab.y(), x1x0.y(), x2x0.y(),
 				    ab.z(), x1x0.z(), x2x0.z();
@@ -3935,108 +3934,137 @@ void AMSampleCamera::blockBeam()
 			matrixTwo<<ax0.x(),
 				   ax0.y(),
 				   ax0.z();
-			qDebug()<<"AMSampleCamera::blockBeam - calculating matrices"<<j;
 			MatrixXd solution = matrixOne.inverse()*matrixTwo;
 			t = solution(0);
 			projectedUsedBeam<<usedBeam.at(j) + t*beamDirection;
-			qDebug()<<projectedUsedBeam.at(j);
-
 		}
-		/// get rid of any overlap in intersection
-		/// form into used beam
-		// for each line in projection
-		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
-		{
-			for(int dcount = 0; dcount < currentIntersection.count(); dcount++)
-			{
-				if(equalVectors(projectedUsedBeam.at(pcount),currentIntersection.at(dcount)))
-				{
-					qDebug()<<"points"<<pcount<<"and"<<dcount<<"overlap";
 
-				}
-				else
-				{
-					qDebug()<<"points"<<pcount<<"and"<<dcount<<"don't overlap";
-				}
-			}
-		}
 
 
 		/// form a set of plane vectors to map to
-		QVector3D nHat = QVector3D::crossProduct((projectedUsedBeam.at(1) - projectedUsedBeam.at(0)),(projectedUsedBeam.at(2) - projectedUsedBeam.at(1)));
+		QVector3D vector1 = projectedUsedBeam.at(1) - projectedUsedBeam.at(0);
+		QVector3D vector2;
+		int p = 2;
+		do
+		{
+			vector2 = projectedUsedBeam.at(p)-projectedUsedBeam.at(p-1);
+			p++;
+
+		} while (vector2 == vector1 && p < projectedUsedBeam.count());
+		QVector3D nHat = QVector3D::crossProduct(vector1,vector2);
+		qDebug()<<"Point 0,1,2"<<projectedUsedBeam.at(0)<<projectedUsedBeam.at(1)<<projectedUsedBeam.at(2);
+		nHat = nHat/nHat.length();
+		qDebug()<<"Nhat"<<nHat;
 		QVector3D xHat = (projectedUsedBeam.at(1) - projectedUsedBeam.at(0));
 		xHat = xHat/xHat.length();
+		qDebug()<<"xHat"<<xHat;
 		QVector3D yHat = QVector3D::crossProduct(nHat,xHat);
+		yHat = yHat/yHat.length();
+		qDebug()<<"yHat"<<yHat;
+
+		/// create a matrix for the transform
+		MatrixXd planeMatrix (3,3);
+		planeMatrix<<	xHat.x(), yHat.x(), nHat.x(),
+				xHat.y(), yHat.y(), nHat.y(),
+				xHat.z(), yHat.z(), nHat.z();
+
+		debugPrintMatrix(planeMatrix);
+		/// to find the plane coordinates
+		///  PlaneCoords = RealCoords * planeMatrix
+		/// to find the real coordinates from plane coordinates
+		/// RealCoords = PlaneCoords * planeMatrix^T
+
 
 		/// find the xHat, yHat components of each point, map it to xy in 2D, then get the new shapes,
 		/// map xy to xHat,yHat, keep the nHat component what it was (should be the same for all points)
 
 		/// continue on with this.
 		QVector<QVector3D> alternateProjectedCoordinates;
+		QPolygonF alternateProjectedShape;
 		QVector<QVector3D> alternateIntersectionCoordinates;
+		QPolygonF alternateIntersectionShape;
 		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
 		{
 			QVector3D point = projectedUsedBeam.at(pcount);
 			QVector3D alternatePoint;
-			alternatePoint.setX(dot(point,xHat));
-			qDebug()<<"y component is"<<dot(point,yHat);
-			qDebug()<<"n component is"<<dot(point,nHat);
+			MatrixXd realCoordinate (1,3);
+
+			realCoordinate = vectorToMatrix(point, realCoordinate);
+			MatrixXd newPoint = realCoordinate * planeMatrix;
+			alternatePoint = matrixToVector(newPoint);
+			alternateProjectedCoordinates<<alternatePoint;
+			alternateProjectedShape<<alternatePoint.toPointF();
 		}
 		for(int pcount = 0; pcount < currentIntersection.count(); pcount++)
 		{
 			QVector3D point = currentIntersection.at(pcount);
-			qDebug()<<"x component is"<<dot(point,xHat);
-			qDebug()<<"y component is"<<dot(point,yHat);
-			qDebug()<<"n component is"<<dot(point,nHat);
+			QVector3D alternatePoint;
+			MatrixXd realCoordinate (1,3);
+			realCoordinate = vectorToMatrix(point, realCoordinate);
+			alternatePoint = matrixToVector(realCoordinate*planeMatrix);
+			alternateIntersectionCoordinates<<alternatePoint;
+			alternateIntersectionShape<<alternatePoint.toPointF();
+
 		}
 
+		QPolygonF newUsedBeam = alternateProjectedShape.united(alternateIntersectionShape);
+		qDebug()<<"New total beam"<<newUsedBeam;
+		QPolygonF newIntersectionShape = alternateIntersectionShape.subtracted(alternateProjectedShape);
+		qDebug()<<"Old intersectionShape"<<alternateIntersectionShape;
+		qDebug()<<"Beam Shape"<<alternateProjectedShape;
+		qDebug()<<"NewIntersectionShape"<<newIntersectionShape;
 
-		for(int m = 0; m < projectedUsedBeam.count() - 1; m++)
+		double zComponent = alternateProjectedCoordinates.at(0).z();
+
+		alternateProjectedCoordinates.clear();
+
+		QVector<QVector3D> newUsedBeamCoords;
+		QVector<QVector3D> newIntersectionCoords;
+
+		for(int pcount = 0; pcount < newUsedBeam.count(); pcount++)
 		{
-			QVector3D pointOne = projectedUsedBeam.at(m);
-			QVector3D pointTwo = projectedUsedBeam.at(m+1);
-			for(int k = 0; k < currentIntersection.count() - 1; k++)
-			{
-				QVector3D currentPointOne = currentIntersection.at(k);
-				QVector3D currentPointTwo = currentIntersection.at(k+1);
-
-				/// find the intersection of the two lines, bounded by the points
-				QVector3D intersectionPoint;
-				/// intersection point is the point where P1+a*(P2-P1) = cP1 +b*(cP2-cP1)
-				///  a and b are both <= 1;
-				/// a = (cP1 -P1)x(cP2-cP1)/((P2-P1)x(cP2-cP1))
-				QVector3D C = currentPointTwo - currentPointOne;
-				QVector3D P = pointOne - pointTwo;
-				QVector3D offset = currentPointOne - pointOne;
-				if(C == QVector3D(0,0,0) || P == QVector3D(0,0,0) || offset == QVector3D(0,0,0))
-				{
-					qDebug()<<"Edge"<<m<<"Compared with edge"<<k;
-					qDebug()<<"Results are zero point";
-					/// can't continue, either intersect at corner or have a zero length line
-					continue;
-				}
-				QVector3D PcrossC = QVector3D::crossProduct(P,C);
-				QVector3D offsetcrossC = QVector3D::crossProduct(offset,C);
-				if(PcrossC == QVector3D(0,0,0))
-				{
-					qDebug()<<"Edge"<<m<<"Compared with edge"<<k;
-					qDebug()<<"Results are zero PxC";
-					// can't find this point
-					continue;
-				}
-				double a1 = offsetcrossC.x()/PcrossC.x();
-				double a2 = offsetcrossC.y()/PcrossC.y();
-				double a3 = offsetcrossC.z()/PcrossC.z();
-				qDebug()<<"Edge"<<m<<"Compared with edge"<<k;
-				qDebug()<<"Results are "<<a1<<a2<<a3;
-			}
+			alternateProjectedCoordinates<<QVector3D(newUsedBeam.at(pcount).x(),newUsedBeam.at(pcount).y(),zComponent);
+			MatrixXd coordinate (1,3);
+			coordinate = vectorToMatrix(alternateProjectedCoordinates.at(pcount),coordinate);
+			newUsedBeamCoords<<matrixToVector(coordinate*planeMatrix.transpose());
 		}
+
+		zComponent = alternateIntersectionCoordinates.at(0).z();
+
+		alternateIntersectionCoordinates.clear();
+
+		for(int pcount = 0; pcount < newIntersectionShape.count(); pcount++)
+		{
+			QVector3D point = QVector3D(newIntersectionShape.at(pcount).x(),newIntersectionShape.at(pcount).y(),zComponent);
+			alternateIntersectionCoordinates<<point;
+			MatrixXd coordinate (1,3);
+			coordinate = vectorToMatrix(point,coordinate);
+			qDebug()<<"coordinate";
+			debugPrintMatrix(coordinate);
+			newIntersectionCoords<<matrixToVector(coordinate*planeMatrix.transpose());
+		}
+
+
+		usedBeam.clear();
+		usedBeam = newUsedBeamCoords;
+		intersectionShapes_[i.value()].clear();
+		intersectionShapes_[i.value()] = newIntersectionCoords;
+
+
 
 
 		i++;
 	}
 
+
 	/// update the intersections
+	intersections_.clear();
+	for(int i = 0; i < intersectionShapes_.count(); i++)
+	{
+		intersections_<<intersectionScreenShape(intersectionShapes_.at(i));
+		qDebug()<<"Intersection "<<i<<intersectionShapes_.at(i);
+		qDebug()<<"Intersection "<<i<<intersections_.at(i);
+	}
 
 
 	delete distances;

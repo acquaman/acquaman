@@ -697,7 +697,7 @@ protected:
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 
 	/// convert a QVector3D to a 3x1 matrix
-	MatrixXd vectorToMatrix(QVector3D vector) const;
+	MatrixXd vectorToMatrix(QVector3D vector, MatrixXd matrix = MatrixXd(3,1)) const;
 	/// convert a 3 element matrix to a QVector3D
 	QVector3D matrixToVector(MatrixXd matrix) const;
 
