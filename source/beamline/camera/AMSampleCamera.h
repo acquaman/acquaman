@@ -654,6 +654,8 @@ protected:
 	/// manually into the list - keeps the model updated
 public:
 	void insertItem(AMShapeData* item);
+	/// checks to see if two QVector3D's are approximately equal, to the specified precision
+	bool equalVectors(QVector3D a, QVector3D b, double precision = 0.001) const;
 
 protected:
 	/// removes an item from the shape list - use this rather than

@@ -54,6 +54,7 @@ QSize AMOverlayVideoWidget2::sizeHint() const{
 
 void AMOverlayVideoWidget2::resizeEvent(QResizeEvent *event)
 {
+	qDebug()<<"AMOverlayVideoWidget2::resizeEvent";
 	if (scene()) {
                 scene()->setSceneRect(QRect(QPoint(0, 0), size()));
                 videoItem_->setSize(size());

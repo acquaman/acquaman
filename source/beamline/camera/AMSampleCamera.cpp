@@ -1056,8 +1056,7 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 	{
 
 		setCurrentIndex(i);
-
-		currentVector_ = undistortPoint(position);
+		setShapeVectors(position);
 	}
 	else
 	{
@@ -1601,6 +1600,9 @@ void AMSampleCamera::beamCalibrate()
 
 
 	if(shapeList_.isEmpty()) return;
+
+	AMSamplePlate *plate = AMBeamline::bl()->samplePlate();
+
 	for(int i = 0; i < 3; i++)
 	{
 		int index = shapeList_.indexOf(beamMarkers_[i]);
@@ -1609,10 +1611,19 @@ void AMSampleCamera::beamCalibrate()
 			AMShapeData* polygon = takeItem(index);
 			if(polygon == beamMarkers_[i])
 			{
-                                beamMarkers_[i]->deleteLater();
-				beamMarkers_[i] = 0;
-				polygon = 0;
-                                // deleted the actual markers, now need to remove them from the sample plate.
+
+				if(plate != NULL)
+				{
+					plate->removeSample(plate->sampleFromShape(beamMarkers_[i]));
+				}
+				if(beamMarkers_[i])
+				{
+					beamMarkers_[i]->deleteLater();
+					beamMarkers_[i] = 0;
+					polygon = 0;
+				}
+
+
 			}
 			else
 			{
@@ -3934,6 +3945,51 @@ void AMSampleCamera::blockBeam()
 		/// get rid of any overlap in intersection
 		/// form into used beam
 		// for each line in projection
+		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
+		{
+			for(int dcount = 0; dcount < currentIntersection.count(); dcount++)
+			{
+				if(equalVectors(projectedUsedBeam.at(pcount),currentIntersection.at(dcount)))
+				{
+					qDebug()<<"points"<<pcount<<"and"<<dcount<<"overlap";
+
+				}
+				else
+				{
+					qDebug()<<"points"<<pcount<<"and"<<dcount<<"don't overlap";
+				}
+			}
+		}
+
+
+		/// form a set of plane vectors to map to
+		QVector3D nHat = QVector3D::crossProduct((projectedUsedBeam.at(1) - projectedUsedBeam.at(0)),(projectedUsedBeam.at(2) - projectedUsedBeam.at(1)));
+		QVector3D xHat = (projectedUsedBeam.at(1) - projectedUsedBeam.at(0));
+		xHat = xHat/xHat.length();
+		QVector3D yHat = QVector3D::crossProduct(nHat,xHat);
+
+		/// find the xHat, yHat components of each point, map it to xy in 2D, then get the new shapes,
+		/// map xy to xHat,yHat, keep the nHat component what it was (should be the same for all points)
+
+		/// continue on with this.
+		QVector<QVector3D> alternateProjectedCoordinates;
+		QVector<QVector3D> alternateIntersectionCoordinates;
+		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
+		{
+			QVector3D point = projectedUsedBeam.at(pcount);
+			QVector3D alternatePoint;
+			alternatePoint.setX(dot(point,xHat));
+			qDebug()<<"y component is"<<dot(point,yHat);
+			qDebug()<<"n component is"<<dot(point,nHat);
+		}
+		for(int pcount = 0; pcount < currentIntersection.count(); pcount++)
+		{
+			QVector3D point = currentIntersection.at(pcount);
+			qDebug()<<"x component is"<<dot(point,xHat);
+			qDebug()<<"y component is"<<dot(point,yHat);
+			qDebug()<<"n component is"<<dot(point,nHat);
+		}
+
 
 		for(int m = 0; m < projectedUsedBeam.count() - 1; m++)
 		{
@@ -3954,6 +4010,8 @@ void AMSampleCamera::blockBeam()
 				QVector3D offset = currentPointOne - pointOne;
 				if(C == QVector3D(0,0,0) || P == QVector3D(0,0,0) || offset == QVector3D(0,0,0))
 				{
+					qDebug()<<"Edge"<<m<<"Compared with edge"<<k;
+					qDebug()<<"Results are zero point";
 					/// can't continue, either intersect at corner or have a zero length line
 					continue;
 				}
@@ -3961,6 +4019,8 @@ void AMSampleCamera::blockBeam()
 				QVector3D offsetcrossC = QVector3D::crossProduct(offset,C);
 				if(PcrossC == QVector3D(0,0,0))
 				{
+					qDebug()<<"Edge"<<m<<"Compared with edge"<<k;
+					qDebug()<<"Results are zero PxC";
 					// can't find this point
 					continue;
 				}
@@ -3984,6 +4044,45 @@ void AMSampleCamera::blockBeam()
 
 
 
+}
+
+bool AMSampleCamera::equalVectors(QVector3D a, QVector3D b, double precision) const
+{
+	double maxError = 0;
+	double newError = 0;
+	double aV [3];
+	double bV [3];
+	aV[0] = a.x();
+	aV[1] = a.y();
+	aV[2] = a.z();
+	bV[0] = b.x();
+	bV[1] = b.y();
+	bV[2] = b.z();
+
+	for(int i = 0; i < 3; i++)
+	{
+		if(aV[i] == 0 && bV[i] == 0)
+		{
+			maxError = maxError;
+		}
+		else if(bV[i] == 0)
+		{
+			newError = aV[i]<0?-1*aV[i]:aV[i];
+			maxError = newError>maxError?newError:maxError;
+		}
+		else if(aV[i] == 0)
+		{
+			newError = bV[i]<0?-1*bV[i]:bV[i];
+			maxError = newError>maxError?newError:maxError;
+		}
+		else
+		{
+			newError = 1-aV[i]/bV[i];
+			newError = newError<0?-1*newError:newError;
+			maxError = newError>maxError?newError:maxError;
+		}
+	}
+	return maxError<precision;
 }
 
 
