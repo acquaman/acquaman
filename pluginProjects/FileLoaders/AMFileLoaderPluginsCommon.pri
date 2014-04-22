@@ -46,14 +46,13 @@ linux-g++ {
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
-<<<<<<< HEAD
                 #CDFLib dependencies
                 #CDF_LIB = -lcdf
                 #CDF_INCLUDE_DIR = /usr/local/include
-                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
-                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
-=======
+#                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+#                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+#                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
 		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
@@ -67,7 +66,6 @@ linux-g++ {
 		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
 		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
 		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
->>>>>>> newXRFDetector
 }
 linux-g++-32 {
 

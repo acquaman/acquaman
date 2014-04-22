@@ -12,6 +12,7 @@
 #include "ui/AMElementListEdit.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
+#include "util/AMErrorMonitor.h"
 #include "ui/util/AMPeriodicTableView.h"
 #include "ui/beamline/camera/AMShapeDataView.h"
 
@@ -266,7 +267,6 @@ void AMSampleView::showPeriodicTable()
 
 void AMSampleView::setCurrentTag()
 {
-	qDebug()<<"Setting current tag to"<<tagText_->text();
 	QString currentTag = tagText_->text();
 	if(currentTag == "" && !sample_->tags().isEmpty())
 		currentTag = sample_->tags().last();
@@ -277,19 +277,19 @@ void AMSampleView::setCurrentTag()
 void AMSampleView::updateTags(QStringList tags)
 {
 	Q_UNUSED(tags)
-//	qDebug()<<"Updating tags";
-//	updateFrames();
-//	QStringListModel* stringModel = qobject_cast<QStringListModel*>(tagBox_->model());
-//	stringModel->setStringList(sample_->tags());
-//	if(stringModel)
-//	{
-//		stringModel->setStringList(tags);
-//		tagBox_->setModel(stringModel);
-//	}
-//	else
-//	{
-//		qDebug()<<"AMSampleView::updateTags - Failed to cast string list";
-//	}
+	//	qdebug()<<"Updating tags";
+	//	updateFrames();
+	//	QStringListModel* stringModel = qobject_cast<QStringListModel*>(tagBox_->model());
+	//	stringModel->setStringList(sample_->tags());
+	//	if(stringModel)
+	//	{
+	//		stringModel->setStringList(tags);
+	//		tagBox_->setModel(stringModel);
+	//	}
+	//	else
+	//	{
+	//		qdebug()<<"AMSampleView::updateTags - Failed to cast string list";
+	//	}
 }
 
 void AMSampleView::onSampleAboutToBeRemoved()
@@ -318,7 +318,8 @@ void AMSampleView::saveToDb()
 {
 	AMDatabase* db = AMDatabase::database("user");
 	bool success = sample_->storeToDb(db);
-	if(!success) qDebug()<<"AMSampleEthanView::saveToDb - failed to store item to db";
+	if(!success)
+		AMErrorMon::alert(this, AMSAMPLEVIEW_SAVE_FAILED, QString("AMSampleView failed to store this sample to the database.") );
 	initializeSampleViewData();
 }
 

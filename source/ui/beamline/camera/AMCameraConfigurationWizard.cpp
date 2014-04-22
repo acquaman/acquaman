@@ -12,7 +12,6 @@
 #include <QMessageBox>
 #include <QVariant>
 #include <QTimer>
-#include "AMSampleCameraGraphicsView.h"
 #include <QGraphicsScene>
 #include <QTextDocument>
 #include <QScrollBar>
@@ -20,9 +19,12 @@
 #include <QPointF>
 #include <QDebug>
 #include <QVector3D>
-#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include <QTimerEvent>
+
+#include "AMSampleCameraGraphicsView.h"
+#include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMGraphicsViewWizard.h"
+#include "util/AMErrorMonitor.h"
 
 
 AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
@@ -76,8 +78,6 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 	//	coordinateListAppend(new  QVector3D(10,5,-5));
 	//	coordinateListAppend(new  QVector3D(4,2,-1.9));
 	//	coordinateListAppend(new  QVector3D(-6,4,0));
-
-	//qDebug()<<"AMCameraConfigurationWizard::AMCameraConfigurationWizard - finished constructor";
 }
 
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()
@@ -131,7 +131,6 @@ int AMCameraConfigurationWizard::nextId() const
 
 void AMCameraConfigurationWizard::addPoint(QPointF position)
 {
-	qDebug()<<"AMCameraConfigurationWizard::addPoint - adding point from page"<<currentId();
 	QPointF* newPoint;
 	int index = relativeId();
 	if (!isSetPage(currentId()))
@@ -153,11 +152,6 @@ void AMCameraConfigurationWizard::addPoint(QPointF position)
 	newPoint = pointList()->at(index);
 	QPointF newPosition = mapPointToVideo(position);
 	*newPoint = newPosition;
-
-	foreach(QPointF* point, *pointList())
-	{
-		qDebug()<<*point;
-	}
 
 	next();
 
@@ -184,7 +178,6 @@ void AMCameraConfigurationWizard::clearPoints()
 	QPointF *newPoint;
 	for(int i = 0; i < pointList()->count(); i++)
 	{
-		qDebug()<<"Deleting point"<<i;
 		newPoint = pointList()->at(i);
 		*newPoint = QPointF(0,0);
 	}
@@ -330,12 +323,6 @@ QString AMCameraConfigurationWizard::message(int messageType)
 	}
 }
 
-//void AMCameraConfigurationWizard::waitPage()
-//{
-//    qDebug()<<"AMCameraConfigurationWizard::waitPage";
-//	emit moveTo(*coordinateList()->at(relativeId()));
-//}
-
 void AMCameraConfigurationWizard::back()
 {
 	// this makes sure that the motors move to the
@@ -372,9 +359,7 @@ void AMCameraConfigurationWizard::back()
 			initializePage(prevPage);
 		}
 		else
-		{
-			qDebug()<<"AMCameraConfigurationWizard::back - could not reach correct page";
-		}
+			AMErrorMon::alert(this, AMCAMERACONFIGURATIONWIZARD_CANNOT_REACH_CORRECT_PAGE, QString("AMCameraConfigurationWizard could not reach the correct page requested with the back button. Requested id: %1").arg(prevPage) );
 	}
 	else
 	{

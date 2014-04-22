@@ -114,8 +114,6 @@ bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
 
 bool CLSQE65000Detector::data(double *outputValues) const
 {
-	qDebug() << spectrumDataSource_->size(0)-1;
-	qDebug() << spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);
 	return spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);
 }
 

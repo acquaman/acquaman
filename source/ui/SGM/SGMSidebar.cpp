@@ -642,7 +642,6 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 }
 
 void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
-	//qDebug() << "I just heard that the critical controls became connected " << isConnected;
 	if(isConnected)
 		controlsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
 	else
@@ -650,7 +649,6 @@ void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
 }
 
 void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
-	//qDebug() << "I just heard that the critical detectors became connected " << isConnected;
 	if(isConnected)
 		detectorsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
 	else

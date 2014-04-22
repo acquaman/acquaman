@@ -164,7 +164,7 @@ void REIXSXASScanController::onInitializationMoveFailed()
 //	energy->setRepeatMoveSettlingTime(0);
 //	energy->setTolerance(1e10);	// that better be enough, pos.
 
-//	qDebug() << "Disabled settling times and tolerance.";
+//	qdebug() << "Disabled settling times and tolerance.";
 //	setCustomInitializationFinished(true);
 //	return true;
 //}
@@ -176,6 +176,6 @@ void REIXSXASScanController::onInitializationMoveFailed()
 //	energy->setRepeatMoveSettlingTime(repeatMoveSettlingTime_);
 //	energy->setTolerance(tolerance_);
 
-//	qDebug() << "Re-enabled settling times and tolerance.";
+//	qdebug() << "Re-enabled settling times and tolerance.";
 //	setCustomCleanupFinished();
 //}

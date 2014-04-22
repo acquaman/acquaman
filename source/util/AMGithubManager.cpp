@@ -19,12 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMGithubManager.h"
 
- AMGithubManager::~AMGithubManager(){}
+#include "util/AMErrorMonitor.h"
+
 AMGithubManager::AMGithubManager(QObject *parent) :
 	QObject(parent)
 {
 	initialize();
 }
+
+AMGithubManager::~AMGithubManager(){}
 
 AMGithubManager::AMGithubManager(const QString &userName, const QString &password, const QString &repository, QObject *parent) :
 	QObject(parent)
@@ -237,15 +240,9 @@ void AMGithubManager::onCreateNewIssueReturned(){
 	emit issueCreated(retVal);
 }
 
-#include <QDebug>
 void AMGithubManager::onSomeErrorOccured(QNetworkReply::NetworkError nError){
-	qDebug() << "Error occurred " << nError;
+	AMErrorMon::alert(this, AMGITHUBMANAGER_NETWORK_ERROR_OCCURRED, QString("A network error (%1) occurred in AMGithubManager.").arg(nError) );
 }
-
-//void AMGithubManager::onSomeSSLErrorOccurred(QList<QSslError> sslErrors){
-//	for(int x = 0; x < sslErrors.count(); x++)
-//		qDebug() << "SSL Error as " << sslErrors.at(x).errorString();
-//}
 
 void AMGithubManager::initialize(){
 	manager_ = new QNetworkAccessManager(this);

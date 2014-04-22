@@ -422,13 +422,8 @@ void AMBeamCheckPage::initializePage()
 
 void AMBeamWaitPage::initializePage()
 {
-
 	AMWaitPage::initializePage();
-
-	qDebug()<<"Calling startTimer";
 	AMWaitPage::startTimer(1000);
-
-	qDebug()<<"Calling wait page";
 	viewWizard()->waitPage();
 }
 
@@ -440,8 +435,6 @@ void AMBeamSelectPage::initializePage()
 	disconnect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint()));
 	connect(view(), SIGNAL(mousePressed(QPointF)), viewWizard(), SLOT(addPoint(QPointF)));
 	connect(view(), SIGNAL(mouseLeftReleased(QPointF)), viewWizard(), SLOT(endPoint()));
-
-
 }
 
 

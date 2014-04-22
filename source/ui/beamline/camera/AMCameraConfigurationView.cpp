@@ -6,22 +6,22 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
-#include "beamline/camera/AMCameraConfiguration.h"
-#include <QDebug>
 #include <QVector3D>
-#include "dataman/database/AMDbObjectSupport.h"
 #include <QSlider>
+
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/beamline/camera/AMBeamConfigurationView.h"
-
-
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "util/AMErrorMonitor.h"
 
 AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *cameraConfiguration, QWidget *parent) :
 	QWidget(parent)
 {
 	if(cameraConfiguration == 0)
-		qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Null camera configuration";
+		AMErrorMon::alert(this, AMCAMERACONFIGURATIONVIEW_NULL_CONFIGURATION_AS_ARGUMENT, QString("AMCameraConfigurationView received a null object as the configuration.") );
 	else
 		cameraModel_ = cameraConfiguration;
+
 	AMDatabase *dbSGM = AMDatabase::database("SGMPublic");
 	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", "defaultConfiguration");
 	if(matchIDs.count() == 0)
@@ -35,11 +35,11 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
 		cameraModel_->setCameraRotation(0);
 		cameraModel_->setPixelAspectRatio(1);
 		bool success = cameraModel_->storeToDb(dbSGM);
-		if(!success)qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - Failed to store item in database";
-		else qDebug()<<"AMCameraConfigurationView::AMCameraConfigurationView - successfully stored item in database";
+
+		if(!success)
+			AMErrorMon::alert(this, AMCAMERACONFIGURATIONVIEW_SAVE_CONFIGURATION_FAILED_IN_CONSTRUCTOR, QString("AMCameraConfiguration failed to save its configuration in the constructor.") );
 	}
-	else
-	{
+	else{
 		cameraModel_->loadFromDb(dbSGM,matchIDs.first());
 	}
 
@@ -350,7 +350,6 @@ void AMCameraConfigurationView::setCameraDistortion(double distortion)
 void AMCameraConfigurationView::setCameraRotation(double rotation)
 {
 	cameraModel_->setCameraRotation(rotation);
-	//qDebug()<<"Changing camera Rotation Centre";
 	cameraRotationCentre_ = rotation;
 	bool block = true;
 	block = cameraRotationSlider_->blockSignals(block);
@@ -508,10 +507,7 @@ void AMCameraConfigurationView::saveConfiguration()
 		populateComboBox(cameraModel_->id());
 	}
 	else
-	{
-		qDebug()<<"Camera model of that name already exists";
-	}
-
+		AMErrorMon::alert(this, AMCAMERACONFIGURATIONVIEW_SAVE_CONFIGURATION_NAME_CONFLICT, QString("Cannot save the camera configuration because the name (%1) is already taken.").arg(cameraModel_->name()) );
 }
 
 /// overwrites the values of the current configuration

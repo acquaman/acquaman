@@ -10,6 +10,7 @@
 #include "dataman/AMSample.h"
 #include "dataman/AMSamplePre2013.h"
 #include "util/AMDateTimeUtils.h"
+#include "util/AMPeriodicTable.h"
 
 AMSampleEditor::AMSampleEditor(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
@@ -44,11 +45,6 @@ void AMSampleEditor::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
 	createdLabel_->setText(AMDateTimeUtils::prettyDateTime(currentSamplePre2013_->dateTime()));
 }
 
-#include "util/AMPeriodicTable.h"
-
 void AMSampleEditor::onChangeSampleButtonClicked(){
-	QList<AMSample*> allSamples = AMBeamline::bl()->samplePlateBrowser()->allSamples();
-	qDebug() << "Samples names: ";
-	for(int x = 0; x < allSamples.count(); x++)
-		qDebug() << allSamples.at(x)->name();
+//	QList<AMSample*> allSamples = AMBeamline::bl()->samplePlateBrowser()->allSamples();
 }

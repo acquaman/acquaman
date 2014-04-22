@@ -49,7 +49,6 @@ AMSimpleBeamConfigurationWizard::AMSimpleBeamConfigurationWizard(QWidget *parent
 
 int AMSimpleBeamConfigurationWizard::nextId() const
 {
-	qDebug()<<"Here in AMSimpleBeamConfigurationWizard::nextId()";
 	int pageId = currentId();
 	switch(pageId)
 	{
@@ -63,19 +62,13 @@ int AMSimpleBeamConfigurationWizard::nextId() const
 	default:
 		int id = relativeId();
 		if(isWaitPage(pageId))
-		{
 			return pageSet(id);
-		}
 		else if(isSetPage(pageId))
 		{
 			if(id == numberOfPages() - 1)
-			{
 				return Page_Final;
-			}
 			else
-			{
 				return pageWait(id + 1);
-			}
 		}
 		return -1;
 	}
@@ -83,9 +76,7 @@ int AMSimpleBeamConfigurationWizard::nextId() const
 
 void AMSimpleBeamConfigurationWizard::waitPage()
 {
-	qDebug()<<"Here in  AMSimpleBeamConfigurationWizard::waitPage";
 	emit moveTo(*coordinateList()->at(relativeId()));
-	qDebug()<<"Leaving  AMSimpleBeamConfigurationWizard::waitPage";
 }
 
 
@@ -99,51 +90,51 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 	case Page_Intro:
 		switch(type)
 		{
-			case Title:
-				return QString(tr("Introduction to Beam Configuration Wizard"));
-			case Text:
+		case Title:
+			return QString(tr("Introduction to Beam Configuration Wizard"));
+		case Text:
 			return QString(tr("On the first page, check to see if the beam appears to line up correctly with the video image.")
-					  + tr("  If it does, check that it is correct and continue.  If it is not lined up correctly")
-					  + tr(" you will have to run through the calibration.  To perform the calibration simply drag")
-					  + tr(" the box over the visible light for each page the wizard provides."));
-			case Help:
+				       + tr("  If it does, check that it is correct and continue.  If it is not lined up correctly")
+				       + tr(" you will have to run through the calibration.  To perform the calibration simply drag")
+				       + tr(" the box over the visible light for each page the wizard provides."));
+		case Help:
 			return QString(tr("This is the beam configuration wizard, which is designed to ensure that the beam spot is properly")
 				       + tr(" calibrated. Make sure that the visible light is turned on before you start."));
-			case Other:
-			case Default:
-			default:
-				return QString(tr("Error - intro page - unknown message type."));
+		case Other:
+		case Default:
+		default:
+			return QString(tr("Error - intro page - unknown message type."));
 		}
 	case Page_Option:
 		switch(type)
 		{
-			case Title:
-				return QString(tr("Message - option page - Title"));
-			case Text:
-				return QString(tr("Message - option page - Text"));
-			case Help:
-				return QString(tr("Message - option page - Help text"));
-			case Other:
-			case Default:
-			default:
-				return QString(tr("Error - option page - unknown message type."));
+		case Title:
+			return QString(tr("Message - option page - Title"));
+		case Text:
+			return QString(tr("Message - option page - Text"));
+		case Help:
+			return QString(tr("Message - option page - Help text"));
+		case Other:
+		case Default:
+		default:
+			return QString(tr("Error - option page - unknown message type."));
 		}
 	case Page_Final:
-			switch(type)
-			{
-			case Title:
-				return QString(tr("Calibration Completed"));
-			case Text:
-				return QString(tr("The calibration has been completed. Select 'Finish' to exit."));
-			case Help:
-				return QString(tr("The calibration has now been completed.  If you would like to reposition any box, simply navigate using 'back'")
-					       + tr(" until you reach the box you wish to reselect.  Any page where you do not click on the screen will")
-					       + tr(" keep the box that you had previously selected."));
-			case Other:
-			case Default:
-			default:
-				return QString(tr("Error - final page - unknown message type."));
-			}
+		switch(type)
+		{
+		case Title:
+			return QString(tr("Calibration Completed"));
+		case Text:
+			return QString(tr("The calibration has been completed. Select 'Finish' to exit."));
+		case Help:
+			return QString(tr("The calibration has now been completed.  If you would like to reposition any box, simply navigate using 'back'")
+				       + tr(" until you reach the box you wish to reselect.  Any page where you do not click on the screen will")
+				       + tr(" keep the box that you had previously selected."));
+		case Other:
+		case Default:
+		default:
+			return QString(tr("Error - final page - unknown message type."));
+		}
 	default:
 		if(isWaitPage(pageId))
 		{
@@ -174,8 +165,8 @@ QString AMSimpleBeamConfigurationWizard::message(int type)
 				return QString(tr("Position the box over the beam corresponding to the coordinate: %1, %2, %3")).arg(coordinateList()->at(relativeId())->x()).arg(coordinateList()->at(relativeId())->y()).arg(coordinateList()->at(relativeId())->z());
 			case Help:
 				return QString(tr("For each selection you will need to position the box over the visible beam spot.  Upon clicking next, the")
-							   + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
-							   + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
+					       + tr(" sample manipulator will automatically move on to the next point.  If the manipulator has not moved")
+					       + tr(" movement may have been disabled.  Check to see if the motor movement enabled box is checked in the settings."));
 			case Other:
 			case Default:
 			default:
@@ -212,7 +203,7 @@ void AMSimpleBeamConfigurationWizard::back()
 	}
 	else if (isSetPage(pageId))
 	{
-//		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
+		//		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
 		if(relativeId() == 0)
 		{
 			while(currentId() != Page_Intro)
@@ -245,36 +236,28 @@ void AMSimpleBeamConfigurationWizard::initBeamShape()
 
 void AMSimpleBeamConfigurationWizard::mousePressedHandler(QPointF point)
 {
-	qDebug()<<"AMSimpleBeamConfigurationWizard::mousePressedHandler";
 	emit mousePressed(mapPointToVideo(point), relativeId());
 }
 
 void AMSimpleBeamConfigurationWizard::moveBeamShapeHandler(QPointF point)
 {
-	qDebug()<<"AMSimpleBeamConfigurationWizard::moveBeamShapeHandler";
 	emit moveBeamShape(mapPointToVideo(point), relativeId());
 }
 
 void AMSimpleBeamConfigurationSetPage::initializePage()
 {
-	qDebug()<<"Start AMSimpleBeamConfigurationSetPage::initializePage";
 	AMViewPage::initializePage();
 	disconnectMouseSignal();
-	qDebug()<<"AMSimpleBeamConfigurationSetPage::initializePage - done disconnect";
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(selectShape(QPointF)));
 	connect(view(), SIGNAL(mouseLeftReleased(QPointF)), this, SLOT(releaseShape()));
-	qDebug()<<"AMSimpleBeamConfigurationSetPage::initializePage - done connect";
 	emit initBeamShape();
-	qDebug()<<"Done AMSimpleBeamConfigurationSetPage::initializePage";
 }
 
 void AMSimpleBeamConfigurationWaitPage::initializePage()
 {
 	AMWaitPage::initializePage();
 	AMWaitPage::startTimer(1000);
-	qDebug()<<"About to call wait page AMSimpleBeamConfigurationWaitPage::initializePage";
 	viewWizard()->waitPage();
-	qDebug()<<"Done calling wait page AMSimpleBeamConfigurationWaitPage::initializePage";
 }
 
 

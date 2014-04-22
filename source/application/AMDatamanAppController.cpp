@@ -1090,7 +1090,6 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
-	qDebug() << "Creating new scan editor";
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
 	emit scanEditorCreated(editor);
@@ -1213,12 +1212,8 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 				}
 
 				else{
-
-					qDebug() << "Should we create a new scanEditor";
 					if (!editor)
 						editor = createNewScanEditor();
-					else
-						qDebug() << "Nope" << intptr_t(editor);
 
 					editor->addScan(scan);
 				}

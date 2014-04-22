@@ -738,12 +738,12 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
 //<<<<<<< HEAD
-//	qDebug() << "Calling setFastScanSettings, modified is " << modified();
+//	qdebug() << "Calling setFastScanSettings, modified is " << modified();
 //	if(fastScanSettings_ != fastScanSettings){
 //		disconnect(&fastScanSettings_, 0);
-//		qDebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
+//		qdebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
 //		fastScanSettings_ = fastScanSettings;
-//		qDebug() << "Setting modified true in SGMFastScanParameters";
+//		qdebug() << "Setting modified true in SGMFastScanParameters";
 //=======
 	if(fastScanSettings_ != fastScanSettings){
 		disconnect(&fastScanSettings_, 0);
@@ -761,7 +761,7 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 	}
 //<<<<<<< HEAD
 //	else
-//		qDebug() << "No need to setModified(true), they were the same";
+//		qdebug() << "No need to setModified(true), they were the same";
 //=======
 //>>>>>>> SGM_Release
 }

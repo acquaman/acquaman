@@ -39,7 +39,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 {
 
 	analysisBlock_ = analysisBlock;
-	qDebug() << "Analyzed name is " << analysisBlock_->analyzedName();
 
 	names_ = new QComboBox;
 	populateComboBox();

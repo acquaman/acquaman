@@ -198,8 +198,8 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 		int numMoving = 0;
 		for(int x = 1; x < inputAxis_.size; x++){
 			if( fabs((double)inputSource_->axisValue(0,x)-(double)inputSource_->axisValue(0, x-1)) < 0.001 ){
-				if(numMoving > 3)
-					qDebug() << "Stopped moving on " << x;
+//				if(numMoving > 3)
+//					qdebug() << "Stopped moving on " << x;
 				numMoving = 0;
 				ignoreIndices << x;
 				numLost++;
@@ -209,7 +209,7 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 					ignoreIndices.pop_back();
 					ignoreIndices.pop_back();
 					numLost -= 2;
-					qDebug() << "Started moving on " << x;
+//					qdebug() << "Started moving on " << x;
 				}
 				numMoving++;
 			}
@@ -232,7 +232,7 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 			}
 		}
 		*/
-		qDebug() << "Total lost: " << numLost << ignoreIndices;
+//		qdebug() << "Total lost: " << numLost << ignoreIndices;
 		axes_[0].size = inputAxis_.size-numLost;
 		invalidateCache();
 		int goodIndex = 0;

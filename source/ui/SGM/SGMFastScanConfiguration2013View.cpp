@@ -108,7 +108,6 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
-	qDebug() << "Things been modified? " << cfg_->currentParameters()->modified() << cfg_->currentParameters()->fastScanSettings().modified();
 	return cfg_;
 }
 

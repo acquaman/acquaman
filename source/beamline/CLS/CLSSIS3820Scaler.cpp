@@ -145,7 +145,6 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 }
 
 AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
-    qDebug() << "The scaler trigger source is named " << triggerSource_->name();
 	return triggerSource_;
 }
 

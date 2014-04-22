@@ -1,16 +1,17 @@
 #ifndef AMSHAPEDATA_H
 #define AMSHAPEDATA_H
 
+#define AMSHAPEDATA_SHAPE_IS_NULL 591001
+#define AMSHAPEDATA_COPY_NULL_COPY_INPUT 591002
+
 #include <QObject>
 #include <QRectF>
 #include <QVector3D>
 #include <QVector>
 #include <QPolygonF>
 
-
 class QString;
 class QVector3D;
-
 
 /// This class holds a 3D shape and a 2D shape.
 /// The 2D shape is meant to correspond to a visualization

@@ -7,14 +7,13 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLineEdit>
-
-#include "beamline/camera/AMBeamConfiguration.h"
 #include <QVector>
 #include <QVector3D>
+
+#include "beamline/camera/AMBeamConfiguration.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
-
-#include <QDebug>
+#include "util/AMErrorMonitor.h"
 
 
 AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWidget *parent) :
@@ -322,9 +321,7 @@ void AMBeamConfigurationView::beamChanged(QObject *newBeam)
 		updateData();
 	}
 	else
-	{
-		qDebug()<<"Cannot assign null to beamModel...(AMBeamConfiguration)";
-	}
+		AMErrorMon::alert(this, AMBEAMCONFIGURATIONVIEW_CANNOT_ASSIGN_NULL_BEAM, QString("AMBeamConfigurationView was asked to set the beam model to a null object, this is not possible.") );
 }
 
 void AMBeamConfigurationView::saveBeamConfiguration()
@@ -367,10 +364,8 @@ void AMBeamConfigurationView::updateData()
 {
 	QVector<QVector3D> positionOne = beamModel_->positionOne();
 	QVector<QVector3D> positionTwo = beamModel_->positionTwo();
-	for(int i = 0; i < 4; i++)
-	{
-		if(!positionOne.isEmpty() && positionOne.count() > i && !positionOne[i].isNull())
-		{
+	for(int i = 0; i < 4; i++){
+		if(!positionOne.isEmpty() && positionOne.count() > i && !positionOne[i].isNull()){
 
 			switch(i)
 			{
@@ -383,16 +378,11 @@ void AMBeamConfigurationView::updateData()
 			case 3: updateOneFour(positionOne[i]);
 				break;
 			}
-
-
 		}
 		else
-		{
-			qDebug()<<"invalid first shape";
-		}
+			AMErrorMon::alert(this, AMBEAMCONFIGURATIONVIEW_UPDATE_DATA_INVALID_FIRST_SHAPE, QString("AMBeamConfigurationView cannot updateData() because the first shape is invalid.") );
 
-		if(!positionTwo.isEmpty() && positionTwo.count() > i && !positionTwo[i].isNull())
-		{
+		if(!positionTwo.isEmpty() && positionTwo.count() > i && !positionTwo[i].isNull()){
 			switch(i)
 			{
 			case 0: updateTwoOne(positionTwo[i]);
@@ -407,9 +397,7 @@ void AMBeamConfigurationView::updateData()
 
 		}
 		else
-		{
-			qDebug()<<"invalid second shape";
-		}
+			AMErrorMon::alert(this, AMBEAMCONFIGURATIONVIEW_UPDATE_DATA_INVALID_SECOND_SHAPE, QString("AMBeamConfigurationView cannot updateData() because the second shape is invalid.") );
 	}
 	populateBeamSelectionBox();
 

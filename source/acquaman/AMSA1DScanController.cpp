@@ -189,7 +189,6 @@ void AMSA1DScanController::doNextPosition()
 
 	emitProgressUpdate();
 
-//	qDebug() << "    AMSA: Moving to position:" << currentPosition();
 
 	// move to the position.
 //	moveAction_ = new AMInternalControlMoveAction(control(), currentPosition());
@@ -224,7 +223,6 @@ void AMSA1DScanController::onMoveActionFailed()
 
 void AMSA1DScanController::doNextAcquisition()
 {
-//	qDebug() << "    AMSA: Starting acquisition at" << currentPosition();
 
 	// trigger all the detectors
 	detectorAcquisitionFailed_ = false;
@@ -260,7 +258,6 @@ void AMSA1DScanController::onDetectorAcquisitionFinished(bool succeeded)
 
 void AMSA1DScanController::onAllAcquisitionFinished()
 {
-//	qDebug() << "    AMSA: Acquisition finished at" << currentPosition();
 
 	// Disconnect signals from all detectors
 	foreach(AMSADetector* detector, detectors_)

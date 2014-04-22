@@ -18,6 +18,10 @@ class QSlider;
 class AMBeamConfigurationView;
 class QFrame;
 
+#define AMCAMERACONFIGURATIONVIEW_NULL_CONFIGURATION_AS_ARGUMENT 597001
+#define AMCAMERACONFIGURATIONVIEW_SAVE_CONFIGURATION_FAILED_IN_CONSTRUCTOR 597002
+#define AMCAMERACONFIGURATIONVIEW_SAVE_CONFIGURATION_NAME_CONFLICT 597003
+
 /// This class provides a configuration window for model parameters in the Camera Browser
 class AMCameraConfigurationView : public QWidget
 {

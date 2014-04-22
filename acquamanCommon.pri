@@ -301,7 +301,7 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
-	source/beamline/AMControlState.h \
+#	source/beamline/AMControlState.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
@@ -776,7 +776,7 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
-	source/beamline/AMControlState.cpp \
+#	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
