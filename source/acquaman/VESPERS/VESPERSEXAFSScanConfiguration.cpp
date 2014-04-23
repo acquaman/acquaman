@@ -175,6 +175,9 @@ void VESPERSEXAFSScanConfiguration::setEnergy(double edgeEnergy)
 	if (energy_ != edgeEnergy){
 
 //		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
+		foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
+			((AMScanAxisEXAFSRegion *)region)->setEdgeEnergy(edgeEnergy);
+
 		energy_ = edgeEnergy;
 		emit energyChanged(energy_);
 		setModified(true);

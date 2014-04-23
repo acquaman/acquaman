@@ -220,7 +220,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 		switch(message.messageType()){
 
-		case AMAgnosticDataAPIDefinitions::AxisStarted:{qDebug() << "Axis Started" << message.uniqueID();
+		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
 			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
 				writeHeaderToFile();
@@ -231,7 +231,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::AxisFinished:{qDebug() << "Axis Finished" << message.uniqueID();
+		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
 			writeDataToFiles();
 
@@ -243,7 +243,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::AxisValueFinished:qDebug() << "Axis Value Finished:" << message.uniqueID();
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
 			if (scan_->rawData()->scanAxesCount() == 1)
 				scan_->rawData()->endInsertRows();
@@ -274,7 +274,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::ControlMoved:qDebug() << "Control Moved" << message.uniqueID();
+		case AMAgnosticDataAPIDefinitions::ControlMoved:
 
 			for (int i = 0, size = stepConfiguration_->axisControlInfos().count(); i < size; i++){
 

@@ -1,27 +1,29 @@
-#ifndef AMSTEPSCANAXISVIEW_H
-#define AMSTEPSCANAXISVIEW_H
+#ifndef AMEXAFSSCANAXISVIEW_H
+#define AMEXAFSSCANAXISVIEW_H
 
 #include <QWidget>
 
 #include "acquaman/AMStepScanConfiguration.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include <QDoubleSpinBox>
 #include <QMap>
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QToolButton>
+#include <QCheckBox>
 
 /// View that holds everything for a single region.
-class AMStepScanAxisElementView : public QWidget
+class AMEXAFSScanAxisElementView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Builds a view for a single region.
-	explicit AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent = 0);
+	explicit AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *region, QWidget *parent = 0);
 
 	/// Returns the region this view looks at.
-	AMScanAxisRegion *region() const { return region_; }
+	AMScanAxisEXAFSRegion *region() const { return region_; }
 
 protected slots:
 	/// Sets the value for the start spin box.
@@ -32,38 +34,48 @@ protected slots:
 	void setEndSpinBox(const AMNumber &value);
 	/// Sets the value for the time spin box.
 	void setTimeSpinBox(const AMNumber &value);
+	/// Sets the value for the maximum time sping box.
+	void setMaximumTimeSpinBox(const AMNumber &value);
 
+	/// Handles setting the inKSpace flag of the region.
+	void onInKSpaceUpdated(bool inKSpace);
 	/// Handles setting the start position of the region.
 	void onStartPositionUpdated();
 	/// Handles setting the delta position of the region.
 	void onDeltaPositionUpdated();
 	/// Handles setting the end position of the region.
 	void onEndPositionUpdated();
-	/// Handles setting the time position of the region.
+	/// Handles setting the time per point of the region.
 	void onTimeUpdated();
+	/// Handles setting the maximum time per point of the region.
+	void onMaximumTimeUpdated();
 
 protected:
 
 	/// The pointer to the region.
-	AMScanAxisRegion *region_;
+	AMScanAxisEXAFSRegion *region_;
+	/// The check box that switches whether the region is in k space or not.
+	QCheckBox *inKSpace_;
 	/// The spin box that holds the start position.
 	QDoubleSpinBox *start_;
 	/// The spin box that holds the delta position.
 	QDoubleSpinBox *delta_;
 	/// The spin box that holds the end position.
 	QDoubleSpinBox *end_;
-	/// The spin box that holds the time position.
+	/// The spin box that holds the time per point.
 	QDoubleSpinBox *time_;
+	/// The spin box thhat holds the maximum time per point.
+	QDoubleSpinBox *maximumTime_;
 };
 
-/// View that holds the collection of scan axis regions and allows the addition and deletion of regions.  Currently, only assumes a single scan axis.
-class AMStepScanAxisView : public QWidget
+/// View that holds the collection of scan axis regions and allows the addition and deletion of EXAFS regions.
+class AMEXAFSScanAxisView : public QWidget
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  Builds a view for the collection of regions.
-	explicit AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0);
+	/// Constructor.  Builds a view for the collection of EXAFS regions.
+	explicit AMEXAFSScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0);
 
 signals:
 
@@ -79,14 +91,14 @@ protected slots:
 
 protected:
 	/// Helper method that builds and connects all the key aspects around a given AMScanAxisRegion.
-	void buildScanAxisRegionView(int index, AMScanAxisRegion *region);
+	void buildScanAxisRegionView(int index, AMScanAxisEXAFSRegion *region);
 	/// Returns whether the regions should be locked together or not.
 	bool regionsLocked() const { return !lockRegionsButton_->isChecked(); }
 
 	/// The pointer to the scan configuration that holds the container of the scan axes.
 	AMStepScanConfiguration *configuration_;
 	/// A mapping that maps the delete button to the region it is associated with.
-	QMap<QAbstractButton *, AMStepScanAxisElementView *> regionMap_;
+	QMap<QAbstractButton *, AMEXAFSScanAxisElementView *> regionMap_;
 	/// A map that holds the layout that holds the delete button and the element view for memory management.
 	QMap<QAbstractButton *, QLayout *> layoutMap_;
 	/// The main layout that is added to and removed from.
@@ -99,4 +111,4 @@ protected:
 	QToolButton *lockRegionsButton_;
 };
 
-#endif // AMSTEPSCANAXISVIEW_H
+#endif // AMEXAFSSCANAXISVIEW_H

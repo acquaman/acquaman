@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "util/VESPERS/GeneralUtilities.h"
+#include "ui/dataman/AMEXAFSScanAxisView.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -43,6 +44,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	AMTopFrame *frame = new AMTopFrame("VESPERS EXAFS Configuration");
 
 	// Regions setup
+	AMEXAFSScanAxisView *regionsView = new AMEXAFSScanAxisView("XAS Region Configuration", config_);
 
 	// The fluorescence detector setup
 	QGroupBox *fluorescenceDetectorGroupBox = addFluorescenceDetectorSelectionView();
@@ -193,6 +195,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 //	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
+	contentsLayout->addWidget(regionsView, 1, 1, 2, 2);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);

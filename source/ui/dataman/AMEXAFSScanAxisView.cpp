@@ -1,21 +1,27 @@
-#include "AMStepScanAxisView.h"
+#include "AMEXAFSScanAxisView.h"
 
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
 
-// AMStepScanAxisElementView
+// AMEXAFSScanAxisElementView
 /////////////////////////////////////////////
 
-AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent)
+AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *region, QWidget *parent)
 	: QWidget(parent)
 {
 	region_ = region;
 
+	inKSpace_ = new QCheckBox;
+	inKSpace_->setText("k-space");
+	inKSpace_->setChecked(region_->inKSpace());
+	connect(region_, SIGNAL(inKSpaceChanged(bool)), inKSpace_, SLOT(setChecked(bool)));
+	connect(inKSpace_, SIGNAL(toggled(bool)), this, SLOT(onInKSpaceUpdated(bool)));
+
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
-	start_->setSuffix(" eV");
+	start_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	start_->setDecimals(2);
 	start_->setValue(region_->regionStart());
 	start_->setAlignment(Qt::AlignCenter);
@@ -24,7 +30,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
-	delta_->setSuffix(" eV");
+	delta_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	delta_->setDecimals(2);
 	delta_->setValue(region_->regionStep());
 	delta_->setAlignment(Qt::AlignCenter);
@@ -33,7 +39,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 	end_ = new QDoubleSpinBox;
 	end_->setRange(-100000, 100000);
-	end_->setSuffix(" eV");
+	end_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	end_->setDecimals(2);
 	end_->setValue(region_->regionEnd());
 	end_->setAlignment(Qt::AlignCenter);
@@ -49,7 +55,18 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(region_, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setTimeSpinBox(AMNumber)));
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(onTimeUpdated()));
 
+	maximumTime_ = new QDoubleSpinBox;
+	maximumTime_->setRange(-100000, 100000);
+	maximumTime_->setSuffix(" s");
+	maximumTime_->setDecimals(2);
+	maximumTime_->setValue(region_->maximumTime());
+	maximumTime_->setAlignment(Qt::AlignCenter);
+	connect(region_, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(setMaximumTimeSpinBox(AMNumber)));
+	connect(maximumTime_, SIGNAL(editingFinished()), this, SLOT(onMaximumTimeUpdated()));
+
+
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
+	elementViewLayout->addWidget(inKSpace_);
 	elementViewLayout->addWidget(new QLabel("Start"));
 	elementViewLayout->addWidget(start_);
 	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")));
@@ -58,54 +75,87 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	elementViewLayout->addWidget(end_);
 	elementViewLayout->addWidget(new QLabel("Time"));
 	elementViewLayout->addWidget(time_);
+	elementViewLayout->addWidget(new QLabel("Max Time"));
+	elementViewLayout->addWidget(maximumTime_);
 
 	setLayout(elementViewLayout);
 }
 
-void AMStepScanAxisElementView::setStartSpinBox(const AMNumber &value)
+void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
 	start_->setValue(double(value));
 }
 
-void AMStepScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
+void AMEXAFSScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
 	delta_->setValue(double(value));
 }
 
-void AMStepScanAxisElementView::setEndSpinBox(const AMNumber &value)
+void AMEXAFSScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
 	end_->setValue(double(value));
 }
 
-void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
+void AMEXAFSScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
 	time_->setValue(double(value));
 }
 
-void AMStepScanAxisElementView::onStartPositionUpdated()
+void AMEXAFSScanAxisElementView::setMaximumTimeSpinBox(const AMNumber &value)
+{
+	maximumTime_->setValue(double(value));
+}
+
+void AMEXAFSScanAxisElementView::onInKSpaceUpdated(bool inKSpace)
+{
+	region_->setInKSpace(inKSpace);
+
+	if (inKSpace){
+
+		start_->setSuffix("k");
+		delta_->setSuffix("k");
+		end_->setSuffix("k");
+		maximumTime_->show();
+	}
+
+	else {
+
+		start_->setSuffix(" eV");
+		delta_->setSuffix(" eV");
+		end_->setSuffix(" eV");
+		maximumTime_->hide();
+	}
+}
+
+void AMEXAFSScanAxisElementView::onStartPositionUpdated()
 {
 	region_->setRegionStart(start_->value());
 }
 
-void AMStepScanAxisElementView::onDeltaPositionUpdated()
+void AMEXAFSScanAxisElementView::onDeltaPositionUpdated()
 {
 	region_->setRegionStep(delta_->value());
 }
 
-void AMStepScanAxisElementView::onEndPositionUpdated()
+void AMEXAFSScanAxisElementView::onEndPositionUpdated()
 {
 	region_->setRegionEnd(end_->value());
 }
 
-void AMStepScanAxisElementView::onTimeUpdated()
+void AMEXAFSScanAxisElementView::onTimeUpdated()
 {
 	region_->setRegionTime(time_->value());
 }
 
-// AMStepScanAxisView
+void AMEXAFSScanAxisElementView::onMaximumTimeUpdated()
+{
+	region_->setMaximumTime(maximumTime_->value());
+}
+
+// AMEXAFSScanAxisView
 /////////////////////////////////////////////
 
-AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent)
+AMEXAFSScanAxisView::AMEXAFSScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent)
 	: QWidget(parent)
 {
 	configuration_ = configuration;
@@ -130,14 +180,14 @@ AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfigura
 	scanAxisViewLayout_->addLayout(topRowLayout);
 
 	foreach (AMScanAxisRegion *region, configuration_->scanAxisAt(0)->regions().toList())
-		buildScanAxisRegionView(configuration_->scanAxisAt(0)->regionCount(), region);
+		buildScanAxisRegionView(configuration_->scanAxisAt(0)->regionCount(), qobject_cast<AMScanAxisEXAFSRegion *>(region));
 
 	connect(deleteButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDeleteButtonClicked(QAbstractButton*)));
 
 	setLayout(scanAxisViewLayout_);
 }
 
-void AMStepScanAxisView::onLockRegionsToggled(bool toggled)
+void AMEXAFSScanAxisView::onLockRegionsToggled(bool toggled)
 {
 	if (toggled){
 
@@ -152,11 +202,11 @@ void AMStepScanAxisView::onLockRegionsToggled(bool toggled)
 	}
 }
 
-void AMStepScanAxisView::onAddRegionButtonClicked()
+void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 {
 	if (configuration_->scanAxisAt(0)->regionCount() == 0){
 
-		AMScanAxisRegion *region = new AMScanAxisRegion(-1, -1, -1, -1);
+		AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion(-1, -1, -1, -1, false, -1);
 		configuration_->scanAxisAt(0)->appendRegion(region);
 		buildScanAxisRegionView(0, region);
 	}
@@ -178,9 +228,10 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 
 		if (temp){
 
+
 			if (temp->text() == "Beginning"){
 
-				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0)->createCopy();
+				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(0)->createCopy());
 				configuration_->scanAxisAt(0)->insertRegion(0, region);
 				buildScanAxisRegionView(0, region);
 			}
@@ -188,7 +239,7 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 			else if (temp->text() == "End"){
 
 				int indexOfEnd = configuration_->scanAxisAt(0)->regionCount();
-				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->createCopy();
+				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->createCopy());
 				configuration_->scanAxisAt(0)->insertRegion(indexOfEnd, region);
 				buildScanAxisRegionView(indexOfEnd, region);
 			}
@@ -196,7 +247,7 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 			else {
 
 				int index = temp->text().split(" ").at(1).toInt();
-				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(index)->createCopy();
+				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(index)->createCopy());
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
 			}
@@ -204,9 +255,9 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 	}
 }
 
-void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
+void AMEXAFSScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 {
-	AMStepScanAxisElementView *view = regionMap_.value(button);
+	AMEXAFSScanAxisElementView *view = regionMap_.value(button);
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
 	regionMap_.remove(button);
@@ -217,9 +268,9 @@ void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	button->deleteLater();
 }
 
-void AMStepScanAxisView::buildScanAxisRegionView(int index, AMScanAxisRegion *region)
+void AMEXAFSScanAxisView::buildScanAxisRegionView(int index, AMScanAxisEXAFSRegion *region)
 {
-	AMStepScanAxisElementView *elementView = new AMStepScanAxisElementView(region);
+	AMEXAFSScanAxisElementView *elementView = new AMEXAFSScanAxisElementView(region);
 
 	QToolButton *deleteButton = new QToolButton;
 	deleteButton->setIcon(QIcon(":22x22/list-remove-2.png"));
@@ -238,3 +289,4 @@ void AMStepScanAxisView::buildScanAxisRegionView(int index, AMScanAxisRegion *re
 	regionMap_.insert(deleteButton, elementView);
 	layoutMap_.insert(deleteButton, layout);
 }
+
