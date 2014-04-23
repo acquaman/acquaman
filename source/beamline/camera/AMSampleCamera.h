@@ -15,6 +15,8 @@
 #include <complex>
 #include <QGenericMatrix>
 
+/// \todo use MPL Eigen only
+/// #define EIGEN_MPL2_ONLY
 #include <Eigen/SVD>
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
@@ -627,6 +629,8 @@ protected:
 	QVector<QVector3D> findIntersectionShape(int index, bool *isFullyWithinSample = 0) const;
 	QVector<QVector3D> findIntersectionShape(const AMShapeData* shape, bool boundIntersection = true, bool *isFullyWithinSample = 0) const;
 
+	/// stops the beam from continuing through samples. Uses the shapes stored in
+	/// intersectionShapes_
 	void blockBeam();
 
 	void setBeamCutOff(bool beamCutOff);
@@ -688,7 +692,7 @@ protected:
 
 	QVector<QVector3D> findSamplePlateCoordinate(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints) const;
 	MatrixXd constructSampleCoefficientMatrix(const QVector<QVector3D> vectors, const QVector<QVector3D> rotationX, const QVector<QVector3D> rotationY, const QVector<QVector3D> rotationZ, const int numberOfPoints) const;
-	/// these three functions each generate a row of a rotation matrix
+	/// these three functions each generate a row of a general rotation matrix
 	QVector3D findRotationMatrixXRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixYRow(QVector3D rotationVector, double angleOfRotation) const;
 	QVector3D findRotationMatrixZRow(QVector3D rotationVector, double angleOfRotation) const;

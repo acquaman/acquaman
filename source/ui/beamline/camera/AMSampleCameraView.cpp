@@ -191,11 +191,12 @@ void AMSampleCameraView::refreshSceneView()
 	qreal ySceneCoord = activeRect.top() + shapeModel_->crosshairY()*activeRect.height();
 
 
+	// this shows the outline of the video.  Is not necessary for anything but debugging
 	videoBorderItem_->setRect(activeRect);
 
 
 
-
+	/// \todo get rid of crosshair lines?
 	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 

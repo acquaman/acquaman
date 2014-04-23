@@ -48,7 +48,6 @@ class AMSampleCameraView : public QWidget
 public:
 	enum ShapeColour{ACTIVEBORDER, BORDER, FILL, BACKWARDSFILL, INTERSECTION, HIDEINTERSECTION, SAMPLEPLATEINTERSECTION, SAMPLEFILL, SAMPLEBORDER};
 	enum ViewType {DEBUG, CONDENSED};
-//	enum WizardType {FULL, SIMPLE};
 	/// Constructor.
 	explicit AMSampleCameraView(AMSampleCamera *shapeModel, ViewType viewType = CONDENSED, QWidget *parent = 0, bool useOpenGlViewport = true);
 

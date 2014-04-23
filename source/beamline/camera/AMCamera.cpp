@@ -201,6 +201,7 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 
 }
 
+///  transforms a point to a coordinate at the given depth
 QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 {
 	if(useCameraMatrix_ && calibrationRun_)
@@ -500,10 +501,6 @@ void AMCamera::setScaledSize(QSizeF scaledSize)
 
 double AMCamera::focalLength() const
 {
-//    if(calibrationRun_ && useCameraMatrix_)
-//    {
-//        return 1;
-//    }
     return cameraConfiguration()->cameraFocalLength();
 }
 
@@ -572,7 +569,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
     {
         /// the root is imaginary, so take the absolute value of c and square root it, theta = atan(b/a)
         /// b(0,1) = (+-)sqrt(c)/2
-        // negate c, sow we can square root it
+		// negate c, so we can square root it
         c = c*(-1);
         b = sqrt(c)/2.0;
 
@@ -586,7 +583,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
         /// sqrt(a^2 + b^2)
         // wo here is actually wo^3
         // wo^3*e^(j*theta)
-        // wo = cube root of ^
+		// actual wo = cube root of wo^3*e^(j*theta)
         wo = sqrt(a*a + b*b);
         QPointF complexPoint [6];
         QPointF conjugatePoint [6];
@@ -621,7 +618,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 
         }
         /// for points within the radius of the screen, and for small distortions, complexPoint[1] gives the correct transform
-        /// if distortion goes too high, the overlap creating a loss of image will not be corrected
+		/// if distortion is too high, the overlap creating a loss of image will not be corrected
         newRadius = sqrt(complexPoint[1].x()*complexPoint[1].x() + complexPoint[1].y()*complexPoint[1].y());
 
     }
@@ -653,6 +650,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 	return newPoint;
 }
 
+/// Computes the least squares solution for Ax = Y
 MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 {
 	/// solves Ax = Y for x
@@ -662,6 +660,7 @@ MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 	return x;
 }
 
+/// computes the least squares solution for LHSx = 0
 MatrixXd AMCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	JacobiSVD<MatrixXd> solver(leftHandSide, ComputeThinV|ComputeThinU);
