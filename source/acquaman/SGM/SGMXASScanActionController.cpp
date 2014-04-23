@@ -75,7 +75,7 @@ void SGMXASScanActionController::buildScanControllerImplementation()
                     detectorCorrection->setDwellTimeName(dwellTimeSource->name());
                     detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
 //                    detectorCorrection->setDarkCurrent(detector->darkCurrentCorrection());
-                    connect( detector, SIGNAL(newDarkCurrentCorrectionReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+                    connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
                     detectorCorrection->setTimeUnitMultiplier(.001);
                     scan_->addAnalyzedDataSource(detectorCorrection, true, false);
                 }

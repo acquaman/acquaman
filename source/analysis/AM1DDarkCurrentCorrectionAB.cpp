@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM1DDarkCurrentCorrectionAB.h"
+#include <QDebug>
 
  AM1DDarkCurrentCorrectionAB::~AM1DDarkCurrentCorrectionAB(){}
 AM1DDarkCurrentCorrectionAB::AM1DDarkCurrentCorrectionAB(const QString &outputName, QObject *parent)
@@ -137,6 +138,7 @@ void AM1DDarkCurrentCorrectionAB::setDwellTimeName(const QString &name)
 void AM1DDarkCurrentCorrectionAB::setDarkCurrent(const double newValue)
 {
     if (darkCurrent_ != newValue && newValue >= 0) {
+        qDebug() << "Dark current value set : " << newValue;
         darkCurrent_ = newValue;
         setModified(true);
     }

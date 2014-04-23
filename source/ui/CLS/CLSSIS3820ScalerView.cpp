@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/CLS/CLSSR570View.h"
 
+#include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
+
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
@@ -127,11 +129,14 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
 	setLayout(mainVL_);
 
-	CLSSIS3820ScalerChannelView *channelView = 0;
+    //CLSSIS3820ScalerChannelView *channelView = 0;
+    CLSSIS3820ScalerChannelViewWithDarkCurrent *channelView = 0;
 	int channelCount = scaler_->channels().count();
 	for (int i = 0; i < channelCount; i++){
 
-		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+        //channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+        channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(scaler_->channelAt(i));
+        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
 		channelViews_ << channelView;
 		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));

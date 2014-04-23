@@ -63,7 +63,7 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
 {
     qDebug() << "CLSSIS3820ScalerChannelView receives new dark current measurement value : " << newValue;
-    darkCurrentValue_->setText(QString("%f").arg(newValue, 0, 'g', 3));
+    darkCurrentValue_->setText(QString("%1").arg(newValue, 0, 'g', 3));
 }
 
 
@@ -73,8 +73,8 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementStat
     qDebug() << "CLSSIS3820ScalerChannelView receives new dark current status : " << newStatus;
 
     if (newStatus == CLSSIS3820Scaler::SUCCEEDED)
-        darkCurrentValue_->setStyleSheet("QLabel { color: blue }");
+        darkCurrentValue_->setStyleSheet("color: blue;");
 
     else
-        darkCurrentValue_->setStyleSheet("QLabel { color: red }");
+        darkCurrentValue_->setStyleSheet("color: red;");
 }
