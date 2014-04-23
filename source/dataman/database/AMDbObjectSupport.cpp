@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDbObjectSupport.h"
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/database/AMConstDbObject.h"
 
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -528,7 +529,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 
 		bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 			success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 		if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -695,7 +696,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 				bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 					success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 				if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
