@@ -66,19 +66,21 @@ bool AMSamplePlate::addSample(AMSample *sample){
 	sample->setSamplePlate(this);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 	connect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+	connect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 	storeToDb(database());
 	return true;
 }
 
 bool AMSamplePlate::removeSample(AMSample *sample){
-        int sampleIndex = indexOfSample(sample);
+	int sampleIndex = indexOfSample(sample);
 	if(sampleIndex != -1){
 		samples_.remove(sampleIndex);
 		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 		disconnect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+		disconnect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 		storeToDb(database());
 		qDebug()<<"AMSamplePlate::removeSample - calling removeSampleShapePositionData";
-                sample->removeSampleShapePositionData();
+		sample->removeSampleShapePositionData();
 		sample->deleteLater();
 		return true;
 	}
@@ -105,8 +107,8 @@ bool AMSamplePlate::operator ==(const AMSamplePlate &other){
 }
 
 void AMSamplePlate::onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList){
-        AMSample *sample;
-        // if there aren't enough samples on the sample plate add some.
+	AMSample *sample;
+	// if there aren't enough samples on the sample plate add some.
 	if(shapeList.count() > sampleCount())
 	{
 		foreach(AMShapeData* shape, shapeList)
@@ -123,12 +125,12 @@ void AMSamplePlate::onSampleCameraShapesChanged(const QList<AMShapeData*> shapeL
 			}
 		}
 	}
-        // if there are too many samples on the sample plate delete some.
-        else if(shapeList.count() < sampleCount())
+	// if there are too many samples on the sample plate delete some.
+	else if(shapeList.count() < sampleCount())
 	{
-            for(int i = 0; i < samples_.count(); i ++)
+		for(int i = 0; i < samples_.count(); i ++)
 		{
-                        sample = samples_[i];
+			sample = samples_[i];
 			if(!shapeList.contains(sample->sampleShapePositionData()))
 			{
 				removeSample(sample);
@@ -182,6 +184,10 @@ void AMSamplePlate::onSampleModified(bool isModified){
 		setModified(modifiedNow);
 }
 
+void AMSamplePlate::onSampleRequestStoreToDb(){
+	storeToDb(database());
+}
+
 AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
 	for(int x = 0; x < sampleCount(); x++)
 		if(sampleAt(x)->sampleShapePositionData() == shapeData)
@@ -209,6 +215,7 @@ void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
 			samples_.append(newSample);
 			connect(newSample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 			connect(newSample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+			connect(newSample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 		}
 	}
 }
@@ -294,9 +301,9 @@ void AMSamplePlateBrowser::reloadFromDatabase(){
 }
 
 void AMSamplePlateBrowser::addSamplePlate(AMSamplePlate *samplePlate){
-//	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
-//	allSamplePlates_.append(samplePlate);
-//	endInsertRows();
+	//	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
+	//	allSamplePlates_.append(samplePlate);
+	//	endInsertRows();
 
 	beginInsertRows(QModelIndex(), 0, 0);
 	allSamplePlates_.prepend(samplePlate);

@@ -442,7 +442,8 @@ void AMSample::onShapeDataChanged()
 
 void AMSample::forceStoreToDb()
 {
-	storeToDb(database());
+//	storeToDb(database());
+	emit requestStoreToDb();
 }
 
 

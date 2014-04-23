@@ -17,7 +17,8 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	scan_->setScanConfiguration(cfg);
 	//scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setSample(SGMBeamline::sgm()->currentSample());
-	SGMBeamline::sgm()->currentSample()->addScan(scan_);
+	if(SGMBeamline::sgm()->currentSample())
+		SGMBeamline::sgm()->currentSample()->addScan(scan_);
 	connect(scan_, SIGNAL(storedToDb()), SGMBeamline::sgm()->currentSample(), SLOT(forceStoreToDb()));
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));

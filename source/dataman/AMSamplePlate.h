@@ -84,6 +84,9 @@ protected slots:
 
 	void onSampleModified(bool isModified);
 
+	/// Handles saving the sample plate to the database if one of the samples was independently saved
+	void onSampleRequestStoreToDb();
+
 protected:
 	/// Set the dateTime for the AMDbObject system
 	void dbLoadDateTime(const QDateTime &newDateTime);
