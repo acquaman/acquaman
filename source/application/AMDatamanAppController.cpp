@@ -132,10 +132,18 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
+	AMDbUpgrade *am1Pt1ActionsDb = new AMDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(am1Pt1ActionsDb);
+	AMDbUpgrade *am1Pt1ScanActionsDb = new AMDbUpgrade1Pt1("scanActions", this);
+	appendDatabaseUpgrade(am1Pt1ScanActionsDb);
 
 	// Append the AM upgrade 1.2 to the list for the user database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+	AMDbUpgrade *am1Pt2ActionsDb = new AMDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(am1Pt2ActionsDb);
+	AMDbUpgrade *am1Pt2ScanActionsDb = new AMDbUpgrade1Pt2("scanActions", this);
+	appendDatabaseUpgrade(am1Pt2ScanActionsDb);
 
 	// Append the AM upgrade 1.3 to the list for the user, actions, and scanActions database.
 	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("user", this);

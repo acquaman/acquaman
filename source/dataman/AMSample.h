@@ -179,6 +179,9 @@ signals:
 	/// Request signal emitted by calling removeSample()
 	void sampleAboutToBeRemoved();
 
+	/// Emitted to request that the sample plate store this sample to the database
+	void requestStoreToDb();
+
 protected:
 	/// format string used to format the dateTime
 	QString dateTimeFormat() const;

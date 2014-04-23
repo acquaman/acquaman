@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDbObjectSupport.h"
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/database/AMConstDbObject.h"
 
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -447,8 +448,8 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 	// go through properties and create columns for each, (with some exceptions...)
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then don't create a column at all. Instead, create an auxilliary table.  Table name is our table name + "_propertyName".
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		// if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then don't create a column at all. Instead, create an auxilliary table.  Table name is our table name + "_propertyName".
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			if( !db->ensureTable(auxTableName,
 								 QString("id1,table1,id2,table2").split(','),
@@ -521,15 +522,15 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 	vlist << typeId << "colName";
 	for(int i=0; i<info.columns.count(); i++) {	// loop over columns
 
-		// lists of AMDbObjects use aux. tables, not columns. So no column entry should appear for these.
-		if(info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>())
+		// lists of AMDbObjects and AMConstDbObject use aux. tables, not columns. So no column entry should appear for these.
+		if(info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>())
 			continue;
 
 		vlist[1] = info.columns.at(i);// takes on the name of this column
 
 		bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 			success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 		if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -570,8 +571,8 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 	// Determine which columns we need to have:
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		// if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does SQLite not support the SQL-92 standard INFORMATION_SCHEMA?
 			//				q.prepare("SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = " % auxTableName % ";");
@@ -628,9 +629,9 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	// 3) For all the columns we have:
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// 3a) if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
+		// 3a) if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
 		////////////////////////////////////////////
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>() ) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
@@ -696,7 +697,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 				bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 					success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 				if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.

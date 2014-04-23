@@ -66,6 +66,7 @@ bool AMSamplePlate::addSample(AMSample *sample){
 	sample->setSamplePlate(this);
 	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 	connect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+	connect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 	storeToDb(database());
 	return true;
 }
@@ -76,6 +77,7 @@ bool AMSamplePlate::removeSample(AMSample *sample){
 		samples_.remove(sampleIndex);
 		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 		disconnect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+		disconnect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 		storeToDb(database());
 		sample->removeSampleShapePositionData();
 		sample->deleteLater();
@@ -182,6 +184,10 @@ void AMSamplePlate::onSampleModified(bool isModified){
 		setModified(modifiedNow);
 }
 
+void AMSamplePlate::onSampleRequestStoreToDb(){
+	storeToDb(database());
+}
+
 AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
 	for(int x = 0; x < sampleCount(); x++)
 		if(sampleAt(x)->sampleShapePositionData() == shapeData)
@@ -209,6 +215,7 @@ void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
 			samples_.append(newSample);
 			connect(newSample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
 			connect(newSample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+			connect(newSample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
 		}
 	}
 }

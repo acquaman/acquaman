@@ -282,6 +282,9 @@ public:
 	/// Return whether or not this object is currently being reloaded from the database
 	bool isReloading() const;
 
+	/// Returns whether or not this object is currently being stored to the database
+	bool isStoring() const;
+
 
 	/// returns the name of the database table where objects like this are stored.
 	QString dbTableName() const;
@@ -410,8 +413,11 @@ private:
 	/// This is a helper function used by storeToDb() to save the thumanils, in the current thread. It should only be called after the object has been stored in the main table and has a valid id() and database(). \c neverSavedHereBefore is an optimization for when we know there are no existing thumbnails.
 	void updateThumbnailsInCurrentThread(bool neverSavedHereBefore);
 
-	/// holds whether this object is currently being reloaded from the database
+	/// Holds whether this object is currently being reloaded from the database
 	bool isReloading_;
+
+	/// Holds whether this object is currently being stored to the database
+	bool isStoring_;
 
 	QMap<QString, AMDbLoadErrorInfo*> loadingErrors_;
 };

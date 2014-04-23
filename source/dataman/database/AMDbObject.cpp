@@ -73,6 +73,7 @@ QString AMDbThumbnail::typeString() const {
 
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	isReloading_ = false;
+	isStoring_ = false;
 	id_ = 0;
 	database_ = 0;
 	modified_ = true;
@@ -83,6 +84,7 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 
 AMDbObject::AMDbObject(const AMDbObject &original) : QObject() {
 	isReloading_ = false;
+	isStoring_ = false;
 	id_ = original.id_;
 	database_ = original.database_;
 	modified_ = original.modified_;
@@ -119,6 +121,10 @@ QMap<QString, AMDbLoadErrorInfo*> AMDbObject::loadingErrors() const{
 
 bool AMDbObject::isReloading() const{
 	return isReloading_;
+}
+
+bool AMDbObject::isStoring() const{
+	return isStoring_;
 }
 
 // returns the name of the database table where objects like this should be/are stored
@@ -162,6 +168,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			return false;
 		}
 	}
+
+	isStoring_ = true;
+
 	// If this object has never been stored to this database before, we could optimize some things.
 	bool neverSavedHere = (id()<1 || db !=database());
 
@@ -316,6 +325,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(openedTransaction)
 			db->rollbackTransaction();	// this is good for consistency. Even all the child object changes will be reverted if this save failed.
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_STORE_TO_DB_INSERT_OR_UPDATE_FAILED, QString("Could not store to db (%1), the insert or update call failed. Please report this problem to the Acquaman developers.").arg(db->connectionName())));
+		isStoring_ = false;
 		return false;
 	}
 
@@ -405,12 +415,14 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
 				QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
 			}
+			isStoring_ = false;
 			emit storedToDb();
 			return true;
 		}
 		else {
 			db->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_OBJECT, "Could not commit a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+			isStoring_ = false;
 			return false;
 		}
 	}
@@ -422,6 +434,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
 			QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
 		}
+		isStoring_ = false;
 		emit storedToDb();
 		return true;
 	}
@@ -497,6 +510,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
 					if(objectLocation.isEmpty()){
 						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
+						isReloading_ = false;
 						return false;
 					}
 					QString objectTable = objectLocation.at(1).toString();
@@ -536,6 +550,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
 					if(objectLocation.isEmpty()){
 						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMConstDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
+						isReloading_ = false;
 						return false;
 					}
 					QString objectTable = objectLocation.at(1).toString();
@@ -575,6 +590,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					databaseToUse = AMDatabase::database(databaseName);
 					if(!databaseToUse){
 						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT, QString("Could not load from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						isReloading_ = false;
 						return false;	// bad redirection to another database
 					}
 				}
