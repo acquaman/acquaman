@@ -26,3 +26,4 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 #	AMCrashReporter.pro \
 	StripToolProject.pro \
 	IDEASAcquaman.pro
+#	SGMNetworkMonitor.pro

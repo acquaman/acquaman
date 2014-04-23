@@ -21,6 +21,7 @@
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	Q_UNUSED(useOpenGlViewport)
 	videoWidget_ = 0;
 	init(cameraBrowser);
 
@@ -29,6 +30,7 @@ AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *came
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	Q_UNUSED(useOpenGlViewport)
 	videoWidget_ = 0;
 	init(new AMSampleCameraBrowser());
 }
@@ -130,6 +132,7 @@ void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
+	Q_UNUSED(e)
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());

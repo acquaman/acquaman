@@ -15,24 +15,32 @@ CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minus_, SIGNAL(clicked()), sr570_, SLOT(decreaseSensitivity()));
 	connect(sr570_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
+	if(sr570_->isConnected() && sr570_->atMinimumSensitivity())
+		minus_->setDisabled(true);
 
 	plus_ = new QToolButton;
 	plus_->setMaximumSize(25, 25);
 	plus_->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plus_, SIGNAL(clicked()), sr570_, SLOT(increaseSensitivity()));
 	connect(sr570_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
+	if(sr570_->isConnected() && sr570_->atMaximumSensitivity())
+		plus_->setDisabled(true);
 
 	value_ = new QComboBox;
 	value_->hide();
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
 	connect(sr570_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)));
+	if(sr570_->isConnected())
+		onValueChanged(sr570_->valueIndex());
 
 	units_ = new QComboBox;
 	units_->hide();
 	units_->addItems(QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V");
 	connect(units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)));
 	connect(sr570_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+	if(sr570_->isConnected())
+		onUnitsChanged(sr570_->units());
 
 	setViewMode(Basic);
 

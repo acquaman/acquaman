@@ -95,6 +95,7 @@ void AMWorkflowView3::onAddActionButtonClicked()
 {
 	if(!addActionDialog_) {
 		addActionDialog_ = new AMAddActionDialog3(this);
+		connect(addActionDialog_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SIGNAL(actionAddedFromDialog(AMAction3*)));
 	}
 	addActionDialog_->show();
 }

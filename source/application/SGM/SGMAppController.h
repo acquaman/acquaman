@@ -44,14 +44,13 @@ class AMDetectorSelectorView;
 
 class SGMSettingsMasterView;
 class AMGithubManager;
-//class CLSProcServManager;
-//class CLSProcServManagerView;
 
 class AMSampleCameraBrowserView;
 class AMSamplePlateView;
 class AMBeamlineSampleManagementView;
 class SGMAdvancedControlsView;
 class SGMAdvancedMirrorView;
+class AMAction3;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 #define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE 290302
@@ -110,15 +109,8 @@ protected slots:
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
 
-//	/// CURRENTLY UNUSED
-//	void onCurrentScanControllerCreated();
-//	/// CURRENTLY UNUSED
-//	void onCurrentScanControllerDestroyed();
-
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
-	/// Creates the SGM proc serv manager view if necessary and shows it
-//	void onActionProcServManager();
 
 	void onAdvancedCameraOptionsRequested();
 	/// Create the SGM Advanced mirror veiw if necessary and shows it
@@ -131,6 +123,8 @@ protected slots:
 	void onXRFDetectorViewResized();
 	/// Actually handles the resize for the above function some time later. Looks like one of the widgets or layouts takes quite a while to recalculate its minimumSizeHint() or its minimumSize()
 	void resizeToMinimum();
+
+	void onWorkflowActionAddedFromDialog(AMAction3 *action);
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
@@ -187,11 +181,6 @@ protected:
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
-
-//	/// List of procServs we might want to fiddle with
-//	QList<CLSProcServManager*> procServs_;
-//	/// View for the proc serv manager
-//	CLSProcServManagerView *procServsView_;
 
 	/// Updating list of detectors we have been waiting for on startup
 	QString lastWaitingDetectors_;

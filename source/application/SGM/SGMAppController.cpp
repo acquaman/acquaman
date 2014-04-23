@@ -57,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "actions3/AMActionRunner3.h"
+#include "ui/actions3/AMWorkflowView3.h"
 
 #include "util/SGM/SGMSettings.h"
 #include "util/SGM/SGMPluginsLocation.h"
@@ -98,6 +99,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMGithubIssueSubmissionView.h"
 
 
+
+#include "actions3/actions/AMControlMoveAction3.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -392,6 +395,11 @@ void SGMAppController::onSGMBeamlineConnected(){
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTFYDetector(), true);
 		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newPDDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD1Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD2Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD3Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD4Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD5Detector(), true);
 		fastDetectorSelector_->setDefaultsSelected();
 
 		fastScanConfiguration2013View_ = new SGMFastScanConfiguration2013View(fastScanConfiguration2013);
@@ -648,6 +656,15 @@ void SGMAppController::resizeToMinimum(){
 	mw_->resize(mw_->minimumSizeHint());
 }
 
+void SGMAppController::onWorkflowActionAddedFromDialog(AMAction3 *action){
+	AMControlMoveAction3 *controlMoveAction = qobject_cast<AMControlMoveAction3*>(action);
+	if(controlMoveAction){
+		AMControlMoveActionInfo3 *controlMoveActionInfo = qobject_cast<AMControlMoveActionInfo3*>(controlMoveAction->info());
+		if(controlMoveActionInfo)
+			controlMoveActionInfo->setIsRelativeMove(true);
+	}
+}
+
 bool SGMAppController::startupSGMInstallActions(){
 	QAction *sgmSettingAction = new QAction("SGM Beamline Settings...", mw_);
 	sgmSettingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_T));
@@ -655,13 +672,6 @@ bool SGMAppController::startupSGMInstallActions(){
 	connect(sgmSettingAction, SIGNAL(triggered()), this, SLOT(onActionSGMSettings()));
 
 	sgmSettingsMasterView_ = 0;
-
-//	QAction *sgmProcServAction = new QAction("SGM Proc Servs...", mw_);
-//	sgmProcServAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Y));
-//	sgmProcServAction->setStatusTip("Restart stuck servers");
-//	connect(sgmProcServAction, SIGNAL(triggered()), this, SLOT(onActionProcServManager()));
-
-//	procServsView_ = 0;
 
 	QAction *advancedSGMCameraOptionsAction = new QAction("SGM Camera Advanced...", mw_);
 	advancedSGMCameraOptionsAction->setStatusTip("Advanced Camera Settings");
@@ -676,7 +686,6 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
-//	fileMenu_->addAction(sgmProcServAction);
 
 	viewMenu_->addAction(advancedSGMCameraOptionsAction);
 	viewMenu_->addAction(SGMMirrorAction);
@@ -1425,6 +1434,8 @@ bool SGMAppController::setupSGMViews(){
 //	sgmPeriodicTableView->show();
 //	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
 //	fastScanWizard->show();
+
+	connect(workflowView_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SLOT(onWorkflowActionAddedFromDialog(AMAction3*)));
 
 	return true;
 }
