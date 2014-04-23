@@ -102,70 +102,91 @@ void AMGraphicsVideoSceneCopier::updateShape(QGraphicsItem *item, QGraphicsScene
 
 void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGraphicsScene *sceneToUpdateWith)
 {
-	QList<QGraphicsItem*> oldList = sceneToUpdate->items();
-	QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
+    QList<QGraphicsItem*> oldList = sceneToUpdate->items();
+    QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
 
-	/// if the lists are not the same length, have to do a full update
-	if(oldList.count() != newList.count())
-	{
-		updateScene(sceneToUpdate,sceneToUpdateWith);
-		return;
-	}
+    sceneToUpdate->setSceneRect(sceneToUpdateWith->sceneRect());
+    qDebug()<<"scene rect old new"<<sceneToUpdate->sceneRect()<<sceneToUpdateWith->sceneRect();
+    qDebug()<<"width old new"<<sceneToUpdate->width()<<sceneToUpdateWith->width();
 
-	/// create sublists that ignore the graphics item.
-	/// the oldList is in reverse order of the newList
-	QList<QGraphicsItem*> oldItems;
-	QList<QGraphicsItem*> newItems;
-	QList<QList<QGraphicsItem*> > oldListList;
-	QList<int> zValues;
+    foreach(QGraphicsItem* oldItems, sceneToUpdate->items())
+    {
+	    if(oldItems->type() == QGraphicsItem::UserType)
+	    {
+		    QGraphicsVideoItem * videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(oldItems);
+		    if(videoItem)
+		    {
+			    sceneToUpdate->removeItem(videoItem);
+			    videoItem->setX(0);
+			    videoItem->setY(0);
+			    sceneToUpdate->addItem(videoItem);
+			    videoItem->setSize(sceneToUpdate->sceneRect().size());
+		    }
+	    }
+    }
 
-	foreach(QGraphicsItem* newItem, newList)
-	{
-		if(newItem->type() != QGraphicsItem::UserType)
-		{
-			newItems.append(newItem);
-		}
-	}
-	QGraphicsItem* oldItem;
-	for(int i = 0; i < oldList.count(); i++)
-	{
 
-		oldItem = oldList[(oldList.count() - 1) - i];
-		if(oldItem->type() != QGraphicsItem::UserType)
-		{
-			int currentZ = oldItem->zValue();
-			if(zValues.contains(currentZ))
-			{
-				oldListList[zValues.indexOf(currentZ)].append(oldItem);
-			}
-			else
-			{
-				QList<QGraphicsItem*> subList;
-				subList.append(oldItem);
-				zValues.append(currentZ);
-				oldListList.append(subList);
-			}
-		}
-	}
-	for(int i = 0; i < oldListList.count(); i++)
-	{
-		oldItems<<oldListList[oldListList.count() -1 -i];
-	}
+    /// if the lists are not the same length, have to do a full update
+    if(oldList.count() != newList.count())
+    {
+        updateScene(sceneToUpdate,sceneToUpdateWith);
+        return;
+    }
 
-	/// should now have two lists of equivalent shapes.
-	/// must go through each item in oldItems, check for equivalence
-	/// with the corresponding newItems, and update them if necessary
-	/// just leave the video item be
-	bool success = true;
-	for(int i = 0; i < oldItems.count(); i++)
-	{
-		success = updateItem(oldItems[i], newItems[i]);
-		if(!success)
-		{
-			updateScene(sceneToUpdate, sceneToUpdateWith);
-			return;
-		}
-	}
+    /// create sublists that ignore the graphics item.
+    /// the oldList is in reverse order of the newList
+    QList<QGraphicsItem*> oldItems;
+    QList<QGraphicsItem*> newItems;
+    QList<QList<QGraphicsItem*> > oldListList;
+    QList<int> zValues;
+
+    foreach(QGraphicsItem* newItem, newList)
+    {
+        if(newItem->type() != QGraphicsItem::UserType)
+        {
+            newItems.append(newItem);
+        }
+    }
+    QGraphicsItem* oldItem;
+    for(int i = 0; i < oldList.count(); i++)
+    {
+
+        oldItem = oldList[(oldList.count() - 1) - i];
+        if(oldItem->type() != QGraphicsItem::UserType)
+        {
+            int currentZ = oldItem->zValue();
+            if(zValues.contains(currentZ))
+            {
+                oldListList[zValues.indexOf(currentZ)].append(oldItem);
+            }
+            else
+            {
+                QList<QGraphicsItem*> subList;
+                subList.append(oldItem);
+                zValues.append(currentZ);
+                oldListList.append(subList);
+            }
+        }
+    }
+    for(int i = 0; i < oldListList.count(); i++)
+    {
+        oldItems<<oldListList[oldListList.count() -1 -i];
+    }
+
+    /// should now have two lists of equivalent shapes.
+    /// must go through each item in oldItems, check for equivalence
+    /// with the corresponding newItems, and update them if necessary
+    /// just leave the video item be
+    bool success = true;
+    for(int i = 0; i < oldItems.count(); i++)
+    {
+        success = updateItem(oldItems[i], newItems[i]);
+        if(!success)
+        {
+            updateScene(sceneToUpdate, sceneToUpdateWith);
+            return;
+        }
+    }
 }
 
 bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphicsItem *itemToCopy)

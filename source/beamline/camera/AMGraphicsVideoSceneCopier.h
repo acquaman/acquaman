@@ -11,6 +11,13 @@ class QGraphicsItem;
 /// This class copies a scene for use in another view
 /// can be used to duplicate a scene with a video widget
 /// -pointless if there is no video in the scene
+	// The point of this class is to have a two views
+	// that look at the same scene
+	// Normally this is done by adding the same scene
+	// to both views.  When using a videoObject this
+	// does not work, and so you need to duplicate
+	// the view.  This class manages and updates
+	// a view so that you do not have to manually do it
 class AMGraphicsVideoSceneCopier : public QObject
 {
     Q_OBJECT

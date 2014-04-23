@@ -3,6 +3,8 @@
 
 #include <QVector3D>
 
+/// \todo use MPL Eigen only
+/// #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 
 #include "dataman/database/AMDbObject.h"

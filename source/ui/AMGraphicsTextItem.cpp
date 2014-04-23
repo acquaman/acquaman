@@ -126,7 +126,7 @@ void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
 		emit returnPressed(shapeIndex_);
 		clearFocus();
 		event->accept();
-	}
+	}// for no particular reason delete doesn't work, so reimplemented here
 	else if(event->key() == Qt::Key_Delete)
 	{
 		QString docString = toPlainText();
