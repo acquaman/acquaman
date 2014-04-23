@@ -42,13 +42,6 @@ public:
 
 	virtual QString message(int messageType);
 
-	// moved to AMGraphicsViewWizard
-	//    / used to correlate Page_Wait_x and Page_Select_x with their order
-	//    int relativeId();
-
-	//	/ moves to the position for Page_Wait_x
-	//	virtual void waitPage();
-
 
 public slots:
 	/// reimplementation of the back slot, used to move the motor back to the appropriate place

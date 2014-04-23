@@ -295,6 +295,7 @@ public:
 	/// calculates the line of best fit for the given points
 	/// the line is given by two points, the first is the centroid of
 	/// all the points and the second is another point on the line
+	/// argument points is the series of points to fit a line to
 	QVector<QVector3D> lineOfBestFit(const QList<QVector3D> &points) const;
 
 	/// returns true if there is a shape to draw on, and it has been enabled
@@ -307,6 +308,7 @@ public:
 	/// returns true if beam is not fully over sample area
 	bool isBeamCutOff();
 
+	/// returns true if a pair of samples occupy the same space
 	bool samplesOverlap();
 
 
@@ -334,6 +336,9 @@ public slots:
 	void moveAllShapes(QPointF);
 
 	/// sets the offset to move shapes by
+	/// This must be called before mouse based movement occurs
+	/// so that the inital mouse position may be set, and movement
+	/// may be tracked
 	void setShapeVectors(QPointF);
 
 	/// zooms all shapes
@@ -348,6 +353,7 @@ public slots:
 	/// apply zoom, by moving mouse up/down
 	void zoomShape(QPointF);
 
+	/// request to move to a particular sample
 	void moveToSampleRequested(AMShapeData *shapeData);
 
 	/// shifts all shapes so that position coincides with crosshairPosition
@@ -412,14 +418,19 @@ public slots:
 	/// enables drawing on the set shap
 	void setDrawOnShapeEnabled(bool enable);
 
+	/// sets a beam marker at the specified position
 	void setBeamMarker(QPointF position, int index);
+	/// updates the specified beam marker
 	void updateBeamMarker(QPointF position, int index);
 
+	/// calculates the trajectory of the beam, based on the beam calibration markers
 	void beamCalibrate();
 
 	void createBeamShape(int index);
 
+	/// moves the specified beam shape
 	void moveBeamShape(QPointF point, int index);
+	/// sets the initial click position for moving the beam
 	void beamMousePressed(QPointF point, int index);
 
 	void setSamplePlate();
@@ -654,6 +665,8 @@ protected:
 	/// manually into the list - keeps the model updated
 public:
 	void insertItem(AMShapeData* item);
+	/// checks to see if two QVector3D's are approximately equal, to the specified precision
+	bool equalVectors(QVector3D a, QVector3D b, double precision = 0.001) const;
 
 protected:
 	/// removes an item from the shape list - use this rather than
@@ -695,7 +708,7 @@ protected:
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 
 	/// convert a QVector3D to a 3x1 matrix
-	MatrixXd vectorToMatrix(QVector3D vector) const;
+	MatrixXd vectorToMatrix(QVector3D vector, MatrixXd matrix = MatrixXd(3,1)) const;
 	/// convert a 3 element matrix to a QVector3D
 	QVector3D matrixToVector(MatrixXd matrix) const;
 
@@ -824,6 +837,7 @@ protected:
 	/// if true, operation moves to beam. If false, operation moves to crosshair.
 	bool moveToBeam_;
 
+	/// if true, move samples along the sample plate
 	bool moveOnShape_;
 
 	double videoTop_;
@@ -832,6 +846,7 @@ protected:
 
 	AMDeferredFunctionCall motorUpdateDeferredFunction_;
 
+	/// if true, the beam is not fully within any sample's bounds
 	bool beamCutOff_;
 
 

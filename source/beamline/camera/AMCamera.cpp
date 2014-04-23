@@ -34,51 +34,58 @@ void AMCamera::setCameraConfiguration(AMCameraConfiguration *cameraConfiguration
 void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 {
 	qDebug()<<"AMCamera::getTransforms - calculating matrix";
-    // use least squares to find the matrix of parameters
-    MatrixXd matrixP = directLinearTransform(coordinates,points);
 
-    /// [B b] = P
-    MatrixXd matrixB = matrixP.block(0,0,3,3);
-    MatrixXd matrixSubB = matrixP.col(3);
-    /// find the intrinsic parameters
-    MatrixXd matrixA = intrinsicParameters(matrixB);
-    /// find the extrinsic parameters
-    MatrixXd matrixR = rotationParameters(matrixA,matrixB);
-    MatrixXd matrixT = translationParameters(matrixA,matrixSubB);
-    /// extrinsicMatrix = [R T]
-    MatrixXd matrixExtrinsic(3,4);
-    matrixExtrinsic<<matrixR,matrixT;
+	/// use least squares to find the matrix of parameters
+	MatrixXd matrixP = directLinearTransform(coordinates,points);
 
-    /// zero the almost-zero terms
-    for(int i = 0; i < matrixExtrinsic.rows(); i++)
-    {
-        for(int j = 0; j < matrixExtrinsic.cols(); j++)
-        {
-            matrixExtrinsic(i,j) = nearZero(matrixExtrinsic(i,j));
-        }
-    }
+	/// [B b] = P
+	/// B is the first 3x3 part of P
+	/// b is the last column
+	MatrixXd matrixB = matrixP.block(0,0,3,3);
+	MatrixXd matrixSubB = matrixP.col(3);
+	/// find the intrinsic parameters
+	MatrixXd matrixA = intrinsicParameters(matrixB);
+	/// find the extrinsic parameters
+	MatrixXd matrixR = rotationParameters(matrixA,matrixB);
+	MatrixXd matrixT = translationParameters(matrixA,matrixSubB);
+	/// extrinsicMatrix = [R T]
+	MatrixXd matrixExtrinsic(3,4);
+	matrixExtrinsic<<matrixR,matrixT;
 
-    MatrixXd coordinate [6];
-    for(int i = 0; i<6; i++)
-    {
-        coordinate[i].resize(4,1);
-        coordinate[i]<<coordinates[i].x(),coordinates[i].y(),coordinates[i].z(),1;
-    }
+	/// zero the almost-zero terms
+	for(int i = 0; i < matrixExtrinsic.rows(); i++)
+	{
+		for(int j = 0; j < matrixExtrinsic.cols(); j++)
+		{
+			matrixExtrinsic(i,j) = nearZero(matrixExtrinsic(i,j));
+		}
+	}
 
-    // set the camera matrix to A[R t]
-    QString row = "";
-    MatrixXd error = matrixP - matrixA*matrixExtrinsic;
-    qDebug()<<"Error matrix";
-    for(int i = 0; i < error.rows(); i++)
-    {
-	    for(int j = 0; j < error.cols(); j++)
-	    {
-		    row.append(QString("%1 ").arg(error(i,j)));
-	    }
-	    qDebug()<<row;
-	    row = "";
-    }
-    cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
+	MatrixXd coordinate [6];
+	for(int i = 0; i<6; i++)
+	{
+		coordinate[i].resize(4,1);
+		coordinate[i]<<coordinates[i].x(),coordinates[i].y(),coordinates[i].z(),1;
+	}
+
+	// set the camera matrix to A[R t]
+	QString row = "";
+	MatrixXd error = matrixP - matrixA*matrixExtrinsic;
+	qDebug()<<"Error matrix";
+	for(int i = 0; i < error.rows(); i++)
+	{
+		for(int j = 0; j < error.cols(); j++)
+		{
+			row.append(QString("%1 ").arg(error(i,j)));
+		}
+		qDebug()<<row;
+		row = "";
+	}
+	MatrixXd cameraMatrix = matrixA*matrixExtrinsic;
+    cameraConfiguration_->setCameraMatrixFromMatrix(cameraMatrix);
+
+
+
     MatrixXd point [6];
     for(int i= 0; i<6; i++)
     {
@@ -107,7 +114,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	    qDebug()<<row;
 	    row = "";
     }
-
+    /// The camera matrix is now found
+    /// The rest of this is for finding individual parameters
+    /// ===================================================================
 
     MatrixXd coordZero(4,1);
     coordZero<<0,0,0,1;
@@ -153,14 +162,6 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
     MatrixXd cameraCenterMatrix(3,1);
     cameraCenterMatrix<<0,0,153.5;
     manualCameraCenter = findWorldCoordinate(cameraCenterMatrix,matrixExtrinsic);
-
-//    MatrixXd cameraCalculatedWorldCenter(4,1);
-//    cameraCalculatedWorldCenter<<manualCameraCenter;
-//    MatrixXd idealCenter = matrixExtrinsic*cameraCalculatedWorldCenter;
-//    QVector3D coordinateIdealCenter = QVector3D(idealCenter(0,0),idealCenter(1,0),idealCenter(2,0));
-//    qDebug()<<"The calculated camera center resolves to:"<<coordinateIdealCenter;
-//    qDebug()<<"Should be: QVector3D(0,0,1)";
-
 
     double uO = matrixA(0,2);
     double vO = matrixA(1,2);
@@ -985,10 +986,16 @@ MatrixXd AMCamera::intrinsicParameters(MatrixXd matrixB) const
     /// where k is some constant
     /// AA^T(3,3) == 1, so BB^T(3,3) == k
     MatrixXd matrixK = matrixB*matrixB.transpose();
+
+    /// divide by k
     matrixK = matrixK/matrixK(2,2);
+
     double alphaX, alphaY, uO, vO, gamma;
     /// the five intrinsic parameters.
     /// ideally uO,vO and gamma should be nearZero
+
+    /// The parameters can be determined directly from
+    /// the kMatrix, since it is now equal to AA^T
     uO = matrixK(0,2);
     vO = matrixK(1,2);
     alphaY = sqrt(matrixK(1,1) - pow(vO,2.0));

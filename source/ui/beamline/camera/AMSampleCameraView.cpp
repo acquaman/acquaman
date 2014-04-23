@@ -749,8 +749,6 @@ void AMSampleCameraView::samplePlateCreate()
 	}
 	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
-	//		delete samplePlateWizard_;
-	//		samplePlateWizard_ = NULL;
 	emit samplePlateWizardFinished(true);
 
 }
@@ -798,8 +796,6 @@ void AMSampleCameraView::rotationConfiguration()
 		delete angle;
 	}
 
-//	delete rotationWizard_;
-//	rotationWizard_ = NULL;
 	emit rotationWizardFinished();
 }
 

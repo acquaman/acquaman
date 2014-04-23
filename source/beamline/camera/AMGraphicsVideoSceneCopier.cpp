@@ -105,6 +105,27 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
 	QList<QGraphicsItem*> oldList = sceneToUpdate->items();
 	QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
 
+	sceneToUpdate->setSceneRect(sceneToUpdateWith->sceneRect());
+	qDebug()<<"scene rect old new"<<sceneToUpdate->sceneRect()<<sceneToUpdateWith->sceneRect();
+	qDebug()<<"width old new"<<sceneToUpdate->width()<<sceneToUpdateWith->width();
+
+	foreach(QGraphicsItem* oldItems, sceneToUpdate->items())
+	{
+		if(oldItems->type() == QGraphicsItem::UserType)
+		{
+			QGraphicsVideoItem * videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(oldItems);
+			if(videoItem)
+			{
+				sceneToUpdate->removeItem(videoItem);
+				videoItem->setX(0);
+				videoItem->setY(0);
+				sceneToUpdate->addItem(videoItem);
+				videoItem->setSize(sceneToUpdate->sceneRect().size());
+			}
+		}
+	}
+
+
 	/// if the lists are not the same length, have to do a full update
 	if(oldList.count() != newList.count())
 	{

@@ -17,6 +17,7 @@
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QResizeEvent>
 
 #include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMSampleCameraGraphicsView.h"
@@ -68,9 +69,9 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 	if(videoItem)
 	{
 		QMediaPlayer* player = (QMediaPlayer*)videoItem->mediaObject();
-		QVideoWidget* nullPlayer = 0;
+//		QVideoWidget* nullPlayer = 0;
 		player->stop();
-		player->setVideoOutput(nullPlayer);
+//		player->setVideoOutput(nullPlayer);
 		view_->scene()->removeItem(videoItem);
 		delete player;
 		delete videoItem;
@@ -354,11 +355,27 @@ void AMGraphicsViewWizard::updateScene(AMSampleCameraGraphicsView *view)
 {
 	view_->scene()->removeItem(fixItem_);
 
+	view_->setSceneRect(view->sceneRect());
+	view_->setFrameRect(view->frameRect());
+
+	qDebug()<<"View video item old pos"<<view_->videoItem()->pos();
+	qDebug()<<"View video item new pos"<<view->videoItem()->pos();
+	qDebug()<<"View video item old nativeSize"<<view_->videoItem()->nativeSize();
+	qDebug()<<"View video item new nativeSize"<<view->videoItem()->nativeSize();
+	qDebug()<<"View video item old scale"<<view_->videoItem()->scale();
+	qDebug()<<"View video item new scale"<<view->videoItem()->scale();
+	qDebug()<<"View video item old scenePos"<<view_->videoItem()->scenePos();
+	qDebug()<<"View video item new scenePos"<<view->videoItem()->scenePos();
+	qDebug()<<"View video item old size"<<view_->videoItem()->size();
+	qDebug()<<"View video item new size"<<view->videoItem()->size();
+//	view_->videoItem()->setSize(view->videoItem()->size());
+
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->updateChange(view_->scene(),view->scene());
 	delete(copier);
 
 	view_->scene()->addItem(fixItem_);
+
 
 }
 
