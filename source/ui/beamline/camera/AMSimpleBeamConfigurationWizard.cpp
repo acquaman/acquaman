@@ -43,9 +43,9 @@ AMSimpleBeamConfigurationWizard::AMSimpleBeamConfigurationWizard(QWidget *parent
 
 }
 
-//AMSimpleBeamConfigurationWizard::~AMSimpleBeamConfigurationWizard()
-//{
-//}
+AMSimpleBeamConfigurationWizard::~AMSimpleBeamConfigurationWizard()
+{
+}
 
 int AMSimpleBeamConfigurationWizard::nextId() const
 {

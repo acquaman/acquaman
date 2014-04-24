@@ -11,6 +11,14 @@ class AMRotationWizard;
 class AMSampleCameraGraphicsView;
 class QGraphicsPolygonItem;
 
+/**
+ * @brief The AMWizardManager class is responsible for interacting with
+ *	the wizards and the AMSampleCameraView.  Contains the wizards
+ *	and a pointer to the AMSampleCameraView AMSampleCameraGraphicsView.
+ */
+
+
+
 class AMWizardManager : public QObject
 {
 	Q_OBJECT
@@ -18,6 +26,7 @@ public:
 	enum WizardType {FULL, SIMPLE};
 	explicit AMWizardManager(AMSampleCameraGraphicsView *view, QObject *parent = 0);
 	
+	/// Sample plate wizard and beam wizards have two different types, full or simple
 	WizardType samplePlateWizardType();
 	WizardType beamWizardType();
 
@@ -42,14 +51,14 @@ signals:
 	void moveBeamShape(QPointF, int);
 	void mousePressed(QPointF, int);
 
-	/// sample wizard
+	/// sample plate wizard signals
 	void initializeSampleShape();
 	void shiftSampleShape(QPointF);
 	void sampleShapeMousePressed(QPointF);
 	void showSamplePlate(bool);
 
 
-	/// Motor coordination
+	/// Motor coordination signals
 	void transmitMotorMovementEnabled();
 	void motorMovementEnabled(bool);
 	void moveSucceeded();
@@ -62,9 +71,12 @@ public slots:
 	void startSampleWizard();
 	void startRotationWizard();
 
+	/// set whether to use the full or simple versions of the beam and
+	/// sample plate wizards.  By default, uses the SIMPLE versions
 	void setBeamWizardType(WizardType type);
 	void setSamplePlateWizardType(WizardType type);
 
+	/// update the view of each wizard
 	void cameraWizardUpdate();
 	void beamWizardUpdate();
 	void sampleWizardUpdate();
@@ -74,6 +86,7 @@ public slots:
 
 
 protected slots:
+	/// calls final configurations for each wizard then deletes it
 	void cameraWizardDone();
 	void beamWizardDone();
 	void sampleWizardDone();

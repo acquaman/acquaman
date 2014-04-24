@@ -245,24 +245,7 @@ void AMSimpleSamplePlateWizard::shiftSampleShape(QPointF shift)
 void AMSimpleSamplePlateWizard::initializeShape()
 {
 	emit signalInitializeSampleShape();
-//	sampleShape_ = new AMShapeData();
-//	QVector3D baseCoordinate = *coordinateList()->at(0);
-//	QVector3D plateWidth = QVector3D(20,0,0);
-//	QVector3D plateHeight = QVector3D(0,0,-20);
-//	QVector<QVector3D> shape;
-//	shape<<QVector3D(baseCoordinate)
-//		 <<QVector3D(baseCoordinate + plateWidth)
-//		 <<QVector3D(baseCoordinate + plateWidth + plateHeight)
-//		 <<QVector3D(baseCoordinate + plateHeight);
-//	sampleShape_->setCoordinateShape(shape);
-////	sampleShapeItem_ = view()->scene()->addPolygon(*sampleShape_->shape());
-//	QVector<QPointF> points;
-//	for(int i = 0; i < 4; i++)
-//		points<<QPointF(shape.at(i).toPointF());
-//	QBrush brush = QBrush(Qt::green);
-//	QPen pen = QPen(Qt::green);
-//	QPolygonF polygon(QRectF(5, 5, 20, 20));
-	//	sampleShapeItem_ = view()->scene()->addPolygon(polygon,pen, brush);
+
 }
 
 void AMSimpleSamplePlateWizard::setPageMousePressedHandler(QPointF point)

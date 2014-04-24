@@ -7,6 +7,13 @@ class AMShapeData;
 class QVector3D;
 class QPointF;
 
+
+/** AMSimpleSamplePlateWizard is a wizard for configuring
+  * the sample plate.  It works by requesting a sample plate
+  * that must be moved to the correct position.  It basically
+  * functions as an interface to move the sample plate.
+  */
+
 class AMSimpleSamplePlateWizard : public AMGraphicsViewWizard
 {
 	Q_OBJECT

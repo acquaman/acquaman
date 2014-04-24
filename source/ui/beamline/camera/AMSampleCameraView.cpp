@@ -204,11 +204,12 @@ void AMSampleCameraView::refreshSceneView()
 	qreal ySceneCoord = activeRect.top() + shapeModel_->crosshairY()*activeRect.height();
 
 
+	// this shows the outline of the video.  Is not necessary for anything but debugging
 	videoBorderItem_->setRect(activeRect);
 
 
 
-
+	/// \todo get rid of crosshair lines?
 	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
@@ -737,8 +738,6 @@ void AMSampleCameraView::samplePlateCreate()
 	}
 	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
-	//		delete samplePlateWizard_;
-	//		samplePlateWizard_ = NULL;
 	emit samplePlateWizardFinished(true);
 
 }
@@ -784,10 +783,6 @@ void AMSampleCameraView::rotationConfiguration()
 	{
 		delete angle;
 	}
-
-	//	delete rotationWizard_;
-	//	rotationWizard_ = NULL;
-	emit rotationWizardFinished();
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const

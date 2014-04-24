@@ -3,7 +3,10 @@
 
 #include "ui/AMOverlayVideoWidget2.h"
 
-
+/**
+ * @brief The AMSampleCameraGraphicsView class is a view for showing
+ *	the sampleCameraView contents.
+ */
 class AMSampleCameraGraphicsView : public AMOverlayVideoWidget2
 {
 	Q_OBJECT

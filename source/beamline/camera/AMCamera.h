@@ -2,6 +2,8 @@
 #define AMCAMERA_H
 
 #include <QObject>
+/// \todo use MPL Eigen only
+/// #define EIGEN_MPL2_ONLY
 #include <Eigen/Eigen>
 #include <Eigen/SVD>
 #include <Eigen/LU>
@@ -30,7 +32,7 @@ public:
 	void setCameraConfiguration(AMCameraConfiguration* cameraConfiguration);
 
 
-
+	/// calculates the camera matrix
 	void getTransforms(QPointF points[6],QVector3D coordinates [6]);
 
 	/// transforms the given point and depth to a 3D coordinate
@@ -40,7 +42,9 @@ public:
 	/// transforms a 3D vector to a 2D point, using current camera configuration
 	QPointF transform3Dto2D(QVector3D coordinate) const;
 
+	/// returns true if using matrix - can only be used if full calibration was performed
 	bool useCameraMatrix() const;
+	/// returns true if full calibration was performed
 	bool calibrationRun() const;
 
 	void setUseCameraMatrix(bool useCameraMatrix);
@@ -61,6 +65,7 @@ public:
 	QPointF undistortPoint(QPointF point) const;
 
 	// general functions
+	/// SVD solutions - non-homogenous and homogenous
 	MatrixXd computeSVDLeastSquares(MatrixXd leftHandSide, MatrixXd rightHandSide) const;
 	MatrixXd computeSVDHomogenous(MatrixXd leftHandSide) const;
 
@@ -100,7 +105,7 @@ protected:
 	/// checks to see if two numbers are not equal, within the given tolerance
 	bool notEqual(double a, double b, double tolerance = 0.001) const;
 
-	/// checks to see if a number is near zero, within the given tolerance
+	/// returns zero if a number is near zero, within the given tolerance
 	double nearZero(double a, double tolerance = 0.00001) const;
 
 	/// finds the absolute error beteween two numbers

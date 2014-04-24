@@ -40,7 +40,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	// use least squares to find the matrix of parameters
 	MatrixXd matrixP = directLinearTransform(coordinates,points);
 
-	/// [B b] = P
+	// [B b] = P
+	// B is the first 3x3 part of P
+	// b is the last column
 	MatrixXd matrixB = matrixP.block(0,0,3,3);
 	MatrixXd matrixSubB = matrixP.col(3);
 	/// find the intrinsic parameters
@@ -71,7 +73,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	// set the camera matrix to A[R t]
 	QString row = "";
 	MatrixXd error = matrixP - matrixA*matrixExtrinsic;
+
 	AMErrorMon::debug(this, AMCAMERA_DEBUG_OUTPUT, "Error matrix");
+
 	for(int i = 0; i < error.rows(); i++)
 	{
 		for(int j = 0; j < error.cols(); j++)
@@ -81,7 +85,11 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 		AMErrorMon::debug(this, AMCAMERA_DEBUG_OUTPUT, row);
 		row = "";
 	}
-	cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
+
+//	cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
+	MatrixXd cameraMatrix = matrixA*matrixExtrinsic;
+	cameraConfiguration_->setCameraMatrixFromMatrix(cameraMatrix);
+
 	MatrixXd point [6];
 	for(int i= 0; i<6; i++)
 	{
@@ -113,6 +121,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	}
 
 
+	// The camera matrix is now found
+	// The rest of this is for finding individual parameters
+	// ===================================================================
 	MatrixXd coordZero(4,1);
 	coordZero<<0,0,0,1;
 	QVector3D rotationVector = QVector3D(matrixExtrinsic(2,0),matrixExtrinsic(2,1),matrixExtrinsic(2,2));
@@ -189,10 +200,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	cameraConfiguration_->setPixelAspectRatio(pixelAspectRatio);
 	cameraConfiguration_->setImageCentre(QPointF(uO,vO));
 	cameraConfiguration_->setCameraRotation(rotation);
-
-
 }
 
+///  transforms a point to a coordinate at the given depth
 QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 {
 	if(useCameraMatrix_ && calibrationRun_)
@@ -489,10 +499,6 @@ void AMCamera::setScaledSize(QSizeF scaledSize)
 
 double AMCamera::focalLength() const
 {
-	//    if(calibrationRun_ && useCameraMatrix_)
-	//    {
-	//        return 1;
-	//    }
 	return cameraConfiguration()->cameraFocalLength();
 }
 
@@ -561,7 +567,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 	{
 		/// the root is imaginary, so take the absolute value of c and square root it, theta = atan(b/a)
 		/// b(0,1) = (+-)sqrt(c)/2
-		// negate c, sow we can square root it
+		// negate c, so we can square root it
 		c = c*(-1);
 		b = sqrt(c)/2.0;
 
@@ -575,7 +581,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 		/// sqrt(a^2 + b^2)
 		// wo here is actually wo^3
 		// wo^3*e^(j*theta)
-		// wo = cube root of ^
+		// actual wo = cube root of wo^3*e^(j*theta)
 		wo = sqrt(a*a + b*b);
 		QPointF complexPoint [6];
 		QPointF conjugatePoint [6];
@@ -609,7 +615,7 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 
 		}
 		/// for points within the radius of the screen, and for small distortions, complexPoint[1] gives the correct transform
-		/// if distortion goes too high, the overlap creating a loss of image will not be corrected
+		/// if distortion is too high, the overlap creating a loss of image will not be corrected
 		newRadius = sqrt(complexPoint[1].x()*complexPoint[1].x() + complexPoint[1].y()*complexPoint[1].y());
 
 	}
@@ -638,9 +644,11 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 	/// move to screen coordinates
 	newPoint.setX(newPoint.x()+0.5);
 	newPoint.setY(newPoint.y()+0.5);
+
 	return newPoint;
 }
 
+/// Computes the least squares solution for Ax = Y
 MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 {
 	/// solves Ax = Y for x
@@ -650,6 +658,7 @@ MatrixXd AMCamera::computeSVDLeastSquares(MatrixXd A, MatrixXd Y) const
 	return x;
 }
 
+/// computes the least squares solution for LHSx = 0
 MatrixXd AMCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 {
 	JacobiSVD<MatrixXd> solver(leftHandSide, ComputeThinV|ComputeThinU);
@@ -967,10 +976,17 @@ MatrixXd AMCamera::intrinsicParameters(MatrixXd matrixB) const
 	/// where k is some constant
 	/// AA^T(3,3) == 1, so BB^T(3,3) == k
 	MatrixXd matrixK = matrixB*matrixB.transpose();
+
+	/// divide by k
 	matrixK = matrixK/matrixK(2,2);
+
 	double alphaX, alphaY, uO, vO, gamma;
+
 	/// the five intrinsic parameters.
 	/// ideally uO,vO and gamma should be nearZero
+
+	/// The parameters can be determined directly from
+	/// the kMatrix, since it is now equal to AA^T
 	uO = matrixK(0,2);
 	vO = matrixK(1,2);
 	alphaY = sqrt(matrixK(1,1) - pow(vO,2.0));
