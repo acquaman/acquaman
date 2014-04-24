@@ -40,6 +40,8 @@ class AMAngle;
 
 using namespace Eigen;
 
+#define AMSAMPLECAMERA_DEBUG_OUTPUT 671001
+
 /// AMSampleCamera is a singleton class that provides the model for
 /// an AMSampleCameraView.  It includes a collection of shapes that need
 /// to be represented in the view, and also includes a camera model for
@@ -852,13 +854,6 @@ protected:
 
 	/// if true, the beam is not fully within any sample's bounds
 	bool beamCutOff_;
-
-
-
-
-
-
-
 };
 
 #endif // AMSHAPEOVERLAYVIDEOWIDGETMODEL2_H

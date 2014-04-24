@@ -355,18 +355,6 @@ void AMGraphicsViewWizard::updateScene(AMSampleCameraGraphicsView *view)
 	view_->setSceneRect(view->sceneRect());
 	view_->setFrameRect(view->frameRect());
 
-	qDebug()<<"View video item old pos"<<view_->videoItem()->pos();
-	qDebug()<<"View video item new pos"<<view->videoItem()->pos();
-	qDebug()<<"View video item old nativeSize"<<view_->videoItem()->nativeSize();
-	qDebug()<<"View video item new nativeSize"<<view->videoItem()->nativeSize();
-	qDebug()<<"View video item old scale"<<view_->videoItem()->scale();
-	qDebug()<<"View video item new scale"<<view->videoItem()->scale();
-	qDebug()<<"View video item old scenePos"<<view_->videoItem()->scenePos();
-	qDebug()<<"View video item new scenePos"<<view->videoItem()->scenePos();
-	qDebug()<<"View video item old size"<<view_->videoItem()->size();
-	qDebug()<<"View video item new size"<<view->videoItem()->size();
-//	view_->videoItem()->setSize(view->videoItem()->size());
-
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->updateChange(view_->scene(),view->scene());
 	delete(copier);
