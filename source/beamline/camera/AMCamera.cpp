@@ -137,9 +137,8 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 	Matrix3d rotationMatrix = matrixExtrinsic.block(0,0,3,3);
 	double sign = rotationMatrix.determinant();
 	if(notEqual(sign,1) && notEqual(sign,-1))
-	{
-		qDebug()<<"determinant not close to 1, it is:"<<sign;
-	}
+		AMErrorMon::alert(this, AMCAMERA_DETERMINANT_NOT_CLOSE_TO_ONE, QString("Determinant not close to 1, it is: %1").arg(sign) );
+
 	matrixExtrinsic *= sign;
 
 	AMErrorMon::debug(this, AMCAMERA_DEBUG_OUTPUT, "Extrinsic Matrix");
@@ -288,7 +287,8 @@ QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 		//        shiftedCameraCenter += QVector3D(0,0.001,0);
 		//        vHat = QVector3D::normal(idealCameraCenter,shiftedCameraCenter);
 		vHat = QVector3D(0,1,0);
-		if(vHat.isNull()) qDebug()<<"still a null vHat...";
+		if(vHat.isNull())
+			AMErrorMon::alert(this, AMCAMERA_TRANSFORM2DTO3D_NULL_VHAT, QString("VHat is still null in 2D to 3D transform.") );
 	}
 
 	// perform the rotation
@@ -370,7 +370,8 @@ QPointF AMCamera::transform3Dto2D(QVector3D coordinate) const
 		//        cameraRotation += QVector3D(0,0.001,0);
 		//        vHat = QVector3D::normal(zHat,cameraRotation);
 		vHat = QVector3D(0,-1,0);
-		if(vHat.isNull()) qDebug()<<"Vhat still null, in 3-2";
+		if(vHat.isNull())
+			AMErrorMon::alert(this, AMCAMERA_TRANSFORM3DTO2D_NULL_VHAT, QString("VHat is still null in 3D to 2D transform.") );
 	}
 
 	// rotate the camera

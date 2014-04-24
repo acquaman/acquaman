@@ -906,7 +906,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 	if(db->supportsTransactions() && !db->transactionInProgress()) {
 		if(db->startTransaction()) {
 			openedTransaction = true;
-			qDebug() << "Opened transaction for thumbnail save of object at [" << dbTableName << id << "].";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Opened transaction for thumbnail save of object at [%1:%2]").arg(dbTableName).arg(id) );
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_START_TRANSACTION_TO_SAVE_THUMBNAILS, "Could not start a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
@@ -967,11 +967,11 @@ bool AMDbObjectSupport::event(QEvent *e)
 
 		int retVal;
 		if(reuseThumbnailIds) {
-			// qdebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Thumbnail save: reusing row %1 in other thread.").arg(i+existingThumbnailIds.at(0)) );
 			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		else {
-			// qdebug() << "THumnail save: inserting new row in other thread";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Thumbnail save: inserting row in other thread.").arg(i+existingThumbnailIds.at(0)) );
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {
@@ -1003,7 +1003,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
 	}
 
-	qDebug() << "Storing thumbnails for [" << dbTableName << ":" << id << "] took" << saveTime.elapsed() << "ms to store thumbnails in the database. Used own transaction = " << openedTransaction;
+	AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Storing thumbnails for [%1:%2] took %3ms to store thumbnails in the database. Used own transaction = %4").arg(dbTableName).arg(id).arg(saveTime.elapsed()).arg(openedTransaction) );
 	return true;
 }
 

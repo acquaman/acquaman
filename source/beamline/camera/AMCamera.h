@@ -18,6 +18,9 @@ class QVector3D;
 using namespace Eigen;
 
 #define AMCAMERA_DEBUG_OUTPUT 611001
+#define AMCAMERA_DETERMINANT_NOT_CLOSE_TO_ONE 611002
+#define AMCAMERA_TRANSFORM2DTO3D_NULL_VHAT 611003
+#define AMCAMERA_TRANSFORM3DTO2D_NULL_VHAT 611004
 
 /// AMCamera performs a camera transformation, both forward and in reverse.
 /// That is, given a cameraConfiguration, it calculates where a 3D object appears

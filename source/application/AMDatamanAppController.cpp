@@ -393,10 +393,6 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 
 bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
-	qDebug() << "First time database upgrades";
-	for(int x = 0, size = upgrades.count(); x < size; x++)
-		qDebug() << "Upgrade at " << x << upgrades.at(x)->upgradeToTag() << upgrades.at(x)->databaseNameToUpgrade();
-
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;

@@ -781,7 +781,7 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 	for(int i=0; i<thumbsCount; i++)
 		thumbnails << object->thumbnail(i);
 
-	qDebug() << object->type() << "took" << renderTime.elapsed() << "ms to create thumbnails for saving.";
+	AMErrorMon::debug(0, AMDBOBJECT_DEBUG_OUTPUT, QString("%1 took %2ms to create thumbnails for saving.").arg(object->type()).arg(renderTime.elapsed()) );
 
 	QCoreApplication::postEvent(AMDbObjectSupport::s(), new AMDbThumbnailsGeneratedEvent(thumbnails, db, dbTableName, id, neverSavedHereBefore));
 

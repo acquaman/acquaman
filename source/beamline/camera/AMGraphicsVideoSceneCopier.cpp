@@ -13,6 +13,7 @@
 #include <QWidget>
 
 #include "ui/AMGraphicsTextItem.h"
+#include "util/AMErrorMonitor.h"
 
 AMGraphicsVideoSceneCopier::AMGraphicsVideoSceneCopier(QWidget* parent)
 	: QObject(parent)
@@ -106,8 +107,7 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
 	QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
 
 	sceneToUpdate->setSceneRect(sceneToUpdateWith->sceneRect());
-	qDebug()<<"scene rect old new"<<sceneToUpdate->sceneRect()<<sceneToUpdateWith->sceneRect();
-	qDebug()<<"width old new"<<sceneToUpdate->width()<<sceneToUpdateWith->width();
+	AMErrorMon::debug(this, AMGRAPHICSVIDEOSCENECOPIER_DEBUG_OUTPUT, QString("Scene rect: Old: %1 %2 New: %3 %4").arg(sceneToUpdate->sceneRect().x()).arg(sceneToUpdate->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()) );
 
 	foreach(QGraphicsItem* oldItems, sceneToUpdate->items())
 	{
@@ -193,7 +193,7 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
 {
 	if(itemToUpdate->type() != itemToCopy->type())
 	{
-		qDebug()<<"AMGraphicsVideoSceneCopier::updateItem"<<itemToUpdate->type()<<"!="<<itemToCopy->type();
+		AMErrorMon::debug(this, AMGRAPHICSVIDEOSCENECOPIER_DEBUG_OUTPUT, QString("Call to updateItem. Update type: %1 Copy type: %2").arg(itemToUpdate->type()).arg(itemToCopy->type()) );
 		bool textTypes;
 		textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == AMGraphicsTextItem::Type) || (itemToUpdate->type() == AMGraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
 		if(!textTypes)
@@ -236,7 +236,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		rectTwo = qgraphicsitem_cast<QGraphicsRectItem*>(itemTwo);
 		if(!rectOne || !rectTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast rect";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_RECT, QString("Failed to cast to rect.") );
 			return false;
 		}
 		if(rectOne->rect() != rectTwo->rect())
@@ -252,7 +252,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		polyTwo = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemTwo);
 		if(!polyOne || !polyTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_POLYGON, QString("Failed to cast to polygon.") );
 			return false;
 		}
 		if(polyOne->polygon() != polyTwo->polygon())
@@ -269,7 +269,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		lineTwo = qgraphicsitem_cast<QGraphicsLineItem*>(itemTwo);
 		if(!lineOne || !lineTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_LINE, QString("Failed to cast to line.") );
 			return false;
 		}
 		if(lineOne->line() != lineTwo->line())
@@ -284,7 +284,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		pathTwo = qgraphicsitem_cast<QGraphicsPathItem*>(itemTwo);
 		if(!pathOne || !pathTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_PATH, QString("Failed to cast to path.") );
 			return false;
 		}
 		if(pathOne->path() != pathTwo->path())
@@ -303,7 +303,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		textTwo = (QGraphicsTextItem*)(itemTwo);
 		if(!textOne || !textTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_TEXT, QString("Failed to cast to text.") );
 			return false;
 		}
 		if(textOne->document()->toPlainText() != textTwo->document()->toPlainText())
@@ -313,7 +313,7 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 		else
 			return true;
 	default:
-		qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - Unknown type";
+		AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_GETEQUIVALENT_CAST_FAILED_UNKNOWN_TYPE, QString("Failed to cast to unknown type %1 %2.").arg(itemOne->type()).arg(itemTwo->type()) );
 		return false;
 	}
 }
@@ -479,7 +479,7 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
 		rectTwo = qgraphicsitem_cast<QGraphicsRectItem*>(itemToCopy);
 		if(!rectOne || !rectTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast rect";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_RECT, QString("Failed to cast to rect.") );
 			return;
 		}
 		rectOne->setRect(rectTwo->rect());
@@ -491,7 +491,7 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
 		polyTwo = qgraphicsitem_cast<QGraphicsPolygonItem*>(itemToCopy);
 		if(!polyOne || !polyTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast polygon";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_POLYGON, QString("Failed to cast to polygon.") );
 			return;
 		}
 		polyOne->setPolygon(polyTwo->polygon());
@@ -503,7 +503,7 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
 		lineTwo = qgraphicsitem_cast<QGraphicsLineItem*>(itemToCopy);
 		if(!lineOne || !lineTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast line";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_LINE, QString("Failed to cast to line.") );
 			return;
 		}
 		lineOne->setLine(lineTwo->line());
@@ -514,7 +514,7 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
 		pathTwo = qgraphicsitem_cast<QGraphicsPathItem*>(itemToCopy);
 		if(!pathOne || !pathTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast path";
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_PATH, QString("Failed to cast to path.") );
 			return;
 		}
 		pathOne->setPath(pathTwo->path());
@@ -527,14 +527,14 @@ void AMGraphicsVideoSceneCopier::copyItem(QGraphicsItem *itemToUpdate, QGraphics
 		textTwo = (QGraphicsTextItem*)(itemToCopy);
 		if(!textOne || !textTwo)
 		{
-			qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - failed to cast text. Type is"<<itemToUpdate->type()<<itemToCopy->type();
+			AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_TEXT, QString("Failed to cast to text.") );
 			return;
 		}
 		textOne->setPlainText(textTwo->document()->toPlainText());
 		textOne->setDefaultTextColor(textTwo->defaultTextColor());
 		return;
 	default:
-		qDebug()<<"AMGraphicsVideoSceneCopier::copyItem - Unknown type"<<itemToUpdate->type();
+		AMErrorMon::alert(this, AMGRAPHICSVIDEOSCENECOPIER_COPYITEM_CAST_FAILED_UNKNOWN_TYPE, QString("Failed to cast to unknown type %1.").arg(itemToUpdate->type()) );
 		return;
 	}
 }

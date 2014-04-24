@@ -66,6 +66,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECTSUPPORT_CANNOT_REGISTER_DATABASE_PREVIOUS_CLASSES_PROBLEM -278003
 #define AMDBOBJECTSUPPORT_CANNOT_WRITE_CLASS_INHERITANCE -278004
 
+#define AMDBOBJECTSUPPORT_DEBUG_OUTPUT 880001
+
 class AMDbObject;
 
 /// This value class contains essential information about a registered AMDbObject class: the class name, database table name, and a pointer to the class's static meta-object
