@@ -393,6 +393,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 
 bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
+	qDebug() << "First time database upgrades";
+	for(int x = 0, size = upgrades.count(); x < size; x++)
+		qDebug() << "Upgrade at " << x << upgrades.at(x)->upgradeToTag() << upgrades.at(x)->databaseNameToUpgrade();
+
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
@@ -405,7 +409,7 @@ bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 		}
 		// For the databases we are responsible for (not the beamline database) this needs to return false on the first time through ... otherwise things are going really bad
 		if(upgrade->isResponsibleForUpgrade() && !upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, QString("Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for. Database: %1 Upgrade: %2.").arg(upgrade->databaseNameToUpgrade()).arg(upgrade->upgradeToTag()));
 			return false;
 		}
 
@@ -501,7 +505,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 			if(success && upgrade->upgradeNecessary()){
 				upgradeIsNecessary = true;
 				if(!upgrade->upgrade()){
-					lastErrorString = QString("Upgrade run failed for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Upgrade run failed for upgrade %1 on database %2").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade());
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE;
 					success = false;
 				}
